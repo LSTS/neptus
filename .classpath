@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Neptus/libJNI"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/help"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/state"/>
+	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/acoustic">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="neptus/libJNI"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/alarms"/>
+	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/actions">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="neptus/libJNI"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/echosounder"/>
+	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/gauges"/>
+	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/containers"/>
+	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/logs"/>
+	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/planning"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/position"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/ipcam"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/web"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/teleoperation"/>
+	<classpathentry excluding="*.jar|plugins.lst" kind="src" path="plugins-dev/s57"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/s57-client"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/oplimits"/>
+	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/uavs"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/gps"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/mavs"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/accu"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/mra-plots"/>
+	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/webupdate"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/tiles-extra"/>
+	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/odss"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/map"/>
+	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/messages"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/trex"/>
+	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/3D"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/matlab-planning"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/ais"/>
+	<classpathentry kind="src" output="build/tests" path="srcTests"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/noptilus"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/simulation"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/netcdf"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/configWindow"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/params"/>
+	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/mra-jzy3d"/>
+	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/vrp"/>
+	<classpathentry kind="src" path="plugins-dev/dev-calibration"/>
+	<classpathentry kind="src" path="plugins-dev/tidePrediction"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
+	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
+	<classpathentry kind="lib" path="lib/dom4j/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/dom4j/jaxen-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/xalan-2.7.0/xalan.jar"/>
+	<classpathentry kind="lib" path="lib/StarfireExt.jar"/>
+	<classpathentry kind="lib" path="lib/soap/activation.jar"/>
+	<classpathentry kind="lib" path="lib/soap/mail.jar"/>
+	<classpathentry kind="lib" path="lib/commons-net-1.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/l2fprod-common-all.jar"/>
+	<classpathentry kind="lib" path="lib/fop/avalon-framework-4.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/fop/fop.jar"/>
+	<classpathentry kind="lib" path="lib/fop/batik.jar"/>
+	<classpathentry kind="lib" path="lib/rhino.jar"/>
+	<classpathentry kind="lib" path="lib/jsch-0.1.40.jar"/>
+	<classpathentry kind="lib" path="lib/jchart2d-1.03.jar"/>
+	<classpathentry kind="lib" path="lib/jgoodies-looks-2.5.2.jar"/>
+	<classpathentry kind="lib" path="lib/jgoodies-common-1.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/percentlayout.jar"/>
+	<classpathentry kind="lib" path="lib/charsets-zip.jar"/>
+	<classpathentry kind="lib" path="lib/foxtrot.jar"/>
+	<classpathentry kind="lib" path="lib/jdic-windows/jdic_stub.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Neptus/libJNI"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jmf.jar"/>
+	<classpathentry kind="lib" path="lib/swingx.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-script-base.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/j3d-org.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/uri.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/vlc_uri.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-all.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-common.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-core.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-ecmascript.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-j3d.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-jsai.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-parser.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-render.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-runtime.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-sav.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-xml-util.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-cefx3d.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-config.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-eai.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-external-sai.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-images.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-java-sai.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-jaxp.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-net.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-norender.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-ogl.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-sai.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/xj3d-xml.jar"/>
+	<classpathentry kind="lib" path="lib/wrl/j3d-vrml97.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/aviatrix3d-all.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/dis.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/disxml.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/FastInfoset.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/geoapi.jar"/>
+	<classpathentry kind="lib" path="lib/xj3d/jutils.jar"/>
+	<classpathentry kind="lib" path="lib/speech/cmu_time_awb.jar"/>
+	<classpathentry kind="lib" path="lib/speech/cmu_us_kal.jar"/>
+	<classpathentry kind="lib" path="lib/speech/cmudict04.jar"/>
+	<classpathentry kind="lib" path="lib/speech/cmulex.jar"/>
+	<classpathentry kind="lib" path="lib/speech/cmutimelex.jar"/>
+	<classpathentry kind="lib" path="lib/speech/en_us.jar"/>
+	<classpathentry kind="lib" path="lib/speech/freetts.jar"/>
+	<classpathentry kind="lib" path="lib/speech/jsapi.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.6.jar" sourcepath="/jfreechart"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.10.jar"/>
+	<classpathentry kind="lib" path="lib/standby.jar" sourcepath="/WinStandBy"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-util-6.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/servlet-api-2.5-6.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/jxlayer.jar"/>
+	<classpathentry kind="lib" path="lib/RXTXcomm.jar"/>
+	<classpathentry kind="lib" path="lib/fop/xmlgraphics-commons-1.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/fop/xml-apis-ext.jar"/>
+	<classpathentry kind="lib" path="lib/iText-2.1.5.jar"/>
+	<classpathentry kind="lib" path="lib/jinput.jar"/>
+	<classpathentry kind="lib" path="lib/j3dcore.jar"/>
+	<classpathentry kind="lib" path="lib/j3dutils.jar"/>
+	<classpathentry kind="lib" path="lib/vecmath.jar"/>
+	<classpathentry kind="lib" path="lib/sqlitejdbc-v056.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-6.0.2.jar" sourcepath="lib/jetty/jetty-6.0.2.jar"/>
+	<classpathentry kind="lib" path="dev-utils/junit-3.8.2.jar"/>
+	<classpathentry kind="lib" path="lib/gpsinput-0.5.3.jar"/>
+	<classpathentry kind="lib" path="lib/zxing-bin.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-email-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/miglayout-4.0-swing.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/messages/suggest.jar"/>
+	<classpathentry kind="lib" path="lib/commons-compress-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.2.2.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/messages/lib/jchart2d-3.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/eventbus.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/j-ogg-oggd.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/j-ogg-vorbisd.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jbullet.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jME3-core.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jME3-desktop.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jME3-effects.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jME3-jbullet.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jME3-jogg.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jME3-lwjgl-natives.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jME3-lwjgl.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jME3-niftygui.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jME3-plugins.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/jME3-terrain.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/lwjgl.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/nifty-default-controls.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/nifty-examples.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/nifty-style-black.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/nifty.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/stack-alloc.jar"/>
+	<classpathentry kind="lib" path="lib/jme3/xmlpull-xpp3.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/odss/lib/protobuf.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/odss/lib/rabbitmq-client.jar"/>
+	<classpathentry kind="lib" path="lib/gson-2.2.2.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/s57/s57-package-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/wms.jar"/>
+	<classpathentry kind="lib" path="lib/guava-13.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/toolsUI-4.3.jar"/>
+	<classpathentry kind="lib" path="lib/imgscalr-lib-4.2.jar"/>
+	<classpathentry kind="lib" path="lib/xuggle-xuggler-5.4.jar"/>
+	<classpathentry kind="lib" path="lib/jh_image_filters.jar"/>
+	<classpathentry kind="lib" path="lib/jogl2/gluegen-rt-natives-linux-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/jogl2/gluegen-rt-natives-linux-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jogl2/gluegen-rt-natives-macosx-universal.jar"/>
+	<classpathentry kind="lib" path="lib/jogl2/gluegen-rt-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/jogl2/gluegen-rt-natives-windows-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jogl2/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="lib/jogl2/gluegen.jar"/>
+	<classpathentry kind="lib" path="lib/jogl2/jogl-all-natives-linux-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/jogl2/jogl-all-natives-linux-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jogl2/jogl-all-natives-macosx-universal.jar"/>
+	<classpathentry kind="lib" path="lib/jogl2/jogl-all-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/jogl2/jogl-all-natives-windows-i586.jar"/>
+	<classpathentry kind="lib" path="lib/jogl2/jogl-all.jar"/>
+	<classpathentry kind="lib" path="lib/jogl2/org.jzy3d-0.9.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-oro-core-2.1-dev-1.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-oro-perl5-2.1-dev-1.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/vrp/lib/or124.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/htmlUnit/htmlunit-2.11.jar"/>
+	<classpathentry kind="lib" path="lib/htmlUnit/htmlunit-core-js-2.11.jar"/>
+	<classpathentry kind="lib" path="lib/htmlUnit/httpmime-4.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/htmlUnit/cssparser-0.9.8.jar"/>
+	<classpathentry kind="lib" path="lib/htmlUnit/nekohtml-1.9.17.jar"/>
+	<classpathentry kind="lib" path="lib/commons-configuration-1.9.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="conf"/>
+	<classpathentry kind="lib" path="lib/libimc.jar"/>
+	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>

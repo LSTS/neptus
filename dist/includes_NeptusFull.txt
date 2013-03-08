@@ -1,0 +1,9 @@
+bin-bundles/neptus*.jar
+vehicles-defs/
+vehicles-files/
+conf/consoles/
+missions/**/*.nmisz
+conf/neptus-misc-systems.xml
+conf/messages/*.xml
+conf/params/*.xml
+plugins/*.jar

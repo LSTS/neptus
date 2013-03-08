@@ -1,0 +1,391 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by Paulo Dias
+ * 2011/05/30
+ * $Id:: CommsRelay.java 9913 2013-02-11 19:11:17Z pdias                  $:
+ */
+package pt.up.fe.dceg.neptus.mp.maneuvers;
+
+import java.util.Vector;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.Node;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.up.fe.dceg.neptus.gui.editor.ComboEditor;
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
+import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.util.NameNormalizer;
+import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
+/**
+ * @author zp
+ *
+ */
+public class CommsRelay extends DefaultManeuver implements IMCSerialization, LocatedManeuver {
+
+	/**
+	 * 
+	 */
+	public CommsRelay() {
+		
+	}
+
+    private double speed = 1000;
+    private String units = "RPM";
+    private int duration = 60;
+    private String sys_a = "", sys_b = "";
+    private ManeuverLocation startLoc = new ManeuverLocation();
+    private double move_threshold = 30;
+    
+    protected static final String DEFAULT_ROOT_ELEMENT = "CommsRelay";
+    
+	
+	public String id = NameNormalizer.getRandomID();
+	
+	public String getType() {
+		return DEFAULT_ROOT_ELEMENT;
+	}
+	
+	public Document getManeuverAsDocument(String rootElementName) {
+        
+	    Document document = DocumentHelper.createDocument();
+	    Element root = document.addElement( rootElementName );
+	    root.addAttribute("kind", "automatic");
+
+        Element system_a = root.addElement("sys_a");
+        system_a.setText(String.valueOf(getSystemA()));
+
+        Element system_b = root.addElement("sys_b");
+        system_b.setText(String.valueOf(getSystemB()));
+        Element duration = root.addElement("duration");
+	    duration.setText(String.valueOf(getDuration()));
+	    
+	    Element finalPoint = root.addElement("startPoint");
+        finalPoint.addAttribute("type", "pointType");
+        Element point = getManeuverLocation().asElement("point");
+        finalPoint.add(point);
+	   
+	    Element move_thresh = root.addElement("move_threshold");
+	    move_thresh.setText(String.valueOf(getMoveThreshold()));
+       
+        
+	    Element velocity = root.addElement("speed");
+	    velocity.addAttribute("type", "float");
+	    velocity.addAttribute("unit", getUnits());
+	    velocity.setText(String.valueOf(getSpeed()));
+
+	    return document;
+    }
+	
+	public void loadFromXML(String xml) {
+	    try {
+	        Document doc = DocumentHelper.parseText(xml);
+	        
+	        Node node = doc.selectSingleNode("CommsRelay/startPoint/point");
+            getManeuverLocation().load(node.asXML());
+            
+	        setSystemA(doc.selectSingleNode("//sys_a").getText());
+	        setSystemB(doc.selectSingleNode("//sys_b").getText());
+            setDuration(Integer.parseInt(doc.selectSingleNode("//duration").getText()));
+            
+            setMoveThreshold(Double.parseDouble(doc.selectSingleNode("//move_threshold").getText()));
+            
+            Node speedNode = doc.selectSingleNode("//speed");
+	        if (speedNode == null) 
+	        	speedNode = doc.selectSingleNode("//velocity");
+
+	        setSpeed(Double.parseDouble(speedNode.getText()));
+	        setUnits(speedNode.valueOf("@unit"));   
+	    }
+	    catch (Exception e) {
+	        NeptusLog.pub().error(this, e);
+	        return;
+	    }
+    }
+	
+	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
+		return lastVehicleState;
+	}
+
+    public String getId() {
+        return id;
+    }
+    
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    public String getSystemA() {
+        return sys_a;
+    }
+    
+    public void setSystemA(String system) {
+        this.sys_a = system;
+    }
+    
+    public String getSystemB() {
+        return sys_b;
+    }
+    
+    public void setSystemB(String system) {
+        this.sys_b = system;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+    
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public String getUnits() {
+        return units;
+    }
+    
+    public void setUnits(String units) {
+        this.units = units;
+    }
+    
+    public double getSpeed() {
+        return speed;
+    }
+    
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+
+	/**
+     * @return the move_threshold
+     */
+    public double getMoveThreshold() {
+        return move_threshold;
+    }
+
+    /**
+     * @param move_threshold the move_threshold to set
+     */
+    public void setMoveThreshold(double move_threshold) {
+        this.move_threshold = move_threshold;
+    }
+
+    public Object clone() {  
+	    CommsRelay clone = new CommsRelay();
+	    super.clone(clone);
+	    //clone.params = params;
+        clone.setSystemA(getSystemA());
+        clone.setSystemB(getSystemB());
+	    clone.setDuration(getDuration());
+	    clone.setUnits(getUnits());
+	    clone.setSpeed(getSpeed());
+		clone.setManeuverLocation(getStartLocation());
+		clone.setMoveThreshold(getMoveThreshold());
+		return clone;
+	}
+
+    
+    @Override
+    protected Vector<DefaultProperty> additionalProperties() {
+    	Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
+
+    	// @FIXME
+    	properties.add(PropertiesEditor.getPropertyInstance("System A", String.class, getSystemA(), true));
+    	properties.add(PropertiesEditor.getPropertyInstance("System B", String.class, getSystemB(), true));
+    	
+    	properties.add(PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true));
+
+    	properties.add(PropertiesEditor.getPropertyInstance("Move threshold", Double.class, getMoveThreshold(), true));
+
+    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getUnits(), true);
+    	units.setShortDescription("The speed units");
+    	PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new ComboEditor<String>(new String[] {"RPM", "m/s", "%"}));    	
+    
+    	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
+    	properties.add(units);
+
+    	return properties;
+    }
+    
+    
+    public String getPropertiesDialogTitle() {    
+        return getId() + " parameters";
+    }
+    
+    public void setProperties(Property[] properties) {
+    	
+    	super.setProperties(properties);
+    	
+    	for (Property p : properties) {
+    		if (p.getName().equals("Speed units")) {
+    			setUnits((String)p.getValue());
+    		}
+    		if (p.getName().equals("Speed")) {
+    			setSpeed((Double)p.getValue());
+    		}
+    		if (p.getName().equals("Duration")) {
+    			setDuration((Integer)p.getValue());
+    		}
+    		if (p.getName().equals("System A")) {
+    			setSystemA((String)p.getValue());
+    		}
+            if (p.getName().equals("System B")) {
+                setSystemB((String)p.getValue());
+            }
+            if (p.getName().equals("Move threshold")) {
+                setMoveThreshold((Double)p.getValue());
+            }
+            
+    	}
+    }
+    
+	public String[] getPropertiesErrors(Property[] properties) {
+		return super.getPropertiesErrors(properties);
+	}
+
+	
+	@Override
+	public String getTooltipText() {
+	
+		return super.getTooltipText()+"<hr>"+
+		"speed: <b>"+getSpeed()+" "+getUnits()+"</b>"+
+		"<br>duration: <b>"+(int)getDuration()+" s</b>" +
+		"<br>system a: <b>"+getSystemA()+"</b>" +
+		"<br>system b: <b>"+getSystemB()+"</b>";
+	}
+	
+	@Override
+	public void parseIMCMessage(IMCMessage message) {
+		setMaxTime((int)message.getDouble("timeout"));
+        //setSystem(message.getAsString("system"));
+		setSystemA(IMCUtils.translateImcIdToSystem((int)message.getDouble("sys_a")));
+		setSystemB(IMCUtils.translateImcIdToSystem((int)message.getDouble("sys_b")));
+		setDuration((int)message.getDouble("duration"));
+		startLoc.convertToAbsoluteLatLonDepth();
+		startLoc.setLatitudeRads(message.getDouble("lat"));
+		startLoc.setLongitudeRads(message.getDouble("lon"));
+		setMoveThreshold(message.getDouble("move_threshold"));
+		setSpeed(message.getDouble("speed"));
+		String speed_units = message.getString("speed_units");
+		if (speed_units.equals("METERS_PS"))
+			setUnits("m/s");
+		else if (speed_units.equals("RPM"))
+			setUnits("RPM");
+		else
+			setUnits("%");
+		
+		setMoveThreshold(message.getDouble("move_threshold"));
+	}
+
+    public IMCMessage serializeToIMC() {
+        
+        pt.up.fe.dceg.neptus.imc.CommsRelay msg = new pt.up.fe.dceg.neptus.imc.CommsRelay();
+        
+        msg.setDuration(getDuration());
+        
+        int sys_a = -1, sys_b = -1;
+        
+        try {
+            sys_a = Integer.parseInt(getSystemA());
+        }
+        catch (Exception e) {}
+        
+        try {
+            sys_b = Integer.parseInt(getSystemB());
+        }
+        catch (Exception e) {}
+        
+        if (getSystemA().equalsIgnoreCase("me") || getSystemA().equalsIgnoreCase("home") || getSystemA().equalsIgnoreCase("base"))
+            sys_a = ImcMsgManager.getManager().getLocalId().intValue();
+        
+        if (getSystemB().equalsIgnoreCase("me") || getSystemB().equalsIgnoreCase("home") || getSystemB().equalsIgnoreCase("base"))
+            sys_b = ImcMsgManager.getManager().getLocalId().intValue();
+        
+        if (sys_a == -1)
+            sys_a = IMCUtils.translateSystemToImcId(this.getSystemA()).intValue();
+        
+        if (sys_b == -1)
+            sys_b = IMCUtils.translateSystemToImcId(this.getSystemB()).intValue();
+        
+        msg.setSysA(sys_a);       
+        msg.setSysB(sys_b);
+                
+        startLoc.convertToAbsoluteLatLonDepth();
+        msg.setLat(startLoc.getLatitudeAsDoubleValueRads());
+        msg.setLon(startLoc.getLongitudeAsDoubleValueRads());
+
+		msg.setSpeed(this.getSpeed());
+		if ("m/s".equalsIgnoreCase(getUnits()))
+            msg.setSpeedUnits(pt.up.fe.dceg.neptus.imc.CommsRelay.SPEED_UNITS.METERS_PS);
+        else if ("RPM".equalsIgnoreCase(getUnits()))
+            msg.setSpeedUnits(pt.up.fe.dceg.neptus.imc.CommsRelay.SPEED_UNITS.RPM);
+        else if ("%".equalsIgnoreCase(getUnits()))
+            msg.setSpeedUnits(pt.up.fe.dceg.neptus.imc.CommsRelay.SPEED_UNITS.PERCENTAGE);
+        else if ("percentage".equalsIgnoreCase(getUnits()))
+            msg.setSpeedUnits(pt.up.fe.dceg.neptus.imc.CommsRelay.SPEED_UNITS.PERCENTAGE);
+		
+		msg.setMoveThreshold(getMoveThreshold());
+		
+		return msg;
+	}
+    
+    @Override
+    public ManeuverLocation getStartLocation() {
+        return getManeuverLocation();
+    }
+    
+    @Override
+    public ManeuverLocation getEndLocation() {
+        return getManeuverLocation();
+    }
+    
+
+    @Override
+    public ManeuverLocation getManeuverLocation() {
+        return startLoc;
+    }
+    
+    @Override
+    public void setManeuverLocation(ManeuverLocation location) {
+       this.startLoc = location.clone();
+        
+    }
+    
+    @Override
+    public void translate(double offsetNorth, double offsetEast, double offsetDown) {
+        startLoc.translatePosition(offsetNorth, offsetEast, offsetDown);
+    }
+    
+    public static void main(String[] args) {
+        CommsRelay cr = new CommsRelay();
+        cr.getManeuverLocation().setLocation(new LocationType(41, -8));
+        cr.setDuration(3600);
+        cr.setSystemA("lauv-xtreme-2");
+        cr.setSystemB("lauv-seacon-1");
+        cr.setSpeed(1000);
+        cr.setUnits("RPM");
+        cr.setMoveThreshold(30);
+        
+        IMCMessage msg = cr.serializeToIMC();
+        
+        System.out.println(cr.asXML());
+        cr.serializeToIMC().dump(System.out);
+        msg.dump(System.out);
+    }
+}

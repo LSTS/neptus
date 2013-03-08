@@ -1,0 +1,9 @@
+conf/mraplots/*.plot
+plugins/matlab*.jar
+plugins/mavs.jar
+plugins/noptilus.jar
+plugins/odss.jar
+plugins/s57*.jar
+plugins/trex*.jar
+plugins/vrp.jar
+plugins/webupdate.jar

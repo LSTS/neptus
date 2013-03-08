@@ -1,0 +1,97 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by Hugo
+ * Oct 18, 2012
+ * $Id:: NeptusLog.java 9615 2012-12-30 23:08:28Z pdias                         $:
+ */
+package pt.up.fe.dceg.neptus;
+
+import java.io.File;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.xml.DOMConfigurator;
+
+import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+
+/**
+ * @author Hugo
+ * @author Paulo Dias
+ */
+public class NeptusLog {
+    public static boolean extendedLog = true;
+
+    private static final String NEPTUS_PUB = "Neptus.Pub";
+    private static final String NEPTUS_ACTION = "Neptus.Action";
+    private static final String NEPTUS_WASTE = "Neptus.Waste";
+
+    private static Logger pub = Logger.getLogger(NEPTUS_PUB);
+    private static Logger action = Logger.getLogger(NEPTUS_ACTION);
+    private static Logger waste = Logger.getLogger(NEPTUS_WASTE);
+
+    static {
+        try {
+            if (new File("conf/log4j.xml").exists()) {
+                DOMConfigurator.configure("conf/log4j.xml");
+                pub.debug("Log4J configured with conf/log4j.xml!");
+            }
+            else {
+                PropertyConfigurator.configure("conf/log4j.properties");
+                pub.debug("Log4J configured with conf/log4j.properties!");
+            }
+        }
+        catch (Error e) {
+            BasicConfigurator.configure();
+            pub.warn("Could not configure Log4J with a default config, will try to load from configuration file!!");
+        }
+    }
+
+    private static String getCallerStamp() {
+        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+        int idx = 4; // 3
+        if (stack.length <= idx)
+            return "";
+        String str = stack[idx].getClassName() + "." + stack[idx].getMethodName(); // 3
+        return str;
+    }
+
+    private static Logger getLogger(Logger fallbackLogger, String prefix) {
+        String caller = getCallerStamp();
+        if (caller.length() == 0)
+            return fallbackLogger;
+        else
+            return Logger.getLogger(prefix + "." + caller);
+    }
+
+    public static Logger pub() {
+        return GeneralPreferences.programLogExtendedLog ? NeptusLog.getLogger(NeptusLog.pub, NEPTUS_PUB) : pub;
+    }
+
+    public static Logger pubRoot() {
+        return pub;
+    }
+
+    public static Logger action() {
+        return GeneralPreferences.programLogExtendedLog ? NeptusLog.getLogger(NeptusLog.action, NEPTUS_ACTION) : action;
+    }
+
+    public static Logger actRoot() {
+        return action;
+    }
+
+    public static Logger waste() {
+        return GeneralPreferences.programLogExtendedLog ? NeptusLog.getLogger(NeptusLog.waste, NEPTUS_WASTE) : waste;
+    }
+
+    public static Logger wasteRoot() {
+        return waste;
+    }
+}

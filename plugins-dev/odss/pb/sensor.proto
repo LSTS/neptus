@@ -1,0 +1,64 @@
+import "trex.proto";
+
+package org.mbari.trex;
+
+message SensorMessage {
+
+  /* One data sample 
+   * 
+   * Location (northing,easting) is not corrected as it is sampled 
+   * in real-time. 
+   * Do also note that we used UTM instead of lat,lon here. This is 
+   * mostly due to the fact that TREX uses this reference for navigation 
+   * and his lat,lon information is pretty bad (2 decimal places of accuracy
+   * which can result on an error of 100s of m)
+   * Note : based on Mike McCann suggestion northing and easting have been made
+   *        optional as they may be replaced in the future by lat/lon
+   */
+  message Sample {
+    required uint64 utime = 1;   // unix time for the sample (seconds)
+    required float northing = 2; // UTM nothing (m)
+    required float easting = 3;  // UTM easting (m)
+    required float depth = 4;    // Vehicle depth (m)
+    optional float temperature = 5;    // temperature (C)
+    optional float salinity = 6;       // salinity
+    optional float nitrate = 7;        // Nitrate
+    optional int32 gulper_id = 8;      // indicate which gulper was fired (if any)
+    optional float chfl = 9;
+
+    optional uint32 utm_zone = 10 [default = 10];
+    optional string utm_letter = 11 [default = "N"];
+    optional string system_id = 12;
+  } 
+  // All the samples are stored in this sample attribute
+  repeated Sample sample =2;
+
+  /* Information on position error deduced from a GPS fix
+   *
+   * This data will be produced when TREX identifies an important "jump"
+   * during a gps fix (in the order of tens to hundreds of meters):
+   *
+   * As this information will come after the samples are propagated the receiver 
+   * of the message may need to apply this error to previously received samples.
+   * The way to apply it is the following
+   * 
+   * for all sample such as gps_fix.from_time <= sample.utime < gps_fix.to_time
+   *   sample.northing = sample.northing + (sample.utime-gps_fix.from_time)*gps_fix.northing_rate
+   *   sample.easting = sample.easting + (sample.utime-gps_fix.from_time)*gps_fix.easting_rate
+   * end for
+   */
+  message GpsError {
+    required uint64 from_time =1; // Date where the error started to apply
+    required uint64 to_time =2;   // Date where the error was identified
+    optional float northing = 3; // northing at to_time (m)
+    optional float easting = 4;  // easting at to_time (m)
+    // May add lat,lon info in the future
+    // optional float longitude = 5;
+    // optional float latitude = 6;
+    optional float northing_error_rate =7; // northing navigation error (m/s)
+    optional float easting_error_rate =8; // easting navigation error (m/s)
+  }
+  optional GpsError gps_fix =1;
+
+  repeated Predicate observations =3;
+}

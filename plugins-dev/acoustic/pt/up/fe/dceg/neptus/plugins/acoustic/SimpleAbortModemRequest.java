@@ -1,0 +1,193 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by pdias
+ * 16/12/2010
+ * $Id:: SimpleAbortModemRequest.java 9950 2013-02-19 15:28:02Z zepinto         $:
+ */
+package pt.up.fe.dceg.neptus.plugins.acoustic;
+
+import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.console.notifications.Notification;
+import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
+import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.imc.AcousticOperation;
+import pt.up.fe.dceg.neptus.imc.IMCDefinition;
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
+import pt.up.fe.dceg.neptus.plugins.IAbortSenderProvider;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
+import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
+import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
+import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
+
+import com.google.common.eventbus.Subscribe;
+
+/**
+ * @author pdias
+ * 
+ */
+@SuppressWarnings("serial")
+// Abort Request
+@PluginDescription(author = "Paulo Dias", name = "Abort Request", version = "0.9.0", icon = "pt/up/fe/dceg/neptus/plugins/acoustic/lbl.png", description = "Simple Abort Modem Request by Manta Gateway", documentation = "abort/abort-button.html#SimpleAbortModemRequest", category = CATEGORY.COMMUNICATIONS)
+public class SimpleAbortModemRequest extends SimpleSubPanel implements IAbortSenderProvider, IPeriodicUpdates,
+        MainVehicleChangeListener, ConfigurationListener {
+
+    // <message id="213" name="Acoustic Operation" abbrev="AcousticOperation">
+    // <field type="uint8_t" name="Operation" abbrev="op" unit="Enumerated" prefix="AOP">
+    // <enum id="0" name="Abort" abbrev="ABORT">
+    // <enum id="1" name="Abort in Progress" abbrev="ABORT_IP">
+    // <enum id="2" name="Abort Timeout" abbrev="ABORT_TIMEOUT">
+    // <enum id="3" name="Abort Acknowledged" abbrev="ABORT_ACKED">
+    // <enum id="4" name="Range Request" abbrev="RANGE">
+    // <enum id="5" name="Range in Progress" abbrev="RANGE_IP">
+    // <enum id="6" name="Range Timeout" abbrev="RANGE_TIMEOUT">
+    // <enum id="7" name="Range Received" abbrev="RANGE_RECVED">
+    // <enum id="8" name="Modem is Busy" abbrev="BUSY">
+    // <enum id="9" name="Unsupported operation" abbrev="UNSUPPORTED">
+    // <field name="System" abbrev="system" type="plaintext">
+    // <field name="Range" abbrev="range" type="fp32_t" unit="m">
+    // </message>
+
+    @NeptusProperty(name = "Service Name")
+    public String serviceName = "acoustic/operation";
+
+    @NeptusProperty(name = "Use only active systems")
+    public boolean useOnlyActive = false;
+
+    /**
+	 * 
+	 */
+    public SimpleAbortModemRequest(ConsoleLayout console) {
+        super(console);
+        initialize();
+    }
+
+    /**
+	 * 
+	 */
+    private void initialize() {
+        setVisibility(false);        
+    }
+
+    @Subscribe
+    public void consume(AcousticOperation msg) {
+        String source = msg.getSourceName();
+        String system = msg.getSystem();
+        AcousticOperation.OP op = msg.getOp();
+        switch (op) {
+            case ABORT_ACKED:
+                post(Notification.success(I18n.text("Abort request"), I18n.textf("%sysname has acknowledged abort command", system)).requireHumanAction(true));
+                break;
+            case ABORT_IP:
+                post(Notification.warning(I18n.text("Abort request"), I18n.textf("Aborting %sysname acoustically (via %manta)...", system, source)));
+                break;
+            case ABORT_TIMEOUT:
+                post(Notification.error(I18n.text("Abort request"), I18n.textf("%manta timed out while trying to abort %sysname", source, system)));
+                break;
+            case UNSUPPORTED:
+                post(Notification.error(I18n.text("Abort request"), I18n.textf("%manta does not support aborting of %sysname", source, system)));
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void initSubPanel() {
+        // systemsMessageListener.setSystemToListenStrings(getMainVehicleId());
+    }
+
+    @Override
+    public void cleanSubPanel() {
+        
+    }
+
+    @Override
+    public void mainVehicleChangeNotification(String id) {
+        // super.mainVehicleChange(id);
+    }
+
+    @Override
+    public boolean sendAbortRequest() {
+        return sendAbortRequest(getMainVehicleId());
+    }
+
+    @Override
+    public boolean sendAbortRequest(String system) {
+        ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService(serviceName, SystemTypeEnum.ALL, useOnlyActive);
+        if (sysLst.length == 0)
+            return false;
+        boolean retAll = false;
+        for (ImcSystem imcSystem : sysLst) {
+            ImcId16 id = imcSystem.getId();
+            IMCMessage msgAcousticOperation = IMCDefinition.getInstance().create("AcousticOperation");
+
+            msgAcousticOperation.setValue("op", "ABORT");
+            msgAcousticOperation.setValue("system", system);
+
+            boolean ret = sendTheMessage(msgAcousticOperation, I18n.text("Error sending ABORT command message!"), id);
+            retAll = retAll || ret;
+        }
+        return retAll;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
+     */
+    @Override
+    public long millisBetweenUpdates() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#update()
+     */
+    @Override
+    public boolean update() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.up.fe.dceg.neptus.plugins.ConfigurationListener#propertiesChanged()
+     */
+    @Override
+    public void propertiesChanged() {
+        // TODO Auto-generated method stub
+
+    }
+
+    private boolean sendTheMessage(IMCMessage msg, String errorTextForDialog, ImcId16 id) {
+        boolean ret = ImcMsgManager.getManager().sendMessage(msg, id, null);
+
+        if (!ret) {
+            ImcSystem sys = ImcSystemsHolder.lookupSystem(id);
+            GuiUtils.errorMessage(SimpleAbortModemRequest.this,
+                    I18n.textf("Error Sending Abort by Modem by '%sendermodemid'", sys != null ? sys.getName() : id),
+                    errorTextForDialog);
+            return false;
+        }
+        return true;
+    }
+}

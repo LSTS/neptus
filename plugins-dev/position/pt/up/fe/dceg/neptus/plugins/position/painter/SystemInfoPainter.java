@@ -1,0 +1,288 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by jqcorreia
+ * 2/12/2011
+ * $Id:: SystemInfoPainter.java 9615 2012-12-30 23:08:28Z pdias                 $:
+ */
+package pt.up.fe.dceg.neptus.plugins.position.painter;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.ImageIcon;
+
+import pt.up.fe.dceg.neptus.alarms.AlarmChangeListener;
+import pt.up.fe.dceg.neptus.alarms.AlarmManager.AlarmLevel;
+import pt.up.fe.dceg.neptus.alarms.AlarmProvider;
+import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
+import pt.up.fe.dceg.neptus.plugins.NeptusMessageListener;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
+import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
+import pt.up.fe.dceg.neptus.plugins.PluginUtils;
+import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
+import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
+import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
+import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
+import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.EntitiesResolver;
+
+/**
+ * @author jqcorreia
+ * 
+ */
+@SuppressWarnings("serial")
+// "Information On Map"
+@PluginDescription(name = "System Information On Map", icon = "pt/up/fe/dceg/neptus/plugins/position/position.png", description = "System Information display on map", documentation = "system-info/system-info.html", category = CATEGORY.INTERFACE)
+@LayerPriority(priority = 70)
+public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPainter, NeptusMessageListener,
+        IPeriodicUpdates, ConfigurationListener, AlarmChangeListener {
+
+    private static final int ICON_SIZE = 24;
+    private final ImageIcon CPU_ICON = ImageUtils.getScaledIcon(
+            ImageUtils.getImage(getClass().getResource("images/cpu-icon.png")), ICON_SIZE, ICON_SIZE);
+    private final ImageIcon BATT_ICON = ImageUtils.getScaledIcon(
+            ImageUtils.getImage(getClass().getResource("images/battery-icon.png")), ICON_SIZE, ICON_SIZE);
+    private final ImageIcon DISK_ICON = ImageUtils.getScaledIcon(
+            ImageUtils.getImage(getClass().getResource("images/disk-icon.png")), ICON_SIZE, ICON_SIZE);
+    private final ImageIcon NET_ICON = ImageUtils.getScaledIcon(
+            ImageUtils.getImage(getClass().getResource("images/wifi-icon.png")), ICON_SIZE, ICON_SIZE);
+
+    private static final int RECT_WIDTH = 275;
+    private static final int RECT_HEIGHT = 55;
+    private static final int MARGIN = 5;
+
+    @NeptusProperty(name = "Enable")
+    public boolean enablePainter = true;
+
+    @NeptusProperty(name = "Enable Info", description = "Paint Vehicle Information on panel")
+    public boolean paintInfo = true;
+
+    @NeptusProperty(name = "Enable Alarm", description = "Paint border on alarm state")
+    public boolean paintBorder = true;
+
+    @NeptusProperty(name = "Entity Name", description = "Vehicle Battery entity name")
+    public String batteryEntityName = "Batteries";
+
+    private String mainSysName;
+
+    private int cpuUsage = 0;
+    private double batteryVoltage;
+    private float fuelLevel;
+    private int storageUsage;
+
+    private int hbCount = 0;
+    private int lastHbCount = 0;
+
+    private Font textFont;
+
+    private AlarmLevel alarmLevel = AlarmLevel.NORMAL;
+
+    public SystemInfoPainter(ConsoleLayout console) {
+        super(console);
+    }
+
+    @Override
+    public void initSubPanel() {
+        mainSysName = getConsole().getMainSystem();
+
+        // Register as AlarmProvider for Cpu/Batt/Net/Disk
+
+        addMenuItem(
+                I18n.text("Advanced") + ">" + PluginUtils.getPluginI18nName(this.getClass()) + " "
+                        + I18n.text("Enable/Disable"), null, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        enablePainter = !enablePainter;
+                    }
+
+                });
+
+        // Initialize the fonts
+        try {
+            textFont = new Font("Arial", Font.BOLD, 12);
+        }
+        catch (Exception e1) {
+            e1.printStackTrace();
+            System.out.println("Font Loading Error");
+        }
+    }
+
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        if (!enablePainter)
+            return;
+        if (mainSysName == null)
+            return;
+
+        // Red alarm border
+        if (paintBorder) {
+            if (alarmLevel.getValue() > AlarmLevel.NORMAL.getValue()) {
+                g.setStroke(new BasicStroke(3));
+                g.setColor(getAlarmColor());
+                g.drawRect(0, 0, renderer.getWidth() - 2, renderer.getHeight() - 2);
+            }
+        }
+
+        // System Info
+        if (paintInfo) {
+            g.setColor(new Color(255, 255, 255, 75));
+            // g.setFont(font);
+            g.drawRoundRect(renderer.getWidth() - RECT_WIDTH - MARGIN, renderer.getHeight() - RECT_HEIGHT - MARGIN,
+                    RECT_WIDTH, RECT_HEIGHT, 20, 20);
+            g.fillRoundRect(renderer.getWidth() - RECT_WIDTH - MARGIN, renderer.getHeight() - RECT_HEIGHT - MARGIN,
+                    RECT_WIDTH, RECT_HEIGHT, 20, 20);
+            g.translate(renderer.getWidth() - RECT_WIDTH - MARGIN, renderer.getHeight() - RECT_HEIGHT - MARGIN);
+
+            g.setColor(Color.BLACK);
+            g.setFont(textFont);
+            g.drawString(I18n.text("Vehicle")+": " + mainSysName, 5, 15);
+
+            g.drawImage(CPU_ICON.getImage(), 5, 25, null);
+            g.drawString(cpuUsage + "%", 30, 40);
+
+            g.drawImage(BATT_ICON.getImage(), 65, 25, null);
+            g.drawString((int) fuelLevel + "%", 90, 34);
+            g.drawString((int) (batteryVoltage * 100) / 100f + " V", 90, 47);
+
+            g.drawImage(DISK_ICON.getImage(), 130, 25, null);
+            g.drawString(storageUsage + "%", 160, 40);
+
+            g.drawImage(NET_ICON.getImage(), 195, 25, null);
+
+            // Preventing an Heartbeat rate of 120%
+            if (lastHbCount > 5)
+                lastHbCount = 5;
+
+            g.drawString(lastHbCount * 20 + "%", 220, 40);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.up.fe.dceg.neptus.plugins.NeptusMessageListener#getObservedMessages()
+     */
+    @Override
+    public String[] getObservedMessages() {
+        return new String[] { "CpuUsage", "StorageUsage", "Voltage", "Heartbeat", "FuelLevel" };
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.up.fe.dceg.neptus.plugins.NeptusMessageListener#messageArrived(pt.up.fe.dceg.neptus.imc.IMCMessage)
+     */
+    @Override
+    public void messageArrived(IMCMessage message) {
+        if (message.getAbbrev().equals("CpuUsage")) {
+            cpuUsage = message.getInteger("value");
+        }
+        else if (message.getAbbrev().equals("StorageUsage")) {
+            storageUsage = message.getInteger("value");
+        }
+        else if (message.getAbbrev().equals("Voltage")) {
+            if (message.getHeader().getInteger("src_ent") == EntitiesResolver.resolveId(getConsole().getMainSystem(),
+                    batteryEntityName))
+                batteryVoltage = message.getDouble("value");
+        }
+        else if (message.getAbbrev().equals("Heartbeat")) {
+            hbCount++;
+        }
+        else if (message.getAbbrev().equals("FuelLevel")) {
+            fuelLevel = message.getFloat("value");
+        }
+    }
+
+    @Override
+    public void mainVehicleChangeNotification(String id) {
+        // Resolve Batteries entity ID to check battery values
+        batteryVoltage = 0.0;
+        fuelLevel = 0.0f;
+        cpuUsage = 0;
+        storageUsage = 0;
+        hbCount = 0;
+        mainSysName = getConsole().getMainSystem();
+    }
+
+    // Periodical Update to assess the hearbeat reception rate
+    @Override
+    public long millisBetweenUpdates() {
+        return 5000;
+    }
+
+    @Override
+    public boolean update() {
+        lastHbCount = hbCount;
+        hbCount = 0;
+
+        return true;
+    }
+
+    @Override
+    public void propertiesChanged() {
+
+    }
+
+    /**
+     * Return the color of the border to paint in StateRenderer2D
+     * 
+     * @return the color based on general alarm level
+     */
+    Color getAlarmColor() {
+        switch (alarmLevel) {
+            case INFO:
+                return Color.BLUE.brighter();
+            case FAULT:
+                return Color.yellow;
+            case ERROR:
+                return Color.orange;
+            case FAILURE:
+                return Color.red;
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public void alarmStateChanged(AlarmProvider provider) {
+
+    }
+
+    @Override
+    public void maxAlarmStateChanged(AlarmLevel maxlevel) {
+        alarmLevel = maxlevel;
+    }
+
+    @Override
+    public void alarmAdded(AlarmProvider provider) {
+    }
+
+    @Override
+    public void alarmRemoved(AlarmProvider provider) {
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#cleanSubPanel()
+     */
+    @Override
+    public void cleanSubPanel() {
+        // TODO Auto-generated method stub
+        
+    }
+}

@@ -1,0 +1,206 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by zp
+ * Aug 29, 2011
+ * $Id:: DocumentationPanel.java 9615 2012-12-30 23:08:28Z pdias                $:
+ */
+package pt.up.fe.dceg.neptus.doc;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.io.File;
+
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkEvent.EventType;
+import javax.swing.event.HyperlinkListener;
+
+import pt.up.fe.dceg.neptus.plugins.oplimits.OperationLimitsSubPanel;
+import pt.up.fe.dceg.neptus.renderer2d.WorldRenderPainter;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+
+/**
+ * This class provides a visualization of a given {@link DocumentationProvider}
+ * 
+ * @author zp
+ */
+public class DocumentationPanel extends JPanel implements HyperlinkListener {
+
+    private static final long serialVersionUID = -6368710839048154767L;
+    protected static DocumentationPanel instance = null;
+    protected static JFrame frame = null;
+    
+    /**
+     * All documentation files will use this prefix (and should be placed inside
+     * doc/manual folder)
+     */
+    public static String docSource;
+
+    static {
+        try {
+            docSource = new File("doc/manual").toURI().toString();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected JScrollPane scrollMain, scrollIndex;
+    protected JSplitPane split;
+    protected JEditorPane indexPane;
+    protected JEditorPane htmlPane;
+    protected JLabel title;
+
+    /**
+     * Class constructor, starts with empty document
+     */
+    public DocumentationPanel() {
+        setLayout(new BorderLayout());
+        htmlPane = new JEditorPane();
+        htmlPane.setEditable(false);
+        htmlPane.setBackground(Color.white);
+        htmlPane.addHyperlinkListener(this);
+        
+        indexPane = new JEditorPane();
+        indexPane.setEditable(false);
+        indexPane.setBackground(Color.white);
+        indexPane.addHyperlinkListener(this);
+        
+        split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        scrollMain = new JScrollPane(htmlPane);
+        scrollIndex = new JScrollPane(indexPane);
+        split.add(scrollIndex);
+        split.add(scrollMain);
+        split.setDividerLocation(200);
+        try {
+            indexPane.setPage(new File("doc/manual/index.html").toURI().toURL());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        title = new JLabel();
+        title.setFont(new Font("Helvetica", Font.ITALIC, 18));
+        //add(title, BorderLayout.NORTH);
+        add(split, BorderLayout.CENTER);
+    }
+
+    /**
+     * Sets the documentation source from a generic object
+     * @param o If the object provides {@link NeptusDoc} annotation, it will be used, otherwise the object should implement the DocumentProvider interface
+     */
+    public void setProvider(Object o) {
+        if (o instanceof Class || !(o instanceof DocumentationProvider))
+            setProvider(new DocumentationWrapper(o));
+        else
+            setProvider((DocumentationProvider) o);
+    }
+
+    /**
+     * Set the documentation source provider
+     * 
+     * @param provider
+     *            A DocumentationProvider that will be requested to provide
+     *            documentation files
+     */
+    public void setProvider(DocumentationProvider provider) {
+
+        title.setText(provider.getArticleTitle());
+
+        try {
+            htmlPane.setPage(docSource + provider.getDocumentationFile());
+        }
+        catch (Exception e) {
+            htmlPane.setText("Unable to read file '" + docSource + "/"
+                    + provider.getDocumentationFile() + "'");
+        }
+    }
+    
+    @Override
+    public void hyperlinkUpdate(HyperlinkEvent e) {
+        if (e.getEventType() != EventType.ACTIVATED)
+            return;
+        
+        try {            
+            htmlPane.setPage(e.getURL());
+            htmlPane.repaint();
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    protected static JFrame getFrame() {
+        if (instance == null)
+            instance = new DocumentationPanel();
+        
+        if (frame == null) {
+            frame = new JFrame("Neptus Help");
+            frame.setSize(800, 500);
+            frame.getContentPane().add(instance);
+            frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            GuiUtils.centerOnScreen(frame);
+            frame.setIconImages(ConfigFetch.getIconImagesForFrames());
+        }   
+        frame.setVisible(true);
+        frame.toFront();
+        return frame;
+    }
+    
+    /**
+     * Show the documentation for the given {@link DocumentationProvider}
+     * @param provider The provides for documentation
+     */
+    public static void showDocumentation(DocumentationProvider provider) {
+        getFrame();
+        instance.setProvider(provider);
+    }
+        
+    /**
+     * Tries to surround the given class with a {@link DocumentationWrapper} and show its documentation
+     * @param c a Class
+     */
+    public static void showDocumentation(Class<?> c) {
+        getFrame();        
+        instance.setProvider(new DocumentationWrapper(c));       
+    }
+    
+    /**
+     * Given an html manual page, it will show it in the DocumentationPanel
+     * @param pathToHtml The path to the manual page (relative to doc/manual)
+     */
+    public static void showDocumentation(String pathToHtml) {
+       
+        getFrame();
+
+        try {
+            instance.htmlPane.setPage(docSource + pathToHtml);
+        }
+        catch (Exception e) {
+            instance.htmlPane.setText("Unable to read file '" + docSource + "/"
+                    + pathToHtml + "'");
+        }
+    }
+    
+    /**
+     * Unitary test
+     */
+    public static void main(String[] args) {
+        ConfigFetch.initialize();
+        DocumentationPanel.showDocumentation(OperationLimitsSubPanel.class);
+        DocumentationPanel.showDocumentation(WorldRenderPainter.class);
+    }
+}

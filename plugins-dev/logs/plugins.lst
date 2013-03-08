@@ -1,0 +1,12 @@
+# DATE=@DATE@
+# TIME=@TIME@
+# COMPILED BY=@COMPILED BY@ 
+# LEGAL_COPY=@LEGAL_COPY@
+# SVN_REV=@SVN_REV@
+# SVN_PATH=@SVN_PATH@
+
+pt.up.fe.dceg.neptus.plugins.logs.LoggingDownloader
+pt.up.fe.dceg.neptus.plugins.logs.QuickLogger
+pt.up.fe.dceg.neptus.plugins.logs.RemoteHistory
+pt.up.fe.dceg.neptus.plugins.logs.LogBookVisualization
+pt.up.fe.dceg.neptus.plugins.logs.LogBookSubPanel

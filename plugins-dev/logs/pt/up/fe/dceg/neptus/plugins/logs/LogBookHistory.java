@@ -1,0 +1,166 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by zp
+ * Feb 19, 2013
+ * $Id:: LogBookHistory.java 10009 2013-02-21 13:59:59Z zepinto                 $:
+ */
+package pt.up.fe.dceg.neptus.plugins.logs;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Vector;
+
+import javax.swing.AbstractListModel;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
+
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+
+import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.plugins.logs.HistoryMessage.msg_type;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.up.fe.dceg.neptus.util.ImageUtils;
+
+/**
+ * @author zp
+ * 
+ */
+public class LogBookHistory extends AbstractListModel<HistoryMessage> implements ListCellRenderer<HistoryMessage> {
+
+    private static final long serialVersionUID = 2382030731540409061L;
+    protected LinkedList<HistoryMessage> messages = new LinkedList<>();
+    protected String sysname;
+    protected int maxSize = 250;
+    
+    protected LinkedHashMap<msg_type, Color> bgColors = new LinkedHashMap<HistoryMessage.msg_type, Color>();
+    {
+        bgColors.put(msg_type.critical, Color.black);
+        bgColors.put(msg_type.error, new Color(255, 128, 128));
+        bgColors.put(msg_type.warning, new Color(255, 255, 128));
+        bgColors.put(msg_type.info, new Color(200, 255, 200));
+    }
+
+    public LogBookHistory(String sysname) {
+        this.sysname = sysname;
+    }
+
+    public void add(HistoryMessage msg) {
+        if (!messages.contains(msg)) {
+            messages.add(msg);
+            Collections.sort(messages);
+            int idx = Collections.binarySearch(messages, msg);
+            fireIntervalAdded(this, idx, idx);
+        }
+        if (getSize() > maxSize) {
+            messages.removeFirst();
+            fireIntervalRemoved(this, 0, 0);
+        }
+    }
+    
+    public void clear() {
+        int size = getSize();
+        messages.clear();
+        fireIntervalRemoved(this, 0, size);
+    }
+    
+    public Collection<HistoryMessage> add(Collection<HistoryMessage> msgs) {
+        
+        Vector<HistoryMessage> notExisting = new Vector<>();
+        
+        for (HistoryMessage msg : msgs) {
+            if (!messages.contains(msg)) {
+                messages.add(msg);
+                notExisting.add(msg);
+            }
+        }
+        
+        Collections.sort(messages);
+        
+        while (getSize() > maxSize) {
+            messages.removeFirst();
+        }
+        
+        fireContentsChanged(this, 0, getSize());
+        Collections.sort(notExisting);
+        return notExisting;
+        
+    }
+
+    public long lastMessageTimestamp() {
+        return messages.getLast().timestamp;
+    }
+
+    @Override
+    public HistoryMessage getElementAt(int index) {
+        return messages.get(index);
+    }
+
+    @Override
+    public int getSize() {
+        return messages.size();
+    }
+
+    @Override
+    public Component getListCellRendererComponent(JList<? extends HistoryMessage> list, HistoryMessage value,
+            int index, boolean isSelected, boolean cellHasFocus) {
+
+        JLabel l = new JLabel(value.toString(), JLabel.LEFT);
+        l.setToolTipText(I18n.textf("Received on %timeStamp (%context)", new Date(value.timestamp), value.context));
+        l.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 3));
+        l.setOpaque(true);
+        l.setBackground(bgColors.get(value.type));
+        if (value.type == msg_type.critical)
+            l.setForeground(Color.yellow);
+
+        return l;
+    }
+
+    public ImageIcon getIcon(msg_type type) {
+        switch (type) {
+            case info:
+                return ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/logs/info.png");
+            case warning:
+                return ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/logs/warning.png");
+            case error:
+            case critical:
+                return ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/logs/error.png");
+            default:
+                return ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/logs/queue2.png");
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        LogBookHistory hist = new LogBookHistory("lauv");
+        JList<HistoryMessage> panel = new JList<>(hist);
+        panel.setCellRenderer(hist);
+        GuiUtils.testFrame(new JScrollPane(panel));
+        for (int i = 0; i < 1000; i++) {
+            Thread.sleep(30);
+            
+            hist.add(new HistoryMessage(System.currentTimeMillis(), "teste1", "ctx", true, HistoryMessage.msg_type.error));
+            Thread.sleep(30);
+            
+            hist.add(new HistoryMessage(System.currentTimeMillis(), "teste2", "ctx", true, HistoryMessage.msg_type.info));
+            Thread.sleep(30);
+            hist.add(new HistoryMessage(System.currentTimeMillis()-5000, "teste3", "ctx", true, HistoryMessage.msg_type.critical));
+            Thread.sleep(30);
+            hist.add(new HistoryMessage(System.currentTimeMillis()-5000, "teste3", "ctx", true, HistoryMessage.msg_type.warning));
+        }
+    }
+
+}

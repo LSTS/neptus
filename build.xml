@@ -1,0 +1,2779 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ===================================================================
+
+   Build file for Neptus
+
+Authors:
+  Paulo Dias <pdias@fe.up.pt>
+  José Pinto <zepinto@fe.up.pt>
+
+Copyright:
+  (c) 2004-2013 FEUP-LSTS, Neptus Team.
+
+$Id:: build.xml 10074 2013-03-07 12:25:38Z pdias                       $:
+==================================================================== -->
+<?xml-stylesheet type="text/xsl" href="ant2html.xsl"?>
+<project name="Neptus" default="jar" basedir=".">
+	
+	<description>
+For simple use the main targets are:
+    - "info" for project information
+    - "clean" to clean the build folder
+
+    - "jar" (or "jar-force") to create all jars (the force will delete the
+      the jars first)
+
+    - "distribution-all" for all flavors (or individually "distribution-full", 
+		"distribution-seacon", or "distribution-le")
+	
+</description>
+	
+	<!-- =================================================================== -->
+	<!-- Defines variables used by the other targets                         -->
+	<!-- =================================================================== -->
+	<property name="version.VERSION" value="2" />
+	<property name="version.RELEASE" value="1" />
+	<property name="version.MINOR"   value="1" />
+	<!-- Set this to '.dev' if a developer release; blank "" if maintenance release -->
+	<property name="version.DEVELOPER" value="" />
+	<!-- Set the release number. Use the form 'R1' for release 1. Or leave it blank for a non release -->
+	<property name="release.NAME" value="R13.01" />
+	<property name="release.INFO" value="${release.NAME}"/>
+
+	<!-- EITHER the developer release number, or a maintenance release number -->
+	<property name="version" value="${version.VERSION}.${version.RELEASE}.${version.MINOR}${version.DEVELOPER}_${release.INFO}" />
+	<property name="version.numeric" value="${version.VERSION}.${version.RELEASE}.${version.MINOR}" />
+
+    <property name="full.release" value="${version}" />
+	<property name="light.release" value="${full.release}" />
+	<property name="seacon.release" value="${light.release}" />
+
+	<property name="name" value="neptus" />
+	<property name="Name" value="Neptus" />
+	<property name="years" value="2004-2013" />
+	<property name="legal.copy" value="(c)${years} LSTS-FEUP and Neptus developers. All Rights Reserved."/>
+	<property name="legal.copy.html" value="Copyright &#169; ${years} FEUP-LSTS and Neptus developers. All Rights Reserved."/>
+
+
+	<property name="build.compiler" value="modern" />
+	<property name="debug" value="off" />
+	<property name="deprecation" value="off" />
+	<property name="compile-source" value="1.7" />
+	<property name="compile-target" value="1.7" />
+	<property name="compile-encoding" value="UTF-8" />
+	<!--property name="extra-compile-args" value="-Xlint:unchecked"/-->
+	<property name="extra-compile-args" value="" />
+
+	<property name="src.dir" value="./src" />
+	<property name="src.shell.dir" value="./srcShell" />
+	
+	<property name="lib.dir" value="./lib" />
+	
+	<property name="nsis_src.dir" value="./NSIS_release/static_files/" />
+	<property name="nsis_dst.dir" value="./NSIS_release/install_scripts/" />
+
+	<property name="build.dir" value="./build" />
+	<property name="build.classes" value="${build.dir}/classes" />
+	<property name="build.docs" value="${build.dir}/docs" />
+	<property name="build.apidocs" value="${build.docs}/api" />
+
+	<property name="plugin-dev.dir.base" value="./plugins-dev" />
+	<property name="plugin.dir.dest" value="./plugins" />
+
+	<property name="tmp.dir" value="./.tmp" />
+    <property name="tmp.main.dir" value="${tmp.dir}/main-tmp" />
+	<property name="tmp.plugin.dir" value="${tmp.dir}/plugins-dev-tmp" />
+
+	<property name="exclude-svn" value="**/.svn/*" />
+
+	<property name="dist.file" value="${name}-${version}" />
+	<property name="dist.base.dir" value="./dist" />
+	<!--<property name="dist.dir" value="./dist/${dist.file}"/>-->
+	<property name="dist.dir" value="${dist.base.dir}" />
+
+	<!-- Where we put the neptus.jar we compile by default -->
+	<property name="bin.dir" value="./bin" />
+	<property name="bin.bundle.dir" value="./bin-bundles" />
+
+	<property name="reports.tests" value="${build.docs}/junit/xml_res" />
+	<property name="reports.outputs" value="${build.docs}/junit/html" />
+
+	<!-- Where to put licences -->
+	<property name="legal.dir" value="./legal" />
+	<property name="license.file" value="${legal.dir}/Neptus-LICENSE.txt" />
+
+	<property name="jar.file" value="${name}.jar" />
+	<property name="jar.file.path" value="${bin.dir}/${jar.file}" />
+	<property name="mplanner.jar.file" value="mplanner.jar" />
+	<property name="workspace.jar.file" value="workspace.jar" />
+	
+	<property name="libimc.jar.file" value="libimc.jar" />
+	<property name="libimc.jar.file.path" value="${lib.dir}/${libimc.jar.file}" />
+	
+	
+	<property name="dist.installer.basename.full" value="${Name}-${full.release}-x86-32bit-x64-64bit"/>
+	<property name="dist.installer.basename.le" value="${Name}LE-${light.release}-x86-32bit-x64-64bit"/>
+	<property name="dist.installer.basename.seacon" value="${Name}SC-${seacon.release}-x86-32bit-x64-64bit"/>
+
+	<path id="cp.lib.jars">
+		<fileset dir="${lib.dir}" casesensitive="false">
+			<include name="**/*.jar" />
+			<include name="**/*.zip" />
+		</fileset>
+	</path>
+	<path id="cp.plugins.lib.jars.all">
+		<fileset dir="${plugin-dev.dir.base}" casesensitive="false">
+			<include name="**/*.jar" />
+			<include name="**/*.zip" />
+		</fileset>
+	</path>
+	<path id="cp.junit">
+		<fileset dir="dev-utils" casesensitive="false">
+			<include name="junit*.jar" />
+		</fileset>
+	</path>
+	<path id="cp.path">
+		<pathelement location="${build.classes}" />
+		<pathelement location="${build.plugins}" />
+		<fileset dir="${lib.dir}" casesensitive="false">
+			<include name="**/*.jar" />
+			<include name="**/*.zip" />
+		</fileset>
+		<fileset dir="dev-utils" casesensitive="false">
+			<include name="junit*.jar" />
+		</fileset>
+	</path>
+	<path id="cp.compile">
+		<path refid="cp.lib.jars" />
+		<path refid="cp.plugins.lib.jars.all" />
+		<path refid="cp.junit" />
+	</path>
+	<path id="cp.compile.jar.main">
+		<pathelement location="${build.classes}" />
+		<path refid="cp.lib.jars" />
+		<path refid="cp.junit" />
+	</path>
+	<path id="cp.run">
+		<path refid="cp.lib.jars" />
+		<path refid="cp.junit" />
+	</path>
+	
+	<!--property name="class.path" value=".\lib\servlet.jar;.\lib\jaxp.jar;.\lib\sax2.jar;.\lib\bsf.jar;.\lib\xalan.jar;.\lib\xerces.jar;.\lib\crimson.jar"/-->
+	<property name="class.path" refid="cp.path" />
+	<property name="class.path.compile" refid="cp.compile" />
+	<property name="class.path.compile.jar.main" refid="cp.compile.jar.main" />
+	<property name="class.path.run" refid="cp.run" />
+	
+	<property name="certs.build.file" value="./certs/ant-keys-genkeys.xml" />
+	<property name="neptus.cert" value="./certs/genKeys/LSTS_FEUP.keystore" />
+	<property name="login.cert" value="lsts" />
+	<property name="pass.cert" value="Euvi2gatos" />
+
+	<!-- Temp dirs to prepare Windows and Linux releases of Neptus -->
+	<property name="all.os.dist.dir" value="all_os_dist" />
+	<property name="windows.dist.dir" value="windows_dist" />
+	<property name="linux.dist.dir" value="linux_dist" />
+
+	<property name="windows.jre.version.dir" value="${dist.base.dir}/jre-windows" />
+	<property name="windows.jre64.version.dir" value="${dist.base.dir}/jre64-windows" />
+	<property name="linux.jre.version.dir" value="${dist.base.dir}/jre-linux" />
+	<property name="linux.jre64.version.dir" value="${dist.base.dir}/jre64-linux" />
+
+	<property name="jre-base-url" value="http://whale.fe.up.pt/java/jres/" />
+	<property name="jre-windows-tgz-url" value="jre-win.tgz" />
+	<property name="jre64-windows-tgz-url" value="jre64-win.tgz" />
+	<property name="jre-linux-tgz-url" value="jre-linux.tgz" />
+	<property name="jre64-linux-tgz-url" value="jre64-linux.tgz" />
+
+	<!-- The base dir for Neptus instalation -->
+	<property name="install.dir" value="${Name}" />
+
+	<property environment="env" />
+
+	<!-- Yguard ANT Task -->
+	<taskdef name="yguard" classname="com.yworks.yguard.YGuardTask" 
+			classpath="dev-utils/yguard.jar" />
+
+	<!-- NSIS ANT Task -->
+	<!-- see also http://nsisant.sourceforge.net/ -->
+	<taskdef name="nsis" classname="net.sf.nsisant.Task">
+		<classpath location="dev-utils/nsisant-1.2.jar" />
+	</taskdef>
+
+	<!-- =================================================================== -->
+	<!-- Info                                                                -->
+	<!-- =================================================================== -->
+	<target name="info" description="Displays some information of this ant build file."
+			unless="llpath">
+		<echo message="-------------------------------------------------------------------" />
+		<echo level="info" message=" ${Name}" />
+		<echo message=" Version: ${version}" />
+		<echo message=" Release: ${release.NAME}" />
+		<echo level="info" message=" ${legal.copy}" />
+		<echo message="-------------------------------------------------------------------" />
+		<echo level="debug" message=" Project name: ${ant.project.name}" />
+		<echo level="debug" message=" The absolute path of the buildfile: ${ant.file}" />
+		<echo message=" Ant version: ${ant.version}" />
+		<echo message=" JVM version Ant detected: ${ant.java.version}" />
+		<echo message="-------------------------------------------------------------------" />
+		<fail>
+			Ant version should be at least v1.8.0! Yours is ${ant.version}.
+			<condition>
+				<not><antversion atleast="1.8.0"/></not>
+			</condition>
+		</fail>
+		<!--echo message=" ClassPath = ${class.path}" /-->
+		<echo message="-------------------------------------------------------------------" level="debug" />
+		<!--tstamp /-->
+		<path id="lpath"><pathelement path="${lib.dir}" /></path>
+		<property name="llpath" refid="lpath" />
+
+		<manifestclasspath property="manifest.classpath" jarfile="${jar.file.path}">
+		      <classpath refid="cp.path" />
+		</manifestclasspath>
+		<pathconvert dirsep="/" property="dist.classpath" refid="cp.lib.jars">
+			<map from="${llpath}" to="${lib.dir}" />
+		</pathconvert>
+		<echo level="debug" message=" lib Abs dir = ${llpath}" />
+		<echo level="debug" message=" Relative ClassPath = ${dist.classpath}" />
+		<echo level="debug" message=" Manifest ClassPath = ${manifest.classpath}" />
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Prepares the build directories                                      -->
+	<!-- =================================================================== -->
+	<target name="prepare" depends="info, prepare.build.dirs,create-sh-bat-filters, create-svn-props" 
+			unless="time.year">
+		<available file="${tests.dir}" property="tests-available" />
+		<tstamp>
+			<format property="time.year" pattern="yyyy" />
+			<format property="time.date" pattern="yyyy-MM-dd" />
+			<format property="time.time" pattern="HH':'mm" />
+		</tstamp>
+		<!-- echo message="${time.date} |  ${time.year}" / -->
+		
+		<property name="dist.installer.name.full" value="${dist.installer.basename.full}-${time.date}"/>
+		<property name="dist.installer.name.le" value="${dist.installer.basename.le}-${time.date}"/>
+		<property name="dist.installer.name.seacon" value="${dist.installer.basename.seacon}-${time.date}"/>
+
+		<echo message="-------------------------------------------------------------------" />
+		<echo level="info" message="SVN r${svn.revision.range} @ ${svn.repository.path}" />
+		<echo message="-------------------------------------------------------------------" />
+		
+		<loadfile property="license-content" srcFile="${license.file}"/>
+		
+		<filterset id="neptus.filters">
+			<filter token="NEPTUS_NAME" value="${Name}" />
+			<filter token="VERSION" value="${version}" />
+			<filter token="YEAR" value="${years}" />
+			<filter token="DATE" value="${time.date}" />
+			<filter token="TIME" value="${time.time}" />
+			<filter token="COMPILED BY" value="${user.name}" />
+			<filter token="NAMED_RELEASE" value="${release.NAME}" />
+			<filter token="NUMERIC_VERSION" value="${version.numeric}" />
+			<filter token="LEGAL_COPY" value="${legal.copy}" />
+			<filter token="EXTRA_DIST_NAME" value="${full.release}" />
+			<filter token="INSTALL_DIR" value="${install.dir}" />
+			<!--filter token="VERSION_SE" value="" /-->
+			<filter token="DIST_EXE" value="${dist.installer.name.full}" />
+			<filter token="SVN_REV" value="${svn.revision.range}" />
+			<filter token="SVN_PATH" value="${svn.repository.path}" />
+			<filter token="INSTALLER_NSIS_NEPTUS_BATCH_PATH" value="..\static_files\batch_files\neptus.bat" />
+			<filter token="LICENSE" value="${license-content}" />
+		</filterset>
+		<filterset id="neptusLE.filters">
+			<filter token="NEPTUS_NAME" value="${Name}LE" />
+			<filter token="EXTRA_DIST_NAME" value="Light Edition ${light.release}" />
+			<filter token="INSTALL_DIR" value="${install.dir}LE" />
+			<!--filter token="VERSION_SE" value="${light.release}" /-->
+			<filter token="DIST_EXE" value="${dist.installer.name.le}" />
+			<filter token="INSTALLER_NSIS_NEPTUS_BATCH_PATH" value="..\static_files\batch_files\neptusse.bat" />
+		</filterset>
+		<filterset id="neptusSeacon.filters">
+			<filter token="NEPTUS_NAME" value="${Name}SC" />
+			<filter token="EXTRA_DIST_NAME" value="Seacon Edition ${seacon.release}" />
+			<filter token="INSTALL_DIR" value="${install.dir}Seacon" />
+			<!--filter token="VERSION_SE" value="${seacon.release}" /-->
+			<filter token="DIST_EXE" value="${dist.installer.name.seacon}" />
+			<filter token="INSTALLER_NSIS_NEPTUS_BATCH_PATH" value="..\static_files\batch_files\neptusse.bat" />
+		</filterset>
+		<filterset id="empty.filters">
+		</filterset>
+		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="*.sh" excludes="Ne*.sh"/>
+		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="${src.shell.dir}/*.sh" />
+		<fixcrlf preservelastmodified="true" srcdir="." eol="crlf" includes="*.bat" />
+		<fixcrlf preservelastmodified="true" srcdir="." eol="crlf" includes="${src.shell.dir}/*.bat" />
+	</target>
+
+	<!-- Prepares the build directories                                      -->
+	<target name="prepare.build.dirs">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.classes}" />
+		<mkdir dir="${dist.base.dir}" />
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${bin.dir}" />
+	</target>
+
+	<!-- Prepares the docs directories                                       -->
+	<target name="prepare.docs" depends="prepare">
+		<mkdir dir="${build.docs}" />
+		<mkdir dir="${build.apidocs}" />
+		<mkdir dir="${reports.tests}" />
+		<mkdir dir="${reports.outputs}" />
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Cleans the project build dir                                        -->
+	<!-- =================================================================== -->
+	<target name="clean" description="Deletes the ${build.dir}.">
+		<delete dir="${build.dir}" />
+		<delete dir="${tmp.dir}" />
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Creates the svn properties of the working copy                      -->
+	<!-- =================================================================== -->
+    <target name="create-svn-props" unless="svn-props-set">
+		<path id="svnkit.classpath">
+			<fileset dir="dev-utils/svnkit/" casesensitive="false">
+				<include name="**/*.jar" />
+			</fileset>
+		</path>
+
+		<!-- svn info result
+		 Path: .
+		 URL: https://whale.fe.up.pt/svn/neptus/trunk
+		 Repository Root: https://whale.fe.up.pt/svn/neptus
+		 Repository UUID: f6322ee6-e2ed-0310-b924-e386bc37f25f
+		 Revision: 8270
+		 Node Kind: directory
+		 Schedule: normal
+		 Last Changed Author: pdias
+		 Last Changed Rev: 8270
+		 Last Changed Date: 2012-09-13 20:04:05 +0100 (Qui, 13 Set 2012)
+		-->
+		<java fork="true" classname="org.tmatesoft.svn.cli.SVN" 
+				outputproperty="svn.info.cmd.output" resultproperty="svn-cmd-info-error" 
+				errorproperty="svn.info.cmd.error" failonerror="true">
+			<arg line="info ." />
+			<classpath refid="svnkit.classpath" />
+		</java>
+		<echo level="debug">svn ssvn.info.cmd.output=${svn.info.cmd.output}  svn-cmd-info-error=${svn-cmd-info-error}</echo>
+		<echo file="svn.info.txt">${svn.info.cmd.output}</echo>
+		<replaceregexp file="svn.info.txt" byline="true">
+			<regexp pattern="(^(.*?)(: ))"/>
+			<substitution expression="\2="/>
+		</replaceregexp>
+		<replaceregexp file="svn.info.txt" byline="true">
+			<regexp pattern="^([\w\.]+)( +)([\w\.]+)(=)"/>
+			<substitution expression="\1\.\3="/>
+		</replaceregexp>
+		<replaceregexp file="svn.info.txt" byline="true">
+			<regexp pattern="^([\w\.]+)( +)([\w\.]+)( +)([\w\.]+)(=)"/>
+			<substitution expression="\1\.\3.\5="/>
+		</replaceregexp>
+		<property file="svn.info.txt" prefix="svninfo" />
+
+    	<echo file="svn.info.txt" append="true">Repository.Path=${svninfo.URL}
+</echo>
+		<replaceregexp file="svn.info.txt" byline="true">
+			<regexp pattern="^(Repository.Path=)(http(s)?://(.*?(:\d{1,4})?/))"/>
+			<substitution expression="Repository.Path=/"/>
+		</replaceregexp>
+		<property file="svn.info.txt" prefix="svninfo" />
+		<property name="svn.repository.path" value="${svninfo.Repository.Path}" />
+
+		<echo file="svn.info.txt" append="true">Last.Changed.Date.Date=${svninfo.Last.Changed.Date}
+</echo>
+		<replaceregexp file="svn.info.txt" byline="true">
+			<regexp pattern="^(Last.Changed.Date.Date=)(\d{4}-\d{2}-\d{2}).*"/>
+			<substitution expression="Last.Changed.Date.Date=\2"/>
+		</replaceregexp>
+		<property file="svn.info.txt" prefix="svninfo" />
+    	<echo level="debug">Last.Changed.Date.Date: ${svninfo.Last.Changed.Date.Date}</echo>
+		
+		<java fork="true" classname="org.tmatesoft.svn.cli.SVNVersion" 
+				outputproperty="svn.revision.range" resultproperty="svn-cmd-version-error" failonerror="true">
+			<classpath refid="svnkit.classpath" />
+			<arg value="." />
+		</java>
+    	<echo file="svn.info.txt" append="true">Revision.Range=${svn.revision.range}
+</echo>
+		<echo level="debug">svn svn.revision.range=${svn.revision.range}  svn-cmd-version-error=${svn-cmd-version-error}</echo>
+
+		<!--java fork="true" classname="org.tmatesoft.svn.cli.SVN" 
+				outputproperty="svn.log.cmd.output" resultproperty="svn-cmd-log-error" 
+				failonerror="true">
+			<arg line="log ." />
+			<classpath refid="svnkit.classpath" />
+		</java>
+    	<echo level="info">${svn.log.cmd.output}</echo-->
+    	
+    	<property name="svn-props-set" value="true"/>
+
+    	<!-- Lets recreate a clean svn.info.txt -->
+    	<echo file="svn.info.txt" append="false">Version=${version}
+</echo>
+    	<echo file="svn.info.txt" append="true">Revision=${svninfo.Revision}
+</echo>
+    	<echo file="svn.info.txt" append="true">Revision.Range=${svn.revision.range}
+</echo>
+    	<echo file="svn.info.txt" append="true">Repository.Path=${svninfo.Repository.Path}
+</echo>
+    	<echo file="svn.info.txt" append="true">Last.Changed.Author=${svninfo.Last.Changed.Author}
+</echo>
+    	<echo file="svn.info.txt" append="true">Last.Changed.Rev=${svninfo.Last.Changed.Rev}
+</echo>
+    	<echo file="svn.info.txt" append="true">Last.Changed.Date=${svninfo.Last.Changed.Date}
+</echo>
+    </target>
+
+
+	<!-- =================================================================== -->
+	<!-- Compile entire source tree                                          -->
+	<!-- =================================================================== -->
+	<target name="compile" depends="compile.all" description="Compile all src the normal way">
+    </target>
+
+	<!-- Compile entire source tree                                          -->
+	<target name="compile.all" depends="prepare" unless="already-compiled">
+		<echo message="compile entire source tree and copy .properties and .res files to build tree." />
+		<echo level="debug" message="${class.path}" />
+		<!-- srcdir="${src.dir}" -->
+		<javac encoding="${compile-encoding}"
+			  includeantruntime="false" 
+			  source="${compile-source}"
+			  target="${compile-target}"
+			  destdir="${build.classes}" 
+			  excludes="${exclude-svn},old/**/*.*,**/junit/*.java" 
+			  includes="**/*.java" 
+			  deprecation="${deprecation}" debug="${debug}" 
+			  classpath="${class.path.compile}" 
+			  listfiles="false"
+			  fork="false">
+			<compilerarg line="${extra-compile-args}" />
+			<src>
+				<pathelement path="${src.dir}"/>
+			</src>
+			<src>
+				<dirset dir="${plugin-dev.dir.base}">
+	                <depth min="0" max="0"/>
+				</dirset>
+			</src>
+		</javac>
+
+		<!-- Copy plugins src resources -->
+		<copy todir="${build.classes}" overwrite="true" verbose="false">
+			<fileset dir="${plugin-dev.dir.base}" excludes="${exclude-svn},**/Thumbs.db,**/thumbs.db,**/*.java,**/*.jar" />
+			<regexpmapper from="^([^/]+/)(.*)([^/]+\.[^/]+)$$" to="\2\3" handledirsep="true"/>
+		</copy>
+
+		<!-- Copy main src resources -->
+		<copy todir="${build.classes}" overwrite="true">
+			<fileset dir="${src.dir}" excludes="${exclude-svn},**/Thumbs.db,**/thumbs.db" 
+				includes="**/*.xml,**/*.properties,**/*.res,images/**/*.*,models/**/*.*,schemas/**/*.xsd" />
+		</copy>
+		<copy todir="${build.classes}" overwrite="true">
+			<fileset dir="${src.dir}">
+				<include name="**/version.txt" />
+				<exclude name="${exclude-svn}" />
+			</fileset>
+			<filterset refid="neptus.filters" />
+		</copy>
+		<copy todir="${build.classes}" overwrite="true">
+			<fileset dir="${src.dir}">
+				<include name="totd.xml" />
+				<include name="**/*.properties" />
+				<include name="colormaps/**/*.colormap" />
+				<include name="schemas/**/*.xsd" />
+				<include name="sounds/*" />
+				<include name="**/*.gz" />
+				<exclude name="${exclude-svn}" />
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- Compile entire main source tree                                          -->
+	<target name="compile.main" depends="prepare, compile.all, jar.uptodate.test" unless="jar.build.not.required" 
+			description="Compile src the normal way">
+		<echo message="compile entire source tree and copy .properties and .res files to build tree." />
+		<echo level="debug" message="${class.path}" />
+		<mkdir dir="${tmp.main.dir}" />
+		<!-- srcdir="${src.dir}" -->
+		<javac encoding="${compile-encoding}" srcdir="${src.dir}"
+			  includeantruntime="false" 
+			  source="${compile-source}"
+			  target="${compile-target}"
+			  destdir="${tmp.main.dir}" 
+			  excludes="${exclude-svn},old/**/*.*,**/junit/*.java" 
+			  includes="**/*.java" 
+			  deprecation="${deprecation}" debug="${debug}" 
+			  classpath="${class.path.compile.jar.main}" 
+			  listfiles="false"
+			  fork="false">
+			<compilerarg line="${extra-compile-args}" />
+		</javac>
+		
+		<copy todir="${tmp.main.dir}" overwrite="true">
+			<fileset dir="${src.dir}" excludes="${exclude-svn},**/Thumbs.db,**/thumbs.db" 
+				includes="**/*.xml,**/*.properties,**/*.res,images/**/*.*,models/**/*.*,schemas/**/*.xsd" />
+		</copy>
+		<copy todir="${tmp.main.dir}" overwrite="true">
+			<fileset dir="${src.dir}">
+				<include name="**/version.txt" />
+				<exclude name="${exclude-svn}" />
+			</fileset>
+			<filterset refid="neptus.filters" />
+		</copy>
+		<copy todir="${tmp.main.dir}" overwrite="true">
+			<fileset dir="${src.dir}">
+				<include name="totd.xml" />
+				<include name="**/*.properties" />
+				<include name="colormaps/**/*.colormap" />
+				<include name="schemas/**/*.xsd" />
+				<include name="sounds/*" />
+				<include name="**/*.gz" />
+				<exclude name="${exclude-svn}" />
+			</fileset>
+		</copy>
+	</target>
+	
+
+	<!-- =================================================================== -->
+	<!-- Creates all Neptus jars.                                            -->
+	<!-- =================================================================== -->
+
+	<target name="jar-force" depends="jar-clean,jar" 
+			description="Creates the all Neptus jars file forced even if no changes to srcs.">
+	</target>
+
+	<target name="jar" depends="jar.main, plugin-create-all-jars" 
+			description="Creates the all Neptus jars file.">
+	</target>
+
+	<target name="jar-clean" description="Deletes the all Neptus jars files" depends="jar.main-clean">
+		<delete file="${plugin.dir.dest}/*.jar}" />
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Creates Neptus jar.                                                 -->
+	<!-- =================================================================== -->
+
+	<target name="jar.main-force" depends="jar.main-clean,jar.main" >
+	<!--		description="Creates the Neptus jar file forced even if no changes to srcs."-->
+	</target>
+
+	<target name="jar.main" depends="compile.main,jar.main.prep" unless="jar.build.not.required" 
+			description="Creates the Neptus jar file.">
+		<echo message="Creating .jar file" />
+		<jar destfile="${jar.file.path}" basedir="${tmp.main.dir}" 
+				index="false" update="true" excludes="${exclude-svn}, *.class">
+		</jar>
+		<delete dir="${tmp.main.dir}" />
+	</target>
+
+	<target name="jar.main-clean" description="Deletes the jar file">
+		<delete file="${jar.file.path}" />
+	</target>
+	
+	<!--target name="jar-lauv" depends="compile,jar.main.prep" unless="jar.build.not.required"
+			description="Creates the Neptus jar file for LAUV console.">
+		<echo message="Creating .jar file" />
+		<jar destfile="${jar.file.path}" basedir="${build.classes}" 
+				index="false" update="true" excludes="${exclude-svn}, *.class">
+		</jar>
+	</target-->
+
+	<target name="jar.uptodate.test">		
+		<uptodate property="jar.build.not.required" targetfile="${jar.file.path}" > <!--targetfile="${jar.file.path}"-->			
+			<srcfiles dir= "${build.classes}" excludes="version.txt" />
+		</uptodate>
+		<echo message="JAR uptodate: ${jar.build.not.required}" level="warning" />
+	</target>
+
+	<target name="jar.main.prep" depends="jar.uptodate.test" unless="jar.build.not.required">
+		<!-- "Deletes the old jar file and creates a new one with manifest." -->
+		<delete file="${jar.file.path}" />
+		<jar destfile="${jar.file.path}" basedir="." update="true" excludes="${exclude-svn}" includes="LICENSE">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
+				<attribute name="Main-Class" value="pt.up.fe.dceg.neptus.loader.NeptusMain" />
+				<!--
+				<attribute name="Class-Path" value="${class.path.jar}"/>
+				<attribute name="Main-Class" value="pt.up.fe.dceg.neptus.loader.MissionConsoleLoader"/>
+				-->
+				<section name="${Name}">
+					<attribute name="Specification-Title" value="${Name}" />
+					<attribute name="Specification-Version" value="${version}" />
+					<attribute name="Specification-Vendor" value="FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
+					<attribute name="Implementation-Title" value="${name}" />
+					<attribute name="Implementation-Version" value="${version} ${TODAY}" />
+					<attribute name="Implementation-Vendor" value="FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)" />
+				</section>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="jar.main.signer">
+		<!-- "Signs Neptus jar. (doesn't create the jar)" -->
+		<signjar storetype="jceks" keystore="${neptus.cert}" alias="${login.cert}" storepass="${pass.cert}" jar="${jar.file.path}" />
+	</target>
+
+	<target name="jar-api-justrender" depends="compile" unless="jar.build.not.required" 
+			description="Creates the Neptus just render api jar file for S57Map usage.">
+		<echo message="Creating .jar file" />
+		<property name="jar-api-justrender.file" value="justrender.jar"/>
+
+		<delete file="${bin.dir}/${jar-api-justrender.file}" />
+		<jar destfile="${bin.dir}/${jar-api-justrender.file}" basedir="." update="true" excludes="${exclude-svn}" includes="LICENSE">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
+				<attribute name="Main-Class" value="pt.up.fe.dceg.neptus.loader.NeptusMain" />
+				<!--
+				<attribute name="Class-Path" value="${class.path.jar}"/>
+				<attribute name="Main-Class" value="pt.up.fe.dceg.neptus.loader.MissionConsoleLoader"/>
+				-->
+				<section name="${Name}">
+					<attribute name="Specification-Title" value="${Name}" />
+					<attribute name="Specification-Version" value="${version}" />
+					<attribute name="Specification-Vendor" value="FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
+					<attribute name="Implementation-Title" value="${name}" />
+					<attribute name="Implementation-Version" value="${version} ${TODAY}" />
+					<attribute name="Implementation-Vendor" value="FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)" />
+				</section>
+			</manifest>
+		</jar>
+		<jar destfile="${bin.dir}/${jar-api-justrender.file}" basedir="${build.classes}" 
+				index="false" update="true" excludes="${exclude-svn}, *.class">
+			<include name="version.*" />
+        	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
+			<include name="pt/up/fe/dceg/neptus/types/coord/*.class" />
+			<include name="pt/up/fe/dceg/neptus/types/**/*.class" />
+			<include name="pt/up/fe/dceg/neptus/util/*.class" />
+			<include name="pt/up/fe/dceg/neptus/util/conf/*.class" />
+			<include name="pt/up/fe/dceg/neptus/util/coord/*.class" />
+			<include name="pt/up/fe/dceg/neptus/util/comm/manager/imc/ImcId16*.class" />
+			<include name="pt/up/fe/dceg/neptus/gps/**.class" />
+			<include name="pt/up/fe/dceg/neptus/gui/Properties*.class" />
+			<include name="pt/up/fe/dceg/neptus/mp/MapChangeEvent*.class" />
+			<include name="pt/up/fe/dceg/neptus/mp/MapChangeListener*.class" />
+			<include name="pt/up/fe/dceg/neptus/mp/Vehicle*.class" />
+			<include name="pt/up/fe/dceg/neptus/mp/SystemPosi*.class" />
+			<include name="pt/up/fe/dceg/neptus/mp/MapChangeEvent.class" />
+			<exclude name="pt/up/fe/dceg/neptus/mp/MissionPlanner*.class" />
+			<include name="pt/up/fe/dceg/neptus/renderer2d/**/*.class" />
+			<include name="pt/up/fe/dceg/neptus/messages/stanag4586/AVP*.class" />
+			<include name="pt/up/fe/dceg/neptus/messages/stanag4586/ProtocolIm*.class" />
+			<include name="pt/up/fe/dceg/neptus/messages/*.class" />
+			<include name="pt/up/fe/dceg/neptus/gui/objparams/**/*.class" />
+			<include name="pt/up/fe/dceg/neptus/gui/CoordinateSystemPanel*.class" />
+			<include name="pt/up/fe/dceg/neptus/gui/Vehicle*.class" />
+			<include name="pt/up/fe/dceg/neptus/gui/editor/**/*.class" />
+			<!--include name="pt/up/fe/dceg/neptus/plugins/*.class" /-->
+			<include name="images/cursors/*.png" />
+			<include name="images/menus/*.png" />
+			<include name="/images/World_Blank_Map_Mercator_projection.svg" />
+			<!-- Needed by the Serializable interface of LocationType -->
+			<include name="pt/up/fe/dceg/neptus/messages/stanag4586/Stanag4586Message.class" />
+			<include name="pt/up/fe/dceg/messages/Message*.class" />
+        	<include name="pt/up/fe/dceg/neptus/comm/proxy/ProxyInfoProvider*.class" />
+        	<include name="pt/up/fe/dceg/neptus/util/comm/ssh/SSHConnectionDialog*.class" />
+        	<include name="pt/up/fe/dceg/neptus/util/comm/ssh/IntFormat*.class" />
+        	<include name="pt/up/fe/dceg/neptus/gui/ImagePanel*.class" />
+        	<include name="images/ssh-connect.png"/>
+		</jar>
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Creates bin-bundle/neptus-mra.jar           WIP                     -->
+	<!-- =================================================================== -->
+    <target name="jar-bundle-mra" depends="compile" description="Creates bin/neptus-mra.jar">
+        <jar destfile="${bin.bundle.dir}/${name}-mra.jar" basedir="${build.classes}" 
+        	   excludes="${exclude-svn}" includes="LICENSE">
+			<include name="version.*" />
+        	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
+        	<include name="pt/up/fe/dceg/neptus/mra/*.class"/>
+            <include name="pt/up/fe/dceg/neptus/colormap/**/*.class"/>
+            <include name="pt/up/fe/dceg/neptus/util/llf/**/*.class"/>
+            <include name="pt/up/fe/dceg/neptus/util/conf/*.class"/>
+            <include name="pt/up/fe/dceg/neptus/util/*.class"/>
+            <include name="pt/up/fe/dceg/neptus/util/output/*.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/WaitPanel.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/MissionFileChooser.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/ModalFrame.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/PropertiesProvider.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/swing/NeptusFileView.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/CloseTabbedPane.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/TabCloseUI.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/SelectAllFocusListener.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/ToolbarSwitch*.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/ToolbarButton*.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/ColorMapRenderer.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/InfiniteProgressPanel.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/ImagePanel.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/objparams/*.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/editor/*.class"/>
+            <include name="pt/up/fe/dceg/neptus/types/**/*.class"/>
+            <include name="pt/up/fe/dceg/neptus/renderer2d/MissionRenderer.class"/>
+            <include name="pt/up/fe/dceg/neptus/renderer2d/*.class"/>
+            <include name="pt/up/fe/dceg/neptus/util/comm/vehicle/NeptusMessage.class"/>
+            <include name="pt/up/fe/dceg/neptus/util/comm/vehicle/Message*.class"/>
+            <include name="pt/up/fe/dceg/neptus/gps/GPSListener.class"/>
+            <include name="pt/up/fe/dceg/neptus/mp/MapChangeListener.class"/>
+            <include name="pt/up/fe/dceg/neptus/mp/MapChangeEvent.class"/>
+            <include name="pt/up/fe/dceg/neptus/mp/Maneuver.class"/>
+            <include name="pt/up/fe/dceg/neptus/mp/StanagManeuver.class"/>
+            <include name="pt/up/fe/dceg/neptus/mp/maneuvers/*.class"/>
+            <include name="pt/up/fe/dceg/neptus/mp/Dimension.class"/>
+            <include name="pt/up/fe/dceg/messages/**/*.class"/>
+            <include name="pt/up/fe/dceg/neptus/messages/stanag4586/**/*.class"/>
+            <!--include name="pt/up/fe/dceg/neptus/console/SubPanel.class"/>
+            <include name="pt/up/fe/dceg/neptus/console/plugins/SubPanelProvider.class"/>
+            <include name="pt/up/fe/dceg/neptus/console/ConsoleLayout.class"/-->
+            <include name="images/**/*.*"/>
+            <include name="schemas/**/*.*"/>
+            <include name="version.txt"/>
+            <manifest>
+                 <attribute name="Built-By" value="${user.name}" />
+                 <attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
+                 <attribute name="Main-Class" value="pt.up.fe.dceg.neptus.mra.NeptusMRA" />
+                 <!--
+                 <attribute name="Class-Path" value="${class.path.jar}"/>
+                 <attribute name="Main-Class" value="pt.up.fe.dceg.neptus.loader.MissionConsoleLoader"/>
+                 -->
+                 <section name="${Name}">
+                     <attribute name="Specification-Title" value="${Name}" />
+                     <attribute name="Specification-Version" value="${version}" />
+                     <attribute name="Specification-Vendor" value="FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
+                     <attribute name="Implementation-Title" value="${name}" />
+                     <attribute name="Implementation-Version" value="${version} ${TODAY}" />
+					<attribute name="Implementation-Vendor" value="FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)" />
+                 </section>
+             </manifest>
+       </jar>
+       <!--
+       java  -cp .;bin-bundle/neptus-mra.jar;lib;lib\standby.jar;lib\log4j-1.2.15.jar;lib\l2fprod-common-all.jar;lib\looks-2.2.1.jar;lib\foxtrot.jar;lib\dom4j\dom4j-1.6.1.jar;lib\dom4j\jaxen-1.1.1.jar;lib\middleware.jar;lib\commons-io-1.4.jar;lib\commons-codec-1.3.jar;lib\swingx.jar;lib\jfreechart-1.0.6.jar;lib\jcommon-1.0.10.jar;lib\ini4j.jar;lib\iText-2.1.5.jar;lib\fop\batik.jar;lib\fop\xml-apis-ext.jar pt.up.fe.dceg.neptus.mra.NeptusMRA
+       -->
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Creates bin-bundle/neptus-check.jar                                 -->
+    <!-- =================================================================== -->
+    <target name="jar-bundle-checklist" depends="compile" description="Creates bin-bundle/neptus-check.jar">
+    	<delete file="${bin.bundle.dir}/${name}-check.jar" failonerror="true"/>
+    	<delete dir="tmpBuild" failonerror="true"/>
+        <jar destfile="${bin.bundle.dir}/${name}-check.jar" basedir="${build.classes}" 
+               excludes="${exclude-svn}" includes="LICENSE">
+			<include name="version.*" />
+        	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
+        	<include name="pt/up/fe/dceg/neptus/NeptusLog*.class" />
+            <include name="pt/up/fe/dceg/neptus/gui/checklist/**/*.class"/>
+            <include name="pt/up/fe/dceg/neptus/messages/listener/**/*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/messages/*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/util/conf/*.class"/>    
+        	<!-- include name="pt/up/fe/dceg/neptus/util/*.class"/ -->
+            <include name="pt/up/fe/dceg/neptus/util/GuiUtils*.class"/>
+            <include name="pt/up/fe/dceg/neptus/util/ImageUtils*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/util/ImageLoader.class"/>
+        	<include name="pt/up/fe/dceg/neptus/util/FileUtil.class"/>
+        	<include name="pt/up/fe/dceg/neptus/util/NameNormalizer.class"/>
+        	<include name="pt/up/fe/dceg/neptus/util/DateTimeUtil*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/util/PropertiesLoader*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/util/BarCodesUtil*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/util/output/*.class"/>
+            <include name="pt/up/fe/dceg/neptus/util/xsl/*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/gui/ModalFrame.class"/>
+            <include name="pt/up/fe/dceg/neptus/gui/PropertiesProvider.class"/>
+        	<include name="pt/up/fe/dceg/neptus/gui/swing/NeptusFileView.class"/>
+        	<include name="pt/up/fe/dceg/neptus/gui/editor/*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/types/checklist/**/*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/types/Xml*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/types/nativetypes/*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/util/comm/vehicle/*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/util/comm/transports/ImcUdpTransport*.class"/>
+            <include name="pt/up/fe/dceg/neptus/util/comm/manager/imc/ImcId16*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/util/comm/middleware/**.class"/>
+        	<include name="pt/up/fe/dceg/neptus/gui/BlockingGlassPane*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/gui/InfiniteProgressPanel*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/gui/ClockCounter*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/gui/ChronometerPanel*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/vartree/*.class"/>
+        	<include name="pt/up/fe/dceg/vartree/*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/plugins/PluginProperty.class"/>
+        	<!--include name="pt/up/fe/dceg/neptus/types/**/*.class"/ -->
+        	<!-- include name="images/**/*.*" / -->
+        	<include name="images/neptus-icon.png"/>
+        	<include name="images/neptus-icon1.png"/>
+        	<include name="images/neptus-icon2.png"/>
+        	<!-- include name="images/neptus_logo_ns.svg"/ -->
+        	<!--include name="images/box_checked.png"/>
+            <include name="images/box.png"/>
+        	<include name="images/menus/edit.png"/>
+        	<include name="images/buttons/add.png"/>
+        	<include name="images/buttons/close.png"/-->
+            <!--include name="images/files-icons/*.*"/ -->
+        	<include name="images/files-icons/*.png"/>
+        	<include name="images/checklists/*.png"/>
+            <!-- include name="schemas/**/*.*"/ -->
+            <include name="schemas/neptus-checklist.xsd"/>
+            <include name="version.txt"/>
+            <manifest>
+                 <attribute name="Built-By" value="${user.name}" />
+                 <attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
+                 <attribute name="Main-Class" value="pt.up.fe.dceg.neptus.gui.checklist.ChecklistPanel" />
+                 <section name="${Name}">
+                     <attribute name="Specification-Title" value="${Name}" />
+                     <attribute name="Specification-Version" value="${version}" />
+                     <attribute name="Specification-Vendor" value="FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
+                     <attribute name="Implementation-Title" value="${name}" />
+                     <attribute name="Implementation-Version" value="${version} ${TODAY}" />
+					<attribute name="Implementation-Vendor" value="FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)" />
+                 </section>
+             </manifest>
+       </jar>
+       <!--
+       java  -cp .;bin/neptus-check.jar;lib;lib\standby.jar;lib\log4j-1.2.15.jar;lib\l2fprod-common-all.jar;lib\looks-2.2.1.jar;lib\foxtrot.jar;lib\dom4j\dom4j-1.6.1.jar;lib\dom4j\jaxen-1.1.1.jar;lib\middleware.jar;lib\commons-io-1.4.jar;lib\commons-codec-1.3.jar;lib\swingx.jar;lib\jfreechart-1.0.6.jar;lib\jcommon-1.0.10.jar;lib\ini4j.jar;lib\iText-2.1.5.jar;lib\fop\batik.jar;lib\fop\xml-apis-ext.jar pt.up.fe.dceg.neptus.mra.NeptusMRA
+       
+       java  -cp .;bin/neptus-check.jar;lib\dom4j\dom4j-1.6.1.jar;lib\dom4j\jaxen-1.1.1.jar;lib\l2fprod-common-all.jar;lib\swingx.jar;lib/looks-2.2.1.jar;lib\standby.jar;lib\log4j-1.2.15.jar;lib\iText-2.1.5.jar;lib\fop\fop.jar;lib\fop\batik.jar;lib\fop\xml-apis-ext.jar; pt.up.fe.dceg.neptus.gui.checklist.ChecklistPanel
+       -->
+        <mkdir dir="tmpBuild"/>
+        <unzip dest="tmpBuild" src="lib/dom4j/dom4j-1.6.1.jar"/>
+        <unzip dest="tmpBuild" src="lib/dom4j/jaxen-1.1.1.jar"/>
+        <unzip dest="tmpBuild" src="lib/l2fprod-common-all.jar"/>
+        <unzip dest="tmpBuild" src="lib/swingx.jar"/>
+    	<unzip dest="tmpBuild" src="lib/jgoodies-looks-2.5.2.jar"/>
+       	<unzip dest="tmpBuild" src="lib/jgoodies-common-1.4.0.jar"/>
+    	<unzip dest="tmpBuild" src="lib/standby.jar"/>
+        <unzip dest="tmpBuild" src="lib/log4j-1.2.17.jar"/>
+        <unzip dest="tmpBuild" src="lib/iText-2.1.5.jar"/>
+    	<unzip dest="tmpBuild" src="lib/zxing-bin.jar"/>
+    	<unzip dest="tmpBuild" src="lib/commons-cli-1.2.jar"/>
+    	<!--unzip dest="tmpBuild" src="lib/commons-io-1.4.jar"/-->
+    	
+    	<unzip dest="tmpBuild" src="${bin.bundle.dir}/${name}-check.jar" overwrite="yes"/>
+    	<copy flatten="false" todir="tmpBuild/legal">
+    		<fileset dir="${legal.dir}"/>
+    	</copy>        
+        <jar destfile="${bin.bundle.dir}/${name}-check.jar" basedir="tmpBuild" 
+        		index="false">
+            <manifest>
+                 <attribute name="Built-By" value="${user.name}" />
+                 <attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
+                 <attribute name="Main-Class" value="pt.up.fe.dceg.neptus.gui.checklist.ChecklistPanel" />
+                 <section name="${Name}">
+                     <attribute name="Specification-Title" value="${Name}" />
+                     <attribute name="Specification-Version" value="${version}" />
+                     <attribute name="Specification-Vendor" value="FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
+                     <attribute name="Implementation-Title" value="${name}" />
+                     <attribute name="Implementation-Version" value="${version} ${TODAY}" />
+					<attribute name="Implementation-Vendor" value="FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)" />
+                 </section>
+             </manifest>
+        </jar>  
+    	<delete dir="tmpBuild" failonerror="false"/>
+    </target>
+	
+    <!-- =================================================================== -->
+    <!-- Creates bin-bundle/neptus-worldmap.jar                                 -->
+    <!-- =================================================================== -->
+    <target name="jar-bundle-worldmap" depends="compile" description="Creates bin-bundle/neptus-worldmap.jar">
+    	<delete file="${bin.bundle.dir}/${name}-worldmap.jar" failonerror="true"/>
+    	<delete dir="tmpBuild" failonerror="true"/>
+        <jar destfile="${bin.bundle.dir}/${name}-worldmap.jar" basedir="${build.classes}" 
+               excludes="${exclude-svn}" includes="LICENSE">
+			<include name="version.*" />
+        	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
+        	<include name="pt/up/fe/dceg/neptus/NeptusLog*.class" />
+			<include name="pt/up/fe/dceg/neptus/app/tiles/**/*.class" />
+			<include name="pt/up/fe/dceg/neptus/types/coord/*.class" />
+			<include name="pt/up/fe/dceg/neptus/types/**/*.class" />
+			<include name="pt/up/fe/dceg/neptus/util/*.class" />
+			<include name="pt/up/fe/dceg/neptus/util/conf/*.class" />
+			<include name="pt/up/fe/dceg/neptus/util/coord/*.class" />
+			<include name="pt/up/fe/dceg/neptus/util/comm/manager/imc/ImcId16*.class" />
+			<include name="pt/up/fe/dceg/neptus/gps/**.class" />
+			<include name="pt/up/fe/dceg/neptus/gui/Properties*.class" />
+			<include name="pt/up/fe/dceg/neptus/mp/MapChangeEvent*.class" />
+			<include name="pt/up/fe/dceg/neptus/mp/MapChangeListener*.class" />
+			<include name="pt/up/fe/dceg/neptus/mp/Vehicle*.class" />
+			<include name="pt/up/fe/dceg/neptus/mp/SystemPos*.class" />
+			<include name="pt/up/fe/dceg/neptus/mp/MapChangeEvent.class" />
+			<exclude name="pt/up/fe/dceg/neptus/mp/MissionPlanner*.class" />
+			<include name="pt/up/fe/dceg/neptus/renderer2d/**/*.class" />
+			<include name="pt/up/fe/dceg/neptus/messages/stanag4586/AVP*.class" />
+			<include name="pt/up/fe/dceg/neptus/messages/stanag4586/ProtocolIm*.class" />
+			<include name="pt/up/fe/dceg/neptus/messages/*.class" />
+			<include name="pt/up/fe/dceg/neptus/gui/objparams/**/*.class" />
+			<include name="pt/up/fe/dceg/neptus/gui/CoordinateSystemPanel*.class" />
+			<include name="pt/up/fe/dceg/neptus/gui/Vehicle*.class" />
+			<include name="pt/up/fe/dceg/neptus/gui/editor/**/*.class" />
+			<!--include name="pt/up/fe/dceg/neptus/plugins/*.class" /-->
+			<include name="images/cursors/*.png" />
+			<include name="images/menus/*.png" />
+			<include name="images/World_Blank_Map_Mercator_projection.svg" />
+			<!-- Needed by the Serializable interface of LocationType -->
+			<include name="pt/up/fe/dceg/neptus/messages/stanag4586/Stanag4586Message.class" />
+			<include name="pt/up/fe/dceg/messages/Message*.class" />
+        	<include name="images/neptus-icon.png"/>
+        	<include name="images/neptus-icon1.png"/>
+        	<include name="images/neptus-icon2.png"/>
+        	<include name="images/files-icons/*.png"/>
+        	<include name="images/world/*.png"/>
+          	<include name="pt/up/fe/dceg/neptus/util/output/*.class"/>
+          	<include name="pt/up/fe/dceg/neptus/plugins/*.class" />
+          	<include name="pt/up/fe/dceg/neptus/gui/InfiniteProgressPanel*.class" />
+          	<include name="pt/up/fe/dceg/neptus/console/plugins/SubPanelProvider*.class" />
+          	<include name="pt/up/fe/dceg/neptus/mra/visualizations/MRAVisualization*.class" />
+        	<include name="pt/up/fe/dceg/neptus/comm/proxy/ProxyInfoProvider*.class" />
+        	<include name="pt/up/fe/dceg/neptus/util/comm/ssh/SSHConnectionDialog*.class" />
+        	<include name="pt/up/fe/dceg/neptus/util/comm/ssh/IntFormat*.class" />
+        	<include name="pt/up/fe/dceg/neptus/gui/ImagePanel*.class" />
+        	<include name="images/ssh-connect.png"/>
+        </jar>
+        <mkdir dir="tmpBuild"/>
+        <unzip dest="tmpBuild" src="lib/dom4j/dom4j-1.6.1.jar"/>
+        <unzip dest="tmpBuild" src="lib/dom4j/jaxen-1.1.1.jar"/>
+        <unzip dest="tmpBuild" src="lib/l2fprod-common-all.jar"/>
+        <unzip dest="tmpBuild" src="lib/swingx.jar"/>
+    	<unzip dest="tmpBuild" src="lib/jgoodies-looks-2.5.2.jar"/>
+       	<unzip dest="tmpBuild" src="lib/jgoodies-common-1.4.0.jar"/>
+    	<unzip dest="tmpBuild" src="lib/standby.jar"/>
+        <unzip dest="tmpBuild" src="lib/log4j-1.2.17.jar"/>
+        <!--unzip dest="tmpBuild" src="lib/iText-2.1.5.jar"/-->
+    	<!--unzip dest="tmpBuild" src="lib/zxing-bin.jar"/-->
+    	<unzip dest="tmpBuild" src="lib/commons-cli-1.2.jar"/>
+    	<!--unzip dest="tmpBuild" src="lib/commons-io-1.4.jar"/-->
+    	<unzip dest="tmpBuild" src="lib/foxtrot.jar"/>
+    	<unzip dest="tmpBuild" src="lib/httpclient-4.2.2.jar"/>
+    	<unzip dest="tmpBuild" src="lib/httpcore-4.2.2.jar"/>
+    	<unzip dest="tmpBuild" src="lib/commons-codec-1.7.jar"/>
+      	<unzip dest="tmpBuild" src="lib/fop/batik.jar"/>
+      	<unzip dest="tmpBuild" src="lib/fop/xml-apis-ext.jar"/>
+      	<unzip dest="tmpBuild" src="lib/fop/xmlgraphics-commons-1.3.1.jar"/>
+      	<unzip dest="tmpBuild" src="lib/commons-logging-1.1.1.jar"/>
+    	<unzip dest="tmpBuild" src="plugins/tiles-extra.jar"/>
+    	<unzip dest="tmpBuild" src="lib/libimc.jar"/>
+    	
+    	<unzip dest="tmpBuild" src="${bin.bundle.dir}/${name}-worldmap.jar" overwrite="yes"/>
+    	<copy flatten="false" todir="tmpBuild/legal">
+    		<fileset dir="${legal.dir}"/>
+    	</copy>        
+        <jar destfile="${bin.bundle.dir}/${name}-worldmap.jar" basedir="tmpBuild" 
+        		index="false">
+            <manifest>
+                 <attribute name="Built-By" value="${user.name}" />
+                 <attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
+                 <attribute name="Main-Class" value="pt.up.fe.dceg.neptus.app.tiles.WorldMapPanel" />
+                 <section name="${Name}">
+                     <attribute name="Specification-Title" value="${Name}" />
+                     <attribute name="Specification-Version" value="${version}" />
+                     <attribute name="Specification-Vendor" value="FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
+                     <attribute name="Implementation-Title" value="${name}" />
+                     <attribute name="Implementation-Version" value="${version} ${TODAY}" />
+					<attribute name="Implementation-Vendor" value="FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)" />
+                 </section>
+             </manifest>
+        </jar>
+      	<signjar storetype="jceks" keystore="${neptus.cert}" alias="${login.cert}" 
+           storepass="${pass.cert}" jar="${bin.bundle.dir}/${name}-worldmap.jar" />
+    	<delete dir="tmpBuild" failonerror="false"/>
+    </target>
+ 
+	<!-- =================================================================== -->
+	<!-- Creates the Neptus plugin jar file.                                 -->
+	<!-- =================================================================== -->
+	<target name="plugin-create-jar" depends="prepare, compile.all, plugin-list, plugin-request-jar-list" 
+			description="Target to generate the plugins jars (user input). (Does not create the neptus.jar but uses it instead of the compile files.)" >
+		
+		<!-- plugins comes from task plugin-request-jar-list or commandline -Dplugins=x -->
+		<property name="plugin-name.list.input" value="${plugins}"/>
+		<echo message="Creating plugin jar for plugins: ${plugin-name.list.input}" />
+
+		<script language="javascript">
+			<![CDATA[
+			pprop = project.getProperty("plugin-name.list.input");
+			if (pprop == "*") {
+				pluginsList = project.getProperty("pluginlist").split(",");
+			}
+			else {
+            	pluginsList = project.getProperty("plugin-name.list.input").split(",");
+			}
+            for (index in pluginsList) {
+			  	antcall = project.createTask("antcall");
+				antcall.setTarget("plugin-create-jar-worker");
+				antcall.setInheritRefs(true);
+			  	prop = antcall.createParam();
+				prop.setName("plugin-name.input");
+				prop.setValue(pluginsList[index].trim());
+				prop = antcall.createParam();
+				prop.setName("already-compiled");
+				prop.setValue("true");
+				antcall.perform();
+            }
+			]]>
+      	</script>
+	</target>
+
+	<target name="plugin-create-all-jars" depends="prepare, compile.all, plugin-list" 
+			description="Target to generate the all plugins jars. (Does not create the neptus.jar but uses it instead of the compile files.)" >
+		<script language="javascript">
+			<![CDATA[
+			pluginsList = project.getProperty("pluginlist").split(",");
+			for (index in pluginsList) {
+			  	antcall = project.createTask("antcall");
+				antcall.setTarget("plugin-create-jar-worker"); 
+				antcall.setInheritRefs(true);
+			  	prop = antcall.createParam();
+				prop.setName("plugin-name.input");
+				prop.setValue(pluginsList[index].trim());
+				prop = antcall.createParam();
+				prop.setName("already-compiled");
+				prop.setValue("true");
+				antcall.perform();
+            }
+			]]>
+      	</script>
+	</target>
+
+	<target name="plugin-request-jar-list" unless="plugins">
+		<input message="Please enter plugin names (coma separated values, or * to build all):" addproperty="plugins" />
+	</target>
+	
+	<target name="plugin-list">
+		<path id="cp.plg">
+			<dirset dir="${plugin-dev.dir.base}" casesensitive="false">
+				<include name="*" />
+				<exclude name="${exclude-svn}" />
+			</dirset>
+		</path>
+		<path id="plgpath"><pathelement path="${plugin-dev.dir.base}" /></path>
+		<property name="llplgpath" refid="plgpath" />
+
+		<pathconvert dirsep="/" pathsep="," property="pluginlist" refid="cp.plg">
+			<map from="${llplgpath}/" to="" />
+		</pathconvert>
+		<echo message="${pluginlist}"></echo>
+	</target>
+
+	<target name="plugin-prop-private-jars-worker" unless="plugin.private.jars.cp">
+		<fail>
+		  Give plugin name (prop: plugin-name.input)
+		  <condition>
+		  	<not>
+		    	<isset property="plugin-name.input"/>
+		  	</not>
+		  </condition>
+		</fail>
+		<fail>
+		  Give valid plugin name
+		  <condition>
+		  	<not>
+		    	<available file="${plugin-dev.dir.base}/${plugin-name.input}"/>
+		  	</not>
+		  </condition>
+		</fail>
+
+		<path id="plugin.private.jars">
+			<fileset dir="${plugin-dev.dir.base}/${plugin-name.input}" casesensitive="false" erroronmissingdir="false">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${plugin-dev.dir.base}/${plugin-name.input}/lib" casesensitive="false" erroronmissingdir="false">
+				<include name="**/*.jar" />
+				<include name="**/*.zip" />
+			</fileset>
+			<fileset dir="${plugin-dev.dir.base}/${plugin-name.input}/libs" casesensitive="false" erroronmissingdir="false">
+				<include name="**/*.jar" />
+				<include name="**/*.zip" />
+			</fileset>
+		</path>
+		<property name="plugin.private.jars.cp" refid="plugin.private.jars" />
+		
+		<echo message="Collecting ${plugin-name.input} plugin private jars: ${plugin.private.jars.cp}" />
+	</target>
+
+	<target name="plugin-compile-worker" depends="plugin-prop-private-jars-worker,compile.all">
+		<local name="local.output.build.dir" />
+		<property name="local.output.build.dir" value="${build.plugins}"/> <!-- plugin.dir.tmp -->
+
+		<mkdir dir="${local.output.build.dir}" />
+
+		<echo message="Compiling ${plugin-name.input} plugin" />
+		<javac encoding="${compile-encoding}" srcdir="${plugin-dev.dir.base}/${plugin-name.input}"
+			  includeantruntime="false"
+			  source="${compile-source}"
+			  target="${compile-target}"
+			  destdir="${local.output.build.dir}" 
+			  excludes="${exclude-svn},old/**/*.*,**/junit/*.java" 
+			  includes="**/*.java" 
+			  deprecation="${deprecation}" debug="${debug}" 
+			  classpath="${plugin.private.jars.cp};${class.path.compile.jar.main}" 
+			  fork="false">
+			<compilerarg line="${extra-compile-args}" />
+		</javac>
+		<copy todir="${local.output.build.dir}" overwrite="true">
+			<fileset dir="${plugin-dev.dir.base}/${plugin-name.input}" 
+				excludes="${exclude-svn},**/Thumbs.db,**/thumbs.db,plugins.lst,*.jar,lib,libs,lib/*,libs/*" />
+		</copy>
+		<copy todir="${local.output.build.dir}" overwrite="true">
+			<fileset dir="${plugin-dev.dir.base}/${plugin-name.input}" 
+				includes="plugins.lst" />
+			<filterset refid="neptus.filters" />
+		</copy>
+	</target>
+
+	<target name="plugin-create-jar.uptodate.test">
+		<uptodate property="plugin.jar.build.not.required" targetfile="${plugin.dir.dest}/${plugin-name.input}.jar" >
+			<!--targetfile="${plugin.dir.dest}/${plugin-name.input}.jar"-->
+			<srcfiles dir= "${build.classes}" excludes="version.txt" />
+		</uptodate>
+		<echo message="Plugin JAR ${plugin-name.input}.jar uptodate: ${plugin.jar.build.not.required}" level="warning" />
+	</target>
+
+	<target name="plugin-create-jar-worker" depends="plugin-prop-private-jars-worker, plugin-create-jar.uptodate.test" 
+			unless="plugin.jar.build.not.required">
+		<delete dir="${tmp.plugin.dir}" failonerror="true"/>
+		<antcall target="plugin-compile-worker" inheritall="true" inheritrefs="true">
+			<param name="build.plugins" value="${tmp.plugin.dir}" />
+		</antcall>
+
+		<delete dir="tmpjars" failonerror="true" />
+		<mkdir dir="tmpjars" />
+		<script language="javascript">     
+            importPackage(java.io);
+			jarList = project.getProperty("plugin.private.jars.cp");
+			if (!"".equals(jarList)) {
+				if (project.getProperty("os.name").toLowerCase().contains("windows"))
+	            	libs = jarList.split(";");
+				else
+					libs = jarList.split(":");
+	            for (index in libs) {
+	              unzip = project.createTask("unzip");
+	              unzip.setDest(new File("tmpjars"));
+	              unzip.setSrc(new File(libs[index]));    
+	        	  unzip.perform();
+	            }
+			}
+      	</script>
+
+		<jar destfile="${plugin.dir.dest}/${plugin-name.input}.jar" 
+				basedir="tmpjars" 
+				index="false" update="false" includes="**" />
+		
+		<echo message="Creating ${plugin-name.input}.jar file" />
+		<jar destfile="${plugin.dir.dest}/${plugin-name.input}.jar" 
+				basedir="${tmp.plugin.dir}" 
+				index="false" update="true" excludes="${exclude-svn}, **/*.java">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
+				<section name="${Name}">
+					<attribute name="Specification-Title" value="${Name} - ${plugin-name.input}" />
+					<attribute name="Specification-Version" value="${version}" />
+					<attribute name="Specification-Vendor" value="FEUP LSTS/USTL (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
+					<attribute name="Implementation-Title" value="${name}" />
+					<attribute name="Implementation-Version" value="${version} ${TODAY}" />
+					<attribute name="Implementation-Vendor" value="FEUP (http://www.fe.up.pt)" />
+				</section>
+			</manifest>
+		</jar>
+		
+		<delete dir="tmpjars"/>
+		<delete dir="${tmp.plugin.dir}" failonerror="true" />
+	</target>
+
+	
+	<!-- =================================================================== -->
+	<!-- Signs the jars used in Neptus                                       -->
+	<!-- =================================================================== -->
+	<target name="sign-all-jars" 
+			description="Signs all the jars used in Neptus (from '${lib.dir}')">
+		<copy flatten="true" todir="${dist.dir}/lib">
+			<fileset dir="${lib.dir}" casesensitive="false">
+				<include name="**/*.jar" />
+				<include name="**/*.zip" />
+			</fileset>
+		</copy>
+		<signjar storetype="jceks" keystore="${neptus.cert}" alias="${login.cert}" storepass="${pass.cert}">
+			<fileset dir="${dist.dir}/lib" casesensitive="false">
+				<include name="**/*.jar" />
+				<include name="**/*.zip" />
+			</fileset>
+		</signjar>
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Creates the API documentation for the plugin development            -->
+	<!-- =================================================================== -->
+	<target name="javadoc-plugin">
+		<echo message="Plugin javadocs" />
+		<delete dir="${tmp.plugin.dir}" failonerror="true"/>
+		<mkdir dir="${tmp.plugin.dir}"/>
+
+		<javadoc classpath="${java.class.path}:${class.path}" protected="false" private="false"
+				sourcepath="${src.dir}" 
+				additionalparam="-J-Xmx1024m -breakiterator" author="true" version="true" 
+				use="true" windowtitle="${Name} Package" 
+				doctitle="${Name} Package&lt;div align='center'>&lt;img src='neptus_logo_font_500x193.png' border='0'>&lt;/div>" 
+				bottom="&lt;font size='-1' color='#3399CC'>${legal.copy.html}&lt;/font>" 
+				header="${Name}" footer="FEUP-LSTS" destdir="${tmp.plugin.dir}" docencoding="UTF-8" overview="./javadoc/overview.html" 
+				packagenames="pt.up.fe.dceg.neptus.plugins*,pt.up.fe.dceg.neptus.console*,pt.up.fe.dceg.neptus.mra*,pt.up.fe.dceg*.vartree*,pt.up.fe.dceg.neptus.util*"
+			 	locale="en_US" charset="UTF-8" encoding="${compile-encoding}">
+			<group title="Plugins" packages="pt.up.fe.dceg.neptus.plugins*" />
+			<group title="Consoles" packages="pt.up.fe.dceg.neptus.console*" />								
+			<group title="Types" packages="pt.up.fe.dceg.neptus.types*" />
+			<group title="Mission Review &amp; Analysis" packages="pt.up.fe.dceg.neptus.mra*" />
+			<group title="GUI" packages="pt.up.fe.dceg.neptus.gui*" />
+			<group title="Util" packages="pt.up.fe.dceg.neptus.util*" />
+			<group title="Var Tree" packages="pt.up.fe.dceg.neptus.vartree*,pt.up.fe.dceg.vartree*" />
+		</javadoc>
+		<copy todir="${tmp.plugin.dir}">
+			<fileset dir="./javadoc" includes="neptus_logo_font_500x193.png" />
+		</copy>				
+		<zip destfile="javadoc/javadoc.zip" basedir="${tmp.plugin.dir}" />
+	
+		<delete dir="${tmp.plugin.dir}" failonerror="true"/>
+	</target>	
+					
+
+	<target name="javadoc-render">
+			<echo message="Render javadocs" />
+			<delete dir="${tmp.plugin.dir}" failonerror="true"/>
+			<mkdir dir="${tmp.plugin.dir}"/>
+
+			<javadoc classpath="${java.class.path}:${class.path}" protected="false" private="false"
+					sourcepath="${src.dir}" 
+					additionalparam="-J-Xmx1024m -breakiterator" author="true" version="true" 
+					use="true" windowtitle="${Name} Package" 
+					doctitle="${Name} Package&lt;div align='center'>&lt;img src='neptus_logo_font_500x193.png' border='0'>&lt;/div>" 
+					bottom="&lt;font size='-1' color='#3399CC'>${legal.copy.html}&lt;/font>" 
+					header="${Name}" footer="FEUP-LSTS" destdir="${tmp.plugin.dir}" docencoding="UTF-8" 
+					overview="./javadoc/overview.html" 
+					packagenames="pt.up.fe.dceg.neptus.types.coord*,pt.up.fe.dceg.neptus.renderer2d*,pt.up.fe.dceg.neptus.util.s52*"
+				 	locale="en_US" charset="UTF-8" encoding="${compile-encoding}">
+				<group title="Types" packages="pt.up.fe.dceg.neptus.types*" />
+				<group title="Util" packages="pt.up.fe.dceg.neptus.util*" />
+				<group title="StateRender2D" packages="pt.up.fe.dceg.neptus.renderer2d*" />
+			</javadoc>
+			<copy todir="${tmp.plugin.dir}">
+				<fileset dir="./javadoc" includes="neptus_logo_font_500x193.png" />
+			</copy>				
+			<zip destfile="javadoc/javadoc-render.zip" basedir="${tmp.plugin.dir}" />
+		
+			<delete dir="${tmp.plugin.dir}" failonerror="true"/>
+
+		</target>	
+
+	<!-- =================================================================== -->
+	<!-- Creates the API documentation                                       -->
+	<!-- =================================================================== -->
+	<target name="javadocs" depends="prepare.docs,javadocs-auto" 
+			description="Build the Javadocs for Neptus sources">
+		<echo message="javadocs is human-usable target with dependencies" />
+	</target>
+	<target name="javadocs-auto">
+		<echo message="javadocs-auto is for automated build process, without dependencies" />
+		<!--splash/-->
+		<!-- sourcepath="${src.dir}" -->		
+		<delete dir="${build.apidocs}" failonerror="false" />
+		<javadoc classpath="${java.class.path}:${class.path}" protected="false" 
+				packagenames="pt.up.fe.dceg.neptus.*,pt.up.fe.dceg.vartree.*" 
+				additionalparam="-J-Xmx1024m -breakiterator" author="true" version="true" 
+				use="true" windowtitle="${Name} Package API" 
+				doctitle="${Name} Package&lt;div align='center'>&lt;img src='neptus_logo_font_500x193.png' border='0'>&lt;/div>" 
+				bottom="&lt;font size='-1' color='#3399CC'>${legal.copy.html}&lt;/font>" 
+				header="${Name}" footer="FEUP-LSTS" destdir="${build.apidocs}" docencoding="UTF-8" 
+				overview="./javadoc/overview.html" locale="en_US" charset="UTF-8" encoding="${compile-encoding}">
+			<sourcepath path="${src.dir}" />
+			<!--fileset dir="${plugin-dev.dir.base}" defaultexcludes="yes">
+			      <include name="**/*.java"/>
+			</fileset-->
+			<!--sourcepath path="${plugin-dev.dir.base}" /-->
+			<group title="Types" packages="pt.up.fe.dceg.neptus.types*" />
+			<group title="Workspace" packages="pt.up.fe.dceg.neptus.mc*" />
+			<group title="Mission Review &amp; Analysis" packages="pt.up.fe.dceg.neptus.mra*" />
+			<group title="2D and 3D Renderer" packages="pt.up.fe.dceg.neptus.renderer*" />
+			<group title="GUI" packages="pt.up.fe.dceg.neptus.gui*" />
+			<group title="Util" packages="pt.up.fe.dceg.neptus.util*" />
+			<group title="Aplications Loaders" packages="pt.up.fe.dceg.neptus.loader*" />
+			<group title="Plugins" packages="pt.up.fe.dceg.neptus.plugins*" />
+			<group title="I18n" packages="pt.up.fe.dceg.neptus.i18n*" />
+			<group title="JUnit" packages="pt.up.fe.dceg.neptus.junit*" />
+			<group title="Tests" packages="pt.up.fe.dceg.neptus.test*" />
+		</javadoc>
+		<copy todir="${build.apidocs}">
+			<fileset dir="./javadoc" includes="neptus_logo_font_500x193.png" />
+		</copy>
+		<!-- sourcefiles="${src.dir}\**\*.java" -->
+		<!-- copy todir="${build.apidocs}">
+          <fileset dir="${imgWeb.dir}" includes="logo*.*"/>
+    	</copy -->
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Update javadocs on site                                             -->
+	<!-- =================================================================== -->
+	<!--property name="ws_doc.site" value="build/docs/api" />
+	<property name="ws_doc.user" value="neptus" />
+	<property name="ws_doc.server" value="whale.fe.up.pt" />
+	<property name="ws_doc.basepath" value="/home/neptus/neptusSite/docs" />
+
+	<target name="update_site_docs" depends="javadocs,update_site-pass">
+		<scp trust="yes" todir="${ws_doc.basecom}">
+			<fileset dir="${ws_doc.site}">
+				<exclude name="${exclude-svn}" />
+			</fileset>
+		</scp>
+	</target>
+
+	<target name="update_site-pass">
+		<input message="Please enter password:" addproperty="ws_doc.pass" />
+		<property name="ws_doc.basecom" value="${ws_doc.user}:${ws_doc.pass}@${ws_doc.server}:${ws_doc.basepath}" />
+	</target-->
+
+
+	<!-- =================================================================== -->
+	<!-- Runs the JUnit tests and creats a report                                                                       -->
+	<!-- =================================================================== -->
+	<target name="junit" depends="prepare.docs, compile" description="Runs the JUnit tests and creats a report.">
+		<junit printsummary="yes" haltonfailure="no">
+			<classpath>
+				<pathelement location="${build.classes}" />
+				<pathelement path="${class.path}" />
+				<!-- path>
+				<fileset dir="${env.ANT_HOME}/lib" casesensitive="false">
+					<include name="**/*.jar"/>
+					<include name="**/*.zip"/>
+				</fileset>
+			</path -->
+			</classpath>
+			<formatter type="xml" />
+
+			<!-- test name="pt.up.fe.dceg.neptus.junit.AllTests" haltonfailure="no"
+		  	outfile="${reports.tests}/result">
+		    <formatter type="xml"/>
+		  </test -->
+
+			<batchtest fork="yes" todir="${reports.tests}">
+				<formatter type="xml" />
+				<fileset dir="${src.dir}">
+					<include name="**/junit/**/*Test.java" />
+					<exclude name="**/junit/**/AllTests.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+		<junitreport todir="${reports.tests}">
+			<fileset dir="${reports.tests}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${reports.outputs}" />
+		</junitreport>
+		<!--<delete dir="${reports.tests}" />-->
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Calls the genKeys ant build.xml                                     -->
+	<!-- =================================================================== -->
+	<target name="keys-genkeys" description="Calls the genKeys ant build.xml to create the keys to sign the jars.">
+		<ant inheritAll="false" antfile="${certs.build.file}" target="keys-genkeystoreJCEKS_RSA" />
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Calls the genCert ant build.xml                                     -->
+	<!-- =================================================================== -->
+	<target name="keys-gencert" description="Calls the genCert ant build.xml to create the certificate to sign the jars.">
+		<ant inheritAll="false" antfile="${certs.build.file}" target="genCertJCEKS" />
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Generates the files neptus.bat and neptus.sh for launching Neptus   -->
+	<!-- =================================================================== -->
+	<target name="generate-launchers" depends="create-sh-bat-filters"
+			description="Generates the files neptus.bat and neptus.sh for launching Neptus placing new jar libs in classpath">
+			
+		<copy todir="." overwrite="true">
+			<fileset dir="${src.shell.dir}">
+				<include name="*.bat" />
+				<exclude name="${exclude-svn}" />
+			</fileset>
+			<filterset refid="bat.filters" />
+		</copy>
+		<copy todir="." overwrite="true">
+			<fileset dir="${src.shell.dir}">
+				<include name="*.sh" />
+				<exclude name="grow_pot.sh" />
+				<exclude name="${exclude-svn}" />
+			</fileset>
+			<filterset refid="sh.filters" />
+		</copy>
+		
+		<chmod perm="a+x">
+			<fileset dir=".">
+				<include name="*.sh"/>
+			</fileset>
+		</chmod>
+		
+		<copy todir="dev-scripts" overwrite="true">
+			<fileset dir="${src.shell.dir}">
+				<include name="grow_pot.sh" />
+				<exclude name="${exclude-svn}" />
+			</fileset>
+			<filterset refid="sh.filters" />
+		</copy>
+		<fixcrlf preservelastmodified="true" srcdir="dev-scripts" eol="lf" eof="remove" includes="*.sh" />
+		<chmod file="dev-scripts/grow_pot.sh" perm="a+x" />
+		
+		<!-- generate the installers bat and sh files -->
+		<copy todir="./NSIS_release/static_files/batch_files" overwrite="true">
+			<fileset dir="${src.shell.dir}/installers">
+				<include name="*.bat" />
+				<exclude name="${exclude-svn}" />
+			</fileset>
+			<filterset refid="bat.filters" />
+		</copy>
+		<copy todir="./NSIS_release/static_files/batch_files" overwrite="true">
+			<fileset dir="${src.shell.dir}/installers">
+				<include name="*.sh" />
+				<exclude name="${exclude-svn}" />
+			</fileset>
+			<filterset refid="sh.filters" />
+		</copy>
+
+		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="*.sh" />
+		<fixcrlf preservelastmodified="true" srcdir="." eol="crlf" includes="*.bat" />
+
+		<fixcrlf preservelastmodified="true" srcdir="./NSIS_release/static_files/batch_files" eol="lf" eof="remove" includes="*.sh" />
+		<fixcrlf preservelastmodified="true" srcdir="./NSIS_release/static_files/batch_files" eol="crlf" includes="*.bat" />
+	</target>
+
+	<!-- Prepare the filters for Neptus libs for sh and bat files copy       -->
+    <target name="create-sh-bat-filters">
+		<path id="lpath"><pathelement path="${lib.dir}" /></path>
+		<property name="llpath" refid="lpath" />
+
+		<pathconvert dirsep="/" pathsep=";" property="classpath.win" refid="cp.lib.jars">
+			<map from="${llpath}" to="${lib.dir}" />
+		</pathconvert>
+		<pathconvert dirsep="/" pathsep=":" property="classpath.linux" refid="cp.lib.jars">
+			<map from="${llpath}" to="${lib.dir}" />
+		</pathconvert>
+		
+		<echo level="debug" message=" lib Abs dir = ${llpath}" />
+		<echo level="debug" message=" Windows ClassPath = ${classpath.win}" />
+		<echo level="debug" message=" Linux ClassPath = ${classpath.linux}" />
+
+		<filterset id="bat.filters">
+			<filter token="NEPTUS_LIBS" value=";${classpath.win}" />
+		</filterset>
+		<filterset id="sh.filters">
+			<filter token="NEPTUS_LIBS" value=":${classpath.linux}" />
+		</filterset>
+    </target>
+
+	
+
+	<!-- =================================================================== -->
+	<!-- Copy Windows JRE to Distribution Dir		                         -->
+	<!-- =================================================================== -->
+
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- JRE to Distribution Dir Workers (to be called from antcall)         -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<target name="jre-copy-to-dist-worker" depends="jre-os-get-from-server-worker">
+		<!--
+		Params:
+		       jre-os = ["Windows" | "Windows 64" | "Linux" | "Linux 64"] // use one of this, the word 'windows' and '64' will be used to access folder naming
+		       os.jre.version.dir = <Path> // Path to unzip the tar.gz jre
+		       os.dist.dir = <Path> // Path to copy to the jre to
+		       jre-os-tgz = <Name> // The name of the tgz jre file
+		       jre-base-url = <URL> // URL (with ending /) where to find the tgz jres
+		-->
+		<condition property="os-jre-java-cmd-sufix" value=".exe" else="">
+		    <contains string="${jre-os}" substring="windows" casesensitive="false" />
+		</condition>
+		<condition property="jre-dir-sufix" value="64" else="">
+		    <contains string="${jre-os}" substring="64" casesensitive="false" />
+		</condition>
+	    <fail message="Missing ${jre-os} Java VM in dir ${os.jre.version.dir}">
+	    	<condition>
+	    		<not>
+    	    		<and>
+    	    			<available file="${os.jre.version.dir}/bin/java${os-jre-java-cmd-sufix}" />
+    	    			<available file="${os.jre.version.dir}/lib/rt.jar" />
+    	    		</and>
+    	    	</not>
+    	    </condition>
+	    </fail>
+		<copy todir="${os.dist.dir}/jre${jre-dir-sufix}" verbose="true" preservelastmodified="true">
+			<fileset dir="${os.jre.version.dir}" excludes="**/.svn" />
+		</copy>
+		<antcall target="delete-jre-os-dir-worker" />
+	</target>
+	
+	<!-- Don't call it directly -->
+	<target name="delete-jre-os-dir-worker">
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${os.jre.version.dir}" includes="**/*"/>
+		</delete>
+	</target>
+
+	<!-- Don't call it directly -->
+	<target name="jre-os-get-from-server-worker">
+    	<mkdir dir="${os.jre.version.dir}"/>
+    	<!--available file="${os.jre.version.dir}/../${jre-os-tgz}" 
+    			type="file" property="jre-os-tgz-exists">
+    	</available-->
+    	<antcall target="jre-os-download-worker" />
+    	<available file="${os.jre.version.dir}/../${jre-os-tgz}" 
+    			type="file" property="jre-os-downloaded">
+    	</available>
+    	<antcall target="jre-os-untar-downloaded-worker" />
+    </target>
+
+	<!-- Don't call it directly -->
+    <target name="jre_os_url-reachable_test_worker">
+        <condition property="jre-os-url-available">
+    		<http url="${jre-base-url}${jre-os-tgz}" />
+        </condition>
+    </target>
+
+	<!-- Don't call it directly -->
+	<target name="jre-os-download-worker" depends="jre_os_url-reachable_test_worker" if="jre-os-url-available"> <!-- unless="jre-os-tgz-exists" -->
+    	<get src="${jre-base-url}${jre-os-tgz}" ignoreerrors="true"
+    			dest="${os.jre.version.dir}/../${jre-os-tgz}" 
+    			usetimestamp="true" verbose="true" />
+	</target>
+
+	<!-- Don't call it directly -->
+	<target name="jre-os-untar-downloaded-worker" if="jre-os-downloaded">
+    	<mkdir dir="${os.jre.version.dir}"/>
+		<antcall target="delete-jre-os-dir-worker" />		
+    	<untar compression="gzip" overwrite="true" dest="${os.jre.version.dir}"
+    			src="${os.jre.version.dir}/../${jre-os-tgz}" />
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- Copy Windows JRE to Distribution Dir		                         -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<target name="jre-windows-copy-to-dist">
+		<antcall target="jre-copy-to-dist-worker" inheritAll="false">
+			<param name="jre-os" value="Windows"/>
+			<param name="os.jre.version.dir" value="${windows.jre.version.dir}" />
+			<param name="os.dist.dir" value="${windows.dist.dir}" />
+			<param name="jre-os-tgz" value="${jre-windows-tgz-url}" />
+			<param name="jre-base-url" value="${jre-base-url}" />
+		</antcall>		
+	</target>
+
+	<target name="jre64-windows-copy-to-dist">
+		<antcall target="jre-copy-to-dist-worker" inheritAll="false">
+			<param name="jre-os" value="Windows x64"/>
+			<param name="os.jre.version.dir" value="${windows.jre64.version.dir}" />
+			<param name="os.dist.dir" value="${windows.dist.dir}" />
+			<param name="jre-os-tgz" value="${jre64-windows-tgz-url}" />
+			<param name="jre-base-url" value="${jre-base-url}" />
+		</antcall>		
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- Copy Linux JRE to Distribution Dir                                  -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<target name="jre-linux-copy-to-dist">
+		<antcall target="jre-copy-to-dist-worker" inheritAll="false">
+			<param name="jre-os" value="Linux"/>
+			<param name="os.jre.version.dir" value="${linux.jre.version.dir}" />
+			<param name="os.dist.dir" value="${linux.dist.dir}" />
+			<param name="jre-os-tgz" value="${jre-linux-tgz-url}" />
+			<param name="jre-base-url" value="${jre-base-url}" />
+		</antcall>		
+	</target>
+
+	<target name="jre64-linux-copy-to-dist">
+		<antcall target="jre-copy-to-dist-worker" inheritAll="false">
+			<param name="jre-os" value="Linux x64"/>
+			<param name="os.jre.version.dir" value="${linux.jre64.version.dir}" />
+			<param name="os.dist.dir" value="${linux.dist.dir}" />
+			<param name="jre-os-tgz" value="${jre64-linux-tgz-url}" />
+			<param name="jre-base-url" value="${jre-base-url}" />
+		</antcall>		
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Distribution Builders Workers      		                         -->
+	<!-- =================================================================== -->
+
+	<!--
+	Reference:
+	       dist.filters = neptusLE.filters | neptusSeacon.filters
+	       common.filters = neptus.filters
+	Params:
+	       jre-os = ["All-OS" | "Windows" | "Linux"] // use one of this, the word 'windows' 'linux' and 'all' will be used to access folder naming
+	       dist.dir = <Path> // Path to unzip the tar.gz jre
+	       sh-bash-basename = [neptus | neptusse] // from ${nsis_src.dir}/batch_files/
+	       copy-includes-excludes-file-sufix = [NeptusSE | NeptusSeacon] // in dist folder as includes_<copy-includes-excludes-file-sufix>.txt and excludes_<copy-includes-excludes-file-sufix>.txt 
+	       dist.installer.name = ${dist.installer.name.full} // basename of file of distribution
+	       dist.instalation.folder.name = [Neptus | NeptusLE | NeptusSC] 
+	-->
+
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- Prepares nsis version file for windows installer                    -->  
+	<!-- Don't call it directly                                              -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<target name="nsisversion.worker">
+		<!-- "Prepares the NSIS Neptus version file." -->
+		<copy todir="${nsis_dst.dir}" overwrite="true">
+			<fileset dir="${nsis_src.dir}">
+				<include name="neptus_include.nsi" />
+				<exclude name="${exclude-svn}" />
+			</fileset>
+			<filterset refid="dist.filters" />
+			<filterset refid="common.filters" />
+		</copy>
+	</target>
+
+	<target name="dist_os.worker">
+		<delete dir="${dist.dir}" />
+		
+		<condition property="exclude-win" value=",**/*.sh,**/*.so" else="">
+		    <contains string="${jre-os}" substring="windows" casesensitive="false" />
+		</condition>
+		<condition property="exclude-linux" value=",**/*.dll,**/*.exe,**/*.bat" else="">
+		    <contains string="${jre-os}" substring="linux" casesensitive="false" />
+		</condition>
+		<condition property="copy-laucher-bat" value="true">
+			<or>
+				<contains string="${jre-os}" substring="all" casesensitive="false" />
+				<contains string="${jre-os}" substring="windows" casesensitive="false" />
+			</or>
+		</condition>
+		<condition property="copy-laucher-sh" value="true">
+			<or>
+				<contains string="${jre-os}" substring="all" casesensitive="false" />
+				<contains string="${jre-os}" substring="linux" casesensitive="false" />
+			</or>
+		</condition>
+		<condition property="copy-laucher-exe" value="true">
+			<or>
+				<contains string="${jre-os}" substring="all" casesensitive="false" />
+				<contains string="${jre-os}" substring="windows" casesensitive="false" />
+			</or>
+		</condition>
+
+		<copy todir="${dist.dir}" verbose="yes" preservelastmodified="true">
+			<fileset dir="." excludes="neptus.tgz,neptus-installer.sh,**/*.svn${exclude-win}${exclude-linux}">
+				<includesfile name="dist/includes_NeptusCommon.txt" />
+				<includesfile name="dist/includes_${copy-includes-excludes-file-sufix}.txt" />
+				<excludesfile name="dist/excludes_${copy-includes-excludes-file-sufix}.txt" />
+			</fileset>
+		</copy>
+		<copy file="${src.dir}/images/neptus-icon2.png" tofile="${dist.dir}/neptus.png" preservelastmodified="true" />
+		<antcall target="copy-laucher-bat.worker" />
+		<antcall target="copy-laucher-sh.worker" />
+		<antcall target="copy-laucher-exe.worker" />
+		<copy file="svn.info.txt" tofile="${dist.dir}/conf/version"
+				overwrite="yes" failonerror="false" preservelastmodified="true">
+		</copy>
+	</target>
+	<target name="copy-laucher-bat.worker" if="copy-laucher-bat">
+		<copy file="${nsis_src.dir}/batch_files/${sh-bash-basename}.bat" tofile="${dist.dir}/neptus.bat" 
+				overwrite="yes" failonerror="yes" preservelastmodified="true">
+		</copy>	
+	</target>
+	<target name="copy-laucher-sh.worker" if="copy-laucher-sh">
+		<copy file="${nsis_src.dir}/batch_files/${sh-bash-basename}.sh" tofile="${dist.dir}/neptus.sh" 
+				overwrite="yes" failonerror="yes" preservelastmodified="true">
+		</copy>
+	</target>
+	<target name="copy-laucher-exe.worker" if="copy-laucher-exe">
+		<copy file="neptus.exe" todir="${dist.dir}" 
+				overwrite="yes" failonerror="yes" preservelastmodified="true">
+		</copy>
+	</target>
+		
+	<target name="installer-checksum-worker">
+		<delete dir="${dist.installer.name}.MD5SUM" />
+
+		<checksum format="MD5SUM" algorithm="MD5" fileext="MD5TMP">
+		  <fileset dir=".">
+		    <include name="${dist.installer.name}*" />
+		  	<exclude name="*MD5SUM" />
+		  	<exclude name="*MD5TMP" />
+		  </fileset>
+		</checksum>
+		<concat destfile="${dist.installer.name}.MD5SUM">
+		  <fileset dir=".">
+		  	<include name="*MD5TMP" />
+		  </fileset>
+		</concat>
+		<fixcrlf srcdir="." eol="lf" eof="remove" 
+			includes="${dist.installer.name}.MD5SUM" />
+		<delete>
+		  <fileset dir=".">
+		  	<include name="*MD5TMP" />
+		  </fileset>
+		</delete>
+	</target>
+
+	<!-- depends="dist_os.worker" -->
+	<target name="create-installer-all-os.worker" 
+			description="Create All OS extracting installer (no Java VM)">
+		<delete file="${dist.installer.name}.tar.gz" />
+		<echo message="Compressing ${dist.dir} to ${dist.installer.name}.tar.gz...">
+		</echo>
+		<tar destfile="${dist.installer.name}.tar.gz" compression="gzip">
+			<tarfileset prefix="${dist.instalation.folder.name}" dir="${dist.dir}">
+				<exclude name="**/neptus.sh,jre/bin/,helper-scripts" />
+			</tarfileset>
+			<tarfileset prefix="${dist.instalation.folder.name}" file="${dist.dir}/neptus.sh" mode="755" />
+			<tarfileset prefix="${dist.instalation.folder.name}/helper-scripts" dir="${all.os.dist.dir}/helper-scripts" mode="755" />
+		</tar>
+		<delete dir="${dist.dir}" failonerror="false" />
+	</target>
+
+	<!-- depends="nsisversion,dist_windows" -->
+	<target name="create-installer-windows.worker" depends="nsisversion.worker" 
+			description="Create Windows installer">
+		<antcall target="jre-windows-copy-to-dist" /> <!-- not on depends to allow calling multiple installers -->
+		<antcall target="jre64-windows-copy-to-dist" />
+
+		<delete file="${dist.dir}/neptus.bat" /> <!-- this will be copies by the nsis script -->
+		<nsis script="NSIS_release/install_scripts/neptus.nsi">
+			<define name="BASEDIR" value="..\..\${dist.dir}" />
+		</nsis>
+		<delete dir="${dist.dir}" failonerror="false" />
+	</target>
+
+	<!-- depends="dist_linux" -->
+	<target name="create-installer-linux.worker" 
+			description="Create a self extracting tar file">
+		<antcall target="jre-linux-copy-to-dist" /> <!-- not on depends to allow calling multiple installers -->
+		<antcall target="jre64-linux-copy-to-dist" />
+		
+		<delete file="neptus.tgz" />
+		<delete file="${dist.installer.name}.sh" />
+		<echo message="Compressing ${dist.dir} to neptus.tgz...">
+		</echo>
+		<tar destfile="neptus.tgz" compression="gzip">
+			<tarfileset prefix="${dist.instalation.folder.name}" dir="${dist.dir}">
+				<exclude name="**/neptus.sh,jre*/bin/,helper-scripts" />
+			</tarfileset>
+			<tarfileset prefix="${dist.instalation.folder.name}" file="${dist.dir}/neptus.sh" mode="755" />
+			<tarfileset prefix="${dist.instalation.folder.name}/jre/bin" dir="${dist.dir}/jre/bin" mode="755" />
+			<tarfileset prefix="${dist.instalation.folder.name}/jre64/bin" dir="${dist.dir}/jre64/bin" mode="755" />
+			<tarfileset prefix="${dist.instalation.folder.name}/helper-scripts" dir="${dist.dir}/helper-scripts" mode="755" />
+		</tar>
+
+		<copy file="${nsis_src.dir}/linux_sfx_header.txt" tofile="sfx_header.sh">
+			<filterset refid="dist.filters" />
+			<filterset refid="common.filters" />
+		</copy>
+
+		<echo message="Creating Neptus_bin.sh...">
+		</echo>
+		<concat destfile="${dist.installer.name}.sh" binary="true">
+			<filelist dir=".">
+				<file name="sfx_header.sh" />
+				<file name="neptus.tgz" />
+			</filelist>
+		</concat>
+		<delete file="sfx_header.sh" />
+		<delete file="neptus.tgz" />
+		<delete dir="${dist.dir}" failonerror="false" />
+	</target>
+
+	<target name="distribution.worker">
+		<!-- Extra param: installer-to-call  //create-installer* target to call -->
+		<antcall target="dist_os.worker" inheritall="true" inheritrefs="true">
+		</antcall>
+		<antcall target="${installer-to-call}" inheritall="true" inheritrefs="true">
+		</antcall>
+	</target>
+
+	
+	<!-- =================================================================== -->
+	<!-- All Distributions Builders                                          -->
+	<!-- =================================================================== -->
+
+	<target name="distribution-all" depends="prepare, distribution-full, distribution-seacon, distribution-le"
+			description="Distribution generation for all flavors.">		
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- Distribution Full Builders                                          -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<target name="distribution-full" depends="prepare, distribution-full-all-os, distribution-full-linux, distribution-full-windows"
+			description="Distribution generation for Full flavors, all variants.">
+		<antcall target="installer-checksum-worker" inheritall="false">
+			<param name="dist.installer.name" value="${dist.installer.name.full}" />
+		</antcall>
+	</target>
+	<target name="distribution-full-all-os" depends="prepare"
+			description="Distribution generation for Full flavors, All-OS variant.">
+		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
+			<param name="installer-to-call" value="create-installer-all-os.worker"/>
+			<param name="jre-os" value="All-OS"/>
+			<param name="dist.dir" value="${all.os.dist.dir}" />
+			<param name="sh-bash-basename" value="neptus" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusFull" />
+			<param name="dist.installer.name" value="${dist.installer.name.full}" />
+			<param name="dist.instalation.folder.name" value="Neptus" />
+			<reference refid="neptus.filters" torefid="dist.filters" />
+			<reference refid="neptus.filters" torefid="common.filters" />
+		</antcall>
+	</target>
+	<target name="distribution-full-windows" depends="prepare"
+			description="Distribution generation for Full flavors, Windows variant.">
+		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
+			<param name="installer-to-call" value="create-installer-windows.worker"/>
+			<param name="jre-os" value="Windows"/>
+			<param name="dist.dir" value="${windows.dist.dir}" />
+			<param name="sh-bash-basename" value="neptus" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusFull" />
+			<param name="dist.installer.name" value="${dist.installer.name.full}" />
+			<param name="dist.instalation.folder.name" value="Neptus" />
+			<reference refid="empty.filters" torefid="dist.filters" />
+			<reference refid="neptus.filters" torefid="common.filters" />
+		</antcall>
+	</target>
+	<target name="distribution-full-linux" depends="prepare"
+			description="Distribution generation for Full flavors, Linux variant.">
+		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
+			<param name="installer-to-call" value="create-installer-linux.worker"/>
+			<param name="jre-os" value="Linux"/>
+			<param name="dist.dir" value="${linux.dist.dir}" />
+			<param name="sh-bash-basename" value="neptus" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusFull" />
+			<param name="dist.installer.name" value="${dist.installer.name.full}" />
+			<param name="dist.instalation.folder.name" value="Neptus" />
+			<reference refid="empty.filters" torefid="dist.filters" />
+			<reference refid="neptus.filters" torefid="common.filters" />
+		</antcall>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- Distribution Seacon Builders                                        -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<target name="distribution-seacon" depends="prepare, distribution-seacon-all-os, distribution-seacon-linux, distribution-seacon-windows"
+			description="Distribution generation for Seacon flavors, all variants.">
+		<antcall target="installer-checksum-worker" inheritall="false">
+			<param name="dist.installer.name" value="${dist.installer.name.seacon}" />
+		</antcall>
+	</target>
+	<target name="distribution-seacon-all-os" depends="prepare"
+			description="Distribution generation for Seacon flavors, All-OS variant.">
+		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
+			<param name="installer-to-call" value="create-installer-all-os.worker"/>
+			<param name="jre-os" value="All-OS"/>
+			<param name="dist.dir" value="${all.os.dist.dir}" />
+			<param name="sh-bash-basename" value="neptusse" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusSeacon" />
+			<param name="dist.installer.name" value="${dist.installer.name.seacon}" />
+			<param name="dist.instalation.folder.name" value="NeptusSC" />
+			<reference refid="neptusSeacon.filters" torefid="dist.filters" />
+			<reference refid="neptus.filters" torefid="common.filters" />
+		</antcall>
+	</target>
+	<target name="distribution-seacon-windows" depends="prepare"
+			description="Distribution generation for Seacon flavors, Windows variant.">
+		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
+			<param name="installer-to-call" value="create-installer-windows.worker"/>
+			<param name="jre-os" value="Windows"/>
+			<param name="dist.dir" value="${windows.dist.dir}" />
+			<param name="sh-bash-basename" value="neptusse" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusSeacon" />
+			<param name="dist.installer.name" value="${dist.installer.name.seacon}" />
+			<param name="dist.instalation.folder.name" value="NeptusSC" />
+			<reference refid="neptusSeacon.filters" torefid="dist.filters" />
+			<reference refid="neptus.filters" torefid="common.filters" />
+		</antcall>
+	</target>
+	<target name="distribution-seacon-linux" depends="prepare"
+			description="Distribution generation for Seacon flavors, Linux variant.">
+		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
+			<param name="installer-to-call" value="create-installer-linux.worker"/>
+			<param name="jre-os" value="Linux"/>
+			<param name="dist.dir" value="${linux.dist.dir}" />
+			<param name="sh-bash-basename" value="neptusse" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusSeacon" />
+			<param name="dist.installer.name" value="${dist.installer.name.seacon}" />
+			<param name="dist.instalation.folder.name" value="NeptusSC" />
+			<reference refid="neptusSeacon.filters" torefid="dist.filters" />
+			<reference refid="neptus.filters" torefid="common.filters" />
+		</antcall>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<!-- Distribution LE Builders                                            -->
+	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	<target name="distribution-le" depends="prepare, distribution-le-all-os, distribution-le-linux, distribution-le-windows"
+			description="Distribution generation for LE flavors, all variants.">
+		<antcall target="installer-checksum-worker" inheritall="false">
+			<param name="dist.installer.name" value="${dist.installer.name.le}" />
+		</antcall>
+	</target>
+	<target name="distribution-le-all-os" depends="prepare"
+			description="Distribution generation for LE flavors, All-OS variant.">
+		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
+			<param name="installer-to-call" value="create-installer-all-os.worker"/>
+			<param name="jre-os" value="All-OS"/>
+			<param name="dist.dir" value="${all.os.dist.dir}" />
+			<param name="sh-bash-basename" value="neptusse" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusSE" />
+			<param name="dist.installer.name" value="${dist.installer.name.le}" />
+			<param name="dist.instalation.folder.name" value="NeptusLE" />
+			<reference refid="neptusLE.filters" torefid="dist.filters" />
+			<reference refid="neptus.filters" torefid="common.filters" />
+		</antcall>
+	</target>
+	<target name="distribution-le-windows" depends="prepare"
+			description="Distribution generation for LE flavors, Windows variant.">
+		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
+			<param name="installer-to-call" value="create-installer-windows.worker"/>
+			<param name="jre-os" value="Windows"/>
+			<param name="dist.dir" value="${windows.dist.dir}" />
+			<param name="sh-bash-basename" value="neptusse" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusSE" />
+			<param name="dist.installer.name" value="${dist.installer.name.le}" />
+			<param name="dist.instalation.folder.name" value="NeptusLE" />
+			<reference refid="neptusLE.filters" torefid="dist.filters" />
+			<reference refid="neptus.filters" torefid="common.filters" />
+		</antcall>
+	</target>
+	<target name="distribution-le-linux" depends="prepare"
+			description="Distribution generation for LE flavors, Linux variant.">
+		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
+			<param name="installer-to-call" value="create-installer-linux.worker"/>
+			<param name="jre-os" value="Linux"/>
+			<param name="dist.dir" value="${linux.dist.dir}" />
+			<param name="sh-bash-basename" value="neptusse" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusSE" />
+			<param name="dist.installer.name" value="${dist.installer.name.le}" />
+			<param name="dist.instalation.folder.name" value="NeptusLE" />
+			<reference refid="neptusLE.filters" torefid="dist.filters" />
+			<reference refid="neptus.filters" torefid="common.filters" />
+		</antcall>
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Prepares nsis version file for windows installer                    -->
+	<!-- =================================================================== -->
+
+	<target name="nsisversion">
+		<!-- "Prepares the NSIS Neptus version file." -->
+		<copy todir="${nsis_dst.dir}" overwrite="true">
+			<fileset dir="${nsis_src.dir}">
+				<include name="neptus_include.nsi" />
+				<exclude name="${exclude-svn}" />
+			</fileset>
+			<filterset refid="neptus.filters" />
+		</copy>
+	</target>
+
+	<target name="nsisversion.le">
+		<!-- "Prepares the NSIS Neptus version file." -->
+		<copy todir="${nsis_dst.dir}" overwrite="true">
+			<fileset dir="${nsis_src.dir}">
+				<include name="neptus_include.nsi" />
+				<exclude name="${exclude-svn}" />
+			</fileset>
+			<filterset refid="neptusLE.filters" />
+			<filterset refid="neptus.filters" />
+		</copy>
+	</target>
+
+	<target name="nsisversion.seacon">
+		<!-- "Prepares the NSIS Neptus version file." -->
+		<copy todir="${nsis_dst.dir}" overwrite="true">
+			<fileset dir="${nsis_src.dir}">
+				<include name="neptus_include.nsi" />
+				<exclude name="${exclude-svn}" />
+			</fileset>
+			<filterset refid="neptusSeacon.filters" />
+			<filterset refid="neptus.filters" />
+		</copy>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Prepare Distribution (Light Edition)                                -->
+	<!-- =================================================================== -->
+	<!-- Prepare All OS Distribution (Full)                                  -->
+	<target name="dist_le_all_os">
+		<delete dir="${all.os.dist.dir}" />
+		<copy todir="${all.os.dist.dir}" verbose="yes">
+			<fileset dir="." excludes="neptus.tgz,neptus-installer.sh,**/*.svn">
+				<includesfile name="dist/includes_NeptusCommon.txt" />
+				<includesfile name="dist/includes_NeptusSE.txt" />
+				<excludesfile name="dist/excludes_NeptusSE.txt" />
+			</fileset>
+		</copy>
+		<copy file="${nsis_src.dir}/batch_files/neptusse.bat" tofile="${all.os.dist.dir}/neptus.bat" 
+				overwrite="yes" failonerror="yes">
+		</copy>
+		<copy file="${nsis_src.dir}/batch_files/neptusse.sh" tofile="${all.os.dist.dir}/neptus.sh" 
+				overwrite="yes" failonerror="yes">
+		</copy>
+		<copy file="neptus.exe" todir="${all.os.dist.dir}" 
+				overwrite="yes" failonerror="yes">
+		</copy>
+		<copy file="svn.info.txt" tofile="${all.os.dist.dir}/conf/version"
+				overwrite="yes" failonerror="false">
+		</copy>
+	</target>
+	
+	<!-- Prepare Windows Distribution (Light Edition)                        -->
+	<target name="dist_le_windows">
+		<delete dir="${windows.dist.dir}" />
+		<copy todir="${windows.dist.dir}" verbose="yes">
+			<fileset dir="." excludes="neptus.tgz,neptus-installer.sh,**/*.svn,**/*.sh,**/*.so">
+				<includesfile name="dist/includes_NeptusCommon.txt" />
+				<includesfile name="dist/includes_NeptusSE.txt" />
+				<excludesfile name="dist/excludes_NeptusSE.txt" />
+			</fileset>
+		</copy>
+		<copy file="${nsis_src.dir}/batch_files/neptusse.bat" tofile="${windows.dist.dir}/neptus.bat" 
+				overwrite="yes" failonerror="yes">
+			<!--filterset refid="bat.filters" /-->
+		</copy>
+		<copy file="svn.info.txt" tofile="${windows.dist.dir}/conf/version"
+				overwrite="yes" failonerror="false">
+		</copy>
+		<!--delete dir="${windows.dist.dir}/bin" /-->
+	</target>
+
+	<!-- Prepare Linux Distribution (Light Edition)                          -->
+	<target name="dist_le_linux">
+		<delete dir="${linux.dist.dir}" />
+		<copy todir="${linux.dist.dir}" verbose="yes">
+			<fileset dir="." excludes="neptus.tgz,neptus-installer.sh,**/*.svn,**/*.dll,**/*.exe,**/*.bat">
+				<includesfile name="dist/includes_NeptusCommon.txt" />
+				<includesfile name="dist/includes_NeptusSE.txt" />
+				<excludesfile name="dist/excludes_NeptusSE.txt" />
+			</fileset>
+		</copy>
+		<copy file="${nsis_src.dir}/batch_files/neptusse.sh" tofile="${linux.dist.dir}/neptus.sh" 
+				overwrite="yes" failonerror="yes">
+			<!--filterset refid="sh.filters" /-->
+		</copy>
+		<copy file="svn.info.txt" tofile="${linux.dist.dir}/conf/version"
+				overwrite="yes" failonerror="false">
+		</copy>
+		<!--delete dir="${linux.dist.dir}/bin" /-->
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Prepare Distribution (Seacon Edition)                               -->
+	<!-- =================================================================== -->
+	<!-- Prepare All OS Distribution (Full)                                  -->
+	<target name="dist_seacon_all_os">
+		<delete dir="${all.os.dist.dir}" />
+		<copy todir="${all.os.dist.dir}" verbose="yes">
+			<fileset dir="." excludes="neptus.tgz,neptus-installer.sh,**/*.svn">
+				<includesfile name="dist/includes_NeptusCommon.txt" />
+				<includesfile name="dist/includes_NeptusSeacon.txt" />
+				<excludesfile name="dist/excludes_NeptusSeacon.txt" />
+			</fileset>
+		</copy>
+		<copy file="${nsis_src.dir}/batch_files/neptusse.bat" tofile="${all.os.dist.dir}/neptus.bat" 
+				overwrite="yes" failonerror="yes">
+		</copy>
+		<copy file="${nsis_src.dir}/batch_files/neptusse.sh" tofile="${all.os.dist.dir}/neptus.sh" 
+				overwrite="yes" failonerror="yes">
+		</copy>
+		<copy file="neptus.exe" todir="${all.os.dist.dir}" 
+				overwrite="yes" failonerror="yes">
+		</copy>
+		<copy file="svn.info.txt" tofile="${all.os.dist.dir}/conf/version"
+				overwrite="yes" failonerror="false">
+		</copy>
+	</target>
+	
+	<!-- Prepare Windows Distribution (Seacon Edition)                       -->
+	<target name="dist_seacon_windows">
+		<delete dir="${windows.dist.dir}" />
+		<copy todir="${windows.dist.dir}" verbose="yes">
+			<fileset dir="." excludes="neptus.tgz,neptus-installer.sh,**/*.svn,**/*.sh,**/*.so">
+				<includesfile name="dist/includes_NeptusCommon.txt" />
+				<includesfile name="dist/includes_NeptusSeacon.txt" />
+				<excludesfile name="dist/excludes_NeptusSeacon.txt" />
+			</fileset>
+		</copy>
+		<copy file="${nsis_src.dir}/batch_files/neptusse.bat" tofile="${windows.dist.dir}/neptus.bat" 
+				overwrite="yes" failonerror="yes">
+			<!--filterset refid="bat.filters" /-->
+		</copy>
+		<copy file="svn.info.txt" tofile="${windows.dist.dir}/conf/version"
+				overwrite="yes" failonerror="false">
+		</copy>
+		<!--delete dir="${windows.dist.dir}/bin" /-->
+	</target>
+
+	<!-- Prepare Linux Distribution (Seacon Edition)                         -->
+	<target name="dist_seacon_linux">
+		<delete dir="${linux.dist.dir}" />
+		<copy todir="${linux.dist.dir}" verbose="yes">
+			<fileset dir="." excludes="neptus.tgz,neptus-installer.sh,**/*.svn,**/*.dll,**/*.exe,**/*.bat">
+				<includesfile name="dist/includes_NeptusCommon.txt" />
+				<includesfile name="dist/includes_NeptusSeacon.txt" />
+				<excludesfile name="dist/excludes_NeptusSeacon.txt" />
+			</fileset>
+		</copy>
+		<copy file="${nsis_src.dir}/batch_files/neptusse.sh" tofile="${linux.dist.dir}/neptus.sh" 
+				overwrite="yes" failonerror="yes">
+			<!--filterset refid="sh.filters" /-->
+		</copy>
+		<copy file="svn.info.txt" tofile="${linux.dist.dir}/conf/version"
+				overwrite="yes" failonerror="false">
+		</copy>
+		<!--delete dir="${linux.dist.dir}/bin" /-->
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Prepare Distribution (Full)                                         -->
+	<!-- =================================================================== -->
+	<!-- Prepare All OS Distribution (Full)                                  -->
+	<target name="dist_all_os" depends="info">
+		<delete dir="${all.os.dist.dir}" />
+		<copy todir="${all.os.dist.dir}" verbose="yes">
+			<fileset dir="." excludes="neptus.tgz,neptus-installer.sh,**/*.svn">
+				<includesfile name="dist/includes_NeptusCommon.txt" />
+				<includesfile name="dist/includes_NeptusFull.txt" />
+				<excludesfile name="dist/excludes_NeptusFull.txt" />
+			</fileset>
+		</copy>
+		<copy file="${src.dir}/images/neptus-icon2.png" tofile="${all.os.dist.dir}/neptus.png" />
+		<copy file="${nsis_src.dir}/batch_files/neptus.bat" todir="${all.os.dist.dir}" 
+				overwrite="yes" failonerror="yes" />
+		<copy file="${nsis_src.dir}/batch_files/neptus.sh" todir="${all.os.dist.dir}" 
+				overwrite="yes" failonerror="yes" />
+		<copy file="neptus.exe" todir="${all.os.dist.dir}" 
+				overwrite="yes" failonerror="yes" />
+		<copy file="svn.info.txt" tofile="${all.os.dist.dir}/conf/version"
+				overwrite="yes" failonerror="false" />
+	</target>
+
+	<!-- Prepare Windows Distribution (Full)                                 -->
+	<target name="dist_windows" depends="info">
+		<delete dir="${windows.dist.dir}" />
+		<copy todir="${windows.dist.dir}" verbose="yes">
+			<fileset dir="." excludes="neptus.tgz,neptus-installer.sh,**/*.svn,**/*.sh,**/*.so">
+				<includesfile name="dist/includes_NeptusCommon.txt" />
+				<includesfile name="dist/includes_NeptusFull.txt" />
+				<excludesfile name="dist/excludes_NeptusFull.txt" />
+			</fileset>
+		</copy>
+		<copy file="${nsis_src.dir}/batch_files/neptus.bat" todir="${windows.dist.dir}" 
+				overwrite="yes" failonerror="yes">
+			<!--filterset refid="bat.filters" /-->
+		</copy>
+		<copy file="svn.info.txt" tofile="${windows.dist.dir}/conf/version"
+				overwrite="yes" failonerror="false" />
+		<!--delete dir="${windows.dist.dir}/bin" /-->
+	</target>
+
+	<!-- Prepare Linux Distribution (Full)			                         -->
+	<target name="dist_linux" depends="info">
+		<delete dir="${linux.dist.dir}" />
+		<copy todir="${linux.dist.dir}" verbose="yes">
+			<fileset dir="." excludes="neptus.tgz,neptus-installer.sh,**/*.svn,**/*.dll,**/*.exe,**/*.bat">
+				<includesfile name="dist/includes_NeptusCommon.txt" />
+				<includesfile name="dist/includes_NeptusFull.txt" />
+				<excludesfile name="dist/excludes_NeptusFull.txt" />
+			</fileset>
+		</copy>
+		<copy file="${src.dir}/images/neptus-icon2.png" tofile="${linux.dist.dir}/neptus.png" />
+		<copy file="${nsis_src.dir}/batch_files/neptus.sh" todir="${linux.dist.dir}" 
+				overwrite="yes" failonerror="yes">
+			<!--filterset refid="sh.filters" /-->
+		</copy>
+		<copy file="svn.info.txt" tofile="${linux.dist.dir}/conf/version"
+				overwrite="yes" failonerror="false" />
+		<!--delete dir="${linux.dist.dir}/bin" /-->
+	</target>
+
+	
+	<!-- =================================================================== -->
+	<!-- Preparation for installers                                          -->
+	<!-- =================================================================== -->	
+	<target name="installer-prep-full">
+		<delete dir="${dist.installer.name.full}.MD5SUM" />
+	</target>
+
+	<target name="installer-prep-le">
+		<delete dir="${dist.installer.name.le}.MD5SUM" />
+	</target>
+
+	<target name="installer-prep-seacon">
+		<delete dir="${dist.installer.name.seacon}.MD5SUM" />
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Creates checksums for installers                                    -->
+	<!-- =================================================================== -->	
+	<target name="installer-checksum-full" depends="installer-prep-full">
+		<checksum format="MD5SUM" algorithm="MD5" fileext="MD5TMP">
+		  <fileset dir=".">
+		    <include name="${dist.installer.name.full}*" />
+		  	<exclude name="*MD5SUM" />
+		  	<exclude name="*MD5TMP" />
+		  </fileset>
+		</checksum>
+		<concat destfile="${dist.installer.name.full}.MD5SUM">
+		  <fileset dir=".">
+		  	<include name="*MD5TMP" />
+		  </fileset>
+		</concat>
+		<fixcrlf srcdir="." eol="lf" eof="remove" 
+			includes="${dist.installer.name.full}.MD5SUM" />
+		<delete>
+		  <fileset dir=".">
+		  	<include name="*MD5TMP" />
+		  </fileset>
+		</delete>
+	</target>
+
+	<target name="installer-checksum-le" depends="installer-prep-le">
+		<checksum format="MD5SUM" algorithm="MD5" fileext="MD5TMP">
+		  <fileset dir=".">
+		    <include name="${dist.installer.name.le}*" />
+		  	<exclude name="*MD5SUM" />
+		  	<exclude name="*MD5TMP" />
+		  </fileset>
+		</checksum>
+		<concat destfile="${dist.installer.name.le}.MD5SUM">
+		  <fileset dir=".">
+		  	<include name="*MD5TMP" />
+		  </fileset>
+		</concat>
+        <fixcrlf srcdir="." eol="lf" eof="remove" 
+            includes="${dist.installer.name.le}.MD5SUM" />
+		<delete>
+		  <fileset dir=".">
+		  	<include name="*MD5TMP" />
+		  </fileset>
+		</delete>
+	</target>
+
+	<target name="installer-checksum-seacon" depends="installer-prep-seacon">
+		<checksum format="MD5SUM" algorithm="MD5" fileext="MD5TMP">
+		  <fileset dir=".">
+		    <include name="${dist.installer.name.seacon}*" />
+		  	<exclude name="*MD5SUM" />
+		  	<exclude name="*MD5TMP" />
+		  </fileset>
+		</checksum>
+		<concat destfile="${dist.installer.name.seacon}.MD5SUM">
+		  <fileset dir=".">
+		  	<include name="*MD5TMP" />
+		  </fileset>
+		</concat>
+        <fixcrlf srcdir="." eol="lf" eof="remove" 
+            includes="${dist.installer.name.seacon}.MD5SUM" />
+		<delete>
+		  <fileset dir=".">
+		  	<include name="*MD5TMP" />
+		  </fileset>
+		</delete>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Create All OS extracting installer (no Java VM)                     -->
+	<!-- =================================================================== -->	
+	<target name="installer-all-os" depends="prepare,dist_all_os"
+			description="Deprecated! Create All OS extracting installer (no Java VM)">
+		<delete file="${dist.installer.name.full}.tar.gz" />
+		<echo message="Compressing ${all.os.dist.dir} to neptus.tar.gz...">
+		</echo>
+		<tar destfile="${dist.installer.name.full}.tar.gz" compression="gzip">
+			<tarfileset prefix="Neptus" dir="${all.os.dist.dir}">
+				<exclude name="**/neptus.sh,jre/bin/,helper-scripts" />
+			</tarfileset>
+			<tarfileset prefix="Neptus" file="${all.os.dist.dir}/neptus.sh" mode="755" />
+			<!--tarfileset prefix="Neptus/jre/bin" dir="${all.os.dist.dir}/jre/bin" mode="755" /-->
+			<tarfileset prefix="Neptus/helper-scripts" dir="${all.os.dist.dir}/helper-scripts" mode="755" />
+		</tar>
+		<delete dir="${all.os.dist.dir}" failonerror="false" />
+	</target>
+
+	<target name="installer-le-all-os" depends="prepare,dist_le_all_os"
+			description="Deprecated! Create All OS extracting installer (no Java VM)">
+		<delete file="${dist.installer.name.le}.tar.gz" />
+		<echo message="Compressing ${all.os.dist.dir} to neptus.tar.gz...">
+		</echo>
+		<tar destfile="${dist.installer.name.le}.tar.gz" compression="gzip">
+			<tarfileset prefix="NeptusLE" dir="${all.os.dist.dir}">
+				<exclude name="**/neptus.sh,jre/bin/,helper-scripts" />
+			</tarfileset>
+			<tarfileset prefix="NeptusLE" file="${all.os.dist.dir}/neptus.sh" mode="755" />
+			<!--tarfileset prefix="Neptus/jre/bin" dir="${all.os.dist.dir}/jre/bin" mode="755" /-->
+			<tarfileset prefix="NeptusLE/helper-scripts" dir="${all.os.dist.dir}/helper-scripts" mode="755" />
+		</tar>
+		<delete dir="${all.os.dist.dir}" failonerror="false" />
+	</target>
+
+	<target name="installer-seacon-all-os" depends="prepare,dist_seacon_all_os"
+			description="Deprecated! Create All OS extracting installer (no Java VM)">
+		<delete file="${dist.installer.name.seacon}.tar.gz" />
+		<echo message="Compressing ${all.os.dist.dir} to neptus.tar.gz...">
+		</echo>
+		<tar destfile="${dist.installer.name.seacon}.tar.gz" compression="gzip">
+			<tarfileset prefix="NeptusSC" dir="${all.os.dist.dir}">
+				<exclude name="**/neptus.sh,jre/bin/,helper-scripts" />
+			</tarfileset>
+			<tarfileset prefix="NeptusSC" file="${all.os.dist.dir}/neptus.sh" mode="755" />
+			<!--tarfileset prefix="Neptus/jre/bin" dir="${all.os.dist.dir}/jre/bin" mode="755" /-->
+			<tarfileset prefix="NeptusSC/helper-scripts" dir="${all.os.dist.dir}/helper-scripts" mode="755" />
+		</tar>
+		<delete dir="${all.os.dist.dir}" failonerror="false" />
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Create Windows installer                                            -->
+	<!-- =================================================================== -->	
+	<target name="installer-windows" depends="prepare,nsisversion,dist_windows"
+			description="Deprecated! Create Windows installer">
+		<antcall target="jre-windows-copy-to-dist" /> <!-- not on depends to allow calling multiple installers -->
+		<antcall target="jre64-windows-copy-to-dist" />
+
+		<delete file="${windows.dist.dir}/neptus.bat" /> <!-- this will be copies by the nsis script -->
+		<nsis script="NSIS_release/install_scripts/neptus.nsi">
+			<define name="BASEDIR" value="..\..\${windows.dist.dir}" />
+		</nsis>
+		<delete dir="${windows.dist.dir}" failonerror="false" />
+	</target>
+
+	<!-- Create Windows installer for Light Edition                       obf.lauv-->
+	<target name="installer-le-windows" depends="prepare,nsisversion.le,dist_le_windows" 
+			description="Deprecated! Create Windows installer for Light Edition">
+		<antcall target="jre-windows-copy-to-dist" /> <!-- not on depends to allow calling multiple installers -->
+		<antcall target="jre64-windows-copy-to-dist" />
+
+		<delete file="${windows.dist.dir}/neptus.bat" /> <!-- this will be copies by the nsis script -->
+		<nsis script="NSIS_release/install_scripts/neptus.nsi">
+			<define name="BASEDIR" value="..\..\${windows.dist.dir}" />
+		</nsis>
+		<delete dir="${windows.dist.dir}" failonerror="false" />
+	</target>
+
+	<!-- Create Windows installer for Seacon Edition                        -->
+	<target name="installer-seacon-windows" depends="prepare,nsisversion.seacon,dist_seacon_windows"
+			description="Deprecated! Create Windows installer for Seacon Edition">
+		<antcall target="jre-windows-copy-to-dist" /> <!-- not on depends to allow calling multiple installers -->
+		<antcall target="jre64-windows-copy-to-dist" />
+
+		<delete file="${windows.dist.dir}/neptus.bat" /> <!-- this will be copies by the nsis script -->
+		<nsis script="NSIS_release/install_scripts/neptus.nsi">
+			<define name="BASEDIR" value="..\..\${windows.dist.dir}" />
+		</nsis>
+		<delete dir="${windows.dist.dir}" failonerror="false" />
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Create Linux self extracting instalation                            -->
+	<!-- =================================================================== -->	
+	<target name="installer-linux" depends="prepare,dist_linux"
+			description="Deprecated! Create a self extracting tar file">
+		<antcall target="jre-linux-copy-to-dist" /> <!-- not on depends to allow calling multiple installers -->
+		<antcall target="jre64-linux-copy-to-dist" />
+		
+		<delete file="neptus.tgz" />
+		<delete file="${dist.installer.name.full}.sh" />
+		<echo message="Compressing ${linux.dist.dir} to neptus.tgz...">
+		</echo>
+		<tar destfile="neptus.tgz" compression="gzip">
+			<tarfileset prefix="Neptus" dir="${linux.dist.dir}">
+				<exclude name="**/neptus.sh,jre*/bin/,helper-scripts" />
+			</tarfileset>
+			<tarfileset prefix="Neptus" file="${linux.dist.dir}/neptus.sh" mode="755" />
+			<tarfileset prefix="Neptus/jre/bin" dir="${linux.dist.dir}/jre/bin" mode="755" />
+			<tarfileset prefix="Neptus/jre64/bin" dir="${linux.dist.dir}/jre64/bin" mode="755" />
+			<tarfileset prefix="Neptus/helper-scripts" dir="${linux.dist.dir}/helper-scripts" mode="755" />
+		</tar>
+
+		<copy file="${nsis_src.dir}/linux_sfx_header.txt" tofile="sfx_header.sh">
+			<filterset refid="neptus.filters" />
+		</copy>
+
+		<echo message="Creating Neptus_bin.sh...">
+		</echo>
+		<concat destfile="${dist.installer.name.full}.sh" binary="true">
+			<filelist dir=".">
+				<file name="sfx_header.sh" />
+				<file name="neptus.tgz" />
+			</filelist>
+		</concat>
+		<delete file="sfx_header.sh" />
+		<delete file="neptus.tgz" />
+		<delete dir="${linux.dist.dir}" failonerror="false" />
+	</target>
+
+	<!-- Create Linux self extracting instalation for Light Edition       obf.lauv-->
+	<target name="installer-le-linux" depends="prepare,dist_le_linux"
+			description="Deprecated! Create a self extracting tar file for Light Edition">
+		<antcall target="jre-linux-copy-to-dist" /> <!-- not on depends to allow calling multiple installers -->
+		<antcall target="jre64-linux-copy-to-dist" />
+
+		<delete file="neptus.tgz" />
+		<delete file="${dist.installer.name.le}.sh" />
+		<echo message="Compressing ${linux.dist.dir} to neptus.tgz...">
+		</echo>
+		<tar destfile="neptus.tgz" compression="gzip">
+			<tarfileset prefix="${dist.installer.basename.le}" dir="${linux.dist.dir}">
+				<exclude name="**/neptus.sh,jre*/bin/,helper-scripts/" />
+			</tarfileset>
+			<tarfileset prefix="${dist.installer.basename.le}" file="${linux.dist.dir}/neptus.sh" mode="755" />
+			<tarfileset prefix="${dist.installer.basename.le}/jre/bin" dir="${linux.dist.dir}/jre/bin" mode="755" />
+			<tarfileset prefix="${dist.installer.basename.le}/jre64/bin" dir="${linux.dist.dir}/jre64/bin" mode="755" />
+			<tarfileset prefix="${dist.installer.basename.le}/helper-scripts" dir="${linux.dist.dir}/helper-scripts" mode="755" />
+		</tar>
+
+		<copy file="${nsis_src.dir}/linux_sfx_header.txt" tofile="sfx_header.sh" overwrite="true">
+			<filterset refid="neptusLE.filters" />
+			<filterset refid="neptus.filters" />
+		</copy>
+
+		<echo message="Creating NeptusLEx.sh...">
+		</echo>
+		<concat destfile="${dist.installer.name.le}.sh" binary="true">
+			<filelist dir=".">
+				<file name="sfx_header.sh" />
+				<file name="neptus.tgz" />
+			</filelist>
+		</concat>
+		<delete file="sfx_header.sh" />
+		<delete file="neptus.tgz" />
+		<delete dir="${linux.dist.dir}" failonerror="false" />
+	</target>
+
+
+	<!-- Create Linux self extracting instalation for Seacon Edition       -->
+	<target name="installer-seacon-linux" depends="prepare,dist_seacon_linux"
+			description="Deprecated! Create a self extracting tar file for Seacon Edition">
+		<antcall target="jre-linux-copy-to-dist" /> <!-- not on depends to allow calling multiple installers -->
+		<antcall target="jre64-linux-copy-to-dist" />
+
+		<delete file="neptus.tgz" />
+		<delete file="${dist.installer.name.seacon}.sh" />
+		<echo message="Compressing ${linux.dist.dir} to neptus.tgz...">
+		</echo>
+		<tar destfile="neptus.tgz" compression="gzip">
+			<tarfileset prefix="${dist.installer.basename.seacon}" dir="${linux.dist.dir}">
+				<exclude name="**/neptus.sh,jre*/bin/,helper-scripts/" />
+			</tarfileset>
+			<tarfileset prefix="${dist.installer.basename.seacon}" file="${linux.dist.dir}/neptus.sh" mode="755" />
+			<tarfileset prefix="${dist.installer.basename.seacon}/jre/bin" dir="${linux.dist.dir}/jre/bin" mode="755" />
+			<tarfileset prefix="${dist.installer.basename.seacon}/jre64/bin" dir="${linux.dist.dir}/jre64/bin" mode="755" />
+			<tarfileset prefix="${dist.installer.basename.seacon}/helper-scripts" dir="${linux.dist.dir}/helper-scripts" mode="755" />
+		</tar>
+
+		<copy file="${nsis_src.dir}/linux_sfx_header.txt" tofile="sfx_header.sh" overwrite="true">
+			<filterset refid="neptusSeacon.filters" />
+			<filterset refid="neptus.filters" />
+		</copy>
+
+		<echo message="Creating NeptusSCx.sh...">
+		</echo>
+		<concat destfile="${dist.installer.name.seacon}.sh" binary="true">
+			<filelist dir=".">
+				<file name="sfx_header.sh" />
+				<file name="neptus.tgz" />
+			</filelist>
+		</concat>
+		<delete file="sfx_header.sh" />
+		<delete file="neptus.tgz" />
+		<delete dir="${linux.dist.dir}" failonerror="false" />
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Create Windows and Linux installer                                  -->
+	<!-- =================================================================== -->	
+	<target name="installer-run-all"
+			depends="prepare,installer,installer-le,installer-seacon"
+			description="Deprecated! Create all installers">
+	</target>
+
+	<target name="installer"
+			depends="prepare,installer-all-os,installer-linux,installer-windows,installer-checksum-full"
+			description="Deprecated! Create Windows and Linux installer and creates checksums">
+	</target>
+
+	<!-- Create Windows and Linux installer for Light Edition             -->
+	<!-- depends="jar,obf.lauv,installer-le-linux,installer-le-windows,installer-checksum-le,obf.lauv.pack.restore" -->
+	<target name="installer-le" 
+			depends="prepare,installer-le-all-os,installer-le-linux,installer-le-windows,installer-checksum-le"
+			description="Deprecated! Create Windows and Linux installer for Light Edition and creates checksums">
+	</target>
+
+	<!-- Create Windows and Linux installer for Seacon Edition              -->
+	<target name="installer-seacon" 
+			depends="prepare,installer-seacon-all-os,installer-seacon-linux,installer-seacon-windows,installer-checksum-seacon"
+			description="Deprecated! Create Windows and Linux installer for Seacon Edition and creates checksums">
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Run Neptus obfuscator                                               -->
+	<!-- =================================================================== -->
+	<target name="obf.lauv">
+		<echo>The jar was not refreshed!</echo>
+		<!--echoproperties></echoproperties-->
+	    <copy file="${jar.file.path}" tofile="${bin.dir}/neptus_clear.jar"  overwrite="true" />
+		<yguard>
+			<inoutpair in="${jar.file.path}" out="${bin.dir}/neptus_obf.jar" />
+			<!--inoutpair in="bin/neptus.jar" out="bin/neptus_obf.jar" resources="auto"/-->
+
+			<externalclasses>
+				<pathelement path="${class.path}" />
+			</externalclasses>
+			<rename mainclass="pt.up.fe.dceg.neptus.mc.lauvconsole.LAUVConsole" 
+				logfile="${dist.installer.basename.le}}-obf_lauv-obfuscation-log.xml.gz">
+				<keep>
+					<class name="pt.up.fe.dceg.neptus.util.conf.GeneralPreferences" methods="private" fields="private" />
+					<class name="pt.up.fe.dceg.neptus.util.conf.ConfigFetch" methods="private" fields="private" />
+					<class name="pt.up.fe.dceg.neptus.mc.loader.NeptusMain" methods="public" fields="private" />
+					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.Goto" methods="private" fields="private" />
+					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.Unconstrained" methods="private" fields="private" />
+					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.Dive" methods="private" fields="private" />
+					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.PopUp" methods="private" fields="private" />
+					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.HeadingVelocityDepth" methods="private" fields="private" />
+					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.Loiter" methods="private" fields="private" />
+					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.*" methods="private" fields="private" />
+					<class classes="private" methods="private" fields="private">
+						<patternset>
+							<!--exclude name="pt.up.fe.dceg.neptus.console.ConsoleLayout" /-->
+							<include name="pt.up.fe.dceg.neptus.console." />
+							<!--<include name="pt.up.fe.dceg.neptus.types.map."/>-->
+							<!--include name="pt.up.fe.dceg.neptus.messages."/-->
+							<!--include name="pt.up.fe.dceg.messages."/-->
+							<include name="pt.up.fe.dceg.neptus.util.comm.middleware." />
+							<include name="pt.up.fe.dceg.neptus.util.comm.vehicle." />
+							<!--include name="pt.up.fe.dceg.neptus.messages.stanag4586." /-->
+							<!--include name="pt.up.fe.dceg.neptus.messages.im." /-->
+							<include name="pt.up.fe.dceg.neptus.messages.**" />
+							<include name="pt.up.fe.dceg.neptus.plugins." />
+							<include name="pt.up.fe.dceg.neptus.mra.visualizations." />
+							<include name="pt.up.fe.dceg.neptus.util.llf.LogSource" />
+							<include name="pt.up.fe.dceg.neptus.gui." />
+							<include name="pt.up.fe.dceg.neptus.util.*Utils" />
+							<include name="pt.up.fe.dceg.neptus.util.*Util" />
+							<include name="pt.up.fe.dceg.neptus.util.AngleCalc" />
+							<include name="pt.up.fe.dceg.neptus.util.NameNormalizer" />
+							<include name="pt.up.fe.dceg.neptus.util.logdownload.Log*" />
+							<!--include name="pt.up.fe.dceg.vartree.VarTree" /-->
+							<include name="pt.up.fe.dceg.neptus.types.coord."/>
+							<include name="pt.up.fe.dceg.neptus.types."/>
+							<include name="pt.up.fe.dceg.neptus.colormap." />
+							<include name="pt.up.fe.dceg.neptus.planeditor.I*" />
+							<include name="pt.up.fe.dceg.neptus.mc.consoletracker.I*" />
+							<include name="pt.up.fe.dceg.neptus.messages.listener.MessageListener" />
+							<include name="pt.up.fe.dceg.neptus.renderer2d.Worl*" />
+							<include name="pt.up.fe.dceg.neptus.renderer2d.tiles/**" />
+							<include name="pt.up.fe.dceg.neptus.planeditor.**" />
+							<include name="pt.up.fe.dceg.neptus.mra.importers.**" />
+							<include name="pt.up.fe.dceg.neptus.mra.exporters.**" />
+							<include name="pt.up.fe.dceg.neptus.mra.NeptusMRA*" />
+							<include name="pt.up.fe.dceg.neptus.util.llf.**" />
+							<include name="pt.up.fe.dceg.neptus.util.comm.IMC*" />
+
+							<include name="pt.up.fe.dceg.neptus.util.comm.manager.imc.*" />
+							<include name="pt.up.fe.dceg.neptus.util.**" />
+							<include name="pt.up.fe.dceg.neptus.planning.**" />
+
+							<!-- Legacy -->
+							<include name="pt.up.fe.dceg.neptus.mc.console." />
+						</patternset>
+					</class>
+					<class classes="private" methods="private" fields="private">
+						<patternset>
+							<include name="pt.up.fe.dceg.neptus.mc.consoletracker.TrackerCommControl" />
+							<include name="pt.up.fe.dceg.neptus.mc.consoletracker.LBLListener" />
+						</patternset>
+					</class>
+					<class classes="public" methods="public" fields="public">
+						<patternset>
+							<include name="pt.up.fe.dceg.neptus.vartree.*" />
+							<include name="pt.up.fe.dceg.vartree.*" />
+							<include name="pt.up.fe.dceg.neptus.comm.serial.lucl.**" />
+							<include name="pt.up.fe.dceg.neptus.renderer3d.Renderer3D" />
+							<!--include name="pt.up.fe.dceg.neptus.planeditor.MapPlanEditor" /-->
+							<include name="pt.up.fe.dceg.neptus.renderer2d.**" />
+							<include name="pt.up.fe.dceg.neptus.mp.VehicleState*" />
+							<include name="pt.up.fe.dceg.neptus.mp.**" />
+							<include name="pt.up.fe.dceg.neptus.messages.*" />
+							<include name="pt.up.fe.dceg.messages.*" />
+							<include name="pt.up.fe.dceg.neptus.mystate.*" />
+							<!--include name="pt.up.fe.dceg.neptus.util.comm.manager.imc.*" /-->
+							<include name="pt.up.fe.dceg.neptus.util.comm.*Util" />
+							<include name="pt.up.fe.dceg.neptus.util.comm.*Utils" />
+							<include name="net.java.games.input.*" />
+							<include name="pt.up.fe.dceg.neptus.gui.tablelayout.*" />
+							<include name="pt.up.fe.dceg.neptus.alarms.**" />
+							<include name="pt.up.fe.dceg.neptus.doc.**" />
+                            <include name="pt.up.fe.dceg.neptus.i18n.**" />
+						</patternset>
+					</class>
+					<method name="boolean updateMissionFilesOpened(java.io.File)">
+						<patternset id="datapatternset">
+							<include name="pt.up.fe.dceg.neptus.mc.Workspace" />
+							<include name="pt.up.fe.dceg.neptus.mra.NeptusMRA" />
+							<include name="pt.up.fe.dceg.neptus.mp.MissionPlanner" />
+							<include name="pt.up.fe.dceg.neptus.viewer3d.Viewer3D" />
+						</patternset>
+					</method>
+					<method name="boolean updateMapFilesOpened(java.io.File)">
+						<patternset refid="datapatternset" />
+					</method>
+					<method name="boolean updateChecklistFilesOpened(java.io.File)">
+						<patternset refid="datapatternset" />
+					</method>
+					<method name="boolean updateMissionFilesOpened(java.io.File)">
+						<patternset refid="datapatternset" />
+					</method>
+					<method name="boolean updateChecklistFilesOpened(java.io.File)">
+						<patternset refid="datapatternset" />
+					</method>
+					<method name="boolean updateMiscFilesOpened(java.io.File)">
+						<patternset refid="datapatternset" />
+					</method>
+					<method name="boolean updateConsoleFilesOpened(java.io.File)">
+						<patternset refid="datapatternset" />
+					</method>
+					<method name="boolean update3dFilesOpened(java.io.File)">
+						<patternset refid="datapatternset" />
+					</method>
+				</keep>
+			</rename>
+		</yguard>
+		<copy file="${bin.dir}/neptus_obf.jar" tofile="${jar.file.path}"  overwrite="true" />
+		<!--delete file="${bin.dir}/neptus_obf.jar" /-->
+		<!--antcall target="jar.main.signer"></antcall--> <!-- Convém não assinar devido a net.java.games.input.* -->
+	</target>
+
+	<target name="obf.lauv.pack.restore">
+		<zip destfile="${dist.installer.basename.seacon}-obf_lauv-obfuscation-pack.zip">
+			<zipfileset file="${dist.installer.basename.seacon}-obf_lauv-obfuscation-log.xml.gz" />
+			<zipfileset file="${bin.dir}/neptus_obf.jar"/>
+			<zipfileset file="${bin.dir}/neptus_clear.jar"/>
+		</zip>
+		<copy file="${bin.dir}/neptus_clear.jar" tofile="${jar.file.path}" overwrite="true"/>
+	</target>
+	
+	<target name="obf.full">
+		<!-- As of now is not updated 30Mai2012 -->
+		<echo>The jar was not refreshed!</echo>
+		<!--echoproperties></echoproperties-->
+	    <copy file="${jar.file.path}" tofile="${bin.dir}/neptus_clear.jar" />
+		<yguard>
+			<inoutpair in="${jar.file.path}" out="${bin.dir}/neptus_obf.jar" />
+			<!--inoutpair in="bin/neptus.jar" out="bin/neptus_obf.jar" resources="auto"/-->
+
+			<externalclasses>
+				<pathelement path="${class.path}" />
+			</externalclasses>
+
+			<rename mainclass="pt.up.fe.dceg.neptus.loader.NeptusMain" logfile="${dist.installer.name.full}-obfuscation-log-full.xml.gz">
+				<keep>
+					<class name="pt.up.fe.dceg.neptus.util.conf.GeneralPreferences" methods="private" fields="private" />
+					<class name="pt.up.fe.dceg.neptus.util.conf.ConfigFetch" methods="private" fields="private" />
+					<class name="pt.up.fe.dceg.neptus.mc.loader.NeptusMain" methods="public" fields="private" />
+					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.*" methods="private" fields="private" />
+					<class classes="private" methods="private" fields="private">
+						<patternset>
+							<!--exclude name="pt.up.fe.dceg.neptus.console.ConsoleLayout" /-->
+							<include name="pt.up.fe.dceg.neptus.console." />
+							<!--<include name="pt.up.fe.dceg.neptus.types.map."/>-->
+							<!--include name="pt.up.fe.dceg.neptus.messages."/-->
+							<!--include name="pt.up.fe.dceg.messages."/-->
+							<include name="pt.up.fe.dceg.neptus.util.comm.middleware." />
+							<include name="pt.up.fe.dceg.neptus.util.comm.vehicle." />
+							<include name="pt.up.fe.dceg.neptus.messages.stanag4586." />
+							<include name="pt.up.fe.dceg.neptus.messages.im." />
+							<include name="pt.up.fe.dceg.neptus.plugins." />
+							<include name="pt.up.fe.dceg.neptus.mra.visualizations." />
+							<include name="pt.up.fe.dceg.neptus.util.llf.LogSource" />
+							<include name="pt.up.fe.dceg.neptus.gui." />
+							<include name="pt.up.fe.dceg.neptus.util.*Utils" />
+							<include name="pt.up.fe.dceg.neptus.util.*Util" />
+							<include name="pt.up.fe.dceg.neptus.util.AngleCalc" />
+							<include name="pt.up.fe.dceg.neptus.util.NameNormalizer" />
+							<include name="pt.up.fe.dceg.neptus.util.logdownload.Log*" />
+							<include name="pt.up.fe.dceg.vartree.VarTree" />
+							<include name="pt.up.fe.dceg.neptus.types.coord."/>
+							<include name="pt.up.fe.dceg.neptus.types."/>
+							<include name="pt.up.fe.dceg.neptus.colormap." />
+							<!-- Legacy -->
+							<include name="pt.up.fe.dceg.neptus.mc.console." />
+						</patternset>
+					</class>
+					<class classes="private" methods="private" fields="private">
+						<patternset>
+							<include name="pt.up.fe.dceg.neptus.mc.consoletracker.TrackerCommControl" />
+						</patternset>
+					</class>
+					<class classes="public" methods="public" fields="public">
+						<patternset>
+							<include name="pt.up.fe.dceg.neptus.vartree.VariableTree" />
+						</patternset>
+					</class>
+					<method name="boolean updateMissionFilesOpened(java.io.File)">
+						<patternset id="datapatternset">
+							<include name="pt.up.fe.dceg.neptus.mc.Workspace" />
+							<include name="pt.up.fe.dceg.neptus.mra.NeptusMRA" />
+							<include name="pt.up.fe.dceg.neptus.mp.MissionPlanner" />
+							<include name="pt.up.fe.dceg.neptus.viewer3d.Viewer3D" />
+							<include name="pt.up.fe.dceg.neptus.i18n.**" />
+						</patternset>
+					</method>
+					<method name="boolean updateMapFilesOpened(java.io.File)">
+						<patternset refid="datapatternset" />
+					</method>
+					<method name="boolean updateChecklistFilesOpened(java.io.File)">
+						<patternset refid="datapatternset" />
+					</method>
+					<method name="boolean updateMissionFilesOpened(java.io.File)">
+						<patternset refid="datapatternset" />
+					</method>
+					<method name="boolean updateChecklistFilesOpened(java.io.File)">
+						<patternset refid="datapatternset" />
+					</method>
+					<method name="boolean updateMiscFilesOpened(java.io.File)">
+						<patternset refid="datapatternset" />
+					</method>
+					<method name="boolean updateConsoleFilesOpened(java.io.File)">
+						<patternset refid="datapatternset" />
+					</method>
+					<method name="boolean update3dFilesOpened(java.io.File)">
+						<patternset refid="datapatternset" />
+					</method>
+				</keep>
+			</rename>
+		</yguard>
+		<copy file="${bin.dir}/neptus_obf.jar" tofile="${jar.file.path}" />
+		<delete file="${bin.dir}/neptus_obf.jar" />
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Generator of manual index                                           -->
+	<!-- =================================================================== -->
+	<target name="generate-manual-index" description="Generator of manual index">
+		<java classpath=".;${jar.file.path};${class.path}" fork="true"
+        classname="pt.up.fe.dceg.neptus.doc.DocumentationIndexGenerator" />		
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Run Neptus application                                              -->
+	<!-- =================================================================== -->
+	<target name="run" depends="jar" description="Test run of Neptus">
+		<java classpath=".;${jar.file.path};${class.path.run}"  fork="true" 
+				classname="pt.up.fe.dceg.neptus.loader.NeptusMain">
+			<jvmarg value="-Xms10m -Xmx980m -Djava.library.path='.;libJNI\' -Dj3d.rend=d3d -Dsun.java2d.d3d=true" />
+		</java>
+	</target>
+	
+</project>

@@ -1,0 +1,422 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by Paulo Dias
+ * 2010/06/05
+ * $Id:: YoYo.java 9913 2013-02-11 19:11:17Z pdias                        $:
+ */
+package pt.up.fe.dceg.neptus.mp.maneuvers;
+
+import java.text.NumberFormat;
+import java.util.Vector;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.Node;
+
+import pt.up.fe.dceg.messages.Message;
+import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.gui.GotoParameters;
+import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.up.fe.dceg.neptus.gui.editor.AngleEditorRads;
+import pt.up.fe.dceg.neptus.gui.editor.ComboEditor;
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.mp.Maneuver;
+import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
+import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.up.fe.dceg.neptus.util.NameNormalizer;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
+/**
+ * @author Paulo Dias
+ */
+public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver {
+
+    double speed = 1000, speedTolerance = 100, amplitude = 2;
+    float pitchAngle = (float) (Math.PI/4);
+    String units = "RPM";
+    ManeuverLocation destination = new ManeuverLocation();
+    protected static final String DEFAULT_ROOT_ELEMENT = "YoYo";
+	
+	private GotoParameters params = new GotoParameters();
+	
+	private final int ANGLE_CALCULATION = -1 ;
+	private final int FIRST_ROTATE = 0 ;
+	private final int HORIZONTAL_MOVE = 1 ;
+	
+	int current_state = ANGLE_CALCULATION;
+	
+	private double targetAngle, rotateIncrement;
+	
+	public String id = NameNormalizer.getRandomID();
+	
+	public String getType() {
+		return "YoYo";
+	}
+	
+	public Document getManeuverAsDocument(String rootElementName) {
+        
+	    Document document = DocumentHelper.createDocument();
+	    Element root = document.addElement( rootElementName );
+	    root.addAttribute("kind", "automatic");
+	    Element finalPoint = root.addElement("finalPoint");
+	    finalPoint.addAttribute("type", "pointType");
+	    Element point = destination.asElement("point");
+	    finalPoint.add(point);
+
+	    Element radTolerance = finalPoint.addElement("radiusTolerance");
+	    radTolerance.setText("0");
+	   
+	    Element velocity = root.addElement("speed");
+	    velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
+	    velocity.addAttribute("type", "float");
+	    velocity.addAttribute("unit", getUnits());
+	    velocity.setText(String.valueOf(getSpeed()));
+	    
+	    Element amplitude = root.addElement("amplitude");
+	    amplitude.setText(String.valueOf(getAmplitude()));	    
+	    Element pitchAngle = root.addElement("pitch");
+	    pitchAngle.setText(String.valueOf(getPitchAngle()));
+
+	    return document;
+    }
+	
+	
+	public void loadFromXML(String xml) {
+	    try {
+	        Document doc = DocumentHelper.parseText(xml);
+	        Node node = doc.selectSingleNode("YoYo/finalPoint/point");
+            ManeuverLocation loc = new ManeuverLocation();
+            loc.load(node.asXML());
+            setManeuverLocation(loc); 
+	        setAmplitude(Double.parseDouble(doc.selectSingleNode("YoYo/amplitude").getText()));
+	        setPitchAngle(Float.parseFloat(doc.selectSingleNode("YoYo/pitch").getText()));
+	        Node speedNode = doc.selectSingleNode("YoYo/speed");
+	        if (speedNode == null) 
+	        	speedNode = doc.selectSingleNode("YoYo/velocity");
+	        setSpeed(Double.parseDouble(speedNode.getText()));
+	        String speedUnit = speedNode.valueOf("@unit");
+	        setUnits(speedUnit);
+	        //setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
+	    }
+	    catch (Exception e) {
+	        NeptusLog.pub().error(this, e);
+	        return;
+	    }
+    }
+	
+	private int count = 0;
+	
+	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
+	    
+	 SystemPositionAndAttitude nextVehicleState = (SystemPositionAndAttitude) lastVehicleState.clone();
+	 
+	 
+		switch (current_state) {
+		
+			case(ANGLE_CALCULATION):
+				targetAngle = lastVehicleState.getPosition().getXYAngle(destination);
+				
+				double angleDiff = (targetAngle - lastVehicleState.getYaw());
+				
+				while (angleDiff < 0)
+					angleDiff += Math.PI*2; //360º
+				
+				while (angleDiff > Math.PI*2)
+					angleDiff -= Math.PI*2;
+				
+				if (angleDiff > Math.PI)
+					angleDiff = angleDiff - Math.PI*2;
+				
+				rotateIncrement = angleDiff/3;//(-25.0f / 180.0f) * (float) Math.PI;
+				count = 0;
+				this.current_state = FIRST_ROTATE;
+				nextVehicleState = ManeuverFunction(lastVehicleState);
+			break;
+		
+			// Initial rotation towards the target point
+			case FIRST_ROTATE:
+				if (count++<3)
+					nextVehicleState.rotateXY(rotateIncrement);
+				else {
+					nextVehicleState.setYaw(targetAngle);		
+					current_state = HORIZONTAL_MOVE;
+				}			
+				break;
+		
+			// The movement between the initial and final point, in the plane xy (horizontal)
+			case HORIZONTAL_MOVE:
+				double calculatedSpeed = 1;
+				
+				if (units.equals("m/s"))
+					calculatedSpeed = speed;
+				else if (units.equals("RPM"))
+					calculatedSpeed = speed/500.0;
+				double dist = nextVehicleState.getPosition().getHorizontalDistanceInMeters(destination);
+				if (dist <= calculatedSpeed) {
+					nextVehicleState.setPosition(destination);
+					endManeuver();
+				}
+				else {					
+						nextVehicleState.moveForward(calculatedSpeed);
+						double depthDiff = destination.getDepth()-nextVehicleState.getPosition().getDepth();
+						
+						double depthIncr = depthDiff / (dist/calculatedSpeed);
+						double curDepth = nextVehicleState.getPosition().getDepth();
+						nextVehicleState.getPosition().setDepth(curDepth+depthIncr);
+				}
+				break;
+			
+			default:
+				endManeuver();
+		}
+		
+		return nextVehicleState;
+	}
+	
+
+	public Object clone() {  
+	    YoYo clone = new YoYo();
+	    super.clone(clone);
+	    clone.params = params;
+	    clone.setManeuverLocation(destination.clone());
+	    clone.setAmplitude(getAmplitude());
+	    clone.setPitchAngle(getPitchAngle());
+	    clone.setUnits(getUnits());
+	    clone.setSpeed(getSpeed());
+	    clone.setSpeedTolerance(getSpeedTolerance());
+	    
+	    return clone;
+	}
+
+    public String getId() {
+        return id;
+    }
+    
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    public double getAmplitude() {
+        return amplitude;
+    }
+    
+    public void setAmplitude(double amplitude) {
+        this.amplitude = amplitude;
+    }
+    
+    /**
+	 * @return the pitchAngle
+	 */
+	public float getPitchAngle() {
+		return pitchAngle;
+	}
+	
+	/**
+	 * @param pitchAngle the pitchAngle to set
+	 */
+	public void setPitchAngle(float pitchAngle) {
+		this.pitchAngle = pitchAngle;
+	}
+    
+    public String getUnits() {
+        return units;
+    }
+    
+    public void setUnits(String units) {
+        this.units = units;
+    }
+    
+    public double getSpeed() {
+        return speed;
+    }
+    
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+    
+    public double getSpeedTolerance() {
+        return speedTolerance;
+    }
+    
+    public void setSpeedTolerance(double speedTolerance) {
+        this.speedTolerance = speedTolerance;
+    }
+    
+    public void translate(double offsetNorth, double offsetEast, double offsetDown) {    
+    	destination.translatePosition(offsetNorth, offsetEast, offsetDown);
+    }
+    
+    @Override
+    protected Vector<DefaultProperty> additionalProperties() {
+    	Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
+
+    	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getUnits(), true);
+    	units.setShortDescription("The speed units");
+    	PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new ComboEditor<String>(new String[] {"RPM", "m/s", "%"}));    	
+    
+    	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
+    	properties.add(units);
+
+//    	properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
+    	
+        properties.add(PropertiesEditor.getPropertyInstance("Amplitude", Double.class, getAmplitude(), true));
+        DefaultProperty ap = PropertiesEditor.getPropertyInstance("Pitch angle", Float.class, getPitchAngle(), true);
+        PropertiesEditor.getPropertyEditorRegistry().registerEditor(ap, AngleEditorRads.class);
+    	properties.add(ap);
+    	
+    	return properties;
+    }
+    
+    
+    public String getPropertiesDialogTitle() {    
+    	return getId()+" parameters";
+    }
+    
+    public void setProperties(Property[] properties) {
+    	
+    	super.setProperties(properties);
+    	
+    	for (Property p : properties) {
+    		if (p.getName().equals("Speed units")) {
+    			setUnits((String)p.getValue());
+    		}
+    		if (p.getName().equals("Speed tolerance")) {
+    			setSpeedTolerance((Double)p.getValue());
+    		}
+    		if (p.getName().equals("Speed")) {
+    			setSpeed((Double)p.getValue());
+    		}
+    		if (p.getName().equals("Amplitude")) {
+    			setAmplitude((Double)p.getValue());
+    		}    		
+    		if (p.getName().equals("Pitch angle")) {
+    			setPitchAngle((Float)p.getValue());
+    		}
+    	}
+    }
+    
+	public String[] getPropertiesErrors(Property[] properties) {
+		return super.getPropertiesErrors(properties);
+	}
+    
+	@Override
+    public ManeuverLocation getManeuverLocation() {
+    	return destination.clone();
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
+     */
+    @Override
+    public ManeuverLocation getStartLocation() {
+        return destination.clone();
+    }
+
+    @Override
+    public ManeuverLocation getEndLocation() {
+        return destination.clone();
+    }
+    
+    public void setManeuverLocation(ManeuverLocation location) {
+    	destination = location.clone();
+    }
+    
+    @Override
+	public String getTooltipText() {
+		
+    	NumberFormat nf = GuiUtils.getNeptusDecimalFormat(2);
+		
+		return super.getTooltipText()+"<hr>"+
+		"speed: <b>"+nf.format(getSpeed())+" "+getUnits()+"</b>"+
+		"<br>"+destination.getZUnits()+": <b>"+nf.format(destination.getZ())+" m</b>" +
+		"<br>amplitude: <b>"+nf.format(getAmplitude())+" m</b>"+
+		"<br>pitch: <b>"+nf.format(Math.toDegrees(getPitchAngle()))+" \u00B0</b>";
+	}
+    
+    
+//    private double getSpeedInMetersPerSeconds() {
+//    	if (units.equals("m/s"))
+//    		return speed;
+//    	else
+//    		return 0;
+//    }
+    
+    public Message[] getAdditionalWaypointMessages(int wptID) {    	
+    	return new Message[] {};
+    }
+    
+    @Override
+    public void parseIMCMessage(IMCMessage message) {
+    	setMaxTime((int)message.getDouble("timeout"));
+    	setSpeed(message.getDouble("speed"));
+    	setAmplitude(message.getDouble("amplitude"));
+    	setPitchAngle((float)message.getDouble("pitch"));
+    	
+    	ManeuverLocation pos = new ManeuverLocation();
+    	pos.setLatitude(Math.toDegrees(message.getDouble("lat")));
+    	pos.setLongitude(Math.toDegrees(message.getDouble("lon")));
+    	pos.setZ(message.getDouble("z"));
+    	pos.setZUnits(pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(message.getString("z_units")));
+    	
+    	setManeuverLocation(pos);
+    	
+    	String speed_units = message.getString("speed_units");
+		if (speed_units.equals("METERS_PS"))
+			setUnits("m/s");
+		else if (speed_units.equals("RPM"))
+			setUnits("RPM");
+		else
+			setUnits("%");
+		setCustomSettings(message.getTupleList("custom"));
+    }
+    
+    
+	public IMCMessage serializeToIMC() {
+		double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
+		pt.up.fe.dceg.neptus.imc.YoYo yoyo = new pt.up.fe.dceg.neptus.imc.YoYo();
+		
+		yoyo.setTimeout(getMaxTime());
+		yoyo.setLat(Math.toRadians(latLonDepth[0]));
+		yoyo.setLon(Math.toRadians(latLonDepth[1]));
+		yoyo.setZ(getManeuverLocation().getZ());
+		yoyo.setZUnits(getManeuverLocation().getZUnits().toString());
+		yoyo.setSpeed(getSpeed());
+		yoyo.setAmplitude(getAmplitude());
+		yoyo.setPitch(getPitchAngle());
+		String speedU = this.getUnits();
+		
+		try {
+			if ("m/s".equalsIgnoreCase(speedU))
+			    yoyo.setSpeedUnits(pt.up.fe.dceg.neptus.imc.YoYo.SPEED_UNITS.METERS_PS);
+			else if ("RPM".equalsIgnoreCase(speedU))
+			    yoyo.setSpeedUnits(pt.up.fe.dceg.neptus.imc.YoYo.SPEED_UNITS.RPM);
+			else if ("%".equalsIgnoreCase(speedU))
+			    yoyo.setSpeedUnits(pt.up.fe.dceg.neptus.imc.YoYo.SPEED_UNITS.PERCENTAGE);
+			else if ("percentage".equalsIgnoreCase(speedU))
+			    yoyo.setSpeedUnits(pt.up.fe.dceg.neptus.imc.YoYo.SPEED_UNITS.PERCENTAGE);
+		}
+		catch (Exception ex) {
+			NeptusLog.pub().error(this, ex);						
+		}
+		yoyo.setCustom(getCustomSettings());
+
+		return yoyo;
+	}   
+
+    public static void main(String[] args) {
+    	YoYo g = new YoYo();
+		PropertiesEditor.editProperties(g, true);
+		PropertiesEditor.editProperties(g, true);	
+	}
+}

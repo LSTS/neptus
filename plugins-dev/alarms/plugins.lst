@@ -1,0 +1,10 @@
+# DATE=@DATE@
+# TIME=@TIME@
+# COMPILED BY=@COMPILED BY@ 
+# LEGAL_COPY=@LEGAL_COPY@
+# SVN_REV=@SVN_REV@
+# SVN_PATH=@SVN_PATH@
+
+#Simple Plugin:
+pt.up.fe.dceg.neptus.plugins.alarms.ExceptionAlarm
+pt.up.fe.dceg.neptus.plugins.alarms.LastErrorPanel

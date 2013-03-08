@@ -1,0 +1,179 @@
+﻿
+# /
+/**/tmp0000.html
+/*.dll
+/*.exe
+/*.session
+/*.so
+/*wmcache*
+/.cache
+/.tmp
+/.tmp_svn_work
+/.wmcache
+/.wmcache-copia
+/Neptus*
+/Neptus-installer.sh
+/ProfilerDLL.dll
+/build
+/jjstick.dll
+/libjinput-osx.jnilib
+/libmwjni.so
+/log
+/mingwm10.dll
+/mwjni.dll
+/neptus.tgz
+/obfuscation-log.xml*
+/ortemanager
+/ortemanager.exe
+/plugins-dev-tmp
+/pthreadGCE2.dll
+/pthreadVC2.dll
+/resources
+/s52*
+/s57*
+/svn.info.txt
+/tmpjars
+/tmpdist
+
+# /NSIS_release/install_scripts/
+/NSIS_release/install_scripts/*.exe
+/NSIS_release/install_scripts/neptus_include.nsi
+
+# /bin/
+/bin/justrender.jar
+
+# /conf/
+/conf/*.properties
+/conf/3d_recent.xml
+/conf/general-properties.xml
+/conf/mp_recent.xml
+/conf/mra.properties
+/conf/mra_recent.xml
+/conf/mystate.xml
+/conf/oplimits
+/conf/rocheck.xml
+/conf/roconsoles.xml
+/conf/romisc.xml
+/conf/romissions.xml
+
+# /conf/i18n/
+/conf/i18n/en
+
+# /dev-scripts/i18n/
+
+# /dist/
+/dist/*.jnlp
+
+# /dist/jre-linux/
+/dist/jre-linux/*
+
+# /dist/jre-windows/
+/dist/jre-windows/*
+
+# /doc/manual/abort/
+
+# /doc/manual/chronometer/
+
+# /doc/manual/contact-maker/
+
+# /doc/manual/entity-state/
+
+# /doc/manual/find-system/
+
+# /doc/manual/gps-panel/
+
+# /doc/manual/lbl-ranges/
+
+# /doc/manual/lock/
+
+# /doc/manual/logging/
+
+# /doc/manual/logs-downloader/
+
+# /doc/manual/my-location/
+
+# /doc/manual/plan-control/
+
+# /doc/manual/systems-list/
+
+# /doc/manual/world-overlay/
+
+# /maps/
+/maps/PT528505.000
+
+# /plugins-dev/3D/assets/Textures/Terrain/splat/mapas/
+/plugins-dev/3D/assets/Textures/Terrain/splat/mapas/leixoesheightMap.jpg
+/plugins-dev/3D/assets/Textures/Terrain/splat/mapas/gradientHeightMap.jpg
+/plugins-dev/3D/assets/Textures/Terrain/splat/mapas/testHeights_4.bmp
+
+# /plugins-dev/odss/lib/
+
+# /plugins-dev/odss/licences/
+
+# /plugins-dev/odss/org/
+
+# /plugins-dev/odss/org/mbari/
+
+# /plugins-dev/odss/org/mbari/trex/
+
+# /plugins-dev/odss/pb/
+
+# /plugins-dev/uavs/icons/
+/plugins-dev/uavs/icons/departure.png
+/plugins-dev/uavs/icons/emergency.png
+/plugins-dev/uavs/icons/engineOn.png
+/plugins-dev/uavs/icons/flying.png
+/plugins-dev/uavs/icons/landing.png
+/plugins-dev/uavs/icons/preLaunch.png
+/plugins-dev/uavs/icons/rollOut.png
+/plugins-dev/uavs/icons/taxiWay.png
+/plugins-dev/uavs/icons/uavBAD.png
+/plugins-dev/uavs/icons/uavOK.png
+/plugins-dev/uavs/icons/uavUNKNOWN.png
+
+# /src/images/buttons/
+/src/images/buttons/*.db
+
+# /src/images/cursors/
+/src/images/cursors/Thumbs.db
+
+# /src/images/menus/
+/src/images/menus/Thumbs.db
+
+# /src/images/systems/
+
+# /src/images/world/
+
+# /src/pt/up/fe/dceg/neptus/
+/src/pt/up/fe/dceg/neptus/logisurus
+
+# /src/pt/up/fe/dceg/neptus/gui/
+/src/pt/up/fe/dceg/neptus/gui/undo
+
+# /srcShell/installers/
+
+# /srcTests/mbari/
+
+# /srcTests/pt/up/fe/dceg/neptus/util/logdownload/
+
+# /vehicles-files/adamastor/conf/images/
+/vehicles-files/adamastor/conf/images/Thumbs.db
+
+# /vehicles-files/cularis/
+
+/.gitignore*
+/#.gitignore*
+/build/
+/conf/general-properties.xml
+/conf/mystate.xml
+/*.so
+/log/
+/resources/
+/*.session
+/svn.info.txt
+/*.pdf
+/bin
+/bin-bundles
+/plugins
+/dist/jre*
+/conf/plugins/

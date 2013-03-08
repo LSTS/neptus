@@ -1,0 +1,874 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by pdias
+ * 2010/01/16
+ * $Id:: UDPTransport.java 9616 2012-12-30 23:23:22Z pdias                $:
+ */
+package pt.up.fe.dceg.neptus.util.comm.transports.udp;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.MulticastSocket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Vector;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.util.ByteUtil;
+import pt.up.fe.dceg.neptus.util.comm.transports.DeliveryListener;
+import pt.up.fe.dceg.neptus.util.comm.transports.DeliveryListener.ResultEnum;
+
+/**
+ * @author pdias
+ * 
+ */
+public class UDPTransport {
+    protected LinkedHashSet<UDPMessageListener> listeners = new LinkedHashSet<UDPMessageListener>();
+
+    private LinkedBlockingQueue<UDPNotification> receptionMessageList = new LinkedBlockingQueue<UDPNotification>();
+    private LinkedBlockingQueue<UDPNotification> sendmessageList = new LinkedBlockingQueue<UDPNotification>();
+
+    private Thread sockedListenerThread = null;
+    private Thread dispacherThread = null;
+    private Vector<Thread> senderThreads = new Vector<Thread>();
+    private int numberOfSenderThreads = 1;
+
+    private DatagramSocket sock;
+
+    private LinkedHashMap<String, InetAddress> solvedAddresses = new LinkedHashMap<String, InetAddress>();
+
+    private int bindPort = 6001;
+
+    private int timeoutMillis = 1000;
+    private int maxBufferSize = 65507;
+
+    private boolean purging = false;
+
+    private boolean broadcastEnable = false;
+    private boolean broadcastActive = false;
+
+    private boolean multicastEnable = false;
+    private boolean multicastActive = false;
+
+    private String multicastAddress = "224.0.75.69";
+
+    private boolean isOnBindError = false;
+
+    /**
+	 * 
+	 */
+    public UDPTransport() {
+        initialize();
+    }
+
+    /**
+     * @param numberOfSenderThreads
+     */
+    public UDPTransport(int numberOfSenderThreads) {
+        this.numberOfSenderThreads = numberOfSenderThreads;
+        initialize();
+    }
+
+    /**
+     * @param bindPort
+     * @param numberOfSenderThreads
+     */
+    public UDPTransport(int bindPort, int numberOfSenderThreads) {
+        setBindPort(bindPort);
+        initialize();
+    }
+
+    public UDPTransport(boolean isBroadcastEnable, int bindPort, int numberOfSenderThreads) {
+        setBindPort(bindPort);
+        setBroadcastEnable(isBroadcastEnable);
+        initialize();
+    }
+
+    /**
+     * @param multicastAddress
+     * @param bindPort
+     * @param numberOfSenderThreads
+     */
+    public UDPTransport(String multicastAddress, int bindPort, int numberOfSenderThreads) {
+        setNumberOfSenderThreads(numberOfSenderThreads);
+        setBindPort(bindPort);
+        setMulticastAddress(multicastAddress);
+        setMulticastEnable(true);
+        initialize();
+    }
+
+    /**
+     * @param multicastAddress
+     * @param bindPort
+     */
+    public UDPTransport(String multicastAddress, int bindPort) {
+        this(multicastAddress, bindPort, 1);
+    }
+
+    /**
+	 * 
+	 */
+    private void initialize() {
+        createReceivers();
+        createSenders();
+    }
+
+    /**
+     * @return the isOnBindError
+     */
+    public boolean isOnBindError() {
+        return isOnBindError;
+    }
+
+    /**
+     * @param isOnBindError the isOnBindError to set
+     */
+    private void setOnBindError(boolean isOnBindError) {
+        this.isOnBindError = isOnBindError;
+    }
+
+    // /**
+    // * For now tests is the receiver thread is alive and
+    // * this transport is {@link #isRunnning()}.
+    // * Can serve for binding error.
+    // * @return
+    // */
+    // public boolean isReceiverConnected() {
+    // if (dispacherThread == null)
+    // return false;
+    // return isRunnning() && dispacherThread.isAlive();
+    // }
+
+    /**
+     * @return
+     */
+    public int getBindPort() {
+        return bindPort;
+    }
+
+    /**
+     * @param bindPort
+     */
+    public void setBindPort(int bindPort) {
+        this.bindPort = bindPort;
+    }
+
+    /**
+     * @return the multicastAddress
+     */
+    public String getMulticastAddress() {
+        return multicastAddress;
+    }
+
+    /**
+     * @param multicastAddress the multicastAddress to set
+     */
+    public void setMulticastAddress(String multicastAddress) {
+        this.multicastAddress = multicastAddress;
+    }
+
+    /**
+     * @return the multicastEnable
+     */
+    public boolean isMulticastEnable() {
+        return multicastEnable;
+    }
+
+    /**
+     * @param multicastEnable the multicastEnable to set
+     */
+    public void setMulticastEnable(boolean multicastEnable) {
+        this.multicastEnable = multicastEnable;
+    }
+
+    /**
+     * @return the multicastActive
+     */
+    protected boolean isMulticastActive() {
+        return multicastActive;
+    }
+
+    /**
+     * @param multicastActive the multicastActive to set
+     */
+    protected void setMulticastActive(boolean multicastActive) {
+        this.multicastActive = multicastActive;
+    }
+
+    /**
+     * @return the broadcastEnable
+     */
+    public boolean isBroadcastEnable() {
+        return broadcastEnable;
+    }
+
+    /**
+     * @param broadcastEnable the broadcastEnable to set
+     */
+    public void setBroadcastEnable(boolean broadcastEnable) {
+        this.broadcastEnable = broadcastEnable;
+    }
+
+    /**
+     * @return the broadcastActive
+     */
+    protected boolean isBroadcastActive() {
+        return broadcastActive;
+    }
+
+    /**
+     * @param broadcastActive the broadcastActive to set
+     */
+    protected void setBroadcastActive(boolean broadcastActive) {
+        this.broadcastActive = broadcastActive;
+    }
+
+    /**
+     * @return the numberOfSenderThreads
+     */
+    public int getNumberOfSenderThreads() {
+        return numberOfSenderThreads;
+    }
+
+    /**
+     * @param numberOfSenderThreads the numberOfSenderThreads to set
+     */
+    public void setNumberOfSenderThreads(int numberOfSenderThreads) {
+        this.numberOfSenderThreads = numberOfSenderThreads;
+    }
+
+    /**
+     * @return the timeoutMillis
+     */
+    public int getTimeoutMillis() {
+        return timeoutMillis;
+    }
+
+    /**
+     * @param timeoutMillis the timeoutMillis to set
+     */
+    public void setTimeoutMillis(int timeoutMillis) {
+        this.timeoutMillis = timeoutMillis;
+    }
+
+    /**
+     * @return the maxBufferSize
+     */
+    public int getMaxBufferSize() {
+        return maxBufferSize;
+    }
+
+    /**
+     * @param maxBufferSize the maxBufferSize to set
+     */
+    public void setMaxBufferSize(int maxBufferSize) {
+        this.maxBufferSize = maxBufferSize;
+    }
+
+    /**
+     * @param multicastAddress
+     * @return
+     */
+    protected InetAddress resolveAddress(String multicastAddress) throws UnknownHostException {
+        if (!solvedAddresses.containsKey(multicastAddress)) {
+            solvedAddresses.put(multicastAddress, InetAddress.getByName(multicastAddress));
+        }
+        return solvedAddresses.get(multicastAddress);
+    }
+
+    /**
+     * @return
+     */
+    public boolean reStart() {
+        if (!(!isStopping() && !isRunning()))
+            return false;
+        purging = false;
+        createReceivers();
+        createSenders();
+        return true;
+    }
+
+    /**
+     * Interrupts all the sending threads abruptly.
+     * 
+     * @see {@link #purge()}
+     */
+    public void stop() {
+        if (isRunning()) {
+            purging = true;
+
+            if (sockedListenerThread != null) {
+                sockedListenerThread.interrupt();
+                sockedListenerThread = null;
+            }
+            synchronized (receptionMessageList) {
+                receptionMessageList.clear();
+            }
+            if (dispacherThread != null) {
+                dispacherThread.interrupt();
+                dispacherThread = null;
+            }
+
+            int size = senderThreads.size();
+            for (int i = 0; i < size; i++) {
+                try {
+                    senderThreads.get(0).interrupt();
+                    senderThreads.remove(0); // shifts the right elements to the left
+                }
+                catch (Exception e) {
+                }
+            }
+
+            Vector<UDPNotification> toClearSen = new Vector<UDPNotification>();
+            sendmessageList.drainTo(toClearSen);
+            for (UDPNotification req : toClearSen) {
+                informDeliveryListener(req, ResultEnum.Error, new Exception("Server shutdown!!"));
+            }
+        }
+    }
+
+    /**
+     * Stops accepting new messages but waits until all the buffered messages are sent to the network before stopping
+     * the sending thread(s).
+     */
+    public void purge() {
+        purging = true;
+        while (!receptionMessageList.isEmpty() || !sendmessageList.isEmpty()) {
+            try {
+                Thread.sleep(1000);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        stop();
+    }
+
+    /**
+     * @return
+     */
+    public boolean isRunning() {
+        if (senderThreads.size() > 0)
+            return true;
+
+        if (sockedListenerThread == null && dispacherThread == null)
+            return false;
+        return true;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isRunningNormally() {
+        if (isOnBindError())
+            return false;
+        if (senderThreads.size() == 0)
+            return false;
+        if (sockedListenerThread == null)
+            return false;
+        if (dispacherThread == null)
+            return false;
+
+        return true;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isStopping() {
+        if (isRunning() && purging)
+            return true;
+        return false;
+    }
+
+    /**
+	 * 
+	 */
+    private void createSenders() {
+        senderThreads.clear();
+        for (int i = 0; i < this.numberOfSenderThreads; i++) {
+            if (i == 0)
+                senderThreads.add(getSenderThread(sock));
+            else
+                senderThreads.add(getSenderThread(null));
+        }
+    }
+
+    /**
+	 * 
+	 */
+    private void createReceivers() {
+        setOnBindError(false);
+        getSockedListenerThread();
+        getDispacherThread();
+    }
+
+    /**
+     * @return
+     */
+    private Thread getSockedListenerThread() {
+        if (sockedListenerThread == null) {
+            Thread listenerThread = new Thread(UDPTransport.class.getSimpleName() + ": Listener Thread "
+                    + this.hashCode()) {
+                byte[] sBuffer = new byte[maxBufferSize];
+                String multicastGroup = "";
+
+                public synchronized void start() {
+                    NeptusLog.pub().info("Listener Thread Started");
+                    try {
+                        boolean useMulticast = isMulticastEnable();
+                        sock = (!useMulticast) ? new DatagramSocket(null) : new MulticastSocket(null);
+                        sock.setReuseAddress(true);
+                        if (bindPort != 0) {
+                            sock.bind(new InetSocketAddress(bindPort));
+                        }
+                        else {
+                            sock.bind(new InetSocketAddress(0));
+                        }
+
+                        try {
+                            if (useMulticast) {
+                                ((MulticastSocket) sock).joinGroup(resolveAddress(getMulticastAddress()));
+                                multicastGroup = getMulticastAddress();
+                            }
+                            setMulticastActive(useMulticast);
+                        }
+                        catch (Exception e) {
+                            setMulticastActive(false);
+                        }
+
+                        sock.setSoTimeout(timeoutMillis);
+                        if (isBroadcastEnable()) {
+                            try {
+                                sock.setBroadcast(true);
+                                setBroadcastActive(true);
+                            }
+                            catch (Exception e) {
+                                setBroadcastActive(false);
+                            }
+                        }
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(e);
+                        setOnBindError(true);
+                        return;
+                    }
+                    finally {
+                        if (isOnBindError()) {
+                            try {
+                                sock.disconnect();
+                            }
+                            catch (Exception e) {
+                            }
+                            try {
+                                sock.close();
+                            }
+                            catch (Exception e) {
+                            }
+                        }
+                    }
+                    super.start();
+                }
+
+                public void run() {
+                    try {
+                        while (!purging) {
+                            DatagramPacket packet = new DatagramPacket(sBuffer, sBuffer.length);
+                            try {
+                                sock.receive(packet);
+                                int lengthReceived = packet.getLength();
+                                try {
+                                    byte[] recBytes = Arrays.copyOf(sBuffer, lengthReceived);
+                                    UDPNotification info = new UDPNotification(UDPNotification.RECEPTION,
+                                            (InetSocketAddress) packet.getSocketAddress(), recBytes,
+                                            System.currentTimeMillis());
+                                    receptionMessageList.offer(info);
+                                }
+                                catch (Exception e) {
+                                    e.printStackTrace();
+                                    // FIXME treat better this exception (pdias)
+                                }
+                            }
+                            catch (SocketTimeoutException e) {
+                                // NeptusLog.pub().warn(this + " Thread SocketTimeoutException");
+                                // try { Thread.sleep(1500); } catch (Exception e1) { }
+                                continue;
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                                e.printStackTrace();
+                                // continue;
+                            }
+                            catch (Error e) {
+                                NeptusLog.pub().error(e);
+                                e.printStackTrace();
+                                // continue;
+                            }
+                            // Thread.sleep(1);
+                            // try { Thread.sleep(10); } catch (Exception e) { }
+                        }
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(e);
+                        // NeptusLog.pub().warn(this+" Thread interrupted");
+                    }
+
+                    NeptusLog.pub().warn(this + " Thread Stopped");
+
+                    if (isMulticastActive()) {
+                        try {
+                            // ((MulticastSocket)sock).leaveGroup(((MulticastSocket)sock).getInetAddress());
+                            ((MulticastSocket) sock).leaveGroup(resolveAddress(multicastGroup));
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    sock.disconnect();
+                    sock.close();
+                    sock = null;
+                    sockedListenerThread = null;
+                }
+
+            };
+            listenerThread.setPriority(Thread.MIN_PRIORITY);
+            listenerThread.setDaemon(true);
+            listenerThread.start();
+            sockedListenerThread = listenerThread;
+        }
+        return sockedListenerThread;
+    }
+
+    /**
+     * @return
+     */
+    private Thread getDispacherThread() {
+        if (dispacherThread == null) {
+            Thread listenerThread = new Thread(UDPTransport.class.getSimpleName() + ": Dispacher Thread "
+                    + this.hashCode()) {
+                public synchronized void start() {
+                    NeptusLog.pub().info("Dispacher Thread Started");
+                    super.start();
+                }
+
+                public void run() {
+                    try {
+                        while (!(purging && receptionMessageList.isEmpty())) {
+                            UDPNotification req;
+                            req = receptionMessageList.poll(1, TimeUnit.SECONDS);
+                            if (req == null)
+                                continue;
+
+                            for (UDPMessageListener lst : listeners) {
+                                try {
+                                    lst.onUDPMessageNotification(req);
+                                }
+                                catch (ArrayIndexOutOfBoundsException e) {
+                                    NeptusLog.pub().debug(
+                                            "Dispacher Thread: ArrayIndexOutOfBoundsException: "
+                                                    + "onUDPMessageNotification " + e.getMessage());
+                                }
+                                catch (Exception e) {
+                                    String addStr = "";
+                                    if (req != null) {
+                                        if (req.getBuffer() != null) {
+                                            addStr = ByteUtil.dumpAsHexToString(req.getAddress().toString(), req.getBuffer());
+                                            if (addStr != null && !"".equalsIgnoreCase(addStr))
+                                                addStr = "Buffer:\n" + addStr;
+                                        }
+                                    }
+                                    NeptusLog.pub().error(
+                                            "Dispacher Thread: Exception: " + "onUDPMessageNotification "
+                                                    + e.getMessage() + addStr, e);
+                                }
+                                catch (Error e) {
+                                    NeptusLog.pub().fatal(
+                                            "Dispacher Thread: Error: " + "onUDPMessageNotification " + e.getMessage(),
+                                            e);
+                                }
+                            }
+                        }
+                    }
+                    catch (InterruptedException e) {
+                        NeptusLog.pub().warn(this + " Thread interrupted");
+                    }
+
+                    NeptusLog.pub().info(this + " Thread Stopped");
+                    dispacherThread = null;
+                }
+            };
+            listenerThread.setPriority(Thread.MIN_PRIORITY + 1);
+            listenerThread.setDaemon(true);
+            listenerThread.start();
+            dispacherThread = listenerThread;
+        }
+        return dispacherThread;
+    }
+
+    /**
+     * @return
+     */
+    private Thread getSenderThread(final DatagramSocket sockToUseAlreadyOpen) {
+        Thread senderThread = new Thread(UDPTransport.class.getSimpleName() + ": Sender Thread " + this.hashCode()) {
+
+            DatagramSocket sock;
+            DatagramPacket dgram;
+            UDPNotification req;
+
+            public synchronized void start() {
+                NeptusLog.pub().info("Sender Thread Started");
+                try {
+                    if (sockToUseAlreadyOpen != null)
+                        sock = sockToUseAlreadyOpen;
+                    else
+                        sock = new DatagramSocket();
+                    super.start();
+                }
+                catch (SocketException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            public void run() {
+                try {
+                    while (!(purging && sendmessageList.isEmpty())) {
+                        // req = sendmessageList.take();
+                        req = sendmessageList.poll(1, TimeUnit.SECONDS);
+                        if (req == null)
+                            continue;
+                        try {
+                            dgram = new DatagramPacket(req.getBuffer(), req.getBuffer().length, req.getAddress());
+                            if (req.getAddress().getPort() != 0) {
+                                sock.send(dgram);
+                                informDeliveryListener(req, ResultEnum.Success, null);
+                            }
+                            else
+                                throw new Exception(req.getAddress() + " port is not valid");
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e + " :: " + req.getAddress());
+                            // e.printStackTrace();
+                            informDeliveryListener(req, ResultEnum.Error, e);
+                        }
+                    }
+                }
+                catch (InterruptedException e) {
+                    NeptusLog.pub().warn(this + " Thread interrupted");
+                    informDeliveryListener(req, ResultEnum.Error, e);
+                }
+
+                NeptusLog.pub().info(this + " Sender Thread Stopped");
+                senderThreads.remove(this);
+            }
+        };
+        senderThread.setPriority(Thread.MIN_PRIORITY);
+        senderThread.setDaemon(true);
+        senderThread.start();
+        return senderThread;
+    }
+
+    /**
+     * @param listener
+     * @return
+     */
+    public boolean addListener(UDPMessageListener listener) {
+        synchronized (listeners) {
+            boolean ret = listeners.add(listener);
+            return ret;
+        }
+    }
+
+    /**
+     * @param listener
+     * @return
+     */
+    public boolean removeListener(UDPMessageListener listener) {
+        synchronized (listeners) {
+            boolean ret = listeners.remove(listener);
+            return ret;
+        }
+    }
+
+    /**
+     * Sends a message to the network
+     * 
+     * @param destination A valid hostname like "whale.fe.up.pt" or "127.0.0.1"
+     * @param port The destination's port
+     * @param buffer
+     * @return true meaning that the message was put on the send queue, and false if it was not put on the send queue.
+     */
+    public boolean sendMessage(String destination, int port, byte[] buffer) {
+        return sendMessage(destination, port, buffer, null);
+    }
+
+    /**
+     * Sends a message to the network
+     * 
+     * @param destination A valid hostname like "whale.fe.up.pt" or "127.0.0.1"
+     * @param port The destination's port
+     * @param buffer
+     * @param deliveryListener
+     * @return true meaning that the message was put on the send queue, and false if it was not put on the send queue.
+     */
+    public boolean sendMessage(String destination, int port, byte[] buffer, DeliveryListener deliveryListener) {
+        if (purging) {
+            String txt = "Not accepting any more messages. IMCMessenger is terminating";
+            NeptusLog.pub().error(txt);
+            if (deliveryListener != null)
+                deliveryListener.deliveryResult(ResultEnum.UnFinished, new IOException(txt));
+            return false;
+        }
+        try {
+            UDPNotification req = new UDPNotification(UDPNotification.SEND, new InetSocketAddress(
+                    resolveAddress(destination), port), buffer);
+            req.setDeliveryListener(deliveryListener);
+            sendmessageList.add(req);
+        }
+        catch (UnknownHostException e) {
+            e.printStackTrace();
+            if (deliveryListener != null)
+                deliveryListener.deliveryResult(ResultEnum.Unreacheable, e);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @param req
+     * @param e
+     */
+    private void informDeliveryListener(UDPNotification req, ResultEnum result, Exception e) {
+        if (req != null && req.getDeliveryListener() != null) {
+            req.getDeliveryListener().deliveryResult(result, e);
+        }
+    }
+
+    /**
+     * @param args
+     * @throws Exception
+     */
+    @SuppressWarnings("unused")
+    public static void main(String[] args) throws Exception {
+        // Multicast Test
+        // UDPTransport udpT = new UDPTransport("224.0.75.69", 6969);
+        // udpT.addListener(new UDPMessageListener() {
+        // @Override
+        // public void onUDPMessageNotification(UDPNotification req) {
+        // System.err
+        // .println("Received "
+        // + req.getBuffer().length
+        // + " bytes from "
+        // + req.getAddress()
+        // + " :: "
+        // + new String(req.getBuffer(), 0, req
+        // .getBuffer().length));
+        // }
+        // });
+        //
+        // while (true) {
+        // udpT.sendMessage("224.0.75.69", 6969, new String("Ptah is a God!!!").getBytes());
+        // Thread.sleep(1000);
+        // }
+
+        // //Multicast Test2
+        // final String multicastAddress = "224.0.75.69";
+        // String multicastRangePortsStr = "6969-6972";
+        // final int localport = 6969;
+        // final int[] multicastPorts = CommUtil
+        // .parsePortRangeFromString(multicastRangePortsStr);
+        // class ThreadTest extends Thread {
+        // String id = "";
+        // public ThreadTest(String id) {
+        // super();
+        // this.id = id;
+        // }
+        // @Override
+        // public void run() {
+        // UDPTransport multicastUdpTransport;
+        //
+        // multicastUdpTransport = new UDPTransport(multicastAddress,
+        // (multicastPorts.length == 0) ? localport
+        // : multicastPorts[0]);
+        // multicastUdpTransport.reStart();
+        // if (multicastUdpTransport.isOnBindError()) {
+        // for (int i = 1; i < multicastPorts.length; i++) {
+        // multicastUdpTransport.stop();
+        // multicastUdpTransport.setBindPort(multicastPorts[i]);
+        // multicastUdpTransport.reStart();
+        // if (!multicastUdpTransport.isOnBindError())
+        // break;
+        // }
+        // }
+        // multicastUdpTransport.addListener(new UDPMessageListener() {
+        // @Override
+        // public void onUDPMessageNotification(UDPNotification req) {
+        // System.err.println("Received "
+        // + req.getBuffer().length
+        // + " bytes from "
+        // + req.getAddress()
+        // + " :: "
+        // + new String(req.getBuffer(), 0, req
+        // .getBuffer().length));
+        // }
+        // });
+        //
+        // for (int i = 0; i < 10; i++) {
+        // for (int port : multicastPorts)
+        // multicastUdpTransport.sendMessage(multicastAddress,
+        // port, id.concat(" :: "+
+        // multicastUdpTransport.getBindPort()).getBytes());
+        // }
+        //
+        // }
+        // };
+        //
+        // UDPTransport uup = new UDPTransport(6969, 1);
+        //
+        // ThreadTest tt1 = new ThreadTest("P1");
+        // ThreadTest tt2 = new ThreadTest("P2");
+        // tt1.start();
+        // tt2.start();
+        // for (int i = 0; i < 10; i++) {
+        // for (int port : multicastPorts)
+        // uup.sendMessage(multicastAddress,
+        // port, "Bind obstructor".concat(" :: "+
+        // uup.getBindPort()).getBytes());
+        // }
+
+        UDPTransport udpTB1 = new UDPTransport(7969, 1);
+        final UDPTransport udpTB = new UDPTransport(true, 6001, 1);
+        udpTB.addListener(new UDPMessageListener() {
+            @Override
+            public void onUDPMessageNotification(UDPNotification req) {
+                System.err.println(udpTB.isBroadcastActive() + " Received " + req.getBuffer().length + " bytes from "
+                        + req.getAddress() + " :: ");
+                // + new String(req.getBuffer(), 0, req
+                // .getBuffer().length));
+                System.out.println(udpTB.receptionMessageList.size());
+            }
+        });
+
+        // while (true) {
+        // udpTB1.sendMessage(null, 7901, new String("Ptah is a God!!!").getBytes());
+        // Thread.sleep(1000);
+        // }
+
+    }
+
+}

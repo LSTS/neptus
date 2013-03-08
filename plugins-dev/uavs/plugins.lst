@@ -1,0 +1,18 @@
+# DATE=@DATE@
+# TIME=@TIME@
+# COMPILED BY=@COMPILED BY@ 
+# LEGAL_COPY=@LEGAL_COPY@
+# SVN_REV=@SVN_REV@
+# SVN_PATH=@SVN_PATH@
+
+pt.up.fe.dceg.neptus.plugins.uavs.panels.UavAltitudePanel
+pt.up.fe.dceg.neptus.plugins.uavs.panels.UavAirspeedPanel
+pt.up.fe.dceg.neptus.plugins.uavs.panels.UavState1Panel
+pt.up.fe.dceg.neptus.plugins.uavs.panels.UavStateXPanel
+pt.up.fe.dceg.neptus.plugins.uavs.panels.UavTimeToBingoPanel
+pt.up.fe.dceg.neptus.plugins.uavs.panels.UavHUDPanel
+pt.up.fe.dceg.neptus.plugins.uavs.panels.UavVideoPanel
+pt.up.fe.dceg.neptus.plugins.uavs.panels.UavAirspeedPanel
+pt.up.fe.dceg.neptus.plugins.uavs.daemons.UavPainterDaemon
+pt.up.fe.dceg.neptus.plugins.uavs.daemons.UavSettingsDaemon
+pt.up.fe.dceg.neptus.plugins.uavs.painters.elements.UavCameraFootprint

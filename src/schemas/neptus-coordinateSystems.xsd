@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:annotation>
+		<xs:documentation>v0.2</xs:documentation>
+	</xs:annotation>
+	<xs:include schemaLocation="neptus-types.xsd"/>
+	<xs:element name="coordinateSystems">
+		<xs:annotation>
+			<xs:documentation>Root element definining coordinate systems.
+
+The base for the definition of this coordinate system is the N-E-D. That is x pointing to North, y to east and z down. The origin of the default coordinate system is N0 E0 with hieght 0 meters.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence maxOccurs="unbounded">
+				<xs:element name="coordinateSystem" type="coordinateSystem"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

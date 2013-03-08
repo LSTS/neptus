@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.MissionWeb.com" targetNamespace="http://www.MissionWeb.com" elementFormDefault="qualified">
+	<xs:annotation>
+		<xs:documentation>This schema validates mission files from an autonomous underwater vehicle.</xs:documentation>
+	</xs:annotation>
+	<xs:element name="mission">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="description" type="mission-description"/>
+				<xs:element name="positionlog" type="position-log"/>
+				<xs:element name="sensorlog" type="sensor-log" maxOccurs="10"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="mission-description">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="date" type="xs:string"/>
+			<xs:element name="local" type="xs:string"/>
+			<xs:element name="desc" type="xs:string"/>
+			<xs:element name="observations" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="position-log">
+		<xs:sequence>
+			<xs:element name="posstate" type="xs:string" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="sensor-log">
+		<xs:sequence>
+			<xs:element name="sensornames" type="sensornames"/>
+			<xs:element name="sensorstate" type="xs:string" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="sensornames">
+		<xs:sequence>
+			<xs:element name="sensor" type="xs:string" maxOccurs="100"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

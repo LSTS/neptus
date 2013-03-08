@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<!-- Schema for GroupLayoutContainer 2011/09/18-->
+	<!--Version 1.3-->
+	<!-- $Id:: console-group-layout.xsd 5803 2011-09-19 15:30:09Z pdias               $: -->
+	<xs:element name="HorizontalGroup" type="GroupType">
+		<xs:annotation>
+			<xs:documentation>Can be a root element</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="VerticalGroup" type="GroupType">
+		<xs:annotation>
+			<xs:documentation>Can be a root element</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="LinkSizeHorizontal" type="LinkSizeGroupType">
+		<xs:annotation>
+			<xs:documentation>Can be a root element</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="LinkSizeVertical" type="LinkSizeGroupType">
+		<xs:annotation>
+			<xs:documentation>Can be a root element</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="Profiles" type="ProfilesType">
+		<xs:annotation>
+			<xs:documentation>Can be a root element</xs:documentation>
+		</xs:annotation>
+		<xs:unique name="ProfileNameUnique">
+			<xs:selector xpath="Profile"/>
+			<xs:field xpath="@name"/>
+		</xs:unique>
+		<xs:keyref name="DefaultProfileRef" refer="ProfileNameUnique">
+			<xs:selector xpath="Default"/>
+			<xs:field xpath="@profile"/>
+		</xs:keyref>
+	</xs:element>
+	<xs:element name="ConsoleGroupLayout">
+		<xs:annotation>
+			<xs:documentation>Can be a root element</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:group ref="LayoutSequenceGroup"/>
+				<xs:element ref="Profiles" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="autoCreateGaps" type="xs:boolean" default="false"/>
+			<xs:attribute name="autoCreateContainerGaps" type="xs:boolean" default="false"/>
+			<xs:attribute name="honorsVisibility" type="xs:boolean" default="true"/>
+		</xs:complexType>
+		<xs:key name="HorizontalGroupCompIdKey">
+			<xs:selector xpath="HorizontalGroup/*/Component | HorizontalGroup/*/*/Component |
+						HorizontalGroup/*/*/*/Component | HorizontalGroup/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/*/Component"/>
+			<xs:field xpath="@id"/>
+		</xs:key>
+		<xs:keyref name="VerticalGroupCompIdHorizontalGroupRef" refer="HorizontalGroupCompIdKey">
+			<xs:selector xpath="VerticalGroup/*/Component | VerticalGroup/*/*/Component |
+						VerticalGroup/*/*/*/Component | VerticalGroup/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/*/Component"/>
+			<xs:field xpath="@id"/>
+		</xs:keyref>
+		<xs:key name="VerticalGroupCompIdKey">
+			<xs:selector xpath="VerticalGroup/*/Component | VerticalGroup/*/*/Component |
+						VerticalGroup/*/*/*/Component | VerticalGroup/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/*/Component"/>
+			<xs:field xpath="@id"/>
+		</xs:key>
+		<xs:keyref name="HorizontalGroupCompIdVerticalGroupRef" refer="VerticalGroupCompIdKey">
+			<xs:selector xpath="HorizontalGroup/*/Component | HorizontalGroup/*/*/Component |
+						HorizontalGroup/*/*/*/Component | HorizontalGroup/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/*/Component"/>
+			<xs:field xpath="@id"/>
+		</xs:keyref>
+		<xs:keyref name="LinkSizeCompIdRef" refer="HorizontalGroupCompIdKey">
+			<xs:selector xpath="*/LinkSizeGroup/Component"/>
+			<xs:field xpath="@id"/>
+		</xs:keyref>
+	</xs:element>
+	<xs:simpleType name="AlignmentType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="LEADING"/>
+			<xs:enumeration value="TRAILING"/>
+			<xs:enumeration value="CENTER"/>
+			<xs:enumeration value="BASELINE"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:attributeGroup name="MinPrefMaxSize">
+		<xs:attribute name="min" default="-1">
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:minInclusive value="-2"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="pref" default="-1">
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:minInclusive value="-2"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="max" default="-1">
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:minInclusive value="-2"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:attributeGroup>
+	<xs:attributeGroup name="MinPrefMaxGapSize">
+		<xs:attribute name="min" default="-1">
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:minInclusive value="-2"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="pref" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:minInclusive value="-2"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="max" default="-1">
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:minInclusive value="-2"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:attributeGroup>
+	<xs:attributeGroup name="PlacementPrefMaxGapSize">
+		<xs:attribute name="type" default="RELATED">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="RELATED"/>
+					<xs:enumeration value="UNRELATED"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="pref" default="-1">
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:minInclusive value="-2"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="max" default="-2">
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:minInclusive value="-2"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:attributeGroup>
+	<xs:complexType name="ComponentType">
+		<xs:attribute name="id" type="xs:string" use="required"/>
+		<xs:attribute name="alignment" type="AlignmentType" default="LEADING"/>
+		<xs:attributeGroup ref="MinPrefMaxSize"/>
+	</xs:complexType>
+	<xs:complexType name="GapType">
+		<xs:attributeGroup ref="MinPrefMaxGapSize"/>
+	</xs:complexType>
+	<xs:complexType name="SequenceType">
+		<xs:choice maxOccurs="unbounded">
+			<xs:element name="Component" type="ComponentType"/>
+			<xs:choice>
+				<xs:element name="Gap" type="GapType"/>
+				<xs:element name="GapComponents" type="GapComponentsType"/>
+				<xs:element name="PreferredGap" type="PreferredGapType"/>
+			</xs:choice>
+			<xs:element name="Sequence" type="SequenceType"/>
+			<xs:element name="Parallel" type="ParallelType"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="ParallelType">
+		<xs:choice maxOccurs="unbounded">
+			<xs:element name="Component" type="ComponentType"/>
+			<xs:element name="Gap" type="GapType"/>
+			<xs:element name="Sequence" type="SequenceType"/>
+			<xs:element name="Parallel" type="ParallelType"/>
+		</xs:choice>
+		<xs:attribute name="alignment" type="AlignmentType" default="LEADING"/>
+		<xs:attribute name="resizable" type="xs:boolean" default="true"/>
+	</xs:complexType>
+	<xs:complexType name="GroupType">
+		<xs:choice minOccurs="0">
+			<xs:element name="Sequence" type="SequenceType">
+				<xs:unique name="CompIdUniqueBaseSeq">
+					<xs:selector xpath="Component | */Component | */*/Component | */*/*/Component | 
+					             */*/*/*/Component | */*/*/*/*/Component | */*/*/*/*/*/Component | */*/*/*/*/*/*/Component |
+					             */*/*/*/*/*/*/*/Component | */*/*/*/*/*/*/*/*/Component | */*/*/*/*/*/*/*/*/*/Component | 
+					             */*/*/*/*/*/*/*/*/*/*/Component | */*/*/*/*/*/*/*/*/*/*/*/Component"/>
+					<xs:field xpath="@id"/>
+				</xs:unique>
+				<xs:keyref name="SequenceGapCompIdRefFirstComp" refer="CompIdUniqueBaseSeq">
+					<xs:selector xpath="GapComponents | */GapComponents | */*/GapComponents | */*/*/GapComponents | 
+					             */*/*/*/GapComponents | */*/*/*/*/GapComponents | */*/*/*/*/*/GapComponents | 
+					             */*/*/*/*/*/*/GapComponents | */*/*/*/*/*/*/*/GapComponents | */*/*/*/*/*/*/*/*/GapComponents | 
+					             */*/*/*/*/*/*/*/*/*/GapComponents | */*/*/*/*/*/*/*/*/*/*/GapComponents | 
+					             */*/*/*/*/*/*/*/*/*/*/*/GapComponents"/>
+					<xs:field xpath=" @firstComponent"/>
+				</xs:keyref>
+				<xs:keyref name="SequenceGapCompIdRefSecondComp" refer="CompIdUniqueBaseSeq">
+					<xs:selector xpath="GapComponents | */GapComponents | */*/GapComponents | */*/*/GapComponents | 
+					             */*/*/*/GapComponents | */*/*/*/*/GapComponents | */*/*/*/*/*/GapComponents | 
+					             */*/*/*/*/*/*/GapComponents | */*/*/*/*/*/*/*/GapComponents | */*/*/*/*/*/*/*/*/GapComponents | 
+					             */*/*/*/*/*/*/*/*/*/GapComponents | */*/*/*/*/*/*/*/*/*/*/GapComponents | 
+					             */*/*/*/*/*/*/*/*/*/*/*/GapComponents"/>
+					<xs:field xpath="@secondComponent"/>
+				</xs:keyref>
+			</xs:element>
+			<xs:element name="Parallel" type="ParallelType">
+				<xs:unique name="CompIdUniqueBaseParallel">
+					<xs:selector xpath="Component | */Component | */*/Component | */*/*/Component | 
+					             */*/*/*/Component | */*/*/*/*/Component | */*/*/*/*/*/Component | */*/*/*/*/*/*/Component |
+					             */*/*/*/*/*/*/*/Component | */*/*/*/*/*/*/*/*/Component | */*/*/*/*/*/*/*/*/*/Component | 
+					             */*/*/*/*/*/*/*/*/*/*/Component | */*/*/*/*/*/*/*/*/*/*/*/Component"/>
+					<xs:field xpath="@id"/>
+				</xs:unique>
+				<xs:keyref name="ParallelSequenceGapCompIdRefFirstComp" refer="CompIdUniqueBaseParallel">
+					<xs:selector xpath="*/GapComponents | */*/GapComponents | */*/*/GapComponents | 
+					             */*/*/*/GapComponents | */*/*/*/*/GapComponents | */*/*/*/*/*/GapComponents | 
+					             */*/*/*/*/*/*/GapComponents | */*/*/*/*/*/*/*/GapComponents | */*/*/*/*/*/*/*/*/GapComponents | 
+					             */*/*/*/*/*/*/*/*/*/GapComponents | */*/*/*/*/*/*/*/*/*/*/GapComponents | 
+					             */*/*/*/*/*/*/*/*/*/*/*/GapComponents"/>
+					<xs:field xpath=" @firstComponent"/>
+				</xs:keyref>
+				<xs:keyref name="ParallelSequenceGapCompIdRefSecondComp" refer="CompIdUniqueBaseParallel">
+					<xs:selector xpath="*/GapComponents | */*/GapComponents | */*/*/GapComponents | 
+					             */*/*/*/GapComponents | */*/*/*/*/GapComponents | */*/*/*/*/*/GapComponents | 
+					             */*/*/*/*/*/*/GapComponents | */*/*/*/*/*/*/*/GapComponents | */*/*/*/*/*/*/*/*/GapComponents | 
+					             */*/*/*/*/*/*/*/*/*/GapComponents | */*/*/*/*/*/*/*/*/*/*/GapComponents | 
+					             */*/*/*/*/*/*/*/*/*/*/*/GapComponents"/>
+					<xs:field xpath="@secondComponent"/>
+				</xs:keyref>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="LinkSizeType">
+		<xs:sequence minOccurs="2" maxOccurs="unbounded">
+			<xs:element name="Component">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="id" type="xs:string" use="required"/>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="LinkSizeGroupType">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="LinkSizeGroup" type="LinkSizeType">
+				<xs:unique name="LinkSizeCompIdUnique">
+					<xs:selector xpath="Component"/>
+					<xs:field xpath="@id"/>
+				</xs:unique>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GapComponentsType">
+		<xs:attribute name="type" default="RELATED">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="RELATED"/>
+					<xs:enumeration value="UNRELATED"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="pref" default="-1">
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:minInclusive value="-2"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="max" default="-2">
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:minInclusive value="-2"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="firstComponent" type="xs:string" use="required"/>
+		<xs:attribute name="secondComponent" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="PreferredGapType">
+		<xs:attribute name="type" default="RELATED">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="RELATED"/>
+					<xs:enumeration value="UNRELATED"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="pref" default="-1">
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:minInclusive value="-2"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="max" default="-2">
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:minInclusive value="-2"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ProfilesType">
+		<xs:sequence minOccurs="0">
+			<xs:element name="Default" minOccurs="0">
+				<xs:complexType>
+					<xs:attribute name="profile" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:sequence minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="Profile">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:sequence minOccurs="0" maxOccurs="unbounded">
+								<xs:element name="Component">
+									<xs:complexType>
+										<xs:simpleContent>
+											<xs:extension base="xs:string">
+												<xs:attribute name="id" type="xs:string" use="required"/>
+											</xs:extension>
+										</xs:simpleContent>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+							<xs:element name="Layout" minOccurs="0">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:group ref="LayoutSequenceGroup"/>
+									</xs:sequence>
+								</xs:complexType>
+								<xs:key name="ProfileLayoutHorizontalGroupCompIdKey">
+									<xs:selector xpath="HorizontalGroup/*/Component | HorizontalGroup/*/*/Component |
+						HorizontalGroup/*/*/*/Component | HorizontalGroup/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/*/Component"/>
+									<xs:field xpath="@id"/>
+								</xs:key>
+								<xs:keyref name="ProfileLayoutVerticalGroupCompIdHorizontalGroupRef" refer="ProfileLayoutHorizontalGroupCompIdKey">
+									<xs:selector xpath="VerticalGroup/*/Component | VerticalGroup/*/*/Component |
+						VerticalGroup/*/*/*/Component | VerticalGroup/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/*/Component"/>
+									<xs:field xpath="@id"/>
+								</xs:keyref>
+								<xs:key name="ProfileLayoutVerticalGroupCompIdKey">
+									<xs:selector xpath="VerticalGroup/*/Component | VerticalGroup/*/*/Component |
+						VerticalGroup/*/*/*/Component | VerticalGroup/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/*/Component |
+						VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/Component | VerticalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/*/Component"/>
+									<xs:field xpath="@id"/>
+								</xs:key>
+								<xs:keyref name="ProfileLayoutHorizontalGroupCompIdVerticalGroupRef" refer="ProfileLayoutVerticalGroupCompIdKey">
+									<xs:selector xpath="HorizontalGroup/*/Component | HorizontalGroup/*/*/Component |
+						HorizontalGroup/*/*/*/Component | HorizontalGroup/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/*/Component |
+						HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/Component | HorizontalGroup/*/*/*/*/*/*/*/*/*/*/*/*/*/*/Component"/>
+									<xs:field xpath="@id"/>
+								</xs:keyref>
+								<xs:keyref name="ProfileLayoutLinkSizeCompIdRef" refer="ProfileLayoutHorizontalGroupCompIdKey">
+									<xs:selector xpath="*/LinkSizeGroup/Component"/>
+									<xs:field xpath="@id"/>
+								</xs:keyref>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="name" use="required">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="1"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+						<xs:attribute name="exclude" type="xs:boolean" default="false"/>
+					</xs:complexType>
+					<xs:unique name="ProfilesProfileCompIdUnique">
+						<xs:selector xpath="Component"/>
+						<xs:field xpath="@id"/>
+					</xs:unique>
+				</xs:element>
+			</xs:sequence>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:group name="LayoutSequenceGroup">
+		<xs:sequence>
+			<xs:element ref="HorizontalGroup"/>
+			<xs:element ref="VerticalGroup"/>
+			<xs:element ref="LinkSizeHorizontal" minOccurs="0"/>
+			<xs:element ref="LinkSizeVertical" minOccurs="0"/>
+		</xs:sequence>
+	</xs:group>
+</xs:schema>

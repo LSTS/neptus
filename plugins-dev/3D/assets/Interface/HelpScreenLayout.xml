@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty-1.3.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty-1.3.xsd http://nifty-gui.sourceforge.net/nifty-1.3.xsd">
+  <!-- +++++++++++++++++++++++++++++++++++++++ -->
+  <!-- help screen -->
+  <!-- +++++++++++++++++++++++++++++++++++++++ -->
+  
+    <screen id="start">
+        <layer id="foreground" backgroundColor="#0000" childLayout="vertical">
+            <panel id="panel_top" height="5%" width="75%" align="center" childLayout="center">   
+                <text text="${CALL.getPressSpaceForMoreInfoText()}" font="Interface/Fonts/Default.fnt" />
+            </panel>
+        </layer>
+    </screen>
+
+    <screen id="helpScreen" controller="pt.up.fe.dceg.neptus.plugins.r3d.jme3.HelpScreenController">
+        
+        <layer id="foreground" backgroundColor="#000b" childLayout="vertical">
+            <panel id="panel_topMargin" height="4%" width="80%" align="center" childLayout="horizontal" >   
+            </panel>
+            <!-- camera movement -->
+            <panel id="panel_inputCamera" height="20%" width="80%" align="center" childLayout="horizontal" >  
+                <!-- wasd keys -->
+                <panel id="panel_keys" height="100%" width="50%" valign="center" childLayout="vertical" >  
+                    <panel id="panel_keysLabelForward" height="30%" width="100%" childLayout="vertical">  
+						<panel id="panel_space" height="50%" width="100%" valign="center" /> 
+                        <text text="${CALL.getForwardText()}" font="Interface/Fonts/Default.fnt" width="100%" height="50%" />
+                    </panel>
+                    <panel id="panel_keysMix" height="40%" width="100%" valign="center"  childLayout="horizontal" >  
+                        <panel id="panel_left" height="100%" width="32%" valign="center"  childLayout="vertical" >  
+                            <panel id="panel_space5" height="50%" width="100%" valign="center" /> 
+                            <text text="${CALL.getLeftText()}" font="Interface/Fonts/Default.fnt" width="50%" height="55%" align="right"/>
+                        </panel> 
+                        <panel id="panel_image" height="100%" width="36%" valign="center"  childLayout="center" >  
+                            <image id="wasdImage" filename="/assets/Interface/WASDInverted_v7.png"  width="${CALL.getWASDWidthPx()}" height="${CALL.getWASDHeightPx()}"/>
+                            
+                        </panel>
+                        <panel id="panel_right" height="100%" width="32%" valign="center"  childLayout="vertical" >  
+                            <panel id="panel_space2" height="50%" width="100%" valign="center" /> 
+                            <text text="${CALL.getRightText()}" font="Interface/Fonts/Default.fnt" width="50%" height="55%" align="left"/>
+                        </panel> 
+                    </panel> 
+                    
+                    <panel id="panel_keysLabelBack" height="30%" width="100%" valign="center"  childLayout="vertical" >  
+                        <text text="${CALL.getBackText()}" font="Interface/Fonts/Default.fnt" width="100%" height="50%" />
+                    </panel>
+                </panel>
+                <!-- mouse -->
+                <panel id="panel_mouse" height="100%" width="50%" valign="center" childLayout="horizontal">  
+                    <panel id="panel_mouseImage" height="100%" width="50%" valign="center" childLayout="center" >  
+                        <image filename="/assets/Interface/mouseInverted_v9.png"  width="${CALL.getMouseWidthPx()}" height="${CALL.getMouseHeightPx()}" align="right" /> 
+                        
+                    </panel> 
+                    <panel id="panel_mouseText" height="15%" width="40%" valign="center"  childLayout="vertical" >  
+                        <text text="${CALL.getCameraDirectionText()}" font="Interface/Fonts/Default.fnt" width="100%" height="100%" wrap="true" align="right"/>
+                    </panel>
+                </panel>
+            </panel>
+            <panel id="panel_space3" height="3%" width="100%" valign="center" />  
+            
+            <!-- Terrain definitions -->
+            <panel id="panel_inputTerrain" height="15%" width="80%" align="center" childLayout="vertical">  
+                <panel id="panel_water" height="32%" width="100%" valign="top" childLayout="horizontal">  
+                    <text text="${CALL.getToggleWaterDisplayText()}" font="Interface/Fonts/Default.fnt" width="100%" height="100%" />
+                </panel>
+                <panel id="panel_terrainColor" height="32%" width="100%" valign="top" childLayout="horizontal">  
+                    <text text="${CALL.getToggleTerrainColorText()}" font="Interface/Fonts/Default.fnt" width="100%" height="100%" />
+                </panel> 
+                <panel id="panel_sky" height="32%" width="100%" valign="top" childLayout="horizontal">  
+                    <text text="${CALL.getToggleOnOffTheSkyText()}" font="Interface/Fonts/Default.fnt" width="100%" height="100%" textLineHeight="25px"/>
+                </panel> 
+             </panel>
+                        
+            <panel id="panel_space4" height="3%" width="100%" valign="center" />  
+                        
+            <!-- Labels -->
+            <panel id="panel_labels" height="50%" width="80%" align="center" childLayout="horizontal">
+                <!-- Labels text --> 
+                <panel id="panel_text" height="100%" width="30%" valign="center" childLayout="vertical" >  
+                    <panel id="panel_planes_space1" height="7.5%" width="100%" valign="center" childLayout="horizontal"/>  
+                 
+                    <!-- water level -->
+                    <panel id="panel_planes_water_t" height="5%" width="100%" valign="center" childLayout="vertical">  
+                        <text text="${CALL.getWaterLevelText()}" font="Interface/Fonts/Default.fnt" align="right"/>
+                    </panel>
+                    <panel id="panel_planes_space2" height="4%" width="100%" valign="center" /> 
+                    <!-- geoid level -->
+                    <panel id="panel_plane_geoid_t" height="7.5%" width="100%" valign="center" childLayout="vertical">  
+                        <text text="${CALL.getGeoidLevelText()}" font="Interface/Fonts/Default.fnt" align="right" />
+                    </panel>
+                    <panel id="panel_planesColorMap_space" height="13%" width="100%" valign="center" /> 
+                 
+                    <!-- depths -->
+                    <panel id="panel_minDepth_t" height="5%" width="100%" valign="center" childLayout="vertical">  
+                        <text text="${CALL.getMaximumTerrainHeightText()}" font="Interface/Fonts/Default.fnt" align="right" />
+                    </panel>
+                    <panel id="panel_DepthLimits_space" height="50%" width="100%" valign="center" /> 
+                    <panel id="panel_maxDepth_t" height="5%" width="100%" valign="center" childLayout="vertical">  
+                        <text text="${CALL.getMinimumTerrainHeightText()}" font="Interface/Fonts/Default.fnt" align="right" />
+                    </panel>
+                </panel>
+                                
+                <!-- Labels image --> 
+                <panel id="panel_imageBathy" height="100%" width="40%" valign="center" childLayout="vertical">  
+                    <panel id="panel_image_space" height="5%" width="100%" valign="center" childLayout="horizontal"/> 
+                    <panel id="panel_planes_i" height="20%" width="100%" valign="center" childLayout="vertical">  
+                        <image filename="/assets/Interface/waterGeoidPlanes.png" height="79%" width="80%" align="center"/>
+                    </panel>
+                    <panel id="panel_image_space3" height="10%" width="100%" valign="center" childLayout="horizontal"/> 
+                    <panel id="panel_bathymetry_i" height="70%" align="right" childLayout="vertical">  
+                        <image filename="/assets/Interface/colorMap.png" height="100%" width="10%" align="center"/>
+                   </panel>
+                </panel>
+                
+                <!-- Labels mesurements --> 
+                <panel id="panel_mesurements"  width="30%" valign="center" childLayout="vertical" >  
+                    <panel id="panel_planes_space3" height="7.5%" valign="center" />  
+                 
+                    <!-- water level -->
+                    <panel id="panel_planes_water_m" height="5%"  valign="center" childLayout="vertical" >  
+                        <text text="${CALL.getWaterLvlFormated()} m" font="Interface/Fonts/Default.fnt" align="left" />
+                    </panel>
+                    <panel id="panel_planes_space4" height="4%" valign="center" /> 
+                    <!-- geoid level -->
+                    <panel id="panel_plane_geoid_m" height="7.5%"  valign="center" childLayout="vertical">  
+                        <text text="${CALL.getGeoidLvlFormated()} m" font="Interface/Fonts/Default.fnt" align="left" />
+                    </panel>
+                    <panel id="panel_planesColorMap_space2" height="13%"  valign="center"  /> 
+                 
+                    <!-- depths -->
+                    <panel id="panel_maxTerrainHeight_m" height="5%"  valign="center" childLayout="vertical">  
+                        <text text="${CALL.getMaxTerrainHeigthFormated()} m" font="Interface/Fonts/Default.fnt" align="left" />
+                    </panel>
+                    <panel id="panel_DepthLimits_space2" height="50%"  valign="center" /> 
+                    <panel id="panel_minTerrainHeight_m" height="5%" valign="center" childLayout="vertical">  
+                        <text text="${CALL.getMinTerrainHeigthFormated()} m" font="Interface/Fonts/Default.fnt" align="left" />
+                    </panel>
+                    
+                    
+                    
+                </panel>
+                
+            </panel>
+            <panel id="panel_bottomMargin" height="5%" width="80%" align="center" childLayout="horizontal"
+             backgroundColor="#0000" >  
+                
+            </panel>
+        </layer>
+    </screen>
+    
+    <screen id="helpScreenLowSpecs" controller="pt.up.fe.dceg.neptus.plugins.r3d.jme3.HelpScreenController">
+        
+        <layer id="foreground" backgroundColor="#000b" childLayout="vertical">
+            <panel id="panel_topMargin" height="4%" width="80%" align="center" childLayout="horizontal" >   
+            </panel>
+            <!-- camera movement -->
+            <panel id="panel_inputCamera" height="20%" width="80%" align="center" childLayout="horizontal" >  
+                <!-- wasd keys -->
+                <panel id="panel_keys" height="100%" width="50%" valign="center" childLayout="vertical" >  
+                    <panel id="panel_keysLabelForward" height="30%" width="100%" childLayout="vertical">  
+						<panel id="panel_space" height="50%" width="100%" valign="center" /> 
+                        <text text="${CALL.getForwardText()}" font="Interface/Fonts/Default.fnt" width="100%" height="50%" />
+                    </panel>
+                    <panel id="panel_keysMix" height="40%" width="100%" valign="center"  childLayout="horizontal" >  
+                        <panel id="panel_left" height="100%" width="32%" valign="center"  childLayout="vertical" >  
+                            <panel id="panel_space5" height="50%" width="100%" valign="center" /> 
+                            <text text="${CALL.getLeftText()}" font="Interface/Fonts/Default.fnt" width="50%" height="55%" align="right"/>
+                        </panel> 
+                        <panel id="panel_image" height="100%" width="36%" valign="center"  childLayout="center" >  
+                            <image id="wasdImage" filename="/assets/Interface/WASDInverted_v7.png"  width="${CALL.getWASDWidthPx()}" height="${CALL.getWASDHeightPx()}"/>
+                            
+                        </panel>
+                        <panel id="panel_right" height="100%" width="32%" valign="center"  childLayout="vertical" >  
+                            <panel id="panel_space2" height="50%" width="100%" valign="center" /> 
+                            <text text="${CALL.getRightText()}" font="Interface/Fonts/Default.fnt" width="50%" height="55%" align="left"/>
+                        </panel> 
+                    </panel> 
+                    
+                    <panel id="panel_keysLabelBack" height="30%" width="100%" valign="center"  childLayout="vertical" >  
+                        <text text="${CALL.getBackText()}" font="Interface/Fonts/Default.fnt" width="100%" height="50%" />
+                    </panel>
+                </panel>
+                <!-- mouse -->
+                <panel id="panel_mouse" height="100%" width="50%" valign="center" childLayout="horizontal">  
+                    <panel id="panel_mouseImage" height="100%" width="50%" valign="center" childLayout="center" >  
+                        <image filename="/assets/Interface/mouseInverted_v9.png"  width="${CALL.getMouseWidthPx()}" height="${CALL.getMouseHeightPx()}" align="right" /> 
+                        
+                    </panel> 
+                    <panel id="panel_mouseText" height="15%" width="40%" valign="center"  childLayout="vertical" >  
+                        <text text="${CALL.getCameraDirectionText()}" font="Interface/Fonts/Default.fnt" width="100%" height="100%" wrap="true" align="right"/>
+                    </panel>
+                </panel>
+            </panel>
+            <panel id="panel_space3" height="3%" width="100%" valign="center" />  
+            
+            <!-- Terrain definitions -->
+            <panel id="panel_inputTerrain" height="15%" width="80%" align="center" childLayout="vertical">  
+                <panel id="panel_water" height="32%" width="100%" valign="top" childLayout="horizontal">  
+                    <text text="${CALL.getToggleWaterDisplayText()}" font="Interface/Fonts/Default.fnt" width="100%" height="100%" />
+                </panel>
+                <panel id="panel_sky" height="32%" width="100%" valign="top" childLayout="horizontal">  
+                    <text text="${CALL.getToggleOnOffTheSkyText()}" font="Interface/Fonts/Default.fnt" width="100%" height="100%" textLineHeight="25px"/>
+                </panel> 
+             </panel>
+                        
+            <panel id="panel_space4" height="3%" width="100%" valign="center" />  
+                        
+            <!-- Labels -->
+            <panel id="panel_labels" height="50%" width="80%" align="center" childLayout="horizontal">
+                <!-- Labels text --> 
+                <panel id="panel_text" height="100%" width="30%" valign="center" childLayout="vertical" >  
+                    <panel id="panel_planes_space1" height="7.5%" width="100%" valign="center" childLayout="horizontal"/>  
+                 
+                    <!-- water level -->
+                    <panel id="panel_planes_water_t" height="5%" width="100%" valign="center" childLayout="vertical">  
+                        <text text="${CALL.getWaterLevelText()}" font="Interface/Fonts/Default.fnt" align="right"/>
+                    </panel>
+                    <panel id="panel_planes_space2" height="4%" width="100%" valign="center" /> 
+                    <!-- geoid level -->
+                    <panel id="panel_plane_geoid_t" height="7.5%" width="100%" valign="center" childLayout="vertical">  
+                        <text text="${CALL.getGeoidLevelText()}" font="Interface/Fonts/Default.fnt" align="right" />
+                    </panel>
+                    <panel id="panel_planesColorMap_space" height="13%" width="100%" valign="center" /> 
+                 
+                    <!-- depths -->
+                    <panel id="panel_minDepth_t" height="5%" width="100%" valign="center" childLayout="vertical">  
+                        <text text="${CALL.getMaximumTerrainHeightText()}" font="Interface/Fonts/Default.fnt" align="right" />
+                    </panel>
+                    <panel id="panel_DepthLimits_space" height="4%" width="100%" valign="center" /> 
+                    <panel id="panel_maxDepth_t" height="5%" width="100%" valign="center" childLayout="vertical">  
+                        <text text="${CALL.getMinimumTerrainHeightText()}" font="Interface/Fonts/Default.fnt" align="right" />
+                    </panel>
+                </panel>
+                                
+                <!-- Labels image --> 
+                <panel id="panel_imageBathy" height="100%" width="40%" valign="center" childLayout="vertical">  
+                    <panel id="panel_image_space" height="5%" width="100%" valign="center" childLayout="horizontal"/> 
+                    <panel id="panel_planes_i" height="20%" width="100%" valign="center" childLayout="vertical">  
+                        <image filename="/assets/Interface/waterGeoidPlanes.png" height="79%" width="80%" align="center"/>
+                    </panel>
+                    <panel id="panel_image_space3" height="10%" width="100%" valign="center" childLayout="horizontal"/> 
+                   
+                </panel>
+                
+                <!-- Labels mesurements --> 
+                <panel id="panel_mesurements"  width="30%" valign="center" childLayout="vertical" >  
+                    <panel id="panel_planes_space3" height="7.5%" valign="center" />  
+                 
+                    <!-- water level -->
+                    <panel id="panel_planes_water_m" height="5%"  valign="center" childLayout="vertical" >  
+                        <text text="${CALL.getWaterLvlFormated()} m" font="Interface/Fonts/Default.fnt" align="left" />
+                    </panel>
+                    <panel id="panel_planes_space4" height="4%" valign="center" /> 
+                    <!-- geoid level -->
+                    <panel id="panel_plane_geoid_m" height="7.5%"  valign="center" childLayout="vertical">  
+                        <text text="${CALL.getGeoidLvlFormated()} m" font="Interface/Fonts/Default.fnt" align="left" />
+                    </panel>
+                    <panel id="panel_planesColorMap_space2" height="13%"  valign="center"  /> 
+                 
+                    <!-- depths -->
+                    <panel id="panel_maxTerrainHeight_m" height="5%"  valign="center" childLayout="vertical">  
+                        <text text="${CALL.getMaxTerrainHeigthFormated()} m" font="Interface/Fonts/Default.fnt" align="left" />
+                    </panel>
+                    <panel id="panel_DepthLimits_space2" height="4%"  valign="center" /> 
+                    <panel id="panel_minTerrainHeight_m" height="5%" valign="center" childLayout="vertical">  
+                        <text text="${CALL.getMinTerrainHeigthFormated()} m" font="Interface/Fonts/Default.fnt" align="left" />
+                    </panel>
+                    
+                    
+                    
+                </panel>
+                
+            </panel>
+            <panel id="panel_bottomMargin" height="5%" width="80%" align="center" childLayout="horizontal"
+             backgroundColor="#0000" >  
+                
+            </panel>
+        </layer>
+    </screen>
+</nifty>

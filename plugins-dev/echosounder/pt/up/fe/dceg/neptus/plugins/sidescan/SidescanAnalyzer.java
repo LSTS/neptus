@@ -1,0 +1,291 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by jqcorreia
+ * Oct 23, 2012
+ * $Id:: SidescanAnalyzer.java 9950 2013-02-19 15:28:02Z zepinto                $:
+ */
+package pt.up.fe.dceg.neptus.plugins.sidescan;
+
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+
+import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.plaf.basic.BasicSliderUI;
+
+import net.miginfocom.swing.MigLayout;
+import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
+import pt.up.fe.dceg.neptus.gui.Timeline;
+import pt.up.fe.dceg.neptus.gui.TimelineChangeListener;
+import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.mra.LogMarker;
+import pt.up.fe.dceg.neptus.mra.MRAPanel;
+import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
+import pt.up.fe.dceg.neptus.mra.importers.jsf.JsfSidescanParser;
+import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
+import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
+import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.up.fe.dceg.neptus.plugins.PluginUtils;
+import pt.up.fe.dceg.neptus.util.ImageUtils;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
+/**
+ * @author jqcorreia
+ * 
+ */
+@PluginDescription(author = "jqcorreia", name = "Sidescan Analyzer")
+public class SidescanAnalyzer extends JPanel implements MRAVisualization, TimelineChangeListener, PropertiesProvider,
+        LogMarkerListener {
+    private static final long serialVersionUID = 1L;
+
+    protected MRAPanel mraPanel;
+
+    private Timeline timeline;
+    //Histogram histogram;
+    
+    private JButton configButton = new JButton(new AbstractAction(I18n.text("Settings")) {
+        private static final long serialVersionUID = -878895322319699542L;
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            PropertiesEditor.editProperties(SidescanAnalyzer.this,
+                    SwingUtilities.getWindowAncestor(SidescanAnalyzer.this), true);
+        }
+    });
+
+    private long firstPingTime;
+    private long lastPingTime;
+
+    private long currentTime;
+    private long lastUpdateTime;
+
+    // List of different frequencies on this log
+    //private ArrayList<Double> freqList = new ArrayList<Double>();
+    
+    // Processing flags
+    @NeptusProperty(name="Vertical Blending")
+    public boolean verticalBlending = false;
+    @NeptusProperty(name="Slant Range Correction")
+    public boolean slantRangeCorrection = false;
+    @NeptusProperty(name="Time Variable Gain")
+    public boolean timeVariableGain = false;
+
+    private ArrayList<SidescanPanel> sidescanPanels = new ArrayList<SidescanPanel>();
+    
+    private ArrayList<LogMarker> markerList = new ArrayList<LogMarker>();
+    
+    private SidescanParser ssParser;
+    
+    public SidescanAnalyzer(MRAPanel panel) {
+        this.mraPanel = panel;
+    }
+    
+    public void initialize(IMraLogGroup source) {
+        if(source.getFile("Data.jsf") != null)
+            ssParser = new JsfSidescanParser(source.getFile("Data.jsf"));
+        else
+            ssParser = new ImcSidescanParser(source);
+        
+        firstPingTime = ssParser.firstPingTimestamp();
+        lastPingTime = ssParser.lastPingTimestamp();
+        
+        lastUpdateTime = firstPingTime;
+        
+        for(Integer subsys : ssParser.getSubsystemList()) {
+            sidescanPanels.add(new SidescanPanel(this, ssParser, subsys));
+        }
+        
+        timeline = new Timeline(0, (int) (lastPingTime - firstPingTime), 30, 1000, false);
+        timeline.getSlider().setValue(0);
+        timeline.addTimelineChangeListener(this);
+        
+        timeline.getSlider().setUI(new BasicSliderUI(timeline.getSlider()) {
+            @Override
+            public void paintTicks(Graphics g) {
+                super.paintTicks(g);
+                for(LogMarker m : markerList) {
+                    long mtime = new Double(m.timestamp).longValue();
+                    g.drawLine(xPositionForValue((int)(mtime-firstPingTime)), 0, xPositionForValue((int)(mtime-firstPingTime)),timeline.getSlider().getHeight()/2);
+//                    g.drawString(m.label, xPositionForValue((int)(mtime-firstPingTime))-10, 22);
+                }
+            } 
+        });
+        
+        //histogram = new Histogram();
+        
+        // Layout building
+        setLayout(new MigLayout());
+        
+        for(SidescanPanel p : sidescanPanels) {
+            add(p, "w 100%, h 100%, wrap");
+        }
+        
+        add(timeline, "w 100%, h 32!, split");
+        add(configButton);
+    }
+
+    @Override
+    public JComponent getComponent(IMraLogGroup source, double timestep) {
+        initialize(source);
+        revalidate();
+        repaint();
+
+        return this;
+    }
+
+    /**
+     * @return the timeline
+     */
+    public Timeline getTimeline() {
+        return timeline;
+    }
+
+    /**
+     * @param timeline the timeline to set
+     */
+    public void setTimeline(Timeline timeline) {
+        this.timeline = timeline;
+    }
+
+    @Override
+    public void timelineChanged(int value) {
+        try {
+            // This distinguishes between a drag and normal execution
+            // If this is true but currentTime and lastTime as the same value
+            if(Math.abs(value - currentTime) > 1000 / 15 * timeline.getSpeed() ) {
+                // this means it dragged
+                for(SidescanPanel p : sidescanPanels)
+                    p.clearLines();
+                
+                lastUpdateTime = value;
+            }
+            else
+                lastUpdateTime = currentTime;
+            
+            currentTime = value;
+            
+            if (currentTime + firstPingTime >= lastPingTime) {
+                timeline.pause();
+            }
+            
+            for (SidescanPanel p : sidescanPanels) {
+                p.updateImage(currentTime, lastUpdateTime);
+                p.repaint();
+            }
+            
+            timeline.setTime(firstPingTime + currentTime);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean canBeApplied(IMraLogGroup source) {
+        return source.getLog("SonarData") != null || source.getFile("Data.jsf") != null;
+    }
+
+    @Override
+    public String getName() {
+        return I18n.text("Sidescan Analyzer");
+    }
+
+    @Override
+    public ImageIcon getIcon() {
+        return ImageUtils.getScaledIcon("pt/up/fe/dceg/neptus/plugins/echosounder/echosounder.png", 16, 16);
+    }
+
+    @Override
+    public Double getDefaultTimeStep() {
+        return 0.0;
+    }
+
+    @Override
+    public boolean supportsVariableTimeSteps() {
+        return false;
+    }
+
+    public Type getType() {
+        return Type.VISUALIZATION;
+    }
+
+    public ArrayList<LogMarker> getMarkerList() {
+        return markerList;
+    }
+    public void onCleanup() {
+        sidescanPanels.clear();
+        removeAll();
+        mraPanel = null;
+        markerList.clear();
+    }
+    
+    @Override
+    public void onHide() {
+        timeline.pause();
+    }
+    
+    public void onShow() {
+        
+    }
+
+
+    @Override
+    public void addLogMarker(LogMarker e) {
+        markerList.add(e);
+    }
+
+    @Override
+    public void removeLogMarker(LogMarker e) {
+        markerList.remove(e);
+    }
+
+    @Override
+    public void GotoMarker(LogMarker marker) {
+        
+    }
+
+    // Properties
+    @Override
+    public DefaultProperty[] getProperties() {
+        return PluginUtils.getPluginProperties(this);
+    }
+
+    @Override
+    public void setProperties(Property[] properties) {
+        PluginUtils.setPluginProperties(this, properties);
+        for(SidescanPanel p : sidescanPanels) {
+            p.verticalBlending = verticalBlending;
+            p.slantRangeCorrection = slantRangeCorrection;
+            p.timeVariableGain = timeVariableGain;
+            if(p.timeVariableGain == true && p.sums == null) {
+                p.calcIntensities(mraPanel.getSource());
+            }
+        }
+    }
+
+    @Override
+    public String getPropertiesDialogTitle() {
+        return I18n.textf("%plugin parameters", PluginUtils.getPluginName(this.getClass()));
+    }
+
+    @Override
+    public String[] getPropertiesErrors(Property[] properties) {
+        return PluginUtils.validatePluginProperties(this, properties);
+    }
+}

@@ -1,0 +1,220 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by zepinto
+ * 4 de Ago de 2010
+ * $Id:: ServoControlPanel.java 9615 2012-12-30 23:08:28Z pdias                 $:
+ */
+package pt.up.fe.dceg.neptus.plugins.teleoperation;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
+import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.gui.ToolbarButton;
+import pt.up.fe.dceg.neptus.imc.IMCDefinition;
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
+import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.up.fe.dceg.neptus.util.ImageUtils;
+
+/**
+ * @author zepinto
+ * 
+ */
+@PluginDescription(name = "Servo Control")
+public class ServoControlPanel extends SimpleSubPanel implements ConfigurationListener, ISliderPanelListener {
+
+    private static final long serialVersionUID = 1L;
+
+    @NeptusProperty(name = "Servo id")
+    public int servoId = 0;
+
+    @NeptusProperty(name = "Minimum Value (degrees)")
+    public double minVal = -45;
+
+    @NeptusProperty(name = "Mean Value (degrees)")
+    public double meanVal = 0;
+
+    @NeptusProperty(name = "Maximum Value (degrees)")
+    public double maxVal = +45;
+
+    @NeptusProperty(name = "Title")
+    public String title = "title";
+
+    protected SliderPanel slider = new SliderPanel();
+
+    public ServoControlPanel(ConsoleLayout console) {
+        super(console);
+        setLayout(new BorderLayout());
+        add(slider);
+        ToolbarButton tbutton = new ToolbarButton(
+                ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/teleoperation/settings.png"), "Settings", "settings");
+        add(tbutton, BorderLayout.EAST);
+        tbutton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showSettingPanel();
+            }
+        });
+        ToolbarButton cbutton = new ToolbarButton(
+                ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/teleoperation/start.png"), "Center", "center");
+        cbutton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                slider.setValue(meanVal);
+                slider.repaint();
+            }
+        });
+        add(cbutton, BorderLayout.WEST);
+
+        propertiesChanged();
+        slider.setValue(meanVal);
+        slider.addSliderListener(this);
+    }
+
+    protected void showSettingPanel() {
+        final JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this));
+        final SliderPanel min = new SliderPanel(), max = new SliderPanel(), mean = new SliderPanel();
+        final JTextField text = new JTextField("" + servoId);
+
+        JPanel panel = new JPanel(new GridLayout(5, 1));
+        JPanel tmp1 = new JPanel(new BorderLayout());
+        tmp1.add(new JLabel("Servo ID:"), BorderLayout.WEST);
+        tmp1.add(text);
+        panel.add(tmp1);
+        min.setMin(-180);
+        max.setMin(-180);
+        min.setMax(180);
+        max.setMax(180);
+        mean.setMin(-180);
+        mean.setMax(180);
+
+        min.setTitle("min");
+        max.setTitle("max");
+        mean.setTitle("zero");
+
+        min.setValue(minVal);
+        max.setValue(maxVal);
+        mean.setValue(meanVal);
+
+        min.addSliderListener(this);
+        max.addSliderListener(this);
+        mean.addSliderListener(this);
+
+        panel.add(min);
+        panel.add(mean);
+        panel.add(max);
+
+        JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
+        JButton ok = new JButton("OK");
+        JButton cancel = new JButton("Cancel");
+        ok.setPreferredSize(new Dimension(80, 24));
+        cancel.setPreferredSize(new Dimension(80, 24));
+
+        controls.add(ok);
+        controls.add(cancel);
+        cancel.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dialog.dispose();
+            }
+        });
+
+        ok.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    servoId = Integer.parseInt(text.getText());
+                    if (servoId < 0)
+                        throw new Exception();
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(dialog, "Servo Control Settings", "Servo ID must be a positive integer");
+                    ex.printStackTrace();
+                    return;
+                }
+                minVal = min.getValue();
+                maxVal = max.getValue();
+                meanVal = mean.getValue();
+                dialog.dispose();
+                getConsole().setConsoleChanged(true);
+                propertiesChanged();
+            }
+        });
+
+        panel.add(controls);
+        dialog.setContentPane(panel);
+        dialog.setTitle("Servo control settings");
+        dialog.setModal(true);
+        dialog.setSize(450, 180);
+        dialog.setVisible(true);
+    }
+
+    @Override
+    public void propertiesChanged() {
+        slider.setMin(minVal);
+        slider.setMax(maxVal);
+        slider.setMean(meanVal);
+        slider.setTitle(title);
+        slider.repaint();
+    }
+
+    IMCMessage msg = null;
+
+    @Override
+    public void SliderChanged(SliderPanel source) {
+        if (msg == null)
+            msg = IMCDefinition.getInstance().create("SetServoPosition");
+        msg.setValue("id", servoId);
+        msg.setValue("value", Math.toRadians(source.getValue()));
+        send(msg);
+    }
+
+    public static void main(String[] args) {
+        GuiUtils.testFrame(new ServoControlPanel(null));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#initSubPanel()
+     */
+    @Override
+    public void initSubPanel() {
+        // TODO Auto-generated method stub
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#cleanSubPanel()
+     */
+    @Override
+    public void cleanSubPanel() {
+        // TODO Auto-generated method stub
+
+    }
+}

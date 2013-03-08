@@ -1,0 +1,369 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by 
+ * 5/Mar/2005
+ * $Id:: EditorLauncher.java 9616 2012-12-30 23:23:22Z pdias              $:
+ */
+package pt.up.fe.dceg.neptus.util.editors;
+
+import java.awt.BorderLayout;
+import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.loader.FileHandler;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
+/**
+ * @author Paulo Dias
+ *
+ */
+public class EditorLauncher 
+extends JPanel
+implements Runnable, FileHandler
+{
+    private static final long serialVersionUID = 1L;
+    public final short WINDOWS_TYPE = 0;
+    public final short LINUX_TYPE   = 1;
+
+    public final short TEXT_EDITOR_TYPE = 0;
+    public final short XML_EDITOR_TYPE  = 1;
+    
+    protected final String TEXT_EDITOR_WIN_1 = "notepad";
+    protected final String TEXT_EDITOR_WIN_2 = "textpad";
+    protected final String TEXT_EDITOR_WIN_3 = "c:\\Program Files\\TextPad 4\\TextPad.exe";
+    
+    protected final String TEXT_EDITOR_LINUX_1 = "emacs";
+    protected final String TEXT_EDITOR_LINUX_2 = "kate";
+    protected final String TEXT_EDITOR_LINUX_3 = "jed";
+    
+    protected Runtime rt;
+    protected Process ps;
+    protected String exeCmd = "";
+    protected String path; 
+    protected short type; 
+    protected boolean waitForCompletion;
+
+	private JPanel jContentPane = null;
+	private JFrame jFrame = null;  //  @jve:decl-index=0:visual-constraint="343,29"
+	private JButton jButton = null;
+	private JButton jButton1 = null;
+	private JPanel jPanel = null;
+	private JTextField jTextField = null;
+	private boolean exitOnCompletion = false;
+	
+
+    /**
+     * 
+     */
+    public EditorLauncher()
+    {
+        super();
+		initialize();
+    }
+
+	/**
+	 * This method initializes jContentPane	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */    
+	private JPanel getJContentPane() {
+		if (jContentPane == null) {
+			jContentPane = new JPanel();
+			jContentPane.setLayout(new BorderLayout());
+		}
+		return jContentPane;
+	}
+	/**
+	 * This method initializes jFrame	
+	 * 	
+	 * @return javax.swing.JFrame	
+	 */    
+	private JFrame getJFrame() {
+		if (jFrame == null) {
+			jFrame = new JFrame();
+			jFrame.setContentPane(getJContentPane());
+			jFrame.setTitle("Editor Laucher");
+			jFrame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/images/neptus-icon.png")));
+			jFrame.setSize(315, 90);
+			jFrame.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+			jFrame.setResizable(false);
+			GuiUtils.centerOnScreen(jFrame);
+		}
+		return jFrame;
+	}
+	/**
+	 * This method initializes jButton	
+	 * 	
+	 * @return javax.swing.JButton	
+	 */    
+	private JButton getJButton() {
+		if (jButton == null) {
+			jButton = new JButton();
+			jButton.setText("don't wait");
+			jButton.setMnemonic(java.awt.event.KeyEvent.VK_D);
+			jButton.addActionListener(new java.awt.event.ActionListener() { 
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					System.out.println("actionPerformed()");
+					getJFrame().dispose();
+				}
+			});
+		}
+		return jButton;
+	}
+	/**
+	 * This method initializes this
+	 * 
+	 * @return void
+	 */
+	private  void initialize() {
+		this.setLayout(new BorderLayout());
+		this.setSize(300,200);
+		this.add(getJPanel(), java.awt.BorderLayout.SOUTH);
+		this.add(getJTextField(), java.awt.BorderLayout.CENTER);
+	}
+	
+	
+	public void showFramed()
+	{
+	    JFrame jf = this.getJFrame();
+	    jf.add(this);
+	    jf.setVisible(true);
+	}
+	
+	
+	protected String getEditorCommand(short type)
+	{
+        String envEditor = "";
+        String envXMLEditor = "";
+        String osName = System.getProperty("os.name");
+        short os = -1;
+        if (osName.toLowerCase().indexOf("windows") != -1)
+            os = WINDOWS_TYPE;
+        else if (osName.toLowerCase().indexOf("linux") != -1)
+            os = LINUX_TYPE;
+        try
+        {
+            envEditor = System.getenv("NEPTUS_EDITOR");
+            envXMLEditor = System.getenv("NEPTUS_XMLEDITOR");
+        }
+        catch (Error e)
+        {
+            //NOTE Por causa do JDK1.4 que System.getenv(String) dá erro!!
+            envEditor = System.getProperty("NEPTUS_EDITOR");
+            envXMLEditor = System.getProperty("NEPTUS_XMLEDITOR");
+        }
+
+        
+        
+        String exeCmd = "";
+
+	    if (type == XML_EDITOR_TYPE)
+        {
+	        if (envXMLEditor != null)
+	            exeCmd = envXMLEditor;
+	        else if (envEditor != null)
+	            exeCmd = envEditor;
+	        else if (os == WINDOWS_TYPE)
+	            exeCmd = TEXT_EDITOR_WIN_1;
+	        else if (os == LINUX_TYPE)
+	            exeCmd = TEXT_EDITOR_LINUX_1;
+        }
+        else
+        {
+	        if (envEditor != null)
+	            exeCmd = envEditor;
+	        else if (os == WINDOWS_TYPE)
+	            exeCmd = TEXT_EDITOR_WIN_1;
+	        else if (os == LINUX_TYPE)
+	            exeCmd = TEXT_EDITOR_LINUX_1;
+        }
+	    return exeCmd;
+	}
+	
+	public boolean editFile(String path, short type, boolean waitForCompletion, boolean exitOnCompletion) {
+		this.exitOnCompletion = exitOnCompletion;
+		
+		if (exitOnCompletion)
+			waitForCompletion = true;
+		
+		return editFile(path,type, waitForCompletion);
+	}
+	
+	/**
+	 * @param path
+	 * @param type
+	 * @param waitForCompletion
+	 * @return
+	 */
+	public boolean editFile(String path, short type, boolean waitForCompletion)
+	{
+	    this.path = path;
+	    this.type = type;
+	    this.waitForCompletion = waitForCompletion;
+	    exeCmd = getEditorCommand(type);
+	    if (exeCmd.equals(""))
+	    {
+	        JOptionPane.showMessageDialog(this, "Editor not found!\n" +
+	        		"Set environment variable NEPTUS_EDITOR and \n" +
+	        		"optionaly also NEPTUS_XMLEDITOR to the editor \n" +
+	        		"of choice.");
+	        return false;
+	    }
+	    rt = Runtime.getRuntime();
+	    new Thread(this).start();
+	    return true;
+	}
+
+	/**
+	 * @param path
+	 * @return
+	 */
+	public boolean editFile(String path)
+	{
+		return editFile(path, TEXT_EDITOR_TYPE, false);	    
+	}
+
+	/**
+	 * @param path
+	 * @return
+	 */
+	public boolean editFileWait(String path)
+	{
+		return editFile(path, TEXT_EDITOR_TYPE, true);	    
+	}
+
+	/**
+	 * @param path
+	 * @return
+	 */
+	public boolean editXMLFile(String path)
+	{
+		return editFile(path, XML_EDITOR_TYPE, false);	    
+	}
+
+	/**
+	 * @param path
+	 * @return
+	 */
+	public boolean editXMLFileWait(String path)
+	{
+		return editFile(path, XML_EDITOR_TYPE, true);	    
+	}
+	
+    /* (non-Javadoc)
+     * @see java.lang.Runnable#run()
+     */
+    public void run()
+    {
+        try
+        {
+            String[] cmdArray = {exeCmd, path};
+            ps = rt.exec(cmdArray);
+            
+            if (exitOnCompletion) {
+            	ps.waitFor();
+            	System.exit(ps.exitValue());
+            }
+            
+            if (waitForCompletion)
+            {
+                jTextField.setText(exeCmd + " " + path);
+                showFramed();
+                ps.waitFor();                
+                System.out.println(ps.exitValue());
+                jFrame.dispose();
+                
+            }
+            else
+            {
+                ps = null;
+                rt = null;
+            }
+        }
+        catch (IOException e)
+        {
+            NeptusLog.pub().error(this, e);
+        }
+        catch (InterruptedException e)
+        {
+            NeptusLog.pub().error(this, e);
+        }
+    }
+
+    
+	/**
+	 * This method initializes jButton1	
+	 * 	
+	 * @return javax.swing.JButton	
+	 */    
+	private JButton getJButton1() {
+		if (jButton1 == null) {
+			jButton1 = new JButton();
+			jButton1.setText("terminate editor");
+			jButton1.setMnemonic(java.awt.event.KeyEvent.VK_T);
+			jButton1.addActionListener(new java.awt.event.ActionListener() { 
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					System.out.println("actionPerformed()");
+					ps.destroy();
+					jFrame.dispose();
+				}
+			});
+		}
+		return jButton1;
+	}
+	/**
+	 * This method initializes jPanel	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */    
+	private JPanel getJPanel() {
+		if (jPanel == null) {
+			jPanel = new JPanel();
+			jPanel.add(getJButton(), null);
+			jPanel.add(getJButton1(), null);
+		}
+		return jPanel;
+	}
+	/**
+	 * This method initializes jTextField	
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */    
+	private JTextField getJTextField() {
+		if (jTextField == null) {
+			jTextField = new JTextField();
+			jTextField.setForeground(java.awt.Color.gray);
+			jTextField.setEditable(false);
+			jTextField.setBackground(new java.awt.Color(255,255,244));
+		}
+		return jTextField;
+	}
+	
+	
+	public static void main(String[] args)
+    {
+        EditorLauncher ed = new EditorLauncher();
+        boolean rsb = ed.editFile("/home/zp/teste.txt",
+                ed.TEXT_EDITOR_TYPE, true);
+        System.out.println(">" + rsb);
+    }
+
+	
+	public void handleFile(File f) {
+		editFile(f.getAbsolutePath(), this.TEXT_EDITOR_TYPE, true, true);		
+	}
+}

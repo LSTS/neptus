@@ -1,0 +1,10 @@
+# DATE=@DATE@
+# TIME=@TIME@
+# COMPILED BY=@COMPILED BY@ 
+# LEGAL_COPY=@LEGAL_COPY@
+# SVN_REV=@SVN_REV@
+# SVN_PATH=@SVN_PATH@
+
+#http://whale.fe.up.pt/~lsts/wiki/index.php/User:AndrePinto#Data_Interpolator_Project
+pt.up.fe.dceg.neptus.plugins.gauges.CpuBattDiskNetGauge
+pt.up.fe.dceg.neptus.plugins.gauges.GaugeSubPanel

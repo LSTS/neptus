@@ -1,0 +1,11 @@
+# DATE=@DATE@
+# TIME=@TIME@
+# COMPILED BY=@COMPILED BY@ 
+# LEGAL_COPY=@LEGAL_COPY@
+# SVN_REV=@SVN_REV@
+# SVN_PATH=@SVN_PATH@
+
+pt.up.fe.dceg.neptus.renderer2d.tiles.TileGoogleMaps
+pt.up.fe.dceg.neptus.renderer2d.tiles.TileVirtualEarth
+pt.up.fe.dceg.neptus.renderer2d.tiles.TileVirtualEarthHybrid
+pt.up.fe.dceg.neptus.renderer2d.tiles.TileOpenPtMap

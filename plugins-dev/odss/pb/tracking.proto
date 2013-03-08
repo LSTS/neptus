@@ -1,0 +1,22 @@
+package org.mbari.tracking;
+
+message PlatformReport {
+	enum PlatformType {
+		MBARI_SHIP = 0;
+		AIS = 1;
+		AUV = 2;
+		DRIFTER = 3;
+		MOORING = 4;
+		GLIDER = 5;
+	}
+
+	optional PlatformType type = 1;
+	optional string name = 2;
+	optional double epoch_seconds = 3;
+	optional double latitude = 4;
+	optional double longitude = 5;
+	optional string source = 6;
+	optional uint64 mmsi = 7;
+	optional uint64 imei = 8;
+	optional string iso_datetime = 9;
+}

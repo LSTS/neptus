@@ -1,0 +1,20 @@
+# DATE=@DATE@
+# TIME=@TIME@
+# COMPILED BY=@COMPILED BY@ 
+# LEGAL_COPY=@LEGAL_COPY@
+# SVN_REV=@SVN_REV@
+# SVN_PATH=@SVN_PATH@
+
+pt.up.fe.dceg.neptus.plugins.planning.MapPanel
+pt.up.fe.dceg.neptus.plugins.planning.MissionTreePanel
+pt.up.fe.dceg.neptus.plugins.planning.AreaCoveragePlanner
+pt.up.fe.dceg.neptus.plugins.planning.CommandPlanner
+pt.up.fe.dceg.neptus.plugins.planning.PlanStatistics
+pt.up.fe.dceg.neptus.plugins.planning.EmergencyControlPanel
+pt.up.fe.dceg.neptus.plugins.planning.UavPiccoloControl
+pt.up.fe.dceg.neptus.plugins.planning.PlanControlPanel
+pt.up.fe.dceg.neptus.plugins.planning.PlanControlStatePanel
+pt.up.fe.dceg.neptus.plugins.planning.PlanExecutionPreview
+pt.up.fe.dceg.neptus.plugins.planning.PlanEditor
+pt.up.fe.dceg.neptus.plugins.planning.PathControlLayer
+pt.up.fe.dceg.neptus.plugins.planning.MultiVehiclePlanOverlay

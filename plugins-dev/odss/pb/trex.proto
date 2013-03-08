@@ -1,0 +1,23 @@
+package org.mbari.trex;
+
+message Predicate {
+  message FloatDomain {
+    optional double min_v =1;
+    optional double max_v =2;
+  }
+
+  message Variable {
+    required string name =1;
+    
+    // One of these 3
+    optional FloatDomain   int_d   =2;
+    optional bool          bool_d  =3;
+    repeated string        enum_d  =4;
+  }
+
+  required string object    =1;
+  required string predicate =2;
+  required fixed64 start    =3;
+
+  repeated Variable attributes =4;
+}

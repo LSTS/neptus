@@ -1,0 +1,170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Neptus Overview</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-UTF-8">
+</head>
+<style type="text/css">
+pre.fragment {
+	border: 1px solid #C4CFE5;
+	background-color: #FBFCFD;
+	padding: 4px 6px;
+	margin: 4px 8px 4px 2px;
+	overflow: auto;
+	word-wrap: break-word;
+	font-size:  9pt;
+	line-height: 125%;
+}
+</style>
+<body>
+	<p><a href="#dev-guide">Developers Guide</a></p>
+	<p>View the unit tests <a href="../junit/html/index.html" target="_top">here</a>.</p>
+	
+	<h1 id="dev-guide">Developers Guide</h1>
+	<h2>Source Code Management</h2>
+	<p>Neptus is hosted using Subversion (SVN). You should learn to use the SVN client (or any other available front-end), studying the advantages and limitations of the system before compromising any part of the repository. A good SVN guide is available at <a href="http://svnbook.red-bean.com">http://svnbook.red-bean.com</a>.</p>
+	<p>Neptus' SVN repository is accessible at <a href="https//:whale.fe.up.pt/svn/neptus">https//:whale.fe.up.pt/svn/neptus</a> with a web-based interface for repository browsing at <a href="https://whale.fe.up.pt/viewvc/neptus">https://whale.fe.up.pt/viewvc/neptus</a>.</p>
+	<p>By default SVN will not add the property svn:keywords to newly created files and as a result will not perform substitution of the Id keyword, which is used by Neptus' developers to identify the revision, date and last author of a given file. You can force SVN to add this property to all newly created files by adding the following directives to your SVN client's configuration.</p>
+<div class="fragment">
+<pre class="fragment">  [miscellany]
+  enable-auto-props = yes
+
+  [auto-props]
+  *.java &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = svn:keywords=Id
+  *.xml&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = svn:keywords=Id
+  *.sh&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = svn:keywords=Id; svn:executable
+  *.bat&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = svn:keywords=Id; svn:executable
+  </pre>
+  </div>
+  <p>Or alternatively you can set the property by hand and to every new file by executing the following command:</p>
+<div class="fragment">
+    <pre class="fragment">  svn propset svn:keywords Id filename</pre>
+</div>
+<p>Take the following point into consideration:</p>
+<div>
+<ul>
+    <li>Commit only the files that you have changed. Resist the temptation of commiting an entire directory, hoping for the best to happen;</li>
+    <li>Commit changes with caution and conscience. Furthermore do not make any commits that you know will render the project in an uncompilable state;</li>
+    <li>Never keep files checked out for long periods;</li>
+    <li>Document every commit meaningfully;</li>
+    <li>Always update your working copy before starting work.</li>
+    <li>You should never commit files without the property svn:keywords=Id.</li>
+</ul>
+</div>
+
+<h2><a class="anchor" id="JavaCode"></a>Java Code</h2>
+<p>The language of choice for writing code and documentation is English and you should not use other languages.</p>
+<p>Do not use "underhanded names" (ones that begin with an underscore). Also the use of underscore is must only be used for constants.</p>
+<p>Class and enum names should be nouns, in mixed case with the first letter of each internal word capitalized. Try to keep your class names simple and descriptive. Use whole words. Avoid acronyms and abbreviations, unless the abbreviation is much more widely used than the long form, such as UDP or TCP. (eg UDPSocket or UdpSocket).</p>
+<p>Methods names should be verbs, in mixed case with the first letter lowercase and the first letter of each internal word capitalized. (eg dumpRegisters).</p>
+<p>Variable names should be short yet meaningful, in mixed case with the first letter of each internal word capitalized. In the case of constantes All characters should be uppercase with underscores separating words (eg. ICON_START). The choice of a variable name should be mnemonic, that is, designed to indicate to the casual observer the intent of its use. One-character variable names should be avoided except for temporary "throwaway" variables. Common names for temporary variables are i, j, k, m, and n for integers; c, d, and e for characters.</p>
+
+ <p>Each source file must start with the following preamble (by using Eclipse this will be added for you). 
+ The blank line after the comment box should be the package declaration.</p>
+<div class="fragment"><pre class="fragment">  
+  <span class="comment">/*</span>
+  <span class="comment"> * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors</span>
+  <span class="comment"> * All rights reserved.</span>
+  <span class="comment"> * Faculdade de Engenharia da Universidade do Porto</span>
+  <span class="comment"> * Departamento de Engenharia Electrotécnica e de Computadores</span>
+  <span class="comment"> * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal</span>
+  <span class="comment"> *</span>
+  <span class="comment"> * For more information please see &lt;http://whale.fe.up.pt/neptus&gt.</span>
+  <span class="comment"> * </span>
+  <span class="comment"> * Created by Paulo Dias</span>
+  <span class="comment"> * 2010/05/19</span>
+  <span class="comment"> * $Id::                                                                        $:</span>
+  <span class="comment"> */</span>
+  <span class="comment">package pt.up.fe.dceg.neptus.util;</span>
+  <span class="comment"></span>
+</pre></div>
+
+<p>You must document the class with author tag and with one author per line and an optional sentence describing his/her work in the file</p>
+
+<p>In terms of methods order, the constructors must be the first ones, and a <code>main</code> if existence must be the last method.</p>
+<p>The declaration of variables must be on top just before the constructors. If you have <code>final</code> variables (constants) these 
+should be put ontop of the other ones, and if they are <code>static</code> they should precede the others.</p>
+<p>It is encorage if you use images for icons, to declare them as <code>static final</code>.</p>
+
+<h3><a class="anchor" id="JavaCodeFormat"></a>Formatting Source Code</h3>
+<p>Eclipse project has the Neptus Code Style and you can format your code by <code>Ctrl+Shift+F</code> on your class code.</p>
+<p>You must use Neptus Code Style which is based on the Java Conventions for code formating with the following 
+exceptions/enforcements.</p>
+<p>Identation should be spaces only with a tab size of 4 spaces.</p>
+
+</div><p>Single line if statement: </p>
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">if</span> (<span class="keywordflow">if</span>-condition)
+      <span class="keywordflow">if</span>-line;
+  <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<span class="keywordflow">else</span>-<span class="keywordflow">if</span>-condition)
+      <span class="keywordflow">else</span>-<span class="keywordflow">if</span>-line;
+  <span class="keywordflow">else</span>
+      <span class="keywordflow">else</span>-line;
+</pre></div><p>Multiline if statement: </p>
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">if</span> (condition) {
+      <span class="keywordflow">if</span>-block;      
+  }
+  <span class="keywordflow">else</span> {
+    <span class="keywordflow">else</span>-block;
+  }
+</pre></div><p>Single line while statement: </p>
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">while</span> (condition)
+      <span class="keywordflow">while</span>-line;
+</pre></div><p>Multiline while statement: </p>
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">while</span> (condition) {
+      <span class="keywordflow">while</span>-block;      
+  }
+</pre></div><p>Single line for statement: </p>
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (initialization; stop-condition; increment)
+      <span class="keywordflow">for</span>-line;      
+</pre></div><p>Multiline for statement: </p>
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (initialization; stop-condition; increment) {
+      <span class="keywordflow">for</span>-block;      
+  }
+</pre></div><p>Single and multiline line do while statement: </p>
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">do</span> {
+      <span class="keywordflow">do</span>-<span class="keywordflow">while</span>-line;
+  } <span class="keywordflow">while</span> (condition);
+</pre></div><p>Try/catch statement: </p>
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">try</span> {
+      <span class="keywordflow">try</span>-block;
+  }
+  <span class="keywordflow">catch</span> (variable) {
+      <span class="keywordflow">catch</span>-block;
+  }
+  <span class="keywordflow">finaly</span> {
+      <span class="keywordflow">finaly</span>-block;
+  }
+</pre></div><p>Switch statement: </p>
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">switch</span> (variable) {
+      <span class="keywordflow">case</span> A:
+          a-statement;
+          <span class="keywordflow">break</span>;
+      <span class="keywordflow">case</span> B:
+          b-statement;
+          <span class="keywordflow">break</span>;
+      <span class="keywordflow">default</span>:
+          <span class="keywordflow">default</span>-statement;
+          <span class="keywordflow">break</span>;
+  }
+</pre></div>
+
+<h2><a class="anchor" id="BuildInstructions"></a>
+Build Instructions</h2>
+<p>Required Software:</p>
+<ul>
+<li>Oracle Java JDK 1.7</li>
+<li><a href="http://ant.apache.org">Apache Ant version 1.8+</a></li>
+<li>Eclipse Java Development Environment</li>
+</ul>
+<p>Optional Software:</p>
+<ul>
+<li>xgettext - used to re-generate I18n translation files. </li>
+<li>NSIS - used to generate Windows installers. </li>
+</ul>
+
+<h3><a class="anchor" id="Instructions"></a>
+Instructions</h3>
+<p>Neptus uses Apache Ant as its building system.</p>
+
+</body>
+</html>

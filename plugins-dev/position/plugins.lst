@@ -1,0 +1,22 @@
+# DATE=@DATE@
+# TIME=@TIME@
+# COMPILED BY=@COMPILED BY@ 
+# LEGAL_COPY=@LEGAL_COPY@
+# SVN_REV=@SVN_REV@
+# SVN_PATH=@SVN_PATH@
+
+#Simple Plugin:
+pt.up.fe.dceg.neptus.plugins.position.AbsLatLonDepth
+pt.up.fe.dceg.neptus.plugins.position.EulerAnglesPanel
+pt.up.fe.dceg.neptus.plugins.position.SpeedPanel
+pt.up.fe.dceg.neptus.plugins.position.ScriptedDisplay
+pt.up.fe.dceg.neptus.plugins.position.FindVehicle
+pt.up.fe.dceg.neptus.plugins.position.StreamSpeed
+pt.up.fe.dceg.neptus.plugins.position.PositionClipboardTransferer
+pt.up.fe.dceg.neptus.plugins.position.GPSFixPanel
+pt.up.fe.dceg.neptus.plugins.position.ContactMarker
+pt.up.fe.dceg.neptus.plugins.position.StreamSpeedPanel
+pt.up.fe.dceg.neptus.plugins.position.MultiEntityDisplayPanel
+pt.up.fe.dceg.neptus.plugins.position.RemoteStateSimplePanel
+pt.up.fe.dceg.neptus.plugins.position.painter.SystemInfoPainter
+pt.up.fe.dceg.neptus.plugins.position.StreamSpeedOverlay

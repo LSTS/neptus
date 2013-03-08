@@ -1,0 +1,315 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by zp
+ * Oct 10, 2011
+ * $Id:: UnicycleModel.java 9880 2013-02-07 15:23:52Z jqcorreia                 $:
+ */
+package pt.up.fe.dceg.neptus.mp.preview;
+
+import java.util.Vector;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
+
+/**
+ * This class implements the Unicycle Model dynamics to be used for a rough preview of vehicle's behavior 
+ * @author zp
+ *
+ */
+public class UnicycleModel {
+
+    protected double latRad, lonRad, x, y, rollRad, pitchRad, yawRad, depth, speedMPS;
+    protected double targetLatRad, targetLonRad, maxSteeringRad = Math.toRadians(7);
+    protected boolean arrived = true;
+    //protected double actuationError = 0.5;
+    
+    public LocationType getCurrentPosition() {
+        LocationType loc = new LocationType();
+        loc.setLatitude(Math.toDegrees(latRad));
+        loc.setLongitude(Math.toDegrees(lonRad));
+        loc.setDepth(depth);
+        loc.setOffsetEast(x);
+        loc.setOffsetNorth(y);
+        return loc;
+    }
+    
+    public SystemPositionAndAttitude getState() {
+        LocationType loc = new LocationType();
+        loc.setLatitude(Math.toDegrees(latRad));
+        loc.setLongitude(Math.toDegrees(lonRad));
+        loc.setDepth(depth);
+        loc.setOffsetEast(x);
+        loc.setOffsetNorth(y);
+        
+        return new SystemPositionAndAttitude(loc, rollRad, pitchRad, yawRad);
+        
+    }
+
+    public void setState(SystemPositionAndAttitude state) {
+        if (state == null) {
+            NeptusLog.pub().error("setState(null)");
+            return;
+        }
+        
+        LocationType pos = state.getPosition();
+        pos.convertToAbsoluteLatLonDepth();
+        latRad = pos.getLatitudeAsDoubleValueRads();
+        lonRad = pos.getLongitudeAsDoubleValueRads();
+        x = y = 0;
+        depth = pos.getDepth();
+        speedMPS = state.getVx();
+        rollRad = state.getRoll();
+        pitchRad = state.getPitch();
+        yawRad = state.getYaw();        
+    }
+
+    /**
+     * Reset the state of the vehicle to be at the given position
+     * @param loc The new vehicle location. New heading will be calculated as a jump from previous location
+     */
+    public void setLocation(LocationType loc) {
+        LocationType old = getCurrentPosition();
+        loc.convertToAbsoluteLatLonDepth();
+        latRad = loc.getLatitudeAsDoubleValueRads();
+        lonRad = loc.getLongitudeAsDoubleValueRads();
+        depth = loc.getDepth();
+        x = y = 0;
+        pitchRad = rollRad = 0;
+        yawRad = old.getXYAngle(loc);
+    }
+
+    /**
+     * Advance the given time by integrating the vehicle position (with current heading and speed)
+     * @param timestepSecs
+     */
+    public void advance(double timestepSecs) {
+        //System.out.println("speed: "+speedMPS+", yaw: "+yawRad);
+        double angle = yawRad;
+        x += speedMPS * timestepSecs * Math.sin(angle);
+        y += speedMPS * timestepSecs * Math.cos(angle);
+        depth += speedMPS * timestepSecs * Math.sin(pitchRad);
+        
+        if (depth > 0)
+            depth -= 0.05* timestepSecs;
+            
+    }
+
+    /**
+     * Guide the vehicle to a certain location. This method will compute a new heading and speed that will guide the vehicle to the given location.<br/>
+     * If the vehicle is already at or near the target location, the speed is set to 0 and the method returns <b>true</b>.  
+     * @param loc The target location
+     * @param speed Desired speed
+     * @return <b>true</b> if the vehicle is arrived
+     */
+    public boolean guide(LocationType loc, double speed) {
+        if (loc.getHorizontalDistanceInMeters(getCurrentPosition()) < speed) {
+            speedMPS = rollRad = pitchRad = 0;
+            return true;            
+        }            
+
+        speedMPS = speed;
+
+        if (loc.getDepth() > depth+0.1)
+            pitchRad = Math.toRadians(12);
+        else if (loc.getDepth() < depth-0.1)
+            pitchRad = -Math.toRadians(12);
+        else {
+            depth = loc.getDepth();
+            pitchRad = 0;
+        }
+            
+        
+        double ang = getCurrentPosition().getXYAngle(loc);
+        
+        double diffAng = yawRad - ang;
+        
+        while (diffAng > Math.PI)
+            diffAng -= Math.PI * 2;
+        while (diffAng < -Math.PI)
+            diffAng += Math.PI * 2;
+        
+        if (Math.abs(diffAng) < maxSteeringRad)
+            yawRad = ang;
+        else if (diffAng > 0)
+            yawRad -= maxSteeringRad;
+        else
+            yawRad += maxSteeringRad;
+
+        return false;    
+    }
+
+    /**
+     * @return the latRad
+     */
+    public double getLatRad() {
+        return latRad;
+    }
+
+    /**
+     * @param latRad the latRad to set
+     */
+    public void setLatRad(double latRad) {
+        this.latRad = latRad;
+    }
+
+    /**
+     * @return the lonRad
+     */
+    public double getLonRad() {
+        return lonRad;
+    }
+
+    /**
+     * @param lonRad the lonRad to set
+     */
+    public void setLonRad(double lonRad) {
+        this.lonRad = lonRad;
+    }
+
+    /**
+     * @return the x
+     */
+    public double getX() {
+        return x;
+    }
+
+    /**
+     * @param x the x to set
+     */
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    /**
+     * @return the y
+     */
+    public double getY() {
+        return y;
+    }
+
+    /**
+     * @param y the y to set
+     */
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    /**
+     * @return the depth
+     */
+    public double getDepth() {
+        return depth;
+    }
+
+    /**
+     * @param depth the depth to set
+     */
+    public void setDepth(double depth) {
+        this.depth = depth;
+    }
+
+    /**
+     * @return the rollRad
+     */
+    public double getRollRad() {
+        return rollRad;
+    }
+
+    /**
+     * @param rollRad the rollRad to set
+     */
+    public void setRollRad(double rollRad) {
+        this.rollRad = rollRad;
+    }
+
+    /**
+     * @return the pitchRad
+     */
+    public double getPitchRad() {
+        return pitchRad;
+    }
+
+    /**
+     * @param pitchRad the pitchRad to set
+     */
+    public void setPitchRad(double pitchRad) {
+        this.pitchRad = pitchRad;
+    }
+
+    /**
+     * @return the yawRad
+     */
+    public double getYawRad() {
+        return yawRad;
+    }
+
+    /**
+     * @param yawRad the yawRad to set
+     */
+    public void setYawRad(double yawRad) {
+        this.yawRad = yawRad;
+    }
+
+
+
+    /**
+     * @return the maxSteeringRad
+     */
+    public double getMaxSteeringRad() {
+        return maxSteeringRad;
+    }
+
+
+
+    /**
+     * @param maxSteeringRad the maxSteeringRad to set
+     */
+    public void setMaxSteeringRad(double maxSteeringRad) {
+        this.maxSteeringRad = maxSteeringRad;
+    }
+
+
+   
+
+    public static void main(String[] args) {
+        LocationType loc = new LocationType();
+
+        Vector<LocationType> locs = new Vector<LocationType>();
+
+        loc.setLatitude(41);
+        loc.setLongitude(-8);
+        StateRenderer2D r2d = new StateRenderer2D(new LocationType(loc));
+        
+        locs.add(new LocationType(loc));
+
+        loc.translatePosition(10, -20, 2);
+        locs.add(new LocationType(loc));
+
+        loc.translatePosition(30, 30, 0);
+        locs.add(new LocationType(loc));
+
+        loc.translatePosition(-30, 0, -2);
+        locs.add(new LocationType(loc));
+
+        loc.convertToAbsoluteLatLonDepth();
+        loc.setLatitude(41);
+        loc.setLongitude(-8);
+        locs.add(new LocationType(loc));
+        
+        UnicycleModel model = new UnicycleModel();
+        model.setMaxSteeringRad(Math.toRadians(3));
+        GuiUtils.testFrame(r2d);
+        //model.startSimulation(r2d, locs, 1.3, 0.5);
+        
+    }
+}

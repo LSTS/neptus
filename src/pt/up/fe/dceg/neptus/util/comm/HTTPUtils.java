@@ -1,0 +1,267 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by 
+ * 20??/??/??
+ * $Id:: HTTPUtils.java 9616 2012-12-30 23:23:22Z pdias                   $:
+ */
+package pt.up.fe.dceg.neptus.util.comm;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.swing.ProgressMonitor;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+
+public class HTTPUtils {
+
+	
+	private static LinkedHashMap<String, String> cache = new LinkedHashMap<String, String>();
+	private static ReentrantLock lock = new ReentrantLock();
+	
+	public static String post(String url, String content) {
+		try {
+			URLConnection conn = new URL(url).openConnection();
+			conn.setDoOutput(true);
+			
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
+			bw.write(content);
+			bw.close();
+			
+			BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			String result = "";
+			String line = reader.readLine();
+			while (line != null) {
+				result = result.concat(line+"\n");
+				line = reader.readLine();
+			}
+			return result;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return "ERROR";
+			
+		}
+	}
+	
+	
+	public static String getUsingCache(String url) {
+		if (!cache.containsKey(url))
+			cache.put(url, get(url));
+
+		return cache.get(url); 
+	}
+	
+	
+	public static String get(String url) {
+		
+			
+		lock.lock();
+		String result = "";
+		
+		try {
+			HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+			
+			BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			result = "";
+			String line = reader.readLine();
+			while (line != null) {
+				result = result.concat(line+"\n");
+				line = reader.readLine();
+			}
+			lock.unlock();
+			return result;
+		}
+		catch (Exception e) {			
+			NeptusLog.pub().error("Error in HTTPUtils.get("+url+")", e);
+		}
+		lock.unlock();
+		return null;
+	}
+	
+	public static String put(String url, String content) {
+		HttpURLConnection conn = null;
+		
+		try {
+			conn = (HttpURLConnection) new URL(url).openConnection();
+			conn.setDoOutput(true);			
+			conn.setRequestMethod("PUT");
+			
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
+			bw.write(content);
+			bw.flush();
+			bw.close();
+			
+			
+			BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			String result = "["+conn.getResponseCode()+"] ";
+			String line = reader.readLine();
+			while (line != null) {
+				result = result.concat(line+"\n");
+				line = reader.readLine();
+			}
+			conn.disconnect();
+			return result;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			if (conn != null)
+				conn.disconnect();
+			
+			return null;			
+		}
+	}
+	
+	
+	
+	public static boolean isValidURL(String url) {
+		try {
+			HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+			conn.setConnectTimeout(3000);
+			conn.connect();
+			conn.disconnect();
+			return conn.getResponseCode() >= 200 && conn.getResponseCode() < 300;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return false;
+			
+		}
+	}
+	
+	public static void main(String[] args) {
+		//System.out.println(isValidURL("http://www.iol.pt/nota.txt"));
+		//System.out.println(get("http://localhost:8080/dune/config/list"));
+		//System.out.println(getRemoteFileLength("http://whale.fe.up.pt/"));
+		
+		System.out.println(downloadFile("http://www.mirrorservice.org/sites/download.eclipse.org/eclipseMirror/technology/epp/downloads/release/20070702/eclipse-java-europa-win32.zip", 
+				"files/downloads/file.zip"));
+	}
+	
+	public static long getRemoteFileLength(String url) {
+		try {		    
+			HttpURLConnection connection;
+			connection = (HttpURLConnection) new URL(url).openConnection();
+			connection.setConnectTimeout(3000);			
+			connection.connect();
+			long length = connection.getContentLength();
+			connection.disconnect();
+			return length;
+		}		
+		catch (Exception e) {
+		    e.printStackTrace();
+		}
+		return -1;
+	}
+	
+	public static String getPrettySizeString(long bytes) {
+		// See MathMiscUtils.parseToEngineeringRadix2Notation and parseEngineeringRadix2ModeToDouble and getEngRadix2Multiplier
+		String[] sizes = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "You wish bytes"};
+		double size = (double) bytes;
+		int sizeIndex = 0;
+		while (size > 1024) {
+			sizeIndex++;
+			size /= 1024.;
+		}
+		if (Math.floor(size) != size)
+			return GuiUtils.getNeptusDecimalFormat(1).format(size)+" "+sizes[sizeIndex];
+		else
+			return GuiUtils.getNeptusDecimalFormat(0).format(size)+" "+sizes[sizeIndex];
+	}
+	
+	
+	public static String downloadFile(String url, String destination) {
+		
+		NumberFormat df = DecimalFormat.getInstance(Locale.US);
+		df.setGroupingUsed(false);
+		df.setMaximumFractionDigits(2);
+		if (!isValidURL(url)) {			
+			return "The URL '"+url+"' is not available.";
+		}
+		long contentLength = getRemoteFileLength(url);
+		if (contentLength == -1) {
+			NeptusLog.pub().warn("HTTPUtils.download('"+url+"'): Unknown file length. Resuming is disabled.");
+		}
+		else {
+			NeptusLog.pub().info("Downloading '"+url+"' ("+getPrettySizeString(contentLength)+" bytes) to "+destination);
+		}
+		ProgressMonitor mon = null;
+		if (contentLength > 4096) {
+			mon = new ProgressMonitor(ConfigFetch.getSuperParentFrame(), "Downloading '"+url+"'", "Downloaded 0 bytes (0%)", 0, (int) contentLength);
+		}
+		
+		File destFile = new File(destination);		
+		if (destFile.exists() && destFile.canRead()) {			
+			NeptusLog.pub().info("HTTPUtils.download('"+url+"'): Destination file will be overwritten.");			
+		}
+		else {			
+			destFile.getParentFile().mkdirs();			
+		}
+		
+		
+		try {
+			HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+			conn.setConnectTimeout(3000);
+			conn.connect();
+			int bytesRead = 0;
+			boolean eof = false;
+			byte[] buffer = new byte[4096];
+			
+			BufferedInputStream stream = new BufferedInputStream(conn.getInputStream());
+			BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(destFile));
+			while (bytesRead < contentLength && !eof) {
+				if (mon != null && mon.isCanceled())
+					break;
+								
+				int bytes = stream.read(buffer);
+				if (bytes == -1) {
+					eof = true;
+					if (bytesRead < contentLength) {
+						System.out.println("Connection closed before getting entire file ("+bytesRead+" bytes read, expecting "+contentLength+")");
+					}
+				}
+				else {
+					bytesRead += bytes;
+					outStream.write(buffer, 0, bytes);
+					if (mon != null) {
+						mon.setProgress(bytesRead);
+						double percent = (double) bytesRead / (double) contentLength;						
+						mon.setNote("Downloaded "+getPrettySizeString(bytesRead)+" ("+df.format(percent*100)+"%)");
+					}
+				}						
+			}
+			outStream.close();
+			conn.disconnect();
+			NeptusLog.pub().info("Downloaded '"+url+"' to '"+destination+"'");
+			return null;
+		}
+		catch (Exception e) {			
+			e.printStackTrace();
+			return e.getClass().getSimpleName()+" thrown while downloading ("+e.getMessage()+")";
+			
+		}
+	}
+}

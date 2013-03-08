@@ -1,0 +1,1730 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * 2007/05/25 pdias
+ * $Id:: ImcMsgManager.java 10012 2013-02-21 14:23:45Z pdias              $:
+ */
+package pt.up.fe.dceg.neptus.util.comm.manager.imc;
+
+import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+
+import javax.swing.JFrame;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.imc.Announce;
+import pt.up.fe.dceg.neptus.imc.EntityInfo;
+import pt.up.fe.dceg.neptus.imc.EntityList;
+import pt.up.fe.dceg.neptus.imc.IMCDefinition;
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.imc.state.ImcSysState;
+import pt.up.fe.dceg.neptus.messages.MessageFilter;
+import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
+import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
+import pt.up.fe.dceg.neptus.plugins.PluginUtils;
+import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.up.fe.dceg.neptus.util.NetworkInterfacesUtil;
+import pt.up.fe.dceg.neptus.util.NetworkInterfacesUtil.NInterface;
+import pt.up.fe.dceg.neptus.util.StringUtils;
+import pt.up.fe.dceg.neptus.util.comm.CommUtil;
+import pt.up.fe.dceg.neptus.util.comm.IMCSendMessageUtils;
+import pt.up.fe.dceg.neptus.util.comm.manager.CommBaseManager;
+import pt.up.fe.dceg.neptus.util.comm.manager.CommManagerStatusChangeListener;
+import pt.up.fe.dceg.neptus.util.comm.manager.MessageFrequencyCalculator;
+import pt.up.fe.dceg.neptus.util.comm.transports.ImcTcpTransport;
+import pt.up.fe.dceg.neptus.util.comm.transports.ImcUdpTransport;
+import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+import pt.up.fe.dceg.neptus.util.conf.PreferencesListener;
+import pt.up.fe.dceg.neptus.util.llf.NeptusMessageLogger;
+
+import com.google.common.eventbus.AsyncEventBus;
+
+/**
+ * @author pdias
+ */
+public class ImcMsgManager extends
+        CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommManagerStatusChangeListener> {
+
+    public static final String TRANSPORT_UDP = "UDP";
+    public static final String TRANSPORT_TCP = "TCP";
+
+    private static final int DEFAULT_UDP_VEH_PORT = 6002;
+
+    /**
+     * Singleton
+     */
+    private static ImcMsgManager commManager = null;
+
+    private ImcId16 localId = ImcId16.NULL_ID;
+    
+    protected ImcSysState imcState = new ImcSysState();
+    {
+        imcState.setIgnoreEntities(true);
+    }
+
+    // public static String CCU_VEH_STRING = "CCU-VEH";
+    // public static String VEH_CCU_STRING = "VEH-CCU";
+    // //public static final String MW_NODE_CONSOLE_PREFIX = "Console-";
+    //
+    // public static String CONNECTION4CCU = "Connection4CCUALL";
+
+    private HashMap<String, ImcId16> udpOnIpMapper = new HashMap<String, ImcId16>();
+    private boolean isFilterByPort = false;
+
+    private boolean isRedirectToFirst = false;
+
+    private boolean logSentMsg = false;
+
+    @Deprecated
+    private boolean dontIgnoreIpSourceRequest = true;
+
+    private boolean multicastEnabled = true;
+    private String multicastAddress = "224.0.75.69";
+    private int[] multicastPorts = new int[] { 6969 };
+    private boolean broadcastEnabled = true;
+
+    private IMCDefinition imcDefinition; // = IMCDefinition.getInstance();
+    private AnnounceWorker announceWorker; // = new AnnounceWorker(this, imcDefinition);
+    private long announceLastArriveTime = -1;
+
+    private PreferencesListener gplistener;
+
+    // Transports
+    protected ImcUdpTransport udpTransport = null;
+    protected ImcUdpTransport multicastUdpTransport = null;
+    protected ImcTcpTransport tcpTransport = null;
+
+//    protected Vector<Object> registeredObjects = new Vector<>();
+
+    // EventBus
+    private ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(r);
+            t.setDaemon(true);
+            return t;
+        }
+    });
+    protected AsyncEventBus bus = new AsyncEventBus(service);
+
+    protected HashSet<Object> busListeners = new HashSet<>();
+    
+    // Network interfaces control
+    private long lastNetInterfaceMillis = -1;
+    private Vector<NInterface> netInterfaces = null;
+
+    private LinkedList<URL> registerServicesToAnnounce = new LinkedList<URL>();
+
+    // Frequency Calculators
+    private MessageFrequencyCalculator toSendMessagesFreqCalc = new MessageFrequencyCalculator();
+    private MessageFrequencyCalculator sentMessagesFreqCalc = new MessageFrequencyCalculator();
+
+    // Entities related vars
+    protected short lastEntityId = 0;
+    protected LinkedHashMap<String, Short> neptusEntities = new LinkedHashMap<String, Short>();
+
+    private enum TransportPreference {
+        ANY,
+        UDP,
+        TCP
+    };
+
+    private ArrayList<TransportPreference> transportPreferenceToUse = new ArrayList<>();
+    
+    protected Vector<String> ignoredClasses = new Vector<String>();
+    {
+        ignoredClasses.add(getClass().getName());
+        ignoredClasses.add(SimpleSubPanel.class.getName());
+        ignoredClasses.add(Thread.class.getName());
+        ignoredClasses.add(IMCSendMessageUtils.class.getName());
+    }
+
+    public static void registerBusListener(Object listener) {
+        if (!getManager().busListeners.contains(listener)) {
+            getManager().getMessageBus().register(listener);
+        }
+        getManager().busListeners.add(listener);
+    }
+    
+    public static void unregisterBusListener(Object listener) {
+        if (getManager().busListeners.contains(listener)) {
+            getManager().getMessageBus().unregister(listener);
+        }
+        getManager().busListeners.remove(listener);
+    }
+    
+    /**
+     * @return The singleton manager.
+     */
+    public static ImcMsgManager getManager() {
+        return createManager();
+    }
+
+    private static synchronized ImcMsgManager createManager() {
+        if (commManager == null) {
+            commManager = new ImcMsgManager(IMCDefinition.getInstance());
+        }
+        return commManager;
+    }
+
+    public ImcMsgManager(IMCDefinition imcDefinition) {
+        super();
+        gplistener = new PreferencesListener() {
+            public void preferencesUpdated() {
+                logSentMsg = GeneralPreferences.messageLogSentMessages;
+                isRedirectToFirst = GeneralPreferences.redirectUnknownIdsToFirstCommVehicle;
+
+                dontIgnoreIpSourceRequest = GeneralPreferences.imcChangeBySourceIpRequest;
+                
+                // IMC Announce
+                announceWorker.getAnnounceMessage().setValue("sys_name", StringUtils.toImcName(GeneralPreferences.imcCcuName));
+                localId = GeneralPreferences.imcCcuId;
+            }
+        };
+        this.imcDefinition = imcDefinition;
+        announceWorker = new AnnounceWorker(this, imcDefinition);
+
+//        GeneralPreferencesPropertiesProvider.addPreferencesListener(gplistener);
+        GeneralPreferences.addPreferencesListener(gplistener);
+        gplistener.preferencesUpdated();
+    }
+
+//    /**
+//     * This method shoud be called by entities interested in using the communications facilities (e.g. Workspace,
+//     * Consoles)
+//     * 
+//     * @param ref The reference to the Object requiring comms facilities
+//     * @return result of the init() call
+//     */
+//    public synchronized boolean register(Object ref) {
+//        if (!registeredObjects.contains(ref))
+//            registeredObjects.add(ref);
+//        return init();
+//    }
+//
+//    /**
+//     * This method shoud be called by entities that ceased to interested in comms
+//     * 
+//     * @param ref The reference to the Object that doesn't need comms anymore
+//     */
+//    public synchronized void unregister(Object ref) {
+//        registeredObjects.remove(ref);
+//        if (registeredObjects.isEmpty())
+//            shutdown();
+//    }
+
+    @Override
+    public synchronized boolean start() {
+        if (started)
+            return true; // do nothing
+
+        boolean ret = super.start();
+        if (!ret)
+            return false;
+
+        gplistener.preferencesUpdated();
+//        try {
+//            isFilterByPort = GeneralPreferences.getPropertyBoolean(GeneralPreferences.FILTER_UDP_ALSO_BY_PORT);
+//        }
+//        catch (GeneralPreferencesException e) {
+//            NeptusLog.pub().error("error setting isFilterByPort property", e);
+//            isFilterByPort = false;
+//        }
+        isFilterByPort = GeneralPreferences.filterUdpAlsoByPort;
+                
+//        try {
+//            localId = (ImcId16) GeneralPreferences.getPropertyObject(GeneralPreferences.IMC_CCU_ID);
+//        }
+//        catch (GeneralPreferencesException e) {
+//            NeptusLog.pub().error("error setting CCU IMC ID property", e);
+//            localId = ImcId16.NULL_ID;
+//        }
+        localId = GeneralPreferences.imcCcuId;
+
+        updateUdpOnIpMapper();
+
+        return ret;
+    }
+
+    /**
+	 * 
+	 */
+    private void updateUdpOnIpMapper() {
+        for (SystemImcMsgCommInfo vsci : commInfo.values()) {
+            if (isUdpOn())
+                udpOnIpMapper.put(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
+                        vsci.getSystemCommId());
+            else
+                udpOnIpMapper.remove(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""));
+        }
+    }
+
+    private void updateUdpOnIpMapper(SystemImcMsgCommInfo vsci) {
+        if (isUdpOn())
+            udpOnIpMapper.put(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
+                    vsci.getSystemCommId());
+        else
+            udpOnIpMapper.remove(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""));
+    }
+
+    public synchronized SystemImcMsgCommInfo initVehicleCommInfo(String vehicleId, String inetAddress) {
+        VehicleType veh = VehiclesHolder.getVehicleById(vehicleId);
+        if (veh == null)
+            return null;
+
+        ImcId16 imcId = veh.getImcId();
+        if (imcId == null)
+            return null;
+        return initSystemCommInfo(imcId, inetAddress);
+    }
+
+    @Override
+    public synchronized SystemImcMsgCommInfo initSystemCommInfo(ImcId16 vIdS, String inetAddress) {
+        SystemImcMsgCommInfo vci = commInfo.get(vIdS);
+        if (vci != null) {
+            NeptusLog.pub().debug("System already known to manager: " + vIdS);
+            return vci;
+        }
+
+        NeptusLog.pub().info("System not yet known to manager: " + vIdS);
+
+        SystemImcMsgCommInfo vsci = new SystemImcMsgCommInfo();
+        vsci.setMessageBus(bus);
+        vsci.setSystemCommId(vIdS);
+
+        VehicleType vehTmp = VehiclesHolder.getVehicleWithImc(vIdS);
+        if (vehTmp == null) {
+            NeptusLog.pub().info("No vehicle with IMC ID " + vIdS + "!");
+        }
+        else {
+            // VehicleType vehicle = vehTmp;
+            NeptusLog.pub().info("Found the Vehicle: " + vehTmp.getId());
+            vsci.setSystemIdName(vehTmp.getId());
+        }
+
+        ImcSystem resSys = ImcSystemsHolder.lookupSystem(vIdS);
+        if (resSys == null) {
+            if (vehTmp != null) {
+                resSys = new ImcSystem(vehTmp);
+                resSys.setType(ImcSystem.translateSystemTypeFromMessage(vehTmp.getType().toUpperCase()));
+                resSys.setTypeVehicle(ImcSystem.translateVehicleTypeFromMessage(vehTmp.getType().toUpperCase()));
+                ImcSystemsHolder.registerSystem(resSys);
+            }
+            else {
+                InetSocketAddress isa = ImcSystem.parseInetSocketAddress(inetAddress);
+                if (isa != null) {
+                    resSys = new ImcSystem(vIdS, ImcSystem.createCommMean(isa.getAddress().getHostAddress(),
+                            isa.getPort(), isa.getPort(), vIdS, true, false));
+                    ImcSystemsHolder.registerSystem(resSys);
+                }
+                else {
+                    resSys = new ImcSystem(vIdS);
+                    ImcSystemsHolder.registerSystem(resSys);
+                }
+            }
+        }
+
+        if (vsci.initSystemComms()) {
+            if (!vsci.startSystemComms()) {
+                NeptusLog.pub().error("Error starting " + vsci.getSystemIdName());
+            }
+        }
+        else {
+            NeptusLog.pub().error("Error initializing " + vsci.getSystemIdName());
+        }
+
+        updateUdpOnIpMapper(vsci);
+
+        commInfo.put(vIdS, vsci);
+
+        // pdias 14/3/2009 new to VehicleImc3MsgCommInfo.createNewPrivateNode
+        // if (vsci.isUdpOn())
+        // udpOnIpMapper.put(vsci.getIpAddress()+(isFilterByPort?":"+vsci.getIpRemotePort():""),
+        // vsci.getVehicleCommId());
+        // else
+        // udpOnIpMapper.remove(vsci.getIpAddress()+(isFilterByPort?":"+vsci.getIpRemotePort():""));
+
+        if (vehTmp != null) {
+            sendManagerVehicleAdded(vehTmp);
+            sendManagerVehicleStatusChanged(vehTmp, SYS_COMM_ON);
+        }
+        else {
+            sendManagerSystemAdded(vIdS);
+            sendManagerSystemStatusChanged(vIdS, SYS_COMM_ON);
+        }
+        return vsci;
+    }
+
+    /**
+     * @param vsci
+     */
+    void mapUdpIpPort(SystemImcMsgCommInfo vsci) {
+        if (vsci == null)
+            return;
+
+        if (isUdpOn())
+            udpOnIpMapper.put(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""),
+                    vsci.getSystemCommId());
+        else
+            udpOnIpMapper.remove(vsci.getIpAddress() + (isFilterByPort ? ":" + vsci.getIpRemotePort() : ""));
+    }
+
+    protected String getAnnounceServicesList() {
+        String ret = "";
+        String loopbackServ = "";
+        Vector<NInterface> netInterfaces = getNetworkInterfaces(); // NetworkInterfacesUtil.getNetworkInterfaces();
+        for (NInterface ni : netInterfaces) {
+            if (ni.isLoopback()) {
+                if (getUdpTransport() != null) {
+                    for (Inet4Address i4a : ni.getAddress()) {
+                        loopbackServ += "imc+udp://" + i4a.getHostAddress() + ":" + getUdpTransport().getBindPort()
+                                + "/;";
+                    }
+                }
+                if (getTcpTransport() != null) {
+                    for (Inet4Address i4a : ni.getAddress()) {
+                        loopbackServ += "imc+tcp://" + i4a.getHostAddress() + ":" + getTcpTransport().getBindPort()
+                                + "/;";
+                    }
+                }
+                continue;
+            }
+            if (ni.hasIpv4Address()) {
+                if (getUdpTransport() != null) {
+                    for (Inet4Address i4a : ni.getAddress()) {
+                        ret += "imc+udp://" + i4a.getHostAddress() + ":" + getUdpTransport().getBindPort() + "/;";
+                    }
+                }
+                if (getTcpTransport() != null) {
+                    for (Inet4Address i4a : ni.getAddress()) {
+                        ret += "imc+tcp://" + i4a.getHostAddress() + ":" + getTcpTransport().getBindPort() + "/;";
+                    }
+                }
+                synchronized (registerServicesToAnnounce) {
+                    for (URL url : registerServicesToAnnounce) {
+                        try {
+                            URI uri = url.toURI();
+                            String host = uri.getHost();
+                            Vector<String> hostsStr = new Vector<String>();
+                            if ("localhost".equalsIgnoreCase(host)) {
+                                for (Inet4Address i4a : ni.getAddress()) {
+                                    hostsStr.add(i4a.getHostAddress());
+                                }
+                            }
+                            else
+                                hostsStr.add(host);
+                            for (String hst : hostsStr) {
+                                URL serv = new URI(uri.getScheme(), uri.getUserInfo(), hst, uri.getPort(),
+                                        uri.getPath(), uri.getQuery(), uri.getFragment()).toURL();
+                                ret += serv.toString() + ";";
+                            }
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            // if (ni.hasIpv6Address()) {
+            // ret += "imc+udp://[" + ni.getAddress6().getHostAddress() + "]" +
+            // ":" + getUdpTransport().getBindPort() + "/;";
+            // }
+        }
+        return ret.length() != 0 ? ret : loopbackServ;
+    }
+
+    private synchronized Vector<NInterface> getNetworkInterfaces() {
+        if (netInterfaces == null || (System.currentTimeMillis() - lastNetInterfaceMillis > 3000)) {
+            netInterfaces = NetworkInterfacesUtil.getNetworkInterfaces();
+            lastNetInterfaceMillis = System.currentTimeMillis();
+        }
+        return netInterfaces;
+    }
+
+    /**
+     * @param service Register with 'localhost' so it can be substituted with active IPs
+     */
+    public boolean registerService(URL service) {
+        synchronized (registerServicesToAnnounce) {
+            if (!registerServicesToAnnounce.contains(service))
+                return registerServicesToAnnounce.add(service);
+            return false;
+        }
+    }
+
+    /**
+     * @param service
+     * @return
+     */
+    public boolean unRegisterService(URL service) {
+        synchronized (registerServicesToAnnounce) {
+            return registerServicesToAnnounce.remove(service);
+        }
+    }
+
+    public String getAllServicesString() {
+        return announceWorker.getAllServices();
+    }
+
+    @Override
+    protected boolean initManagerComms() {
+
+        String transportsToUse = GeneralPreferences.imcTransportsToUse; // GeneralPreferences.getProperty(GeneralPreferences.IMC_TRANSPORTS);
+        boolean udpConfig = StringUtils.isTokenInList(transportsToUse, TRANSPORT_UDP);
+
+        if (udpConfig) {
+            createUdpTransport();
+            // udpTransport.addListener(this);
+        }
+        else {
+            udpTransport = null;
+        }
+
+        // Multicast Comms
+        createMulticastUdpTransport();
+
+        boolean tcpConfig = StringUtils.isTokenInList(transportsToUse, TRANSPORT_TCP);
+        if (tcpConfig) {
+            createTcpTransport();
+        }
+        else {
+            tcpTransport = null;
+        }
+
+        transportPreferenceToUse.clear();
+        String[] tks = transportsToUse.split("[ ,]+");
+        for (String t : tks) {
+            if (TRANSPORT_UDP.equalsIgnoreCase(t) && isUdpOn()) {
+                transportPreferenceToUse.add(TransportPreference.UDP);
+            }
+            else if (TRANSPORT_TCP.equalsIgnoreCase(t) && isTcpOn()) {
+                transportPreferenceToUse.add(TransportPreference.TCP);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    protected boolean startManagerComms() {
+        // initManagerComms(); // This is also called in the start, so 2 times!!!
+
+        if (udpTransport != null) {
+            udpTransport.reStart();
+            udpTransport.addListener(this);
+        }
+
+        if (multicastUdpTransport != null) {
+            multicastUdpTransport.reStart();
+            multicastUdpTransport.addListener(this);
+            if (announceWorker != null) {
+                announceWorker.startAnnounceAndPeriodicRequests();
+            }
+        }
+
+        if (tcpTransport != null) {
+            tcpTransport.reStart();
+            tcpTransport.addListener(this);
+        }
+
+        return true;
+    }
+
+    @Override
+    protected boolean stopManagerComms() {
+        // if (openNode == null) {
+        // ;//return false;
+        // }
+        // else {
+        // openNode.stop();
+        // //FIXME (pdias) see what to do with openNode, equal to null?
+        // }
+
+        if (udpTransport != null) {
+            udpTransport.removeListener(this);
+            udpTransport.stop();
+        }
+
+        if (multicastUdpTransport != null) {
+            multicastUdpTransport.removeListener(this);
+            multicastUdpTransport.stop();
+            if (announceWorker != null) {
+                announceWorker.stopAnnounce();
+            }
+        }
+
+        if (tcpTransport != null) {
+            tcpTransport.removeListener(this);
+            tcpTransport.stop();
+        }
+
+        return true;
+    }
+
+    /**
+	 * 
+	 */
+    private void createUdpTransport() {
+        int localport = GeneralPreferences.commsLocalPortUDP;
+        
+        if (udpTransport == null) {
+            udpTransport = new ImcUdpTransport(localport, imcDefinition);
+        }
+        else {
+            udpTransport.setBindPort(localport);
+        }
+        udpTransport.reStart();
+
+        if (udpTransport.isOnBindError()) {
+            for (int i = 1; i < 10; i++) {
+                udpTransport.stop();
+                udpTransport.setBindPort(localport + i);
+                udpTransport.reStart();
+                if (!udpTransport.isOnBindError())
+                    break;
+            }
+        }
+    }
+
+    private ImcUdpTransport getUdpTransport() {
+        return udpTransport;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isUdpOn() {
+        if (udpTransport == null || !udpTransport.isRunnning())
+            return false;
+        return true;
+    }
+
+    private void createTcpTransport() {
+        int localport = GeneralPreferences.commsLocalPortTCP;
+        
+        if (tcpTransport == null) {
+            tcpTransport = new ImcTcpTransport(localport, imcDefinition);
+        }
+        else {
+            tcpTransport.setBindPort(localport);
+        }
+        tcpTransport.reStart();
+        
+        if (tcpTransport.isOnBindError()) {
+            for (int i = 1; i < 10; i++) {
+                tcpTransport.stop();
+                tcpTransport.setBindPort(localport + i);
+                tcpTransport.reStart();
+                if (!tcpTransport.isOnBindError())
+                    break;
+            }
+        }
+
+    }
+
+    private ImcTcpTransport getTcpTransport() {
+        return tcpTransport;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isTcpOn() {
+        if (tcpTransport == null || !tcpTransport.isRunning())
+            return false;
+        return true;
+    }
+
+    boolean isTCPConnectionEstablished(String host, int port) {
+        if (getTcpTransport() == null)
+            return false;
+        return getTcpTransport().isConnectionEstablished(host, port);
+    }
+
+    // @Override
+    // public synchronized boolean shutdown() {
+    // if (udpTransport != null)
+    // udpTransport.stopAll();
+    // return super.shutdown();
+    // }
+
+    /**
+     * @return the announceLastArriveTime
+     */
+    public long getAnnounceLastArriveTime() {
+        return announceLastArriveTime;
+    }
+
+    private void createMulticastUdpTransport() {
+        multicastEnabled = GeneralPreferences.imcMulticastEnable;
+        broadcastEnabled = GeneralPreferences.imcBroadcastEnable;
+
+        if (!(multicastEnabled || broadcastEnabled))
+            return;
+        multicastAddress = GeneralPreferences.imcMulticastAddress;
+        int localport = 6969;
+        multicastPorts = CommUtil.parsePortRangeFromString(GeneralPreferences.imcMulticastBroadcastPortRange, new int[] { 6969 });
+
+        if (multicastUdpTransport == null) {
+            multicastUdpTransport = new ImcUdpTransport((multicastPorts.length == 0) ? localport : multicastPorts[0],
+                    multicastAddress, imcDefinition);
+        }
+        else {
+            multicastUdpTransport.setBindPort((multicastPorts.length == 0) ? localport : multicastPorts[0]);
+            multicastUdpTransport.setMulticastAddress(multicastAddress);
+        }
+        multicastUdpTransport.setBroadcastEnable(broadcastEnabled);
+        multicastUdpTransport.reStart();
+        if (multicastUdpTransport.isOnBindError()) {
+            for (int i = 1; i < multicastPorts.length; i++) {
+                multicastUdpTransport.stop();
+                multicastUdpTransport.setBindPort(multicastPorts[i]);
+                multicastUdpTransport.reStart();
+                if (!multicastUdpTransport.isOnBindError())
+                    break;
+            }
+        }
+
+        if (!multicastUdpTransport.isOnBindError()) {
+            if (announceWorker == null) {
+                announceWorker = new AnnounceWorker(this, imcDefinition);
+            }
+        }
+    }
+
+    @Override
+    protected boolean processMsgLocally(MessageInfo info, IMCMessage msg) {
+        // msg.dump(System.out);
+
+        SystemImcMsgCommInfo vci = null;
+        try {
+            ImcId16 id = new ImcId16(msg.getHeader().getValue("src"));
+            if (!ImcId16.NULL_ID.equals(localId) && localId.equals(id))
+                return false;
+            
+            imcState.setMessage(msg);
+            
+            vci = getCommInfoById(id);
+            // System.out.println(localId + " " + id);
+            if (!ImcId16.NULL_ID.equals(id) && !ImcId16.BROADCAST_ID.equals(id) && !ImcId16.ANNOUNCE.equals(id)
+                    && !localId.equals(id)) {
+                if (Announce.ID_STATIC == msg.getMgid()) {
+                    announceLastArriveTime = System.currentTimeMillis();
+
+                    vci = processAnnounceMessage(info, (Announce) msg, vci, id);
+                }
+                else if ("EntityList".equalsIgnoreCase(msg.getAbbrev())) {
+                    EntityList entityListMessage = new EntityList(msg);
+                    EntitiesResolver.setEntities(id.toString(), entityListMessage);
+                    ImcSystem sys = ImcSystemsHolder.lookupSystem(id);
+                    if (sys != null) {
+                        EntitiesResolver.setEntities(sys.getName(), entityListMessage);
+                    }
+                }
+                else {
+                    // if not Announce try to start comms if system is known
+                    // (vehicles only for now)
+                    if (vci == null) {
+                        if (VehiclesHolder.getVehicleWithImc(id) != null) {
+                            vci = initSystemCommInfo(id, "");
+                        }
+                    }
+                }
+                if (vci != null) {
+                    NeptusLog.pub().trace(
+                            this.getClass().getSimpleName() + ": Message redirected for system comm. "
+                                    + vci.getSystemCommId() + ".");
+                    vci.onMessage(info, msg);
+//                    bus.post(msg);
+                    //System.out.println(msg.hashCode());
+                    return true;
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String inetAddress = info.getPublisherInetAddress();
+        String remotePortAddress = "" + info.getPublisherPort();
+
+        NeptusLog.pub().info(
+                this.getClass().getSimpleName() + ": No IMC system found. trying to redirected " + "by IP/Port info. "
+                        + (vci != null ? vci.getSystemCommId() + ">" : "") + inetAddress + ":" + remotePortAddress
+                        + ".");
+
+        boolean sentToBus = false;
+        
+        if (udpOnIpMapper.containsKey(inetAddress + (isFilterByPort ? ":" + remotePortAddress : ""))) {
+            ImcId16 systemId = udpOnIpMapper.get(inetAddress + (isFilterByPort ? ":" + remotePortAddress : ""));
+            SystemImcMsgCommInfo vciMapper = getCommInfoById(systemId);
+            if (vciMapper != null && vci != vciMapper) {
+                NeptusLog.pub().debug(
+                        this.getClass().getSimpleName() + ": Message redirected for system comm. "
+                                + vciMapper.getSystemCommId() + ".");
+                vciMapper.onMessage(info, msg);
+                sentToBus = true;
+            }
+        }
+        else {
+            if (isRedirectToFirst) {
+                if (!getCommInfo().keySet().isEmpty()) {
+                    ImcId16 vehicleId = getCommInfo().keySet().iterator().next();
+                    SystemImcMsgCommInfo vciRedirect = getCommInfoById(vehicleId);
+                    NeptusLog.pub().debug(
+                            this.getClass().getSimpleName() + ": Message redirected for system comm. "
+                                    + vciRedirect.getSystemCommId() + ".");
+                    vciRedirect.onMessage(info, msg);
+                    sentToBus = true;
+                }
+            }
+        }
+        
+        try {
+            if (!sentToBus)
+                bus.post(msg);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        catch (Error e) {
+            e.printStackTrace();
+        }
+        
+        return true;
+    }
+
+    /**
+     * @param info
+     * @param msg
+     * @param vci
+     * @param id
+     * @return
+     * @throws IOException
+     */
+    private SystemImcMsgCommInfo processAnnounceMessage(MessageInfo info, Announce ann, SystemImcMsgCommInfo vci,
+            ImcId16 id) throws IOException {
+        String sia = info.getPublisherInetAddress();
+        InetSocketAddress[] retId = announceWorker.getImcIpsPortsFromMessageImcUdp(ann);
+        int portUdp = 0;
+        String hostUdp = "";
+        boolean udpIpPortFound = false;
+        if (retId.length > 0) {
+            portUdp = retId[0].getPort();
+            hostUdp = retId[0].getAddress().getHostAddress();
+        }
+        for (InetSocketAddress add : retId) {
+            if (sia.equalsIgnoreCase(add.getAddress().getHostAddress())) {
+                portUdp = add.getPort();
+                hostUdp = add.getAddress().getHostAddress();
+                if (add.getAddress().isReachable(10)) {
+                    udpIpPortFound = true;
+                    break;
+                }
+            }
+        }
+        if (!udpIpPortFound) {
+            // Lets try to see if we received a message from any of the IPs
+            String ipReceived = info.getPublisherInetAddress();
+            hostUdp = ipReceived;
+            udpIpPortFound = true;
+        }
+
+        InetSocketAddress[] retIdT = announceWorker.getImcIpsPortsFromMessageImcTcp(ann);
+        int portTcp = 0;
+        boolean tcpIpPortFound = false;
+        if (retIdT.length > 0) {
+            portTcp = retIdT[0].getPort();
+            if ("".equalsIgnoreCase(hostUdp))
+                hostUdp = retIdT[0].getAddress().getHostAddress();
+        }
+        for (InetSocketAddress add : retIdT) {
+            if (sia.equalsIgnoreCase(add.getAddress().getHostAddress())) {
+                portTcp = add.getPort();
+                if ("".equalsIgnoreCase(hostUdp)) {
+                    hostUdp = add.getAddress().getHostAddress();
+                    if (add.getAddress().isReachable(10)) {
+                        tcpIpPortFound = true;
+                        break;
+                    }
+                    else
+                        continue;
+                }
+                tcpIpPortFound = true;
+                break;
+            }
+        }
+
+        boolean requestEntityList = false;
+        if (vci == null) {
+            // Create a new system
+            vci = initSystemCommInfo(id, info.getPublisherInetAddress() + ":"
+                    + (portUdp == 0 ? DEFAULT_UDP_VEH_PORT : portUdp));
+            updateUdpOnIpMapper(vci);
+            requestEntityList = true;
+        }
+        // announceWorker.processAnnouceMessage(msg);
+        String name = ann.getSysName();
+        String type = ann.getSysType().toString();
+        vci.setSystemIdName(name);
+        ImcSystem resSys = ImcSystemsHolder.lookupSystem(id);
+        // System.out.println("......................Announce..." + name + " | " + type + " :: " + hostUdp + "  " +
+        // portUdp);
+        // NeptusLog.pub().warn(ReflectionUtil.getCallerStamp()+ " ..........................| " + name + " | " + type);
+        if (resSys != null) {
+            resSys.setServicesProvided(announceWorker.getImcServicesFromMessage(ann));
+            AnnounceWorker.processUidFromServices(resSys);
+
+            // new 2012-06-23
+            if (resSys.isOnIdErrorState()) {
+                EntitiesResolver.clearAliases(resSys.getName());
+                EntitiesResolver.clearAliases(resSys.getId());
+            }
+
+            resSys.setName(name);
+            resSys.setType(ImcSystem.translateSystemTypeFromMessage(type));
+            resSys.setTypeVehicle(ImcSystem.translateVehicleTypeFromMessage(type));
+            // NeptusLog.pub().info(ReflectionUtil.getCallerStamp()+ " ------------------------| " + resSys.getName() +
+            // " | " + resSys.getType());
+            if (portUdp != 0 && udpIpPortFound) {
+                resSys.setRemoteUDPPort(portUdp);
+            }
+            else {
+                if (resSys.getRemoteUDPPort() == 0)
+                    resSys.setRemoteUDPPort(DEFAULT_UDP_VEH_PORT);
+            }
+            if (!"".equalsIgnoreCase(hostUdp) && !AnnounceWorker.NONE_IP.equalsIgnoreCase(hostUdp)) {
+                if (AnnounceWorker.USE_REMOTE_IP.equalsIgnoreCase(hostUdp)) {
+                    if (dontIgnoreIpSourceRequest)
+                        resSys.setHostAddress(info.getPublisherInetAddress());
+                }
+                else {
+                    if (udpIpPortFound || tcpIpPortFound)
+                        resSys.setHostAddress(hostUdp);
+                }
+            }
+            if (portTcp != 0 && tcpIpPortFound) {
+                resSys.setTCPOn(true);
+                resSys.setRemoteTCPPort(portTcp);
+            }
+            else if (portTcp == 0) {
+                resSys.setTCPOn(false);
+            }
+
+            if (resSys.isTCPOn() && retId.length == 0) {
+                resSys.setUDPOn(false);
+            }
+            else {
+                resSys.setUDPOn(true);
+            }
+
+            resSys.setOnAnnounceState(true);
+
+            try {
+                double latRad = ann.getLat();
+                double lonRad = ann.getLon();
+                double height = ann.getHeight();
+                if (latRad != 0 && lonRad != 0) {
+                    LocationType loc = new LocationType();
+                    loc.setLatitude(Math.toDegrees(latRad));
+                    loc.setLongitude(Math.toDegrees(lonRad));
+                    loc.setHeight(height);
+                    long locTime = (long) (info.getTimeSentSec() * 1000);
+                    resSys.setLocation(loc, locTime);
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            LinkedHashMap<Integer, String> er = EntitiesResolver.getEntities(resSys.getName());
+            if (er == null || er.size() == 0)
+                requestEntityList = true;
+
+            if (requestEntityList)
+                announceWorker.sendEntityListRequestMsg(resSys);
+        }
+        return vci;
+    }
+
+    /**
+     * @return the sentMessagesFreqCalc
+     */
+    public MessageFrequencyCalculator getSentMessagesFreqCalc() {
+        return sentMessagesFreqCalc;
+    }
+
+    public MessageFrequencyCalculator getSentMessagesFreqCalc(ImcId16 id) {
+        SystemImcMsgCommInfo commI = getCommInfoById(id);
+        return commI == null ? null : commI.getSentMessagesFreqCalc();
+    }
+
+    /**
+     * @return the toSentMessagesFreqCalc
+     */
+    public MessageFrequencyCalculator getToSendMessagesFreqCalc() {
+        return toSendMessagesFreqCalc;
+    }
+
+    public MessageFrequencyCalculator getToSendMessagesFreqCalc(ImcId16 id) {
+        SystemImcMsgCommInfo commI = getCommInfoById(id);
+        return commI == null ? null : commI.getToSendMessagesFreqCalc();
+    }
+
+    @Override
+    public boolean sendMessageToVehicle(IMCMessage message, VehicleType vehicle, String sendProperties) {
+        return sendMessage(message, vehicle.getImcId(), sendProperties);
+    }
+
+    public boolean sendMessageToSystem(IMCMessage message, String systemName, MessageDeliveryListener listener) {
+        return sendMessageToSystem(message, systemName, null, listener);
+    }
+
+    public boolean sendMessageToSystem(IMCMessage message, String systemName) {
+        return sendMessageToSystem(message, systemName, null, null);
+    }
+
+    public boolean sendMessageToSystem(IMCMessage message, String systemName, String sendProperties, MessageDeliveryListener listener) {
+        ImcSystem system = ImcSystemsHolder.lookupSystemByName(systemName);
+
+        if (system != null)
+            return sendMessage(message, system.id, sendProperties, listener);
+        return false;
+    }
+
+    @Override
+    public boolean sendMessageToVehicle(IMCMessage message, String vehicleID, String sendProperties) {
+        VehicleType vehicle = VehiclesHolder.getVehicleById(vehicleID);
+        if (vehicle != null)
+            return sendMessage(message, vehicle.getImcId(), sendProperties);
+        else
+            return false;
+    }
+
+    private static final class OperationResult {
+        boolean finished = false;
+        boolean result = false;
+    }
+
+    public boolean sendReliablyBlocking(IMCMessage message, ImcId16 vehicleCommId,
+            final MessageDeliveryListener listener) {
+        final OperationResult ret2 = new OperationResult();
+        boolean ret = sendMessage(message, vehicleCommId, "TCP", new MessageDeliveryListener() {
+            @Override
+            public void deliveryUnreacheable(IMCMessage message) {
+                if (listener != null)
+                    listener.deliveryUnreacheable(message);
+                ret2.result = false;
+                ret2.finished = true;
+            }
+
+            @Override
+            public void deliveryUncertain(IMCMessage message, Object msg) {
+                if (listener != null)
+                    listener.deliveryUncertain(message, msg);
+                ret2.result = false;
+                ret2.finished = true;
+            }
+
+            @Override
+            public void deliveryTimeOut(IMCMessage message) {
+                if (listener != null)
+                    listener.deliveryTimeOut(message);
+                ret2.result = false;
+                ret2.finished = true;
+            }
+
+            @Override
+            public void deliverySuccess(IMCMessage message) {
+                if (listener != null)
+                    listener.deliverySuccess(message);
+                ret2.result = true;
+                ret2.finished = true;
+            }
+
+            @Override
+            public void deliveryError(IMCMessage message, Object error) {
+                if (listener != null)
+                    listener.deliveryError(message, error);
+                ret2.result = false;
+                ret2.finished = true;
+            }
+        });
+        while (!ret2.finished) {
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return ret && ret2.result;
+    }
+
+    /**
+     * @param message
+     * @param vehicleCommId
+     * @param listener
+     */
+    public boolean sendReliablyNonBlocking(IMCMessage message, ImcId16 vehicleCommId, MessageDeliveryListener listener) {
+        return sendMessage(message, vehicleCommId, "TCP", listener);
+    }
+
+    public boolean broadcastToCCUs(IMCMessage message) {
+        ImcSystem[] ccus = ImcSystemsHolder.lookupActiveSystemByType(SystemTypeEnum.CCU);
+        
+        for (ImcSystem ccu : ccus)
+            sendMessage(message, ccu.getId(), null);
+        
+        return ccus.length > 0;
+    }
+    
+    /**
+     * @param message
+     * @return
+     */
+    public boolean sendMessage(IMCMessage message) {
+        try {
+            ImcId16 id = new ImcId16(message.getHeader().getValue("dst"));
+            return sendMessage(message, id, null);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+            return false;
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.up.fe.dceg.neptus.util.comm.manager.CommBaseManager#sendMessage(pt.up.fe.dceg.neptus.messages.IMessage,
+     * java.lang.Object, java.lang.String)
+     */
+    @Override
+    public boolean sendMessage(IMCMessage message, ImcId16 vehicleCommId, String sendProperties) {
+        return sendMessage(message, vehicleCommId, sendProperties, null);
+    }
+
+    /**
+     * @param message The message to send
+     * @param systemCommId The id of the destination.
+     * @param sendProperties The properties to take into consideration when sending the message. This will be a comma
+     *            separated string values. Possible values: Multicast and/or Broadcast (if the message is sent by either
+     *            or both, it exists), and alternatively UDP or TCP (only if the Multicast and/or Broadcast are not
+     *            used).
+     * @param listener If you want to be warn on the send status of the message. Use null if you don't care.
+     * @return Return true if the message went to the transport to be delivered. If you need to know if the message left
+     *         the transport use the listener.
+     */
+    public boolean sendMessage(IMCMessage message, ImcId16 systemCommId, String sendProperties,
+            MessageDeliveryListener msgListener) {
+
+        checkAndSetMessageSrcEntity(message);
+
+        // If manager is stopped we must return error 
+        if (!isRunning()) {
+            if (msgListener != null)
+                msgListener.deliveryError(message, "Manager stopped!");
+            return false;
+        }
+
+        // Lets wrap the possible listener in our internal one for frequency count for to send and sent messages
+        MessageDeliveryListener listener = wrapMessageDeliveryListenerForSentMessageCounter(systemCommId, msgListener);
+
+        // If the destination to send to is null, just send back to the caller an error
+        if (systemCommId == null) {
+            System.err.println("systemCommId is null!");
+            listener.deliveryError(message, new Exception("systemCommId is null!"));
+            return false;
+        }
+
+        // if authority OFF don't send messages to it
+        ImcSystem resSys = ImcSystemsHolder.lookupSystem(systemCommId);
+        if (resSys != null) {
+            if (resSys.getAuthorityState() == ImcSystem.IMCAuthorityState.OFF) {
+                String msg = systemCommId + " is with authority " + resSys.getAuthorityState() + "!";
+                // System.err.println(msg);
+                listener.deliveryError(message, new Exception(msg));
+                return false;
+            }
+        }
+
+        // Lets set header values
+        message.getHeader().setValue("src", localId.longValue());
+        message.getHeader().setValue("dst", systemCommId.longValue());
+        // if (message.getTimestamp() == 0) // For now all messages are timestamped here
+        message.setTimestamp(System.currentTimeMillis() / 1000.0);
+
+//        bus.post(message);
+
+        // Check if is requested to send by Multicast and/or Broadcast, if yes don't send by any other way
+        if (sendProperties != null
+                && (StringUtils.isTokenInList(sendProperties, "Multicast") || StringUtils.isTokenInList(sendProperties,
+                        "Broadcast"))) {
+            boolean sentResult = true;
+            if (StringUtils.isTokenInList(sendProperties, "Multicast")) {
+                try {
+                    for (int port : multicastPorts) {
+                        markMessageToSent(systemCommId);
+                        sentResult = multicastUdpTransport.sendMessage(multicastAddress, port, message, listener);
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                    sentResult = false;
+                    if (listener != null)
+                        listener.deliveryUncertain(message, new Exception("Multicast or broadcast used!"));
+                }
+            }
+            if (StringUtils.isTokenInList(sendProperties, "Broadcast")) {
+                try {
+                    Vector<NInterface> vecList = getNetworkInterfaces(); // NetworkInterfacesUtil.getNetworkInterfaces();
+                    for (int port : multicastPorts) {
+                        // multicastUdpTransport.sendMessage("255.255.255.255", port, message);
+                        for (NInterface nii : vecList) {
+                            if (nii.supportsBroadcast()) {
+                                for (Inet4Address i4a : nii.getBroadcastAddress()) {
+                                    if (i4a != null) {
+                                        markMessageToSent(systemCommId);
+                                        sentResult = multicastUdpTransport.sendMessage(i4a.getHostAddress(), port,
+                                                message, listener);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(ImcMsgManager.class.getName() + ": " + e, e);
+                    sentResult = false;
+                    if (listener != null)
+                        listener.deliveryUncertain(message, new Exception("Multicast or broadcast used!"));
+                }
+            }
+            
+            if (sentResult)
+                logMessage(message);
+
+            return sentResult;
+        }
+
+        
+        // Indicates the transport to use, next we will adjust this value with respect with the available transports, both local and remote
+        ArrayList<TransportPreference> transportChoiceToSend = new ArrayList<>(transportPreferenceToUse);
+
+        // Let us see if it was indicated to send the message through a specific transport
+        TransportPreference transportPreferenceRequested = TransportPreference.ANY;
+        if (sendProperties != null && StringUtils.isTokenInList(sendProperties, "UDP"))
+            transportPreferenceRequested = TransportPreference.UDP;
+        else if (sendProperties != null && StringUtils.isTokenInList(sendProperties, "TCP"))
+            transportPreferenceRequested = TransportPreference.TCP;
+
+//        // Test if we can use the preferred transport, that is if that transport is on locally
+//        if (transportPreference == TransportPreference.UDP && !isUdpOn()) {
+//            if (listener != null)
+//                listener.deliveryError(message, new Exception("UDP not connected!"));
+//            return false;
+//        }
+//        else if (transportPreference == TransportPreference.TCP && !isTcpOn()) {
+//            if (listener != null)
+//                listener.deliveryError(message, new Exception("TCP not connected!"));
+//            return false;
+//        }
+
+        ImcId16 sysId = systemCommId;
+        @SuppressWarnings("unused")
+        SystemImcMsgCommInfo sysComm = commInfo.get(sysId);
+        // if not known try to initialize the comms
+        if (VehiclesHolder.getVehicleWithImc(sysId) != null)
+            initSystemCommInfo(sysId, "");
+
+        // Let us check if the protocol we were asked to send the message to is active on the system
+//        TransportPreference transportAvailableOnDestination = TransportPreference.ANY;
+        ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(systemCommId);
+//        if (transportPreference == TransportPreference.UDP && !imcSystem.isUDPOn()) {
+//            markMessageToSent(systemCommId);
+//            if (listener != null)
+//                listener.deliveryError(message, new Exception("UDP not connected in the system " + imcSystem.getName()
+//                        + "!"));
+//            return false;
+//        }
+//        else if (transportPreference == TransportPreference.TCP && !imcSystem.isTCPOn()) {
+//            markMessageToSent(systemCommId);
+//            if (listener != null)
+//                listener.deliveryError(message, new Exception("TCP not connected in the system " + imcSystem.getName()
+//                        + "!"));
+//            return false;
+//        }
+        if (!imcSystem.isUDPOn() && transportChoiceToSend.contains(TransportPreference.UDP))
+            transportChoiceToSend.remove(TransportPreference.UDP);
+        if (!imcSystem.isTCPOn() && transportChoiceToSend.contains(TransportPreference.TCP))
+            transportChoiceToSend.remove(TransportPreference.TCP);
+        
+        if (transportPreferenceRequested != TransportPreference.ANY) {
+            if (transportChoiceToSend.contains(transportPreferenceRequested)) {
+                transportChoiceToSend.remove(transportPreferenceRequested);
+                transportChoiceToSend.add(0, transportPreferenceRequested);
+            }
+        }
+        
+        boolean sentResult = true;
+
+        // Let us send the message by the preferred transport or the default one on the system by the order UDP, TCP
+        // this depends on the transports available locally and on the system
+        try {
+//            boolean alreadySent = false;
+//
+//            if (isUdpOn()
+//                    && !(isTcpOn() && msgListener != null)
+//                    && (transportPreference == TransportPreference.ANY || transportPreference == TransportPreference.UDP)) {
+//                ImcSystem imcSy = ImcSystemsHolder.lookupSystem(systemCommId);
+//                if (imcSy.isUDPOn()) {
+//                    markMessageToSent(systemCommId);
+//                    boolean ret = getUdpTransport().sendMessage(imcSy.getHostAddress(), imcSy.getRemoteUDPPort(),
+//                            message.cloneMessage(), listener);
+//                    alreadySent = ret;
+//                    sentResult = sentResult && ret;
+//                }
+//            }
+//
+//            if (isTcpOn()
+//                    && !alreadySent
+//                    && (transportPreference == TransportPreference.ANY || transportPreference == TransportPreference.TCP)) {
+//                ImcSystem imcSy = ImcSystemsHolder.lookupSystem(systemCommId);
+//                boolean ret = false;
+//                if (imcSy.isTCPOn()) {
+//                    markMessageToSent(systemCommId);
+//                    ret = getTcpTransport().sendMessage(imcSy.getHostAddress(), imcSy.getRemoteTCPPort(),
+//                            message.cloneMessage(), listener);
+//                }
+//                sentResult = sentResult && ret;
+//            }
+            
+            if (transportChoiceToSend.isEmpty()) {
+                throw new IOException(I18n.textf("No transport available to send message %message to %system.", 
+                        message.getAbbrev(), imcSystem.getName()));
+            }
+            
+            markMessageToSent(systemCommId);
+            for (TransportPreference transport : transportChoiceToSend) {
+                if (transport == TransportPreference.UDP) {
+                    boolean ret = getUdpTransport().sendMessage(imcSystem.getHostAddress(),
+                            imcSystem.getRemoteUDPPort(), message.cloneMessage(), listener);
+                    sentResult = sentResult && ret;
+                    if (ret)
+                        break;
+                }
+                else if (transport == TransportPreference.TCP) {
+                    boolean ret = getTcpTransport().sendMessage(imcSystem.getHostAddress(),
+                            imcSystem.getRemoteTCPPort(), message.cloneMessage(), listener);
+                    sentResult = sentResult && ret;
+                    if (ret)
+                        break;
+                } 
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(this.getClass().getSimpleName() + ": Error sending message!", e);
+
+            if (listener != null)
+                listener.deliveryError(message, e);
+        }
+
+        if (sentResult)
+            logMessage(message);
+
+        return sentResult;
+    }
+
+    /**
+     * @param message
+     */
+    private void checkAndSetMessageSrcEntity(IMCMessage message) {
+        if (message.getSrcEnt() == 0 || message.getSrcEnt() == IMCMessage.DEFAULT_ENTITY_ID) {
+            String caller = getCallerClass();
+
+            if (caller != null) {
+                if (!neptusEntities.containsKey(caller)) {
+                    neptusEntities.put(caller, ++lastEntityId);
+
+                    EntityInfo info = new EntityInfo();
+                    info.setId(lastEntityId);
+                    info.setComponent(caller);
+                    try {
+                        caller = PluginUtils.getPluginName(Class.forName(caller));
+                    }
+                    catch (Exception e) {
+                        // nothing
+                    }
+                    info.setLabel(caller);
+                    info.setSrcEnt(0);
+                    info.setSrc(getLocalId().intValue());
+
+                    // Lets log the EntityInfo message
+                    // LsfMessageLogger.log(info);
+                    NeptusMessageLogger.logMessage(info);
+                }
+
+                if (neptusEntities.get(caller) != null)
+                    message.setSrcEnt(neptusEntities.get(caller));
+            }
+        }
+    }
+
+    protected String getCallerClass() {
+        StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+        String classname = null;
+        for (int i = 0; i < trace.length; i++) {
+            if (!ignoredClasses.contains(trace[i].getClassName())) {
+                classname = trace[i].getClassName();
+                if (classname.contains("$"))
+                    classname = classname.substring(0, classname.indexOf("$"));
+                break;
+            }
+        }
+
+        return classname;
+    }
+
+    /**
+     * To wrap the possible listener in our internal one for frequency count for to send and sent messages.
+     * @param systemCommId
+     * @param listenerToWrap
+     * @return
+     */
+    private MessageDeliveryListener wrapMessageDeliveryListenerForSentMessageCounter(final ImcId16 systemCommId,
+            final MessageDeliveryListener listenerToWrap) {
+        MessageDeliveryListener msgLstnr = new MessageDeliveryListener() {
+
+            @Override
+            public void deliveryError(IMCMessage message, Object error) {
+                if (listenerToWrap != null)
+                    listenerToWrap.deliveryError(message, error);
+            }
+
+            @Override
+            public void deliveryUnreacheable(IMCMessage message) {
+                if (listenerToWrap != null)
+                    listenerToWrap.deliveryUnreacheable(message);
+            }
+
+            @Override
+            public void deliveryTimeOut(IMCMessage message) {
+                if (listenerToWrap != null)
+                    listenerToWrap.deliveryTimeOut(message);
+            }
+
+            @Override
+            public void deliveryUncertain(IMCMessage message, Object msg) {
+                if (listenerToWrap != null)
+                    listenerToWrap.deliveryUncertain(message, msg);
+                
+                markMessageSent(systemCommId);
+            }
+            
+            @Override
+            public void deliverySuccess(IMCMessage message) {
+                if (listenerToWrap != null)
+                    listenerToWrap.deliverySuccess(message);
+
+                markMessageSent(systemCommId);
+            }
+        };
+        
+        return msgLstnr;
+    }
+
+    /**
+     * @param systemCommId
+     */
+    private void markMessageSent(ImcId16 systemCommId) {
+        sentMessagesFreqCalc.setTimeMillisLastMsg(System.currentTimeMillis());
+        MessageFrequencyCalculator mfc = getSentMessagesFreqCalc(systemCommId);
+        if (mfc != null)
+            mfc.setTimeMillisLastMsg(System.currentTimeMillis());
+    }
+
+    /**
+     * @param systemCommId
+     */
+    private void markMessageToSent(ImcId16 systemCommId) {
+        toSendMessagesFreqCalc.setTimeMillisLastMsg(System.currentTimeMillis());
+        MessageFrequencyCalculator mfc = getToSendMessagesFreqCalc(systemCommId);
+        if (mfc != null)
+            mfc.setTimeMillisLastMsg(System.currentTimeMillis());
+    }
+
+    /**
+     * @param message
+     */
+    private void logMessage(IMCMessage message) {
+        if (logSentMsg) {
+            try {
+                // Pass as pub/sub directly the int ID's present on the message
+                // String pub = message.getHeaderValue("src").toString();
+                // String sub = message.getHeaderValue("dst").toString();
+                // LLFMessageLogger.logMessage(info, msg);
+                // NeptusMessageLogger.logMessage(pub, sub, message.getTimestampMillis(), message);
+                NeptusMessageLogger.logMessage(message);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error("Error logging message " + message.getMessageType().getShortName() + "!", e);
+            }
+        }
+    }
+
+    public boolean registerEntity() {
+        String caller = getCallerClass();
+
+        if (caller != null) {
+            if (!neptusEntities.containsKey(caller)) {
+                neptusEntities.put(caller, ++lastEntityId);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param listener
+     * @param vehicleId
+     * @return
+     */
+    public boolean addListener(MessageListener<MessageInfo, IMCMessage> listener, String vehicleId) {
+        return addListener(listener, vehicleId, null);
+    }
+
+    /**
+     * @param listener
+     * @param systemId
+     * @param filter
+     * @return
+     */
+    public boolean addListener(MessageListener<MessageInfo, IMCMessage> listener, String systemId,
+            MessageFilter<MessageInfo, IMCMessage> filter) {
+
+        ImcId16 imcId;
+
+        VehicleType veh = VehiclesHolder.getVehicleById(systemId);
+        if (veh == null) {
+            ImcSystem sys = ImcSystemsHolder.lookupSystemByName(systemId);
+            if (sys == null)
+                return false;
+            else
+                imcId = sys.getId();
+        }
+        else {
+            imcId = veh.getImcId();
+        }
+
+        if (imcId == null)
+            return false;
+        return super.addListener(listener, imcId, filter);
+    }
+
+    /**
+     * @param listener
+     * @param systemId
+     * @return
+     */
+    public boolean removeListener(MessageListener<MessageInfo, IMCMessage> listener, String systemId) {
+        ImcId16 imcId;
+
+        VehicleType veh = VehiclesHolder.getVehicleById(systemId);
+        if (veh == null) {
+            ImcSystem sys = ImcSystemsHolder.lookupSystemByName(systemId);
+            if (sys == null)
+                return false;
+            else
+                imcId = sys.getId();
+        }
+        else {
+            imcId = veh.getImcId();
+        }
+
+        if (imcId == null)
+            return false;
+
+        return super.removeListener(listener, imcId);
+    }
+
+    public ImcSysState getState(ImcId16 id) {
+        return super.getCommInfoById(id).getImcState();
+    }
+
+    public ImcSysState getState(VehicleType vehicle) {
+        if (vehicle != null)
+            return getState(vehicle.getImcId());
+        else
+            return new ImcSysState();
+    }
+
+    public ImcSysState getState(String vehicle) {
+        return getState(VehiclesHolder.getVehicleById(vehicle));
+    }
+
+    /**
+     * @param vehicleId
+     * @return
+     */
+    public SystemImcMsgCommInfo getCommInfoById(String vehicleId) {
+        ImcId16 imcId;
+
+        VehicleType veh = VehiclesHolder.getVehicleById(vehicleId);
+        if (veh == null) {
+            ImcSystem sys = ImcSystemsHolder.lookupSystemByName(vehicleId);
+            if (sys == null)
+                return null;
+            else
+                imcId = sys.getId();
+        }
+        else {
+            imcId = veh.getImcId();
+        }
+
+        if (imcId == null)
+            return null;
+        return super.getCommInfoById(imcId);
+    }
+
+    /**
+     * @return
+     */
+    public ImcId16 getLocalId() {
+        return localId;
+    }
+
+    /**
+     * @return
+     */
+    public String getCommStatusAsHtmlFragment() {
+        String ret = "";
+        ret += "<b>" + (isRunning() ? "On" : "Off") + "</b><br>";
+        ret += "<b>UDP: </b>"
+                + (udpTransport == null ? "Off" : (!udpTransport.isOnBindError() ? "OK" : "BIND ERROR") + " "
+                        + (udpTransport.isRunnning() ? "On" : "Off") + " @" + udpTransport.getBindPort()) + "<br>";
+        ret += "<b>Multicast UDP: </b>"
+                + (multicastUdpTransport == null ? "Off" : (!multicastUdpTransport.isOnBindError() ? "OK"
+                        : "BIND ERROR")
+                        + " "
+                        + (multicastUdpTransport.isRunnning() ? "On" : "Off")
+                        + " @"
+                        + multicastUdpTransport.getMulticastAddress() + ":" + multicastUdpTransport.getBindPort())
+                + "<br>";
+        long nc = getTcpTransport() != null ? getTcpTransport().getActiveNumberOfConnections() : 0;
+        ret += "<b>TCP: </b>"
+                + (tcpTransport == null ? "Off" : (!tcpTransport.isOnBindError() ? "OK" : "BIND ERROR") + " "
+                        + (tcpTransport.isRunning() ? (tcpTransport.isRunningNormally() ? "On" : "On:Error") : "Off")
+                        + " @" + tcpTransport.getBindPort()
+                        + (tcpTransport.isRunning() ? " (" + nc + " connection" + (nc == 1 ? "" : "s") + ")" : ""))
+                + "<br>";
+
+        return ret;
+    }
+
+    /**
+     * @return the bus
+     */
+    private final AsyncEventBus getMessageBus() {
+        return bus;
+    }
+
+    public final ImcSysState getImcState() {
+        return imcState;
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        ConfigFetch.initialize();
+        VehiclesHolder.loadVehicles();
+        getManager().start();
+
+        GuiUtils.setLookAndFeel();
+        JFrame frame = GuiUtils.testFrame(new MonitorIMCComms(getManager()), "Monitor IMC Comms");
+        frame.setIconImage(MonitorIMCComms.ICON_ON.getImage());
+        frame.setSize(396, 411 + 55);
+
+        ImcSystem lsys = new ImcSystem(new ImcId16(0x4d15));
+        lsys.setCommsInfo(ImcSystem.createCommMean("127.0.0.1", 6002, 6002, new ImcId16(0x4d15), true, true));
+        ImcSystemsHolder.registerSystem(lsys);
+
+        int portServer = 6002;
+        ImcTcpTransport tcpT = new ImcTcpTransport(portServer, IMCDefinition.getInstance());
+        tcpT.addListener(new MessageListener<MessageInfo, IMCMessage>() {
+            @Override
+            public void onMessage(MessageInfo info, IMCMessage msg) {
+                info.dump(System.out);
+                msg.dump(System.out);
+                System.out.flush();
+            }
+        });
+
+        for (int i = 0; true; i++) {
+            System.err.println("HB " + i);
+            boolean ret = getManager().sendReliablyBlocking(IMCDefinition.getInstance().create("Heartbeat"),
+                    new ImcId16(0x4d15), new MessageDeliveryListener() {
+                        @Override
+                        public void deliveryUnreacheable(IMCMessage message) {
+                            System.err.println("deliveryUnreacheable");
+                        }
+
+                        @Override
+                        public void deliveryUncertain(IMCMessage message, Object msg) {
+                            System.err.println("deliveryUncertain  " + msg);
+                        }
+
+                        @Override
+                        public void deliveryTimeOut(IMCMessage message) {
+                            System.err.println("deliveryTimeOut");
+                        }
+
+                        @Override
+                        public void deliverySuccess(IMCMessage message) {
+                            System.err.println("deliverySuccess");
+                        }
+
+                        @Override
+                        public void deliveryError(IMCMessage message, Object error) {
+                            System.err.println("deliveryError  " + error);
+                        }
+                    });
+            System.err.println(ret);
+            // getManager().sendMessage(imcDefinition.create("Abort"), new ImcId16(0x4d15), null);
+            try {
+                Thread.sleep(1500);
+            }
+            catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+}

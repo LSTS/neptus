@@ -1,0 +1,109 @@
+#############################################################################
+# Copyright (c) 2004-2013 Laborat�rio de Sistemas e Tecnologia Subaqu�tica  #
+# Departamento de Engenharia Electrot�cnica e de Computadores               #
+# Rua Dr. Roberto Frias, 4200-465 Porto, Portugal                           #
+#############################################################################
+# Author: Jos� Pinto                                                        #
+#############################################################################
+# $Id:: NeptusLauncher.nsi 9703 2013-01-13 20:23:21Z pdias                $:#
+#############################################################################
+# This script is the NSIS script for neptus.exe launcher for Windows        #
+#############################################################################
+
+# FUNCTIONS
+
+Function GetExePath
+	!define GetExePath `!insertmacro GetExePathCall`
+ 
+	!macro GetExePathCall _RESULT
+		Call GetExePath
+		Pop ${_RESULT}
+	!macroend
+ 
+	Push $0
+	Push $1
+	Push $2
+	StrCpy $0 $EXEDIR
+	System::Call 'kernel32::GetLongPathNameA(t r0, t .r1, i 1024)i .r2'
+	StrCmp $2 error +2
+	StrCpy $0 $1
+	Pop $2
+	Pop $1
+	Exch $0
+FunctionEnd
+
+
+ ; GetParameters
+ ; input, none
+ ; output, top of stack (replaces, with e.g. whatever)
+ ; modifies no other variables.
+ 
+Function GetParameters
+ 
+  Push $R0
+  Push $R1
+  Push $R2
+  Push $R3
+  
+  StrCpy $R2 1
+  StrLen $R3 $CMDLINE
+  
+  ;Check for quote or space
+  StrCpy $R0 $CMDLINE $R2
+  StrCmp $R0 '"' 0 +3
+    StrCpy $R1 '"'
+    Goto loop
+  StrCpy $R1 " "
+  
+  loop:
+    IntOp $R2 $R2 + 1
+    StrCpy $R0 $CMDLINE 1 $R2
+    StrCmp $R0 $R1 get
+    StrCmp $R2 $R3 get
+    Goto loop
+  
+  get:
+    IntOp $R2 $R2 + 1
+    StrCpy $R0 $CMDLINE 1 $R2
+    StrCmp $R0 " " get
+    StrCpy $R0 $CMDLINE "" $R2
+  
+  Pop $R3
+  Pop $R2
+  Pop $R1
+  Exch $R0
+ 
+FunctionEnd
+
+RequestExecutionLevel user
+
+# Silent mode
+SilentInstall silent
+
+# Defines
+!define REGKEY "SOFTWARE\$(^Name)"
+!define COMPANY "LSTS - FEUP"
+!define URL http://whale.fe.up.pt
+
+# EXE Properties
+Name "Neptus"
+outFile "..\..\neptus.exe"
+icon "..\static_files\icons\neptus.ico"
+
+# Main Section
+section
+	# The exe path is now on var $exepath
+	var /GLOBAL exepath1
+	${GetExePath} $exepath1
+	
+	Call GetParameters
+	Pop $0
+	
+	SetOutPath $exepath1
+	Exec "neptus.bat $0"
+	
+	;messageBox MB_OK "$exepath\neptus.bat $0"
+	
+sectionEnd
+
+

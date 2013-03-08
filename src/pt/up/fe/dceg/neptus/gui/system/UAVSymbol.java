@@ -1,0 +1,115 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by pdias
+ * 2010/05/28
+ * $Id:: UAVSymbol.java 9615 2012-12-30 23:08:28Z pdias                         $:
+ */
+package pt.up.fe.dceg.neptus.gui.system;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.RoundRectangle2D;
+
+import org.jdesktop.swingx.JXPanel;
+
+import pt.up.fe.dceg.neptus.util.GuiUtils;
+
+/**
+ * @author pdias
+ *
+ */
+@SuppressWarnings("serial")
+public class UAVSymbol extends SymbolLabel {
+
+	/* (non-Javadoc)
+	 * @see pt.up.fe.dceg.neptus.gui.system.SymbolLabel#initialize()
+	 */
+	@Override
+	protected void initialize() {
+		active = true;
+		setSize(10, 10);
+		setPreferredSize(new Dimension(10, 10));
+		super.initialize();
+		blinkOnChange = false;
+	}
+	
+	/* (non-Javadoc)
+	 * @see pt.up.fe.dceg.neptus.gui.system.SymbolLabel#paint(java.awt.Graphics2D, org.jdesktop.swingx.JXPanel, int, int)
+	 */
+	@Override
+	public void paint(Graphics2D g, JXPanel c, int width, int height) {
+		Graphics2D g2 = (Graphics2D)g.create();
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2.scale(width/10.0, height/10.0);
+		
+		RoundRectangle2D rect = new RoundRectangle2D.Double(0,0,10,10, 0,0);
+		g2.setColor(new Color(0,0,0,0));
+		g2.fill(rect);
+		
+		if (isActive()) {
+//			g2.translate(5, 2.7);
+//			GeneralPath sp = new GeneralPath();
+//			sp.moveTo(0, 0);
+//			sp.lineTo(-3, 4);
+//			sp.lineTo(0, 2.8);
+//			sp.lineTo(3, 4);
+//			sp.closePath();
+
+		    GeneralPath sp = new GeneralPath();
+		    g2.translate(5, 5);
+            g2.scale(0.5, 0.5);
+            int width1 = 20, height1 = width1 / 2;
+//          double sc = width1 / 20.0;
+            sp.moveTo(width1 / 4, height1 / 3);
+
+            // plane's nose
+            sp.lineTo(width1 / 4, height1 / 3);
+            sp.curveTo(width1 / 2 + 1, height1 / 3, width1 / 2 + 1, -height1 / 8, width1 / 4, -height1 / 8);
+            // plane's wing
+            sp.lineTo(width1 / 4 - 2, -height1 / 8);
+            sp.lineTo(width1 / 4 - 6, -height1 / 8 - 6);
+            sp.lineTo(width1 / 4 - 8, -height1 / 8 - 6);
+            sp.lineTo(width1 / 4 - 8, -height1 / 8);
+            // plane's tail
+            sp.lineTo(-width1 / 4 - 1, -height1 / 8);
+            sp.lineTo(-width1 * 5 / 12, -height1 / 2);
+            sp.lineTo(-width1 / 2, -height1 / 2);
+            sp.lineTo(-width1 / 2, 0);
+            sp.lineTo(-width1 / 4, height1 / 3);
+            sp.closePath();
+
+			g2.setColor(getActiveColor());
+			g2.fill(sp);
+			g2.draw(sp);
+		}
+	}
+	
+	public static void main(String[] args) {
+		UAVSymbol symb1 = new UAVSymbol();
+		symb1.setActive(true);
+		symb1.setSize(50, 50);
+		JXPanel panel = new JXPanel();
+		panel.setBackground(Color.BLACK);
+		panel.setLayout(new BorderLayout());
+		panel.add(symb1, BorderLayout.CENTER);
+		GuiUtils.testFrame(panel,"",400,400);
+		
+		try {Thread.sleep(5000);} catch (Exception e) {}
+		symb1.blink(true);
+		try {Thread.sleep(5000);} catch (Exception e) {}
+		symb1.blink(false);
+
+	}
+
+}

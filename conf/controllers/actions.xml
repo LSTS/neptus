@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<systems> 
+  <system name="lauv-seacon-1"> 
+    <controller name="Generic X-Box pad"> 
+      <entry component="Y" action="Exit"/>  
+      <entry component="X" action="Accelerate"/>  
+      <entry component="A" action="Decelerate"/>  
+      <entry component="B" action="Stop"/>  
+      <entry component="rx" action="Heading"/>  
+      <entry component="ry" action="Thrust"/> 
+    </controller>  
+    <controller name="Generic X-Box pad">
+      <entry component="Y" action="Exit"/>
+      <entry component="X" action="Accelerate"/>
+      <entry component="A" action="Decelerate"/>
+      <entry component="B" action="Stop"/>
+      <entry component="ry" action="Heading"/>
+      <entry component="rx" action="Thrust"/>
+    </controller>
+  </system> 
+</systems>

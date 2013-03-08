@@ -1,0 +1,1067 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by Paulo Dias
+ * 2010/05/01
+ * $Id:: TCPTransport.java 9615 2012-12-30 23:08:28Z pdias                      $:
+ */
+package pt.up.fe.dceg.neptus.util.comm.transports.tcp;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.NoRouteToHostException;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Vector;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.imc.IMCDefinition;
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
+import pt.up.fe.dceg.neptus.util.ByteUtil;
+import pt.up.fe.dceg.neptus.util.comm.transports.DeliveryListener;
+import pt.up.fe.dceg.neptus.util.comm.transports.DeliveryListener.ResultEnum;
+import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import vrml.eai.ConnectionException;
+
+/**
+ * @author pdias
+ *
+ */
+public class TCPTransport {
+
+	protected LinkedHashSet<TCPMessageListener> listeners = new LinkedHashSet<TCPMessageListener>();
+	
+	private LinkedBlockingQueue<TCPNotification> receptionMessageList = new LinkedBlockingQueue<TCPNotification>();
+	private LinkedBlockingQueue<TCPNotification> sendmessageList = new LinkedBlockingQueue<TCPNotification>();
+	
+	private Thread sockedListenerThread = null;
+	private Thread dispacherThread = null;
+	private Thread senderThread = null;
+	
+	
+	private LinkedHashMap<String, InetAddress> solvedAddresses = new LinkedHashMap<String, InetAddress>();
+
+	private int bindPort = 7011;
+
+    private int timeoutMillis = 5000;
+	private int timeoutSelectorsMillis = 100;
+	private int maxBufferSize = 65506;
+
+	private boolean purging = false;
+
+	
+	/**
+	 * Server channel for "select" operation.
+	 */
+	private ServerSocketChannel serverCh;
+
+	/**
+	 * Selector for "select" operation.
+	 */
+	private Selector selector;
+
+	/**
+	 * List of client SocketChannel handles.
+	 */
+	private final Vector<SocketChannel> clients = new Vector<SocketChannel>();
+
+	private boolean isOnBindError = false;
+
+	/**
+	 * 
+	 */
+	public TCPTransport() {
+		initialize();
+	}
+
+	public TCPTransport(int bindPort) {
+		setBindPort(bindPort);
+		initialize();
+	}
+
+	
+	/**
+	 * 
+	 */
+	private void initialize() {
+		serverCh = null;
+		selector = null;
+		createReceivers();
+		createSenders();
+	}
+	
+	/**
+     * 
+     */
+    private void createSenders() {
+        getSenderThread();
+    }
+
+    private void createReceivers() {
+//		setOnBindError(false);
+		getSockedListenerThread();
+		getDispacherThread();
+	}
+
+
+	public boolean reStart() {
+		if (isConnected())
+			return false;
+		purging = false;
+		initialize();
+		return true;
+	}
+	
+	   /**
+     * @param multicastAddress
+     * @return
+     */
+    protected InetAddress resolveAddress(String multicastAddress)
+            throws UnknownHostException {
+        if (!solvedAddresses.containsKey(multicastAddress)) {
+            solvedAddresses.put(multicastAddress, InetAddress
+                    .getByName(multicastAddress));
+        }
+        return solvedAddresses.get(multicastAddress);
+    }
+
+
+	/**
+	 * Interrupts all the sending threads abruptly.
+	 * @see {@link #purge()}
+	 */
+	public void stop() {
+		if (isConnected()) {
+			purging = true;
+			
+			if (sockedListenerThread != null) {
+				sockedListenerThread.interrupt();
+				sockedListenerThread = null;
+			}
+			synchronized (receptionMessageList) {
+				receptionMessageList.clear();
+			}
+			if (dispacherThread != null) {
+				dispacherThread.interrupt();
+				dispacherThread = null;
+			}
+            if (senderThread != null) {
+                senderThread.interrupt();
+                senderThread = null;
+            }
+			
+//			int size = senderThreads.size();
+//			for (int i = 0; i < size; i++) {
+//				senderThreads.get(0).interrupt();
+//				senderThreads.remove(0); //shifts the right elements to the left 
+//			}
+            
+            Vector<TCPNotification> toClearSen = new Vector<TCPNotification>();
+            sendmessageList.drainTo(toClearSen);
+            for (TCPNotification req : toClearSen) {
+                informDeliveryListener(req, ResultEnum.Error, new Exception("Server shutdown!!"));
+            }
+		}
+	}
+
+   /**
+     * Stops accepting new messages but waits until all the buffered 
+     * messages are sent to the network before stopping the sending thread(s).
+     */
+    public void purge() {
+        purging = true;
+        while (!receptionMessageList.isEmpty() || !sendmessageList.isEmpty()) {
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        stop();
+    }
+
+    /**
+     * @param host
+     * @param port
+     * @return
+     */
+    private SocketChannel getEstablishedConnectionOrConnect (String host, int port) {
+        SocketChannel channel = getEstablishedConnection(host, port);
+        if (channel == null) {
+            try {
+                channel = createAndConnectSocketChannel(new InetSocketAddress(resolveAddress(host), port));
+            }
+            catch (UnknownHostException e) {
+                channel = createAndConnectSocketChannel(new InetSocketAddress(host, port));
+            }
+            if (channel != null) {
+                synchronized (clients) {
+                    clients.add(channel);                    
+                }
+            }
+        }
+        return channel;
+    }
+    
+
+    /**
+     * @param host
+     * @param port
+     * @return
+     */
+    private SocketChannel getEstablishedConnection(String host, int port) {
+        SocketChannel channel = null;
+        synchronized (clients) {
+            for (SocketChannel channelTmp : clients) {
+                try {
+//                    System.out.println(resolveAddress(host) +"  " +port + "   " +channelTmp.socket().getInetAddress() + " " + channelTmp.socket().getPort());
+                    if (resolveAddress(host).toString().equalsIgnoreCase(channelTmp.socket().getInetAddress().toString())
+                            && port == channelTmp.socket().getPort()) {
+                        channel = channelTmp;
+                        break;
+                    }
+                }
+                catch (UnknownHostException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+//        if (channel != null) System.out.println(host +"@" +port + "   " + channel + "   " + channel.socket().getInetAddress());
+        return channel;
+    }
+
+    /**
+     * @param host
+     * @param port
+     * @return
+     */
+    public boolean connectIfNotConnected (String host, int port) {
+        return getEstablishedConnectionOrConnect(host, port) != null ? true : false;
+    }
+    
+    /**
+     * @param host
+     * @param port
+     * @return
+     */
+    public boolean isConnectionEstablished(String host, int port) {
+        SocketChannel channel = getEstablishedConnection(host, port);
+        if (channel == null)
+            return false;
+        else
+            return true;
+    }
+	    
+	/**
+	 * @return the bindPort
+	 */
+	public int getBindPort() {
+		return bindPort;
+	}
+	
+	/**
+	 * @param bindPort the bindPort to set
+	 */
+	public void setBindPort(int bindPort) {
+		this.bindPort = bindPort;
+	}
+	
+	
+	protected void connect() {
+		try {
+			serverCh = ServerSocketChannel.open();
+			selector = Selector.open();
+			serverCh.configureBlocking(false);
+			serverCh.socket().setSoTimeout(timeoutMillis);
+			serverCh.socket().setReuseAddress(true);
+			serverCh.socket().bind(new InetSocketAddress(getBindPort()));
+			serverCh.register(selector, SelectionKey.OP_ACCEPT);
+            isOnBindError = false;
+		}
+		catch (Exception e) {
+		    if (e instanceof IOException)
+		        isOnBindError = true;
+			if (serverCh != null)
+				disconnect();
+		}
+	}
+
+	/**
+	 * @param address
+	 * @return
+	 */
+	private SocketChannel createAndConnectSocketChannel(InetSocketAddress address) {
+	    try {
+	        SocketChannel channel = SocketChannel.open();
+            channel.socket().setSoTimeout(timeoutMillis);
+            try {
+                channel.socket().setKeepAlive(true);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+	        channel.configureBlocking(false);
+	        channel.connect(address);
+//	        boolean connect = channel.connect(address);
+//	        if (!connect)
+//	            return null;
+	        while (!channel.finishConnect()) {
+	            try { Thread.sleep(10); } catch (InterruptedException e1) { }
+	        }
+            selector.wakeup();
+//	        System.out.println("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
+	        channel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+//	        System.out.println("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
+	        return channel;
+	    }
+	    catch (Exception e) {
+	        if (e instanceof NoRouteToHostException || e instanceof ConnectException) {
+//	            System.err.print(e.toString() + ": " + address + "  ");
+//	            System.err.flush();
+	            NeptusLog.pub().warn(e.toString() + ": " + address);
+	        }
+	        else
+	            NeptusLog.pub().error(e);
+	        return null;
+	    }
+	}
+
+	private boolean checkConnected() {
+		return isConnected();
+	}
+
+	
+	/**
+	 * Disconnect and close the TCP server socket.
+	 * 
+	 * @throws ConnectionException
+	 *             if a network error occurs
+	 */
+	protected void disconnect() {
+		isConnected();
+		try {
+			if (selector != null)
+				selector.close();
+            synchronized (clients) {
+                for (SocketChannel channel : clients) {
+                    try {
+                        channel.close();
+                        // safelyAlertAndCloseChannelToListeners(channel);
+                    }
+                    catch (IOException e) {
+                        // Ignore error when closing client socket
+                    }
+                }
+            }
+			serverCh.close();
+		} catch (Exception e) {
+			// Ignore
+//		    e.printStackTrace();
+//		    System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		    NeptusLog.pub().error(e);
+		}
+		serverCh = null;
+		selector = null;
+		synchronized (clients) {
+		    clients.clear();
+		}
+		purging = true;
+	}
+
+//	private void safelyAlertAndCloseChannelToListeners(SocketChannel channel) {
+//        System.err.println("111111111111111111");
+//	    InetAddress dd = channel.socket().getInetAddress();
+//        System.err.println("222222222222222222");
+//        int pp = channel.socket().getPort();
+//        System.err.println("333333333333333333");
+//        TCPNotification info = new TCPNotification(
+//                TCPNotification.RECEPTION,
+//                new InetSocketAddress(dd,
+//                        pp), true,
+//                System.currentTimeMillis());
+//        System.err.println("444444444444444444 "+clients.size());
+//        //clients.remove(channel);
+//        System.err.println("555555555555555555 "+clients.remove(channel));
+//        try {
+//            channel.close();
+//        }
+//        catch (IOException e) {
+//         // Ignore error when closing client socket
+////            e.printStackTrace();
+//        }
+//        System.err.println("666666666666666666");
+//        receptionMessageList.offer(info);
+//        System.err.println("777777777777777777");
+//    }
+
+	
+	/**
+	 * @return 
+	 * 
+	 */
+	private boolean isConnected() {
+		if (serverCh == null && sockedListenerThread == null
+				&& dispacherThread == null)
+			return false;
+		return true;
+	}
+
+	   /**
+     * @return
+     */
+    public boolean isRunning() {
+        return isConnected();
+    }
+
+    /**
+     * @return
+     */
+    public boolean isRunningNormally() {
+        if (isOnBindError())
+            return false;
+        if (serverCh == null || sockedListenerThread == null
+                || dispacherThread == null)
+            return false;
+
+        return true;
+    }
+
+	
+	/**
+     * @return the isOnBindError
+     */
+    public boolean isOnBindError() {
+        return isOnBindError;
+    }
+	
+	/**
+	 * @param listener
+	 * @return
+	 */
+	public boolean addListener(TCPMessageListener listener) {
+		synchronized (listeners) {
+			boolean ret = listeners.add(listener);
+			return ret;
+		}
+	}
+
+	/**
+	 * @param listener
+	 * @return
+	 */
+	public boolean removeListener(
+			TCPMessageListener listener) {
+		synchronized (listeners) {
+			boolean ret = listeners.remove(listener);
+			return ret;
+		}
+	}
+	
+	
+	private Thread getSockedListenerThread() {
+		if (sockedListenerThread == null) {
+			Thread listenerThread = new Thread(TCPTransport.class.getSimpleName() + ": Listener Thread " + this.hashCode()) {			
+				byte[] sBuffer = new byte[maxBufferSize];
+				
+				public synchronized void start() {
+					NeptusLog.pub().info("Listener Thread Started");
+					try {
+						connect();
+					} catch (Exception e) {
+						NeptusLog.pub().error(e);
+						//setOnBindError(true);
+						return;
+					}
+					super.start();			
+				}
+				
+				public void run() {
+					try {
+					    long time = System.currentTimeMillis();
+					    long previousConnectedClients = -1;
+						while (!purging) {
+							checkConnected();
+							int lengthReceived = 0;
+							try {
+							    if (System.currentTimeMillis() - time > 10000 && previousConnectedClients != clients.size()) {
+							        //System.out.println(getBindPort() + " clients " + clients.size());
+                                    NeptusLog.pub().warn(TCPTransport.class.getSimpleName()
+                                            + ": Listener Thread " + getBindPort() + " now " + clients.size()
+                                            + " clients");
+							        time = System.currentTimeMillis();
+							        previousConnectedClients = clients.size();
+							    }
+							    
+							    // To clear and detect closed channels
+							    synchronized (clients) {
+							        for (SocketChannel channel : clients.toArray(new SocketChannel[0])) {
+                                        if (!channel.isOpen()) {
+                                            channel.close();
+                                            clients.remove(channel);
+                                        }
+                                        else {
+    							            try {
+    							                Object obj = channel.keyFor(selector).attachment();
+    							                if (obj != null) {
+    
+    							                    long lastTime = (Long) obj;
+    							                    if (System.currentTimeMillis() - lastTime > 20000) {
+    							                        channel.close();
+    							                        channel.keyFor(selector).cancel();
+//    							                        System.out.println("CLEAN  ...........................................");
+    							                    }
+    							                }
+    							            }
+    							            catch (Exception e) {
+    							                e.printStackTrace();
+    							            }
+                                        }
+//	                                    System.out.println(channel.socket() + "  c " + channel.socket().isConnected() + "  " + channel.isOpen() + "    " + channel.isConnected());
+							        }
+							    }
+							    
+								if (selector.select(timeoutSelectorsMillis) == 0)
+									continue;
+								
+								Iterator<SelectionKey> it = selector.selectedKeys().iterator();
+								while (it.hasNext()) {
+									SelectionKey key = it.next();
+									it.remove();
+									if (!key.isValid()) {
+										if (key.channel() instanceof SocketChannel) {
+											key.channel().close();
+											synchronized (clients) {
+											    clients.remove(key.channel());
+											}
+										}
+									}
+									else if ((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT) {
+										// New client connection
+										SocketChannel channel = serverCh.accept();
+										if (channel == null)
+											continue;
+										channel.configureBlocking(false);
+										channel.socket().setSoTimeout(timeoutMillis);
+										try {
+                                            channel.socket().setKeepAlive(true);
+                                        }
+                                        catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+										channel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+//										InetAddress dd = channel.socket().getInetAddress();
+//										int pp = channel.socket().getPort();
+//										System.out.println(getBindPort()+"======== " + dd.getHostAddress() + "@" + pp);
+                                        key.attach(System.currentTimeMillis());
+										synchronized (clients) {
+										    clients.add(channel);
+										}
+									}
+									else if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ) {
+										// Data available
+										SocketChannel channel = (SocketChannel) key.channel();
+										InetAddress dd = channel.socket().getInetAddress();
+										int pp = channel.socket().getPort();
+										TCPNotification info;
+										try {
+											lengthReceived = channel.read(ByteBuffer.wrap(sBuffer, 0, sBuffer.length));
+											
+											if (lengthReceived != -1) {
+												byte[] recBytes = Arrays.copyOf(sBuffer, lengthReceived);
+                                                info = new TCPNotification(TCPNotification.RECEPTION,
+                                                        new InetSocketAddress(dd, pp), recBytes,
+                                                        System.currentTimeMillis());
+											}
+											else {
+                                                info = new TCPNotification(TCPNotification.RECEPTION,
+                                                        new InetSocketAddress(dd, pp), true, System.currentTimeMillis());
+												synchronized (clients) {
+												    clients.remove(channel);
+												}
+												channel.close();
+											}
+											receptionMessageList.offer(info);
+		                                    //System.out.println(">>> Channel: "+channel+ " READ " + lengthReceived + "B");
+                                            NeptusLog.pub().debug(TCPTransport.class.getSimpleName()
+                                                    + ": Listener Thread " + ">>> Channel: " + channel + " READ "
+                                                    + lengthReceived + "B");
+										} catch (IOException e) {
+										    synchronized (clients) {
+										        clients.remove(channel);
+										    }
+//											System.err.println("Lost touch with " + channel
+//													+ " -> " + e.getMessage());
+                                            NeptusLog.pub().info(TCPTransport.class.getSimpleName()
+                                                    + ": Listener Thread " + "Lost touch with " + channel + " -> "
+                                                    + e.getMessage());
+                                            channel.close();
+                                            info = new TCPNotification(TCPNotification.RECEPTION,
+                                                    new InetSocketAddress(dd, pp), true, System.currentTimeMillis());
+											receptionMessageList.offer(info);
+										}
+                                        key.attach(System.currentTimeMillis());
+									}
+                                    else if ((key.readyOps() & SelectionKey.OP_WRITE) == SelectionKey.OP_WRITE) {
+                                        try {
+                                            boolean sendAck = true;
+                                            Object obj = key.attachment();
+                                            if (obj != null) {
+                                                try {
+                                                    long lastTime = (Long) obj;
+                                                    if (System.currentTimeMillis() - lastTime < 2000) {
+                                                        sendAck = false;
+                                                    }
+                                                }
+                                                catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                            if (sendAck) {
+//                                                System.out.println("WRITE  ...........................................");
+                                                SocketChannel channel = (SocketChannel) key.channel();
+                                                ByteBuffer bf = ByteBuffer.wrap(new byte[] { (byte) 0xFFFF });
+//                                                System.out.println("WRITE  " + channel.write(bf));
+                                                channel.write(bf);
+                                                key.attach(System.currentTimeMillis());
+                                            }
+                                        }
+                                        catch (IOException e) {
+                                            SocketChannel channel = (SocketChannel) key.channel();
+                                            channel.close();
+                                            key.cancel();
+                                        }
+                                    }
+									try { Thread.sleep(10); } catch (Exception e) { }
+								}
+							} 
+							catch (IOException e) {
+		                        NeptusLog.pub().error(e);
+							}
+						}
+					}
+					catch (Exception e) {
+						NeptusLog.pub().error(e);
+						e.printStackTrace();
+						//NeptusLog.pub().warn(this+" Thread interrupted");
+					}
+					NeptusLog.pub().warn(this + " Thread Stopped");
+					disconnect();
+				}
+				
+			};
+			listenerThread.setPriority(Thread.MIN_PRIORITY);
+			listenerThread.setDaemon(true);
+			listenerThread.start();
+			sockedListenerThread = listenerThread;
+		}
+		return sockedListenerThread;
+	}
+
+	
+	private Thread getDispacherThread() {
+		if (dispacherThread == null) {
+			Thread listenerThread = new Thread(TCPTransport.class.getSimpleName() + ": Dispacher Thread " + this.hashCode()) {			
+				public synchronized void start() {
+					NeptusLog.pub().info("Dispacher Thread Started");
+					super.start();				
+				}
+				
+				public void run() {
+					try {
+						while (!(purging && receptionMessageList.isEmpty())) {
+//							TCPNotification req = receptionMessageList.take();
+							TCPNotification req = receptionMessageList.poll(1, TimeUnit.SECONDS);
+                            if (req == null)
+                                continue;
+							for (TCPMessageListener lst : listeners) {
+								try {
+//								    ByteUtil.dumpAsHex("" + req.getAddress(), req.getBuffer(), System.out);
+									lst.onTCPMessageNotification(req);
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+								catch (Error e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					}
+					catch (InterruptedException e) {
+						//e.printStackTrace();
+						NeptusLog.pub().warn(this + " Thread interrupted");
+					}
+					
+					NeptusLog.pub().info(this + " Thread Stopped");
+				}
+			};
+			listenerThread.setPriority(Thread.MIN_PRIORITY+1);
+			listenerThread.setDaemon(true);
+			listenerThread.start();
+			dispacherThread = listenerThread;
+		}
+		return dispacherThread;
+	}
+
+	private Thread getSenderThread() {
+	    if (senderThread == null) {
+	        senderThread = new Thread(TCPTransport.class.getSimpleName() + ": Sender Thread " + this.hashCode()) {
+
+	            TCPNotification req;
+
+	            public synchronized void start() {
+	                NeptusLog.pub().info("Sender Thread Started");
+	                super.start();
+	            }
+
+	            public void run() {
+	                try {
+	                    while (!(purging && sendmessageList.isEmpty())) {
+//	                        req = sendmessageList.take();
+                            req = sendmessageList.poll(1, TimeUnit.SECONDS);
+                            if (req == null)
+                                continue;
+	                        SocketChannel channel = null;
+	                        try {
+                                channel = getEstablishedConnectionOrConnect(req
+                                        .getAddress().getHostName(), req.getAddress().getPort());
+	                            if (channel == null) {
+                                    informDeliveryListener(req, ResultEnum.Error, new IOException(
+                                            "Not able to get a connection to "
+                                                    + req.getAddress().getHostName() + ":"
+                                                    + req.getAddress().getPort()));
+	                                continue; //FIXME
+	                            }
+	                            
+	                            ByteBuffer bbuf = ByteBuffer.wrap(req.getBuffer());
+	                            int writtenBytes = channel.write(bbuf);
+//	                            System.out.println("......... " + writtenBytes + "   ");
+	                            if (writtenBytes != req.getBuffer().length) {
+	                                informDeliveryListener(req, ResultEnum.Error, null);
+                                    synchronized (clients) {
+                                        try {
+                                            channel.close();
+                                        }
+                                        catch (IOException e1) {
+                                            e1.printStackTrace();
+                                        }
+                                        clients.remove(channel);
+                                    }
+	                            }
+	                            else {
+	                                informDeliveryListener(req, ResultEnum.Success, null);
+	                            }
+	                        }
+	                        catch (Exception e) {
+	                            NeptusLog.pub().error(e);
+	                            //e.printStackTrace();
+	                            informDeliveryListener(req, ResultEnum.Error, e);
+                                if (channel != null) {
+                                    synchronized (clients) {
+                                        try {
+                                            channel.close();
+                                        }
+                                        catch (IOException e1) {
+                                            e1.printStackTrace();
+                                        }
+                                        clients.remove(channel);
+                                    }
+                                }
+	                        }
+	                    }
+	                }
+	                catch (InterruptedException e) {
+	                    NeptusLog.pub().warn(this + " Thread interrupted");
+	                    informDeliveryListener(req, ResultEnum.Error, e);
+	                }
+
+	                NeptusLog.pub().info(this + " Sender Thread Stopped");
+	            }
+	        };
+	        senderThread.setPriority(Thread.MIN_PRIORITY);
+	        senderThread.setDaemon(true);
+	        senderThread.start();
+	    }
+	    return senderThread;
+	}
+	
+   /**
+     * Sends a message to the network
+     * @param destination A valid hostname like "whale.fe.up.pt" or "127.0.0.1"
+     * @param port The destination's port
+     * @param buffer
+     * @return true meaning that the message was put on the send queue, and 
+     *          false if it was not put on the send queue.
+     */
+    public boolean sendMessage(String destination, int port, byte[] buffer) {
+        return sendMessage(destination, port, buffer, null);
+    }
+
+   /**
+     * Sends a message to the network
+     * @param destination A valid hostname like "whale.fe.up.pt" or "127.0.0.1"
+     * @param port The destination's port
+     * @param buffer
+     * @param deliveryListener
+     * @return true meaning that the message was put on the send queue, and 
+     *          false if it was not put on the send queue.
+     */
+    public boolean sendMessage(String destination, int port, byte[] buffer, 
+            DeliveryListener deliveryListener) {
+        if (purging) {
+            String txt = "Not accepting any more messages. IMCMessenger is terminating";
+            NeptusLog.pub().error(txt);
+            if (deliveryListener != null)
+                deliveryListener.deliveryResult(ResultEnum.UnFinished, new IOException(txt));
+            return false;
+        }
+        try {
+            TCPNotification req = new TCPNotification(TCPNotification.SEND,
+                    new InetSocketAddress(resolveAddress(destination), port),
+                    buffer);
+            req.setDeliveryListener(deliveryListener);
+            sendmessageList.add(req);
+        } 
+        catch (UnknownHostException e) {
+            e.printStackTrace();
+            if (deliveryListener != null)
+                deliveryListener.deliveryResult(ResultEnum.Unreacheable, e);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @param req 
+     * @param e
+     */
+    private void informDeliveryListener(TCPNotification req, ResultEnum result, Exception e) {
+        if (req != null && req.getDeliveryListener() != null) {
+            req.getDeliveryListener().deliveryResult(result, e);
+        }
+    }
+
+    /**
+     * @return
+     */
+    public long getActiveNumberOfConnections() {
+        return clients.size();
+    }
+    
+    /**
+     * Used in main only for test
+     */
+    private static class TCPMessageProcessor implements TCPMessageListener, Comparable<TCPMessageProcessor> {
+	    String id = "";
+        PipedOutputStream pos;
+        PipedInputStream pis;
+        
+        // Needed because the pis.available() not always when return '0' means end of stream
+        boolean isInputClosed = false;
+
+        /**
+         * 
+         */
+        public TCPMessageProcessor(String id) {
+            this.id = id;
+            pos = new PipedOutputStream();
+            try {
+                pis = new PipedInputStream(pos);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            final IMCDefinition imcDef = IMCDefinition.getInstance();
+            new Thread() {
+                @Override
+                public void run() {
+//                    GzLsf2Llf.transformLSFStream("./conf/messages/IMC.xml", 
+//                            pis, TCPMessageProcessor.this, null);
+                    try {
+                        while(!isInputClosed && pis.available() >= 0) { // the pis.available() not always when return '0' means end of stream
+//                            System.out.println("pis.available()" + pis.available());
+                            if (pis.available() == 0) {
+                                try { Thread.sleep(20); } catch (InterruptedException e) { }
+                                continue;
+                            }
+                            try {
+                                IMCMessage msg = imcDef.nextMessage(pis);
+                                msg.dump(System.out);
+                                //double timeMillis = msg.getTimestampMillis();
+                                msgArrived(/*(long) timeMillis,*/ msg);
+                            }
+//                            catch (EOFException e) {
+//                                if (isInputClosed)
+//                                    break;
+//                            }
+                            catch (IOException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+//                            byte[] ba = new byte[pis.available()];
+//                            if (ba.length > 0) {
+//                            pis.read(ba);
+//                            ByteUtil.dumpAsHex(ba, System.out);
+//                            }
+                        }
+                    }
+                    catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    System.out.println("pis.available()------------");
+                    try {
+                        System.out.println("pis.available()" + pis.available());
+                    }
+                    catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+        }
+        
+//        /**
+//         * @return the id
+//         */
+//        public String getId() {
+//            return id;
+//        }
+        
+        @Override
+        public void onTCPMessageNotification(TCPNotification req) {
+            try {
+                if (req.isEosReceived()) {
+                    pos.flush();
+                    pos.close();
+                    isInputClosed = true;
+                    System.out.println("POS Closed");
+                }
+                else
+                    pos.write(req.getBuffer());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+//        @Override
+        public void msgArrived(/*long timeStampMillis,*/ IMCMessage message) {
+            message.dump(System.out);
+        }
+
+        @Override
+        public int compareTo(TCPMessageProcessor o) {
+            return id.compareTo(o.id);
+        }
+	}
+	
+	@SuppressWarnings("unused")
+	public static void main(String[] args) throws Exception {
+		ConfigFetch.initialize();
+		
+        final HashMap<String, TCPMessageProcessor> listProc = new HashMap<String, TCPTransport.TCPMessageProcessor>();
+		
+//		final PipedOutputStream pos = new PipedOutputStream();
+//		PipedInputStream pis = new PipedInputStream(pos);
+		TCPTransport tcp = new TCPTransport(8082);
+		tcp.addListener( new TCPMessageListener() {
+			
+			@Override
+			public void onTCPMessageNotification(TCPNotification req) {
+//				System.out.println("ssssssssssssssssssss "+req.getTimeMillis());
+			    String id = req.getAddress().toString();
+//			    System.out.println("---id: "+id);
+			    TCPMessageProcessor proc = listProc.get(id);
+			    if (proc == null) {
+			        proc = new TCPMessageProcessor(id);
+			        listProc.put(id, proc);
+			    }
+			    if (req.isEosReceived())
+			        listProc.remove(id);
+			    proc.onTCPMessageNotification(req);
+                ByteUtil.dumpAsHex(req.getBuffer(), System.out);
+			}
+		});
+		
+		TCPTransport tcp2 = new TCPTransport(8083);
+		tcp2.addListener( new TCPMessageListener() {
+		    @Override
+		    public void onTCPMessageNotification(TCPNotification req) {
+		        String id = req.getAddress().toString();
+                TCPMessageProcessor proc = listProc.get(id);
+		        if (proc == null) {
+		            proc = new TCPMessageProcessor(id);
+		            listProc.put(id, proc);
+		        }
+		        if (req.isEosReceived())
+		            listProc.remove(id);
+		        proc.onTCPMessageNotification(req);
+		        ByteUtil.dumpAsHex(req.getBuffer(), System.err);
+		    }
+		});
+
+		IMCMessage msg = IMCDefinition.getInstance().create("Heartbeat");
+        IMCMessage msgES = IMCDefinition.getInstance().create("EstimatedState");
+//        StandardSerializationBuffer sb = new StandardSerializationBuffer(300);
+//        StandardSerializationBuffer sb2 = new StandardSerializationBuffer(300);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IMCOutputStream imcos = new IMCOutputStream(baos); 
+        ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
+        IMCOutputStream imcos2 = new IMCOutputStream(baos2); 
+        msg.getHeader().setValue("src", 0x3c22);
+        msgES.getHeader().setValue("src", 0x0015);
+        int size = msg.serialize(imcos);
+        int size2 = msgES.serialize(imcos2);
+
+        try { Thread.sleep(10000); } catch (InterruptedException e1) { }
+
+        System.out.println("Start --------------------------------------------");
+		try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+		tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
+        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
+
+        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+        tcp2.sendMessage("127.0.0.1", 8082, baos2.toByteArray(), null);
+        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+        tcp2.sendMessage("127.0.0.1", 8082, baos2.toByteArray(), null);
+
+        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
+        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
+
+        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
+        tcp2.sendMessage("127.0.0.1", 8082, baos2.toByteArray(), null);
+        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
+
+        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+        tcp2.stop();
+
+        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
+	}
+}

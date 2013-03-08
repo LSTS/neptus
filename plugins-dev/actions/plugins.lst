@@ -1,0 +1,10 @@
+# DATE=@DATE@
+# TIME=@TIME@
+# COMPILED BY=@COMPILED BY@ 
+# LEGAL_COPY=@LEGAL_COPY@
+# SVN_REV=@SVN_REV@
+# SVN_PATH=@SVN_PATH@
+
+pt.up.fe.dceg.neptus.plugins.actions.FullScreenAction
+pt.up.fe.dceg.neptus.plugins.actions.HTTPControls
+pt.up.fe.dceg.neptus.plugins.actions.ExecuteCommandPanel

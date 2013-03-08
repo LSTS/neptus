@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions-mapping>
+  <joystick id="Logitech Dual Action">
+    <vehicle id="lauv-xtreme">
+      <map action="Accelerate" function="button_1"/>
+      <map action="Decelerate" function="button_4"/>
+      <map action="Stop" function="button_2"/>
+      <map action="Heading" function="axis1y"/>
+    </vehicle>
+  </joystick>
+  <joystick id="ASUS Game Motion Controller">
+    <vehicle id="lauv-xtreme">
+      <map action="Accelerate" function="button_8"/>
+      <map action="Decelerate" function="button_9"/>
+      <map action="Stop" function="button_10"/>
+      <map action="Heading" function="axis0x"/>
+    </vehicle>
+    <vehicle id="nauv">
+      <map action="Accelerate" function="button_8"/>
+      <map action="Decelerate" function="button_9"/>
+      <map action="Stop" function="button_10"/>
+      <map action="Heading" function="axis0x"/>
+    </vehicle>
+    <vehicle id="swordfish">
+      <map action="Left Motor" function="axis0x"/>
+      <map action="Right Motor" function="axis0y"/>
+      <map action="Green Light" function="button_2"/>
+      <map action="Red Light" function="button_3"/>
+      <map action="Siren" function="button_4"/>
+      <map action="Siren Continuous" function="button_1"/>
+    </vehicle>
+  </joystick>
+  <joystick id="USB Joystick     ">
+    <vehicle id="lauv-xtreme">
+      <map action="Accelerate" function="button_4"/>
+      <map action="Decelerate" function="button_1"/>
+      <map action="Stop" function="button_3"/>
+      <map action="Heading" function="axis0x"/>
+    </vehicle>
+  </joystick>
+  <joystick id="Logitech Force 3D Pro">
+    <vehicle id="lauv-xtreme">
+      <map action="Accelerate" function="button_11"/>
+      <map action="Decelerate" function="button_9"/>
+      <map action="Stop" function="button_7"/>
+      <map action="Heading" function="axis1x"/>
+    </vehicle>
+    <vehicle id="lauv-experimental">
+      <map action="Accelerate" function="button_8"/>
+      <map action="Decelerate" function="button_10"/>
+      <map action="Stop" function="button_12"/>
+      <map action="Heading" function="analogic_cmd"/>
+    </vehicle>
+    <vehicle id="alfa02">
+      <map action="Stop" function="button_1"/>
+      <map action="VerticalRate" function="axis0y"/>
+      <map action="Speed" function="analogic_cmd"/>
+      <map action="Bank" function="axis0x"/>
+    </vehicle>
+  </joystick>
+  <joystick id="Logitech Logitech Dual Action">
+    <vehicle id="lauv-xtreme">
+      <map action="Exit" function="button_9" negative="false"/>
+      <map action="Accelerate" function="button_8" negative="false"/>
+      <map action="Decelerate" function="button_7" negative="false"/>
+      <map action="Stop" function="button_6" negative="false"/>
+      <map action="Heading" function="axis1x" negative="true"/>
+    </vehicle>
+  </joystick>
+  <joystick id="Microsoft SideWinder Force Feedback 2">
+    <vehicle id="lauv-experimental">
+      <map action="Accelerate" function="button_6"/>
+      <map action="Decelerate" function="button_5"/>
+      <map action="Stop" function="button_8"/>
+      <map action="Heading" function="analogic_cmd"/>
+    </vehicle>
+    <vehicle id="alfa02">
+      <map action="Stop" function="button_5"/>
+      <map action="VerticalRate" function="axis0y"/>
+      <map action="Speed" function="analogic_cmd"/>
+      <map action="Bank" function="axis0x"/>
+    </vehicle>
+    <vehicle id="star">
+      <map action="Stop" function="button_8"/>
+      <map action="Zoom" function="analogic_cmd"/>
+      <map action="Yaw" function="axis1x"/>
+      <map action="Pitch" function="axis0y"/>
+    </vehicle>
+    <vehicle id="lauv-xtreme">
+      <map action="Accelerate" function="button_1" negative="false"/>
+      <map action="Decelerate" function="button_2" negative="false"/>
+      <map action="Stop" function="button_8" negative="false"/>
+      <map action="Heading" function="axis1x" negative="false"/>
+    </vehicle>
+  </joystick>
+  <joystick id="ASUS ASUS Game Motion Controller">
+    <vehicle id="lauv-xtreme">
+      <map action="Exit" function="button_11" negative="false"/>
+      <map action="Accelerate" function="button_9" negative="false"/>
+      <map action="Decelerate" function="button_10" negative="false"/>
+      <map action="Stop" function="button_8" negative="false"/>
+      <map action="Heading" function="axis0x" negative="false"/>
+    </vehicle>
+  </joystick>
+  <joystick id="Logitech Logitech RumblePad 2 USB">
+    <vehicle id="swordfish">
+      <map action="Exit" function="button_10" negative="false"/>
+      <map action="Left Motor" function="axis0y" negative="true"/>
+      <map action="Right Motor" function="axis1x" negative="true"/>
+      <map action="Green Light" function="button_4" negative="false"/>
+      <map action="Red Light" function="button_1" negative="false"/>
+      <map action="Siren" function="button_2" negative="false"/>
+      <map action="Siren Continuous" function="button_3" negative="false"/>
+    </vehicle>
+    <vehicle id="nauv">
+      <map action="Exit" function="button_10" negative="false"/>
+      <map action="Accelerate" function="button_6" negative="false"/>
+      <map action="Decelerate" function="button_8" negative="false"/>
+      <map action="Stop" function="button_5" negative="false"/>
+      <map action="Heading" function="axis1y" negative="false"/>
+    </vehicle>
+    <vehicle id="lauv-seacon-1">
+      <map action="Exit" function="button_10" negative="false"/>
+      <map action="Accelerate" function="button_6" negative="false"/>
+      <map action="Decelerate" function="button_8" negative="false"/>
+      <map action="Stop" function="button_5" negative="false"/>
+      <map action="Heading" function="axis1y" negative="false"/>
+    </vehicle>
+  </joystick>
+  <joystick id="Keyboard [ID=1]">
+    <vehicle id="SeaCon Basic">
+      <map action="Enter Remote" function="button_1" negative="false"/>
+      <map action="Start Plan" function="button_2" negative="false"/>
+      <map action="Stop Plan" function="button_3" negative="false"/>
+    </vehicle>
+    <vehicle id="lauv-seacon-1">
+      <map action="Exit" function="button_1" negative="false"/>
+      <map action="Accelerate" function="button_2" negative="false"/>
+      <map action="Decelerate" function="button_5" negative="false"/>
+      <map action="Stop" function="button_4" negative="false"/>
+      <map action="Heading" function="axis0x" negative="false"/>
+    </vehicle>
+  </joystick>
+  <joystick id="Logitech Logitech Force 3D Pro">
+    <vehicle id="adamastor">
+      <map action="Exit" function="button_7" negative="false"/>
+      <map action="Forward" function="axis0y" negative="true"/>
+      <map action="Starboard" function="axis0x" negative="false"/>
+      <map action="Up" function="analogic_cmd" negative="true"/>
+      <map action="Rotate" function="axis1x" negative="false"/>
+      <map action="Stop" function="axis2angle" negative="true"/>
+    </vehicle>
+  </joystick>
+</actions-mapping>

@@ -1,0 +1,337 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by pdias
+ * 16/07/2010
+ * $Id:: ContactMarker.java 10012 2013-02-21 14:23:45Z pdias                    $:
+ */
+package pt.up.fe.dceg.neptus.plugins.position;
+
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Vector;
+
+import javax.swing.AbstractAction;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+
+import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
+import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeEvent;
+import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
+import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeListener;
+import pt.up.fe.dceg.neptus.gui.LocationPanel;
+import pt.up.fe.dceg.neptus.gui.MenuScroller;
+import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.imc.CcuEvent;
+import pt.up.fe.dceg.neptus.imc.MapFeature;
+import pt.up.fe.dceg.neptus.imc.MapFeature.FEATURE_TYPE;
+import pt.up.fe.dceg.neptus.imc.MapPoint;
+import pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension;
+import pt.up.fe.dceg.neptus.planeditor.IMapPopup;
+import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
+import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.types.map.AbstractElement;
+import pt.up.fe.dceg.neptus.types.map.MapGroup;
+import pt.up.fe.dceg.neptus.types.map.MapType;
+import pt.up.fe.dceg.neptus.types.map.MarkElement;
+import pt.up.fe.dceg.neptus.types.mission.MapMission;
+import pt.up.fe.dceg.neptus.types.mission.MissionType;
+import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
+import pt.up.fe.dceg.neptus.util.DateTimeUtil;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.up.fe.dceg.neptus.util.ReflectionUtil;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
+
+/**
+ * @author pdias
+ * @author zp
+ */
+@SuppressWarnings("serial")
+@PluginDescription(author = "Paulo Dias, ZP", name = "Contact Marker", version = "1.6.0",
+// icon = "pt/up/fe/dceg/neptus/plugins/acoustic/lbl.png",
+description = "Mark a contact on the map from a system location.", documentation = "contact-maker/contact-maker.html")
+public class ContactMarker extends SimpleSubPanel implements IEditorMenuExtension, ConfigurationListener,
+        SubPanelChangeListener, MainVehicleChangeListener {
+
+    @NeptusProperty(name = "Use Single Mark Addition Mode", userLevel = LEVEL.ADVANCED, 
+            description = "Hability to only add marks by inputing the location or using an active system")
+    public boolean useSingleMarkAdditionMode = true;
+
+    private Vector<IMapPopup> renderersPopups = new Vector<IMapPopup>();
+
+    public ContactMarker(ConsoleLayout console) {
+        super(console);
+        setVisibility(false);
+    }
+
+    @Override
+    public void initSubPanel() {
+        renderersPopups = getConsole().getSubPanelsOfInterface(IMapPopup.class);
+        for (IMapPopup str2d : renderersPopups) {
+            str2d.addMenuExtension(this);
+        }
+    }
+
+    private void placeLocationOnMap(LocationType locContact, String markerName, long tstamp) {
+        if (getConsole().getMission() == null)
+            return;
+
+        String id = markerName + "_" + DateTimeUtil.timeFormaterNoMillis.format(new Date(tstamp));
+        boolean validId = false;
+        while (!validId) {
+            id = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter new mark name"), id);
+            if (id == null)
+                return;
+            AbstractElement elems[] = MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObjectsByID(id);
+            if (elems.length > 0)
+                GuiUtils.errorMessage(getConsole(), I18n.text("Add mark"),
+                        I18n.text("The given ID already exists in the map. Please choose a different one"));
+            else
+                validId = true;
+        }
+
+        MissionType mission = getConsole().getMission();
+        LinkedHashMap<String, MapMission> mapList = mission.getMapsList();
+        if (mapList == null)
+            return;
+        if (mapList.size() == 0)
+            return;
+        // MapMission mapMission = mapList.values().iterator().next();
+        MapGroup.resetMissionInstance(getConsole().getMission());
+        MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];// mapMission.getMap();
+        // System.out.println("MARKER --------------- " + mapType.getId());
+        MarkElement contact = new MarkElement(mapType.getMapGroup(), mapType);
+
+        contact.setId(id);
+        contact.setName(id);
+        contact.setCenterLocation(locContact);
+        mapType.addObject(contact);
+        mission.save(false);
+
+        MapPoint point = new MapPoint();
+        point.setLat(locContact.getLatitudeAsDoubleValueRads());
+        point.setLon(locContact.getLongitudeAsDoubleValueRads());
+        point.setAlt(locContact.getHeight());
+        MapFeature feature = new MapFeature();
+        feature.setFeatureType(FEATURE_TYPE.POI);
+        feature.setFeature(Arrays.asList(point));
+        CcuEvent event = new CcuEvent();
+        event.setType(CcuEvent.TYPE.MAP_FEATURE_ADDED);
+        event.setId(id);
+        event.setArg(feature);
+        ImcMsgManager.getManager().broadcastToCCUs(event);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension#getApplicableItems(pt.up.fe.dceg.neptus.types.coord.LocationType
+     * , pt.up.fe.dceg.neptus.planeditor.IMapPopup)
+     */
+    @Override
+    public Collection<JMenuItem> getApplicableItems(final LocationType loc, IMapPopup source) {
+
+        Vector<JMenuItem> menus = new Vector<JMenuItem>();
+
+        JMenuItem add = new JMenuItem(I18n.text("Add mark"));
+        if (useSingleMarkAdditionMode)
+            menus.add(add);
+
+        add.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                loc.convertToAbsoluteLatLonDepth();
+                LocationType locToAdd = LocationPanel.showLocationDialog(getConsole(), I18n.text("Mark location"), loc,
+                        getConsole().getMission(), true);
+                if (locToAdd == null)
+                    return;
+                long tstamp = System.currentTimeMillis();
+                placeLocationOnMap(locToAdd, I18n.textc("POI", "Short for Place of Interest. Keep it short because is a prefix for a map marker."), tstamp);
+            }
+        });
+
+        JMenu myLocMenu = new JMenu(I18n.text("Add mark"));
+        if (!useSingleMarkAdditionMode)
+            menus.add(myLocMenu);
+
+        AbstractAction addToMap = new AbstractAction(I18n.text("Add a mark at this location")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new Thread() {
+                    public void run() {
+                        long tstamp = System.currentTimeMillis();
+                        placeLocationOnMap(loc, I18n.textc("POI", "Short for Place of Interest. Keep it short because is a prefix for a map marker."), tstamp);
+                    };
+                }.start();
+            }
+        };
+        myLocMenu.add(new JMenuItem(addToMap));
+
+        AbstractAction addToMapEdt = new AbstractAction(I18n.text("Add a mark at...")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loc.convertToAbsoluteLatLonDepth();
+                LocationType locToAdd = LocationPanel.showLocationDialog(getConsole(), I18n.text("Add a mark at..."), loc,
+                        getConsole().getMission(), true);
+                if (locToAdd == null)
+                    return;
+                long tstamp = System.currentTimeMillis();
+                placeLocationOnMap(locToAdd, I18n.textc("POI", "Short for Place of Interest. Keep it short because is a prefix for a map marker."), tstamp);
+            }
+        };
+        myLocMenu.add(new JMenuItem(addToMapEdt));
+
+        Vector<VehicleType> avVehicles = new Vector<VehicleType>();
+
+        ImcSystem[] veh = ImcSystemsHolder.lookupActiveSystemVehicles();
+        for (int i = 0; i < veh.length; i++)
+            avVehicles.add(VehiclesHolder.getVehicleWithImc(veh[i].getId()));
+
+        if (avVehicles.isEmpty() && getConsole().getMainSystem() != null)
+            avVehicles.add(VehiclesHolder.getVehicleById(getConsole().getMainSystem()));
+
+        for (VehicleType v : avVehicles) {
+            final ImcSystem sys = ImcSystemsHolder.lookupSystemByName(v.getId());
+            final String vid = v.getId();
+            if (sys.getLocation() != null) {
+                AbstractAction actionSys = new AbstractAction(I18n.textf("Add a mark at %system's location", v.getId())) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        placeLocationOnMap(sys.getLocation(), vid, System.currentTimeMillis());
+                    }
+                };
+
+                JMenuItem menuItem = new JMenuItem(actionSys);
+                menuItem.setIcon(ImageUtils.getScaledIcon(v.getPresentationImageHref(), 20, 16));
+                myLocMenu.add(menuItem);
+            }
+        }
+
+        if (getConsole() != null && getConsole().getMission() != null) {
+            Vector<MarkElement> marks = MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(
+                    MarkElement.class);
+            if (marks.size() > 0) {
+                JMenu remove = new JMenu(I18n.text("Remove mark"));
+                menus.add(remove);
+                for (AbstractElement elem : marks) {
+                    final MapType markMap = elem.getParentMap();
+                    final String markId = elem.getId();
+
+                    AbstractAction rem = new AbstractAction(markId) {
+                        @Override
+                        public void actionPerformed(ActionEvent arg0) {
+                            markMap.remove(markId);
+                            markMap.getMission().save(false);
+                            getConsole().updateMissionListeners();
+                        }
+                    };
+                    remove.add(rem);
+                    MenuScroller.setScrollerFor(remove, 25);
+                }
+
+                JMenu copy = new JMenu(I18n.text("Copy mark location"));
+                menus.add(copy);
+                for (final AbstractElement elem : marks) {
+                    final String markId = elem.getId();
+                    AbstractAction rem = new AbstractAction(markId) {
+                        @Override
+                        public void actionPerformed(ActionEvent arg0) {
+                            ClipboardOwner owner = new ClipboardOwner() {
+                                @Override
+                                public void lostOwnership(Clipboard clipboard, Transferable contents) {
+                                };
+                            };
+                            Toolkit.getDefaultToolkit()
+                                    .getSystemClipboard()
+                                    .setContents(new StringSelection(elem.getCenterLocation().getClipboardText()),
+                                            owner);
+                        }
+                    };
+                    copy.add(rem);
+                    MenuScroller.setScrollerFor(copy, 25);
+                }
+            }
+        }
+
+        return menus;
+    }
+
+    @Override
+    public void propertiesChanged() {
+        // TODO Auto-generated method stub
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.up.fe.dceg.neptus.consolebase.SubPanelChangeListener#subPanelChanged(pt.up.fe.dceg.neptus.consolebase.
+     * SubPanelChangeEvent)
+     */
+    @Override
+    public void subPanelChanged(SubPanelChangeEvent panelChange) {
+        if (panelChange == null)
+            return;
+
+        renderersPopups = getConsole().getSubPanelsOfInterface(IMapPopup.class);
+
+        if (ReflectionUtil.hasInterface(panelChange.getPanel().getClass(), IMapPopup.class)) {
+
+            IMapPopup sub = (IMapPopup) panelChange.getPanel();
+
+            if (panelChange.getAction() == SubPanelChangeAction.ADDED) {
+                renderersPopups.add(sub);
+                IMapPopup str2d = sub;
+                if (str2d != null) {
+                    str2d.addMenuExtension(this);
+                }
+            }
+
+            if (panelChange.getAction() == SubPanelChangeAction.REMOVED) {
+                renderersPopups.remove(sub);
+                IMapPopup str2d = sub;
+                if (str2d != null) {
+                    str2d.removeMenuExtension(this);
+                }
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#cleanSubPanel()
+     */
+    @Override
+    public void cleanSubPanel() {
+        // TODO Auto-generated method stub
+
+    }
+}

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration debug="false">
+	<!-- TRACE, DEBUG, INFO, WARN, ERROR and FATAL -->
+	<appender name="stdout" class="org.apache.log4j.ConsoleAppender">
+		<param name="Threshold" value="WARN"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %5p [%t] {%c} (%F:%L) - %m%n"/>
+		</layout>
+	</appender>
+	<appender name="stdout.debug" class="org.apache.log4j.ConsoleAppender">
+		<param name="Threshold" value="DEBUG"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %5p [%t] {%c} (%F:%L) - %m%n"/>
+		</layout>
+	</appender>
+	<appender name="debugLog" class="org.apache.log4j.RollingFileAppender">
+		<param name="Threshold" value="DEBUG"/>
+		<param name="File" value="log/debug.log"/>
+		<param name="MaxFileSize" value="5MB"/>
+		<param name="MaxBackupIndex" value="20"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %5p [%t] {%c} (%F:%L) - %m%n"/>
+		</layout>
+	</appender>
+	<appender name="debugLogXML" class="org.apache.log4j.RollingFileAppender">
+		<param name="Threshold" value="DEBUG"/>
+		<param name="File" value="log/debug.log.xml"/>
+		<param name="MaxFileSize" value="5MB"/>
+		<param name="MaxBackupIndex" value="10"/>
+		<layout class="org.apache.log4j.xml.XMLLayout"/>
+	</appender>
+	<appender name="debugLogChainsaw" class="org.apache.log4j.net.SocketAppender">
+		<param name="Threshold" value="DEBUG"/>
+		<param name="RemoteHost" value="localhost"/>
+		<param name="Port" value="4445"/>
+		<param name="LocationInfo" value="true"/>
+		<layout class="org.apache.log4j.xml.XMLLayout"/>
+	</appender>
+	<logger name="Neptus" additivity="false">
+		<level value="debug"/>
+		<appender-ref ref="stdout"/>
+		<appender-ref ref="debugLog"/>
+		<!--appender-ref ref="debugLogXML"/-->
+		<!--appender-ref ref="debugLogChainsaw"/-->
+	</logger>
+	<logger name="Neptus.Action" additivity="false">
+		<level value="info"/>
+		<appender-ref ref="stdout"/>
+		<appender-ref ref="debugLog"/>
+		<!--appender-ref ref="debugLogXML"/-->
+		<!--appender-ref ref="debugLogChainsaw"/-->
+	</logger>
+	<logger name="Neptus.Waste" additivity="false">
+		<level value="error"/>
+		<!--appender-ref ref="stdout"/-->
+		<appender-ref ref="debugLog"/>
+		<!--appender-ref ref="debugLogXML"/-->
+		<!--appender-ref ref="debugLogChainsaw"/-->
+	</logger>
+	<!--logger name="Neptus.Config.pt.up.fe.dceg.neptus.util.conf.ConfigFetch.resolvePath" additivity="true">
+		<level value="debug"/>
+		<appender-ref ref="stdout.debug"/>
+	</logger-->
+	<root>
+		<level value="debug"/>
+		<appender-ref ref="stdout"/>
+		<appender-ref ref="debugLog"/>
+	</root>
+</log4j:configuration>

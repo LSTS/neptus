@@ -1,0 +1,230 @@
+/*
+ * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * All rights reserved.
+ * Faculdade de Engenharia da Universidade do Porto
+ * Departamento de Engenharia Electrotécnica e de Computadores
+ * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ *
+ * For more information please see <http://whale.fe.up.pt/neptus>.
+ *
+ * Created by ZP
+ * 28 de Mai de 2011
+ * $Id:: FormationPlanner.java 9615 2012-12-30 23:08:28Z pdias                  $:
+ */
+package pt.up.fe.dceg.neptus.plugins.planning;
+
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.geom.AffineTransform;
+import java.util.Vector;
+
+import javax.swing.AbstractAction;
+import javax.swing.JPopupMenu;
+
+import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
+import pt.up.fe.dceg.neptus.mp.maneuvers.VehicleFormation;
+import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.renderer2d.CustomInteractionSupport;
+import pt.up.fe.dceg.neptus.renderer2d.InteractionAdapter;
+import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
+import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
+import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
+import pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction;
+
+/**
+ * This Neptus plugin provides an interface for Vehicle Formation (cooperative) plans<br/>
+ * It is heavily related to the <b>VehicleFormation</b> IMC message
+ * 
+ * @author ZP
+ */
+@PluginDescription(author = "zp", name = "Formation Planner", description = "This Neptus plugin provides an interface for Vehicle Formation (cooperative) plans")
+@LayerPriority(priority = 50)
+public class FormationPlanner extends SimpleSubPanel implements Renderer2DPainter, StateRendererInteraction {
+    private static final long serialVersionUID = 1L;
+    protected InteractionAdapter adapter = new InteractionAdapter(null);
+    
+    /**
+     * Object holding all the parameters for vehicle formation
+     */
+    protected VehicleFormation model = new VehicleFormation();
+
+    /**
+     * @param console
+     */
+    public FormationPlanner(ConsoleLayout console) {
+        super(console);
+    }
+
+
+    @Override
+    public Image getIconImage() {
+        return adapter.getIconImage();
+    }
+
+    @Override
+    public Cursor getMouseCursor() {
+        return adapter.getMouseCursor();
+    }
+
+    @Override
+    public boolean isExclusive() {
+        return true;
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent event, StateRenderer2D source) {
+
+        if (event.getButton() == MouseEvent.BUTTON3) {
+            System.out.println("show popup...");
+            JPopupMenu popup = new JPopupMenu();
+            popup.add(new AbstractAction("Set participants") {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+                    // TODO Auto-generated method stub
+
+                }
+            });
+
+            popup.add(new AbstractAction("Edit trajectory") {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+                    // TODO Auto-generated method stub
+
+                }
+            });
+
+            popup.addSeparator();
+
+            popup.add(new AbstractAction("Start formation") {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+
+                }
+            });
+
+            popup.show(source, event.getX(), event.getY());
+
+        }
+        else if (event.getClickCount() == 2) {
+            System.out.println("add point...");
+            // TODO
+        }
+        else
+            adapter.mouseClicked(event, source);
+    }
+
+    @Override
+    public void mousePressed(MouseEvent event, StateRenderer2D source) {
+        adapter.mousePressed(event, source);
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent event, StateRenderer2D source) {
+        adapter.mouseDragged(event, source);
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent event, StateRenderer2D source) {
+        System.out.println("mouse moved");
+        adapter.mouseMoved(event, source);
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent event, StateRenderer2D source) {
+        adapter.mouseReleased(event, source);
+    }
+
+    @Override
+    public void wheelMoved(MouseWheelEvent event, StateRenderer2D source) {
+        adapter.wheelMoved(event, source);
+    }
+
+    @Override
+    public void keyPressed(KeyEvent event, StateRenderer2D source) {
+        adapter.keyPressed(event, source);
+    }
+
+    @Override
+    public void keyReleased(KeyEvent event, StateRenderer2D source) {
+        adapter.keyReleased(event, source);
+    }
+
+    @Override
+    public void keyTyped(KeyEvent event, StateRenderer2D source) {
+        adapter.keyTyped(event, source);
+    }
+
+    @Override
+    public void setActive(boolean mode, StateRenderer2D source) {
+        adapter.setActive(mode, source);
+
+        if (mode)
+            source.addPostRenderPainter(this, "Formation Planner");
+        else
+            source.removePostRenderPainter(this);
+
+    }
+
+    @Override
+    public void setAssociatedSwitch(ToolbarSwitch tswitch) {
+    }
+
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        AffineTransform plain = new AffineTransform(g.getTransform());
+        // TODO view and edit trajectory points
+
+        g.setTransform(plain);
+        g.setColor(Color.white);
+        g.drawString(model.getParticipants().size() + " participants", 8, 16);
+        g.setColor(Color.black);
+        g.drawString(model.getParticipants().size() + " participants", 7, 15);
+    }
+
+    protected boolean inited = false;
+
+    @Override
+    public void initSubPanel() {
+        if (!inited) {
+            Vector<CustomInteractionSupport> panels = getConsole().getSubPanelsOfInterface(
+                    CustomInteractionSupport.class);
+            for (CustomInteractionSupport cis : panels)
+                cis.addInteraction(this);
+
+            // Vector<ILayerPainter> renders = getConsole().getSubPanelImplementations(new ILayerPainter[0]);
+
+            // for (ILayerPainter str2d : renders) {
+            // str2d.addPostRenderPainter(this, "Formation Planner");
+            // }
+            inited = true;
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#cleanSubPanel()
+     */
+    @Override
+    public void cleanSubPanel() {
+        // TODO Auto-generated method stub
+        
+    }
+
+}

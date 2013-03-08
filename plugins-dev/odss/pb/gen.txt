@@ -1,0 +1,1 @@
+..\..\..\dev-utils\protoc.exe --proto_path=.  --java_out=.. sensor.proto trex.proto tracking.proto

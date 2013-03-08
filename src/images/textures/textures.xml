@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<textures>
+	<texture name="achecks" image-file="Achecks.png"/>
+	<texture name="ashwood" image-file="Ashwood.png" />
+	<texture name="asphalt" image-file="Asphalt.png"/>
+	<texture name="balmoral" image-file="Balmoral.png" />
+	<texture name="benediti" image-file="Benediti.png"/>
+	<texture name="bricks" image-file="bricks.png"/>
+	<texture name="cobblestone" image-file="cobblestone.png"/>
+	<texture name="concrete" image-file="concrete.png"/>
+	<texture name="cork" image-file="cork.png"/>
+	<texture name="dirt" image-file="dirt.png"/>
+	<texture name="fabric" image-file="Fabric.png"/>
+	<texture name="granite" image-file="granite.png"/>
+	<texture name="grass" image-file="grass.png"/>
+	<texture name="graymarb" image-file="Graymarb.png"/>
+	<texture name="hardmetal" image-file="hardmetal.png"/>
+	<texture name="marbpale" image-file="Marbpale.png"/>
+	<texture name="old cement" image-file="old_cement.png"/>
+	<texture name="pattern1" image-file="pattern1.png"/>
+	<texture name="pattern2" image-file="pattern2.png"/>
+	<texture name="pelt" image-file="Pelt.png"/>
+	<texture name="redrock" image-file="redrock.png"/>
+	<texture name="shingles" image-file="Shingles.png"/>
+	<texture name="sidewalk" image-file="sidewalk.png"/>
+	<texture name="stones" image-file="Stones.png"/>
+	<texture name="stucco" image-file="Stucco.png"/>
+	<texture name="tin foil" image-file="tin_foil.png"/>
+	<texture name="woodgrain" image-file="woodgrain.png"/>
+</textures>
