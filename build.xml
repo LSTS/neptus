@@ -228,6 +228,7 @@ For simple use the main targets are:
 		<path id="lpath"><pathelement path="${lib.dir}" /></path>
 		<property name="llpath" refid="lpath" />
 
+		<mkdir dir="${bin.dir}" />
 		<manifestclasspath property="manifest.classpath" jarfile="${jar.file.path}">
 		      <classpath refid="cp.path" />
 		</manifestclasspath>
@@ -242,7 +243,7 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<!-- Prepares the build directories                                      -->
 	<!-- =================================================================== -->
-	<target name="prepare" depends="info, prepare.build.dirs,create-sh-bat-filters, create-svn-props" 
+	<target name="prepare" depends="info, prepare.build.dirs,create-sh-bat-filters" 
 			unless="time.year">
 		<available file="${tests.dir}" property="tests-available" />
 		<tstamp>
@@ -331,6 +332,19 @@ For simple use the main targets are:
 		<delete dir="${tmp.dir}" />
 	</target>
 
+	<target name="gitinfo" >
+	    <exec executable="git" outputproperty="git.tagstring" failonerror="false">
+	      <arg value="describe"/>
+	    </exec>
+	    <exec executable="git" outputproperty="scm.revision">
+	      <arg value="rev-parse"/>
+	      <arg value="HEAD"/>
+	    </exec>
+		<condition property="scm.tag" value="${scm.revision}" else="${git.tagstring}">
+		    <equals arg1="${git.tagstring}" arg2="fatal: No names found, cannot describe anything."/>
+		</condition>
+		
+    </target>
 
 	<!-- =================================================================== -->
 	<!-- Creates the svn properties of the working copy                      -->
@@ -342,21 +356,9 @@ For simple use the main targets are:
 			</fileset>
 		</path>
 
-		<!-- svn info result
-		 Path: .
-		 URL: https://whale.fe.up.pt/svn/neptus/trunk
-		 Repository Root: https://whale.fe.up.pt/svn/neptus
-		 Repository UUID: f6322ee6-e2ed-0310-b924-e386bc37f25f
-		 Revision: 8270
-		 Node Kind: directory
-		 Schedule: normal
-		 Last Changed Author: pdias
-		 Last Changed Rev: 8270
-		 Last Changed Date: 2012-09-13 20:04:05 +0100 (Qui, 13 Set 2012)
-		-->
 		<java fork="true" classname="org.tmatesoft.svn.cli.SVN" 
 				outputproperty="svn.info.cmd.output" resultproperty="svn-cmd-info-error" 
-				errorproperty="svn.info.cmd.error" failonerror="true">
+				errorproperty="svn.info.cmd.error" failonerror="false">
 			<arg line="info ." />
 			<classpath refid="svnkit.classpath" />
 		</java>
@@ -979,8 +981,8 @@ For simple use the main targets are:
                  </section>
              </manifest>
         </jar>
-      	<signjar storetype="jceks" keystore="${neptus.cert}" alias="${login.cert}" 
-           storepass="${pass.cert}" jar="${bin.bundle.dir}/${name}-worldmap.jar" />
+      	<!--signjar storetype="jceks" keystore="${neptus.cert}" alias="${login.cert}" 
+           storepass="${pass.cert}" jar="${bin.bundle.dir}/${name}-worldmap.jar" /-->
     	<delete dir="tmpBuild" failonerror="false"/>
     </target>
  
