@@ -177,3 +177,4 @@
 /plugins
 /dist/jre*
 /conf/plugins/
+/tmpBuild/
