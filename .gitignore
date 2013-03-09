@@ -55,6 +55,7 @@
 /conf/roconsoles.xml
 /conf/romisc.xml
 /conf/romissions.xml
+/conf/romap.xml
 
 # /conf/i18n/
 /conf/i18n/en
@@ -144,12 +145,6 @@
 
 # /src/images/world/
 
-# /src/pt/up/fe/dceg/neptus/
-/src/pt/up/fe/dceg/neptus/logisurus
-
-# /src/pt/up/fe/dceg/neptus/gui/
-/src/pt/up/fe/dceg/neptus/gui/undo
-
 # /srcShell/installers/
 
 # /srcTests/mbari/
@@ -178,3 +173,4 @@
 /dist/jre*
 /conf/plugins/
 /tmpBuild/
+**/Thumbs.db
