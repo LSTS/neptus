@@ -166,6 +166,7 @@
 /resources/
 /*.session
 /svn.info.txt
+/scm.info.txt
 /*.pdf
 /bin
 /bin-bundles

@@ -32,8 +32,8 @@ For simple use the main targets are:
 	<!-- Defines variables used by the other targets                         -->
 	<!-- =================================================================== -->
 	<property name="version.VERSION" value="2" />
-	<property name="version.RELEASE" value="1" />
-	<property name="version.MINOR"   value="1" />
+	<property name="version.RELEASE" value="2" />
+	<property name="version.MINOR"   value="0" />
 	<!-- Set this to '.dev' if a developer release; blank "" if maintenance release -->
 	<property name="version.DEVELOPER" value="" />
 	<!-- Set the release number. Use the form 'R1' for release 1. Or leave it blank for a non release -->
@@ -85,6 +85,8 @@ For simple use the main targets are:
 	<property name="tmp.plugin.dir" value="${tmp.dir}/plugins-dev-tmp" />
 
 	<property name="exclude-svn" value="**/.svn/*" />
+	
+	<property name="scm.info.file" value="scm.info.txt" />
 
 	<property name="dist.file" value="${name}-${version}" />
 	<property name="dist.base.dir" value="./dist" />
@@ -158,7 +160,6 @@ For simple use the main targets are:
 		<path refid="cp.junit" />
 	</path>
 	
-	<!--property name="class.path" value=".\lib\servlet.jar;.\lib\jaxp.jar;.\lib\sax2.jar;.\lib\bsf.jar;.\lib\xalan.jar;.\lib\xerces.jar;.\lib\crimson.jar"/-->
 	<property name="class.path" refid="cp.path" />
 	<property name="class.path.compile" refid="cp.compile" />
 	<property name="class.path.compile.jar.main" refid="cp.compile.jar.main" />
@@ -332,18 +333,100 @@ For simple use the main targets are:
 		<delete dir="${tmp.dir}" />
 	</target>
 
-	<target name="gitinfo" >
-	    <exec executable="git" outputproperty="git.tagstring" failonerror="false">
-	      <arg value="describe"/>
+	<!-- =================================================================== -->
+	<!-- Creates the git properties of the working copy                      -->
+	<!-- =================================================================== -->
+	<target name="create-scm-props" unless="scm-props-set">
+		<!--
+		- See modified tracked files 
+			git status -s - -untracked-files=no"
+		- Get SHA1 full or short form of current WC
+			git rev-parse HEAD
+			git rev-parse - -short HEAD
+		- Get the version of current WC with SHA1 and dirty status
+			git describe - -dirty
+			git describe - -all - -long - -dirty (for instead of version show repo inner path)
+		-
+			git log -1  - -pretty=format:%H (commit Hash) %h for abbrev hash
+			git log -1  - -pretty=format:%ai (author ISO date)
+			git log -1  - -pretty=format:%an (commit author name)
+			git log -1  - -pretty=format:%ae (commit author email)
+			
+		-->
+
+	    <exec executable="git" outputproperty="git.wc.status" failonerror="false">
+		  <arg value="status"/>
+		  <arg value="--short"/>
+		  <arg value="--untracked-files=no"/>
 	    </exec>
-	    <exec executable="git" outputproperty="scm.revision">
+		<condition property="git.wc.dirty" value="true">
+			<and>
+				<isset property="git.wc.status" />
+				<not>
+				    <equals arg1="${git.wc.status}" arg2="" trim="true"/>
+				</not>
+			</and>
+		</condition>
+		<condition property="git.wc.dirty.string" value="dirty" else="">
+			<isset property="git.wc.dirty" />
+		</condition>
+
+	    <exec executable="git" outputproperty="git.hash" failonerror="false">
+		  <arg value="log"/>
+		  <arg value="-1"/>
+		  <arg value="--pretty=format:%H"/>
+	    </exec>
+	    <exec executable="git" outputproperty="git.date" failonerror="false">
+		  <arg value="log"/>
+		  <arg value="-1"/>
+		  <arg value="--pretty=format:%ai"/>
+	    </exec>
+	    <exec executable="git" outputproperty="git.author" failonerror="false">
+		  <arg value="log"/>
+		  <arg value="-1"/>
+		  <arg value="--pretty=format:%an"/>
+	    </exec>
+
+		<exec executable="git" outputproperty="git.tagstring" failonerror="false">
+	      <arg value="describe"/>
+			<arg value="--dirty"/>
+	    </exec>
+	    <exec executable="git" outputproperty="git.revision">
 	      <arg value="rev-parse"/>
 	      <arg value="HEAD"/>
 	    </exec>
-		<condition property="scm.tag" value="${scm.revision}" else="${git.tagstring}">
+		<condition property="git.tag" value="${git.revision}" else="${git.tagstring}">
 		    <equals arg1="${git.tagstring}" arg2="fatal: No names found, cannot describe anything."/>
 		</condition>
+		<exec executable="git" outputproperty="git.repo.path" failonerror="false">
+	    	<arg value="describe"/>
+			<arg value="--all"/>
+			<arg value="--long"/>
+			<arg value="--dirty"/>
+	    </exec>
 		
+
+    	<!-- Lets recreate a clean scm.info.txt -->
+    	<echo file="${scm.info.file}" append="false">Version=${version}
+</echo>
+    	<echo file="${scm.info.file}" append="true">SCM.Revision=${git.tag}
+</echo>
+    	<echo file="${scm.info.file}" append="true">SCM.WC.Dirty.Status=${git.wc.dirty.string}
+</echo>
+    	<echo file="${scm.info.file}" append="true">SCM.Revision.UID=${git.hash}
+</echo>
+    	<echo file="${scm.info.file}" append="true">SCM.Repository.Path=${git.repo.path}
+</echo>
+    	<echo file="${scm.info.file}" append="true">SCM.Last.Changed.Author=${git.author}
+</echo>
+    	<echo file="${scm.info.file}" append="true">SCM.Last.Changed.Date=${git.date}
+</echo>
+
+		<condition property="scminfo.SCM.WC.Dirty" value="dirty">
+			<isset property="git.wc.dirty" />
+		</condition>
+		<property file="${scm.info.file}" prefix="scminfo" />
+    	<property name="scm-props-set" value="true"/>
     </target>
 
 	<!-- =================================================================== -->
@@ -405,14 +488,6 @@ For simple use the main targets are:
 </echo>
 		<echo level="debug">svn svn.revision.range=${svn.revision.range}  svn-cmd-version-error=${svn-cmd-version-error}</echo>
 
-		<!--java fork="true" classname="org.tmatesoft.svn.cli.SVN" 
-				outputproperty="svn.log.cmd.output" resultproperty="svn-cmd-log-error" 
-				failonerror="true">
-			<arg line="log ." />
-			<classpath refid="svnkit.classpath" />
-		</java>
-    	<echo level="info">${svn.log.cmd.output}</echo-->
-    	
     	<property name="svn-props-set" value="true"/>
 
     	<!-- Lets recreate a clean svn.info.txt -->
@@ -1679,7 +1754,7 @@ For simple use the main targets are:
 		<antcall target="copy-laucher-bat.worker" />
 		<antcall target="copy-laucher-sh.worker" />
 		<antcall target="copy-laucher-exe.worker" />
-		<copy file="svn.info.txt" tofile="${dist.dir}/conf/version"
+		<copy file="${scm.info.file}" tofile="${dist.dir}/conf/version"
 				overwrite="yes" failonerror="false" preservelastmodified="true">
 		</copy>
 	</target>
@@ -2024,7 +2099,7 @@ For simple use the main targets are:
 		<copy file="neptus.exe" todir="${all.os.dist.dir}" 
 				overwrite="yes" failonerror="yes">
 		</copy>
-		<copy file="svn.info.txt" tofile="${all.os.dist.dir}/conf/version"
+		<copy file="${scm.info.file}" tofile="${all.os.dist.dir}/conf/version"
 				overwrite="yes" failonerror="false">
 		</copy>
 	</target>
@@ -2043,7 +2118,7 @@ For simple use the main targets are:
 				overwrite="yes" failonerror="yes">
 			<!--filterset refid="bat.filters" /-->
 		</copy>
-		<copy file="svn.info.txt" tofile="${windows.dist.dir}/conf/version"
+		<copy file="${scm.info.file}" tofile="${windows.dist.dir}/conf/version"
 				overwrite="yes" failonerror="false">
 		</copy>
 		<!--delete dir="${windows.dist.dir}/bin" /-->
@@ -2063,7 +2138,7 @@ For simple use the main targets are:
 				overwrite="yes" failonerror="yes">
 			<!--filterset refid="sh.filters" /-->
 		</copy>
-		<copy file="svn.info.txt" tofile="${linux.dist.dir}/conf/version"
+		<copy file="${scm.info.file}" tofile="${linux.dist.dir}/conf/version"
 				overwrite="yes" failonerror="false">
 		</copy>
 		<!--delete dir="${linux.dist.dir}/bin" /-->
@@ -2091,7 +2166,7 @@ For simple use the main targets are:
 		<copy file="neptus.exe" todir="${all.os.dist.dir}" 
 				overwrite="yes" failonerror="yes">
 		</copy>
-		<copy file="svn.info.txt" tofile="${all.os.dist.dir}/conf/version"
+		<copy file="${scm.info.file}" tofile="${all.os.dist.dir}/conf/version"
 				overwrite="yes" failonerror="false">
 		</copy>
 	</target>
@@ -2110,7 +2185,7 @@ For simple use the main targets are:
 				overwrite="yes" failonerror="yes">
 			<!--filterset refid="bat.filters" /-->
 		</copy>
-		<copy file="svn.info.txt" tofile="${windows.dist.dir}/conf/version"
+		<copy file="${scm.info.file}" tofile="${windows.dist.dir}/conf/version"
 				overwrite="yes" failonerror="false">
 		</copy>
 		<!--delete dir="${windows.dist.dir}/bin" /-->
@@ -2130,7 +2205,7 @@ For simple use the main targets are:
 				overwrite="yes" failonerror="yes">
 			<!--filterset refid="sh.filters" /-->
 		</copy>
-		<copy file="svn.info.txt" tofile="${linux.dist.dir}/conf/version"
+		<copy file="${scm.info.file}" tofile="${linux.dist.dir}/conf/version"
 				overwrite="yes" failonerror="false">
 		</copy>
 		<!--delete dir="${linux.dist.dir}/bin" /-->
@@ -2156,7 +2231,7 @@ For simple use the main targets are:
 				overwrite="yes" failonerror="yes" />
 		<copy file="neptus.exe" todir="${all.os.dist.dir}" 
 				overwrite="yes" failonerror="yes" />
-		<copy file="svn.info.txt" tofile="${all.os.dist.dir}/conf/version"
+		<copy file="${scm.info.file}" tofile="${all.os.dist.dir}/conf/version"
 				overwrite="yes" failonerror="false" />
 	</target>
 
@@ -2174,7 +2249,7 @@ For simple use the main targets are:
 				overwrite="yes" failonerror="yes">
 			<!--filterset refid="bat.filters" /-->
 		</copy>
-		<copy file="svn.info.txt" tofile="${windows.dist.dir}/conf/version"
+		<copy file="${scm.info.file}" tofile="${windows.dist.dir}/conf/version"
 				overwrite="yes" failonerror="false" />
 		<!--delete dir="${windows.dist.dir}/bin" /-->
 	</target>
@@ -2194,7 +2269,7 @@ For simple use the main targets are:
 				overwrite="yes" failonerror="yes">
 			<!--filterset refid="sh.filters" /-->
 		</copy>
-		<copy file="svn.info.txt" tofile="${linux.dist.dir}/conf/version"
+		<copy file="${scm.info.file}" tofile="${linux.dist.dir}/conf/version"
 				overwrite="yes" failonerror="false" />
 		<!--delete dir="${linux.dist.dir}/bin" /-->
 	</target>
