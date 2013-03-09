@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: RJPG
+ * Author: Rui Gonçalves
  * 2006/06/02
  */
 package pt.up.fe.dceg.neptus.console.plugins;

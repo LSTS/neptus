@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
+ * Author: José Pinto
  * Nov 28, 2011
  */
 package pt.up.fe.dceg.neptus.plugins.map.interactions;

@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: pdias
+ * Author: Paulo Dias
  * 2007/08/04
  */
 package pt.up.fe.dceg.neptus.mp.maneuvers;

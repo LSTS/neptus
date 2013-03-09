@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
+ * Author: José Pinto
  * Jan 11, 2012
  */
 package net.java.games.input;

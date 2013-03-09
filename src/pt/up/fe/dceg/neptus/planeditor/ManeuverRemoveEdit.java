@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: ZP
+ * Author: José Pinto
  * 12 de Ago de 2011
  */
 package pt.up.fe.dceg.neptus.planeditor;

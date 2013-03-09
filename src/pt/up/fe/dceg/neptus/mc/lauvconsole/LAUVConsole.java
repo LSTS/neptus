@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zepinto and pdias
+ * Author: José Pinto and pdias
  * 2007/08/23
  */
 package pt.up.fe.dceg.neptus.mc.lauvconsole;

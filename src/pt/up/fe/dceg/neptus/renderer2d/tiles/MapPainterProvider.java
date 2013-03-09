@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: pdias
+ * Author: Paulo Dias
  * 26/11/2011
  */
 package pt.up.fe.dceg.neptus.renderer2d.tiles;

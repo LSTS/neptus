@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: ZP
+ * Author: José Pinto
  * 5 de Jul de 2010
  */
 package pt.up.fe.dceg.neptus.plugins.logs;

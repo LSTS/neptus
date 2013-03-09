@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: pdias
+ * Author: Paulo Dias
  * 2008/12/17
  */
 package pt.up.fe.dceg.neptus.util.conf;

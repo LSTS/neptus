@@ -5,7 +5,7 @@
  * Departamento de Engenharia Electrotécnica e de Computadores
  * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
  *
- * Author: rjpg
+ * Author: Rui Gonçalves
  * 200?/??/??
  */
 package pt.up.fe.dceg.neptus.gui.checklist;

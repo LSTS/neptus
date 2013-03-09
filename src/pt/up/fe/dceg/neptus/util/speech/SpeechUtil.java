@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: pdias
+ * Author: Paulo Dias
  * 2007/06/03
  */
 package pt.up.fe.dceg.neptus.util.speech;

@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: pdias
+ * Author: Paulo Dias
  * 5 de Out de 2010
  */
 package pt.up.fe.dceg.neptus.plugins.containers.propeditor;

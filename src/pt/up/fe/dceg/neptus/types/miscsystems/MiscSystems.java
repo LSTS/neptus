@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: pdias
+ * Author: Paulo Dias
  * 2005/10/09
  */
 package pt.up.fe.dceg.neptus.types.miscsystems;

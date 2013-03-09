@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: jqcorreia
+ * Author: José Correia
  * Jul 27, 2012
  */
 package pt.up.fe.dceg.neptus.util.llf;

@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Hugo
+ * Author: Hugo Dias
  * Nov 21, 2012
  */
 package pt.up.fe.dceg.neptus.console.events;

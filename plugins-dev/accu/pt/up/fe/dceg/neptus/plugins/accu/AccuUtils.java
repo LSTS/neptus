@@ -41,7 +41,7 @@ import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
+ * Author: José Pinto
  * Apr 15, 2011
  */
 

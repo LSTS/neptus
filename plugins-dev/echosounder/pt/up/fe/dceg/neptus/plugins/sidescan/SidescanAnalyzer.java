@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: jqcorreia
+ * Author: José Correia
  * Oct 23, 2012
  */
 package pt.up.fe.dceg.neptus.plugins.sidescan;

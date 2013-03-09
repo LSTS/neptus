@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: pdias
+ * Author: Paulo Dias
  * Jun 3, 2012
  */
 package pt.up.fe.dceg.neptus.gui.tree;

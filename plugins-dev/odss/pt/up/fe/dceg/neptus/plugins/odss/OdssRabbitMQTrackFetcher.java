@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: pdias
+ * Author: Paulo Dias
  * 7 de Jul de 2012
  */
 package pt.up.fe.dceg.neptus.plugins.odss;

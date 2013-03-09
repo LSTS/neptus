@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: ZP
+ * Author: José Pinto
  * 2009/06/07
  */
 package pt.up.fe.dceg.neptus.plugins.alarms;

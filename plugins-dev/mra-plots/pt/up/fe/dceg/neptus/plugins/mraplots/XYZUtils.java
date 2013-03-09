@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: pdias
+ * Author: Paulo Dias
  * 18 de Jun de 2011
  */
 package pt.up.fe.dceg.neptus.plugins.mraplots;

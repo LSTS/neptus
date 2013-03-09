@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: jqcorreia
+ * Author: José Correia
  * 2/12/2011
  */
 package pt.up.fe.dceg.neptus.plugins.position.painter;

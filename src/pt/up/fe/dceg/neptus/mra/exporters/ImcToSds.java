@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: ZP
+ * Author: José Pinto
  * 2012/0?/??
  */
 package pt.up.fe.dceg.neptus.mra.exporters;

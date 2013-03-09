@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: pdias
+ * Author: Paulo Dias
  * Created in 29/Sep/2005
  */
 package pt.up.fe.dceg.neptus.gui.checklist;

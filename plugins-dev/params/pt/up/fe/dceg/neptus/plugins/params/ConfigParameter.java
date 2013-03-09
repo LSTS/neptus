@@ -27,7 +27,7 @@ package pt.up.fe.dceg.neptus.plugins.params;
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
+ * Author: José Pinto
  * Dec 14, 2012
  */
 

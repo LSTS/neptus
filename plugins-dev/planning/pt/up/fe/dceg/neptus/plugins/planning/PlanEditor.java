@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: ZePinto
+ * Author: José Pinto
  * 200?/??/??
  */
 package pt.up.fe.dceg.neptus.plugins.planning;

@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: sergioferreira
+ * Author: Sérgio Ferreira
  * 9 de Abr de 2012
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.panels;

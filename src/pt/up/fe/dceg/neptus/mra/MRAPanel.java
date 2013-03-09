@@ -7,7 +7,7 @@
  *
  * For more information please see <http://whale.fe.up.pt/neptus>.
  *
- * Author: zepinto
+ * Author: José Pinto
  * 2007/09/25
  */
 package pt.up.fe.dceg.neptus.mra;

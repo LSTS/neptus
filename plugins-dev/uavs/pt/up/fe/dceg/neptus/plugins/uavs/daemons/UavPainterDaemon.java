@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: sergioferreira
+ * Author: Sérgio Ferreira
  * 24 de Fev de 2012
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.daemons;
@@ -48,7 +48,7 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
 
 /**
- * @author sergiofereira
+ * @author sergioferreira
  * @version 0.2
  * @category UavDaemon
  */
