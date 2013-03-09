@@ -244,7 +244,7 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<!-- Prepares the build directories                                      -->
 	<!-- =================================================================== -->
-	<target name="prepare" depends="info, prepare.build.dirs,create-sh-bat-filters" 
+	<target name="prepare" depends="info, prepare.build.dirs,create-scm-props,create-sh-bat-filters" 
 			unless="time.year">
 		<available file="${tests.dir}" property="tests-available" />
 		<tstamp>
@@ -259,7 +259,13 @@ For simple use the main targets are:
 		<property name="dist.installer.name.seacon" value="${dist.installer.basename.seacon}-${time.date}"/>
 
 		<echo message="-------------------------------------------------------------------" />
-		<echo level="info" message="SVN r${svn.revision.range} @ ${svn.repository.path}" />
+		<!--echo level="info" message="SVN r${svn.revision.range} @ ${svn.repository.path}" /-->
+		<echo level="info" message="Git ${scm.revision}" />
+		<echo level="info" message="    g${scm.revision.uid}" />
+		<echo level="info" message="    ${scm.repository.path}" />
+		<echo level="info" message="    ${scm.last.changed.date}" />
+		<echo level="info" message="    last author: ${scm.last.changed.author}" />
+		<echo level="info" message="    wc ${scm.wc.dirty.string}" />
 		<echo message="-------------------------------------------------------------------" />
 		
 		<loadfile property="license-content" srcFile="${license.file}"/>
@@ -278,8 +284,8 @@ For simple use the main targets are:
 			<filter token="INSTALL_DIR" value="${install.dir}" />
 			<!--filter token="VERSION_SE" value="" /-->
 			<filter token="DIST_EXE" value="${dist.installer.name.full}" />
-			<filter token="SVN_REV" value="${svn.revision.range}" />
-			<filter token="SVN_PATH" value="${svn.repository.path}" />
+			<filter token="SCM_REV" value="${scm.revision}" />
+			<filter token="SCM_PATH" value="${scm.repository.path}" />
 			<filter token="INSTALLER_NSIS_NEPTUS_BATCH_PATH" value="..\static_files\batch_files\neptus.bat" />
 			<filter token="LICENSE" value="${license-content}" />
 		</filterset>
@@ -353,12 +359,13 @@ For simple use the main targets are:
 			git log -1  - -pretty=format:%ae (commit author email)
 			
 		-->
-
+		<local name="git.wc.status" />
 	    <exec executable="git" outputproperty="git.wc.status" failonerror="false">
 		  <arg value="status"/>
 		  <arg value="--short"/>
 		  <arg value="--untracked-files=no"/>
 	    </exec>
+		<local name="git.wc.dirty" />
 		<condition property="git.wc.dirty" value="true">
 			<and>
 				<isset property="git.wc.status" />
@@ -367,37 +374,51 @@ For simple use the main targets are:
 				</not>
 			</and>
 		</condition>
+		<local name="git.wc.dirty.string" />
 		<condition property="git.wc.dirty.string" value="dirty" else="">
 			<isset property="git.wc.dirty" />
 		</condition>
 
+		<local name="git.hash" />
 	    <exec executable="git" outputproperty="git.hash" failonerror="false">
 		  <arg value="log"/>
 		  <arg value="-1"/>
 		  <arg value="--pretty=format:%H"/>
 	    </exec>
+		<local name="git.hash.abbrev" />
+	    <exec executable="git" outputproperty="git.hash.abbrev" failonerror="false">
+		  <arg value="log"/>
+		  <arg value="-1"/>
+		  <arg value="--pretty=format:%h"/>
+	    </exec>
+		<local name="git.date" />
 	    <exec executable="git" outputproperty="git.date" failonerror="false">
 		  <arg value="log"/>
 		  <arg value="-1"/>
 		  <arg value="--pretty=format:%ai"/>
 	    </exec>
+		<local name="git.author" />
 	    <exec executable="git" outputproperty="git.author" failonerror="false">
 		  <arg value="log"/>
 		  <arg value="-1"/>
 		  <arg value="--pretty=format:%an"/>
 	    </exec>
 
+		<local name="git.tagstring" />
 		<exec executable="git" outputproperty="git.tagstring" failonerror="false">
 	      <arg value="describe"/>
 			<arg value="--dirty"/>
 	    </exec>
+		<local name="git.revision" />
 	    <exec executable="git" outputproperty="git.revision">
 	      <arg value="rev-parse"/>
 	      <arg value="HEAD"/>
 	    </exec>
+		<local name="git.tag" />
 		<condition property="git.tag" value="${git.revision}" else="${git.tagstring}">
 		    <equals arg1="${git.tagstring}" arg2="fatal: No names found, cannot describe anything."/>
 		</condition>
+		<local name="git.repo.path" />
 		<exec executable="git" outputproperty="git.repo.path" failonerror="false">
 	    	<arg value="describe"/>
 			<arg value="--all"/>
@@ -405,28 +426,35 @@ For simple use the main targets are:
 			<arg value="--dirty"/>
 	    </exec>
 		
-
     	<!-- Lets recreate a clean scm.info.txt -->
-    	<echo file="${scm.info.file}" append="false">Version=${version}
+    	<echo file="${scm.info.file}" append="false">version=${version}
 </echo>
-    	<echo file="${scm.info.file}" append="true">SCM.Revision=${git.tag}
+    	<echo file="${scm.info.file}" append="true">scm.revision=${git.tag}
 </echo>
-    	<echo file="${scm.info.file}" append="true">SCM.WC.Dirty.Status=${git.wc.dirty.string}
+    	<echo file="${scm.info.file}" append="true">scm.revision.uid=${git.hash}
 </echo>
-    	<echo file="${scm.info.file}" append="true">SCM.Revision.UID=${git.hash}
+    	<echo file="${scm.info.file}" append="true">scm.repository.path=${git.repo.path}
 </echo>
-    	<echo file="${scm.info.file}" append="true">SCM.Repository.Path=${git.repo.path}
+    	<echo file="${scm.info.file}" append="true">scm.last.changed.author=${git.author}
 </echo>
-    	<echo file="${scm.info.file}" append="true">SCM.Last.Changed.Author=${git.author}
+    	<echo file="${scm.info.file}" append="true">scm.last.changed.date=${git.date}
 </echo>
-    	<echo file="${scm.info.file}" append="true">SCM.Last.Changed.Date=${git.date}
+    	<echo file="${scm.info.file}" append="true">scm.wc.dirty.string=${git.wc.dirty.string}
+</echo>
+    	<echo file="${scm.info.file}" append="true">scm.wc.dirty.status=${git.wc.dirty.status}
 </echo>
 
-		<condition property="scminfo.SCM.WC.Dirty" value="dirty">
+		<property name="scm.revision.uid.abbrev" value="${git.hash.abbrev}" />
+		<condition property="scm.wc.dirty" value="dirty">
 			<isset property="git.wc.dirty" />
 		</condition>
-		<property file="${scm.info.file}" prefix="scminfo" />
-    	<property name="scm-props-set" value="true"/>
+		<property file="${scm.info.file}"/>
+
+		<!-- This should be after loading the properties from file because this addition will render this not loadable. -->
+    	<echo file="${scm.info.file}" append="true">scm.wc.status=${git.wc.status}
+</echo>
+			
+		<property name="scm-props-set" value="true"/>
     </target>
 
 	<!-- =================================================================== -->
@@ -559,6 +587,7 @@ For simple use the main targets are:
 			</fileset>
 			<filterset refid="neptus.filters" />
 		</copy>
+		<copy file="${scm.info.file}" tofile="${build.classes}/info" overwrite="yes" failonerror="false" />
 		<copy todir="${build.classes}" overwrite="true">
 			<fileset dir="${src.dir}">
 				<include name="totd.xml" />
@@ -604,6 +633,7 @@ For simple use the main targets are:
 			</fileset>
 			<filterset refid="neptus.filters" />
 		</copy>
+		<copy file="${scm.info.file}" tofile="${tmp.main.dir}/info" overwrite="yes" failonerror="false" />
 		<copy todir="${tmp.main.dir}" overwrite="true">
 			<fileset dir="${src.dir}">
 				<include name="totd.xml" />
@@ -727,6 +757,7 @@ For simple use the main targets are:
 		<jar destfile="${bin.dir}/${jar-api-justrender.file}" basedir="${build.classes}" 
 				index="false" update="true" excludes="${exclude-svn}, *.class">
 			<include name="version.*" />
+			<include name="info*" />
         	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
 			<include name="pt/up/fe/dceg/neptus/types/coord/*.class" />
 			<include name="pt/up/fe/dceg/neptus/types/**/*.class" />
@@ -773,6 +804,7 @@ For simple use the main targets are:
         <jar destfile="${bin.bundle.dir}/${name}-mra.jar" basedir="${build.classes}" 
         	   excludes="${exclude-svn}" includes="LICENSE">
 			<include name="version.*" />
+			<include name="info*" />
         	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
         	<include name="pt/up/fe/dceg/neptus/mra/*.class"/>
             <include name="pt/up/fe/dceg/neptus/colormap/**/*.class"/>
@@ -847,6 +879,7 @@ For simple use the main targets are:
         <jar destfile="${bin.bundle.dir}/${name}-check.jar" basedir="${build.classes}" 
                excludes="${exclude-svn}" includes="LICENSE">
 			<include name="version.*" />
+			<include name="info*" />
         	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
         	<include name="pt/up/fe/dceg/neptus/NeptusLog*.class" />
             <include name="pt/up/fe/dceg/neptus/gui/checklist/**/*.class"/>
@@ -964,6 +997,7 @@ For simple use the main targets are:
         <jar destfile="${bin.bundle.dir}/${name}-worldmap.jar" basedir="${build.classes}" 
                excludes="${exclude-svn}" includes="LICENSE">
 			<include name="version.*" />
+			<include name="info*" />
         	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
         	<include name="pt/up/fe/dceg/neptus/NeptusLog*.class" />
 			<include name="pt/up/fe/dceg/neptus/app/tiles/**/*.class" />
@@ -1201,6 +1235,7 @@ For simple use the main targets are:
 				includes="plugins.lst" />
 			<filterset refid="neptus.filters" />
 		</copy>
+		<copy file="${scm.info.file}" tofile="${local.output.build.dir}/info" overwrite="yes" failonerror="false" />
 	</target>
 
 	<target name="plugin-create-jar.uptodate.test">

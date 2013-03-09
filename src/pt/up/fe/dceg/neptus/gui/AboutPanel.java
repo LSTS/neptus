@@ -138,8 +138,8 @@ public class AboutPanel extends JFrame {
                 versionString += prop.getProperty("VERSION", "");
                 versionString += " (";
                 versionString += prop.getProperty("DATE", "");
-                versionString += ", r";
-                versionString += prop.getProperty("SVN_REV", "?");
+                versionString += ", g";
+                versionString += prop.getProperty("SCM_REV", "?");
                 versionString += ")";
             }
             catch (IOException e) {

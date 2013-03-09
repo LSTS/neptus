@@ -890,8 +890,8 @@ public class ConfigFetch {
                 versionString += prop.getProperty("VERSION", "");
                 versionString += " (";
                 versionString += prop.getProperty("DATE", "");
-                versionString += ", r";
-                versionString += prop.getProperty("SVN_REV", "?");
+                versionString += ", g";
+                versionString += prop.getProperty("SCM_REV", "?");
                 versionString += ")";
             }
             catch (IOException e) {
@@ -912,8 +912,8 @@ public class ConfigFetch {
                 versionString += prop.getProperty("VERSION", "");
                 versionString += " (";
                 versionString += prop.getProperty("DATE", "");
-                versionString += ", r";
-                versionString += prop.getProperty("SVN_REV", "?");
+                versionString += ", g";
+                versionString += prop.getProperty("SCM_REV", "?");
                 versionString += ")";
             }
             catch (IOException e) {
@@ -938,8 +938,8 @@ public class ConfigFetch {
                 versionString += prop.getProperty("VERSION", "");
                 versionString += " (";
                 versionString += prop.getProperty("DATE", "");
-                versionString += ", r";
-                versionString += prop.getProperty("SVN_REV", "?");
+                versionString += ", g";
+                versionString += prop.getProperty("SCM_REV", "?");
                 versionString += ")";
             }
             catch (IOException e) {
@@ -957,8 +957,8 @@ public class ConfigFetch {
         Date trialTime = new Date();
         SimpleDateFormat dateFormater = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.0Z'");
         String ret = "Data saved on " + dateFormater.format(trialTime) + " with Neptus version "
-                + prop.getProperty("VERSION", "") + " (compiled on " + prop.getProperty("DATE", "") + ", r"
-                + prop.getProperty("SVN_REV", "?") + ").";
+                + prop.getProperty("VERSION", "") + " (compiled on " + prop.getProperty("DATE", "") + ", g"
+                + prop.getProperty("SCM_REV", "?") + ").";
         return " " + ret + " ";
     }
 
@@ -1065,9 +1065,9 @@ public class ConfigFetch {
         return params.get("date");
     }
 
-    public static String getSvnRev() {
+    public static String getScmRev() {
         parseVersionFile();
-        return params.get("svn_rev");
+        return params.get("scm_rev");
     }
 
     public static long getNeptusInitializationTime() {
