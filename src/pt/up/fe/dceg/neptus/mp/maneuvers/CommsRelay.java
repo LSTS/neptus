@@ -9,7 +9,6 @@
  *
  * Created by Paulo Dias
  * 2011/05/30
- * $Id:: CommsRelay.java 9913 2013-02-11 19:11:17Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.mp.maneuvers;
 

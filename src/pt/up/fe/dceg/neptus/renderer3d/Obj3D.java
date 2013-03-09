@@ -9,7 +9,6 @@
  *
  * Created by 
  * 18/Mar/2002
- * $Id:: Obj3D.java 9616 2012-12-30 23:23:22Z pdias                       $:
  */
 package pt.up.fe.dceg.neptus.renderer3d;
 

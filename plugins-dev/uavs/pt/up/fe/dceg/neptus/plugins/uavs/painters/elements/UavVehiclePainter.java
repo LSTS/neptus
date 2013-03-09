@@ -9,7 +9,6 @@
  *
  * Created by Canasta
  * 5 de Dez de 2010
- * $Id:: UavVehiclePainter.java 9880 2013-02-07 15:23:52Z jqcorreia             $:
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.painters.elements;
 

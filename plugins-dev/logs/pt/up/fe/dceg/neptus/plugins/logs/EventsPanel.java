@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Apr 26, 2012
- * $Id:: EventsPanel.java 10008 2013-02-21 11:47:51Z zepinto                    $:
  */
 package pt.up.fe.dceg.neptus.plugins.logs;
 

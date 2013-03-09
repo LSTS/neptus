@@ -9,7 +9,6 @@
  *
  * Created by condor
  * 4 de Jan de 2013
- * $Id:: UavPTUControlPanel.java 9697 2013-01-10 18:57:34Z pdias                $:
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.panels;
 

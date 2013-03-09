@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Feb 13, 2013
- * $Id:: ValidateTideCorrection.java 9933 2013-02-15 03:32:23Z robot            $:
  */
 package pt.up.fe.dceg.neptus.plugins.r3d;
 

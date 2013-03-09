@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Jan 2, 2013
- * $Id:: MessageHtmlVisualization.java 9642 2013-01-03 03:31:32Z robot          $:
  */
 package pt.up.fe.dceg.neptus.util.llf;
 

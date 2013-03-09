@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 18 de Nov de 2011
- * $Id:: Elevator.java 10020 2013-02-25 12:05:12Z pdias                         $:
  */
 package pt.up.fe.dceg.neptus.mp.maneuvers;
 

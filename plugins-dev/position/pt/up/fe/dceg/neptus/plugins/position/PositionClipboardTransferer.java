@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Jul 7, 2010
- * $Id:: PositionClipboardTransferer.java 9620 2013-01-02 11:32:43Z pdias       $:
  */
 package pt.up.fe.dceg.neptus.plugins.position;
 

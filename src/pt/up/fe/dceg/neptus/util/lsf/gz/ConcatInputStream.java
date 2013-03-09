@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Jun 4, 2010
- * $Id:: ConcatInputStream.java 9615 2012-12-30 23:08:28Z pdias                 $:
  */
 package pt.up.fe.dceg.neptus.util.lsf.gz;
 

@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Jun 19, 2012
- * $Id:: ImcTo837.java 10079 2013-03-08 17:37:35Z jqcorreia                     $:
  */
 package pt.up.fe.dceg.neptus.mra.exporters;
 

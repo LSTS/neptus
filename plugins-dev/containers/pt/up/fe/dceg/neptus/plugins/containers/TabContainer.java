@@ -9,7 +9,6 @@
  *
  * Created by ZP
  * 2009/09/16
- * $Id:: TabContainer.java 9640 2013-01-02 18:24:18Z pdias                $:
  */
 package pt.up.fe.dceg.neptus.plugins.containers;
 

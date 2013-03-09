@@ -9,7 +9,6 @@
  *
  * Created by Hugo Dias
  * Oct 14, 2011
- * $Id::                                                                        $:
  */
 package pt.up.fe.dceg.neptus.util.coord;
 

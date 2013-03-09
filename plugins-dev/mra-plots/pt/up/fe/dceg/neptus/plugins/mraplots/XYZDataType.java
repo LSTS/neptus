@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 21 de Jun de 2012
- * $Id:: XYZDataType.java 9615 2012-12-30 23:08:28Z pdias                       $:
  */
 package pt.up.fe.dceg.neptus.plugins.mraplots;
 

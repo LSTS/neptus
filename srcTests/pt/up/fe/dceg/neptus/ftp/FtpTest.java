@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Dec 11, 2012
- * $Id::                                                                        $:
  */
 package pt.up.fe.dceg.neptus.ftp;
 

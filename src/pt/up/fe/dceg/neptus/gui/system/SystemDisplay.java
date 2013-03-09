@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2010/05/27
- * $Id:: SystemDisplay.java 10012 2013-02-21 14:23:45Z pdias                    $:
  */
 package pt.up.fe.dceg.neptus.gui.system;
 

@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 30/10/2010
- * $Id:: MultiSystemIMCMessageListener.java 10012 2013-02-21 14:23:45Z pdias    $:
  */
 package pt.up.fe.dceg.neptus.plugins;
 

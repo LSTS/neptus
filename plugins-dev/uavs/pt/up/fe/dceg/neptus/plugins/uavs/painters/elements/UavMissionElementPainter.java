@@ -9,7 +9,6 @@
  *
  * Created by sergioferreira
  * 5 de Mar de 2012
- * $Id:: UavMissionElementPainter.java 9846 2013-02-02 03:32:12Z robot          $:
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.painters.elements;
 

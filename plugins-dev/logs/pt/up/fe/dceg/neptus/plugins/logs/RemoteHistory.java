@@ -9,7 +9,6 @@
  *
  * Created by ZP
  * 5 de Jul de 2010
- * $Id:: RemoteHistory.java 9953 2013-02-19 19:33:09Z zepinto                   $:
  */
 package pt.up.fe.dceg.neptus.plugins.logs;
 

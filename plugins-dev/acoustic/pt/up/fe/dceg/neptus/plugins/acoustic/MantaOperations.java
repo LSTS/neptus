@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Jul 21, 2011
- * $Id:: MantaOperations.java 9950 2013-02-19 15:28:02Z zepinto                 $:
  */
 package pt.up.fe.dceg.neptus.plugins.acoustic;
 

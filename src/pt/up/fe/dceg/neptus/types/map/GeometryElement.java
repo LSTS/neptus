@@ -9,7 +9,6 @@
  *
  * Created by 
  * Mar 15, 2005
- * $Id:: GeometryElement.java 9845 2013-02-01 19:53:46Z pdias             $:
  */
 package pt.up.fe.dceg.neptus.types.map;
 

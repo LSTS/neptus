@@ -9,7 +9,6 @@
  *
  * Created by 
  * 24/Fev/2005
- * $Id:: GuiUtils.java 10070 2013-03-06 15:33:38Z jqcorreia               $:
  */
 package pt.up.fe.dceg.neptus.util;
 

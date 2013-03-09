@@ -9,7 +9,6 @@
  *
  * Created by 
  * 2007/04/28
- * $Id:: MessagePanel.java 9616 2012-12-30 23:23:22Z pdias                $:
  */
 package pt.up.fe.dceg.neptus.gui.swing;
 

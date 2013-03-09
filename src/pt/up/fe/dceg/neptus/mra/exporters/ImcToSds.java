@@ -9,7 +9,6 @@
  *
  * Created by ZP
  * 2012/0?/??
- * $Id:: ImcToSds.java 9763 2013-01-24 17:17:06Z zepinto                  $:
  */
 package pt.up.fe.dceg.neptus.mra.exporters;
 

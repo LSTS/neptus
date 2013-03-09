@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2010/05/28
- * $Id:: AuthoritySymbol.java 9873 2013-02-06 14:51:27Z pdias                   $:
  */
 package pt.up.fe.dceg.neptus.gui.system;
 

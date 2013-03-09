@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Dec 18, 2012
- * $Id:: FTPDownloader.java 9645 2013-01-03 14:31:24Z jqcorreia                 $:
  */
 package pt.up.fe.dceg.neptus.ftp;
 

@@ -9,7 +9,6 @@
  *
  * Created by zepinto
  * 2007/09/25
- * $Id:: MRAPanel.java 10077 2013-03-08 13:30:02Z jqcorreia               $:
  */
 package pt.up.fe.dceg.neptus.mra;
 

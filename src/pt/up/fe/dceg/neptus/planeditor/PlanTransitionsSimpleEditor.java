@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 5/06/2011
- * $Id:: PlanTransitionsSimpleEditor.java 9754 2013-01-18 18:34:37Z pdias       $:
  */
 package pt.up.fe.dceg.neptus.planeditor;
 

@@ -9,7 +9,6 @@
  *
  * Created by 
  * May 11, 2005
- * $Id:: Unconstrained.java 9880 2013-02-07 15:23:52Z jqcorreia           $:
  */
 package pt.up.fe.dceg.neptus.mp.maneuvers;
 

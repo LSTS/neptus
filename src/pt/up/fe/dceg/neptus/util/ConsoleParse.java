@@ -9,7 +9,6 @@
  *
  * Created by Rui Gonçalves
  * 2006/08/04
- * $Id:: ConsoleParse.java 9797 2013-01-29 16:02:40Z pdias                $:
  */
 package pt.up.fe.dceg.neptus.util;
 

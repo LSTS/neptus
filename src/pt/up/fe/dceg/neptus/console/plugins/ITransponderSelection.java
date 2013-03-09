@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Jun 28, 2011
- * $Id:: ITransponderSelection.java 9777 2013-01-28 14:43:48Z pdias             $:
  */
 package pt.up.fe.dceg.neptus.console.plugins;
 

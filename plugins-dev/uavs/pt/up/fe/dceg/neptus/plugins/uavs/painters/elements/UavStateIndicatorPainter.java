@@ -9,7 +9,6 @@
  *
  * Created by christian
  * 22.10.2012
- * $Id:: UavStateIndicatorPainter.java 9846 2013-02-02 03:32:12Z robot          $:
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.painters.elements;
 

@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Nov 13, 2012
- * $Id:: PiePlot.java 9803 2013-01-30 03:32:17Z robot                           $:
  */
 package pt.up.fe.dceg.neptus.mra.plots;
 

@@ -9,7 +9,6 @@
  *
  * Created by 
  * 28/Fev/2005
- * $Id:: ZValueSelector.java 9755 2013-01-18 19:35:53Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

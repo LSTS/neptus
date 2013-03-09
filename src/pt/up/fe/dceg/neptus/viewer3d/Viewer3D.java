@@ -9,7 +9,6 @@
  *
  * Created by rjpg
  * 200?/??/??
- * $Id:: Viewer3D.java 9616 2012-12-30 23:23:22Z pdias                    $:
  */
 package pt.up.fe.dceg.neptus.viewer3d;
 

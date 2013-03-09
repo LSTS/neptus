@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Nov 13, 2012
- * $Id:: EulerAnglesPlot.java 9835 2013-02-01 17:24:48Z jqcorreia               $:
  */
 package pt.up.fe.dceg.neptus.mra.plots;
 

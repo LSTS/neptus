@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Sep 24, 2010
- * $Id:: OperationLimitsPanel.java 9615 2012-12-30 23:08:28Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.plugins.oplimits;
 

@@ -10,7 +10,6 @@
  * Created by Rui Gonçalves
  * 2007/09/23
  * 2007/02/15
- * $Id:: ConsoleLayout.java 10012 2013-02-21 14:23:45Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.console;
 

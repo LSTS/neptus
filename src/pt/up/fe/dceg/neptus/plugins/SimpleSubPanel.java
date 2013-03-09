@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: SimpleSubPanel.java 10025 2013-02-25 15:11:38Z pdias             $:
  */
 package pt.up.fe.dceg.neptus.plugins;
 

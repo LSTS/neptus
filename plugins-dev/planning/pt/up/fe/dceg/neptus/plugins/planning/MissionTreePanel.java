@@ -9,7 +9,6 @@
  *
  * Created by ZP
  * 2009/09/22
- * $Id:: MissionTreePanel.java 10081 2013-03-08 17:47:25Z mfaria          $:
  */
 package pt.up.fe.dceg.neptus.plugins.planning;
 

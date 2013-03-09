@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2010/01/24
- * $Id:: AnnounceWorker.java 9898 2013-02-11 14:29:48Z pdias                    $:
  */
 package pt.up.fe.dceg.neptus.util.comm.manager.imc;
 

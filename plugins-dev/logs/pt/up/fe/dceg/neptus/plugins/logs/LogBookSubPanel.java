@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Feb 19, 2013
- * $Id:: LogBookSubPanel.java 10009 2013-02-21 13:59:59Z zepinto                $:
  */
 package pt.up.fe.dceg.neptus.plugins.logs;
 

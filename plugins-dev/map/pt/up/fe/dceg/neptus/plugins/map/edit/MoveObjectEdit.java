@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Nov 15, 2011
- * $Id:: MoveObjectEdit.java 9615 2012-12-30 23:08:28Z pdias                    $:
  */
 package pt.up.fe.dceg.neptus.plugins.map.edit;
 

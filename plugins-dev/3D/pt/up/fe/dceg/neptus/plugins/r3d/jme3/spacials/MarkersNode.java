@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Jan 4, 2013
- * $Id:: MarkersNode.java 9885 2013-02-07 17:48:58Z mfaria                      $:
  */
 package pt.up.fe.dceg.neptus.plugins.r3d.jme3.spacials;
 

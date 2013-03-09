@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: ErrorMessageBox.java 9736 2013-01-18 15:29:09Z pdias             $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

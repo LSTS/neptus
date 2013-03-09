@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Nov 22, 2012
- * $Id:: ConsoleEventSystemAuthorityStateChanged.java 10019 2013-02-25 03:31:42#$:
  */
 package pt.up.fe.dceg.neptus.console.events;
 

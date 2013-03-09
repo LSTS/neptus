@@ -9,7 +9,6 @@
  *
  * Created by 
  * 2007/05/19
- * $Id:: CommManagerStatusChangeListener.java 9616 2012-12-30 23:23:22Z p#$:
  */
 package pt.up.fe.dceg.neptus.util.comm.manager;
 

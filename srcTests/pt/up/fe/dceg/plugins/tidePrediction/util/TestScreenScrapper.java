@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Jan 28, 2013
- * $Id:: TestScreenScrapper.java 9814 2013-01-31 03:32:09Z robot                $:
  */
 package pt.up.fe.dceg.plugins.tidePrediction.util;
 

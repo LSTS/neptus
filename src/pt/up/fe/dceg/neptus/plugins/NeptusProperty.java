@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: NeptusProperty.java 9638 2013-01-02 17:55:12Z mfaria             $:
  */
 package pt.up.fe.dceg.neptus.plugins;
 

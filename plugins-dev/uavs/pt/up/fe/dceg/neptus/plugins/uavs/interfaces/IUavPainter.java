@@ -9,7 +9,6 @@
  *
  * Created by canasta
  * 27 de Fev de 2012
- * $Id:: IUavPainter.java 9615 2012-12-30 23:08:28Z pdias                       $:
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.interfaces;
 

@@ -9,7 +9,6 @@
  *
  * Created by zepinto
  * 2005/02/15
- * $Id:: StateRenderer2D.java 9880 2013-02-07 15:23:52Z jqcorreia         $:
  */
 package pt.up.fe.dceg.neptus.renderer2d;
 

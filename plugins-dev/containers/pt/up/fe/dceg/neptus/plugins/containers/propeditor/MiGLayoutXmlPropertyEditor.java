@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 5 de Out de 2010
- * $Id:: MiGLayoutXmlPropertyEditor.java 9615 2012-12-30 23:08:28Z pdias        $:
  */
 package pt.up.fe.dceg.neptus.plugins.containers.propeditor;
 

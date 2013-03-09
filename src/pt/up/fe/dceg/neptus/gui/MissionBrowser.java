@@ -8,7 +8,6 @@
  *
  * Created by José Pinto
  * 22/03/2005
- * $Id:: MissionBrowser.java 10081 2013-03-08 17:47:25Z mfaria            $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

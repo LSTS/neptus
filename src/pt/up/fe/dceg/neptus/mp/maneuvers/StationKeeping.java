@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2010/07/14
- * $Id:: StationKeeping.java 9913 2013-02-11 19:11:17Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.mp.maneuvers;
 

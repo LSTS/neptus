@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 10 de Nov de 2012
- * $Id:: JoystickAxisComboEditor.java 9913 2013-02-11 19:11:17Z pdias           $:
  */
 package pt.up.fe.dceg.neptus.gui.editor;
 

@@ -9,7 +9,6 @@
  *
  * Created by 
  * Jun 16, 2005
- * $Id:: MapFileChooser.java 9857 2013-02-04 15:09:29Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

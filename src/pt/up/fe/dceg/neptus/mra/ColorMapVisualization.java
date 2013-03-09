@@ -9,7 +9,6 @@
  *
  * Created by ZP
  * 200?/??/??
- * $Id:: ColorMapVisualization.java 9913 2013-02-11 19:11:17Z pdias       $:
  */
 package pt.up.fe.dceg.neptus.mra;
 

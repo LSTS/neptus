@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: ConsoleVehicleChangeListener.java 9616 2012-12-30 23:23:22Z pdia#$:
  */
 package pt.up.fe.dceg.neptus.console.plugins;
 

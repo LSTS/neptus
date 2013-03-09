@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Feb 6, 2013
- * $Id:: JMEListener.java 9890 2013-02-08 03:32:15Z robot                       $:
  */
 package pt.up.fe.dceg.neptus.plugins.r3d;
 

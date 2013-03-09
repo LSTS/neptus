@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2010/05/02
- * $Id:: MyLocationDisplay.java 10012 2013-02-21 14:23:45Z pdias                $:
  */
 package pt.up.fe.dceg.neptus.console.plugins;
 

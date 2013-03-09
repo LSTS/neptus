@@ -9,7 +9,6 @@
  *
  * Created by 
  * 1/Mar/2005
- * $Id:: TestWorkspace.java 9616 2012-12-30 23:23:22Z pdias               $:
  */
 package pt.up.fe.dceg.neptus.test;
 

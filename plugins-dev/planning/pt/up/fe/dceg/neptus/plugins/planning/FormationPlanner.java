@@ -9,7 +9,6 @@
  *
  * Created by ZP
  * 28 de Mai de 2011
- * $Id:: FormationPlanner.java 9615 2012-12-30 23:08:28Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.plugins.planning;
 

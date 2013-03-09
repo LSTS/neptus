@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Feb 14, 2013
- * $Id:: RealTimePlotSettings.java 9933 2013-02-15 03:32:23Z robot              $:
  */
 package pt.up.fe.dceg.neptus.plugins.rtplot;
 

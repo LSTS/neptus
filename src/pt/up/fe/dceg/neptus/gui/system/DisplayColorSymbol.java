@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2011/04/16
- * $Id:: DisplayColorSymbol.java 9615 2012-12-30 23:08:28Z pdias                $:
  */
 package pt.up.fe.dceg.neptus.gui.system;
 

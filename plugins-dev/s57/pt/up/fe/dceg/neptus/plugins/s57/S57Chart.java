@@ -9,7 +9,6 @@
  *
  * Created by Hugo Dias
  * 16/12/2011
- * $Id:: S57Chart.java 9615 2012-12-30 23:08:28Z pdias                          $:
  */
 package pt.up.fe.dceg.neptus.plugins.s57;
 

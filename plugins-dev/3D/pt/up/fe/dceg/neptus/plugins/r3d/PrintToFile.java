@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Jul 19, 2012
- * $Id:: PrintToFile.java 9615 2012-12-30 23:08:28Z pdias                       $:
  */
 package pt.up.fe.dceg.neptus.plugins.r3d;
 

@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 1 de Fev de 2013
- * $Id:: Maneuver3DCreationHelper.java 9865 2013-02-05 15:03:46Z pdias          $:
  */
 package pt.up.fe.dceg.neptus.renderer3d;
 

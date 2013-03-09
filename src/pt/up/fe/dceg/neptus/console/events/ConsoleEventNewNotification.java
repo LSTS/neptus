@@ -9,7 +9,6 @@
  *
  * Created by Hugo
  * Nov 21, 2012
- * $Id:: ConsoleEventNewNotification.java 9615 2012-12-30 23:08:28Z pdias       $:
  */
 package pt.up.fe.dceg.neptus.console.events;
 

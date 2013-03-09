@@ -9,7 +9,6 @@
  *
  * Created by Hugo
  * Nov 12, 2012
- * $Id:: NotificationsCollection.java 9615 2012-12-30 23:08:28Z pdias           $:
  */
 package pt.up.fe.dceg.neptus.console.notifications;
 

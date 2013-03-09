@@ -9,7 +9,6 @@
  *
  * Created by guga
  * 2 de Nov de 2012
- * $Id::                                                                        $:
  */
 package pt.up.fe.dceg.neptus.systems;
 

@@ -9,7 +9,6 @@
  *
  * Created by Darryl from http://tips4java.wordpress.com/2009/02/01/menu-scroller/
  * 14/09/2010
- * $Id:: MenuScroller.java 9922 2013-02-13 19:17:59Z pdias                      $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

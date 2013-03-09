@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 17 de Dez de 2012
- * $Id:: OpenImcMonitorAction.java 9615 2012-12-30 23:08:28Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.console.actions;
 

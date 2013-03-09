@@ -9,7 +9,6 @@
  *
  * Created by Hugo
  * Oct 18, 2012
- * $Id:: TakeSnapshotConsoleAction.java 9615 2012-12-30 23:08:28Z pdias         $:
  */
 package pt.up.fe.dceg.neptus.console.actions;
 

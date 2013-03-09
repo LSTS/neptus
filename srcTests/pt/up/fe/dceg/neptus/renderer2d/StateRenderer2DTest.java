@@ -9,7 +9,6 @@
  *
  * Created by Hugo Dias
  * Oct 20, 2011
- * $Id::                                                                        $:
  */
 package pt.up.fe.dceg.neptus.renderer2d;
 

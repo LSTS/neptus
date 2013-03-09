@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * May 18, 2012
- * $Id:: SidescanReplay.java 9952 2013-02-19 18:24:10Z jqcorreia                $:
  */
 package pt.up.fe.dceg.neptus.mra.replay;
 

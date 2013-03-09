@@ -8,7 +8,6 @@
  * For more information please see <http://whale.fe.up.pt/neptus>.
  *
  * 2007/05/25 pdias
- * $Id:: SystemImcMsgCommInfo.java 9898 2013-02-11 14:29:48Z pdias        $:
  */
 package pt.up.fe.dceg.neptus.util.comm.manager.imc;
 

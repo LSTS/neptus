@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20/Jun/2005
- * $Id:: PasswordPanel.java 9920 2013-02-13 19:13:21Z pdias               $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

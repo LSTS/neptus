@@ -9,7 +9,6 @@ s * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática a
  *
  * Created by 
  * 20??/??/??
- * $Id:: KeysConfiguration.java 9616 2012-12-30 23:23:22Z pdias           $:
  */
 package pt.up.fe.dceg.neptus.console.plugins;
 

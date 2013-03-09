@@ -9,7 +9,6 @@
  *
  * Created by 
  * 14/Set/2004
- * $Id:: Maneuver.java 9913 2013-02-11 19:11:17Z pdias                    $:
  */
 package pt.up.fe.dceg.neptus.mp;
 

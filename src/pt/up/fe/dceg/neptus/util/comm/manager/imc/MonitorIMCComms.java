@@ -10,7 +10,6 @@
  * Created by pdias
  * Created in 2006/12/08
  * Reworked in 2008/12/01
- * $Id:: MonitorIMCComms.java 9616 2012-12-30 23:23:22Z pdias             $:
  */
 package pt.up.fe.dceg.neptus.util.comm.manager.imc;
 

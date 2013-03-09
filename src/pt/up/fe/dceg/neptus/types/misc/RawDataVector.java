@@ -1,6 +1,5 @@
 /*
  * Created in 12/Abr/2006
- * $Id:: RawDataVector.java 8431 2012-09-21 17:43:43Z jqcorreia           $:
  */
 package pt.up.fe.dceg.neptus.types.misc;
 

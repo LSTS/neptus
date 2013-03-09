@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Nov 29, 2012
- * $Id::                                                                        $:
  */
 package pt.up.fe.dceg.neptus.generators;
 

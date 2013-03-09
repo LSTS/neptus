@@ -9,7 +9,6 @@
  *
  * Created by 
  * 22/Jun/2005
- * $Id:: PropertiesEditor.java 9919 2013-02-13 19:05:55Z pdias            $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

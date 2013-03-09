@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 5/10/2010
- * $Id:: XMLPropertyEditor.java 9615 2012-12-30 23:08:28Z pdias                 $:
  */
 package pt.up.fe.dceg.neptus.gui.editor;
 

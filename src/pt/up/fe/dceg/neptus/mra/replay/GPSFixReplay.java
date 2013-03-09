@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Dec 12, 2011
- * $Id:: GPSFixReplay.java 9952 2013-02-19 18:24:10Z jqcorreia                  $:
  */
 package pt.up.fe.dceg.neptus.mra.replay;
 

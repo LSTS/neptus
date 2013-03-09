@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Jul 7, 2012
- * $Id:: MultibeamData.java 10011 2013-02-21 14:17:25Z zepinto                  $:
  */
 package pt.up.fe.dceg.neptus.plugins.multibeam;
 

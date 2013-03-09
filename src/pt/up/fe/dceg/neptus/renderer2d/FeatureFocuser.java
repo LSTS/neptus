@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Nov 9, 2011
- * $Id:: FeatureFocuser.java 9660 2013-01-04 17:30:52Z pdias                    $:
  */
 package pt.up.fe.dceg.neptus.renderer2d;
 

@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2005/01/16
- * $Id:: PlanType.java 9899 2013-02-11 14:31:06Z pdias                    $:
  */
 package pt.up.fe.dceg.neptus.types.mission.plan;
 

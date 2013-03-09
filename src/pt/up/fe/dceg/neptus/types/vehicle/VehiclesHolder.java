@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2005/01/15
- * $Id:: VehiclesHolder.java 9819 2013-01-31 16:03:22Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.types.vehicle;
 

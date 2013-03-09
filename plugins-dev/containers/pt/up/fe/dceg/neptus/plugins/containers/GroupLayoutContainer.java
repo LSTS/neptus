@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2/10/2010
- * $Id:: GroupLayoutContainer.java 9640 2013-01-02 18:24:18Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.plugins.containers;
 

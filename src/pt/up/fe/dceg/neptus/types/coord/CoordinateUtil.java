@@ -9,7 +9,6 @@
  *
  * Created by Zé Pinto, Paulo Dias
  * 2005/01/15
- * $Id:: CoordinateUtil.java 9834 2013-02-01 17:20:52Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.types.coord;
 

@@ -9,7 +9,6 @@
  *
  * Created by Paulo Dias
  * 2010/05/01
- * $Id:: TCPTransport.java 9615 2012-12-30 23:08:28Z pdias                      $:
  */
 package pt.up.fe.dceg.neptus.util.comm.transports.tcp;
 

@@ -9,7 +9,6 @@
  *
  * Created by Rui Gonçalves
  * 2010/04/18
- * $Id:: PointIdoubleI.java 9635 2013-01-02 17:52:23Z pdias                     $:
  */
 package pt.up.fe.dceg.neptus.plugins.vrp.planning;
 

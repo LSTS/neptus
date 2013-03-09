@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: DynamicElement.java 9845 2013-02-01 19:53:46Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.types.map;
 

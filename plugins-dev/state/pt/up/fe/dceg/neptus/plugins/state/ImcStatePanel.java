@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Aug 9, 2012
- * $Id:: ImcStatePanel.java 10012 2013-02-21 14:23:45Z pdias                    $:
  */
 package pt.up.fe.dceg.neptus.plugins.state;
 

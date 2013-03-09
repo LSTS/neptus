@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Oct 7, 2011
- * $Id:: PaintersBag.java 9615 2012-12-30 23:08:28Z pdias                       $:
  */
 package pt.up.fe.dceg.neptus.renderer2d;
 

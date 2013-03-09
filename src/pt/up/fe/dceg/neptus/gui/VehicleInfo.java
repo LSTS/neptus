@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2005/03/10
- * $Id:: VehicleInfo.java 9843 2013-02-01 18:32:19Z pdias                 $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Feb 5, 2013
- * $Id:: ImcSidescanParser.java 10011 2013-02-21 14:17:25Z zepinto              $:
  */
 package pt.up.fe.dceg.neptus.plugins.sidescan;
 

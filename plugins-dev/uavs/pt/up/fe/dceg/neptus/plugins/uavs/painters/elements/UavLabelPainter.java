@@ -9,7 +9,6 @@
  *
  * Created by canasta
  * 25 de Jan de 2013
- * $Id:: UavLabelPainter.java 9863 2013-02-05 12:08:29Z sergioferreira          $:
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.painters.elements;
 

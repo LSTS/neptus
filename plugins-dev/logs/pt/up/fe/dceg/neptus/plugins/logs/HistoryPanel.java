@@ -9,7 +9,6 @@
  *
  * Created by ZP
  * 5 de Jul de 2010
- * $Id:: HistoryPanel.java 10008 2013-02-21 11:47:51Z zepinto                   $:
  */
 package pt.up.fe.dceg.neptus.plugins.logs;
 

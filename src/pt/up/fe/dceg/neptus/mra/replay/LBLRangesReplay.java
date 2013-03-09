@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 15/05/2012
- * $Id:: LBLRangesReplay.java 10071 2013-03-06 17:08:00Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.mra.replay;
 

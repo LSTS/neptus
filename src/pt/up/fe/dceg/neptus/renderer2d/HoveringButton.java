@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 18 de Dez de 2011
- * $Id:: HoveringButton.java 9615 2012-12-30 23:08:28Z pdias                    $:
  */
 package pt.up.fe.dceg.neptus.renderer2d;
 

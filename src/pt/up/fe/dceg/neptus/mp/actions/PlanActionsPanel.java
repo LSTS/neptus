@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2010/06/27
- * $Id:: PlanActionsPanel.java 9615 2012-12-30 23:08:28Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.mp.actions;
 

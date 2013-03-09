@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Jun 28, 2011
- * $Id:: VehicleSelectionDialog.java 9722 2013-01-17 19:50:19Z pdias            $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

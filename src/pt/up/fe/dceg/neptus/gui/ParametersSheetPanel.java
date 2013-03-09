@@ -9,7 +9,6 @@
  *
  * Created by 
  * 25/Jun/2005
- * $Id:: ParametersSheetPanel.java 9921 2013-02-13 19:15:24Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

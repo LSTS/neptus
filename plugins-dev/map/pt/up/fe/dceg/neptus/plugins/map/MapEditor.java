@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Nov 10, 2011
- * $Id:: MapEditor.java 9623 2013-01-02 12:33:12Z pdias                         $:
  */
 package pt.up.fe.dceg.neptus.plugins.map;
 

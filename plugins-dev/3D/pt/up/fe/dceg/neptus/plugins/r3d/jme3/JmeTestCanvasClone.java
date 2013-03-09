@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Feb 6, 2013
- * $Id:: JmeTestCanvasClone.java 9914 2013-02-12 03:32:18Z robot                $:
  */
 package pt.up.fe.dceg.neptus.plugins.r3d.jme3;
 

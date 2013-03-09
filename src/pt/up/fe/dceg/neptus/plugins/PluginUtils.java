@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: PluginUtils.java 9677 2013-01-08 17:17:32Z pdias                 $:
  */
 package pt.up.fe.dceg.neptus.plugins;
 

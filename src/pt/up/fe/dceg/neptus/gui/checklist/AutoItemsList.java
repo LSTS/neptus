@@ -7,7 +7,6 @@
  *
  * Created by rjpg
  * 200?/??/??
- * $Id:: AutoItemsList.java 9616 2012-12-30 23:23:22Z pdias               $:
  */
 package pt.up.fe.dceg.neptus.gui.checklist;
 

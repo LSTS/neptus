@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 6 de Jul de 2012
- * $Id:: OdssStoqsTrackFetcher.java 10012 2013-02-21 14:23:45Z pdias            $:
  */
 package pt.up.fe.dceg.neptus.plugins.odss;
 

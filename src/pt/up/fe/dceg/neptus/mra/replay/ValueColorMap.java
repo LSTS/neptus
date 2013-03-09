@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Dec 5, 2012
- * $Id:: ValueColorMap.java 9952 2013-02-19 18:24:10Z jqcorreia                 $:
  */
 package pt.up.fe.dceg.neptus.mra.replay;
 

@@ -9,7 +9,6 @@
  *
  * Created by Paulo Dias
  * 2008/09/20
- * $Id:: HeadingSpeedDepth.java 9913 2013-02-11 19:11:17Z pdias           $:
  */
 package pt.up.fe.dceg.neptus.mp.maneuvers;
 

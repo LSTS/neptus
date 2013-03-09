@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Nov 13, 2012
- * $Id:: Mra2DPlot.java 9764 2013-01-24 17:50:33Z jqcorreia                     $:
  */
 package pt.up.fe.dceg.neptus.mra.plots;
 

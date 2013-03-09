@@ -9,7 +9,6 @@
  *
  * Created by zepinto
  * 4 de Ago de 2010
- * $Id:: ISliderPanelListener.java 9615 2012-12-30 23:08:28Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.plugins.teleoperation;
 

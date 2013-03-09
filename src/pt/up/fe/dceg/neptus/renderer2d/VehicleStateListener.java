@@ -9,7 +9,6 @@
  *
  * Created by zp
  * May 25, 2010
- * $Id:: VehicleStateListener.java 9880 2013-02-07 15:23:52Z jqcorreia          $:
  */
 package pt.up.fe.dceg.neptus.renderer2d;
 

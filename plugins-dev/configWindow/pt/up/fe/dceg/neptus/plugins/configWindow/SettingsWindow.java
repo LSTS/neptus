@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Jan 10, 2013
- * $Id:: SettingsWindow.java 10030 2013-02-25 16:51:25Z mfaria                  $:
  */
 package pt.up.fe.dceg.neptus.plugins.configWindow;
 

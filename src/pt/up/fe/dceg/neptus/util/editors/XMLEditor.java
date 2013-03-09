@@ -9,7 +9,6 @@
  *
  * Created by 
  * 22/Jan/2005
- * $Id:: XMLEditor.java 9616 2012-12-30 23:23:22Z pdias                   $:
  */
 package pt.up.fe.dceg.neptus.util.editors;
 

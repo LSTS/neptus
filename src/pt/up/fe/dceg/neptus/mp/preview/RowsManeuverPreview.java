@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Nov 20, 2012
- * $Id:: RowsManeuverPreview.java 9880 2013-02-07 15:23:52Z jqcorreia           $:
  */
 package pt.up.fe.dceg.neptus.mp.preview;
 

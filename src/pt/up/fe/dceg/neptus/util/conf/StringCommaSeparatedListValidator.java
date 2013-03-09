@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2009/04/02
- * $Id:: StringCommaSeparatedListValidator.java 9615 2012-12-30 23:08:28Z#$:
  */
 package pt.up.fe.dceg.neptus.util.conf;
 

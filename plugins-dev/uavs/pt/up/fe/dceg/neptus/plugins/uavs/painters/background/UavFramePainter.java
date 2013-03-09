@@ -9,7 +9,6 @@
  *
  * Created by canasta
  * 23 de Mai de 2012
- * $Id:: UavFramePainter.java 9846 2013-02-02 03:32:12Z robot                   $:
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.painters.background;
 

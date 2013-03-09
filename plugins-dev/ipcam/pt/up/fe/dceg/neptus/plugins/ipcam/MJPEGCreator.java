@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Aug 2, 2010
- * $Id:: MJPEGCreator.java 9615 2012-12-30 23:08:28Z pdias                      $:
  */
 package pt.up.fe.dceg.neptus.plugins.ipcam;
 

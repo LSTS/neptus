@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 8/10/2011
- * $Id:: TileGoogleMaps.java 9615 2012-12-30 23:08:28Z pdias                    $:
  */
 package pt.up.fe.dceg.neptus.renderer2d.tiles;
 

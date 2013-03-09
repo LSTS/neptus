@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 28/06/2011
- * $Id:: IConsoleMenuItemServlet.java 9615 2012-12-30 23:08:28Z pdias           $:
  */
 package pt.up.fe.dceg.neptus.plugins.web;
 

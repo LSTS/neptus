@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Jun 28, 2012
- * $Id:: BathymetryLogInfo.java 9862 2013-02-05 12:08:20Z mfaria                $:
  */
 package pt.up.fe.dceg.neptus.plugins.r3d.dto;
 

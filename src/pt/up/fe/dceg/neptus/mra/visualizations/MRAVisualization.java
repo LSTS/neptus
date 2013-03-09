@@ -9,7 +9,6 @@
  *
  * Created by zp
  * 2009/09/04
- * $Id:: MRAVisualization.java 9645 2013-01-03 14:31:24Z jqcorreia        $:
  */
 package pt.up.fe.dceg.neptus.mra.visualizations;
 

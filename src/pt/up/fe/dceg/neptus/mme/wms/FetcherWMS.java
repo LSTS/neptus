@@ -9,7 +9,6 @@
  *
  * Created by 
  * Jun 17, 2005
- * $Id:: FetcherWMS.java 9616 2012-12-30 23:23:22Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.mme.wms;
 

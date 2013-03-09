@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Feb 19, 2013
- * $Id:: LBLRanges.java 10079 2013-03-08 17:37:35Z jqcorreia                    $:
  */
 package pt.up.fe.dceg.neptus.types.misc;
 

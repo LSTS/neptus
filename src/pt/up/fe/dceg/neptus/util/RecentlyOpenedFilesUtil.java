@@ -9,7 +9,6 @@
  *
  * Created by Paulo Dias
  * 17/Mai/2005
- * $Id:: RecentlyOpenedFilesUtil.java 9630 2013-01-02 15:53:51Z zepinto   $:
  */
 package pt.up.fe.dceg.neptus.util;
 

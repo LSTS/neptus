@@ -7,7 +7,6 @@
  *
  * For more information please see <http://whale.fe.up.pt/neptus>.
  *
- * $Id:: MainPanel.java 9875 2013-02-06 15:38:31Z zepinto                       $:
  */
 package pt.up.fe.dceg.neptus.console;
 

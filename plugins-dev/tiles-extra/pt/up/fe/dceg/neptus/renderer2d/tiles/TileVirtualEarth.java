@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 9/10/2011
- * $Id:: TileVirtualEarth.java 9615 2012-12-30 23:08:28Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.renderer2d.tiles;
 

@@ -9,7 +9,6 @@
  *
  * Created by 
  * 27/Dez/2004
- * $Id:: MissionRenderer.java 9880 2013-02-07 15:23:52Z jqcorreia         $:
  */
 package pt.up.fe.dceg.neptus.renderer2d;
 

@@ -9,7 +9,6 @@
  *
  * Created by zepinto and pdias
  * 2007/08/23
- * $Id:: LAUVConsole.java 9903 2013-02-11 14:42:23Z pdias                 $:
  */
 package pt.up.fe.dceg.neptus.mc.lauvconsole;
 

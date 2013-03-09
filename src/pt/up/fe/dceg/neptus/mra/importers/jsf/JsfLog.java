@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Feb 5, 2013
- * $Id:: JsfLog.java 9890 2013-02-08 03:32:15Z robot                            $:
  */
 package pt.up.fe.dceg.neptus.mra.importers.jsf;
 

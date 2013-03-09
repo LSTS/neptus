@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Feb 26, 2013
- * $Id::                                                                        $:
  */
 package pt.up.fe.dceg.neptus.maneuvers;
 

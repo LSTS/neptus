@@ -8,7 +8,6 @@
  *
  * Created by pdias
  * 2005/03/06
- * $Id:: Workspace.java 9856 2013-02-04 15:07:37Z pdias                   $:
  */
 package pt.up.fe.dceg.neptus.mc;
 

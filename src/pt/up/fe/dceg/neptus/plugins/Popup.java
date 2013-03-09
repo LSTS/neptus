@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: Popup.java 9737 2013-01-18 15:41:57Z mfaria                      $:
  */
 package pt.up.fe.dceg.neptus.plugins;
 

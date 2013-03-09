@@ -9,7 +9,6 @@
  *
  * Created by Hugo
  * Oct 17, 2012
- * $Id:: SaveConsoleAction.java 9660 2013-01-04 17:30:52Z pdias                 $:
  */
 package pt.up.fe.dceg.neptus.console.actions;
 

@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 16/12/2010
- * $Id:: SimpleAbortModemRequest.java 9950 2013-02-19 15:28:02Z zepinto         $:
  */
 package pt.up.fe.dceg.neptus.plugins.acoustic;
 

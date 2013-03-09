@@ -9,7 +9,6 @@
  *
  * Created by zepinto and pdias
  * 2007/05/30
- * $Id:: EstimatedStateGenerator.java 9880 2013-02-07 15:23:52Z jqcorreia $:
  */
 package pt.up.fe.dceg.neptus.renderer2d;
 

@@ -9,7 +9,6 @@
  *
  * Created by Paulo Dias
  * 14/10/2006
- * $Id:: PanicButton.java 9615 2012-12-30 23:08:28Z pdias                       $:
  */
 package pt.up.fe.dceg.neptus.gui.swing;
 

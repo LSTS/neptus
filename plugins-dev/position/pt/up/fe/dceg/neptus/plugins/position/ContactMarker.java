@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 16/07/2010
- * $Id:: ContactMarker.java 10012 2013-02-21 14:23:45Z pdias                    $:
  */
 package pt.up.fe.dceg.neptus.plugins.position;
 

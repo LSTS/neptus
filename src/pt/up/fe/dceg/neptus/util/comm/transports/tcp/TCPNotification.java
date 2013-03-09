@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2010/05/09
- * $Id:: TCPNotification.java 9616 2012-12-30 23:23:22Z pdias             $:
  */
 package pt.up.fe.dceg.neptus.util.comm.transports.tcp;
 

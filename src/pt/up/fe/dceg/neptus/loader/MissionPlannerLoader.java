@@ -14,7 +14,6 @@
  * <http://whale.fe.up.pt/neptus>.
  * ====================================================================
  * Created on 2/Mar/2005
- * $Id:: MissionPlannerLoader.java 8648 2012-10-10 13:56:20Z hugodias     $:
  */
 package pt.up.fe.dceg.neptus.loader;
 

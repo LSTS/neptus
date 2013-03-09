@@ -9,7 +9,6 @@
  *
  * Created by ZP
  * 2009/06/09
- * $Id:: LogBookPanel.java 9616 2012-12-30 23:23:22Z pdias                $:
  */
 package pt.up.fe.dceg.neptus.console.plugins;
 

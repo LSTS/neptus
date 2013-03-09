@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Dec 4, 2012
- * $Id:: MraVehiclePosHud.java 9880 2013-02-07 15:23:52Z jqcorreia              $:
  */
 package pt.up.fe.dceg.neptus.mra.replay;
 

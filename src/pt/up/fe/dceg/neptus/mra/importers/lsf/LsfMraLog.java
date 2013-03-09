@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * May 4, 2012
- * $Id:: LsfMraLog.java 9880 2013-02-07 15:23:52Z jqcorreia                     $:
  */
 package pt.up.fe.dceg.neptus.mra.importers.lsf;
 

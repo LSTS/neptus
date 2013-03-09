@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 8 de Dez de 2010
- * $Id:: EmergencyTaskSymbol.java 9615 2012-12-30 23:08:28Z pdias               $:
  */
 package pt.up.fe.dceg.neptus.gui.system;
 

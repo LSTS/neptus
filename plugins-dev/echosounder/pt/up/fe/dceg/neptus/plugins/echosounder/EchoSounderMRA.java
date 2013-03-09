@@ -9,7 +9,6 @@
  *
  * Created by zp
  * 2009/09/05
- * $Id:: EchoSounderMRA.java 9730 2013-01-18 14:49:49Z jqcorreia          $:
  */
 package pt.up.fe.dceg.neptus.plugins.echosounder;
 

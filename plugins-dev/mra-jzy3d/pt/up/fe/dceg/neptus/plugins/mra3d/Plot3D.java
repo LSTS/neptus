@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Dec 15, 2012
- * $Id:: Plot3D.java 9671 2013-01-07 11:04:55Z mfaria                           $:
  */
 package pt.up.fe.dceg.neptus.plugins.mra3d;
 

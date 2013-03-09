@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Oct 23, 2012
- * $Id:: SidescanAnalyzer.java 9950 2013-02-19 15:28:02Z zepinto                $:
  */
 package pt.up.fe.dceg.neptus.plugins.sidescan;
 

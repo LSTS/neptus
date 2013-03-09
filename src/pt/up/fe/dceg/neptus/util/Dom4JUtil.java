@@ -9,7 +9,6 @@
  *
  * Created by 
  * 2006/11/18
- * $Id:: Dom4JUtil.java 9616 2012-12-30 23:23:22Z pdias                   $:
  */
 package pt.up.fe.dceg.neptus.util;
 

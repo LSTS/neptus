@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Dec 21, 2012
- * $Id:: FTPProgressPanel.java 9615 2012-12-30 23:08:28Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.ftp;
 

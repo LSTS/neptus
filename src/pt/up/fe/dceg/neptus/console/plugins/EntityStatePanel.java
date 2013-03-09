@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2008/04/15
- * $Id:: EntityStatePanel.java 10024 2013-02-25 15:11:37Z pdias           $:
  */
 package pt.up.fe.dceg.neptus.console.plugins;
 

@@ -9,7 +9,6 @@
  *
  * Created by zepinto
  * 2005/07/29
- * $Id:: GPSConnection.java 9615 2012-12-30 23:08:28Z pdias                     $:
  */
 package pt.up.fe.dceg.neptus.gps;
 

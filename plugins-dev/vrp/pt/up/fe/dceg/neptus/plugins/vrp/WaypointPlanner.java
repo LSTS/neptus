@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Apr 22, 2010
- * $Id:: WaypointPlanner.java 9635 2013-01-02 17:52:23Z pdias                   $:
  */
 package pt.up.fe.dceg.neptus.plugins.vrp;
 

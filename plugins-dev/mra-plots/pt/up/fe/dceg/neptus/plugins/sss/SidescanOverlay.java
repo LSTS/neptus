@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Dec 13, 2012
- * $Id:: SidescanOverlay.java 9955 2013-02-19 19:37:04Z jqcorreia               $:
  */
 package pt.up.fe.dceg.neptus.plugins.sss;
 

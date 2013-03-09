@@ -8,7 +8,6 @@
  * For more information please see <http://whale.fe.up.pt/neptus>.
  *
  * 2009/03/29
- * $Id:: ImcUdpTransport.java 9616 2012-12-30 23:23:22Z pdias             $:
  */
 package pt.up.fe.dceg.neptus.util.comm.transports;
 

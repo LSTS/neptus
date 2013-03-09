@@ -9,7 +9,6 @@
  *
  * Created by Canasta
  * 19 de Dez de 2010
- * $Id:: UavCoverLayerPainter.java 9846 2013-02-02 03:32:12Z robot              $:
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.painters.background;
 

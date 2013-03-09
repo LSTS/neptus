@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 12/10/2011
- * $Id:: TileOpenStreetMap.java 10073 2013-03-07 12:18:44Z pdias                $:
  */
 package pt.up.fe.dceg.neptus.renderer2d.tiles;
 

@@ -9,7 +9,6 @@
  *
  * Created by Christian Fuchs
  * 15.10.2012
- * $Id:: UavAirspeedPanel.java 9839 2013-02-01 17:39:05Z sergioferreira         $:
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.panels;
 

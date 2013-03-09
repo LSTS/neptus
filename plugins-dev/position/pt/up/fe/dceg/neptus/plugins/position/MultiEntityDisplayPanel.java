@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 28/05/2011
- * $Id:: MultiEntityDisplayPanel.java 10012 2013-02-21 14:23:45Z pdias          $:
  */
 package pt.up.fe.dceg.neptus.plugins.position;
 

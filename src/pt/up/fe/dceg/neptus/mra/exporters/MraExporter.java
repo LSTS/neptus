@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Feb 19, 2013
- * $Id:: MraExporter.java 9956 2013-02-20 03:32:28Z robot                       $:
  */
 package pt.up.fe.dceg.neptus.mra.exporters;
 

@@ -9,7 +9,6 @@
  *
  * Created by zp and pdias
  * 2007/07/05
- * $Id:: IMCUtils.java 10012 2013-02-21 14:23:45Z pdias                         $:
  */
 package pt.up.fe.dceg.neptus.util.comm;
 

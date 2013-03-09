@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Jan 14, 2013
- * $Id:: CalibrationSubPanel.java 9832 2013-02-01 16:47:08Z pdias               $:
  */
 package pt.up.fe.dceg.neptus.plugins.calib;
 

@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * Mar 2, 2013
- * $Id:: SystemConfigurationEditorPanel.java 10065 2013-03-04 12:40:58Z pdias   $:
  */
 package pt.up.fe.dceg.neptus.plugins.params;
 

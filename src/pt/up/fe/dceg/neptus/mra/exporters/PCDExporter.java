@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Jan 8, 2013
- * $Id:: PCDExporter.java 9957 2013-02-20 09:21:30Z pdias                       $:
  */
 package pt.up.fe.dceg.neptus.mra.exporters;
 

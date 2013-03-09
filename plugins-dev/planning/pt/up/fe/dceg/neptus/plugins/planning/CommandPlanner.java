@@ -9,7 +9,6 @@
  *
  * Created by zp
  * 28/04/2010
- * $Id:: CommandPlanner.java 9646 2013-01-03 14:39:44Z zepinto                  $:
  */
 package pt.up.fe.dceg.neptus.plugins.planning;
 

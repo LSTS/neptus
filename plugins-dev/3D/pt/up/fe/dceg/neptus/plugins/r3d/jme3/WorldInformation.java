@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Jul 9, 2012
- * $Id:: WorldInformation.java 9924 2013-02-14 10:37:31Z mfaria                 $:
  */
 package pt.up.fe.dceg.neptus.plugins.r3d.jme3;
 

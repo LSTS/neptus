@@ -9,7 +9,6 @@
  *
  * Created by zp
  * 2009/09/01
- * $Id:: EchoSounderPanel.java 9616 2012-12-30 23:23:22Z pdias            $:
  */
 package pt.up.fe.dceg.neptus.plugins.echosounder;
 

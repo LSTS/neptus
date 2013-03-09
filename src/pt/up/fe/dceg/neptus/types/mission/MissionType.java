@@ -9,7 +9,6 @@
  *
  * Created by Paulo Dias
  * 2005/01/14
- * $Id:: MissionType.java 9615 2012-12-30 23:08:28Z pdias                       $:
  */
 package pt.up.fe.dceg.neptus.types.mission;
 

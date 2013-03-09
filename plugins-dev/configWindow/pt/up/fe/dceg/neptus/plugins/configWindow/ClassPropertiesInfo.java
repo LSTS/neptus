@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Nov 30, 2012
- * $Id:: ClassPropertiesInfo.java 9692 2013-01-10 16:30:30Z mfaria              $:
  */
 package pt.up.fe.dceg.neptus.plugins.configWindow;
 

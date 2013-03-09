@@ -9,7 +9,6 @@
  *
  * Created by zp
  * May 24, 2010
- * $Id:: VehicleStateProvider.java 9615 2012-12-30 23:08:28Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.console.plugins;
 

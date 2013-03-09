@@ -9,7 +9,6 @@
  *
  * Created by ZP
  * 200?/??/??
- * $Id:: LogUtils.java 9802 2013-01-30 00:34:23Z zepinto                  $:
  */
 package pt.up.fe.dceg.neptus.util.llf;
 

@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 8/10/2011
- * $Id:: Tile.java 10078 2013-03-08 14:28:11Z pdias                             $:
  */
 package pt.up.fe.dceg.neptus.renderer2d.tiles;
 

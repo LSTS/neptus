@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 18/02/2013
- * $Id:: PropertyEditorChangeValuesIfDependancyAdapter.java 10068 2013-03-05 03#$:
  */
 package pt.up.fe.dceg.neptus.plugins.params.editor;
 

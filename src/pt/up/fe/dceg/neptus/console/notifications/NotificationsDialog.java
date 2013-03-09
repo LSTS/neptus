@@ -9,7 +9,6 @@
  *
  * Created by Hugo
  * Nov 12, 2012
- * $Id:: NotificationsDialog.java 9867 2013-02-05 17:08:25Z jfortuna            $:
  */
 package pt.up.fe.dceg.neptus.console.notifications;
 

@@ -9,7 +9,6 @@
  *
  * Created by zp
  * 2009/06/03
- * $Id:: AbsLatLonDepth.java 10012 2013-02-21 14:23:45Z pdias             $:
  */
 package pt.up.fe.dceg.neptus.plugins.position;
 

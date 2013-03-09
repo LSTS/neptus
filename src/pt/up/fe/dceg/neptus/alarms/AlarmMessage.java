@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Feb 2, 2012
- * $Id:: AlarmMessage.java 9615 2012-12-30 23:08:28Z pdias                      $:
  */
 package pt.up.fe.dceg.neptus.alarms;
 

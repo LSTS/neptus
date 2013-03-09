@@ -9,7 +9,6 @@
  *
  * Created by mfaria
  * ??/??/???
- * $Id:: DateUtils.java 9929 2013-02-14 14:28:47Z pdias                        $:
  */
 package pt.up.fe.dceg.plugins.tidePrediction.util;
 import java.text.DateFormat;

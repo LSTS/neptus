@@ -9,7 +9,6 @@
  *
  * Created by zepinto
  * 2010/02/18
- * $Id:: ModemRanger.java 9615 2012-12-30 23:08:28Z pdias                       $:
  */
 package pt.up.fe.dceg.neptus.plugins.acoustic;
 

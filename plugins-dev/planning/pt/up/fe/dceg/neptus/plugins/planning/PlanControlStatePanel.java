@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 23/06/2011
- * $Id:: PlanControlStatePanel.java 10018 2013-02-22 11:19:58Z zepinto          $:
  */
 package pt.up.fe.dceg.neptus.plugins.planning;
 

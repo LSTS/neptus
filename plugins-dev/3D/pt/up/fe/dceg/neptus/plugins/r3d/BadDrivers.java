@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Nov 13, 2012
- * $Id:: BadDrivers.java 9885 2013-02-07 17:48:58Z mfaria                       $:
  */
 package pt.up.fe.dceg.neptus.plugins.r3d;
 

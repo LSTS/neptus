@@ -9,7 +9,6 @@
  *
  * Created by sergioferreira
  * 14 de Dez de 2010
- * $Id:: UavAltitudePanel.java 9863 2013-02-05 12:08:29Z sergioferreira       $:
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.panels;
 

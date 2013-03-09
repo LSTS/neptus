@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 18 de Nov de 2012
- * $Id:: MainSystemSelectionCombo.java 9658 2013-01-04 16:01:41Z pdias          $:
  */
 package pt.up.fe.dceg.neptus.gui.system.selection;
 

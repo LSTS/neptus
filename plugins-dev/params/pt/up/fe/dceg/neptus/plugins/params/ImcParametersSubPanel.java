@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Dec 14, 2012
- * $Id:: ImcParametersSubPanel.java 9802 2013-01-30 00:34:23Z zepinto           $:
  */
 package pt.up.fe.dceg.neptus.plugins.params;
 

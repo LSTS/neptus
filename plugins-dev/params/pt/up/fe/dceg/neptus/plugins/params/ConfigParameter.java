@@ -10,7 +10,6 @@ package pt.up.fe.dceg.neptus.plugins.params;
  *
  * Created by zp
  * Dec 14, 2012
- * $Id:: ConfigParameter.java 9667 2013-01-04 17:56:59Z pdias                   $:
  */
 
 

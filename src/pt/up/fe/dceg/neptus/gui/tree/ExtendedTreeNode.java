@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * Jun 3, 2012
- * $Id:: ExtendedTreeNode.java 9615 2012-12-30 23:08:28Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.gui.tree;
 

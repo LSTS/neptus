@@ -9,7 +9,6 @@
  *
  * Created by 
  * 05/06/2011
- * $Id:: ActionType.java 9616 2012-12-30 23:23:22Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.types.mission;
 

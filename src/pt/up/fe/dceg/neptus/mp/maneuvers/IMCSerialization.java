@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2007/08/04
- * $Id:: IMCSerialization.java 9616 2012-12-30 23:23:22Z pdias            $:
  */
 package pt.up.fe.dceg.neptus.mp.maneuvers;
 

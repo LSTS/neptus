@@ -9,7 +9,6 @@
  *
  * Created by Paulo Dias e ZePinto
  * 2007/07/08
- * $Id:: PopUp.java 9913 2013-02-11 19:11:17Z pdias                       $:
  */
 package pt.up.fe.dceg.neptus.mp.maneuvers;
 

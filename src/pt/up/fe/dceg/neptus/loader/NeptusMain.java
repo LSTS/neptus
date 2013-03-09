@@ -9,7 +9,6 @@
  *
  * Created by zepinto and pdias
  * 200?/??/??
- * $Id:: NeptusMain.java 10079 2013-03-08 17:37:35Z jqcorreia             $:
  */
 package pt.up.fe.dceg.neptus.loader;
 

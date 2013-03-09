@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 18 de Nov de 2011
- * $Id:: SpeedUnitsEditor.java 9913 2013-02-11 19:11:17Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.gui.editor;
 

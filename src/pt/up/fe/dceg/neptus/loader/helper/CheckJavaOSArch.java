@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 3 de Out de 2012
- * $Id:: CheckJavaOSArch.java 9615 2012-12-30 23:08:28Z pdias                   $:
  */
 package pt.up.fe.dceg.neptus.loader.helper;
 

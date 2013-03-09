@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Nov 16, 2012
- * $Id:: NeptusDoubleEditor.java 9919 2013-02-13 19:05:55Z pdias                $:
  */
 package pt.up.fe.dceg.neptus.gui.editor;
 

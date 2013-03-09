@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Aug 8, 2012
- * $Id:: I18n.java 9926 2013-02-14 14:20:01Z pdias                              $:
  */
 package pt.up.fe.dceg.neptus.i18n;
 

@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Oct 30, 2011
- * $Id:: MraCsvExporter.java 9795 2013-01-29 15:57:08Z jqcorreia                $:
  */
 package pt.up.fe.dceg.neptus.plugins.odss;
 

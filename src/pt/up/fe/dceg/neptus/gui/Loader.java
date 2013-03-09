@@ -7,7 +7,6 @@
  *
  * Created by pdias
  * 12/12/2004
- * $Id:: Loader.java 9923 2013-02-13 19:23:52Z pdias                      $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

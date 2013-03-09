@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Feb 5, 2013
- * $Id:: JsfSonarData.java 9950 2013-02-19 15:28:02Z zepinto                    $:
  */
 package pt.up.fe.dceg.neptus.mra.importers.jsf;
 

@@ -9,7 +9,6 @@
  *
  * Created by: Paulo Dias
  * 13-04-2008
- * $Id:: SubPanelProvider.java 9616 2012-12-30 23:23:22Z pdias            $:
  */
 package pt.up.fe.dceg.neptus.console.plugins;
 

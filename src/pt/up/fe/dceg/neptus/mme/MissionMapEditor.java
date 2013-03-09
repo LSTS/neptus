@@ -1,6 +1,5 @@
 /*
  *  Created on 13/Dez/2004
- * $Id:: MissionMapEditor.java 8810 2012-10-24 22:55:51Z zepinto          $:
  */
 package pt.up.fe.dceg.neptus.mme;
 

@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Nov 22, 2012
- * $Id:: VehicleStateMonitor.java 10017 2013-02-22 11:19:07Z zepinto            $:
  */
 package pt.up.fe.dceg.neptus.console.plugins;
 

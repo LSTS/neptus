@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Sep 20, 2012
- * $Id:: LsfTreeMouseAdapter.java 9835 2013-02-01 17:24:48Z jqcorreia           $:
  */
 package pt.up.fe.dceg.neptus.util.llf;
 

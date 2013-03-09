@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Jan 4, 2013
- * $Id:: ToggleVisibility.java 9676 2013-01-08 03:31:28Z robot                  $:
  */
 package pt.up.fe.dceg.neptus.plugins.r3d.jme3.spacials;
 

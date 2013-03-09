@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 8/10/2011
- * $Id:: TileHttpFetcher.java 10075 2013-03-07 16:46:06Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.renderer2d.tiles;
 

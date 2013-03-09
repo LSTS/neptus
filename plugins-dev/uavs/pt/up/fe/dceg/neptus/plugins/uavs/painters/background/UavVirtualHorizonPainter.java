@@ -9,7 +9,6 @@
  *
  * Created by canasta
  * 18 de Abr de 2012
- * $Id:: UavVirtualHorizonPainter.java 9846 2013-02-02 03:32:12Z robot          $:
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.painters.background;
 

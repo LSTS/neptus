@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: ComboEditor.java 10050 2013-03-04 12:40:45Z pdias                $:
  */
 package pt.up.fe.dceg.neptus.gui.editor;
 

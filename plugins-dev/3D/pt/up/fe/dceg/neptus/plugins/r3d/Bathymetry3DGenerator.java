@@ -9,7 +9,6 @@
  *
  * Created by meg
  * May 31, 2012
- * $Id:: Bathymetry3DGenerator.java 9925 2013-02-14 10:58:53Z mfaria            $:
  */
 package pt.up.fe.dceg.neptus.plugins.r3d;
 

@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Apr 26, 2010
- * $Id:: AreaCoveragePlanner.java 9634 2013-01-02 17:33:44Z pdias               $:
  */
 package pt.up.fe.dceg.neptus.plugins.planning;
 

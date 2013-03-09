@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * Created in 29/Sep/2005
- * $Id:: ChecklistFileChooser.java 9856 2013-02-04 15:07:37Z pdias        $:
  */
 package pt.up.fe.dceg.neptus.gui.checklist;
 

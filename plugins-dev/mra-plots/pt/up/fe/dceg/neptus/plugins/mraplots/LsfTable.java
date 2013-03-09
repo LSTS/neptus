@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Jun 5, 2012
- * $Id:: LsfTable.java 9717 2013-01-17 15:07:22Z jqcorreia                      $:
  */
 package pt.up.fe.dceg.neptus.plugins.mraplots;
 

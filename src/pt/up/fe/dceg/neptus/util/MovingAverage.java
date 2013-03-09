@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * Feb 2, 2013
- * $Id:: MovingAverage.java 9850 2013-02-04 14:55:36Z pdias                     $:
  */
 package pt.up.fe.dceg.neptus.util;
 

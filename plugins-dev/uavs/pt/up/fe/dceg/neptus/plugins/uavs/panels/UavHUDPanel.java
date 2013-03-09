@@ -9,7 +9,6 @@
  *
  * Created by sergioferreira
  * 9 de Abr de 2012
- * $Id:: UavHUDPanel.java 9839 2013-02-01 17:39:05Z sergioferreira              $:
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.panels;
 

@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Nov 27, 2012
- * $Id:: StreamSpeedOverlay.java 9615 2012-12-30 23:08:28Z pdias                $:
  */
 package pt.up.fe.dceg.neptus.plugins.position;
 

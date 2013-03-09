@@ -9,7 +9,6 @@
  *
  * Created by Hugo
  * Nov 27, 2012
- * $Id:: EntitiesConsoleAction.java 9615 2012-12-30 23:08:28Z pdias             $:
  */
 package pt.up.fe.dceg.neptus.console.actions;
 

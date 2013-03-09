@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Feb 8, 2013
- * $Id:: JsfIndex.java 9935 2013-02-15 14:06:02Z jqcorreia                      $:
  */
 package pt.up.fe.dceg.neptus.mra.importers.jsf;
 

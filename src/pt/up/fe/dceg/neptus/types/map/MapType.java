@@ -9,7 +9,6 @@
  *
  * Created by 
  * 14/Set/2004
- * $Id:: MapType.java 9777 2013-01-28 14:43:48Z pdias                     $:
  */
 package pt.up.fe.dceg.neptus.types.map;
 

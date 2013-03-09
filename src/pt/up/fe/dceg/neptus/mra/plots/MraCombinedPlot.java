@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Nov 13, 2012
- * $Id:: MraCombinedPlot.java 9615 2012-12-30 23:08:28Z pdias                   $:
  */
 package pt.up.fe.dceg.neptus.mra.plots;
 

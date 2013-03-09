@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: MraChartPanel.java 9802 2013-01-30 00:34:23Z zepinto             $:
  */
 package pt.up.fe.dceg.neptus.mra;
 

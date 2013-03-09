@@ -9,7 +9,6 @@
  *
  * Created by 
  * 2006/12/22
- * $Id:: LongMinMaxValidator.java 9616 2012-12-30 23:23:22Z pdias         $:
  */
 package pt.up.fe.dceg.neptus.util.conf;
 

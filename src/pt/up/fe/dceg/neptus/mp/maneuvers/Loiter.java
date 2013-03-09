@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2004/01/??
- * $Id:: Loiter.java 9913 2013-02-11 19:11:17Z pdias                      $:
  */
 package pt.up.fe.dceg.neptus.mp.maneuvers;
 

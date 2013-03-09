@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: SimpleTransponderPanel.java 9821 2013-01-31 16:05:49Z pdias      $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

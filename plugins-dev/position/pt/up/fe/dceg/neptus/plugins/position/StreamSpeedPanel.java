@@ -9,7 +9,6 @@
  *
  * Created by rjpg
  * Oct 26, 2010
- * $Id:: StreamSpeedPanel.java 9834 2013-02-01 17:20:52Z pdias                  $:
  */
 
 package pt.up.fe.dceg.neptus.plugins.position;

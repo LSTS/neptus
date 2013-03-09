@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 26 de Jan de 2013
- * $Id:: TransponderUtils.java 9777 2013-01-28 14:43:48Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.types.map;
 

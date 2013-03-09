@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * Feb 16, 2013
- * $Id::                                                                        $:
  */
 package pt.up.fe.dceg.neptus.gui.editor;
 

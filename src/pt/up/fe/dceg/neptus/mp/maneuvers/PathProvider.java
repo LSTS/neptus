@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 31/10/2012
- * $Id:: PathProvider.java 9615 2012-12-30 23:08:28Z pdias                      $:
  */
 package pt.up.fe.dceg.neptus.mp.maneuvers;
 

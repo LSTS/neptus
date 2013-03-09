@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2009/09/19
- * $Id:: DownloaderHelp.java 9778 2013-01-28 14:44:18Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.util.logdownload;
 

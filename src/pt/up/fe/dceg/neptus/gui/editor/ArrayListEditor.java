@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 12 de Fev de 2013
- * $Id:: ArrayListEditor.java 10060 2013-03-04 12:40:54Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.gui.editor;
 

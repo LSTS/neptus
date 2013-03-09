@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: NeptusComboButton.java 9616 2012-12-30 23:23:22Z pdias           $:
  */
 package pt.up.fe.dceg.neptus.gui;
 
@@ -40,7 +39,6 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
 /**
  * @author zepinto
  * @author pdias
- * $Id:: NeptusComboButton.java 9616 2012-12-30 23:23:22Z pdias           $:
  */
 @SuppressWarnings("serial")
 public class NeptusComboButton extends JButton implements ActionListener{

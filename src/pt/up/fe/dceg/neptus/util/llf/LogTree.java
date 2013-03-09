@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Jul 27, 2012
- * $Id:: LogTree.java 9730 2013-01-18 14:49:49Z jqcorreia                       $:
  */
 package pt.up.fe.dceg.neptus.util.llf;
 

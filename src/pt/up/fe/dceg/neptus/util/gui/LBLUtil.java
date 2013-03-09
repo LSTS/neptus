@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Feb 19, 2013
- * $Id:: LBLUtil.java 10032 2013-02-26 03:31:41Z robot                          $:
  */
 package pt.up.fe.dceg.neptus.util.gui;
 

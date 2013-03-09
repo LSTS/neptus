@@ -9,7 +9,6 @@
  *
  * Created by canasta
  * 4 de Jun de 2012
- * $Id:: UavHUDInfoPainter.java 9846 2013-02-02 03:32:12Z robot                 $:
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.painters.foreground;
 

@@ -9,7 +9,6 @@
  *
  * Created by 
  * Apr 29, 2005
- * $Id:: MapLegend.java 9616 2012-12-30 23:23:22Z pdias                   $:
  */
 package pt.up.fe.dceg.neptus.renderer2d;
 

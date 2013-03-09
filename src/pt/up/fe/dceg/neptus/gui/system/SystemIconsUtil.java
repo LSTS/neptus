@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 10 de Dez de 2011
- * $Id:: SystemIconsUtil.java 9615 2012-12-30 23:08:28Z pdias                   $:
  */
 package pt.up.fe.dceg.neptus.gui.system;
 

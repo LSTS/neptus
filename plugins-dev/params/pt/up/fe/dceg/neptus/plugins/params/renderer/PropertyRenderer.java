@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 18/02/2013
- * $Id:: PropertyRenderer.java 10068 2013-03-05 03:31:47Z robot                 $:
  */
 package pt.up.fe.dceg.neptus.plugins.params.renderer;
 

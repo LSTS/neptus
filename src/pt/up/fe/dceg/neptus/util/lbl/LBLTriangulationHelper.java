@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 16 de Mai de 2012
- * $Id:: LBLTriangulationHelper.java 10071 2013-03-06 17:08:00Z pdias           $:
  */
 package pt.up.fe.dceg.neptus.util.lbl;
 

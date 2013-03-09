@@ -9,7 +9,6 @@
  *
  * Created by 
  * 9/03/2005
- * $Id:: PolarOffsetPanel.java 9616 2012-12-30 23:23:22Z pdias            $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

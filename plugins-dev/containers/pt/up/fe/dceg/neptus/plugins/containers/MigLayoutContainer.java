@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * 29/11/2011
- * $Id:: MigLayoutContainer.java 9638 2013-01-02 17:55:12Z mfaria               $:
  */
 package pt.up.fe.dceg.neptus.plugins.containers;
 

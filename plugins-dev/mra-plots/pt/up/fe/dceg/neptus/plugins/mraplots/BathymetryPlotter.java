@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 18 de Jun de 2011
- * $Id:: BathymetryPlotter.java 9849 2013-02-04 14:50:48Z pdias                 $:
  */
 package pt.up.fe.dceg.neptus.plugins.mraplots;
 

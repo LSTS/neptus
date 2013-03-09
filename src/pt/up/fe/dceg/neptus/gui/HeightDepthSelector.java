@@ -9,7 +9,6 @@
  *
  * Created by 
  * 28/Fev/2005
- * $Id:: HeightDepthSelector.java 9616 2012-12-30 23:23:22Z pdias         $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2010/06/10
- * $Id:: RangePainter.java 9886 2013-02-07 18:34:57Z pdias                      $:
  */
 package pt.up.fe.dceg.neptus.plugins.acoustic;
 

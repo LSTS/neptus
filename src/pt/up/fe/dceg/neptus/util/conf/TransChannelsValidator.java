@@ -10,7 +10,6 @@
  * Created by 
  * 2007/09/15
  * Extends StringPatternValidator on 2008/12/17
- * $Id:: TransChannelsValidator.java 9616 2012-12-30 23:23:22Z pdias      $:
  */
 package pt.up.fe.dceg.neptus.util.conf;
 

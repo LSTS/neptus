@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Jan 3, 2013
- * $Id:: MarkerObserver.java 10066 2013-03-04 15:34:31Z mfaria                  $:
  */
 package pt.up.fe.dceg.neptus.plugins.r3d;
 

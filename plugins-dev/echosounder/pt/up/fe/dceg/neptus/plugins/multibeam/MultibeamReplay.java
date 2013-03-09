@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Jul 5, 2012
- * $Id:: MultibeamReplay.java 9955 2013-02-19 19:37:04Z jqcorreia               $:
  */
 package pt.up.fe.dceg.neptus.plugins.multibeam;
 

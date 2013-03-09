@@ -9,7 +9,6 @@
  *
  * Created by 
  * 18/Jun/2005
- * $Id:: ImageElement.java 9845 2013-02-01 19:53:46Z pdias                $:
  */
 package pt.up.fe.dceg.neptus.types.map;
 

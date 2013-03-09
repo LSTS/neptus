@@ -24,7 +24,6 @@ import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
  *
  * Created by zp
  * Apr 15, 2011
- * $Id:: AccuUtils.java 9615 2012-12-30 23:08:28Z pdias                         $:
  */
 
 /**

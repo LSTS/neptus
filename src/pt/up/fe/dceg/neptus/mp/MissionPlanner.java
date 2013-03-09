@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: MissionPlanner.java 9813 2013-01-30 16:06:18Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.mp;
 

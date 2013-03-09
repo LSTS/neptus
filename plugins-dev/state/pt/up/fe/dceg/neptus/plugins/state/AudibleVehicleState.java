@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Nov 12, 2012
- * $Id:: AudibleVehicleState.java 9875 2013-02-06 15:38:31Z zepinto             $:
  */
 package pt.up.fe.dceg.neptus.plugins.state;
 

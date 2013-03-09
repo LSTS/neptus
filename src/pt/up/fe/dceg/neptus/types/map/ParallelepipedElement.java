@@ -9,7 +9,6 @@
  *
  * Created by 
  * 2006/11/11
- * $Id:: ParallelepipedElement.java 9845 2013-02-01 19:53:46Z pdias       $:
  */
 package pt.up.fe.dceg.neptus.types.map;
 

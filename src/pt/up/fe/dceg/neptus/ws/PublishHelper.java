@@ -9,7 +9,6 @@
  *
  * Created by 
  * 25/Abr/2006
- * $Id:: PublishHelper.java 9616 2012-12-30 23:23:22Z pdias               $:
  */
 package pt.up.fe.dceg.neptus.ws;
 

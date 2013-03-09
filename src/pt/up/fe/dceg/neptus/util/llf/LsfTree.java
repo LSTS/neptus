@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: LsfTree.java 9628 2013-01-02 15:40:31Z zepinto                   $:
  */
 package pt.up.fe.dceg.neptus.util.llf;
 

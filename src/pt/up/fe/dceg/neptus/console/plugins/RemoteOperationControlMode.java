@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2009/10/07
- * $Id:: RemoteOperationControlMode.java 9616 2012-12-30 23:23:22Z pdias  $:
  */
 package pt.up.fe.dceg.neptus.console.plugins;
 

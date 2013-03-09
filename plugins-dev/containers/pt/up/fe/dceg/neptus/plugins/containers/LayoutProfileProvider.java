@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 1/09/2011
- * $Id:: LayoutProfileProvider.java 9620 2013-01-02 11:32:43Z pdias             $:
  */
 package pt.up.fe.dceg.neptus.plugins.containers;
 

@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Dec 8, 2012
- * $Id:: MraPhotosVisualization.java 10080 2013-03-08 17:40:27Z zepinto         $:
  */
 package pt.up.fe.dceg.neptus.plugins.mraplots;
 

@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2009/03/14
- * $Id:: ImcSystem.java 10007 2013-02-20 19:23:07Z zepinto                $:
  */
 package pt.up.fe.dceg.neptus.util.comm.manager.imc;
 

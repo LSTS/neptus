@@ -9,7 +9,6 @@
  *
  * Created by zp
  * 2009/06/02
- * $Id:: EnumEditor.java 9915 2013-02-12 20:31:04Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.gui.editor;
 

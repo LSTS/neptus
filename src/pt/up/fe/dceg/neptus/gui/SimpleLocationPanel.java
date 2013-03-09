@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: SimpleLocationPanel.java 9779 2013-01-28 14:48:22Z pdias         $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

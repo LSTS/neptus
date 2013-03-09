@@ -9,7 +9,6 @@
  *
  * Created by 
  * 03-01-2007
- * $Id:: GenerateLaunchers.java 9616 2012-12-30 23:23:22Z pdias           $:
  */
 package pt.up.fe.dceg.neptus.util;
 

@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2009/09/13
- * $Id:: LogFolderInfoList.java 9616 2012-12-30 23:23:22Z pdias           $:
  */
 package pt.up.fe.dceg.neptus.util.logdownload;
 

@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * Feb 16, 2013
- * $Id:: StringPatternEditor.java 10059 2013-03-04 12:40:53Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.gui.editor;
 

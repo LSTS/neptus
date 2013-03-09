@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Sep 11, 2012
- * $Id:: PluginsPotGenerator.java 9777 2013-01-28 14:43:48Z pdias               $:
  */
 package pt.up.fe.dceg.neptus.i18n;
 

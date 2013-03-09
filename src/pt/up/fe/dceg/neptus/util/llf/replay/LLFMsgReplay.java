@@ -9,7 +9,6 @@
  *
  * Created by pdias and zepinto
  * 2007/09/25
- * $Id:: LLFMsgReplay.java 9764 2013-01-24 17:50:33Z jqcorreia            $:
  */
 package pt.up.fe.dceg.neptus.util.llf.replay;
 

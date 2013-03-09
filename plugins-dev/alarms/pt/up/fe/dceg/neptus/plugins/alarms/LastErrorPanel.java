@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 3/3/2011
- * $Id:: LastErrorPanel.java 10012 2013-02-21 14:23:45Z pdias                   $:
  */
 package pt.up.fe.dceg.neptus.plugins.alarms;
 

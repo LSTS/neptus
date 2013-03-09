@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * ????/??/??
- * $Id:: InfiniteProgressPanel.java 9857 2013-02-04 15:09:29Z pdias       $:
  */
 package pt.up.fe.dceg.neptus.gui;
 

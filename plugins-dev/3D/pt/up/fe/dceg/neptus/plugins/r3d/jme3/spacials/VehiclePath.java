@@ -9,7 +9,6 @@
  *
  * Created by Margarida Faria
  * Jul 9, 2012
- * $Id:: VehiclePath.java 9671 2013-01-07 11:04:55Z mfaria                      $:
  */
 package pt.up.fe.dceg.neptus.plugins.r3d.jme3.spacials;
 

@@ -9,7 +9,6 @@
  *
  * Created by Christian Fuchs
  * 21.11.2012
- * $Id:: UavCameraFootprint.java 9846 2013-02-02 03:32:12Z robot                $:
  */
 package pt.up.fe.dceg.neptus.plugins.uavs.painters.elements;
 

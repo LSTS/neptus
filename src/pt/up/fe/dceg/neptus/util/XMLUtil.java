@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 7 de Jul de 2011
- * $Id:: XMLUtil.java 9615 2012-12-30 23:08:28Z pdias                           $:
  */
 package pt.up.fe.dceg.neptus.util;
 

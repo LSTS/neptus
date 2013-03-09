@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2008/04/13
- * $Id:: NeptusNumericTypeEditor.java 9616 2012-12-30 23:23:22Z pdias     $:
  */
 package pt.up.fe.dceg.neptus.gui.editor;
 

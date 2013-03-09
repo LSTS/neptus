@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2005/01/17 (came from VIDOP Project)
- * $Id:: ConfigFetch.java 9903 2013-02-11 14:42:23Z pdias                 $:
  */
 package pt.up.fe.dceg.neptus.util.conf;
 

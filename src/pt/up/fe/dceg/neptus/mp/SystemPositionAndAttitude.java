@@ -9,7 +9,6 @@
  *
  * Created by 
  * 14/Set/2004
- * $Id:: SystemPositionAndAttitude.java 9880 2013-02-07 15:23:52Z jqcorre#$:
  */
 package pt.up.fe.dceg.neptus.mp;
 

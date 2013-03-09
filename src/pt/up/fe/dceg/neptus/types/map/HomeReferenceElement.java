@@ -9,7 +9,6 @@
  *
  * Created by 
  * Apr 21, 2005
- * $Id:: HomeReferenceElement.java 9845 2013-02-01 19:53:46Z pdias        $:
  */
 package pt.up.fe.dceg.neptus.types.map;
 

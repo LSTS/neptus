@@ -9,7 +9,6 @@
  *
  * Created by Zé Carlos
  * 23/Fev/2005
- * $Id:: NameNormalizerTest.java 9616 2012-12-30 23:23:22Z pdias          $:
  */
 package pt.up.fe.dceg.neptus.junit.util;
 

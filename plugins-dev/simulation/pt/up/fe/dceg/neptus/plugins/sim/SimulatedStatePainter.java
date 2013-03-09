@@ -9,7 +9,6 @@
  *
  * Created by zp
  * 13/12/2011
- * $Id:: SimulatedStatePainter.java 9880 2013-02-07 15:23:52Z jqcorreia         $:
  */
 package pt.up.fe.dceg.neptus.plugins.sim;
 

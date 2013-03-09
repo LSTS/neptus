@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: LogTableModel.java 9836 2013-02-01 17:26:07Z jqcorreia           $:
  */
 package pt.up.fe.dceg.neptus.util.llf;
 

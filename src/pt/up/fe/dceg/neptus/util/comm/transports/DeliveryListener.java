@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 10/02/2011
- * $Id:: DeliveryListener.java 9615 2012-12-30 23:08:28Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.util.comm.transports;
 

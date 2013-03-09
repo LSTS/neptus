@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Nov 10, 2012
- * $Id:: ManeuverLocation.java 9618 2013-01-02 11:30:46Z zepinto                $:
  */
 package pt.up.fe.dceg.neptus.mp;
 

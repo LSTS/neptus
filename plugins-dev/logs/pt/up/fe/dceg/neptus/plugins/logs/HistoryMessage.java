@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: HistoryMessage.java 10008 2013-02-21 11:47:51Z zepinto           $:
  */
 package pt.up.fe.dceg.neptus.plugins.logs;
 

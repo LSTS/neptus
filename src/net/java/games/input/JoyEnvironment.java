@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Jan 11, 2012
- * $Id:: JoyEnvironment.java 9615 2012-12-30 23:08:28Z pdias                    $:
  */
 package net.java.games.input;
 

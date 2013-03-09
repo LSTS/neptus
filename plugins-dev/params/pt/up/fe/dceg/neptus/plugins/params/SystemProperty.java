@@ -9,7 +9,6 @@
  *
  * Created by jqcorreia
  * Jan 28, 2013
- * $Id:: SystemProperty.java 10047 2013-03-04 12:40:42Z pdias                   $:
  */
 package pt.up.fe.dceg.neptus.plugins.params;
 

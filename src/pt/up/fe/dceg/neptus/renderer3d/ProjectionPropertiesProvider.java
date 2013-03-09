@@ -9,7 +9,6 @@
  *
  * Created by 
  * 20??/??/??
- * $Id:: ProjectionPropertiesProvider.java 9913 2013-02-11 19:11:17Z pdia#$:
  */
 package pt.up.fe.dceg.neptus.renderer3d;
 

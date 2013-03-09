@@ -9,7 +9,6 @@
  *
  * Created by 
  * 26/09/2006
- * $Id:: DiffFromForXalan.java 9616 2012-12-30 23:23:22Z pdias            $:
  */
 package pt.up.fe.dceg.neptus.util.xsl.xalan;
 

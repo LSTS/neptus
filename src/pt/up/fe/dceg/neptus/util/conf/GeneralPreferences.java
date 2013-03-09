@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2005/10/12 refactored in 2012/11/10
- * $Id:: GeneralPreferences.java 9926 2013-02-14 14:20:01Z pdias          $:
  */
 package pt.up.fe.dceg.neptus.util.conf;
 

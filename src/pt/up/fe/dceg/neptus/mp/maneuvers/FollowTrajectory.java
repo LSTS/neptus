@@ -9,7 +9,6 @@
  *
  * Created by zp
  * 15/03/2011
- * $Id:: FollowTrajectory.java 9913 2013-02-11 19:11:17Z pdias                  $:
  */
 package pt.up.fe.dceg.neptus.mp.maneuvers;
 

@@ -9,7 +9,6 @@
  *
  * Created by zp
  * Dec 14, 2012
- * $Id:: SystemConfiguration.java 10065 2013-03-04 12:40:58Z pdias              $:
  */
 package pt.up.fe.dceg.neptus.plugins.params;
 

@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 2009/09/27
- * $Id:: LBLRangeLabel.java 10031 2013-02-25 17:00:00Z mfaria             $:
  */
 package pt.up.fe.dceg.neptus.plugins.acoustic;
 

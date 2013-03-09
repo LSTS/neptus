@@ -9,7 +9,6 @@
  *
  * Created by pdias
  * 17/04/2011
- * $Id:: CommonCommBaseImplementation.java 9615 2012-12-30 23:08:28Z pdias      $:
  */
 package pt.up.fe.dceg.neptus.util.comm.manager;
 
