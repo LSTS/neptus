@@ -5,7 +5,7 @@
  * Departamento de Engenharia Electrotécnica e de Computadores
  * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
  *
- * Created by pdias
+ * Author: pdias
  * Created in 12/Oct/2008
  */
 package pt.up.fe.dceg.neptus.gui.checklist;

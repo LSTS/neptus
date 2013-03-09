@@ -6,7 +6,7 @@
  *
  * For more information please see <http://whale.fe.up.pt/neptus>.
  *
- * Created by José Pinto
+ * Author: José Pinto
  * 22/03/2005
  */
 package pt.up.fe.dceg.neptus.gui;

@@ -6,7 +6,7 @@
  *
  * For more information please see <http://whale.fe.up.pt/neptus>.
  *
- * Created by pdias
+ * Author: pdias
  * 2005/03/06
  */
 package pt.up.fe.dceg.neptus.mc;

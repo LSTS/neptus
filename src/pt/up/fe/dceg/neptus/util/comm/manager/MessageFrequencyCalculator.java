@@ -7,7 +7,7 @@
  *
  * For more information please see <http://whale.fe.up.pt/neptus>.
  *
- * Created by pdias
+ * Author: pdias
  * Jun 2, 2012
  */
 package pt.up.fe.dceg.neptus.util.comm.manager;
