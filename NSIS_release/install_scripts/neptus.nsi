@@ -39,7 +39,7 @@ SetCompressorDictSize 32
 !define MUI_ABORTWARNING
 
 LicenseText "$(^Name)${TEXTVERSION} Software License"
-LicenseData "${BASEDIR}\legal\Neptus-LICENSE.txt"
+LicenseData "${BASEDIR}\LICENSE.md"
 
 # Included files
 !include Sections.nsh

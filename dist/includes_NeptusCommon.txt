@@ -1,5 +1,8 @@
 bin/neptus.jar
 legal/
+LICENSE.*
+LICENCE.*
+README.*
 lib/
 libJNI/
 schemas/

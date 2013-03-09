@@ -99,7 +99,7 @@ For simple use the main targets are:
 
 	<!-- Where to put licences -->
 	<property name="legal.dir" value="./legal" />
-	<property name="license.file" value="${legal.dir}/Neptus-LICENSE.txt" />
+	<property name="license.file" value="LICENSE.md" />
 
 	<property name="jar.file" value="${name}.jar" />
 	<property name="jar.file.path" value="${bin.dir}/${jar.file}" />
@@ -513,6 +513,7 @@ For simple use the main targets are:
 			<filterset refid="neptus.filters" />
 		</copy>
 		<copy file="${scm.info.file}" tofile="${build.classes}/info" overwrite="yes" failonerror="false" />
+    	<copy file="${license.file}" todir="${build.classes}" />
 		<copy todir="${build.classes}" overwrite="true">
 			<fileset dir="${src.dir}">
 				<include name="totd.xml" />
@@ -559,6 +560,7 @@ For simple use the main targets are:
 			<filterset refid="neptus.filters" />
 		</copy>
 		<copy file="${scm.info.file}" tofile="${tmp.main.dir}/info" overwrite="yes" failonerror="false" />
+	    <copy file="${license.file}" todir="${tmp.main.dir}" />
 		<copy todir="${tmp.main.dir}" overwrite="true">
 			<fileset dir="${src.dir}">
 				<include name="totd.xml" />
@@ -713,80 +715,6 @@ For simple use the main targets are:
 		</jar>
 	</target>
 
-
-	<!-- =================================================================== -->
-	<!-- Creates bin-bundle/neptus-mra.jar           WIP                     -->
-	<!-- =================================================================== -->
-    <target name="jar-bundle-mra" depends="compile" description="Creates bin/neptus-mra.jar">
-        <jar destfile="${bin.bundle.dir}/${name}-mra.jar" basedir="${build.classes}" 
-        	   excludes="${exclude-defaults}" includes="LICENSE">
-			<include name="version.*" />
-			<include name="info*" />
-        	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
-        	<include name="pt/up/fe/dceg/neptus/mra/*.class"/>
-            <include name="pt/up/fe/dceg/neptus/colormap/**/*.class"/>
-            <include name="pt/up/fe/dceg/neptus/util/llf/**/*.class"/>
-            <include name="pt/up/fe/dceg/neptus/util/conf/*.class"/>
-            <include name="pt/up/fe/dceg/neptus/util/*.class"/>
-            <include name="pt/up/fe/dceg/neptus/util/output/*.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/WaitPanel.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/MissionFileChooser.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/ModalFrame.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/PropertiesProvider.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/swing/NeptusFileView.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/CloseTabbedPane.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/TabCloseUI.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/SelectAllFocusListener.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/ToolbarSwitch*.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/ToolbarButton*.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/ColorMapRenderer.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/InfiniteProgressPanel.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/ImagePanel.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/objparams/*.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/editor/*.class"/>
-            <include name="pt/up/fe/dceg/neptus/types/**/*.class"/>
-            <include name="pt/up/fe/dceg/neptus/renderer2d/MissionRenderer.class"/>
-            <include name="pt/up/fe/dceg/neptus/renderer2d/*.class"/>
-            <include name="pt/up/fe/dceg/neptus/util/comm/vehicle/NeptusMessage.class"/>
-            <include name="pt/up/fe/dceg/neptus/util/comm/vehicle/Message*.class"/>
-            <include name="pt/up/fe/dceg/neptus/gps/GPSListener.class"/>
-            <include name="pt/up/fe/dceg/neptus/mp/MapChangeListener.class"/>
-            <include name="pt/up/fe/dceg/neptus/mp/MapChangeEvent.class"/>
-            <include name="pt/up/fe/dceg/neptus/mp/Maneuver.class"/>
-            <include name="pt/up/fe/dceg/neptus/mp/StanagManeuver.class"/>
-            <include name="pt/up/fe/dceg/neptus/mp/maneuvers/*.class"/>
-            <include name="pt/up/fe/dceg/neptus/mp/Dimension.class"/>
-            <include name="pt/up/fe/dceg/messages/**/*.class"/>
-            <include name="pt/up/fe/dceg/neptus/messages/stanag4586/**/*.class"/>
-            <!--include name="pt/up/fe/dceg/neptus/console/SubPanel.class"/>
-            <include name="pt/up/fe/dceg/neptus/console/plugins/SubPanelProvider.class"/>
-            <include name="pt/up/fe/dceg/neptus/console/ConsoleLayout.class"/-->
-            <include name="images/**/*.*"/>
-            <include name="schemas/**/*.*"/>
-            <include name="version.txt"/>
-            <manifest>
-                 <attribute name="Built-By" value="${user.name}" />
-                 <attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
-                 <attribute name="Main-Class" value="pt.up.fe.dceg.neptus.mra.NeptusMRA" />
-                 <!--
-                 <attribute name="Class-Path" value="${class.path.jar}"/>
-                 <attribute name="Main-Class" value="pt.up.fe.dceg.neptus.loader.MissionConsoleLoader"/>
-                 -->
-                 <section name="${Name}">
-                     <attribute name="Specification-Title" value="${Name}" />
-                     <attribute name="Specification-Version" value="${version}" />
-                     <attribute name="Specification-Vendor" value="FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
-                     <attribute name="Implementation-Title" value="${name}" />
-                     <attribute name="Implementation-Version" value="${version} ${TODAY}" />
-					<attribute name="Implementation-Vendor" value="FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)" />
-                 </section>
-             </manifest>
-       </jar>
-       <!--
-       java  -cp .;bin-bundle/neptus-mra.jar;lib;lib\standby.jar;lib\log4j-1.2.15.jar;lib\l2fprod-common-all.jar;lib\looks-2.2.1.jar;lib\foxtrot.jar;lib\dom4j\dom4j-1.6.1.jar;lib\dom4j\jaxen-1.1.1.jar;lib\middleware.jar;lib\commons-io-1.4.jar;lib\commons-codec-1.3.jar;lib\swingx.jar;lib\jfreechart-1.0.6.jar;lib\jcommon-1.0.10.jar;lib\ini4j.jar;lib\iText-2.1.5.jar;lib\fop\batik.jar;lib\fop\xml-apis-ext.jar pt.up.fe.dceg.neptus.mra.NeptusMRA
-       -->
-    </target>
-
     <!-- =================================================================== -->
     <!-- Creates bin-bundle/neptus-check.jar                                 -->
     <!-- =================================================================== -->
@@ -885,7 +813,8 @@ For simple use the main targets are:
     	<unzip dest="tmpBuild" src="${bin.bundle.dir}/${name}-check.jar" overwrite="yes"/>
     	<copy flatten="false" todir="tmpBuild/legal">
     		<fileset dir="${legal.dir}"/>
-    	</copy>        
+    	</copy>
+    	<copy file="${license.file}" todir="tmpBuild" />
         <jar destfile="${bin.bundle.dir}/${name}-check.jar" basedir="tmpBuild" 
         		index="false">
             <manifest>
@@ -990,7 +919,8 @@ For simple use the main targets are:
     	<unzip dest="tmpBuild" src="${bin.bundle.dir}/${name}-worldmap.jar" overwrite="yes"/>
     	<copy flatten="false" todir="tmpBuild/legal">
     		<fileset dir="${legal.dir}"/>
-    	</copy>        
+    	</copy>
+    	<copy file="${license.file}" todir="tmpBuild" />
         <jar destfile="${bin.bundle.dir}/${name}-worldmap.jar" basedir="tmpBuild" 
         		index="false">
             <manifest>
@@ -1291,7 +1221,8 @@ For simple use the main targets are:
 			</javadoc>
 			<copy todir="${tmp.plugin.dir}">
 				<fileset dir="./javadoc" includes="neptus_logo_font_500x193.png" />
-			</copy>				
+			</copy>
+    		<copy file="${license.file}" todir="tmpBuild" />
 			<zip destfile="javadoc/javadoc-render.zip" basedir="${tmp.plugin.dir}" />
 		
 			<delete dir="${tmp.plugin.dir}" failonerror="true"/>
