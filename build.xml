@@ -81,7 +81,7 @@ For simple use the main targets are:
     <property name="tmp.main.dir" value="${tmp.dir}/main-tmp" />
 	<property name="tmp.plugin.dir" value="${tmp.dir}/plugins-dev-tmp" />
 
-	<property name="exclude-svn" value="**/.svn/*" />
+	<property name="exclude-defaults" value="**/Thumbs.db,**/thumbs.db,**/*~,**/#*#" />
 	
 	<property name="scm.info.file" value="scm.info.txt" />
 
@@ -470,7 +470,7 @@ For simple use the main targets are:
 			  source="${compile-source}"
 			  target="${compile-target}"
 			  destdir="${build.classes}" 
-			  excludes="${exclude-svn},old/**/*.*,**/junit/*.java" 
+			  excludes="${exclude-defaults},old/**/*.*,**/junit/*.java" 
 			  includes="**/*.java" 
 			  deprecation="${deprecation}" debug="${debug}" 
 			  classpath="${class.path.compile}" 
@@ -489,19 +489,19 @@ For simple use the main targets are:
 
 		<!-- Copy plugins src resources -->
 		<copy todir="${build.classes}" overwrite="true" verbose="false">
-			<fileset dir="${plugin-dev.dir.base}" excludes="${exclude-svn},**/Thumbs.db,**/thumbs.db,**/*.java,**/*.jar" />
+			<fileset dir="${plugin-dev.dir.base}" excludes="${exclude-defaults},**/Thumbs.db,**/thumbs.db,**/*.java,**/*.jar" />
 			<regexpmapper from="^([^/]+/)(.*)([^/]+\.[^/]+)$$" to="\2\3" handledirsep="true"/>
 		</copy>
 
 		<!-- Copy main src resources -->
 		<copy todir="${build.classes}" overwrite="true">
-			<fileset dir="${src.dir}" excludes="${exclude-svn},**/Thumbs.db,**/thumbs.db" 
+			<fileset dir="${src.dir}" excludes="${exclude-defaults},**/Thumbs.db,**/thumbs.db" 
 				includes="**/*.xml,**/*.properties,**/*.res,images/**/*.*,models/**/*.*,schemas/**/*.xsd" />
 		</copy>
 		<copy todir="${build.classes}" overwrite="true">
 			<fileset dir="${src.dir}">
 				<include name="**/version.txt" />
-				<exclude name="${exclude-svn}" />
+				<exclude name="${exclude-defaults}" />
 			</fileset>
 			<filterset refid="neptus.filters" />
 		</copy>
@@ -514,7 +514,7 @@ For simple use the main targets are:
 				<include name="schemas/**/*.xsd" />
 				<include name="sounds/*" />
 				<include name="**/*.gz" />
-				<exclude name="${exclude-svn}" />
+				<exclude name="${exclude-defaults}" />
 			</fileset>
 		</copy>
 	</target>
@@ -531,7 +531,7 @@ For simple use the main targets are:
 			  source="${compile-source}"
 			  target="${compile-target}"
 			  destdir="${tmp.main.dir}" 
-			  excludes="${exclude-svn},old/**/*.*,**/junit/*.java" 
+			  excludes="${exclude-defaults},old/**/*.*,**/junit/*.java" 
 			  includes="**/*.java" 
 			  deprecation="${deprecation}" debug="${debug}" 
 			  classpath="${class.path.compile.jar.main}" 
@@ -541,13 +541,13 @@ For simple use the main targets are:
 		</javac>
 		
 		<copy todir="${tmp.main.dir}" overwrite="true">
-			<fileset dir="${src.dir}" excludes="${exclude-svn},**/Thumbs.db,**/thumbs.db" 
+			<fileset dir="${src.dir}" excludes="${exclude-defaults},**/Thumbs.db,**/thumbs.db" 
 				includes="**/*.xml,**/*.properties,**/*.res,images/**/*.*,models/**/*.*,schemas/**/*.xsd" />
 		</copy>
 		<copy todir="${tmp.main.dir}" overwrite="true">
 			<fileset dir="${src.dir}">
 				<include name="**/version.txt" />
-				<exclude name="${exclude-svn}" />
+				<exclude name="${exclude-defaults}" />
 			</fileset>
 			<filterset refid="neptus.filters" />
 		</copy>
@@ -560,7 +560,7 @@ For simple use the main targets are:
 				<include name="schemas/**/*.xsd" />
 				<include name="sounds/*" />
 				<include name="**/*.gz" />
-				<exclude name="${exclude-svn}" />
+				<exclude name="${exclude-defaults}" />
 			</fileset>
 		</copy>
 	</target>
@@ -594,7 +594,7 @@ For simple use the main targets are:
 			description="Creates the Neptus jar file.">
 		<echo message="Creating .jar file" />
 		<jar destfile="${jar.file.path}" basedir="${tmp.main.dir}" 
-				index="false" update="true" excludes="${exclude-svn}, *.class">
+				index="false" update="true" excludes="${exclude-defaults}, *.class">
 		</jar>
 		<delete dir="${tmp.main.dir}" />
 	</target>
@@ -613,7 +613,7 @@ For simple use the main targets are:
 	<target name="jar.main.prep" depends="jar.uptodate.test" unless="jar.build.not.required">
 		<!-- "Deletes the old jar file and creates a new one with manifest." -->
 		<delete file="${jar.file.path}" />
-		<jar destfile="${jar.file.path}" basedir="." update="true" excludes="${exclude-svn}" includes="LICENSE">
+		<jar destfile="${jar.file.path}" basedir="." update="true" excludes="${exclude-defaults}" includes="LICENSE">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
@@ -645,7 +645,7 @@ For simple use the main targets are:
 		<property name="jar-api-justrender.file" value="justrender.jar"/>
 
 		<delete file="${bin.dir}/${jar-api-justrender.file}" />
-		<jar destfile="${bin.dir}/${jar-api-justrender.file}" basedir="." update="true" excludes="${exclude-svn}" includes="LICENSE">
+		<jar destfile="${bin.dir}/${jar-api-justrender.file}" basedir="." update="true" excludes="${exclude-defaults}" includes="LICENSE">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
@@ -665,7 +665,7 @@ For simple use the main targets are:
 			</manifest>
 		</jar>
 		<jar destfile="${bin.dir}/${jar-api-justrender.file}" basedir="${build.classes}" 
-				index="false" update="true" excludes="${exclude-svn}, *.class">
+				index="false" update="true" excludes="${exclude-defaults}, *.class">
 			<include name="version.*" />
 			<include name="info*" />
         	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
@@ -712,7 +712,7 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
     <target name="jar-bundle-mra" depends="compile" description="Creates bin/neptus-mra.jar">
         <jar destfile="${bin.bundle.dir}/${name}-mra.jar" basedir="${build.classes}" 
-        	   excludes="${exclude-svn}" includes="LICENSE">
+        	   excludes="${exclude-defaults}" includes="LICENSE">
 			<include name="version.*" />
 			<include name="info*" />
         	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
@@ -787,7 +787,7 @@ For simple use the main targets are:
     	<delete file="${bin.bundle.dir}/${name}-check.jar" failonerror="true"/>
     	<delete dir="tmpBuild" failonerror="true"/>
         <jar destfile="${bin.bundle.dir}/${name}-check.jar" basedir="${build.classes}" 
-               excludes="${exclude-svn}" includes="LICENSE">
+               excludes="${exclude-defaults}" includes="LICENSE">
 			<include name="version.*" />
 			<include name="info*" />
         	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
@@ -905,7 +905,7 @@ For simple use the main targets are:
     	<delete file="${bin.bundle.dir}/${name}-worldmap.jar" failonerror="true"/>
     	<delete dir="tmpBuild" failonerror="true"/>
         <jar destfile="${bin.bundle.dir}/${name}-worldmap.jar" basedir="${build.classes}" 
-               excludes="${exclude-svn}" includes="LICENSE">
+               excludes="${exclude-defaults}" includes="LICENSE">
 			<include name="version.*" />
 			<include name="info*" />
         	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
@@ -1069,7 +1069,7 @@ For simple use the main targets are:
 		<path id="cp.plg">
 			<dirset dir="${plugin-dev.dir.base}" casesensitive="false">
 				<include name="*" />
-				<exclude name="${exclude-svn}" />
+				<exclude name="${exclude-defaults}" />
 			</dirset>
 		</path>
 		<path id="plgpath"><pathelement path="${plugin-dev.dir.base}" /></path>
@@ -1129,7 +1129,7 @@ For simple use the main targets are:
 			  source="${compile-source}"
 			  target="${compile-target}"
 			  destdir="${local.output.build.dir}" 
-			  excludes="${exclude-svn},old/**/*.*,**/junit/*.java" 
+			  excludes="${exclude-defaults},old/**/*.*,**/junit/*.java" 
 			  includes="**/*.java" 
 			  deprecation="${deprecation}" debug="${debug}" 
 			  classpath="${plugin.private.jars.cp};${class.path.compile.jar.main}" 
@@ -1138,7 +1138,7 @@ For simple use the main targets are:
 		</javac>
 		<copy todir="${local.output.build.dir}" overwrite="true">
 			<fileset dir="${plugin-dev.dir.base}/${plugin-name.input}" 
-				excludes="${exclude-svn},**/Thumbs.db,**/thumbs.db,plugins.lst,*.jar,lib,libs,lib/*,libs/*" />
+				excludes="${exclude-defaults},**/Thumbs.db,**/thumbs.db,plugins.lst,*.jar,lib,libs,lib/*,libs/*" />
 		</copy>
 		<copy todir="${local.output.build.dir}" overwrite="true">
 			<fileset dir="${plugin-dev.dir.base}/${plugin-name.input}" 
@@ -1189,7 +1189,7 @@ For simple use the main targets are:
 		<echo message="Creating ${plugin-name.input}.jar file" />
 		<jar destfile="${plugin.dir.dest}/${plugin-name.input}.jar" 
 				basedir="${tmp.plugin.dir}" 
-				index="false" update="true" excludes="${exclude-svn}, **/*.java">
+				index="false" update="true" excludes="${exclude-defaults}, **/*.java">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
@@ -1399,7 +1399,7 @@ For simple use the main targets are:
 		<copy todir="." overwrite="true">
 			<fileset dir="${src.shell.dir}">
 				<include name="*.bat" />
-				<exclude name="${exclude-svn}" />
+				<exclude name="${exclude-defaults}" />
 			</fileset>
 			<filterset refid="bat.filters" />
 		</copy>
@@ -1407,7 +1407,7 @@ For simple use the main targets are:
 			<fileset dir="${src.shell.dir}">
 				<include name="*.sh" />
 				<exclude name="grow_pot.sh" />
-				<exclude name="${exclude-svn}" />
+				<exclude name="${exclude-defaults}" />
 			</fileset>
 			<filterset refid="sh.filters" />
 		</copy>
@@ -1421,7 +1421,7 @@ For simple use the main targets are:
 		<copy todir="dev-scripts" overwrite="true">
 			<fileset dir="${src.shell.dir}">
 				<include name="grow_pot.sh" />
-				<exclude name="${exclude-svn}" />
+				<exclude name="${exclude-defaults}" />
 			</fileset>
 			<filterset refid="sh.filters" />
 		</copy>
@@ -1432,14 +1432,14 @@ For simple use the main targets are:
 		<copy todir="./NSIS_release/static_files/batch_files" overwrite="true">
 			<fileset dir="${src.shell.dir}/installers">
 				<include name="*.bat" />
-				<exclude name="${exclude-svn}" />
+				<exclude name="${exclude-defaults}" />
 			</fileset>
 			<filterset refid="bat.filters" />
 		</copy>
 		<copy todir="./NSIS_release/static_files/batch_files" overwrite="true">
 			<fileset dir="${src.shell.dir}/installers">
 				<include name="*.sh" />
-				<exclude name="${exclude-svn}" />
+				<exclude name="${exclude-defaults}" />
 			</fileset>
 			<filterset refid="sh.filters" />
 		</copy>
@@ -1630,7 +1630,7 @@ For simple use the main targets are:
 		<copy todir="${nsis_dst.dir}" overwrite="true">
 			<fileset dir="${nsis_src.dir}">
 				<include name="neptus_include.nsi" />
-				<exclude name="${exclude-svn}" />
+				<exclude name="${exclude-defaults}" />
 			</fileset>
 			<filterset refid="dist.filters" />
 			<filterset refid="common.filters" />
