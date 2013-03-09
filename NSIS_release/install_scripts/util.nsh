@@ -1,11 +1,9 @@
 #############################################################################
-# Copyright (c) 2004-2013 Laborat�rio de Sistemas e Tecnologia Subaqu�tica  #
-# Departamento de Engenharia Electrot�cnica e de Computadores               #
+# Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática  #
+# Departamento de Engenharia Electrotécnica e de Computadores               #
 # Rua Dr. Roberto Frias, 4200-465 Porto, Portugal                           #
 #############################################################################
 # Author: Paulo Dias                                                        #
-#############################################################################
-# $Id:: util.nsh 9615 2012-12-30 23:08:28Z pdias                          $:#
 #############################################################################
 # This script is the NSIS Utils for Neptus installer                        #
 #############################################################################

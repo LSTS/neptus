@@ -1,11 +1,9 @@
 #############################################################################
-# Copyright (c) 2004-2013 Laborat�rio de Sistemas e Tecnologia Subaqu�tica  #
-# Departamento de Engenharia Electrot�cnica e de Computadores               #
+# Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática  #
+# Departamento de Engenharia Electrotécnica e de Computadores               #
 # Rua Dr. Roberto Frias, 4200-465 Porto, Portugal                           #
 #############################################################################
-# Author: Jos� Pinto                                                        #
-#############################################################################
-# $Id:: NeptusLauncher.nsi 9703 2013-01-13 20:23:21Z pdias                $:#
+# Author: José Pinto                                                        #
 #############################################################################
 # This script is the NSIS script for neptus.exe launcher for Windows        #
 #############################################################################
