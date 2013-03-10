@@ -416,7 +416,7 @@ For simple use the main targets are:
 	<target name="create-scm-props" unless="scm-props-set">
 		<!--
 		- See modified tracked files 
-			git status -s - -untracked-files=no"
+			git status -s - -untracked-files=no
 		- Get SHA1 full or short form of current WC
 			git rev-parse HEAD
 			git rev-parse - -short HEAD
