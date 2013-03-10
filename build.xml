@@ -1579,7 +1579,7 @@ For simple use the main targets are:
 	       common.filters = neptus.filters
 	Params:
 	       jre-os = ["All-OS" | "Windows" | "Linux"] // use one of this, the word 'windows' 'linux' and 'all' will be used to access folder naming
-	       dist.dir = <Path> // Path to unzip the tar.gz jre
+	       dist.tmp.dir = <Path> // Path to unzip the tar.gz jre and to prepare distribution package
 	       sh-bash-basename = [neptus | neptusse] // from ${nsis_src.dir}/batch_files/
 	       copy-includes-excludes-file-sufix = [NeptusSE | NeptusSeacon] // in dist folder as includes_<copy-includes-excludes-file-sufix>.txt and excludes_<copy-includes-excludes-file-sufix>.txt 
 	       dist.installer.name = ${dist.installer.name.full} // basename of file of distribution
@@ -1603,7 +1603,7 @@ For simple use the main targets are:
 	</target>
 
 	<target name="dist_os.worker">
-		<delete dir="${dist.dir}" />
+		<delete dir="${dist.tmp.dir}" />
 		
 		<condition property="exclude-win" value=",**/*.sh,**/*.so" else="">
 		    <contains string="${jre-os}" substring="windows" casesensitive="false" />
@@ -1630,33 +1630,33 @@ For simple use the main targets are:
 			</or>
 		</condition>
 
-		<copy todir="${dist.dir}" verbose="yes" preservelastmodified="true">
+		<copy todir="${dist.tmp.dir}" verbose="yes" preservelastmodified="true">
 			<fileset dir="." excludes="neptus.tgz,neptus-installer.sh,**/*.svn${exclude-win}${exclude-linux}">
 				<includesfile name="dist/includes_NeptusCommon.txt" />
 				<includesfile name="dist/includes_${copy-includes-excludes-file-sufix}.txt" />
 				<excludesfile name="dist/excludes_${copy-includes-excludes-file-sufix}.txt" />
 			</fileset>
 		</copy>
-		<copy file="${src.dir}/images/neptus-icon2.png" tofile="${dist.dir}/neptus.png" preservelastmodified="true" />
+		<copy file="${src.dir}/images/neptus-icon2.png" tofile="${dist.tmp.dir}/neptus.png" preservelastmodified="true" />
 		<antcall target="copy-laucher-bat.worker" />
 		<antcall target="copy-laucher-sh.worker" />
 		<antcall target="copy-laucher-exe.worker" />
-		<copy file="${scm.info.file}" tofile="${dist.dir}/conf/version"
+		<copy file="${scm.info.file}" tofile="${dist.tmp.dir}/conf/version"
 				overwrite="yes" failonerror="false" preservelastmodified="true">
 		</copy>
 	</target>
 	<target name="copy-laucher-bat.worker" if="copy-laucher-bat">
-		<copy file="${nsis_src.dir}/batch_files/${sh-bash-basename}.bat" tofile="${dist.dir}/neptus.bat" 
+		<copy file="${nsis_src.dir}/batch_files/${sh-bash-basename}.bat" tofile="${dist.tmp.dir}/neptus.bat" 
 				overwrite="yes" failonerror="yes" preservelastmodified="true">
 		</copy>	
 	</target>
 	<target name="copy-laucher-sh.worker" if="copy-laucher-sh">
-		<copy file="${nsis_src.dir}/batch_files/${sh-bash-basename}.sh" tofile="${dist.dir}/neptus.sh" 
+		<copy file="${nsis_src.dir}/batch_files/${sh-bash-basename}.sh" tofile="${dist.tmp.dir}/neptus.sh" 
 				overwrite="yes" failonerror="yes" preservelastmodified="true">
 		</copy>
 	</target>
 	<target name="copy-laucher-exe.worker" if="copy-laucher-exe">
-		<copy file="neptus.exe" todir="${dist.dir}" 
+		<copy file="neptus.exe" todir="${dist.tmp.dir}" 
 				overwrite="yes" failonerror="yes" preservelastmodified="true">
 		</copy>
 	</target>
@@ -1689,16 +1689,16 @@ For simple use the main targets are:
 	<target name="create-installer-all-os.worker">
 		<!-- description="Create All OS extracting installer (no Java VM)" -->
 		<delete file="${dist.installer.name}.tar.gz" />
-		<echo message="Compressing ${dist.dir} to ${dist.installer.name}.tar.gz...">
+		<echo message="Compressing ${dist.tmp.dir} to ${dist.installer.name}.tar.gz...">
 		</echo>
 		<tar destfile="${dist.installer.name}.tar.gz" compression="gzip">
-			<tarfileset prefix="${dist.instalation.folder.name}" dir="${dist.dir}">
+			<tarfileset prefix="${dist.instalation.folder.name}" dir="${dist.tmp.dir}">
 				<exclude name="**/neptus.sh,jre/bin/,helper-scripts" />
 			</tarfileset>
-			<tarfileset prefix="${dist.instalation.folder.name}" file="${dist.dir}/neptus.sh" mode="755" />
+			<tarfileset prefix="${dist.instalation.folder.name}" file="${dist.tmp.dir}/neptus.sh" mode="755" />
 			<tarfileset prefix="${dist.instalation.folder.name}/helper-scripts" dir="${all.os.dist.dir}/helper-scripts" mode="755" />
 		</tar>
-		<delete dir="${dist.dir}" failonerror="false" />
+		<delete dir="${dist.tmp.dir}" failonerror="false" />
 	</target>
 
 	<!-- depends="nsisversion,dist_windows" -->
@@ -1707,11 +1707,11 @@ For simple use the main targets are:
 		<antcall target="jre-windows-copy-to-dist" /> <!-- not on depends to allow calling multiple installers -->
 		<antcall target="jre64-windows-copy-to-dist" />
 
-		<delete file="${dist.dir}/neptus.bat" /> <!-- this will be copies by the nsis script -->
+		<delete file="${dist.tmp.dir}/neptus.bat" /> <!-- this will be copies by the nsis script -->
 		<nsis script="NSIS_release/install_scripts/neptus.nsi">
-			<define name="BASEDIR" value="..\..\${dist.dir}" />
+			<define name="BASEDIR" value="..\..\${dist.tmp.dir}" />
 		</nsis>
-		<delete dir="${dist.dir}" failonerror="false" />
+		<delete dir="${dist.tmp.dir}" failonerror="false" />
 	</target>
 
 	<!-- depends="dist_linux" -->
@@ -1722,16 +1722,16 @@ For simple use the main targets are:
 		
 		<delete file="neptus.tgz" />
 		<delete file="${dist.installer.name}.sh" />
-		<echo message="Compressing ${dist.dir} to neptus.tgz...">
+		<echo message="Compressing ${dist.tmp.dir} to neptus.tgz...">
 		</echo>
 		<tar destfile="neptus.tgz" compression="gzip">
-			<tarfileset prefix="${dist.instalation.folder.name}" dir="${dist.dir}">
+			<tarfileset prefix="${dist.instalation.folder.name}" dir="${dist.tmp.dir}">
 				<exclude name="**/neptus.sh,jre*/bin/,helper-scripts" />
 			</tarfileset>
-			<tarfileset prefix="${dist.instalation.folder.name}" file="${dist.dir}/neptus.sh" mode="755" />
-			<tarfileset prefix="${dist.instalation.folder.name}/jre/bin" dir="${dist.dir}/jre/bin" mode="755" />
-			<tarfileset prefix="${dist.instalation.folder.name}/jre64/bin" dir="${dist.dir}/jre64/bin" mode="755" />
-			<tarfileset prefix="${dist.instalation.folder.name}/helper-scripts" dir="${dist.dir}/helper-scripts" mode="755" />
+			<tarfileset prefix="${dist.instalation.folder.name}" file="${dist.tmp.dir}/neptus.sh" mode="755" />
+			<tarfileset prefix="${dist.instalation.folder.name}/jre/bin" dir="${dist.tmp.dir}/jre/bin" mode="755" />
+			<tarfileset prefix="${dist.instalation.folder.name}/jre64/bin" dir="${dist.tmp.dir}/jre64/bin" mode="755" />
+			<tarfileset prefix="${dist.instalation.folder.name}/helper-scripts" dir="${dist.tmp.dir}/helper-scripts" mode="755" />
 		</tar>
 
 		<copy file="${nsis_src.dir}/linux_sfx_header.txt" tofile="sfx_header.sh">
@@ -1749,7 +1749,7 @@ For simple use the main targets are:
 		</concat>
 		<delete file="sfx_header.sh" />
 		<delete file="neptus.tgz" />
-		<delete dir="${dist.dir}" failonerror="false" />
+		<delete dir="${dist.tmp.dir}" failonerror="false" />
 	</target>
 
 	<target name="distribution.worker">
@@ -1783,7 +1783,7 @@ For simple use the main targets are:
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-all-os.worker"/>
 			<param name="jre-os" value="All-OS"/>
-			<param name="dist.dir" value="${all.os.dist.dir}" />
+			<param name="dist.tmp.dir" value="${all.os.dist.dir}" />
 			<param name="sh-bash-basename" value="neptus" />
 			<param name="copy-includes-excludes-file-sufix" value="NeptusFull" />
 			<param name="dist.installer.name" value="${dist.installer.name.full}" />
@@ -1797,7 +1797,7 @@ For simple use the main targets are:
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-windows.worker"/>
 			<param name="jre-os" value="Windows"/>
-			<param name="dist.dir" value="${windows.dist.dir}" />
+			<param name="dist.tmp.dir" value="${windows.dist.dir}" />
 			<param name="sh-bash-basename" value="neptus" />
 			<param name="copy-includes-excludes-file-sufix" value="NeptusFull" />
 			<param name="dist.installer.name" value="${dist.installer.name.full}" />
@@ -1811,7 +1811,7 @@ For simple use the main targets are:
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-linux.worker"/>
 			<param name="jre-os" value="Linux"/>
-			<param name="dist.dir" value="${linux.dist.dir}" />
+			<param name="dist.tmp.dir" value="${linux.dist.dir}" />
 			<param name="sh-bash-basename" value="neptus" />
 			<param name="copy-includes-excludes-file-sufix" value="NeptusFull" />
 			<param name="dist.installer.name" value="${dist.installer.name.full}" />
@@ -1835,7 +1835,7 @@ For simple use the main targets are:
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-all-os.worker"/>
 			<param name="jre-os" value="All-OS"/>
-			<param name="dist.dir" value="${all.os.dist.dir}" />
+			<param name="dist.tmp.dir" value="${all.os.dist.dir}" />
 			<param name="sh-bash-basename" value="neptusse" />
 			<param name="copy-includes-excludes-file-sufix" value="NeptusSeacon" />
 			<param name="dist.installer.name" value="${dist.installer.name.seacon}" />
@@ -1849,7 +1849,7 @@ For simple use the main targets are:
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-windows.worker"/>
 			<param name="jre-os" value="Windows"/>
-			<param name="dist.dir" value="${windows.dist.dir}" />
+			<param name="dist.tmp.dir" value="${windows.dist.dir}" />
 			<param name="sh-bash-basename" value="neptusse" />
 			<param name="copy-includes-excludes-file-sufix" value="NeptusSeacon" />
 			<param name="dist.installer.name" value="${dist.installer.name.seacon}" />
@@ -1863,7 +1863,7 @@ For simple use the main targets are:
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-linux.worker"/>
 			<param name="jre-os" value="Linux"/>
-			<param name="dist.dir" value="${linux.dist.dir}" />
+			<param name="dist.tmp.dir" value="${linux.dist.dir}" />
 			<param name="sh-bash-basename" value="neptusse" />
 			<param name="copy-includes-excludes-file-sufix" value="NeptusSeacon" />
 			<param name="dist.installer.name" value="${dist.installer.name.seacon}" />
@@ -1887,7 +1887,7 @@ For simple use the main targets are:
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-all-os.worker"/>
 			<param name="jre-os" value="All-OS"/>
-			<param name="dist.dir" value="${all.os.dist.dir}" />
+			<param name="dist.tmp.dir" value="${all.os.dist.dir}" />
 			<param name="sh-bash-basename" value="neptusse" />
 			<param name="copy-includes-excludes-file-sufix" value="NeptusSE" />
 			<param name="dist.installer.name" value="${dist.installer.name.le}" />
@@ -1901,7 +1901,7 @@ For simple use the main targets are:
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-windows.worker"/>
 			<param name="jre-os" value="Windows"/>
-			<param name="dist.dir" value="${windows.dist.dir}" />
+			<param name="dist.tmp.dir" value="${windows.dist.dir}" />
 			<param name="sh-bash-basename" value="neptusse" />
 			<param name="copy-includes-excludes-file-sufix" value="NeptusSE" />
 			<param name="dist.installer.name" value="${dist.installer.name.le}" />
@@ -1915,7 +1915,7 @@ For simple use the main targets are:
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-linux.worker"/>
 			<param name="jre-os" value="Linux"/>
-			<param name="dist.dir" value="${linux.dist.dir}" />
+			<param name="dist.tmp.dir" value="${linux.dist.dir}" />
 			<param name="sh-bash-basename" value="neptusse" />
 			<param name="copy-includes-excludes-file-sufix" value="NeptusSE" />
 			<param name="dist.installer.name" value="${dist.installer.name.le}" />
