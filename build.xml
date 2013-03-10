@@ -124,6 +124,10 @@ For simple use the main targets are:
 
 	<property name="reports.tests" value="${build.docs}/junit/xml_res" />
 	<property name="reports.outputs" value="${build.docs}/junit/html" />
+	
+	<property name="javadoc.src" value="javadoc" />
+	<property name="javadoc.overview" value="overview-and-developers-guide.html" />
+	<property name="javadoc.overview.path" value="${javadoc.src}/${javadoc.overview}" />	
 
 	<!-- Where to put licences -->
 	<property name="legal.dir" value="./legal" />
@@ -1243,7 +1247,7 @@ For simple use the main targets are:
 				use="true" windowtitle="${Name} Package" 
 				doctitle="${Name} Package&lt;div align='center'>&lt;img src='neptus_logo_font_500x193.png' border='0'>&lt;/div>" 
 				bottom="&lt;font size='-1' color='#3399CC'>${legal.copy.html}&lt;/font>" 
-				header="${Name}" footer="FEUP-LSTS" destdir="${tmp.plugin.dir}" docencoding="UTF-8" overview="./javadoc/overview.html" 
+				header="${Name}" footer="FEUP-LSTS" destdir="${tmp.plugin.dir}" docencoding="UTF-8" overview="${javadoc.overview.path}" 
 				packagenames="pt.up.fe.dceg.neptus.plugins*,pt.up.fe.dceg.neptus.console*,pt.up.fe.dceg.neptus.mra*,pt.up.fe.dceg*.vartree*,pt.up.fe.dceg.neptus.util*"
 			 	locale="en_US" charset="UTF-8" encoding="${compile-encoding}">
 			<group title="Plugins" packages="pt.up.fe.dceg.neptus.plugins*" />
@@ -1255,9 +1259,9 @@ For simple use the main targets are:
 			<group title="Var Tree" packages="pt.up.fe.dceg.neptus.vartree*,pt.up.fe.dceg.vartree*" />
 		</javadoc>
 		<copy todir="${tmp.plugin.dir}">
-			<fileset dir="./javadoc" includes="neptus_logo_font_500x193.png" />
+			<fileset dir="${javadoc.src}" includes="neptus_logo_font_500x193.png" />
 		</copy>				
-		<zip destfile="javadoc/javadoc.zip" basedir="${tmp.plugin.dir}" />
+		<zip destfile="${javadoc.src}/javadoc.zip" basedir="${tmp.plugin.dir}" />
 	
 		<delete dir="${tmp.plugin.dir}" failonerror="true"/>
 	</target>	
@@ -1275,7 +1279,7 @@ For simple use the main targets are:
 					doctitle="${Name} Package&lt;div align='center'>&lt;img src='neptus_logo_font_500x193.png' border='0'>&lt;/div>" 
 					bottom="&lt;font size='-1' color='#3399CC'>${legal.copy.html}&lt;/font>" 
 					header="${Name}" footer="FEUP-LSTS" destdir="${tmp.plugin.dir}" docencoding="UTF-8" 
-					overview="./javadoc/overview.html" 
+					overview="${javadoc.overview.path}" 
 					packagenames="pt.up.fe.dceg.neptus.types.coord*,pt.up.fe.dceg.neptus.renderer2d*,pt.up.fe.dceg.neptus.util.s52*"
 				 	locale="en_US" charset="UTF-8" encoding="${compile-encoding}">
 				<group title="Types" packages="pt.up.fe.dceg.neptus.types*" />
@@ -1283,10 +1287,10 @@ For simple use the main targets are:
 				<group title="StateRender2D" packages="pt.up.fe.dceg.neptus.renderer2d*" />
 			</javadoc>
 			<copy todir="${tmp.plugin.dir}">
-				<fileset dir="./javadoc" includes="neptus_logo_font_500x193.png" />
+				<fileset dir="${javadoc.src}" includes="neptus_logo_font_500x193.png" />
 			</copy>
     		<copy file="${license.file}" todir="${tmp.plugin.dir}" />
-			<zip destfile="javadoc/javadoc-render.zip" basedir="${tmp.plugin.dir}" />
+			<zip destfile="${javadoc.src}/javadoc-render.zip" basedir="${tmp.plugin.dir}" />
 		
 			<delete dir="${tmp.plugin.dir}" failonerror="true"/>
 
@@ -1311,7 +1315,7 @@ For simple use the main targets are:
 				doctitle="${Name} Package&lt;div align='center'>&lt;img src='neptus_logo_font_500x193.png' border='0'>&lt;/div>" 
 				bottom="&lt;font size='-1' color='#3399CC'>${legal.copy.html}&lt;/font>" 
 				header="${Name}" footer="FEUP-LSTS" destdir="${build.apidocs}" docencoding="UTF-8" 
-				overview="./javadoc/overview.html" locale="en_US" charset="UTF-8" encoding="${compile-encoding}">
+				overview="${javadoc.overview.path}" locale="en_US" charset="UTF-8" encoding="${compile-encoding}">
 			<sourcepath path="${src.dir}" />
 			<!--fileset dir="${plugin-dev.dir.base}" defaultexcludes="yes">
 			      <include name="**/*.java"/>
@@ -1330,7 +1334,7 @@ For simple use the main targets are:
 			<group title="Tests" packages="pt.up.fe.dceg.neptus.test*" />
 		</javadoc>
 		<copy todir="${build.apidocs}">
-			<fileset dir="./javadoc" includes="neptus_logo_font_500x193.png" />
+			<fileset dir="${javadoc.src}" includes="neptus_logo_font_500x193.png" />
 		</copy>
 		<!-- sourcefiles="${src.dir}\**\*.java" -->
 		<!-- copy todir="${build.apidocs}">
