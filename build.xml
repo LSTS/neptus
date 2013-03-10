@@ -131,12 +131,14 @@ For simple use the main targets are:
 
 	<property name="jar.file" value="${name}.jar" />
 	<property name="jar.file.path" value="${bin.dir}/${jar.file}" />
-	<property name="mplanner.jar.file" value="mplanner.jar" />
 	<property name="workspace.jar.file" value="workspace.jar" />
-	
+
 	<property name="libimc.jar.file" value="libimc.jar" />
 	<property name="libimc.jar.file.path" value="${lib.dir}/${libimc.jar.file}" />
-	
+
+	<!-- The bundle jars names -->
+	<property name="bundle.jar.checklist" value="${name}-check.jar" />
+	<property name="bundle.jar.worldmap" value="${name}-worldmap.jar" />
 	
 	<property name="dist.installer.basename.full" value="${Name}-${full.release}-x86-32bit-x64-64bit"/>
 	<property name="dist.installer.basename.le" value="${Name}LE-${light.release}-x86-32bit-x64-64bit"/>
@@ -211,7 +213,7 @@ For simple use the main targets are:
 	<property name="jre64-linux-tgz-url" value="jre64-linux.tgz" />
 
 	<!-- The base dir for Neptus instalation -->
-	<property name="install.dir" value="${Name}" />
+	<property name="install.dir.name" value="${Name}" />
 
 	<property environment="env" />
 
@@ -229,8 +231,13 @@ For simple use the main targets are:
 	<!-- Default target                                                      -->
 	<!-- =================================================================== -->
 	<target name="default" description="Default target to make the WC runnable."
+			depends="generate-all-necessary-missing-files">
+	</target>
+
+	<target name="generate-all-necessary-missing-files"
 			depends="jar, jar-bundle-checklist, jar-bundle-worldmap">
 	</target>
+	
 
 	<!-- =================================================================== -->
 	<!-- Info                                                                -->
@@ -273,7 +280,7 @@ For simple use the main targets are:
 	</target>
 
 	<!-- =================================================================== -->
-	<!-- Prepares the build directories                                      -->
+	<!-- Prepares the build directories (should be allways called)           -->
 	<!-- =================================================================== -->
 	<target name="prepare" depends="info, prepare.build.dirs,create-scm-props,create-sh-bat-filters" 
 			unless="time.year">
@@ -312,7 +319,7 @@ For simple use the main targets are:
 			<filter token="NUMERIC_VERSION" value="${version.numeric}" />
 			<filter token="LEGAL_COPY" value="${legal.copy}" />
 			<filter token="EXTRA_DIST_NAME" value="${full.release}" />
-			<filter token="INSTALL_DIR" value="${install.dir}" />
+			<filter token="INSTALL_DIR" value="${install.dir.name}" />
 			<!--filter token="VERSION_SE" value="" /-->
 			<filter token="DIST_EXE" value="${dist.installer.name.full}" />
 			<filter token="SCM_REV" value="${scm.revision}" />
@@ -323,7 +330,7 @@ For simple use the main targets are:
 		<filterset id="neptusLE.filters">
 			<filter token="NEPTUS_NAME" value="${Name}LE" />
 			<filter token="EXTRA_DIST_NAME" value="Light Edition ${light.release}" />
-			<filter token="INSTALL_DIR" value="${install.dir}LE" />
+			<filter token="INSTALL_DIR" value="${install.dir.name}LE" />
 			<!--filter token="VERSION_SE" value="${light.release}" /-->
 			<filter token="DIST_EXE" value="${dist.installer.name.le}" />
 			<filter token="INSTALLER_NSIS_NEPTUS_BATCH_PATH" value="..\static_files\batch_files\neptusse.bat" />
@@ -331,7 +338,7 @@ For simple use the main targets are:
 		<filterset id="neptusSeacon.filters">
 			<filter token="NEPTUS_NAME" value="${Name}SC" />
 			<filter token="EXTRA_DIST_NAME" value="Seacon Edition ${seacon.release}" />
-			<filter token="INSTALL_DIR" value="${install.dir}Seacon" />
+			<filter token="INSTALL_DIR" value="${install.dir.name}Seacon" />
 			<!--filter token="VERSION_SE" value="${seacon.release}" /-->
 			<filter token="DIST_EXE" value="${dist.installer.name.seacon}" />
 			<filter token="INSTALLER_NSIS_NEPTUS_BATCH_PATH" value="..\static_files\batch_files\neptusse.bat" />
@@ -746,9 +753,9 @@ For simple use the main targets are:
     <!-- Creates bin-bundle/neptus-check.jar                                 -->
     <!-- =================================================================== -->
     <target name="jar-bundle-checklist" depends="compile" description="Creates bin-bundle/neptus-check.jar">
-    	<delete file="${bin.bundle.dir}/${name}-check.jar" failonerror="true"/>
+    	<delete file="${bin.bundle.dir}/${bundle.jar.checklist}" failonerror="true"/>
     	<delete dir="${tmp.bundle.dir}" failonerror="true"/>
-        <jar destfile="${bin.bundle.dir}/${name}-check.jar" basedir="${build.classes}" 
+        <jar destfile="${bin.bundle.dir}/${bundle.jar.checklist}" basedir="${build.classes}" 
                excludes="${exclude-defaults}" includes="LICENSE">
 			<include name="version.*" />
 			<include name="info*" />
@@ -837,12 +844,12 @@ For simple use the main targets are:
     	<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
     	<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-1.4.jar"/-->
     	
-    	<unzip dest="${tmp.bundle.dir}" src="${bin.bundle.dir}/${name}-check.jar" overwrite="yes"/>
+    	<unzip dest="${tmp.bundle.dir}" src="${bin.bundle.dir}/${bundle.jar.checklist}" overwrite="yes"/>
     	<copy flatten="false" todir="${tmp.bundle.dir}/legal">
     		<fileset dir="${legal.dir}"/>
     	</copy>
     	<copy file="${license.file}" todir="${tmp.bundle.dir}" />
-        <jar destfile="${bin.bundle.dir}/${name}-check.jar" basedir="${tmp.bundle.dir}" 
+        <jar destfile="${bin.bundle.dir}/${bundle.jar.checklist}" basedir="${tmp.bundle.dir}" 
         		index="false">
             <manifest>
                  <attribute name="Built-By" value="${user.name}" />
@@ -865,9 +872,9 @@ For simple use the main targets are:
     <!-- Creates bin-bundle/neptus-worldmap.jar                                 -->
     <!-- =================================================================== -->
     <target name="jar-bundle-worldmap" depends="compile" description="Creates bin-bundle/neptus-worldmap.jar">
-    	<delete file="${bin.bundle.dir}/${name}-worldmap.jar" failonerror="true"/>
+    	<delete file="${bin.bundle.dir}/${bundle.jar.worldmap}" failonerror="true"/>
     	<delete dir="${tmp.bundle.dir}" failonerror="true"/>
-        <jar destfile="${bin.bundle.dir}/${name}-worldmap.jar" basedir="${build.classes}" 
+        <jar destfile="${bin.bundle.dir}/${bundle.jar.worldmap}" basedir="${build.classes}" 
                excludes="${exclude-defaults}" includes="LICENSE">
 			<include name="version.*" />
 			<include name="info*" />
@@ -943,12 +950,12 @@ For simple use the main targets are:
     	<unzip dest="${tmp.bundle.dir}" src="plugins/tiles-extra.jar"/>
     	<unzip dest="${tmp.bundle.dir}" src="lib/libimc.jar"/>
     	
-    	<unzip dest="${tmp.bundle.dir}" src="${bin.bundle.dir}/${name}-worldmap.jar" overwrite="yes"/>
+    	<unzip dest="${tmp.bundle.dir}" src="${bin.bundle.dir}/${bundle.jar.worldmap}" overwrite="yes"/>
     	<copy flatten="false" todir="${tmp.bundle.dir}/legal">
     		<fileset dir="${legal.dir}"/>
     	</copy>
     	<copy file="${license.file}" todir="${tmp.bundle.dir}" />
-        <jar destfile="${bin.bundle.dir}/${name}-worldmap.jar" basedir="${tmp.bundle.dir}" 
+        <jar destfile="${bin.bundle.dir}/${bundle.jar.worldmap}" basedir="${tmp.bundle.dir}" 
         		index="false">
             <manifest>
                  <attribute name="Built-By" value="${user.name}" />
@@ -965,7 +972,7 @@ For simple use the main targets are:
              </manifest>
         </jar>
       	<!--signjar storetype="jceks" keystore="${neptus.cert}" alias="${login.cert}" 
-           storepass="${pass.cert}" jar="${bin.bundle.dir}/${name}-worldmap.jar" /-->
+           storepass="${pass.cert}" jar="${bin.bundle.dir}/${bundle.jar.worldmap}" /-->
     	<delete dir="${tmp.bundle.dir}" failonerror="false"/>
     </target>
  
