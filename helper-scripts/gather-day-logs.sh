@@ -117,9 +117,11 @@ echo 25
 echo "# Preparing Neptus log dir"
 mkdir -p $to_upload/$NEPTUSDIR/$todayDirName
 mv -v $NEPTUS_HOME/log/* $to_upload/$NEPTUSDIR/$todayDirName
-svnversion > $to_upload/$NEPTUSDIR/$todayDirName/svninfo.txt
-svn info >> $to_upload/$NEPTUSDIR/$todayDirName/svninfo.txt
-svn status >> $to_upload/$NEPTUSDIR/$todayDirName/svninfo.txt
+git rev-parse HEAD > $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+git describe - -dirty >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+git describe - -all - -long - -dirty >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+git log -1 --date=iso >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+git status --untracked-files=yes >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
 echo 40
 echo "# Finding used  mission file..."
 find $NEPTUS_HOME/missions/ -type f -name '*.nmisz' -newer _start -exec cp -v {} $to_upload/$NEPTUSDIR/$todayDirName \;
