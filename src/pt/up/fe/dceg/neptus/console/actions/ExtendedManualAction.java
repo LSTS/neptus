@@ -47,6 +47,7 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
  * 
  */
 @SuppressWarnings("serial")
+@Deprecated
 public class ExtendedManualAction extends ConsoleAction {
 
     protected ConsoleLayout console;

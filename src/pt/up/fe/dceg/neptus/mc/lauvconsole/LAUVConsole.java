@@ -42,9 +42,7 @@ import org.dom4j.Node;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.actions.ExtendedManualAction;
 import pt.up.fe.dceg.neptus.console.actions.LayoutEditConsoleAction;
-import pt.up.fe.dceg.neptus.console.actions.ManualAction;
 import pt.up.fe.dceg.neptus.console.actions.OpenConsoleAction;
 import pt.up.fe.dceg.neptus.console.actions.RunChecklistConsoleAction;
 import pt.up.fe.dceg.neptus.console.actions.SaveAsConsoleAction;
@@ -82,8 +80,8 @@ public class LAUVConsole extends ConsoleLayout {
         if (!editEnabled)
             removeJMenuAction(LayoutEditConsoleAction.class);
         removeJMenuAction(RunChecklistConsoleAction.class);
-        removeJMenuAction(ManualAction.class);
-        removeJMenuAction(ExtendedManualAction.class);
+        // removeJMenuAction(ManualAction.class);
+        // removeJMenuAction(ExtendedManualAction.class);
     }
 
     @Override

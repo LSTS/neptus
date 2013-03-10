@@ -32,7 +32,6 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyVetoException;
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -66,7 +65,6 @@ import org.jdesktop.swingx.JXStatusBar;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.actions.ExitAction;
-import pt.up.fe.dceg.neptus.doc.DocumentationPanel;
 import pt.up.fe.dceg.neptus.events.NeptusEventHiddenMenus;
 import pt.up.fe.dceg.neptus.events.NeptusEvents;
 import pt.up.fe.dceg.neptus.gui.AboutPanel;
@@ -182,7 +180,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     private JMenu checklistsMenu = null;
     private JMenuItem openChecklistMenuItem = null;
     private JMenuItem newChecklistMenuItem = null;
-    private JMenuItem manualMenuItem = null;
+//    private JMenuItem manualMenuItem = null;
     private JMenuItem viewer3DMenuItem = null;
     private JMenuItem dumpGeneralPropertiesDefaultsMenuItem = null;
     private JMenuItem snapShotMenuItem = null;
@@ -872,26 +870,21 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         return newChecklistMenuItem;
     }
 
-    /**
-     * This method initializes totdMenuItem
-     * 
-     * @return javax.swing.JMenuItem
-     */
-    private JMenuItem getManualMenuItem() {
-        if (manualMenuItem == null) {
-            manualMenuItem = new JMenuItem();
-            manualMenuItem.setText(I18n.text("Manual"));
-            manualMenuItem
-                    .setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/info.png")));
-            manualMenuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    DocumentationPanel.showDocumentation("start.html");
-                }
-            });
-        }
-        return manualMenuItem;
-    }
+//    private JMenuItem getManualMenuItem() {
+//        if (manualMenuItem == null) {
+//            manualMenuItem = new JMenuItem();
+//            manualMenuItem.setText(I18n.text("Manual"));
+//            manualMenuItem
+//                    .setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/info.png")));
+//            manualMenuItem.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    DocumentationPanel.showDocumentation("start.html");
+//                }
+//            });
+//        }
+//        return manualMenuItem;
+//    }
 
     /**
      * @param type
@@ -1073,25 +1066,24 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
      * 
      * @return javax.swing.JMenu
      */
-    @SuppressWarnings("serial")
     private JMenu getHelpMenu() {
         if (helpMenu == null) {
             helpMenu = new JMenu();
             helpMenu.setText(I18n.text("Help"));
-            helpMenu.add(getManualMenuItem());
-            helpMenu.add(new AbstractAction(I18n.text("Extended Manual"), new ImageIcon(this.getClass()
-                    .getClassLoader().getResource("images/menus/info.png"))) {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    try {
-                        Desktop.getDesktop().browse(new File("doc/seacon/manual-seacon.html").toURI());
-                    }
-                    catch (IOException e1) {
-                        e1.printStackTrace();
-                        GuiUtils.errorMessage(I18n.text("Error opening Extended Manual"), e1.getMessage());
-                    }
-                }
-            });
+//            helpMenu.add(getManualMenuItem());
+//            helpMenu.add(new AbstractAction(I18n.text("Extended Manual"), new ImageIcon(this.getClass()
+//                    .getClassLoader().getResource("images/menus/info.png"))) {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    try {
+//                        Desktop.getDesktop().browse(new File("doc/seacon/manual-seacon.html").toURI());
+//                    }
+//                    catch (IOException e1) {
+//                        e1.printStackTrace();
+//                        GuiUtils.errorMessage(I18n.text("Error opening Extended Manual"), e1.getMessage());
+//                    }
+//                }
+//            });
             helpMenu.add(getAboutMenuItem());
         }
         return helpMenu;

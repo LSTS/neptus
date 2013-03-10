@@ -83,10 +83,8 @@ import pt.up.fe.dceg.neptus.console.actions.AutoSnapshotConsoleAction;
 import pt.up.fe.dceg.neptus.console.actions.ConsoleAction;
 import pt.up.fe.dceg.neptus.console.actions.CreateMissionConsoleAction;
 import pt.up.fe.dceg.neptus.console.actions.ExitAction;
-import pt.up.fe.dceg.neptus.console.actions.ExtendedManualAction;
 import pt.up.fe.dceg.neptus.console.actions.IncomingDataAction;
 import pt.up.fe.dceg.neptus.console.actions.LayoutEditConsoleAction;
-import pt.up.fe.dceg.neptus.console.actions.ManualAction;
 import pt.up.fe.dceg.neptus.console.actions.OpenConsoleAction;
 import pt.up.fe.dceg.neptus.console.actions.OpenImcMonitorAction;
 import pt.up.fe.dceg.neptus.console.actions.OpenMRAAction;
@@ -616,13 +614,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         // helpMenu.add(menuActions.get("Extended Manual"));
         // helpMenu.add(menuActions.get("About"));
 
-        ConsoleAction manual = new ManualAction(this);
-        actions.put(ManualAction.class, manual);
-        helpMenu.add(manual);
+        // ConsoleAction manual = new ManualAction(this);
+        // actions.put(ManualAction.class, manual);
+        // helpMenu.add(manual);
 
-        ConsoleAction extManual = new ExtendedManualAction(this);
-        actions.put(ExtendedManualAction.class, extManual);
-        helpMenu.add(extManual);
+        // ConsoleAction extManual = new ExtendedManualAction(this);
+        // actions.put(ExtendedManualAction.class, extManual);
+        // helpMenu.add(extManual);
 
         ConsoleAction about = new AboutAction(this);
         actions.put(AboutAction.class, about);
