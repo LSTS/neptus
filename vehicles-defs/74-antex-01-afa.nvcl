@@ -9,11 +9,11 @@
 			<x-size>3.033</x-size>
 			<y-size>6</y-size>
 			<z-size>0.984</z-size>
-			<top-image-2D>../vehicles-files/antex-m/conf/images/antex-m-t.png</top-image-2D>
-			<side-image-2D>../vehicles-files/antex-m/conf/images/antex-m-s.png</side-image-2D>
-			<back-image-2D>../vehicles-files/antex-m/conf/images/antex-m-f.png</back-image-2D>
-			<presentation-image-2D>../vehicles-files/antex-m/conf/images/antex-m-p.png</presentation-image-2D>
-			<model-3D>../vehicles-files/antex-m/conf/model/antex-m.j3d</model-3D>
+			<top-image-2D>../vehicles-files/antex-m/antex-m-t.png</top-image-2D>
+			<side-image-2D>../vehicles-files/antex-m/antex-m-s.png</side-image-2D>
+			<back-image-2D>../vehicles-files/antex-m/antex-m-f.png</back-image-2D>
+			<presentation-image-2D>../vehicles-files/antex-m/antex-m-p.png</presentation-image-2D>
+			<model-3D>../vehicles-files/antex-m/antex-m.j3d</model-3D>
 			<icon-color><r>186</r><g>186</g><b>34</b></icon-color>
 		</appearance>
 		<coordinate-system-label>SNAME</coordinate-system-label>

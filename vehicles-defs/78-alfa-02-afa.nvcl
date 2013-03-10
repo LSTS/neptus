@@ -10,11 +10,11 @@
       <x-size>1.21</x-size>
       <y-size>2.41</y-size>
       <z-size>0.305</z-size>
-      <top-image-2D>../vehicles-files/antex-m/conf/images/alfa02-t.png</top-image-2D>
-      <side-image-2D>../vehicles-files/antex-m/conf/images/alfa02-s.png</side-image-2D>
-      <back-image-2D>../vehicles-files/antex-m/conf/images/alfa02-b.png</back-image-2D>
-      <presentation-image-2D>../vehicles-files/antex-m/conf/images/alfa02-p.png</presentation-image-2D>
-      <model-3D>../vehicles-files/antex-m/conf/model/alfa02.x3d</model-3D>
+      <top-image-2D>../vehicles-files/antex-m/alfa02-t.png</top-image-2D>
+      <side-image-2D>../vehicles-files/antex-m/alfa02-s.png</side-image-2D>
+      <back-image-2D>../vehicles-files/antex-m/alfa02-b.png</back-image-2D>
+      <presentation-image-2D>../vehicles-files/antex-m/alfa02-p.png</presentation-image-2D>
+      <model-3D>../vehicles-files/antex-m/alfa02.x3d</model-3D>
       <icon-color>
         <r>255</r>
         <g>255</g>

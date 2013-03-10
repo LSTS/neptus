@@ -9,11 +9,11 @@
 			<x-size>1.96</x-size>
 			<y-size>2.64</y-size>
 			<z-size>0.81</z-size>
-			<top-image-2D>../vehicles-files/pilatus/conf/images/pilatus-amarelo-t.png</top-image-2D>
-			<side-image-2D>../vehicles-files/pilatus/conf/images/pilatus-amarelo-s.png</side-image-2D>
-			<back-image-2D>../vehicles-files/pilatus/conf/images/pilatus-amarelo-b.png</back-image-2D>
-			<presentation-image-2D>../vehicles-files/pilatus/conf/images/pilatus-amarelo-p.png</presentation-image-2D>
-			<model-3D>../vehicles-files/pilatus/conf/model/pilatus-amarelo.x3d</model-3D>
+			<top-image-2D>../vehicles-files/pilatus/pilatus-amarelo-t.png</top-image-2D>
+			<side-image-2D>../vehicles-files/pilatus/pilatus-amarelo-s.png</side-image-2D>
+			<back-image-2D>../vehicles-files/pilatus/pilatus-amarelo-b.png</back-image-2D>
+			<presentation-image-2D>../vehicles-files/pilatus/pilatus-amarelo-p.png</presentation-image-2D>
+			<model-3D>../vehicles-files/pilatus/pilatus-amarelo.x3d</model-3D>
 			<icon-color><r>255</r><g>255</g><b>0</b></icon-color>
 		</appearance>
 		<coordinate-system-label>SNAME</coordinate-system-label>
