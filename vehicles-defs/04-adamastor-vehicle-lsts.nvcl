@@ -8,10 +8,10 @@
 			<x-size>1.2</x-size>
 			<y-size>0.75</y-size>
 			<z-size>0.7</z-size>
-			<top-image-2D>../vehicles-files/adamastor/conf/images/adamastor_top.png</top-image-2D>
-			<side-image-2D>../vehicles-files/adamastor/conf/images/adamastor_side.png</side-image-2D>
-			<presentation-image-2D>../vehicles-files/adamastor/conf/images/adamastor_presentation.png</presentation-image-2D>
-			<model-3D>../vehicles-files/adamastor/conf/model/adamastor.j3d</model-3D>
+			<top-image-2D>../vehicles-files/adamastor/adamastor_top.png</top-image-2D>
+			<side-image-2D>../vehicles-files/adamastor/adamastor_side.png</side-image-2D>
+			<presentation-image-2D>../vehicles-files/adamastor/adamastor_presentation.png</presentation-image-2D>
+			<model-3D>../vehicles-files/adamastor/adamastor.j3d</model-3D>
 		</appearance>
 		<coordinate-system-label>SNAME</coordinate-system-label>
 	</properties>
