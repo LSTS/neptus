@@ -239,6 +239,33 @@ For simple use the main targets are:
 	<target name="generate-all-necessary-missing-files"
 			depends="jar, jar-bundle-checklist, jar-bundle-worldmap">
 	</target>
+
+	<!-- =================================================================== -->
+	<!-- Test and fail for generated all necessary missing files target      -->
+	<!-- =================================================================== -->
+	<target name="test-and-fail-for-generated-all-necessary-missing-files">
+		<fileset id="plugins-jars-to-test-fileset" dir="${plugin.dir.dest}" casesensitive="no">
+			<include name="**/*.jar"/>
+		</fileset>
+		<fail message="There are some missing files to be able to run Neptus. Please run 'ant' command (with no arguments) and try again.">
+			<condition>
+				<not>
+					<and>
+						<resourceexists>
+							<file file="${jar.file.path}"/>
+						</resourceexists>
+						<resourcecount refid="plugins-jars-to-test-fileset" when="greater" count="30" />
+						<resourceexists>
+							<file file="${bundle.jar.checklist.path}"/>
+						</resourceexists>
+						<resourceexists>
+							<file file="${bundle.jar.worldmap.path}"/>
+						</resourceexists>
+					</and>
+				</not>
+			</condition>
+		</fail>
+	</target>
 	
 
 	<!-- =================================================================== -->
@@ -1774,20 +1801,20 @@ For simple use the main targets are:
 	<!-- All Distributions Builders                                          -->
 	<!-- =================================================================== -->
 
-	<target name="distribution-all" depends="prepare, distribution-full, distribution-seacon, distribution-le"
+	<target name="distribution-all" depends="prepare, test-and-fail-for-generated-all-necessary-missing-files, distribution-full, distribution-seacon, distribution-le"
 			description="Distribution generation for all flavors.">		
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	<!-- Distribution Full Builders                                          -->
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<target name="distribution-full" depends="prepare, distribution-full-all-os, distribution-full-linux, distribution-full-windows"
+	<target name="distribution-full" depends="prepare, test-and-fail-for-generated-all-necessary-missing-files, distribution-full-all-os, distribution-full-linux, distribution-full-windows"
 			description="Distribution generation for Full flavors, all variants.">
 		<antcall target="installer-checksum-worker" inheritall="false">
 			<param name="dist.installer.name" value="${dist.installer.name.full}" />
 		</antcall>
 	</target>
-	<target name="distribution-full-all-os" depends="prepare"
+	<target name="distribution-full-all-os" depends="prepare, test-and-fail-for-generated-all-necessary-missing-files"
 			description="Distribution generation for Full flavors, All-OS variant.">
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-all-os.worker"/>
@@ -1801,7 +1828,7 @@ For simple use the main targets are:
 			<reference refid="neptus.filters" torefid="common.filters" />
 		</antcall>
 	</target>
-	<target name="distribution-full-windows" depends="prepare"
+	<target name="distribution-full-windows" depends="prepare, test-and-fail-for-generated-all-necessary-missing-files"
 			description="Distribution generation for Full flavors, Windows variant.">
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-windows.worker"/>
@@ -1815,7 +1842,7 @@ For simple use the main targets are:
 			<reference refid="neptus.filters" torefid="common.filters" />
 		</antcall>
 	</target>
-	<target name="distribution-full-linux" depends="prepare"
+	<target name="distribution-full-linux" depends="prepare, test-and-fail-for-generated-all-necessary-missing-files"
 			description="Distribution generation for Full flavors, Linux variant.">
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-linux.worker"/>
@@ -1833,13 +1860,13 @@ For simple use the main targets are:
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	<!-- Distribution Seacon Builders                                        -->
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<target name="distribution-seacon" depends="prepare, distribution-seacon-all-os, distribution-seacon-linux, distribution-seacon-windows"
+	<target name="distribution-seacon" depends="prepare, test-and-fail-for-generated-all-necessary-missing-files, distribution-seacon-all-os, distribution-seacon-linux, distribution-seacon-windows"
 			description="Distribution generation for Seacon flavors, all variants.">
 		<antcall target="installer-checksum-worker" inheritall="false">
 			<param name="dist.installer.name" value="${dist.installer.name.seacon}" />
 		</antcall>
 	</target>
-	<target name="distribution-seacon-all-os" depends="prepare"
+	<target name="distribution-seacon-all-os" depends="prepare, test-and-fail-for-generated-all-necessary-missing-files"
 			description="Distribution generation for Seacon flavors, All-OS variant.">
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-all-os.worker"/>
@@ -1853,7 +1880,7 @@ For simple use the main targets are:
 			<reference refid="neptus.filters" torefid="common.filters" />
 		</antcall>
 	</target>
-	<target name="distribution-seacon-windows" depends="prepare"
+	<target name="distribution-seacon-windows" depends="prepare, test-and-fail-for-generated-all-necessary-missing-files"
 			description="Distribution generation for Seacon flavors, Windows variant.">
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-windows.worker"/>
@@ -1867,7 +1894,7 @@ For simple use the main targets are:
 			<reference refid="neptus.filters" torefid="common.filters" />
 		</antcall>
 	</target>
-	<target name="distribution-seacon-linux" depends="prepare"
+	<target name="distribution-seacon-linux" depends="prepare, test-and-fail-for-generated-all-necessary-missing-files"
 			description="Distribution generation for Seacon flavors, Linux variant.">
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-linux.worker"/>
@@ -1885,13 +1912,13 @@ For simple use the main targets are:
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	<!-- Distribution LE Builders                                            -->
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<target name="distribution-le" depends="prepare, distribution-le-all-os, distribution-le-linux, distribution-le-windows"
+	<target name="distribution-le" depends="prepare, test-and-fail-for-generated-all-necessary-missing-files, distribution-le-all-os, distribution-le-linux, distribution-le-windows"
 			description="Distribution generation for LE flavors, all variants.">
 		<antcall target="installer-checksum-worker" inheritall="false">
 			<param name="dist.installer.name" value="${dist.installer.name.le}" />
 		</antcall>
 	</target>
-	<target name="distribution-le-all-os" depends="prepare"
+	<target name="distribution-le-all-os" depends="prepare, test-and-fail-for-generated-all-necessary-missing-files"
 			description="Distribution generation for LE flavors, All-OS variant.">
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-all-os.worker"/>
@@ -1905,7 +1932,7 @@ For simple use the main targets are:
 			<reference refid="neptus.filters" torefid="common.filters" />
 		</antcall>
 	</target>
-	<target name="distribution-le-windows" depends="prepare"
+	<target name="distribution-le-windows" depends="prepare, test-and-fail-for-generated-all-necessary-missing-files"
 			description="Distribution generation for LE flavors, Windows variant.">
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-windows.worker"/>
@@ -1919,7 +1946,7 @@ For simple use the main targets are:
 			<reference refid="neptus.filters" torefid="common.filters" />
 		</antcall>
 	</target>
-	<target name="distribution-le-linux" depends="prepare"
+	<target name="distribution-le-linux" depends="prepare, test-and-fail-for-generated-all-necessary-missing-files"
 			description="Distribution generation for LE flavors, Linux variant.">
 		<antcall target="distribution.worker" inheritall="false" inheritrefs="false">
 			<param name="installer-to-call" value="create-installer-linux.worker"/>
