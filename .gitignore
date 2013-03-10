@@ -167,11 +167,15 @@
 /*.session
 /svn.info.txt
 /scm.info.txt
-/*.pdf
+*.pdf
 /bin
 /bin-bundles
 /plugins
 /dist/jre*
 /conf/plugins/
 /tmpBuild/
-**/Thumbs.db
+Thumbs.db
+*.bak
+*.edited
+\#*#
+*~
