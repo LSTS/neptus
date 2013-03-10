@@ -1,29 +1,88 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-<title>Neptus Overview</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-UTF-8">
+<title>Neptus Overview and Developers Guide</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 </head>
 <style type="text/css">
-pre.fragment {
-	border: 1px solid #C4CFE5;
-	background-color: #FBFCFD;
-	padding: 4px 6px;
-	margin: 4px 8px 4px 2px;
-	overflow: auto;
-	word-wrap: break-word;
-	font-size:  9pt;
-	line-height: 125%;
-}
+  pre.fragment {
+  	border: 1px solid #C4CFE5;
+  	background-color: #FBFCFD;
+  	padding: 4px 6px;
+  	margin: 4px 8px 4px 2px;
+  	overflow: auto;
+  	word-wrap: break-word;
+  	font-size:  9pt;
+  	line-height: 125%;
+  }
+  body {
+    font-family: Tahoma,Arial,Helvetica,sans-serif;
+    background-color: black;
+  }
+  div.document {
+    margin: 0 auto;
+    padding: 1px 5px;
+    color: #303030;
+    max-width: 1100px;
+    min-width: 950px;
+    background-color: white;
+    text-align: left;
+  }
+  a {
+    color: #2bb6e3;
+  }
+  h1, 
+  h2,
+  h3,
+  h4,
+  h5, 
+  h6 {
+    color: #2bb6e3;
+  }
+  h3,
+  h4,
+  h5, 
+  h6 {
+    border-bottom: none;
+  }
+  .htmladdlogo:before {
+    content: url('neptus_logo_font_500x193.png');
+    display: block;
+  }
+  .htmlhide {
+    display: none !important;
+  }
+  .htmladdcopy:after {
+    content: '© 2004-2013 Universidade do Porto - Faculdade de Engenharia';
+    display: block;
+  }
 </style>
 <body>
-	<p><a href="#dev-guide">Developers Guide</a></p>
-	<p>View the unit tests <a href="../junit/html/index.html" target="_top">here</a>.</p>
-	
+<div class="document">
+  <p class="htmladdlogo"></p>
+  <p class="htmlhide"><a href="#overview">Overview</a></p>
+	<p class="htmlhide"><a href="#dev-guide">Developers Guide</a></p>
+	<p class="htmlhide">View the unit tests <a href="../junit/html/index.html" target="_top">here</a>.</p>
+
+  <h1 id="overview">Overview</h1>
+	<p>
+    This software is provided using a dual license. One commercial and for that contact 
+    lsts@fe.up.pt, and another using "European Union Public Licence - EUPL v.1.1 Usage" 
+    (see <a href="https://www.lsts.pt/neptus/licence">here</a> to check the license or 
+    check the included LICENSE.md file).
+  </p>
+  <p>
+    For more information check <a href="http://www.lsts.pt/neptus/">Neptus web site</a>.
+  </p>
+
 	<h1 id="dev-guide">Developers Guide</h1>
 	<h2>Source Code Management</h2>
-	<p>Neptus is hosted using Git . You should learn to use the Git client (or any other available front-end), studying the advantages and limitations of the system before compromising any part of the repository. A good Git guide is available at <a href="http://www.git-scm.org">http://www.git-scm.org</a>.</p>
-	<p>Neptus' Git repository is accessible at <a href="https://www.lsts.pt/">https://www.lsts.pt/</a> with a web-based interface for repository browsing at <a href="https://www.lsts.pt/gitweb/neptus">https://www.lsts.pt/gitweb/neptus</a>.</p>
+	<p>Neptus is hosted using Git. You should learn to use the Git client (or any other available front-end), 
+    studying the advantages and limitations of the system before compromising any part of the repository. A 
+    good Git guide is available at <a href="http://git-scm.com/">http://git-scm.com/</a> or 
+    <a href="https://help.github.com/">https://help.github.com/</a>.</p>
+	<p>Neptus' Git repository is accessible at <a href="https://www.lsts.pt/">https://www.lsts.pt/</a> with a 
+    web-based interface for repository browsing at <a href="https://www.lsts.pt/gitweb/neptus">https://www.lsts.pt/gitweb/neptus</a>.</p>
 <p>Take the following point into consideration:</p>
 <div>
 <ul>
@@ -32,7 +91,6 @@ pre.fragment {
     <li>Never keep files checked out for long periods;</li>
     <li>Document every commit meaningfully;</li>
     <li>Always update your working copy before starting work.</li>
-    <li>You should never commit files without the property svn:keywords=Id.</li>
 </ul>
 </div>
 
@@ -99,39 +157,53 @@ should be put ontop of the other ones, and if they are <code>static</code> they 
 exceptions/enforcements.</p>
 <p>Identation should be spaces only with a tab size of 4 spaces.</p>
 
-</div><p>Single line if statement: </p>
+<p>Single line if statement: </p>
 <div class="fragment"><pre class="fragment">  <span class="keywordflow">if</span> (<span class="keywordflow">if</span>-condition)
       <span class="keywordflow">if</span>-line;
   <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<span class="keywordflow">else</span>-<span class="keywordflow">if</span>-condition)
       <span class="keywordflow">else</span>-<span class="keywordflow">if</span>-line;
   <span class="keywordflow">else</span>
       <span class="keywordflow">else</span>-line;
-</pre></div><p>Multiline if statement: </p>
+</pre></div>
+
+<p>Multiline if statement: </p>
 <div class="fragment"><pre class="fragment">  <span class="keywordflow">if</span> (condition) {
       <span class="keywordflow">if</span>-block;      
   }
   <span class="keywordflow">else</span> {
     <span class="keywordflow">else</span>-block;
   }
-</pre></div><p>Single line while statement: </p>
+</pre></div>
+
+<p>Single line while statement: </p>
 <div class="fragment"><pre class="fragment">  <span class="keywordflow">while</span> (condition)
       <span class="keywordflow">while</span>-line;
-</pre></div><p>Multiline while statement: </p>
+</pre></div>
+
+<p>Multiline while statement: </p>
 <div class="fragment"><pre class="fragment">  <span class="keywordflow">while</span> (condition) {
       <span class="keywordflow">while</span>-block;      
   }
-</pre></div><p>Single line for statement: </p>
+</pre></div>
+
+<p>Single line for statement: </p>
 <div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (initialization; stop-condition; increment)
       <span class="keywordflow">for</span>-line;      
-</pre></div><p>Multiline for statement: </p>
+</pre></div>
+
+<p>Multiline for statement: </p>
 <div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (initialization; stop-condition; increment) {
       <span class="keywordflow">for</span>-block;      
   }
-</pre></div><p>Single and multiline line do while statement: </p>
+</pre></div>
+
+<p>Single and multiline line do while statement: </p>
 <div class="fragment"><pre class="fragment">  <span class="keywordflow">do</span> {
       <span class="keywordflow">do</span>-<span class="keywordflow">while</span>-line;
   } <span class="keywordflow">while</span> (condition);
-</pre></div><p>Try/catch statement: </p>
+</pre></div>
+
+<p>Try/catch statement: </p>
 <div class="fragment"><pre class="fragment">  <span class="keywordflow">try</span> {
       <span class="keywordflow">try</span>-block;
   }
@@ -141,7 +213,9 @@ exceptions/enforcements.</p>
   <span class="keywordflow">finaly</span> {
       <span class="keywordflow">finaly</span>-block;
   }
-</pre></div><p>Switch statement: </p>
+</pre></div>
+
+<p>Switch statement: </p>
 <div class="fragment"><pre class="fragment">  <span class="keywordflow">switch</span> (variable) {
       <span class="keywordflow">case</span> A:
           a-statement;
@@ -169,9 +243,14 @@ Build Instructions</h2>
 <li>NSIS - used to generate Windows installers. </li>
 </ul>
 
-<h3><a class="anchor" id="Instructions"></a>
-Instructions</h3>
+<h3><a class="anchor" id="Instructions"></a>Instructions</h3>
 <p>Neptus uses Apache Ant as its building system.</p>
+<p>Check the targets for ant:</p>
+<div class="fragment"><pre class="fragment"><span class="keywordflow">ant -p</span></pre></div>
+<p>Default command to use to prepare the necessary files to run Neptus:</p>
+<div class="fragment"><pre class="fragment"><span class="keywordflow">ant</span></pre></div>
 
+<p class="htmladdcopy"></p>
+</div>
 </body>
 </html>
