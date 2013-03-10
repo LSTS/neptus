@@ -22,9 +22,11 @@
   body {
     background-attachment: fixed;
     background-repeat: repeat-x;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 150px, from(#2bb6e3), to(#000000));
-    background-image: -webkit-linear-gradient(0% 0%, 0% 150px, from(#2bb6e3), to(#000000));
+    background-image: -webkit-gradient(linear, left top, left 150, color-stop(0, #2bb6e3), color-stop(1, #000000));
+    background-image: -webkit-linear-gradient(top, #2bb6e3, #000000 150px);
     background-image: -moz-linear-gradient(top, #2bb6e3 0%, #000000 150px);
+    background-image: -o-linear-gradient(top, #2bb6e3, #000000 150px);
+    background-image: -ms-linear-gradient(top, #2bb6e3, #000000 150px);
     background-image: linear-gradient(top, #2bb6e3 0%, #000000 150px);
   }
   div.document {
