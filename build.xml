@@ -138,7 +138,9 @@ For simple use the main targets are:
 
 	<!-- The bundle jars names -->
 	<property name="bundle.jar.checklist" value="${name}-check.jar" />
+	<property name="bundle.jar.checklist.path" value="${bin.bundle.dir}/${bundle.jar.checklist}" />
 	<property name="bundle.jar.worldmap" value="${name}-worldmap.jar" />
+	<property name="bundle.jar.worldmap.path" value="${bin.bundle.dir}/${bundle.jar.worldmap}" />
 	
 	<property name="dist.installer.basename.full" value="${Name}-${full.release}-x86-32bit-x64-64bit"/>
 	<property name="dist.installer.basename.le" value="${Name}LE-${light.release}-x86-32bit-x64-64bit"/>
@@ -753,9 +755,9 @@ For simple use the main targets are:
     <!-- Creates bin-bundle/neptus-check.jar                                 -->
     <!-- =================================================================== -->
     <target name="jar-bundle-checklist" depends="compile" description="Creates bin-bundle/neptus-check.jar">
-    	<delete file="${bin.bundle.dir}/${bundle.jar.checklist}" failonerror="true"/>
+    	<delete file="${bundle.jar.checklist.path}" failonerror="true"/>
     	<delete dir="${tmp.bundle.dir}" failonerror="true"/>
-        <jar destfile="${bin.bundle.dir}/${bundle.jar.checklist}" basedir="${build.classes}" 
+        <jar destfile="${bundle.jar.checklist.path}" basedir="${build.classes}" 
                excludes="${exclude-defaults}" includes="LICENSE">
 			<include name="version.*" />
 			<include name="info*" />
@@ -844,12 +846,12 @@ For simple use the main targets are:
     	<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
     	<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-1.4.jar"/-->
     	
-    	<unzip dest="${tmp.bundle.dir}" src="${bin.bundle.dir}/${bundle.jar.checklist}" overwrite="yes"/>
+    	<unzip dest="${tmp.bundle.dir}" src="${bundle.jar.checklist.path}" overwrite="yes"/>
     	<copy flatten="false" todir="${tmp.bundle.dir}/legal">
     		<fileset dir="${legal.dir}"/>
     	</copy>
     	<copy file="${license.file}" todir="${tmp.bundle.dir}" />
-        <jar destfile="${bin.bundle.dir}/${bundle.jar.checklist}" basedir="${tmp.bundle.dir}" 
+        <jar destfile="${bundle.jar.checklist.path}" basedir="${tmp.bundle.dir}" 
         		index="false">
             <manifest>
                  <attribute name="Built-By" value="${user.name}" />
@@ -872,9 +874,9 @@ For simple use the main targets are:
     <!-- Creates bin-bundle/neptus-worldmap.jar                                 -->
     <!-- =================================================================== -->
     <target name="jar-bundle-worldmap" depends="compile" description="Creates bin-bundle/neptus-worldmap.jar">
-    	<delete file="${bin.bundle.dir}/${bundle.jar.worldmap}" failonerror="true"/>
+    	<delete file="${bundle.jar.worldmap.path}" failonerror="true"/>
     	<delete dir="${tmp.bundle.dir}" failonerror="true"/>
-        <jar destfile="${bin.bundle.dir}/${bundle.jar.worldmap}" basedir="${build.classes}" 
+        <jar destfile="${bundle.jar.worldmap.path}" basedir="${build.classes}" 
                excludes="${exclude-defaults}" includes="LICENSE">
 			<include name="version.*" />
 			<include name="info*" />
@@ -950,12 +952,12 @@ For simple use the main targets are:
     	<unzip dest="${tmp.bundle.dir}" src="plugins/tiles-extra.jar"/>
     	<unzip dest="${tmp.bundle.dir}" src="lib/libimc.jar"/>
     	
-    	<unzip dest="${tmp.bundle.dir}" src="${bin.bundle.dir}/${bundle.jar.worldmap}" overwrite="yes"/>
+    	<unzip dest="${tmp.bundle.dir}" src="${bundle.jar.worldmap.path}" overwrite="yes"/>
     	<copy flatten="false" todir="${tmp.bundle.dir}/legal">
     		<fileset dir="${legal.dir}"/>
     	</copy>
     	<copy file="${license.file}" todir="${tmp.bundle.dir}" />
-        <jar destfile="${bin.bundle.dir}/${bundle.jar.worldmap}" basedir="${tmp.bundle.dir}" 
+        <jar destfile="${bundle.jar.worldmap.path}" basedir="${tmp.bundle.dir}" 
         		index="false">
             <manifest>
                  <attribute name="Built-By" value="${user.name}" />
@@ -972,7 +974,7 @@ For simple use the main targets are:
              </manifest>
         </jar>
       	<!--signjar storetype="jceks" keystore="${neptus.cert}" alias="${login.cert}" 
-           storepass="${pass.cert}" jar="${bin.bundle.dir}/${bundle.jar.worldmap}" /-->
+           storepass="${pass.cert}" jar="${bundle.jar.worldmap.path}" /-->
     	<delete dir="${tmp.bundle.dir}" failonerror="false"/>
     </target>
  
