@@ -18,8 +18,6 @@
   body {
     font-family: Tahoma,Arial,Helvetica,sans-serif;
     background-color: black;
-  }
-  body {
     background-attachment: fixed;
     background-repeat: repeat-x;
     background-image: -webkit-gradient(linear, left top, left 150, color-stop(0, #2bb6e3), color-stop(1, #000000));
@@ -91,171 +89,203 @@
     studying the advantages and limitations of the system before compromising any part of the repository. A 
     good Git guide is available at <a href="http://git-scm.com/">http://git-scm.com/</a> or 
     <a href="https://help.github.com/">https://help.github.com/</a>.</p>
-	<p>Neptus' Git repository is accessible at <a href="https://www.lsts.pt/">https://www.lsts.pt/</a> with a 
-    web-based interface for repository browsing at <a href="https://www.lsts.pt/gitweb/neptus">https://www.lsts.pt/gitweb/neptus</a>.</p>
-<p>Take the following point into consideration:</p>
-<div>
-<ul>
-    <li>Commit only the files that you have changed. Resist the temptation of commiting an entire directory, hoping for the best to happen;</li>
-    <li>Commit changes with caution and conscience. Furthermore do not make any commits that you know will render the project in an uncompilable state;</li>
-    <li>Never keep files checked out for long periods;</li>
-    <li>Document every commit meaningfully;</li>
-    <li>Always update your working copy before starting work.</li>
-</ul>
-</div>
+	<p>
+    Neptus' Git repository is accessible at <a href="https://www.lsts.pt/">https://www.lsts.pt/</a> with a 
+    web-based interface for repository browsing at <a href="https://www.lsts.pt/gitweb/neptus">https://www.lsts.pt/gitweb/neptus</a>.
+  </p>
+  <p>Take the following point into consideration:</p>
+  <div>
+    <ul>
+        <li>Commit only the files that you have changed. Resist the temptation of committing an entire directory, hoping for the best to happen;</li>
+        <li>Commit changes with caution and conscience. Furthermore do not make any commits that you know will render the project in an uncompilable state;</li>
+        <li>Never keep files checked out for long periods;</li>
+        <li>Document every commit meaningfully;</li>
+        <li>Always update your working copy before starting work.</li>
+    </ul>
+  </div>
 
-<h2><a class="anchor" id="JavaCode"></a>Java Code</h2>
-<p>The language of choice for writing code and documentation is English and you should not use other languages.</p>
-<p>Do not use "underhanded names" (ones that begin with an underscore). Also the use of underscore is must only be used for constants.</p>
-<p>Class and enum names should be nouns, in mixed case with the first letter of each internal word capitalized. Try to keep your class names simple and descriptive. Use whole words. Avoid acronyms and abbreviations, unless the abbreviation is much more widely used than the long form, such as UDP or TCP. (eg UDPSocket or UdpSocket).</p>
-<p>Methods names should be verbs, in mixed case with the first letter lowercase and the first letter of each internal word capitalized. (eg dumpRegisters).</p>
-<p>Variable names should be short yet meaningful, in mixed case with the first letter of each internal word capitalized. In the case of constantes All characters should be uppercase with underscores separating words (eg. ICON_START). The choice of a variable name should be mnemonic, that is, designed to indicate to the casual observer the intent of its use. One-character variable names should be avoided except for temporary "throwaway" variables. Common names for temporary variables are i, j, k, m, and n for integers; c, d, and e for characters.</p>
+  <h2><a class="anchor" id="JavaCode"></a>Java Code</h2>
+  <p>
+    The language of choice for writing code and documentation is English and you should not use other languages.
+    The prefer encoding to use is UTF-8.
+  </p>
+  <p>
+    Do not use "underhanded names" (ones that begin with an underscore). Also the use of underscore is must only be used for constants.
+  </p>
+  <p>
+    Class and enum names should be nouns, in mixed case with the first letter of each internal word capitalized
+    (in case of enums they should end with the word "Enum", e.g., "StatusEnum").
+    Try to keep your class names simple and descriptive. Use whole words. Avoid acronyms and abbreviations, unless the abbreviation is much more widely used than the long form, such as UDP or TCP. (e.g. UDPSocket or UdpSocket).
+  </p>
+  <p>
+    Methods names should be verbs, in mixed case with the first letter lowercase and the first letter of each internal word capitalized. (e.g. dumpRegisters).
+  </p>
+  <p>
+    Variable names should be short yet meaningful, in mixed case with the first letter of each internal word capitalized. In the case of constants All characters should be uppercase with underscores separating words (e.g. ICON_START). The choice of a variable name should be mnemonic, that is, designed to indicate to the casual observer the intent of its use. One-character variable names should be avoided except for temporary "throwaway" variables. Common names for temporary variables are i, j, k, m, and n for integers; c, d, and e for characters.
+  </p>
 
- <p>Each source file must start with the following preamble (by using Eclipse this will be added for you). 
- The blank line after the comment box should be the package declaration.</p>
-<div class="fragment"><pre class="fragment">  
-  <span class="comment">/*</span>
-  <span class="comment"> * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia</span>
-  <span class="comment"> * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)</span>
-  <span class="comment"> * All rights reserved.</span>
-  <span class="comment"> * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal</span>
-  <span class="comment"> *</span>
-  <span class="comment"> * This file is part of Neptus, Command and Control Framework.</span>
-  <span class="comment"> *</span>
-  <span class="comment"> * Commercial Licence Usage</span>
-  <span class="comment"> * Licencees holding valid commercial Neptus licences may use this file</span>
-  <span class="comment"> * in accordance with the commercial licence agreement provided with the</span>
-  <span class="comment"> * Software or, alternatively, in accordance with the terms contained in a</span>
-  <span class="comment"> * written agreement between you and Universidade do Porto. For licensing</span>
-  <span class="comment"> * terms, conditions, and further information contact lsts@fe.up.pt.</span>
-  <span class="comment"> *</span>
-  <span class="comment"> * European Union Public Licence - EUPL v.1.1 Usage</span>
-  <span class="comment"> * Alternatively, this file may be used under the terms of the EUPL,</span>
-  <span class="comment"> * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md</span>
-  <span class="comment"> * included in the packaging of this file. You may not use this work</span>
-  <span class="comment"> * except in compliance with the Licence. Unless required by applicable</span>
-  <span class="comment"> * law or agreed to in writing, software distributed under the Licence is</span>
-  <span class="comment"> * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF</span>
-  <span class="comment"> * ANY KIND, either express or implied. See the Licence for the specific</span>
-  <span class="comment"> * language governing permissions and limitations at</span>
-  <span class="comment"> * https://www.lsts.pt/neptus/licence.</span>
-  <span class="comment"> *</span>
-  <span class="comment"> * For more information please see &lt;http://www.lsts.pt/neptus&gt.</span>
-  <span class="comment"> * </span>
-  <span class="comment"> * Author: Paulo Dias</span>
-  <span class="comment"> * 2010/05/19</span>
-  <span class="comment"> */</span>
-  <span class="comment">package pt.up.fe.dceg.neptus.util;</span>
-  <span class="comment"></span>
-</pre></div>
+  <p>
+    Each source file must start with the following preamble (by using Eclipse this will be added for you). 
+   The blank line after the comment box should be the package declaration.
+  </p>
+  <div class="fragment"><pre class="fragment">  
+    <span class="comment">/*</span>
+    <span class="comment"> * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia</span>
+    <span class="comment"> * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)</span>
+    <span class="comment"> * All rights reserved.</span>
+    <span class="comment"> * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal</span>
+    <span class="comment"> *</span>
+    <span class="comment"> * This file is part of Neptus, Command and Control Framework.</span>
+    <span class="comment"> *</span>
+    <span class="comment"> * Commercial Licence Usage</span>
+    <span class="comment"> * Licencees holding valid commercial Neptus licences may use this file</span>
+    <span class="comment"> * in accordance with the commercial licence agreement provided with the</span>
+    <span class="comment"> * Software or, alternatively, in accordance with the terms contained in a</span>
+    <span class="comment"> * written agreement between you and Universidade do Porto. For licensing</span>
+    <span class="comment"> * terms, conditions, and further information contact lsts@fe.up.pt.</span>
+    <span class="comment"> *</span>
+    <span class="comment"> * European Union Public Licence - EUPL v.1.1 Usage</span>
+    <span class="comment"> * Alternatively, this file may be used under the terms of the EUPL,</span>
+    <span class="comment"> * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md</span>
+    <span class="comment"> * included in the packaging of this file. You may not use this work</span>
+    <span class="comment"> * except in compliance with the Licence. Unless required by applicable</span>
+    <span class="comment"> * law or agreed to in writing, software distributed under the Licence is</span>
+    <span class="comment"> * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF</span>
+    <span class="comment"> * ANY KIND, either express or implied. See the Licence for the specific</span>
+    <span class="comment"> * language governing permissions and limitations at</span>
+    <span class="comment"> * https://www.lsts.pt/neptus/licence.</span>
+    <span class="comment"> *</span>
+    <span class="comment"> * For more information please see &lt;http://www.lsts.pt/neptus&gt.</span>
+    <span class="comment"> * </span>
+    <span class="comment"> * Author: Paulo Dias</span>
+    <span class="comment"> * 2010/05/19</span>
+    <span class="comment"> */</span>
+    <span class="comment">package pt.up.fe.dceg.neptus.util;</span>
+    <span class="comment"></span>
+  </pre></div>
 
-<p>You must document the class with author tag and with one author per line and an optional sentence describing his/her work in the file</p>
+  <p>
+    You must document the class with author tag and with one author per line and an optional sentence describing his/her work in the file
+  </p>
 
-<p>In terms of methods order, the constructors must be the first ones, and a <code>main</code> if existence must be the last method.</p>
-<p>The declaration of variables must be on top just before the constructors. If you have <code>final</code> variables (constants) these 
-should be put ontop of the other ones, and if they are <code>static</code> they should precede the others.</p>
-<p>It is encorage if you use images for icons, to declare them as <code>static final</code>.</p>
+  <p>
+    In terms of methods order, the constructors must be the first ones, and a <code>main</code> if existence must be the last method.
+  </p>
+  <p>
+    The declaration of variables must be on top just before the constructors. If you have <code>final</code> variables (constants) these 
+  should be put on top of the other ones, and if they are <code>static</code> they should precede the others.
+  </p>
+  <p>
+    It is encourage if you use images for icons, to declare them as <code>static final</code>.
+  </p>
 
-<h3><a class="anchor" id="JavaCodeFormat"></a>Formatting Source Code</h3>
-<p>Eclipse project has the Neptus Code Style and you can format your code by <code>Ctrl+Shift+F</code> on your class code.</p>
-<p>You must use Neptus Code Style which is based on the Java Conventions for code formating with the following 
-exceptions/enforcements.</p>
-<p>Identation should be spaces only with a tab size of 4 spaces.</p>
+  <h3><a class="anchor" id="JavaCodeFormat"></a>Formatting Source Code</h3>
+  <p>
+    Eclipse project has the Neptus Code Style and you can format your code by <code>Ctrl+Shift+F</code> on your class code.
+  </p>
+  <p>
+    You must use Neptus Code Style which is based on the Java Conventions for code formating with the following 
+  exceptions/enforcements.
+  </p>
+  <p>
+    Indentation should be spaces only with a tab size of 4 spaces.
+  </p>
 
-<p>Single line if statement: </p>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">if</span> (<span class="keywordflow">if</span>-condition)
-      <span class="keywordflow">if</span>-line;
+  <p>Single line if statement: </p>
+  <div class="fragment"><pre class="fragment">
+  <span class="keywordflow">if</span> (<span class="keywordflow">if</span>-condition)
+    <span class="keywordflow">if</span>-line;
   <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<span class="keywordflow">else</span>-<span class="keywordflow">if</span>-condition)
-      <span class="keywordflow">else</span>-<span class="keywordflow">if</span>-line;
+    <span class="keywordflow">else</span>-<span class="keywordflow">if</span>-line;
   <span class="keywordflow">else</span>
-      <span class="keywordflow">else</span>-line;
-</pre></div>
+    <span class="keywordflow">else</span>-line;
+  </pre></div>
 
-<p>Multiline if statement: </p>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">if</span> (condition) {
-      <span class="keywordflow">if</span>-block;      
+  <p>Multiline if statement: </p>
+  <div class="fragment"><pre class="fragment">  <span class="keywordflow">if</span> (condition) {
+    <span class="keywordflow">if</span>-block;      
   }
   <span class="keywordflow">else</span> {
     <span class="keywordflow">else</span>-block;
   }
-</pre></div>
+  </pre></div>
 
-<p>Single line while statement: </p>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">while</span> (condition)
-      <span class="keywordflow">while</span>-line;
-</pre></div>
+  <p>Single line while statement: </p>
+  <div class="fragment"><pre class="fragment">  <span class="keywordflow">while</span> (condition)
+    <span class="keywordflow">while</span>-line;
+  </pre></div>
 
-<p>Multiline while statement: </p>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">while</span> (condition) {
-      <span class="keywordflow">while</span>-block;      
+  <p>Multiline while statement: </p>
+  <div class="fragment"><pre class="fragment">  <span class="keywordflow">while</span> (condition) {
+    <span class="keywordflow">while</span>-block;      
   }
-</pre></div>
+  </pre></div>
 
-<p>Single line for statement: </p>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (initialization; stop-condition; increment)
-      <span class="keywordflow">for</span>-line;      
-</pre></div>
+  <p>Single line for statement: </p>
+  <div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (initialization; stop-condition; increment)
+    <span class="keywordflow">for</span>-line;      
+  </pre></div>
 
-<p>Multiline for statement: </p>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (initialization; stop-condition; increment) {
-      <span class="keywordflow">for</span>-block;      
+  <p>Multiline for statement: </p>
+  <div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (initialization; stop-condition; increment) {
+    <span class="keywordflow">for</span>-block;      
   }
-</pre></div>
+  </pre></div>
 
-<p>Single and multiline line do while statement: </p>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">do</span> {
-      <span class="keywordflow">do</span>-<span class="keywordflow">while</span>-line;
+  <p>Single and multiline line do while statement: </p>
+  <div class="fragment"><pre class="fragment">  <span class="keywordflow">do</span> {
+    <span class="keywordflow">do</span>-<span class="keywordflow">while</span>-line;
   } <span class="keywordflow">while</span> (condition);
-</pre></div>
+  </pre></div>
 
-<p>Try/catch statement: </p>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">try</span> {
-      <span class="keywordflow">try</span>-block;
+  <p>Try/catch statement: </p>
+  <div class="fragment"><pre class="fragment">  <span class="keywordflow">try</span> {
+    <span class="keywordflow">try</span>-block;
   }
   <span class="keywordflow">catch</span> (variable) {
-      <span class="keywordflow">catch</span>-block;
+    <span class="keywordflow">catch</span>-block;
   }
-  <span class="keywordflow">finaly</span> {
-      <span class="keywordflow">finaly</span>-block;
+  <span class="keywordflow">finally</span> {
+    <span class="keywordflow">finally</span>-block;
   }
-</pre></div>
+  </pre></div>
 
-<p>Switch statement: </p>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">switch</span> (variable) {
-      <span class="keywordflow">case</span> A:
-          a-statement;
-          <span class="keywordflow">break</span>;
-      <span class="keywordflow">case</span> B:
-          b-statement;
-          <span class="keywordflow">break</span>;
-      <span class="keywordflow">default</span>:
-          <span class="keywordflow">default</span>-statement;
-          <span class="keywordflow">break</span>;
+  <p>Switch statement: </p>
+  <div class="fragment"><pre class="fragment">  <span class="keywordflow">switch</span> (variable) {
+    <span class="keywordflow">case</span> A:
+        a-statement;
+        <span class="keywordflow">break</span>;
+    <span class="keywordflow">case</span> B:
+        b-statement;
+        <span class="keywordflow">break</span>;
+    <span class="keywordflow">default</span>:
+        <span class="keywordflow">default</span>-statement;
+        <span class="keywordflow">break</span>;
   }
-</pre></div>
+  </pre></div>
 
-<h2><a class="anchor" id="BuildInstructions"></a>
-Build Instructions</h2>
-<p>Required Software:</p>
-<ul>
-<li>Oracle Java JDK 1.7</li>
-<li><a href="http://ant.apache.org">Apache Ant version 1.8+</a></li>
-<li>Eclipse Java Development Environment</li>
-</ul>
-<p>Optional Software:</p>
-<ul>
-<li>xgettext - used to re-generate I18n translation files. </li>
-<li>NSIS - used to generate Windows installers. </li>
-</ul>
+  <h2><a class="anchor" id="BuildInstructions"></a>
+  Build Instructions</h2>
+  <p>Required Software:</p>
+  <ul>
+  <li>Oracle Java JDK 1.7</li>
+  <li><a href="http://ant.apache.org">Apache Ant version 1.8+</a></li>
+  <li>Eclipse Java Development Environment</li>
+  </ul>
+  <p>Optional Software:</p>
+  <ul>
+  <li>xgettext - used to re-generate I18n translation files. </li>
+  <li>NSIS - used to generate Windows installers. </li>
+  </ul>
 
-<h3><a class="anchor" id="Instructions"></a>Instructions</h3>
-<p>Neptus uses Apache Ant as its building system.</p>
-<p>Check the targets for ant:</p>
-<div class="fragment"><pre class="fragment"><span class="keywordflow">ant -p</span></pre></div>
-<p>Default command to use to prepare the necessary files to run Neptus:</p>
-<div class="fragment"><pre class="fragment"><span class="keywordflow">ant</span></pre></div>
+  <h3><a class="anchor" id="Instructions"></a>Instructions</h3>
+  <p>Neptus uses Apache Ant as its building system.</p>
+  <p>Check the targets for ant:</p>
+  <div class="fragment"><pre class="fragment"><span class="keywordflow">ant -p</span></pre></div>
+  <p>Default command to use to prepare the necessary files to run Neptus:</p>
+  <div class="fragment"><pre class="fragment"><span class="keywordflow">ant</span></pre></div>
 
-<p class="htmladdcopy"></p>
+  <p class="htmladdcopy"></p>
 </div>
 </body>
 </html>
