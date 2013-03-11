@@ -89,7 +89,8 @@ public class NeptusMain {
         // appNames.put("mp", I18n.text("Mission Planner"));
         appNames.put("mra", I18n.text("Mission Review & Analysis"));
         appNames.put("cl", I18n.text("Empty Console"));
-        appNames.put("la", I18n.text("LAUV SE Console")); 
+        appNames.put("console", I18n.text("LAUV Console"));
+        appNames.put("la", I18n.text("LAUV SE Console"));
 
         fileHandlers.put(FileUtil.FILE_TYPE_MAP, MissionMapEditor.class);
         fileHandlers.put(FileUtil.FILE_TYPE_MISSION, Workspace.class);
@@ -229,13 +230,13 @@ public class NeptusMain {
             ConsoleLayout appC = new ConsoleLayout();
             appC.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             appC.setVisible(true);
-//            appC.addWindowListener(new WindowAdapter() {
-//                public void windowClosed(WindowEvent e) {
-//                    super.windowClosed(e);
-//                    OutputMonitor.end();
-//                    System.exit(0);
-//                }
-//            });
+            appC.addWindowListener(getCloseActionWindowAdapter(appC));
+        }
+        else if (app.equalsIgnoreCase("console")) {
+            ConfigFetch.initialize();
+            ConsoleLayout appC = ConsoleLayout.forge("conf/consoles/lauv.ncon", loader);
+            appC.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            appC.setVisible(true);
             appC.addWindowListener(getCloseActionWindowAdapter(appC));
         }
         else if (app.equalsIgnoreCase("la")) {
