@@ -234,6 +234,25 @@ public class ConfigurationManager {
                 
                 AbstractPropertyEditor propEditor = null;
 
+                // If in need of a bounded property
+                Double minV = null;
+                Double maxV = null;
+                String minMaxStr = "";
+                if (minStr != null || maxStr != null) {
+                    try {
+                        minV = Double.parseDouble(minStr);
+                    }
+                    catch (Exception e) {
+                        minV = null;
+                    }
+                    try {
+                        maxV = Double.parseDouble(maxStr);
+                    }
+                    catch (Exception e) {
+                        maxV = null;
+                    }
+                }
+
                 if (isList) {
                     int size = ArrayListEditor.UNLIMITED_SIZE;
                     int minSize = 0;
@@ -271,10 +290,26 @@ public class ConfigurationManager {
                     property = new SystemProperty();
                     switch (valueType) {
                         case INTEGER:
-                            propEditor = ArrayListEditor.forgeLong(minSize, maxSize);
+                            // propEditor = ArrayListEditor.forgeLong(minSize, maxSize);
+                            propEditor = minV == null && maxV == null ? ArrayListEditor.forgeLong(minSize, maxSize)
+                                    : ArrayListEditor.forgeLong(minSize, maxSize,
+                                            minV == null ? null : minV.longValue(),
+                                            maxV == null ? null : maxV.longValue());
+                            minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.longValue() + unitsStr;
+                            String commaSepStr = minMaxStr.length() != 0 ? ", " : "";
+                            minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.longValue()
+                                    + unitsStr;
                             break;
                         case REAL:
-                            propEditor = ArrayListEditor.forgeDouble(minSize, maxSize);
+                            // propEditor = ArrayListEditor.forgeDouble(minSize, maxSize);
+                            propEditor = minV == null && maxV == null ? ArrayListEditor.forgeDouble(minSize, maxSize)
+                                    : ArrayListEditor.forgeDouble(minSize, maxSize,
+                                            minV == null ? null : minV.doubleValue(),
+                                            maxV == null ? null : maxV.doubleValue());
+                            minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.doubleValue() + unitsStr;
+                            commaSepStr = minMaxStr.length() != 0 ? ", " : "";
+                            minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.doubleValue()
+                                    + unitsStr;
                             break;
                         default:
                             String stringTypeStringNotString = type.replaceAll("^list:", "");
@@ -321,7 +356,7 @@ public class ConfigurationManager {
                         pt = new PropertyEditorChangeValuesIfDependancyAdapter<Number, String>();
                     }
 
-                    if ( pt != null) {
+                    if (pt != null) {
                         for (Object obj : pValuesIfList) {
                             Element elem = (Element) obj;
                             Element paramComp = (Element) elem.selectSingleNode("param");
@@ -387,26 +422,7 @@ public class ConfigurationManager {
                     property = new SystemProperty();
                 }
                 
-                // In need of a bounded property
-                Double minV = null;
-                Double maxV = null;
-                String minMaxStr = "";
                 if (propEditor == null) {
-                    if (minStr != null || maxStr != null) {
-                        try {
-                            minV = Double.parseDouble(minStr);
-                        }
-                        catch (Exception e) {
-                            minV = null;
-                        }
-                        try {
-                            maxV = Double.parseDouble(maxStr);
-                        }
-                        catch (Exception e) {
-                            maxV = null;
-                        }
-                    }
-                    
                     switch (valueType) {
                         case BOOLEAN:
                             propEditor = new BooleanAsCheckBoxPropertyEditor();

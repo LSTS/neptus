@@ -199,6 +199,10 @@ public class ArrayListEditor<E extends ArrayList<T>, T extends Object> extends S
         return new ArrayListEditor<ArrayList<Double>, Double>(Double.class, minSize, maxSize);
     }
 
+    public static ArrayListEditor<ArrayList<Double>, Double> forgeDouble(int minSize, int maxSize, double minValue, double maxValue) {
+        return new ArrayListEditor<ArrayList<Double>, Double>(Double.class, minSize, maxSize, minValue, maxValue);
+    }
+
     public static ArrayListEditor<ArrayList<Float>, Float> forgeFloat(int size) {
         return new ArrayListEditor<ArrayList<Float>, Float>(Float.class, size);
     }
@@ -221,6 +225,10 @@ public class ArrayListEditor<E extends ArrayList<T>, T extends Object> extends S
 
     public static ArrayListEditor<ArrayList<Long>, Long> forgeLong(int minSize, int maxSize) {
         return new ArrayListEditor<ArrayList<Long>, Long>(Long.class, minSize, maxSize);
+    }
+
+    public static ArrayListEditor<ArrayList<Long>, Long> forgeLong(int minSize, int maxSize, long minValue, long maxValue) {
+        return new ArrayListEditor<ArrayList<Long>, Long>(Long.class, minSize, maxSize, minValue, maxValue);
     }
 
     public static ArrayListEditor<ArrayList<Short>, Short> forgeShort(int size) {
