@@ -118,8 +118,8 @@ echo "# Preparing Neptus log dir"
 mkdir -p $to_upload/$NEPTUSDIR/$todayDirName
 mv -v $NEPTUS_HOME/log/* $to_upload/$NEPTUSDIR/$todayDirName
 git rev-parse HEAD > $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
-git describe - -dirty >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
-git describe - -all - -long - -dirty >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+git describe --dirty >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+git describe --all --long --dirty >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
 git log -1 --date=iso >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
 git status --untracked-files=yes >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
 echo 40
