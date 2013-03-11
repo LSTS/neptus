@@ -412,14 +412,14 @@ public class ConfigurationManager {
                             propEditor = new BooleanAsCheckBoxPropertyEditor();
                             break;
                         case INTEGER:
-                            propEditor = minV == null || maxV == null ? new NumberEditor<>(Long.class) : new NumberEditor<>(
+                            propEditor = minV == null && maxV == null ? new NumberEditor<>(Long.class) : new NumberEditor<>(
                                     Long.class, minV == null ? null : minV.longValue(), maxV == null ? null : maxV.longValue());
                             minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.longValue() + unitsStr;
                             String commaSepStr = minMaxStr.length() != 0 ? ", " : "";
                             minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.longValue() + unitsStr;
                             break;
                         case REAL:
-                            propEditor = minV == null || maxV == null ? new NumberEditor<>(Double.class) : new NumberEditor<>(
+                            propEditor = minV == null && maxV == null ? new NumberEditor<>(Double.class) : new NumberEditor<>(
                                     Double.class, minV == null ? null : minV.doubleValue(), maxV == null ? null : maxV.doubleValue());
                             minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.doubleValue() + unitsStr;
                             commaSepStr = minMaxStr.length() != 0 ? ", " : "";
