@@ -98,7 +98,7 @@ public class CoverArea extends AbstractImcManeuver<pt.up.fe.dceg.neptus.imc.Cove
         Vector<PolygonVertex> vertices = new Vector<PolygonVertex>();
         
         for (LocationType pt : points )
-            vertices.add(new PolygonVertex("lat", pt.getLatitudeAsDoubleValueRads(), "lon", pt.getLongitudeAsDoubleValueRads()));
+            vertices.add(PolygonVertex.create("lat", pt.getLatitudeAsDoubleValueRads(), "lon", pt.getLongitudeAsDoubleValueRads()));
         
         message.setMessageList(vertices, "polygon");
         

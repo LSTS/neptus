@@ -126,7 +126,7 @@ public class PathControlLayer extends SimpleSubPanel implements Renderer2DPainte
     public void onMessage(MessageInfo arg0, IMCMessage msg) {
         if (msg.getMgid() == pcontrol_id) {
             try {
-                lastMsgs.put(msg.getSrc(), new PathControlState(msg));
+                lastMsgs.put(msg.getSrc(), PathControlState.clone(msg));
             }
             catch (Exception e) {
                 e.printStackTrace();

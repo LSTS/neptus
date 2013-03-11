@@ -419,7 +419,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         
         try {
             systemConfEditor.setRefreshing(true);
-            EntityParameters eps = new EntityParameters(message);
+            EntityParameters eps = EntityParameters.clone(message);
             String section = eps.getName();
             for(EntityParameter ep : eps.getParams()) {
                 SystemProperty p = systemConfEditor.getParams().get(section + "." + ep.getName());

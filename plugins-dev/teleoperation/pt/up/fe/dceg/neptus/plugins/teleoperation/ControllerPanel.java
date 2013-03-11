@@ -297,7 +297,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
 
     public void requestRemoteActions() {
         if (console.getMainSystem() != null) {
-            IMCMessage msg = new RemoteActionsRequest("op", 1);
+            IMCMessage msg = RemoteActionsRequest.create("op", 1);
             ImcMsgManager.getManager().sendMessageToSystem(msg, console.getMainSystem());
         }
     }

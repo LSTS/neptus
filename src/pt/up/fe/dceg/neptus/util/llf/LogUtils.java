@@ -424,7 +424,7 @@ public class LogUtils {
                     IMCMessage msg = config.getMessage("beacon" + i);
                     if (msg == null)
                         continue;
-                    LblBeacon lblBeacon = new LblBeacon(msg);
+                    LblBeacon lblBeacon = LblBeacon.clone(msg);
                     String beacon = lblBeacon.getBeacon();
                     double lat = Math.toDegrees(lblBeacon.getLat());
                     double lon = Math.toDegrees(lblBeacon.getLon());
@@ -568,7 +568,7 @@ public class LogUtils {
             int count = 1;
             
             while (msg != null) {
-                VehicleCommand cmd = new VehicleCommand(msg);
+                VehicleCommand cmd = VehicleCommand.clone(msg);
                 if (cmd.getType() == TYPE.REQUEST && cmd.getCommand() == COMMAND.EXEC_MANEUVER) {
                     IMCMessage maneuver = cmd.getManeuver();
                     if (maneuver != null) {

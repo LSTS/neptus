@@ -98,7 +98,7 @@ public class SimulationActionsPlugin extends SimpleSubPanel {
             loc.convertToAbsoluteLatLonDepth();
             Calendar cal = GregorianCalendar.getInstance();
 
-            GpsFix fix = new GpsFix( 
+            GpsFix fix = GpsFix.create( 
                     "validity", 0xFFFF, 
                     "type", "MANUAL_INPUT", 
                     "utc_year", cal.get(Calendar.YEAR),

@@ -1163,7 +1163,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
     // Vehicles' Plans processing
     public void processPlanControlStateForVehiclePlanInformation(IMCMessage msg) {
         try {
-            PlanControlState pcstate = new PlanControlState(msg);
+            PlanControlState pcstate = PlanControlState.clone(msg);
             ImcSystem system = ImcSystemsHolder.lookupSystem(msg.getSrc());
             if (system == null)
                 return;

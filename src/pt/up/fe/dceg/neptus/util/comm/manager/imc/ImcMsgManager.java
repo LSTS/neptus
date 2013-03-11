@@ -757,7 +757,7 @@ public class ImcMsgManager extends
                     vci = processAnnounceMessage(info, (Announce) msg, vci, id);
                 }
                 else if ("EntityList".equalsIgnoreCase(msg.getAbbrev())) {
-                    EntityList entityListMessage = new EntityList(msg);
+                    EntityList entityListMessage = EntityList.clone(msg);
                     EntitiesResolver.setEntities(id.toString(), entityListMessage);
                     ImcSystem sys = ImcSystemsHolder.lookupSystem(id);
                     if (sys != null) {

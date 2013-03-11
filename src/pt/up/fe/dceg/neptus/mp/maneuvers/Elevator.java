@@ -311,7 +311,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
             return;
         pt.up.fe.dceg.neptus.imc.Elevator elev = null;
         try {
-             elev = new pt.up.fe.dceg.neptus.imc.Elevator(message);
+             elev = pt.up.fe.dceg.neptus.imc.Elevator.clone(message);
         }
         catch (Exception e) {
             e.printStackTrace();
