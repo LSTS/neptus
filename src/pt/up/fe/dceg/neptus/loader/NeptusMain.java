@@ -57,6 +57,7 @@ import pt.up.fe.dceg.neptus.mme.MissionMapEditor;
 import pt.up.fe.dceg.neptus.mp.MissionPlanner;
 import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.plugins.PluginClassLoader;
+import pt.up.fe.dceg.neptus.plugins.params.ConfigurationManager;
 import pt.up.fe.dceg.neptus.types.miscsystems.MiscSystemsHolder;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.ConsoleParse;
@@ -145,6 +146,10 @@ public class NeptusMain {
             GuiUtils.errorMessage(loader, I18n.text("Loading Misc Systems"), I18n.text("Error loading misc systems!"));
         }
 
+        loader.setText(I18n.text("Loading Systems Parameters Files..."));
+
+        ConfigurationManager.INSTANCE.toString();
+        
         // When loading one can type the application to start
         String typ = loader.getTypedString();
         if (!typ.equalsIgnoreCase("")) {
