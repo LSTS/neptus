@@ -232,7 +232,7 @@ public class ImcSidescanParser implements SidescanParser {
 
             SystemPositionAndAttitude pose;
             try {
-                pose = new SystemPositionAndAttitude(new EstimatedState(state));
+                pose = new SystemPositionAndAttitude(EstimatedState.clone(state));
             }
             catch (Exception e) {
                 e.printStackTrace();
