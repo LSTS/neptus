@@ -179,3 +179,5 @@ Thumbs.db
 *.edited
 \#*#
 *~
+/neptus.bat
+/neptus.sh
