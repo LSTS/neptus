@@ -38,7 +38,16 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
  *
  */
 public interface MraExporter {
+    /**
+     * This method must return true for the implementing Exporter to be added to MRA
+     * @param source
+     * @return True if appliable, false otherwise
+     */
     public boolean canBeApplied(IMraLogGroup source);
+    
+    /**
+     * Process method to be called on Exporter selection
+     */
     public void process();
     
     /**

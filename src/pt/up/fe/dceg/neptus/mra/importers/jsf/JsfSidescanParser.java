@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
+import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanLine;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanParser;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
@@ -121,7 +122,7 @@ public class JsfSidescanParser implements SidescanParser {
             // line = Scalr.resize(line, lineWidth, 1, (BufferedImageOp)null);
             // line = (BufferedImage) ImageUtils.getScaledImage(line, lineWidth, 1, true);
             ypos += size;
-            list.add(new SidescanLine(lineWidth, 1, ypos, 45, new EstimatedState(), ImageUtils.getScaledImage(line, lineWidth, (int) 1, true)));
+            list.add(new SidescanLine(ping.get(0).getTimestamp(),lineWidth, 1, ypos, 45, new SystemPositionAndAttitude(), ImageUtils.getScaledImage(line, lineWidth, (int) 1, true)));
 
             ping = parser.nextPing(subsystem);
         }

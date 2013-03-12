@@ -39,16 +39,27 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
  */
 public class SystemPositionAndAttitude implements Cloneable {
 
-    private double roll, pitch, yaw;
-    // private double u, v, w, p, q, r;
+    private double roll = 0;
+    private double pitch = 0; 
+    private double yaw = 0;
+    private double altitude = 0;
+
     private Vector3Dimension pqr = new Vector3Dimension();
     private Vector3Dimension uvw = new Vector3Dimension();
     private Vector3Dimension vxyz = new Vector3Dimension();
 
-    private long time;
+    private long time = 0;
 
     private LocationType position = new LocationType(), guine = new LocationType();
-
+    
+    
+    /**
+     * Empty constructor
+     */
+    public SystemPositionAndAttitude() {
+        
+    }
+    
     /**
      * Creates a new VehicleState from the given position and axis attitudes
      * 
@@ -78,8 +89,8 @@ public class SystemPositionAndAttitude implements Cloneable {
         LocationType loc = new LocationType();
         loc.setLatitudeRads(state.getLat());
         loc.setLongitudeRads(state.getLon());
-        loc.setDepth(state.getDepth());
-        loc.translatePosition(state.getX(), state.getY(), state.getZ());
+        loc.setDepth(0);
+        loc.translatePosition(state.getX(), state.getY(), 0);
         setPosition(loc);
         setRoll(state.getPhi());
         setPitch(state.getTheta());
@@ -179,7 +190,15 @@ public class SystemPositionAndAttitude implements Cloneable {
     public void setPosition(LocationType position) {
         this.position.setLocation(position);
     }
-
+    
+    public double getAltitude() {
+        return altitude;
+    }
+    
+    public void setAltitude(double altitude) {
+        this.altitude = altitude;
+    }
+    
     public double getRoll() {
         return roll;
     }

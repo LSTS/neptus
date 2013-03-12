@@ -37,8 +37,10 @@ import java.util.ArrayList;
 
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
+import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SonarData;
+import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
@@ -117,6 +119,23 @@ public class ImcSidescanParser implements SidescanParser {
         int iData[] = new int[ping.getRawData("data").length];
         IMCMessage state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
 
+        SystemPositionAndAttitude pose;
+//        try {
+//            pose = new SystemPositionAndAttitude(new EstimatedState(state));
+//        }
+//        catch (Exception e) {
+//            pose = null; // FIXME
+//            e.printStackTrace();
+//        }
+        pose = new SystemPositionAndAttitude();
+        
+        pose.setAltitude(state.getDouble("alt"));
+        pose.getPosition().setLatitudeRads(state.getDouble("lat"));
+        pose.getPosition().setLongitudeRads(state.getDouble("lon"));
+        pose.setYaw(state.getDouble("psi"));
+        pose.getPosition().setOffsetNorth(state.getDouble("x"));
+        pose.getPosition().setOffsetEast(state.getDouble("y"));
+        
         // Null guards
         if (ping == null || state == null)
             return null;
@@ -165,7 +184,7 @@ public class ImcSidescanParser implements SidescanParser {
         scaledLine = ImageUtils.getScaledImage(line, lineWidth, (int) lineSize, true);
         totalsize += (int) (lineSize);
 
-        SidescanLine l = new SidescanLine(scaledLine.getWidth(null), (int) lineSize, totalsize, range, state, scaledLine);
+        SidescanLine l = new SidescanLine(ping.getTimestampMillis(), scaledLine.getWidth(null), (int) lineSize, totalsize, range, pose, scaledLine);
         return l;
     }
 
@@ -210,6 +229,15 @@ public class ImcSidescanParser implements SidescanParser {
             // Null guards
             if (ping == null || state == null)
                 break;
+
+            SystemPositionAndAttitude pose;
+            try {
+                pose = new SystemPositionAndAttitude(new EstimatedState(state));
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                pose = null;
+            }
 
             float horizontalScale = (float) ping.getRawData("data").length / (range * 2f);
             float verticalScale = horizontalScale;
@@ -256,7 +284,7 @@ public class ImcSidescanParser implements SidescanParser {
             scaledLine = ImageUtils.getScaledImage(line, lineWidth, (int) lineSize, true);
             totalsize += (int) (lineSize);
 
-            list.add(new SidescanLine(scaledLine.getWidth(null), (int) lineSize, totalsize, range, state, scaledLine));
+            list.add(new SidescanLine(ping.getTimestampMillis(), scaledLine.getWidth(null), (int) lineSize, totalsize, range, pose, scaledLine));
 
             ping = pingParser.getCurrentEntry(); // This parser was already advanced so only get current entry
             state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());

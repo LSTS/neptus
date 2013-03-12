@@ -299,8 +299,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     .calcPointForCoord(mouseX).location.getLatitudeAsDoubleValue())), 5, 15);
             location2d.drawString(CoordinateUtil.dmToLonString(CoordinateUtil.decimalDegreesToDM(mouseSidescanLine
                     .calcPointForCoord(mouseX).location.getLongitudeAsDoubleValue())), 5, 26);
-            location2d.drawString(altStr+": " + altFormat.format(mouseSidescanLine.state.getDouble("alt")), 5, 37);
-            location2d.drawString(rollStr+": " + altFormat.format(Math.toDegrees(mouseSidescanLine.state.getDouble("phi"))), 5, 48);
+            location2d.drawString(altStr+": " + altFormat.format(mouseSidescanLine.state.getAltitude()), 5, 37);
+            location2d.drawString(rollStr+": " + altFormat.format(Math.toDegrees(mouseSidescanLine.state.getRoll())), 5, 48);
 
             g.drawImage(mouseLocationImage, 10, 10, null);
         }
@@ -352,7 +352,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     line = i.next();
                     if (old != null) {
                         // In case of being a marker just with time information
-                        if (timestamp >= old.state.getTimestampMillis() && timestamp <= line.state.getTimestampMillis()) {
+                        if (timestamp >= old.timestampMillis && timestamp <= line.timestampMillis) {
                             if (m.x == 0 && m.y == 0) {
                                 g.fillRect(0, line.ypos - 1, 10, 2);
                                 g.fillRect(line.image.getWidth(null) - 10, line.ypos - 1, 10, 2);
@@ -455,7 +455,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     }
                 }
                 SidescanPoint point = l.calcPointForCoord(x);
-                parent.mraPanel.addMarker(new LogMarker(res, l.state.getTimestampMillis(), point.location
+                parent.mraPanel.addMarker(new LogMarker(res, l.timestampMillis, point.location
                         .getLatitudeAsDoubleValueRads(), point.location.getLongitudeAsDoubleValueRads(), x, y, Math
                         .abs(mouseX - initialX), Math.abs(mouseY - initialY)));
             }
