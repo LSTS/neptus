@@ -85,6 +85,7 @@ public class JsfSidescanParser implements SidescanParser {
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         
         ArrayList<JsfSonarData> ping = parser.getPingAt(timestamp1, subsystem);
+        ArrayList<JsfSonarData> nextPing;
         
         if(ping.size() == 0) return list;
         int ypos = 0;
@@ -106,30 +107,48 @@ public class JsfSidescanParser implements SidescanParser {
             // From here portboard channel (pboard var) will be the reference
             BufferedImage line = new BufferedImage(pboard.getNumberOfSamples() + sboard.getNumberOfSamples(), 1, BufferedImage.TYPE_INT_RGB);
 
-//            float min = Float.MAX_VALUE, max = 0;
-//
-////            for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
-////                float r = pboard.getData()[i];
-////                min = Math.min(r, min);
-////                max = Math.max(r, max);
-////            }
+            double min = Float.MAX_VALUE, max = 0;
 
+            for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
+                double r = pboard.getData()[i];
+                min = Math.min(r, min);
+                max = Math.max(r, max);
+            }
+            
+            float horizontalScale = (float)line.getWidth() / (pboard.getRange() * 2f);
+            float verticalScale = horizontalScale;
+        
+            nextPing = parser.nextPing(subsystem);
+            
+            float secondsUntilNextPing = (nextPing.get(0).getTimestamp() - ping.get(0).getTimestamp()) / 1000f;
+            float speed = ping.get(0).getSpeed();
+            
+            size = (int) (secondsUntilNextPing * speed * verticalScale);
+            if (size <= 0) {
+                size = 1;
+            }
+            
+            double lineScale = (double) lineWidth / ((double) pboard.getNumberOfSamples() + (double) sboard.getNumberOfSamples());
+            double lineSize = Math.ceil(Math.max(1, lineScale * size));
+            
+            System.out.println(secondsUntilNextPing + " " + speed + " " + lineSize);
+            
             // Draw Portboard
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
-                line.setRGB(i, 0, colormap.getColor(pboard.getData()[i] / 100).getRGB());
+                line.setRGB(i, 0, colormap.getColor(pboard.getData()[i] / max).getRGB());
             }
             
             // Draw Starboard
             for (int i = 0; i < sboard.getNumberOfSamples(); i++) {
-                line.setRGB(i + pboard.getNumberOfSamples(), 0, colormap.getColor(sboard.getData()[i] / 100).getRGB());
+                line.setRGB(i + pboard.getNumberOfSamples(), 0, colormap.getColor(sboard.getData()[i] / max).getRGB());
             }
             
             // line = Scalr.resize(line, lineWidth, 1, (BufferedImageOp)null);
             // line = (BufferedImage) ImageUtils.getScaledImage(line, lineWidth, 1, true);
-            ypos += size;
-            list.add(new SidescanLine(ping.get(0).getTimestamp(),lineWidth, 1, ypos, 45, new SystemPositionAndAttitude(), ImageUtils.getScaledImage(line, lineWidth, (int) 1, true)));
+            ypos += (int) lineSize;
+            list.add(new SidescanLine(ping.get(0).getTimestamp(),lineWidth, (int)lineSize, ypos, ping.get(0).getRange(), new SystemPositionAndAttitude(), ImageUtils.getScaledImage(line, lineWidth, (int) lineSize, true)));
 
-            ping = parser.nextPing(subsystem);
+            ping = nextPing;
         }
         return list;
     }

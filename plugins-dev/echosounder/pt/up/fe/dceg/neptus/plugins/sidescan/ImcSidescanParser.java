@@ -33,11 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.sidescan;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-
-import javax.imageio.ImageIO;
 
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
@@ -276,8 +272,6 @@ public class ImcSidescanParser implements SidescanParser {
             double lineScale = (double) lineWidth / (double) data.length;
             double lineSize = Math.ceil(Math.max(1, lineScale * size));
             scaledLine = ImageUtils.getScaledImage(line, lineWidth, (int) lineSize, true);
-            
-            System.out.println("Line width :" + lineWidth + " img line w: " + line.getWidth() + "img sline w: " + scaledLine.getWidth(null));
             
             totalsize += (int) (lineSize);
             

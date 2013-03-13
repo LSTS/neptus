@@ -253,19 +253,21 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         return null;
     }
     
+    int tcount = 0;
+    int lcount = 0;
+    
     public void updateImage(long currentTime, long lastUpdateTime) {
         int yref = 0;
         drawList.addAll(ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime + currentTime, image.getWidth(), subsystem));
         for(SidescanLine l : drawList) {
-            if(l.range > getRange()) {
+            if(l.range != getRange()) {
                 setRange(l.range);
             }
             yref +=  l.ysize;
         }
-
+        
         // This check is to prevent negative array indexes (from dragging too much)
         if (yref <= image.getHeight()) {
-//            bufferedCache = Scalr.crop(image, image.getWidth(), image.getHeight() - yref, (BufferedImageOp)null);
             ImageUtils.copySrcIntoDst(image, bufferedCache, 0, 0, image.getWidth(), image.getHeight() - yref, 0, 0, image.getWidth(), image.getHeight());
             g2d.drawImage(bufferedCache, 0, yref, null);
         }
