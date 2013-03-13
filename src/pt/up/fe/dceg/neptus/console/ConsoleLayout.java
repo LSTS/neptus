@@ -121,14 +121,13 @@ import pt.up.fe.dceg.neptus.gui.checklist.exec.CheckListExe;
 import pt.up.fe.dceg.neptus.gui.system.selection.MainSystemSelectionCombo;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.state.ImcSysState;
-import pt.up.fe.dceg.neptus.plugins.PluginClassLoader;
+import pt.up.fe.dceg.neptus.loader.NeptusMain;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.teleoperation.ControllerPanel;
 import pt.up.fe.dceg.neptus.renderer2d.VehicleStateListener;
 import pt.up.fe.dceg.neptus.types.XmlInOutMethods;
 import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
 import pt.up.fe.dceg.neptus.types.checklist.ChecklistType;
-import pt.up.fe.dceg.neptus.types.miscsystems.MiscSystemsHolder;
 import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.types.mission.VehicleMission;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
@@ -1743,24 +1742,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         ConfigFetch.initialize();
         ConfigFetch.setSuperParentFrameForced(loader);
 
-        loader.setText(I18n.text("Loading Plug-ins..."));
-        PluginClassLoader.install();
-        loader.setText(I18n.text("Loading Systems..."));
-
-        if (!VehiclesHolder.loadVehicles()) {
-            GuiUtils.errorMessage(loader, I18n.text("Loading Systems"), I18n.text("Error loading systems!"));
-        }
-
-        if (!MiscSystemsHolder.loadMiscSystems()) {
-            GuiUtils.errorMessage(loader, I18n.text("Loading Misc Systems"), I18n.text("Error loading misc systems!"));
-        }
+        NeptusMain.loadPreRequirementsDataExceptConfigFetch(loader);
         
-        loader.setText(I18n.text("Loading Console..."));
-        
-        // GuiUtils.setSystemLookAndFeel();
-        GuiUtils.setLookAndFeel();
-        
-        // ConsoleLayout.forge("conf/consoles/seacon-light.ncon");
         ConsoleLayout.forge("conf/consoles/lauv.ncon", loader);
         System.out.println("BENCHMARK "+ ((System.currentTimeMillis() - ConfigFetch.STARTTIME) / 1E3) + "s");
         // ConsoleLayout console = new ConsoleLayout();
