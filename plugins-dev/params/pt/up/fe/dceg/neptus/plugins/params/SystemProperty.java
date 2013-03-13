@@ -164,8 +164,9 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         this.defaultValue = defaultValue;
     }
     
-    private void resetToDefault() {
-
+    public void resetToDefault() {
+        if (defaultValue != null)
+            setValue(defaultValue);
     }
     
     /**
