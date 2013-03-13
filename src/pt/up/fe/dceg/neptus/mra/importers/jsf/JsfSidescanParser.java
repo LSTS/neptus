@@ -37,7 +37,6 @@ import java.util.ArrayList;
 
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanLine;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanParser;
@@ -105,7 +104,7 @@ public class JsfSidescanParser implements SidescanParser {
                 }
             }
             // From here portboard channel (pboard var) will be the reference
-            BufferedImage line = new BufferedImage(pboard.getNumberOfSamples() * 2, 1, BufferedImage.TYPE_INT_RGB);
+            BufferedImage line = new BufferedImage(pboard.getNumberOfSamples() + sboard.getNumberOfSamples(), 1, BufferedImage.TYPE_INT_RGB);
 
 //            float min = Float.MAX_VALUE, max = 0;
 //
@@ -115,10 +114,16 @@ public class JsfSidescanParser implements SidescanParser {
 ////                max = Math.max(r, max);
 ////            }
 
+            // Draw Portboard
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
                 line.setRGB(i, 0, colormap.getColor(pboard.getData()[i] / 100).getRGB());
+            }
+            
+            // Draw Starboard
+            for (int i = 0; i < sboard.getNumberOfSamples(); i++) {
                 line.setRGB(i + pboard.getNumberOfSamples(), 0, colormap.getColor(sboard.getData()[i] / 100).getRGB());
             }
+            
             // line = Scalr.resize(line, lineWidth, 1, (BufferedImageOp)null);
             // line = (BufferedImage) ImageUtils.getScaledImage(line, lineWidth, 1, true);
             ypos += size;

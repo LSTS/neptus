@@ -88,8 +88,6 @@ public class SidescanLine {
         double angle = -state.getYaw() + (x < (xsize / 2) ? Math.PI : 0);
         double offsetNorth = Math.abs(distance) * Math.sin(angle);
         double offsetEast = Math.abs(distance) * Math.cos(angle);
-//        System.out.println(x + " range: " + range + " distance: " + distance + " yaw: " + state.getYaw()+ " angle deg:" + Math.toDegrees(angle)+ " offN: " + offsetNorth+ " offE: " + offsetEast);
-        System.out.println(Math.toDegrees(angle) + " " + distance);
         // Add the original vehicle offset to the calculated offset
         location.setOffsetNorth(state.getPosition().getOffsetNorth() + offsetNorth);
         location.setOffsetEast(state.getPosition().getOffsetEast() + offsetEast);
