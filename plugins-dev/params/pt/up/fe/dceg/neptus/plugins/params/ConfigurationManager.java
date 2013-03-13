@@ -689,7 +689,7 @@ public class ConfigurationManager {
         if (sy != null) {
             for(SystemProperty p : sy.values()) {
                 if ((entity == null || p.getCategory().equals(entity)) && p.getVisibility() == vis
-                        && p.getScope() == scope)
+                        && (p.getScope() == scope || scope == Scope.GLOBAL))
                     list.add(p);
             }
         }
