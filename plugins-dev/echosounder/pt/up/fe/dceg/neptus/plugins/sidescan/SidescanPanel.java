@@ -96,9 +96,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     if (measure) {
                         drawMeasure(layer.getGraphics());
                     }
-                    layer.getGraphics().setColor(Color.GREEN.brighter());
-                    layer.getGraphics().drawString(""+subsystem, 10, 10);
+                    // layer.getGraphics().setColor(Color.GREEN.brighter());
+                    // layer.getGraphics().drawString(""+subsystem, 10, 10);
+         
                     drawMarks(layer.getGraphics());
+                    drawRuler(layer.getGraphics());
+                    
                     g.drawImage(layer, 0, 0, null);
                 }
             }
@@ -174,6 +177,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     String depthStr = I18n.text("Depth");
     String rollStr = I18n.text("Roll");
 
+    int rangeStep;
     
     SlantRangeImageFilter filter;
     public double sums[] = null;
@@ -239,7 +243,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         view.addMouseMotionListener(this);
         
         setLayout(new MigLayout());
-        add(rangeLabel, "w 100%, h 20!, wrap");
+//        add(rangeLabel, "w 100%, h 20!, wrap");
         add(view, "w 100%, h 100%");
     }
     
@@ -418,6 +422,37 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
     }
     
+    void drawRuler(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        
+        // Draw Horizontal Line
+        g2d.drawLine(0, 0, layer.getWidth(), 0);
+        
+        // Draw the zero
+        g2d.drawLine(layer.getWidth() / 2, 0, layer.getWidth() / 2, 10);
+        g2d.drawString("0", layer.getWidth() / 2 - 10, 10);
+        
+        //Draw the maxes
+        g2d.drawLine(0, 0, 0, 10);
+        g2d.drawString("" + (int)range, 2 , 10);
+        
+        g2d.drawLine(layer.getWidth()-1, 0, layer.getWidth()-1, 10);
+        g2d.drawString("" + (int)range, layer.getWidth() - 20, 10);
+
+        double step = (layer.getWidth() / ((range * 2) / rangeStep));
+        double r = rangeStep;
+        
+        int c1 = (int) (layer.getWidth() / 2 - step);
+        int c2 = (int) (layer.getWidth() / 2 + step);
+        
+        for(; c1 > 0; c1 -= step, c2 += step, r += rangeStep) {
+            g2d.drawLine(c1, 0, c1, 10);
+            g2d.drawLine(c2, 0, c2, 10);
+            g2d.drawString("" + (int)r, c1 + 5, 10);
+            g2d.drawString("" + (int)r, c2 - 20, 10);
+        }
+
+    }
     /**
      * @return the range
      */
@@ -431,6 +466,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     public void setRange(float range) {
         this.range = range;
         rangeLabel.setRange(range);
+        rangeStep = 10;
     }
 
     public BufferedImage getImage() {
