@@ -1077,7 +1077,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
 
         if (message.getAbbrev().equals("LblRangeAcceptance")) {
             try {
-                LblRangeAcceptance acceptance = new LblRangeAcceptance(message);
+                LblRangeAcceptance acceptance = LblRangeAcceptance.clone(message);
 
                 LBLRangeLabel lb = beacons.get("" + acceptance.getId());
                 if (lb == null) {

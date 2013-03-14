@@ -51,6 +51,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.i18n.I18n;
@@ -71,9 +72,46 @@ import pt.up.fe.dceg.neptus.util.MathMiscUtils;
  */
 public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener{
     private static final long serialVersionUID = 1L;
-    
     SidescanAnalyzer parent;
     
+    JPanel view = new JPanel() {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            try {
+                super.paintComponent(g);
+
+                if (image != null && layer != null) {
+                    g.drawImage(image, 0, 0, null); // Draw sidescan image
+
+                    Graphics2D lg2d = (Graphics2D) layer.getGraphics();
+                    lg2d.setBackground(new Color(255, 255, 255, 0));
+                    lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight()); // Clear layer image
+
+                    if (zoom)
+                        drawZoom(layer.getGraphics()); // UPdate layer with zoom information
+                    if (info)
+                        drawLocation(layer.getGraphics()); // update layer with location information
+                    if (measure) {
+                        drawMeasure(layer.getGraphics());
+                    }
+                    // layer.getGraphics().setColor(Color.GREEN.brighter());
+                    // layer.getGraphics().drawString(""+subsystem, 10, 10);
+         
+                    drawMarks(layer.getGraphics());
+                    drawRuler(layer.getGraphics());
+                    
+                    g.drawImage(layer, 0, 0, null);
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+    
+    SidescanRangeLabel rangeLabel = new SidescanRangeLabel();
     BufferedImage image;
     BufferedImage layer;
     Graphics2D g2d;
@@ -85,6 +123,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     long currentTime;
 
+    float range = 0;
+    
     // Misc
     BufferedImage bufferedCache;
     byte[] prevData = null;
@@ -137,6 +177,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     String depthStr = I18n.text("Depth");
     String rollStr = I18n.text("Roll");
 
+    int rangeStep;
+    
     SlantRangeImageFilter filter;
     public double sums[] = null;
     
@@ -182,23 +224,27 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         firstPingTime = ssParser.firstPingTimestamp();
        
         // Deal with panel resize by recreating the image buffers
-        this.addComponentListener(new ComponentAdapter() {
+        view.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                image = ImageUtils.createCompatibleImage(getWidth(), getHeight(),
+                image = ImageUtils.createCompatibleImage(view.getWidth(), view.getHeight(),
                         Transparency.OPAQUE);
-                bufferedCache = ImageUtils.createCompatibleImage(getWidth(), getHeight(),
+                bufferedCache = ImageUtils.createCompatibleImage(view.getWidth(), view.getHeight(),
                         Transparency.OPAQUE);
                 g2d = (Graphics2D) image.getGraphics();
-                layer = ImageUtils.createCompatibleImage(getWidth(), getHeight(),
+                layer = ImageUtils.createCompatibleImage(view.getWidth(), view.getHeight(),
                         Transparency.TRANSLUCENT);
             }
         });
-
+        
         // Create SlantRangeFilter
-//        filter = new SlantRangeImageFilter(0, pingParser.firstLogEntry().getDouble("max_range"), pingParser.firstLogEntry().getRawData("data").length);
-        this.addMouseListener(this);
-        this.addMouseMotionListener(this);
+        // filter = new SlantRangeImageFilter(0, pingParser.firstLogEntry().getDouble("max_range"), pingParser.firstLogEntry().getRawData("data").length);
+        view.addMouseListener(this);
+        view.addMouseMotionListener(this);
+        
+        setLayout(new MigLayout());
+//        add(rangeLabel, "w 100%, h 20!, wrap");
+        add(view, "w 100%, h 100%");
     }
     
     public IMCMessage getNextMessageWithFrequency(IMraLog parser, double freq) {
@@ -211,16 +257,21 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         return null;
     }
     
+    int tcount = 0;
+    int lcount = 0;
+    
     public void updateImage(long currentTime, long lastUpdateTime) {
         int yref = 0;
         drawList.addAll(ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime + currentTime, image.getWidth(), subsystem));
         for(SidescanLine l : drawList) {
+            if(l.range != getRange()) {
+                setRange(l.range);
+            }
             yref +=  l.ysize;
         }
-
+        
         // This check is to prevent negative array indexes (from dragging too much)
         if (yref <= image.getHeight()) {
-//            bufferedCache = Scalr.crop(image, image.getWidth(), image.getHeight() - yref, (BufferedImageOp)null);
             ImageUtils.copySrcIntoDst(image, bufferedCache, 0, 0, image.getWidth(), image.getHeight() - yref, 0, 0, image.getWidth(), image.getHeight());
             g2d.drawImage(bufferedCache, 0, yref, null);
         }
@@ -250,35 +301,35 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         removeList.clear();
     }
     
-    @Override
-    protected void paintComponent(Graphics g) {
-        try {
-            super.paintComponent(g);
-
-            if (image != null && layer != null) {
-                g.drawImage(image, 0, 0, null); // Draw sidescan image
-
-                Graphics2D lg2d = (Graphics2D) layer.getGraphics();
-                lg2d.setBackground(new Color(255, 255, 255, 0));
-                lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight()); // Clear layer image
-
-                if (zoom)
-                    drawZoom(layer.getGraphics()); // UPdate layer with zoom information
-                if (info)
-                    drawLocation(layer.getGraphics()); // update layer with location information
-                if (measure) {
-                    drawMeasure(layer.getGraphics());
-                }
-                layer.getGraphics().setColor(Color.GREEN.brighter());
-                layer.getGraphics().drawString(""+subsystem, 10, 10);
-                drawMarks(layer.getGraphics());
-                g.drawImage(layer, 0, 0, null);
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    @Override
+//    protected void paintComponent(Graphics g) {
+//        try {
+//            super.paintComponent(g);
+//
+//            if (image != null && layer != null) {
+//                g.drawImage(image, 0, 0, null); // Draw sidescan image
+//
+//                Graphics2D lg2d = (Graphics2D) layer.getGraphics();
+//                lg2d.setBackground(new Color(255, 255, 255, 0));
+//                lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight()); // Clear layer image
+//
+//                if (zoom)
+//                    drawZoom(layer.getGraphics()); // UPdate layer with zoom information
+//                if (info)
+//                    drawLocation(layer.getGraphics()); // update layer with location information
+//                if (measure) {
+//                    drawMeasure(layer.getGraphics());
+//                }
+//                layer.getGraphics().setColor(Color.GREEN.brighter());
+//                layer.getGraphics().drawString(""+subsystem, 10, 10);
+//                drawMarks(layer.getGraphics());
+//                g.drawImage(layer, 0, 0, null);
+//            }
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
     
     void drawZoom(Graphics g) {
         mouseX = (int) MathMiscUtils.clamp(mouseX, 50, image.getWidth() - 50);
@@ -299,8 +350,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     .calcPointForCoord(mouseX).location.getLatitudeAsDoubleValue())), 5, 15);
             location2d.drawString(CoordinateUtil.dmToLonString(CoordinateUtil.decimalDegreesToDM(mouseSidescanLine
                     .calcPointForCoord(mouseX).location.getLongitudeAsDoubleValue())), 5, 26);
-            location2d.drawString(altStr+": " + altFormat.format(mouseSidescanLine.state.getDouble("alt")), 5, 37);
-            location2d.drawString(rollStr+": " + altFormat.format(Math.toDegrees(mouseSidescanLine.state.getDouble("phi"))), 5, 48);
+            location2d.drawString(altStr+": " + altFormat.format(mouseSidescanLine.state.getAltitude()), 5, 37);
+            location2d.drawString(rollStr+": " + altFormat.format(Math.toDegrees(mouseSidescanLine.state.getRoll())), 5, 48);
 
             g.drawImage(mouseLocationImage, 10, 10, null);
         }
@@ -352,7 +403,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     line = i.next();
                     if (old != null) {
                         // In case of being a marker just with time information
-                        if (timestamp >= old.state.getTimestampMillis() && timestamp <= line.state.getTimestampMillis()) {
+                        if (timestamp >= old.timestampMillis && timestamp <= line.timestampMillis) {
                             if (m.x == 0 && m.y == 0) {
                                 g.fillRect(0, line.ypos - 1, 10, 2);
                                 g.fillRect(line.image.getWidth(null) - 10, line.ypos - 1, 10, 2);
@@ -371,6 +422,53 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
     }
     
+    void drawRuler(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        
+        // Draw Horizontal Line
+        g2d.drawLine(0, 0, layer.getWidth(), 0);
+        
+        // Draw the zero
+        g2d.drawLine(layer.getWidth() / 2, 0, layer.getWidth() / 2, 10);
+        g2d.drawString("0", layer.getWidth() / 2 - 10, 10);
+        
+        //Draw the maxes
+        g2d.drawLine(0, 0, 0, 10);
+        g2d.drawString("" + (int)range, 2 , 10);
+        
+        g2d.drawLine(layer.getWidth()-1, 0, layer.getWidth()-1, 10);
+        g2d.drawString("" + (int)range, layer.getWidth() - 20, 10);
+
+        double step = (layer.getWidth() / ((range * 2) / rangeStep));
+        double r = rangeStep;
+        
+        int c1 = (int) (layer.getWidth() / 2 - step);
+        int c2 = (int) (layer.getWidth() / 2 + step);
+        
+        for(; c1 > 0; c1 -= step, c2 += step, r += rangeStep) {
+            g2d.drawLine(c1, 0, c1, 10);
+            g2d.drawLine(c2, 0, c2, 10);
+            g2d.drawString("" + (int)r, c1 + 5, 10);
+            g2d.drawString("" + (int)r, c2 - 20, 10);
+        }
+
+    }
+    /**
+     * @return the range
+     */
+    public float getRange() {
+        return range;
+    }
+
+    /**
+     * @param range the range to set
+     */
+    public void setRange(float range) {
+        this.range = range;
+        rangeLabel.setRange(range);
+        rangeStep = 10;
+    }
+
     public BufferedImage getImage() {
         return image;
     }
@@ -455,7 +553,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     }
                 }
                 SidescanPoint point = l.calcPointForCoord(x);
-                parent.mraPanel.addMarker(new LogMarker(res, l.state.getTimestampMillis(), point.location
+                parent.mraPanel.addMarker(new LogMarker(res, l.timestampMillis, point.location
                         .getLatitudeAsDoubleValueRads(), point.location.getLongitudeAsDoubleValueRads(), x, y, Math
                         .abs(mouseX - initialX), Math.abs(mouseY - initialY)));
             }

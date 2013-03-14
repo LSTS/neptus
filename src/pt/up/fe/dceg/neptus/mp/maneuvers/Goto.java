@@ -352,7 +352,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     @Override
     public void parseIMCMessage(IMCMessage message) {
         try {
-            pt.up.fe.dceg.neptus.imc.Goto msg = new pt.up.fe.dceg.neptus.imc.Goto(message);
+            pt.up.fe.dceg.neptus.imc.Goto msg = pt.up.fe.dceg.neptus.imc.Goto.clone(message);
             
             setMaxTime(msg.getTimeout());
             setSpeed(msg.getSpeed());

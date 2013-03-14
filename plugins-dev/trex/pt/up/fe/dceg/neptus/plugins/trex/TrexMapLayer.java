@@ -126,11 +126,11 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
         if (!message.getAbbrev().equals("PlanSpecification"))
             return;
         try {
-            PlanSpecification pspec = new PlanSpecification(message);
+            PlanSpecification pspec = PlanSpecification.clone(message);
             String planid = pspec.getPlanId();
             if (!planid.startsWith("TREX_"))
                 return;
-            PlanManeuver manspec = new PlanManeuver(pspec.getManeuvers());
+            PlanManeuver manspec = PlanManeuver.clone(pspec.getManeuvers().firstElement());
             Maneuver maneuver = IMCUtils.parseManeuver(manspec.getData());
 
             if (lastManeuver instanceof LocatedManeuver) {

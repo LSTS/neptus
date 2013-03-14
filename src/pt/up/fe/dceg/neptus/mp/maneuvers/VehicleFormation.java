@@ -240,7 +240,7 @@ public class VehicleFormation extends FollowTrajectory {
 
         pt.up.fe.dceg.neptus.imc.VehicleFormation formation = null;
         try {
-            formation = new pt.up.fe.dceg.neptus.imc.VehicleFormation(msg);
+            formation = pt.up.fe.dceg.neptus.imc.VehicleFormation.clone(msg);
         }
         catch (Exception e) {
             e.printStackTrace();

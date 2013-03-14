@@ -1236,7 +1236,7 @@ PlanChangeListener, DropTargetListener, NeptusMessageListener, MapChangeListener
         else if (abbrev.equals("LblRangeAcceptance")) {
             LblRangeAcceptance acceptance;
             try {
-                acceptance = new LblRangeAcceptance(message);
+                acceptance = LblRangeAcceptance.clone(message);
                 int id = acceptance.getId();
                 double range = acceptance.getRange();
                 long timeStampMillis = acceptance.getTimestampMillis();

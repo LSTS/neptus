@@ -33,7 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.sidescan;
 
 import java.awt.Image;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
 /**
@@ -41,13 +41,16 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
  *
  */
 public class SidescanLine {
+    public long timestampMillis;
+    
     public int xsize;
     public int ysize;
     
     public int ypos;
     
     public float range;
-    public IMCMessage state;
+    public SystemPositionAndAttitude state;
+    
     
     public Image image;
    
@@ -58,8 +61,9 @@ public class SidescanLine {
      * @param ping
      * @param state
      */
-    public SidescanLine(int xsize, int ysize, int ypos, float range, IMCMessage state, Image image) {
+    public SidescanLine(long timestamp, int xsize, int ysize, int ypos, float range, SystemPositionAndAttitude state, Image image) {
         super();
+        this.timestampMillis = timestamp;
         this.xsize = xsize;
         this.ysize = ysize;
         this.ypos = ypos;
@@ -74,21 +78,19 @@ public class SidescanLine {
      * @return a LocationType object containing the absolute GPS location of the point
      */
     public SidescanPoint calcPointForCoord(int x) {
-        LocationType location = new LocationType();
         
-        // Set the EstimatedState lat/lon as the center point
-        location.setLatitude(Math.toDegrees(state.getDouble("lat")));
-        location.setLongitude(Math.toDegrees(state.getDouble("lon")));
+        LocationType location = new LocationType();
+        // Set the System lat/lon as the center point
+        location.setLatitude(state.getPosition().getLatitude());
+        location.setLongitude(state.getPosition().getLongitude());
         
         double distance = x * (range * 2 / (float)xsize) - (range);
-        double angle = -state.getDouble("psi") + (x < (xsize / 2) ? Math.PI : 0);
+        double angle = -state.getYaw() + (x < (xsize / 2) ? Math.PI : 0);
         double offsetNorth = Math.abs(distance) * Math.sin(angle);
         double offsetEast = Math.abs(distance) * Math.cos(angle);
-//        System.out.println(x + " " + range + " " + distance + " " + Math.toDegrees(state.getDouble("psi"))+ " " + Math.toDegrees(angle)+ " " + offsetNorth+ " " + offsetEast);
-        
         // Add the original vehicle offset to the calculated offset
-        location.setOffsetNorth(state.getDouble("x") + offsetNorth);
-        location.setOffsetEast(state.getDouble("y") + offsetEast);
+        location.setOffsetNorth(state.getPosition().getOffsetNorth() + offsetNorth);
+        location.setOffsetEast(state.getPosition().getOffsetEast() + offsetEast);
         
         // Return new absolute location        
         return new SidescanPoint(x,ypos,location.getNewAbsoluteLatLonDepth());

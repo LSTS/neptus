@@ -339,7 +339,7 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
                         }
                     }
                     try {
-                        OperationalLimits received = new OperationalLimits(msg);
+                        OperationalLimits received = OperationalLimits.clone(msg);
                         lastMD5 = msg.payloadMD5();
                         if ((received.getMask() & OperationalLimits.OPL_MAX_DEPTH) != 0)
                             limits.setMaxDepth(received.getMaxDepth());

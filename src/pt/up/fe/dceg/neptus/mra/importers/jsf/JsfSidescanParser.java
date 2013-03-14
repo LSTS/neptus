@@ -37,7 +37,7 @@ import java.util.ArrayList;
 
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
+import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanLine;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanParser;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
@@ -85,6 +85,7 @@ public class JsfSidescanParser implements SidescanParser {
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         
         ArrayList<JsfSonarData> ping = parser.getPingAt(timestamp1, subsystem);
+        ArrayList<JsfSonarData> nextPing;
         
         if(ping.size() == 0) return list;
         int ypos = 0;
@@ -104,26 +105,70 @@ public class JsfSidescanParser implements SidescanParser {
                 }
             }
             // From here portboard channel (pboard var) will be the reference
-            BufferedImage line = new BufferedImage(pboard.getNumberOfSamples() * 2, 1, BufferedImage.TYPE_INT_RGB);
+            BufferedImage line = new BufferedImage(pboard.getNumberOfSamples() + sboard.getNumberOfSamples(), 1, BufferedImage.TYPE_INT_RGB);
 
-//            float min = Float.MAX_VALUE, max = 0;
-//
-////            for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
-////                float r = pboard.getData()[i];
-////                min = Math.min(r, min);
-////                max = Math.max(r, max);
-////            }
+            double min = Float.MAX_VALUE, max = 0;
 
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
-                line.setRGB(i, 0, colormap.getColor(pboard.getData()[i] / 100).getRGB());
-                line.setRGB(i + pboard.getNumberOfSamples(), 0, colormap.getColor(sboard.getData()[i] / 100).getRGB());
+                double r = pboard.getData()[i];
+                min = Math.min(r, min);
+                max = Math.max(r, max);
             }
-            // line = Scalr.resize(line, lineWidth, 1, (BufferedImageOp)null);
-            // line = (BufferedImage) ImageUtils.getScaledImage(line, lineWidth, 1, true);
-            ypos += size;
-            list.add(new SidescanLine(lineWidth, 1, ypos, 45, new EstimatedState(), ImageUtils.getScaledImage(line, lineWidth, (int) 1, true)));
+            
+            float horizontalScale = (float)line.getWidth() / (pboard.getRange() * 2f);
+            float verticalScale = horizontalScale;
+        
+            nextPing = parser.nextPing(subsystem);
+            
+            float secondsUntilNextPing = (nextPing.get(0).getTimestamp() - ping.get(0).getTimestamp()) / 1000f;
+            float speed = ping.get(0).getSpeed();
+            
+            size = (int) (secondsUntilNextPing * speed * verticalScale);
+            if (size <= 0) {
+                size = 1;
+            }
+            
+            double lineScale = (double) lineWidth / ((double) pboard.getNumberOfSamples() + (double) sboard.getNumberOfSamples());
+            double lineSize = Math.ceil(Math.max(1, lineScale * size));
+            
+//            System.out.println(secondsUntilNextPing + " " + speed + " " + lineSize);
+            
+            // Draw Portboard
+            for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
+                double r = pboard.getRange() - (i * (pboard.getRange() / pboard.getNumberOfSamples()));
+                double gain;
+                if (r <= 1)
+                    gain = 1;
+                else    
+                    gain = 30 * Math.log(r);
+                
+                double pb = pboard.getData()[i] * Math.pow(10, gain / 200);
+                line.setRGB(i, 0, colormap.getColor(pb / (max / 2)).getRGB());
+            }
+            
+            // Draw Starboard
+            for (int i = 0; i < sboard.getNumberOfSamples(); i++) {
+                double r = i * (sboard.getRange() / sboard.getNumberOfSamples());
+                double gain;
+                if (r <= 1)
+                    gain = 1;
+                else    
+                    gain = 30 * Math.log(r);
+                double sb = sboard.getData()[i] * Math.pow(10, gain / 200);
+                line.setRGB(i + pboard.getNumberOfSamples(), 0, colormap.getColor(sb / (max / 2)).getRGB());
+            }
+            
+            ypos += (int) lineSize;
+            
+            SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
+            pose.getPosition().setLatitude((pboard.getLat() / 10000.0) / 60.0);
+            pose.getPosition().setLongitude((pboard.getLon() / 10000.0) / 60.0);
+            pose.setAltitude(1);
+            pose.setYaw(Math.toRadians(pboard.getHeading() / 100));
+            
+            list.add(new SidescanLine(ping.get(0).getTimestamp(),lineWidth, (int)lineSize, ypos, ping.get(0).getRange(), pose, ImageUtils.getScaledImage(line, lineWidth, (int) lineSize, true)));
 
-            ping = parser.nextPing(subsystem);
+            ping = nextPing;
         }
         return list;
     }

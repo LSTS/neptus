@@ -264,7 +264,7 @@ public class RemoteOperationControlMode extends SimpleSubPanel implements MainVe
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (ENTER_REMOTE_TEXT.equals(e.getActionCommand())) {
-                        PlanControl msg = new PlanControl("type", "REQUEST", "op", "START", "request_id",
+                        PlanControl msg = PlanControl.create("type", "REQUEST", "op", "START", "request_id",
                                 IMCSendMessageUtils.getNextRequestId(), "plan_id", "teleoperation-mode", "flags", 0,
                                 "arg", new Teleoperation());
                         send(msg);

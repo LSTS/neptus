@@ -723,7 +723,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     public void parseIMCMessage(IMCMessage message) {
         Rows man = null;
         try {
-            man = new Rows(message);
+            man = Rows.clone(message);
         }
         catch (Exception e) {
             e.printStackTrace();

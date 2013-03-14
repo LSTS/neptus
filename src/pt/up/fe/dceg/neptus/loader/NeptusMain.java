@@ -82,7 +82,6 @@ public class NeptusMain {
     private static Loader loader;
 
     static {
-
         GeneralPreferences.initialize();
         
         appNames.put("ws", I18n.text("Workspace"));
@@ -122,34 +121,13 @@ public class NeptusMain {
         loader.start();
         ConfigFetch.setSuperParentFrameForced(loader);
 
-        loader.setText(I18n.text("Loading Plug-ins..."));
-        PluginClassLoader.install();
-
-        loader.setText(I18n.text("Loading Look&Feel..."));
-        boolean nlf = false;
+        boolean neptusLookAndFeel = true;
         for (int i = 0; i < appargs.length; i++) {
             if (appargs[i].equals("-nlf"))
-                nlf = true;
+                neptusLookAndFeel = false;
         }
 
-        if (nlf)
-            GuiUtils.setSystemLookAndFeel();
-        else
-            GuiUtils.setLookAndFeel();
-
-        loader.setText(I18n.text("Loading Systems..."));
-
-        if (!VehiclesHolder.loadVehicles()) {
-            GuiUtils.errorMessage(loader, I18n.text("Loading Systems"), I18n.text("Error loading systems!"));
-        }
-
-        if (!MiscSystemsHolder.loadMiscSystems()) {
-            GuiUtils.errorMessage(loader, I18n.text("Loading Misc Systems"), I18n.text("Error loading misc systems!"));
-        }
-
-        loader.setText(I18n.text("Loading Systems Parameters Files..."));
-
-        ConfigurationManager.INSTANCE.toString();
+        loadPreRequirementsDataExceptConfigFetch(loader, neptusLookAndFeel);
         
         // When loading one can type the application to start
         String typ = loader.getTypedString();
@@ -187,14 +165,7 @@ public class NeptusMain {
         if (app.equalsIgnoreCase("ws") || app.equalsIgnoreCase("mc")) {
             Workspace ws = new Workspace();
             ws.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-//            ws.addWindowListener(new WindowAdapter() {
-//                public void windowClosed(WindowEvent e) {
-//                    super.windowClosed(e);
-//                    OutputMonitor.end();
-//                    System.exit(0);
-//                }
-//            });
-            ws.addWindowListener(getCloseActionWindowAdapter(ws));
+            wrapMainApplicationWindowWithCloseActionWindowAdapter(ws);
             System.out.println("workspace load finished in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
         }
         else if (app.equalsIgnoreCase("mp")) {
@@ -204,46 +175,32 @@ public class NeptusMain {
             mp.setExtendedState(JFrame.MAXIMIZED_BOTH);
             mp.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             mp.setVisible(true);
-//            mp.addWindowListener(new WindowAdapter() {
-//                public void windowClosed(WindowEvent e) {
-//                    super.windowClosed(e);
-//                    OutputMonitor.end();
-//                    System.exit(0);
-//                }
-//            });
-            mp.addWindowListener(getCloseActionWindowAdapter(mp));
+            wrapMainApplicationWindowWithCloseActionWindowAdapter(mp);
             loader.waitMoreAndEnd(1000);
         }
         else if (app.equalsIgnoreCase("mra")) {
-//            NeptusMRA.showApplication().addWindowListener(new WindowAdapter() {
-//                public void windowClosed(WindowEvent e) {
-//                    super.windowClosed(e);
-//                    OutputMonitor.end();
-//                    System.exit(0);
-//                }
-//            });
             NeptusMRA mra = NeptusMRA.showApplication();
-            mra.addWindowListener(getCloseActionWindowAdapter(mra));
+            wrapMainApplicationWindowWithCloseActionWindowAdapter(mra);
         }
         else if (app.equalsIgnoreCase("cl")) {
             ConfigFetch.initialize();
             ConsoleLayout appC = new ConsoleLayout();
             appC.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             appC.setVisible(true);
-            appC.addWindowListener(getCloseActionWindowAdapter(appC));
+            wrapMainApplicationWindowWithCloseActionWindowAdapter(appC);
         }
         else if (app.equalsIgnoreCase("console")) {
             ConfigFetch.initialize();
             ConsoleLayout appC = ConsoleLayout.forge("conf/consoles/lauv.ncon", loader);
             appC.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             appC.setVisible(true);
-            appC.addWindowListener(getCloseActionWindowAdapter(appC));
+            wrapMainApplicationWindowWithCloseActionWindowAdapter(appC);
         }
         else if (app.equalsIgnoreCase("la")) {
             try {
                 LAUVConsole.setLoader(loader);
                 final ConsoleLayout cls = LAUVConsole.create(new String[0]);
-                cls.addWindowListener(getCloseActionWindowAdapter(cls));
+                wrapMainApplicationWindowWithCloseActionWindowAdapter(cls);
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -261,11 +218,48 @@ public class NeptusMain {
     }
 
     /**
+     * @param loader
+     */
+    public static void loadPreRequirementsDataExceptConfigFetch(Loader loader) {
+        loadPreRequirementsDataExceptConfigFetch(loader, true);
+    }
+
+    /**
+     * @param loader
+     * @param neptusLookAndFeelOrNative
+     */
+    public static void loadPreRequirementsDataExceptConfigFetch(Loader loader, boolean neptusLookAndFeelOrNative) {
+        loader.setText(I18n.text("Loading Plug-ins..."));
+        PluginClassLoader.install();
+
+        loader.setText(I18n.text("Loading Look&Feel..."));
+
+        if (!neptusLookAndFeelOrNative)
+            GuiUtils.setSystemLookAndFeel();
+        else
+            GuiUtils.setLookAndFeel();
+
+        loader.setText(I18n.text("Loading Systems..."));
+
+        if (!VehiclesHolder.loadVehicles()) {
+            GuiUtils.errorMessage(loader, I18n.text("Loading Systems"), I18n.text("Error loading systems!"));
+        }
+
+        if (!MiscSystemsHolder.loadMiscSystems()) {
+            GuiUtils.errorMessage(loader, I18n.text("Loading Misc Systems"), I18n.text("Error loading misc systems!"));
+        }
+
+        loader.setText(I18n.text("Loading Systems Parameters Files..."));
+
+        ConfigurationManager.INSTANCE.toString();
+    }
+
+    /**
      * @param callingWindow
      * @return
      */
-    private static WindowAdapter getCloseActionWindowAdapter(final Window callingWindow) {
-        return new WindowAdapter() {
+    public static void wrapMainApplicationWindowWithCloseActionWindowAdapter(final Window callingWindow) {
+        WindowAdapter wa = new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
                 Window[] openedWindows = Frame.getWindows();
@@ -291,10 +285,10 @@ public class NeptusMain {
                 OutputMonitor.end();
             }
         };
+        callingWindow.addWindowListener(wa);
     }
 
     private static void handleFile(String filename) {
-
         // verify if file exists...
         File f = new File(filename);
         if (!f.canRead()) {
@@ -316,7 +310,7 @@ public class NeptusMain {
                     FileHandler fh = ((FileHandler) fileHandlers.get(extension).newInstance());
                     if (fh instanceof JFrame) {
                         ((JFrame) fh).setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                        ((JFrame) fh).addWindowListener(getCloseActionWindowAdapter(((JFrame) fh)));
+                        wrapMainApplicationWindowWithCloseActionWindowAdapter((JFrame) fh);
                     }
                     fh.handleFile(f);
                 }

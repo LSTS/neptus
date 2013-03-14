@@ -39,9 +39,9 @@ import java.nio.ByteBuffer;
  */
 public class JsfSonarData {
     enum Units {
-        XY_MILI(0),
-        LATLON(1),
-        XY_DEC(2);
+        XY_MILI(1),
+        LATLON(2),
+        XY_DEC(3);
         
         int code;
         
@@ -421,7 +421,7 @@ public class JsfSonarData {
     
         numberOfSamples = buf.getShort(114) & 0xFFFF;
         range = ((buf.getInt(116) / new Float(Math.pow(10, 9))) * numberOfSamples * 1500) / 2.0f;
-        
+        range = Math.round(range);
         frequency = ((buf.getShort(126) & 0xFFFF) + msbStartFreq) / 100.0f;
     
         depthMillis = buf.getInt(140);

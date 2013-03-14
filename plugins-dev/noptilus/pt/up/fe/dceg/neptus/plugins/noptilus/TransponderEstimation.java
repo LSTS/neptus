@@ -158,13 +158,13 @@ public class TransponderEstimation extends SimpleSubPanel implements Renderer2DP
         int curPos = index.getFirstMessageOfType(LblRange.ID_STATIC);
 
         while (curPos != -1) {
-            LblRange range = new LblRange(index.getMessage(curPos));
+            LblRange range = LblRange.clone(index.getMessage(curPos));
             if (!ranges.containsKey(range.getId()))
                 ranges.put((short)range.getId(), new Vector<double[]>());
             int estate = index.getNextMessageOfType(EstimatedState.ID_STATIC, curPos);
 
             if (estate != -1) {
-                EstimatedState state = new EstimatedState(index.getMessage(estate));
+                EstimatedState state = EstimatedState.clone(index.getMessage(estate));
                 double[] values = new double[] { range.getTimestamp(), state.getX(), state.getY(), state.getZ(),
                         range.getRange() };
                 ranges.get(range.getId()).add(values);
@@ -180,9 +180,9 @@ public class TransponderEstimation extends SimpleSubPanel implements Renderer2DP
         if (hrefIndex == -1)
             throw new Exception("No HomeRef found in the log");
         
-        EstimatedState state = new EstimatedState(index.getMessage(hrefIndex));
+        EstimatedState state = EstimatedState.clone(index.getMessage(hrefIndex));
         LocationType homeLoc = new LocationType(Math.toDegrees(state.getLat()), Math.toDegrees(state.getLon()));
-        LblConfig lblConfig = new LblConfig(index.getMessage(lblIndex));
+        LblConfig lblConfig = LblConfig.clone(index.getMessage(lblIndex));
         Vector<LblBeacon> beacons = lblConfig.getBeacons();
         
         for (short i = 0; i < beacons.size(); i++) {
