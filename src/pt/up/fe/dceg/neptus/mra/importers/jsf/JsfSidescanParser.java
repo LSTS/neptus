@@ -135,12 +135,12 @@ public class JsfSidescanParser implements SidescanParser {
             
             // Draw Portboard
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
-                line.setRGB(i, 0, colormap.getColor(pboard.getData()[i] / max).getRGB());
+                line.setRGB(i, 0, colormap.getColor(pboard.getData()[i] / (max / 2)).getRGB());
             }
             
             // Draw Starboard
             for (int i = 0; i < sboard.getNumberOfSamples(); i++) {
-                line.setRGB(i + pboard.getNumberOfSamples(), 0, colormap.getColor(sboard.getData()[i] / max).getRGB());
+                line.setRGB(i + pboard.getNumberOfSamples(), 0, colormap.getColor(sboard.getData()[i] / (max / 2)).getRGB());
             }
             
             // line = Scalr.resize(line, lineWidth, 1, (BufferedImageOp)null);
