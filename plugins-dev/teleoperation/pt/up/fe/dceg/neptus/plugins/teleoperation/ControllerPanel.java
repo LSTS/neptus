@@ -101,7 +101,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
     private LinkedHashMap<String, String> actions = new LinkedHashMap<String, String>();
     // Mapped actions based on XML actions.xml for the current vehicle and selected controller
     private ArrayList<MapperComponent> mappedActions = new ArrayList<MapperComponent>();
-    // A list of actions to be added to a remote actions message
+    // A list of actions to be added to a RemoteActions message
     private LinkedHashMap<String, String> msgActions  = new LinkedHashMap<String, String>();
     // The current controller poll
     private LinkedHashMap<String, Component> poll;
@@ -404,13 +404,11 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
                 }
 
                 if (comp != null) {
-                    comp.value = poll.get(k).getPollData() * (actions.get(comp.action).equals("Axis") ? 127 : 1);
+                    comp.value = poll.get(k).getPollData() * (actions.get(comp.action).equals("Axis") ? 127 : 1) * (comp.inverted ? -1 : 1);
                     ((AbstractTableModel)table.getModel()).fireTableDataChanged();
                     // Only if we are already sending that we build the msgActions LinkedHashMap
                     if (sending) {
-                        msgActions.put(comp.action,
-                                poll.get(k).getPollData()
-                                        * (actions.get(comp.action).equals("Axis") ? 127 : 1) + "");
+                        msgActions.put(comp.action, comp.value + "");
                     }
                 }
             }
@@ -486,10 +484,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
     }
 
     /**
-     * This class serves as a placeholder and visual components for the mapper
-     * 
      * @author jqcorreia
-     * 
      */
     class MapperComponent {
         String action;
