@@ -39,9 +39,9 @@ import java.nio.ByteBuffer;
  */
 public class JsfSonarData {
     enum Units {
-        XY_MILI(0),
-        LATLON(1),
-        XY_DEC(2);
+        XY_MILI(1),
+        LATLON(2),
+        XY_DEC(3);
         
         int code;
         

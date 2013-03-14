@@ -131,22 +131,42 @@ public class JsfSidescanParser implements SidescanParser {
             double lineScale = (double) lineWidth / ((double) pboard.getNumberOfSamples() + (double) sboard.getNumberOfSamples());
             double lineSize = Math.ceil(Math.max(1, lineScale * size));
             
-            System.out.println(secondsUntilNextPing + " " + speed + " " + lineSize);
+//            System.out.println(secondsUntilNextPing + " " + speed + " " + lineSize);
             
             // Draw Portboard
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
-                line.setRGB(i, 0, colormap.getColor(pboard.getData()[i] / (max / 2)).getRGB());
+                double r = pboard.getRange() - (i * (pboard.getRange() / pboard.getNumberOfSamples()));
+                double gain;
+                if (r <= 1)
+                    gain = 1;
+                else    
+                    gain = 30 * Math.log(r);
+                
+                double pb = pboard.getData()[i] * Math.pow(10, gain / 200);
+                line.setRGB(i, 0, colormap.getColor(pb / (max / 2)).getRGB());
             }
             
             // Draw Starboard
             for (int i = 0; i < sboard.getNumberOfSamples(); i++) {
-                line.setRGB(i + pboard.getNumberOfSamples(), 0, colormap.getColor(sboard.getData()[i] / (max / 2)).getRGB());
+                double r = i * (sboard.getRange() / sboard.getNumberOfSamples());
+                double gain;
+                if (r <= 1)
+                    gain = 1;
+                else    
+                    gain = 30 * Math.log(r);
+                double sb = sboard.getData()[i] * Math.pow(10, gain / 200);
+                line.setRGB(i + pboard.getNumberOfSamples(), 0, colormap.getColor(sb / (max / 2)).getRGB());
             }
             
-            // line = Scalr.resize(line, lineWidth, 1, (BufferedImageOp)null);
-            // line = (BufferedImage) ImageUtils.getScaledImage(line, lineWidth, 1, true);
             ypos += (int) lineSize;
-            list.add(new SidescanLine(ping.get(0).getTimestamp(),lineWidth, (int)lineSize, ypos, ping.get(0).getRange(), new SystemPositionAndAttitude(), ImageUtils.getScaledImage(line, lineWidth, (int) lineSize, true)));
+            
+            SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
+            pose.getPosition().setLatitude((pboard.getLat() / 10000.0) / 60.0);
+            pose.getPosition().setLongitude((pboard.getLon() / 10000.0) / 60.0);
+            pose.setAltitude(1);
+            pose.setYaw(Math.toRadians(pboard.getHeading() / 100));
+            
+            list.add(new SidescanLine(ping.get(0).getTimestamp(),lineWidth, (int)lineSize, ypos, ping.get(0).getRange(), pose, ImageUtils.getScaledImage(line, lineWidth, (int) lineSize, true)));
 
             ping = nextPing;
         }
