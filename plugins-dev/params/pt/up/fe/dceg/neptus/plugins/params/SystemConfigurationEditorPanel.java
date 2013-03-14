@@ -87,6 +87,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     protected PropertySheetPanel psp;
     private JButton sendButton;
     private JButton refreshButton;
+    private JButton resetButton;
     private JLabel titleLabel;
     private JCheckBox checkAdvance;
     private JComboBox<Scope> scopeComboBox;
@@ -104,17 +105,17 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     protected ImcMsgManager imcMsgManager;
     
     public SystemConfigurationEditorPanel(String systemId, Scope scopeToUse, Visibility visibility,
-            boolean showSendButton, boolean showScopeCombo, ImcMsgManager imcMsgManager) {
+            boolean showSendButton, boolean showScopeCombo, boolean showResetButton, ImcMsgManager imcMsgManager) {
         this.systemId = systemId;
         this.imcMsgManager = imcMsgManager;
         
         this.scopeToUse = scopeToUse;
         this.visibility = visibility;
         
-        initialize(showSendButton, showScopeCombo);
+        initialize(showSendButton, showScopeCombo, showResetButton);
     }
     
-    private void initialize(boolean showSendButton, boolean showScopeCombo) {
+    private void initialize(boolean showSendButton, boolean showScopeCombo, boolean showResetButton) {
         setLayout(new MigLayout());
 
         scopeComboBox = new JComboBox<Scope>(Scope.values()) {
@@ -188,8 +189,17 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         });
         add(refreshButton, "sg buttons, split");
 
+        resetButton = new JButton(new AbstractAction(I18n.text("Reset")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resetPropertiesOnPanel();
+            }
+        });
+        if (showResetButton)
+            add(resetButton, "sg buttons, split");
+        
         if (showScopeCombo)
-            add(scopeComboBox, "split, w :200:");
+            add(scopeComboBox, "split, w :160:");
 
         
         checkAdvance = new JCheckBox(I18n.text("Access Developer Parameters"));
@@ -302,6 +312,13 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         
         revalidate();
         repaint();
+    }
+
+    private synchronized void resetPropertiesOnPanel() {
+        for (SystemProperty sp : params.values()) {
+            sp.resetToDefault();
+        }
+        psp.repaint();
     }
 
     private void removeAllPropertiesFromPanel() {
@@ -486,9 +503,9 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         String vehicle = "lauv-xtreme-2";
         
         final SystemConfigurationEditorPanel sc1 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
-                Visibility.USER, true, true, ImcMsgManager.getManager());
+                Visibility.USER, true, true, true, ImcMsgManager.getManager());
         final SystemConfigurationEditorPanel sc2 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
-                Visibility.USER, true, true, ImcMsgManager.getManager());
+                Visibility.USER, true, true, true, ImcMsgManager.getManager());
         
 //        ImcMsgManager.getManager().addListener(new MessageListener<MessageInfo, IMCMessage>() {
 //            @Override

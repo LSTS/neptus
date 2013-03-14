@@ -70,7 +70,7 @@ public class SystemConfiguration extends SimpleSubPanel implements NeptusMessage
         removeAll();
         
         systemConfEditor = new SystemConfigurationEditorPanel(getMainVehicleId(), Scope.GLOBAL, Visibility.USER, true,
-                true, ImcMsgManager.getManager());
+                true, true, ImcMsgManager.getManager());
         
         setLayout(new BorderLayout());
         add(systemConfEditor);
