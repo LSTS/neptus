@@ -40,8 +40,8 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -340,47 +340,77 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         send(qep);
     }
     
-    private void sendProperty(SystemProperty prop) {
-        if (prop.getValue() == null)
-            return;
-        
-        SetEntityParameters setParams = new SetEntityParameters();
-        Vector<EntityParameter> v = new Vector<>();
-        EntityParameter ep = new EntityParameter();
-        
-        ep.setName(prop.getName());
-        boolean isList = false;
-        if (ArrayList.class.equals(prop.getType()))
-            isList = true;
-        String str = (String) prop.getValue().toString();
-        if (isList)
-            str = ConfigurationManager.convertArrayListToStringToPropValueString(str);
-        ep.setValue(str);
-        v.add(ep);
-        
-        setParams.setName(prop.getCategoryId());
-        setParams.setParams(v);
-        
-        ep.dump(System.out);
-        send(setParams);
+    private void sendProperty(SystemProperty... propsList) {
+        Map<String, ArrayList<EntityParameter>> mapCategoryParameterList = new LinkedHashMap<String, ArrayList<EntityParameter>>(); 
+        for (SystemProperty prop : propsList) {
+            if (prop.getValue() == null)
+                continue;
+
+            String category = prop.getCategoryId();
+            if (category == null)
+                continue;
+            
+            EntityParameter ep = new EntityParameter();
+            ep.setName(prop.getName());
+            boolean isList = false;
+            if (ArrayList.class.equals(prop.getType()))
+                isList = true;
+            String str = (String) prop.getValue().toString();
+            if (isList)
+                str = ConfigurationManager.convertArrayListToStringToPropValueString(str);
+            ep.setValue(str);
+
+            ArrayList<EntityParameter> entParamList = mapCategoryParameterList.get(category);
+            if (entParamList == null) {
+                entParamList = new ArrayList<>();
+                mapCategoryParameterList.put(category, entParamList);
+            }
+            entParamList.add(ep);
+        }
+
+        ArrayList<SetEntityParameters> msgs = new ArrayList<>(mapCategoryParameterList.size());
+        for (String cat : mapCategoryParameterList.keySet()) {
+            ArrayList<EntityParameter> propList = mapCategoryParameterList.get(cat);
+            SetEntityParameters setParams = new SetEntityParameters();
+            setParams.setName(cat);
+            setParams.setParams(propList);
+            
+            setParams.dump(System.out);
+            
+            msgs.add(setParams);
+        }
+
+        for (SetEntityParameters setEntityParameters : msgs) {
+            send(setEntityParameters);
+        }
     }
 
+    /**
+     * This will send to the system the necessary SetEntityParameters messages with SystemProperty message(s)
+     * that are needed. It will only send the SystemProperty messages that are locally dirty.
+     */
     private void sendPropertiesToSystem() {
         Set<SystemProperty> sentProps = new LinkedHashSet<SystemProperty>();
+        ArrayList<SystemProperty> sysPropToSend = new ArrayList<>();
         for (SystemProperty sp : params.values()) {
             if (sp.getTimeDirty() > sp.getTimeSync()) {
-                sendProperty(sp);
+                // sendProperty(sp);
+                sysPropToSend.add(sp);
                 sentProps.add(sp);
             }
         }
-        ArrayList<String> secNames = new ArrayList<>();
-        for (SystemProperty sp : sentProps) {
-            String sectionName = sp.getCategoryId();
-            if (!secNames.contains(sectionName))
-                secNames.add(sectionName);
-        }        
-        for (String sec : secNames) {
-            queryValues(sec, scopeToUse.getText(), visibility.getText());
+        if (sysPropToSend.size() > 0) {
+            sendProperty(sysPropToSend.toArray(new SystemProperty[sysPropToSend.size()]));
+            
+            ArrayList<String> secNames = new ArrayList<>();
+            for (SystemProperty sp : sentProps) {
+                String sectionName = sp.getCategoryId();
+                if (!secNames.contains(sectionName))
+                    secNames.add(sectionName);
+            }        
+            for (String sec : secNames) {
+                queryValues(sec, scopeToUse.getText(), visibility.getText());
+            }
         }
     }
 
