@@ -346,21 +346,21 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         poll = manager.pollController(currentController);
         
         if (editing) {
+            
             if (oldPoll.size() == poll.size()) {
                 for (String k : poll.keySet()) {
                     if (poll.get(k).getPollData() != oldPoll.get(k).floatValue()
                             && Math.abs(poll.get(k).getPollData()) == 1.0) {
-                        if (poll.get(k).getPollData() > oldPoll.get(k).floatValue()) {
-                            int i = 0;
-                            for (MapperComponent mcomp : mappedActions) {
-                                if (i == editingComponentIndex) {
-                                    mcomp.component = k;
-                                    editingComponentIndex++;
-                                    model.fireTableDataChanged();
-                                    break;
-                                }
-                                i++;
+                        int i = 0;
+                        for (MapperComponent mcomp : mappedActions) {
+                            if (i == editingComponentIndex) {
+                                mcomp.component = k;
+                                mcomp.inverted = poll.get(k).getPollData() < 0;
+                                editingComponentIndex++;
+                                model.fireTableDataChanged();
+                                break;
                             }
+                            i++;
                         }
                     }
                 }
@@ -378,6 +378,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
             oldPoll.clear();
             for (String k : poll.keySet())
                 oldPoll.put(k, poll.get(k).getPollData());
+            
         }
         else {
             // Use the periodic update to keep asking for RemoteActions list
