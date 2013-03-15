@@ -59,7 +59,6 @@ import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SonarData;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
@@ -74,6 +73,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private static final long serialVersionUID = 1L;
     SidescanAnalyzer parent;
     
+    SidescanToolbar toolbar = new SidescanToolbar(this);
     JPanel view = new JPanel() {
         private static final long serialVersionUID = 1L;
 
@@ -111,7 +111,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
     };
     
-    SidescanRangeLabel rangeLabel = new SidescanRangeLabel();
     BufferedImage image;
     BufferedImage layer;
     Graphics2D g2d;
@@ -183,36 +182,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     public double sums[] = null;
     
     int subsystem;
-    
-    public void calcIntensities(IMraLogGroup source) {
-        int count = 0;
-        String msg = "SonarData";
-        if (source.getLog("SonarData") == null)
-            msg = "SidescanPing";
-        for (IMCMessage ping : source.getLsfIndex().getIterator(msg)) {
-            if(ping.getInteger("type") != SonarData.TYPE.SIDESCAN.value())
-                continue;
-            
-            byte[] data = ping.getRawData("data");
-            if (sums == null)
-                sums = new double[data.length];
-            
-            for (int i = 0; i < data.length; i++)
-                sums[i] += data[i] & 0xFF;
-            
-            count++;
-            
-            if (count % 100 == 0) {
-                double[] tmp = new double[sums.length];
-                for (int i = 0; i < sums.length; i++)
-                    tmp[i] = sums[i] / count;
-            }
-        }
         
-        for (int i = 0; i < sums.length; i++)
-            sums[i] = sums[i] / count; 
-    }
-    
     public SidescanPanel(SidescanAnalyzer analyzer, SidescanParser parser, int subsystem) {
         this.parent = analyzer;
         ssParser = parser;
@@ -242,8 +212,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         view.addMouseListener(this);
         view.addMouseMotionListener(this);
         
-        setLayout(new MigLayout());
-//        add(rangeLabel, "w 100%, h 20!, wrap");
+        setLayout(new MigLayout("ins 0"));
+        add(toolbar, "w 100%, wrap");
         add(view, "w 100%, h 100%");
     }
     
@@ -465,7 +435,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
      */
     public void setRange(float range) {
         this.range = range;
-        rangeLabel.setRange(range);
         rangeStep = 10;
     }
 

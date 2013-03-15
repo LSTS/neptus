@@ -292,7 +292,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
             p.slantRangeCorrection = slantRangeCorrection;
             p.timeVariableGain = timeVariableGain;
             if(p.timeVariableGain == true && p.sums == null) {
-                p.calcIntensities(mraPanel.getSource());
+            
             }
         }
     }

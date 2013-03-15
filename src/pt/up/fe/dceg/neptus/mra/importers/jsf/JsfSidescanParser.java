@@ -107,14 +107,23 @@ public class JsfSidescanParser implements SidescanParser {
             // From here portboard channel (pboard var) will be the reference
             BufferedImage line = new BufferedImage(pboard.getNumberOfSamples() + sboard.getNumberOfSamples(), 1, BufferedImage.TYPE_INT_RGB);
 
-            double min = Float.MAX_VALUE, max = 0;
-
+            double min = 0, max = 0;
+            
+//            for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
+//                double r = pboard.getData()[i];
+//                min = Math.min(r, min);
+//                max = Math.max(r, max);
+//            }
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
                 double r = pboard.getData()[i];
-                min = Math.min(r, min);
-                max = Math.max(r, max);
+                max += r;
             }
-            
+            for (int i = 0; i < sboard.getNumberOfSamples(); i++) {
+                double r = sboard.getData()[i];
+                min += r;
+            }
+            max /= (double)pboard.getNumberOfSamples() * 0.05;
+            min /= (double)sboard.getNumberOfSamples() * 0.05;
             float horizontalScale = (float)line.getWidth() / (pboard.getRange() * 2f);
             float verticalScale = horizontalScale;
         
@@ -127,7 +136,7 @@ public class JsfSidescanParser implements SidescanParser {
             if (size <= 0) {
                 size = 1;
             }
-            
+            size = 1;
             double lineScale = (double) lineWidth / ((double) pboard.getNumberOfSamples() + (double) sboard.getNumberOfSamples());
             double lineSize = Math.ceil(Math.max(1, lineScale * size));
             
@@ -135,27 +144,28 @@ public class JsfSidescanParser implements SidescanParser {
             
             // Draw Portboard
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
-                double r = pboard.getRange() - (i * (pboard.getRange() / pboard.getNumberOfSamples()));
+//                double r = pboard.getRange() - (i * (pboard.getRange() / pboard.getNumberOfSamples()));
+                double r =  i / (double)pboard.getNumberOfSamples();
                 double gain;
-                if (r <= 1)
-                    gain = 1;
-                else    
-                    gain = 30 * Math.log(r);
-                
-                double pb = pboard.getData()[i] * Math.pow(10, gain / 200);
-                line.setRGB(i, 0, colormap.getColor(pb / (max / 2)).getRGB());
+//                if (r <= 1)
+//                    gain = 1;
+//                else    
+                    gain = Math.abs(30.0 * Math.log(r));
+//                System.out.println("#1 - " + gain + "  " + r);
+//                  gain = 0;
+                double pb = pboard.getData()[i] * Math.pow(10, gain / 100);
+                line.setRGB(i, 0, colormap.getColor(pb / max).getRGB());
             }
             
             // Draw Starboard
             for (int i = 0; i < sboard.getNumberOfSamples(); i++) {
-                double r = i * (sboard.getRange() / sboard.getNumberOfSamples());
+                double r = 1 - (i / (double)sboard.getNumberOfSamples());
                 double gain;
-                if (r <= 1)
-                    gain = 1;
-                else    
-                    gain = 30 * Math.log(r);
-                double sb = sboard.getData()[i] * Math.pow(10, gain / 200);
-                line.setRGB(i + pboard.getNumberOfSamples(), 0, colormap.getColor(sb / (max / 2)).getRGB());
+                
+                gain = Math.abs(30.0 * Math.log(r));
+//                System.out.println("#2 - " + gain + "  " + r);
+                double sb = sboard.getData()[i] * Math.pow(10, gain / 100);
+                line.setRGB(i + pboard.getNumberOfSamples(), 0, colormap.getColor(sb / min).getRGB());
             }
             
             ypos += (int) lineSize;
