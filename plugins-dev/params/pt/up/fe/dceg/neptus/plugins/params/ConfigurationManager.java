@@ -74,10 +74,32 @@ public class ConfigurationManager {
     private List<String> sections = new ArrayList<String>();
     private Document doc;
     
-    public static ConfigurationManager INSTANCE = new ConfigurationManager();
+    private static ConfigurationManager instance = null;
+    private static boolean loading = false;
     
     private ConfigurationManager() {
         loadConfigurations(); 
+    }
+    
+    public static ConfigurationManager getInstance() {
+        if (instance == null) {
+            if (!loading) {
+                loading = true;
+                instance = new ConfigurationManager();
+                loading = false;
+            }            
+        }
+        while (loading) {
+            try {
+                Thread.sleep(100);
+                System.err.println("Waiting for parameters to be loaded...");
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+            
+        return instance;
     }
     
     private void loadConfigurations() {
