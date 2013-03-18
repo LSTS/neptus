@@ -69,7 +69,7 @@ public class JsfSidescanParser implements SidescanParser {
     public ArrayList<Integer> getSubsystemList() {
         return parser.index.subSystemsList;
     }
-    
+
     @Override
     public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem) {
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();

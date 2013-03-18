@@ -183,6 +183,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     public boolean slantRangeCorrection = false;
     @NeptusProperty
     public boolean timeVariableGain = false;
+    @NeptusProperty
+    public ColorMap colorMap = ColorMapFactory.createBronzeColormap();
    
     String altStr = I18n.text("Altitude");
     String depthStr = I18n.text("Depth");
@@ -191,7 +193,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     int rangeStep;
     
     SlantRangeImageFilter filter;
-    public double sums[] = null;
     
     int subsystem;
         
@@ -224,7 +225,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         view.addMouseListener(this);
         view.addMouseMotionListener(this);
         
-        setLayout(new MigLayout("ins 0"));
+        setLayout(new MigLayout("ins 0, gap 0"));
         add(toolbar, "w 100%, wrap");
         add(view, "w 100%, h 100%");
     }
@@ -283,37 +284,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         drawList.clear();
         removeList.clear();
     }
-    
-//    @Override
-//    protected void paintComponent(Graphics g) {
-//        try {
-//            super.paintComponent(g);
-//
-//            if (image != null && layer != null) {
-//                g.drawImage(image, 0, 0, null); // Draw sidescan image
-//
-//                Graphics2D lg2d = (Graphics2D) layer.getGraphics();
-//                lg2d.setBackground(new Color(255, 255, 255, 0));
-//                lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight()); // Clear layer image
-//
-//                if (zoom)
-//                    drawZoom(layer.getGraphics()); // UPdate layer with zoom information
-//                if (info)
-//                    drawLocation(layer.getGraphics()); // update layer with location information
-//                if (measure) {
-//                    drawMeasure(layer.getGraphics());
-//                }
-//                layer.getGraphics().setColor(Color.GREEN.brighter());
-//                layer.getGraphics().drawString(""+subsystem, 10, 10);
-//                drawMarks(layer.getGraphics());
-//                g.drawImage(layer, 0, 0, null);
-//            }
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-    
+        
     void drawZoom(Graphics g) {
         mouseX = (int) MathMiscUtils.clamp(mouseX, 50, image.getWidth() - 50);
         mouseY = (int) MathMiscUtils.clamp(mouseY, 50, image.getHeight() - 50);

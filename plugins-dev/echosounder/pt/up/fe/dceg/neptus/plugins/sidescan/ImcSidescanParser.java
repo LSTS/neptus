@@ -133,7 +133,7 @@ public class ImcSidescanParser implements SidescanParser {
             pose.setYaw(state.getDouble("psi"));
             pose.getPosition().setOffsetNorth(state.getDouble("x"));
             pose.getPosition().setOffsetEast(state.getDouble("y"));
-            
+            pose.setU(state.getDouble("u"));
             float horizontalScale = (float) ping.getRawData("data").length / (range * 2f);
             float verticalScale = horizontalScale;
 
