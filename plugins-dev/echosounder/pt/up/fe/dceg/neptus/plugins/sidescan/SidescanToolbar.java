@@ -31,16 +31,24 @@
  */
 package pt.up.fe.dceg.neptus.plugins.sidescan;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
+
+import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanPanel.InteractionMode;
 
 /**
  * @author jqcorreia
  *
  */
-public class SidescanToolbar extends JToolBar {
+public class SidescanToolbar extends JToolBar implements ActionListener {
     private static final long serialVersionUID = 1L;
 
     SidescanPanel panel;
@@ -49,25 +57,56 @@ public class SidescanToolbar extends JToolBar {
     JToggleButton btnMeasure = new JToggleButton("Measure");
     JToggleButton btnInfo = new JToggleButton("Info");
     JToggleButton btnZoom = new JToggleButton("Zoom");
+    JToggleButton btnMark = new JToggleButton("Mark");
     
-    JButton btnConfig = new JButton("Config");
+    JButton btnConfig = new JButton(new AbstractAction("Config") {
+        private static final long serialVersionUID = -878895322319699542L;
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            PropertiesEditor.editProperties(panel,
+                    SwingUtilities.getWindowAncestor(panel), true);
+        }
+    });
     
     public SidescanToolbar(SidescanPanel panel) {
         super();
         this.panel = panel;
         buildToolbar();
-    }
-    
+    }    
     private void buildToolbar() {
         bgroup.add(btnInfo);
         bgroup.add(btnZoom);
         bgroup.add(btnMeasure);
-        
+        bgroup.add(btnMark);
         add(btnInfo);
         add(btnZoom);
         add(btnMeasure);
+        add(btnMark);
         
         addSeparator();
         add(btnConfig);
+        
+        btnInfo.addActionListener(this);
+        btnZoom.addActionListener(this);
+        btnMeasure.addActionListener(this);
+        btnMark.addActionListener(this);
     }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        SidescanPanel.InteractionMode imode = SidescanPanel.InteractionMode.NONE;
+        
+        if(btnInfo.isSelected())
+            imode = InteractionMode.INFO;
+        if(btnZoom.isSelected())
+            imode = InteractionMode.ZOOM;
+        if(btnMark.isSelected())
+            imode = InteractionMode.MARK;
+        if(btnMeasure.isSelected())
+            imode = InteractionMode.MEASURE;
+        
+        panel.setInteractionMode(imode);
+    }
+    
 }

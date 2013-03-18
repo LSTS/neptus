@@ -51,15 +51,20 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
+import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SonarData;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
+import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
@@ -69,11 +74,19 @@ import pt.up.fe.dceg.neptus.util.MathMiscUtils;
  * @author jqcorreia
  *
  */
-public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener{
+public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener, PropertiesProvider{
     private static final long serialVersionUID = 1L;
-    SidescanAnalyzer parent;
     
+    
+    enum InteractionMode {
+        NONE, ZOOM, INFO, MARK, MEASURE;
+    }
+
+    SidescanAnalyzer parent;
     SidescanToolbar toolbar = new SidescanToolbar(this);
+    
+    InteractionMode imode = InteractionMode.INFO;
+    
     JPanel view = new JPanel() {
         private static final long serialVersionUID = 1L;
 
@@ -163,7 +176,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     
     SidescanParser ssParser;
     
-    //FIXME this properties are duplicate from SideScanAnalyzer (!)
     // Processing flags
     @NeptusProperty
     public boolean verticalBlending = false;
@@ -171,6 +183,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     public boolean slantRangeCorrection = false;
     @NeptusProperty
     public boolean timeVariableGain = false;
+    @NeptusProperty
+    public ColorMap colorMap = ColorMapFactory.createBronzeColormap();
    
     String altStr = I18n.text("Altitude");
     String depthStr = I18n.text("Depth");
@@ -179,7 +193,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     int rangeStep;
     
     SlantRangeImageFilter filter;
-    public double sums[] = null;
     
     int subsystem;
         
@@ -212,7 +225,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         view.addMouseListener(this);
         view.addMouseMotionListener(this);
         
-        setLayout(new MigLayout("ins 0"));
+        setLayout(new MigLayout("ins 0, gap 0"));
         add(toolbar, "w 100%, wrap");
         add(view, "w 100%, h 100%");
     }
@@ -231,6 +244,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     int lcount = 0;
     
     public void updateImage(long currentTime, long lastUpdateTime) {
+        
         int yref = 0;
         drawList.addAll(ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime + currentTime, image.getWidth(), subsystem));
         for(SidescanLine l : drawList) {
@@ -270,37 +284,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         drawList.clear();
         removeList.clear();
     }
-    
-//    @Override
-//    protected void paintComponent(Graphics g) {
-//        try {
-//            super.paintComponent(g);
-//
-//            if (image != null && layer != null) {
-//                g.drawImage(image, 0, 0, null); // Draw sidescan image
-//
-//                Graphics2D lg2d = (Graphics2D) layer.getGraphics();
-//                lg2d.setBackground(new Color(255, 255, 255, 0));
-//                lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight()); // Clear layer image
-//
-//                if (zoom)
-//                    drawZoom(layer.getGraphics()); // UPdate layer with zoom information
-//                if (info)
-//                    drawLocation(layer.getGraphics()); // update layer with location information
-//                if (measure) {
-//                    drawMeasure(layer.getGraphics());
-//                }
-//                layer.getGraphics().setColor(Color.GREEN.brighter());
-//                layer.getGraphics().drawString(""+subsystem, 10, 10);
-//                drawMarks(layer.getGraphics());
-//                g.drawImage(layer, 0, 0, null);
-//            }
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-    
+        
     void drawZoom(Graphics g) {
         mouseX = (int) MathMiscUtils.clamp(mouseX, 50, image.getWidth() - 50);
         mouseY = (int) MathMiscUtils.clamp(mouseY, 50, image.getHeight() - 50);
@@ -423,6 +407,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
 
     }
+    
     /**
      * @return the range
      */
@@ -448,7 +433,17 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         image.getGraphics().clearRect(0, 0, image.getWidth(), image.getHeight());
     }
 
-
+    /**
+     * Set this panel Interaction Mode
+     * @param imode mode to set (see InteractionMode enum)
+     */
+    public void setInteractionMode(InteractionMode imode) {
+        // For now clear Measure Interaction Mode structures here //FIXME
+        measure = false;
+        pointList.clear();
+        this.imode = imode;
+    }
+    
     @Override
     public void mouseMoved(MouseEvent e) {
         int y = e.getY();
@@ -486,19 +481,20 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     ((JPanel) e.getSource()).repaint();
                 }
             }
-            if (e.isShiftDown() && e.isControlDown() && !parent.getTimeline().isRunning()) {
+            
+            if (imode == InteractionMode.MARK && !parent.getTimeline().isRunning()) {
                 marking = true;
                 initialX = mouseX;
                 initialY = mouseY;
             }
-            else if (e.isShiftDown()) {
+            else if (imode == InteractionMode.ZOOM) {
                 zoom = true;
             }
-            else if (e.isControlDown() && !parent.getTimeline().isRunning()) {
+            else if (imode == InteractionMode.MEASURE && !parent.getTimeline().isRunning()) {
                 measure = true;
                 pointList.add(mouseSidescanLine.calcPointForCoord(mouseX));
             }
-            else {
+            else if (imode == InteractionMode.INFO){
                 info = true;
             }
             ((JPanel) e.getSource()).repaint();
@@ -511,7 +507,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         if (marking) {
             String res = JOptionPane.showInputDialog("Insert marker name");
-            // Check for a valid response
+            // Check for a valid response 
             if(res != null) {
                 int x = (mouseX + initialX) / 2;
                 int y = (mouseY + initialY) / 2;
@@ -529,7 +525,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             marking = false;
         }
 
-        if (!e.isControlDown()) {
+        if (imode != InteractionMode.MEASURE) {
             measure = false;
             pointList.clear();
         }
@@ -551,5 +547,26 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     public void mouseExited(MouseEvent e) {  
         
     }
+    
+    // Properties
+    @Override
+    public DefaultProperty[] getProperties() {
+        return PluginUtils.getPluginProperties(this);
+    }
 
+    @Override
+    public void setProperties(Property[] properties) {
+        PluginUtils.setPluginProperties(this, properties);
+        System.out.println("setProperties");
+    }
+
+    @Override
+    public String getPropertiesDialogTitle() {
+        return I18n.textf("%plugin parameters", PluginUtils.getPluginName(this.getClass()));
+    }
+
+    @Override
+    public String[] getPropertiesErrors(Property[] properties) {
+        return PluginUtils.validatePluginProperties(this, properties);
+    }
 }

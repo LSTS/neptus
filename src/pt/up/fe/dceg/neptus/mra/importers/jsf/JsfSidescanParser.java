@@ -69,16 +69,6 @@ public class JsfSidescanParser implements SidescanParser {
     public ArrayList<Integer> getSubsystemList() {
         return parser.index.subSystemsList;
     }
-    
-    @Override
-    public SidescanLine nextSidescanLine(double freq, int lineWidth) {
-        return null;
-    }
-
-    @Override
-    public SidescanLine getSidescanLineAt(long timestamp, double freq, int lineWidth) {
-        return null;
-    }
 
     @Override
     public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem) {
