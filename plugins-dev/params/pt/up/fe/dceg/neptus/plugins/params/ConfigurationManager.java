@@ -718,6 +718,32 @@ public class ConfigurationManager {
         return list;
     }
     
+    public ArrayList<SystemProperty> getClonedProperties(String system, Visibility vis, Scope scope) {
+        ArrayList<SystemProperty> props = getPropertiesByEntity(system, null, vis, scope);
+        
+        ArrayList<SystemProperty> clones = new ArrayList<>();
+        
+        for (SystemProperty p : props) {
+            SystemProperty sp = new SystemProperty();
+            sp.setCategory(p.getCategory());
+            sp.setCategoryId(p.getCategoryId());
+            sp.setDefaultValue(p.getDefaultValue());
+            sp.setDisplayName(p.getDisplayName());
+            sp.setEditable(p.isEditable());
+            sp.setEditor(p.getEditor());
+            sp.setName(p.getName());
+            sp.setRenderer(p.getRenderer());
+            sp.setScope(p.getScope());
+            sp.setShortDescription(p.getShortDescription());
+            sp.setValue(p.getValue());
+            sp.setType(p.getType());
+            sp.setValueType(p.getValueType());
+            sp.setVisibility(p.getVisibility());
+            clones.add(sp);
+        }
+        return clones;
+    }
+    
     public ArrayList<SystemProperty> getProperties(String system, Visibility vis, Scope scope) {
         return getPropertiesByEntity(system, null, vis, scope);
     }

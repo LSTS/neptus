@@ -109,7 +109,7 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
     @Override
     public DefaultProperty[] getProperties() {
         if (props == null) {
-            props = ConfigurationManager.getInstance().getProperties(vehicle, Visibility.USER,
+            props = ConfigurationManager.getInstance().getClonedProperties(vehicle, Visibility.USER,
                     Scope.MANEUVER);
 
             for (SystemProperty sp : props) {
@@ -184,7 +184,7 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
             }
         }
         
-        Vector<SetEntityParameters> ps = new Vector<>();
+        Vector<IMCMessage> ps = new Vector<>();
         for (String entity : mapCategoryParameterList.keySet()) {
             SetEntityParameters tmp = new SetEntityParameters();
             tmp.setName(entity);
@@ -193,6 +193,7 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
         }
         
         
+        maneuver.getStartActions().parseMessages(ps);
         
     }
 
