@@ -248,10 +248,16 @@ public class NeptusMain {
         if (!MiscSystemsHolder.loadMiscSystems()) {
             GuiUtils.errorMessage(loader, I18n.text("Loading Misc Systems"), I18n.text("Error loading misc systems!"));
         }
-
+        
         loader.setText(I18n.text("Loading Systems Parameters Files..."));
-
-        ConfigurationManager.INSTANCE.toString();
+        
+        Thread bg = new Thread("System parameters files loader") {
+            public void run() {                
+                ConfigurationManager.getInstance().toString();                
+            };
+        };
+        bg.setDaemon(true);
+        bg.start();
     }
 
     /**
