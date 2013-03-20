@@ -885,15 +885,15 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                     I18n.textf("%s custom settings", getType()), clazz, valObj, true);
             props.add(custSet);
         }
-
-        DefaultProperty sAcions = PropertiesEditor.getPropertyInstance("start-actions", getType() + " start actions",
-                PlanActions.class, startActions, true);
-        sAcions.setShortDescription(I18n.text("Start actions to be trigger at start of the maneuver."));
-        props.add(sAcions);
-        DefaultProperty eAcions = PropertiesEditor.getPropertyInstance("end-actions", getType() + " end actions",
-                PlanActions.class, endActions, true);
-        eAcions.setShortDescription(I18n.text("End actions to be trigger at end of the maneuver."));
-        props.add(eAcions);
+//
+//        DefaultProperty sAcions = PropertiesEditor.getPropertyInstance("start-actions", getType() + " start actions",
+//                PlanActions.class, startActions, true);
+//        sAcions.setShortDescription(I18n.text("Start actions to be trigger at start of the maneuver."));
+//        props.add(sAcions);
+//        DefaultProperty eAcions = PropertiesEditor.getPropertyInstance("end-actions", getType() + " end actions",
+//                PlanActions.class, endActions, true);
+//        eAcions.setShortDescription(I18n.text("End actions to be trigger at end of the maneuver."));
+//        props.add(eAcions);
 
         return props.toArray(new DefaultProperty[] {});
     }
