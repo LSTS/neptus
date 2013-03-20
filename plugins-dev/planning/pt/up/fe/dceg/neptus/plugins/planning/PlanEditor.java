@@ -52,6 +52,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
@@ -88,10 +89,12 @@ import pt.up.fe.dceg.neptus.gui.ZValueSelector;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.FuelLevel;
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.ManeuverFactory;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulation3D;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulationOverlay;
@@ -101,6 +104,7 @@ import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
+import pt.up.fe.dceg.neptus.plugins.params.ManeuverPayloadConfig;
 import pt.up.fe.dceg.neptus.plugins.planning.edit.ManeuverAdded;
 import pt.up.fe.dceg.neptus.plugins.planning.edit.ManeuverChanged;
 import pt.up.fe.dceg.neptus.plugins.planning.edit.ManeuverPropertiesPanel;
@@ -131,6 +135,9 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.PropertySheet;
+import com.l2fprod.common.propertysheet.PropertySheetDialog;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
 /**
  * 
@@ -140,7 +147,7 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 @PluginDescription(name = "Plan Edition", icon = "pt/up/fe/dceg/neptus/plugins/planning/images/plan_editor.png", author = "José Pinto, Paulo Dias", version = "1.5", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 100)
 public class PlanEditor extends InteractionAdapter implements Renderer2DPainter, IPeriodicUpdates,
-        MissionChangeListener {
+MissionChangeListener {
 
     private static final long serialVersionUID = 1L;
     private final String defaultCondition = "ManeuverIsDone";
@@ -189,7 +196,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     public long millisBetweenUpdates() {
         return 1000;
     }
-    
+
     protected ManeuverPropertiesPanel getPropertiesPanel() {
         if (propertiesPanel == null)
             propertiesPanel = new ManeuverPropertiesPanel();
@@ -221,7 +228,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
         return true;
     }
-    
+
     private final UndoManager manager = new UndoManager() {
         private static final long serialVersionUID = 1L;
 
@@ -328,7 +335,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 plan = null;
             planElem = null;
             renderer.setToolTipText("");
-            
+
             overlay = null;
         }
     }
@@ -438,7 +445,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         if (plan != null && manager.canUndo()) {
             int option = JOptionPane.showConfirmDialog(getConsole(), 
                     I18n.textf("Continuing will discard all changes made to %planName. Continue?", plan.getId()),
-                            I18n.text("Edit plan"), JOptionPane.YES_NO_OPTION);
+                    I18n.text("Edit plan"), JOptionPane.YES_NO_OPTION);
             if (option == JOptionPane.NO_OPTION)
                 return;
         }
@@ -520,14 +527,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         if (undoAction == null)
             undoAction = new AbstractAction(I18n.text("Undo"), ImageUtils.getScaledIcon(
                     "pt/up/fe/dceg/neptus/plugins/planning/images/undo.png", 16, 16)) {
-                private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1L;
 
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    manager.undo();
-                    planElem.recalculateManeuverPositions(renderer);
-                }
-            };
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                manager.undo();
+                planElem.recalculateManeuverPositions(renderer);
+            }
+        };
         return undoAction;
     }
 
@@ -536,14 +543,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         if (redoAction == null)
             redoAction = new AbstractAction(I18n.text("Redo"), ImageUtils.getScaledIcon(
                     "pt/up/fe/dceg/neptus/plugins/planning/images/redo.png", 16, 16)) {
-                private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1L;
 
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    manager.redo();
-                    planElem.recalculateManeuverPositions(renderer);
-                }
-            };
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                manager.redo();
+                planElem.recalculateManeuverPositions(renderer);
+            }
+        };
         return redoAction;
     }
 
@@ -636,7 +643,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             planElem.setRenderer(renderer);
             planElem.paint((Graphics2D) g.create(), renderer);
         }
-        
+
         if (overlay != null && isActive())
             overlay.paint(g, renderer);
         g.setFont(new Font("Helvetica", Font.BOLD, 14));
@@ -770,7 +777,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     }
                 };
                 Toolkit.getDefaultToolkit().getSystemClipboard()
-                        .setContents(new StringSelection(maneuverPreamble + man.getManeuverXml()), owner);
+                .setContents(new StringSelection(maneuverPreamble + man.getManeuverXml()), owner);
             }
         };
         copy.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/editcopy.png")));
@@ -975,13 +982,62 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         propVelUnits.setType(String.class);
                         propVelUnits.setDisplayName(I18n.text("Speed units"));
                         planElem.setPlanProperty(propVelUnits);
-                        
+
                         refreshPropertiesManeuver();
                     }
                 };
                 pVel.putValue(AbstractAction.SMALL_ICON,
                         new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                 planSettings.add(pVel);
+
+
+                AbstractAction pPayload = new AbstractAction(I18n.text("Payload settings...")) {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        //PropertiesEditor editor = new PropertiesEditor();
+
+                        Goto pivot = new Goto();
+                        PropertySheetPanel psp = new PropertySheetPanel();
+                        psp.setEditorFactory(PropertiesEditor.getPropertyEditorRegistry());    
+                        psp.setRendererFactory(PropertiesEditor.getPropertyRendererRegistry());    
+                        psp.setMode(PropertySheet.VIEW_AS_CATEGORIES);
+                        psp.setToolBarVisible(false);                        
+                        psp.setSortingCategories(true);
+
+                        psp.setDescriptionVisible(true);
+
+                        ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(plan.getVehicle(), pivot, psp);
+                        DefaultProperty[] properties = payloadConfig.getProperties();
+                      
+                        // FIXME localize these properties!
+                        //Vector<DefaultProperty> result = new Vector<DefaultProperty>();
+                        //PropertiesEditor.localizeProperties(Arrays.asList(properties), result);
+                       // DefaultProperty[] propertiesLocalized = properties;//result.toArray(new DefaultProperty[0]);
+
+                        psp.setProperties(properties);
+
+                        final PropertySheetDialog propertySheetDialog = PropertiesEditor.createWindow(getConsole(), true, psp,
+                                "Payload Settings to apply to entire plan");
+                        if (propertySheetDialog.ask()) {
+                           // DefaultProperty[] propsUnlocalized = PropertiesEditor.unlocalizeProps(original, psp.getProperties());                            
+                            payloadConfig.setProperties(properties);
+                            Vector<IMCMessage> startActions = new Vector<>();
+                            
+                            startActions.addAll(Arrays.asList(pivot.getStartActions().getAllMessages()));
+                            
+                            
+                            for (Maneuver m : plan.getGraph().getAllManeuvers()) {
+                                m.getStartActions().parseMessages(startActions);
+                                System.out.println(m.getId());
+                            }
+                        }
+                    }                    
+                };
+                pPayload.putValue(AbstractAction.SMALL_ICON,
+                        new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+                planSettings.add(pPayload);
 
                 AbstractAction pVehicle = new AbstractAction(I18n.text("Set plan vehicles...")) {
                     private static final long serialVersionUID = 1L;
@@ -1024,7 +1080,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         transitions.setVisible(true);
                         parsePlan();
                         renderer.repaint();
-                        
+
                         refreshPropertiesManeuver();
                     }
                 };
@@ -1040,7 +1096,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         PropertiesEditor.editProperties(plan, SwingUtilities.getWindowAncestor(PlanEditor.this), true);
                         parsePlan();
                         renderer.repaint();
-                        
+
                         refreshPropertiesManeuver();
                     }
                 };
@@ -1074,27 +1130,27 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 }
 
                 popup.add(getPasteAction((Point) mousePoint));
-                
+
                 AbstractAction act = new AbstractAction(I18n.text("Simulate plan"), null) {
                     private static final long serialVersionUID = 1L;
 
                     @Override
                     public void actionPerformed(ActionEvent evt) {
-                        
+
                         String vehicle = getConsole().getMainSystem();
                         LocationType startLoc = plan.getMissionType().getStartLocation();
                         SystemPositionAndAttitude start = new SystemPositionAndAttitude(startLoc, 0, 0, 0);
                         EstimatedState lastState = null;
                         FuelLevel lastFuel = null;
                         double motionRemaingHours = 4;
-                        
+
                         try {
                             lastState = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
                             lastFuel = ImcMsgManager.getManager().getState(vehicle).lastFuelLevel();
-                            
+
                             if (lastState != null)
                                 start = new SystemPositionAndAttitude(lastState);
-                            
+
                             if (lastFuel != null) {
                                 LinkedHashMap<String, String> opmodes = lastFuel.getOpmodes();
                                 motionRemaingHours = Double.parseDouble(opmodes.get("Motion"));
@@ -1103,10 +1159,10 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         catch (Exception e) {
                             NeptusLog.pub().error("Error getting info from main vehicle", e);
                         }
-                        
+
                         overlay = new PlanSimulationOverlay(plan, 0, motionRemaingHours, start);
                         PlanSimulation3D.showSimulation(getConsole(), overlay, plan);
-                        
+
                     }
                 };
                 popup.add(act);
@@ -1440,7 +1496,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
 
             loc1.translatePosition(offsets[0] / 2, offsets[1] / 2, 0);
             loc1.setDepth(loc1.getDepth());
-            
+
             ((LocatedManeuver) newMan).setManeuverLocation(loc1);
         }
         else {

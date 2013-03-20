@@ -192,7 +192,6 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
             ps.add(tmp);
         }
         
-        
         maneuver.getStartActions().parseMessages(ps);
         
     }
