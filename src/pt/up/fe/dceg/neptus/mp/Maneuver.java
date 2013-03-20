@@ -64,6 +64,7 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mp.actions.PlanActions;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
+import pt.up.fe.dceg.neptus.plugins.params.ManeuverPayloadConfig;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -139,7 +140,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     public String id = NameNormalizer.getRandomID();
     private Hashtable<String, String> transitions = new Hashtable<String, String>();
     private MissionType missionType = null;
-
+    
     public abstract void loadFromXML(String xml);
 
     // JDialog dialog;
@@ -884,15 +885,15 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                     I18n.textf("%s custom settings", getType()), clazz, valObj, true);
             props.add(custSet);
         }
-
-        DefaultProperty sAcions = PropertiesEditor.getPropertyInstance("start-actions", getType() + " start actions",
-                PlanActions.class, startActions, true);
-        sAcions.setShortDescription(I18n.text("Start actions to be trigger at start of the maneuver."));
-        props.add(sAcions);
-        DefaultProperty eAcions = PropertiesEditor.getPropertyInstance("end-actions", getType() + " end actions",
-                PlanActions.class, endActions, true);
-        eAcions.setShortDescription(I18n.text("End actions to be trigger at end of the maneuver."));
-        props.add(eAcions);
+//
+//        DefaultProperty sAcions = PropertiesEditor.getPropertyInstance("start-actions", getType() + " start actions",
+//                PlanActions.class, startActions, true);
+//        sAcions.setShortDescription(I18n.text("Start actions to be trigger at start of the maneuver."));
+//        props.add(sAcions);
+//        DefaultProperty eAcions = PropertiesEditor.getPropertyInstance("end-actions", getType() + " end actions",
+//                PlanActions.class, endActions, true);
+//        eAcions.setShortDescription(I18n.text("End actions to be trigger at end of the maneuver."));
+//        props.add(eAcions);
 
         return props.toArray(new DefaultProperty[] {});
     }

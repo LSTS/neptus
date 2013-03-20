@@ -32,20 +32,14 @@
 package pt.up.fe.dceg.neptus.plugins.sidescan;
 
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
-import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.plaf.basic.BasicSliderUI;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.gui.Timeline;
 import pt.up.fe.dceg.neptus.gui.TimelineChangeListener;
 import pt.up.fe.dceg.neptus.i18n.I18n;
@@ -57,18 +51,14 @@ import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author jqcorreia
  * 
  */
 @PluginDescription(author = "jqcorreia", name = "Sidescan Analyzer")
-public class SidescanAnalyzer extends JPanel implements MRAVisualization, TimelineChangeListener, PropertiesProvider,
+public class SidescanAnalyzer extends JPanel implements MRAVisualization, TimelineChangeListener,
         LogMarkerListener {
     private static final long serialVersionUID = 1L;
 
@@ -76,16 +66,6 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
     private Timeline timeline;
     //Histogram histogram;
-    
-    private JButton configButton = new JButton(new AbstractAction(I18n.text("Settings")) {
-        private static final long serialVersionUID = -878895322319699542L;
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            PropertiesEditor.editProperties(SidescanAnalyzer.this,
-                    SwingUtilities.getWindowAncestor(SidescanAnalyzer.this), true);
-        }
-    });
 
     private long firstPingTime;
     private long lastPingTime;
@@ -155,7 +135,6 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         }
         
         add(timeline, "w 100%, h 32!, split");
-        add(configButton);
     }
 
     @Override
@@ -278,32 +257,5 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         
     }
 
-    // Properties
-    @Override
-    public DefaultProperty[] getProperties() {
-        return PluginUtils.getPluginProperties(this);
-    }
 
-    @Override
-    public void setProperties(Property[] properties) {
-        PluginUtils.setPluginProperties(this, properties);
-        for(SidescanPanel p : sidescanPanels) {
-            p.verticalBlending = verticalBlending;
-            p.slantRangeCorrection = slantRangeCorrection;
-            p.timeVariableGain = timeVariableGain;
-            if(p.timeVariableGain == true && p.sums == null) {
-                p.calcIntensities(mraPanel.getSource());
-            }
-        }
-    }
-
-    @Override
-    public String getPropertiesDialogTitle() {
-        return I18n.textf("%plugin parameters", PluginUtils.getPluginName(this.getClass()));
-    }
-
-    @Override
-    public String[] getPropertiesErrors(Property[] properties) {
-        return PluginUtils.validatePluginProperties(this, properties);
-    }
 }

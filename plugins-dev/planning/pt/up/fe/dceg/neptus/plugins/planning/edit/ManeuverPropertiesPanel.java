@@ -36,6 +36,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -47,11 +48,13 @@ import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
+import pt.up.fe.dceg.neptus.plugins.params.ManeuverPayloadConfig;
 import pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
@@ -72,6 +75,7 @@ public class ManeuverPropertiesPanel extends JPanel {
     protected boolean changed = false;
     protected UndoManager manager = new UndoManager();
     protected PlanType plan;
+    protected ManeuverPayloadConfig payloadConfig = null;
     
     public ManeuverPropertiesPanel() {
         setLayout(new BorderLayout());     
@@ -86,6 +90,7 @@ public class ManeuverPropertiesPanel extends JPanel {
         add(controls, BorderLayout.SOUTH);
         
         propsPanel.setDescriptionVisible(true);
+        propsPanel.setMode(PropertySheetPanel.VIEW_AS_CATEGORIES);
         propsPanel.addPropertySheetChangeListener(new PropertyChangeListener() {            
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -109,7 +114,9 @@ public class ManeuverPropertiesPanel extends JPanel {
     public void setProps() {
         
         String before = maneuver.getManeuverXml();        
+        payloadConfig.setProperties(propsPanel.getProperties());
         maneuver.setProperties(propsPanel.getProperties());
+        propsPanel.removePropertyChangeListener(payloadConfig);
         
         if (manager != null)
             manager.addEdit(new ManeuverChanged(maneuver, plan, before));
@@ -124,8 +131,12 @@ public class ManeuverPropertiesPanel extends JPanel {
                 propsPanel.getTable().commitEditing();
                 setProps();
             }
-            
         }
+        String vehicle = "unknown";
+        if (plan != null)
+            vehicle = plan.getVehicle();
+                
+        payloadConfig = new ManeuverPayloadConfig(vehicle, man, propsPanel);
         this.maneuver = man;
         editBtn.setSelected(false);
         changed = false;
@@ -138,7 +149,21 @@ public class ManeuverPropertiesPanel extends JPanel {
         }
         
         this.beforeXml = man.getManeuverXml();
-        propsPanel.setProperties(man.getProperties());
+        
+        // also add props 
+        DefaultProperty[] manProps = man.getProperties();
+        
+        DefaultProperty[] payloadProps = new ManeuverPayloadConfig(vehicle, man, propsPanel).getProperties();
+        
+        Property[] combinedProps = new Property[manProps.length + payloadProps.length];
+        int i;
+        for (i = 0; i < manProps.length; i++)
+            combinedProps[i] = manProps[i];
+        for (int j = 0; j < payloadProps.length; j++)
+            combinedProps[j+i] = payloadProps[j];
+        
+        propsPanel.setProperties(combinedProps);
+        
         setBorder(new TitledBorder(man.getId()));
         
         deleteBtn.setEnabled(true);

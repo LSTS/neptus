@@ -74,10 +74,32 @@ public class ConfigurationManager {
     private List<String> sections = new ArrayList<String>();
     private Document doc;
     
-    public static ConfigurationManager INSTANCE = new ConfigurationManager();
+    private static ConfigurationManager instance = null;
+    private static boolean loading = false;
     
     private ConfigurationManager() {
         loadConfigurations(); 
+    }
+    
+    public static ConfigurationManager getInstance() {
+        if (instance == null) {
+            if (!loading) {
+                loading = true;
+                instance = new ConfigurationManager();
+                loading = false;
+            }            
+        }
+        while (loading) {
+            try {
+                Thread.sleep(100);
+                System.err.println("Waiting for parameters to be loaded...");
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+            
+        return instance;
     }
     
     private void loadConfigurations() {
@@ -694,6 +716,32 @@ public class ConfigurationManager {
             }
         }
         return list;
+    }
+    
+    public ArrayList<SystemProperty> getClonedProperties(String system, Visibility vis, Scope scope) {
+        ArrayList<SystemProperty> props = getPropertiesByEntity(system, null, vis, scope);
+        
+        ArrayList<SystemProperty> clones = new ArrayList<>();
+        
+        for (SystemProperty p : props) {
+            SystemProperty sp = new SystemProperty();
+            sp.setCategory(p.getCategory());
+            sp.setCategoryId(p.getCategoryId());
+            sp.setDefaultValue(p.getDefaultValue());
+            sp.setDisplayName(p.getDisplayName());
+            sp.setEditable(p.isEditable());
+            sp.setEditor(p.getEditor());
+            sp.setName(p.getName());
+            sp.setRenderer(p.getRenderer());
+            sp.setScope(p.getScope());
+            sp.setShortDescription(p.getShortDescription());
+            sp.setValue(p.getValue());
+            sp.setType(p.getType());
+            sp.setValueType(p.getValueType());
+            sp.setVisibility(p.getVisibility());
+            clones.add(sp);
+        }
+        return clones;
     }
     
     public ArrayList<SystemProperty> getProperties(String system, Visibility vis, Scope scope) {

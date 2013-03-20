@@ -282,7 +282,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         
         resetPropertiesEditorAndRendererFactories();
         
-        ArrayList<SystemProperty> pr = ConfigurationManager.INSTANCE.getProperties(systemId, visibility, scopeToUse);
+        ArrayList<SystemProperty> pr = ConfigurationManager.getInstance().getProperties(systemId, visibility, scopeToUse);
         ArrayList<String> secNames = new ArrayList<>();
         for (SystemProperty sp : pr) {
             String sectionName = sp.getCategoryId();

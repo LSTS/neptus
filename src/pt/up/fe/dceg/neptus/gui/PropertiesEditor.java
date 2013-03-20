@@ -245,7 +245,7 @@ public class PropertiesEditor {
                 break;
             }
             Property[] newProps = psp.getProperties();
-            DefaultProperty[] propsUnlocalized = createArray(original, newProps);
+            DefaultProperty[] propsUnlocalized = unlocalizeProps(original, newProps);
             String[] errors = provider.getPropertiesErrors(propsUnlocalized);
             if (errors != null && errors.length > 0) {
                 printErrors(parent, errors);
@@ -258,7 +258,7 @@ public class PropertiesEditor {
         return canceled;
     }
 
-    private static PropertySheetDialog createWindow(Window parent, boolean editable,
+    public static PropertySheetDialog createWindow(Window parent, boolean editable,
             final PropertySheetPanel psp, String title) {
         final PropertySheetDialog propertySheetDialog;
         if (parent instanceof Dialog) {
@@ -356,7 +356,7 @@ public class PropertiesEditor {
         return propertySheetDialog;
     }
 
-    private static LinkedHashMap<String, DefaultProperty> createHashMap(DefaultProperty[] properties) {
+    public static LinkedHashMap<String, DefaultProperty> createHashMap(DefaultProperty[] properties) {
         LinkedHashMap<String, DefaultProperty> original = new LinkedHashMap<String, DefaultProperty>();
         for (DefaultProperty p : properties)
             original.put(p.getName(), p);
@@ -385,7 +385,7 @@ public class PropertiesEditor {
                 I18n.text("Invalid properties"), errorsString);
     }
 
-    private static DefaultProperty[] createArray(LinkedHashMap<String, DefaultProperty> original,
+    public static DefaultProperty[] unlocalizeProps(LinkedHashMap<String, DefaultProperty> original,
             Property[] newProps) {
         DefaultProperty[] propsUnlocalized = new DefaultProperty[newProps.length];
         

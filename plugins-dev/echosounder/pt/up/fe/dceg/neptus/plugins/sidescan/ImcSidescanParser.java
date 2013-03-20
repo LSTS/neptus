@@ -83,102 +83,7 @@ public class ImcSidescanParser implements SidescanParser {
         return l;
     };
 
-    @Override
-    public SidescanLine nextSidescanLine(double freq, int lineWidth) {
-        IMCMessage currentPing = pingParser.getCurrentEntry();
-        IMCMessage nextPing = getNextMessageWithFrequency(pingParser, freq);
-
-        if (nextPing == null)
-            return null;
-        
-        SidescanLine line = generateLine(currentPing, nextPing, freq, lineWidth, ColorMapFactory.createCopperColorMap());
-        return line;
-    }
-
-    @Override
-    public SidescanLine getSidescanLineAt(long timestamp, double freq, int lineWidth) {
-        IMCMessage ping = pingParser.getEntryAtOrAfter(timestamp);
-        if (ping == null)
-            return null;
-        
-        if(ping.getDouble("frequency") != freq || ping.getInteger("type") != SonarData.TYPE.SIDESCAN.value()) {
-            ping = getNextMessageWithFrequency(pingParser, freq);
-        }
-        
-        IMCMessage nextPing = getNextMessageWithFrequency(pingParser, freq); // WARNING: This advances the
-
-        return generateLine(ping, nextPing, freq, lineWidth, colormap);
-    }
-    
-    private SidescanLine generateLine(IMCMessage ping, IMCMessage nextPing, double frequency, int lineWidth, ColorMap colormap) {
-        // Preparation
-        BufferedImage line = null;
-        Image scaledLine = null;
-        
-        int iData[] = new int[ping.getRawData("data").length];
-        IMCMessage state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
-
-        SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
-        pose.setAltitude(state.getDouble("alt"));
-        pose.getPosition().setLatitudeRads(state.getDouble("lat"));
-        pose.getPosition().setLongitudeRads(state.getDouble("lon"));
-        pose.setYaw(state.getDouble("psi"));
-        pose.getPosition().setOffsetNorth(state.getDouble("x"));
-        pose.getPosition().setOffsetEast(state.getDouble("y"));
-        
-        // Null guards
-        if (ping == null || state == null)
-            return null;
-
-        int range = ping.getInteger("range");
-        if (range == 0)
-            range = ping.getInteger("max_range");
-
-        int totalsize = 0;
-        float secondsUntilNextPing = 0;
-        double speed = 0;
-        float horizontalScale = (float) ping.getRawData("data").length / (range * 2f);
-        float verticalScale = horizontalScale;
-
-        if (nextPing == null)
-            return null;
-
-        secondsUntilNextPing = (nextPing.getTimestampMillis() - ping.getTimestampMillis()) / 1000f;
-        speed = state.getDouble("u");
-        // Finally the 'height' of the ping in pixels
-        int size = (int) (secondsUntilNextPing * speed * verticalScale);
-
-        if (size <= 0 || secondsUntilNextPing > 0.5) {
-            size = 1;
-        }
-
-        // Image building. Calculate and draw a line, scale it and save it
-        byte[] data = ping.getRawData("data");
-        int[] colors = new int[data.length];
-        line = new BufferedImage(data.length, size, BufferedImage.TYPE_INT_RGB);
-
-        // double bottomDistance = state.getDouble("alt");
-        // double slantIncrement = ((double) range) / (data.length / 2);
-
-        for (int c = 0; c < data.length; c++) {
-            iData[c] = data[c] & 0xFF;
-            colors[c] = colormap.getColor(iData[c] / 255.0).getRGB();
-        }
-
-        for (int c = 0; c < size; c++) {
-            line.setRGB(0, c, colors.length, 1, colors, 0, colors.length);
-        }
-
-        double lineScale = (double) lineWidth / (double) data.length;
-        double lineSize = Math.ceil(Math.max(1, lineScale * size));
-        scaledLine = ImageUtils.getScaledImage(line, lineWidth, (int) lineSize, true);
-        totalsize += (int) (lineSize);
-
-        SidescanLine l = new SidescanLine(ping.getTimestampMillis(), scaledLine.getWidth(null), (int) lineSize, totalsize, range, pose, scaledLine);
-        return l;
-    }
-
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem) {
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem, SidescanPanelConfig config) {
         
         // Preparation
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
@@ -228,7 +133,7 @@ public class ImcSidescanParser implements SidescanParser {
             pose.setYaw(state.getDouble("psi"));
             pose.getPosition().setOffsetNorth(state.getDouble("x"));
             pose.getPosition().setOffsetEast(state.getDouble("y"));
-            
+            pose.setU(state.getDouble("u"));
             float horizontalScale = (float) ping.getRawData("data").length / (range * 2f);
             float verticalScale = horizontalScale;
 
@@ -262,7 +167,7 @@ public class ImcSidescanParser implements SidescanParser {
             for (int c = 0; c < data.length; c++) {
                 iData[c] = data[c] & 0xFF;
                 pos = c;
-                colors[pos] = colormap.getColor(iData[c] / 255.0).getRGB();
+                colors[pos] = config.colorMap.getColor(iData[c] / 255.0).getRGB();
             }
 
             for (int c = 0; c < size; c++) {
@@ -298,33 +203,4 @@ public class ImcSidescanParser implements SidescanParser {
         }
         return null;
     }
-    
-//    public static void main(String[] args) throws Exception {
-//        JFrame frame = new JFrame();
-//        final BufferedImage image = new BufferedImage(1800, 600, BufferedImage.TYPE_INT_RGB);
-//        ImcSidescanParser parser = new ImcSidescanParser(new LsfLogSource(new File("/home/jqcorreia/lsts/logs/lauv-noptilus-1/20130111/100509_rows_2m_alt/Data.lsf"), null));
-//        
-//        long init = parser.pingParser.firstLogEntry().getTimestampMillis();
-//        int y = 0;
-//        SidescanLine line = parser.getSidescanLineAt(init + 1000000, 770000, image.getWidth());
-//        image.getGraphics().drawImage(line.image, 0, 0, null);
-//        y += line.ysize;
-//        
-//        for(int i = 0; i < 1000; i++) {
-//            line = parser.nextSidescanLine(770000, image.getWidth());
-//            image.getGraphics().drawImage(line.image, 0, y, null);
-//            y += line.ysize;
-//        }
-//        frame.add(new JLabel() {
-//            @Override
-//            protected void paintComponent(Graphics g) {
-//                super.paintComponent(g);
-//                g.drawImage(image, 0, 0, null);
-//            }
-//        });
-//        
-//        frame.setSize(1800,600);
-//        frame.setVisible(true);
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//    }
 }
