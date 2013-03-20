@@ -51,20 +51,14 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SonarData;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
@@ -74,7 +68,7 @@ import pt.up.fe.dceg.neptus.util.MathMiscUtils;
  * @author jqcorreia
  *
  */
-public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener, PropertiesProvider{
+public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener{
     private static final long serialVersionUID = 1L;
     
     
@@ -84,6 +78,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     SidescanAnalyzer parent;
     SidescanToolbar toolbar = new SidescanToolbar(this);
+    SidescanPanelConfig config = new SidescanPanelConfig();
     
     InteractionMode imode = InteractionMode.INFO;
     
@@ -176,16 +171,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     
     SidescanParser ssParser;
     
-    // Processing flags
-    @NeptusProperty
-    public boolean verticalBlending = false;
-    @NeptusProperty
-    public boolean slantRangeCorrection = false;
-    @NeptusProperty
-    public boolean timeVariableGain = false;
-    @NeptusProperty
-    public ColorMap colorMap = ColorMapFactory.createBronzeColormap();
-   
     String altStr = I18n.text("Altitude");
     String depthStr = I18n.text("Depth");
     String rollStr = I18n.text("Roll");
@@ -246,7 +231,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     public void updateImage(long currentTime, long lastUpdateTime) {
         
         int yref = 0;
-        drawList.addAll(ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime + currentTime, image.getWidth(), subsystem));
+        drawList.addAll(ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime + currentTime, image.getWidth(), subsystem, config));
         for(SidescanLine l : drawList) {
             if(l.range != getRange()) {
                 setRange(l.range);
@@ -546,27 +531,5 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     @Override
     public void mouseExited(MouseEvent e) {  
         
-    }
-    
-    // Properties
-    @Override
-    public DefaultProperty[] getProperties() {
-        return PluginUtils.getPluginProperties(this);
-    }
-
-    @Override
-    public void setProperties(Property[] properties) {
-        PluginUtils.setPluginProperties(this, properties);
-        System.out.println("setProperties");
-    }
-
-    @Override
-    public String getPropertiesDialogTitle() {
-        return I18n.textf("%plugin parameters", PluginUtils.getPluginName(this.getClass()));
-    }
-
-    @Override
-    public String[] getPropertiesErrors(Property[] properties) {
-        return PluginUtils.validatePluginProperties(this, properties);
     }
 }

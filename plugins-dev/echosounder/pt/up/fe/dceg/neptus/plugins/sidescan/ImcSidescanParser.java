@@ -83,7 +83,7 @@ public class ImcSidescanParser implements SidescanParser {
         return l;
     };
 
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem) {
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem, SidescanPanelConfig config) {
         
         // Preparation
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
@@ -167,7 +167,7 @@ public class ImcSidescanParser implements SidescanParser {
             for (int c = 0; c < data.length; c++) {
                 iData[c] = data[c] & 0xFF;
                 pos = c;
-                colors[pos] = colormap.getColor(iData[c] / 255.0).getRGB();
+                colors[pos] = config.colorMap.getColor(iData[c] / 255.0).getRGB();
             }
 
             for (int c = 0; c < size; c++) {

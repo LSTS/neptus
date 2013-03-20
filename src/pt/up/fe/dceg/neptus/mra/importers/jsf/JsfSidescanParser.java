@@ -35,10 +35,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanLine;
+import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanPanelConfig;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanParser;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 
@@ -49,7 +48,6 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
 public class JsfSidescanParser implements SidescanParser {
 
     JsfParser parser;
-    ColorMap colormap = ColorMapFactory.createBronzeColormap();
 
     public JsfSidescanParser(File f) {
         parser = new JsfParser(f);
@@ -71,7 +69,7 @@ public class JsfSidescanParser implements SidescanParser {
     }
 
     @Override
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem) {
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem, SidescanPanelConfig config) {
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         
         ArrayList<JsfSonarData> ping = parser.getPingAt(timestamp1, subsystem);
@@ -112,8 +110,9 @@ public class JsfSidescanParser implements SidescanParser {
                 double r = sboard.getData()[i];
                 min += r;
             }
-            max /= (double)pboard.getNumberOfSamples() * 0.05;
-            min /= (double)sboard.getNumberOfSamples() * 0.05;
+            max /= (double)pboard.getNumberOfSamples() * config.normalization;
+            min /= (double)sboard.getNumberOfSamples() * config.normalization;
+            
             float horizontalScale = (float)line.getWidth() / (pboard.getRange() * 2f);
             float verticalScale = horizontalScale;
         
@@ -143,8 +142,8 @@ public class JsfSidescanParser implements SidescanParser {
                     gain = Math.abs(30.0 * Math.log(r));
 //                System.out.println("#1 - " + gain + "  " + r);
 //                  gain = 0;
-                double pb = pboard.getData()[i] * Math.pow(10, gain / 100);
-                line.setRGB(i, 0, colormap.getColor(pb / max).getRGB());
+                double pb = pboard.getData()[i] * Math.pow(10, gain / config.tvgGain);
+                line.setRGB(i, 0, config.colorMap.getColor(pb / max).getRGB());
             }
             
             // Draw Starboard
@@ -154,8 +153,8 @@ public class JsfSidescanParser implements SidescanParser {
                 
                 gain = Math.abs(30.0 * Math.log(r));
 //                System.out.println("#2 - " + gain + "  " + r);
-                double sb = sboard.getData()[i] * Math.pow(10, gain / 100);
-                line.setRGB(i + pboard.getNumberOfSamples(), 0, colormap.getColor(sb / min).getRGB());
+                double sb = sboard.getData()[i] * Math.pow(10, gain / config.tvgGain);
+                line.setRGB(i + pboard.getNumberOfSamples(), 0, config.colorMap.getColor(sb / min).getRGB());
             }
             
             ypos += (int) lineSize;

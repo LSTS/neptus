@@ -64,7 +64,7 @@ public class SidescanToolbar extends JToolBar implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            PropertiesEditor.editProperties(panel,
+            PropertiesEditor.editProperties(panel.config,
                     SwingUtilities.getWindowAncestor(panel), true);
         }
     });
