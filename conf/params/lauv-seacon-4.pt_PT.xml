@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<config format="0" version="2.3.0-rc1 (Unversioned directory)" system="lauv-dolphin-1" i18n="en_US">
+<config format="0" version="2.3.0-rc1 (Unversioned directory)" system="lauv-seacon-4" i18n="pt_PT">
 <section name="Broom" i18n-name="Broom">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -21,9 +21,9 @@
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
 </param>
-<param name="Execution Frequency" i18n-name="Execution Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
 <desc>
-<![CDATA[Frequency at which task is executed]]>
+<![CDATA[Frequência com que a tarefa é executada]]>
 </desc>
 </param>
 <param name="Serial Port - Device" i18n-name="Serial Port - Device" type="string" visibility="developer" scope="global">
@@ -62,49 +62,131 @@
 </param>
 </section>
 <section name="SCRT" i18n-name="SCRT">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
 <values-i18n>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
+</param>
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<desc>
+<![CDATA[Frequência com que a tarefa é executada]]>
+</desc>
 </param>
 <param name="Serial Port - Device" i18n-name="Serial Port - Device" type="string" visibility="developer" scope="global">
 <desc>
 <![CDATA[Serial port device used to communicate with the sensor]]>
 </desc>
 </param>
-<param name="Servo Directions" i18n-name="Servo Directions" type="list:real" visibility="developer" scope="global" size="4" default="-1, 1, -1, 1">
+<param name="ADC Reference Voltage" i18n-name="ADC Reference Voltage" type="real" visibility="developer" scope="global" default="1.1">
+</param>
+<param name="ADC Sampling Frequency" i18n-name="ADC Sampling Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+</param>
+<param name="Servo Rotation - Minimum" i18n-name="Servo Rotation - Minimum" type="real" visibility="developer" scope="global" default="-45.0" units="°">
+</param>
+<param name="Servo Rotation - Maximum" i18n-name="Servo Rotation - Maximum" type="real" visibility="developer" scope="global" default="-45.0" units="°">
+</param>
+<param name="Servo Rotation Rate - Maximum" i18n-name="Servo Rotation Rate - Maximum" type="real" visibility="developer" scope="global" default="333.3" units="°/s">
+</param>
+<param name="Enable Rotation Rate Limit" i18n-name="Enable Rotation Rate Limit" type="boolean" visibility="developer" scope="global" default="false">
 <desc>
-<![CDATA[Direction of the servos]]>
+<![CDATA[Enable limit of rotation rate according to manufacturer]]>
 </desc>
+</param>
+<param name="Servo Renumbering" i18n-name="Servo Renumbering" type="list:integer" visibility="developer" scope="global" size="4" default="0, 1, 2, 3">
+<desc>
+<![CDATA[Servo renumbering hack]]>
+</desc>
+</param>
+<param name="A/D Conversion Factors" i18n-name="A/D Conversion Factors" type="list:real" visibility="developer" scope="global" size="12">
+<desc>
+<![CDATA[A/D conversion factors]]>
+</desc>
+</param>
+<param name="Servo 0 Middle" i18n-name="Servo 0 Middle" type="real" visibility="developer" scope="global">
+</param>
+<param name="Servo 0 Orientation" i18n-name="Servo 0 Orientation" type="integer" visibility="developer" scope="global" default="1">
+<desc>
+<![CDATA[Servo orientation]]>
+</desc>
+</param>
+<param name="Entity Label - Current 0" i18n-name="Entity Label - Current 0" type="string" visibility="developer" scope="global">
+</param>
+<param name="Entity Label - Servo Position 0" i18n-name="Entity Label - Servo Position 0" type="string" visibility="developer" scope="global">
+</param>
+<param name="Servo 1 Middle" i18n-name="Servo 1 Middle" type="real" visibility="developer" scope="global">
+</param>
+<param name="Servo 1 Orientation" i18n-name="Servo 1 Orientation" type="integer" visibility="developer" scope="global" default="1">
+<desc>
+<![CDATA[Servo orientation]]>
+</desc>
+</param>
+<param name="Entity Label - Current 1" i18n-name="Entity Label - Current 1" type="string" visibility="developer" scope="global">
+</param>
+<param name="Entity Label - Servo Position 1" i18n-name="Entity Label - Servo Position 1" type="string" visibility="developer" scope="global">
+</param>
+<param name="Servo 2 Middle" i18n-name="Servo 2 Middle" type="real" visibility="developer" scope="global">
+</param>
+<param name="Servo 2 Orientation" i18n-name="Servo 2 Orientation" type="integer" visibility="developer" scope="global" default="1">
+<desc>
+<![CDATA[Servo orientation]]>
+</desc>
+</param>
+<param name="Entity Label - Current 2" i18n-name="Entity Label - Current 2" type="string" visibility="developer" scope="global">
+</param>
+<param name="Entity Label - Servo Position 2" i18n-name="Entity Label - Servo Position 2" type="string" visibility="developer" scope="global">
+</param>
+<param name="Servo 3 Middle" i18n-name="Servo 3 Middle" type="real" visibility="developer" scope="global">
+</param>
+<param name="Servo 3 Orientation" i18n-name="Servo 3 Orientation" type="integer" visibility="developer" scope="global" default="1">
+<desc>
+<![CDATA[Servo orientation]]>
+</desc>
+</param>
+<param name="Entity Label - Current 3" i18n-name="Entity Label - Current 3" type="string" visibility="developer" scope="global">
+</param>
+<param name="Entity Label - Servo Position 3" i18n-name="Entity Label - Servo Position 3" type="string" visibility="developer" scope="global">
+</param>
+<param name="Entity Label - Voltage" i18n-name="Entity Label - Voltage" type="string" visibility="developer" scope="global">
+</param>
+<param name="Entity Label - Temperature" i18n-name="Entity Label - Temperature" type="string" visibility="developer" scope="global">
+</param>
+<param name="Enable Leak Sensors" i18n-name="Enable Leak Sensors" type="boolean" visibility="developer" scope="global" default="true">
+<desc>
+<![CDATA[Enable leak sensors]]>
+</desc>
+</param>
+<param name="Entity Label - Leak 0" i18n-name="Entity Label - Leak 0" type="string" visibility="developer" scope="global">
+</param>
+<param name="Entity Label - Leak 1" i18n-name="Entity Label - Leak 1" type="string" visibility="developer" scope="global">
 </param>
 </section>
-<section name="Allocator" i18n-name="Allocator">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Allocator" i18n-name="Alocador">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -112,7 +194,7 @@
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
 </param>
-<param name="Maximum Fin Rotation" i18n-name="Maximum Fin Rotation" type="real" visibility="developer" scope="global" default="25.0" units="°">
+<param name="Maximum Fin Rotation" i18n-name="Máxima Rotação de Lemes" type="real" visibility="developer" scope="global" default="25.0" units="°">
 <desc>
 <![CDATA[Maximum admissible fin rotation]]>
 </desc>
@@ -143,19 +225,19 @@
 </desc>
 </param>
 </section>
-<section name="Attitude" i18n-name="Attitude">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Attitude" i18n-name="Atitude">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -218,7 +300,7 @@
 <![CDATA[Integral limit for Heading Rate controller]]>
 </desc>
 </param>
-<param name="Maximum Fin Rotation" i18n-name="Maximum Fin Rotation" type="real" visibility="developer" scope="global" default="25.0" units="°">
+<param name="Maximum Fin Rotation" i18n-name="Máxima Rotação de Lemes" type="real" visibility="developer" scope="global" default="25.0" units="°">
 <desc>
 <![CDATA[Maximum admissible fin rotation]]>
 </desc>
@@ -295,18 +377,18 @@
 </param>
 </section>
 <section name="Diving" i18n-name="Diving">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -314,9 +396,9 @@
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
 </param>
-<param name="Execution Frequency" i18n-name="Execution Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
 <desc>
-<![CDATA[Frequency at which task is executed]]>
+<![CDATA[Frequência com que a tarefa é executada]]>
 </desc>
 </param>
 <param name="Depth Tolerance" i18n-name="Depth Tolerance" type="real" visibility="developer" scope="global" default="0.5" units="m">
@@ -350,19 +432,19 @@
 </desc>
 </param>
 </section>
-<section name="Remote Control" i18n-name="Remote Control">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Remote Control" i18n-name="Controlo Remoto">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -370,9 +452,9 @@
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
 </param>
-<param name="Execution Frequency" i18n-name="Execution Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
 <desc>
-<![CDATA[Frequency at which task is executed]]>
+<![CDATA[Frequência com que a tarefa é executada]]>
 </desc>
 </param>
 <param name="Connection Timeout" i18n-name="Connection Timeout" type="real" visibility="developer" scope="global" default="1.0" units="s">
@@ -413,19 +495,19 @@
 </desc>
 </param>
 </section>
-<section name="Speed Control" i18n-name="Speed Control">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Speed Control" i18n-name="Controlo de Velocidade">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -499,19 +581,19 @@
 </desc>
 </param>
 </section>
-<section name="Path Control" i18n-name="Path Control">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Path Control" i18n-name="Controlo de Caminho">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -662,19 +744,19 @@
 </desc>
 </param>
 </section>
-<section name="Compass Calibration Maneuver" i18n-name="Compass Calibration Maneuver">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Compass Calibration Maneuver" i18n-name="Manobra de Calibração de Bússola">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -704,18 +786,18 @@
 </param>
 </section>
 <section name="Elevator Maneuver" i18n-name="Elevator Maneuver">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -745,18 +827,18 @@
 </param>
 </section>
 <section name="Follow Path Maneuver" i18n-name="Follow Path Maneuver">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -765,19 +847,72 @@
 </values-i18n>
 </param>
 </section>
-<section name="Goto Maneuver" i18n-name="Goto Maneuver">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Follow System Maneuver" i18n-name="Follow System Maneuver">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
+<values>
+<![CDATA[None, Debug, Trace, Spew]]>
+</values>
+<values-i18n>
+<![CDATA[None, Debug, Trace, Spew]]>
+</values-i18n>
+</param>
+<param name="Loitering Radius" i18n-name="Loitering Radius" type="real" visibility="developer" scope="global" default="-1.0" units="m">
+<desc>
+<![CDATA[Radius of the loiter when waiting for new waypoint]]>
+</desc>
+</param>
+<param name="Timeout" i18n-name="Timeout" type="real" visibility="developer" scope="global" default="60.0" units="s">
+<desc>
+<![CDATA[Maneuver timeout]]>
+</desc>
+</param>
+<param name="Using Announce" i18n-name="Using Announce" type="boolean" visibility="developer" scope="global" default="false">
+<desc>
+<![CDATA[Using announce to track system]]>
+</desc>
+</param>
+<param name="Using RemoteState" i18n-name="Using RemoteState" type="boolean" visibility="developer" scope="global" default="false">
+<desc>
+<![CDATA[Using remote state for tracking system]]>
+</desc>
+</param>
+<param name="Min Displace" i18n-name="Min Displace" type="real" visibility="developer" scope="global" default="2.0" units="m">
+<desc>
+<![CDATA[Minimum target displacement for computing new heading]]>
+</desc>
+</param>
+<param name="Heading Cooldown" i18n-name="Heading Cooldown" type="real" visibility="developer" scope="global" default="15.0" units="s">
+</param>
+<param name="Minimum Safe Distance" i18n-name="Minimum Safe Distance" type="real" visibility="developer" scope="global" default="15.0" units="m">
+<desc>
+<![CDATA[Minimum safe distance to target system]]>
+</desc>
+</param>
+</section>
+<section name="Goto Maneuver" i18n-name="Goto Maneuver">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
+<desc>
+<![CDATA[Nome principal da entidade]]>
+</desc>
+</param>
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
+</param>
+<param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
+</param>
+<param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
+</param>
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -787,18 +922,18 @@
 </param>
 </section>
 <section name="Idle Maneuver" i18n-name="Idle Maneuver">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -808,18 +943,18 @@
 </param>
 </section>
 <section name="Loiter Maneuver" i18n-name="Loiter Maneuver">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -829,18 +964,18 @@
 </param>
 </section>
 <section name="Pop Up Maneuver" i18n-name="Pop Up Maneuver">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -859,19 +994,19 @@
 </desc>
 </param>
 </section>
-<section name="Rows Maneuver" i18n-name="Rows Maneuver">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Rows Maneuver" i18n-name="Manobra de Linhas">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -881,18 +1016,18 @@
 </param>
 </section>
 <section name="Station Keeping Maneuver" i18n-name="Station Keeping Maneuver">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -906,19 +1041,19 @@
 </desc>
 </param>
 </section>
-<section name="Teleoperation Maneuver" i18n-name="Teleoperation Maneuver">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Teleoperation Maneuver" i18n-name="Manobra de Teleoperação">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -927,19 +1062,91 @@
 </values-i18n>
 </param>
 </section>
-<section name="Yo-Yo Maneuver" i18n-name="Yo-Yo Maneuver">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Vehicle Formation (SMC) Maneuver" i18n-name="Vehicle Formation (SMC) Maneuver">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
+<values>
+<![CDATA[None, Debug, Trace, Spew]]>
+</values>
+<values-i18n>
+<![CDATA[None, Debug, Trace, Spew]]>
+</values-i18n>
+</param>
+<param name="Control Step Frequency" i18n-name="Control Step Frequency" type="real" visibility="developer" scope="global" default="-1.0" units="Hz">
+<desc>
+<![CDATA[Ignored on negative values]]>
+</desc>
+</param>
+<param name="Formation Gain (kf)" i18n-name="Formation Gain (kf)" type="real" visibility="developer" scope="global" default="0.1">
+</param>
+<param name="Trajectory Gain (kt)" i18n-name="Trajectory Gain (kt)" type="real" visibility="developer" scope="global" default="0.6">
+</param>
+<param name="Debug" i18n-name="Debug" type="boolean" visibility="developer" scope="global" default="false">
+<desc>
+<![CDATA[Enable or disable debug]]>
+</desc>
+</param>
+<param name="MPS Control" i18n-name="MPS Control" type="boolean" visibility="developer" scope="global" default="false">
+<desc>
+<![CDATA[Enable or disable meter per second control]]>
+</desc>
+</param>
+<param name="Max Speed MPS" i18n-name="Max Speed MPS" type="real" visibility="developer" scope="global" default="2.0" units="m/s">
+<desc>
+<![CDATA[Maximum speed in meters per second]]>
+</desc>
+</param>
+<param name="Min Speed MPS" i18n-name="Min Speed MPS" type="real" visibility="developer" scope="global" default="1.0" units="m/s">
+<desc>
+<![CDATA[Minimum speed in meters per second]]>
+</desc>
+</param>
+<param name="Max Actuation" i18n-name="Max Actuation" type="real" visibility="developer" scope="global" default="100">
+<desc>
+<![CDATA[Maximum actuation]]>
+</desc>
+</param>
+<param name="Min Actuation" i18n-name="Min Actuation" type="real" visibility="developer" scope="global" default="50">
+<desc>
+<![CDATA[Minimum actuation]]>
+</desc>
+</param>
+<param name="Max Step Actuation" i18n-name="Max Step Actuation" type="real" visibility="developer" scope="global" default="5">
+<desc>
+<![CDATA[Maximum step in actuation per command]]>
+</desc>
+</param>
+<param name="Delta Bounds" i18n-name="Delta Bounds" type="list:real" visibility="developer" scope="global">
+<desc>
+<![CDATA[Bounds on the trajectory tracking]]>
+</desc>
+</param>
+<param name="Formation Error Bounds" i18n-name="Formation Error Bounds" type="list:real" visibility="developer" scope="global">
+</param>
+</section>
+<section name="Yo-Yo Maneuver" i18n-name="Yo-Yo Maneuver">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
+<desc>
+<![CDATA[Nome principal da entidade]]>
+</desc>
+</param>
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
+</param>
+<param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
+</param>
+<param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
+</param>
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -969,18 +1176,18 @@
 </param>
 </section>
 <section name="CPU" i18n-name="CPU">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -988,9 +1195,9 @@
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
 </param>
-<param name="Execution Frequency" i18n-name="Execution Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
 <desc>
-<![CDATA[Frequency at which task is executed]]>
+<![CDATA[Frequência com que a tarefa é executada]]>
 </desc>
 </param>
 <param name="CPU - Moving Average Samples" i18n-name="CPU - Moving Average Samples" type="integer" visibility="developer" scope="global" default="10">
@@ -1004,19 +1211,19 @@
 </desc>
 </param>
 </section>
-<section name="Clock" i18n-name="Clock">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Clock" i18n-name="Relógio">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -1046,18 +1253,18 @@
 </param>
 </section>
 <section name="Collisions" i18n-name="Collisions">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -1106,19 +1313,19 @@
 </desc>
 </param>
 </section>
-<section name="Emergency Monitor" i18n-name="Emergency Monitor">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Emergency Monitor" i18n-name="Monitor de Emergências">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -1126,9 +1333,9 @@
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
 </param>
-<param name="Execution Frequency" i18n-name="Execution Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
 <desc>
-<![CDATA[Frequency at which task is executed]]>
+<![CDATA[Frequência com que a tarefa é executada]]>
 </desc>
 </param>
 <param name="Heartbeat Timeout" i18n-name="Heartbeat Timeout" type="real" visibility="developer" scope="global" default="300.0" units="s">
@@ -1146,9 +1353,9 @@
 <![CDATA[Lost Communication SMS Timeout]]>
 </desc>
 </param>
-<param name="SMS Recipient Number" i18n-name="SMS Recipient Number" type="string" visibility="user" scope="global" default="+351932811685">
+<param name="SMS Recipient Number" i18n-name="Número de Destino de Mensagens SMS" type="string" visibility="user" scope="global" default="+351932811685">
 <desc>
-<![CDATA[Phone number of the SMS recipient]]>
+<![CDATA[Número de telefone do destinatário de mensagens SMS]]>
 </desc>
 </param>
 <param name="In Mission Timeout" i18n-name="In Mission Timeout" type="real" visibility="developer" scope="global" default="10.0" units="s">
@@ -1157,19 +1364,19 @@
 </desc>
 </param>
 </section>
-<section name="Entity Monitor" i18n-name="Entity Monitor">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Entity Monitor" i18n-name="Monitor de Entidades">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -1209,18 +1416,18 @@
 </param>
 </section>
 <section name="Fuel" i18n-name="Fuel">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -1228,9 +1435,9 @@
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
 </param>
-<param name="Execution Frequency" i18n-name="Execution Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
 <desc>
-<![CDATA[Frequency at which task is executed]]>
+<![CDATA[Frequência com que a tarefa é executada]]>
 </desc>
 </param>
 <param name="Voltage Moving Average Window" i18n-name="Voltage Moving Average Window" type="integer" visibility="developer" scope="global" default="5">
@@ -1389,19 +1596,19 @@
 </desc>
 </param>
 </section>
-<section name="Medium" i18n-name="Medium">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Medium" i18n-name="Meio">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -1409,9 +1616,9 @@
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
 </param>
-<param name="Execution Frequency" i18n-name="Execution Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
 <desc>
-<![CDATA[Frequency at which task is executed]]>
+<![CDATA[Frequência com que a tarefa é executada]]>
 </desc>
 </param>
 <param name="Wet Data Timeout" i18n-name="Wet Data Timeout" type="real" visibility="developer" scope="global" default="1.0" units="s">
@@ -1446,19 +1653,19 @@
 </values-i18n>
 </param>
 </section>
-<section name="Operational Limits" i18n-name="Operational Limits">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Operational Limits" i18n-name="Limites de Operação">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -1466,9 +1673,9 @@
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
 </param>
-<param name="Execution Frequency" i18n-name="Execution Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
 <desc>
-<![CDATA[Frequency at which task is executed]]>
+<![CDATA[Frequência com que a tarefa é executada]]>
 </desc>
 </param>
 <param name="Initial Setting - Maximum Depth" i18n-name="Initial Setting - Maximum Depth" type="real" visibility="developer" scope="global" default="-1" units="m">
@@ -1518,18 +1725,18 @@
 </param>
 </section>
 <section name="Servo Monitor" i18n-name="Servo Monitor">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -1606,19 +1813,19 @@
 <param name="Entity Label - Current 3" i18n-name="Entity Label - Current 3" type="string" visibility="developer" scope="global">
 </param>
 </section>
-<section name="Navigation" i18n-name="Navigation">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Navigation" i18n-name="Navegação">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -1626,9 +1833,9 @@
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
 </param>
-<param name="Execution Frequency" i18n-name="Execution Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
 <desc>
-<![CDATA[Frequency at which task is executed]]>
+<![CDATA[Frequência com que a tarefa é executada]]>
 </desc>
 </param>
 <param name="Maximum distance to reference" i18n-name="Maximum distance to reference" type="real" visibility="developer" scope="global" default="1000" units="m">
@@ -1803,18 +2010,18 @@
 </param>
 </section>
 <section name="LBL Estimator" i18n-name="LBL Estimator">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -1858,19 +2065,19 @@
 </desc>
 </param>
 </section>
-<section name="Plan Database" i18n-name="Plan Database">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Plan Database" i18n-name="Base de Dados de Planos">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -1884,19 +2091,19 @@
 </desc>
 </param>
 </section>
-<section name="Plan Engine" i18n-name="Plan Engine">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Plan Engine" i18n-name="Motor de Planos">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -1931,18 +2138,18 @@
 </param>
 </section>
 <section name="Plan Generator" i18n-name="Plan Generator">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -1976,92 +2183,19 @@
 </desc>
 </param>
 </section>
-<section name="DOAM" i18n-name="DOAM">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
-<desc>
-<![CDATA[Main entity label]]>
-</desc>
-</param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
-</param>
-<param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
-</param>
-<param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
-</param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
-<values>
-<![CDATA[None, Debug, Trace, Spew]]>
-</values>
-<values-i18n>
-<![CDATA[None, Debug, Trace, Spew]]>
-</values-i18n>
-</param>
-<param name="Active" i18n-name="Active" type="boolean" visibility="user" scope="maneuver" default="false">
-</param>
-<param name="Serial Port - Device" i18n-name="Serial Port - Device" type="string" visibility="developer" scope="global">
-<desc>
-<![CDATA[Serial port device used to communicate with the device]]>
-</desc>
-</param>
-<param name="Power Channel - Name" i18n-name="Power Channel - Name" type="string" visibility="developer" scope="global" default="DOAM">
-</param>
-<param name="ADC Reference Voltage" i18n-name="ADC Reference Voltage" type="real" visibility="developer" scope="global" default="1.1" units="V">
-</param>
-<param name="Watchdog Timeout" i18n-name="Watchdog Timeout" type="real" visibility="developer" scope="global" default="2.0" units="s">
-<desc>
-<![CDATA[Watchdog timeout]]>
-</desc>
-</param>
-<param name="ADC Channel 0 - Message" i18n-name="ADC Channel 0 - Message" type="string" visibility="developer" scope="global">
-</param>
-<param name="ADC Channel 0 - Conversion" i18n-name="ADC Channel 0 - Conversion" type="list:real" visibility="developer" scope="global" size="2" default="1.0, 0.0">
-</param>
-<param name="ADC Channel 0 - Entity Label" i18n-name="ADC Channel 0 - Entity Label" type="string" visibility="developer" scope="global">
-</param>
-<param name="ADC Channel 1 - Message" i18n-name="ADC Channel 1 - Message" type="string" visibility="developer" scope="global">
-</param>
-<param name="ADC Channel 1 - Conversion" i18n-name="ADC Channel 1 - Conversion" type="list:real" visibility="developer" scope="global" size="2" default="1.0, 0.0">
-</param>
-<param name="ADC Channel 1 - Entity Label" i18n-name="ADC Channel 1 - Entity Label" type="string" visibility="developer" scope="global">
-</param>
-<param name="ADC Channel 2 - Message" i18n-name="ADC Channel 2 - Message" type="string" visibility="developer" scope="global">
-</param>
-<param name="ADC Channel 2 - Conversion" i18n-name="ADC Channel 2 - Conversion" type="list:real" visibility="developer" scope="global" size="2" default="1.0, 0.0">
-</param>
-<param name="ADC Channel 2 - Entity Label" i18n-name="ADC Channel 2 - Entity Label" type="string" visibility="developer" scope="global">
-</param>
-<param name="ADC Channel 3 - Message" i18n-name="ADC Channel 3 - Message" type="string" visibility="developer" scope="global">
-</param>
-<param name="ADC Channel 3 - Conversion" i18n-name="ADC Channel 3 - Conversion" type="list:real" visibility="developer" scope="global" size="2" default="1.0, 0.0">
-</param>
-<param name="ADC Channel 3 - Entity Label" i18n-name="ADC Channel 3 - Entity Label" type="string" visibility="developer" scope="global">
-</param>
-<param name="ADC Channel 4 - Message" i18n-name="ADC Channel 4 - Message" type="string" visibility="developer" scope="global">
-</param>
-<param name="ADC Channel 4 - Conversion" i18n-name="ADC Channel 4 - Conversion" type="list:real" visibility="developer" scope="global" size="2" default="1.0, 0.0">
-</param>
-<param name="ADC Channel 4 - Entity Label" i18n-name="ADC Channel 4 - Entity Label" type="string" visibility="developer" scope="global">
-</param>
-<param name="ADC Channel 5 - Message" i18n-name="ADC Channel 5 - Message" type="string" visibility="developer" scope="global">
-</param>
-<param name="ADC Channel 5 - Conversion" i18n-name="ADC Channel 5 - Conversion" type="list:real" visibility="developer" scope="global" size="2" default="1.0, 0.0">
-</param>
-<param name="ADC Channel 5 - Entity Label" i18n-name="ADC Channel 5 - Entity Label" type="string" visibility="developer" scope="global">
-</param>
-</section>
 <section name="Power Supply" i18n-name="Power Supply">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -2204,99 +2338,19 @@
 <param name="Leak 1 - Entity Label" i18n-name="Leak 1 - Entity Label" type="string" visibility="developer" scope="global">
 </param>
 </section>
-<section name="Sidescan" i18n-name="Sidescan">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
-<desc>
-<![CDATA[Main entity label]]>
-</desc>
-</param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
-</param>
-<param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
-</param>
-<param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
-</param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
-<values>
-<![CDATA[None, Debug, Trace, Spew]]>
-</values>
-<values-i18n>
-<![CDATA[None, Debug, Trace, Spew]]>
-</values-i18n>
-</param>
-<param name="Active" i18n-name="Active" type="boolean" visibility="user" scope="maneuver" default="false">
-</param>
-<param name="IPv4 Address" i18n-name="IPv4 Address" type="ipv4-address" visibility="developer" scope="global" default="192.168.0.5">
-<desc>
-<![CDATA[IP address of the sonar]]>
-</desc>
-</param>
-<param name="TCP Port - Command" i18n-name="TCP Port - Command" type="integer" visibility="developer" scope="global" default="1700">
-<desc>
-<![CDATA[TCP command port]]>
-</desc>
-</param>
-<param name="TCP Port - Data" i18n-name="TCP Port - Data" type="integer" visibility="developer" scope="global" default="1701">
-<desc>
-<![CDATA[TCP data port]]>
-</desc>
-</param>
-<param name="High-Frequency Channels" i18n-name="High-Frequency Channels" type="string" visibility="user" scope="maneuver" default="Both">
-<desc>
-<![CDATA[High-frequency subsystem channels]]>
-</desc>
-<values>
-<![CDATA[None, Port, Starboard, Both]]>
-</values>
-<values-i18n>
-<![CDATA[None, Port, Starboard, Both]]>
-</values-i18n>
-</param>
-<param name="High-Frequency Range" i18n-name="High-Frequency Range" type="integer" visibility="user" scope="maneuver" min="5" max="75" default="50" units="m">
-<desc>
-<![CDATA[Enable high frequency subsystem]]>
-</desc>
-</param>
-<param name="Low-Frequency Channels" i18n-name="Low-Frequency Channels" type="string" visibility="user" scope="maneuver" default="None">
-<desc>
-<![CDATA[Low-frequency subsystem channels]]>
-</desc>
-<values>
-<![CDATA[None, Port, Starboard, Both]]>
-</values>
-<values-i18n>
-<![CDATA[None, Port, Starboard, Both]]>
-</values-i18n>
-</param>
-<param name="Low-Frequency Range" i18n-name="Low-Frequency Range" type="integer" visibility="user" scope="maneuver" min="5" max="150" default="50" units="m">
-<desc>
-<![CDATA[Enable high frequency subsystem]]>
-</desc>
-</param>
-<param name="Pulse Autoselection Mode" i18n-name="Pulse Autoselection Mode" type="integer" visibility="developer" scope="global" min="0" max="4" default="2">
-<desc>
-<![CDATA[Auto pulse selection mode]]>
-</desc>
-</param>
-<param name="Power Channel - Sidescan" i18n-name="Power Channel - Sidescan" type="string" visibility="developer" scope="global" default="Sidescan">
-<desc>
-<![CDATA[Name of sidescan's power channel]]>
-</desc>
-</param>
-</section>
 <section name="GPS" i18n-name="GPS">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -2381,122 +2435,98 @@
 <param name="Initialization String 13 - Reply" i18n-name="Initialization String 13 - Reply" type="string" visibility="developer" scope="global">
 </param>
 </section>
-<section name="Echo Sounder" i18n-name="Echo Sounder">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Sidescan" i18n-name="Sonar de Varrimento Lateral">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
 <values-i18n>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
+</param>
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<desc>
+<![CDATA[Frequência com que a tarefa é executada]]>
+</desc>
 </param>
 <param name="Active" i18n-name="Active" type="boolean" visibility="user" scope="maneuver" default="false">
 </param>
-<param name="Serial Port - Device" i18n-name="Serial Port - Device" type="string" visibility="developer" scope="global">
+<param name="IPv4 Address" i18n-name="IPv4 Address" type="ipv4-address" visibility="developer" scope="global" default="192.168.0.5">
 <desc>
-<![CDATA[Serial port device used to communicate with the sensor]]>
+<![CDATA[IP address of the sonar]]>
 </desc>
 </param>
-<param name="Sampling Frequency" i18n-name="Sampling Frequency" type="real" visibility="developer" scope="global" default="5" units="Hz">
+<param name="TCP Port" i18n-name="TCP Port" type="integer" visibility="developer" scope="global" default="4040">
 <desc>
-<![CDATA[Number of samples per second]]>
+<![CDATA[TCP port]]>
 </desc>
 </param>
-<param name="Range" i18n-name="Range" type="integer" visibility="developer" scope="global" default="50" units="m">
+<param name="Data Gain" i18n-name="Data Gain" type="integer" visibility="developer" scope="global" min="0" max="100" default="40" units="%">
 <desc>
-<![CDATA[Default range]]>
+<![CDATA[Data gain]]>
 </desc>
 </param>
-<param name="Start Gain" i18n-name="Start Gain" type="integer" visibility="developer" scope="global" default="20">
+<param name="Balance Gain" i18n-name="Balance Gain" type="integer" visibility="developer" scope="global" min="0" max="60" default="30">
 <desc>
-<![CDATA[Start gain]]>
+<![CDATA[Balance gain]]>
 </desc>
 </param>
-<param name="Pulse Length" i18n-name="Pulse Length" type="real" visibility="developer" scope="global" default="0.000015" units="s">
+<param name="Frequency" i18n-name="Frequência" type="integer" visibility="user" scope="maneuver" default="770" units="kHz">
 <desc>
-<![CDATA[Pulse length]]>
-</desc>
-</param>
-<param name="Profile Minimum Range" i18n-name="Profile Minimum Range" type="integer" visibility="developer" scope="global" default="0" units="m">
-<desc>
-<![CDATA[Profile minimum range]]>
-</desc>
-</param>
-<param name="Data Points" i18n-name="Data Points" type="integer" visibility="developer" scope="global" default="500">
-<desc>
-<![CDATA[Number of sonar return data points]]>
+<![CDATA[Frequência de operação]]>
 </desc>
 <values>
-<![CDATA[0, 252, 500]]>
+<![CDATA[260, 330, 770]]>
 </values>
 <values-i18n>
-<![CDATA[0, 252, 500]]>
+<![CDATA[260, 330, 770]]>
 </values-i18n>
 </param>
-<param name="Sound Speed on Water" i18n-name="Sound Speed on Water" type="real" visibility="developer" scope="global" default="1500" units="m/s">
-</param>
-<param name="Use Dynamic Sound Speed" i18n-name="Use Dynamic Sound Speed" type="boolean" visibility="developer" scope="global" default="false">
-</param>
-<param name="Sonar position" i18n-name="Sonar position" type="list:real" visibility="developer" scope="global" size="3" default="1, 0, 0">
+<param name="Range" i18n-name="Alcance" type="integer" visibility="user" scope="maneuver" default="30" units="m">
 <desc>
-<![CDATA[Sonar position]]>
+<![CDATA[Alcance de operação]]>
 </desc>
-</param>
-<param name="Sonar orientation" i18n-name="Sonar orientation" type="list:real" visibility="developer" scope="global" size="3" default="0, 0, 0">
-<desc>
-<![CDATA[Sonar orientation]]>
-</desc>
-</param>
-<param name="Filter Enabled" i18n-name="Filter Enabled" type="boolean" visibility="developer" scope="global" default="false">
-<desc>
-<![CDATA[Enable filtering the profile range using data points]]>
-</desc>
-</param>
-<param name="Filter Median Elements" i18n-name="Filter Median Elements" type="integer" visibility="developer" scope="global" default="7" units="m">
-<desc>
-<![CDATA[Window size of the median filter]]>
-</desc>
-</param>
-<param name="Filter Threshold" i18n-name="Filter Threshold" type="integer" visibility="developer" scope="global" default="90">
-<desc>
-<![CDATA[Threshold value for range detection in filter]]>
-</desc>
-</param>
-<param name="Pattern Filter Enabled" i18n-name="Pattern Filter Enabled" type="boolean" visibility="developer" scope="global" default="false">
-<desc>
-<![CDATA[Enable profile pattern filter]]>
-</desc>
-</param>
-<param name="Pattern Filter Difference" i18n-name="Pattern Filter Difference" type="integer" visibility="developer" scope="global" default="0">
-<desc>
-<![CDATA[Pattern maximum difference]]>
-</desc>
+<values-if>
+<param>Frequency</param>
+<equals>260</equals>
+<values><![CDATA[10, 20, 30, 40, 50, 60, 80, 100, 150, 200]]></values>
+</values-if>
+<values-if>
+<param>Frequency</param>
+<equals>330</equals>
+<values><![CDATA[10, 20, 30, 40, 50, 60, 80, 100, 150, 200]]></values>
+</values-if>
+<values-if>
+<param>Frequency</param>
+<equals>770</equals>
+<values><![CDATA[10, 20, 30, 40, 50]]></values>
+</values-if>
 </param>
 </section>
-<section name="Depth Sensor" i18n-name="Depth Sensor">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Depth Sensor" i18n-name="Sensor de Profundidade">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -2504,9 +2534,9 @@
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
 </param>
-<param name="Execution Frequency" i18n-name="Execution Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
 <desc>
-<![CDATA[Frequency at which task is executed]]>
+<![CDATA[Frequência com que a tarefa é executada]]>
 </desc>
 </param>
 <param name="Serial Port - Device" i18n-name="Serial Port - Device" type="string" visibility="developer" scope="global">
@@ -2530,18 +2560,18 @@
 </param>
 </section>
 <section name="LBL" i18n-name="LBL">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -2595,80 +2625,19 @@
 <param name="Turn Around Time" i18n-name="Turn Around Time" type="integer" visibility="developer" scope="global" default="20" units="ms">
 </param>
 </section>
-<section name="AHRS" i18n-name="AHRS">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
-<desc>
-<![CDATA[Main entity label]]>
-</desc>
-</param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
-</param>
-<param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
-</param>
-<param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
-</param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
-<values>
-<![CDATA[None, Debug, Trace, Spew]]>
-</values>
-<values-i18n>
-<![CDATA[None, Debug, Trace, Spew]]>
-</values-i18n>
-</param>
-<param name="Execution Frequency" i18n-name="Execution Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
-<desc>
-<![CDATA[Frequency at which task is executed]]>
-</desc>
-</param>
-<param name="Serial Port - Device" i18n-name="Serial Port - Device" type="string" visibility="developer" scope="global">
-<desc>
-<![CDATA[Serial port device used to communicate with the sensor]]>
-</desc>
-</param>
-<param name="Serial Port - Baud Rate" i18n-name="Serial Port - Baud Rate" type="integer" visibility="developer" scope="global" default="115200">
-<desc>
-<![CDATA[Serial port baud rate]]>
-</desc>
-</param>
-<param name="Data Timeout" i18n-name="Data Timeout" type="real" visibility="developer" scope="global" default="2.0" units="s">
-<desc>
-<![CDATA[Number of seconds without data before reporting an error]]>
-</desc>
-</param>
-<param name="Calibration Threshold" i18n-name="Calibration Threshold" type="real" visibility="developer" scope="global" min="0.0" default="0.1" units="G">
-<desc>
-<![CDATA[Number of seconds without data before reporting an error]]>
-</desc>
-</param>
-<param name="Hard-Iron Calibration" i18n-name="Hard-Iron Calibration" type="list:real" visibility="developer" scope="global" size="3" units="G">
-<desc>
-<![CDATA[Hard-Iron calibration parameters]]>
-</desc>
-</param>
-<param name="Calibration Maneuver - Entity Label" i18n-name="Calibration Maneuver - Entity Label" type="string" visibility="developer" scope="global">
-<desc>
-<![CDATA[Entity label of maneuver responsible for compass calibration]]>
-</desc>
-</param>
-<param name="IMU Rotation Matrix" i18n-name="IMU Rotation Matrix" type="list:real" visibility="developer" scope="global" size="9">
-<desc>
-<![CDATA[IMU rotation matrix which is dependent of the mounting position]]>
-</desc>
-</param>
-</section>
 <section name="DVL" i18n-name="DVL">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -2706,19 +2675,19 @@
 </desc>
 </param>
 </section>
-<section name="Mainboard" i18n-name="Mainboard">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Compass" i18n-name="Bússola">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -2726,9 +2695,50 @@
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
 </param>
-<param name="Execution Frequency" i18n-name="Execution Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<param name="Serial Port - Device" i18n-name="Serial Port - Device" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Frequency at which task is executed]]>
+<![CDATA[Serial port device used to communicate with the sensor]]>
+</desc>
+</param>
+<param name="Serial Port - Baud Rate" i18n-name="Serial Port - Baud Rate" type="integer" visibility="developer" scope="global" default="19200">
+<desc>
+<![CDATA[Serial port baud rate]]>
+</desc>
+</param>
+<param name="Data Timeout" i18n-name="Data Timeout" type="real" visibility="developer" scope="global" default="0.5" units="s">
+<desc>
+<![CDATA[Number of seconds without data before reporting an error]]>
+</desc>
+</param>
+<param name="Data Rate" i18n-name="Data Rate" type="integer" visibility="developer" scope="global" min="-50" max="40" default="40">
+<desc>
+<![CDATA[Sensor data rate]]>
+</desc>
+</param>
+</section>
+<section name="Mainboard" i18n-name="Placa Principal">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
+<desc>
+<![CDATA[Nome principal da entidade]]>
+</desc>
+</param>
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
+</param>
+<param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
+</param>
+<param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
+</param>
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
+<values>
+<![CDATA[None, Debug, Trace, Spew]]>
+</values>
+<values-i18n>
+<![CDATA[None, Debug, Trace, Spew]]>
+</values-i18n>
+</param>
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<desc>
+<![CDATA[Frequência com que a tarefa é executada]]>
 </desc>
 </param>
 <param name="Path" i18n-name="Path" type="string" visibility="developer" scope="global" default="/sys/class/hwmon/hwmon0/device">
@@ -2752,19 +2762,19 @@
 </desc>
 </param>
 </section>
-<section name="Sound Speed Sensor" i18n-name="Sound Speed Sensor">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Entity Supervisor" i18n-name="Supervisor de Entidades">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -2772,45 +2782,9 @@
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
 </param>
-<param name="Serial Port - Device" i18n-name="Serial Port - Device" type="string" visibility="developer" scope="global">
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
 <desc>
-<![CDATA[Serial port device used to communicate with the sensor]]>
-</desc>
-</param>
-<param name="Serial Port - Baud Rate" i18n-name="Serial Port - Baud Rate" type="integer" visibility="developer" scope="global" default="19200">
-<desc>
-<![CDATA[Serial port baud rate]]>
-</desc>
-</param>
-<param name="Input Timeout" i18n-name="Input Timeout" type="real" visibility="developer" scope="global" default="4.0" units="s">
-<desc>
-<![CDATA[Amount of seconds to wait for data before reporting an error]]>
-</desc>
-</param>
-</section>
-<section name="Entity Supervisor" i18n-name="Entity Supervisor">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
-<desc>
-<![CDATA[Main entity label]]>
-</desc>
-</param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
-</param>
-<param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
-</param>
-<param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
-</param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
-<values>
-<![CDATA[None, Debug, Trace, Spew]]>
-</values>
-<values-i18n>
-<![CDATA[None, Debug, Trace, Spew]]>
-</values-i18n>
-</param>
-<param name="Execution Frequency" i18n-name="Execution Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
-<desc>
-<![CDATA[Frequency at which task is executed]]>
+<![CDATA[Frequência com que a tarefa é executada]]>
 </desc>
 </param>
 <param name="Idle Mode - Entity Labels" i18n-name="Idle Mode - Entity Labels" type="list:string" visibility="developer" scope="global">
@@ -2829,19 +2803,19 @@
 </desc>
 </param>
 </section>
-<section name="Power Supervisor" i18n-name="Power Supervisor">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Power Supervisor" i18n-name="Supervisor de Energia">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -2865,19 +2839,19 @@
 </desc>
 </param>
 </section>
-<section name="Vehicle Supervisor" i18n-name="Vehicle Supervisor">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Vehicle Supervisor" i18n-name="Supervisor de Veículo">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -2885,9 +2859,9 @@
 <![CDATA[None, Debug, Trace, Spew]]>
 </values-i18n>
 </param>
-<param name="Execution Frequency" i18n-name="Execution Frequency" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
+<param name="Execution Frequency" i18n-name="Frequência de Execução" type="real" visibility="developer" scope="global" default="1.0" units="Hz">
 <desc>
-<![CDATA[Frequency at which task is executed]]>
+<![CDATA[Frequência com que a tarefa é executada]]>
 </desc>
 </param>
 <param name="Safe Entities" i18n-name="Safe Entities" type="list:string" visibility="developer" scope="global">
@@ -2897,18 +2871,18 @@
 </param>
 </section>
 <section name="Service Announcer" i18n-name="Service Announcer">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -2968,18 +2942,18 @@
 </param>
 </section>
 <section name="Cache" i18n-name="Cache">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -2994,18 +2968,18 @@
 </param>
 </section>
 <section name="Service Discovery" i18n-name="Service Discovery">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -3030,18 +3004,18 @@
 </param>
 </section>
 <section name="GSM" i18n-name="GSM">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -3085,19 +3059,19 @@
 </desc>
 </param>
 </section>
-<section name="HTTP Server" i18n-name="HTTP Server">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="HTTP Server" i18n-name="Servidor HTTP">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -3121,19 +3095,19 @@
 </desc>
 </param>
 </section>
-<section name="Log Book" i18n-name="Log Book">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<section name="Log Book" i18n-name="Diário de Bordo">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -3143,18 +3117,18 @@
 </param>
 </section>
 <section name="Logger" i18n-name="Logger">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -3179,70 +3153,19 @@
 <param name="Transports" i18n-name="Transports" type="list:string" visibility="developer" scope="global">
 </param>
 </section>
-<section name="TCP To DOAM" i18n-name="TCP To DOAM">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
-<desc>
-<![CDATA[Main entity label]]>
-</desc>
-</param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
-</param>
-<param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
-</param>
-<param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
-</param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
-<values>
-<![CDATA[None, Debug, Trace, Spew]]>
-</values>
-<values-i18n>
-<![CDATA[None, Debug, Trace, Spew]]>
-</values-i18n>
-</param>
-<param name="Transports" i18n-name="Transports" type="list:string" visibility="developer" scope="global">
-<desc>
-<![CDATA[Messages to transport]]>
-</desc>
-</param>
-<param name="Rate Limiters" i18n-name="Rate Limiters" type="list:string" visibility="developer" scope="global">
-<desc>
-<![CDATA[Rate limiters (message name/frequency pairs)]]>
-</desc>
-</param>
-<param name="Trace - Incoming Messages" i18n-name="Trace - Incoming Messages" type="boolean" visibility="developer" scope="global" default="false">
-<desc>
-<![CDATA[Enable verbose output regarding incoming messages]]>
-</desc>
-</param>
-<param name="Trace - Outgoing Messages" i18n-name="Trace - Outgoing Messages" type="boolean" visibility="developer" scope="global" default="false">
-<desc>
-<![CDATA[Enable verbose output regarding outgoing messages]]>
-</desc>
-</param>
-<param name="Port" i18n-name="Port" type="string" visibility="developer" scope="global" default="7001">
-<desc>
-<![CDATA[TCP server port]]>
-</desc>
-</param>
-<param name="Announce Service" i18n-name="Announce Service" type="boolean" visibility="developer" scope="global" default="true">
-<desc>
-<![CDATA[Set to true to announce the service]]>
-</desc>
-</param>
-</section>
 <section name="UDP" i18n-name="UDP">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
@@ -3306,18 +3229,18 @@
 </param>
 </section>
 <section name="LEDs" i18n-name="LEDs">
-<param name="Entity Label" i18n-name="Entity Label" type="string" visibility="developer" scope="global">
+<param name="Entity Label" i18n-name="Nome da Entidade" type="string" visibility="developer" scope="global">
 <desc>
-<![CDATA[Main entity label]]>
+<![CDATA[Nome principal da entidade]]>
 </desc>
 </param>
-<param name="Execution Priority" i18n-name="Execution Priority" type="integer" visibility="developer" scope="global" default="10">
+<param name="Execution Priority" i18n-name="Prioridade de Execução" type="integer" visibility="developer" scope="global" default="10">
 </param>
 <param name="Activation Time" i18n-name="Activation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
 <param name="Deactivation Time" i18n-name="Deactivation Time" type="string" visibility="developer" scope="global" default="0">
 </param>
-<param name="Debug Level" i18n-name="Debug Level" type="string" visibility="developer" scope="global" default="None">
+<param name="Debug Level" i18n-name="Nível de Depuração" type="string" visibility="developer" scope="global" default="None">
 <values>
 <![CDATA[None, Debug, Trace, Spew]]>
 </values>
