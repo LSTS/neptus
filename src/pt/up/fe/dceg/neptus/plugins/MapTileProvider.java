@@ -111,4 +111,10 @@ public @interface MapTileProvider {
      * If true will not use {@link ModalityType#DOCUMENT_MODAL}.
      */
     public boolean makeCustomOptionsDialogIndependent() default false;
+    
+    /**
+     * @return true if is a base map and false for a layer. Base map is opaque and paints all 
+     * the canvas while layers have a transparent background and may be used on top of base maps.
+     */
+    public boolean isBaseMapOrLayer() default true;
 }
