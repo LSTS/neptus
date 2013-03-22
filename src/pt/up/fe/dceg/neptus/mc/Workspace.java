@@ -1354,6 +1354,12 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             endActivity("");
                         }
                     };

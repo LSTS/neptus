@@ -214,22 +214,15 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      */
     public static ConsoleLayout forge(String consoleURL, Loader loader) {
         ConsoleLayout instance = new ConsoleLayout();
-        try {
-            instance.imcOn();
-            ConsoleParse.parseFile(consoleURL, instance);
-            instance.setConsoleChanged(false);
-            // Rectangle screen = MouseInfo.getPointerInfo().getDevice().getDefaultConfiguration().getBounds();
-            // instance.setLocation(screen.x, screen.y);
-            if (loader != null)
-                loader.end();
-            instance.setVisible(true);
-            return instance;
-        }
-        catch (DocumentException e) {
-            e.printStackTrace();
-        }
-
-        return null;
+        instance.imcOn();
+        ConsoleParse.parseFile(consoleURL, instance);
+        instance.setConsoleChanged(false);
+        // Rectangle screen = MouseInfo.getPointerInfo().getDevice().getDefaultConfiguration().getBounds();
+        // instance.setLocation(screen.x, screen.y);
+        if (loader != null)
+            loader.end();
+        instance.setVisible(true);
+        return instance;
     }
     
     public static ConsoleLayout forge(String consoleURL) {
