@@ -45,7 +45,7 @@ import com.l2fprod.common.propertysheet.Property;
  * @author jqcorreia
  *
  */
-public class SidescanPanelConfig implements PropertiesProvider {
+public class SidescanConfig implements PropertiesProvider {
     
 //    @NeptusProperty
 //    public boolean verticalBlending = false;
@@ -63,7 +63,7 @@ public class SidescanPanelConfig implements PropertiesProvider {
     public double normalization = 0.05;
     
     @NeptusProperty
-    public double tvgGain;
+    public double tvgGain = 100;
     
     // Properties
     @Override

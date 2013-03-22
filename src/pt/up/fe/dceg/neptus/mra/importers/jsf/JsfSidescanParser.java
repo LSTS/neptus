@@ -37,7 +37,7 @@ import java.util.ArrayList;
 
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanLine;
-import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanPanelConfig;
+import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanParser;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 
@@ -69,7 +69,7 @@ public class JsfSidescanParser implements SidescanParser {
     }
 
     @Override
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem, SidescanPanelConfig config) {
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem, SidescanConfig config) {
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         
         ArrayList<JsfSonarData> ping = parser.getPingAt(timestamp1, subsystem);
@@ -162,8 +162,9 @@ public class JsfSidescanParser implements SidescanParser {
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             pose.getPosition().setLatitude((pboard.getLat() / 10000.0) / 60.0);
             pose.getPosition().setLongitude((pboard.getLon() / 10000.0) / 60.0);
-            pose.setAltitude(1);
+            pose.setRoll(Math.toRadians(pboard.getRoll() * (180 / 32768.0)));
             pose.setYaw(Math.toRadians(pboard.getHeading() / 100));
+            pose.setAltitude(pboard.getAltMillis() / 1000);
             
             list.add(new SidescanLine(ping.get(0).getTimestamp(),lineWidth, (int)lineSize, ypos, ping.get(0).getRange(), pose, ImageUtils.getScaledImage(line, lineWidth, (int) lineSize, true)));
 

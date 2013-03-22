@@ -40,7 +40,7 @@ import java.util.ArrayList;
 public interface SidescanParser {
     public long firstPingTimestamp();
     public long lastPingTimestamp();
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem, SidescanPanelConfig config);
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem, SidescanConfig config);
     
     public ArrayList<Integer> getSubsystemList();
 }

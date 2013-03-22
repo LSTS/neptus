@@ -96,10 +96,10 @@ public class JsfParser {
                     buf.order(ByteOrder.LITTLE_ENDIAN);
                     ping.parseHeader(buf);
                     curPosition += header.getMessageSize();
-                     System.out.println(ping.getPingNumber() + " " + ping.getTimestamp() + " " +
-                     ping.getNumberOfSamples() + " " +
-                     ping.getFrequency() + " "
-                     + ping.getHeader().getSubsystem() + " " + ping.getHeader().getChannel());
+//                     System.out.println(ping.getPingNumber() + " " + ping.getTimestamp() + " " +
+//                     ping.getNumberOfSamples() + " " +
+//                     ping.getFrequency() + " "
+//                     + ping.getHeader().getSubsystem() + " " + ping.getHeader().getChannel());
                 }
                 else {
                     curPosition += header.getMessageSize();
