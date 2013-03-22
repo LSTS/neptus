@@ -45,12 +45,12 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.PlanControlState;
-import pt.up.fe.dceg.neptus.imc.PlanControlState.STATE;
 import pt.up.fe.dceg.neptus.plugins.NeptusMessageListener;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.util.DateTimeUtil;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 /**
  * @author pdias
@@ -76,6 +76,7 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
     // private long planStarTimeMllisUTC = -1;
     private String nodeId = "";
     private String lastOutcome = "<html><font color='0x666666'>" + I18n.text("N/A") + "</font>";
+    private String lastProgress = I18n.text("N/A");
     private int nodeTypeImcId = -1;
     private long nodeStarTimeMillisUTC = -1;
     private long nodeEtaSec = -1;
@@ -119,17 +120,12 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
 
         outcomeTitleLabel = new JLabel("<html><b>" + I18n.text("Outcome") + ": ");
         outcomeTitleLabel.setHorizontalAlignment(SwingConstants.LEADING);
-        // outcomeTitleLabel.setFont(font);
+
         outcomeLabel = new JLabel(lastOutcome);
         this.add(outcomeTitleLabel);
         this.add(outcomeLabel, "wrap");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.up.fe.dceg.neptus.plugins.NeptusMessageListener#getObservedMessages()
-     */
     @Override
     public String[] getObservedMessages() {
         return messagesToObserve;
@@ -139,27 +135,41 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
         try {
             state = message.getState();
             planId = message.getPlanId();
-            // planStarTimeMllisUTC = (long) (message. * 1000);
             nodeId = message.getManId();
             nodeTypeImcId = message.getManType();
-            // nodeStarTimeMillisUTC = (long) (message.getManStime() * 1000);
             nodeEtaSec = message.getManEta();
-            if (message.getState() == STATE.READY || message.getState() == STATE.BLOCKED) {
-                switch (message.getLastOutcome()) {
-                    case SUCCESS:
-                        lastOutcome = "<html><b><font color='#00CC00'>" + I18n.text("Success") + "</font></b>";
-                        break;
-                    case FAILURE:
-                        lastOutcome = "<html><b><font color='#CC0000'>" + I18n.text("Failure") + "</font></b>";
-                        break;
-                    default:
-                        lastOutcome = "<html><font color='#666666'>" + I18n.text("N/A") + "</font>";
-                        break;
-                }                    
+            double progress = -1;
+            switch (message.getState()) {
+                case READY:
+                case BLOCKED:
+                    outcomeTitleLabel.setText("<html><b>" + I18n.text("Outcome") + ": ");
+                    switch (message.getLastOutcome()) {
+                        case SUCCESS:
+                            lastOutcome = "<html><b><font color='#00CC00'>" + I18n.text("Success") + "</font></b>";
+                            break;
+                        case FAILURE:
+                            lastOutcome = "<html><b><font color='#CC0000'>" + I18n.text("Failure") + "</font></b>";
+                            break;
+                        default:
+                            lastOutcome = "<html><font color='#666666'>" + I18n.text("N/A") + "</font>";
+                            break;
+                    }
+                    break;                    
+                case EXECUTING:
+                    progress = message.getPlanProgress();
+                case INITIALIZING:                        
+                    outcomeTitleLabel.setText("<html><b>" + I18n.text("Progress") + ": ");
+                    if (progress != -1)
+                        lastOutcome = GuiUtils.getNeptusDecimalFormat(0).format(message.getPlanProgress())+" %";    
+                    else
+                        lastOutcome = "<html><font color='#666666'>" + I18n.text("N/A") + "</font>";                            
+                    break;
+                default:
+                    outcomeTitleLabel.setText("<html><b>" + I18n.text("Progress") + ": ");
+                    lastOutcome = "Initializing";
+                    break;
             }
-            else {
-                lastOutcome = "<html><font color='#666666'>" + I18n.text("N/A") + "</font></font>";
-            }
+            
             outcomeLabel.setText(lastOutcome);
             lastUpdated = System.currentTimeMillis();
             update();
