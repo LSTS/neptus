@@ -836,8 +836,8 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         if (this instanceof LocatedManeuver) {
             ManeuverLocation loc = (((LocatedManeuver)this).getManeuverLocation()).clone();
             loc.convertToAbsoluteLatLonDepth();
-            props.add(PropertiesEditor.getPropertyInstance("Latitude", "Location", String.class, loc.getLatitudeAsPrettyString(), false, "Maneuver's latitude"));
-            props.add(PropertiesEditor.getPropertyInstance("Longitude", "Location", String.class, loc.getLongitudeAsPrettyString(), false, "Maneuver's longitude"));
+            //props.add(PropertiesEditor.getPropertyInstance("Latitude", "Location", String.class, loc.getLatitudeAsPrettyString(), false, "Maneuver's latitude"));
+            //props.add(PropertiesEditor.getPropertyInstance("Longitude", "Location", String.class, loc.getLongitudeAsPrettyString(), false, "Maneuver's longitude"));
             props.add(PropertiesEditor.getPropertyInstance("Location", "Location", ManeuverLocation.class, loc, true, "Maneuver's location"));
             props.add(PropertiesEditor.getPropertyInstance("Z", "Location", Double.class, loc.getZ(), true, "Maneuver's z value"));
             DefaultProperty pz = PropertiesEditor.getPropertyInstance("Z-Units", "Location", ManeuverLocation.Z_UNITS.class, loc.getZUnits(), true, "Maneuver's z units");

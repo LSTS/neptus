@@ -67,6 +67,8 @@ import pt.up.fe.dceg.neptus.gui.editor.VehicleSelectionEditor;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.messages.Bitmask;
 import pt.up.fe.dceg.neptus.messages.Enumerated;
+import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
+import pt.up.fe.dceg.neptus.mp.ManeuverLocationEditor;
 import pt.up.fe.dceg.neptus.mp.actions.PlanActions;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
@@ -512,6 +514,7 @@ public class PropertiesEditor {
 			per.registerEditor(PlanActions.class, PlanActionsEditor.class);
 			per.registerEditor(Double.class, NeptusDoubleEditor.class);
 			per.registerEditor(Float.class, NeptusDoubleEditor.class);
+			per.registerEditor(ManeuverLocation.class, ManeuverLocationEditor.class);
 //			per.registerEditor(ManeuverLocation.Z_UNITS.class, ZValueSelector.ZUnitsComboBox.class);
 		}
 		return per;
