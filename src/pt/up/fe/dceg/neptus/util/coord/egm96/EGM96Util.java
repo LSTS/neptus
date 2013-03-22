@@ -83,7 +83,7 @@ public class EGM96Util {
 			hc = new double[L_VALUE + 1], hs = new double[L_VALUE + 1];
 			//p = new double[L_VALUE + 1];
 			//sinml = new double[_361 + 1], cosml = new double[_361 + 1], rleg = new double[_361 + 1];
-	private static int nmax;
+	private static final int nmax = 360;
 	
 	static {
 		try {
@@ -361,7 +361,6 @@ public class EGM96Util {
 		//f_1=fopen("CORCOEF","rb");
 		/*potential coefficient file*/
 		//f_12=fopen("EGM96","rb");
-		nmax = 360;
 		for (i = 1; i <= L_VALUE; i++)
 			cc[i] = cs[i] = 0;
 		//while(4==fscanf(inputStreamCORCOEF,"%i %i %lg %lg",&n,&m,&t1,&t2)) {
