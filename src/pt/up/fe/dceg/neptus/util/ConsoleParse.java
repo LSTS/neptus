@@ -63,13 +63,8 @@ public class ConsoleParse implements FileHandler {
 
     public static ConsoleLayout consoleLayoutLoader(String consoleURL) {
         ConsoleLayout console = new ConsoleLayout();
-        try {
-            parseFile(consoleURL, console);
-        }
-        catch (DocumentException e) {
-            GuiUtils.errorMessage(null, e);
-            NeptusLog.pub().error(" Console Base open file error [" + e.getStackTrace() + "]");
-        }
+        parseFile(consoleURL, console);
+
         console.setConsoleChanged(false);
 
         Rectangle screen = MouseInfo.getPointerInfo().getDevice().getDefaultConfiguration().getBounds();
@@ -194,7 +189,7 @@ public class ConsoleParse implements FileHandler {
         parseElement((Element) doc.selectSingleNode("//" + ConsoleLayout.DEFAULT_ROOT_ELEMENT), console, consoleURL);
     }
 
-    public static void parseFile(String consoleURL, ConsoleLayout console) throws DocumentException {
+    public static void parseFile(String consoleURL, ConsoleLayout console) {
         Document doc = null;
 
         try {
