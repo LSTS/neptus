@@ -394,26 +394,34 @@ public class LogsDownloaderWorker {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
-                    LogFolderInfo selectedFolder = (LogFolderInfo) logFolderList.getSelectedValue();
 
-                    if (selectedFolder.getState() == LogFolderInfo.State.SYNC
-                            || selectedFolder.getState() == LogFolderInfo.State.LOCAL) {
+                    final String baseFxPath = dirBaseToStoreFiles + "/" + getLogLabel() + "/"
+                            + logFolderList.getSelectedValue() + "/";
+                    final File imc = new File(baseFxPath + "IMC.xml");
+                    final File log = new File(baseFxPath + "Data.lsf");
+                    final File logGz = new File(baseFxPath + "Data.lsf.gz");
+
+                    if(imc.exists() && (logGz.exists() || log.exists())) {
                         new Thread(new Runnable() {
+                            
                             @Override
                             public void run() {
+                                File fx = null;
+
                                 JFrame mra = new NeptusMRA();
                                 mra.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                                String baseFxPath = dirBaseToStoreFiles + "/" + getLogLabel() + "/"
-                                        + logFolderList.getSelectedValue() + "/";
-                                File fx = new File(baseFxPath + "Data.lsf");
-                                if (!fx.exists())
-                                    fx = new File(baseFxPath + "Data.lsf.gz");
+                                
+                                if(logGz.exists())
+                                    fx = logGz;
+                                if(log.exists())
+                                    fx = log;
+
                                 ((NeptusMRA) mra).openLog(fx);
                             }
                         }).run();
                     }
                     else {
-                        warnMsg(I18n.text("Log folder not synchronized... Can't open MRA"));
+                        warnMsg(I18n.text("Basic log folder not synchronized. Can't open MRA"));
                         return;
                     }
                 }
