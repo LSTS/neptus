@@ -187,6 +187,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     private Renderer2DPainter postRenderPainter = null;
 
     private static Map<String, Boolean> mapActiveHolderList = Collections.synchronizedMap(new LinkedHashMap<String, Boolean>());
+    private static Map<String, Boolean> mapBaseOrLayerHolderList = Collections.synchronizedMap(new LinkedHashMap<String, Boolean>());
     private static Map<String, MapPainterProvider> mapPainterHolderList = Collections.synchronizedMap(new LinkedHashMap<String, MapPainterProvider>());
     private static Map<String, Map<String, Tile>> tileHolderList = Collections.synchronizedMap(new LinkedHashMap<String, Map<String, Tile>>());
     private static Map<String, Class<? extends Tile>> tileClassList = Collections.synchronizedMap(new LinkedHashMap<String, Class<? extends Tile>>());
@@ -195,11 +196,13 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
 
         String mapId = TileMercadorSVG.class.getAnnotation(MapTileProvider.class).name();
         mapActiveHolderList.put(mapId, true); //TileMercadorSVG.getTileStyleID()
+        mapBaseOrLayerHolderList.put(mapId, TileMercadorSVG.class.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
         tileHolderList.put(mapId, TileMercadorSVG.getTilesMap());
         tileClassList.put(mapId, TileMercadorSVG.class);
 
         mapId = TileOpenStreetMap.class.getAnnotation(MapTileProvider.class).name();
         mapActiveHolderList.put(mapId, false); //TileOpenStreetMap.getTileStyleID()
+        mapBaseOrLayerHolderList.put(mapId, TileMercadorSVG.class.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
         tileHolderList.put(mapId, TileOpenStreetMap.getTilesMap());
         tileClassList.put(mapId, TileOpenStreetMap.class);
 
@@ -243,6 +246,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         @SuppressWarnings("unchecked")
                         Map<String, Tile> map = (Map<String, Tile>) clazz.getMethod("getTilesMap").invoke(null);
                         mapActiveHolderList.put(id, false);
+                        mapBaseOrLayerHolderList.put(id, clazz.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
                         tileHolderList.put(id, map);
                         tileClassList.put(id, cz);
                     }
@@ -256,6 +260,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         Class<? extends MapPainterProvider> cz = (Class<? extends MapPainterProvider>) clazz;
                         MapPainterProvider instance = (MapPainterProvider) clazz.getConstructor().newInstance();
                         mapActiveHolderList.put(id, false);
+                        mapBaseOrLayerHolderList.put(id, clazz.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
                         mapPainterHolderList.put(id, instance);
                     }
                     catch (ClassCastException e1) {
@@ -1117,7 +1122,8 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                     WorldRenderPainter.this.setMapStyle(false, rButton.isSelected(), ms);
                 }
             });
-            chooseButtonGroup.add(rButton);
+            if (mapBaseOrLayerHolderList.get(ms))
+                chooseButtonGroup.add(rButton);
             radioPanel.add(rButton);
             boolean tileOrMapProvider = isTileOrMapProvider(ms);
             if (tileOrMapProvider) {
