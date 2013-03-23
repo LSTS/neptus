@@ -623,18 +623,22 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     /**
      * @param mapStyle the mapStyle to set
      */
-    public void setMapStyle(String mapStyle) {
-        setMapStyle(mapStyle, true);
+    public void setMapStyle(String mapStyleName) {
+        setMapStyle(true, true, mapStyleName);
     }
 
-    public void setMapStyle(String mapStyle, boolean exclusive) {
-        for (String mapKey : mapActiveHolderList.keySet()) {
-            if (mapKey.equalsIgnoreCase(mapStyle)) {
-                mapActiveHolderList.put(mapKey, true);
-            }
-            else {
-                if (exclusive)
-                    mapActiveHolderList.put(mapKey, false);
+    public void setMapStyle(boolean exclusive, boolean activate, String... mapStyleName) {
+        List<String> mapStyleList = Arrays.asList(mapStyleName);
+        for (String mapStyle : mapStyleList) {
+            for (String mapKey : mapActiveHolderList.keySet()) {
+                if (mapKey.equalsIgnoreCase(mapStyle)) {
+                    mapActiveHolderList.put(mapKey, activate);
+                }
+                else {
+                    if (exclusive && !mapStyleList.contains(mapKey)) {
+                        mapActiveHolderList.put(mapKey, !activate);
+                    }
+                }
             }
         }
 
@@ -802,8 +806,10 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
      * @param renderer
      */
     private void drawWorldMap(Graphics2D g, StateRenderer2D renderer, boolean useTransparency) {
-        for (String mapKey : mapActiveHolderList.keySet()) {
-            // TODO Ordenar
+        // TODO Sort the overlays
+        List<String> mapKeys = Arrays.asList(mapActiveHolderList.keySet().toArray(new String[0]));
+        
+        for (String mapKey : mapKeys) {
             String mapStyle = mapKey;
 
             if (!mapActiveHolderList.get(mapKey))
@@ -1100,14 +1106,15 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         JPanel radioPanel = new JPanel(new GridLayout(0, 4, 5, 5));
         radioPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         for (final String ms : mapActiveHolderList.keySet()) { // tileHolderList.keySet()
-            JRadioButton rButton = new JRadioButton(ms.toString());
+            final JRadioButton rButton = new JRadioButton(ms.toString());
             rButton.setActionCommand(ms);
             if (mapActiveHolderList.containsKey(ms) && mapActiveHolderList.get(ms)) //mapStyle.equalsIgnoreCase(ms)
                 rButton.setSelected(true);
             rButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    WorldRenderPainter.this.setMapStyle(ms);
+                    // FIXME with chooseButtonGroup does not work well
+                    WorldRenderPainter.this.setMapStyle(false, rButton.isSelected(), ms);
                 }
             });
             chooseButtonGroup.add(rButton);
