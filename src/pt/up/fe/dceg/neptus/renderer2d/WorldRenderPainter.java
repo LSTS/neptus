@@ -189,6 +189,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
 
     private static Map<String, Boolean> mapActiveHolderList = Collections.synchronizedMap(new LinkedHashMap<String, Boolean>());
     private static Map<String, Boolean> mapBaseOrLayerHolderList = Collections.synchronizedMap(new LinkedHashMap<String, Boolean>());
+    private static Map<String, Short> mapLayerPrioriryHolderList = Collections.synchronizedMap(new LinkedHashMap<String, Short>());
     private static Map<String, MapPainterProvider> mapPainterHolderList = Collections.synchronizedMap(new LinkedHashMap<String, MapPainterProvider>());
     private static Map<String, Map<String, Tile>> tileHolderList = Collections.synchronizedMap(new LinkedHashMap<String, Map<String, Tile>>());
     private static Map<String, Class<? extends Tile>> tileClassList = Collections.synchronizedMap(new LinkedHashMap<String, Class<? extends Tile>>());
@@ -198,12 +199,14 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         String mapId = TileMercadorSVG.class.getAnnotation(MapTileProvider.class).name();
         mapActiveHolderList.put(mapId, true); //TileMercadorSVG.getTileStyleID()
         mapBaseOrLayerHolderList.put(mapId, TileMercadorSVG.class.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
+        mapLayerPrioriryHolderList.put(mapId, TileMercadorSVG.class.getAnnotation(MapTileProvider.class).layerPriority());
         tileHolderList.put(mapId, TileMercadorSVG.getTilesMap());
         tileClassList.put(mapId, TileMercadorSVG.class);
 
         mapId = TileOpenStreetMap.class.getAnnotation(MapTileProvider.class).name();
         mapActiveHolderList.put(mapId, false); //TileOpenStreetMap.getTileStyleID()
         mapBaseOrLayerHolderList.put(mapId, TileMercadorSVG.class.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
+        mapLayerPrioriryHolderList.put(mapId, TileMercadorSVG.class.getAnnotation(MapTileProvider.class).layerPriority());
         tileHolderList.put(mapId, TileOpenStreetMap.getTilesMap());
         tileClassList.put(mapId, TileOpenStreetMap.class);
 
@@ -248,6 +251,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         Map<String, Tile> map = (Map<String, Tile>) clazz.getMethod("getTilesMap").invoke(null);
                         mapActiveHolderList.put(id, false);
                         mapBaseOrLayerHolderList.put(id, clazz.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
+                        mapLayerPrioriryHolderList.put(id, clazz.getAnnotation(MapTileProvider.class).layerPriority());
                         tileHolderList.put(id, map);
                         tileClassList.put(id, cz);
                     }
@@ -262,6 +266,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         MapPainterProvider instance = (MapPainterProvider) clazz.getConstructor().newInstance();
                         mapActiveHolderList.put(id, false);
                         mapBaseOrLayerHolderList.put(id, clazz.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
+                        mapLayerPrioriryHolderList.put(id, clazz.getAnnotation(MapTileProvider.class).layerPriority());
                         mapPainterHolderList.put(id, instance);
                     }
                     catch (ClassCastException e1) {
@@ -278,14 +283,25 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         }
 
         if (defaultActiveLayers.length() != 0) {
-            Vector<String> list = new Vector<String>(); 
-            list.addAll(Arrays.asList(defaultActiveLayers.split(";")));
+            List<String> list = Arrays.asList(defaultActiveLayers.split(";"));
             for (String mapKey : mapActiveHolderList.keySet()) {
                 mapActiveHolderList.put(mapKey, false);
+                mapLayerPrioriryHolderList.put(mapKey, (short) 0);
             }
-            for (String mapDef : list) {
+            for (String mapDefTag : list) {
+                String[] tags = mapDefTag.split(":");
+                String mapDef = tags[0];
                 if (mapActiveHolderList.containsKey(mapDef))
                     mapActiveHolderList.put(mapDef, true);
+                if (mapLayerPrioriryHolderList.containsKey(mapDef) && tags.length > 1) {
+                    try {
+                        short prio = Short.parseShort(tags[1]);
+                        mapLayerPrioriryHolderList.put(mapDef, prio);
+                    }
+                    catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
             boolean isAtLeastOneSet = false;
             for (Boolean mapBool : mapActiveHolderList.values()) {
@@ -650,8 +666,11 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
 
         String tmp = "";
         for (String mapKey : mapActiveHolderList.keySet()) {
-            if (mapActiveHolderList.get(mapKey))
+            if (mapActiveHolderList.get(mapKey)) {
                 tmp += (tmp.length() != 0 ? ";" : "") + mapKey;
+                if (!mapBaseOrLayerHolderList.get(mapKey) && mapLayerPrioriryHolderList.get(mapKey) != 0)
+                    tmp += ":" + mapLayerPrioriryHolderList.get(mapKey);
+            }
         }
         defaultActiveLayers = tmp;
         savePropertiesToDisk();
@@ -1357,17 +1376,21 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         return getOrderedMapList(false);
     }
 
-    private List<String> getOrderedMapList(boolean orderWithDisplayPriority) {
-        // Order according to being base map or layer
+    private List<String> getOrderedMapList(final boolean orderWithDisplayPriority) {
+        // Order according with being base map or layer
         Comparator<String> comparatorMapBaseOrLayer = new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
                 boolean o1Base = mapBaseOrLayerHolderList.containsKey(o1) ? mapBaseOrLayerHolderList.get(o1) : false;
                 boolean o2Base = mapBaseOrLayerHolderList.containsKey(o2) ? mapBaseOrLayerHolderList.get(o2) : false;
+                short o1Prio = mapLayerPrioriryHolderList.containsKey(o1) ? mapLayerPrioriryHolderList.get(o1) : 0;
+                short o2Prio = mapLayerPrioriryHolderList.containsKey(o2) ? mapLayerPrioriryHolderList.get(o2) : 0;
                 if (o1Base ^ o2Base) // One base map other layer
                     return o1Base ? -1 : 1;
-                else
-                    return 0;
+                else if (o1Base & o2Base) // Both base maps
+                    return 0;                    
+                else  // Both layer maps
+                    return orderWithDisplayPriority ? o1Prio - o2Prio : 0;
             }
         };
         String[] tmpArrayMapKeysToSorted = mapActiveHolderList.keySet().toArray(new String[0]);

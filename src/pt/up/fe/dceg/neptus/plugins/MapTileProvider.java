@@ -117,4 +117,10 @@ public @interface MapTileProvider {
      * the canvas while layers have a transparent background and may be used on top of base maps.
      */
     public boolean isBaseMapOrLayer() default true;
+    
+    /**
+     * @return the layer priority. The higher the more on top it will be. This is only valid for 
+     * layer maps, not base maps.
+     */
+    public short layerPriority() default 0;
 }
