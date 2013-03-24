@@ -863,7 +863,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         }
                     }
                     g2.dispose();
-                    break;
+//                    break;
                 }
                 else if (mapPainterHolderList.containsKey(mapStyle)) {
                     Graphics2D g2 = (Graphics2D) g.create();
@@ -874,7 +874,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         e.printStackTrace();
                     }
                     g2.dispose();
-                    break;
+//                    break;
                 }
             }
         }
