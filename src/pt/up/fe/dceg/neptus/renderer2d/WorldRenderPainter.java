@@ -812,9 +812,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
      * @param renderer
      */
     private void drawWorldMap(Graphics2D g, StateRenderer2D renderer, boolean useTransparency) {
-        // TODO Sort the overlays
         List<String> mapKeys = getOrderedMapList(true);
-        
         for (String mapKey : mapKeys) {
             String mapStyle = mapKey;
 
