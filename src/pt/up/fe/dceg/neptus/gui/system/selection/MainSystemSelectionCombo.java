@@ -78,9 +78,9 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
         this.setMaximumSize(new Dimension(200, 50));
         this.setRenderer(new MainSystemRenderer());
         this.addItemListener(this);
-        this.setFont(new Font("arial", Font.BOLD, 10));
-        this.setBackground(new Color(0x468847).brighter());
-        this.setBorder(new EmptyBorder(0, 0, 0, 0));
+        this.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+        this.setBackground(new Color(0x3A87AD));
+        //this.setBorder(new EmptyBorder(0, 0, 0, 0));
         this.setUI(new WindowsComboBoxUI());
         //this.setOpaque(false);
         
@@ -149,6 +149,20 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
     @Subscribe
     public void onMainSystemChange(ConsoleEventMainSystemChange e) {
         this.setSelectedItem(e.getCurrent());
+        switch (console.getSystem(e.getCurrent()).getVehicleState()) {
+            case SERVICE:
+                setBackground(new Color(0x57B768));
+                break;
+            case ERROR:
+                setBackground(new Color(0xB94A48));
+                break;
+            case CALIBRATION:
+                setBackground(new Color(0x3A87AD));
+                break;
+            default:
+                setBackground(new Color(0xC8BF5F));
+                break;
+        }
     }
 
     private class MainSystemRenderer extends JLabel implements ListCellRenderer<String> {
@@ -200,7 +214,8 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
             }
 
             if (value != null)
-                setFont(new Font("arial", Font.BOLD, 10));
+                this.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+            
                 setText(" "+ value.toUpperCase() + "  " + I18n.text("Status") + ": " + systemState.get(value).toString());
             
             return this;
