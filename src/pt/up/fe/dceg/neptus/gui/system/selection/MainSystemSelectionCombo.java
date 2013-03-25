@@ -83,8 +83,7 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
         //this.setBorder(new EmptyBorder(0, 0, 0, 0));
         this.setUI(new WindowsComboBoxUI());
         //this.setOpaque(false);
-        
-        
+        setFocusable(false);
     }
 
     // private void refresh() {
