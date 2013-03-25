@@ -115,9 +115,7 @@ public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpda
                     post(new ConsoleEventVehicleStateChanged(src, text, STATE.TELEOPERATION));
                     console.getSystem(src).setVehicleState(STATE.TELEOPERATION);
                 }
-                if (last == OP_MODE.CALIBRATION && current == OP_MODE.SERVICE) {
-                    return; // ignore
-                }
+               
                 else {
                     post(new ConsoleEventVehicleStateChanged(src, text, STATE.valueOf(msg.getOpMode().toString())));
                     console.getSystem(src).setVehicleState(STATE.valueOf(msg.getOpMode().toString()));
