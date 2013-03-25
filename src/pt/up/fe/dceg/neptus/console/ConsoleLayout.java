@@ -214,6 +214,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      */
     public static ConsoleLayout forge(String consoleURL, Loader loader) {
         ConsoleLayout instance = new ConsoleLayout();
+        
         instance.imcOn();
         ConsoleParse.parseFile(consoleURL, instance);
         instance.setConsoleChanged(false);
@@ -262,6 +263,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         this.setLocationRelativeTo(null);
 
         this.imcMsgManager = ImcMsgManager.getManager();
+        
         controllerManager = new ControllerManager();
     }
 
@@ -810,6 +812,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      * @param id Vehicle ID
      */
     public void addSystem(String id) {
+        System.out.println("ADD SYSTEM");
         VehicleType vehicle = VehiclesHolder.getVehicleById(id);
         ConsoleSystem vtl;
         if (vehicle == null) {
@@ -1606,6 +1609,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     public void imcOn() {
         if (this.imcMsgManager.start()) {
+            ImcSystem[] systems = ImcSystemsHolder.lookupActiveSystemVehicles();
+            for (ImcSystem imcSystem : systems) {
+                this.addSystem(imcSystem.getVehicle().getId());
+            }
+            
             imcMsgManager.addStatusListener(imcManagerStatus == null ? this.setupImcListener() : imcManagerStatus);
             for (Entry<String, ConsoleSystem> vehicle : consoleSystems.entrySet()) {
                 vehicle.getValue().enableIMC();
