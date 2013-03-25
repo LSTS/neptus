@@ -81,7 +81,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
     private final ImageIcon DIR_ICON;
     private final ImageIcon DIR_CLOSED_ICON;
     private final ImageIcon HOMEREF_ICON;
-    private final ImageIcon TRANSPONDER_ICON;
+    // private final ImageIcon TRANSPONDER_ICON;
     private final ImageIcon START_ICON;
     
     public MissionTreeCellRenderer() {
@@ -91,7 +91,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
         DIR_ICON = ImageUtils.createImageIcon("images/menus/open.png");
         DIR_CLOSED_ICON = ImageUtils.createImageIcon("images/menus/folder_closed.png");
         HOMEREF_ICON = ImageUtils.getScaledIcon("images/buttons/home.png", 16, 16);
-        TRANSPONDER_ICON = new ExtendedIcon(ImageUtils.getScaledImage("images/transponder.png", 16, 16));
+        // TRANSPONDER_ICON = new ExtendedIcon(ImageUtils.getScaledImage("images/transponder.png", 16, 16));
         START_ICON = ImageUtils.getScaledIcon("images/flag2_green32.png", 16, 16);
     }
     
