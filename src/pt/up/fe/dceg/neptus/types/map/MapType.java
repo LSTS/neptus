@@ -55,6 +55,7 @@ import pt.up.fe.dceg.neptus.gui.swing.NeptusFileView;
 import pt.up.fe.dceg.neptus.mp.Dimension;
 import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
 import pt.up.fe.dceg.neptus.mp.MapChangeListener;
+import pt.up.fe.dceg.neptus.types.Identifiable;
 import pt.up.fe.dceg.neptus.types.XmlInputMethods;
 import pt.up.fe.dceg.neptus.types.XmlInputMethodsFromFile;
 import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
@@ -73,13 +74,13 @@ import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
  * @author Zé Carlos (DCEG-FEUP)
  * @author Paulo Dias
  */
-public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
+public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile, Identifiable {
 
     // <FROM Map>
     protected static final String DEFAULT_ROOT_ELEMENT = "map";
 
     private String href = "";
-    private LinkedList<String> notesList = new LinkedList<String>();
+    private final LinkedList<String> notesList = new LinkedList<String>();
 
     private Document doc;
     protected boolean isLoadOk = true;
@@ -142,7 +143,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
 
     public void warnChangeListeners(MapChangeEvent changeEvent) {
         for (int i = 0; i < changeListeners.size(); i++) {
-            MapChangeListener tmp = (MapChangeListener) changeListeners.get(i);
+            MapChangeListener tmp = changeListeners.get(i);
             tmp.mapChanged(changeEvent);
         }
     }
@@ -175,7 +176,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
      * @return A map object
      */
     public AbstractElement getObject(String name) {
-        return (AbstractElement) elements.get(name);
+        return elements.get(name);
     }
 
     public String[] getObjectNames() {
@@ -189,7 +190,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
     public void remove(String objectName) {
 
         MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_REMOVED);
-        changeEvent.setChangedObject((AbstractElement) elements.get(objectName));
+        changeEvent.setChangedObject(elements.get(objectName));
         changeEvent.setSourceMap(this);
         elements.remove(objectName);
         warnChangeListeners(changeEvent);
@@ -309,6 +310,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlInputMethods#load(org.dom4j.Element)
      */
+    @Override
     public boolean load(Element elem) {
         doc = Dom4JUtil.elementToDocument(elem);
         if (doc == null) {
@@ -323,6 +325,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlInputMethods#load(java.lang.String)
      */
+    @Override
     public boolean load(String xml) {
         try {
             doc = DocumentHelper.parseText(xml);
@@ -494,6 +497,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
     /**
      * @param url
      */
+    @Override
     public boolean loadFile(String url) {
         // Sets the href of this map to be the url from where it was loaded
         setHref(url);
@@ -517,10 +521,12 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
 //        return load(fileAsString);
     }
 
+    @Override
     public boolean loadFile(File file) {
         return loadFile(file.getAbsolutePath());
     }
 
+    @Override
     public boolean isLoadOk() {
         return isLoadOk;
     }
@@ -595,6 +601,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML()
      */
+    @Override
     public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asXML(rootElementName);
@@ -605,6 +612,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
+    @Override
     public String asXML(String rootElementName) {
         String result = "";
         Document document = asDocument(rootElementName);
@@ -617,6 +625,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement()
      */
+    @Override
     public Element asElement() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asElement(rootElementName);
@@ -627,6 +636,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement(java.lang.String)
      */
+    @Override
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
     }
@@ -636,6 +646,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument()
      */
+    @Override
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
@@ -646,6 +657,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
+    @Override
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
         Element root = document.addElement(rootElementName);
@@ -661,7 +673,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
         if (notesList.size() != 0) {
             Element notes = header.addElement("notes");
             for (Iterator<String> iter = notesList.iterator(); iter.hasNext();) {
-                notes.addElement("note").addText((String) iter.next());
+                notes.addElement("note").addText(iter.next());
             }
         }
 
@@ -687,6 +699,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
         fc.setFileView(new NeptusFileView());
         // File file = fc.getSelectedFile();
         fc.setFileFilter(new FileFilter() {
+            @Override
             public boolean accept(File f) {
                 try {
                     if (!f.exists() || !f.canRead())
@@ -702,6 +715,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
                 return false;
             }
 
+            @Override
             public String getDescription() {
                 return "Neptus Mission Map files";
             }
@@ -787,5 +801,15 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
 
     public void setMission(MissionType mission) {
         this.mission = mission;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.up.fe.dceg.neptus.types.Identifiable#getIdentification()
+     */
+    @Override
+    public String getIdentification() {
+        return getId();
     }
 }

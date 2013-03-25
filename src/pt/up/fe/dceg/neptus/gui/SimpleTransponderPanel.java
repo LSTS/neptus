@@ -100,7 +100,8 @@ public class SimpleTransponderPanel extends SimpleLocationPanel {
                 ImageUtils.getImage("images/menus/editpaste.png")), I18n.text("Paste copied location"),
                 "pasteLoc");
 		btn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			@Override
+            public void actionPerformed(ActionEvent e) {
 					
 				Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
 				
@@ -123,8 +124,10 @@ public class SimpleTransponderPanel extends SimpleLocationPanel {
                 ImageUtils.getImage("images/menus/editcopy.png")), I18n.text("Copy location"),
                 "copyLoc");
         btnC.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 ClipboardOwner owner = new ClipboardOwner() {
+                    @Override
                     public void lostOwnership(
                             java.awt.datatransfer.Clipboard clipboard,
                             java.awt.datatransfer.Transferable contents) {
@@ -164,7 +167,7 @@ public class SimpleTransponderPanel extends SimpleLocationPanel {
 	
 	public String getConfiguration() {
 	    Object sel = getConfigurationFile().getSelectedItem();
-	    System.out.println("kkkkkkkkkkkkkkkkkkkkkkk    " + sel);
+        // System.out.println("kkkkkkkkkkkkkkkkkkkkkkk    " + sel);
 	    return sel.toString();
 	}
 	

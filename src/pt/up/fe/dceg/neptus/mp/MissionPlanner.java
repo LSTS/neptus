@@ -72,7 +72,6 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.tree.TreePath;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.AboutPanel;
@@ -132,16 +131,16 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	public static final int CANCEL = 0, OK = 1, ERROR = 2;
 	private int numFrames = 0;
 	private JDesktopPane desktop;
-	private Hashtable<String ,JComponent> menus = new Hashtable<String, JComponent>();
+	private final Hashtable<String ,JComponent> menus = new Hashtable<String, JComponent>();
 	private MapGroup myMapGroup;
 	private MissionType myMissionType = null;
 	private MissionBrowser mBrowser = null;
 	
-	private Vector<ChangeListener> changeListeners = new Vector<ChangeListener>();
+	private final Vector<ChangeListener> changeListeners = new Vector<ChangeListener>();
 	private LinkedHashMap<String, JInternalFrame> planFrames = new LinkedHashMap<String, JInternalFrame>(),
-		mapFrames = new LinkedHashMap<String, JInternalFrame>(),
-		vehicleFrames = new LinkedHashMap<String, JInternalFrame>(),
-		checkListFrames = new LinkedHashMap<String, JInternalFrame>();
+		mapFrames = new LinkedHashMap<String, JInternalFrame>();
+    private final LinkedHashMap<String, JInternalFrame> vehicleFrames = new LinkedHashMap<String, JInternalFrame>();
+    private LinkedHashMap<String, JInternalFrame> checkListFrames = new LinkedHashMap<String, JInternalFrame>();
 	
 	private LinkedHashMap<String, PlanType> planTypes = new LinkedHashMap<String, PlanType>();
 	private LinkedHashMap<String, IndividualPlanEditor> planEditors = new LinkedHashMap<String, IndividualPlanEditor>();
@@ -153,12 +152,12 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	private LinkedHashMap<String, ChecklistType> checkLists = new LinkedHashMap<String, ChecklistType>();
 	private LinkedHashMap<String, ChecklistPanel> checkListEditors = new LinkedHashMap<String, ChecklistPanel>();
 	
-	private Vector<MissionChangeListener> missionListeners = new Vector<MissionChangeListener>();
+	private final Vector<MissionChangeListener> missionListeners = new Vector<MissionChangeListener>();
 	
 	boolean missionChanged = false;
 	String workingFile = null;
 	
-	private LinkedHashMap<JMenuItem, File> miscFilesOpened = new LinkedHashMap<JMenuItem, File>();
+	private final LinkedHashMap<JMenuItem, File> miscFilesOpened = new LinkedHashMap<JMenuItem, File>();
 	private JMenu recentlyOpenFilesMenu = null;
 	public final static String RECENTLY_OPENED_MISSIONS = "conf/mp_recent.xml";
 	
@@ -224,7 +223,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	 * Verifies if the user has unsaved changes and asks him what to do if there are
 	 * any unsaved changes.
 	 */
-	public void windowClosing(WindowEvent arg0) {
+	@Override
+    public void windowClosing(WindowEvent arg0) {
 		ActionEvent evt = new ActionEvent(this, ActionEvent.RESERVED_ID_MAX + 1, "quit");
 		this.actionPerformed(evt);
 	}
@@ -233,7 +233,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	 * The implementation of this function is required by the
 	 * <b>WindowListener</b>. This kind of event is ignored.
 	 */
-	public void windowActivated(WindowEvent arg0) {
+	@Override
+    public void windowActivated(WindowEvent arg0) {
         //System.out.println("windowActivated()");
         //(PDias) Para poder ser esta a base das frames quando se
         //  abre o MC e MP
@@ -244,30 +245,35 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	 * The implementation of this function is required by the
 	 * <b>WindowListener</b>. This kind of event is ignored.
 	 */
-	public void windowClosed(WindowEvent arg0) {}
+	@Override
+    public void windowClosed(WindowEvent arg0) {}
 	
 	/**
 	 * The implementation of this function is required by the
 	 * <b>WindowListener</b>. This kind of event is ignored.
 	 */
-	public void windowDeactivated(WindowEvent arg0) {}
+	@Override
+    public void windowDeactivated(WindowEvent arg0) {}
 	
 	/**
 	 * The implementation of this function is required by the
 	 * <b>WindowListener</b>. This kind of event is ignored.
 	 */
-	public void windowDeiconified(WindowEvent arg0) {}
+	@Override
+    public void windowDeiconified(WindowEvent arg0) {}
 	
 	/**
 	 * The implementation of this function is required by the
 	 * <b>WindowListener</b>. This kind of event is ignored.
 	 */
-	public void windowIconified(WindowEvent arg0) {}
+	@Override
+    public void windowIconified(WindowEvent arg0) {}
 	
 	/**
 	 * The implementation of this function is required by the
 	 * <b>WindowListener</b>. This kind of event is ignored.
 	 */
+    @Override
     public void windowOpened(WindowEvent arg0) {
     }	
 	
@@ -278,7 +284,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	 * @param title The title to appear in the frame
 	 * @param newComponent The component to be shown in the new frame
 	 */
-	public JInternalFrame createFrame(String title, String name, JComponent newComponent) {
+	@Override
+    public JInternalFrame createFrame(String title, String name, JComponent newComponent) {
 		JInternalFrame jif = new JInternalFrame(title, true, true, true, true);
 		jif.setName(name);
 		
@@ -294,7 +301,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 				jif.setFrameIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
 		                getClass().getResource("/images/menus/mapeditor.png"))));
 				jif.addInternalFrameListener(new InternalFrameAdapter()  {        			
-        			public void internalFrameDeactivated(javax.swing.event.InternalFrameEvent arg0) {
+        			@Override
+                    public void internalFrameDeactivated(javax.swing.event.InternalFrameEvent arg0) {
         				try {
         					
         					((MissionMapEditor)mmeComp).switchTo2D();
@@ -363,7 +371,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 				icon.getIconWidth(), icon.getIconHeight());
 		
 		desktop.addComponentListener(new ComponentAdapter() {
-			public void componentResized(java.awt.event.ComponentEvent e) {
+			@Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
 				lbl.setBounds(e.getComponent().getWidth() - icon.getIconWidth(), 
 						e.getComponent().getHeight() - icon.getIconHeight(),
 						icon.getIconWidth(), icon.getIconHeight());
@@ -375,22 +384,22 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 		getContentPane().add(toolbar, BorderLayout.NORTH);
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		split.setOneTouchExpandable(true);
-		mBrowser = new MissionBrowser(null);
+        mBrowser = new MissionBrowser();
 		mBrowser.addChangeListener(this);
 		mBrowser.setMinimumSize(new java.awt.Dimension(160,100));
 		mBrowser.addMouseListener(new MouseAdapter() {		    
-		    public void mouseClicked(MouseEvent e) {
+		    @Override
+            public void mouseClicked(MouseEvent e) {
 		        if (e.getClickCount() >= 2 && e.getButton() == MouseEvent.BUTTON1) {
                     editSelectedMissionElement();
 		        }
 		        if (e.getButton() == MouseEvent.BUTTON3) {
 		        	//mBrowser.get
-		        	TreePath path = mBrowser.getElementTree().getPathForLocation(e.getX(), e.getY());
-		        	if (path != null) {
-		        		mBrowser.getElementTree().setSelectionPath(path);
-		        		Object element = mBrowser.getSelectedItem();
-		        		showElementPopup(e, element);
-		        	}
+                    int x = e.getX();
+                    int y = e.getY();
+                    Object elementAt = mBrowser.getElementAt(x, y);
+                    if (elementAt != null)
+                        showElementPopup(e, elementAt);
 		        }
             }
 		});
@@ -412,7 +421,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 			popup = new JPopupMenu();
 			item = new JMenuItem("Edit"+append);
 			item.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
+				@Override
+                public void actionPerformed(ActionEvent e) {
 					editSelectedMissionElement();
 				}
 			});
@@ -422,7 +432,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 			
 			item = new JMenuItem("Remove"+append);
 			item.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
+				@Override
+                public void actionPerformed(ActionEvent e) {
 					removeSelectedMissionElement(mBrowser.getSelectedItem());
 				}
 			});
@@ -434,7 +445,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 				final PlanType plan = (PlanType) element;
 				item = new JMenuItem("Duplicate"+append);
 				item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
+					@Override
+                    public void actionPerformed(ActionEvent e) {
 						duplicatePlan(plan);
 					}
 				});				
@@ -444,7 +456,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 					if (plan.getVehicleType().getConsoles().size() > 0) {
 						item = new JMenuItem("Show operator Console");					
 						item.addActionListener(new ActionListener() {						
-							public void actionPerformed(ActionEvent e) {
+							@Override
+                            public void actionPerformed(ActionEvent e) {
 								showConsole(plan);
 							};
 						});
@@ -469,7 +482,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 			item = new JMenuItem("Edit Home Reference");
 			
 			item.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
+				@Override
+                public void actionPerformed(ActionEvent e) {
 					editSelectedMissionElement();
 				}
 			});
@@ -480,7 +494,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 			popup = new JPopupMenu();
 			item = new JMenuItem("View/Edit this check list");
 			item.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
+				@Override
+                public void actionPerformed(ActionEvent arg0) {
 					editSelectedMissionElement();
 				}				
 			});
@@ -489,7 +504,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 			
 			item = new JMenuItem("Remove this check list");
 			item.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
+				@Override
+                public void actionPerformed(ActionEvent arg0) {
 					removeSelectedMissionElement(mBrowser.getSelectedItem());	
 				}				
 			});
@@ -527,7 +543,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 		if (selectedItem instanceof MapType) {
 			try {
 				if (mapFrames.containsKey(id)) {
-					JInternalFrame frame = (JInternalFrame)mapFrames.get(id);
+					JInternalFrame frame = mapFrames.get(id);
 					frame.setVisible(false);
 					frame.dispose();
 				}
@@ -543,7 +559,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 			id = ((PlanType)selectedItem).getId();
 			try {
 				if (planFrames.containsKey(id)) {
-					JInternalFrame frame = (JInternalFrame)planFrames.get(id);
+					JInternalFrame frame = planFrames.get(id);
 					frame.setVisible(false);
 					frame.dispose();
 				}
@@ -559,7 +575,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 		if (selectedItem instanceof ChecklistType) {
 			try {
 				if (checkListFrames.containsKey(id)) {
-					JInternalFrame frame = (JInternalFrame)checkListFrames.get(id);
+					JInternalFrame frame = checkListFrames.get(id);
 					frame.setVisible(false);
 					frame.dispose();
 				}
@@ -661,7 +677,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
         menuItem.setIcon(new ImageIcon(this.getClass().getClassLoader()
 				.getResource("images/menus/display.png")));
         menuItem.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
+			@Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
 				OutputPanel.showWindow();
 			}
 		});
@@ -673,7 +690,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
                 .getImage("images/menus/displaylatlon.png")));
         menuItem.setText("Lat/Lon Con.");
         menuItem.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
+			@Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
 				LatLonConv latLonConv = new LatLonConv();
 				createFrame("Lat/Lon Conv.", "Lat/Lon Conv.", latLonConv);
 			}
@@ -814,14 +832,15 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
      * and change is actionCommand like this: 
      * <code>myAction.setActionCommand("myCommand");</code>
      */
-	public void actionPerformed(ActionEvent action) {
+	@Override
+    public void actionPerformed(ActionEvent action) {
 		
 		// This action is sent when the quit menu item is clicked
 		if ("quit".equals(action.getActionCommand())) {
 			if (closeCurrentMission()) {
 				for (int i = 0; i < changeListeners.size(); i++) {
 					ChangeEvent ce = new ChangeEvent(this);
-					((ChangeListener) changeListeners.get(i)).stateChanged(ce);
+					changeListeners.get(i).stateChanged(ce);
 				}
 				this.dispose();
 			}
@@ -946,7 +965,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 		            vm.setCoordinateSystem(getMission().getHomeRef());
 		            vehicles.put(vm.getId(), vm);
 		            
-		            mBrowser.addVehicle(vm);
+                    // mBrowser.addVehicle(vm);
 		            
 		        }
 		        else {
@@ -1005,7 +1024,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 			//allMaps = new MapGroup(hr);
 			refreshMenus();
 			
-			mBrowser.setMission(getMission());
+//			mBrowser.initNodes(getMission());
+            mBrowser.refreshBrowser(null, getMission());
 		}
 		
 		if ("newMap".equals(action.getActionCommand())) {
@@ -1056,7 +1076,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 				else {
 				    MapType map = mme.getMap();
 					if (mapTypes.containsKey(map.getId())) {
-						MapType existingMap = (MapType) mapTypes.get(map.getId());
+						MapType existingMap = mapTypes.get(map.getId());
 						if (existingMap.getHref().equals(map.getHref())) {
 							GuiUtils.errorMessage(this, "Map already in mission","The chosen is already in the current mission.");
 							return;
@@ -1106,7 +1126,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
             	
                 ChecklistType checklist = new ChecklistType();
                 checklist.setName(inputValue.trim());
-                mBrowser.addCheckList(checklist);
+                // mBrowser.addCheckList(checklist);
                 //myMissionType.
                 //checkLists.put(checklist.get(), checklist);
                 openCheckListFrame(checklist);
@@ -1134,7 +1154,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
         		return;
         	}
         	
-            mBrowser.addCheckList(clo);
+            // mBrowser.addCheckList(clo);
             openCheckListFrame(clo);
             setMissionChanged(true);     
             warnMissionListeners(new MissionChangeEvent(MissionChangeEvent.TYPE_CHECKLIST_ADDED));
@@ -1169,7 +1189,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	            vm.setCoordinateSystem(getMission().getHomeRef());
 	            vehicles.put(vm.getId(), vm);
 	            
-	            mBrowser.addVehicle(vm);
+                // mBrowser.addVehicle(vm);
 			}
 		}
 		
@@ -1208,7 +1228,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	    newFrame.add(mr, BorderLayout.CENTER);
 	    newFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    newFrame.addWindowListener(new WindowAdapter() {
-	        public void windowClosed(WindowEvent e) {
+	        @Override
+            public void windowClosed(WindowEvent e) {
                 super.windowClosed(e);
                 mr.dispose();
             }
@@ -1241,11 +1262,12 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	}
 	
 	
-	public void internalFrameClosing(InternalFrameEvent arg0) {
+	@Override
+    public void internalFrameClosing(InternalFrameEvent arg0) {
 		JInternalFrame closedFrame = (JInternalFrame)arg0.getSource();
 		
 		if (mapFrames.containsKey(closedFrame.getName())) {
-		    MissionMapEditor mme = (MissionMapEditor) mapEditors.get(closedFrame.getName());
+		    MissionMapEditor mme = mapEditors.get(closedFrame.getName());
 		    MapType map = mme.getMap();
 		    mapTypes.put(map.getId(), map);
 		    mapFrames.remove(closedFrame.getName());
@@ -1253,13 +1275,13 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 		}
 		
 		if (checkListFrames.containsKey(closedFrame.getName())) {			
-			ChecklistPanel clPanel = (ChecklistPanel)checkListEditors.get(closedFrame.getName());
+			ChecklistPanel clPanel = checkListEditors.get(closedFrame.getName());
 			checkLists.put(closedFrame.getName(), clPanel.getChecklistType());
 			checkListFrames.remove(closedFrame.getName());
 		}
 		
 		if (planFrames.containsKey(closedFrame.getName())) {
-		    IndividualPlanEditor mg = (IndividualPlanEditor) planEditors.get(closedFrame.getName());
+		    IndividualPlanEditor mg = planEditors.get(closedFrame.getName());
 		    planTypes.put(closedFrame.getName(), mg.getPlan());
 		    planFrames.remove(closedFrame.getName());
 		    //planEditors.remove(closedFrame.getName());
@@ -1269,7 +1291,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 			vehicleFrames.remove(closedFrame.getName());
 		}
 		
-		mBrowser.reload();
+        mBrowser.refreshBrowser(null, getMission());
 		
 	}
 
@@ -1277,13 +1299,15 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	 * Does absolutely nothing... but must be implemented in order to fulfill the
 	 * <b>InternalFrameListener</b> interface.
 	 */
-	public void internalFrameActivated(InternalFrameEvent arg0) {}
+	@Override
+    public void internalFrameActivated(InternalFrameEvent arg0) {}
 	
 	/**
 	 * Does absolutely nothing... but must be implemented in order to fulfill the
 	 * <b>InternalFrameListener</b> interface.
 	 */
-	public void internalFrameClosed(InternalFrameEvent arg0) {
+	@Override
+    public void internalFrameClosed(InternalFrameEvent arg0) {
 	    
 	    
 	}
@@ -1292,7 +1316,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	 * Does absolutely nothing... but must be implemented in order to fulfill the
 	 * <b>InternalFrameListener</b> interface.
 	 */
-	public void internalFrameDeactivated(InternalFrameEvent arg0) {
+	@Override
+    public void internalFrameDeactivated(InternalFrameEvent arg0) {
 		//((JInternalFrame)arg0.getSource()).
 	}
 	
@@ -1300,13 +1325,15 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	 * Does absolutely nothing... but must be implemented in order to fulfill the
 	 * <b>InternalFrameListener</b> interface.
 	 */
-	public void internalFrameDeiconified(InternalFrameEvent arg0) {}
+	@Override
+    public void internalFrameDeiconified(InternalFrameEvent arg0) {}
 	
 	/**
 	 * Does absolutely nothing... but must be implemented in order to fulfill the
 	 * <b>InternalFrameListener</b> interface.
 	 */
-	public void internalFrameIconified(InternalFrameEvent arg0) {
+	@Override
+    public void internalFrameIconified(InternalFrameEvent arg0) {
 	    
 	    //arg0.getInternalFrame().dispose();
 	}
@@ -1315,7 +1342,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	 * Does absolutely nothing... but must be implemented in order to fulfill the
 	 * <b>InternalFrameListener</b> interface.
 	 */
-	public void internalFrameOpened(InternalFrameEvent arg0) {}
+	@Override
+    public void internalFrameOpened(InternalFrameEvent arg0) {}
 	
 //  @jve:decl-index=0:visual-constraint="640, 480"
     public MissionType getMission() {
@@ -1348,7 +1376,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
     
 	private void loadMission() {
 		
-	    mBrowser.setMission(getMission());
+        // mBrowser.initNodes(getMission());
+        mBrowser.refreshBrowser(null, getMission());
         setTitle("Neptus Mission Planner - "+getMission().getName());
         if (myMissionType == null)
             return;
@@ -1406,7 +1435,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 		    	myMissionType.getHomeRef().setCoordinateSystem(cs2);
 		    	MapGroup.getMapGroupInstance(myMissionType).setCoordinateSystem(cs2);
 		    	setMissionChanged(true);
-		    	mBrowser.reload();
+                // mBrowser.reload();
+                mBrowser.refreshBrowser(null, getMission());
 	    	}
 	    	
 	        return;
@@ -1431,7 +1461,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	        
 	    	setMissionChanged(true);
 	        setTitle("Neptus Mission Planner - "+getMission().getName());
-	        mBrowser.reload();
+            // mBrowser.reload();
+            mBrowser.refreshBrowser(null, getMission());
 	        return;
 	    }
 	    
@@ -1441,7 +1472,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	        clType = checkLists.get(clType.getName());
 	        
 	        if (checkListFrames.containsKey(clType.getName())) {
-	        	JInternalFrame tmp = (JInternalFrame) checkListFrames.get(clType.getName());
+	        	JInternalFrame tmp = checkListFrames.get(clType.getName());
 	            try {
 	            	tmp.setSelected(true);
 	            	tmp.setIcon(false);
@@ -1461,7 +1492,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	        
 	        MapType Map = (MapType)mBrowser.getSelectedItem();
 	        if (mapFrames.containsKey(Map.getId())) {
-	        	JInternalFrame tmp = (JInternalFrame) mapFrames.get(Map.getId());
+	        	JInternalFrame tmp = mapFrames.get(Map.getId());
 	            try {
 	            	tmp.setSelected(true);
 	            	tmp.setIcon(false);
@@ -1477,7 +1508,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	        MissionMapEditor mme;
 	        
 	        if (mapTypes.containsKey(Map.getId()))
-	            Map = (MapType) mapTypes.get(Map.getId());
+	            Map = mapTypes.get(Map.getId());
 	        
 	        mme = new MissionMapEditor(getMission(), Map, true);//Map, getMission().getHomeRef(), true);
 	        mme.setParentMP(this);
@@ -1493,7 +1524,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	        PlanType plan = (PlanType) mBrowser.getSelectedItem();
 	        
 	        if (planFrames.containsKey(plan.getId())) {
-	        	JInternalFrame tmp = (JInternalFrame) planFrames.get(plan.getId());
+	        	JInternalFrame tmp = planFrames.get(plan.getId());
 	            try {
 	            	tmp.setSelected(true);
 	            	tmp.setIcon(false);
@@ -1509,7 +1540,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	        
 	        if (planTypes.containsKey(plan.getId())) {
 	        	System.out.println("case 1");
-	            planEditor = new IndividualPlanEditor(this, (PlanType) planTypes.get(plan.getId()));	            
+	            planEditor = new IndividualPlanEditor(this, planTypes.get(plan.getId()));	            
 	        }
 	        else {	  
 	        	System.out.println("case 2");
@@ -1543,7 +1574,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	    	VehicleMission vm = (VehicleMission)mBrowser.getSelectedItem();
 	    	if (vehicleFrames.containsKey(vm.getId())) {
 	    		
-	    		JInternalFrame tmp = (JInternalFrame) vehicleFrames.get(vm.getId());
+	    		JInternalFrame tmp = vehicleFrames.get(vm.getId());
 	            try {
 	            	tmp.setSelected(true);
 	            	tmp.setIcon(false);
@@ -1552,7 +1583,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	            catch (Exception e) {
 	            	NeptusLog.pub().error(this, e);
 	            }
-	            mBrowser.reload();
+                // mBrowser.reload();
+                mBrowser.refreshBrowser(null, getMission());
 	            return;
 	        }
 	    	
@@ -1582,7 +1614,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	        	/* (non-Javadoc)
 				 * @see javax.swing.event.InternalFrameAdapter#internalFrameClosing(javax.swing.event.InternalFrameEvent)
 				 */
-				public void internalFrameClosing(InternalFrameEvent arg0) {
+				@Override
+                public void internalFrameClosing(InternalFrameEvent arg0) {
 					super.internalFrameClosing(arg0);
 					VehicleMission vm = vi.getVehicleMission();
 					veType.setCoordinateSystem(vm.getCoordinateSystem());
@@ -1624,7 +1657,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	    			}
 	    			else {
 	    				if (mapEditors.containsKey(map.getId())) {
-	    					MissionMapEditor mme = (MissionMapEditor) mapEditors.get(map.getId());
+	    					MissionMapEditor mme = mapEditors.get(map.getId());
 	    					mme.setMissionType(getMission());
 	    					mme.setMapHref(map.getHref());
 	    				}
@@ -1671,7 +1704,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	    Object[] planKeys = planTypes.keySet().toArray();
 	    for (int i = 0; i< planKeys.length; i++) {
 	    	Object key = planKeys[i];
-	    	PlanType ipt = (PlanType) planTypes.get(key);
+	    	PlanType ipt = planTypes.get(key);
 	    	if (ipt.isEmpty())
 	    		continue;
 	    	if (!ipt.hasInitialManeuver()) {
@@ -1725,7 +1758,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	    	fc.setCurrentDirectory(new File(ConfigFetch.getConfigFile()));
 	    	fc.setFileView(new NeptusFileView());
 	    	fc.setFileFilter(new FileFilter() {
-	    		public boolean accept(File f) {
+	    		@Override
+                public boolean accept(File f) {
 			    	try {
 						if (!f.exists() || !f.canRead())
 							return false;
@@ -1744,7 +1778,8 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 			    	return false;
 				}
 			
-				public String getDescription() {
+				@Override
+                public String getDescription() {
 					return "Neptus Mission Files (*.nmisz, *.nmis)";
 				}
 			
@@ -1826,7 +1861,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 		if (missionChanged) {
 			for (int i = 0; i < changeListeners.size(); i++) {
 				ChangeEvent ce = new ChangeEvent(this);
-				((ChangeListener) changeListeners.get(i)).stateChanged(ce);
+				changeListeners.get(i).stateChanged(ce);
 			}
 		}
 	}
@@ -1834,12 +1869,13 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	/**
 	 * This method is called when changes have ocurred
 	 */
-	public void stateChanged(ChangeEvent e) {		
+	@Override
+    public void stateChanged(ChangeEvent e) {		
 		
 		setMissionChanged(true);
 		
 		for (int i = 0; i < changeListeners.size(); i++) {
-			ChangeListener cl = (ChangeListener) changeListeners.get(i);			
+			ChangeListener cl = changeListeners.get(i);			
 			cl.stateChanged(e);
 		}
 	}
@@ -1925,7 +1961,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 	    Object[] planKeys = planTypes.keySet().toArray();
 	    for (int i = 0; i< planKeys.length; i++) {
 	    	Object key = planKeys[i];
-	    	PlanType ipt = (PlanType) planTypes.get(key);
+	    	PlanType ipt = planTypes.get(key);
 	    	plans.put((String)key, ipt);
 	    }
 	    
@@ -2010,6 +2046,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
     {
         RecentlyOpenedFilesUtil.updateFilesOpenedMenuItems(fx, miscFilesOpened,
                 new java.awt.event.ActionListener() {
+                    @Override
                     public void actionPerformed(java.awt.event.ActionEvent e)
                     {
                         File fx;
@@ -2017,7 +2054,7 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
                         File value = miscFilesOpened.get(key);
                         if (value instanceof File)
                         {
-                            fx = (File) value;
+                            fx = value;
                             openMission(fx);
                         } else
                             return;
@@ -2184,13 +2221,15 @@ public class MissionPlanner extends JFrame implements IFrameOpener, ChangeListen
 		return "checklist"+i;
 	}
 	
-	public void handleFile(File f) {
+	@Override
+    public void handleFile(File f) {
 		ConfigFetch.setSuperParentFrame(this);
 		setMission(new MissionType(f.getAbsolutePath()));
         GuiUtils.centerOnScreen(this);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		addWindowListener(new WindowAdapter() {
-			public void windowClosed(WindowEvent e) {
+			@Override
+            public void windowClosed(WindowEvent e) {
 				super.windowClosed(e);
 				OutputMonitor.end();
 				System.exit(0);
