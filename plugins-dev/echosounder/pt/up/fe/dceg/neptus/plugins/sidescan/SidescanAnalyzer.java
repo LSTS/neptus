@@ -52,6 +52,7 @@ import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.up.fe.dceg.neptus.util.llf.LogUtils;
 
 /**
  * @author jqcorreia
@@ -195,7 +196,8 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getLog("SonarData") != null || source.getFile("Data.jsf") != null;
+        
+        return LogUtils.hasIMCSidescan(source)|| source.getFile("Data.jsf") != null;
     }
 
     @Override
