@@ -519,10 +519,6 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             
             @Override
             public void deliveryUncertain(IMCMessage message, Object msg) {
-//                post(Notification.info(
-//                        I18n.text("Delivering Message"),
-//                        I18n.textf("Message %messageType to %destination delivery uncertain",
-//                                message.getAbbrev(), getDest(message))));
             }
             
             @Override
