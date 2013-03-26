@@ -31,16 +31,26 @@
  */
 package pt.up.fe.dceg.neptus.plugins.spot;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.util.Vector;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
+import pt.up.fe.dceg.neptus.plugins.update.PeriodicUpdatesService;
+import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 /**
  * @author Margarida Faria
@@ -53,6 +63,18 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     private final String getUrl;
     private final String postUrl;
     private SpotUpdater spotUpdater;
+    protected boolean active = false;
+
+    protected Vector<SpotInfo> spotsOnMap = new Vector<SpotInfo>();
+    protected StateRenderer2D renderer = null;
+
+    @NeptusProperty
+    public boolean showOnlyWhenInteractionIsActive = true;
+    @NeptusProperty
+    public boolean showNames = true;
+    @NeptusProperty
+    public boolean showSpeeds = true;
+
     /**
      * @param console
      */
@@ -81,6 +103,8 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public boolean update() {
+
+        // lancar thread para ir buscar dados, processa-los e dp pedir o repaint
         try {
             spotUpdater.update(getUrl, postUrl);
         }
@@ -106,8 +130,58 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
+        PeriodicUpdatesService.unregister(this);
+        spotsOnMap.clear();
+    }
 
+    @Override
+    public void setActive(boolean mode, StateRenderer2D source) {
+        super.setActive(mode, source);
+        active = mode;
+        if (active)
+            update();
+    }
+
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        super.paint(g, renderer);
+        this.renderer = renderer;
+
+        if (showOnlyWhenInteractionIsActive && !active)
+            return;
+
+        // if (lastThread != null) {
+        // g.drawString("Updating AIS layer...", 10, 15);
+        // }
+
+        for (SpotInfo spot : spotsOnMap) {
+            LocationType spotLoc = spot.getLastLocation();
+            Point2D pt = renderer.getScreenPosition(spotLoc);
+
+            g.translate(pt.getX(), pt.getY());
+
+            if (showNames) {
+                g.setColor(Color.red.darker().darker());
+                g.drawString(spot.getName(), 5, 5);
+            }
+
+            if (showSpeeds) {
+                g.setColor(Color.black);
+                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(spot.getSpeedMps()) + " m/s", 5, 15);
+            }
+
+            g.setColor(Color.red);
+            if (spot.getSpeedMps() == 0) {
+                g.fill(new Ellipse2D.Double(-3, -3, 6, 6));
+            }
+            else {
+                g.rotate(spot.getHeadingRads());
+                g.fill(path);
+                g.rotate(-spot.getHeadingRads());
+            }
+
+            g.translate(-pt.getX(), -pt.getY());
+        }
     }
 
 }

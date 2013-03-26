@@ -28,6 +28,7 @@ public class SpotUpdater {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document doc = db.parse(url);
+        System.out.println(doc.toString());
 		NodeList nlist = doc.getFirstChild().getChildNodes();
 		
 		for (int i = 1; i < nlist.getLength(); i++) {
