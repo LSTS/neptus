@@ -827,6 +827,7 @@ For simple use the main targets are:
         	<include name="pt/up/fe/dceg/neptus/vartree/*.class"/>
         	<include name="pt/up/fe/dceg/vartree/*.class"/>
         	<include name="pt/up/fe/dceg/neptus/plugins/PluginProperty.class"/>
+        	<include name="pt/up/fe/dceg/neptus/plugins/NeptusProperty*.class"/>
         	<!--include name="pt/up/fe/dceg/neptus/types/**/*.class"/ -->
         	<!-- include name="images/**/*.*" / -->
         	<include name="images/neptus-icon.png"/>
@@ -957,6 +958,7 @@ For simple use the main targets are:
         	<include name="pt/up/fe/dceg/neptus/util/comm/ssh/SSHConnectionDialog*.class" />
         	<include name="pt/up/fe/dceg/neptus/util/comm/ssh/IntFormat*.class" />
         	<include name="pt/up/fe/dceg/neptus/gui/ImagePanel*.class" />
+        	<include name="pt/up/fe/dceg/neptus/planeditor/I*.class" />
         	<include name="images/ssh-connect.png"/>
         </jar>
         <mkdir dir="${tmp.bundle.dir}"/>
