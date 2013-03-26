@@ -786,6 +786,12 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                     LblConfig msgLBLConfiguration = new LblConfig();
                     msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
 
+                    for (String sysName : dest) {
+                        ImcSystem sys = ImcSystemsHolder.getSystemWithName(sysName);
+                        if (sys != null)
+                            sys.removeData(ImcSystem.LBL_CONFIG_KEY);
+                    }
+                    
                     IMCSendMessageUtils.sendMessage(msgLBLConfiguration, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP
                             : null), createDefaultMessageDeliveryListener(), PlanControlPanel.this, I18n.text("Error sending acoustic beacons"),
                             DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, dest);

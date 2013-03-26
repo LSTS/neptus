@@ -36,6 +36,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -51,8 +52,10 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumnModel;
 
 import net.java.games.input.Component;
 import net.miginfocom.swing.MigLayout;
@@ -106,8 +109,6 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
     // The current controller poll
     private LinkedHashMap<String, Component> poll;
 
-    //private JPanel mapperComponentsPanel = new JPanel(new MigLayout("", "[]5[100!]", "[]5[]"));
-    
     @SuppressWarnings("serial")
     private JTable table = new JTable() {
         public javax.swing.table.TableCellRenderer getCellRenderer(int row, int column) {
@@ -132,7 +133,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
     private ConsoleLayout console;
 
     private boolean editing = false;
-    private int editingComponentIndex = -1;
+
     private LinkedHashMap<String, Float> oldPoll = new LinkedHashMap<String, Float>();
 
     public ControllerPanel(ConsoleLayout console) {
@@ -204,61 +205,10 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         setLayout(new MigLayout());
         model = new TableModel(mappedActions);
         table.setModel(model);
+        table.addMouseListener(new JTableButtonMouseListener(table));
         
-//        table.getColumn("Component").setCellEditor(new TableCellEditor() {
-//
-//            @Override
-//            public Object getCellEditorValue() {
-//                return null;
-//            }
-//
-//            @Override
-//            public boolean isCellEditable(EventObject anEvent) {
-//                return true;
-//            }
-//
-//            @Override
-//            public boolean shouldSelectCell(EventObject anEvent) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean stopCellEditing() {
-//                return false;
-//            }
-//
-//            @Override
-//            public void cancelCellEditing() {
-//                
-//            }
-//
-//            @Override
-//            public void addCellEditorListener(CellEditorListener l) {
-//                
-//            }
-//
-//            @Override
-//            public void removeCellEditorListener(CellEditorListener l) {
-//                
-//            }
-//
-//            @Override
-//            public java.awt.Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected,
-//                    int row, int column) {
-//                return new JButton();
-//            }
-//        });
-//        
         add(new JScrollPane(table), "wrap");
-        add(comboBox, "w 200::, split");
-        add(new JButton(new AbstractAction(I18n.text("Configurate Actions")) {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                edit();
-            }
-        }), "wrap, sg buttons");
+        add(comboBox, "w 200::, wrap");
         add(new JButton(new AbstractAction(I18n.text("Refresh Controllers")) {
             private static final long serialVersionUID = 1L;
 
@@ -266,7 +216,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
             public void actionPerformed(ActionEvent e) {
                 updateControllers();
             }
-        }), "sg buttons");
+        }));
         
         dialog.pack();
     }
@@ -311,12 +261,6 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         }
     }
 
-    private void edit() {
-        editing = true;
-        editingComponentIndex = 0;
-        model.fireTableDataChanged();
-    }
-
     @Override
     public void mainVehicleChangeNotification(String id) {
         actions = null;
@@ -346,32 +290,25 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         poll = manager.pollController(currentController);
         
         if (editing) {
-            
             if (oldPoll.size() == poll.size()) {
                 for (String k : poll.keySet()) {
                     if (poll.get(k).getPollData() != oldPoll.get(k).floatValue()
                             && Math.abs(poll.get(k).getPollData()) == 1.0) {
-                        int i = 0;
                         for (MapperComponent mcomp : mappedActions) {
-                            if (i == editingComponentIndex) {
+                            if (mcomp.editFlag) {
                                 mcomp.component = k;
                                 mcomp.inverted = poll.get(k).getPollData() < 0;
-                                editingComponentIndex++;
                                 model.fireTableDataChanged();
+
+                                // Finish editing and save mappings
+                                editing = false;
+                                mcomp.editFlag = false;
+                                saveMappings();
                                 break;
                             }
-                            i++;
                         }
                     }
                 }
-            }
-            
-            // Check if done editing 
-            // Save mappings for this system/controller and exit editing mode
-            if(editingComponentIndex == mappedActions.size()) {
-                editing = false;
-                editingComponentIndex = -1;
-                saveMappings();
             }
             
             // Deep copy poll to oldPoll
@@ -492,12 +429,26 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         String component;
         float value;
         boolean inverted;
-
-        MapperComponent(String action, String component, float value, boolean inverted) {
+        JButton edit;
+        boolean editFlag = false;
+        
+        MapperComponent(final String action, String component, float value, boolean inverted) {
             this.action = action;
             this.component = component;
             this.value = value;
             this.inverted = inverted;
+            this.edit = new JButton("Edit");
+            
+            edit.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    if(!editing) {
+                        editing = true;
+                        editFlag = true;
+                    }
+                } 
+            });
         }
     }
     
@@ -508,7 +459,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
     
     @SuppressWarnings("serial")
     private class TableModel extends AbstractTableModel {
-        ArrayList<MapperComponent> list;
+        public ArrayList<MapperComponent> list;
         
         @Override
         public String getColumnName(int column) {
@@ -530,6 +481,9 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
             this.list = list;
         }
         
+        public ArrayList<MapperComponent> getList() {
+            return list;
+        }
         @Override
         public int getRowCount() {
             return list.size();
@@ -553,18 +507,20 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
                 case 3:
                     return comp.inverted;
                 case 4:
-                    return "Edite";
+                    return comp.edit;
             }
             return null;
         }
         
         public boolean isCellEditable(int row, int col) {
-            return col == 3 || col == 1; // Hard-coded for now
+            return col == 3 || col == 1 || col == 4; // Hard-coded for now
         }
 
         public void setValueAt(Object value, int row, int col) {
-            list.get(row).inverted = (Boolean)value;
-            fireTableCellUpdated(row, col);
+            if(col == 3) {
+                list.get(row).inverted = (Boolean)value;
+                fireTableCellUpdated(row, col);
+            }
         }
         
         public Class<?> getColumnClass(int c) {
@@ -581,22 +537,74 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
                 boolean hasFocus, final int row, int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            if(row == editingComponentIndex) {
+            MapperComponent comp = (MapperComponent) ((TableModel)model).getList().get(row);
+            if(comp.editFlag) {
                 setBackground(Color.green);
             }
             else {
                 setBackground(Color.white);
             }
             if(column == 4) {
-                addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mousePressed(MouseEvent e) {
-                        System.out.println(row);
-                    }
-                });
-                return new JButton(I18n.text("Edit"));
+                return (JButton)model.getValueAt(row, column);
             }
             return this;
         }
     }
+    
+    class JTableButtonMouseListener implements MouseListener {
+        private JTable __table;
+
+        private void __forwardEventToButton(MouseEvent e) {
+           
+          TableColumnModel columnModel = __table.getColumnModel();
+          int column = columnModel.getColumnIndexAtX(e.getX());
+          int row    = e.getY() / __table.getRowHeight();
+          Object value;
+          JButton button;
+          MouseEvent buttonEvent;
+
+          if(row >= __table.getRowCount() || row < 0 ||
+             column >= __table.getColumnCount() || column < 0)
+            return;
+
+          value = __table.getValueAt(row, column);
+
+          if(!(value instanceof JButton))
+            return;
+
+          button = (JButton)value;
+
+          buttonEvent =
+            (MouseEvent)SwingUtilities.convertMouseEvent(__table, e, button);
+          button.dispatchEvent(buttonEvent);
+          // This is necessary so that when a button is pressed and released
+          // it gets rendered properly.  Otherwise, the button may still appear
+          // pressed down when it has been released.
+          __table.repaint();
+        }
+
+        public JTableButtonMouseListener(JTable table) {
+          __table = table;
+        }
+
+        public void mouseClicked(MouseEvent e) {
+          __forwardEventToButton(e);
+        }
+
+        public void mouseEntered(MouseEvent e) {
+          __forwardEventToButton(e);
+        }
+
+        public void mouseExited(MouseEvent e) {
+          __forwardEventToButton(e);
+        }
+
+        public void mousePressed(MouseEvent e) {
+          __forwardEventToButton(e);
+        }
+
+        public void mouseReleased(MouseEvent e) {
+          __forwardEventToButton(e);
+        }
+      }
 }

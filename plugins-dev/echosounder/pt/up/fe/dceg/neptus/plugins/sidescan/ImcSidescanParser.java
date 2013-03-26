@@ -83,7 +83,7 @@ public class ImcSidescanParser implements SidescanParser {
         return l;
     };
 
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem, SidescanPanelConfig config) {
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem, SidescanConfig config) {
         
         // Preparation
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();

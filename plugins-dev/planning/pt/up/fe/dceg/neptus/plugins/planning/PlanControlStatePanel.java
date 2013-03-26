@@ -35,6 +35,7 @@ import java.awt.Color;
 import java.util.Date;
 
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
@@ -49,6 +50,7 @@ import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.util.DateTimeUtil;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 /**
  * @author pdias
@@ -66,16 +68,18 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
     private JLabel planIdLabel;
     private JLabel nodeIdValueLabel;
     private JLabel nodeIdLabel;
+    private JLabel outcomeTitleLabel;
+    private JLabel outcomeLabel;
 
     private PlanControlState.STATE state;
     private String planId = "";
-    //private long planStarTimeMllisUTC = -1;
+    // private long planStarTimeMllisUTC = -1;
     private String nodeId = "";
+    private String lastOutcome = "<html><font color='0x666666'>" + I18n.text("N/A") + "</font>";
+    private String lastProgress = I18n.text("N/A");
     private int nodeTypeImcId = -1;
     private long nodeStarTimeMillisUTC = -1;
     private long nodeEtaSec = -1;
-    private String lastEvent = "";
-    private long lastEventTimeMillisUTC = -1;
     private long lastUpdated = -1;
 
     private final String[] messagesToObserve = new String[] { "PlanControlState" };
@@ -114,29 +118,14 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
         this.add(nodeIdLabel);
         this.add(nodeIdValueLabel, "wrap");
 
-//        lastEventTitle = new JLabel("<html><b>" + I18n.text("Last event") + ": ");
-//        lastEventTitle.setHorizontalAlignment(SwingConstants.LEADING);
-//        lastEventTitle.setFont(font);
-//        lastEventLabel = new JTextArea("");
-//        lastEventLabel.setFont(font);
-//        lastEventLabel.setLineWrap(true);
-//        lastEventLabel.setWrapStyleWord(true);
-//        lastEventLabel.setEditable(false);
-//        lastEventLabel.setEnabled(false);
-//        lastEventLabel.setOpaque(false);
-//        lastEventScrollPane = new JScrollPane();
-//        lastEventScrollPane.setSize(new Dimension(136, 40));
-//        lastEventScrollPane.setViewportView(lastEventLabel);
-//        lastEventScrollPane.setOpaque(false);
-//        this.add(lastEventTitle, "wrap, span 2");
-//        this.add(lastEventScrollPane, "w 100%, h 100%, span 2");
+        outcomeTitleLabel = new JLabel("<html><b>" + I18n.text("Outcome") + ": ");
+        outcomeTitleLabel.setHorizontalAlignment(SwingConstants.LEADING);
+
+        outcomeLabel = new JLabel(lastOutcome);
+        this.add(outcomeTitleLabel);
+        this.add(outcomeLabel, "wrap");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.up.fe.dceg.neptus.plugins.NeptusMessageListener#getObservedMessages()
-     */
     @Override
     public String[] getObservedMessages() {
         return messagesToObserve;
@@ -146,22 +135,42 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
         try {
             state = message.getState();
             planId = message.getPlanId();
-            //planStarTimeMllisUTC = (long) (message. * 1000);
             nodeId = message.getManId();
             nodeTypeImcId = message.getManType();
-            //nodeStarTimeMillisUTC = (long) (message.getManStime() * 1000);
             nodeEtaSec = message.getManEta();
-            lastEvent = message.getLastOutcome().toString();
+            double progress = -1;
+            switch (message.getState()) {
+                case READY:
+                case BLOCKED:
+                    outcomeTitleLabel.setText("<html><b>" + I18n.text("Outcome") + ": ");
+                    switch (message.getLastOutcome()) {
+                        case SUCCESS:
+                            lastOutcome = "<html><b><font color='#00CC00'>" + I18n.text("Success") + "</font></b>";
+                            break;
+                        case FAILURE:
+                            lastOutcome = "<html><b><font color='#CC0000'>" + I18n.text("Failure") + "</font></b>";
+                            break;
+                        default:
+                            lastOutcome = "<html><font color='#666666'>" + I18n.text("N/A") + "</font>";
+                            break;
+                    }
+                    break;                    
+                case EXECUTING:
+                    progress = message.getPlanProgress();
+                case INITIALIZING:                        
+                    outcomeTitleLabel.setText("<html><b>" + I18n.text("Progress") + ": ");
+                    if (progress != -1)
+                        lastOutcome = GuiUtils.getNeptusDecimalFormat(0).format(message.getPlanProgress())+" %";    
+                    else
+                        lastOutcome = "<html><font color='#666666'>" + I18n.text("N/A") + "</font>";                            
+                    break;
+                default:
+                    outcomeTitleLabel.setText("<html><b>" + I18n.text("Progress") + ": ");
+                    lastOutcome = "Initializing";
+                    break;
+            }
             
-//            long ts = (long) (message.getLastEventTime() * 1000);
-//            if (ts != lastEventTimeMillisUTC) {
-//                post(Notification.info(
-//                        getMainVehicleId(),
-//                        I18n.textf("Message from system: %message",
-//                                DateTimeUtil.timeFormaterNoMillis2.format(new Date(ts)) + " - " + lastEvent)));
-//            }
-//            lastEventTimeMillisUTC = ts;
-
+            outcomeLabel.setText(lastOutcome);
             lastUpdated = System.currentTimeMillis();
             update();
         }
@@ -187,16 +196,15 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
             stateValueLabel.setText(state.toString());
 
         String planTimeStr;
-//        if (planStarTimeMllisUTC > 0)
-//            planTimeStr = "@" + DateTimeUtil.timeFormaterNoMillis2.format(new Date(planStarTimeMllisUTC));
-//        else
-            planTimeStr = "";
+
+        planTimeStr = "";
         planIdValueLabel.setText(planId + planTimeStr);
 
         String nodeStr = nodeId;
-        
+
         if (IMCDefinition.getInstance().getMessageName(nodeTypeImcId) != null)
-            nodeStr += " <font color='#666666' size='3'>(" + IMCDefinition.getInstance().getMessageName(nodeTypeImcId) + ")</font> ";
+            nodeStr += " <font color='#666666' size='3'>(" + IMCDefinition.getInstance().getMessageName(nodeTypeImcId)
+                    + ")</font> ";
         String nodeTimeStr;
         if (nodeStarTimeMillisUTC > 0)
             nodeTimeStr = "@" + DateTimeUtil.timeFormaterNoMillis2.format(new Date(nodeStarTimeMillisUTC));
@@ -207,22 +215,7 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
             etaStr = " ETA " + DateTimeUtil.milliSecondsToFormatedString(nodeEtaSec * 1000);
         else
             etaStr = "";
-        nodeIdValueLabel.setText("<html>" +  nodeStr + etaStr);
-
-//        if (lastEvent != null && !"".equalsIgnoreCase(lastEvent)) {
-//            String dateStr = "";
-//            if (lastEventTimeMillisUTC != -1) {
-//                dateStr = DateTimeUtil.timeFormaterNoMillis2.format(new Date(lastEventTimeMillisUTC));
-//                if ((System.currentTimeMillis() - (lastEventTimeMillisUTC)) > 5000)
-//                    lastEventLabel.setEnabled(false);
-//                else
-//                    lastEventLabel.setEnabled(true);
-//            }
-//            lastEventLabel.setText(dateStr + " - " + lastEvent);
-//        }
-//        else {
-//            lastEventLabel.setText("");
-//        }
+        nodeIdValueLabel.setText("<html>" + nodeStr + etaStr);
 
         Color fColor = Color.BLACK;
         if ((System.currentTimeMillis() - (lastUpdated)) > 5000) {
@@ -232,7 +225,7 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
             stateLabel.setForeground(fColor);
             planIdLabel.setForeground(fColor);
             nodeIdLabel.setForeground(fColor);
-//            lastEventTitle.setForeground(fColor);
+            outcomeTitleLabel.setForeground(fColor);
         }
         return true;
     }
@@ -241,12 +234,10 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
     public void mainVehicleChangeNotification(String id) {
         state = PlanControlState.STATE.BLOCKED;
         planId = "";
-       // planStarTimeMllisUTC = -1;
+        // planStarTimeMllisUTC = -1;
         nodeId = "";
         nodeStarTimeMillisUTC = -1;
         nodeTypeImcId = 0xFFFF;
-        lastEvent = "";
-        lastEventTimeMillisUTC = -1;
     }
 
     @Override

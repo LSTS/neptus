@@ -109,6 +109,20 @@ public class SimpleLocationPanel extends JPanel {
 		selector.setLocationType(this.location);
 	}
 	
+	public static LocationType showHorizontalLocationDialog(LocationType previousLocation, String title, boolean editable,
+            Component parentComponent) {
+        LocationType location = new LocationType();
+
+        location.setLocation(previousLocation.convertToAbsoluteLatLonDepth());
+
+        SimpleLocationPanel locPanel = new SimpleLocationPanel(location);
+        locPanel.selector.setZSelectable(false);
+        locPanel.getLocationDialog(title, parentComponent);
+        if (locPanel.isUserCancel())
+            return null; 
+        return locPanel.getLocationType();
+    }
+	
 	public static LocationType showLocationDialog(LocationType previousLocation, String title, boolean editable,
 	        Component parentComponent) {
 		LocationType location = new LocationType();
@@ -175,7 +189,7 @@ public class SimpleLocationPanel extends JPanel {
    public static void main(String[] args) {
         GuiUtils.setLookAndFeel();
         LocationType lt = new LocationType();
-        lt = showLocationDialog(lt, "Testing LocationDialog", true, null);
+        lt = showHorizontalLocationDialog(lt, "Testing LocationDialog", true, null);
         System.out.println(lt);
     }
 }
