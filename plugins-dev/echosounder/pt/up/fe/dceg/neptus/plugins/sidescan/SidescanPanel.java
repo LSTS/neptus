@@ -59,6 +59,7 @@ import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SonarData;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
+import pt.up.fe.dceg.neptus.mra.replay.MraVehiclePosHud;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
@@ -71,17 +72,17 @@ import pt.up.fe.dceg.neptus.util.MathMiscUtils;
 public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener{
     private static final long serialVersionUID = 1L;
     
-    
-    enum InteractionMode {
-        NONE, ZOOM, INFO, MARK, MEASURE;
-    }
-
     SidescanAnalyzer parent;
     SidescanConfig config = new SidescanConfig();
     SidescanToolbar toolbar = new SidescanToolbar(this);
     
+    enum InteractionMode {
+        NONE, ZOOM, INFO, MARK, MEASURE;
+    }
     InteractionMode imode = InteractionMode.INFO;
-    
+
+    MraVehiclePosHud posHud;
+
     JPanel view = new JPanel() {
         private static final long serialVersionUID = 1L;
 
@@ -111,6 +112,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     drawRuler(layer.getGraphics());
                     
                     g.drawImage(layer, 0, 0, null);
+                    
+                    if(config.showPositionHud)
+                        g.drawImage(posHud.getImage((firstPingTime + currentTime) / 1000.0), 0, getHeight() - config.hudSize, null);
                 }
             }
             catch (Exception e) {
@@ -186,6 +190,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         ssParser = parser;
         initialize();
         this.subsystem = subsystem;
+        
+        posHud = new MraVehiclePosHud(analyzer.mraPanel.getSource().getLsfIndex(), config.hudSize, config.hudSize);
     }
     
     public void initialize() {
@@ -229,8 +235,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     int lcount = 0;
     
     public void updateImage(long currentTime, long lastUpdateTime) {
-        
         int yref = 0;
+        this.currentTime = currentTime;
         drawList.addAll(ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime + currentTime, image.getWidth(), subsystem, config));
         for(SidescanLine l : drawList) {
             if(l.range != getRange()) {
