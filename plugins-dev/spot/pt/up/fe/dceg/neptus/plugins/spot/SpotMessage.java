@@ -4,8 +4,8 @@ import java.text.SimpleDateFormat;
 
 public class SpotMessage implements Comparable<SpotMessage>{
 
-	protected double latitude, longitude;
-	protected long timestamp;
+    public final double latitude, longitude;
+    public final long timestamp;
 	String id;
 	
 	public SpotMessage(double lat, double lon, long timestamp, String id) {

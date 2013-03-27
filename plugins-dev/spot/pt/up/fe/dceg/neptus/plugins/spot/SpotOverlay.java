@@ -35,12 +35,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.Point2D;
-import java.io.IOException;
-import java.util.Vector;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
@@ -59,15 +56,13 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
  */
 @PluginDescription(author = "Margarida", name = "SPOT Overlay")
 public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicUpdates {
+    private final ArrayList<Spot> spotsOnMap;
+    private StateRenderer2D renderer = null;
+    private boolean active = false;
+
     private static final long serialVersionUID = -4807939956933128721L;
     private final int updateMillis;
-    private final String getUrl;
-    private final String postUrl;
-    private SpotUpdater spotUpdater;
-    protected boolean active = false;
-
-    protected final Vector<SpotInfo> spotsOnMap;
-    protected StateRenderer2D renderer = null;
+    private Timer timer;
     private final Image arrow;
 
     @NeptusProperty
@@ -82,11 +77,9 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
      */
     public SpotOverlay(ConsoleLayout console) {
         super(console);
-        getUrl = "http://tiny.cc/spot1";
-        postUrl = "http://whale.fe.up.pt/neptleaves/state";
         updateMillis = 60000;
         arrow = ImageUtils.getImage("images/spotArrow.png");
-        spotsOnMap = new Vector<SpotInfo>();
+        spotsOnMap = new ArrayList<Spot>();
     }
 
     /*
@@ -108,34 +101,33 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     @Override
     public boolean update() {
 
-        // lancar thread para ir buscar dados, processa-los e dp pedir o repaint
-        try {
-            spotUpdater.update(getUrl, postUrl);
-        }
-        catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         return false;
     }
 
     @Override
     public void initSubPanel() {
-        spotUpdater = new SpotUpdater();
+        System.out.println("Init SpotOverlay");
+        spotsOnMap.add(new Spot(SpotPageKeys.LSTSSPOT));
+        timer = new Timer();
+        int delayToStart = 0;// 1 * 60 * 10000;
+        int delayBetweenTasks = 10 * 60 * 10000;
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("Gonna run updates on SPOTS. There are " + spotsOnMap.size() + " spots registered");
+                for (Spot spot : spotsOnMap) {
+                    spot.update();
+                    System.out.println("Repaint asked for SpotOverlay");
+                    repaint();
+                }
+            }
+        }, delayToStart, delayBetweenTasks);
     }
 
     @Override
     public void cleanSubPanel() {
-        PeriodicUpdatesService.unregister(this);
-        spotsOnMap.clear();
+        PeriodicUpdatesService.unregister(this);// TODO stop uising this
+        timer.cancel();
     }
 
     @Override
@@ -154,17 +146,25 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 //        Graphics2D graphicsClone = (Graphics2D)g.create();
 //        graphicsClone.dispose();
         
-        if (showOnlyWhenInteractionIsActive && !active)
-            return;
+        // System.out.println("showOnlyWhenInteractionIsActive && !active:" + (showOnlyWhenInteractionIsActive &&
+        // !active)
+        // + "; showOnlyWhenInteractionIsActive " + showOnlyWhenInteractionIsActive + " active" + active);
+        //
+        // if (showOnlyWhenInteractionIsActive && !active)
+        // return;
 
         // if (lastThread != null) {
         // g.drawString("Updating AIS layer...", 10, 15);
         // }
 
-        for (SpotInfo spot : spotsOnMap) {
+        for (Spot spot : spotsOnMap) {
             LocationType spotLoc = spot.getLastLocation();
-
-            // g.translate(pt.getX(), pt.getY());
+            System.out.println("spot paint. spotloc:" + spotLoc + " for " + spot.getName());
+            if (spotLoc == null)
+                continue;
+            Point2D pt = renderer.getScreenPosition(spotLoc);
+            g.translate(pt.getX(), pt.getY());
+            System.out.println("screen pos:" + pt.getX() + ", " + pt.getY());
 
             if (showNames) {
                 g.setColor(Color.red.darker().darker());
@@ -177,11 +177,12 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
                 g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 5, 15);
             }
 
-            graphicsClone = (Graphics2D)g.create();
-            graphicsClone.drawImage(arrow, arrow.getWidth(renderer), arrow.getHeight(renderer), arrow.getWidth(null), arrow.getHeight(null), null);
-            graphicsClone.rotate(spot.getDirection());
-            Point2D pt = renderer.getScreenPosition(spotLoc);
-            graphicsClone.translate(pt.getX(), pt.getY());
+            g.drawImage(arrow, arrow.getWidth(renderer), arrow.getHeight(renderer), arrow.getWidth(null),
+                    arrow.getHeight(null), null);
+            System.out.println("In paint for SpotOverlay, arrow:(" + arrow.getWidth(renderer) + ","
+                    + arrow.getHeight(renderer) + ") (" + arrow.getWidth(null) + ", " + arrow.getHeight(null) + ")");
+            // g.rotate(spot.getDirection());
+
             // g.setColor(Color.red);
             // if (speedMps == 0) {
             // g.fill(new Ellipse2D.Double(-3, -3, 6, 6));
@@ -192,7 +193,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
             // g.rotate(-spot.getHeadingRads());
             // }
 
-            // g.translate(-pt.getX(), -pt.getY());
+            g.translate(-pt.getX(), -pt.getY());
 
         }
         

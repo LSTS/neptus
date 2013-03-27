@@ -19,15 +19,25 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class SpotUpdater {
+    private final String getUrl, postUrl;
 
+    /**
+     * @param getUrl
+     * @param postUrl
+     */
+    public SpotUpdater(String getUrl, String postUrl) {
+        super();
+        this.getUrl = getUrl;
+        this.postUrl = postUrl;
+    }
 
-    public static Vector<SpotMessage> get(String url) throws ParserConfigurationException, SAXException, IOException {
+    public Vector<SpotMessage> get() throws ParserConfigurationException, SAXException, IOException {
 
 		Vector<SpotMessage> updates = new Vector<SpotMessage>();
 
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(url);
+        Document doc = db.parse(getUrl);
         System.out.println(doc.toString());
 		NodeList nlist = doc.getFirstChild().getChildNodes();
 		
@@ -59,44 +69,44 @@ public class SpotUpdater {
 		return updates;
 	}
 
-    public static String post(SpotMessage update, String postUrl) throws IOException {
+    public String post(SpotMessage update) throws IOException {
 
-		String xml = "<MissionState>\n"+update.asVehicleState()+"</MissionState>\n";
+        String xml = "<MissionState>\n" + update.asVehicleState() + "</MissionState>\n";
 
-		String data = URLEncoder.encode("type", "UTF-8") + "=" + URLEncoder.encode("state", "UTF-8");
-		data += "&" + URLEncoder.encode("xml", "UTF-8") + "=" + URLEncoder.encode(xml, "UTF-8");
+        String data = URLEncoder.encode("type", "UTF-8") + "=" + URLEncoder.encode("state", "UTF-8");
+        data += "&" + URLEncoder.encode("xml", "UTF-8") + "=" + URLEncoder.encode(xml, "UTF-8");
 
-		System.out.println("Posting:\n"+xml);
-		
-		// Send data
-		URL url = new URL(postUrl);
-		URLConnection conn = url.openConnection();
-		conn.setDoOutput(true);
-		OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-		wr.write(data);
-		wr.flush();
+        System.out.println("Posting:\n" + xml);
 
-		// Get the response
-		BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		String line;
-		String resp = "Response: \n";
-		while ((line = rd.readLine()) != null) {
-			resp += line;
-		}
-		//Logger.getLogger(SpotUpdater.class.getName()).info(resp);
+        // Send data
+        URL url = new URL(postUrl);
+        URLConnection conn = url.openConnection();
+        conn.setDoOutput(true);
+        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+        wr.write(data);
+        wr.flush();
 
-		wr.close();
-		rd.close();
-		return resp;
-	}
+        // Get the response
+        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String line;
+        String resp = "Response: \n";
+        while ((line = rd.readLine()) != null) {
+            resp += line;
+        }
+        // Logger.getLogger(SpotUpdater.class.getName()).info(resp);
 
-    public static SpotMessage update(String getUrl, String postUrl) throws ParserConfigurationException, SAXException,
+        wr.close();
+        rd.close();
+        return resp;
+    }
+
+    public SpotMessage update() throws ParserConfigurationException, SAXException,
             IOException {
-		Vector<SpotMessage> updates = get(getUrl);
+        Vector<SpotMessage> updates = get();
 		if (!updates.isEmpty()) {
 			Collections.sort(updates);
 			SpotMessage mostRecent = updates.lastElement();
-			post(mostRecent, postUrl);
+            post(mostRecent);
 			return mostRecent;
 		}
 		return null;
@@ -107,8 +117,9 @@ public class SpotUpdater {
 		String getUrl = "http://tiny.cc/spot1";
 		String postUrl = "http://whale.fe.up.pt/neptleaves/state";
 		
+        SpotUpdater spotUpdater = new SpotUpdater(getUrl, postUrl);
 		while(true) {
-			update(getUrl, postUrl);
+            spotUpdater.update();
 			System.out.println("Sleeping for 3 minutes...");
 			Thread.sleep(1000*60*3);
 		}
