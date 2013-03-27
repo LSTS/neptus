@@ -987,6 +987,8 @@ public class ImcMsgManager extends
             if (requestEntityList)
                 announceWorker.sendEntityListRequestMsg(resSys);
         }
+        
+        IMCDefinition.getInstance().getResolver().addEntry(ann.getSrc(), ann.getSysName());
         return vci;
     }
 
