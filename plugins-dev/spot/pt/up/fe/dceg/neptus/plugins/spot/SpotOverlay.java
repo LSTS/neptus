@@ -33,7 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.spot;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.Ellipse2D;
+import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.Vector;
@@ -51,6 +51,7 @@ import pt.up.fe.dceg.neptus.plugins.update.PeriodicUpdatesService;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 /**
  * @author Margarida Faria
@@ -65,15 +66,16 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     private SpotUpdater spotUpdater;
     protected boolean active = false;
 
-    protected Vector<SpotInfo> spotsOnMap = new Vector<SpotInfo>();
+    protected final Vector<SpotInfo> spotsOnMap;
     protected StateRenderer2D renderer = null;
+    private final Image arrow;
 
     @NeptusProperty
     public boolean showOnlyWhenInteractionIsActive = true;
     @NeptusProperty
     public boolean showNames = true;
     @NeptusProperty
-    public boolean showSpeeds = true;
+    public boolean showSpeedValue = true;
 
     /**
      * @param console
@@ -83,6 +85,8 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
         getUrl = "http://tiny.cc/spot1";
         postUrl = "http://whale.fe.up.pt/neptleaves/state";
         updateMillis = 60000;
+        arrow = ImageUtils.getImage("images/spotArrow.png");
+        spotsOnMap = new Vector<SpotInfo>();
     }
 
     /*
@@ -146,7 +150,10 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
         this.renderer = renderer;
-
+        Graphics2D graphicsClone;
+//        Graphics2D graphicsClone = (Graphics2D)g.create();
+//        graphicsClone.dispose();
+        
         if (showOnlyWhenInteractionIsActive && !active)
             return;
 
@@ -156,32 +163,40 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
         for (SpotInfo spot : spotsOnMap) {
             LocationType spotLoc = spot.getLastLocation();
-            Point2D pt = renderer.getScreenPosition(spotLoc);
 
-            g.translate(pt.getX(), pt.getY());
+            // g.translate(pt.getX(), pt.getY());
 
             if (showNames) {
                 g.setColor(Color.red.darker().darker());
                 g.drawString(spot.getName(), 5, 5);
             }
 
-            if (showSpeeds) {
+            double speedMps = spot.getSpeed();
+            if (showSpeedValue) {
                 g.setColor(Color.black);
-                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(spot.getSpeedMps()) + " m/s", 5, 15);
+                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 5, 15);
             }
 
-            g.setColor(Color.red);
-            if (spot.getSpeedMps() == 0) {
-                g.fill(new Ellipse2D.Double(-3, -3, 6, 6));
-            }
-            else {
-                g.rotate(spot.getHeadingRads());
-                g.fill(path);
-                g.rotate(-spot.getHeadingRads());
-            }
+            graphicsClone = (Graphics2D)g.create();
+            graphicsClone.drawImage(arrow, arrow.getWidth(renderer), arrow.getHeight(renderer), arrow.getWidth(null), arrow.getHeight(null), null);
+            graphicsClone.rotate(spot.getDirection());
+            Point2D pt = renderer.getScreenPosition(spotLoc);
+            graphicsClone.translate(pt.getX(), pt.getY());
+            // g.setColor(Color.red);
+            // if (speedMps == 0) {
+            // g.fill(new Ellipse2D.Double(-3, -3, 6, 6));
+            // }
+            // else {
+            // g.rotate(spot.getHeadingRads());
+            // g.fill(path);
+            // g.rotate(-spot.getHeadingRads());
+            // }
 
-            g.translate(-pt.getX(), -pt.getY());
+            // g.translate(-pt.getX(), -pt.getY());
+
         }
+        
     }
+
 
 }
