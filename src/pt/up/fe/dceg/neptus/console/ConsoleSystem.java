@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.console;
 import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener;
 import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeEvent;
 import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeListener;
@@ -88,6 +89,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
     private MissionType missionType = new MissionType();
     protected boolean tailOn = false;
     private int numberOfShownPoints = 500;
+    private STATE vehicleState = STATE.DISCONNECTED;
 
     public ConsoleSystem(String id, ConsoleLayout console, VehicleType vehicle, ImcMsgManager imcMsgManager) {
         this.imc = imcMsgManager;
@@ -378,5 +380,19 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
                 feedRenders.add((VehicleStateListener) panelChange.getPanel());
             }
         }
+    }
+
+    /**
+     * @return the vehicleState
+     */
+    public STATE getVehicleState() {
+        return vehicleState;
+    }
+
+    /**
+     * @param vehicleState the vehicleState to set
+     */
+    public void setVehicleState(STATE vehicleState) {
+        this.vehicleState = vehicleState;
     }
 }

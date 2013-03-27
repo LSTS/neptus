@@ -31,8 +31,11 @@
  */
 package pt.up.fe.dceg.neptus.gui.system.selection;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Map;
@@ -43,15 +46,19 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventNewSystem;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged;
+import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.up.fe.dceg.neptus.events.NeptusEvents;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 
 import com.google.common.eventbus.Subscribe;
+import com.sun.java.swing.plaf.windows.WindowsComboBoxUI;
 
 /**
  * @author Paulo Dias
@@ -61,7 +68,7 @@ import com.google.common.eventbus.Subscribe;
 public class MainSystemSelectionCombo extends JComboBox<String> implements ItemListener {
 
     private ConsoleLayout console;
-    private Map<String, String> systemState = new ConcurrentHashMap<>();
+    private Map<String, STATE> systemState = new ConcurrentHashMap<>();
 
     public MainSystemSelectionCombo(ConsoleLayout console) {
         this.console = console;
@@ -71,6 +78,12 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
         this.setMaximumSize(new Dimension(200, 50));
         this.setRenderer(new MainSystemRenderer());
         this.addItemListener(this);
+        this.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+        this.setBackground(new Color(0x3A87AD));
+        //this.setBorder(new EmptyBorder(0, 0, 0, 0));
+        this.setUI(new WindowsComboBoxUI());
+        //this.setOpaque(false);
+        setFocusable(false);
     }
 
     // private void refresh() {
@@ -89,19 +102,66 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
 
     @Subscribe
     public void onNewSystem(ConsoleEventNewSystem e) {
-        systemState.put(e.getSystem().getVehicleId(), I18n.text("DISCONNECTED"));
+        systemState.put(e.getSystem().getVehicleId(), e.getSystem().getVehicleState());
+        
+        switch (e.getSystem().getVehicleState()) {
+            case SERVICE:
+                setBackground(new Color(0x57B768));
+                break;
+            case ERROR:
+                setBackground(new Color(0xB94A48));
+                break;
+            case CALIBRATION:
+                setBackground(new Color(0x3A87AD));
+                break;
+            default:
+                setBackground(new Color(0xC8BF5F));
+                break;
+        }
+        
+        
         this.addItem(e.getSystem().getVehicleId());
     }
 
     @Subscribe
     public void onVehicleStateChanged(ConsoleEventVehicleStateChanged e) {
-        systemState.put(e.getVehicle(), e.getState().toString());
+        systemState.put(e.getVehicle(), e.getState());
+        
+        switch (e.getState()) {
+            case SERVICE:
+                setBackground(new Color(0x57B768));
+                break;
+            case ERROR:
+                setBackground(new Color(0xB94A48));
+                break;
+            case CALIBRATION:
+                setBackground(new Color(0x3A87AD));
+                break;
+            default:
+                setBackground(new Color(0xC8BF5F));
+                break;
+        }
+        
         this.repaint();
     }
 
     @Subscribe
     public void onMainSystemChange(ConsoleEventMainSystemChange e) {
         this.setSelectedItem(e.getCurrent());
+        switch (console.getSystem(e.getCurrent()).getVehicleState()) {
+            case SERVICE:
+                setBackground(new Color(0x57B768));
+                break;
+            case ERROR:
+                setBackground(new Color(0xB94A48));
+                break;
+            case CALIBRATION:
+                setBackground(new Color(0x3A87AD));
+                break;
+            default:
+                setBackground(new Color(0xC8BF5F));
+                break;
+        }
     }
 
     private class MainSystemRenderer extends JLabel implements ListCellRenderer<String> {
@@ -111,21 +171,51 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
             setVerticalAlignment(CENTER);
             setPreferredSize(new Dimension(270, 25));
         }
-
+        
+      
+        
         @Override
         public Component getListCellRendererComponent(JList<? extends String> list, String value, int index,
                 boolean isSelected, boolean cellHasFocus) {
             if (isSelected) {
-                setBackground(list.getSelectionBackground());
+                switch (systemState.get(value)) {
+                    case SERVICE:
+                        setBackground(new Color(0x4AAE5C));
+                        break;
+                    case ERROR:
+                        setBackground(new Color(0xA23F3E));
+                        break;
+                    case CALIBRATION:
+                        setBackground(new Color(0x307191));
+                        break;
+                    default:
+                        setBackground(new Color(0xB9AF3F));
+                        break;
+                }
                 setForeground(list.getSelectionForeground());
             }
             else {
-                setBackground(list.getBackground());
+                switch (systemState.get(value)) {
+                    case SERVICE:
+                        setBackground(new Color(0x57B768));
+                        break;
+                    case ERROR:
+                        setBackground(new Color(0xB94A48));
+                        break;
+                    case CALIBRATION:
+                        setBackground(new Color(0x3A87AD));
+                        break;
+                    default:
+                        setBackground(new Color(0xC8BF5F));
+                        break;
+                }
                 setForeground(list.getForeground());
             }
 
             if (value != null)
-                setText(value.toUpperCase() + "  " + I18n.text("Status") + ": " + systemState.get(value));
+                this.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+            
+                setText(" "+ value.toUpperCase() + "  " + I18n.text("Status") + ": " + systemState.get(value).toString());
             
             return this;
         }

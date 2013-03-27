@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.gui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -289,6 +290,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
             // return mapCellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
         }
 
+        setPreferredSize(new Dimension(200, 120));
         return this;
     }
 

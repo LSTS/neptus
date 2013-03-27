@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.console.actions;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
@@ -75,18 +76,19 @@ public class OpenConsoleAction extends ConsoleAction {
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                 @Override
                 protected Void doInBackground() throws Exception {
-                    try {
-                        ConsoleParse.parseFile(file.getAbsolutePath().toString(), console);
-                    }
-                    catch (DocumentException e) {
-                        NeptusLog.pub().error(e);
-                    }
+                    ConsoleParse.parseFile(file.getAbsolutePath().toString(), console);
                     return null;
                 }
 
                 @Override
                 protected void done() {
                     setEnabled(true);
+                    try {
+                        get();
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     console.getContentPane().setVisible(true);
                     console.setConsoleChanged(false);
                 }

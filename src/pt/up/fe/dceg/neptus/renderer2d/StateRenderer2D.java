@@ -71,6 +71,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -78,13 +79,14 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeListener;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.gui.MenuScroller;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
 import pt.up.fe.dceg.neptus.mp.MapChangeListener;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.plugins.planning.MapPanel;
+import pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension;
+import pt.up.fe.dceg.neptus.planeditor.IMapPopup;
 import pt.up.fe.dceg.neptus.renderer2d.tiles.TileMercadorSVG;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
@@ -95,11 +97,9 @@ import pt.up.fe.dceg.neptus.types.map.MapType;
 import pt.up.fe.dceg.neptus.types.map.MarkElement;
 import pt.up.fe.dceg.neptus.types.map.ScatterPointsElement;
 import pt.up.fe.dceg.neptus.types.map.VehicleTailElement;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.AngleCalc;
-import pt.up.fe.dceg.neptus.util.ConsoleParse;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.MathMiscUtils;
@@ -119,7 +119,7 @@ import com.l2fprod.common.propertysheet.Property;
  */
 public class StateRenderer2D extends JPanel implements PropertiesProvider, Renderer, MapChangeListener,
         MouseWheelListener, MouseMotionListener, MouseListener, KeyListener, PreferencesListener, ILayerPainter,
-        CustomInteractionSupport {
+        CustomInteractionSupport, IMapPopup {
 
     static final long serialVersionUID = 15;
     public static final int MAP_MOVES = 0, VEHICLE_MOVES = 1;
@@ -247,6 +247,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     private int previousMode;
 
     private BufferedImage stage;
+    
+    private Vector<IEditorMenuExtension> menuExtensions = new Vector<IEditorMenuExtension>();
     /**
      * Empty class constructor - creates a new renderer panel with empty map.
      */
@@ -312,6 +314,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
                 }
                 catch (NoClassDefFoundError e) {
                     NeptusLog.pub().warn("Probably running inside a reduced api jar!!", e);
+                    e.printStackTrace();
                 }
 
             };
@@ -1326,6 +1329,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      * {@link MouseListener} implementation. Used to display right-click popup menu
      */
     public void mouseClicked(MouseEvent e) {
+        final Point2D mousePoint = e.getPoint();
+        final LocationType loc = getRealWorldLocation(mousePoint);
 
         if ((mode == Renderer.NONE || mode == Renderer.TRANSLATION) && activeInteraction != null) {
             activeInteraction.mouseClicked(e, this);
@@ -1335,6 +1340,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
 
         // Right click
         if (e.getButton() == MouseEvent.BUTTON3 && !ignoreRightClicks) {
+            
             JPopupMenu popup = new JPopupMenu();
 
             if (rightClickListeners.size() > 0) {
@@ -1412,7 +1418,28 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             });
             item.setIcon(ImageUtils.getIcon("images/menus/settings.png"));
             // popup.add(item);
+            
+            for (IEditorMenuExtension extension : menuExtensions) {
+                Collection<JMenuItem> items = null;
 
+                try {
+                    items = extension.getApplicableItems(loc, this);
+                }
+                catch (Exception ex) {
+                    NeptusLog.pub().error(ex);
+                }
+
+                if (items != null && !items.isEmpty()) {
+                    popup.addSeparator();
+                    for (JMenuItem it : items) {
+                        if (it instanceof JMenu)
+                            MenuScroller.setScrollerFor((JMenu) it, this, 150, 0, 0);
+                        popup.add(it);
+                    }
+                }
+            }
+            
+            
             popup.show(this, e.getX(), e.getY());
             requestFocusInWindow();
             return;
@@ -1427,6 +1454,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
                 zoomInOut(true, e.getX(), e.getY());
             }
         }
+        
         clickOccured(e);
         requestFocusInWindow();
     }
@@ -2535,94 +2563,26 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     public void painterSelection() {
         painters.showSelectionDialog(SwingUtilities.getWindowAncestor(this));
     }
+    
+    @Override
+    public boolean addMenuExtension(IEditorMenuExtension extension) {
+        if (!menuExtensions.contains(extension))
+            return menuExtensions.add(extension);
+        return false;
+    }
 
-    /**
-     * Unitary test... just creates a frame with Renderer for an empty map
-     * 
-     * @param args will all be ignored
-     */
-    public static void main(String args[]) {
+    @Override
+    public final Collection<IEditorMenuExtension> getMenuExtensions() {
+        return menuExtensions;
+    }
 
-        ConfigFetch.initialize();
-        MissionType mt = new MissionType("missions/APDL/missao-apdl.nmisz");
-        ConsoleLayout console = ConsoleParse.testSubPanel(MapPanel.class, mt.getIndividualPlansList().values()
-                .iterator().next());
+    @Override
+    public boolean removeMenuExtension(IEditorMenuExtension extension) {
+        return menuExtensions.remove(extension);
+    }
 
-        long ns = System.nanoTime();
-        Vector<MapPanel> srv = console.getSubPanelsOfClass(MapPanel.class);
-        StateRenderer2D sr = srv.firstElement().getRenderer();
-        sr.getCenter();
-        System.out.println((System.nanoTime() - ns) + "ns");
-        ns = System.nanoTime();
-        sr.getCenter();
-        System.out.println((System.nanoTime() - ns) + "ns");
-        ns = System.nanoTime();
-        sr.getCenter();
-        System.out.println((System.nanoTime() - ns) + "ns");
-        ns = System.nanoTime();
-        sr.getCenter();
-        System.out.println((System.nanoTime() - ns) + "ns");
-        ns = System.nanoTime();
-        sr.getCenter();
-        System.out.println((System.nanoTime() - ns) + "ns");
-        ns = System.nanoTime();
-        sr.getCenter();
-        System.out.println((System.nanoTime() - ns) + "ns");
-        ns = System.nanoTime();
-        sr.getCenter();
-        System.out.println((System.nanoTime() - ns) + "ns");
-        ns = System.nanoTime();
-        sr.getCenter();
-        System.out.println((System.nanoTime() - ns) + "ns");
-        ns = System.nanoTime();
-        sr.getCenter();
-        System.out.println((System.nanoTime() - ns) + "ns");
-        ns = System.nanoTime();
-        sr.getCenter();
-        System.out.println((System.nanoTime() - ns) + "ns");
-
-        System.out.println("------------------------------------");
-        ns = System.nanoTime();
-        new LocationType();
-        System.out.println((System.nanoTime() - ns) + "ns");
-        ns = System.nanoTime();
-        new LocationType();
-        System.out.println((System.nanoTime() - ns) + "ns");
-        ns = System.nanoTime();
-        new LocationType();
-        System.out.println((System.nanoTime() - ns) + "ns");
-        ns = System.nanoTime();
-        new LocationType();
-        System.out.println((System.nanoTime() - ns) + "ns");
-        ns = System.nanoTime();
-        new LocationType();
-        System.out.println((System.nanoTime() - ns) + "ns");
-        ns = System.nanoTime();
-
-        /*
-         * JFrame mainFrame = new JFrame("StateRenderer2D"); mainFrame.setSize(400,300); LocationType loc = new
-         * LocationType(); loc.setLatitude(30); loc.setLongitude(-80); StateRenderer2D r2d = new StateRenderer2D(loc);
-         * mainFrame.setLayout(new BorderLayout()); mainFrame.getContentPane().add(r2d, BorderLayout.CENTER);
-         * mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); mainFrame.setVisible(true);
-         * 
-         * r2d.setActiveInteraction(new InteractionAdapter());
-         * 
-         * r2d.addPostRenderPainter(new Renderer2DPainter() {
-         * 
-         * @Override public void paint(Graphics2D g, StateRenderer2D renderer) { //
-         * System.out.println(geometry.getGeo().GetGeometryRef(0).GetX(0)); //
-         * System.out.println(geometry.getGeo().GetGeometryRef(0).GetY(0));
-         * 
-         * // System.out.println(geometry.getLocation().getLatitude()); //
-         * System.out.println(geometry.getLocation().getLongitude()); LocationType loc = new LocationType();
-         * loc.setLatitude(30.5); loc.setLongitude(-80.159); Point2D pt = renderer.getScreenPosition(loc); Graphics2D g2
-         * = (Graphics2D) g.create(); System.out.println(pt.getX()+" "+pt.getY());
-         * 
-         * g2.translate(pt.getX(), pt.getY()); //g2.scale(renderer.getZoom(), renderer.getZoom());
-         * g2.setColor(Color.red);
-         * 
-         * g2.drawOval((int)(pt.getX()*renderer.getZoom()),(int) (pt.getY()*renderer.getZoom()), 10, 10);
-         * //g2.fillOval((int)pt.getX(),(int) pt.getY(), 1000000000, 1000000000); g2.dispose(); } }, "test");
-         */
+    @Override
+    public StateRenderer2D getRenderer() {
+        return this;
     }
 }
