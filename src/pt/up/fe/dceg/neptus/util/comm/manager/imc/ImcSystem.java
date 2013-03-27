@@ -921,6 +921,18 @@ public class ImcSystem implements Comparable<ImcSystem> {
         }
     }
 
+    public boolean removeData(String key) {
+        synchronized (dataStorage) {
+            if (dataStorage.containsKey(key)) {
+                dataStorage.remove(key);
+                dataStorageTime.remove(key);
+                return true;
+            }
+            
+            return false;
+        }
+    }
+
     /**
      * Checks if there is a "SimulatedState" message in the {@link #dataStorage} with age less than a minute.
      */

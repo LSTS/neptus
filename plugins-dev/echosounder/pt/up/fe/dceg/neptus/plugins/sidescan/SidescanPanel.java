@@ -77,8 +77,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     }
 
     SidescanAnalyzer parent;
-    SidescanToolbar toolbar = new SidescanToolbar(this);
     SidescanConfig config = new SidescanConfig();
+    SidescanToolbar toolbar = new SidescanToolbar(this);
     
     InteractionMode imode = InteractionMode.INFO;
     

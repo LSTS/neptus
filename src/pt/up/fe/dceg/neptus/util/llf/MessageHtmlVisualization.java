@@ -39,6 +39,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -60,7 +61,7 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
 public class MessageHtmlVisualization implements MRAVisualization {
 
     protected IMCMessage message;
-    protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
+    protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss");
     protected JScrollPane scroll;
     
     public MessageHtmlVisualization(final IMCMessage message) {
@@ -107,7 +108,7 @@ public class MessageHtmlVisualization implements MRAVisualization {
     
     @Override
     public String getName() {
-        return message.getAbbrev() + "[" + fmt.format(message.getDate()) + "]";
+        return message.getAbbrev() + "[" + fmt.format(new Date(message.getTimestampMillis()))+ (message.getTimestamp() - (int)message.getTimestamp()) + "]";
     }
     
     @Override
