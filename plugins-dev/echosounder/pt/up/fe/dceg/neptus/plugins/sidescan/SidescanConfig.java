@@ -65,6 +65,12 @@ public class SidescanConfig implements PropertiesProvider {
     @NeptusProperty
     public double tvgGain = 100;
     
+    @NeptusProperty
+    public boolean showPositionHud = true;
+    
+    @NeptusProperty
+    public int hudSize = 200;
+    
     // Properties
     @Override
     public DefaultProperty[] getProperties() {
