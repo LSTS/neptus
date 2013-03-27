@@ -79,7 +79,7 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
         this.setRenderer(new MainSystemRenderer());
         this.addItemListener(this);
         this.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
-        this.setBackground(new Color(0x3A87AD));
+        //this.setBackground(new Color(0x3A87AD));
         //this.setBorder(new EmptyBorder(0, 0, 0, 0));
         this.setUI(new WindowsComboBoxUI());
         //this.setOpaque(false);
