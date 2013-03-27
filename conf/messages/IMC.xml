@@ -290,7 +290,7 @@
   </bitfields>
 
   <message-groups>
-      <message-group name="Maneuver" abbrev="Maneuver">
+    <message-group name="Maneuver" abbrev="Maneuver">
       <message-type abbrev="Goto"/>
       <message-type abbrev="PopUp"/>
       <message-type abbrev="Teleoperation"/>
@@ -308,6 +308,7 @@
       <message-type abbrev="CompassCalibration"/>
       <message-type abbrev="CoverArea"/>
       <message-type abbrev="FollowReference"/>
+      <message-type abbrev="CommsRelay"/>
     </message-group>
 
     <message-group name="Control Command" abbrev="ControlCommand">
@@ -2891,34 +2892,49 @@
     </field>
   </message>
 
-  <message id="312" name="LED Control" abbrev="LedControl" source="vehicle">
+  <message id="312" name="LED Brightness" abbrev="LedBrightness" source="vehicle">
     <description>
-      Message to control the state of Light-emitting diodes (LEDs).
+      Brightness value of an LED (Light-Emitting Diode).
     </description>
-    <field name="Id" abbrev="id" type="uint8_t">
+    <field name="Name" abbrev="name" type="plaintext">
       <description>
-        LED Identification Number.
+        LED name.
       </description>
     </field>
-    <field name="Operation" abbrev="op" type="uint8_t" unit="Enumerated" prefix="LC">
+    <field name="Value" abbrev="value" type="uint8_t">
       <description>
-        Operation to perform.
+        Brightness value.
       </description>
-      <value id="0" name="Turn Off" abbrev="OFF">
-        <description>
-          Turn off LED.
-        </description>
-      </value>
-      <value id="1" name="Turn On" abbrev="ON">
-        <description>
-          Turn on LED.
-        </description>
-      </value>
-      <value id="2" name="Toggle" abbrev="TOGGLE">
-        <description>
-          Toggle LED state.
-        </description>
-      </value>
+    </field>
+  </message>
+
+  <message id="313" name="Query LED Brightness" abbrev="QueryLedBrightness" source="vehicle">
+    <description>
+      Query the brightness of an LED (Light-Emitting Diode). The
+      recipient of this message shall reply with 'LedBrightness'.
+    </description>
+    <field name="Name" abbrev="name" type="plaintext">
+      <description>
+        LED name.
+      </description>
+    </field>
+  </message>
+
+  <message id="314" name="Set LED Brightness" abbrev="SetLedBrightness" source="vehicle">
+    <description>
+      Control the brightness of an LED (Light-Emitting Diode). The
+      recipient of this message shall set the intensity of the LED to
+      the desired 'value' and reply with 'LedBrightness'.
+    </description>
+    <field name="Name" abbrev="name" type="plaintext">
+      <description>
+        LED name.
+      </description>
+    </field>
+    <field name="Value" abbrev="value" type="uint8_t">
+      <description>
+        Desired brightness value.
+      </description>
     </field>
   </message>
 
@@ -5343,12 +5359,18 @@
       <value id="1" name="Stop Maneuver" abbrev="STOP_MANEUVER">
         <description>Stop 'maneuver' being executed.</description>
       </value>
-      <value id="2" name="Calibrate" abbrev="CALIBRATE">
-        <description>Calibrate vehicle.</description>
+      <value id="2" name="Start Calibration" abbrev="START_CALIBRATION">
+        <description>Start calibrating vehicle.</description>
+      </value>
+      <value id="3" name="Stop Calibration" abbrev="STOP_CALIBRATION">
+        <description>Stop calibrating vehicle.</description>
       </value>
     </field>
     <field name="Maneuver" abbrev="maneuver" type="message" message-type="Maneuver">
       <description>Maneuver to be executed (for 'EXEC_MANEUVER' command)</description>
+    </field>
+    <field name="Calibration Time" abbrev="calib_time" type="uint16_t" unit="s">
+      <description>Amount of time to calibrate</description>
     </field>
     <field name="Info" abbrev="info" type="plaintext">
       <description>Complementary human-readable information for replies.</description>
@@ -6486,5 +6508,13 @@
       <value abbrev="ESTABLISHED" name="Established" id="1"/>
       <value abbrev="CLOSED" name="Closed" id="2"/>
     </field>
+  </message>
+
+  <message id="811" name="Push Entity Parameters" abbrev="PushEntityParameters" source="ccu,vehicle">
+    <field name="Entity Name" abbrev="name" type="plaintext"/>
+  </message>
+
+  <message id="812" name="Pop Entity Parameters" abbrev="PopEntityParameters" source="ccu,vehicle">
+    <field name="Entity Name" abbrev="name" type="plaintext"/>
   </message>
 </messages>

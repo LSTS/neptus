@@ -524,8 +524,9 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     @Subscribe
     public void consume(PlanControlState message) {
 
-        if (!message.getSourceName().equals(getConsole().getMainSystem()))
-            return;
+        if(getConsole().getMainSystem() != null)
+            if (!message.getSourceName().equals(getConsole().getMainSystem()))
+                return;
         
         String planId = message.getPlanId();
         String manId = message.getManId();

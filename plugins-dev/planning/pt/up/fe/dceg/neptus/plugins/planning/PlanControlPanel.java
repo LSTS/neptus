@@ -461,8 +461,6 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                             I18n.text("Error Initializing Tele-Operation"), DONT_USE_ACOUSTICS,
                             "", false, true, systems);
                     if (!ret) {
-//                        GuiUtils.errorMessage(PlanControlPanel.this, I18n.text("Tele-Op"),
-//                                I18n.text("Error sending Tele-Operation message!"));
                         post(Notification.error(I18n.text("Tele-Operation"),
                                 I18n.text("Error sending Tele-Operation message!")));
                     }
@@ -478,8 +476,6 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                             I18n.text("Error sending exiting Tele-Operation message!"), DONT_USE_ACOUSTICS,
                             "", false, true, systems);
                     if (!ret) {
-//                        GuiUtils.errorMessage(PlanControlPanel.this, I18n.text("Tele-Op"),
-//                                I18n.text("Error sending Tele-Operation message!"));
                         post(Notification.error(I18n.text("Tele-Op"),
                                 I18n.text("Error sending exiting Tele-Operation message!")));
                     }
@@ -523,10 +519,6 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             
             @Override
             public void deliveryUncertain(IMCMessage message, Object msg) {
-//                post(Notification.info(
-//                        I18n.text("Delivering Message"),
-//                        I18n.textf("Message %messageType to %destination delivery uncertain",
-//                                message.getAbbrev(), getDest(message))));
             }
             
             @Override
