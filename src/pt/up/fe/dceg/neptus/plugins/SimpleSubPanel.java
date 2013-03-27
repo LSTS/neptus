@@ -571,16 +571,17 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
             for (MapPanel p : pp)
                 p.removePostRenderPainter((Renderer2DPainter) this);
         }
-        cleanSubPanel();
+        
         if (menuItem != null || dialog != null) {
             JMenu menu = console.getOrCreateJMenu(new String[] { I18n.text("View") });
             menu.remove(menuItem);
             if (dialog.isVisible()){
-                // 20130224 pdias - was JFrame.EXIT_ON_CLOSE but this triggers IllegalArgumentException and this value does not make sense
-                dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                System.out.println(this.getName());
+                dialog.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 dialog.dispose();
             }
         }
+        cleanSubPanel();
     }
 
     /**
