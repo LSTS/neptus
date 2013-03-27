@@ -59,6 +59,7 @@ import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SonarData;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
+import pt.up.fe.dceg.neptus.mra.replay.MraVehiclePosHud;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
@@ -81,6 +82,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     SidescanToolbar toolbar = new SidescanToolbar(this);
     
     InteractionMode imode = InteractionMode.INFO;
+    MraVehiclePosHud posHud;
     
     JPanel view = new JPanel() {
         private static final long serialVersionUID = 1L;
@@ -111,6 +113,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     drawRuler(layer.getGraphics());
                     
                     g.drawImage(layer, 0, 0, null);
+                    g.drawImage(posHud.getImage(posHud.getStartTime() + parent.getTimeline().getSlider().getValue()), 0, 0, null);
                 }
             }
             catch (Exception e) {
@@ -186,6 +189,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         ssParser = parser;
         initialize();
         this.subsystem = subsystem;
+        
+        posHud = new MraVehiclePosHud(analyzer.mraPanel.getSource().getLsfIndex(), 100, 100);
     }
     
     public void initialize() {
