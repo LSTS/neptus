@@ -92,14 +92,14 @@ public class SidescanOverlay implements LogReplayLayer {
 
     @Override
     public void parse(final IMraLogGroup source) {
-        if (source.getFile("sss") == null) {
-            File f = new File(source.getFile("."), "sss");
-            f.mkdir();            
+        if (source.getFile("mra/sss") == null) {
+            File f = source.getFile("mra/sss");
+            f.mkdirs();            
         }
 
-        dir = new File(source.getFile("."), "sss");
+        dir = source.getFile("mra/sss");
 
-        if (source.getFile("sss/tiles.generated") == null) {
+        if (source.getFile("mra/sss/tiles.generated") == null) {
 
             Thread t = new Thread(new Runnable() {
 
@@ -108,7 +108,7 @@ public class SidescanOverlay implements LogReplayLayer {
                     producing = true;
                     createTiles(source);
                     try {
-                        FileWriter fw = new FileWriter(new File(source.getFile("sss"), "tiles.generated"));
+                        FileWriter fw = new FileWriter(source.getFile("mra/sss/tiles.generated"));
                         fw.write("done!");
                         fw.close();
                     }
@@ -124,7 +124,7 @@ public class SidescanOverlay implements LogReplayLayer {
     }
 
     protected boolean createTiles(IMraLogGroup source) {
-        File outputDir = source.getFile("sss");
+        File outputDir = source.getFile("mra/sss");
         LsfIndex index = source.getLsfIndex();
         int tileHeight = 20;
         BufferedImage curImage = null;

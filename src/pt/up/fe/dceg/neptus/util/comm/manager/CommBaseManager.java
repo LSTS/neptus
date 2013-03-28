@@ -100,6 +100,7 @@ public abstract class CommBaseManager<M extends IMessage, Mi extends MessageInfo
      */
     @Override
     public synchronized boolean start() {
+        System.out.println("START IMC");
         if (started)
             return true; // do nothing
 
@@ -186,11 +187,12 @@ public abstract class CommBaseManager<M extends IMessage, Mi extends MessageInfo
      */
     @Override
     public synchronized boolean stop() {
+        
         boolean ret;
         try {
             if (!started)
                 return true; // do nothing
-
+            System.out.println("STOP IMC");
             if(timerThread != null) {
                 timerThread.interrupt();
                 timerThread = null;

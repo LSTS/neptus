@@ -49,9 +49,12 @@ import org.jfree.chart.JFreeChart;
 
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.LblBeacon;
+import pt.up.fe.dceg.neptus.imc.SonarData;
 import pt.up.fe.dceg.neptus.imc.VehicleCommand;
 import pt.up.fe.dceg.neptus.imc.VehicleCommand.COMMAND;
 import pt.up.fe.dceg.neptus.imc.VehicleCommand.TYPE;
+import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
+import pt.up.fe.dceg.neptus.imc.lsf.LsfIterator;
 import pt.up.fe.dceg.neptus.imc.types.PlanSpecificationAdapter;
 import pt.up.fe.dceg.neptus.imc.types.PlanSpecificationAdapter.Transition;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
@@ -954,6 +957,23 @@ public class LogUtils {
         }
     }
    
+    public static boolean hasIMCSidescan(IMraLogGroup source) {
+        LsfIndex index = source.getLsfIndex();
+        LsfIterator<SonarData> it = index.getIterator(SonarData.class);
+        SonarData sd = it.next();
+        
+        if(sd == null)
+            return false;
+        
+        long ts = sd.getTimestampMillis();
+        while((sd.getTimestampMillis() - ts) < 5000 && sd != null) {
+            if(sd.getType() == SonarData.TYPE.SIDESCAN)
+                return true;
+            sd = it.next();
+        }
+        return false;
+    }
+
     public static void main(String[] args) {
         System.out.println(parseInlineName("%INLINE{Goto}"));
         System.out.println(parseInlineName("%INLINE{Popup}"));

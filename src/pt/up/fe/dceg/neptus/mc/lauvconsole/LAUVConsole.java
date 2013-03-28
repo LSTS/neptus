@@ -120,13 +120,9 @@ public class LAUVConsole extends ConsoleLayout {
         final LAUVConsole cls = new LAUVConsole();
 
         // ConsoleParse.loadConsole(cls, ConfigFetch.resolvePath(consoleURL));
-        try {
-            ConsoleParse.parseFile(ConfigFetch.resolvePath(consoleURL), cls);
-            cls.setConsoleChanged(false);
-        }
-        catch (DocumentException e2) {
-            NeptusLog.pub().error(e2);
-        }
+        ConsoleParse.parseFile(ConfigFetch.resolvePath(consoleURL), cls);
+        cls.setConsoleChanged(false);
+
         GuiUtils.leftTopScreen(cls);
 
         // handle mission file

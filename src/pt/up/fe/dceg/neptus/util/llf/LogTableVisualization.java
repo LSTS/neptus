@@ -114,6 +114,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                 if (table.getSelectedRow() != -1 && e.getClickCount() == 2) {
                     log.firstLogEntry();
                     final int msgIndex = table.convertRowIndexToModel(table.getSelectedRow());
+                    
                     for (int i = 0; i < msgIndex; i++)
                         log.nextLogEntry();
 

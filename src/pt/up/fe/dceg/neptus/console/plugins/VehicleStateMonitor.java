@@ -79,6 +79,7 @@ public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpda
                 if (!ImcSystemsHolder.getSystemWithName(system).isActive()) {
                     systemStates.remove(system);
                     post(new ConsoleEventVehicleStateChanged(system, I18n.text("No communication received for more than 10 seconds"), STATE.DISCONNECTED));
+                    console.getSystem(system).setVehicleState(STATE.DISCONNECTED);
                 }
             }
             catch (Exception e) {
@@ -102,6 +103,7 @@ public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpda
         VehicleState oldState = systemStates.get(src);
         if (oldState == null) {// first time
             post(new ConsoleEventVehicleStateChanged(src, text, STATE.valueOf(msg.getOpMode().toString())));
+            console.getSystem(src).setVehicleState(STATE.valueOf(msg.getOpMode().toString()));
             systemStates.put(src, msg);
         }
         else {
@@ -111,12 +113,12 @@ public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpda
                 systemStates.put(src, msg);
                 if (msg.getManeuverType() == Teleoperation.ID_STATIC) {
                     post(new ConsoleEventVehicleStateChanged(src, text, STATE.TELEOPERATION));
+                    console.getSystem(src).setVehicleState(STATE.TELEOPERATION);
                 }
-                if (last == OP_MODE.CALIBRATION && current == OP_MODE.SERVICE) {
-                    return; // ignore
-                }
+               
                 else {
                     post(new ConsoleEventVehicleStateChanged(src, text, STATE.valueOf(msg.getOpMode().toString())));
+                    console.getSystem(src).setVehicleState(STATE.valueOf(msg.getOpMode().toString()));
                 }
             }
         }
