@@ -2241,6 +2241,7 @@ For simple use the main targets are:
 	"name":"${Name}-${full.release}",
 	"date":"${datef}",
 	"filename":"${new.filename}",
+	"branch":"${git.branch}",
 	"hash":"${git.hash}"
 }
 </echo>
