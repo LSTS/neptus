@@ -2231,16 +2231,20 @@ For simple use the main targets are:
 		<tstamp>
 			<format property="datef" pattern="yyyy-MM-dd" />
 		</tstamp>
-		<exec outputproperty="git.branch" command="git rev-parse --abbrev-ref HEAD"/>				
+		<exec outputproperty="git.branch" command="git rev-parse --abbrev-ref HEAD"/>
+		<exec outputproperty="git.hash" command="git rev-parse HEAD"/>
+		
 		<property name="original.filename" value="${Name}-${full.release}-x86-32bit-x64-64bit-${datef}.tar.gz"/>
 		<property name="new.filename" value="${Name}-${git.branch}-${datef}.tar.gz"/>
 		<rename dest="${new.filename}" src="${original.filename}"/>
 		<echo file="release.json">{
 	"name":"${Name}-${full.release}",
 	"date":"${datef}",
-	"filename":"${new.filename}"
+	"filename":"${new.filename}",
+	"hash":"${git.hash}"
 }
-		</echo>
+</echo>
+
 		
 	</target>
 	
