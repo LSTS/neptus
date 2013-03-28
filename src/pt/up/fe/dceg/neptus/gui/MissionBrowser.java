@@ -338,7 +338,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                                         public void actionPerformed(ActionEvent e) {
                                             if (selection != null) {
                                                 PlanType sel = (PlanType) selection;
-                                                boolean deletePlan = pdbControl.deletePlan(sel.getId());
+                                                pdbControl.deletePlan(sel.getId());
                                             }
                                         }
                                     });
@@ -412,7 +412,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                         syncState = State.LOCAL;
 
                     else if (syncState == State.REMOTE) {
-                        popupMenu.add(I18n.textf("Get '%planName' from %system", selection, console2.getMainSystem()))
+                        popupMenu.add(
+I18n.textf("Get '%planName' from %system", selection, console2.getMainSystem()))
                                 .addActionListener(new ActionListener() {
                                     @Override
                                     public void actionPerformed(ActionEvent e) {
@@ -424,13 +425,13 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                                 });
 
                         popupMenu.add(
-                                I18n.textf("Remove '%planName' from %system", selection, console2.getMainSystem()))
+                                I18n.textf("bug Remove '%planName' from %system", selection, console2.getMainSystem()))
                                 .addActionListener(new ActionListener() {
                                     @Override
                                     public void actionPerformed(ActionEvent e) {
                                         if (selection != null) {
                                             PlanDBInfo sel = (PlanDBInfo) selection;
-                                            pdbControl.requestPlan(sel.getPlanId());
+                                            pdbControl.deletePlan(sel.getPlanId());
                                         }
                                     }
                                 });
