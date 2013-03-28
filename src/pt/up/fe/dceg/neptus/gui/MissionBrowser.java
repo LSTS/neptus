@@ -1434,6 +1434,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     private class Model extends DefaultTreeModel {
         private static final long serialVersionUID = 5581485271978065950L;
         private final DefaultMutableTreeNode trans, plans, maps;
+        private DefaultMutableTreeNode homeR;
 
         /**
          * @param root
@@ -1452,7 +1453,14 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             // for (int i = 0; i < childCount; i++) {
             // treeModel.removeNodeFromParent((MutableTreeNode) treeModel.getChild(root, i));
             // }
+
             System.out.println("Clean tree");
+            if (((DefaultMutableTreeNode) root).getChildCount() > 0) {
+                DefaultMutableTreeNode firstLeaf = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) root)
+                        .getFirstChild();
+                System.out.println("first leaf " + firstLeaf.toString());
+                removeNodeFromParent(firstLeaf);
+            }
             if (trans.getParent() != null) {
                 removeNodeFromParent(trans);
                 System.out.println("trans " + trans.getChildCount());
@@ -1484,6 +1492,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 final Collection<PlanType> plansElements, final PlanType selectedPlan) {
             clearTree();
             setHomeRef(homeRef);
+            int index = 0; // homeRef is at index 0
 
             for (TransponderElement elem : transElements) {
                 ExtendedTreeNode node = new ExtendedTreeNode(elem);
@@ -1492,8 +1501,10 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 addToParents(node, ParentNodes.TRANSPONDERS);
             }
             if (trans.getChildCount() >= 0 && !((DefaultMutableTreeNode) root).isNodeChild(trans)) {
+                index++;
                 System.out.println("trans was added to root");
-                ((DefaultMutableTreeNode) root).add(trans);
+                // ((DefaultMutableTreeNode) root).add(trans);
+                insertNodeInto(trans, (MutableTreeNode) root, index);
             }
             System.out.println("trans.getChildCount()" + trans.getChildCount() + ", root.isNodeChild(trans)"
                     + ((DefaultMutableTreeNode) root).isNodeChild(trans) + ", root children:" + root.getChildCount());
@@ -1502,7 +1513,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 addPlan(planT);
             }
             if (plans.getChildCount() >= 0 && !plans.isNodeChild(root)) {
-                ((DefaultMutableTreeNode) root).add(plans);
+                index++;
+                // ((DefaultMutableTreeNode) root).add(plans);
+                insertNodeInto(plans, (MutableTreeNode) root, index);
             }
 
             if (selectedPlan != null)
@@ -1612,8 +1625,10 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
 
         public void setHomeRef(HomeReference href) {
-            DefaultMutableTreeNode homeR = new DefaultMutableTreeNode(href);
-            ((DefaultMutableTreeNode) root).add(homeR);
+            homeR = new DefaultMutableTreeNode(href);
+            // ((DefaultMutableTreeNode) root).add(homeR);
+                System.out.println("Inserting homeref");
+                insertNodeInto(homeR, (MutableTreeNode) root, 0);
         }
     }
 }
