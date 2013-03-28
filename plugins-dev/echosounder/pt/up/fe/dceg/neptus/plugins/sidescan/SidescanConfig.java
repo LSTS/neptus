@@ -31,6 +31,8 @@
  */
 package pt.up.fe.dceg.neptus.plugins.sidescan;
 
+import java.awt.Color;
+
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
@@ -70,6 +72,9 @@ public class SidescanConfig implements PropertiesProvider {
     
     @NeptusProperty
     public int hudSize = 200;
+    
+    @NeptusProperty
+    public Color pathColor = Color.WHITE;
     
     // Properties
     @Override

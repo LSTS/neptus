@@ -567,10 +567,6 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
             po.setShowManNames(false);
             r2d.addPostRenderPainter(po, I18n.text("Plan Painter"));
             mainPlanPainter = po;
-            editMode.setEnabled(true);
-        }
-        else {
-            editMode.setEnabled(false);
         }
     }
 
@@ -819,6 +815,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         editor.removePreRenderPainter(painter);
     }
 
+    @Override
     public StateRenderer2D getRenderer() {
         return editor;
     }
