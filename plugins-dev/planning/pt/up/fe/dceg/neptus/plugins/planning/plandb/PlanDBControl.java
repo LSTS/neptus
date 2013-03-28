@@ -191,8 +191,14 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                     remoteState = new PlanDBState();
                 remoteState.parseIMCMessage(msg.getMessage("arg"));         
                 
-                for (IPlanDBListener l : listeners)
-                    l.dbInfoUpdated(remoteState);
+                try {
+                    for (IPlanDBListener l : listeners)
+                        l.dbInfoUpdated(remoteState);
+                }
+                catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
             
             else if (msg.getString("op").equals("GET")) {

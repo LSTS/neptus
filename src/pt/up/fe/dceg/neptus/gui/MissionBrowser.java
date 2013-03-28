@@ -338,7 +338,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                                         public void actionPerformed(ActionEvent e) {
                                             if (selection != null) {
                                                 PlanType sel = (PlanType) selection;
-                                                pdbControl.deletePlan(sel.getId());
+                                                boolean deletePlan = pdbControl.deletePlan(sel.getId());
                                             }
                                         }
                                     });

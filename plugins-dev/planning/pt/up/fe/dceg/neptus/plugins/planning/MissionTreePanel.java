@@ -446,8 +446,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public void messageArrived(IMCMessage message) {
-        pdbControl.onMessage(null, message);
         int mgid = message.getMgid();
+        pdbControl.onMessage(null, message);
         if (mgid == PlanSpecification.ID_STATIC) {
             PlanType plan = IMCUtils.parsePlanSpecification(getConsole().getMission(), message);
             if (getConsole().getMission().getIndividualPlansList().containsKey(plan.getId())) {
