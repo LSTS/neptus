@@ -169,7 +169,6 @@
 	<classpathentry kind="lib" path="lib/jme3/jME3-terrain.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/lwjgl.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/nifty-default-controls.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/nifty-examples.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/nifty-style-black.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/nifty.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/stack-alloc.jar"/>
