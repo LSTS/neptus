@@ -25,7 +25,6 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
-import java.awt.event.FocusAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -84,13 +83,8 @@ import pt.up.fe.dceg.neptus.gui.checklist.ChecklistPanel;
 import pt.up.fe.dceg.neptus.gui.swing.NeptusFileView;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.loader.FileHandler;
-import pt.up.fe.dceg.neptus.mme.MissionMapEditor;
-import pt.up.fe.dceg.neptus.mp.MissionPlanner;
 import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.types.checklist.ChecklistType;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.MapType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.FileUtil;
@@ -171,7 +165,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     private JMenu toolsMenu = null;
     private JMenu commsMenu = null;
     private JMenu reviewMenu = null;
-    private JMenuItem mpMenuItem = null;
     private JDesktopPane jDesktopPane = null;
 
     private JMenu mapsMenu = null;
@@ -488,48 +481,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     }
 
     /**
-     * This method initializes jMenuItem
-     * 
-     * @return javax.swing.JMenuItem
-     */
-    @SuppressWarnings("unused")
-    private JMenuItem getMpMenuItem() {
-        if (mpMenuItem == null) {
-            mpMenuItem = new JMenuItem();
-            mpMenuItem.setText(I18n.text("Mission Planner"));
-            mpMenuItem.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/plan.png")));
-            mpMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P,
-                    java.awt.Event.CTRL_MASK, true));
-            // mpMenuItem.setVisible(false);
-            mpMenuItem.addActionListener(getActionOpenMP());
-        }
-        return mpMenuItem;
-    }
-
-    private ActionListener getActionOpenMP() {
-        return new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                // / Opening Mission Planner
-                startActivity(I18n.text("Opening MP..."));
-                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                    @Override
-                    protected Void doInBackground() throws Exception {
-                        new MissionPlanner().setVisible(true);
-                        return null;
-                    }
-
-                    @Override
-                    protected void done() {
-                        endActivity("");
-                    }
-                };
-                worker.execute();
-            }
-        };
-    }
-
-    /**
      * This method initializes jDesktopPane
      * 
      * @return javax.swing.JDesktopPane
@@ -582,59 +533,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     }
 
     /**
-     * This method initializes jMenuItem
-     * 
-     * @return javax.swing.JMenuItem
-     */
-    @SuppressWarnings("unused")
-    private JMenuItem getMeMenuItem() {
-        if (meMenuItem == null) {
-            meMenuItem = new JMenuItem();
-            meMenuItem.setText(I18n.text("Map Editor"));
-            meMenuItem
-                    .setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/mapeditor.png")));
-            meMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_M,
-                    java.awt.Event.CTRL_MASK, true));
-            meMenuItem.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    // FIXME with SwingWorker
-                    // System.out.println("actionPerformed()");
-                    JInternalFrame ifrm = internalFrames.get("me-");
-                    if (ifrm != null) {
-                        // ifrm.setFocusable(true);
-                        ifrm.setVisible(true);
-                        try {
-                            ifrm.setSelected(true);
-                            ifrm.setIcon(false);
-                        }
-                        catch (PropertyVetoException e1) {
-                            // e1.printStackTrace();
-                            NeptusLog.pub().debug(this + " getMeMenuItem", e1);
-                        }
-                        return;
-                    }
-
-                    final MissionMapEditor mme = new MissionMapEditor(I18n.text("Unnamed map").toLowerCase(),
-                            new CoordinateSystem());
-                    ifrm = createFrame(I18n.text("Mission Map Editor"), "me-", mme);
-
-                    internalFrames.put("me-", ifrm);
-                    ifrm.setSize(new Dimension(mme.getWidth() + 50, mme.getHeight() + 50));
-                    ifrm.addFocusListener(new FocusAdapter() {
-                        @Override
-                        public void focusLost(java.awt.event.FocusEvent arg0) {
-                            mme.switchTo2D();
-                        }
-                    });
-                    mme.setFrameOpener(Workspace.this);
-                }
-            });
-        }
-        return meMenuItem;
-    }
-
-    /**
      * This method initializes jMenu
      * 
      * @return javax.swing.JMenu
@@ -649,22 +547,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, miscFilesOpened);
         }
         return recentlyOpenFilesMenu;
-    }
-
-    /**
-     * This method initializes jMenu
-     * 
-     * @return javax.swing.JMenu
-     */
-    private JMenu getMapsMenu() {
-        if (mapsMenu == null) {
-            mapsMenu = new JMenu();
-            mapsMenu.setText(I18n.text("Maps"));
-            mapsMenu.add(getOpenMapMenuItem());
-            mapsMenu.add(getNewMapMenuItem());
-            mapsMenu.add(getRecentlyOpenMapMenu());
-        }
-        return mapsMenu;
     }
 
     /**
@@ -689,65 +571,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             });
         }
         return openMapMenuItem;
-    }
-
-    /**
-     * This method initializes jMenuItem1
-     * 
-     * @return javax.swing.JMenuItem
-     */
-    private JMenuItem getNewMapMenuItem() {
-        if (newMapMenuItem == null) {
-            newMapMenuItem = new JMenuItem();
-            newMapMenuItem.setText(I18n.text("New"));
-            newMapMenuItem.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/new.png")));
-            newMapMenuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    // FIXME with SwingWorker
-                    // System.out.println("actionPerformed()");
-                    JInternalFrame ifrm = internalFrames.get("me-");
-                    if (ifrm != null) {
-                        // ifrm.setFocusable(true);
-                        ifrm.setVisible(true);
-                        try {
-                            ifrm.setSelected(true);
-                            ifrm.setIcon(false);
-                        }
-                        catch (PropertyVetoException e1) {
-                            NeptusLog.pub().debug(this + " getMeMenuItem", e1);
-                        }
-                        return;
-                    }
-
-                    final MissionMapEditor mme = new MissionMapEditor(I18n.text("unnamed map"), new CoordinateSystem());
-                    ifrm = createFrame(I18n.text("Mission Map Editor"), "me-", mme);
-                    internalFrames.put("me-", ifrm);
-                    ifrm.setSize(new Dimension(mme.getWidth() + 190, mme.getHeight() + 50));
-                    ifrm.setResizable(true);
-                    ifrm.setMaximizable(true);
-                    ifrm.addFocusListener(new FocusAdapter() {
-                        @Override
-                        public void focusLost(java.awt.event.FocusEvent arg0) {
-                            mme.switchTo2D();
-                        }
-                    });
-                    ifrm.addInternalFrameListener(new InternalFrameAdapter() {
-                        @Override
-                        public void internalFrameDeactivated(InternalFrameEvent arg0) {
-                            try {
-                                mme.switchTo2D();
-                            }
-                            catch (Exception e) {
-                                NeptusLog.pub().error(this, e);
-                            }
-                        }
-                    });
-                    mme.setFrameOpener(Workspace.this);
-                }
-            });
-        }
-        return newMapMenuItem;
     }
 
     /**
@@ -1021,7 +844,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             jJMenuBar.add(getVehiclesMenu());
             jJMenuBar.add(getConsolesMenu());
             //jJMenuBar.add(getMissionsMenu());
-            jJMenuBar.add(getMapsMenu());
+            //jJMenuBar.add(getMapsMenu());
             jJMenuBar.add(getChecklistsMenu());
             jJMenuBar.add(getReviewMenu());
             jJMenuBar.add(getCommsMenu());
@@ -1146,13 +969,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         JInternalFrame jif = new JInternalFrame(title, true, true, true, true);
         jif.setName(name);
 
-        if (newComponent instanceof MissionMapEditor) {
-            jif.setFrameIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
-                    getClass().getResource("/images/menus/mapeditor.png"))));
-            jif.setIconifiable(false);
-            jif.setMaximizable(true);
-        }
-        else if (newComponent instanceof ChecklistPanel) {
+        if (newComponent instanceof ChecklistPanel) {
             jif.setFrameIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
                     getClass().getResource("/images/box_checked.png"))));
             jif.setMaximizable(true);
@@ -1403,62 +1220,62 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     }
 
     protected void openMapTypeFile(File fx) {
-        if (fx != null) {
-            updateMapFilesOpened(fx);
-            updateMiscFilesOpened(fx);
-
-            MapType map = new MapType(fx.getAbsolutePath());
-            JInternalFrame ifrm = internalFrames.get("map-" + map.getId());
-            if (ifrm != null) {
-                // ifrm.setFocusable(true);
-                ifrm.setVisible(true);
-                try {
-                    ifrm.setSelected(true);
-                    ifrm.setIcon(false);
-                }
-                catch (PropertyVetoException e1) {
-                    // e1.printStackTrace();
-                    NeptusLog.pub().debug(this + " getOpenMapMenuItem", e1);
-                }
-                return;
-            }
-
-            CoordinateSystem cs = new CoordinateSystem();
-            Object ob = map.getAllElements().getFirst();
-            if (ob instanceof LocationType) {
-                // FIXME
-                cs.setLocation((LocationType) ob);
-            }
-            final MissionMapEditor mme = new MissionMapEditor(map, cs, true);
-            if (ob instanceof LocationType) {
-                // FIXME
-                // mp.centerOnLocation((AbstractLocationPoint) ob);
-            }
-            ifrm = createFrame(I18n.textf("%map - Map", map.getName()), "map-" + map.getId(), mme);
-            internalFrames.put("map-" + map.getId(), ifrm);
-            ifrm.setSize(new Dimension(mme.getWidth() + 190, mme.getHeight() + 50));
-            // ifrm.setSize(new Dimension(mp.getWidth(), mp.getHeight()+120));
-            ifrm.setResizable(true);
-            ifrm.setMaximizable(true);
-            mme.setFrameOpener(Workspace.this);
-            /*
-             * ifrm.addFocusListener(new FocusAdapter() { public void focusLost(java.awt.event.FocusEvent arg0) {
-             * mme.switchTo2D(); }; });
-             */
-            ifrm.addInternalFrameListener(new InternalFrameAdapter() {
-                @Override
-                public void internalFrameDeactivated(javax.swing.event.InternalFrameEvent arg0) {
-                    try {
-
-                        mme.switchTo2D();
-                        // ((JInternalFrame) arg0.getSource()).setIcon(true);
-                    }
-                    catch (Exception e) {
-                        NeptusLog.pub().error(this, e);
-                    }
-                }
-            });
-        }
+//        if (fx != null) {
+//            updateMapFilesOpened(fx);
+//            updateMiscFilesOpened(fx);
+//
+//            MapType map = new MapType(fx.getAbsolutePath());
+//            JInternalFrame ifrm = internalFrames.get("map-" + map.getId());
+//            if (ifrm != null) {
+//                // ifrm.setFocusable(true);
+//                ifrm.setVisible(true);
+//                try {
+//                    ifrm.setSelected(true);
+//                    ifrm.setIcon(false);
+//                }
+//                catch (PropertyVetoException e1) {
+//                    // e1.printStackTrace();
+//                    NeptusLog.pub().debug(this + " getOpenMapMenuItem", e1);
+//                }
+//                return;
+//            }
+//
+//            CoordinateSystem cs = new CoordinateSystem();
+//            Object ob = map.getAllElements().getFirst();
+//            if (ob instanceof LocationType) {
+//                // FIXME
+//                cs.setLocation((LocationType) ob);
+//            }
+//            final MissionMapEditor mme = new MissionMapEditor(map, cs, true);
+//            if (ob instanceof LocationType) {
+//                // FIXME
+//                // mp.centerOnLocation((AbstractLocationPoint) ob);
+//            }
+//            ifrm = createFrame(I18n.textf("%map - Map", map.getName()), "map-" + map.getId(), mme);
+//            internalFrames.put("map-" + map.getId(), ifrm);
+//            ifrm.setSize(new Dimension(mme.getWidth() + 190, mme.getHeight() + 50));
+//            // ifrm.setSize(new Dimension(mp.getWidth(), mp.getHeight()+120));
+//            ifrm.setResizable(true);
+//            ifrm.setMaximizable(true);
+//            mme.setFrameOpener(Workspace.this);
+//            /*
+//             * ifrm.addFocusListener(new FocusAdapter() { public void focusLost(java.awt.event.FocusEvent arg0) {
+//             * mme.switchTo2D(); }; });
+//             */
+//            ifrm.addInternalFrameListener(new InternalFrameAdapter() {
+//                @Override
+//                public void internalFrameDeactivated(javax.swing.event.InternalFrameEvent arg0) {
+//                    try {
+//
+//                        mme.switchTo2D();
+//                        // ((JInternalFrame) arg0.getSource()).setIcon(true);
+//                    }
+//                    catch (Exception e) {
+//                        NeptusLog.pub().error(this, e);
+//                    }
+//                }
+//            });
+//        }
     }
 
     protected void openChecklistTypeFile(File fx) {

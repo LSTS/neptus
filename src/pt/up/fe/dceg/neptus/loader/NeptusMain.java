@@ -53,8 +53,6 @@ import pt.up.fe.dceg.neptus.gui.Loader;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mc.Workspace;
 import pt.up.fe.dceg.neptus.mc.lauvconsole.LAUVConsole;
-import pt.up.fe.dceg.neptus.mme.MissionMapEditor;
-import pt.up.fe.dceg.neptus.mp.MissionPlanner;
 import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.plugins.PluginClassLoader;
 import pt.up.fe.dceg.neptus.plugins.params.ConfigurationManager;
@@ -91,7 +89,6 @@ public class NeptusMain {
         appNames.put("console", I18n.text("LAUV Console"));
         appNames.put("la", I18n.text("LAUV SE Console"));
 
-        fileHandlers.put(FileUtil.FILE_TYPE_MAP, MissionMapEditor.class);
         fileHandlers.put(FileUtil.FILE_TYPE_MISSION, Workspace.class);
         fileHandlers.put(FileUtil.FILE_TYPE_MISSION_COMPRESSED, Workspace.class);
         fileHandlers.put(FileUtil.FILE_TYPE_CONFIG, EditorLauncher.class);
@@ -167,16 +164,6 @@ public class NeptusMain {
             ws.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             wrapMainApplicationWindowWithCloseActionWindowAdapter(ws);
             System.out.println("workspace load finished in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
-        }
-        else if (app.equalsIgnoreCase("mp")) {
-            MissionPlanner mp = new MissionPlanner();
-            ConfigFetch.setSuperParentFrame(mp);
-            GuiUtils.centerOnScreen(mp);
-            mp.setExtendedState(JFrame.MAXIMIZED_BOTH);
-            mp.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            mp.setVisible(true);
-            wrapMainApplicationWindowWithCloseActionWindowAdapter(mp);
-            loader.waitMoreAndEnd(1000);
         }
         else if (app.equalsIgnoreCase("mra")) {
             NeptusMRA mra = NeptusMRA.showApplication();
