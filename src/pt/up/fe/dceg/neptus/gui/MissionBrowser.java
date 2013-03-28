@@ -1119,136 +1119,140 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     public synchronized void updateRemotePlansState(ImcSystem[] imcSystems) {
-        try {
-            DefaultMutableTreeNode remotePlans = treeModel.remotePlans;
-            if (remotePlans != null && (imcSystems == null || imcSystems.length == 0)) {
-                treeModel.removeNodeFromParent(remotePlans);
-                remotePlans = null;
-                return;
-            }
-
-            // Adding or update systems planDBInfos
-            for (ImcSystem imcSystem : imcSystems) {
-                PlanDBState prs = imcSystem.getPlanDBControl().getRemoteState();
-
-                ExtendedTreeNode systemRemotePlansRoot = null;
-
-                // Find if already in the tree
-                if (remotePlans.getChildCount() != 0) {
-                    ExtendedTreeNode childPlan = (ExtendedTreeNode) remotePlans.getFirstChild();
-                    while (childPlan != null) {
-                        try {
-                            String id = (String) childPlan.getUserObject();
-                            if (imcSystem.getName().equalsIgnoreCase(id)) {
-                                systemRemotePlansRoot = childPlan;
-                                break;
-                            }
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        childPlan = (ExtendedTreeNode) childPlan.getNextSibling();
-                    }
-                }
-
-                // If not in the tree create and add system remote plan holder
-                if (systemRemotePlansRoot == null) {
-                    systemRemotePlansRoot = new ExtendedTreeNode(imcSystem.getName());
-                    treeModel.addToParents(systemRemotePlansRoot, ParentNodes.REMOTE_PLANS);
-                }
-
-                // So now let's update or create planInfos for system
-                String[] planNames = prs.getStoredPlans().keySet().toArray(new String[0]);
-                PlanDBInfo[] planInfos = prs.getStoredPlans().values().toArray(new PlanDBInfo[0]);
-                for (int i = 0; i < planNames.length; i++) {
-                    // look for planInfo on tree
-                    ExtendedTreeNode systemPlanInfoRoot = null;
-                    if (systemRemotePlansRoot.getChildCount() != 0) {
-                        ExtendedTreeNode childPlan = (ExtendedTreeNode) systemRemotePlansRoot.getFirstChild();
-                        while (childPlan != null) {
-                            try {
-                                String id = ((PlanDBInfo) childPlan.getUserObject()).getPlanId();
-                                if (planNames[i].equalsIgnoreCase(id)) {
-                                    systemPlanInfoRoot = childPlan;
-                                    break;
-                                }
-                            }
-                            catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-                            childPlan = (ExtendedTreeNode) childPlan.getNextSibling();
-                        }
-                    }
-
-                    // If not in the tree create and add
-                    if (systemPlanInfoRoot != null) {
-                        systemPlanInfoRoot.setUserObject(planInfos[i]);
-                    }
-                    else {
-                        systemPlanInfoRoot = new ExtendedTreeNode(planInfos[i]);
-                        treeModel.addToParents(systemPlanInfoRoot, ParentNodes.REMOTE_PLANS);
-                    }
-
-                    // test if this remote plan is in this console plan list
-                    systemPlanInfoRoot.getUserInfo().put("sync", testPlanDBInfoForEqualityInMission(planInfos[i]));
-                }
-
-                // see if planDBInfo is for removal
-                if (systemRemotePlansRoot.getChildCount() != 0) {
-                    ExtendedTreeNode childPlan = (ExtendedTreeNode) systemRemotePlansRoot.getFirstChild();
-                    while (childPlan != null) {
-                        try {
-                            String id = ((PlanDBInfo) childPlan.getUserObject()).getPlanId();
-                            for (String planId : planNames) {
-                                if (planId.equalsIgnoreCase(id)) {
-                                    id = null;
-                                    break;
-                                }
-                            }
-                            if (id != null) {
-                                treeModel.removeNodeFromParent(childPlan);
-                            }
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        childPlan = (ExtendedTreeNode) childPlan.getNextSibling();
-                    }
-                }
-            }
-
-            // If is to remove and remove it
-            if (remotePlans != null && remotePlans.getChildCount() != 0) {
-                ExtendedTreeNode childPlan = (ExtendedTreeNode) remotePlans.getFirstChild();
-                while (childPlan != null) {
-                    try {
-                        String id = (String) childPlan.getUserObject();
-                        for (ImcSystem imcSystem : imcSystems) {
-                            if (imcSystem.getName().equalsIgnoreCase(id)) {
-                                id = null;
-                                break;
-                            }
-                        }
-                        if (id != null) {
-                            treeModel.removeNodeFromParent(childPlan);
-                            // System.out.println(id);
-                        }
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    childPlan = (ExtendedTreeNode) childPlan.getNextSibling();
-                }
-            }
-            repaint();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        NeptusLog.pub().error(
+                "The method updateRemotePlansState is desabled, please review code in "
+                        + MissionBrowser.class.getCanonicalName());
+        // TODO
+        // try {
+        // DefaultMutableTreeNode remotePlans = treeModel.remotePlans;
+        // if (remotePlans != null && (imcSystems == null || imcSystems.length == 0)) {
+        // treeModel.removeNodeFromParent(remotePlans);
+        // remotePlans = null;
+        // return;
+        // }
+        //
+        // // Adding or update systems planDBInfos
+        // for (ImcSystem imcSystem : imcSystems) {
+        // PlanDBState prs = imcSystem.getPlanDBControl().getRemoteState();
+        //
+        // ExtendedTreeNode systemRemotePlansRoot = null;
+        //
+        // // Find if already in the tree
+        // if (remotePlans.getChildCount() != 0) {
+        // ExtendedTreeNode childPlan = (ExtendedTreeNode) remotePlans.getFirstChild();
+        // while (childPlan != null) {
+        // try {
+        // String id = (String) childPlan.getUserObject();
+        // if (imcSystem.getName().equalsIgnoreCase(id)) {
+        // systemRemotePlansRoot = childPlan;
+        // break;
+        // }
+        // }
+        // catch (Exception e) {
+        // e.printStackTrace();
+        // }
+        //
+        // childPlan = (ExtendedTreeNode) childPlan.getNextSibling();
+        // }
+        // }
+        //
+        // // If not in the tree create and add system remote plan holder
+        // if (systemRemotePlansRoot == null) {
+        // systemRemotePlansRoot = new ExtendedTreeNode(imcSystem.getName());
+        // treeModel.addToParents(systemRemotePlansRoot, ParentNodes.REMOTE_PLANS);
+        // }
+        //
+        // // So now let's update or create planInfos for system
+        // String[] planNames = prs.getStoredPlans().keySet().toArray(new String[0]);
+        // PlanDBInfo[] planInfos = prs.getStoredPlans().values().toArray(new PlanDBInfo[0]);
+        // for (int i = 0; i < planNames.length; i++) {
+        // // look for planInfo on tree
+        // ExtendedTreeNode systemPlanInfoRoot = null;
+        // if (systemRemotePlansRoot.getChildCount() != 0) {
+        // ExtendedTreeNode childPlan = (ExtendedTreeNode) systemRemotePlansRoot.getFirstChild();
+        // while (childPlan != null) {
+        // try {
+        // String id = ((PlanDBInfo) childPlan.getUserObject()).getPlanId();
+        // if (planNames[i].equalsIgnoreCase(id)) {
+        // systemPlanInfoRoot = childPlan;
+        // break;
+        // }
+        // }
+        // catch (Exception e) {
+        // e.printStackTrace();
+        // }
+        //
+        // childPlan = (ExtendedTreeNode) childPlan.getNextSibling();
+        // }
+        // }
+        //
+        // // If not in the tree create and add
+        // if (systemPlanInfoRoot != null) {
+        // systemPlanInfoRoot.setUserObject(planInfos[i]);
+        // }
+        // else {
+        // systemPlanInfoRoot = new ExtendedTreeNode(planInfos[i]);
+        // treeModel.addToParents(systemPlanInfoRoot, ParentNodes.REMOTE_PLANS);
+        // }
+        //
+        // // test if this remote plan is in this console plan list
+        // systemPlanInfoRoot.getUserInfo().put("sync", testPlanDBInfoForEqualityInMission(planInfos[i]));
+        // }
+        //
+        // // see if planDBInfo is for removal
+        // if (systemRemotePlansRoot.getChildCount() != 0) {
+        // ExtendedTreeNode childPlan = (ExtendedTreeNode) systemRemotePlansRoot.getFirstChild();
+        // while (childPlan != null) {
+        // try {
+        // String id = ((PlanDBInfo) childPlan.getUserObject()).getPlanId();
+        // for (String planId : planNames) {
+        // if (planId.equalsIgnoreCase(id)) {
+        // id = null;
+        // break;
+        // }
+        // }
+        // if (id != null) {
+        // treeModel.removeNodeFromParent(childPlan);
+        // }
+        // }
+        // catch (Exception e) {
+        // e.printStackTrace();
+        // }
+        //
+        // childPlan = (ExtendedTreeNode) childPlan.getNextSibling();
+        // }
+        // }
+        // }
+        //
+        // // If is to remove and remove it
+        // if (remotePlans != null && remotePlans.getChildCount() != 0) {
+        // ExtendedTreeNode childPlan = (ExtendedTreeNode) remotePlans.getFirstChild();
+        // while (childPlan != null) {
+        // try {
+        // String id = (String) childPlan.getUserObject();
+        // for (ImcSystem imcSystem : imcSystems) {
+        // if (imcSystem.getName().equalsIgnoreCase(id)) {
+        // id = null;
+        // break;
+        // }
+        // }
+        // if (id != null) {
+        // treeModel.removeNodeFromParent(childPlan);
+        // // System.out.println(id);
+        // }
+        // }
+        // catch (Exception e) {
+        // e.printStackTrace();
+        // }
+        //
+        // childPlan = (ExtendedTreeNode) childPlan.getNextSibling();
+        // }
+        // }
+        // repaint();
+        // }
+        // catch (Exception e) {
+        // e.printStackTrace();
+        // }
     }
 
     /**
@@ -1416,7 +1420,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         MAP("Maps"),
         TRANSPONDERS("Transponders"),
         PLANS("Plans"),
-        REMOTE_PLANS("Remote Plans"),
+        // REMOTE_PLANS("Remote Plans"),
         MARKS("Marks"),
         CHECKLISTS("Checklists");
 
@@ -1429,7 +1433,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
     private class Model extends DefaultTreeModel {
         private static final long serialVersionUID = 5581485271978065950L;
-        private final DefaultMutableTreeNode trans, plans, remotePlans, maps;
+        private final DefaultMutableTreeNode trans, plans, maps;
 
         /**
          * @param root
@@ -1438,7 +1442,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             super(root);
             maps = new DefaultMutableTreeNode(ParentNodes.MAP.nodeName);
             plans = new DefaultMutableTreeNode(ParentNodes.PLANS.nodeName);
-            remotePlans = new DefaultMutableTreeNode(ParentNodes.REMOTE_PLANS.nodeName);
+            // remotePlans = new DefaultMutableTreeNode(ParentNodes.REMOTE_PLANS.nodeName);
             trans = new DefaultMutableTreeNode(ParentNodes.TRANSPONDERS.nodeName);
         }
 
@@ -1461,11 +1465,11 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 cleanParent(ParentNodes.PLANS);
                 System.out.println("plans " + plans.getChildCount());
             }
-            if (remotePlans.getParent() != null) {
-                removeNodeFromParent(remotePlans);
-                System.out.println("remotePlans " + remotePlans.getChildCount());
-                cleanParent(ParentNodes.REMOTE_PLANS);
-            }
+            // if (remotePlans.getParent() != null) {
+            // removeNodeFromParent(remotePlans);
+            // System.out.println("remotePlans " + remotePlans.getChildCount());
+            // cleanParent(ParentNodes.REMOTE_PLANS);
+            // }
             if (maps.getParent() != null) {
                 removeNodeFromParent(maps);
                 System.out.println("maps " + maps.getChildCount());
@@ -1512,9 +1516,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 case PLANS:
                     parentNode = plans;
                     break;
-                case REMOTE_PLANS:
-                    parentNode = remotePlans;
-                    break;
+                // case REMOTE_PLANS:
+                // parentNode = remotePlans;
+                // break;
                 case TRANSPONDERS:
                     parentNode = trans;
                     break;
@@ -1537,9 +1541,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 case PLANS:
                     plans.add(node);
                     break;
-                case REMOTE_PLANS:
-                    remotePlans.add(node);
-                    break;
+                // case REMOTE_PLANS:
+                // remotePlans.add(node);
+                // break;
                 case TRANSPONDERS:
                     trans.add(node);
                     break;
@@ -1558,9 +1562,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 case PLANS:
                     parentNode = plans;
                     break;
-                case REMOTE_PLANS:
-                    parentNode = remotePlans;
-                    break;
+                // case REMOTE_PLANS:
+                // parentNode = remotePlans;
+                // break;
                 case TRANSPONDERS:
                     parentNode = trans;
                     break;
