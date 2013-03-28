@@ -961,8 +961,12 @@ public class LogUtils {
         LsfIndex index = source.getLsfIndex();
         LsfIterator<SonarData> it = index.getIterator(SonarData.class);
         SonarData sd = it.next();
+        
+        if(sd == null)
+            return false;
+        
         long ts = sd.getTimestampMillis();
-        while((sd.getTimestampMillis() - ts) < 5000) {
+        while((sd.getTimestampMillis() - ts) < 5000 && sd != null) {
             if(sd.getType() == SonarData.TYPE.SIDESCAN)
                 return true;
             sd = it.next();

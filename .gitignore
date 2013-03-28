@@ -182,3 +182,6 @@ Thumbs.db
 /neptus.bat
 /neptus.sh
 /*.log
+/windows_dist
+/release.json
+/git.branch

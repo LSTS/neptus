@@ -70,7 +70,6 @@ import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.mozilla.javascript.Context;
@@ -1266,10 +1265,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             consoleSystems.clear();
             mainPanel.clean();
             statusBar.clean();
-
-            setMission(null);
-            setPlan(null);
-            setMainSystem(null);
 
             NeptusEvents.clean();
         }
