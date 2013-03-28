@@ -357,8 +357,14 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
         }
 
         fileName.append(Icons.EXTENSION.getName());
-        // setIcon(ImageUtils.getIcon(fileName.toString()));
-         setIcon(ImageUtils.getScaledIcon(fileName.toString(), 16, 16));
+         try {
+            // setIcon(ImageUtils.getIcon(fileName.toString()));
+            setIcon(ImageUtils.getScaledIcon(fileName.toString(), 16, 16));
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("Filename: " + fileName.toString());
+            e.printStackTrace();
+        }
     }
 }
 

@@ -1431,10 +1431,20 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
     }
 
+    /**
+     * Handles major changes in node structure.
+     * 
+     * @author Margarida Faria
+     * 
+     */
     private class Model extends DefaultTreeModel {
         private static final long serialVersionUID = 5581485271978065950L;
         private final DefaultMutableTreeNode trans, plans, maps;
         private DefaultMutableTreeNode homeR;
+
+        // !!Important!! Always add with insertNodeInto (instead of add) and remove with removeNodeFromParent (instead
+        // of remove). It will remove directly from the Vector that support the model and notify of the structure
+        // changes.
 
         /**
          * @param root
@@ -1443,16 +1453,10 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             super(root);
             maps = new DefaultMutableTreeNode(ParentNodes.MAP.nodeName);
             plans = new DefaultMutableTreeNode(ParentNodes.PLANS.nodeName);
-            // remotePlans = new DefaultMutableTreeNode(ParentNodes.REMOTE_PLANS.nodeName);
             trans = new DefaultMutableTreeNode(ParentNodes.TRANSPONDERS.nodeName);
         }
 
         public void clearTree() {
-            // Object root = treeModel.getRoot();
-            // int childCount = treeModel.getChildCount(root);
-            // for (int i = 0; i < childCount; i++) {
-            // treeModel.removeNodeFromParent((MutableTreeNode) treeModel.getChild(root, i));
-            // }
 
             System.out.println("Clean tree");
             if (((DefaultMutableTreeNode) root).getChildCount() > 0) {
@@ -1473,19 +1477,11 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 cleanParent(ParentNodes.PLANS);
                 System.out.println("plans " + plans.getChildCount());
             }
-            // if (remotePlans.getParent() != null) {
-            // removeNodeFromParent(remotePlans);
-            // System.out.println("remotePlans " + remotePlans.getChildCount());
-            // cleanParent(ParentNodes.REMOTE_PLANS);
-            // }
             if (maps.getParent() != null) {
                 removeNodeFromParent(maps);
                 System.out.println("maps " + maps.getChildCount());
                 cleanParent(ParentNodes.MAP);
             }
-
-            // trans = plans = remotePlans = maps = null;
-            // treeModel.setRoot(new DefaultMutableTreeNode("Mission Elements"));
         }
 
         public void redoModel(final Vector<TransponderElement> transElements, final HomeReference homeRef,
@@ -1503,18 +1499,16 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             if (trans.getChildCount() >= 0 && !((DefaultMutableTreeNode) root).isNodeChild(trans)) {
                 index++;
                 System.out.println("trans was added to root");
-                // ((DefaultMutableTreeNode) root).add(trans);
                 insertNodeInto(trans, (MutableTreeNode) root, index);
             }
             System.out.println("trans.getChildCount()" + trans.getChildCount() + ", root.isNodeChild(trans)"
                     + ((DefaultMutableTreeNode) root).isNodeChild(trans) + ", root children:" + root.getChildCount());
 
             for (PlanType planT : plansElements) {
-                addPlan(planT);
+                addToParents(new ExtendedTreeNode(planT), ParentNodes.PLANS);
             }
             if (plans.getChildCount() >= 0 && !plans.isNodeChild(root)) {
                 index++;
-                // ((DefaultMutableTreeNode) root).add(plans);
                 insertNodeInto(plans, (MutableTreeNode) root, index);
             }
 
@@ -1529,9 +1523,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 case PLANS:
                     parentNode = plans;
                     break;
-                // case REMOTE_PLANS:
-                // parentNode = remotePlans;
-                // break;
                 case TRANSPONDERS:
                     parentNode = trans;
                     break;
@@ -1543,7 +1534,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     return;
             }
             while (parentNode.getChildCount() > 0) {
-                parentNode.remove(0);
+                removeNodeFromParent((MutableTreeNode) parentNode.getFirstChild());
             }
         }
 
@@ -1552,16 +1543,16 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             System.out.println("Adding to " + parent.nodeName + " " + node.getUserObject());
             switch (parent) {
                 case PLANS:
-                    plans.add(node);
+                    // plans.add(node);
+                    insertNodeInto(node, plans, 0);
                     break;
-                // case REMOTE_PLANS:
-                // remotePlans.add(node);
-                // break;
                 case TRANSPONDERS:
                     trans.add(node);
+                    insertNodeInto(node, trans, 0);
                     break;
                 case MAP:
                     maps.add(node);
+                    insertNodeInto(node, maps, 0);
                     break;
                 default:
                     NeptusLog.pub().error("ADD SUPPORT FOR " + parent.nodeName + " IN MissionBrowser");
@@ -1575,9 +1566,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 case PLANS:
                     parentNode = plans;
                     break;
-                // case REMOTE_PLANS:
-                // parentNode = remotePlans;
-                // break;
                 case TRANSPONDERS:
                     parentNode = trans;
                     break;
@@ -1613,9 +1601,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 E userObject = (E) ((DefaultMutableTreeNode) parent.getChildAt(i)).getUserObject();
                 if (userObject.getIdentification().equals(item.getIdentification())) {
                     MutableTreeNode child = (MutableTreeNode) parent.getChildAt(i);
-                    treeModel.removeNodeFromParent(child);
+                    removeNodeFromParent(child);
                     if (childCount == 0) {
-                        treeModel.removeNodeFromParent(parent);
+                        removeNodeFromParent(parent);
                         parent = null;
                     }
                     return true;
@@ -1626,9 +1614,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
         public void setHomeRef(HomeReference href) {
             homeR = new DefaultMutableTreeNode(href);
-            // ((DefaultMutableTreeNode) root).add(homeR);
-                System.out.println("Inserting homeref");
-                insertNodeInto(homeR, (MutableTreeNode) root, 0);
+            System.out.println("Inserting homeref");
+            insertNodeInto(homeR, (MutableTreeNode) root, 0);
         }
     }
 }
