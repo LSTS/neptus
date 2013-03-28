@@ -253,7 +253,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
     @Override
     public void missionUpdated(MissionType mission) {
         System.out.println("missionUpdated");
-        // browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
+        browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
     }
 
     boolean inited = false;
