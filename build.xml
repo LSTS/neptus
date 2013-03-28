@@ -2227,4 +2227,21 @@ For simple use the main targets are:
 		</java>
 	</target>
 	
+	<target name="nightly-build" depends="distribution-full-all-os">
+		<tstamp>
+			<format property="datef" pattern="yyyy-MM-dd" />
+		</tstamp>
+		<exec outputproperty="git.branch" command="git rev-parse --abbrev-ref HEAD"/>				
+		<property name="original.filename" value="${Name}-${full.release}-x86-32bit-x64-64bit-${datef}.tar.gz"/>
+		<property name="new.filename" value="${Name}-${git.branch}-${datef}.tar.gz"/>
+		<rename dest="${new.filename}" src="${original.filename}"/>
+		<echo file="release.json">{
+	"name":"${Name}-${full.release}",
+	"date":"${datef}",
+	"filename":"${new.filename}"
+}
+		</echo>
+		
+	</target>
+	
 </project>
