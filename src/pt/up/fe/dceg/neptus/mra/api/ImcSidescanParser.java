@@ -29,7 +29,7 @@
  * Author: José Correia
  * Feb 5, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.sidescan;
+package pt.up.fe.dceg.neptus.mra.api;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -42,6 +42,7 @@ import pt.up.fe.dceg.neptus.imc.SonarData;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
+import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 /**

@@ -27,20 +27,29 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: José Correia
- * Feb 5, 2013
+ * Oct 26, 2012
  */
-package pt.up.fe.dceg.neptus.plugins.sidescan;
+package pt.up.fe.dceg.neptus.mra.api;
 
-import java.util.ArrayList;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
 /**
  * @author jqcorreia
  *
  */
-public interface SidescanParser {
-    public long firstPingTimestamp();
-    public long lastPingTimestamp();
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem, SidescanConfig config);
+public class SidescanPoint {
+    public LocationType location;
+    public int x,y;
     
-    public ArrayList<Integer> getSubsystemList();
+    /**
+     * @param location
+     * @param x
+     * @param y
+     */
+    public SidescanPoint(int x, int y, LocationType location) {
+        super();
+        this.location = location;
+        this.x = x;
+        this.y = y;
+    }
 }

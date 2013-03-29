@@ -29,7 +29,7 @@
  * Author: José Correia
  * Oct 26, 2012
  */
-package pt.up.fe.dceg.neptus.plugins.sidescan;
+package pt.up.fe.dceg.neptus.mra.api;
 
 import java.awt.Image;
 

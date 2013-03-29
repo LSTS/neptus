@@ -990,7 +990,7 @@ public class ImcMsgManager extends
                 announceWorker.sendEntityListRequestMsg(resSys);
         }
         
-        IMCDefinition.getInstance().getResolver().addEntry(ann.getSrc(), ann.getSysName());
+        imcDefinition.getResolver().addEntry(ann.getSrc(), ann.getSysName());
         return vci;
     }
 
