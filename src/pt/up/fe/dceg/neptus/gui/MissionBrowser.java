@@ -682,18 +682,24 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             DefaultMutableTreeNode plans = treeModel.plans;
             if (plans != null && plans.getChildCount() != 0) {
                 ExtendedTreeNode childPlan = (ExtendedTreeNode) plans.getFirstChild();
+                // For all plans on tree
                 while (childPlan != null) {
                     if (childPlan.getUserObject() instanceof PlanType) {
                         try {
+                            // Store their plan user info in plansLocal
                             PlanType plan = (PlanType) childPlan.getUserObject();
                             plansLocal.add(plan);
+                            // Cross check with PlanDBControl's state
                             boolean containsPlan = prs.getStoredPlans().containsKey(plan.getId());
                             if (!containsPlan) {
                                 childPlan.getUserInfo().remove("sync");
                             }
                             else {
+                                // if the plan is there both Neptus and the system share the plan
+                                // if md5 matches it's synced, it's not otherwise -- set the state
                                 childPlan.getUserInfo().put("sync",
                                         prs.matchesRemotePlan(plan) ? State.SYNC : State.NOT_SYNC);
+                                // if they share info on the plan, it's also added to plansThatMatchLocal
                                 plansThatMatchLocal.add(plan.getId());
                             }
                         }
@@ -702,7 +708,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                         }
                     }
                     else if (childPlan.getUserObject() instanceof PlanDBInfo) {
+                        // it's automatically remote
                         PlanDBInfo planDBInfo = (PlanDBInfo) childPlan.getUserObject();
+                        // added to pathsToRemove if it's not contained in PlanDBControl's state
                         if (!prs.getStoredPlans().values().contains(planDBInfo))
                             pathsToRemove.add(childPlan);
 
@@ -710,6 +718,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     childPlan = (ExtendedTreeNode) childPlan.getNextSibling();
                 }
 
+                // remove all the plans in pathsToRemove
                 for (ExtendedTreeNode extendedTreeNode : pathsToRemove) {
                     try {
                         treeModel.removeNodeFromParent(extendedTreeNode);
@@ -720,19 +729,24 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 }
                 pathsToRemove.clear();
 
+                // if there are still plans
                 if (!plans.isLeaf()) {
                     childPlan = (ExtendedTreeNode) plans.getFirstChild();
+                    // got through remaining plans in tree - when does this happen?
                     while (childPlan != null) {
                         if (childPlan.getUserObject() instanceof PlanDBInfo) {
                             PlanDBInfo planDBInfo = (PlanDBInfo) childPlan.getUserObject();
                             boolean ct = false;
+                            // compare to all localPlans
                             for (PlanType pl : plansLocal) {
+                                // if one of the plans in plansLocal id matches a plan of the tree it will be removed
                                 if (pl.getId().equals(planDBInfo.getPlanId())) {
                                     pathsToRemove.add(childPlan);
                                     ct = true;
                                     break;
                                 }
                             }
+                            // if child matched none of the plans on plansLocal it is added to plansThatMatchLocal
                             if (!ct)
                                 plansThatMatchLocal.add(planDBInfo.getPlanId());
                         }
@@ -740,6 +754,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                         childPlan = (ExtendedTreeNode) childPlan.getNextSibling();
                     }
 
+                    // remove all the plans in pathsToRemove
                     for (ExtendedTreeNode extendedTreeNode : pathsToRemove) {
                         treeModel.removeNodeFromParent(extendedTreeNode);
                     }
@@ -748,12 +763,15 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
             ArrayList<Identifiable> objectsToAdd = new ArrayList<Identifiable>();
 
+            // Adding all the planDBInfo in store to make sure only does in store are in tree?
+            // run through all the plans in PlanDBControl's storedPlans
             for (PlanDBInfo pdbi : prs.getStoredPlans().values()) {
+                // if one of them matches a plan in plansThatMatchLocal it is added to objectsToAdd
                 if (!plansThatMatchLocal.contains(pdbi.getPlanId())) {
                     objectsToAdd.add(pdbi);
                 }
             }
-
+            // all plans in objectsToAdd are added to the tree with state remote
             treeModel.addToParents(objectsToAdd, ParentNodes.PLANS, State.REMOTE);
         }
         catch (Exception e) {
