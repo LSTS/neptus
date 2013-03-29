@@ -170,7 +170,6 @@
 	<classpathentry kind="lib" path="lib/jme3/jME3-terrain.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/lwjgl.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/nifty-default-controls.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/nifty-examples.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/nifty-style-black.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/nifty.jar"/>
 	<classpathentry kind="lib" path="lib/jme3/stack-alloc.jar"/>
@@ -199,8 +198,6 @@
 	<classpathentry kind="lib" path="lib/jogl2/jogl-all-natives-windows-i586.jar"/>
 	<classpathentry kind="lib" path="lib/jogl2/jogl-all.jar"/>
 	<classpathentry kind="lib" path="lib/jogl2/org.jzy3d-0.9.jar"/>
-	<classpathentry kind="lib" path="lib/jakarta-oro-core-2.1-dev-1.jar"/>
-	<classpathentry kind="lib" path="lib/jakarta-oro-perl5-2.1-dev-1.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/vrp/lib/or124.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>

@@ -524,8 +524,9 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     @Subscribe
     public void consume(PlanControlState message) {
 
-        if (!message.getSourceName().equals(getConsole().getMainSystem()))
-            return;
+        if(getConsole().getMainSystem() != null)
+            if (!message.getSourceName().equals(getConsole().getMainSystem()))
+                return;
         
         String planId = message.getPlanId();
         String manId = message.getManId();
@@ -566,10 +567,6 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
             po.setShowManNames(false);
             r2d.addPostRenderPainter(po, I18n.text("Plan Painter"));
             mainPlanPainter = po;
-            editMode.setEnabled(true);
-        }
-        else {
-            editMode.setEnabled(false);
         }
     }
 
@@ -818,6 +815,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         editor.removePreRenderPainter(painter);
     }
 
+    @Override
     public StateRenderer2D getRenderer() {
         return editor;
     }

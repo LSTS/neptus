@@ -33,13 +33,14 @@ package pt.up.fe.dceg.neptus.plugins.planning.plandb;
 
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.maneuvers.IMCSerialization;
+import pt.up.fe.dceg.neptus.types.Identifiable;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
 
 /**
  * @author zp
  *
  */
-public class PlanDBInfo implements IMCSerialization {
+public class PlanDBInfo implements IMCSerialization, Identifiable {
 
     protected String planId;
     protected int planSize;
@@ -121,6 +122,16 @@ public class PlanDBInfo implements IMCSerialization {
      */
     @Override
     public String toString() {
+        return planId;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.up.fe.dceg.neptus.types.Identifiable#getIdentification()
+     */
+    @Override
+    public String getIdentification() {
         return planId;
     }
 }

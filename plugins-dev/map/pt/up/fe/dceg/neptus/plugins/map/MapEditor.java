@@ -240,11 +240,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
     }
 
     protected MapType getPivot() {
-        MapType m = null;
-        for (MapType mt : mg.getMaps())
-            if (mt.getHref() != null && mt.getHref().length() > 0)
-                m = mt;
-        return m != null ? m : mg.getMaps()[0];
+        return mg.getPivotMap();
     }
 
     protected JToolBar createToolbar() {
@@ -503,6 +499,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             manager.addEdit(new ObjectPropertiesEdit(element, oldXml));
 
             MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
+            pivot = getPivot();
             mce.setSourceMap(pivot);
             mce.setChangedObject(draggedObject);
             pivot.warnChangeListeners(mce);
@@ -959,7 +956,6 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
      */
     @Override
     public void initSubPanel() {
-        // TODO Auto-generated method stub
         
     }
 

@@ -44,6 +44,7 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.types.Identifiable;
 import pt.up.fe.dceg.neptus.types.XmlInputMethods;
 import pt.up.fe.dceg.neptus.types.XmlInputMethodsFromFile;
 import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
@@ -58,7 +59,7 @@ import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
  * @author Paulo Dias
  */
 public class ChecklistType 
-implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
+ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile, Identifiable {
     protected static final String DEFAULT_ROOT_ELEMENT = "checklist";
 
     public static final String FLAT_ID = "flat";
@@ -95,6 +96,7 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlInputMethods#load(org.dom4j.Element)
      */
+    @Override
     public boolean load(Element elem) {
         doc = Dom4JUtil.elementToDocument(elem);
         if (doc == null) {
@@ -109,6 +111,7 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlInputMethods#load(java.lang.String)
      */
+    @Override
     public boolean load(String xml) {
         try {
             doc = DocumentHelper.parseText(xml);
@@ -197,6 +200,7 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
     }
 
 
+    @Override
     public boolean loadFile(File file) {
         return loadFile(file.getAbsolutePath());
     }
@@ -204,6 +208,7 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
     /**
      * @param url
      */
+    @Override
     public boolean loadFile(String url) {
         originalFilePath = new File(url).getAbsolutePath();
 
@@ -307,6 +312,7 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML()
      */
+    @Override
     public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asXML(rootElementName);
@@ -317,6 +323,7 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
+    @Override
     public String asXML(String rootElementName) {
         String result = "";
         Document document = asDocument(rootElementName);
@@ -329,6 +336,7 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement()
      */
+    @Override
     public Element asElement() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asElement(rootElementName);
@@ -340,6 +348,7 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
      * @see
      * pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement(java.lang.String)
      */
+    @Override
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
     }
@@ -349,6 +358,7 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument()
      */
+    @Override
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
@@ -360,6 +370,7 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
      * @see
      * pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
+    @Override
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
         Element root = document.addElement( rootElementName );
@@ -382,7 +393,7 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
                 LinkedList<CheckItem> lkl = groupList.values().iterator().next();
                 Iterator<CheckItem> it = lkl.iterator();
                 while (it.hasNext()) {
-                    CheckItem ci = (CheckItem) it.next();
+                    CheckItem ci = it.next();
                     root.add(ci.asElement());
                 }
             }
@@ -390,13 +401,13 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
         else {
             Iterator<String> it = groupList.keySet().iterator();
             while (it.hasNext()) {
-                String name = (String) it.next();
+                String name = it.next();
                 Element groupElem = root.addElement("group");
                 groupElem.addAttribute("name", name);
                 LinkedList<CheckItem> lkl = groupList.get(name);
                 Iterator<CheckItem> it1 = lkl.iterator();
                 while (it1.hasNext()) {
-                    CheckItem ci = (CheckItem) it1.next();
+                    CheckItem ci = it1.next();
                     groupElem.add(ci.asElement());
                 }
             }
@@ -406,6 +417,7 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
     }
 
 
+    @Override
     public boolean isLoadOk() {
         return isLoadOk;
     }
@@ -442,6 +454,7 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
         }
     }
 
+    @Override
     public String toString() {
         return getName();
     }    
@@ -473,5 +486,15 @@ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
     	
     	tmpChc.setOriginalFilePath("");
     	return tmpChc;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.up.fe.dceg.neptus.types.Identifiable#getIdentification()
+     */
+    @Override
+    public String getIdentification() {
+        return getName();
     }
 }

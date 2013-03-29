@@ -35,7 +35,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Map;
@@ -46,9 +45,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventNewSystem;
@@ -79,22 +75,9 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
         this.setRenderer(new MainSystemRenderer());
         this.addItemListener(this);
         this.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
-        this.setBackground(new Color(0x3A87AD));
-        //this.setBorder(new EmptyBorder(0, 0, 0, 0));
         this.setUI(new WindowsComboBoxUI());
-        //this.setOpaque(false);
         setFocusable(false);
     }
-
-    // private void refresh() {
-    // Set<String> systems = console.getConsoleSystems().keySet();
-    // // Collections.sort(systems);
-    // this.removeAllItems();
-    // for (String system : systems) {
-    // this.addItem(system);
-    // }
-    // this.setSelectedItem(console.getMainSystem());
-    // }
 
     /*
      * EVENTS
@@ -104,43 +87,29 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
     public void onNewSystem(ConsoleEventNewSystem e) {
         systemState.put(e.getSystem().getVehicleId(), e.getSystem().getVehicleState());
         
-        switch (e.getSystem().getVehicleState()) {
-            case SERVICE:
-                setBackground(new Color(0x57B768));
-                break;
-            case ERROR:
-                setBackground(new Color(0xB94A48));
-                break;
-            case CALIBRATION:
-                setBackground(new Color(0x3A87AD));
-                break;
-            default:
-                setBackground(new Color(0xC8BF5F));
-                break;
-        }
-        
-        
         this.addItem(e.getSystem().getVehicleId());
     }
 
     @Subscribe
     public void onVehicleStateChanged(ConsoleEventVehicleStateChanged e) {
         systemState.put(e.getVehicle(), e.getState());
-        
-        switch (e.getState()) {
-            case SERVICE:
-                setBackground(new Color(0x57B768));
-                break;
-            case ERROR:
-                setBackground(new Color(0xB94A48));
-                break;
-            case CALIBRATION:
-                setBackground(new Color(0x3A87AD));
-                break;
-            default:
-                setBackground(new Color(0xC8BF5F));
-                break;
+        if(console.getMainSystem().equals(e.getVehicle())){
+            switch (e.getState()) {
+                case SERVICE:
+                    setBackground(new Color(0x57B768));
+                    break;
+                case ERROR:
+                    setBackground(new Color(0xB94A48));
+                    break;
+                case CALIBRATION:
+                    setBackground(new Color(0x3A87AD));
+                    break;
+                default:
+                    setBackground(new Color(0xC8BF5F));
+                    break;
+            }
         }
+      
         
         this.repaint();
     }

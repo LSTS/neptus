@@ -40,6 +40,11 @@ import pt.up.fe.dceg.neptus.types.map.MapType;
  */
 public class MapChangeEvent {
 
+    public enum ElementType {
+        BEACON,
+        ANY;
+    }
+
 	public static final int 
 		OBJECT_CHANGED = 0, 
 		OBJECT_REMOVED = 1, 
@@ -59,11 +64,19 @@ public class MapChangeEvent {
 	private MapType sourceMap = null;
 	private MapGroup mapGroup;
 	private String changeType = UNKNOWN_CHANGE;
+
+    public final ElementType element;
 	
 	public MapChangeEvent(int EventType) {
 		this.eventType = EventType;
+        element = ElementType.ANY;
 	}
 	
+    public MapChangeEvent(int EventType, ElementType element) {
+        this.eventType = EventType;
+        this.element = element;
+    }
+
 	/**
 	 * @return Returns the changedObject.
 	 */

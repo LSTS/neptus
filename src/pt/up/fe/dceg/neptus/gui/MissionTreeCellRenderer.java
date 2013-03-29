@@ -69,8 +69,32 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
  * @author pdias
  */
 public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
+    // private static final ImageIcon PLAN_EXT_ICON = new ExtendedIcon(ImageUtils.getImage("images/menus/plan.png"));
+    // private static final ImageIcon ACOUSTIC_PLAN_ICON = GuiUtils.getLetterIcon('A', Color.BLACK,
+    // ColorUtils.setTransparencyToColor(Color.GREEN, 150), 16);
+    // private static final ImageIcon PLAN_AC_EXT_ICON = new ExtendedIcon(ImageUtils.getImage("images/menus/plan.png"),
+    // ACOUSTIC_PLAN_ICON.getImage());
+    // private static final ImageIcon MULTI_PLAN_EXT_ICON = ImageUtils.getScaledIcon("images/buttons/plan_plus.png", 16,
+    // 16);
+    private final ImageIcon MAP_ICON;
+    private final ImageIcon SETTINGS_ICON;
+    private final ImageIcon CHECKLIST_ICON;
+    private final ImageIcon DIR_ICON;
+    private final ImageIcon DIR_CLOSED_ICON;
+    private final ImageIcon HOMEREF_ICON;
+    // private final ImageIcon TRANSPONDER_ICON;
+    private final ImageIcon START_ICON;
     
-    
+    public MissionTreeCellRenderer() {
+        MAP_ICON = ImageUtils.createImageIcon("images/menus/mapeditor.png");
+        SETTINGS_ICON = ImageUtils.createImageIcon("images/menus/settings.png");
+        CHECKLIST_ICON = ImageUtils.createImageIcon("images/buttons/checklist.png");
+        DIR_ICON = ImageUtils.createImageIcon("images/menus/open.png");
+        DIR_CLOSED_ICON = ImageUtils.createImageIcon("images/menus/folder_closed.png");
+        HOMEREF_ICON = ImageUtils.getScaledIcon("images/buttons/home.png", 16, 16);
+        // TRANSPONDER_ICON = new ExtendedIcon(ImageUtils.getScaledImage("images/transponder.png", 16, 16));
+        START_ICON = ImageUtils.getScaledIcon("images/flag2_green32.png", 16, 16);
+    }
     
     private enum Icons{
         PATH_SOURCE("images/"),
@@ -100,22 +124,6 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
 
     private static final long serialVersionUID = -2666337254439313801L;
 
-    private static final ImageIcon MAP_ICON = ImageUtils.createImageIcon("images/menus/mapeditor.png");
-    // private static final ImageIcon PLAN_EXT_ICON = new ExtendedIcon(ImageUtils.getImage("images/menus/plan.png"));
-    // private static final ImageIcon ACOUSTIC_PLAN_ICON = GuiUtils.getLetterIcon('A', Color.BLACK,
-    // ColorUtils.setTransparencyToColor(Color.GREEN, 150), 16);
-    // private static final ImageIcon PLAN_AC_EXT_ICON = new ExtendedIcon(ImageUtils.getImage("images/menus/plan.png"),
-    // ACOUSTIC_PLAN_ICON.getImage());
-    // private static final ImageIcon MULTI_PLAN_EXT_ICON = ImageUtils.getScaledIcon("images/buttons/plan_plus.png", 16,
-    // 16);
-    private static final ImageIcon SETTINGS_ICON = ImageUtils.createImageIcon("images/menus/settings.png");
-    private static final ImageIcon CHECKLIST_ICON = ImageUtils.createImageIcon("images/buttons/checklist.png");
-    private static final ImageIcon DIR_ICON = ImageUtils.createImageIcon("images/menus/open.png");
-    private static final ImageIcon DIR_CLOSED_ICON = ImageUtils.createImageIcon("images/menus/folder_closed.png");
-    private static final ImageIcon HOMEREF_ICON = ImageUtils.getScaledIcon("images/buttons/home.png", 16, 16);
-    private static final ImageIcon TRANSPONDER_ICON = new ExtendedIcon(ImageUtils.getScaledImage(
-            "images/transponder.png", 16, 16));
-    private static final ImageIcon START_ICON = ImageUtils.getScaledIcon("images/flag2_green32.png", 16, 16);
 
     private static HashMap<String, ImageIcon> VEHICLES_ICONS = new HashMap<String, ImageIcon>();
     // private static HashMap<String, ImageIcon> PLAN_ICONS = new HashMap<String, ImageIcon>();
@@ -355,8 +363,14 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
         }
 
         fileName.append(Icons.EXTENSION.getName());
-        // setIcon(ImageUtils.getIcon(fileName.toString()));
-         setIcon(ImageUtils.getScaledIcon(fileName.toString(), 16, 16));
+         try {
+            // setIcon(ImageUtils.getIcon(fileName.toString()));
+            setIcon(ImageUtils.getScaledIcon(fileName.toString(), 16, 16));
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("Filename: " + fileName.toString());
+            e.printStackTrace();
+        }
     }
 }
 

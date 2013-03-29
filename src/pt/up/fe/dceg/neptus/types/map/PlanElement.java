@@ -54,7 +54,6 @@ import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
 import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
-import pt.up.fe.dceg.neptus.planeditor.MapPlanEditor;
 import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
@@ -230,9 +229,6 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
         maneuverLocations.clear();
         startManeuverLocations.clear();
         endManeuverLocations.clear();
-
-        if (MapPlanEditor.DEBUG)
-            System.err.println("Recalculating maneuver positions...");
 
         if (plan == null)
             return;
@@ -418,8 +414,6 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
             if (lastRendererCenter != null && renderer.getRotation() == 0) {
                 Point2D curCenter = renderer.getScreenPosition(new LocationType(plan.getMissionType().getHomeRef()));
                 if (!curCenter.equals(lastRendererCenter)) {
-                    if (MapPlanEditor.DEBUG)
-                        System.err.println("Translating maneuver positions...");
 
                     double diffX = curCenter.getX() - lastRendererCenter.getX();
                     double diffY = curCenter.getY() - lastRendererCenter.getY();

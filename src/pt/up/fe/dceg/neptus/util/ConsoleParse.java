@@ -205,7 +205,7 @@ public class ConsoleParse implements FileHandler {
         }
         catch (DocumentException e) {
             GuiUtils.errorMessage(null, e);
-            NeptusLog.pub().error(" Console Base open file error [" + e.getStackTrace() + "]", e);
+            NeptusLog.pub().error(" Console Base open file " + consoleURL + " error [" + e.getStackTrace() + "]", e);
         }
     }
 
