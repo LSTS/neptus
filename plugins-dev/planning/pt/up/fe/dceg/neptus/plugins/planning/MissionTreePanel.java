@@ -797,6 +797,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public void mainVehicleChangeNotification(String id) {
+        System.out.println("id:" + id + ", getMainVehicleId:" + getMainVehicleId());
+        browser.stopTimers(getMainVehicleId());
         planControlUpdate(id);
     }
 

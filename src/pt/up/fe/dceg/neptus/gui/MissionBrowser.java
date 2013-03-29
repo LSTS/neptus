@@ -1046,6 +1046,33 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
     }
 
+    public void stopTimers(String mainVehicle) {
+        DefaultMutableTreeNode trans = treeModel.trans;
+        int childCount = trans.getChildCount();
+        ExtendedTreeNode transNode;
+        HashMap<String, Object> userInfo;
+        ImcSystem imcSystems;
+        String name;
+        LBLRangesTimer timer;
+        for (int c = 0; c < childCount; c++) {
+            transNode = (ExtendedTreeNode) trans.getChildAt(c);
+            userInfo = transNode.getUserInfo();
+            if (!((String) userInfo.get("vehicle")).equals(mainVehicle)) {
+                imcSystems = ImcSystemsHolder.lookupSystemByName((String) userInfo.get("vehicle"));
+                if (imcSystems != null) {
+                    name = ((TransponderElement) transNode.getUserObject()).getName();
+                    timer = (LBLRangesTimer) imcSystems.retrieveData(name);
+                    if (timer != null) {
+                        System.out.println("Stoping timer for " + trans + " vehicle associated "
+                                + userInfo.get("vehicle"));
+                        timer.stopTimer();
+                    }
+                }
+            }
+        }
+        revalidate();
+    }
+
     /**
      * @param id
      * @param range
