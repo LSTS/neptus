@@ -158,7 +158,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                 "request_id", IMCSendMessageUtils.getNextRequestId(),
                 "plan_id", plan_id
         );
-//        System.out.println("Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
+        System.out.println("Sending to " + remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
     
