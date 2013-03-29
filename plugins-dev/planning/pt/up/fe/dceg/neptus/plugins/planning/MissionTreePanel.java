@@ -148,7 +148,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
         @Override
         public void dbPlanReceived(PlanType spec) {
-            System.out.println("dbPlanReceived");
             // Update when receved remote plan into our system
             PlanType lp = getConsole().getMission().getIndividualPlansList().get(spec.getId());
 
@@ -168,8 +167,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     ByteUtil.dumpAsHex(p1.payloadMD5(), System.out);
                     ByteUtil.dumpAsHex(p2.payloadMD5(), System.out);
 
-                    System.out.println(IMCUtil.getAsHtml(p1));
-                    System.out.println(IMCUtil.getAsHtml(p2));
+                    // System.out.println(IMCUtil.getAsHtml(p1));
+                    // System.out.println(IMCUtil.getAsHtml(p2));
 
                     p1.serialize(imcOs);
                     ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
@@ -206,9 +205,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
         new DropTarget(browser, this).setActive(true);
 
-        planControlUpdate(getMainVehicleId());
-
-        pdbControl.setRemoteSystemId(getMainVehicleId());
         setupListeners(getConsole(), pdbControl);
     }
     
@@ -664,13 +660,11 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public void missionReplaced(MissionType mission) {
-        System.out.println("missionReplaced");
-        // browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
+        browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
     }
 
     @Override
     public void missionUpdated(MissionType mission) {
-        System.out.println("missionUpdated");
         browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
     }
 
@@ -917,7 +911,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
             @Override
             public void run() {
-                System.out.println("Running periodical update");
                 TreePath[] selectedNodes = browser.getSelectedNodes();
 
                 if (getMainVehicleId() == null || getMainVehicleId().length() == 0 || !usePlanDBSyncFeatures) {
