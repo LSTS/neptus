@@ -151,10 +151,10 @@ public class ConfigurationManager {
         List<?> sectionList = doc.selectNodes("//config/*");
 
         // Check format version.
-/*        String format = doc.getRootElement().attributeValue("format");
-        if (format == null || !format.equals("1")) {
-            throw new InvalidConfigurationException(file.getName(), "unsupported format");            
-        }*/
+        // String format = doc.getRootElement().attributeValue("format");
+        // if (format == null || !format.equals("1")) {
+        //     throw new InvalidConfigurationException(file.getName(), "unsupported format");            
+        // }
 
         for(Object osection : sectionList) {
             Element section = (Element) osection;
