@@ -408,6 +408,15 @@ For simple use the main targets are:
 	<target name="clean" description="Deletes the ${build.dir}.">
 		<delete dir="${build.dir}" />
 		<delete dir="${tmp.dir}" />
+		<delete>
+			<fileset dir=".">
+				<include name="*.tar.gz"/>
+				<include name="s57.session"/>
+				<include name="release.json"/>
+				<include name="scm.info.txt"/>
+				<include name="*.so"/>
+			</fileset>
+		</delete>
 	</target>
 
 	<!-- =================================================================== -->
