@@ -133,7 +133,7 @@ public class ConfigurationManager {
         if (node == null)
             return null;
 
-        return root.getStringValue();
+        return node.getStringValue();
     }
 
     @SuppressWarnings("unchecked")
