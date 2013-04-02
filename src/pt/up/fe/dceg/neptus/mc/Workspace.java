@@ -637,7 +637,12 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
                     @Override
                     protected void done() {
-                        // endActivity("");
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 };
                 worker.execute();
@@ -1128,7 +1133,12 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
                         @Override
                         protected void done() {
-                            // endActivity("");
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     };
                     worker.execute();
@@ -1376,6 +1386,12 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             endActivity("");
                         }
                     };
@@ -1465,6 +1481,12 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             // endActivity("");
                         }
                     };
@@ -1500,6 +1522,12 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             // endActivity("");
                         }
                     };
@@ -1703,6 +1731,12 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             endActivity("");
                         }
                     };
@@ -1744,6 +1778,12 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             endActivity("");
                         }
                     };
@@ -1851,6 +1891,12 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         endActivity("");
                     }
                 };
@@ -1949,6 +1995,12 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             endActivity("");
                         }
                     };
@@ -2002,6 +2054,12 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             // endActivity("");
                         }
                     };
@@ -2057,6 +2115,12 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             endActivity("");
                         }
                     };
