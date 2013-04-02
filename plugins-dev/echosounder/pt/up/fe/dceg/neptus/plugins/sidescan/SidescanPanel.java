@@ -132,8 +132,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     BufferedImage layer;
     Graphics2D g2d;
 
-    ColorMap colormap = ColorMapFactory.createBronzeColormap();
-
     long firstPingTime;
     long lastPingTime;
 
@@ -242,15 +240,16 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     public void updateImage(long currentTime, long lastUpdateTime) {
         int yref = 0;
         this.currentTime = currentTime;
-        drawList.addAll(ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime + currentTime, image.getWidth(), subsystem, config));
+        drawList.addAll(ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime + currentTime, subsystem, config));
         
         for(SidescanLine l : drawList) {
             if(l.range != getRange()) {
                 setRange(l.range);
             }
-            yref +=  l.ysize;
+//            yref +=  l.ysize;
+            yref++;
         }
-        
+
         // This check is to prevent negative array indexes (from dragging too much)
         if (yref <= image.getHeight()) {
             ImageUtils.copySrcIntoDst(image, bufferedCache, 0, 0, image.getWidth(), image.getHeight() - yref, 0, 0, image.getWidth(), image.getHeight());
@@ -260,15 +259,18 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             yref = image.getHeight() - 1;
         }
 
+        int d = 0;
         for (SidescanLine sidescanLine : drawList) {
-            sidescanLine.ypos = yref - sidescanLine.ypos;
-            sidescanLine.image = new BufferedImage(sidescanLine.data.length, sidescanLine.ysize, BufferedImage.TYPE_INT_RGB);
+            sidescanLine.ypos = yref - d++;
+            sidescanLine.image = new BufferedImage(sidescanLine.data.length, 1, BufferedImage.TYPE_INT_RGB);
             
+            // Apply colormap to data
             for (int c = 0; c < sidescanLine.data.length; c++) {
-                sidescanLine.image.setRGB(c, 0, colormap.getColor(sidescanLine.data[c]).getRGB());
+                sidescanLine.image.setRGB(c, 0, config.colorMap.getColor(sidescanLine.data[c]).getRGB());
             }
-
-            g2d.drawImage(ImageUtils.getScaledImage(sidescanLine.image, image.getWidth(), sidescanLine.ysize, true), 0, sidescanLine.ypos, null);
+            
+            g2d.drawImage(ImageUtils.getScaledImage(sidescanLine.image, image.getWidth(), 1, true), 0, sidescanLine.ypos, null);
+//            g2d.drawImage(sidescanLine.image, 0, sidescanLine.ypos, null);
         }
 
         synchronized (lineList) {

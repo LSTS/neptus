@@ -69,7 +69,7 @@ public class JsfSidescanParser implements SidescanParser {
     }
 
     @Override
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem, SidescanConfig config) {
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanConfig config) {
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         
         ArrayList<JsfSonarData> ping = parser.getPingAt(timestamp1, subsystem);
@@ -129,10 +129,6 @@ public class JsfSidescanParser implements SidescanParser {
                 size = 1;
             }
             size = 1;
-            double lineScale = (double) lineWidth / ((double) pboard.getNumberOfSamples() + (double) sboard.getNumberOfSamples());
-            double lineSize = Math.ceil(Math.max(1, lineScale * size));
-            
-//            System.out.println(secondsUntilNextPing + " " + speed + " " + lineSize);
             
             // Draw Portboard
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
@@ -150,13 +146,9 @@ public class JsfSidescanParser implements SidescanParser {
                 double gain;
                 
                 gain = Math.abs(30.0 * Math.log(r));
-//                System.out.println("#2 - " + gain + "  " + r);
                 double sb = sboard.getData()[i] * Math.pow(10, gain / config.tvgGain);
-//                line.setRGB(i + pboard.getNumberOfSamples(), 0, config.colorMap.getColor(sb / avgSboard).getRGB());
                 fData[i + pboard.getNumberOfSamples()] = sb / avgSboard;
             }
-            
-            ypos += (int) lineSize;
             
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             pose.getPosition().setLatitude((pboard.getLat() / 10000.0) / 60.0);
@@ -165,7 +157,7 @@ public class JsfSidescanParser implements SidescanParser {
             pose.setYaw(Math.toRadians(pboard.getHeading() / 100));
             pose.setAltitude(pboard.getAltMillis() / 1000);
             
-            list.add(new SidescanLine(ping.get(0).getTimestamp(),lineWidth, (int)lineSize, ypos, ping.get(0).getRange(), pose, fData));
+            list.add(new SidescanLine(ping.get(0).getTimestamp(), ping.get(0).getRange(), pose, fData));
 
             ping = nextPing;
         }

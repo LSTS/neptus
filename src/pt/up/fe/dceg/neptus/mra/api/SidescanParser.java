@@ -42,7 +42,7 @@ import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
 public interface SidescanParser {
     public long firstPingTimestamp();
     public long lastPingTimestamp();
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem, SidescanConfig config);
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanConfig config);
     
     public ArrayList<Integer> getSubsystemList();
 }

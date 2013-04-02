@@ -62,12 +62,10 @@ public class SidescanLine {
      * @param ping
      * @param state
      */
-    public SidescanLine(long timestamp, int xsize, int ysize, int ypos, float range, SystemPositionAndAttitude state, double data[]) {
+    public SidescanLine(long timestamp, float range, SystemPositionAndAttitude state, double data[]) {
         super();
         this.timestampMillis = timestamp;
-        this.xsize = xsize;
-        this.ysize = ysize;
-        this.ypos = ypos;
+        this.xsize = data.length;
         this.range = range;
         this.state = state;
         this.data = data;
