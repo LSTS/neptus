@@ -196,10 +196,15 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
             Thread t = new Thread() {
                 public void run() {
                     for (LogReplayLayer layer : renderedLayers) {
-                        loader.setText("Loading " + layer.getName());
-                        layer.parse(source);
-                        renderer.getRenderer2d().addPostRenderPainter(layer, layer.getName());
-                        renderer.getRenderer2d().setPainterActive(layer.getName(), layer.getVisibleByDefault());
+                        try {
+                            loader.setText("Loading " + layer.getName());
+                            layer.parse(source);
+                            renderer.getRenderer2d().addPostRenderPainter(layer, layer.getName());
+                            renderer.getRenderer2d().setPainterActive(layer.getName(), layer.getVisibleByDefault());
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             };

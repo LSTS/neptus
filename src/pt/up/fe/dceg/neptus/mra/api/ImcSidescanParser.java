@@ -43,7 +43,6 @@ import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 /**
  * @author jqcorreia
