@@ -88,7 +88,7 @@ public class ImcSidescanParser implements SidescanParser {
         
         // Preparation
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
-        int[] iData = null;
+        double[] fData = null;
         BufferedImage line = null;
         Image scaledLine = null;
         pingParser.firstLogEntry();
@@ -104,6 +104,7 @@ public class ImcSidescanParser implements SidescanParser {
         if (ping.getInteger("type") != SonarData.TYPE.SIDESCAN.value()) {
             ping = getNextMessageWithFrequency(pingParser, 0); //FIXME
         }
+        
         IMCMessage state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
 
         // Null guards
@@ -118,8 +119,8 @@ public class ImcSidescanParser implements SidescanParser {
         float secondsUntilNextPing = 0;
         double speed = 0;
 
-        if (iData == null) {
-            iData = new int[ping.getRawData("data").length];
+        if (fData == null) {
+            fData = new double[ping.getRawData("data").length];
         }
 
         while (ping.getTimestampMillis() <= timestamp2) {
@@ -166,9 +167,9 @@ public class ImcSidescanParser implements SidescanParser {
             int pos;
 
             for (int c = 0; c < data.length; c++) {
-                iData[c] = data[c] & 0xFF;
+                fData[c] = (data[c] & 0xFF) / 255.0;
                 pos = c;
-                colors[pos] = config.colorMap.getColor(iData[c] / 255.0).getRGB();
+                colors[pos] = config.colorMap.getColor(fData[c] / 255.0).getRGB();
             }
 
             for (int c = 0; c < size; c++) {
@@ -181,7 +182,7 @@ public class ImcSidescanParser implements SidescanParser {
             
             totalsize += (int) (lineSize);
             
-            list.add(new SidescanLine(ping.getTimestampMillis(), scaledLine.getWidth(null), (int) lineSize, totalsize, range, pose, scaledLine));
+            list.add(new SidescanLine(ping.getTimestampMillis(), scaledLine.getWidth(null), (int) lineSize, totalsize, range, pose, fData));
 
             ping = pingParser.getCurrentEntry(); // This parser was already advanced so only get current entry
             state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());

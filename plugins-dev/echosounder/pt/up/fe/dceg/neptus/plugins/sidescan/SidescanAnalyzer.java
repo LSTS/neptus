@@ -48,7 +48,6 @@ import pt.up.fe.dceg.neptus.mra.MRAPanel;
 import pt.up.fe.dceg.neptus.mra.api.SidescanParser;
 import pt.up.fe.dceg.neptus.mra.api.SidescanParserFactory;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.importers.jsf.JsfSidescanParser;
 import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;

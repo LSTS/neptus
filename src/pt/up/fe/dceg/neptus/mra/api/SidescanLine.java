@@ -31,7 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.mra.api;
 
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -52,8 +52,9 @@ public class SidescanLine {
     public SystemPositionAndAttitude state;
     
     
-    public Image image;
-   
+    public BufferedImage image;
+    public double data[];
+    
     /**
      * @param xsize
      * @param ysize
@@ -61,7 +62,7 @@ public class SidescanLine {
      * @param ping
      * @param state
      */
-    public SidescanLine(long timestamp, int xsize, int ysize, int ypos, float range, SystemPositionAndAttitude state, Image image) {
+    public SidescanLine(long timestamp, int xsize, int ysize, int ypos, float range, SystemPositionAndAttitude state, double data[]) {
         super();
         this.timestampMillis = timestamp;
         this.xsize = xsize;
@@ -69,7 +70,7 @@ public class SidescanLine {
         this.ypos = ypos;
         this.range = range;
         this.state = state;
-        this.image = image;
+        this.data = data;
     }
     
     /**

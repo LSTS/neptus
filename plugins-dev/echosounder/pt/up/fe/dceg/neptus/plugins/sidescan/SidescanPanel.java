@@ -243,6 +243,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         int yref = 0;
         this.currentTime = currentTime;
         drawList.addAll(ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime + currentTime, image.getWidth(), subsystem, config));
+        
         for(SidescanLine l : drawList) {
             if(l.range != getRange()) {
                 setRange(l.range);
@@ -261,7 +262,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         for (SidescanLine sidescanLine : drawList) {
             sidescanLine.ypos = yref - sidescanLine.ypos;
-            g2d.drawImage(sidescanLine.image, 0, sidescanLine.ypos, null);
+            sidescanLine.image = new BufferedImage(sidescanLine.data.length, sidescanLine.ysize, BufferedImage.TYPE_INT_RGB);
+            
+            for (int c = 0; c < sidescanLine.data.length; c++) {
+                sidescanLine.image.setRGB(c, 0, colormap.getColor(sidescanLine.data[c]).getRGB());
+            }
+
+            g2d.drawImage(ImageUtils.getScaledImage(sidescanLine.image, image.getWidth(), sidescanLine.ysize, true), 0, sidescanLine.ypos, null);
         }
 
         synchronized (lineList) {
