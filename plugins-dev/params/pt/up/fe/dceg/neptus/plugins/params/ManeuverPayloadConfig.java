@@ -113,6 +113,8 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
                     Scope.MANEUVER);
 
             for (SystemProperty sp : props) {
+                sp.resetToDefault();
+                
                 String name = sp.getName();
                 params.put(sp.getCategory() + "." + name, sp);
 
