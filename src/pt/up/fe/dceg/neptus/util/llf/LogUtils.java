@@ -496,7 +496,10 @@ public class LogUtils {
                 String fex = FileUtil.getFileExtension(f.getName().substring(0, f.getName().length() - 3)) + ".gz";
                 if (fex.equalsIgnoreCase("lsf.gz"))
                     lsfGzFx++;
+                if (fex.equalsIgnoreCase("xml.gz"))
+                    defXmlFx++;
             }
+            
             if (FileUtil.getFileExtension(f).equalsIgnoreCase("bz2")) {
                 String fex = FileUtil.getFileExtension(f.getName().substring(0, f.getName().length() - 4)) + ".bz2";
                 if (fex.equalsIgnoreCase("lsf.bz2"))

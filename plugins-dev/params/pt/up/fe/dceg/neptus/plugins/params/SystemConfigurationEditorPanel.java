@@ -500,7 +500,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 //        MonitorIMCComms icmm = new MonitorIMCComms(ImcMsgManager.getManager());
 //        GuiUtils.testFrame(icmm);
         
-        String vehicle = "lauv-xtreme-2";
+        String vehicle = "lauv-dolphin-1";
         
         final SystemConfigurationEditorPanel sc1 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
                 Visibility.USER, true, true, true, ImcMsgManager.getManager());

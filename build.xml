@@ -408,6 +408,28 @@ For simple use the main targets are:
 	<target name="clean" description="Deletes the ${build.dir}.">
 		<delete dir="${build.dir}" />
 		<delete dir="${tmp.dir}" />
+		<delete>
+			<fileset dir=".">
+				<include name="*.tar.gz"/>
+				<include name="s57.session"/>
+				<include name="release.json"/>
+				<include name="scm.info.txt"/>
+				<include name="*.so"/>
+			</fileset>
+		</delete>
+	</target>
+	
+	<target name="clean-conf" description="Deletes locally changed configurations.">
+		<delete dir="log"/>
+		<delete>
+			<fileset dir=".">
+				<include name="conf/general-properties.xml"/>
+				<include name="conf/mra_recent.xml"/>
+				<include name="conf/roconsoles.xml"/>
+				<include name="conf/romisc.xml"/>
+				<include name="conf/worldrenderpainter.properties"/>							
+			</fileset>
+		</delete>
 	</target>
 
 	<!-- =================================================================== -->

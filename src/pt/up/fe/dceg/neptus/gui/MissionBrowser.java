@@ -963,7 +963,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     if (childTrans.getUserObject() instanceof TransponderElement) {
                         HashMap<String, Object> userInfo = childTrans.getUserInfo();
                         updateTimeElapsed(childTrans, userInfo);
-                        userInfo.put("sync", State.NOT_SYNC);
+                        userInfo.put("sync", State.LOCAL);
 
                         if (lblCfg != null && !beacons.isEmpty()) {
                             try {
