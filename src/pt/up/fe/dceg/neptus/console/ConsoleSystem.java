@@ -53,6 +53,7 @@ import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
 import pt.up.fe.dceg.neptus.util.conf.PreferencesListener;
 
@@ -69,7 +70,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
     public final int POS_ONLY_LAT_LON = 1; // only fields lat, lon, depth have meaninful values
     public final int POS_LAT_LON_XYZ = 2; // fields x, y, z, lat, lon, depth have meaninful values
 
-    protected VehicleType vehicle;
+    protected ImcSystem vehicle;
     private ImcMsgManager imc;
     protected SystemPositionAndAttitude state;
     protected ConsoleLayout console;
@@ -91,7 +92,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
     private int numberOfShownPoints = 500;
     private STATE vehicleState = STATE.DISCONNECTED;
 
-    public ConsoleSystem(String id, ConsoleLayout console, VehicleType vehicle, ImcMsgManager imcMsgManager) {
+    public ConsoleSystem(String id, ConsoleLayout console, ImcSystem vehicle, ImcMsgManager imcMsgManager) {
         this.imc = imcMsgManager;
         this.console = console;
         this.vehicle = vehicle;
@@ -182,7 +183,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
 
     public String getVehicleId() {
         if (vehicle != null)
-            return vehicle.getId();
+            return vehicle.getName();
         else
             return null;
     }
@@ -288,7 +289,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
         feedRenders.remove(mr);
     }
 
-    public VehicleType getVehicle() {
+    public ImcSystem getVehicle() {
         return vehicle;
     }
 
