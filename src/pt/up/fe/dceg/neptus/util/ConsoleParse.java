@@ -120,6 +120,7 @@ public class ConsoleParse implements FileHandler {
                     console.setMission(new MissionType(missionFile));
             }
             if ("main-vehicle".equals(attribute.getName())) {
+                console.addSystem(attribute.getValue());
                 console.setMainSystem(attribute.getValue());
             }
 

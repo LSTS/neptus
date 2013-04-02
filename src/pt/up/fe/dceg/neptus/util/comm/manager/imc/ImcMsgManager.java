@@ -772,6 +772,8 @@ public class ImcMsgManager extends
                     if (vci == null) {
                         if (VehiclesHolder.getVehicleWithImc(id) != null) {
                             vci = initSystemCommInfo(id, "");
+                        }else{
+                            return false;
                         }
                     }
                 }
