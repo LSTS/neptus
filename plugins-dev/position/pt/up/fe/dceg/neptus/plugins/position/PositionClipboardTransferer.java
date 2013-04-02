@@ -90,7 +90,7 @@ public class PositionClipboardTransferer extends SimpleSubPanel {
 					return;
 				System.out.println("get position from "+answer);
 				
-				ImcSysState state = ImcMsgManager.getManager().getState(getConsole().getSystem((String)answer).getVehicle());
+				ImcSysState state = ImcMsgManager.getManager().getState(console.getSystem((String)answer).getVehicle().getId());
 				if (state == null)
 					return;
 				double lat = Math.toDegrees(state.getDouble("GpsFix.GPS.lat"));

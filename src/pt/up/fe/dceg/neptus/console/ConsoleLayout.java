@@ -131,6 +131,7 @@ import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.types.mission.VehicleMission;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.ConsoleParse;
 import pt.up.fe.dceg.neptus.util.FileUtil;
@@ -813,18 +814,20 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      */
     public void addSystem(String id) {
         System.out.println("ADD SYSTEM");
-        VehicleType vehicle = VehiclesHolder.getVehicleById(id);
+        ImcSystem system = ImcSystemsHolder.lookupSystemByName(id);
+       
         ConsoleSystem vtl;
-        if (vehicle == null) {
+        if (system == null) {
             NeptusLog.pub().warn("tried to add a vehicle from imc that doesnt exist in the vehicle holder (XML stuff)");
             return;
         }
+        if(system.getType() != SystemTypeEnum.VEHICLE ) return;
         if (consoleSystems.get(id) != null) {
             NeptusLog.pub().warn("WTH are you trying to add a vehicle that already exist in the console!!");
             return;
         }
         else {
-            vtl = new ConsoleSystem(id, this, vehicle, imcMsgManager);
+            vtl = new ConsoleSystem(id, this, system, imcMsgManager);
             consoleSystems.put(id, vtl);
 
         }
@@ -1607,7 +1610,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (this.imcMsgManager.start()) {
             ImcSystem[] systems = ImcSystemsHolder.lookupActiveSystemVehicles();
             for (ImcSystem imcSystem : systems) {
-                this.addSystem(imcSystem.getVehicle().getId());
+                this.addSystem(imcSystem.getName());
             }
             
             imcMsgManager.addStatusListener(imcManagerStatus == null ? this.setupImcListener() : imcManagerStatus);
@@ -1651,6 +1654,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
             @Override
             public void managerSystemAdded(String systemId) {
+                addSystem(systemId);
             }
 
             @Override

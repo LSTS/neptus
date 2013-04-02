@@ -108,7 +108,7 @@ public class IncomingDataAction extends ConsoleAction {
             ConsoleSystem vtl = console.getSystem(mainVehicle);
             if (imcStatePanel != null)
                 imcStatePanel.cleanup();
-            imcStatePanel = new ImcStatePanel(ImcMsgManager.getManager().getState(vtl.getVehicle()));
+            imcStatePanel = new ImcStatePanel(ImcMsgManager.getManager().getState(vtl.getVehicle().getId()));
             statePanel.setViewportView(imcStatePanel);
         }
         
@@ -121,7 +121,7 @@ public class IncomingDataAction extends ConsoleAction {
                     if (vehicle.getVehicleId().equals((String) cbox.getSelectedItem())) {
                         if (imcStatePanel != null)
                             imcStatePanel.cleanup();
-                        imcStatePanel = new ImcStatePanel(ImcMsgManager.getManager().getState(vehicle.getVehicle()));
+                        imcStatePanel = new ImcStatePanel(ImcMsgManager.getManager().getState(vehicle.getVehicle().getId()));
                         statePanel.setViewportView(imcStatePanel);
                         statePanel.revalidate();
                         statePanel.repaint();
