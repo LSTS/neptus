@@ -78,7 +78,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     public SpotOverlay(ConsoleLayout console) {
         super(console);
         updateMillis = 60000;
-        arrow = ImageUtils.getImage("images/spotArrow.png");
+        arrow = ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/spot/images/spotArrow.png");
         spotsOnMap = new ArrayList<Spot>();
     }
 
@@ -126,7 +126,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public void cleanSubPanel() {
-        PeriodicUpdatesService.unregister(this);// TODO stop uising this
+        PeriodicUpdatesService.unregister(this);// TODO stop using this
         timer.cancel();
     }
 
