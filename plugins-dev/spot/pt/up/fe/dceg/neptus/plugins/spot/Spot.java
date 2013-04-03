@@ -191,7 +191,8 @@ public class Spot {
         // weighted mean
         sumDirVector.latitude = sumDirVector.latitude / factorial;
         sumDirVector.longitude = sumDirVector.longitude / factorial;
-        return new LocationSpeedDirection(new Float(sumSpeed / (numMeasurements - 1)), Math.atan(sumDirVector.longitude
+        Float finalSpeed = new Float(sumSpeed / (numMeasurements - 1));
+        return new LocationSpeedDirection(finalSpeed, Math.atan(sumDirVector.longitude
                 / sumDirVector.latitude), prevLocation);
     }
 

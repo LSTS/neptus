@@ -57,7 +57,6 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
 @PluginDescription(author = "Margarida", name = "SPOT Overlay")
 public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicUpdates {
     private final ArrayList<Spot> spotsOnMap;
-    private StateRenderer2D renderer = null;
     private boolean active = false;
 
     private static final long serialVersionUID = -4807939956933128721L;
@@ -141,8 +140,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
-        this.renderer = renderer;
-        Graphics2D graphicsClone;
+        // Graphics2D graphicsClone;
 //        Graphics2D graphicsClone = (Graphics2D)g.create();
 //        graphicsClone.dispose();
         
@@ -156,15 +154,19 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
         // if (lastThread != null) {
         // g.drawString("Updating AIS layer...", 10, 15);
         // }
-
+        System.out.println(spotsOnMap.size() + " spots:");
         for (Spot spot : spotsOnMap) {
             LocationType spotLoc = spot.getLastLocation();
-            System.out.println("spot paint. spotloc:" + spotLoc + " for " + spot.getName());
-            if (spotLoc == null)
+            System.out.print(spot.getName() + " at " + spotLoc);
+            if (spotLoc == null) {
+                System.out.println();
                 continue;
+            }
             Point2D pt = renderer.getScreenPosition(spotLoc);
-            g.translate(pt.getX(), pt.getY());
-            System.out.println("screen pos:" + pt.getX() + ", " + pt.getY());
+            double xScreenPos = pt.getX();
+            double yScreenPos = pt.getY();
+            g.translate(xScreenPos, yScreenPos);
+            System.out.print("; rendered at (" + xScreenPos + ", " + yScreenPos + ")");
 
             if (showNames) {
                 g.setColor(Color.red.darker().darker());
@@ -177,10 +179,13 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
                 g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 5, 15);
             }
 
-            g.drawImage(arrow, arrow.getWidth(renderer), arrow.getHeight(renderer), arrow.getWidth(null),
-                    arrow.getHeight(null), null);
-            System.out.println("In paint for SpotOverlay, arrow:(" + arrow.getWidth(renderer) + ","
-                    + arrow.getHeight(renderer) + ") (" + arrow.getWidth(null) + ", " + arrow.getHeight(null) + ")");
+            int xArrowScreenCoord = 5;// arrow.getWidth(renderer);
+            int yArrowScreenCoord = 25; // arrow.getHeight(renderer);
+            int widthArrow = arrow.getWidth(null);
+            int heightArrow = arrow.getHeight(null);
+            g.drawImage(arrow, xArrowScreenCoord, yArrowScreenCoord, widthArrow, heightArrow, null);
+            System.out.println(", arrow: coords(" + xArrowScreenCoord + "," + yArrowScreenCoord + ") dimensions:("
+                    + widthArrow + ", " + heightArrow + ")");
             // g.rotate(spot.getDirection());
 
             // g.setColor(Color.red);
@@ -193,7 +198,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
             // g.rotate(-spot.getHeadingRads());
             // }
 
-            g.translate(-pt.getX(), -pt.getY());
+            g.translate(-xScreenPos, -yScreenPos);
 
         }
         
