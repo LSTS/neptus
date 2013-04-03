@@ -348,7 +348,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
     }
     @Override
-    public void PlanChange(PlanType plan) {
+    public void planChange(PlanType plan) {
         setSelectedPlan(plan);
     }
 

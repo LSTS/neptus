@@ -562,9 +562,12 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
             mainPlanPainter.setActiveManeuver(null);
     }
 
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.console.plugins.PlanChangeListener#planChange(pt.up.fe.dceg.neptus.types.mission.plan.PlanType)
+     */
     @Override
-    public void PlanChange(PlanType plan) {
-        StateRenderer2D r2d = editor;
+    public void planChange(PlanType plan) {
+        StateRenderer2D r2d = renderer;
         if (mainPlanPainter != null)
             r2d.removePostRenderPainter(mainPlanPainter);
 

@@ -734,7 +734,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         for (PlanChangeListener pobj : planListeners) {
             try {
-                pobj.PlanChange(this.plan);
+                pobj.planChange(this.plan);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
