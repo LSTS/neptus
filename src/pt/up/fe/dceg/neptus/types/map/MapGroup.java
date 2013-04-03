@@ -89,6 +89,14 @@ public class MapGroup implements MapChangeListener {
 		return mg;
 	}
 	
+    public MapType getPivotMap() {
+        MapType m = null;
+        for (MapType mt : getMaps())
+            if (mt.getHref() != null && mt.getHref().length() > 0)
+                m = mt;
+        return m != null ? m : getMaps()[0];
+    }
+
 	/**
 	 * This method will return (possibly creating a new one) the MapGroup related to the given mission
 	 * @param mt A MissionType
@@ -102,6 +110,7 @@ public class MapGroup implements MapChangeListener {
 		
 		if (!instances.containsKey(mt.getId())) {
 			MapGroup mg = mt.generateMapGroup();
+            mg.mission = mt;
 			instances.put(mt.getId(), mg);
 			NeptusLog.pub().debug("[MapGroup] new instance has been created. Stored map groups: "+instances.size());
 			
@@ -112,7 +121,7 @@ public class MapGroup implements MapChangeListener {
 		
 		
 		
-		return (MapGroup) instances.get(mt.getId());
+		return instances.get(mt.getId());
 	}
 	
 	
@@ -178,7 +187,7 @@ public class MapGroup implements MapChangeListener {
 		NeptusLog.pub().debug("[MapGroup] setMissionInstance(\""+id+"\",\""+mg+"\") called.");
 		if (instances.containsKey(id)) {
 			NeptusLog.pub().debug("[MapGroup] instance found in the hashtable, changing the existing instance.");
-			MapGroup existingMapGroup = (MapGroup) instances.get(id);
+			MapGroup existingMapGroup = instances.get(id);
 			
 			if (existingMapGroup == mg)
 				return mg;
@@ -207,7 +216,7 @@ public class MapGroup implements MapChangeListener {
 			instances.put(id, mg);
 		}
 			
-		return (MapGroup) instances.get(id);
+		return instances.get(id);
 	}
 	
 
@@ -221,7 +230,7 @@ public class MapGroup implements MapChangeListener {
 	public void addMap(MapType map) {
 		
 		if (maps.contains(map.getId())) {
-			((MapType)maps.get(map.getId())).removeChangeListener(this);
+			maps.get(map.getId()).removeChangeListener(this);
 		}
 		
 		maps.put(map.getId(), map);		
@@ -248,7 +257,7 @@ public class MapGroup implements MapChangeListener {
 	 */
 	public void removeMap(String mapID) {
 		
-		MapType tmp = (MapType) maps.get(mapID);
+		MapType tmp = maps.get(mapID);
 		if (tmp == null) {
 			//System.err.println("tmp == null!");
 			return;
@@ -268,7 +277,8 @@ public class MapGroup implements MapChangeListener {
 	 * @deprecated
 	 * @param map
 	 */
-	public void setMap(MapType map) {
+	@Deprecated
+    public void setMap(MapType map) {
 		removeMap(map.getId());
 	    addMap(map);
 	    map.addChangeListener(this);
@@ -280,14 +290,15 @@ public class MapGroup implements MapChangeListener {
 	 * @return The map identified by the given mapID
 	 */
 	public MapType getMapByID(String mapID) {
-		return (MapType) maps.get(mapID);
+		return maps.get(mapID);
 	}
 	
 	
 	/**
 	 * If any of its maps has changed, warn all the listeners of this map group
 	 */
-	public void mapChanged(MapChangeEvent changeEvent) {
+	@Override
+    public void mapChanged(MapChangeEvent changeEvent) {
 		//if (changeEvent.getSourceMap() != null)
 		warnListeners(changeEvent);
 	}
@@ -309,7 +320,7 @@ public class MapGroup implements MapChangeListener {
 		String mapStr = st.nextToken();
 		String objStr = st.nextToken();
 		
-		MapType tmp = (MapType) maps.get(mapStr);
+		MapType tmp = maps.get(mapStr);
 		return tmp.getObject(objStr);
 	}
 	
@@ -325,7 +336,7 @@ public class MapGroup implements MapChangeListener {
 	}
 	
 	public MapType[] getMaps() {
-		return (MapType[]) maps.values().toArray(new MapType[] {});
+		return maps.values().toArray(new MapType[] {});
 	}
 	
 	/**
@@ -356,7 +367,7 @@ public class MapGroup implements MapChangeListener {
 		//System.out.println("Warning "+listeners.size()+" listeners");
 		for (int i = 0; i < listeners.size(); i++) {
 			
-			MapChangeListener tmp = (MapChangeListener) listeners.get(i);
+			MapChangeListener tmp = listeners.get(i);
 			//vSystem.out.println(tmp.getClass());
 			tmp.mapChanged(changeEvent);
 		}
@@ -373,7 +384,7 @@ public class MapGroup implements MapChangeListener {
 		}
 		
 		objs.add(getHomeRef());
-		AbstractElement[] mo = (AbstractElement[]) objs.toArray(new AbstractElement[] {});
+		AbstractElement[] mo = objs.toArray(new AbstractElement[] {});
 
 		Arrays.sort(mo);		
 		
@@ -391,7 +402,7 @@ public class MapGroup implements MapChangeListener {
 		}
 		
 		objs.add(getHomeRef());
-		AbstractElement[] mo = (AbstractElement[]) objs.toArray(new AbstractElement[] {});
+		AbstractElement[] mo = objs.toArray(new AbstractElement[] {});
 
 		Arrays.sort(mo);		
 		
@@ -414,7 +425,7 @@ public class MapGroup implements MapChangeListener {
 		}
 		
 		objs.add(getHomeRef());
-		AbstractElement[] mo = (AbstractElement[]) objs.toArray(new AbstractElement[] {});
+		AbstractElement[] mo = objs.toArray(new AbstractElement[] {});
 
 		Arrays.sort(mo);		
 		
@@ -447,19 +458,19 @@ public class MapGroup implements MapChangeListener {
 		
 		AbstractElement[] lBackground = new AbstractElement[vLayer[LAYER_BACKGROUND].size()];
 		for (int i = 0; i < lBackground.length; i++) {
-		    AbstractElement tmp = (AbstractElement) vLayer[LAYER_BACKGROUND].get(i);
+		    AbstractElement tmp = vLayer[LAYER_BACKGROUND].get(i);
 		    lBackground[i] = tmp;
 		}
 		
 		AbstractElement[] lVirtual = new AbstractElement[vLayer[LAYER_VIRTUAL].size()];
 		for (int i = 0; i < lVirtual.length; i++) {
-		    AbstractElement tmp = (AbstractElement) vLayer[LAYER_VIRTUAL].get(i);
+		    AbstractElement tmp = vLayer[LAYER_VIRTUAL].get(i);
 		    lVirtual[i] = tmp;
 		}
 		
 		AbstractElement[] lReal = new AbstractElement[vLayer[LAYER_REAL].size()];
 		for (int i = 0; i < lReal.length; i++) {
-		    AbstractElement tmp = (AbstractElement) vLayer[LAYER_REAL].get(i);
+		    AbstractElement tmp = vLayer[LAYER_REAL].get(i);
 		    lReal[i] = tmp;
 		}
 	

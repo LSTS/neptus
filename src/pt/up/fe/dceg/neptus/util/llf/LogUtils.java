@@ -496,7 +496,10 @@ public class LogUtils {
                 String fex = FileUtil.getFileExtension(f.getName().substring(0, f.getName().length() - 3)) + ".gz";
                 if (fex.equalsIgnoreCase("lsf.gz"))
                     lsfGzFx++;
+                if (fex.equalsIgnoreCase("xml.gz"))
+                    defXmlFx++;
             }
+            
             if (FileUtil.getFileExtension(f).equalsIgnoreCase("bz2")) {
                 String fex = FileUtil.getFileExtension(f.getName().substring(0, f.getName().length() - 4)) + ".bz2";
                 if (fex.equalsIgnoreCase("lsf.bz2"))
@@ -961,8 +964,12 @@ public class LogUtils {
         LsfIndex index = source.getLsfIndex();
         LsfIterator<SonarData> it = index.getIterator(SonarData.class);
         SonarData sd = it.next();
+        
+        if(sd == null)
+            return false;
+        
         long ts = sd.getTimestampMillis();
-        while((sd.getTimestampMillis() - ts) < 5000) {
+        while((sd.getTimestampMillis() - ts) < 5000 && sd != null) {
             if(sd.getType() == SonarData.TYPE.SIDESCAN)
                 return true;
             sd = it.next();

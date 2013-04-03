@@ -46,6 +46,7 @@ import java.util.LinkedHashMap;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -65,10 +66,7 @@ import pt.up.fe.dceg.neptus.gui.ToolbarButton;
 import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
 import pt.up.fe.dceg.neptus.gui.VehicleChooser;
 import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.PlanControlState;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mp.templates.AbstractPlanTemplate;
 import pt.up.fe.dceg.neptus.mp.templates.ScriptedPlanTemplate;
@@ -83,7 +81,6 @@ import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.containers.LayoutProfileProvider;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.renderer2d.CustomInteractionSupport;
-import pt.up.fe.dceg.neptus.renderer2d.EstimatedStateGenerator;
 import pt.up.fe.dceg.neptus.renderer2d.FeatureFocuser;
 import pt.up.fe.dceg.neptus.renderer2d.ILayerPainter;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer;
@@ -118,6 +115,29 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
     private static final long serialVersionUID = 1L;
 
+    private static final ImageIcon TRANSLATE_ICON = ImageUtils.getScaledIcon(
+            "pt/up/fe/dceg/neptus/plugins/planning/translate_btn.png", 16, 16);
+    private static final ImageIcon MINIMIZE_ICON = ImageUtils.getScaledIcon(
+            "pt/up/fe/dceg/neptus/plugins/planning/minimize.png", 16, 16);
+    private static final ImageIcon MAXIMIZE_ICON = ImageUtils.getScaledIcon(
+            "pt/up/fe/dceg/neptus/plugins/planning/maximize.png", 16, 16);
+    private static final ImageIcon TEMPLATE_ICON = ImageUtils
+            .getIcon("pt/up/fe/dceg/neptus/plugins/planning/template.png");
+    private static final ImageIcon ADD_PLAN_ICON = ImageUtils.getScaledIcon(
+            "pt/up/fe/dceg/neptus/plugins/planning/template.png", 16, 16);
+    private static final ImageIcon TAIL_ICON = ImageUtils.getScaledIcon(
+            "pt/up/fe/dceg/neptus/plugins/planning/tailOnOff.png", 16, 16);
+    private static final ImageIcon FOLLOW_SYSTEM_ICON = ImageUtils.getScaledIcon(
+            "pt/up/fe/dceg/neptus/plugins/planning/lock_vehicle.png", 16, 16);
+    private static final ImageIcon RULER_ICON = ImageUtils.getScaledIcon(
+            "pt/up/fe/dceg/neptus/plugins/planning/ruler_btn.png", 16, 16);
+    private static final ImageIcon ROTATE_ICON = ImageUtils.getScaledIcon(
+            "pt/up/fe/dceg/neptus/plugins/planning/rotate_btn.png", 16, 16);
+    private static final ImageIcon ZOOM_ICON = ImageUtils.getScaledIcon(
+            "pt/up/fe/dceg/neptus/plugins/planning/zoom_btn.png", 16, 16);
+
+    private static final String scriptsDir = "conf/planscripts/";
+
     @NeptusProperty(name = "Show world map")
     public boolean worldMapShown = true;
 
@@ -149,9 +169,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     @NeptusProperty(name = "Toolbar placement", description = "Where to place the toolbar")
     public PlacementEnum toolbarPlacement = PlacementEnum.Bottom;
 
-    private static final String scriptsDir = "conf/planscripts/";
-
-    protected StateRenderer2D editor = new StateRenderer2D();
+    protected StateRenderer2D renderer = new StateRenderer2D();
     protected String planId = null;
     protected boolean editing = false;
     protected ToolbarSwitch followSwitch, zoomSwitch, translateSwitch, rotateSwitch, rulerSwitch, tailSwitch,
@@ -164,7 +182,15 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     protected JToolBar bottom = new JToolBar(JToolBar.VERTICAL);
 
     protected LinkedHashMap<VehicleType, SystemPositionAndAttitude> vehicles = new LinkedHashMap<VehicleType, SystemPositionAndAttitude>();
-    protected MessageListener<MessageInfo, IMCMessage> imcMessageListener;
+//    protected MessageListener<MessageInfo, IMCMessage> imcMessageListener;
+    
+    // Interaction variables
+    protected LinkedHashMap<String, StateRendererInteraction> interactionModes = new LinkedHashMap<String, StateRendererInteraction>();
+    protected LinkedHashMap<String, ToolbarSwitch> interactionButtons = new LinkedHashMap<String, ToolbarSwitch>();
+
+//    protected long lastStamp = 0;
+//    protected SystemPositionAndAttitude lastState = null;
+//    protected EstimatedStateGenerator stateGenerator = new EstimatedStateGenerator();
     
     private MissionType mission = null;
     private PlanElement planElem;
@@ -176,24 +202,23 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder()); //        editor.setEditable(false);
 
-        editor.setMinDelay(0);
-        editor.setShowWorldMapOnScreenControls(true);
-        add(editor, BorderLayout.CENTER);
+        renderer.setMinDelay(0);
+        renderer.setShowWorldMapOnScreenControls(true);
+        add(renderer, BorderLayout.CENTER);
         bottom.setFloatable(false);
         bottom.setAlignmentX(JToolBar.CENTER_ALIGNMENT);
-        editor.addMenuExtension(new FeatureFocuser());
-        translateMode = new AbstractAction(I18n.text("Translate"), ImageUtils.getScaledIcon(
-                "pt/up/fe/dceg/neptus/plugins/planning/translate_btn.png", 16, 16)) {
+        renderer.addMenuExtension(new FeatureFocuser());
+        translateMode = new AbstractAction(I18n.text("Translate"), TRANSLATE_ICON) {
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     if (getActiveInteraction() != null && getActiveInteraction().isExclusive())
-                        getActiveInteraction().setActive(false, editor);
+                        getActiveInteraction().setActive(false, renderer);
                     setActiveInteraction(null);
-                    editor.followVehicle(null);
-                    editor.setViewMode(Renderer.TRANSLATION);
+                    renderer.followVehicle(null);
+                    renderer.setViewMode(Renderer.TRANSLATION);
                 }
             }
 
@@ -203,17 +228,16 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         bottom.add(translateSwitch);
         translateSwitch.setSelected(true);
 
-        zoomMode = new AbstractAction(I18n.text("Zoom"), ImageUtils.getScaledIcon(
-                "pt/up/fe/dceg/neptus/plugins/planning/zoom_btn.png", 16, 16)) {
+        zoomMode = new AbstractAction(I18n.text("Zoom"), ZOOM_ICON) {
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
-                    editor.followVehicle(null);
-                    editor.setViewMode(Renderer.ZOOM);
+                    renderer.followVehicle(null);
+                    renderer.setViewMode(Renderer.ZOOM);
                     if (getActiveInteraction() != null && getActiveInteraction().isExclusive())
-                        getActiveInteraction().setActive(false, editor);
+                        getActiveInteraction().setActive(false, renderer);
                     setActiveInteraction(null);
                 }
                 else {
@@ -225,17 +249,16 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         bg.add(zoomSwitch);
         bottom.add(zoomSwitch);
 
-        rotateMode = new AbstractAction(I18n.text("Rotate"), ImageUtils.getScaledIcon(
-                "pt/up/fe/dceg/neptus/plugins/planning/rotate_btn.png", 16, 16)) {
+        rotateMode = new AbstractAction(I18n.text("Rotate"), ROTATE_ICON) {
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
-                    editor.followVehicle(null);
-                    editor.setViewMode(Renderer.ROTATION);
+                    renderer.followVehicle(null);
+                    renderer.setViewMode(Renderer.ROTATION);
                     if (getActiveInteraction() != null && getActiveInteraction().isExclusive())
-                        getActiveInteraction().setActive(false, editor);
+                        getActiveInteraction().setActive(false, renderer);
                     setActiveInteraction(null);
                 }
                 else {
@@ -247,17 +270,16 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         bg.add(rotateSwitch);
         bottom.add(rotateSwitch);
 
-        rulerMode = new AbstractAction(I18n.text("Ruler"), ImageUtils.getScaledIcon(
-                "pt/up/fe/dceg/neptus/plugins/planning/ruler_btn.png", 16, 16)) {
+        rulerMode = new AbstractAction(I18n.text("Ruler"), RULER_ICON) {
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
-                    editor.followVehicle(null);
-                    editor.setViewMode(Renderer.RULER);
+                    renderer.followVehicle(null);
+                    renderer.setViewMode(Renderer.RULER);
                     if (getActiveInteraction() != null && getActiveInteraction().isExclusive())
-                        getActiveInteraction().setActive(false, editor);
+                        getActiveInteraction().setActive(false, renderer);
                     setActiveInteraction(null);
                 }
                 else {
@@ -269,22 +291,21 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         bg.add(rulerSwitch);
         bottom.add(rulerSwitch);
 
-        followMode = new AbstractAction(I18n.text("Lock Vehicle"), ImageUtils.getScaledIcon(
-                "pt/up/fe/dceg/neptus/plugins/planning/lock_vehicle.png", 16, 16)) {
+        followMode = new AbstractAction(I18n.text("Lock Vehicle"), FOLLOW_SYSTEM_ICON) {
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     if (getActiveInteraction() != null && getActiveInteraction().isExclusive())
-                        getActiveInteraction().setActive(false, editor);
+                        getActiveInteraction().setActive(false, renderer);
                     setActiveInteraction(null);
                     String mainVehicle = getConsole().getMainSystem();
                     if (mainVehicle != null)
-                        editor.followVehicle(VehiclesHolder.getVehicleById(mainVehicle).getId());
+                        renderer.followVehicle(VehiclesHolder.getVehicleById(mainVehicle).getId());
                 }
                 else {
-                    editor.followVehicle(null);
+                    renderer.followVehicle(null);
                 }
             }
         };
@@ -292,8 +313,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         bg.add(followSwitch);
         bottom.add(followSwitch);
 
-        tailMode = new AbstractAction(I18n.text("Show tail"), ImageUtils.getScaledIcon(
-                "pt/up/fe/dceg/neptus/plugins/planning/tailOnOff.png", 16, 16)) {
+        tailMode = new AbstractAction(I18n.text("Show tail"), TAIL_ICON) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -301,10 +321,10 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     String mainVehicle = getConsole().getMainSystem();
                     if (mainVehicle != null)
-                        editor.setVehicleTailOn(null);
+                        renderer.setVehicleTailOn(null);
                 }
                 else {
-                    editor.setVehicleTailOff(null);
+                    renderer.setVehicleTailOff(null);
                 }
             }
         };
@@ -314,8 +334,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
         bottom.addSeparator(new Dimension(0, 20));
 
-        addTemplate = new AbstractAction(I18n.text("Add plan from template"), ImageUtils.getScaledIcon(
-                "pt/up/fe/dceg/neptus/plugins/planning/template.png", 16, 16)) {
+        addTemplate = new AbstractAction(I18n.text("Add plan from template"), ADD_PLAN_ICON) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -347,8 +366,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                 }
 
                 JOptionPane jop = new JOptionPane(I18n.text("Choose the plan template"), JOptionPane.QUESTION_MESSAGE,
-                        JOptionPane.DEFAULT_OPTION,
-                        ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/planning/template.png"));
+                        JOptionPane.DEFAULT_OPTION, TEMPLATE_ICON);
 
                 jop.setSelectionValues(names);
                 jop.setInitialSelectionValue(names[0]);
@@ -416,7 +434,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                         getConsole().getMission().addPlan(p);
                         getConsole().getMission().save(true);
                         getConsole().updateMissionListeners();
-                        GuiUtils.infoMessage(getConsole(), I18n.text("Plan template"), I18n.textf("The plan %planid was added to this mission",  p.getId()));
+                        GuiUtils.infoMessage(getConsole(), I18n.text("Plan template"),
+                                I18n.textf("The plan %planid was added to this mission", p.getId()));
                     };
                 }.run();
 
@@ -427,8 +446,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
         bottom.addSeparator(new Dimension(0, 20));
 
-        maximizeMode = new AbstractAction(I18n.text("Maximize"), ImageUtils.getScaledIcon(
-                "pt/up/fe/dceg/neptus/plugins/planning/maximize.png", 16, 16)) {
+        maximizeMode = new AbstractAction(I18n.text("Maximize"), MAXIMIZE_ICON) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -440,8 +458,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                     }
                     else if (getConsole() != null)
                         getConsole().maximizePanel(MapPanel.this);
-                    maximizeMode.putValue(AbstractAction.SMALL_ICON,
-                            ImageUtils.getScaledIcon("pt/up/fe/dceg/neptus/plugins/planning/minimize.png", 16, 16));
+                    maximizeMode.putValue(AbstractAction.SMALL_ICON, MINIMIZE_ICON);
                     maximizeMode.putValue(AbstractAction.SHORT_DESCRIPTION, I18n.text("Minimize"));
                 }
                 else {
@@ -451,8 +468,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                     }
                     else if (getConsole() != null)
                         getConsole().minimizePanel(MapPanel.this);
-                    maximizeMode.putValue(AbstractAction.SMALL_ICON,
-                            ImageUtils.getScaledIcon("pt/up/fe/dceg/neptus/plugins/planning/maximize.png", 16, 16));
+                    maximizeMode.putValue(AbstractAction.SMALL_ICON, MAXIMIZE_ICON);
                     maximizeMode.putValue(AbstractAction.SHORT_DESCRIPTION, I18n.text("Maximize"));
                 }
             }
@@ -468,133 +484,19 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
         setToolbarPlacement();
 
-        editor.addMenuExtension(new IEditorMenuExtension() {
+        renderer.addMenuExtension(new IEditorMenuExtension() {
             @Override
             public Collection<JMenuItem> getApplicableItems(LocationType loc, IMapPopup source) {
                 JMenuItem item = new JMenuItem(I18n.text("Choose visible layers"));
                 item.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        editor.painterSelection();
+                        renderer.painterSelection();
                     }
                 });
                 return Arrays.asList(item);
             }
         });
-    }
-
-    /**
-     * @return the showOnScreenControls
-     */
-    public boolean isShowWorldMapOnScreenControls() {
-        return editor.isShowWorldMapOnScreenControls();
-    }
-
-    /**
-     * @param showOnScreenControls the showOnScreenControls to set
-     */
-    public void setShowWorldMapOnScreenControls(boolean showOnScreenControls) {
-        editor.setShowWorldMapOnScreenControls(showOnScreenControls);
-    }
-
-    private void setToolbarPlacement() {
-        // Orient and position the tab based on placement property (toolbarPlacement)
-        String position = BorderLayout.SOUTH;
-        switch (toolbarPlacement) {
-            case Left:
-                position = BorderLayout.WEST;
-                bottom.setOrientation(JToolBar.VERTICAL);
-                break;
-            case Right:
-                position = BorderLayout.EAST;
-                bottom.setOrientation(JToolBar.VERTICAL);
-                break;
-            case Top:
-                position = BorderLayout.NORTH;
-                bottom.setOrientation(JToolBar.HORIZONTAL);
-                break;
-            case Bottom:
-                position = BorderLayout.SOUTH;
-                bottom.setOrientation(JToolBar.HORIZONTAL);
-                break;
-        }
-        add(bottom, position);
-    }
-
-    @Subscribe
-    public void consume(PlanControlState message) {
-
-        if (!message.getSourceName().equals(getConsole().getMainSystem()))
-            return;
-        
-        String planId = message.getPlanId();
-        String manId = message.getManId();
-
-        if (getConsole().getPlan() != null && getConsole().getPlan().getId().equals(planId)) {
-            if (mainPlanPainter != null)
-                mainPlanPainter.setActiveManeuver(manId);
-        }
-    }
-
-
-    @Override
-    public void missionReplaced(MissionType mission) {
-//        editor.setMission(mission);
-        addPlan.setEnabled(mission != null);
-    }
-
-    @Override
-    public void mainVehicleChangeNotification(String id) {
-        followMode.setEnabled(id != null);
-        if (mainPlanPainter != null)
-            mainPlanPainter.setActiveManeuver(null);
-    }
-
-    @Override
-    public void PlanChange(PlanType plan) {
-        StateRenderer2D r2d = editor;
-        if (mainPlanPainter != null)
-            r2d.removePostRenderPainter(mainPlanPainter);
-
-        if (plan != null) {
-            PlanElement po = new PlanElement(r2d.getMapGroup(), new MapType());
-            po.setMissionType(plan.getMissionType());
-            po.setPlan(plan);
-            po.setRenderer(r2d);
-            po.setColor(new Color(255, 255, 255, 128));
-            po.setShowDistances(false);
-            po.setShowManNames(false);
-            r2d.addPostRenderPainter(po, I18n.text("Plan Painter"));
-            mainPlanPainter = po;
-            editMode.setEnabled(true);
-        }
-        else {
-            editMode.setEnabled(false);
-        }
-    }
-
-    @Override
-    public long millisBetweenUpdates() {
-        return updateMillis;
-    }
-
-    protected long lastStamp = 0;
-    protected SystemPositionAndAttitude lastState = null;
-    protected EstimatedStateGenerator stateGenerator = new EstimatedStateGenerator();
-
-    @Override
-    public boolean update() {
-
-        try {
-            for (VehicleType vt : vehicles.keySet()) {
-                editor.vehicleStateChanged(vt.getId(), vehicles.get(vt), false);
-            }
-            editor.repaint();
-        }
-        catch (Exception e) {
-            NeptusLog.pub().debug(e);
-        }
-        return true;
     }
 
     @Override
@@ -639,6 +541,132 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         getConsole().removeRenderAll(this);
     }
 
+    /**
+     * @return the showOnScreenControls
+     */
+    public boolean isShowWorldMapOnScreenControls() {
+        return renderer.isShowWorldMapOnScreenControls();
+    }
+
+    /**
+     * @param showOnScreenControls the showOnScreenControls to set
+     */
+    public void setShowWorldMapOnScreenControls(boolean showOnScreenControls) {
+        renderer.setShowWorldMapOnScreenControls(showOnScreenControls);
+    }
+
+    private void setToolbarPlacement() {
+        // Orient and position the tab based on placement property (toolbarPlacement)
+        String position = BorderLayout.SOUTH;
+        switch (toolbarPlacement) {
+            case Left:
+                position = BorderLayout.WEST;
+                bottom.setOrientation(JToolBar.VERTICAL);
+                break;
+            case Right:
+                position = BorderLayout.EAST;
+                bottom.setOrientation(JToolBar.VERTICAL);
+                break;
+            case Top:
+                position = BorderLayout.NORTH;
+                bottom.setOrientation(JToolBar.HORIZONTAL);
+                break;
+            case Bottom:
+                position = BorderLayout.SOUTH;
+                bottom.setOrientation(JToolBar.HORIZONTAL);
+                break;
+        }
+        add(bottom, position);
+    }
+
+    @Subscribe
+    public void consume(PlanControlState message) {
+
+        if(getConsole().getMainSystem() != null)
+            if (!message.getSourceName().equals(getConsole().getMainSystem()))
+                return;
+        
+        String planId = message.getPlanId();
+        String manId = message.getManId();
+
+        if (getConsole().getPlan() != null && getConsole().getPlan().getId().equals(planId)) {
+            if (mainPlanPainter != null)
+                mainPlanPainter.setActiveManeuver(manId);
+        }
+    }
+
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener#missionReplaced(pt.up.fe.dceg.neptus.types.mission.MissionType)
+     */
+    @Override
+    public void missionReplaced(MissionType mission) {
+        // editor.setMission(mission);
+        setMission(mission);
+        addPlan.setEnabled(mission != null);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener#missionUpdated(pt.up.fe.dceg.neptus.types.mission.MissionType)
+     */
+    @Override
+    public void missionUpdated(MissionType mission) {
+    }
+
+    @Override
+    public void mainVehicleChangeNotification(String id) {
+        followMode.setEnabled(id != null);
+        if (mainPlanPainter != null)
+            mainPlanPainter.setActiveManeuver(null);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.console.plugins.PlanChangeListener#planChange(pt.up.fe.dceg.neptus.types.mission.plan.PlanType)
+     */
+    @Override
+    public void planChange(PlanType plan) {
+        StateRenderer2D r2d = renderer;
+        if (mainPlanPainter != null)
+            r2d.removePostRenderPainter(mainPlanPainter);
+
+        if (plan != null) {
+            PlanElement po = new PlanElement(r2d.getMapGroup(), new MapType());
+            po.setMissionType(plan.getMissionType());
+            po.setPlan(plan);
+            po.setRenderer(r2d);
+            po.setColor(new Color(255, 255, 255, 128));
+            po.setShowDistances(false);
+            po.setShowManNames(false);
+            r2d.addPostRenderPainter(po, I18n.text("Plan Painter"));
+            mainPlanPainter = po;
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
+     */
+    @Override
+    public long millisBetweenUpdates() {
+        return updateMillis;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#update()
+     */
+    @Override
+    public boolean update() {
+        try {
+            for (VehicleType vt : vehicles.keySet()) {
+                renderer.vehicleStateChanged(vt.getId(), vehicles.get(vt), false);
+            }
+            renderer.repaint();
+        }
+        catch (Exception e) {
+            NeptusLog.pub().debug(e);
+        }
+        return true;
+    }
+
     public void editPlan(PlanType plan) {
 //        editor.setPlan(plan);
 //        editor.setEditable(true);
@@ -651,66 +679,43 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
             return;
 
         mapGroup = MapGroup.getMapGroupInstance(mission);
-        editor.setMapGroup(mapGroup);
+        renderer.setMapGroup(mapGroup);
         this.mission = mission;
     }
 
     public void setPlan(PlanType plan) {
         if (plan == null) {
-            editor.removePostRenderPainter(planElem);
+            renderer.removePostRenderPainter(planElem);
             return;
         }
         if (plan.getMissionType() != mission)
             setMission(plan.getMissionType());
 
-        editor.removePostRenderPainter(planElem);
+        renderer.removePostRenderPainter(planElem);
 
         planElem = new PlanElement(mapGroup, new MapType());
         planElem.setTransp2d(1.0);
-        editor.addPostRenderPainter(planElem, "Plan Layer");
-        planElem.setRenderer(editor);
+        renderer.addPostRenderPainter(planElem, "Plan Layer");
+        planElem.setRenderer(renderer);
         planElem.setPlan(plan);
 
-        editor.repaint();
-    }
-
-
-    @Override
-    public void missionUpdated(MissionType mission) {
-        
-    }
-
-    @Override
-    public boolean addPostRenderPainter(Renderer2DPainter painter, String name) {
-        // System.out.println("Adding a post render painter: "+name);
-        return editor.addPostRenderPainter(painter, name);
-    }
-
-    @Override
-    public Collection<Renderer2DPainter> getPostPainters() {
-        return editor.getPostPainters();
-    }
-
-    @Override
-    public boolean removePostRenderPainter(Renderer2DPainter painter) {
-        return editor.removePostRenderPainter(painter);
+        renderer.repaint();
     }
 
     @Override
     public void propertiesChanged() {
-        editor.setSmoothResizing(smoothResize);
-        editor.setAntialiasing(antialias);
-        editor.setFixedVehicleWidth(fixedSize);
-        editor.setWorldMapShown(worldMapShown);
+        renderer.setSmoothResizing(smoothResize);
+        renderer.setAntialiasing(antialias);
+        renderer.setFixedVehicleWidth(fixedSize);
+        renderer.setWorldMapShown(worldMapShown);
         setToolbarPlacement(); // Refresh toolbar position
     }
 
-    protected LinkedHashMap<String, StateRendererInteraction> interactionModes = new LinkedHashMap<String, StateRendererInteraction>();
-    protected LinkedHashMap<String, ToolbarSwitch> interactionButtons = new LinkedHashMap<String, ToolbarSwitch>();
-
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.renderer2d.CustomInteractionSupport#addInteraction(pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction)
+     */
     @Override
     public void addInteraction(StateRendererInteraction interaction) {
-
         try {
             final String name = interaction.getName();
             if (!interactionModes.containsKey(name))
@@ -728,19 +733,19 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                         StateRendererInteraction ri = interactionModes.get(name);
 
                         if (ri.isExclusive()) {
-                            if (editor.getActiveInteraction() != null) {
-                                editor.getActiveInteraction().setActive(false, editor);
-                                if (editor.getActiveInteraction() == ri) {
-                                    editor.setViewMode(Renderer.TRANSLATION);
-                                    editor.setActiveInteraction(null);
+                            if (renderer.getActiveInteraction() != null) {
+                                renderer.getActiveInteraction().setActive(false, renderer);
+                                if (renderer.getActiveInteraction() == ri) {
+                                    renderer.setViewMode(Renderer.TRANSLATION);
+                                    renderer.setActiveInteraction(null);
                                     translateSwitch.setSelected(true);
                                     return;
                                 }
                             }
-                            editor.setViewMode(Renderer.NONE);
+                            renderer.setViewMode(Renderer.NONE);
                         }
-                        editor.setActiveInteraction(ri);
-                        ri.setActive(true, editor);
+                        renderer.setActiveInteraction(ri);
+                        ri.setActive(true, renderer);
                     }
                 }
             };
@@ -755,51 +760,69 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
             revalidate();
         }
         catch (AbstractMethodError e) {
-            e = new AbstractMethodError(e.getMessage() + " :: " + interaction.getClass().getName()
+            AbstractMethodError e1 = new AbstractMethodError(e.getMessage() + " :: " + interaction.getClass().getName()
                     + " missed the complete implementation of " + StateRendererInteraction.class.getName()
                     + "!!! Recompiling the plugin jar might resolve " + "this issue.");
-            e.setStackTrace(e.getStackTrace());
-            e.printStackTrace();
+            e1.setStackTrace(e.getStackTrace());
+            e1.printStackTrace();
         }
     }
 
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.renderer2d.CustomInteractionSupport#getInteractionModes()
+     */
     @Override
     public Collection<StateRendererInteraction> getInteractionModes() {
         return interactionModes.values();
     }
 
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.renderer2d.CustomInteractionSupport#removeInteraction(pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction)
+     */
     @Override
     public void removeInteraction(StateRendererInteraction interaction) {
-        editor.removeInteraction(interaction);
+        renderer.removeInteraction(interaction);
         ToolbarSwitch sw = interactionButtons.get(interaction.getName());
         if (sw != null)
             bottom.remove(sw);
         doLayout();
     }
 
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.renderer2d.CustomInteractionSupport#setActiveInteraction(pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction)
+     */
     @Override
     public void setActiveInteraction(StateRendererInteraction interaction) {
         if (interaction == null) {
-            editor.setActiveInteraction(interaction);
+            renderer.setActiveInteraction(interaction);
             return;
         }
         ToolbarSwitch sw = interactionButtons.get(interaction.getName());
         if (sw != null)
             sw.doClick();
         else
-            editor.setActiveInteraction(interaction);
+            renderer.setActiveInteraction(interaction);
     }
 
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.renderer2d.CustomInteractionSupport#getActiveInteraction()
+     */
     @Override
     public StateRendererInteraction getActiveInteraction() {
-        return editor.getActiveInteraction();
+        return renderer.getActiveInteraction();
     }
 
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.renderer2d.VehicleStateListener#setVehicleState(pt.up.fe.dceg.neptus.types.vehicle.VehicleType, pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude)
+     */
     @Override
     public void setVehicleState(VehicleType vehicle, SystemPositionAndAttitude state) {
         vehicles.put(vehicle, state);
     }
 
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.console.plugins.ConsoleVehicleChangeListener#consoleVehicleChange(pt.up.fe.dceg.neptus.types.vehicle.VehicleType, int)
+     */
     @Override
     public void consoleVehicleChange(VehicleType v, int status) {
         if (status != ConsoleVehicleChangeListener.VEHICLE_REMOVED) {
@@ -808,51 +831,93 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         }
     }
 
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.renderer2d.ILayerPainter#addPreRenderPainter(pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter)
+     */
     @Override
     public void addPreRenderPainter(Renderer2DPainter painter) {
-        editor.addPreRenderPainter(painter);
+        renderer.addPreRenderPainter(painter);
     }
 
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.renderer2d.ILayerPainter#removePreRenderPainter(pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter)
+     */
     @Override
     public void removePreRenderPainter(Renderer2DPainter painter) {
-        editor.removePreRenderPainter(painter);
+        renderer.removePreRenderPainter(painter);
     }
 
-    public StateRenderer2D getRenderer() {
-        return editor;
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.renderer2d.ILayerPainter#addPostRenderPainter(pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter, java.lang.String)
+     */
+    @Override
+    public boolean addPostRenderPainter(Renderer2DPainter painter, String name) {
+        // System.out.println("Adding a post render painter: "+name);
+        return renderer.addPostRenderPainter(painter, name);
     }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.renderer2d.ILayerPainter#removePostRenderPainter(pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter)
+     */
+    @Override
+    public boolean removePostRenderPainter(Renderer2DPainter painter) {
+        return renderer.removePostRenderPainter(painter);
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.renderer2d.ILayerPainter#getPostPainters()
+     */
+    @Override
+    public Collection<Renderer2DPainter> getPostPainters() {
+        return renderer.getPostPainters();
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.planeditor.IMapPopup#getRenderer()
+     */
+    @Override
+    public StateRenderer2D getRenderer() {
+        return renderer;
+    }
+    
     /**
      * @return
      */
     public int getRendererWidth() {
-        return editor.getWidth();
+        return renderer.getWidth();
     }
 
     /**
      * @return
      */
     public int getRendererHeight() {
-        return editor.getHeight();
+        return renderer.getHeight();
     }
 
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.planeditor.IMapPopup#addMenuExtension(pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension)
+     */
     @Override
     public boolean addMenuExtension(IEditorMenuExtension extension) {
-        return editor.addMenuExtension(extension);
+        return renderer.addMenuExtension(extension);
     }
 
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.planeditor.IMapPopup#removeMenuExtension(pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension)
+     */
     @Override
     public boolean removeMenuExtension(IEditorMenuExtension extension) {
-        return editor.removeMenuExtension(extension);
+        return renderer.removeMenuExtension(extension);
     }
 
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.planeditor.IMapPopup#getMenuExtensions()
+     */
     @Override
     public Collection<IEditorMenuExtension> getMenuExtensions() {
-        return editor.getMenuExtensions();
+        return renderer.getMenuExtensions();
     }
 
-    /**
-     * @param args
-     */
 //    public static void main(String[] args) {
 //        MapPanel pp = new MapPanel(null);
 //        pp.getRenderer().setLegendShown(true);

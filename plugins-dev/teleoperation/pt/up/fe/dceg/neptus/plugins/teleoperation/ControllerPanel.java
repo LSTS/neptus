@@ -196,7 +196,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         });
         
         // Do this to set the initial vehicle
-        mainVehicleChange(console.getMainSystem());
+        //mainVehicleChange(console.getMainSystem());
     }
 
     public void buildDialog() {

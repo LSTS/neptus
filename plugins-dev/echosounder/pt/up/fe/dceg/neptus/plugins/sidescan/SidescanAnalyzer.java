@@ -45,6 +45,8 @@ import pt.up.fe.dceg.neptus.gui.TimelineChangeListener;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
+import pt.up.fe.dceg.neptus.mra.api.SidescanParser;
+import pt.up.fe.dceg.neptus.mra.api.SidescanParserFactory;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.importers.jsf.JsfSidescanParser;
 import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
@@ -96,10 +98,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     }
     
     public void initialize(IMraLogGroup source) {
-        if(source.getFile("Data.jsf") != null)
-            ssParser = new JsfSidescanParser(source.getFile("Data.jsf"));
-        else
-            ssParser = new ImcSidescanParser(source);
+        ssParser = SidescanParserFactory.build(source);
         
         firstPingTime = ssParser.firstPingTimestamp();
         lastPingTime = ssParser.lastPingTimestamp();

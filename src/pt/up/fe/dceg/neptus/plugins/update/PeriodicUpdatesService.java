@@ -192,7 +192,7 @@ public class PeriodicUpdatesService {
 
             @Override
             public long millisBetweenUpdates() {
-                return 100;
+                return 500;
             }
 
             @Override

@@ -34,5 +34,5 @@ package pt.up.fe.dceg.neptus.console.plugins;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 
 public interface PlanChangeListener {
-	public void PlanChange(PlanType plan);
+	public void planChange(PlanType plan);
 }

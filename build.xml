@@ -408,6 +408,28 @@ For simple use the main targets are:
 	<target name="clean" description="Deletes the ${build.dir}.">
 		<delete dir="${build.dir}" />
 		<delete dir="${tmp.dir}" />
+		<delete>
+			<fileset dir=".">
+				<include name="*.tar.gz"/>
+				<include name="s57.session"/>
+				<include name="release.json"/>
+				<include name="scm.info.txt"/>
+				<include name="*.so"/>
+			</fileset>
+		</delete>
+	</target>
+	
+	<target name="clean-conf" description="Deletes locally changed configurations.">
+		<delete dir="log"/>
+		<delete>
+			<fileset dir=".">
+				<include name="conf/general-properties.xml"/>
+				<include name="conf/mra_recent.xml"/>
+				<include name="conf/roconsoles.xml"/>
+				<include name="conf/romisc.xml"/>
+				<include name="conf/worldrenderpainter.properties"/>							
+			</fileset>
+		</delete>
 	</target>
 
 	<!-- =================================================================== -->
@@ -827,6 +849,7 @@ For simple use the main targets are:
         	<include name="pt/up/fe/dceg/neptus/vartree/*.class"/>
         	<include name="pt/up/fe/dceg/vartree/*.class"/>
         	<include name="pt/up/fe/dceg/neptus/plugins/PluginProperty.class"/>
+        	<include name="pt/up/fe/dceg/neptus/plugins/NeptusProperty*.class"/>
         	<!--include name="pt/up/fe/dceg/neptus/types/**/*.class"/ -->
         	<!-- include name="images/**/*.*" / -->
         	<include name="images/neptus-icon.png"/>
@@ -957,6 +980,7 @@ For simple use the main targets are:
         	<include name="pt/up/fe/dceg/neptus/util/comm/ssh/SSHConnectionDialog*.class" />
         	<include name="pt/up/fe/dceg/neptus/util/comm/ssh/IntFormat*.class" />
         	<include name="pt/up/fe/dceg/neptus/gui/ImagePanel*.class" />
+        	<include name="pt/up/fe/dceg/neptus/planeditor/I*.class" />
         	<include name="images/ssh-connect.png"/>
         </jar>
         <mkdir dir="${tmp.bundle.dir}"/>
@@ -2223,6 +2247,28 @@ For simple use the main targets are:
 				classname="pt.up.fe.dceg.neptus.loader.NeptusMain">
 			<jvmarg value="-Xms10m -Xmx980m -Djava.library.path='.;libJNI\' -Dj3d.rend=d3d -Dsun.java2d.d3d=true" />
 		</java>
+	</target>
+	
+	<target name="nightly-build" depends="distribution-full-all-os">
+		<tstamp>
+			<format property="datef" pattern="yyyy-MM-dd" />
+		</tstamp>
+		<exec outputproperty="git.branch" command="git rev-parse --abbrev-ref HEAD"/>
+		<exec outputproperty="git.hash" command="git rev-parse HEAD"/>
+		
+		<property name="original.filename" value="${Name}-${full.release}-x86-32bit-x64-64bit-${datef}.tar.gz"/>
+		<property name="new.filename" value="${Name}-${git.branch}-${datef}.tar.gz"/>
+		<rename dest="${new.filename}" src="${original.filename}"/>
+		<echo file="release.json">{
+	"name":"${Name}-${full.release}",
+	"date":"${datef}",
+	"filename":"${new.filename}",
+	"branch":"${git.branch}",
+	"hash":"${git.hash}"
+}
+</echo>
+
+		
 	</target>
 	
 </project>

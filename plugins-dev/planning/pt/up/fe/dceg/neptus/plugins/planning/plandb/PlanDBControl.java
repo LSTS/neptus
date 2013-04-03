@@ -158,7 +158,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                 "request_id", IMCSendMessageUtils.getNextRequestId(),
                 "plan_id", plan_id
         );
-//        System.out.println("Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
+        System.out.println("Sending to " + remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
     
@@ -191,8 +191,14 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                     remoteState = new PlanDBState();
                 remoteState.parseIMCMessage(msg.getMessage("arg"));         
                 
-                for (IPlanDBListener l : listeners)
-                    l.dbInfoUpdated(remoteState);
+                try {
+                    for (IPlanDBListener l : listeners)
+                        l.dbInfoUpdated(remoteState);
+                }
+                catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
             
             else if (msg.getString("op").equals("GET")) {

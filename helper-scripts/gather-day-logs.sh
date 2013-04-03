@@ -128,7 +128,7 @@ find $NEPTUS_HOME/missions/ -type f -name '*.nmisz' -newer _start -exec cp -v {}
 echo 50
 cd $to_upload/$NEPTUSDIR/$todayDirName/
 echo "# Zipping debug.log*"
-zip -rv log-debug.zip debug.log* && rm -v debug.log*
+zip -rv log-debug.zip *.log* && rm -v *.log*
 echo 60
 echo "# Zipping output/*"
 zip -rv output.zip output/* && rm -rvf output/

@@ -60,6 +60,7 @@ import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
 import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
@@ -111,7 +112,7 @@ public class ImcMsgManager extends
     //
     // public static String CONNECTION4CCU = "Connection4CCUALL";
 
-    private HashMap<String, ImcId16> udpOnIpMapper = new HashMap<String, ImcId16>();
+    private final HashMap<String, ImcId16> udpOnIpMapper = new HashMap<String, ImcId16>();
     private boolean isFilterByPort = false;
 
     private boolean isRedirectToFirst = false;
@@ -126,11 +127,11 @@ public class ImcMsgManager extends
     private int[] multicastPorts = new int[] { 6969 };
     private boolean broadcastEnabled = true;
 
-    private IMCDefinition imcDefinition; // = IMCDefinition.getInstance();
+    private final IMCDefinition imcDefinition; // = IMCDefinition.getInstance();
     private AnnounceWorker announceWorker; // = new AnnounceWorker(this, imcDefinition);
     private long announceLastArriveTime = -1;
 
-    private PreferencesListener gplistener;
+    private final PreferencesListener gplistener;
 
     // Transports
     protected ImcUdpTransport udpTransport = null;
@@ -140,7 +141,7 @@ public class ImcMsgManager extends
 //    protected Vector<Object> registeredObjects = new Vector<>();
 
     // EventBus
-    private ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
+    private final ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
 
         @Override
         public Thread newThread(Runnable r) {
@@ -157,11 +158,11 @@ public class ImcMsgManager extends
     private long lastNetInterfaceMillis = -1;
     private Vector<NInterface> netInterfaces = null;
 
-    private LinkedList<URL> registerServicesToAnnounce = new LinkedList<URL>();
+    private final LinkedList<URL> registerServicesToAnnounce = new LinkedList<URL>();
 
     // Frequency Calculators
-    private MessageFrequencyCalculator toSendMessagesFreqCalc = new MessageFrequencyCalculator();
-    private MessageFrequencyCalculator sentMessagesFreqCalc = new MessageFrequencyCalculator();
+    private final MessageFrequencyCalculator toSendMessagesFreqCalc = new MessageFrequencyCalculator();
+    private final MessageFrequencyCalculator sentMessagesFreqCalc = new MessageFrequencyCalculator();
 
     // Entities related vars
     protected short lastEntityId = 0;
@@ -173,7 +174,7 @@ public class ImcMsgManager extends
         TCP
     };
 
-    private ArrayList<TransportPreference> transportPreferenceToUse = new ArrayList<>();
+    private final ArrayList<TransportPreference> transportPreferenceToUse = new ArrayList<>();
     
     protected Vector<String> ignoredClasses = new Vector<String>();
     {
@@ -214,6 +215,7 @@ public class ImcMsgManager extends
     public ImcMsgManager(IMCDefinition imcDefinition) {
         super();
         gplistener = new PreferencesListener() {
+            @Override
             public void preferencesUpdated() {
                 logSentMsg = GeneralPreferences.messageLogSentMessages;
                 isRedirectToFirst = GeneralPreferences.redirectUnknownIdsToFirstCommVehicle;
@@ -770,6 +772,8 @@ public class ImcMsgManager extends
                     if (vci == null) {
                         if (VehiclesHolder.getVehicleWithImc(id) != null) {
                             vci = initSystemCommInfo(id, "");
+                        }else{
+                            return false;
                         }
                     }
                 }
@@ -987,6 +991,8 @@ public class ImcMsgManager extends
             if (requestEntityList)
                 announceWorker.sendEntityListRequestMsg(resSys);
         }
+        
+        imcDefinition.getResolver().addEntry(ann.getSrc(), ann.getSysName());
         return vci;
     }
 
@@ -1745,4 +1751,19 @@ public class ImcMsgManager extends
         }
     }
 
+    public static void disseminate(XmlOutputMethods object, String rootElementName) {
+        IMCMessage msg = IMCDefinition.getInstance().create("mission_chunk", "xml_data", object.asXML(rootElementName));
+        disseminateToCCUs(msg);
+    }
+
+    private static void disseminateToCCUs(IMCMessage msg) {
+        if (msg == null)
+            return;
+
+        ImcSystem[] systems = ImcSystemsHolder.lookupActiveSystemCCUs();
+        for (ImcSystem s : systems) {
+            System.out.println("sending msg '" + msg.getAbbrev() + "' to '" + s.getName() + "'...");
+            ImcMsgManager.getManager().sendMessage(msg, s.getId(), null);
+        }
+    }
 }

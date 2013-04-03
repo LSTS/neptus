@@ -66,6 +66,8 @@ public class MraVehiclePosHud {
     protected BufferedImage img = null;
     protected int currentPosition = -1, width, height;
 
+    protected Color pathColor = Color.black;
+    
     public MraVehiclePosHud(LsfIndex index, int width, int height) {
         this.index = index;
         this.width = width;
@@ -169,12 +171,12 @@ public class MraVehiclePosHud {
         g.scale(zoom, zoom);
         g.translate(-minX+10, -minY+10);
         
-        g.setColor(new Color(0,0,0,64));
+        g.setColor(new Color(pathColor.getRed(),pathColor.getGreen(),pathColor.getBlue(),64));
         g.setStroke(new BasicStroke(20f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         g.draw(path);
         
         g.setStroke(new BasicStroke(3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g.setColor(new Color(0,0,0,200));
+        g.setColor(new Color(pathColor.getRed(),pathColor.getGreen(),pathColor.getBlue(),200));
         g.draw(path);        
     }
 
@@ -218,6 +220,15 @@ public class MraVehiclePosHud {
      */
     public final void setEndTime(double endTime) {
         this.endTime = endTime;
+    }
+
+    /**
+     * @param pathColor the pathColor to set
+     */
+    public final void setPathColor(Color pathColor) {
+        this.pathColor = pathColor;
+        map = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        createMap();
     }
 
     public static void main(String[] args) throws Exception {

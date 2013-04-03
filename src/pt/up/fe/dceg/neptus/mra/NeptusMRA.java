@@ -352,11 +352,11 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
 
         boolean alreadyConverted = false;
         if (lsfDir.isDirectory()) {
-            if (new File(lsfDir, "lsf.index").canRead())
+            if (new File(lsfDir, "mra/lsf.index").canRead())
                 alreadyConverted = true;
 
         }
-        else if (new File(lsfDir, "lsf.index").canRead())
+        else if (new File(lsfDir, "mra/lsf.index").canRead())
             alreadyConverted = true;
 
         if (alreadyConverted) {
@@ -364,7 +364,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
                     I18n.text("This log seems to have already been indexed. Index again?"));
         
             if (option == JOptionPane.YES_OPTION) {
-                new File(lsfDir, "lsf.index").delete(); 
+                new File(lsfDir, "mra/lsf.index").delete(); 
             }
             
             if (option == JOptionPane.CANCEL_OPTION) {

@@ -63,6 +63,7 @@ import pt.up.fe.dceg.neptus.mp.maneuvers.IMCSerialization;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
 import pt.up.fe.dceg.neptus.mp.maneuvers.RowsManeuver;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
+import pt.up.fe.dceg.neptus.types.Identifiable;
 import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.map.MapGroup;
@@ -84,7 +85,7 @@ import com.l2fprod.common.propertysheet.Property;
  * @author Paulo Dias
  * @author ZP
  */
-public class PlanType implements XmlOutputMethods, PropertiesProvider {
+public class PlanType implements XmlOutputMethods, PropertiesProvider, Identifiable {
     public static final int INIT_HOMEREF = 0, INIT_START_WPT = 1, INIT_NONE = 2;
     protected static final String DEFAULT_ROOT_ELEMENT = "plan";
 
@@ -286,7 +287,7 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider {
      */
     @Override
     public Element asElement(String rootElementName) {
-        return (Element) asDocument(rootElementName).getRootElement();
+        return asDocument(rootElementName).getRootElement();
     }
 
     /*
@@ -817,5 +818,15 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider {
             System.out.println(Long.toHexString(Double.doubleToLongBits(latRad)));
 
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.up.fe.dceg.neptus.types.Identifiable#getIdentification()
+     */
+    @Override
+    public String getIdentification() {
+        return getId();
     }
 }

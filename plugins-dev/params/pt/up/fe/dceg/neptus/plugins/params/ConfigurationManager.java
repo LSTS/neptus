@@ -69,25 +69,25 @@ import com.l2fprod.common.beans.editor.BooleanAsCheckBoxPropertyEditor;
 public class ConfigurationManager {
 
     public static final String CONF_DIR = "conf/params/";
-    
+
     private HashMap<String, HashMap<String, SystemProperty>> map = new LinkedHashMap<String, HashMap<String, SystemProperty>>();
     private List<String> sections = new ArrayList<String>();
     private Document doc;
-    
+
     private static ConfigurationManager instance = null;
     private static boolean loading = false;
-    
+
     private ConfigurationManager() {
-        loadConfigurations(); 
+        loadConfigurations();
     }
-    
+
     public static ConfigurationManager getInstance() {
         if (instance == null) {
             if (!loading) {
                 loading = true;
                 instance = new ConfigurationManager();
                 loading = false;
-            }            
+            }
         }
         while (loading) {
             try {
@@ -98,13 +98,13 @@ public class ConfigurationManager {
                 e.printStackTrace();
             }
         }
-            
+
         return instance;
     }
-    
+
     private void loadConfigurations() {
         String lang = GeneralPreferences.language;
-        
+
         File fx = new File(CONF_DIR);
         if (fx.exists()) {
             for(File f : fx.listFiles()) {
@@ -114,16 +114,30 @@ public class ConfigurationManager {
                 String fext = FileUtil.getFileExtension(fname);
                 if (!fname.replaceAll("." + fext + "$", "").endsWith(lang))
                     continue;
-                
+
                 System.out.println("Loading vehicle configuration from " + f.getName());
                 String systemName = f.getName().split("\\.")[0];
-                map.put(systemName, readConfiguration(f));
+                try {
+                    map.put(systemName, readConfiguration(f));
+                } 
+                catch (InvalidConfigurationException e) {
+                    NeptusLog.pub().error(e.getMessage());
+                    e.printStackTrace();
+               }
             }
         }
     }
-    
+
+    private String getTagContents(Element root, String name) {
+        Element node = (Element)root.selectSingleNode(name);
+        if (node == null)
+            return null;
+
+        return node.getStringValue();
+    }
+
     @SuppressWarnings("unchecked")
-    private HashMap<String, SystemProperty> readConfiguration(File file) {
+    private HashMap<String, SystemProperty> readConfiguration(File file) throws InvalidConfigurationException {
         LinkedHashMap<String, SystemProperty> params = new LinkedHashMap<>();
         SAXReader reader = new SAXReader();
 
@@ -135,7 +149,13 @@ public class ConfigurationManager {
         }
         params.clear();
         List<?> sectionList = doc.selectNodes("//config/*");
-        
+
+        // Check format version.
+        // String format = doc.getRootElement().attributeValue("format");
+        // if (format == null || !format.equals("1")) {
+        //     throw new InvalidConfigurationException(file.getName(), "unsupported format");            
+        // }
+
         for(Object osection : sectionList) {
             Element section = (Element) osection;
             String sectionName = section.attributeValue("name");
@@ -143,76 +163,47 @@ public class ConfigurationManager {
                 NeptusLog.pub().error("Error loading unnamed section for " + file.getName());
                 continue;
             }
-            String sectionI18nName = section.attributeValue("i18n-name");
+            String sectionI18nName = section.attributeValue("name-i18n");
             if (sectionI18nName == null)
                 sectionI18nName = sectionName;
-            
+
             sections.add(sectionName);
-            
+
             for(Object oparam : section.selectNodes("*")) {
                 SystemProperty property;
                 Element param = (Element) oparam;
-                
+
                 String paramName = param.attributeValue("name");
                 if (paramName == null) {
                     NeptusLog.pub().error("Error loading unnamed param for section " + sectionName + " for " + file.getName());
                     continue;
                 }
-                // Optional (may not exist)
-                String paramI18nName = param.attributeValue("i18n-name");
-                if (paramI18nName == null)
-                    paramI18nName = paramName;
-
-                String scope = param.attributeValue("scope");
-                if (scope == null) {
-                    NeptusLog.pub().error(
-                            "Error loading scope for param +" + paramName + " + for section " + sectionName + " for "
-                                    + file.getName());
-                    continue;
-                }
-                String visibility = param.attributeValue("visibility");
-                if (visibility == null) {
-                    NeptusLog.pub().error(
-                            "Error loading visibility for param +" + paramName + " + for section " + sectionName + " for "
-                                    + file.getName());
-                    continue;
-                }
-                String type = param.attributeValue("type");
-                if (type == null) {
-                    NeptusLog.pub().error(
-                            "Error loading type for param +" + paramName + " + for section " + sectionName + " for "
-                                    + file.getName());
-                    continue;
-                }
-
-                // Optional (may not exist)
-                Element desc = (Element) param.selectSingleNode("desc");
                 
+                String paramI18nName = getTagContents(param, "name-i18n");
+                String scope = getTagContents(param, "scope");
+                String visibility = getTagContents(param, "visibility");
+                String type = getTagContents(param, "type");
+                String desc = getTagContents(param, "desc");
+                String units = getTagContents(param, "units");
+                String defaultValue = getTagContents(param, "default");
+
                 // Optional (may not exist)
                 // If exists is shown as a combobox (may have values-i18n sibling for string type).
                 Element pValues = (Element) param.selectSingleNode("values");
-                // If exists is shown as a combobox but depends on some other parameter, 
+                // If exists is shown as a combobox but depends on some other parameter,
                 //  there are more than one, inside param equals|less|greater and values (may have values-i18n sibling for string type).
                 @SuppressWarnings("rawtypes")
                 List pValuesIfList = param.selectNodes("values-if");
-                
+
                 // Optional (may not exist)
-                String units = param.attributeValue("units");
-                
-                // Optional (may not exist)
-                String defaultValue = param.attributeValue("default");
-                
-                // Optional (may not exist)
-                String minStr = param.attributeValue("min");
-                String maxStr = param.attributeValue("max");
-                
+                String minStr = getTagContents(param, "min");
+                String maxStr = getTagContents(param, "max");
+
                 // Optional (may not exist)
                 // This only exists for list:xxx types
-                String sizeList = param.attributeValue("size");
-                String sizeMinList = param.attributeValue("min-size");
-                String sizeMaxList = param.attributeValue("max-size");
-
-                final String unitsStr = units != null ? units: "";
+                String sizeList = getTagContents(param, "size");
+                String sizeMinList = getTagContents(param, "min-size");
+                String sizeMaxList = getTagContents(param, "max-size");
 
                 // Let us get the type and if is a list
                 ValueTypeEnum valueType = ValueTypeEnum.STRING;
@@ -250,10 +241,10 @@ public class ConfigurationManager {
                         clazz = String.class;
                     valueType = ValueTypeEnum.STRING;
                 }
-                
+
                 // Lets get the default value
                 Object value = !isList ? getValueTypedFromString(defaultValue, valueType) : getListValueTypedFromString(defaultValue, valueType);
-                
+
                 AbstractPropertyEditor propEditor = null;
 
                 // If in need of a bounded property
@@ -317,10 +308,10 @@ public class ConfigurationManager {
                                     : ArrayListEditor.forgeLong(minSize, maxSize,
                                             minV == null ? null : minV.longValue(),
                                             maxV == null ? null : maxV.longValue());
-                            minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.longValue() + unitsStr;
+                            minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.longValue() + units;
                             String commaSepStr = minMaxStr.length() != 0 ? ", " : "";
                             minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.longValue()
-                                    + unitsStr;
+                                    + units;
                             break;
                         case REAL:
                             // propEditor = ArrayListEditor.forgeDouble(minSize, maxSize);
@@ -328,10 +319,10 @@ public class ConfigurationManager {
                                     : ArrayListEditor.forgeDouble(minSize, maxSize,
                                             minV == null ? null : minV.doubleValue(),
                                             maxV == null ? null : maxV.doubleValue());
-                            minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.doubleValue() + unitsStr;
+                            minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.doubleValue() + units;
                             commaSepStr = minMaxStr.length() != 0 ? ", " : "";
                             minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.doubleValue()
-                                    + unitsStr;
+                                    + units;
                             break;
                         default:
                             String stringTypeStringNotString = type.replaceAll("^list:", "");
@@ -348,7 +339,7 @@ public class ConfigurationManager {
                     String vlStr = pValues.getStringValue();
                     ArrayList<?> values = extractStringListToArrayList(type, vlStr);
                     ComboEditor<?> comboEditor = null;
-                    
+
                     if (values != null) {
                         if (type.equals(SystemProperty.ValueTypeEnum.INTEGER.getText())) {
                             comboEditor = new ComboEditor<>(((ArrayList<Long>) values).toArray(new Long[0]));
@@ -386,9 +377,9 @@ public class ConfigurationManager {
                             Element valuesParam = (Element) elem.selectSingleNode("values");
                             if (paramComp == null || eqParam == null || valuesParam == null)
                                 continue;
-                            
+
                             ArrayList<?> values = extractStringListToArrayList(type, valuesParam.getTextTrim());
-                            
+
                             if (values != null) {
                                 double tv;
                                 try {
@@ -423,7 +414,7 @@ public class ConfigurationManager {
                             }
                         }
                     }
-                    
+
                     ArrayList<?> values = pt.getValuesIfTests().size() > 0 ? pt.getValuesIfTests().get(0).values : null;
                     ArrayList<?> valuesI18n = pt.getValuesI18nIfTests().size() > 0 ? pt.getValuesI18nIfTests().get(0).values : null;
                     if (values != null) {
@@ -434,7 +425,7 @@ public class ConfigurationManager {
                             comboEditor = new ComboEditorWithDependancy<>(((ArrayList<Double>) values).toArray(new Double[0]), pt);
                         }
                         else {
-                            comboEditor = new ComboEditorWithDependancy<>(((ArrayList<String>) values).toArray(new String[0]), 
+                            comboEditor = new ComboEditorWithDependancy<>(((ArrayList<String>) values).toArray(new String[0]),
                                     valuesI18n == null ? null : ((ArrayList<String>) valuesI18n).toArray(new String[0]), pt);
                         }
                         propEditor = comboEditor;
@@ -443,7 +434,7 @@ public class ConfigurationManager {
                 else {
                     property = new SystemProperty();
                 }
-                
+
                 if (propEditor == null) {
                     switch (valueType) {
                         case BOOLEAN:
@@ -452,16 +443,16 @@ public class ConfigurationManager {
                         case INTEGER:
                             propEditor = minV == null && maxV == null ? new NumberEditor<>(Long.class) : new NumberEditor<>(
                                     Long.class, minV == null ? null : minV.longValue(), maxV == null ? null : maxV.longValue());
-                            minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.longValue() + unitsStr;
+                            minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.longValue() + units;
                             String commaSepStr = minMaxStr.length() != 0 ? ", " : "";
-                            minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.longValue() + unitsStr;
+                            minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.longValue() + units;
                             break;
                         case REAL:
                             propEditor = minV == null && maxV == null ? new NumberEditor<>(Double.class) : new NumberEditor<>(
                                     Double.class, minV == null ? null : minV.doubleValue(), maxV == null ? null : maxV.doubleValue());
-                            minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.doubleValue() + unitsStr;
+                            minMaxStr = minV == null ? "" : I18n.text("min") + "=" + minV.doubleValue() + units;
                             commaSepStr = minMaxStr.length() != 0 ? ", " : "";
-                            minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.doubleValue() + unitsStr;
+                            minMaxStr += maxV == null ? "" : commaSepStr + I18n.text("max") + "=" + maxV.doubleValue() + units;
                             break;
                         default:
                             String stringTypeStringNotString = type;
@@ -473,19 +464,17 @@ public class ConfigurationManager {
                             break;
                     }
                 }
-                
+
                 property.setValueType(valueType);
                 property.setName(paramName);
                 property.setDisplayName(paramI18nName);
-                
-                if(value != null) {
+
+                if (value != null) {
                     property.setValue(value);
                     property.setDefaultValue(value);
                 }
-                
+
                 property.setType(clazz);
-                
-                String description = (desc == null ? "" : desc.getStringValue());
 
                 String lstSizeTxt = "";
                 if (isList) {
@@ -523,16 +512,16 @@ public class ConfigurationManager {
 
                         lstSizeTxt += (int) minS == (int) minS ? (int) minS : (int) minS + "," + (int) minS;
                     }
-                    else 
+                    else
                         lstSizeTxt += "*";
                     lstSizeTxt += "]";
                 }
-                
-                String unitsTxt = unitsStr.length() > 0 ? "\n(" + unitsStr + ")" : "";
+
+                String unitsTxt = units.length() > 0 ? "\n(" + units + ")" : "";
                 String typeTxt = type != null ? "\n[" + type + lstSizeTxt + "]" : "";
-                String defaultTxt = defaultValue != null ? "\n[" + I18n.text("default") + "=" + defaultValue + unitsStr + "]" : "";
+                String defaultTxt = defaultValue != null ? "\n[" + I18n.text("default") + "=" + defaultValue + units + "]" : "";
                 String minMaxValuesTxt = minMaxStr.length() > 0 ? "[" + minMaxStr + "]" : "";
-                property.setShortDescription(description + unitsTxt + typeTxt + defaultTxt + minMaxValuesTxt);
+                property.setShortDescription(desc + unitsTxt + typeTxt + defaultTxt + minMaxValuesTxt);
                 property.setCategory(sectionI18nName);
                 property.setCategoryId(sectionName);
                 property.setScope(SystemProperty.Scope.fromString(scope));
@@ -541,21 +530,23 @@ public class ConfigurationManager {
                 // Setting editor
                 if (propEditor != null)
                     property.setEditor(propEditor);
-                
+
                 // Setting renderer
                 if (valueType == ValueTypeEnum.BOOLEAN) {
                     property.setRenderer(new BooleanPropertyRenderer());
                 }
-                else if (unitsStr.length() > 0) {
-                    property.setRenderer(new PropertyRenderer(unitsStr));
+                else if (units.length() > 0) {
+                    property.setRenderer(new PropertyRenderer(units));
                 }
                 else {
                     property.setRenderer(new PropertyRenderer());
                 }
 
                 params.put(sectionName + "." + paramName, property);
+
             }
         }
+        //System.out.println(params);        
         return params;
     }
 
@@ -628,8 +619,8 @@ public class ConfigurationManager {
     }
 
     /**
-     * @return 
-     * 
+     * @return
+     *
      */
     public static Object getValueTypedFromString(String valueStr, SystemProperty.ValueTypeEnum type) {
         if (type == SystemProperty.ValueTypeEnum.BOOLEAN) {
@@ -660,7 +651,7 @@ public class ConfigurationManager {
             return valueStr;
         }
     }
-    
+
     public static Object getListValueTypedFromString(String valueStr, SystemProperty.ValueTypeEnum type) {
         ArrayList<? extends Object> retLst;
         String[] tokens = valueStr == null ? new String[0] : valueStr.split(",");
@@ -701,7 +692,7 @@ public class ConfigurationManager {
             default:
                 return null;
         }
-        
+
         return retLst;
     }
 
@@ -717,12 +708,12 @@ public class ConfigurationManager {
         }
         return list;
     }
-    
+
     public ArrayList<SystemProperty> getClonedProperties(String system, Visibility vis, Scope scope) {
         ArrayList<SystemProperty> props = getPropertiesByEntity(system, null, vis, scope);
-        
+
         ArrayList<SystemProperty> clones = new ArrayList<>();
-        
+
         for (SystemProperty p : props) {
             SystemProperty sp = new SystemProperty();
             sp.setCategory(p.getCategory());
@@ -743,7 +734,7 @@ public class ConfigurationManager {
         }
         return clones;
     }
-    
+
     public ArrayList<SystemProperty> getProperties(String system, Visibility vis, Scope scope) {
         return getPropertiesByEntity(system, null, vis, scope);
     }
@@ -758,9 +749,10 @@ public class ConfigurationManager {
 
     public static void main(String[] args) {
         ConfigurationManager confMan = new ConfigurationManager();
-        System.out.println(confMan.getPropertiesByEntity("lauv-xtreme-2", "Sidescan", Visibility.USER, Scope.MANEUVER));
-        System.out.println(confMan.getProperties("lauv-xtreme-2", Visibility.USER, Scope.MANEUVER));
-        System.out.println(confMan.getProperties("lauv-xtreme-2", Visibility.USER, Scope.PLAN));
-        System.out.println(confMan.getProperties("lauv-xtreme-2", Visibility.DEVELOPER, Scope.GLOBAL));
+        confMan.loadConfigurations();
+        System.out.println(confMan.getPropertiesByEntity("lauv-dolphin-1", "Sidescan", Visibility.USER, Scope.MANEUVER));
+        System.out.println(confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.MANEUVER));
+        System.out.println(confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.PLAN));
+        System.out.println(confMan.getProperties("lauv-dolphin-1", Visibility.DEVELOPER, Scope.GLOBAL));
     }
 }

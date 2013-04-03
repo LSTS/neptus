@@ -398,10 +398,12 @@ public class LogsDownloaderWorker {
                     final String baseFxPath = dirBaseToStoreFiles + "/" + getLogLabel() + "/"
                             + logFolderList.getSelectedValue() + "/";
                     final File imc = new File(baseFxPath + "IMC.xml");
+                    final File imcGz = new File(baseFxPath + "IMC.xml.gz");
+                    
                     final File log = new File(baseFxPath + "Data.lsf");
                     final File logGz = new File(baseFxPath + "Data.lsf.gz");
 
-                    if(imc.exists() && (logGz.exists() || log.exists())) {
+                    if((imc.exists() || imcGz.exists()) && (logGz.exists() || log.exists())) {
                         new Thread(new Runnable() {
                             
                             @Override

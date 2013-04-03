@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.types.misc;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 /**
@@ -65,14 +66,16 @@ public class LBLRangesTimer {
     /**
      * @return the time
      */
-    public synchronized int getTime() {
+    public int getTime() {
         return time;
     }
 
     /**
      * Increment time by 1.
      */
-    public synchronized void incrementTime() {
+    private void incrementTime() {
+        // it's the only one not using setTime (SwingUtilities.invokeLater) because is only called in an ActionListener,
+        // so it's already on ETD
         time += 2;
     }
 
@@ -85,17 +88,23 @@ public class LBLRangesTimer {
         }
     }
 
-    private synchronized void setTime(int i) {
-        time = i;
+    private void setTime(final int i) {
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                time = i;
+            }
+        });
     }
 
-    public synchronized void startTimer() {
-        time = 0;
+    public void startTimer() {
+        setTime(0);
         timer.start();
     }
 
-    public synchronized void stopTimer() {
-        time = -1;
+    public void stopTimer() {
+        setTime(-1);
         timer.stop();
     }
 
