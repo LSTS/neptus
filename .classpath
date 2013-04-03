@@ -55,6 +55,7 @@
 	<classpathentry kind="src" path="plugins-dev/dev-calibration"/>
 	<classpathentry kind="src" path="plugins-dev/tidePrediction"/>
 	<classpathentry kind="src" path="plugins-dev/spot"/>
+	<classpathentry kind="src" path="plugins-dev/vtk"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>

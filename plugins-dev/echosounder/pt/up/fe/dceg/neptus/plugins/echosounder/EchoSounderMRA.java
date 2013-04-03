@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.plugins.echosounder;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Transparency;
@@ -41,7 +42,6 @@ import java.awt.image.BufferedImage;
 import java.util.Iterator;
 
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
@@ -103,7 +103,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     }
 
     @Override
-    public JComponent getComponent(IMraLogGroup source, double timestep) {
+    public Component getComponent(IMraLogGroup source, double timestep) {
         this.source = source;
         generateImage();
 

@@ -31,12 +31,12 @@
  */
 package pt.up.fe.dceg.neptus.mra.replay;
 
+import java.awt.Component;
 import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
@@ -302,7 +302,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
 
     // --- MRAVisualization ---
     @Override
-    public JComponent getComponent(IMraLogGroup source, double timestep) {
+    public Component getComponent(IMraLogGroup source, double timestep) {
         startLogReplay();
         return this;
     }
