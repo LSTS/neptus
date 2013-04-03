@@ -40,6 +40,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -53,6 +54,8 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
  * 
  */
 public class Spot {
+    public static Logger log = Logger.getLogger("SPOT");
+
     protected final SpotPageKeys pageInfo;
     protected Float speed;
     protected Double direction;
@@ -122,12 +125,12 @@ public class Spot {
     public void update() {
         // ask for messages
         try {
-            System.out.println("Gonna ask for Spot messages");
+            Spot.log.debug("Gonna ask for Spot messages");
             ArrayList<SpotMessage> messages = get();
-            System.out.println("Got " + messages.size() + " spot messages");
+            Spot.log.debug("Got " + messages.size() + " spot messages");
             // calculate direction and speed
             final LocationSpeedDirection speedLocationDirection = setSpeedMpsAndDirection(messages);
-            System.out.println("Speed:" + speedLocationDirection.speed + ", direction:"
+            Spot.log.debug("Speed:" + speedLocationDirection.speed + ", direction:"
                     + speedLocationDirection.direction + " [" + speedLocationDirection.location.getLatitude() + ","
                     + speedLocationDirection.location.getLongitude() + "]");
             // update in EDT
@@ -137,7 +140,7 @@ public class Spot {
                     speed = speedLocationDirection.speed;
                     direction = speedLocationDirection.direction;
                     lastLocation = speedLocationDirection.location;
-                    System.out.println("Gonna update speed and diractions variables in EDT "
+                    Spot.log.debug("Gonna update speed and diractions variables in EDT "
                             + SwingUtilities.isEventDispatchThread());
                 }
             });
@@ -172,7 +175,7 @@ public class Spot {
             // case that message is out of timewindow
                 numMeasurements++;
                 if (prevMsg != null) {
-                System.out.println("Processing message " + numMeasurements);
+                log.debug("Processing message " + numMeasurements);
                     distanceInMeters = tmpLocation.getDistanceInMeters(prevLocation);
                     elapsedTime = tmpMsg.timestamp - prevMsg.timestamp;
                     speedMeterSecond = distanceInMeters / (elapsedTime / 1000);
