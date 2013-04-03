@@ -329,7 +329,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     }
 
     private String createTitle() {
-        return I18n.textf("%systemName Parameters", getSystemId());
+        return I18n.textf("%systemName Parameters", getSystemId() == null ? "" : getSystemId());
     }
 
     /* (non-Javadoc)

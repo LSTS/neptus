@@ -116,7 +116,9 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
 
     @Subscribe
     public void onMainSystemChange(ConsoleEventMainSystemChange e) {
+       
         this.setSelectedItem(e.getCurrent());
+        
         switch (console.getSystem(e.getCurrent()).getVehicleState()) {
             case SERVICE:
                 setBackground(new Color(0x57B768));
@@ -146,6 +148,9 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
         @Override
         public Component getListCellRendererComponent(JList<? extends String> list, String value, int index,
                 boolean isSelected, boolean cellHasFocus) {
+            if(systemState.isEmpty()){
+                return this;
+            }
             if (isSelected) {
                 switch (systemState.get(value)) {
                     case SERVICE:
@@ -192,6 +197,7 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
 
     @Override
     public void itemStateChanged(ItemEvent e) {
+        
         if (e.getStateChange() == ItemEvent.SELECTED) {
             console.setMainSystem(this.getSelectedItem().toString());
         }

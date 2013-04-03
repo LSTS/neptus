@@ -53,6 +53,7 @@ import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
 import pt.up.fe.dceg.neptus.util.conf.PreferencesListener;
 
@@ -69,7 +70,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
     public final int POS_ONLY_LAT_LON = 1; // only fields lat, lon, depth have meaninful values
     public final int POS_LAT_LON_XYZ = 2; // fields x, y, z, lat, lon, depth have meaninful values
 
-    protected VehicleType vehicle;
+    protected ImcSystem imcSystem;
     private ImcMsgManager imc;
     protected SystemPositionAndAttitude state;
     protected ConsoleLayout console;
@@ -90,11 +91,13 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
     protected boolean tailOn = false;
     private int numberOfShownPoints = 500;
     private STATE vehicleState = STATE.DISCONNECTED;
+    private String name;
 
-    public ConsoleSystem(String id, ConsoleLayout console, VehicleType vehicle, ImcMsgManager imcMsgManager) {
+    public ConsoleSystem(String systemName, ConsoleLayout console, ImcSystem vehicle, ImcMsgManager imcMsgManager) {
         this.imc = imcMsgManager;
         this.console = console;
-        this.vehicle = vehicle;
+        this.imcSystem = vehicle;
+        this.name = systemName;
         state = new SystemPositionAndAttitude(new LocationType(), 0, 0, 0);
         if (console.getMission() != null) {
             try {
@@ -127,11 +130,11 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
 
     public ConsoleSystem enableIMC() {
         if (neptusCommunications == false) {
-            if (vehicle == null)
+            if (imcSystem == null)
                 System.out.println("vehicle null");
             if (imc == null)
                 System.out.println("imc null");
-            this.imc.addListener(this, vehicle.getId());
+            this.imc.addListener(this, imcSystem.getId());
             neptusCommunications = true;
         }
         return this;
@@ -139,7 +142,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
 
     public ConsoleSystem disableIMC() {
         if (neptusCommunications == true) {
-            this.imc.removeListener(this, vehicle.getId());
+            this.imc.removeListener(this, imcSystem.getId());
             neptusCommunications = false;
         }
         return this;
@@ -147,11 +150,11 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
 
     public ConsoleSystem toggleIMC() {
         if (neptusCommunications) {
-            this.imc.removeListener(this, vehicle.getId());
+            this.imc.removeListener(this, imcSystem.getId());
             neptusCommunications = false;
         }
         else {
-            this.imc.addListener(this, vehicle.getId());
+            this.imc.addListener(this, imcSystem.getId());
             neptusCommunications = true;
         }
         return this;
@@ -173,7 +176,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
         console.removeSubPanelListener(this);
         NeptusLog.pub().warn(
                 this.getClass().getSimpleName() + " [" + this.hashCode() + "] shutdown for vehicle "
-                        + vehicle.getName());
+                        + imcSystem.getName());
     }
 
     public boolean isTranslateClicle() {
@@ -181,8 +184,8 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
     }
 
     public String getVehicleId() {
-        if (vehicle != null)
-            return vehicle.getId();
+        if (imcSystem != null)
+            return imcSystem.getName();
         else
             return null;
     }
@@ -288,8 +291,8 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
         feedRenders.remove(mr);
     }
 
-    public VehicleType getVehicle() {
-        return vehicle;
+    public ImcSystem getVehicle() {
+        return imcSystem;
     }
 
     public boolean isNeptusCommunications() {
@@ -394,5 +397,19 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
      */
     public void setVehicleState(STATE vehicleState) {
         this.vehicleState = vehicleState;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 }

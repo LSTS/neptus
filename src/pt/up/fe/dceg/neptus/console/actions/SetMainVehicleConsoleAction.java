@@ -73,6 +73,7 @@ public class SetMainVehicleConsoleAction extends ConsoleAction {
                         null);
 
                 if (mv != null) {
+                    console.addSystem(mv);
                     console.setMainSystem(mv);
                 }
                 return null;

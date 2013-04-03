@@ -131,6 +131,7 @@ import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.types.mission.VehicleMission;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.ConsoleParse;
 import pt.up.fe.dceg.neptus.util.FileUtil;
@@ -149,14 +150,14 @@ import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
  * @author José Pinto
  * @author José Correia
  * @author Hugo Dias
- *
+ * 
  */
 public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentListener {
     private static final long serialVersionUID = -7457352031399061316L;
 
     // ICONS
-   // private static ImageIcon ICON_SETTINGS = ImageUtils.createImageIcon("images/menus/settings.png");
-    
+    // private static ImageIcon ICON_SETTINGS = ImageUtils.createImageIcon("images/menus/settings.png");
+
     public static final String DEFAULT_ROOT_ELEMENT = "console";
     public static final int CLOSE_ACTION = JFrame.DISPOSE_ON_CLOSE;
     private Document xmlDoc = null;
@@ -203,7 +204,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public File fileName = null;
     public boolean resizableConsole = false;
 
-//    protected LinkedHashMap<String, AbstractAction> menuActions = new LinkedHashMap<String, AbstractAction>();
+    // protected LinkedHashMap<String, AbstractAction> menuActions = new LinkedHashMap<String, AbstractAction>();
 
     /**
      * Static factory method
@@ -213,7 +214,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      */
     public static ConsoleLayout forge(String consoleURL, Loader loader) {
         ConsoleLayout instance = new ConsoleLayout();
-        
+
         instance.imcOn();
         ConsoleParse.parseFile(consoleURL, instance);
         instance.setConsoleChanged(false);
@@ -224,7 +225,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         instance.setVisible(true);
         return instance;
     }
-    
+
     public static ConsoleLayout forge(String consoleURL) {
         return forge(consoleURL, null);
     }
@@ -241,12 +242,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         notificationsDialog = new NotificationsDialog(new NotificationsCollection(this), this);
         statusBar = new StatusBar(this, notificationsDialog);
 
-
         mainPanel = new MainPanel(this);
         this.add(mainPanel, BorderLayout.CENTER);
-        
+
         this.createMenuBar();
-        
+
         menus = new JPanel();
         menus.setLayout(new BorderLayout());
         this.add(menus, BorderLayout.NORTH);
@@ -262,7 +262,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         this.setLocationRelativeTo(null);
 
         this.imcMsgManager = ImcMsgManager.getManager();
-        
+
         controllerManager = new ControllerManager();
     }
 
@@ -336,14 +336,14 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         // }
         // });
     }
-    
+
     /**
      * @return the isOnModeEdit
      */
     public boolean isOnModeEdit() {
         return isOnModeEdit;
     }
-    
+
     /**
      * Set the operative mode of the console normal/editing
      * 
@@ -373,51 +373,51 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         repaint();
     }
 
-//    @SuppressWarnings("serial")
-//    public void createMenuActions() {
-//
-//        menuActions.put("About", new AbstractAction(I18n.text("About"), new ImageIcon(this.getClass().getClassLoader()
-//                .getResource("images/menus/info.png"))) {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                final AboutPanel ap = new AboutPanel();
-//                ap.setVisible(true);
-//                addWindowToOppenedList(ap);
-//                ap.addWindowListener(new WindowAdapter() {
-//                    @Override
-//                    public void windowClosed(WindowEvent e) {
-//                        removeWindowToOppenedList(ap);
-//                    }
-//                });
-//            }
-//        });
-//        menuActions.get("About").putValue(
-//                AbstractAction.ACCELERATOR_KEY,
-//                javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_H, java.awt.Event.CTRL_MASK
-//                        + java.awt.Event.ALT_MASK, true));
-//
-//        menuActions.put("Manual", new AbstractAction(I18n.text("Manual"), new ImageIcon(this.getClass()
-//                .getClassLoader().getResource("images/menus/info.png"))) {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                DocumentationPanel.showDocumentation("start.html");
-//            }
-//        });
-//
-//        menuActions.put("Extended Manual", new AbstractAction(I18n.text("Extended Manual"), new ImageIcon(this
-//                .getClass().getClassLoader().getResource("images/menus/info.png"))) {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                try {
-//                    Desktop.getDesktop().browse(new File("doc/seacon/manual-seacon.html").toURI());
-//                }
-//                catch (IOException e1) {
-//                    e1.printStackTrace();
-//                    GuiUtils.errorMessage(I18n.text("Error opening Extended Manual"), e1.getMessage());
-//                }
-//            }
-//        });
-//    }
+    // @SuppressWarnings("serial")
+    // public void createMenuActions() {
+    //
+    // menuActions.put("About", new AbstractAction(I18n.text("About"), new ImageIcon(this.getClass().getClassLoader()
+    // .getResource("images/menus/info.png"))) {
+    // @Override
+    // public void actionPerformed(ActionEvent e) {
+    // final AboutPanel ap = new AboutPanel();
+    // ap.setVisible(true);
+    // addWindowToOppenedList(ap);
+    // ap.addWindowListener(new WindowAdapter() {
+    // @Override
+    // public void windowClosed(WindowEvent e) {
+    // removeWindowToOppenedList(ap);
+    // }
+    // });
+    // }
+    // });
+    // menuActions.get("About").putValue(
+    // AbstractAction.ACCELERATOR_KEY,
+    // javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_H, java.awt.Event.CTRL_MASK
+    // + java.awt.Event.ALT_MASK, true));
+    //
+    // menuActions.put("Manual", new AbstractAction(I18n.text("Manual"), new ImageIcon(this.getClass()
+    // .getClassLoader().getResource("images/menus/info.png"))) {
+    // @Override
+    // public void actionPerformed(ActionEvent e) {
+    // DocumentationPanel.showDocumentation("start.html");
+    // }
+    // });
+    //
+    // menuActions.put("Extended Manual", new AbstractAction(I18n.text("Extended Manual"), new ImageIcon(this
+    // .getClass().getClassLoader().getResource("images/menus/info.png"))) {
+    // @Override
+    // public void actionPerformed(ActionEvent e) {
+    // try {
+    // Desktop.getDesktop().browse(new File("doc/seacon/manual-seacon.html").toURI());
+    // }
+    // catch (IOException e1) {
+    // e1.printStackTrace();
+    // GuiUtils.errorMessage(I18n.text("Error opening Extended Manual"), e1.getMessage());
+    // }
+    // }
+    // });
+    // }
 
     /**
      * The Frame or Dialog will be added to the opened. On the {@link #cleanup()} these will get dispose of.
@@ -445,7 +445,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         menuBar = new JMenuBar();
         this.setJMenuBar(menuBar);
 
-//        createMenuActions();
+        // createMenuActions();
 
         /*
          * FILE MENU
@@ -476,7 +476,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         ConsoleAction saveMissionAs = new SaveMissionAsConsoleAction(this);
         actions.put(SaveMissionAsConsoleAction.class, saveMissionAs);
         file.add(saveMissionAs);
-        
+
         file.addSeparator();
         file.add(new ExitAction());
         menuBar.add(file);
@@ -494,12 +494,12 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         ConsoleAction openMRA = new OpenMRAAction();
         actions.put(OpenMRAAction.class, openMRA);
         tools.add(openMRA);
-        
+
         ConsoleAction runChecklist = new RunChecklistConsoleAction(this);
         actions.put(RunChecklistConsoleAction.class, runChecklist);
         tools.add(runChecklist);
         menuBar.add(tools);
-        
+
         /*
          * Advanced
          */
@@ -507,24 +507,24 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         TakeSnapshotConsoleAction takeSnapshot = new TakeSnapshotConsoleAction(this);
         actions.put(TakeSnapshotConsoleAction.class, takeSnapshot);
         advanced.add(takeSnapshot);
-        
+
         AutoSnapshotConsoleAction autoSnapshot = new AutoSnapshotConsoleAction(this);
         actions.put(AutoSnapshotConsoleAction.class, autoSnapshot);
         advanced.add(autoSnapshot);
-        
+
         advanced.addSeparator();
-        
+
         LayoutEditConsoleAction layoutEdit = new LayoutEditConsoleAction(this);
         actions.put(LayoutEditConsoleAction.class, layoutEdit);
         advanced.add(layoutEdit);
-        
+
         advanced.add(new SetMainVehicleConsoleAction(this));
-        
-        IncomingDataAction incomingData =  new IncomingDataAction(this);
+
+        IncomingDataAction incomingData = new IncomingDataAction(this);
         actions.put(IncomingDataAction.class, incomingData);
         advanced.add(incomingData);
 
-        OpenImcMonitorAction imcMonitor =  new OpenImcMonitorAction(this);
+        OpenImcMonitorAction imcMonitor = new OpenImcMonitorAction(this);
         actions.put(OpenImcMonitorAction.class, imcMonitor);
         advanced.add(imcMonitor);
 
@@ -542,7 +542,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         JMenuItem mn = getJMenuForAction(consoleAction);
         if (mn == null)
             return false;
-        
+
         mn.getParent().remove(mn);
         return true;
     }
@@ -550,19 +550,20 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     protected JMenuItem getJMenuForAction(Class<? extends ConsoleAction> consoleAction) {
         ConsoleAction ca = actions.get(consoleAction);
         if (ca == null) {
-            NeptusLog.pub().error("No action to remove from JMenuBar with class " + consoleAction.getSimpleName() + "!");
+            NeptusLog.pub()
+                    .error("No action to remove from JMenuBar with class " + consoleAction.getSimpleName() + "!");
             return null;
         }
-        
+
         for (Component comp : menuBar.getComponents()) {
             if (!(comp instanceof JMenu))
                 continue;
-            
+
             JMenu menu = (JMenu) comp;
             for (Component comp1 : menu.getMenuComponents()) {
                 if (!(comp1 instanceof JMenuItem))
                     continue;
-                
+
                 JMenuItem menuItem = (JMenuItem) comp1;
                 if (menuItem.getAction() == ca) {
                     return menuItem;
@@ -571,7 +572,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
         return null;
     }
-    
+
     // public void addSettingsWindowtiMenuBar() {
     // Vector<SubPanel> pluginSubPanels = getSubPanelsOfClass(SubPanel.class);
     // SettingsWindow settingsWindow = new SettingsWindow(pluginSubPanels, true);
@@ -625,19 +626,19 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     protected void includeExtraMainMenus() {
         menuBar.add(Box.createHorizontalGlue());
-//        JButton teleoperationButton = new JButton(new AbstractAction("", ICON_TELEOP) {
-//            private static final long serialVersionUID = 1L;
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                if (controllerPanel == null) {
-//                    controllerPanel = new ControllerPanel(getConsole());
-//                }
-//                controllerPanel.setVisible(true);
-//            }
-//        });
-//        teleoperationButton.setSize(25, 25);
-//        menuBar.add(teleoperationButton);
+        // JButton teleoperationButton = new JButton(new AbstractAction("", ICON_TELEOP) {
+        // private static final long serialVersionUID = 1L;
+        //
+        // @Override
+        // public void actionPerformed(ActionEvent e) {
+        // if (controllerPanel == null) {
+        // controllerPanel = new ControllerPanel(getConsole());
+        // }
+        // controllerPanel.setVisible(true);
+        // }
+        // });
+        // teleoperationButton.setSize(25, 25);
+        // menuBar.add(teleoperationButton);
         mainSystemCombo = new MainSystemSelectionCombo(this);
         menuBar.add(mainSystemCombo);
     }
@@ -766,42 +767,22 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     public void setMainSystem(String mainVehicle) {
+        if(this.getSystem(mainVehicle) == null){
+            NeptusLog.pub().error("trying to add main system without addin it");
+            return;
+        }
         String old = this.mainVehicle;
-        if (mainVehicle != null) {
-            VehicleType vehicleType = VehiclesHolder.getVehicleById(mainVehicle);
-            if (vehicleType == null) {
-                ImcSystem sys = ImcSystemsHolder.lookupSystemByName(mainVehicle);
-                if (sys == null) {
-                    NeptusLog.pub().error(
-                            "tried to add a main vehicle but no info in vehicles holder or imc systems holder. "
-                                    + mainVehicle);
-                    return;
+        this.mainVehicle = mainVehicle;
+        
+        if (!(mainVehicle.equals(old))) {
+            for (MainVehicleChangeListener mlistener : mainVehicleListeners) {
+                try {
+                    mlistener.mainVehicleChange(mainVehicle);
+                }
+                catch (Exception ex) {
+                    NeptusLog.pub().error(ex, ex);
                 }
             }
-            this.mainVehicle = mainVehicle;
-            // if that vehicle still doesn't exist in the console add it
-            if (getSystem(this.mainVehicle) == null) {
-                addSystem(this.mainVehicle);
-            }
-
-            if (this.mainVehicle != null)
-                consoleSystems.get(mainVehicle).enableIMC();
-            if (old != null && !(old.equals(mainVehicle))) {
-                for (MainVehicleChangeListener mlistener : mainVehicleListeners) {
-                    try {
-                        mlistener.mainVehicleChange(mainVehicle);
-                    }
-                    catch (Exception ex) {
-                        NeptusLog.pub().error(ex, ex);
-                    }
-                }
-            }
-        }
-        else {
-            this.mainVehicle = null;
-        }
-
-        if (old != null && !(old.equals(mainVehicle))) {
             this.post(new ConsoleEventMainSystemChange(old, this.mainVehicle));
         }
     }
@@ -809,28 +790,40 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     /**
      * Add a new vehicle to the vehicle list of console
      * 
-     * @param id Vehicle ID
+     * @param systemName Vehicle ID
      */
-    public void addSystem(String id) {
-        System.out.println("ADD SYSTEM");
-        VehicleType vehicle = VehiclesHolder.getVehicleById(id);
-        ConsoleSystem vtl;
-        if (vehicle == null) {
-            NeptusLog.pub().warn("tried to add a vehicle from imc that doesnt exist in the vehicle holder (XML stuff)");
+    public void addSystem(String systemName) {
+        VehicleType vehicleType = VehiclesHolder.getVehicleById(systemName);
+        ImcSystem imcSystem = ImcSystemsHolder.lookupSystemByName(systemName);
+        if(vehicleType != null && imcSystem == null){
+            imcMsgManager.initVehicleCommInfo(vehicleType.getId(), "");
             return;
         }
-        if (consoleSystems.get(id) != null) {
+        
+        ConsoleSystem vtl;
+        if (imcSystem == null) {
+            NeptusLog.pub().warn("tried to add a vehicle from imc with comms disabled");
+            return;
+        }
+        if (imcSystem.getType() != SystemTypeEnum.VEHICLE){
+            return;
+        }
+        
+        if (consoleSystems.get(systemName) != null) {
             NeptusLog.pub().warn("WTH are you trying to add a vehicle that already exist in the console!!");
             return;
         }
         else {
-            vtl = new ConsoleSystem(id, this, vehicle, imcMsgManager);
-            consoleSystems.put(id, vtl);
+            vtl = new ConsoleSystem(systemName, this, imcSystem, imcMsgManager);
+            consoleSystems.put(systemName, vtl);
+            if (this.mainVehicle == null) {
+                this.setMainSystem(systemName);
+            }
 
         }
         for (ConsoleVehicleChangeListener cvl : consoleVehicleChangeListeners) {
             try {
-                cvl.consoleVehicleChange(VehiclesHolder.getVehicleById(id), ConsoleVehicleChangeListener.VEHICLE_ADDED);
+                cvl.consoleVehicleChange(VehiclesHolder.getVehicleById(systemName), ConsoleVehicleChangeListener.VEHICLE_ADDED);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
@@ -1071,7 +1064,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         if (sp.getClass().equals(superClass))
             ret.add((T) sp);
-//        else if (ReflectionUtil.isSubclass(sp.getClass(), superClass))
+        // else if (ReflectionUtil.isSubclass(sp.getClass(), superClass))
         else if (superClass.isAssignableFrom(sp.getClass()))
             ret.add((T) sp);
 
@@ -1100,7 +1093,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public <T> Vector<T> getSubPanelsOfInterface(Class<T> interfaceType) {
         Vector<T> ret = new Vector<T>();
         HashSet<T> col = new HashSet<T>();
-        
+
         if (subPanels.isEmpty())
             return ret;
 
@@ -1224,8 +1217,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
 
         setMission(null);
-        setPlan(null);
-        setMainSystem(null);
         mainVehicleListeners.clear();
 
         changed = false;
@@ -1233,7 +1224,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         this.revalidate();
         this.repaint();
     }
-
 
     /**
      * Free all memory used It must be called in the program (it's not automatic)
@@ -1607,9 +1597,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (this.imcMsgManager.start()) {
             ImcSystem[] systems = ImcSystemsHolder.lookupActiveSystemVehicles();
             for (ImcSystem imcSystem : systems) {
-                this.addSystem(imcSystem.getVehicle().getId());
+                this.addSystem(imcSystem.getName());
             }
-            
+
             imcMsgManager.addStatusListener(imcManagerStatus == null ? this.setupImcListener() : imcManagerStatus);
             for (Entry<String, ConsoleSystem> vehicle : consoleSystems.entrySet()) {
                 vehicle.getValue().enableIMC();
@@ -1651,6 +1641,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
             @Override
             public void managerSystemAdded(String systemId) {
+                addSystem(systemId);
             }
 
             @Override
@@ -1740,11 +1731,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         ConfigFetch.setSuperParentFrameForced(loader);
 
         NeptusMain.loadPreRequirementsDataExceptConfigFetch(loader);
-        
+
         loader.setText(I18n.text("Loading console..."));
 
         ConsoleLayout console = ConsoleLayout.forge("conf/consoles/lauv.ncon", loader);
         NeptusMain.wrapMainApplicationWindowWithCloseActionWindowAdapter(console);
-        System.out.println("BENCHMARK "+ ((System.currentTimeMillis() - ConfigFetch.STARTTIME) / 1E3) + "s");
+        System.out.println("BENCHMARK " + ((System.currentTimeMillis() - ConfigFetch.STARTTIME) / 1E3) + "s");
     }
 }
