@@ -30,6 +30,15 @@
 		<param name="MaxBackupIndex" value="10"/>
 		<layout class="org.apache.log4j.xml.XMLLayout"/>
 	</appender>
+	<appender name="spotLog" class="org.apache.log4j.RollingFileAppender">
+		<param name="Threshold" value="DEBUG"/>
+		<param name="File" value="log/spot.log"/>
+		<param name="MaxFileSize" value="5MB"/>
+		<param name="MaxBackupIndex" value="20"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d (%F.%t():%L) - %m%n"/>
+		</layout>
+	</appender>
 	<appender name="debugLogChainsaw" class="org.apache.log4j.net.SocketAppender">
 		<param name="Threshold" value="DEBUG"/>
 		<param name="RemoteHost" value="localhost"/>
@@ -62,6 +71,11 @@
 		<level value="debug"/>
 		<appender-ref ref="stdout.debug"/>
 	</logger-->
+	<logger name="SPOT" additivity="false">
+		<level value="debug"/>
+		<!--appender-ref ref="stdout"/-->
+		<appender-ref ref="spotLog"/>
+	</logger>
 	<root>
 		<level value="debug"/>
 		<appender-ref ref="stdout"/>

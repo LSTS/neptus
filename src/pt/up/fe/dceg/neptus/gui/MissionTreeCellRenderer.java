@@ -192,7 +192,13 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
                 }
 
                 PlanType plan = ((PlanType) node.getUserObject());
-                setPlanIcon(plan.getId(), state, plan.hasMultipleVehiclesAssociated());
+                try {
+                    setPlanIcon(plan.getId(), state, plan.hasMultipleVehiclesAssociated());
+                }
+                catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 setToolTipText(plan.toStringWithVehicles());
             }
 
