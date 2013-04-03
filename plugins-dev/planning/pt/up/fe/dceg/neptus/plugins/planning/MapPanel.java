@@ -538,10 +538,21 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     }
 
 
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener#missionReplaced(pt.up.fe.dceg.neptus.types.mission.MissionType)
+     */
     @Override
     public void missionReplaced(MissionType mission) {
-//        editor.setMission(mission);
+        // editor.setMission(mission);
+        setMission(mission);
         addPlan.setEnabled(mission != null);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener#missionUpdated(pt.up.fe.dceg.neptus.types.mission.MissionType)
+     */
+    @Override
+    public void missionUpdated(MissionType mission) {
     }
 
     @Override
@@ -669,12 +680,6 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         planElem.setPlan(plan);
 
         editor.repaint();
-    }
-
-
-    @Override
-    public void missionUpdated(MissionType mission) {
-        
     }
 
     @Override
