@@ -31,14 +31,21 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.util.Vector;
 
 import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+import javax.swing.JToggleButton;
+
+import org.opengis.filter.expression.Add;
 
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import vtk.vtkActor;
 import vtk.vtkConeSource;
 import vtk.vtkNativeLibrary;
@@ -50,10 +57,17 @@ import vtk.vtkPolyDataMapper;
  *
  */
 @PluginDescription(author = "hfq", name = "Vtk")
-public class Vtk implements MRAVisualization {
+public class Vtk extends JPanel implements MRAVisualization {
+    private static final long serialVersionUID = 1L;
     
-    vtkPanel vtkPanel;
+    private vtkPanel vtkPanel;
+    private JToggleButton zExaggerationToggle;
+    private JToggleButton rawPointsToggle;
+    private JToggleButton downsampledPointsToggle;
     
+    protected Vector<Marker3d> markers = new Vector<>();
+    protected IMraLogGroup mraVtkLogGroup;
+        
     static {
         System.loadLibrary("jawt");
         vtkNativeLibrary.COMMON.LoadLibrary();
@@ -65,6 +79,10 @@ public class Vtk implements MRAVisualization {
     }
     
     public Vtk(MRAPanel panel) {
+        super(new BorderLayout());
+        //borderLayout = new BorderLayout();
+        //panel.setLayout(borderLayout);
+        
         vtkConeSource cone = new vtkConeSource();
         cone.SetResolution(8);
 
@@ -77,55 +95,104 @@ public class Vtk implements MRAVisualization {
         vtkPanel = new vtkPanel();
         
         vtkPanel.GetRenderer().AddActor(coneActor);
+        
+        rawPointsToggle = new JToggleButton("Show raw points");
+        downsampledPointsToggle = new JToggleButton("Show downsampled points");
+        zExaggerationToggle = new JToggleButton("Exaggerate Z");
+        
+        
+        add(vtkPanel, BorderLayout.CENTER);
+        add(rawPointsToggle, BorderLayout.EAST);
+        add(downsampledPointsToggle, BorderLayout.EAST);
+        //add(zExaggerationToggle, BorderLayout.EAST);
+        
+        //borderLayout.addLayoutComponent(vtkPanel, BorderLayout.CENTER);
+        //borderLayout.addLayoutComponent(rawPointsToggle, BorderLayout.EAST);
+        
+        //add(vtkPanel, panel.Ce)
     }
     
     @Override
     public String getName() {
+        System.out.println("getName: " + mraVtkLogGroup.name());
         return "Vtk Visualization";
     }
 
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
-        return vtkPanel;
+        //String name = source.name();
+        //String[] listoflogs = source.listLogs();
+        System.out.println("getComponent: " + mraVtkLogGroup.name());
+        return this;
     }
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
+        setLog(source);
+        //String name = source.name();
+        //String[] listoflogs = source.listLogs();
+        System.out.println("canBeApplied: " + mraVtkLogGroup.name());
         return true;
     }
 
     @Override
     public ImageIcon getIcon() {
+        System.out.println("getIcon: " + mraVtkLogGroup.name());
         return null;
     }
 
     @Override
     public Double getDefaultTimeStep() {
+        System.out.println("get DefaultTimeStep: " + mraVtkLogGroup.name());
         return null;
     }
 
     @Override
     public boolean supportsVariableTimeSteps() {
+        System.out.println("supportsVariableTimeSteps: " + mraVtkLogGroup.name());
         return false;
     }
 
     @Override
     public Type getType() {
+        System.out.println("getType: " + mraVtkLogGroup.name());
         return Type.VISUALIZATION;
     }
 
     @Override
     public void onHide() {
-        
+        System.out.println("onHide: " + mraVtkLogGroup.name());
     }
 
     @Override
     public void onShow() {
-        
+        System.out.println("onShow: " + mraVtkLogGroup.name());
     }
 
     @Override
     public void onCleanup() {
-        
+//        try {
+//            vtkPanel.disable();
+//            //vtkPanel.Delete();
+//        }
+//        catch (Throwable e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+        System.out.println("onCleanup: " + mraVtkLogGroup.name());
+    }
+    
+    /**
+     * @return the mraVtkLogGroup
+     */
+    private IMraLogGroup getLog() {
+        return mraVtkLogGroup;
+    }
+
+    /**
+     * @param mraVtkLogGroup the mraVtkLogGroup to set
+     */
+    private void setLog(IMraLogGroup log) {
+        this.mraVtkLogGroup = log;
     }
 }
