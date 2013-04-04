@@ -53,4 +53,47 @@ public class BathymetrySwath {
         this.pose = pose;
         this.data = data;
     }
+
+    /**
+     * @return the timestamp
+     */
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    /**
+     * @param timestamp the timestamp to set
+     */
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    /**
+     * @return the pose
+     */
+    public SystemPositionAndAttitude getPose() {
+        return pose;
+    }
+
+    /**
+     * @param pose the pose to set
+     */
+    public void setPose(SystemPositionAndAttitude pose) {
+        this.pose = pose;
+    }
+
+    /**
+     * @return the data
+     */
+    public BathymetryPoint[] getData() {
+        return data;
+    }
+
+    /**
+     * @param data the data to set
+     */
+    public void setData(BathymetryPoint[] data) {
+        this.data = data;
+    }
+    
 }

@@ -32,9 +32,22 @@
 package pt.up.fe.dceg.neptus.mra.importers.deltat;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
+import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
 import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
+import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
+import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
+import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
+import pt.up.fe.dceg.neptus.util.llf.LsfLogSource;
 
 /**
  * @author jqcorreia
@@ -43,9 +56,26 @@ import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 public class DeltaTParser implements BathymetryParser {
 
     File file;
+    IMraLogGroup source;
+    FileInputStream fis;
+    FileChannel channel;
+    ByteBuffer buf;
+    long curPos = 0;
     
-    public DeltaTParser(File f) {
-        
+    IMCMessage state;
+    IMraLog stateParser;
+    
+    public DeltaTParser(IMraLogGroup source) {
+        this.source = source;
+        file = source.getFile("multibeam.83P");
+        try {
+            fis = new FileInputStream(file);
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        channel = fis.getChannel();
+        stateParser = source.getLog("EstimatedState");
     }
     
     @Override
@@ -65,7 +95,75 @@ public class DeltaTParser implements BathymetryParser {
 
     @Override
     public BathymetrySwath nextSwath() {
-        return null;
+        try {
+            if(curPos >= channel.size())
+                return null;
+            
+            BathymetryPoint data[];
+            
+            buf = channel.map(MapMode.READ_ONLY, curPos, 256);
+            DeltaTHeader header = new DeltaTHeader();
+            header.parse(buf);
+            
+            // Parse and process data ( no need to create another structure for this )
+            buf = channel.map(MapMode.READ_ONLY, curPos + 256, header.numBeams * 2);
+            data = new BathymetryPoint[header.numBeams];
+            state = stateParser.getEntryAtOrAfter(header.timestamp);
+            
+            double lat = Math.toDegrees(state.getDouble("lat"));
+            double lon = Math.toDegrees(state.getDouble("lon"));
+            double offNorth = state.getDouble("x");
+            double offEast = state.getDouble("y");
+            double depth = state.getDouble("depth");
+            double heading = state.getDouble("psi");
+            
+            for(int c = 0; c < header.numBeams; c++) { 
+                double range = buf.getShort(c*2) * (header.rangeResolution / 1000.0);
+                double angle = header.startAngle + header.angleIncrement * c;
+                
+                double height = range * Math.cos(Math.toRadians(angle)) + depth;
+
+                double x = range * Math.sin(Math.toRadians(angle));
+                double theta = -heading;
+                double ox = x * Math.cos(Math.toRadians(theta));
+                double oy = x * Math.sin(Math.toRadians(theta));
+                
+                data[c] = new BathymetryPoint(lat, lon, offNorth + ox, offEast + oy, height);
+            }
+            curPos += header.numBytes; // Advance current position
+            
+            return new BathymetrySwath(header.timestamp,  new SystemPositionAndAttitude(), data);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
+    public static void main(String[] args) {
+        try {
+            LsfLogSource source = new LsfLogSource(new File("/home/jqcorreia/lsts/logs/lauv-noptilus-1/20130208/124645_bathym_plan/Data.lsf"), null);
+            DeltaTParser p = new DeltaTParser(source);
+            BathymetrySwath bs;
+            
+            int c = 0;
+            while((bs = p.nextSwath()) != null) {
+                for(BathymetryPoint bp : bs.getData()) {
+                    double r[] = CoordinateUtil.latLonAddNE2(bp.lat, bp.lon, bp.north, bp.east);
+                    float f[] = new float[2];
+                    
+                    f[0] = (float) (r[0] * 1000000f);
+                    f[1] = new Double(r[1]).floatValue();
+                    
+                    System.out.println(r[0]);
+                    System.out.println(" " + f[0]);
+                }
+                c++;
+            }
+            System.out.println(c);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

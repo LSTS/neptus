@@ -388,7 +388,7 @@ public class MultibeamData implements Serializable {
                 // Skip to the end of the ping
                 buf.seek(currPingStartOffset + pingTotalSize);
                 c++;
-                System.out.println("Size of struct: " + (locationList.size() * (3 * 8)));
+                System.out.println(buf.getFilePointer());
             }
             System.out.println("Total ping number " + c);
 

@@ -36,11 +36,11 @@ package pt.up.fe.dceg.neptus.mra.api;
  *
  */
 public class BathymetryPoint {
-    double lat;
-    double lon;
-    double north;
-    double east;
-    double depth;
+    public double lat;
+    public double lon;
+    public double north;
+    public double east;
+    public double depth;
 
     /**
      * @param lat lat in radians
