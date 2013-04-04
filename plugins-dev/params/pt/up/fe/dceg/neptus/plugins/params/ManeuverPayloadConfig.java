@@ -79,7 +79,7 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
                    e.printStackTrace();
                }
            }
-       }       
+       }
    }
    
    protected void setParameters(SetEntityParameters param) {
@@ -133,7 +133,10 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
                     PropertyChangeEvent evt = new PropertyChangeEvent(spCh, spCh.getName(), null, spCh.getValue());
                     sp.propertyChange(evt);
                 }
-            }            
+            }
+            
+            // To force initialization of startActions     
+            setProperties(props.toArray(new DefaultProperty[0]));
         }
         return props.toArray(new DefaultProperty[0]);
     }
