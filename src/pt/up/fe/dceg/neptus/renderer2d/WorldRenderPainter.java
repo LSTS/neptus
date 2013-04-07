@@ -35,6 +35,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog.ModalityType;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -72,12 +73,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXStatusBar;
@@ -286,7 +291,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             List<String> list = Arrays.asList(defaultActiveLayers.split(";"));
             for (String mapKey : mapActiveHolderList.keySet()) {
                 mapActiveHolderList.put(mapKey, false);
-                mapLayerPrioriryHolderList.put(mapKey, (short) 0);
+                // mapLayerPrioriryHolderList.put(mapKey, (short) 0);
             }
             for (String mapDefTag : list) {
                 String[] tags = mapDefTag.split(":");
@@ -664,6 +669,11 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             }
         }
 
+        updateDefaultActiveLayers();
+        savePropertiesToDisk();
+    }
+
+    private void updateDefaultActiveLayers() {
         String tmp = "";
         for (String mapKey : mapActiveHolderList.keySet()) {
             if (mapActiveHolderList.get(mapKey)) {
@@ -673,7 +683,6 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             }
         }
         defaultActiveLayers = tmp;
-        savePropertiesToDisk();
     }
 
     /**
@@ -1124,7 +1133,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         //dialogProperties.setAlwaysOnTop(true);
         dialogProperties.setTitle(I18n.text("World Map Layer"));
         ButtonGroup chooseButtonGroup = new ButtonGroup();
-        JPanel radioPanel = new JPanel(new GridLayout(0, 4, 5, 5));
+        JPanel radioPanel = new JPanel(new GridLayout(0, 5, 5, 5));
         radioPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         
         List<String> mapKeys = getOrderedMapList();
@@ -1133,11 +1142,13 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         radioPanel.add(new JLabel());
         radioPanel.add(new JLabel());
         radioPanel.add(new JLabel());
+        radioPanel.add(new JLabel());
         for (final String ms : mapKeys) {
             if (!alreadyinsertedBaseOrLayerMapSeparator) {
                 if (mapBaseOrLayerHolderList.containsKey(ms) && !mapBaseOrLayerHolderList.get(ms)) {
                     alreadyinsertedBaseOrLayerMapSeparator = true;
                     radioPanel.add(new JLabel("<html><b>" + I18n.text("Layer Maps") + "</b></html>"));
+                    radioPanel.add(new JLabel());
                     radioPanel.add(new JLabel());
                     radioPanel.add(new JLabel());
                     radioPanel.add(new JLabel());
@@ -1157,6 +1168,29 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             if (mapBaseOrLayerHolderList.containsKey(ms) && mapBaseOrLayerHolderList.get(ms))
                 chooseButtonGroup.add(rButton);
             radioPanel.add(rButton);
+
+            if (mapBaseOrLayerHolderList.containsKey(ms) && mapBaseOrLayerHolderList.get(ms)) {
+                radioPanel.add(new JLabel());
+            }
+            else {
+                short lp = mapLayerPrioriryHolderList.get(ms);
+                final JSpinner spinner = new JSpinner(new SpinnerNumberModel(lp, 0, 10, 1));
+                spinner.setSize(new Dimension(20, 20));
+                spinner.setToolTipText(I18n.text("This sets the layer priority. The higher the value more on top will appear."));
+                ((JSpinner.NumberEditor) spinner.getEditor()).getTextField().setEditable(false);
+                ((JSpinner.NumberEditor) spinner.getEditor()).getTextField().setBackground(Color.WHITE);
+                spinner.addChangeListener(new ChangeListener() {
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        short val = ((Integer) spinner.getValue()).shortValue();
+                        mapLayerPrioriryHolderList.put(ms, val);
+                        updateDefaultActiveLayers();
+                        savePropertiesToDisk();
+                    }
+                });
+                radioPanel.add(spinner);
+            }
+
             boolean tileOrMapProvider = isTileOrMapProvider(ms);
             if (tileOrMapProvider) {
                 final JButton clearButton = new JButton();
