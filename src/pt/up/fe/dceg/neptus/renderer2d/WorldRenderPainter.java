@@ -52,6 +52,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -199,6 +200,9 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     private static Map<String, MapPainterProvider> mapPainterHolderList = Collections.synchronizedMap(new LinkedHashMap<String, MapPainterProvider>());
     private static Map<String, Map<String, Tile>> tileHolderList = Collections.synchronizedMap(new LinkedHashMap<String, Map<String, Tile>>());
     private static Map<String, Class<? extends Tile>> tileClassList = Collections.synchronizedMap(new LinkedHashMap<String, Class<? extends Tile>>());
+    
+    private static List<String> mapsOrderedForPainting = Collections.synchronizedList(new ArrayList<String>());
+    
     static {
         long start = System.currentTimeMillis();
 
@@ -320,6 +324,8 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 mapActiveHolderList.entrySet().iterator().next().setValue(true);
         }
 
+        refreshMapsListOrderedForPainting();
+        
         NeptusLog.pub().warn("Initializing MapProviders in "
                 + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - start));
     }
@@ -408,10 +414,6 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             }
         });
     }
-
-    //    public WorldRenderPainter(boolean drawWorldBoundaries, boolean drawWorldMap, String... mapStyle) {
-    //        this(null, drawWorldBoundaries, drawWorldMap, mapStyle);
-    //    }
 
     /**
      * 
@@ -841,7 +843,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
      * @param renderer
      */
     private void drawWorldMap(Graphics2D g, StateRenderer2D renderer, boolean useTransparency) {
-        List<String> mapKeys = getOrderedMapList(true);
+        List<String> mapKeys = mapsOrderedForPainting; // getOrderedMapList(true);
         for (String mapKey : mapKeys) {
             String mapStyle = mapKey;
 
@@ -1178,6 +1180,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         short val = ((Integer) spinner.getValue()).shortValue();
                         mapLayerPrioriryHolderList.put(ms, val);
                         updateDefaultActiveLayers();
+                        refreshMapsListOrderedForPainting();
                         savePropertiesToDisk();
                     }
                 });
@@ -1399,11 +1402,16 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         //        dialogProperties.setVisible(true);
     }
 
-    private List<String> getOrderedMapList() {
+    private static void refreshMapsListOrderedForPainting() {
+        mapsOrderedForPainting.clear();
+        mapsOrderedForPainting.addAll(getOrderedMapList(false));
+    }
+
+    private static List<String> getOrderedMapList() {
         return getOrderedMapList(false);
     }
 
-    private List<String> getOrderedMapList(final boolean orderWithDisplayPriority) {
+    private static List<String> getOrderedMapList(final boolean orderWithDisplayPriority) {
         // Order according with being base map or layer
         Comparator<String> comparatorMapBaseOrLayer = new Comparator<String>() {
             @Override
