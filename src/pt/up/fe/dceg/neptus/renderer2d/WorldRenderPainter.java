@@ -1137,7 +1137,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             if (!alreadyinsertedBaseOrLayerMapSeparator) {
                 if (mapBaseOrLayerHolderList.containsKey(ms) && !mapBaseOrLayerHolderList.get(ms)) {
                     alreadyinsertedBaseOrLayerMapSeparator = true;
-                    radioPanel.add(new JLabel("<html><b>" + I18n.text("Layers Maps") + "</b></html>"));
+                    radioPanel.add(new JLabel("<html><b>" + I18n.text("Layer Maps") + "</b></html>"));
                     radioPanel.add(new JLabel());
                     radioPanel.add(new JLabel());
                     radioPanel.add(new JLabel());
