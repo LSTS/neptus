@@ -38,7 +38,6 @@ import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -83,6 +82,8 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXStatusBar;
@@ -1130,28 +1131,20 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         dialogProperties.setSize(700, 350);
         dialogProperties.setIconImages(ConfigFetch.getIconImagesForFrames());
         dialogProperties.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        //dialogProperties.setAlwaysOnTop(true);
         dialogProperties.setTitle(I18n.text("World Map Layer"));
+        
         ButtonGroup baseMapsButtonGroup = new ButtonGroup();
-        JPanel confPanel = new JPanel(new GridLayout(0, 5, 5, 5));
+        JPanel confPanel = new JPanel(new MigLayout("ins 0, wrap 5"));
         confPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         
         List<String> mapKeys = getOrderedMapList();
         boolean alreadyinsertedBaseOrLayerMapSeparator = false;
-        confPanel.add(new JLabel("<html><b>" + I18n.text("Base Maps") + "</b></html>"));
-        confPanel.add(new JLabel());
-        confPanel.add(new JLabel());
-        confPanel.add(new JLabel());
-        confPanel.add(new JLabel());
+        confPanel.add(new JLabel("<html><b>" + I18n.text("Base Maps") + "</b></html>"), "wrap");
         for (final String ms : mapKeys) {
             if (!alreadyinsertedBaseOrLayerMapSeparator) {
                 if (mapBaseOrLayerHolderList.containsKey(ms) && !mapBaseOrLayerHolderList.get(ms)) {
                     alreadyinsertedBaseOrLayerMapSeparator = true;
-                    confPanel.add(new JLabel("<html><b>" + I18n.text("Layer Maps") + "</b></html>"));
-                    confPanel.add(new JLabel());
-                    confPanel.add(new JLabel());
-                    confPanel.add(new JLabel());
-                    confPanel.add(new JLabel());
+                    confPanel.add(new JLabel("<html><b>" + I18n.text("Layer Maps") + "</b></html>"), "wrap");
                 }
             }
             
@@ -1167,10 +1160,10 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             });
             if (mapBaseOrLayerHolderList.containsKey(ms) && mapBaseOrLayerHolderList.get(ms))
                 baseMapsButtonGroup.add(rButton);
-            confPanel.add(rButton);
+            confPanel.add(rButton, "sg sel, grow, push");
 
             if (mapBaseOrLayerHolderList.containsKey(ms) && mapBaseOrLayerHolderList.get(ms)) {
-                confPanel.add(new JLabel());
+                confPanel.add(new JLabel(), "sg prio");
             }
             else {
                 short lp = mapLayerPrioriryHolderList.get(ms);
@@ -1188,7 +1181,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         savePropertiesToDisk();
                     }
                 });
-                confPanel.add(spinner);
+                confPanel.add(spinner, "sg prio, width 50:50:");
             }
 
             boolean tileOrMapProvider = isTileOrMapProvider(ms);
@@ -1214,10 +1207,10 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                     }
                 };
                 clearButton.setAction(clearAction);
-                confPanel.add(clearButton);
+                confPanel.add(clearButton, "sg buttons");
             }
             else {
-                confPanel.add(new JLabel());
+                confPanel.add(new JLabel(), "sg buttons");
             }
 
             final Class<?> clazz = getClassForStyle(ms);
@@ -1228,7 +1221,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                     JLabel label = new JLabel(I18n.text("No properties").toLowerCase());
                     label.setHorizontalAlignment(SwingConstants.CENTER);
                     label.setEnabled(false);
-                    confPanel.add(label);
+                    confPanel.add(label, "sg buttons");
                 }
                 else {
                     final PropertiesProvider pprov = createPropertiesProvider(ms, dFA);
@@ -1237,7 +1230,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         public void actionPerformed(ActionEvent e) {
                             PropertiesEditor.editProperties(pprov, dialogProperties, true);
                         }
-                    }));
+                    }), "sg buttons");
                 }
             }
             else {
@@ -1259,13 +1252,13 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                             GuiUtils.centerParent(dialog1, dialogProperties);
                             dialog1.setVisible(true);
                         }
-                    }));
+                    }), "sg buttons");
                 }
                 catch (Exception e1) {
                     JLabel label = new JLabel(I18n.text("No properties").toLowerCase());
                     label.setHorizontalAlignment(SwingConstants.CENTER);
                     label.setEnabled(false);
-                    confPanel.add(label);
+                    confPanel.add(label, "sg buttons");
                 }
             }
 
@@ -1283,7 +1276,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 JLabel label = new JLabel("");
                 label.setHorizontalAlignment(SwingConstants.CENTER);
                 label.setEnabled(false);
-                confPanel.add(label);
+                confPanel.add(label, "sg buttons");
             }
             else {
                 final JButton fetchButton = new JButton();
@@ -1309,7 +1302,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 };
                 fetchButton.setAction(fetchAction);
                 fetchButton.setToolTipText(I18n.text("Fetch visible area tiles to up to 2 more zoom levels."));
-                confPanel.add(fetchButton);
+                confPanel.add(fetchButton, "sg buttons");
             }
         }
 
