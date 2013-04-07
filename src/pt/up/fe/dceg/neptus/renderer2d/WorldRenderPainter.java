@@ -1132,26 +1132,26 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         dialogProperties.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         //dialogProperties.setAlwaysOnTop(true);
         dialogProperties.setTitle(I18n.text("World Map Layer"));
-        ButtonGroup chooseButtonGroup = new ButtonGroup();
-        JPanel radioPanel = new JPanel(new GridLayout(0, 5, 5, 5));
-        radioPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        ButtonGroup baseMapsButtonGroup = new ButtonGroup();
+        JPanel confPanel = new JPanel(new GridLayout(0, 5, 5, 5));
+        confPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         
         List<String> mapKeys = getOrderedMapList();
         boolean alreadyinsertedBaseOrLayerMapSeparator = false;
-        radioPanel.add(new JLabel("<html><b>" + I18n.text("Base Maps") + "</b></html>"));
-        radioPanel.add(new JLabel());
-        radioPanel.add(new JLabel());
-        radioPanel.add(new JLabel());
-        radioPanel.add(new JLabel());
+        confPanel.add(new JLabel("<html><b>" + I18n.text("Base Maps") + "</b></html>"));
+        confPanel.add(new JLabel());
+        confPanel.add(new JLabel());
+        confPanel.add(new JLabel());
+        confPanel.add(new JLabel());
         for (final String ms : mapKeys) {
             if (!alreadyinsertedBaseOrLayerMapSeparator) {
                 if (mapBaseOrLayerHolderList.containsKey(ms) && !mapBaseOrLayerHolderList.get(ms)) {
                     alreadyinsertedBaseOrLayerMapSeparator = true;
-                    radioPanel.add(new JLabel("<html><b>" + I18n.text("Layer Maps") + "</b></html>"));
-                    radioPanel.add(new JLabel());
-                    radioPanel.add(new JLabel());
-                    radioPanel.add(new JLabel());
-                    radioPanel.add(new JLabel());
+                    confPanel.add(new JLabel("<html><b>" + I18n.text("Layer Maps") + "</b></html>"));
+                    confPanel.add(new JLabel());
+                    confPanel.add(new JLabel());
+                    confPanel.add(new JLabel());
+                    confPanel.add(new JLabel());
                 }
             }
             
@@ -1166,11 +1166,11 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 }
             });
             if (mapBaseOrLayerHolderList.containsKey(ms) && mapBaseOrLayerHolderList.get(ms))
-                chooseButtonGroup.add(rButton);
-            radioPanel.add(rButton);
+                baseMapsButtonGroup.add(rButton);
+            confPanel.add(rButton);
 
             if (mapBaseOrLayerHolderList.containsKey(ms) && mapBaseOrLayerHolderList.get(ms)) {
-                radioPanel.add(new JLabel());
+                confPanel.add(new JLabel());
             }
             else {
                 short lp = mapLayerPrioriryHolderList.get(ms);
@@ -1188,7 +1188,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         savePropertiesToDisk();
                     }
                 });
-                radioPanel.add(spinner);
+                confPanel.add(spinner);
             }
 
             boolean tileOrMapProvider = isTileOrMapProvider(ms);
@@ -1214,10 +1214,10 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                     }
                 };
                 clearButton.setAction(clearAction);
-                radioPanel.add(clearButton);
+                confPanel.add(clearButton);
             }
             else {
-                radioPanel.add(new JLabel());
+                confPanel.add(new JLabel());
             }
 
             final Class<?> clazz = getClassForStyle(ms);
@@ -1228,11 +1228,11 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                     JLabel label = new JLabel(I18n.text("No properties").toLowerCase());
                     label.setHorizontalAlignment(SwingConstants.CENTER);
                     label.setEnabled(false);
-                    radioPanel.add(label);
+                    confPanel.add(label);
                 }
                 else {
                     final PropertiesProvider pprov = createPropertiesProvider(ms, dFA);
-                    radioPanel.add(new JButton(new AbstractAction(I18n.text("Edit properties").toLowerCase()) {
+                    confPanel.add(new JButton(new AbstractAction(I18n.text("Edit properties").toLowerCase()) {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             PropertiesEditor.editProperties(pprov, dialogProperties, true);
@@ -1252,7 +1252,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
 
                     final JDialog dialog1 = dialog;
-                    radioPanel.add(new JButton(new AbstractAction(I18n.text("Edit properties").toLowerCase()) {
+                    confPanel.add(new JButton(new AbstractAction(I18n.text("Edit properties").toLowerCase()) {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             dialog1.requestFocus();
@@ -1265,7 +1265,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                     JLabel label = new JLabel(I18n.text("No properties").toLowerCase());
                     label.setHorizontalAlignment(SwingConstants.CENTER);
                     label.setEnabled(false);
-                    radioPanel.add(label);
+                    confPanel.add(label);
                 }
             }
 
@@ -1283,7 +1283,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 JLabel label = new JLabel("");
                 label.setHorizontalAlignment(SwingConstants.CENTER);
                 label.setEnabled(false);
-                radioPanel.add(label);
+                confPanel.add(label);
             }
             else {
                 final JButton fetchButton = new JButton();
@@ -1309,7 +1309,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 };
                 fetchButton.setAction(fetchAction);
                 fetchButton.setToolTipText(I18n.text("Fetch visible area tiles to up to 2 more zoom levels."));
-                radioPanel.add(fetchButton);
+                confPanel.add(fetchButton);
             }
         }
 
@@ -1398,7 +1398,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             }
         }, 500, 200);
 
-        JScrollPane scroll = new JScrollPane(radioPanel);
+        JScrollPane scroll = new JScrollPane(confPanel);
         scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         dialogProperties.add(scroll);
