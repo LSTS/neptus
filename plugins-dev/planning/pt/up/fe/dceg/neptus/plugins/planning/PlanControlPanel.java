@@ -733,6 +733,9 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                     transpondersList.clear();
                     transpondersList.addAll(Arrays.asList(selTransponders));
                 }
+                else {
+                    return false;
+                }
             }
         }
 
