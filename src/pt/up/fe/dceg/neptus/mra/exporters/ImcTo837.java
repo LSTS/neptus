@@ -59,16 +59,7 @@ public class ImcTo837 implements MraExporter {
     static int st;
     
     public ImcTo837(IMraLogGroup log) {
-        try {
-            File outFile = new File(log.getFile("Data.lsf").getParentFile() + "/multibeam.837");
-            os = new DataOutputStream(new FileOutputStream(outFile));
-            this.log = log;
-            pingLog = log.getLog("SonarData");
-            esLog = log.getLog("EstimatedState");
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        this.log = log;
     }
     
     public String getName() {
@@ -97,6 +88,16 @@ public class ImcTo837 implements MraExporter {
     }
 
     public void process() {
+        try {
+            File outFile = new File(log.getFile("Data.lsf").getParentFile() + "/multibeam.837");
+            os = new DataOutputStream(new FileOutputStream(outFile));
+            pingLog = log.getLog("SonarData");
+            esLog = log.getLog("EstimatedState");
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
         IMCMessage pingMsg = pingLog.firstLogEntry();
         
         byte[] buffer;
