@@ -100,31 +100,26 @@ public class Vtk extends JPanel implements MRAVisualization {
     
     public Vtk(MRAPanel panel) {
         super(new BorderLayout());
-        //borderLayout = new BorderLayout();
-        //panel.setLayout(borderLayout);
         
-        //PointTypes p = new PointTypes();
-        
-        //PointTypes p = new PointTypes();
-        
+        vtkPoints points = new vtkPoints();     
         float x = (float) 5.0;
         float y = (float) 1.0;
         float z = (float) 10.0;
-        
         PointXYZ p = new PointXYZ(x, y, z);
+        int id = 1;
+        points.InsertPoint(id, 0.0, 0.0, 0.0);
+        points.InsertNextPoint(p.getX(), p.getY(), p.getZ());
         
         vtkPolyData poly = new vtkPolyData();
-        
+        poly.SetPoints(points);
         
         vtkPolyDataMapper mapper = new vtkPolyDataMapper();
-        //mapper.SetInput();
+        mapper.SetInput(poly);
         
+        vtkActor pointsActor = new vtkActor();
+        pointsActor.SetMapper(mapper);
         
-        vtkPoints pt = new vtkPoints();
-        pt.SetNumberOfPoints(2);
-        
-        //vtkCellArray cellArr = new vtkCellArray();
-        //cellArr.
+        //vtkPanel.GetRenderer()
         
         
 /*        vtkConeSource cone = new vtkConeSource();
@@ -139,16 +134,20 @@ public class Vtk extends JPanel implements MRAVisualization {
         vtkPanel = new vtkPanel();
         
         //vtkPanel.GetRenderer().AddActor(coneActor);
+
+        pointsActor.GetProperty().SetPointSize(5.0);
+        vtkPanel.GetRenderer().AddActor(pointsActor);
+ 
+        Axes ax = new Axes();
+        vtkPanel.GetRenderer().AddActor(ax.getAxesActor());
+        
+        vtkPanel.GetRenderer().ResetCamera();
+        //vtkPanel.GetRenderer().ResetCameraClippingRange();
+        vtkPanel.GetRenderer().LightFollowCameraOn();
+        vtkPanel.GetRenderer().VisibleActorCount();
+        //vtkPanel.GetRenderer().ViewToDisplay();
         
         add(vtkPanel, BorderLayout.CENTER);
-        //add(rawPointsToggle, BorderLayout.EAST);
-        //add(downsampledPointsToggle, BorderLayout.EAST);
-        //add(zExaggerationToggle, BorderLayout.EAST);
-        
-        //borderLayout.addLayoutComponent(vtkPanel, BorderLayout.CENTER);
-        //borderLayout.addLayoutComponent(rawPointsToggle, BorderLayout.EAST);
-        
-        //add(vtkPanel, panel.Ce)
     }
     
     @Override
@@ -169,10 +168,7 @@ public class Vtk extends JPanel implements MRAVisualization {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        setLog(source);
-        String FILE_83P_EXT = ".83P";
-        boolean beApplied = false;
-        
+        boolean beApplied = false;        
         System.out.println("canBeApplied: " + mraVtkLogGroup.name());
 
         // Checks wether there is a *.83P file
@@ -186,6 +182,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 //System.out.println("file name " + i + ":" + temp.getName());
                 if ((temp.toString()).endsWith(FILE_83P_EXT))
                 {
+                    setLog(source);
                     //System.out.println("file with 83p ext: " + temp.toString());
                     beApplied = true;
                 }  
