@@ -27,73 +27,23 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: jqcorreia
- * Apr 2, 2013
+ * Apr 5, 2013
  */
 package pt.up.fe.dceg.neptus.mra.api;
 
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import java.io.Serializable;
+
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
 /**
  * @author jqcorreia
  *
  */
-public class BathymetrySwath {
-    long timestamp;
-    SystemPositionAndAttitude pose;
-    BathymetryPoint data[];
-    public int numBeams;
+public class BathymetryInfo implements Serializable {
+    public LocationType topLeft = new LocationType();
+    public LocationType bottomRight = new LocationType();
     
-    /**
-     * @param timestamp
-     * @param pose
-     * @param data
-     */
-    public BathymetrySwath(long timestamp, SystemPositionAndAttitude pose, BathymetryPoint[] data) {
-        this.timestamp = timestamp;
-        this.pose = pose;
-        this.data = data;
-    }
-
-    /**
-     * @return the timestamp
-     */
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    /**
-     * @param timestamp the timestamp to set
-     */
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    /**
-     * @return the pose
-     */
-    public SystemPositionAndAttitude getPose() {
-        return pose;
-    }
-
-    /**
-     * @param pose the pose to set
-     */
-    public void setPose(SystemPositionAndAttitude pose) {
-        this.pose = pose;
-    }
-
-    /**
-     * @return the data
-     */
-    public BathymetryPoint[] getData() {
-        return data;
-    }
-
-    /**
-     * @param data the data to set
-     */
-    public void setData(BathymetryPoint[] data) {
-        this.data = data;
-    }
+    public float minDepth = 1000;
+    public float maxDepth = -1000;
     
 }

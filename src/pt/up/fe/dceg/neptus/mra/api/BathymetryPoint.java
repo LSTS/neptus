@@ -36,11 +36,9 @@ package pt.up.fe.dceg.neptus.mra.api;
  *
  */
 public class BathymetryPoint {
-    public double lat;
-    public double lon;
-    public double north;
-    public double east;
-    public double depth;
+    public float north;
+    public float east;
+    public float depth;
 
     /**
      * @param lat lat in radians
@@ -50,10 +48,8 @@ public class BathymetryPoint {
      * @param depth depth in this point in meters (relative to water surface)
      */
     
-    public BathymetryPoint(double lat, double lon, double north, double east, double depth) {
+    public BathymetryPoint(float north, float east, float depth) {
         super();
-        this.lat = lat;
-        this.lon = lon;
         this.north = north;
         this.east = east;
         this.depth = depth;
