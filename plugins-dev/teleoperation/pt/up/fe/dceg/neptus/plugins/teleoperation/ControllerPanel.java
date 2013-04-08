@@ -92,7 +92,7 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
  * @author jqcorreia
  * 
  */
-@Popup(pos = POSITION.TOP_RIGHT, width = 200, height = 400, accelerator = 'C')
+@Popup(pos = POSITION.TOP_RIGHT, width = 200, height = 400, accelerator = 'J')
 @PluginDescription(author = "jquadrado", description = "Controllers Panel", name = "Controllers Panel", icon = "images/control-mode/teleoperation.png")
 public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates {
     private static final long serialVersionUID = 1L;
@@ -195,8 +195,8 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
             }
         });
         
-        // Do this to set the initial vehicle
-        //mainVehicleChange(console.getMainSystem());
+        // Start the interface
+        refreshInterface();
     }
 
     public void buildDialog() {
@@ -260,19 +260,29 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
             comboBox.addItem(s);
         }
     }
-
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    
+    /**
+     * Clear the layout and ask the system for remote actions
+     */
+    public void refreshInterface() {
         actions = null;
         
-        requestRemoteActions();
-
         removeAll();
-        add(new JLabel("Waiting for vehicle action list"));
-
+        
+        if(console.getMainSystem() != null)
+            add(new JLabel("Waiting for vehicle action list"));
+        else
+            add(new JLabel("No main vehicle selected in the console"));
+        
         invalidate();
         revalidate();
 
+        requestRemoteActions();
+    }
+    
+    @Override
+    public void mainVehicleChangeNotification(String id) {
+        refreshInterface();
     }
 
     @Override
