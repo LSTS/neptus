@@ -49,7 +49,6 @@ public class Axes {
     private vtkLODActor axesActor;
     
     /**
-     * Empty constructor
      * Coordinate System is placed by default on (0,0,0), and scale factor is 1.0;
      * 
      */
@@ -68,7 +67,7 @@ public class Axes {
     }
     
     /**
-     * Axes origin can be placed in a specific position in the 3D world, and given a scale factor
+     * Coordinate System Axes origin can be placed in a specific position in the 3D world, and given a scale factor
      * 
      * @param scale
      * @param x

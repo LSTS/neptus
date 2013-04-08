@@ -33,21 +33,38 @@ package pt.up.fe.dceg.neptus.plugins.vtk;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
+import org.lwjgl.Sys;
+
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
+import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.*;
+
 import vtk.vtkActor;
+import vtk.vtkCellArray;
 import vtk.vtkConeSource;
+import vtk.vtkImageCanvasSource2D;
+import vtk.vtkImageData;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPanel;
+import vtk.vtkPoints;
+import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
 
 /**
@@ -59,13 +76,18 @@ public class Vtk extends JPanel implements MRAVisualization {
     private static final long serialVersionUID = 1L;
     
     private vtkPanel vtkPanel;
+    
     private JToggleButton zExaggerationToggle;
     private JToggleButton rawPointsToggle;
     private JToggleButton downsampledPointsToggle;
+    private JToggleButton resetViewportToggle;
+    
+    private static Path path = null;
+    private static final String FILE_83P_EXT = ".83P";
     
     protected Vector<Marker3d> markers = new Vector<>();
     protected IMraLogGroup mraVtkLogGroup;
-        
+    
     static {
         System.loadLibrary("jawt");
         vtkNativeLibrary.COMMON.LoadLibrary();
@@ -81,27 +103,46 @@ public class Vtk extends JPanel implements MRAVisualization {
         //borderLayout = new BorderLayout();
         //panel.setLayout(borderLayout);
         
-        vtkConeSource cone = new vtkConeSource();
+        //PointTypes p = new PointTypes();
+        
+        //PointTypes p = new PointTypes();
+        
+        float x = (float) 5.0;
+        float y = (float) 1.0;
+        float z = (float) 10.0;
+        
+        PointXYZ p = new PointXYZ(x, y, z);
+        
+        vtkPolyData poly = new vtkPolyData();
+        
+        
+        vtkPolyDataMapper mapper = new vtkPolyDataMapper();
+        //mapper.SetInput();
+        
+        
+        vtkPoints pt = new vtkPoints();
+        pt.SetNumberOfPoints(2);
+        
+        //vtkCellArray cellArr = new vtkCellArray();
+        //cellArr.
+        
+        
+/*        vtkConeSource cone = new vtkConeSource();
         cone.SetResolution(8);
 
         vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
         coneMapper.SetInputConnection(cone.GetOutputPort());
 
         vtkActor coneActor = new vtkActor();
-        coneActor.SetMapper(coneMapper);
+        coneActor.SetMapper(coneMapper);*/
         
         vtkPanel = new vtkPanel();
         
-        vtkPanel.GetRenderer().AddActor(coneActor);
-        
-        rawPointsToggle = new JToggleButton("Show raw points");
-        downsampledPointsToggle = new JToggleButton("Show downsampled points");
-        zExaggerationToggle = new JToggleButton("Exaggerate Z");
-        
+        //vtkPanel.GetRenderer().AddActor(coneActor);
         
         add(vtkPanel, BorderLayout.CENTER);
-        add(rawPointsToggle, BorderLayout.EAST);
-        add(downsampledPointsToggle, BorderLayout.EAST);
+        //add(rawPointsToggle, BorderLayout.EAST);
+        //add(downsampledPointsToggle, BorderLayout.EAST);
         //add(zExaggerationToggle, BorderLayout.EAST);
         
         //borderLayout.addLayoutComponent(vtkPanel, BorderLayout.CENTER);
@@ -120,6 +161,8 @@ public class Vtk extends JPanel implements MRAVisualization {
     public Component getComponent(IMraLogGroup source, double timestep) {
         //String name = source.name();
         //String[] listoflogs = source.listLogs();
+        
+        
         System.out.println("getComponent: " + mraVtkLogGroup.name());
         return this;
     }
@@ -127,11 +170,30 @@ public class Vtk extends JPanel implements MRAVisualization {
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         setLog(source);
-        //String name = source.name();
-        //String[] listoflogs = source.listLogs();
+        String FILE_83P_EXT = ".83P";
+        boolean beApplied = false;
+        
         System.out.println("canBeApplied: " + mraVtkLogGroup.name());
-        return true;
+
+        // Checks wether there is a *.83P file
+        File file = source.getFile("Data.lsf").getParentFile();
+        File[] files = file.listFiles();
+        //int i = 0;
+        if (file.isDirectory()) {
+            for (File temp : file.listFiles()) {
+                //System.out.println("count : " + i);
+                //i++;
+                //System.out.println("file name " + i + ":" + temp.getName());
+                if ((temp.toString()).endsWith(FILE_83P_EXT))
+                {
+                    //System.out.println("file with 83p ext: " + temp.toString());
+                    beApplied = true;
+                }  
+            }
+        }
+        return beApplied;
     }
+
 
     @Override
     public ImageIcon getIcon() {
@@ -192,5 +254,82 @@ public class Vtk extends JPanel implements MRAVisualization {
      */
     private void setLog(IMraLogGroup log) {
         this.mraVtkLogGroup = log;
+    }
+    
+    private JPanel createToolbar() {
+        JPanel toolbar = new JPanel();
+        
+        rawPointsToggle = new JToggleButton(I18n.text("Raw"));
+        downsampledPointsToggle = new JToggleButton(I18n.text("Downsampled"));
+        zExaggerationToggle = new JToggleButton(I18n.text("Exaggerate Z"));
+        resetViewportToggle = new JToggleButton(I18n.text("Reset View"));
+        
+        rawPointsToggle.setSelected(true);
+        downsampledPointsToggle.setSelected(false);
+        zExaggerationToggle.setSelected(false);
+        resetViewportToggle.setSelected(false);
+        
+        rawPointsToggle.addActionListener(new ActionListener() {       
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (rawPointsToggle.isSelected())
+                {
+                    
+                }
+                else
+                {
+                    
+                }
+            }
+        });
+        
+        downsampledPointsToggle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (downsampledPointsToggle.isSelected())
+                {
+                    
+                }
+                else
+                {
+                    
+                }
+            }
+        });
+        
+        zExaggerationToggle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (zExaggerationToggle.isSelected())
+                {
+                    
+                }
+                else
+                {
+                    
+                }
+            }
+        });
+        
+        resetViewportToggle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (resetViewportToggle.isSelected())
+                {
+                    
+                }
+                else
+                {
+                    
+                }
+            }
+        });
+        
+        toolbar.add(rawPointsToggle);
+        toolbar.add(downsampledPointsToggle);
+        toolbar.add(zExaggerationToggle);
+        toolbar.add(resetViewportToggle);
+        
+        return toolbar;
     }
 }
