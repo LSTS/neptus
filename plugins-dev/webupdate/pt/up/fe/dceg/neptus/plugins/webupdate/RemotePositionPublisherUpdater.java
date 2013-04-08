@@ -813,7 +813,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
 
     private boolean publishPlan() {
 
-        if (!publishActiveConsolePlan)
+        if (!publishActiveConsolePlan || getConsole().getPlan() == null)
             return false;
 
         // String xml = doc.asXML();
