@@ -124,7 +124,15 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
     
     private ControllerManager manager;
     private JComboBox<String> comboBox;
+    private JButton btnRefresh = new JButton(new AbstractAction(I18n.text("Refresh Controllers")) {
+        private static final long serialVersionUID = 1L;
 
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            updateControllers();
+        }
+    });
+    
     private int timeIncrement = 0;
     private int periodicDelay = 100;
 
@@ -209,14 +217,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         
         add(new JScrollPane(table), "wrap");
         add(comboBox, "w 200::, wrap");
-        add(new JButton(new AbstractAction(I18n.text("Refresh Controllers")) {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateControllers();
-            }
-        }));
+        add(btnRefresh);
         
         dialog.pack();
     }
@@ -298,6 +299,9 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         
         // Always poll the controller
         poll = manager.pollController(currentController);
+
+        btnRefresh.setEnabled(!editing);
+        comboBox.setEnabled(!editing);
         
         if (editing) {
             if (oldPoll.size() == poll.size()) {
@@ -555,6 +559,8 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
                 setBackground(Color.white);
             }
             if(column == 4) {
+                JButton b = (JButton)model.getValueAt(row, column);
+                b.setEnabled(!editing); // Disable if we are editing
                 return (JButton)model.getValueAt(row, column);
             }
             return this;
