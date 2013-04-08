@@ -29,7 +29,7 @@
  * Author: hfq
  * Apr 4, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.vtk;
+package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
 import vtk.vtkAxes;
 import vtk.vtkFloatArray;
