@@ -52,6 +52,7 @@ import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Compass;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.CubeAxes;
 import vtk.vtkActor;
 import vtk.vtkCompassRepresentation;
 import vtk.vtkCompassWidget;
@@ -110,6 +111,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         super(new BorderLayout());
    
         vtkPanel = new vtkPanel();
+       
              
         // a Render Window
         vtkRenderWindow renWin = new vtkRenderWindow();
@@ -148,19 +150,37 @@ public class Vtk extends JPanel implements MRAVisualization {
         vtkPanel.GetRenderer().AddActor(pointsActor);
         
         vtkPointSource pointSource = new vtkPointSource();
-        pointSource.SetNumberOfPoints(100000);
+        pointSource.SetNumberOfPoints(150000);
         //pointSource.SetCenter(0.0, 0.0, 0.0);
         pointSource.SetDistributionToUniform();
         //pointSource.SetDistributionToShell();
         pointSource.SetRadius(10.0);
+
+        //polyData = pointSource.GetPolyDataInput(ALLBITS);
         
         vtkPolyDataMapper inputMapper = new vtkPolyDataMapper();
         inputMapper.SetInput(pointSource.GetOutput());
-        
+          
         vtkActor actor2 = new vtkActor();
         actor2.SetMapper(inputMapper);
         
-        vtkPanel.GetRenderer().AddActor(actor2);
+        
+        vtkPoints points2 = getPoints();
+        vtkPolyData polyData = new vtkPolyData();
+        
+        polyData.SetPoints(points2);
+        
+        vtkPolyDataMapper mapper2 = new vtkPolyDataMapper();
+        mapper2.SetInput(polyData);
+        
+        vtkActor actor_2 = new vtkActor();
+        actor_2.SetMapper(mapper2);
+        
+        vtkPanel.GetRenderer().AddActor(CubeAxes.AddCubeAxesToVisualizer(vtkPanel.GetRenderer(), polyData));
+        
+        
+        
+        //vtkPanel.GetRenderer().AddActor(actor2);
  
         Axes ax = new Axes(); 
         
@@ -373,5 +393,26 @@ public class Vtk extends JPanel implements MRAVisualization {
         toolbar.add(resetViewportToggle);
         
         return toolbar;
+    }
+    
+    /**
+     * 
+     * @return data points
+     */
+    static vtkPoints getPoints () {
+        vtkPoints points = new vtkPoints();
+        points.InsertNextPoint(0.5, 0, 0.);
+        points.InsertNextPoint(1, 0, 1.);
+        points.InsertNextPoint(2, 0, 0.4);
+        points.InsertNextPoint(3, 0, 0.5);
+        points.InsertNextPoint(0.5, 1, 0.3);
+        points.InsertNextPoint(1, 1, 0.3);
+        points.InsertNextPoint(2, 1, 0.8);
+        points.InsertNextPoint(3, 1, 0.6);
+        points.InsertNextPoint(0.5, 2, 0.5);
+        points.InsertNextPoint(1, 2, 0.8);
+        points.InsertNextPoint(2, 2, 0.3);
+        points.InsertNextPoint(3, 2, 0.4);
+        return points;  
     }
 }
