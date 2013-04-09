@@ -83,8 +83,6 @@ public class SidescanLine {
         location.setLatitude(state.getPosition().getLatitude());
         location.setLongitude(state.getPosition().getLongitude());
         
-        x *= (data.length / image.getWidth());
-        
         double distance = x * (range * 2 / (float)xsize) - (range);
         double angle = -state.getYaw() + (x < (xsize / 2) ? Math.PI : 0);
         double offsetNorth = Math.abs(distance) * Math.sin(angle);

@@ -103,7 +103,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     if (zoom)
                         drawZoom(layer.getGraphics()); // UPdate layer with zoom information
                     if (info)
-                        drawLocation(layer.getGraphics()); // update layer with location information
+                        drawInfo(layer.getGraphics()); // update layer with location information
                     if (measure) {
                         drawMeasure(layer.getGraphics());
                     }
@@ -298,10 +298,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     }
 
     
-    void drawLocation(Graphics g) {
+    void drawInfo(Graphics g) {
 
         if (mouseSidescanLine != null) {
-            LocationType loc = mouseSidescanLine.calcPointForCoord((int)(mouseSidescanLine.xsize / (float)image.getWidth())).location;
+            LocationType loc = mouseSidescanLine.calcPointForCoord((int)(mouseX * (mouseSidescanLine.xsize / (float)image.getWidth()))).location;
                     
             Graphics2D location2d = (Graphics2D) mouseLocationImage.getGraphics();
             location2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -368,8 +368,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                                 g.drawString(m.label, m.x - (m.w / 2), line.ypos - (m.h / 2) - 10);
                             }
                             else {
-                                g.drawRect(m.x - (m.w / 2), line.ypos - (m.h / 2), m.w, m.h);
-                                g.drawString(m.label, m.x - (m.w / 2), line.ypos - (m.h / 2) - 10);
+                                int x = (int)(m.x / (mouseSidescanLine.xsize / (float)image.getWidth()));
+                                g.drawRect(x - (m.w / 2), line.ypos - (m.h / 2), m.w, m.h);
+                                g.drawString(m.label, x - (m.w / 2), line.ypos - (m.h / 2) - 10);
                             }
                             break;
                         }
@@ -511,9 +512,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         if (marking) {
             String res = JOptionPane.showInputDialog("Insert marker name");
+            
             // Check for a valid response 
             if(res != null) {
-                int x = (mouseX + initialX) / 2;
+                int x = (int) (((mouseX + initialX) / 2) * (mouseSidescanLine.xsize / (float)image.getWidth()));
                 int y = (mouseY + initialY) / 2;
                 SidescanLine l = null;
                 for (SidescanLine line : lineList) {
