@@ -60,7 +60,7 @@ public class SaveMissionAsConsoleAction extends ConsoleAction{
         putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.Event.CTRL_MASK
                 + java.awt.Event.ALT_MASK, true));
         this.console = console;
-        this.setEnabled(false);
+        this.setEnabled(true);
     }
 
     @Override
