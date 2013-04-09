@@ -37,11 +37,10 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
  * @author zp
  * 
  */
-public class AisShip {
+public class AisShip implements Comparable<AisShip> {
 
     protected String name, country;
-    protected double speed = 0, course = 0, latitude = 0, longitude = 0, length = 10,
-            width = 10;
+    protected double speed = 0, course = 0, latitude = 0, longitude = 0, length = 10;
     protected int mmsi = 0;
     
     protected long lastUpdate = System.currentTimeMillis();
@@ -150,18 +149,6 @@ public class AisShip {
     public void setLength(double length) {
         this.length = length;
     }
-    /**
-     * @return the width
-     */
-    public double getWidth() {
-        return width;
-    }
-    /**
-     * @param width the width to set
-     */
-    public void setWidth(double width) {
-        this.width = width;
-    }
     
     public void setMMSI(int mmsi) {
         this.mmsi = mmsi;
@@ -173,6 +160,11 @@ public class AisShip {
     
     public String getShipInfoURL() {
         return "http://www.marinetraffic.com/ais/shipdetails.aspx?mmsi="+getMMSI()+"&header=false";
+    }
+    
+    @Override
+    public int compareTo(AisShip o) {
+        return getName().compareTo(o.getName());
     }
     
 }
