@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.util;
 import java.awt.MouseInfo;
 import java.awt.Rectangle;
 import java.io.File;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -192,10 +193,13 @@ public class ConsoleParse implements FileHandler {
 
     public static void parseFile(String consoleURL, ConsoleLayout console) {
         Document doc = null;
-
+        
         try {
+            File fx = new File(consoleURL);
+            URL url = fx.toURI().toURL();
+
             SAXReader reader =  new SAXReader();
-            doc = reader.read(consoleURL);
+            doc = reader.read(url);
             Element rootconsole = (Element) doc.selectSingleNode("//" + ConsoleLayout.DEFAULT_ROOT_ELEMENT);
             parseElement(rootconsole, console, consoleURL);
 
@@ -204,7 +208,7 @@ public class ConsoleParse implements FileHandler {
             console.setConsoleChanged(false);
 
         }
-        catch (DocumentException e) {
+        catch (Exception e) {
             GuiUtils.errorMessage(null, e);
             NeptusLog.pub().error(" Console Base open file " + consoleURL + " error [" + e.getStackTrace() + "]", e);
         }
