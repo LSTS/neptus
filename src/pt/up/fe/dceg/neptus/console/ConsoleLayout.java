@@ -272,7 +272,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             @Override
             public void windowClosing(WindowEvent e) {
                 JFrame frame = (JFrame) e.getComponent();
-                frame.setDefaultCloseOperation(CLOSE_ACTION);
+                frame.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
                 if (isConsoleChanged()) {
                     int answer = JOptionPane.showConfirmDialog(
                             getConsole(),
@@ -280,6 +280,12 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                             I18n.text("Save changes?"), JOptionPane.YES_NO_CANCEL_OPTION);
                     if (answer == JOptionPane.YES_OPTION) {
                         saveFile();
+                        frame.setVisible(false);
+                        frame.dispose();
+                    }
+                    else if (answer == JOptionPane.NO_OPTION) {
+                        frame.setVisible(false);
+                        frame.dispose();
                     }
                     else if (answer == JOptionPane.CANCEL_OPTION) {
                         return;
