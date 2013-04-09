@@ -100,7 +100,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     @Override
     public boolean update() {
 
-        return false;
+        return true;
     }
 
     @Override
@@ -179,8 +179,8 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
                 g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 5, 15);
             }
 
-            int xArrowScreenCoord = 5;// arrow.getWidth(renderer);
-            int yArrowScreenCoord = 25; // arrow.getHeight(renderer);
+            int xArrowScreenCoord = 0;// arrow.getWidth(renderer);
+            int yArrowScreenCoord = 0; // arrow.getHeight(renderer);
             int widthArrow = arrow.getWidth(null);
             int heightArrow = arrow.getHeight(null);
             g.drawImage(arrow, xArrowScreenCoord, yArrowScreenCoord, widthArrow, heightArrow, null);

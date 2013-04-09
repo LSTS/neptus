@@ -390,7 +390,6 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
                 setIcon(PLAN_UNSYNC_ACOUSTIC);
                 break;
             case "planSync":
-                System.out.println(planId + " planSync");
                 setIcon(PLAN_SYNC);
                 break;
             case "planSyncAcoustic":

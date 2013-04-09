@@ -32,8 +32,8 @@
 package pt.up.fe.dceg.neptus.plugins.spot;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 import javax.swing.SwingUtilities;
 import javax.xml.parsers.DocumentBuilder;
@@ -80,9 +80,9 @@ public class Spot {
      * @throws SAXException
      * @throws IOException
      */
-    private ArrayList<SpotMessage> get() throws ParserConfigurationException, SAXException, IOException {
+    private TreeSet<SpotMessage> get() throws ParserConfigurationException, SAXException, IOException {
 
-        ArrayList<SpotMessage> updates = new ArrayList<SpotMessage>();
+        TreeSet<SpotMessage> updates = new TreeSet<SpotMessage>();
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
@@ -125,9 +125,8 @@ public class Spot {
     public void update() {
         // ask for messages
         try {
-            Spot.log.debug("Gonna ask for Spot messages");
-            ArrayList<SpotMessage> messages = get();
-            Spot.log.debug("Got " + messages.size() + " spot messages");
+            TreeSet<SpotMessage> messages = get();
+            Spot.log.debug(pageInfo.id + " har " + messages.size() + " messages");
             // calculate direction and speed
             final LocationSpeedDirection speedLocationDirection = setSpeedMpsAndDirection(messages);
             Spot.log.debug("Speed:" + speedLocationDirection.speed + ", direction:"
@@ -156,7 +155,7 @@ public class Spot {
      * angle as the angle of the vector composed by the weighted mean of all the movement vectors.
      * 
      */
-    private LocationSpeedDirection setSpeedMpsAndDirection(ArrayList<SpotMessage> messages) {
+    private LocationSpeedDirection setSpeedMpsAndDirection(TreeSet<SpotMessage> messages) {
         long currentTime = System.currentTimeMillis();
         long timeWindow = 3600000;
         long elapsedTime;
@@ -175,10 +174,11 @@ public class Spot {
             // case that message is out of timewindow
                 numMeasurements++;
                 if (prevMsg != null) {
-                log.debug("Processing message " + numMeasurements);
                     distanceInMeters = tmpLocation.getDistanceInMeters(prevLocation);
                     elapsedTime = tmpMsg.timestamp - prevMsg.timestamp;
-                    speedMeterSecond = distanceInMeters / (elapsedTime / 1000);
+                speedMeterSecond = distanceInMeters / (elapsedTime / (1000));
+                log.debug("Traveled " + distanceInMeters + " in " + elapsedTime + " = " + speedMeterSecond + "  ("
+                        + tmpMsg.latitude + ", " + tmpMsg.longitude + " at " + tmpMsg.timestamp);
                     sumSpeed += speedMeterSecond;
                     latDif = tmpLocation.getLatitudeAsDoubleValueRads() - prevLocation.getLatitudeAsDoubleValueRads();
                     lonDif = tmpLocation.getLongitudeAsDoubleValueRads() - prevLocation.getLongitudeAsDoubleValueRads();
@@ -195,8 +195,9 @@ public class Spot {
         sumDirVector.latitude = sumDirVector.latitude / factorial;
         sumDirVector.longitude = sumDirVector.longitude / factorial;
         Float finalSpeed = new Float(sumSpeed / (numMeasurements - 1));
-        return new LocationSpeedDirection(finalSpeed, Math.atan(sumDirVector.longitude
-                / sumDirVector.latitude), prevLocation);
+        double finalDirection = Math.atan(sumDirVector.longitude / sumDirVector.latitude);
+        log.debug("finalSpeed " + finalSpeed + "direction" + finalDirection);
+        return new LocationSpeedDirection(finalSpeed, finalDirection, prevLocation);
     }
 
     static double gamma(double z) {
