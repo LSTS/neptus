@@ -40,6 +40,9 @@ public interface BathymetryParser {
     public long getFirstTimestamp();
     public long getLastTimestamp();
     
+    public BathymetryInfo getBathymetryInfo();
+    
     public BathymetrySwath getSwathAt(long timestamp);
     public BathymetrySwath nextSwath();
+    
 }

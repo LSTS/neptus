@@ -122,8 +122,6 @@ public class DeltaTParser implements BathymetryParser {
             }
             
             try {
-//                Output output = new Output(new FileOutputStream(f));
-//                kryo.writeObject(output, info);
                 ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
                 out.writeObject(info);
                 out.close();
@@ -166,6 +164,12 @@ public class DeltaTParser implements BathymetryParser {
     @Override
     public long getLastTimestamp() {
         return 0;
+    }
+
+    
+    @Override
+    public BathymetryInfo getBathymetryInfo() {
+        return info;
     }
 
     @Override
