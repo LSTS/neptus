@@ -84,6 +84,8 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
     private final ImageIcon HOMEREF_ICON;
     // private final ImageIcon TRANSPONDER_ICON;
     private final ImageIcon START_ICON;
+    private final ImageIcon PLAN_LOCAL, PLAN_LOCAL_ACOUSTIC, PLAN_REMOTE, PLAN_REMOTE_ACOUSTIC, PLAN_UNSYNC,
+            PLAN_UNSYNC_ACOUSTIC, PLAN_SYNC, PLAN_SYNC_ACOUSTIC;
     
     public MissionTreeCellRenderer() {
         MAP_ICON = ImageUtils.createImageIcon("images/menus/mapeditor.png");
@@ -94,6 +96,14 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
         HOMEREF_ICON = ImageUtils.getScaledIcon("images/buttons/home.png", 16, 16);
         // TRANSPONDER_ICON = new ExtendedIcon(ImageUtils.getScaledImage("images/transponder.png", 16, 16));
         START_ICON = ImageUtils.getScaledIcon("images/flag2_green32.png", 16, 16);
+        PLAN_LOCAL = ImageUtils.getScaledIcon("images/plans/planLocal.png", 16, 16);
+        PLAN_LOCAL_ACOUSTIC = ImageUtils.getScaledIcon("images/plans/planLocalAcoustic.png", 16, 16);
+        PLAN_REMOTE = ImageUtils.getScaledIcon("images/plans/planRemote.png", 16, 16);
+        PLAN_REMOTE_ACOUSTIC = ImageUtils.getScaledIcon("images/plans/planRemoteAcoustic.png", 16, 16);
+        PLAN_UNSYNC = ImageUtils.getScaledIcon("images/plans/planUnsync.png", 16, 16);
+        PLAN_UNSYNC_ACOUSTIC = ImageUtils.getScaledIcon("images/plans/planSyncAcoustic.png", 16, 16);
+        PLAN_SYNC = ImageUtils.getScaledIcon("images/plans/planSync.png", 16, 16);
+        PLAN_SYNC_ACOUSTIC = ImageUtils.getScaledIcon("images/plans/planSyncAcoustic.png", 16, 16);
     }
     
     private enum Icons{
@@ -350,26 +360,46 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
     }
 
     private void setPlanIcon(String planId, State state, boolean hasMultpVehicles) {
-        StringBuilder fileName = new StringBuilder(Icons.PATH_SOURCE.getName());
-        fileName.append(Icons.PLAN_PATH.getName());
-        fileName.append(Icons.PLAN.getName());
-        fileName.append(state.getFileName());
+        StringBuilder fileNameBuilder = new StringBuilder(Icons.PLAN.getName());
+        fileNameBuilder.append(state.getFileName());
         if (planId.length() == 1) {
-            fileName.append(Icons.ACOUSTIC.getName());
+            fileNameBuilder.append(Icons.ACOUSTIC.getName());
         }
 
         if (hasMultpVehicles) {
-            fileName.append(Icons.MULTIPLE_VEHICLES.getName());
+            fileNameBuilder.append(Icons.MULTIPLE_VEHICLES.getName());
         }
+        String fileName = fileNameBuilder.toString();
+        switch (fileName) {
+            case "planLocal":
+                setIcon(PLAN_LOCAL);
+                break;
+            case "planLocalAcoustic":
+                setIcon(PLAN_LOCAL_ACOUSTIC);
+                break;
+            case "planRemote":
+                setIcon(PLAN_REMOTE);
+                break;
+            case "planRemoteAcoustic":
+                setIcon(PLAN_REMOTE_ACOUSTIC);
+                break;
+            case "planUnsync":
+                setIcon(PLAN_UNSYNC);
+                break;
+            case "planUnsyncAcoustic":
+                setIcon(PLAN_UNSYNC_ACOUSTIC);
+                break;
+            case "planSync":
+                System.out.println(planId + " planSync");
+                setIcon(PLAN_SYNC);
+                break;
+            case "planSyncAcoustic":
+                setIcon(PLAN_SYNC_ACOUSTIC);
+                break;
 
-        fileName.append(Icons.EXTENSION.getName());
-         try {
-            // setIcon(ImageUtils.getIcon(fileName.toString()));
-            setIcon(ImageUtils.getScaledIcon(fileName.toString(), 16, 16));
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error("Filename: " + fileName.toString());
-            e.printStackTrace();
+            default:
+                NeptusLog.pub().error("No match for " + planId + " " + state + " " + fileName+" need to add support for this state.");
+                break;
         }
     }
 }
