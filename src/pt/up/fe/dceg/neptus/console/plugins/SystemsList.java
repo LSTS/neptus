@@ -845,6 +845,12 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
      */
     @Override
     public boolean update() {
+        if (filterSwitch == null) {
+            System.out.println(SystemsList.class.getSimpleName()
+                    + " : update of SystemsList called after cleanup call!!!!!");
+            return true;
+        }
+
         updateSystemsList();
 
         boolean enable = true;
