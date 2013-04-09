@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.io;
 
+import java.io.File;
 import java.nio.file.Path;
 
 import vtk.vtk3DSImporter;
@@ -63,8 +64,12 @@ public class VtkImporter {
         VTK, OBJ, PLY, STL, XYZ
     }
     
-    public VtkImporter(ImporterOps impOps) {
-        switch (impOps)
+    private ImporterOps impOp;
+    
+    public VtkImporter(File file) {
+        checkFileExtention(file);
+        
+        switch (impOp)
         {
             case VTK:
                 System.out.println("vtk data Set Reader chosen!");
@@ -91,6 +96,47 @@ public class VtkImporter {
         }
     }
     
+    /**
+     * Checks file extention of the intended loading file
+     * @param file
+     */
+    private void checkFileExtention(File file) {
+        //File filetemp = file.getParentFile();
+        //File[] files = filetemp.listFiles();
+        File filetemp = file.getParentFile();
+        File[] files = (file.getParentFile()).listFiles();
+        
+        try {
+            if (file.isDirectory()) {
+                for(File temp : filetemp.listFiles()) {
+                    if (temp.toString().endsWith(FILE_OBJ_EXT)) {
+                        impOp = ImporterOps.OBJ;
+                        break;
+                    }
+                    else if (temp.toString().endsWith(FILE_PLY_EXT)) {
+                        impOp = ImporterOps.PLY;
+                        break;
+                    }
+                    else if (temp.toString().endsWith(FILE_STL_EXT)) {
+                        impOp = ImporterOps.STL;
+                        break;
+                    }
+                    else if (temp.toString().endsWith(FILE_VTK_EXT)) {
+                        impOp = ImporterOps.VTK;
+                        break;
+                    }
+                    else if (temp.toString().endsWith(FILE_XYZ_EXT)) {
+                        impOp = ImporterOps.XYZ;
+                        break;
+                    }
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static vtkOBJReader readOBJFile() {
         readOBJ = new vtkOBJReader();
         

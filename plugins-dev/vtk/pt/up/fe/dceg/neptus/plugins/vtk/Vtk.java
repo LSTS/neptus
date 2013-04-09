@@ -36,17 +36,12 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
-
-import org.lwjgl.Sys;
 
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
@@ -54,13 +49,10 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
-import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.*;
-
+import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
 import vtk.vtkActor;
-import vtk.vtkCellArray;
-import vtk.vtkConeSource;
-import vtk.vtkImageCanvasSource2D;
-import vtk.vtkImageData;
+import vtk.vtkGeoAssignCoordinates;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPanel;
 import vtk.vtkPoints;
@@ -90,16 +82,28 @@ public class Vtk extends JPanel implements MRAVisualization {
     
     static {
         System.loadLibrary("jawt");
+        
+        // for simple visualizations
         vtkNativeLibrary.COMMON.LoadLibrary();
         vtkNativeLibrary.FILTERING.LoadLibrary();
         vtkNativeLibrary.IO.LoadLibrary();
         vtkNativeLibrary.IMAGING.LoadLibrary();
         vtkNativeLibrary.GRAPHICS.LoadLibrary();
         vtkNativeLibrary.RENDERING.LoadLibrary();
+                
+        // Other
+        vtkNativeLibrary.INFOVIS.LoadLibrary();
+        vtkNativeLibrary.VIEWS.LoadLibrary();
+        vtkNativeLibrary.WIDGETS.LoadLibrary();
+        vtkNativeLibrary.GEOVIS.LoadLibrary();
+
     }
     
     public Vtk(MRAPanel panel) {
         super(new BorderLayout());
+        
+        vtkGeoAssignCoordinates geoAssignCoords = new vtkGeoAssignCoordinates();
+        //geoAssignCoords.set
         
         vtkPoints points = new vtkPoints();     
         float x = (float) 5.0;
@@ -107,7 +111,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         float z = (float) 10.0;
         PointXYZ p = new PointXYZ(x, y, z);
         int id = 1;
-        points.InsertPoint(id, 0.0, 0.0, 0.0);
+        //points.InsertPoint(id, 0.0, 0.0, 0.0);
         points.InsertNextPoint(p.getX(), p.getY(), p.getZ());
         
         vtkPolyData poly = new vtkPolyData();
@@ -118,8 +122,6 @@ public class Vtk extends JPanel implements MRAVisualization {
         
         vtkActor pointsActor = new vtkActor();
         pointsActor.SetMapper(mapper);
-        
-        //vtkPanel.GetRenderer()
         
         
 /*        vtkConeSource cone = new vtkConeSource();
@@ -169,25 +171,33 @@ public class Vtk extends JPanel implements MRAVisualization {
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         boolean beApplied = false;        
-        System.out.println("canBeApplied: " + mraVtkLogGroup.name());
+        //System.out.println("canBeApplied: " + mraVtkLogGroup.name());
+        System.out.println("CanBeApplied: " + source.name());
 
         // Checks wether there is a *.83P file
         File file = source.getFile("Data.lsf").getParentFile();
         File[] files = file.listFiles();
         //int i = 0;
-        if (file.isDirectory()) {
-            for (File temp : file.listFiles()) {
-                //System.out.println("count : " + i);
-                //i++;
-                //System.out.println("file name " + i + ":" + temp.getName());
-                if ((temp.toString()).endsWith(FILE_83P_EXT))
-                {
-                    setLog(source);
-                    //System.out.println("file with 83p ext: " + temp.toString());
-                    beApplied = true;
-                }  
+        try {
+            if (file.isDirectory()) {
+                for (File temp : file.listFiles()) {
+                    //System.out.println("count : " + i);
+                    //i++;
+                    //System.out.println("file name " + i + ":" + temp.getName());
+                    if ((temp.toString()).endsWith(FILE_83P_EXT))
+                    {
+                        setLog(source);
+                        //System.out.println("file with 83p ext: " + temp.toString());
+                        beApplied = true;
+                    }  
+                }
             }
         }
+        catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
         return beApplied;
     }
 
