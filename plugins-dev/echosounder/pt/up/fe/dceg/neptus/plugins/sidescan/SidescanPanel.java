@@ -62,6 +62,7 @@ import pt.up.fe.dceg.neptus.mra.api.SidescanPoint;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.replay.MraVehiclePosHud;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.MathMiscUtils;
@@ -300,13 +301,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     void drawLocation(Graphics g) {
 
         if (mouseSidescanLine != null) {
+            LocationType loc = mouseSidescanLine.calcPointForCoord((int)(mouseSidescanLine.xsize / (float)image.getWidth())).location;
+                    
             Graphics2D location2d = (Graphics2D) mouseLocationImage.getGraphics();
             location2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             location2d.clearRect(0, 0, mouseLocationImage.getWidth(), mouseLocationImage.getHeight());
-            location2d.drawString(CoordinateUtil.dmToLatString(CoordinateUtil.decimalDegreesToDM(mouseSidescanLine
-                    .calcPointForCoord(mouseX).location.getLatitudeAsDoubleValue())), 5, 15);
-            location2d.drawString(CoordinateUtil.dmToLonString(CoordinateUtil.decimalDegreesToDM(mouseSidescanLine
-                    .calcPointForCoord(mouseX).location.getLongitudeAsDoubleValue())), 5, 26);
+            location2d.drawString(CoordinateUtil.dmToLatString(CoordinateUtil.decimalDegreesToDM(loc.getLatitudeAsDoubleValue())), 5, 15);
+            location2d.drawString(CoordinateUtil.dmToLonString(CoordinateUtil.decimalDegreesToDM(loc.getLongitudeAsDoubleValue())), 5, 26);
             location2d.drawString(altStr+": " + altFormat.format(mouseSidescanLine.state.getAltitude()), 5, 37);
             location2d.drawString(rollStr+": " + altFormat.format(Math.toDegrees(mouseSidescanLine.state.getRoll())), 5, 48);
 
