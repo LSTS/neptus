@@ -51,13 +51,20 @@ import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Compass;
 import vtk.vtkActor;
+import vtk.vtkCompassRepresentation;
+import vtk.vtkCompassWidget;
 import vtk.vtkGeoAssignCoordinates;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPanel;
+import vtk.vtkPointSource;
 import vtk.vtkPoints;
 import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
+import vtk.vtkRenderWindow;
+import vtk.vtkRenderWindowInteractor;
+import vtk.vtkRenderer;
 
 /**
  * @author hfq
@@ -67,7 +74,7 @@ import vtk.vtkPolyDataMapper;
 public class Vtk extends JPanel implements MRAVisualization {
     private static final long serialVersionUID = 1L;
     
-    private vtkPanel vtkPanel;
+    public vtkPanel vtkPanel;
     
     private JToggleButton zExaggerationToggle;
     private JToggleButton rawPointsToggle;
@@ -101,6 +108,18 @@ public class Vtk extends JPanel implements MRAVisualization {
     
     public Vtk(MRAPanel panel) {
         super(new BorderLayout());
+   
+        vtkPanel = new vtkPanel();
+             
+        // a Render Window
+        vtkRenderWindow renWin = new vtkRenderWindow();
+        renWin.AddRenderer(vtkPanel.GetRenderer());
+        
+        // an interactor
+        vtkRenderWindowInteractor renderWinInteractor = new vtkRenderWindowInteractor();
+        renderWinInteractor.SetRenderWindow(renWin);
+        
+        Compass.addCompassToVisualization(renderWinInteractor);
         
         vtkGeoAssignCoordinates geoAssignCoords = new vtkGeoAssignCoordinates();
         //geoAssignCoords.set
@@ -123,6 +142,27 @@ public class Vtk extends JPanel implements MRAVisualization {
         vtkActor pointsActor = new vtkActor();
         pointsActor.SetMapper(mapper);
         
+        //vtkPanel.GetRenderer().AddActor(coneActor);
+
+        pointsActor.GetProperty().SetPointSize(5.0);
+        vtkPanel.GetRenderer().AddActor(pointsActor);
+        
+        vtkPointSource pointSource = new vtkPointSource();
+        pointSource.SetNumberOfPoints(100000);
+        //pointSource.SetCenter(0.0, 0.0, 0.0);
+        pointSource.SetDistributionToUniform();
+        //pointSource.SetDistributionToShell();
+        pointSource.SetRadius(10.0);
+        
+        vtkPolyDataMapper inputMapper = new vtkPolyDataMapper();
+        inputMapper.SetInput(pointSource.GetOutput());
+        
+        vtkActor actor2 = new vtkActor();
+        actor2.SetMapper(inputMapper);
+        
+        vtkPanel.GetRenderer().AddActor(actor2);
+ 
+        Axes ax = new Axes(); 
         
 /*        vtkConeSource cone = new vtkConeSource();
         cone.SetResolution(8);
@@ -133,14 +173,9 @@ public class Vtk extends JPanel implements MRAVisualization {
         vtkActor coneActor = new vtkActor();
         coneActor.SetMapper(coneMapper);*/
         
-        vtkPanel = new vtkPanel();
+        //vtkRenderer renderer = new vtkRenderer();
+        //renderer.AddActor(ax.getAxesActor());
         
-        //vtkPanel.GetRenderer().AddActor(coneActor);
-
-        pointsActor.GetProperty().SetPointSize(5.0);
-        vtkPanel.GetRenderer().AddActor(pointsActor);
- 
-        Axes ax = new Axes();
         vtkPanel.GetRenderer().AddActor(ax.getAxesActor());
         
         vtkPanel.GetRenderer().ResetCamera();
