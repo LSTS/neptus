@@ -56,6 +56,8 @@ import pt.up.fe.dceg.neptus.plugins.vtk.visualization.CubeAxes;
 import vtk.vtkActor;
 import vtk.vtkCompassRepresentation;
 import vtk.vtkCompassWidget;
+import vtk.vtkDelaunay2D;
+import vtk.vtkDelaunay3D;
 import vtk.vtkGeoAssignCoordinates;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPanel;
@@ -111,8 +113,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         super(new BorderLayout());
    
         vtkPanel = new vtkPanel();
-       
-             
+               
         // a Render Window
         vtkRenderWindow renWin = new vtkRenderWindow();
         renWin.AddRenderer(vtkPanel.GetRenderer());
@@ -170,14 +171,21 @@ public class Vtk extends JPanel implements MRAVisualization {
         
         polyData.SetPoints(points2);
         
+        vtkDelaunay2D delauny = new vtkDelaunay2D();
+        //vtkDelaunay3D delauny = new vtkDelaunay3D(); -> dá erro
+        delauny.SetInputConnection(polyData.GetProducerPort());
+        
         vtkPolyDataMapper mapper2 = new vtkPolyDataMapper();
-        mapper2.SetInput(polyData);
+        //mapper2.SetInput(polyData);
+        mapper2.SetInputConnection(delauny.GetOutputPort());
         
         vtkActor actor_2 = new vtkActor();
         actor_2.SetMapper(mapper2);
         
-        vtkPanel.GetRenderer().AddActor(CubeAxes.AddCubeAxesToVisualizer(vtkPanel.GetRenderer(), polyData));
+        actor_2.GetProperty().SetPointSize(20);
         
+        vtkPanel.GetRenderer().AddActor(CubeAxes.AddCubeAxesToVisualizer(vtkPanel.GetRenderer(), polyData));
+        vtkPanel.GetRenderer().AddActor(actor_2);
         
         
         //vtkPanel.GetRenderer().AddActor(actor2);
