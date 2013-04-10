@@ -593,21 +593,36 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
         }
         prevSelection.clear();
 
-        sts.dispose();
+        if (sts != null)
+            sts.dispose();
         sts = null;
-        cns.dispose();
+        
+        if (cns != null)
+            cns.dispose();
         cns = null;
-        locs.dispose();
+        
+        if (locs != null)
+            locs.dispose();
         locs = null;
-        ats.dispose();
+        
+        if (ats != null)
+            ats.dispose();
         ats = null;
-        tks.dispose();
+        
+        if (tks != null)
+            tks.dispose();
         tks = null;
-        as.dispose();
+        
+        if (as != null)
+            as.dispose();
         as = null;
-        fl.dispose();
+        
+        if (fl != null)
+            fl.dispose();
         fl = null;
-        es.dispose();
+        
+        if (es != null)
+            es.dispose();
         es = null;
 
         for (SystemDisplay sd : systems.values()) {

@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.plugins.ais;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Desktop;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,12 +42,10 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Vector;
 
 import javax.swing.JMenu;
@@ -95,6 +94,18 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
 
     @NeptusProperty(name = "Interpolate and predict positions")
     public boolean interpolate = false;
+    
+    @NeptusProperty(name = "Moving vessel color")
+    public Color movingColor = Color.blue.darker();
+    
+    @NeptusProperty(name = "Stationary vessel color")
+    public Color stationaryColor = Color.gray.darker();
+    
+    @NeptusProperty(name = "Vessel label color")
+    public Color labelColor = Color.black;
+    
+    @NeptusProperty(name = "Show speed in knots")
+    public boolean useKnots = false;
 
     protected boolean active = false;
     protected Vector<AisShip> shipsOnMap = new Vector<AisShip>();
@@ -312,9 +323,9 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             clone.translate(pt.getX(), pt.getY());
             Graphics2D clone2 = (Graphics2D) clone.create();
 
-            Color c = Color.blue.darker();
+            Color c = movingColor;
             if (ship.getSpeedMps() == 0)
-                c = Color.gray.darker();
+                c = stationaryColor;
 
             double scaleX = (renderer.getZoom() / 10) * ship.getLength() / 9;
             double scaleY = (renderer.getZoom() / 10) * ship.getLength();
@@ -332,14 +343,19 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             clone.fill(path);
             clone.dispose();
 
+            //clone2.rotate(-Math.PI/2 + ship.getHeadingRads());
+            clone2.setFont(new Font("Helvetica", Font.PLAIN, 8));
             if (showNames) {
-                clone2.setColor(Color.blue.darker().darker());
+                clone2.setColor(labelColor);
                 clone2.drawString(ship.getName(), 5, 5);
             }
 
             if (showSpeeds && ship.getSpeedMps() != 0) {
-                clone2.setColor(Color.black);
-                clone2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(ship.getSpeedMps()) + " m/s", 5, 15);
+                clone2.setColor(labelColor);
+                if (useKnots)
+                    clone2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(ship.getSpeedKnots()) + " kn", 5, 15);
+                else
+                    clone2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(ship.getSpeedMps()) + " m/s", 5, 15);
             }
             clone2.dispose();
         }
