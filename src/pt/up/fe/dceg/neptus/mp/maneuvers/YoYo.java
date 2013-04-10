@@ -39,7 +39,6 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.messages.Message;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.GotoParameters;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
@@ -362,17 +361,6 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 		"<br>pitch: <b>"+nf.format(Math.toDegrees(getPitchAngle()))+" \u00B0</b>";
 	}
     
-    
-//    private double getSpeedInMetersPerSeconds() {
-//    	if (units.equals("m/s"))
-//    		return speed;
-//    	else
-//    		return 0;
-//    }
-    
-    public Message[] getAdditionalWaypointMessages(int wptID) {    	
-    	return new Message[] {};
-    }
     
     @Override
     public void parseIMCMessage(IMCMessage message) {
