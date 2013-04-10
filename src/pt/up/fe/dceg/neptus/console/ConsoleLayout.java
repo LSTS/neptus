@@ -1238,7 +1238,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      */
     public void cleanup() {
         long start = System.currentTimeMillis();
-        System.out.println("console layout cleanup start");
+        NeptusLog.pub().debug("console layout cleanup start");
         try {
             removeComponentListener(this);
 
@@ -1274,7 +1274,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (controllerPanel != null)
             controllerPanel.cleanup();
 
-        System.out.println("console layout cleanup end in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
+        NeptusLog.pub().debug("console layout cleanup end in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
     }
 
     private Rectangle2D minimizedBounds = null;

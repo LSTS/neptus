@@ -132,12 +132,12 @@ public class SimulationEngine {
                 }
                 else {                    
                     manId = next.getId();
-                    NeptusLog.pub().info("Simulating " + manId);
+                    NeptusLog.pub().debug("Simulating " + manId);
                 }
                 return;
             }
             else {
-                NeptusLog.pub().info("now simulating using " + curPreview.getClass().getSimpleName());
+                NeptusLog.pub().debug("now simulating using " + curPreview.getClass().getSimpleName());
             }
         }
 

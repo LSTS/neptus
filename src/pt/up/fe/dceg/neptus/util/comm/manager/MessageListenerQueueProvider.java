@@ -231,10 +231,10 @@ public class MessageListenerQueueProvider<Mi extends MessageInfo, M extends IMes
                         }
                     }
                     catch (InterruptedException e) {
-                        NeptusLog.pub().info(this + " Thread interrupted");
+                        NeptusLog.pub().debug(this + " Thread interrupted");
                     }
                     
-                    NeptusLog.pub().info(this + " Thread Stopped");
+                    NeptusLog.pub().debug(this + " Thread Stopped");
                 }
             };
             listenerThread.setPriority(Thread.MIN_PRIORITY+1);
