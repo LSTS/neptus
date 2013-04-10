@@ -159,7 +159,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     // private static ImageIcon ICON_SETTINGS = ImageUtils.createImageIcon("images/menus/settings.png");
 
     public static final String DEFAULT_ROOT_ELEMENT = "console";
-    public static final int CLOSE_ACTION = JFrame.DISPOSE_ON_CLOSE;
     private Document xmlDoc = null;
     private boolean changed = false;
     private boolean active = true;
@@ -238,7 +237,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         this.setupListeners();
         this.setupKeyBindings();
         this.setLayout(new BorderLayout());
-
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         notificationsDialog = new NotificationsDialog(new NotificationsCollection(this), this);
         statusBar = new StatusBar(this, notificationsDialog);
 
@@ -272,7 +271,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             @Override
             public void windowClosing(WindowEvent e) {
                 JFrame frame = (JFrame) e.getComponent();
-                frame.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
                 if (isConsoleChanged()) {
                     int answer = JOptionPane.showConfirmDialog(
                             getConsole(),
@@ -290,6 +288,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                     else if (answer == JOptionPane.CANCEL_OPTION) {
                         return;
                     }
+                }
+                else {
+                    frame.setVisible(false);
+                    frame.dispose();
                 }
                 cleanup();
             }
