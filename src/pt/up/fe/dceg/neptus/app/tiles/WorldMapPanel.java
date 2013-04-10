@@ -282,6 +282,12 @@ public class WorldMapPanel extends JPanel {
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         addKMLFileButton.setEnabled(true);
                     }
                 };
@@ -304,6 +310,12 @@ public class WorldMapPanel extends JPanel {
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         unloadAllKMLFilesButton.setEnabled(true);
                     }
                 };
@@ -465,6 +477,12 @@ public class WorldMapPanel extends JPanel {
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         copyImageButton.setEnabled(true);
                     }
                 };

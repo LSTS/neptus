@@ -11,6 +11,7 @@
 /.tmp_svn_work
 /.wmcache
 /.wmcache-copia
+/.codepro
 /Neptus*
 /Neptus-installer.sh
 /ProfilerDLL.dll

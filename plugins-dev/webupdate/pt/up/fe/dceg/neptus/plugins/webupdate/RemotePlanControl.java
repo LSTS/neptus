@@ -231,6 +231,12 @@ public class RemotePlanControl extends SimpleSubPanel implements ConfigurationLi
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         sendUploadPlanButton.setEnabled(true);
                     }
                 };
@@ -253,6 +259,12 @@ public class RemotePlanControl extends SimpleSubPanel implements ConfigurationLi
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         sendStartButton.setEnabled(true);
                     }
                 };
@@ -275,6 +287,12 @@ public class RemotePlanControl extends SimpleSubPanel implements ConfigurationLi
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         sendStopButton.setEnabled(true);
                     }
                 };

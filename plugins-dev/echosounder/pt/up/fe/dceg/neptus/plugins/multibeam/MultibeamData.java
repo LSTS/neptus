@@ -357,10 +357,6 @@ public class MultibeamData implements Serializable {
                 buf.seek(currPingStartOffset + 256);
                 float range;
                 double height;
-                
-                if (c == 0) {
-                    System.out.println(heading);
-                }
 
                 for (int i = 0; i < dataBuffer.length; i += 2) {
                     int t = i / 2;
@@ -392,10 +388,8 @@ public class MultibeamData implements Serializable {
                 // Skip to the end of the ping
                 buf.seek(currPingStartOffset + pingTotalSize);
                 c++;
-
+                System.out.println(buf.getFilePointer());
             }
-
-
             System.out.println("Total ping number " + c);
 
             // Reset buffer

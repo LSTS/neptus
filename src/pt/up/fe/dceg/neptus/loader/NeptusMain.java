@@ -163,7 +163,7 @@ public class NeptusMain {
             Workspace ws = new Workspace();
             ws.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             wrapMainApplicationWindowWithCloseActionWindowAdapter(ws);
-            System.out.println("workspace load finished in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
+            NeptusLog.pub().debug("workspace load finished in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
         }
         else if (app.equalsIgnoreCase("mra")) {
             NeptusMRA mra = NeptusMRA.showApplication();

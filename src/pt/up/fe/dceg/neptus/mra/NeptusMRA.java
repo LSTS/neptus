@@ -508,6 +508,12 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
                     protected void done() {
                         super.done();
                         try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
+                        try {
                             if (get()) {
                                 GuiUtils.infoMessage(NeptusMRA.this, I18n.text("Generate PDF Report"),
                                         I18n.text("File saved to") +" "+ f.getAbsolutePath());

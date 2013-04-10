@@ -31,8 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.messages;
 
-import pt.up.fe.dceg.messages.InvalidMessageException;
-
 public interface IMessage extends Cloneable {
 
 	/**

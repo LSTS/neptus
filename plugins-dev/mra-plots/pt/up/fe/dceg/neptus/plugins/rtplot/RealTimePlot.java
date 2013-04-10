@@ -75,7 +75,7 @@ import com.google.common.eventbus.Subscribe;
  * @author zp
  *
  */
-@PluginDescription(name="Real-Time plot")
+@PluginDescription(name="Real-Time plot", icon="pt/up/fe/dceg/neptus/plugins/rtplot/rtplot.png")
 @Popup(accelerator='U',pos=POSITION.CENTER,height=300,width=300)
 public class RealTimePlot extends SimpleSubPanel implements IPeriodicUpdates, ConfigurationListener {
 

@@ -134,7 +134,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             if (ReflectionUtil.hasAnnotation(sp, MapTileProvider.class))
                 PluginsRepository.addPlugin(sp.getCanonicalName());
         }
-        NeptusLog.pub().warn("Loading MapProviders in "
+        NeptusLog.pub().debug("Loading MapProviders in "
                 + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - start));
     }
 
@@ -292,7 +292,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 mapActiveHolderList.entrySet().iterator().next().setValue(true);
         }
 
-        NeptusLog.pub().warn("Initializing MapProviders in "
+        NeptusLog.pub().debug("Initializing MapProviders in "
                 + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - start));
     }
 
@@ -1129,6 +1129,12 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
 
                             @Override
                             protected void done() {
+                                try {
+                                    get();
+                                }
+                                catch (Exception e) {
+                                    NeptusLog.pub().error(e);
+                                }
                                 clearButton.setEnabled(true);
                             }
                         }.execute();
@@ -1224,6 +1230,12 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
 
                             @Override
                             protected void done() {
+                                try {
+                                    get();
+                                }
+                                catch (Exception e) {
+                                    NeptusLog.pub().error(e);
+                                }
                                 fetchButton.setEnabled(true);
                             }
                         }.execute();

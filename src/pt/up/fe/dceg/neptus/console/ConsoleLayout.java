@@ -159,7 +159,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     // private static ImageIcon ICON_SETTINGS = ImageUtils.createImageIcon("images/menus/settings.png");
 
     public static final String DEFAULT_ROOT_ELEMENT = "console";
-    public static final int CLOSE_ACTION = JFrame.DISPOSE_ON_CLOSE;
     private Document xmlDoc = null;
     private boolean changed = false;
     private boolean active = true;
@@ -238,7 +237,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         this.setupListeners();
         this.setupKeyBindings();
         this.setLayout(new BorderLayout());
-
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         notificationsDialog = new NotificationsDialog(new NotificationsCollection(this), this);
         statusBar = new StatusBar(this, notificationsDialog);
 
@@ -272,7 +271,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             @Override
             public void windowClosing(WindowEvent e) {
                 JFrame frame = (JFrame) e.getComponent();
-                frame.setDefaultCloseOperation(CLOSE_ACTION);
                 if (isConsoleChanged()) {
                     int answer = JOptionPane.showConfirmDialog(
                             getConsole(),
@@ -280,10 +278,20 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                             I18n.text("Save changes?"), JOptionPane.YES_NO_CANCEL_OPTION);
                     if (answer == JOptionPane.YES_OPTION) {
                         saveFile();
+                        frame.setVisible(false);
+                        frame.dispose();
+                    }
+                    else if (answer == JOptionPane.NO_OPTION) {
+                        frame.setVisible(false);
+                        frame.dispose();
                     }
                     else if (answer == JOptionPane.CANCEL_OPTION) {
                         return;
                     }
+                }
+                else {
+                    frame.setVisible(false);
+                    frame.dispose();
                 }
                 cleanup();
             }
@@ -705,7 +713,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         this.setPlan(null);
 
         if (mission != null) {
-            NeptusLog.pub().info("Mission changed to " + mission.getId());
+            NeptusLog.pub().debug("Mission changed to " + mission.getId());
             // initOtherMissionVehicles();
         }
         else {
@@ -809,8 +817,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return;
         }
         
-        if (consoleSystems.get(systemName) != null) {
-            NeptusLog.pub().warn("WTH are you trying to add a vehicle that already exist in the console!!");
+        if (consoleSystems.get(systemName) != null) {            
+            NeptusLog.pub().warn(ReflectionUtil.getCallerStamp() + " tried to add a vehicle that already exist in the console!!");
             return;
         }
         else {
@@ -1230,7 +1238,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      */
     public void cleanup() {
         long start = System.currentTimeMillis();
-        System.out.println("console layout cleanup start");
+        NeptusLog.pub().debug("console layout cleanup start");
         try {
             removeComponentListener(this);
 
@@ -1266,7 +1274,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (controllerPanel != null)
             controllerPanel.cleanup();
 
-        System.out.println("console layout cleanup end in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
+        NeptusLog.pub().debug("console layout cleanup end in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
     }
 
     private Rectangle2D minimizedBounds = null;

@@ -69,7 +69,7 @@ public class JsfSidescanParser implements SidescanParser {
     }
 
     @Override
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem, SidescanConfig config) {
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanConfig config) {
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         
         ArrayList<JsfSonarData> ping = parser.getPingAt(timestamp1, subsystem);
@@ -93,9 +93,10 @@ public class JsfSidescanParser implements SidescanParser {
                 }
             }
             // From here portboard channel (pboard var) will be the reference
-            BufferedImage line = new BufferedImage(pboard.getNumberOfSamples() + sboard.getNumberOfSamples(), 1, BufferedImage.TYPE_INT_RGB);
-
-            double min = 0, max = 0;
+//            BufferedImage line = new BufferedImage(pboard.getNumberOfSamples() + sboard.getNumberOfSamples(), 1, BufferedImage.TYPE_INT_RGB);
+            double fData[] = new double[pboard.getNumberOfSamples() + sboard.getNumberOfSamples()];
+            
+            double avgSboard = 0, avgPboard = 0;
             
 //            for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
 //                double r = pboard.getData()[i];
@@ -104,16 +105,18 @@ public class JsfSidescanParser implements SidescanParser {
 //            }
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
                 double r = pboard.getData()[i];
-                max += r;
+                avgPboard += r;
             }
+            
             for (int i = 0; i < sboard.getNumberOfSamples(); i++) {
                 double r = sboard.getData()[i];
-                min += r;
+                avgSboard += r;
             }
-            max /= (double)pboard.getNumberOfSamples() * config.normalization;
-            min /= (double)sboard.getNumberOfSamples() * config.normalization;
             
-            float horizontalScale = (float)line.getWidth() / (pboard.getRange() * 2f);
+            avgPboard /= (double)pboard.getNumberOfSamples() * config.normalization;
+            avgSboard /= (double)sboard.getNumberOfSamples() * config.normalization;
+            
+            float horizontalScale = (float)fData.length / (pboard.getRange() * 2f);
             float verticalScale = horizontalScale;
         
             nextPing = parser.nextPing(subsystem);
@@ -126,24 +129,15 @@ public class JsfSidescanParser implements SidescanParser {
                 size = 1;
             }
             size = 1;
-            double lineScale = (double) lineWidth / ((double) pboard.getNumberOfSamples() + (double) sboard.getNumberOfSamples());
-            double lineSize = Math.ceil(Math.max(1, lineScale * size));
-            
-//            System.out.println(secondsUntilNextPing + " " + speed + " " + lineSize);
             
             // Draw Portboard
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
-//                double r = pboard.getRange() - (i * (pboard.getRange() / pboard.getNumberOfSamples()));
                 double r =  i / (double)pboard.getNumberOfSamples();
                 double gain;
-//                if (r <= 1)
-//                    gain = 1;
-//                else    
-                    gain = Math.abs(30.0 * Math.log(r));
-//                System.out.println("#1 - " + gain + "  " + r);
-//                  gain = 0;
+                gain = Math.abs(30.0 * Math.log(r));
+                
                 double pb = pboard.getData()[i] * Math.pow(10, gain / config.tvgGain);
-                line.setRGB(i, 0, config.colorMap.getColor(pb / max).getRGB());
+                fData[i] = pb / avgPboard;
             }
             
             // Draw Starboard
@@ -152,12 +146,9 @@ public class JsfSidescanParser implements SidescanParser {
                 double gain;
                 
                 gain = Math.abs(30.0 * Math.log(r));
-//                System.out.println("#2 - " + gain + "  " + r);
                 double sb = sboard.getData()[i] * Math.pow(10, gain / config.tvgGain);
-                line.setRGB(i + pboard.getNumberOfSamples(), 0, config.colorMap.getColor(sb / min).getRGB());
+                fData[i + pboard.getNumberOfSamples()] = sb / avgSboard;
             }
-            
-            ypos += (int) lineSize;
             
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             pose.getPosition().setLatitude((pboard.getLat() / 10000.0) / 60.0);
@@ -166,7 +157,7 @@ public class JsfSidescanParser implements SidescanParser {
             pose.setYaw(Math.toRadians(pboard.getHeading() / 100));
             pose.setAltitude(pboard.getAltMillis() / 1000);
             
-            list.add(new SidescanLine(ping.get(0).getTimestamp(),lineWidth, (int)lineSize, ypos, ping.get(0).getRange(), pose, ImageUtils.getScaledImage(line, lineWidth, (int) lineSize, true)));
+            list.add(new SidescanLine(ping.get(0).getTimestamp(), ping.get(0).getRange(), pose, fData));
 
             ping = nextPing;
         }

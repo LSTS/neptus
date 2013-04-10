@@ -26,28 +26,74 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Margarida Faria
- * Mar 27, 2013
+ * Author: jqcorreia
+ * Apr 2, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.spot;
+package pt.up.fe.dceg.neptus.mra.api;
+
+import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 
 /**
- * @author Margarida Faria
+ * @author jqcorreia
  *
  */
-public enum SpotPageKeys {
-
-    LSTSSPOT("LSTSSPOT", "http://tiny.cc/spot1");
-
-    public final String id, pageUrl;
-
+public class BathymetrySwath {
+    long timestamp;
+    SystemPositionAndAttitude pose;
+    BathymetryPoint data[];
+    public int numBeams;
+    
     /**
-     * @param id
-     * @param pageUrl
+     * @param timestamp
+     * @param pose
+     * @param data
      */
-    private SpotPageKeys(String id, String pageUrl) {
-        this.id = id;
-        this.pageUrl = pageUrl;
+    public BathymetrySwath(long timestamp, SystemPositionAndAttitude pose, BathymetryPoint[] data) {
+        this.timestamp = timestamp;
+        this.pose = pose;
+        this.data = data;
     }
 
+    /**
+     * @return the timestamp
+     */
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    /**
+     * @param timestamp the timestamp to set
+     */
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    /**
+     * @return the pose
+     */
+    public SystemPositionAndAttitude getPose() {
+        return pose;
+    }
+
+    /**
+     * @param pose the pose to set
+     */
+    public void setPose(SystemPositionAndAttitude pose) {
+        this.pose = pose;
+    }
+
+    /**
+     * @return the data
+     */
+    public BathymetryPoint[] getData() {
+        return data;
+    }
+
+    /**
+     * @param data the data to set
+     */
+    public void setData(BathymetryPoint[] data) {
+        this.data = data;
+    }
+    
 }

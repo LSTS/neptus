@@ -104,7 +104,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
                 vehicleHomeRef = (console.getMission().getVehiclesList().get(getVehicleId())).getCoordinateSystem();
             }
             catch (Exception e) {
-                NeptusLog.pub().info(this + " getting vehicleHomeRef " + getVehicleId());
+                NeptusLog.pub().debug(this + " exception while getting vehicleHomeRef " + getVehicleId(), e);
                 vehicleHomeRef = console.getMission().getHomeRef();
             }
             state = new SystemPositionAndAttitude(new LocationType(vehicleHomeRef), 0, 0, 0);
@@ -123,7 +123,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
 
         MapGroup.getMapGroupInstance(missionType).addMap(mapCS);
         NeptusLog.pub()
-                .warn(this.getClass().getSimpleName() + " [" + this.hashCode() + "] started for vehicle "
+                .debug(this.getClass().getSimpleName() + " [" + this.hashCode() + "] started for vehicle "
                         + vehicle.getName());
 
     }
@@ -174,7 +174,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
 
         console.removeMissionListener(this);
         console.removeSubPanelListener(this);
-        NeptusLog.pub().warn(
+        NeptusLog.pub().debug(
                 this.getClass().getSimpleName() + " [" + this.hashCode() + "] shutdown for vehicle "
                         + imcSystem.getName());
     }
@@ -311,7 +311,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
                 vehicleHomeRef = (console.getMission().getVehiclesList().get(getVehicleId())).getCoordinateSystem();
             }
             catch (Exception e) {
-                NeptusLog.pub().warn(this + " getting vehicleHomeRef " + getVehicleId());
+                NeptusLog.pub().debug(this + " getting vehicleHomeRef " + getVehicleId());
                 vehicleHomeRef = console.getMission().getHomeRef();
             }
             state = new SystemPositionAndAttitude(new LocationType(vehicleHomeRef), 0, 0, 0);

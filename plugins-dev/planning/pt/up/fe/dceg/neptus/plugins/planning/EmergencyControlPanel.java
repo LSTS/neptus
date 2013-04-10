@@ -197,6 +197,12 @@ public class EmergencyControlPanel extends SimpleSubPanel implements Configurati
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         uploadPlanButton.setEnabled(true);
                     }
                 };
@@ -218,6 +224,12 @@ public class EmergencyControlPanel extends SimpleSubPanel implements Configurati
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         sendQueryButton.setEnabled(true);
                     }
                 };
@@ -243,6 +255,12 @@ public class EmergencyControlPanel extends SimpleSubPanel implements Configurati
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         sendEnableDisableButton.setEnabled(true);
                     }
                 };
@@ -269,6 +287,12 @@ public class EmergencyControlPanel extends SimpleSubPanel implements Configurati
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         sendStartStopButton.setEnabled(true);
                     }
                 };

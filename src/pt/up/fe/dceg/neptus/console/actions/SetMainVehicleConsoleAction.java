@@ -37,6 +37,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
@@ -81,6 +82,12 @@ public class SetMainVehicleConsoleAction extends ConsoleAction {
 
             @Override
             protected void done() {
+                try {
+                    get();
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                }
                 setEnabled(true);
             }
         };

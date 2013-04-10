@@ -15,7 +15,7 @@
  *
  * European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -26,51 +26,23 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Rui Gonçalves
- * 2010/05/19
+ * Author: jqcorreia
+ * Apr 2, 2013
  */
-package pt.up.fe.dceg.neptus.consolebase.joystick;
+package pt.up.fe.dceg.neptus.mra.api;
+
 
 /**
- * @author Rui Goncalves
- * 
+ * @author jqcorreia
+ *
  */
-public class ActionFunction {
-
-    private String action = null;
-    private String function = null;
-    private boolean negative = false;
-
-    public ActionFunction(String act, String func, boolean neg) {
-
-        action = act;
-        function = func;
-        negative = neg;
-
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public String getFunction() {
-        return function;
-    }
-
-    public void setFunction(String function) {
-        this.function = function;
-    }
-
-    public boolean isNegative() {
-        return negative;
-    }
-
-    public void setNegative(boolean negative) {
-        this.negative = negative;
-    }
-
+public interface BathymetryParser {
+    public long getFirstTimestamp();
+    public long getLastTimestamp();
+    
+    public BathymetryInfo getBathymetryInfo();
+    
+    public BathymetrySwath getSwathAt(long timestamp);
+    public BathymetrySwath nextSwath();
+    
 }

@@ -31,20 +31,37 @@
  */
 package pt.up.fe.dceg.neptus.plugins.ais;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Collection;
 import java.util.Vector;
 
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension;
+import pt.up.fe.dceg.neptus.planeditor.IMapPopup;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
@@ -54,32 +71,51 @@ import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 
+import com.google.gson.Gson;
+
 /**
  * @author zp
  * 
  */
-@PluginDescription(author = "ZP", name = "AIS Overlay")
-public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUpdates {
+@PluginDescription(author = "ZP", name = "AIS Overlay", icon = "pt/up/fe/dceg/neptus/plugins/ais/mt.png")
+public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUpdates, IEditorMenuExtension {
     private static final long serialVersionUID = 1L;
 
-    @NeptusProperty
+    @NeptusProperty(name = "Show vessel names")
     public boolean showNames = true;
 
-    @NeptusProperty
+    @NeptusProperty(name = "Show vessel speeds")
     public boolean showSpeeds = true;
 
-    @NeptusProperty
+    @NeptusProperty(name = "Milliseconds between vessel updates")
     public long updateMillis = 60000;
 
-    @NeptusProperty
+    @NeptusProperty(name = "Show only when selected")
     public boolean showOnlyWhenInteractionIsActive = true;
 
-    @NeptusProperty
+    @NeptusProperty(name = "Show stationary vessels")
     public boolean showStoppedShips = false;
 
+    @NeptusProperty(name = "Interpolate and predict positions")
+    public boolean interpolate = false;
+    
+    @NeptusProperty(name = "Moving vessel color")
+    public Color movingColor = Color.blue.darker();
+    
+    @NeptusProperty(name = "Stationary vessel color")
+    public Color stationaryColor = Color.gray.darker();
+    
+    @NeptusProperty(name = "Vessel label color")
+    public Color labelColor = Color.black;
+    
+    @NeptusProperty(name = "Show speed in knots")
+    public boolean useKnots = false;
+
     protected boolean active = false;
-    protected Vector<ShipInfo> shipsOnMap = new Vector<ShipInfo>();
+    protected Vector<AisShip> shipsOnMap = new Vector<AisShip>();
     protected StateRenderer2D renderer = null;
+
+    protected boolean updating = false;
 
     /**
      * @param console
@@ -113,38 +149,99 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
 
     protected Thread lastThread = null;
 
+    protected GeneralPath path = new GeneralPath();
+    {
+        path.moveTo(0, 5);
+        path.lineTo(-5, 3.5);
+        path.lineTo(-5, -5);
+        path.lineTo(5, -5);
+        path.lineTo(5, 3.5);
+        path.lineTo(0, 5);
+        path.closePath();
+    }
+
     @Override
     public boolean update() {
 
-        System.out.println("AIS update...");
-
         if (showOnlyWhenInteractionIsActive && !active)
             return true;
-
         // don't let more than one thread be running at a time
         if (lastThread != null)
             return true;
 
         lastThread = new Thread() {
             public void run() {
-                if (renderer == null)
+                updating = true;
+                if (renderer == null) {
+                    lastThread = null;
                     return;
+                }
 
                 LocationType topLeft = renderer.getTopLeftLocationType();
                 LocationType bottomRight = renderer.getBottomRightLocationType();
 
-                shipsOnMap = ShipInfo.getShips(bottomRight.getLatitudeAsDoubleValue(),
-                        topLeft.getLongitudeAsDoubleValue(), topLeft.getLatitudeAsDoubleValue(),
-                        bottomRight.getLongitudeAsDoubleValue(), showStoppedShips);
+                shipsOnMap = getShips(bottomRight.getLatitudeAsDoubleValue(), topLeft.getLongitudeAsDoubleValue(),
+                        topLeft.getLatitudeAsDoubleValue(), bottomRight.getLongitudeAsDoubleValue(), showStoppedShips);
+
                 lastThread = null;
 
+                updating = false;
                 renderer.repaint();
-                System.out.println("FINISHED! Found " + shipsOnMap.size() + " boats");
             };
         };
+        lastThread.setName("AIS Fetcher thread");
+        lastThread.setDaemon(true);
         lastThread.start();
 
         return true;
+    }
+
+    private HttpClient client = new HttpClient();
+    private Gson gson = new Gson();
+
+    protected Vector<AisShip> getShips(double minLat, double minLon, double maxLat, double maxLon,
+            boolean includeStationary) {
+        Vector<AisShip> ships = new Vector<>();
+
+        // area is too large
+        if (maxLat - minLat > 2)
+            return ships;
+
+        try {
+            URL url = new URL("http://www.marinetraffic.com/ais/getjson.aspx?sw_x=" + minLon + "&sw_y=" + minLat
+                    + "&ne_x=" + maxLon + "&ne_y=" + maxLat + "&zoom=12" + "&fleet=&station=0&id=null");
+
+            GetMethod get = new GetMethod(url.toString());
+            get.setRequestHeader("Referer", "http://www.marinetraffic.com/ais/");
+
+            client.executeMethod(get);
+            String json = get.getResponseBodyAsString();
+            String[][] res = gson.fromJson(json, String[][].class);
+
+            for (int i = 0; i < res.length; i++) {
+                double knots = Double.parseDouble(res[i][5]) / 10;
+                if (!includeStationary && knots <= 0.2)
+                    continue;
+
+                AisShip ship = new AisShip();
+                ship.setLatitude(Double.parseDouble(res[i][0]));
+                ship.setLongitude(Double.parseDouble(res[i][1]));
+                ship.setName(res[i][2]);
+                ship.setMMSI(Integer.parseInt(res[i][7]));
+                ship.setSpeed(knots);
+                if (res[i][4] != null)
+                    ship.setCourse(Double.parseDouble(res[i][4]));
+                if (res[i][6] != null)
+                    ship.setCountry(res[i][6]);
+                if (res[i][8] != null)
+                    ship.setLength(Double.parseDouble(res[i][8]));
+                ships.add(ship);
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+        }
+        return ships;
     }
 
     @Override
@@ -153,18 +250,12 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
         shipsOnMap.clear();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction#mouseClicked(java.awt.event.MouseEvent,
-     * pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
-     */
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
         super.mouseClicked(event, source);
 
         JPopupMenu popup = new JPopupMenu();
-        popup.add("Settings").addActionListener(new ActionListener() {
+        popup.add("AIS settings").addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -172,7 +263,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             }
         });
 
-        popup.add("Update now").addActionListener(new ActionListener() {
+        popup.add("Update ships").addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -180,16 +271,9 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             }
         });
 
-        popup.show(source, event.getX(), event.getY());
-    }
+        popup.add(getShipInfoMenu());
 
-    protected GeneralPath path = new GeneralPath();
-    {
-        path.moveTo(-3, 4);
-        path.lineTo(0, -5);
-        path.lineTo(3, 4);
-        path.lineTo(-3, 4);
-        path.closePath();
+        popup.show(source, event.getX(), event.getY());
     }
 
     @Override
@@ -203,44 +287,110 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
         if (lastThread != null) {
             g.drawString("Updating AIS layer...", 10, 15);
         }
+        else {
+            g.drawString(shipsOnMap.size() + " visible ships", 10, 15);
+        }
 
-        for (ShipInfo ship : shipsOnMap) {
+        for (AisShip ship : shipsOnMap) {
+            Graphics2D clone = (Graphics2D) g.create();
             LocationType shipLoc = ship.getLocation();
+            if (interpolate) {
+                double dT = (System.currentTimeMillis() - ship.lastUpdate) / 1000.0;
+                double tx = Math.cos(ship.getHeadingRads()) * dT * ship.getSpeedMps();
+                double ty = Math.sin(ship.getHeadingRads()) * dT * ship.getSpeedMps();
+                shipLoc.translatePosition(tx, ty, 0);
+            }
             Point2D pt = renderer.getScreenPosition(shipLoc);
+            clone.translate(pt.getX(), pt.getY());
+            Graphics2D clone2 = (Graphics2D) clone.create();
 
-            g.translate(pt.getX(), pt.getY());
+            Color c = movingColor;
+            if (ship.getSpeedKnots() <= 0.2)
+                c = stationaryColor;
 
+            double scaleX = (renderer.getZoom() / 10) * ship.getLength() / 9;
+            double scaleY = (renderer.getZoom() / 10) * ship.getLength();
+
+            clone.rotate(Math.PI + ship.getHeadingRads());
+            clone.setColor(c.brighter());//new Color(c.getRed(), c.getGreen(), c.getBlue(), 128));
+            clone.setStroke(new BasicStroke(1.0f,
+                    BasicStroke.CAP_BUTT,
+                    BasicStroke.JOIN_MITER,
+                    10.0f, new float[]{3f, 10f}, 0.0f));
+            clone.draw(new Line2D.Double(0, ship.getLength() / 1.99 * renderer.getZoom(), 0, ship.getSpeedMps() * 60
+                    * renderer.getZoom()));
+            clone.scale(scaleX, scaleY);
+            clone.setColor(c);
+            clone.fill(path);
+            clone.dispose();
+
+            //clone2.rotate(-Math.PI/2 + ship.getHeadingRads());
+            clone2.setFont(new Font("Helvetica", Font.PLAIN, 8));
+            clone2.setColor(labelColor);
+            clone2.drawLine(-3, 0, 3, 0);
+            clone2.drawLine(0, -3, 0, 3);
             if (showNames) {
-                g.setColor(Color.red.darker().darker());
-                g.drawString(ship.getName(), 5, 5);
+                clone2.drawString(ship.getName(), 5, 5);
             }
 
-            if (showSpeeds) {
-                g.setColor(Color.black);
-                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(ship.getSpeedMps()) + " m/s", 5, 15);
+            if (showSpeeds && ship.getSpeedKnots() > 0.2) {
+                if (useKnots)
+                    clone2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(ship.getSpeedKnots()) + " kn", 5, 15);
+                else
+                    clone2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(ship.getSpeedMps()) + " m/s", 5, 15);
             }
-
-            g.setColor(Color.red);
-            if (ship.getSpeedMps() == 0) {
-                g.fill(new Ellipse2D.Double(-3, -3, 6, 6));
-            }
-            else {
-                g.rotate(ship.getHeadingRads());
-                g.fill(path);
-                g.rotate(-ship.getHeadingRads());
-            }
-
-            g.translate(-pt.getX(), -pt.getY());
+            clone2.dispose();
         }
     }
+    
+    protected JMenu getShipInfoMenu() {
+        Vector<AisShip> ships = new Vector<>();
+        JMenu menu = new JMenu("Ship Info");
+        ships.addAll(shipsOnMap);
+        Collections.sort(ships);
 
-    /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#initSubPanel()
-     */
+        if (ships.size() > 0 && Desktop.isDesktopSupported()) {
+            for (final AisShip s : ships) {
+                menu.add(s.getName()).addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        Desktop desktop = Desktop.getDesktop();
+                        try {
+                            URI uri = new URI(s.getShipInfoURL());
+                            desktop.browse(uri);
+                        }
+                        catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                        catch (URISyntaxException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+            }
+        }
+        else {
+            menu.setEnabled(false);
+        }
+        
+        return menu;
+    }
+        
+    @Override
+    public Collection<JMenuItem> getApplicableItems(LocationType loc, IMapPopup source) {
+        Vector<JMenuItem> items = new Vector<>();
+        
+        if (!shipsOnMap.isEmpty())
+            items.add(getShipInfoMenu());
+        
+        return items;
+    }
+
     @Override
     public void initSubPanel() {
-        // TODO Auto-generated method stub
-        
+        Vector<IMapPopup> r = getConsole().getSubPanelsOfInterface(IMapPopup.class);
+        for (IMapPopup str2d : r) {
+            str2d.addMenuExtension(this);
+        }
     }
 
 }

@@ -201,7 +201,7 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
             List<Node> nodes = doc.selectNodes("//profiles/profile");
             for (Node node : nodes) {
                 if (node.valueOf("@name").equals(currentProfile)) {
-                    System.out.println(node.valueOf("@name") + "  true");
+                    NeptusLog.pub().debug("Loaded profile "+node.valueOf("@name"));
                     parse(node, this);
                 }
             }

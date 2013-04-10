@@ -15,7 +15,7 @@
  *
  * European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -26,50 +26,32 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: 
- * 20??/??/??
+ * Author: jqcorreia
+ * Apr 2, 2013
  */
-package pt.up.fe.dceg.neptus.mc.lauvconsole;
+package pt.up.fe.dceg.neptus.mra.api;
 
-import java.util.LinkedHashMap;
-import java.util.Vector;
+/**
+ * @author jqcorreia
+ *
+ */
+public class BathymetryPoint {
+    public float north;
+    public float east;
+    public float depth;
 
-import pt.up.fe.dceg.messages.Message;
-
-
-public class LAUVUDPComms {
-
-	private LinkedHashMap<Integer, Vector<LAUVMessageListener>> messageListeners = new LinkedHashMap<Integer, Vector<LAUVMessageListener>>();
-
-	public void sendMessage(Message message) {
-		disseminate(message);
-	}
-	
-	private void disseminate(Message message) {
-		Vector<LAUVMessageListener> listeners = messageListeners.get(message.serialId());
-		if (listeners != null) {
-			for (LAUVMessageListener listener : listeners)
-				listener.messageReceived(message);
-		}
-	}	
-	
-	public void addMessageListener(LAUVMessageListener listener, int messageID) {
-		Vector<LAUVMessageListener> v = messageListeners.get(messageID);
-		if (v == null)
-			v = new Vector<LAUVMessageListener>();
-		
-		if (!v.contains(listener))
-			v.add(listener);
-	}
-	
-	public void removeMessageListener(LAUVMessageListener listener) {
-		for (Integer i : messageListeners.keySet()) {
-			if (messageListeners.get(i).contains(listener)) {
-				messageListeners.get(i).remove(listener);
-				if (messageListeners.get(i).isEmpty())
-					messageListeners.remove(i);
-			}
-		}
-	}
-	
+    /**
+     * @param lat lat in radians
+     * @param lon lon in radians
+     * @param north offset north in meters
+     * @param east offset east in meters
+     * @param depth depth in this point in meters (relative to water surface)
+     */
+    
+    public BathymetryPoint(float north, float east, float depth) {
+        super();
+        this.north = north;
+        this.east = east;
+        this.depth = depth;
+    }
 }

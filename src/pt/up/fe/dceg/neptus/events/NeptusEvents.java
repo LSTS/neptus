@@ -208,9 +208,7 @@ public enum NeptusEvents {
      */
     @Subscribe
     public void onDeadEvent(DeadEvent e) {
-        System.out.println("found a dead event");
-        System.out.println(e.getEvent().toString());
-        System.out.println(e.getSource().toString());
+        NeptusLog.pub().info("Dead event of type "+e.getEvent().getClass().getSimpleName()+", sent by "+e.getSource().getClass().getSimpleName()+" has not been received by anyone.");
     }
 
 }

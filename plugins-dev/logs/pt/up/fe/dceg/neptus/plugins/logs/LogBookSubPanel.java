@@ -65,7 +65,8 @@ import com.google.common.eventbus.Subscribe;
  * 
  */
 @PluginDescription(name = "Logbook History")
-@Popup(accelerator = 'H', height = 400, width = 600, name = "Logbook History", pos = POSITION.CENTER)
+@Popup(accelerator = 'H', height = 400, width = 600, name = "Logbook History", pos = POSITION.CENTER,
+icon="pt/up/fe/dceg/neptus/plugins/logs/queue.png")
 public class LogBookSubPanel extends SimpleSubPanel implements IPeriodicUpdates {
 
     private static final long serialVersionUID = 1L;

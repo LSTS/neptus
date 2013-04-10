@@ -822,7 +822,7 @@ public class PluginUtils {
     public static void loadPlugins() {
         if (!PLUGINS_DIR.isDirectory() || !PLUGINS_DIR.exists()) {
             // PLUGINS_DIR.mkdirs();
-            System.out.println("No plugins found to load at \"" + PLUGINS_DIR.getPath() + "\"");
+            NeptusLog.pub().warn("No plugins found to load at \"" + PLUGINS_DIR.getPath() + "\"");
             return;
         }
 

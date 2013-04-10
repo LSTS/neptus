@@ -53,6 +53,7 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.EntityParameter;
 import pt.up.fe.dceg.neptus.imc.EntityParameters;
@@ -471,7 +472,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             for(EntityParameter ep : eps.getParams()) {
                 SystemProperty p = systemConfEditor.getParams().get(section + "." + ep.getName());
                 if(p == null) {
-                    System.out.println("Property not in config: " + section + ep.getName());
+                    NeptusLog.pub().warn("Property not in config: " + section + ep.getName());
                 }
                 else {
                     boolean isList = false;

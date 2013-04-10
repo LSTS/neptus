@@ -332,7 +332,7 @@ public class ImcMsgManager extends
             return vci;
         }
 
-        NeptusLog.pub().info("System not yet known to manager: " + vIdS);
+        NeptusLog.pub().debug("System not yet known to manager: " + vIdS);
 
         SystemImcMsgCommInfo vsci = new SystemImcMsgCommInfo();
         vsci.setMessageBus(bus);
@@ -340,11 +340,11 @@ public class ImcMsgManager extends
 
         VehicleType vehTmp = VehiclesHolder.getVehicleWithImc(vIdS);
         if (vehTmp == null) {
-            NeptusLog.pub().info("No vehicle with IMC ID " + vIdS + "!");
+            NeptusLog.pub().warn("No vehicle with IMC ID " + vIdS + "!");
         }
         else {
             // VehicleType vehicle = vehTmp;
-            NeptusLog.pub().info("Found the Vehicle: " + vehTmp.getId());
+            NeptusLog.pub().debug("Found the Vehicle: " + vehTmp.getId());
             vsci.setSystemIdName(vehTmp.getId());
         }
 

@@ -52,6 +52,7 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
 import pt.up.fe.dceg.neptus.gui.objparams.TransponderParameters;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
+import pt.up.fe.dceg.neptus.types.Identifiable;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.misc.FileType;
@@ -65,7 +66,7 @@ import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
  * @author Paulo Dias
  * @author Ze Carlos
  */
-public class TransponderElement extends AbstractElement {
+public class TransponderElement extends AbstractElement implements Identifiable{
     protected static final String DEFAULT_ROOT_ELEMENT = "transponder";
     private static Image transponderImg = ImageUtils.getImage("images/transponder.png");
     private static String[] transpondersListArray;
@@ -390,4 +391,11 @@ public class TransponderElement extends AbstractElement {
         return transpondersListArray;
     }
 
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.types.Identifiable#getIdentification()
+     */
+    @Override
+    public String getIdentification() {
+        return getName();
+    }
 }

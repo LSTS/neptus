@@ -63,6 +63,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.plugins.SystemsList;
 import pt.up.fe.dceg.neptus.gui.editor.ImcId16Editor;
 import pt.up.fe.dceg.neptus.gui.swing.JRoundButton;
@@ -699,6 +700,12 @@ public class MonitorIMCComms extends
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                            }
                             addNewSystemRoundButton.setEnabled(true);
                         }
                     };
@@ -740,6 +747,12 @@ public class MonitorIMCComms extends
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                            }
                             addNewVehRoundButton.setEnabled(true);
                         }
                     };

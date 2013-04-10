@@ -26,52 +26,24 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Margarida Faria
- * Mar 26, 2013
+ * Author: jqcorreia
+ * Apr 5, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.spot;
+package pt.up.fe.dceg.neptus.mra.api;
+
+import java.io.Serializable;
 
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
 /**
- * @author Margarida Faria
+ * @author jqcorreia
  *
  */
-public class TimedLocation {
-    private long timestamp;
-    private LocationType location;
-
-    public TimedLocation(long timestamp, LocationType location) {
-        this.timestamp = timestamp;
-        this.location = location;
-    }
-
-    /**
-     * @return the timestamp
-     */
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    /**
-     * @param timestamp the timestamp to set
-     */
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    /**
-     * @return the location
-     */
-    public LocationType getLocation() {
-        return location;
-    }
-
-    /**
-     * @param location the location to set
-     */
-    public void setLocation(LocationType location) {
-        this.location = location;
-    }
-
+public class BathymetryInfo implements Serializable {
+    public LocationType topLeft = new LocationType();
+    public LocationType bottomRight = new LocationType();
+    
+    public float minDepth = 1000;
+    public float maxDepth = -1000;
+    
 }

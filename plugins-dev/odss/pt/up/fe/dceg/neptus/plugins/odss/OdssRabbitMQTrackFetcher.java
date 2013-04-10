@@ -405,6 +405,12 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
                             }
                             @Override
                             protected void done() {
+                                try {
+                                    get();
+                                }
+                                catch (Exception e) {
+                                    NeptusLog.pub().error(e);
+                                }
                                 startStopCheckItem.setEnabled(true);
                             }
                         };
@@ -428,6 +434,12 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
                             }
                             @Override
                             protected void done() {
+                                try {
+                                    get();
+                                }
+                                catch (Exception e) {
+                                    NeptusLog.pub().error(e);
+                                }
                                 startStopCheckItem.setEnabled(true);
                             }
                         };

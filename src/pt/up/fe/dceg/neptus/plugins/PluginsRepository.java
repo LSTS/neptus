@@ -67,7 +67,7 @@ public class PluginsRepository {
     public static void addPlugin(String className) {
         try {
             Class<?> c = Class.forName(className);
-            NeptusLog.pub().info("loading '" + PluginUtils.getPluginName(c) + "'...");
+            NeptusLog.pub().debug("loading '" + PluginUtils.getPluginName(c) + "'...");
 
             boolean added = false;
 

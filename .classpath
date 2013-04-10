@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="**/.svn/*" kind="src" path="src">
+	<classpathentry excluding="**/.svn/*|pt/up/fe/dceg/messages/" kind="src" path="src">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Neptus/libJNI"/>
 		</attributes>

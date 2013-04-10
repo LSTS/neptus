@@ -115,7 +115,7 @@ public class ConfigurationManager {
                 if (!fname.replaceAll("." + fext + "$", "").endsWith(lang))
                     continue;
 
-                System.out.println("Loading vehicle configuration from " + f.getName());
+                NeptusLog.pub().debug("Loading vehicle configuration from " + f.getName());
                 String systemName = f.getName().split("\\.")[0];
                 try {
                     map.put(systemName, readConfiguration(f));

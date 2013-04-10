@@ -291,6 +291,12 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
 
                             @Override
                             protected void done() {
+                                try {
+                                    get();
+                                }
+                                catch (Exception e) {
+                                    NeptusLog.pub().error(e);
+                                }
                                 syncList.setEnabled(true);
                             };
                         };

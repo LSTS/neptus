@@ -381,6 +381,12 @@ public class ImcMessageSenderPanel extends JPanel {
 						
 						@Override
 						protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                            }
 							if (burstPublishButton != null)
 								burstPublishButton.setEnabled(true);
 						}

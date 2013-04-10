@@ -92,7 +92,7 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
  * @author jqcorreia
  * 
  */
-@Popup(pos = POSITION.TOP_RIGHT, width = 200, height = 400, accelerator = 'C')
+@Popup(pos = POSITION.TOP_RIGHT, width = 200, height = 400, accelerator = 'J')
 @PluginDescription(author = "jquadrado", description = "Controllers Panel", name = "Controllers Panel", icon = "images/control-mode/teleoperation.png")
 public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates {
     private static final long serialVersionUID = 1L;
@@ -124,7 +124,15 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
     
     private ControllerManager manager;
     private JComboBox<String> comboBox;
+    private JButton btnRefresh = new JButton(new AbstractAction(I18n.text("Refresh Controllers")) {
+        private static final long serialVersionUID = 1L;
 
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            updateControllers();
+        }
+    });
+    
     private int timeIncrement = 0;
     private int periodicDelay = 100;
 
@@ -195,8 +203,8 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
             }
         });
         
-        // Do this to set the initial vehicle
-        //mainVehicleChange(console.getMainSystem());
+        // Start the interface
+        refreshInterface();
     }
 
     public void buildDialog() {
@@ -209,14 +217,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         
         add(new JScrollPane(table), "wrap");
         add(comboBox, "w 200::, wrap");
-        add(new JButton(new AbstractAction(I18n.text("Refresh Controllers")) {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateControllers();
-            }
-        }));
+        add(btnRefresh);
         
         dialog.pack();
     }
@@ -260,19 +261,29 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
             comboBox.addItem(s);
         }
     }
-
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    
+    /**
+     * Clear the layout and ask the system for remote actions
+     */
+    public void refreshInterface() {
         actions = null;
         
-        requestRemoteActions();
-
         removeAll();
-        add(new JLabel("Waiting for vehicle action list"));
-
+        
+        if(console.getMainSystem() != null)
+            add(new JLabel("Waiting for vehicle action list"));
+        else
+            add(new JLabel("No main vehicle selected in the console"));
+        
         invalidate();
         revalidate();
 
+        requestRemoteActions();
+    }
+    
+    @Override
+    public void mainVehicleChangeNotification(String id) {
+        refreshInterface();
     }
 
     @Override
@@ -288,6 +299,9 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         
         // Always poll the controller
         poll = manager.pollController(currentController);
+
+        btnRefresh.setEnabled(!editing);
+        comboBox.setEnabled(!editing);
         
         if (editing) {
             if (oldPoll.size() == poll.size()) {
@@ -545,6 +559,8 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
                 setBackground(Color.white);
             }
             if(column == 4) {
+                JButton b = (JButton)model.getValueAt(row, column);
+                b.setEnabled(!editing); // Disable if we are editing
                 return (JButton)model.getValueAt(row, column);
             }
             return this;

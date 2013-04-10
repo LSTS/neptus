@@ -76,7 +76,7 @@ public class PeriodicUpdatesService {
      */
     public static void register(IPeriodicUpdates client) {
         if (clients.contains(client)) {
-            NeptusLog.pub().info("Code in "+ReflectionUtil.getCallerStamp()+" tried to add an already registered updates client");
+            NeptusLog.pub().debug("Code in "+ReflectionUtil.getCallerStamp()+" tried to add an already registered updates client");
             return;
         }
         updateTimes.put(client, 0L);

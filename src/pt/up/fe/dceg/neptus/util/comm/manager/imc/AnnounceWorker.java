@@ -408,7 +408,7 @@ public class AnnounceWorker {
      */
     void sendEntityListRequestMsg(ImcSystem sys) {
         try {
-        	NeptusLog.pub().info("Sending '" + sys.name + " | "
+        	NeptusLog.pub().debug("Sending '" + sys.name + " | "
         			+ sys.getId() + "' EntityList request...");
         	IMCMessage msg = imcDefinition.create("EntityList", "op", 1);
         	if (msg == null)
@@ -444,7 +444,7 @@ public class AnnounceWorker {
                 return;
             }
                 
-            NeptusLog.pub().info("Sending '" + sys.name + " | "
+            NeptusLog.pub().debug("Sending '" + sys.name + " | "
                     + sys.getId() + "' PlanDB request...");
             IMCMessage msg = imcDefinition.create("PlanDB", "type", "REQUEST", "op", "GET_STATE",
                     "request_id", IMCSendMessageUtils.getNextRequestId());
@@ -465,7 +465,7 @@ public class AnnounceWorker {
                 return;
             }
                 
-            NeptusLog.pub().info("Sending '" + sys.name + " | "
+            NeptusLog.pub().debug("Sending '" + sys.name + " | "
                     + sys.getId() + "' LblConfig request...");
             IMCMessage msg = imcDefinition.create("LblConfig", "op", "GET_CFG");
             imcManager.sendMessage(msg, sys.getId(), null);

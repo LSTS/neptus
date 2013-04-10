@@ -297,20 +297,23 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                     @Override
                     protected Void doInBackground() {
                         NeptusLog.action().info(action);
-                        try {
-                            sendAcousticsButton.setEnabled(false);
-                            boolean sendBlancTransponders = (ev.getModifiers() & ActionEvent.CTRL_MASK) != 0;
-                            sendAcoustics(sendBlancTransponders,
-                                    getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
+
+                        sendAcousticsButton.setEnabled(false);
+                        boolean sendBlancTransponders = (ev.getModifiers() & ActionEvent.CTRL_MASK) != 0;
+                        sendAcoustics(sendBlancTransponders,
+                                getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
+
                         return null;
                     }
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         sendAcousticsButton.setEnabled(true);
                     }
                 };
@@ -344,6 +347,12 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         sendUploadPlanButton.setEnabled(true);
                     }
                 };
@@ -371,6 +380,12 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         sendDownloadPlanButton.setEnabled(true);
                     }
                 };
@@ -386,18 +401,21 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                     @Override
                     protected Void doInBackground() {
                         NeptusLog.action().info(action);
-                        try {
-                            sendStartButton.setEnabled(false);
-                            sendStartPlan(getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
+
+                        sendStartButton.setEnabled(false);
+                        sendStartPlan(getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
+
                         return null;
                     }
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         sendStartButton.setEnabled(true);
                     }
                 };
@@ -413,18 +431,21 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                     @Override
                     protected Void doInBackground() {
                         NeptusLog.action().info(action);
-                        try {
-                            sendStopButton.setEnabled(false);
-                            sendStopPlan(getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
+
+                        sendStopButton.setEnabled(false);
+                        sendStopPlan(getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
+
                         return null;
                     }
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         sendStopButton.setEnabled(true);
                     }
                 };
@@ -732,6 +753,9 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                 if (resp == JOptionPane.YES_OPTION) {
                     transpondersList.clear();
                     transpondersList.addAll(Arrays.asList(selTransponders));
+                }
+                else {
+                    return false;
                 }
             }
         }

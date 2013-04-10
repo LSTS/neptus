@@ -333,6 +333,12 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         sendEnableDisableButton.setEnabled(true);
                     }
                 };
@@ -813,7 +819,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
 
     private boolean publishPlan() {
 
-        if (!publishActiveConsolePlan)
+        if (!publishActiveConsolePlan || getConsole().getPlan() == null)
             return false;
 
         // String xml = doc.asXML();

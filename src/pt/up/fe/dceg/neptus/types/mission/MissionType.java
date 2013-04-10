@@ -337,7 +337,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             pmon.setNote(I18n.text("Complete"));
         }
         long totalTime = System.currentTimeMillis() - initTime;
-        NeptusLog.pub().info(this + ": Total mission load time: " + totalTime + " ms.");
+        NeptusLog.pub().debug(this + ": Total mission load time: " + totalTime + " ms.");
 
         isLoadOk = true;
         return true;
@@ -936,7 +936,6 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                     GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(), I18n.text("Save mission"),
                             I18n.text("Cannot save mission: file name is non existant"));
                     NeptusLog.pub().error("Cannot save mission file: compressedFilePath is NULL");
-                    System.out.println("MISSION:> " + "Cannot save mission file: compressedFilePath is NULL");
                     return false;
                 }
                 setOriginalFilePath(fxTmp.getParentFile().getAbsolutePath() + "/tmp-mission.nmis");
@@ -945,12 +944,10 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(), I18n.text("Save mission"),
                         I18n.text("Cannot save mission: file name is empty"));
                 NeptusLog.pub().error("Cannot save mission file: OriginalFilePath is NULL");
-                System.out.println("MISSION:> " + "Cannot save mission file: OriginalFilePath is NULL");
                 return false;
             }
         }
-        long ts = System.currentTimeMillis();
-
+      
         if (savePreviousState) {
             String missionlog = GuiUtils.getLogFileName("mission_state", "zip");
             // Thread t = new Thread(new Runnable() {
@@ -961,16 +958,12 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             // });
             // t.start();
             boolean sr = asZipFile(missionlog, true);
-            NeptusLog.pub().info("The current mission state was" + (sr ? "" : " NOT") + " saved on " + missionlog);
-            System.out.println("MISSION [" + ts + "ms]:> " + "The current mission state was" + (sr ? "" : " NOT")
-                    + " saved on " + missionlog);
+            NeptusLog.pub().debug("The current mission state was" + (sr ? "" : " NOT") + " saved on " + missionlog);            
         }
 
         if (compressedFilePath != null) {
             boolean sr = asZipFile(compressedFilePath, false);
-            NeptusLog.pub().info("The mission was" + (sr ? "" : " NOT") + " saved to " + compressedFilePath);
-            System.out.println("MISSION [" + ts + "ms]:> " + "The mission Zip was" + (sr ? "" : " NOT") + " saved to "
-                    + compressedFilePath);
+            NeptusLog.pub().info("The mission was" + (sr ? "" : " NOT") + " saved to " + compressedFilePath);            
             return sr;
         }
 
@@ -978,8 +971,6 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 FileUtil.getAsPrettyPrintFormatedXMLString(asDocument()));
         NeptusLog.pub().info(
                 "The mission '" + getId() + "' was" + (sr ? "" : " NOT") + " saved to '" + getOriginalFilePath() + "'");
-        System.out.println("MISSION [" + ts + "ms]:> " + "The mission '" + getId() + "' was saved" + (sr ? "" : " NOT")
-                + " to '" + getOriginalFilePath() + "'");
         return sr;
 
         /*

@@ -40,7 +40,6 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.messages.Message;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.GotoParameters;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
@@ -340,13 +339,6 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 		"speed: <b>"+nf.format(getSpeed())+" "+getUnits()+"</b>"+
 		"<br>"+destination.getZUnits()+": <b>"+nf.format(destination.getZ())+" m</b>";
 	}
-    
-    public Message[] getAdditionalWaypointMessages(int wptID) {    	
-    	return new Message[] {};
-    }
-    
-    
-    
     
     
     @Override

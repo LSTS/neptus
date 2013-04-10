@@ -243,15 +243,16 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
                                             return null;
                                         }
 
-                                        /*
-                                         * (non-Javadoc)
-                                         * 
-                                         * @see javax.swing.SwingWorker#done()
-                                         */
                                         @Override
                                         protected void done() {
+                                            try {
+                                                get();
+                                            }
+                                            catch (Exception e) {
+                                                NeptusLog.pub().error(e);
+                                            }
                                             item.setEnabled(true);
-                                            System.out.println("..................................................");
+                                           
                                         }
                                     };
                                     worker.execute();

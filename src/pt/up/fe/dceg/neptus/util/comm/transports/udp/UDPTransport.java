@@ -448,7 +448,7 @@ public class UDPTransport {
                 String multicastGroup = "";
 
                 public synchronized void start() {
-                    NeptusLog.pub().info("Listener Thread Started");
+                    NeptusLog.pub().debug("Listener Thread Started");
                     try {
                         boolean useMulticast = isMulticastEnable();
                         sock = (!useMulticast) ? new DatagramSocket(null) : new MulticastSocket(null);
@@ -581,7 +581,7 @@ public class UDPTransport {
             Thread listenerThread = new Thread(UDPTransport.class.getSimpleName() + ": Dispacher Thread "
                     + this.hashCode()) {
                 public synchronized void start() {
-                    NeptusLog.pub().info("Dispacher Thread Started");
+                    NeptusLog.pub().debug("Dispacher Thread Started");
                     super.start();
                 }
 
@@ -650,7 +650,7 @@ public class UDPTransport {
             UDPNotification req;
 
             public synchronized void start() {
-                NeptusLog.pub().info("Sender Thread Started");
+                NeptusLog.pub().debug("Sender Thread Started");
                 try {
                     if (sockToUseAlreadyOpen != null)
                         sock = sockToUseAlreadyOpen;

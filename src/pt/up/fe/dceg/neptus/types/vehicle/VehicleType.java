@@ -433,7 +433,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             return false;
         }
         long totalTime = System.currentTimeMillis() - initTime;
-        NeptusLog.pub().info(this + ": Total vehicle load time: " + totalTime + " ms.");
+        NeptusLog.pub().debug(this + ": Total vehicle load time: " + totalTime + " ms.");
         isLoadOk = true;
         return true;
     }
@@ -1097,7 +1097,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 Maneuver man = manFactory.getManeuver(el.getName());
 
                 if (man != null) {
-                    NeptusLog.pub().warn(
+                    NeptusLog.pub().debug(
                             "loading maneuver '" + el.getName() + "' default values for vehicle '" + getId() + "'");
                     man.loadFromXML(el.asXML());
                     man.loadFromXMLExtraParameters(el.getParent());

@@ -45,6 +45,7 @@ import javax.swing.UIManager;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
 
 
@@ -83,7 +84,7 @@ public class I18n {
     }
 
     protected void init() {
-        System.out.println("I18n (trying): " + language);
+        NeptusLog.pub().info("I18n (trying): " + language);
         File localizationDir = new File(I18N_BASE_LOCALIZATION + language);
         
         Matcher m = localeStringPattern.matcher(language);
@@ -104,7 +105,7 @@ public class I18n {
             GeneralPreferences.language = language;
         }
 
-        System.out.println("I18n (" + (found ? "found" : "using") + "):  " + language);
+        NeptusLog.pub().info("I18n (" + (found ? "found" : "using") + "):  " + language);
         if (new File(localizationDir, "neptus.po").canRead()) {
             po = new PoFile();
             try {

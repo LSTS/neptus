@@ -100,7 +100,7 @@ public abstract class CommBaseManager<M extends IMessage, Mi extends MessageInfo
      */
     @Override
     public synchronized boolean start() {
-        System.out.println("START IMC");
+        NeptusLog.pub().debug("Starting IMC");
         if (started)
             return true; // do nothing
 
@@ -661,7 +661,7 @@ public abstract class CommBaseManager<M extends IMessage, Mi extends MessageInfo
         if (vci != null)
             ret = vci.addListener(listener, filter);
 
-        NeptusLog.pub().info("Add listener for vehicle: " + vIdS + ".");
+        NeptusLog.pub().debug("Add listener for vehicle: " + vIdS + ".");
 
         return ret;
     }

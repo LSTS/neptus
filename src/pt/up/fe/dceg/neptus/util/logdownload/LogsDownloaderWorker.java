@@ -2315,6 +2315,12 @@ public class LogsDownloaderWorker {
 			@Override
 			protected void done() {
 				super.done();
+                try {
+                    get();
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                }
 				logFolderList.setEnabled(true);
 			}
 		};

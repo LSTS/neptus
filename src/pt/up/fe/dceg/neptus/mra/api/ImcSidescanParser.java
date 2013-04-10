@@ -43,7 +43,6 @@ import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 /**
  * @author jqcorreia
@@ -84,11 +83,11 @@ public class ImcSidescanParser implements SidescanParser {
         return l;
     };
 
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int lineWidth, int subsystem, SidescanConfig config) {
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanConfig config) {
         
         // Preparation
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
-        int[] iData = null;
+        double[] fData = null;
         BufferedImage line = null;
         Image scaledLine = null;
         pingParser.firstLogEntry();
@@ -104,6 +103,7 @@ public class ImcSidescanParser implements SidescanParser {
         if (ping.getInteger("type") != SonarData.TYPE.SIDESCAN.value()) {
             ping = getNextMessageWithFrequency(pingParser, 0); //FIXME
         }
+        
         IMCMessage state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
 
         // Null guards
@@ -114,12 +114,7 @@ public class ImcSidescanParser implements SidescanParser {
         if (range == 0)
             range = ping.getInteger("max_range");
 
-        int totalsize = 0;
-        float secondsUntilNextPing = 0;
-        double speed = 0;
-
-        if (iData == null) {
-            iData = new int[ping.getRawData("data").length];
+        if (fData == null) {
         }
 
         while (ping.getTimestampMillis() <= timestamp2) {
@@ -127,6 +122,7 @@ public class ImcSidescanParser implements SidescanParser {
             if (ping == null || state == null)
                 break;
 
+            fData = new double[ping.getRawData("data").length];
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             pose.setAltitude(state.getDouble("alt"));
             pose.getPosition().setLatitudeRads(state.getDouble("lat"));
@@ -135,59 +131,46 @@ public class ImcSidescanParser implements SidescanParser {
             pose.getPosition().setOffsetNorth(state.getDouble("x"));
             pose.getPosition().setOffsetEast(state.getDouble("y"));
             pose.setU(state.getDouble("u"));
-            float horizontalScale = (float) ping.getRawData("data").length / (range * 2f);
-            float verticalScale = horizontalScale;
+            
+//            float horizontalScale = (float) ping.getRawData("data").length / (range * 2f);
+//            float verticalScale = horizontalScale;
 
-            // Time elapsed and speed calculation
-            IMCMessage nextPing = getNextMessageWithFrequency(pingParser, 0); // WARNING: This advances the
-                                                                                   // parser
-            if (nextPing == null)
-                break;
-
-            secondsUntilNextPing = (nextPing.getTimestampMillis() - ping.getTimestampMillis()) / 1000f;
-            speed = state.getDouble("u");
-
-            // Finally the 'height' of the ping in pixels
-            int size = (int) (secondsUntilNextPing * speed * verticalScale);
-            if (size <= 0) {
-                size = 1;
-            }
-            else if (secondsUntilNextPing > 0.5) {
-                // TODO This is way too much time between shots. Maybe mark it on the plot?
-                // For now put 1 as ysize
-                size = 1;
-            }
+//            // Time elapsed and speed calculation
+//            IMCMessage nextPing = getNextMessageWithFrequency(pingParser, 0); // WARNING: This advances the
+//                                                                                   // parser
+//            if (nextPing == null)
+//                break;
+//
+//            secondsUntilNextPing = (nextPing.getTimestampMillis() - ping.getTimestampMillis()) / 1000f;
+//            speed = state.getDouble("u");
+//
+//            // Finally the 'height' of the ping in pixels
+//            int size = (int) (secondsUntilNextPing * speed * verticalScale);
+//            if (size <= 0) {
+//                size = 1;
+//            }
+//            else if (secondsUntilNextPing > 0.5) {
+//                // TODO This is way too much time between shots. Maybe mark it on the plot?
+//                // For now put 1 as ysize
+//                size = 1;
+//            }
 
             // Image building. Calculate and draw a line, scale it and save it
             byte[] data = ping.getRawData("data");
-            int[] colors = new int[data.length];
-            line = new BufferedImage(data.length, size, BufferedImage.TYPE_INT_RGB);
-
-            int pos;
 
             for (int c = 0; c < data.length; c++) {
-                iData[c] = data[c] & 0xFF;
-                pos = c;
-                colors[pos] = config.colorMap.getColor(iData[c] / 255.0).getRGB();
+                fData[c] = (data[c] & 0xFF) / 255.0;
             }
-
-            for (int c = 0; c < size; c++) {
-                line.setRGB(0, c, colors.length, 1, colors, 0, colors.length);
-            }
-
-            double lineScale = (double) lineWidth / (double) data.length;
-            double lineSize = Math.ceil(Math.max(1, lineScale * size));
-            scaledLine = ImageUtils.getScaledImage(line, lineWidth, (int) lineSize, true);
             
-            totalsize += (int) (lineSize);
-            
-            list.add(new SidescanLine(ping.getTimestampMillis(), scaledLine.getWidth(null), (int) lineSize, totalsize, range, pose, scaledLine));
+            list.add(new SidescanLine(ping.getTimestampMillis(), range, pose, fData));
 
-            ping = pingParser.getCurrentEntry(); // This parser was already advanced so only get current entry
+            ping = getNextMessageWithFrequency(pingParser, 0); 
             state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
         }
+
         pingParser.firstLogEntry();
         stateParser.firstLogEntry();
+        
         return list;
     }
     

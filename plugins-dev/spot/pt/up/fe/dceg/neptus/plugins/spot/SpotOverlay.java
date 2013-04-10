@@ -35,9 +35,16 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.TreeSet;
+import java.util.Vector;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
@@ -56,12 +63,11 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
  */
 @PluginDescription(author = "Margarida", name = "SPOT Overlay")
 public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicUpdates {
-    private final ArrayList<Spot> spotsOnMap;
+    private Vector<Spot> spotsOnMap;
     private boolean active = false;
 
     private static final long serialVersionUID = -4807939956933128721L;
     private final int updateMillis;
-    private Timer timer;
     private final Image arrow;
 
     @NeptusProperty
@@ -76,9 +82,9 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
      */
     public SpotOverlay(ConsoleLayout console) {
         super(console);
-        updateMillis = 60000;
+        updateMillis = 60 * 5 * 1000;
         arrow = ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/spot/images/spotArrow.png");
-        spotsOnMap = new ArrayList<Spot>();
+        spotsOnMap = new Vector<Spot>();
     }
 
     /*
@@ -99,34 +105,50 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public boolean update() {
+        // Called by Update thread
+        updateFromPage();
+        return true;
+    }
 
-        return false;
+
+    private void updateFromPage() {
+        Vector<Spot> nextSpotsOnMap = new Vector<Spot>();
+        HashMap<String, TreeSet<SpotMessage>> msgBySpot;
+        try {
+            msgBySpot = SpotMsgFetcher.get();
+            // if no messages were found or could not reach page do nothing
+            if (msgBySpot.size() == 0)
+                return;
+            Collection<TreeSet<SpotMessage>> spotIds = msgBySpot.values();
+            Spot.log.debug("Gonna run updates on SPOTS. There are " + spotIds.size() + " spots registered");
+            TreeSet<SpotMessage> msgTreeSet;
+            // iterate over spots mentioned in messages
+            for (Iterator<TreeSet<SpotMessage>> iterator = spotIds.iterator(); iterator.hasNext();) {
+                msgTreeSet = iterator.next();
+                // create spot
+                SpotMessage firstMsg = msgTreeSet.first();
+                Spot spot = new Spot(firstMsg.id);
+                spot.update(msgTreeSet);
+                nextSpotsOnMap.add(spot);
+            }
+            spotsOnMap = nextSpotsOnMap;
+            Spot.log.debug("Repaint asked for SpotOverlay");
+            repaint();
+        }
+        catch (ParserConfigurationException | SAXException | IOException e) {
+            Spot.log.debug("Ran into exception while getting messages from page: " + e.getStackTrace());
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void initSubPanel() {
         Spot.log.debug("Init SpotOverlay");
-        spotsOnMap.add(new Spot(SpotPageKeys.LSTSSPOT));
-        timer = new Timer();
-        int delayToStart = 0;// 1 * 60 * 10000;
-        int delayBetweenTasks = 10 * 60 * 10000;
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                Spot.log.debug("Gonna run updates on SPOTS. There are " + spotsOnMap.size() + " spots registered");
-                for (Spot spot : spotsOnMap) {
-                    spot.update();
-                    Spot.log.debug("Repaint asked for SpotOverlay");
-                    repaint();
-                }
-            }
-        }, delayToStart, delayBetweenTasks);
     }
 
     @Override
     public void cleanSubPanel() {
         PeriodicUpdatesService.unregister(this);// TODO stop using this
-        timer.cancel();
         Spot.log.debug("--------- end of session ------------");
     }
 
@@ -141,20 +163,6 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
-        // Graphics2D graphicsClone;
-//        Graphics2D graphicsClone = (Graphics2D)g.create();
-//        graphicsClone.dispose();
-        
-        // System.out.println("showOnlyWhenInteractionIsActive && !active:" + (showOnlyWhenInteractionIsActive &&
-        // !active)
-        // + "; showOnlyWhenInteractionIsActive " + showOnlyWhenInteractionIsActive + " active" + active);
-        //
-        // if (showOnlyWhenInteractionIsActive && !active)
-        // return;
-
-        // if (lastThread != null) {
-        // g.drawString("Updating AIS layer...", 10, 15);
-        // }
         Spot.log.debug(spotsOnMap.size() + " spots:");
         for (Spot spot : spotsOnMap) {
             LocationType spotLoc = spot.getLastLocation();
@@ -170,33 +178,24 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
             if (showNames) {
                 g.setColor(Color.red.darker().darker());
-                g.drawString(spot.getName(), 5, 5);
+                g.drawString(spot.getName(), 10, 5);
             }
 
             double speedMps = spot.getSpeed();
             if (showSpeedValue) {
                 g.setColor(Color.black);
-                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 5, 15);
+                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 10, 15);
             }
 
-            int xArrowScreenCoord = 5;// arrow.getWidth(renderer);
-            int yArrowScreenCoord = 25; // arrow.getHeight(renderer);
+            int xArrowScreenCoord = -7;// arrow.getWidth(renderer);
+            int yArrowScreenCoord = -7; // arrow.getHeight(renderer);
             int widthArrow = arrow.getWidth(null);
             int heightArrow = arrow.getHeight(null);
+            g.rotate(-spot.direction);
             g.drawImage(arrow, xArrowScreenCoord, yArrowScreenCoord, widthArrow, heightArrow, null);
+            g.rotate(spot.direction);
             Spot.log.debug(", arrow: coords(" + xArrowScreenCoord + "," + yArrowScreenCoord + ") dimensions:("
                     + widthArrow + ", " + heightArrow + ")");
-            // g.rotate(spot.getDirection());
-
-            // g.setColor(Color.red);
-            // if (speedMps == 0) {
-            // g.fill(new Ellipse2D.Double(-3, -3, 6, 6));
-            // }
-            // else {
-            // g.rotate(spot.getHeadingRads());
-            // g.fill(path);
-            // g.rotate(-spot.getHeadingRads());
-            // }
 
             g.translate(-xScreenPos, -yScreenPos);
 
