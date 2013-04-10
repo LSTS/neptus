@@ -191,9 +191,9 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
             int yArrowScreenCoord = -7; // arrow.getHeight(renderer);
             int widthArrow = arrow.getWidth(null);
             int heightArrow = arrow.getHeight(null);
-            g.rotate(spot.direction);
-            g.drawImage(arrow, xArrowScreenCoord, yArrowScreenCoord, widthArrow, heightArrow, null);
             g.rotate(-spot.direction);
+            g.drawImage(arrow, xArrowScreenCoord, yArrowScreenCoord, widthArrow, heightArrow, null);
+            g.rotate(spot.direction);
             Spot.log.debug(", arrow: coords(" + xArrowScreenCoord + "," + yArrowScreenCoord + ") dimensions:("
                     + widthArrow + ", " + heightArrow + ")");
 

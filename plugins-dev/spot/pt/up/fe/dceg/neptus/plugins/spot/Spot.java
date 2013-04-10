@@ -112,22 +112,22 @@ public class Spot {
         for (Iterator<SpotMessage> it = messages.iterator(); it.hasNext();) {
             tmpMsg = it.next();
             tmpLocation = new LocationType(tmpMsg.latitude, tmpMsg.longitude);// tmpMsg.getLocation();
-                numMeasurements++;
-                if (prevMsg != null) {
-                    distanceInMeters = tmpLocation.getDistanceInMeters(prevLocation);
-                    elapsedTime = tmpMsg.timestamp - prevMsg.timestamp;
+            numMeasurements++;
+            if (prevMsg != null) {
+                distanceInMeters = tmpLocation.getDistanceInMeters(prevLocation);
+                elapsedTime = tmpMsg.timestamp - prevMsg.timestamp;
                 speedMeterSecond = distanceInMeters / elapsedTime;
                 log.debug("Traveled " + distanceInMeters + " in " + elapsedTime + " = " + speedMeterSecond + "  ("
                         + tmpMsg.latitude + ", " + tmpMsg.longitude + " at " + tmpMsg.timestamp);
-                    sumSpeed += speedMeterSecond;
-                    latDif = tmpLocation.getLatitudeAsDoubleValueRads() - prevLocation.getLatitudeAsDoubleValueRads();
-                    lonDif = tmpLocation.getLongitudeAsDoubleValueRads() - prevLocation.getLongitudeAsDoubleValueRads();
-                    // weighted sum
-                    sumDirVector.latitude += latDif * numMeasurements;
-                    sumDirVector.longitude += lonDif * numMeasurements;
-                }
-                prevMsg = tmpMsg;
-                prevLocation = tmpLocation;
+                sumSpeed += speedMeterSecond;
+                latDif = tmpLocation.getLatitudeAsDoubleValueRads() - prevLocation.getLatitudeAsDoubleValueRads();
+                lonDif = tmpLocation.getLongitudeAsDoubleValueRads() - prevLocation.getLongitudeAsDoubleValueRads();
+                // weighted sum
+                sumDirVector.latitude += latDif * numMeasurements;
+                sumDirVector.longitude += lonDif * numMeasurements;
+            }
+            prevMsg = tmpMsg;
+            prevLocation = tmpLocation;
         }
         double factorial = gamma(numMeasurements - 1);
         // weighted mean
