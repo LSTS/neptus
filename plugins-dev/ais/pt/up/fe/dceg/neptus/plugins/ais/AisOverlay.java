@@ -46,18 +46,23 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Vector;
 
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension;
+import pt.up.fe.dceg.neptus.planeditor.IMapPopup;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
@@ -74,7 +79,7 @@ import com.google.gson.Gson;
  * 
  */
 @PluginDescription(author = "ZP", name = "AIS Overlay", icon = "pt/up/fe/dceg/neptus/plugins/ais/mt.png")
-public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUpdates {
+public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUpdates, IEditorMenuExtension {
     private static final long serialVersionUID = 1L;
 
     @NeptusProperty(name = "Show vessel names")
@@ -214,7 +219,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
 
             for (int i = 0; i < res.length; i++) {
                 double knots = Double.parseDouble(res[i][5]) / 10;
-                if (!includeStationary && knots <= 0.1)
+                if (!includeStationary && knots <= 0.2)
                     continue;
 
                 AisShip ship = new AisShip();
@@ -265,32 +270,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             }
         });
 
-        Vector<AisShip> ships = new Vector<>();
-        ships.addAll(shipsOnMap);
-        Collections.sort(ships);
-
-        if (ships.size() > 0 && Desktop.isDesktopSupported()) {
-            JMenu menu = new JMenu("Ship Info");
-            for (final AisShip s : ships) {
-                menu.add(s.getName()).addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        Desktop desktop = Desktop.getDesktop();
-                        try {
-                            URI uri = new URI(s.getShipInfoURL());
-                            desktop.browse(uri);
-                        }
-                        catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
-                        catch (URISyntaxException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                });
-            }
-
-            popup.add(menu);
-        }
+        popup.add(getShipInfoMenu());
 
         popup.show(source, event.getX(), event.getY());
     }
@@ -324,7 +304,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             Graphics2D clone2 = (Graphics2D) clone.create();
 
             Color c = movingColor;
-            if (ship.getSpeedMps() == 0)
+            if (ship.getSpeedKnots() <= 0.2)
                 c = stationaryColor;
 
             double scaleX = (renderer.getZoom() / 10) * ship.getLength() / 9;
@@ -345,13 +325,14 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
 
             //clone2.rotate(-Math.PI/2 + ship.getHeadingRads());
             clone2.setFont(new Font("Helvetica", Font.PLAIN, 8));
+            clone2.setColor(labelColor);
+            clone2.drawLine(-3, 0, 3, 0);
+            clone2.drawLine(0, -3, 0, 3);
             if (showNames) {
-                clone2.setColor(labelColor);
                 clone2.drawString(ship.getName(), 5, 5);
             }
 
-            if (showSpeeds && ship.getSpeedMps() != 0) {
-                clone2.setColor(labelColor);
+            if (showSpeeds && ship.getSpeedKnots() > 0.2) {
                 if (useKnots)
                     clone2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(ship.getSpeedKnots()) + " kn", 5, 15);
                 else
@@ -360,11 +341,55 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             clone2.dispose();
         }
     }
+    
+    protected JMenu getShipInfoMenu() {
+        Vector<AisShip> ships = new Vector<>();
+        JMenu menu = new JMenu("Ship Info");
+        ships.addAll(shipsOnMap);
+        Collections.sort(ships);
+
+        if (ships.size() > 0 && Desktop.isDesktopSupported()) {
+            for (final AisShip s : ships) {
+                menu.add(s.getName()).addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        Desktop desktop = Desktop.getDesktop();
+                        try {
+                            URI uri = new URI(s.getShipInfoURL());
+                            desktop.browse(uri);
+                        }
+                        catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                        catch (URISyntaxException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+            }
+        }
+        else {
+            menu.setEnabled(false);
+        }
+        
+        return menu;
+    }
+        
+    @Override
+    public Collection<JMenuItem> getApplicableItems(LocationType loc, IMapPopup source) {
+        Vector<JMenuItem> items = new Vector<>();
+        
+        if (!shipsOnMap.isEmpty())
+            items.add(getShipInfoMenu());
+        
+        return items;
+    }
 
     @Override
     public void initSubPanel() {
-        // TODO Auto-generated method stub
-
+        Vector<IMapPopup> r = getConsole().getSubPanelsOfInterface(IMapPopup.class);
+        for (IMapPopup str2d : r) {
+            str2d.addMenuExtension(this);
+        }
     }
 
 }
