@@ -55,7 +55,6 @@ import javax.swing.JPopupMenu;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
@@ -190,6 +189,8 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
                 renderer.repaint();
             };
         };
+        lastThread.setName("AIS Fetcher thread");
+        lastThread.setDaemon(true);
         lastThread.start();
 
         return true;
