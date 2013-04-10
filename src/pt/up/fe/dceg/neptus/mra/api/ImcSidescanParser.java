@@ -31,8 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.mra.api;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
@@ -57,6 +55,8 @@ public class ImcSidescanParser implements SidescanParser {
     long firstTimestamp = -1;
     long lastTimestamp = -1;
     
+    long lastTimestampRequested;
+    
     public ImcSidescanParser(IMraLogGroup source) {
         pingParser = source.getLog("SonarData");
         stateParser = source.getLog("EstimatedState");
@@ -73,6 +73,7 @@ public class ImcSidescanParser implements SidescanParser {
     public long lastPingTimestamp() {
         if(lastTimestamp != -1 ) return lastTimestamp;
         lastTimestamp = pingParser.getLastEntry().getTimestampMillis();
+        pingParser.firstLogEntry();
         return lastTimestamp;
     }
     
@@ -88,9 +89,13 @@ public class ImcSidescanParser implements SidescanParser {
         // Preparation
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         double[] fData = null;
-        BufferedImage line = null;
-        Image scaledLine = null;
-        pingParser.firstLogEntry();
+        
+        if(lastTimestampRequested > timestamp1) {
+            pingParser.firstLogEntry();
+            stateParser.firstLogEntry();
+        }
+        
+        lastTimestampRequested = timestamp1;
         
         IMCMessage ping = pingParser.getEntryAtOrAfter(timestamp1);
         if (ping == null)
@@ -103,7 +108,6 @@ public class ImcSidescanParser implements SidescanParser {
         if (ping.getInteger("type") != SonarData.TYPE.SIDESCAN.value()) {
             ping = getNextMessageWithFrequency(pingParser, 0); //FIXME
         }
-        
         IMCMessage state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
 
         // Null guards
@@ -167,9 +171,6 @@ public class ImcSidescanParser implements SidescanParser {
             ping = getNextMessageWithFrequency(pingParser, 0); 
             state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
         }
-
-        pingParser.firstLogEntry();
-        stateParser.firstLogEntry();
         
         return list;
     }

@@ -107,7 +107,6 @@ public class MultibeamReplay implements LogReplayLayer {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        System.out.println("canBeApplied " + source.getFile("multibeam.83P") != null);
         return source.getFile("multibeam.83P") != null;
     }
 
