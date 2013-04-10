@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.ais;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Graphics2D;
@@ -38,7 +39,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -176,6 +179,9 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
         return true;
     }
 
+    private HttpClient client = new HttpClient();
+    private Gson gson = new Gson();
+
     protected Vector<AisShip> getShips(double minLat, double minLon, double maxLat, double maxLon,
             boolean includeStationary) {
         Vector<AisShip> ships = new Vector<>();
@@ -186,20 +192,14 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
 
         try {
             URL url = new URL("http://www.marinetraffic.com/ais/getjson.aspx?sw_x=" + minLon + "&sw_y=" + minLat
-                    + "&ne_x=" + maxLon + "&ne_y=" + maxLat + "&zoom=12"
-                    + "&fleet=&station=0&id=null");
+                    + "&ne_x=" + maxLon + "&ne_y=" + maxLat + "&zoom=12" + "&fleet=&station=0&id=null");
 
-            URLConnection connection = url.openConnection();
-            connection.setRequestProperty("Referer", "http://www.marinetraffic.com/ais/");
             GetMethod get = new GetMethod(url.toString());
             get.setRequestHeader("Referer", "http://www.marinetraffic.com/ais/");
 
-            HttpClient client = new HttpClient();
-            client.executeMethod(get);            
-            Gson gson = new Gson();
+            client.executeMethod(get);
             String json = get.getResponseBodyAsString();
             String[][] res = gson.fromJson(json, String[][].class);
-
 
             for (int i = 0; i < res.length; i++) {
                 double knots = Double.parseDouble(res[i][5]) / 10;
@@ -300,7 +300,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
         }
 
         for (AisShip ship : shipsOnMap) {
-            Graphics2D clone = (Graphics2D)g.create();
+            Graphics2D clone = (Graphics2D) g.create();
             LocationType shipLoc = ship.getLocation();
             if (interpolate) {
                 double dT = (System.currentTimeMillis() - ship.lastUpdate) / 1000.0;
@@ -310,28 +310,38 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             }
             Point2D pt = renderer.getScreenPosition(shipLoc);
             clone.translate(pt.getX(), pt.getY());
+            Graphics2D clone2 = (Graphics2D) clone.create();
 
-            if (showNames) {
-                clone.setColor(Color.blue.darker().darker());
-                clone.drawString(ship.getName(), 5, 5);
-            }
-
-            if (showSpeeds) {
-                clone.setColor(Color.black);
-                clone.drawString(GuiUtils.getNeptusDecimalFormat(1).format(ship.getSpeedMps()) + " m/s", 5, 15);
-            }
-
-            clone.setColor(Color.blue.darker());
+            Color c = Color.blue.darker();
             if (ship.getSpeedMps() == 0)
-                clone.setColor(Color.gray.darker());
+                c = Color.gray.darker();
 
             double scaleX = (renderer.getZoom() / 10) * ship.getLength() / 9;
             double scaleY = (renderer.getZoom() / 10) * ship.getLength();
 
             clone.rotate(Math.PI + ship.getHeadingRads());
+            clone.setColor(c.brighter());//new Color(c.getRed(), c.getGreen(), c.getBlue(), 128));
+            clone.setStroke(new BasicStroke(1.0f,
+                    BasicStroke.CAP_BUTT,
+                    BasicStroke.JOIN_MITER,
+                    10.0f, new float[]{3f, 10f}, 0.0f));
+            clone.draw(new Line2D.Double(0, ship.getLength() / 1.99 * renderer.getZoom(), 0, ship.getSpeedMps() * 60
+                    * renderer.getZoom()));
             clone.scale(scaleX, scaleY);
+            clone.setColor(c);
             clone.fill(path);
             clone.dispose();
+
+            if (showNames) {
+                clone2.setColor(Color.blue.darker().darker());
+                clone2.drawString(ship.getName(), 5, 5);
+            }
+
+            if (showSpeeds && ship.getSpeedMps() != 0) {
+                clone2.setColor(Color.black);
+                clone2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(ship.getSpeedMps()) + " m/s", 5, 15);
+            }
+            clone2.dispose();
         }
     }
 
