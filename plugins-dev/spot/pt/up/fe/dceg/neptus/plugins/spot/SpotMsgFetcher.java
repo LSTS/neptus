@@ -61,6 +61,9 @@ public class SpotMsgFetcher {
      */
     public static HashMap<String, TreeSet<SpotMessage>> get() throws ParserConfigurationException, SAXException,
             IOException {
+        long currentTime = System.currentTimeMillis() / 1000;
+        long timeWindow = 8 * 60 * 60;
+        long startOfTimeWindowSecs = currentTime - timeWindow;
 
         HashMap<String, TreeSet<SpotMessage>> msgBySpot = new HashMap<String, TreeSet<SpotMessage>>();
         TreeSet<SpotMessage> spotMsgTree;
@@ -75,7 +78,7 @@ public class SpotMsgFetcher {
             String tagName = nlist.item(i).getNodeName();
             if (tagName.equals("message")) {
                 double lat = 0, lon = 0;
-                String id = "SPOT";
+                String id = "_";
                 long timestamp = System.currentTimeMillis();
 
                 // go through message elements
@@ -90,15 +93,23 @@ public class SpotMsgFetcher {
                     else if (tag.equals("esnName"))
                         id = elems.item(j).getTextContent();
                     else if (tag.equals("timeInGMTSecond")) {
-                        timestamp = Long.parseLong(elems.item(j).getTextContent());
-                        timestamp *= 1000; // secs to millis
+                        timestamp = Long.parseLong(elems.item(j).getTextContent()); // seconds
                     }
                 }
-                spotMsgTree = msgBySpot.get(id);
-                if (spotMsgTree == null) {
-                    spotMsgTree = new TreeSet<SpotMessage>();
+
+                // only add messages within time window
+                if (timestamp > startOfTimeWindowSecs) {
+                    spotMsgTree = msgBySpot.get(id);
+                    if (spotMsgTree == null) {
+                        spotMsgTree = new TreeSet<SpotMessage>();
+                        msgBySpot.put(id, spotMsgTree);
+                    }
+                    spotMsgTree.add(new SpotMessage(lat, lon, timestamp, id));
+
                 }
-                spotMsgTree.add(new SpotMessage(lat, lon, timestamp, id));
+                else {
+                    Spot.log.debug(id + " " + timestamp + " < " + startOfTimeWindowSecs);
+                }
             }
         }
         return msgBySpot;

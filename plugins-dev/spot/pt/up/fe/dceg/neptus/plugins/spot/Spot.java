@@ -31,19 +31,12 @@
  */
 package pt.up.fe.dceg.neptus.plugins.spot;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.TreeSet;
 
 import javax.swing.SwingUtilities;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
@@ -56,7 +49,8 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
 public class Spot {
     public static Logger log = Logger.getLogger("SPOT");
 
-    protected final SpotPageKeys pageInfo;
+    // protected final SpotPageKeys pageInfo;
+    private final String id;
     protected Float speed;
     protected Double direction;
     protected LocationType lastLocation;
@@ -64,90 +58,40 @@ public class Spot {
     /**
      * @param pageInfo
      */
-    public Spot(SpotPageKeys pageInfo) {
+    public Spot(String id) {
         super();
-        this.pageInfo = pageInfo;
+        // this.pageInfo = pageInfo;
+        this.id = id;
         lastLocation = null;
         speed = null;
         direction = null;
     }
 
-    /**
-     * Get messages on SPOT page.
-     * 
-     * @return
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
-     */
-    private TreeSet<SpotMessage> get() throws ParserConfigurationException, SAXException, IOException {
-
-        TreeSet<SpotMessage> updates = new TreeSet<SpotMessage>();
-
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document doc = db.parse(pageInfo.pageUrl);
-        NodeList nlist = doc.getFirstChild().getChildNodes();
-
-        for (int i = 1; i < nlist.getLength(); i++) {
-            String tagName = nlist.item(i).getNodeName();
-            if (tagName.equals("message")) {
-                double lat = 0, lon = 0;
-                String id = "SPOT";
-                long timestamp = System.currentTimeMillis();
-
-                NodeList elems = nlist.item(i).getChildNodes();
-                for (int j = 0; j < elems.getLength(); j++) {
-                    String tag = elems.item(j).getNodeName();
-
-                    if (tag.equals("latitude"))
-                        lat = Double.parseDouble(elems.item(j).getTextContent());
-                    else if (tag.equals("longitude"))
-                        lon = Double.parseDouble(elems.item(j).getTextContent());
-                    else if (tag.equals("esnName"))
-                        id = elems.item(j).getTextContent();
-                    else if (tag.equals("timeInGMTSecond")) {
-                        timestamp = Long.parseLong(elems.item(j).getTextContent());
-                        timestamp *= 1000; // secs to millis
-                    }
-                }
-                updates.add(new SpotMessage(lat, lon, timestamp, id));
-            }
-        }
-        return updates;
-    }
 
     /**
      * This is a slow operation and should be called from a background thread. The update of variables is scheduled in
      * the EDT.<br>
      * For each SPOT the messages: are fetched from the page and the location, speed and direction angle set.
      */
-    public void update() {
+    public void update(TreeSet<SpotMessage> messages) {
         // ask for messages
-        try {
-            TreeSet<SpotMessage> messages = get();
-            Spot.log.debug(pageInfo.id + " har " + messages.size() + " messages");
-            // calculate direction and speed
-            final LocationSpeedDirection speedLocationDirection = setSpeedMpsAndDirection(messages);
-            Spot.log.debug("Speed:" + speedLocationDirection.speed + ", direction:"
-                    + speedLocationDirection.direction + " [" + speedLocationDirection.location.getLatitude() + ","
-                    + speedLocationDirection.location.getLongitude() + "]");
-            // update in EDT
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    speed = speedLocationDirection.speed;
-                    direction = speedLocationDirection.direction;
-                    lastLocation = speedLocationDirection.location;
-                    Spot.log.debug("Gonna update speed and diractions variables in EDT "
-                            + SwingUtilities.isEventDispatchThread());
-                }
-            });
-        }
-        catch (ParserConfigurationException | SAXException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        Spot.log.debug(id + " has " + messages.size() + " messages");
+        // calculate direction and speed
+        final LocationSpeedDirection speedLocationDirection = setSpeedMpsAndDirection(messages);
+        Spot.log.debug("Speed:" + speedLocationDirection.speed + ", direction:" + speedLocationDirection.direction
+                + " [" + speedLocationDirection.location.getLatitude() + ","
+                + speedLocationDirection.location.getLongitude() + "]");
+        // update in EDT
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                speed = speedLocationDirection.speed;
+                direction = speedLocationDirection.direction;
+                lastLocation = speedLocationDirection.location;
+                Spot.log.debug("Gonna update speed and directions variables in EDT "
+                        + SwingUtilities.isEventDispatchThread());
+            }
+        });
     }
 
     /**
@@ -156,8 +100,6 @@ public class Spot {
      * 
      */
     private LocationSpeedDirection setSpeedMpsAndDirection(TreeSet<SpotMessage> messages) {
-        long currentTime = System.currentTimeMillis();
-        long timeWindow = 3600000;
         long elapsedTime;
         int numMeasurements = 0;
         double sumSpeed = 0;
@@ -170,13 +112,11 @@ public class Spot {
         for (Iterator<SpotMessage> it = messages.iterator(); it.hasNext();) {
             tmpMsg = it.next();
             tmpLocation = new LocationType(tmpMsg.latitude, tmpMsg.longitude);// tmpMsg.getLocation();
-            // if (tmpMsg.timestamp > (currentTime - timeWindow)) { TODO fix previous location and msg assigments for
-            // case that message is out of timewindow
                 numMeasurements++;
                 if (prevMsg != null) {
                     distanceInMeters = tmpLocation.getDistanceInMeters(prevLocation);
                     elapsedTime = tmpMsg.timestamp - prevMsg.timestamp;
-                speedMeterSecond = distanceInMeters / (elapsedTime / (1000));
+                speedMeterSecond = distanceInMeters / elapsedTime;
                 log.debug("Traveled " + distanceInMeters + " in " + elapsedTime + " = " + speedMeterSecond + "  ("
                         + tmpMsg.latitude + ", " + tmpMsg.longitude + " at " + tmpMsg.timestamp);
                     sumSpeed += speedMeterSecond;
@@ -188,7 +128,6 @@ public class Spot {
                 }
                 prevMsg = tmpMsg;
                 prevLocation = tmpLocation;
-            // }
         }
         double factorial = gamma(numMeasurements - 1);
         // weighted mean
@@ -207,17 +146,13 @@ public class Spot {
         return tmp1 * tmp2;
     }
 
-    // private void addData(double lat, double lon, long timestamp) {
-    // locations.add(new TimedLocation(timestamp, new LocationType(lat, lon)));
-    // direction = null;
-    // }
 
     public LocationType getLastLocation() {
         return lastLocation;
     }
 
     public String getName() {
-        return pageInfo.id;
+        return id;
     }
 
 
