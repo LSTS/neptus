@@ -396,9 +396,6 @@ public class TCPTransport {
             }
 			serverCh.close();
 		} catch (Exception e) {
-			// Ignore
-//		    e.printStackTrace();
-//		    System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 		    NeptusLog.pub().error(e);
 		}
 		serverCh = null;
@@ -505,7 +502,7 @@ public class TCPTransport {
 				byte[] sBuffer = new byte[maxBufferSize];
 				
 				public synchronized void start() {
-					NeptusLog.pub().info("Listener Thread Started");
+					NeptusLog.pub().debug("Listener Thread Started");
 					try {
 						connect();
 					} catch (Exception e) {
@@ -526,7 +523,7 @@ public class TCPTransport {
 							try {
 							    if (System.currentTimeMillis() - time > 10000 && previousConnectedClients != clients.size()) {
 							        //System.out.println(getBindPort() + " clients " + clients.size());
-                                    NeptusLog.pub().warn(TCPTransport.class.getSimpleName()
+                                    NeptusLog.pub().debug(TCPTransport.class.getSimpleName()
                                             + ": Listener Thread " + getBindPort() + " now " + clients.size()
                                             + " clients");
 							        time = System.currentTimeMillis();
@@ -703,7 +700,7 @@ public class TCPTransport {
 		if (dispacherThread == null) {
 			Thread listenerThread = new Thread(TCPTransport.class.getSimpleName() + ": Dispacher Thread " + this.hashCode()) {			
 				public synchronized void start() {
-					NeptusLog.pub().info("Dispacher Thread Started");
+					NeptusLog.pub().debug("Dispacher Thread Started");
 					super.start();				
 				}
 				
@@ -815,7 +812,7 @@ public class TCPTransport {
 	                    informDeliveryListener(req, ResultEnum.Error, e);
 	                }
 
-	                NeptusLog.pub().info(this + " Sender Thread Stopped");
+	                NeptusLog.pub().debug(this + " Sender Thread Stopped");
 	            }
 	        };
 	        senderThread.setPriority(Thread.MIN_PRIORITY);

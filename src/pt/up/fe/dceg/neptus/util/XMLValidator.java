@@ -60,7 +60,7 @@ public class XMLValidator
 	
 	private void logValidation (String log_output) 
 	{
-		NeptusLog.pub().info(this.toString() + log_output);
+		NeptusLog.pub().debug(this.toString() + log_output);
 	}
 
 	/**

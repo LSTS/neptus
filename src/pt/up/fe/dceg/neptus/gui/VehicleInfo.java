@@ -68,6 +68,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.dom4j.Document;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.renderer3d.Object3DCreationHelper;
 import pt.up.fe.dceg.neptus.types.comm.CommMean;
 import pt.up.fe.dceg.neptus.types.comm.protocol.AdjustTimeShellArgs;
@@ -1033,6 +1034,12 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                            }
                             viewer3DButton.setEnabled(true);
                         }
                     };

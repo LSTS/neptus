@@ -87,7 +87,7 @@ public class OpenConsoleAction extends ConsoleAction {
                         get();
                     }
                     catch (Exception e) {
-                        e.printStackTrace();
+                        NeptusLog.pub().error(e);
                     }
                     console.getContentPane().setVisible(true);
                     console.setConsoleChanged(false);

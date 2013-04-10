@@ -618,7 +618,7 @@ public class IMCUtils {
         LocationType absLoc = new LocationType();
 
         if (startEl == null && mt != null) {
-            NeptusLog.pub().error("Couldn't find startup position. Returning homeref position");
+            NeptusLog.pub().debug("Couldn't find startup position. Returning homeref position");
             HomeReference homeRef = mt.getHomeRef();
             absLoc.setLocation(homeRef);
             absLoc = absLoc.getNewAbsoluteLatLonDepth();

@@ -1156,6 +1156,12 @@ public abstract class BaseAbstractCommsMonitorPanel<W extends CommBaseManager<M,
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                            }
                             startCommButton.setEnabled(true);
                         }
                     };
@@ -1190,6 +1196,12 @@ public abstract class BaseAbstractCommsMonitorPanel<W extends CommBaseManager<M,
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                            }
                             stopCommButton.setEnabled(true);
                         }
                     };
@@ -1222,6 +1234,12 @@ public abstract class BaseAbstractCommsMonitorPanel<W extends CommBaseManager<M,
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                            }
                             queueClearButton.setEnabled(true);
                         }
                     };
@@ -1258,6 +1276,12 @@ public abstract class BaseAbstractCommsMonitorPanel<W extends CommBaseManager<M,
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                            }
                             sysQueueClearButton.setEnabled(true);
                         }
                     };

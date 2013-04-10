@@ -38,6 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.imc.EntityParameter;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
@@ -88,7 +89,7 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
        for(EntityParameter ep : param.getParams()) {
            SystemProperty p = params.get(section + "." + ep.getName());
            if(p == null) {
-               System.out.println("Property not in config: " + section + ep.getName());
+               NeptusLog.pub().warn("Property not in config: " + section + ep.getName());
            }
            else {
                boolean isList = false;

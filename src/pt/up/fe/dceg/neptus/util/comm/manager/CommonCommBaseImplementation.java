@@ -127,7 +127,7 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
      * 
      */
     protected boolean start() {
-        NeptusLog.pub().warn("Starting comm. " + this.getClass().getSimpleName());
+        NeptusLog.pub().info("Starting comm. " + this.getClass().getSimpleName());
         preferencesListener.preferencesUpdated();
         GeneralPreferences.addPreferencesListener(preferencesListener);
         return true;

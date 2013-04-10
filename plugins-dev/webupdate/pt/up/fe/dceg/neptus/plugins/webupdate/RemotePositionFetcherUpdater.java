@@ -285,6 +285,12 @@ public class RemotePositionFetcherUpdater extends SimpleSubPanel implements IPer
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         sendEnableDisableButton.setEnabled(true);
                     }
                 };

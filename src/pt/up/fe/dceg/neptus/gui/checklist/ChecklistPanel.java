@@ -935,6 +935,12 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
 
                             @Override
                             protected void done() {
+                                try {
+                                    get();
+                                }
+                                catch (Exception e) {
+                                    NeptusLog.pub().error(e);
+                                }
                                 super.done();
                                 bgp.block(false);
                             }
@@ -1333,6 +1339,12 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                            }
                             super.done();
                             try {
                                 switch (get()) {

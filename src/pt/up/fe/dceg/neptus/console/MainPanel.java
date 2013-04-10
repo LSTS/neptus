@@ -134,9 +134,9 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             try {
                 Thread t = launched.firstElement();
                 if (t.isAlive())
-                    NeptusLog.pub().warn("Waiting for " + t.getName() + " to cleanup...");
+                    NeptusLog.pub().info("Waiting for " + t.getName() + " to cleanup...");
                 launched.firstElement().join();
-                NeptusLog.pub().warn("Cleaned " + t.getName());
+                NeptusLog.pub().debug("Cleaned " + t.getName());
                 launched.remove(0);
             }
             catch (Exception e) {

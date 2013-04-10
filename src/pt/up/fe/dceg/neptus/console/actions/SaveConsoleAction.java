@@ -36,6 +36,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
@@ -80,9 +81,12 @@ public class SaveConsoleAction extends ConsoleAction {
 
             @Override
             protected void done() {
-//                if(console.isConsoleChanged()){
-//                   setEnabled(true); 
-//                }
+                try {
+                    get();
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                }
                 setEnabled(true); 
             }
         };

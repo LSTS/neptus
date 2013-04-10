@@ -200,7 +200,7 @@ public class MessageListenerQueueProvider<Mi extends MessageInfo, M extends IMes
             Thread listenerThread = new Thread(MessageListenerQueueProvider.class.getSimpleName()
                     + ": Dispacher Thread " + Integer.toHexString(this.hashCode()) + "for " + listener) {
                 public synchronized void start() {
-                    NeptusLog.pub().info(this + "Dispacher Thread Started");
+                    NeptusLog.pub().debug(this + "Dispacher Thread Started");
                     super.start();              
                 }
                 

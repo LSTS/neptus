@@ -83,6 +83,7 @@ import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.up.fe.dceg.neptus.util.DateTimeUtil;
 import pt.up.fe.dceg.neptus.util.FileUtil;
 import pt.up.fe.dceg.neptus.util.NameNormalizer;
+import pt.up.fe.dceg.neptus.util.ReflectionUtil;
 import pt.up.fe.dceg.neptus.util.StreamUtil;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
 import pt.up.fe.dceg.neptus.util.output.OutputMonitor;
@@ -212,7 +213,7 @@ public class ConfigFetch {
             }
         }));
 
-        NeptusLog.pub().info("Found OS: " + System.getProperty("os.name"));
+       // NeptusLog.pub().info("Found OS: " + System.getProperty("os.name"));
     }
     
     /**
@@ -338,9 +339,9 @@ public class ConfigFetch {
                     + System.getProperty("java.version");
             String strOSVersion = "On OS: " + System.getProperty("os.name") + " | Version: "
                     + System.getProperty("os.version") + " | Arch.: " + System.getProperty("os.arch");
-            System.out.println(strNeptusVersion);
-            System.out.println(strJavaVersion);
-            System.out.println(strOSVersion + "\n");
+            //System.out.println(strNeptusVersion);
+            //System.out.println(strJavaVersion);
+            //System.out.println(strOSVersion + "\n");
             NeptusLog.pub().info(strNeptusVersion);
             NeptusLog.pub().info(strJavaVersion);
             NeptusLog.pub().info(strOSVersion);
@@ -536,11 +537,11 @@ public class ConfigFetch {
 
                 }
             }
-            NeptusLog.pub().info("The file '" + path + "' was not found in this system.");
+            NeptusLog.pub().debug("The file '" + path + "' was not found in this system.");
             return null;
         }
         catch (Exception any) {
-            NeptusLog.pub().info("The file '" + path + "' was not found in this system.");
+            NeptusLog.pub().debug("The file '" + path + "' requested by "+ReflectionUtil.getCallerStamp()+" was not found in this system.");
             return null;
         }
     }
@@ -1148,11 +1149,11 @@ public class ConfigFetch {
                 + getDefaultIMCDefinitionsLocation()
                 + (!loadDefault ? "\"" : "\" [file doesn't exists!!! | loading \"" + IMCDefinition.pathToDefaults
                         + "\" inside the jar!!!]");
-        System.out.println(msg);
+        
         if (!loadDefault)
             NeptusLog.pub().info(msg);
         else
-            NeptusLog.pub().fatal(msg);
+            NeptusLog.pub().error(msg);
         if (!loadDefault)
             IMCDefinition.getInstance(fis);
         else

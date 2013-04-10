@@ -133,7 +133,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
     public final static String RECENTLY_OPENED_MISSIONS = "conf/romissions.xml";
     public final static String RECENTLY_OPENED_MISC = "conf/romisc.xml";
-    public final static String RECENTLY_OPENED_MAPS = "conf/romap.xml";
     public final static String RECENTLY_OPENED_CHECKS = "conf/rocheck.xml";
     public final static String RECENTLY_OPENED_CONSOLES = "conf/roconsoles.xml";
 
@@ -223,7 +222,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
         loadRecentlyOpenedFiles(MISSIONS_FILES);
         loadRecentlyOpenedFiles(MISC_FILES);
-        loadRecentlyOpenedFiles(MAPS_FILES);
+        //loadRecentlyOpenedFiles(MAPS_FILES);
         loadRecentlyOpenedFiles(CHECKS_FILES);
         loadRecentlyOpenedFiles(CONSOLES_FILES);
         addDesktopIcons();
@@ -641,7 +640,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                             get();
                         }
                         catch (Exception e) {
-                            e.printStackTrace();
+                            NeptusLog.pub().error(e);
                         }
                     }
                 };
@@ -731,18 +730,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 //                return;
 //            }
 //        }
-        if (type == MAPS_FILES) {
-            recentlyOpenedFiles = ConfigFetch.resolvePath(RECENTLY_OPENED_MAPS);
-            try {
-                Class<?>[] params = { File.class };
-                methodUpdate = this.getClass().getMethod("updateMapFilesOpened", params);
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(this + "loadRecentlyOpenedFiles", e);
-                return;
-            }
-        }
-        else if (type == CHECKS_FILES) {
+        if (type == CHECKS_FILES) {
             recentlyOpenedFiles = ConfigFetch.resolvePath(RECENTLY_OPENED_CHECKS);
             try {
                 Class<?>[] params = { File.class };
@@ -797,11 +785,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             recentlyOpenedFiles = ConfigFetch.resolvePathBasedOnConfigFile(RECENTLY_OPENED_MISSIONS);
             hMap = missionFilesOpened;
             header = I18n.text("Recently opened mission files.");
-        }
-        else if (type == MAPS_FILES) {
-            recentlyOpenedFiles = ConfigFetch.resolvePathBasedOnConfigFile(RECENTLY_OPENED_MAPS);
-            hMap = mapFilesOpened;
-            header = I18n.text("Recently opened map files.");
         }
         else if (type == CHECKS_FILES) {
             recentlyOpenedFiles = ConfigFetch.resolvePathBasedOnConfigFile(RECENTLY_OPENED_CHECKS);
@@ -1137,7 +1120,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                                 get();
                             }
                             catch (Exception e) {
-                                e.printStackTrace();
+                                NeptusLog.pub().error(e);
                             }
                         }
                     };
@@ -1185,7 +1168,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                                 get();
                             }
                             catch (Exception e) {
-                                e.printStackTrace();
+                                NeptusLog.pub().error(e);
                             }
                             endActivity("");
                         }
@@ -1390,7 +1373,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                                 get();
                             }
                             catch (Exception e) {
-                                e.printStackTrace();
+                                NeptusLog.pub().error(e);
                             }
                             endActivity("");
                         }
@@ -1485,9 +1468,8 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                                 get();
                             }
                             catch (Exception e) {
-                                e.printStackTrace();
+                                NeptusLog.pub().error(e);
                             }
-                            // endActivity("");
                         }
                     };
                     worker.execute();
@@ -1526,9 +1508,8 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                                 get();
                             }
                             catch (Exception e) {
-                                e.printStackTrace();
+                                NeptusLog.pub().error(e);
                             }
-                            // endActivity("");
                         }
                     };
                     worker.execute();
@@ -1641,20 +1622,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             @Override
             public void actionPerformed(ActionEvent e) {
                 startActivity(I18n.text("Opening MRA..."));
-                // SwingWorker<Void, Void> worker = new SwingWorker<Void,
-                // Void>(){
-                // @Override
-                // protected Void doInBackground() throws Exception {
-                // JFrame mra = new NeptusMRA();
-                // mra.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                // return null;
-                // }
-                // @Override
-                // protected void done() {
-                // endActivity("");
-                // }
-                // };
-                // worker.execute();
+                
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -1681,24 +1649,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             editGeneralPreferencesMenuItem.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    // PropertiesEditor.editProperties(
-                    // new GeneralPreferencesPropertiesProvider(),
-                    // MissionConsole.this, true);
-                    // FIXME with SwingWorker
-//                    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-//                        @Override
-//                        protected Void doInBackground() throws Exception {
-//                            PropertiesEditor.editProperties(new GeneralPreferences(),
-//                                    Workspace.this, true);
-//                            return null;
-//                        }
-//
-//                        @Override
-//                        protected void done() {
-//                            // endActivity("");
-//                        }
-//                    };
-//                    worker.execute();
+
                     PropertiesEditor.editProperties(new GeneralPreferences(), Workspace.this, true);
                     GeneralPreferences.saveProperties();
                 }

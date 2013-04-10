@@ -302,6 +302,12 @@ public class AbortPanel extends SimpleSubPanel implements MainVehicleChangeListe
 
                         @Override
                         protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (Exception e) {
+                                NeptusLog.pub().error(e);
+                            }
                             abortButton.setEnabled(true);
                         }
                     };

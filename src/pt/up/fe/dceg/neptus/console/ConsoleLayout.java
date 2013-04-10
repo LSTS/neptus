@@ -713,7 +713,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         this.setPlan(null);
 
         if (mission != null) {
-            NeptusLog.pub().info("Mission changed to " + mission.getId());
+            NeptusLog.pub().debug("Mission changed to " + mission.getId());
             // initOtherMissionVehicles();
         }
         else {
@@ -817,8 +817,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return;
         }
         
-        if (consoleSystems.get(systemName) != null) {
-            NeptusLog.pub().warn("WTH are you trying to add a vehicle that already exist in the console!!");
+        if (consoleSystems.get(systemName) != null) {            
+            NeptusLog.pub().warn(ReflectionUtil.getCallerStamp() + " tried to add a vehicle that already exist in the console!!");
             return;
         }
         else {

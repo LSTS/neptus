@@ -490,7 +490,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
         isLoadOk = true;
         setChanged(false);
         long totalTime = System.currentTimeMillis() - initTime;
-        NeptusLog.pub().info(this + ": Total map load time: " + totalTime + " ms.");
+        NeptusLog.pub().debug(this + ": Total map load time: " + totalTime + " ms.");
         return true;
     }
 

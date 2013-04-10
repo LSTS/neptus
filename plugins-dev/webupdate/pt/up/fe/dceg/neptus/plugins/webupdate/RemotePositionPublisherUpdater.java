@@ -333,6 +333,12 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
 
                     @Override
                     protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
                         sendEnableDisableButton.setEnabled(true);
                     }
                 };
