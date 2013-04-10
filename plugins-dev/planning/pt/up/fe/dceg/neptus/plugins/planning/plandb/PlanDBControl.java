@@ -36,6 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
@@ -158,7 +159,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                 "request_id", IMCSendMessageUtils.getNextRequestId(),
                 "plan_id", plan_id
         );
-        System.out.println("Sending to " + remoteSystemId);
+        NeptusLog.pub().debug("Sending to " + remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
     

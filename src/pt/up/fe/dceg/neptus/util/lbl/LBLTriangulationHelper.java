@@ -275,7 +275,7 @@ public class LBLTriangulationHelper {
             LocationType[] locArray = calculate(trans1, trans2, trans1ToVehicleDistance, trans2ToVehicleDistance, cs,
                     distance);
             if (locArray == null) {
-                NeptusLog.pub().info("LBL Range updatePosition" + "\nInvalid fix for calculation!!");
+                NeptusLog.pub().debug("LBL Range updatePosition" + "\nInvalid fix for calculation!!");
                 return null;
             }
             LocationType loc = fixLocationWithLastKnown(locArray, lastKnownPos, start);

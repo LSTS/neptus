@@ -105,7 +105,7 @@ public class PeriodicUpdatesService {
         if (clients.contains(client)) {
             clients.remove(client);
             if (clients.isEmpty()) {
-                System.out.println("Periodic Listener Service with 0 clients - cleaning...");
+                NeptusLog.pub().info("Periodic Listener Service with 0 clients - cleaning...");
                 for (Thread t : updaterThreads) {
                     t.interrupt();
                 }

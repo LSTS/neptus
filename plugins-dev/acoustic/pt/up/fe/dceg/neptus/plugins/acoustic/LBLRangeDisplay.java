@@ -346,7 +346,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
         }
         beacons.clear();
         holder.removeAll();
-        System.out.println("lbl cleanup end");
+        NeptusLog.pub().debug("lbl cleanup end");
     }
 
     /*

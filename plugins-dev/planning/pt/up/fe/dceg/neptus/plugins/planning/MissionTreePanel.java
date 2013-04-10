@@ -58,6 +58,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.plugins.IPlanSelection;
 import pt.up.fe.dceg.neptus.console.plugins.ISystemsSelection;
@@ -797,7 +798,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public void mainVehicleChangeNotification(String id) {
-        System.out.println("id:" + id + ", getMainVehicleId:" + getMainVehicleId());
+        NeptusLog.pub().debug("id:" + id + ", getMainVehicleId:" + getMainVehicleId());
         browser.stopTimers(getMainVehicleId());
         planControlUpdate(id);
     }
