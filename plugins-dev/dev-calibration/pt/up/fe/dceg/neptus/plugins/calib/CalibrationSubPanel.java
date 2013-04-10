@@ -67,7 +67,7 @@ import com.jogamp.newt.event.KeyEvent;
  *
  */
 @Popup(accelerator=KeyEvent.VK_F10, width=400, height=250)
-@PluginDescription(name="Device Calibration")
+@PluginDescription(name="Device Calibration", icon="pt/up/fe/dceg/neptus/plugins/calib/calib.png")
 public class CalibrationSubPanel extends SimpleSubPanel {
 
     private static final long serialVersionUID = 1L;
