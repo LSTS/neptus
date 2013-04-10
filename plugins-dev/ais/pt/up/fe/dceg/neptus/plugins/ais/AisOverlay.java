@@ -71,34 +71,34 @@ import com.google.gson.Gson;
  * @author zp
  * 
  */
-@PluginDescription(author = "ZP", name = "AIS Overlay", icon="pt/up/fe/dceg/neptus/plugins/ais/mt.png")
+@PluginDescription(author = "ZP", name = "AIS Overlay", icon = "pt/up/fe/dceg/neptus/plugins/ais/mt.png")
 public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUpdates {
     private static final long serialVersionUID = 1L;
 
-    @NeptusProperty(name="Show vessel names")
+    @NeptusProperty(name = "Show vessel names")
     public boolean showNames = true;
 
-    @NeptusProperty(name="Show vessel speeds")
+    @NeptusProperty(name = "Show vessel speeds")
     public boolean showSpeeds = true;
 
-    @NeptusProperty(name="Milliseconds between vessel updates")
+    @NeptusProperty(name = "Milliseconds between vessel updates")
     public long updateMillis = 60000;
 
-    @NeptusProperty(name="Show only when selected")
+    @NeptusProperty(name = "Show only when selected")
     public boolean showOnlyWhenInteractionIsActive = true;
 
-    @NeptusProperty(name="Show stationary vessels")
+    @NeptusProperty(name = "Show stationary vessels")
     public boolean showStoppedShips = false;
-    
-    @NeptusProperty(name="Interpolate and predict positions")
+
+    @NeptusProperty(name = "Interpolate and predict positions")
     public boolean interpolate = false;
-    
+
     protected boolean active = false;
     protected Vector<AisShip> shipsOnMap = new Vector<AisShip>();
     protected StateRenderer2D renderer = null;
 
     protected boolean updating = false;
-    
+
     /**
      * @param console
      */
@@ -134,17 +134,17 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
     protected GeneralPath path = new GeneralPath();
     {
         path.moveTo(0, 5);
-        path.lineTo(-5, 2);
+        path.lineTo(-5, 3.5);
         path.lineTo(-5, -5);
         path.lineTo(5, -5);
-        path.lineTo(5, 2);
+        path.lineTo(5, 3.5);
         path.lineTo(0, 5);
         path.closePath();
     }
-    
+
     @Override
     public boolean update() {
-        
+
         if (showOnlyWhenInteractionIsActive && !active)
             return true;
         // don't let more than one thread be running at a time
@@ -161,11 +161,10 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
 
                 LocationType topLeft = renderer.getTopLeftLocationType();
                 LocationType bottomRight = renderer.getBottomRightLocationType();
-                
-                shipsOnMap = getShips(bottomRight.getLatitudeAsDoubleValue(),
-                        topLeft.getLongitudeAsDoubleValue(), topLeft.getLatitudeAsDoubleValue(),
-                        bottomRight.getLongitudeAsDoubleValue(), showStoppedShips);
-                
+
+                shipsOnMap = getShips(bottomRight.getLatitudeAsDoubleValue(), topLeft.getLongitudeAsDoubleValue(),
+                        topLeft.getLatitudeAsDoubleValue(), bottomRight.getLongitudeAsDoubleValue(), showStoppedShips);
+
                 lastThread = null;
 
                 updating = false;
@@ -176,34 +175,37 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
 
         return true;
     }
-    
-    protected Vector<AisShip> getShips(double minLat, double minLon, double maxLat, double maxLon, boolean includeStationary) {
+
+    protected Vector<AisShip> getShips(double minLat, double minLon, double maxLat, double maxLon,
+            boolean includeStationary) {
         Vector<AisShip> ships = new Vector<>();
-        
+
         // area is too large
         if (maxLat - minLat > 2)
             return ships;
-        
+
         try {
-            URL url = new URL("http://www.marinetraffic.com/ais/getjson.aspx?sw_x="+minLon+"&sw_y="+minLat+"&ne_x="+maxLon+"&ne_y="+maxLat+"&zoom="+renderer.getLevelOfDetail()+"&fleet=&station=0&id=null");
-            
+            URL url = new URL("http://www.marinetraffic.com/ais/getjson.aspx?sw_x=" + minLon + "&sw_y=" + minLat
+                    + "&ne_x=" + maxLon + "&ne_y=" + maxLat + "&zoom=12"
+                    + "&fleet=&station=0&id=null");
+
             URLConnection connection = url.openConnection();
             connection.setRequestProperty("Referer", "http://www.marinetraffic.com/ais/");
             GetMethod get = new GetMethod(url.toString());
             get.setRequestHeader("Referer", "http://www.marinetraffic.com/ais/");
-            
+
             HttpClient client = new HttpClient();
-            client.executeMethod(get);
+            client.executeMethod(get);            
             Gson gson = new Gson();
             String json = get.getResponseBodyAsString();
-            System.out.println(json);
             String[][] res = gson.fromJson(json, String[][].class);
-            
+
+
             for (int i = 0; i < res.length; i++) {
-                double knots = Double.parseDouble(res[i][5])/10;
+                double knots = Double.parseDouble(res[i][5]) / 10;
                 if (!includeStationary && knots <= 0.1)
                     continue;
-                
+
                 AisShip ship = new AisShip();
                 ship.setLatitude(Double.parseDouble(res[i][0]));
                 ship.setLongitude(Double.parseDouble(res[i][1]));
@@ -213,9 +215,9 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
                 if (res[i][4] != null)
                     ship.setCourse(Double.parseDouble(res[i][4]));
                 if (res[i][6] != null)
-                    ship.setCountry(res[i][6]);                
+                    ship.setCountry(res[i][6]);
                 if (res[i][8] != null)
-                    ship.setLength(Double.parseDouble(res[i][8]));                               
+                    ship.setLength(Double.parseDouble(res[i][8]));
                 ships.add(ship);
             }
         }
@@ -251,11 +253,11 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
                 update();
             }
         });
-        
+
         Vector<AisShip> ships = new Vector<>();
         ships.addAll(shipsOnMap);
         Collections.sort(ships);
-        
+
         if (ships.size() > 0 && Desktop.isDesktopSupported()) {
             JMenu menu = new JMenu("Ship Info");
             for (final AisShip s : ships) {
@@ -265,27 +267,28 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
                         try {
                             URI uri = new URI(s.getShipInfoURL());
                             desktop.browse(uri);
-                        } catch (IOException ex) {
+                        }
+                        catch (IOException ex) {
                             ex.printStackTrace();
-                        } catch (URISyntaxException ex) {
+                        }
+                        catch (URISyntaxException ex) {
                             ex.printStackTrace();
                         }
                     }
                 });
             }
-            
+
             popup.add(menu);
         }
-        
 
         popup.show(source, event.getX(), event.getY());
     }
-    
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
         this.renderer = renderer;
-    
+
         if (showOnlyWhenInteractionIsActive && !active)
             return;
 
@@ -293,58 +296,49 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             g.drawString("Updating AIS layer...", 10, 15);
         }
         else {
-            g.drawString(shipsOnMap.size()+" visible ships", 10, 15);
+            g.drawString(shipsOnMap.size() + " visible ships", 10, 15);
         }
 
-
         for (AisShip ship : shipsOnMap) {
+            Graphics2D clone = (Graphics2D)g.create();
             LocationType shipLoc = ship.getLocation();
             if (interpolate) {
-                double dT = (System.currentTimeMillis() - ship.lastUpdate)/1000.0;
+                double dT = (System.currentTimeMillis() - ship.lastUpdate) / 1000.0;
                 double tx = Math.cos(ship.getHeadingRads()) * dT * ship.getSpeedMps();
                 double ty = Math.sin(ship.getHeadingRads()) * dT * ship.getSpeedMps();
                 shipLoc.translatePosition(tx, ty, 0);
             }
             Point2D pt = renderer.getScreenPosition(shipLoc);
-
-            
-            g.translate(pt.getX(), pt.getY());
+            clone.translate(pt.getX(), pt.getY());
 
             if (showNames) {
-                g.setColor(Color.blue.darker().darker());
-                g.drawString(ship.getName(), 5, 5);
+                clone.setColor(Color.blue.darker().darker());
+                clone.drawString(ship.getName(), 5, 5);
             }
 
             if (showSpeeds) {
-                g.setColor(Color.black);
-                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(ship.getSpeedMps()) + " m/s", 5, 15);
+                clone.setColor(Color.black);
+                clone.drawString(GuiUtils.getNeptusDecimalFormat(1).format(ship.getSpeedMps()) + " m/s", 5, 15);
             }
 
-            g.setColor(Color.blue.darker());
-            if (ship.getSpeedMps() == 0) {
-                g.setColor(Color.gray.darker());
- //               g.fill(new Ellipse2D.Double(-3, -3, 6, 6));
-            }
-//            else {
-                
-                double scaleX = (renderer.getZoom() / 10) * ship.getLength()/9;
-                double scaleY = (renderer.getZoom() / 10) * ship.getLength();
-                
-                g.rotate(Math.PI+ship.getHeadingRads());
-                g.scale(scaleX, scaleY);
-                g.fill(path);
-                g.scale(1/scaleX, 1/scaleY);
-                g.rotate(-Math.PI-ship.getHeadingRads());
-  //          }
+            clone.setColor(Color.blue.darker());
+            if (ship.getSpeedMps() == 0)
+                clone.setColor(Color.gray.darker());
 
-            g.translate(-pt.getX(), -pt.getY());
+            double scaleX = (renderer.getZoom() / 10) * ship.getLength() / 9;
+            double scaleY = (renderer.getZoom() / 10) * ship.getLength();
+
+            clone.rotate(Math.PI + ship.getHeadingRads());
+            clone.scale(scaleX, scaleY);
+            clone.fill(path);
+            clone.dispose();
         }
     }
 
     @Override
     public void initSubPanel() {
         // TODO Auto-generated method stub
-        
+
     }
 
 }
