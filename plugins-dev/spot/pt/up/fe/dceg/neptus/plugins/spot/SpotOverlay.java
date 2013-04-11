@@ -31,9 +31,12 @@
  */
 package pt.up.fe.dceg.neptus.plugins.spot;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.Collection;
@@ -76,6 +79,18 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     public boolean showNames = true;
     @NeptusProperty
     public boolean showSpeedValue = true;
+
+    protected GeneralPath gp = new GeneralPath();
+    {
+        gp.moveTo(-2, -8);
+        gp.lineTo(2, -8);
+        gp.lineTo(2, 2);
+        gp.lineTo(5, 2);
+        gp.lineTo(0, 8);
+        gp.lineTo(-5, 2);
+        gp.lineTo(-2, 2);
+        gp.closePath();
+    }
 
     /**
      * @param console
@@ -162,7 +177,8 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        super.paint(g, renderer);
+        // super.paint(g, renderer);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Spot.log.debug(spotsOnMap.size() + " spots:");
         for (Spot spot : spotsOnMap) {
             LocationType spotLoc = spot.getLastLocation();
@@ -178,13 +194,13 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
             if (showNames) {
                 g.setColor(Color.red.darker().darker());
-                g.drawString(spot.getName(), 10, 5);
+                g.drawString(spot.getName(), 12, 0);
             }
 
             double speedMps = spot.getSpeed();
             if (showSpeedValue) {
                 g.setColor(Color.black);
-                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 10, 15);
+                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 12, 10);
             }
 
             int xArrowScreenCoord = -7;// arrow.getWidth(renderer);
@@ -192,12 +208,17 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
             int widthArrow = arrow.getWidth(null);
             int heightArrow = arrow.getHeight(null);
             g.rotate(-spot.direction);
-            g.drawImage(arrow, xArrowScreenCoord, yArrowScreenCoord, widthArrow, heightArrow, null);
-            g.rotate(spot.direction);
+            // g.drawImage(arrow, xArrowScreenCoord, yArrowScreenCoord, widthArrow, heightArrow, null);
+            g.setColor(Color.black);
+            g.fill(gp);
+            g.setStroke(new BasicStroke(0.9f));
+            g.setColor(Color.white);
+            g.draw(gp);
+            // g.rotate(spot.direction);
             Spot.log.debug(", arrow: coords(" + xArrowScreenCoord + "," + yArrowScreenCoord + ") dimensions:("
                     + widthArrow + ", " + heightArrow + ")");
 
-            g.translate(-xScreenPos, -yScreenPos);
+            // g.translate(-xScreenPos, -yScreenPos);
 
         }
         
