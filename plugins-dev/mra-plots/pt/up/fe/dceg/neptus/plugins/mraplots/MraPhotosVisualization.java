@@ -524,15 +524,18 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
 
             @Override
             public void run() {
+                double lastTime = -1;
                 try {
                     while (!files.isEmpty() || !imgs.isEmpty()) {
                         LoadedImage next = imgs.take();
+                        lastTime = curTime;
                         curTime = next.timestamp;
                         curFile = next.file;
                         imageToDisplay = next.image;
                         repaint();
                         timeline.fileChanged(curFile);
-                        Thread.sleep((long)(250 / speedMultiplier));
+                        
+                        Thread.sleep((long)((curTime-lastTime)*1000.0 / speedMultiplier));
                     }
                 }
                 catch (Exception e) {
