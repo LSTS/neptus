@@ -514,8 +514,8 @@ MissionChangeListener {
 
         try {
             if (getPropertiesPanel().getManeuver() != null) {
-                if (plan.getGraph().getManeuver(getPropertiesPanel().getManeuver().getId()) == null)
-                    getPropertiesPanel().setManeuver(null);
+                //if (plan.getGraph().getManeuver(getPropertiesPanel().getManeuver().getId()) == null)
+                getPropertiesPanel().setManeuver(null);
             }
         }
         catch (Exception e) {
@@ -1548,6 +1548,7 @@ MissionChangeListener {
     private Maneuver addManeuverAtEnd(Point loc, String manType) {
 
         Maneuver man = mf.getManeuver(manType);
+        
         Vector<TransitionType> addedTransitions = new Vector<TransitionType>();
         Vector<TransitionType> removedTransitions = new Vector<TransitionType>();
 
@@ -1606,6 +1607,11 @@ MissionChangeListener {
         manager.addEdit(new ManeuverAdded(man, plan, addedTransitions, removedTransitions));
 
         getPropertiesPanel().setManeuver(man);
+
+        if (lastMan == null) {
+            selectedManeuver = null;
+            getPropertiesPanel().setManeuver(null);
+        }
         return man;
     }
 
