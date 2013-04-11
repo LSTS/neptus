@@ -70,6 +70,7 @@ import pt.up.fe.dceg.neptus.comm.proxy.ProxyInfoProvider;
 public abstract class TileHttpFetcher extends Tile {
 
     private static final long serialVersionUID = 536559879996297467L;
+    private static final long TIME_MILLIS_TO_RETIRE_THREAD_WORKER = 10000;
 
     protected static String tileClassId = TileHttpFetcher.class.getSimpleName();
     
@@ -339,7 +340,7 @@ public abstract class TileHttpFetcher extends Tile {
         if (workingThreadCounter.incrementAndGet() <= MAX_WORKING_THREADS) {
             Thread t = new Thread(tf.getIdStr()) {
                 private long lastJobTimeMillis = -1;
-                private long timeoutLastJobMillis = 10 * 60000;
+                private long timeoutLastJobMillis = TIME_MILLIS_TO_RETIRE_THREAD_WORKER;
                 
                 @Override
                 public void run() {
