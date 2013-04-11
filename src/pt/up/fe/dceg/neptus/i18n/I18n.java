@@ -336,7 +336,7 @@ public class I18n {
         Collections.sort(lst);
         for (Object key : lst) {
           Object val = uiDefaults.get(key);
-          System.out.println("[" + key.toString() + "]:[" +
+          NeptusLog.pub().info("<###>[" + key.toString() + "]:[" +
              (null != val ? val.toString() : "(null)") +
              "]");
         }

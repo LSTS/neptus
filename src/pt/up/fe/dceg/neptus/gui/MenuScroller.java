@@ -496,7 +496,7 @@ public class MenuScroller {
             for (int i = firstIndex; i < scrollCount - 2 + firstIndex; i++) { // (pdias) -2 to count the up and down
                                                                               // items
                 menu.add(menuItems[i]);
-                // System.out.println(menu.getSize().height + "    " + menuItems[i].getSize().height);
+                // NeptusLog.pub().info("<###> "+menu.getSize().height + "    " + menuItems[i].getSize().height);
             }
             menu.add(downItem);
 

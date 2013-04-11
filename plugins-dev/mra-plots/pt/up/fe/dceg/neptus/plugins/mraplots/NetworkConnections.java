@@ -87,6 +87,7 @@ public class NetworkConnections extends SimpleMRAVisualization {
                 
             }
             catch (Exception e) {
+                e.printStackTrace();
                 label.setText(I18n.text("Your system doesn't have dot support"));
             }
                         

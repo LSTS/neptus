@@ -242,12 +242,12 @@ public class CoverArea extends AbstractImcManeuver<pt.up.fe.dceg.neptus.imc.Cove
     public void setActive(boolean mode, StateRenderer2D source) {
         adapter.setActive(mode, source);
 
-        System.out.println("setActive: "+mode);
+        NeptusLog.pub().info("<###>setActive: "+mode);
     }
 
     public static void main(String[] args) {
         CoverArea area = new CoverArea();
 
-        System.out.println(area.asXML());
+        NeptusLog.pub().info("<###> "+area.asXML());
     }
 }

@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.test;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.ByteUtil;
 
 /**
@@ -67,10 +68,10 @@ public class TestBlowfish {
 
 	public static void main(String[] args) {
 		String resEnc = encryptBlowfish("Test Hello Fish!!", "BlowItFish");
-		//System.out.println(resEnc);
+		//NeptusLog.pub().info("<###> "+resEnc);
 		ByteUtil.dumpAsHex(resEnc.getBytes(), System.out);
 		String resDec = decryptBlowfish(resEnc, "BlowItFish");
-		System.out.println(resDec);
+		NeptusLog.pub().info("<###> "+resDec);
 		
 	}
 }

@@ -2,6 +2,8 @@ package pt.up.fe.dceg.neptus.plugins.r3d.jme3;
 
 import java.awt.EventQueue;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
@@ -29,7 +31,7 @@ public class DummyState extends AbstractAppState {
     public void initialize(AppStateManager stateManager, Application app) {
         // TODO Auto-generated method stub
         super.initialize(stateManager, app);
-        System.out.println("simpleInitApp EvtDispatchThread? " + EventQueue.isDispatchThread() + " Thread id:"
+        NeptusLog.pub().info("<###>simpleInitApp EvtDispatchThread? " + EventQueue.isDispatchThread() + " Thread id:"
                 + Thread.currentThread().getId());
         Box b = new Box(Vector3f.ZERO, 1, 1, 1); // create cube shape at the origin
         geom = new Geometry("Box", b); // create cube geometry from the shape
@@ -51,9 +53,9 @@ public class DummyState extends AbstractAppState {
         // TODO Auto-generated method stub
         super.update(tpf);
         if (count > 1000) {
-            System.out.println("update EvtDispatchThread? " + EventQueue.isDispatchThread() + " Thread id:"
+            NeptusLog.pub().info("<###>update EvtDispatchThread? " + EventQueue.isDispatchThread() + " Thread id:"
                     + Thread.currentThread().getId());
-            System.out.println(geom.checkCulling(cam));
+            NeptusLog.pub().info("<###> "+geom.checkCulling(cam));
             count = 0;
         }
         count++;

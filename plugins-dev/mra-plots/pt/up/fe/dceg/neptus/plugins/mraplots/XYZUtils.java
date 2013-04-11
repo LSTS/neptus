@@ -238,7 +238,7 @@ public class XYZUtils {
      */
     public static XYZDataType getInterpolatedData(LocationType baseLoc, Vector<Double> xvec,
             Vector<Double> yvec, Vector<Double> zvec, int targetImageWidth, int targetImageHeight, int gridSize) {
-        // System.out.println("Number of points: " + xvec.size());
+        // NeptusLog.pub().info("<###>Number of points: " + xvec.size());
 
         double[] xMinMaxVal = calcMinMaxOfVector(xvec);
         double minX = xMinMaxVal[0];
@@ -252,9 +252,9 @@ public class XYZUtils {
         double minZ = zMinMaxVal[0];
         double maxZ = zMinMaxVal[1];
 
-        // System.out.println("x = ["+minX+","+maxX+"]"+"  \tdelta x = "+(Math.round(maxX-minX)));
-        // System.out.println("y = ["+minY+","+maxY+"]"+"  \tdelta y = "+(Math.round(maxY-minY)));
-        // System.out.println("z = ["+minZ+","+maxZ+"]"+"  \t\tdelta z = "+(Math.round(maxZ-minZ)));
+        // NeptusLog.pub().info("<###>x = ["+minX+","+maxX+"]"+"  \tdelta x = "+(Math.round(maxX-minX)));
+        // NeptusLog.pub().info("<###>y = ["+minY+","+maxY+"]"+"  \tdelta y = "+(Math.round(maxY-minY)));
+        // NeptusLog.pub().info("<###>z = ["+minZ+","+maxZ+"]"+"  \t\tdelta z = "+(Math.round(maxZ-minZ)));
         //
         double[] dim = {maxX-minX, maxY-minY};
         double[] widthHeightScaleVal = calcWidthHeightScale(dim[0], dim[1], targetImageWidth, targetImageHeight);
@@ -262,18 +262,18 @@ public class XYZUtils {
         int height = (int) widthHeightScaleVal[1];
         double scale = widthHeightScaleVal[2];
         
-        // System.out.println("Scale: " + scale);
+        // NeptusLog.pub().info("<###>Scale: " + scale);
         
         LocationType topCorner = new LocationType(baseLoc);
         topCorner.translatePosition(maxX, minY, 0);
-        // System.out.println("Top Left Corner location = " + topCorner);
+        // NeptusLog.pub().info("<###>Top Left Corner location = " + topCorner);
 
         LocationType centerLocation = new LocationType(baseLoc);
         centerLocation.translatePosition(maxX-((maxX-minX)/2), minY+((maxY-minY)/2), 0);
-        // System.out.println("Center location = " + centerLocation);
+        // NeptusLog.pub().info("<###>Center location = " + centerLocation);
 
         Rectangle2D bounds = new Rectangle2D.Double(0, 0, maxX - minX, maxY - minY);
-        // System.out.println("BoundingBox: " + (maxX - minX) + " x " + (maxY - minY));
+        // NeptusLog.pub().info("<###>BoundingBox: " + (maxX - minX) + " x " + (maxY - minY));
 
         Point2D[] points = new Point2D[xvec.size()];
         for (int i = 0; i < xvec.size(); i++) {
@@ -437,7 +437,7 @@ public class XYZUtils {
             
             double north = isImc5 ? xyz[0] : stateEntry.getDouble("x");
             double east = isImc5 ? xyz[1] : stateEntry.getDouble("y");
-            // System.out.println("x=" + xyz[0] + "\t" + "y=" + xyz[1] + "\t\t" + "x=" + stateEntry.getDouble("x") + "\t" + "y=" + stateEntry.getDouble("y"));
+            // NeptusLog.pub().info("<###>x=" + xyz[0] + "\t" + "y=" + xyz[1] + "\t\t" + "x=" + stateEntry.getDouble("x") + "\t" + "y=" + stateEntry.getDouble("y"));
             Point2D pt = new Point2D.Double((east - minY) * scaleY, (-minX-north) * scaleX);
 
             if (timeStep == 0)
@@ -461,9 +461,9 @@ public class XYZUtils {
 
     public static void main(String[] args) throws Exception {
         double[] vec = calcWidthHeightScale(417.4842522414401, 417.05859590325053, 800, 600);
-        System.out.println(vec[0]);
-        System.out.println(vec[1]);
-        System.out.println(vec[2]);
+        NeptusLog.pub().info("<###> "+vec[0]);
+        NeptusLog.pub().info("<###> "+vec[1]);
+        NeptusLog.pub().info("<###> "+vec[2]);
         
         
         //41N09'35.293'' 08W41'35.721''
@@ -474,7 +474,7 @@ public class XYZUtils {
         while (line != null) {
             if (line.startsWith("#")) {}                
             else {
-                //System.out.println(line);
+                //NeptusLog.pub().info("<###> "+line);
                 String[] xt = line.split("[\t ,]");
                 if (xt.length == 3) {
                     try {
@@ -485,6 +485,7 @@ public class XYZUtils {
                         yvec.add(yy);
                         zvec.add(-zz);
                     } catch (NumberFormatException e) {
+                        e.getMessage();
                     }
                 }
             }           
@@ -497,7 +498,7 @@ public class XYZUtils {
         baseLoc.setLongitude("08W41'35.721''");
         baseLoc.translatePosition(-465778.48, -152987.42, 0);
         //baseLoc = (LocationType) baseLoc.convertToAbsoluteLatLonDepth();
-        System.out.println("Base location = " + baseLoc);
+        NeptusLog.pub().info("<###>Base location = " + baseLoc);
 
         int targetImageWidth = 800;
         int targetImageHeight = 600;
@@ -540,6 +541,6 @@ public class XYZUtils {
         MapType mapT = getAsMapType(destination, destination2, "APDL-Bat", ".", xyzData.centerLoc,
                 xyzData.scale, xyzData.maxZ, xyzData.minZ);
 
-        System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(mapT.asXML()));
+        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(mapT.asXML()));
     }
 }

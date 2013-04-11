@@ -153,7 +153,7 @@ public class EstimatedStateGenerator {
 		EstimatedStateGenerator gen = new EstimatedStateGenerator();
 		gen.setState(st);
 		for (int i = 0; i < 100000; i++) {			
-			//System.out.println(st.getNEDPosition()[0]+", "+st.getNEDPosition()[1]+", "+st.getNEDPosition()[2]);
+			//NeptusLog.pub().info("<###> "+st.getNEDPosition()[0]+", "+st.getNEDPosition()[1]+", "+st.getNEDPosition()[2]);
 			System.out.printf("x=%f, y=%f, z=%f,  |uvw|=%f, |VxVyVz|=%f\n",
 					st.getNEDPosition()[0], st.getNEDPosition()[1], st.getNEDPosition()[2],
 					Math.sqrt(st.getU()*st.getU() + st.getV()*st.getV() + st.getW()*st.getW()),

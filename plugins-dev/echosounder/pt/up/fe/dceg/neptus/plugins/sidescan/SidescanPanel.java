@@ -327,6 +327,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
             else {
                 distance = prevPoint.location.getDistanceInMeters(point.location);
+                distance = (int)(distance * 1000) / 1000.0;
+                
                 g.drawLine(prevPoint.x, prevPoint.y, point.x, point.y);
                 g.drawRect(point.x - 3, point.y - 3, 6, 6);
                 g.setColor(Color.white);
@@ -368,7 +370,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                                 g.drawString(m.label, m.x - (m.w / 2), line.ypos - (m.h / 2) - 10);
                             }
                             else {
-                                int x = (int)(m.x / (mouseSidescanLine.xsize / (float)image.getWidth()));
+                                int x = (int)(m.x / (lineList.get(0).xsize / (float)image.getWidth()));
                                 g.drawRect(x - (m.w / 2), line.ypos - (m.h / 2), m.w, m.h);
                                 g.drawString(m.label, x - (m.w / 2), line.ypos - (m.h / 2) - 10);
                             }

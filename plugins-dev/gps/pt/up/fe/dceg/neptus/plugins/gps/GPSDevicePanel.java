@@ -45,6 +45,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mystate.MyState;
@@ -52,8 +53,8 @@ import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginClassLoader;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.Popup;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
+import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.gps.device.Device;
 import pt.up.fe.dceg.neptus.plugins.gps.device.Fix;
 import pt.up.fe.dceg.neptus.plugins.gps.device.FixListener;
@@ -246,7 +247,7 @@ public class GPSDevicePanel extends SimpleSubPanel implements ActionListener, Fi
             watchDog.start();
         }
         catch (Exception e) {
-            System.out.println(e);
+            NeptusLog.pub().info("<###> "+e);
         }
     }
 

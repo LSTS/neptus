@@ -479,7 +479,7 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
         }
 
         setLastReceivedTime(info, msg);
-        // System.out.println("    >>>>>>>>");
+        // NeptusLog.pub().info("<###>    >>>>>>>>");
         LinkedHashSet<MessageListener<Mi, M>> listList;
         LinkedHashMap<MessageListener<Mi, M>, MessageListenerQueueProvider<Mi, M>> listQueueProvider;
         synchronized (listeners) {
@@ -549,7 +549,7 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
      */
     public boolean addListener(MessageListener<Mi, M> listener, MessageFilter<Mi, M> filter) {
         synchronized (listeners) {
-            // System.out.println("    +++++++"+listener);
+            // NeptusLog.pub().info("<###>    +++++++"+listener);
             boolean ret = listeners.contains(listener);
             if (!ret)
                 ret = listeners.add(listener);
@@ -650,7 +650,7 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
         synchronized (messageProcessor) {
             messageProcessor.notify();
         }
-        // System.out.println(">>>>>>>>" + counter++ + "  " + msgQueue.size());
+        // NeptusLog.pub().info("<###>>>>>>>>>" + counter++ + "  " + msgQueue.size());
     }
 
     /**
@@ -679,7 +679,7 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
             e.printStackTrace();
         }
         // msg.dump(System.out);
-        // System.out.println("Counter: " + counter++);
+        // NeptusLog.pub().info("<###>Counter: " + counter++);
         counter++;
     }
 
@@ -788,12 +788,12 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
         @Override
         public void run() {
             while (running) {
-                // System.out.println("::::::::::");
+                // NeptusLog.pub().info("<###>::::::::::");
                 synchronized (msgQueue) {
                     msgNew = msgQueue.size() > 0 ? msgQueue.remove() : null; // msgQueue.peek() sometimes dispite the
                                                                              // msgQueue was full the peek return
                                                                              // null!!?!!
-                    // System.out.println("msgQueue " + CommonCommBaseImplementation.this.hashCode() + ":  size: " +
+                    // NeptusLog.pub().info("<###>msgQueue " + CommonCommBaseImplementation.this.hashCode() + ":  size: " +
                     // msgQueue.size() + "  " + msgNew);
                     if (msgNew != null) {
                         // msgNew = msgQueue.remove();
@@ -806,9 +806,9 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
                 if (msgNew == null) {
                     synchronized (this) {
                         try {
-                            // System.out.println("1zzzzzzzzzz" + this.hashCode());
+                            // NeptusLog.pub().info("<###>1zzzzzzzzzz" + this.hashCode());
                             wait(500);
-                            // System.out.println("1wakeeeeeee");
+                            // NeptusLog.pub().info("<###>1wakeeeeeee");
                             // System.out.flush();
                         }
                         catch (Exception e) {
@@ -818,7 +818,7 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
                     }
                     continue;
                 }
-                // System.out.println("1wwwwwwwwww" + this.hashCode());
+                // NeptusLog.pub().info("<###>1wwwwwwwwww" + this.hashCode());
                 try {
                     setActive(true, infoNew, msgNew);
                     // double a1 = DateTimeUtil.timeStampSeconds() * 1E9;

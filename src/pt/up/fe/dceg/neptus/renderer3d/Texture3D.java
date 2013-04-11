@@ -456,7 +456,7 @@ public class Texture3D {
             trans.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
             trans.setCapability(TransparencyAttributes.ALLOW_MODE_READ);
             trans.setCapability(TransparencyAttributes.ALLOW_MODE_WRITE);
-            //System.out.println("material con transp:"+transparency);
+            //NeptusLog.pub().info("<###>material con transp:"+transparency);
        		trans.setTransparency(transparency);
        		trans.setTransparencyMode(TransparencyAttributes.BLEND_ONE);
        		appGFront.setTransparencyAttributes(trans);
@@ -583,7 +583,7 @@ public class Texture3D {
 			
 			int width=(int)(texture.getWidth(null)*factor);
 			int height=(int)(texture.getHeight(null)*factor);
-			//System.out.println("-------------\nfactor" +factor
+			//NeptusLog.pub().info("<###>-------------\nfactor" +factor
 			//		+"\n"+"w:"+texture.getWidth(null)
 			//		+"  h:"+texture.getHeight(null)
 			//		+"\nx:"+width +" y:"+height);

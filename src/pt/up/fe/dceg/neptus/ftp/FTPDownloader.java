@@ -47,11 +47,14 @@ import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPFile;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
 
 /**
  * @author jqcorreia
@@ -77,7 +80,7 @@ public class FTPDownloader extends JDialog {
                 if(e.getClickCount()==1) {
                     // Single Click
                     // TODO
-                    System.out.println(tree.getSelectionCount());
+                    NeptusLog.pub().info("<###> "+tree.getSelectionCount());
                 }
                 if(e.getClickCount()==2){ 
                     // Double Click
@@ -90,7 +93,7 @@ public class FTPDownloader extends JDialog {
                         FTPProgressPanel fpanel = (FTPProgressPanel) n.getUserObject();
                         String s = fpanel.getPath();
                         if(fpanel.getFile().isDirectory()) {
-                            System.out.println("walk into " + s + " ");
+                            NeptusLog.pub().info("<###>walk into " + s + " ");
                             walk(s + "/",n);
                         }
                         else {
@@ -130,7 +133,7 @@ public class FTPDownloader extends JDialog {
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                System.out.println("Closing downloader");
+                NeptusLog.pub().info("<###>Closing downloader");
                 disconnect();
                 dispose();
             }

@@ -85,7 +85,7 @@ public class ColorBar extends JPanel{
 			
 			if (orientation == VERTICAL_ORIENTATION) {
 				for (int i = 0; i < cachedImage.getHeight(); i++) {
-					//System.out.println(colors.getGraphics().getColor());
+					//NeptusLog.pub().info("<###> "+colors.getGraphics().getColor());
 					g2d.setColor(cmap.getColor((double)i/(double)cachedImage.getHeight()));
 					g2d.drawLine(0, cachedImage.getHeight()-i, cachedImage.getWidth(), cachedImage.getHeight()-i);
 				}

@@ -77,7 +77,7 @@ public class LogBookServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		String text = req.getParameter("text");
-	//	System.out.println(text);
+	//	NeptusLog.pub().info("<###> "+text);
 		if (text != null)
 			LogBookPanel.logPlain(text);		
 		doGet(req, resp);

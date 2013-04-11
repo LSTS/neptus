@@ -616,21 +616,15 @@ public class FunctionalitiesSettings extends JPanel {
         NeptusProperty neptusProperty = f.getAnnotation(NeptusProperty.class);
         // Field value / o
         Object fieldValue = null;
+        
         try {
-            fieldValue = f.get(null);
-            if (fieldValue == null) {
-                fieldValue = f.get(class1);
-            }
+            fieldValue = f.get(class1);
         }
         catch (Exception e) {
-            try {
-                fieldValue = f.get(class1);
-            }
-            catch (Exception e1) {
-                e1.printStackTrace();
-                return null;
-            }
+            e.printStackTrace();
+            return null;
         }
+        
         // String className = class1.getClass().getCanonicalName();
         // Name
         String nameRaw = neptusProperty.name();

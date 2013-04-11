@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.jar.JarFile;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.plugins.SubPanelProvider;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.templates.AbstractPlanTemplate;
@@ -70,7 +71,7 @@ public class ReflectionUtil {
         ArrayList<File> directories = new ArrayList<File>();
         ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
 
-        // System.out.println("evaluating "+pckgname);
+        // NeptusLog.pub().info("<###>evaluating "+pckgname);
 
         try {
             ClassLoader cld = Thread.currentThread().getContextClassLoader();
@@ -124,7 +125,7 @@ public class ReflectionUtil {
         }
 
         for (File directory : directories) {
-            // System.out.println(directory);
+            // NeptusLog.pub().info("<###> "+directory);
             if (directory.exists()) {
                 // Get the list of the files contained in the package
                 String[] files = directory.list();
@@ -311,11 +312,11 @@ public class ReflectionUtil {
     public static void main(String[] args) throws Exception {
 
         for (Class<?> c : listPlanTemplates()) {
-            System.out.println(c.getName());
+            NeptusLog.pub().info("<###> "+c.getName());
         }
 
         for (Class<?> c : listMraVisualizations()) {
-            System.out.println(c.getName());
+            NeptusLog.pub().info("<###> "+c.getName());
         }
 
     }

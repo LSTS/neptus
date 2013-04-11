@@ -872,7 +872,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         g.drawImage(stage,0,0,getWidth(), getHeight(),null);
         forceRepaint = false;
         lastPaintTime = System.currentTimeMillis();
-//        System.out.println((System.nanoTime() - nt) / Math.pow(10,6));
+//        NeptusLog.pub().info("<###> "+(System.nanoTime() - nt) / Math.pow(10,6));
     }
 
     /**
@@ -991,7 +991,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         Graphics2D original = g2d;
         if (lockedVehicle != null && vehicleStates.get(lockedVehicle) != null) {
             SystemPositionAndAttitude state = vehicleStates.get(lockedVehicle);
-            // System.out.println(state);
+            // NeptusLog.pub().info("<###> "+state);
             LocationType loc = new LocationType(state.getPosition());
             loc.convertToAbsoluteLatLonDepth();
             setRotation(state.getYaw());
@@ -1488,7 +1488,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
                 return;
             }
             else {
-//                System.out.println("ruler first point");
+//                NeptusLog.pub().info("<###>ruler first point");
                 rulerFirstPoint = e.getPoint();
                 rulerLastPoint = e.getPoint();
             }
@@ -2128,7 +2128,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
                 repaint();
                 break;
             case (KeyEvent.VK_SHIFT):
-//                System.out.println("shift in");
+//                NeptusLog.pub().info("<###>shift in");
                 setViewMode(Renderer.RULER);
                 repaint();
                 break;
@@ -2141,7 +2141,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     public void keyReleased(KeyEvent keyEvt) {
         switch (keyEvt.getKeyCode()) {
             case (KeyEvent.VK_SHIFT):
-//                System.out.println("shift out");
+//                NeptusLog.pub().info("<###>shift out");
                 setViewMode(previousMode);
                 break;
         }
@@ -2335,10 +2335,10 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
 
         if (editingMap == null) {
             objArray = mapGroup.getAllObjects();
-            // System.out.println("editing map is null!");
+            // NeptusLog.pub().info("<###>editing map is null!");
         }
         else {
-            // System.out.println("editing map is not null!");
+            // NeptusLog.pub().info("<###>editing map is not null!");
             objArray = mapGroup.getObjectsFromMap(editingMap);
         }
 

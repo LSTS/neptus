@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCMessageType;
@@ -228,22 +229,22 @@ public class LsfMraLog implements IMraLog {
                 new FileInputStream(new File("/home/jqcorreia/Desktop/merge2/IMC.xml"))));
         LsfMraLog log = new LsfMraLog(index, "EstimatedState");
 
-        System.out.println(index.getMessage(0).getTimestamp());
-        System.out.println(log.getCurrentEntry().getTimestamp());
-        System.out.println(index.getMessage(1).getTimestamp());
-        System.out.println(index.getMessage(2).getTimestamp());
+        NeptusLog.pub().info("<###> "+index.getMessage(0).getTimestamp());
+        NeptusLog.pub().info("<###> "+log.getCurrentEntry().getTimestamp());
+        NeptusLog.pub().info("<###> "+index.getMessage(1).getTimestamp());
+        NeptusLog.pub().info("<###> "+index.getMessage(2).getTimestamp());
 
-        System.out.println(index.getMessage(0).getTimestamp());
+        NeptusLog.pub().info("<###> "+index.getMessage(0).getTimestamp());
 
         for (int i = 0; i < 200; i++) {
             IMCMessage m = index.getMessage(i);
-            System.out.println(m.getAbbrev() + " " + m.getTimestamp());
+            NeptusLog.pub().info("<###> "+m.getAbbrev() + " " + m.getTimestamp());
         }
         // for(double i = index.timeOf(0); i < index.timeOf(index.getNumberOfMessages()-1); i+=100)
         // {
-        // System.out.println(i);
+        // NeptusLog.pub().info("<###> "+i);
         // log.advanceUntil((long)i*1000);
-        // System.out.println(log.getCurrentEntry().getTimestamp());
+        // NeptusLog.pub().info("<###> "+log.getCurrentEntry().getTimestamp());
         // }
     }
 }

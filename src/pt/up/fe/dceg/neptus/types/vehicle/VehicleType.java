@@ -421,7 +421,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
 
                 consoles.put(elem.attributeValue("name"), typeNameValue);
                 consolesType.put(elem.attributeValue("name"), typeName);
-                // System.out.println("put("+elem.attributeValue("name")+", "+elem.selectSingleNode("classname").getText()+")");
+                // NeptusLog.pub().info("<###>put("+elem.attributeValue("name")+", "+elem.selectSingleNode("classname").getText()+")");
             }
 
         }
@@ -985,7 +985,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
          * (cls == null) cls = elem.selectSingleNode("xml-file"); if (cls == null) continue; String typeName =
          * cls.getName(); String typeNameValue = cls.getText(); consoles.put(elem.attributeValue("name"),
          * typeNameValue); consolesType.put(elem.attributeValue("name"), typeName);
-         * //System.out.println("put("+elem.attributeValue
+         * //NeptusLog.pub().info("<###>put("+elem.attributeValue
          * ("name")+", "+elem.selectSingleNode("classname").getText()+")"); }
          */
         if (!consoles.isEmpty()) {

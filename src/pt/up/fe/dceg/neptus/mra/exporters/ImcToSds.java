@@ -38,6 +38,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCInputStream;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
@@ -280,7 +281,7 @@ public class ImcToSds {
 			// Do nothing and let the loop end
 		    // e.printStackTrace();
 		}
-		System.out.println("Number of messages processed to SDS: " + c);
+		NeptusLog.pub().info("<###>Number of messages processed to SDS: " + c);
 
 		// Close data streams
 		try {
@@ -294,8 +295,8 @@ public class ImcToSds {
 
 	public static void main(String args[]) {
 		ImcToSds converter = new ImcToSds(new File(args[0]), IMCDefinition.getInstance());
-		System.out.println(converter.inputFile.getAbsolutePath());
+		NeptusLog.pub().info("<###> "+converter.inputFile.getAbsolutePath());
 		converter.convertToSDSFile(new File(args[1]));
-		System.out.println(converter.outputFile.getAbsolutePath());
+		NeptusLog.pub().info("<###> "+converter.outputFile.getAbsolutePath());
 	}
 }

@@ -146,7 +146,9 @@ public class ScriptedDisplay extends SimpleSubPanel implements IPeriodicUpdates,
 				try {
 					text = GuiUtils.getNeptusDecimalFormat(digits).format(Double.parseDouble(text));
 				}
-				catch (Exception e) {}
+				catch (Exception e) {
+				    e.printStackTrace();
+				}
 			}
 			text = text + " " + units;
 			display.setText(text);

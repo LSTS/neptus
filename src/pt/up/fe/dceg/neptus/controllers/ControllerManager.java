@@ -2,6 +2,7 @@ package pt.up.fe.dceg.neptus.controllers;
 
 import java.io.File;
 import java.util.LinkedHashMap;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -11,9 +12,12 @@ import javax.xml.transform.stream.StreamResult;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.JoyEnvironment;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
 
 /**
  * ControllerManager class 
@@ -36,7 +40,7 @@ public class ControllerManager {
 	public void loadMappingsXML() {
 		try {
 			if(!new File(MAP_FILE_XML).isFile()) {
-				System.out.println("Error loading controllers mapping file");
+				NeptusLog.pub().info("<###>Error loading controllers mapping file");
 				return;
 			}
 			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(MAP_FILE_XML);
@@ -60,13 +64,13 @@ public class ControllerManager {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-//		System.out.println(controllerMappings);
+//		NeptusLog.pub().info("<###> "+controllerMappings);
 	}
 
 	public void saveMappingsXML() {
 		Document doc;
 		
-		System.out.println("Saving XML mapping file");
+		NeptusLog.pub().info("<###>Saving XML mapping file");
 		try {
 			// Create a new XML document
 			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
@@ -120,12 +124,12 @@ public class ControllerManager {
 		// Look for changes
 		for (String k : oldMap.keySet()) {
 			if (!controllerList.containsKey(k)) {
-				System.out.println("Removed " + oldMap.get(k).getName());
+				NeptusLog.pub().info("<###>Removed " + oldMap.get(k).getName());
 			}
 		}
 		for (String k : controllerList.keySet()) {
 			if (!oldMap.containsKey(k)) {
-				System.out.println("Added " + controllerList.get(k).getName());
+				NeptusLog.pub().info("<###>Added " + controllerList.get(k).getName());
 			}
 		}
 	}
@@ -178,7 +182,7 @@ public class ControllerManager {
 //				for (String k : res.keySet()) {
 //					System.out.print(k + " " + res.get(k).getPollData() + " ");
 //				}
-//				System.out.println();
+//				NeptusLog.pub().info("<###> "+);
 //			}
 //			
 //			try {

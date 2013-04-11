@@ -36,6 +36,7 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
@@ -85,7 +86,7 @@ public class GenericPlot extends MraTimeSeriesPlot {
 
     @Override
     public void process(LsfIndex source) {
-        System.out.println("Generic Plot process");
+        NeptusLog.pub().info("<###>Generic Plot process");
         long t = System.currentTimeMillis();
         for (String field : fieldsToPlot) {
             String messageName = field.split("\\.")[0];
@@ -98,7 +99,7 @@ public class GenericPlot extends MraTimeSeriesPlot {
                     seriesName = m.getSourceName()+"."+source.getEntityName(m.getSrc(), m.getSrcEnt())+"."+field+"."+m.getValue("id");
                 } 
                 else { 
-//                    System.out.println(m.getAbbrev() + " " + source.getEntityName(m.getSrc(), m.getSrcEnt()));
+//                    NeptusLog.pub().info("<###> "+m.getAbbrev() + " " + source.getEntityName(m.getSrc(), m.getSrcEnt()));
                     seriesName = m.getSourceName()+"."+source.getEntityName(m.getSrc(), m.getSrcEnt())+"."+field;
                 }
                 
@@ -110,6 +111,6 @@ public class GenericPlot extends MraTimeSeriesPlot {
                     addValue(m.getTimestampMillis(), seriesName, m.getDouble(variable));
             }
         }
-        System.out.println("Processed in " + (System.currentTimeMillis() - t));
+        NeptusLog.pub().info("<###>Processed in " + (System.currentTimeMillis() - t));
     }
 }

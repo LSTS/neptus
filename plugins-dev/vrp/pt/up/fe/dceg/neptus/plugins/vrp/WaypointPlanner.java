@@ -173,7 +173,7 @@ public class WaypointPlanner extends SimpleSubPanel implements Renderer2DPainter
         int option = chooser.showOpenDialog(getConsole());
         chooser.setMultiSelectionEnabled(false);
         if (option == JFileChooser.APPROVE_OPTION) {
-            System.out.println("open " + chooser.getSelectedFile());
+            NeptusLog.pub().info("<###>open " + chooser.getSelectedFile());
             workingFile = chooser.getSelectedFile();
 
             try {
@@ -257,7 +257,7 @@ public class WaypointPlanner extends SimpleSubPanel implements Renderer2DPainter
             availableVehicles.add(getConsole().getMainSystem());
         }
 
-        Point2d zero = new Point2d(mission.getStartLocation().getOffsetFrom(mission.getHomeRef()));
+        Point2d zero = new Point2d(0,0);
 
         Vector<Point2d> pts = new Vector<Point2d>();
         for (LocationType l : points)

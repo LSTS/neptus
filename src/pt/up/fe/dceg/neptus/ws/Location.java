@@ -38,6 +38,8 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.w3c.dom.NodeList;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 public class Location {
 
     private double latitude, longitude, depth, easting, northing;
@@ -254,11 +256,11 @@ public class Location {
         Location loc = new Location(41.23974, -8.341);
         Location loc2 = new Location(loc);
         loc2.setLongitude(-8.3434);
-        System.out.println(loc.getNEDOffsetFrom(loc2)[1]);
+        NeptusLog.pub().info("<###> "+loc.getNEDOffsetFrom(loc2)[1]);
         loc = new Location(41.2323, -8.2323);
         loc.setEasting(-23);
         loc.setDepth(34.2343);
-        System.out.println(loc.asXMLElement().asXML());
+        NeptusLog.pub().info("<###> "+loc.asXMLElement().asXML());
     }
 
     public static double parseDMSString(String dms) {

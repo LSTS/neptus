@@ -41,6 +41,7 @@ import java.util.Vector;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.imc.Goto;
@@ -190,7 +191,7 @@ public class NoptilusPlanGenerator extends SimpleSubPanel implements Renderer2DP
                     catch (Exception ex) {
                         GuiUtils.errorMessage(getConsole(), ex);
                     }   
-                    System.out.println(replay);
+                    NeptusLog.pub().info("<###> "+replay);
                 }
             }
         });

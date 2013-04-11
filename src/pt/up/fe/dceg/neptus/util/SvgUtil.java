@@ -45,43 +45,43 @@ public class SvgUtil {
 		List<?> list = root.selectNodes("/svg/@*[starts-with(name(.),'sodipodi:')]");
 		for (Object obj : list) {
 			org.dom4j.Node nd = (org.dom4j.Node) obj;
-			//System.out.println(nd.asXML());
+			//NeptusLog.pub().info("<###> "+nd.asXML());
 			root.remove(nd);
 		}
 		list = root.selectNodes("/svg/*[starts-with(name(.),'sodipodi:')]");
 		for (Object obj : list) {
 			org.dom4j.Node nd = (org.dom4j.Node) obj;
-			//System.out.println(nd.asXML());
+			//NeptusLog.pub().info("<###> "+nd.asXML());
 			root.remove(nd);
 		}
 		list = root.selectNodes("/svg/@*[starts-with(name(.),'inkscape:')]");
 		for (Object obj : list) {
 			org.dom4j.Node nd = (org.dom4j.Node) obj;
-			//System.out.println(nd.asXML());
+			//NeptusLog.pub().info("<###> "+nd.asXML());
 			root.remove(nd);
 		}
 		list = root.selectNodes("/svg/@xml:base");
 		for (Object obj : list) {
 			org.dom4j.Node nd = (org.dom4j.Node) obj;
-			//System.out.println(nd.asXML());
+			//NeptusLog.pub().info("<###> "+nd.asXML());
 			root.remove(nd);
 		}
 		//list = root.selectNodes("/svg/metadata");
 		//for (Object obj : list) {
 		//	org.dom4j.Node nd = (org.dom4j.Node) obj;
-		//	System.out.println(nd.asXML());
+		//	NeptusLog.pub().info("<###> "+nd.asXML());
 		//	root.remove(nd);
 		//}
 		list = root.additionalNamespaces();
 		for (Object obj : list) {
 			org.dom4j.Namespace nd = (org.dom4j.Namespace) obj;
-			//System.out.println(nd.getPrefix());
+			//NeptusLog.pub().info("<###> "+nd.getPrefix());
 			String pf = nd.getPrefix();
 			if ("inkscape".equalsIgnoreCase(pf) || "sodipodi".equalsIgnoreCase(pf)
 					|| "cc".equalsIgnoreCase(pf) || "dc".equalsIgnoreCase(pf))
 				root.remove(nd);
 		}
-		//System.out.println(doc.asXML());
+		//NeptusLog.pub().info("<###> "+doc.asXML());
 		return Dom4JUtil.convertDOM4JtoDOM(doc);
 	}
 }

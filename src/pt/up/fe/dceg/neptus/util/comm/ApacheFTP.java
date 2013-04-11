@@ -147,7 +147,7 @@ public class ApacheFTP {
         try {
             int reply;
             ftp.connect(host);
-            // System.out.println("Connected to " + host + ".");
+            // NeptusLog.pub().info("<###>Connected to " + host + ".");
             // System.out.print(ftp.getReplyString());
             NeptusLog.pub().debug("ApacheFTP:: " + "Connected to " + host + ".");
             NeptusLog.pub().debug("ApacheFTP:: " + "Reply string " + ftp.getReplyString() + ".");
@@ -201,7 +201,7 @@ public class ApacheFTP {
             throw fe;
         }
 
-        // System.out.println("Remote system is " + ftp.getSystemName());
+        // NeptusLog.pub().info("<###>Remote system is " + ftp.getSystemName());
         NeptusLog.pub().debug("ApacheFTP:: " + "Remote system is " + ftp.getSystemName() + ".");
 
         if (connMode.equalsIgnoreCase("pasv"))
@@ -235,7 +235,7 @@ public class ApacheFTP {
                 if (hostDirectory != null)
                     ftp.changeWorkingDirectory(hostDirectory);
 
-                // System.out.println("Efectuando upload do ficheiro " +
+                // NeptusLog.pub().info("<###>Efectuando upload do ficheiro " +
                 // filename + "...");
                 if (localDirectory != null) {
                     FileOutputStream fos = new FileOutputStream(localDirectory + "/" + filename);
@@ -247,7 +247,7 @@ public class ApacheFTP {
                 }
             }
             catch (IOException e) {
-                // System.out.println(e.getMessage());
+                // NeptusLog.pub().info("<###> "+e.getMessage());
                 NeptusLog.pub().debug("ApacheFTP::get:: " + e.getMessage());
                 // TODO um System.exit(-1) aqui é perigoso
                 // System.exit(-1);
@@ -261,7 +261,7 @@ public class ApacheFTP {
                 }
                 return false;
             }
-            // System.out.println("concluido!!");
+            // NeptusLog.pub().info("<###>concluido!!");
             NeptusLog.pub().debug("ApacheFTP::get:: " + "done");
         }
         else if (action.equals("put")) { // coloca ficheiro no servidor

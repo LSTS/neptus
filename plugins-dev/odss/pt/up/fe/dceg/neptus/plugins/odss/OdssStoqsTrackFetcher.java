@@ -311,7 +311,7 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
                 ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
                 
                 if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                    System.out.println(OdssStoqsTrackFetcher.this.getClass().getSimpleName() 
+                    NeptusLog.pub().info("<###> "+OdssStoqsTrackFetcher.this.getClass().getSimpleName() 
                             + "[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                             + iGetResultCode.getStatusLine().getReasonPhrase()
                             + " code was return from the server");
@@ -332,7 +332,7 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
                 filterAndAddToList(sysBag);
                 if (debugOn) {
                     for (String key : sysBag.keySet()) {
-                        System.out.println(sysBag.get(key));
+                        NeptusLog.pub().info("<###> "+sysBag.get(key));
                     }
                 }
 
@@ -477,7 +477,7 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
         }
         if (debugOn) {
             for (String key : dataBag.keySet()) {
-                System.out.println(dataBag.get(key));
+                NeptusLog.pub().info("<###> "+dataBag.get(key));
             }
         }
         
@@ -500,7 +500,7 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
             long time = Math.round(pr.getEpochSeconds() * 1000d);
             CoordinateSystem coordinateSystem = new CoordinateSystem();
             coordinateSystem.setLocation(pr.getHasLocation());
-//            System.out.println(key + " :: " +coordinateSystem);
+//            NeptusLog.pub().info("<###> "+key + " :: " +coordinateSystem);
 
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(id);
             if (sys != null) {
@@ -675,8 +675,8 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
             ImcMsgManager.getManager().start();
             ImcMsgManager.getManager().initVehicleCommInfo("lauv-seacon-1", "127.0.0.1");
 
-            System.out.println("ImcSystemsHolder:   " + ImcSystemsHolder.lookupAllSystems().length);
-            System.out.println("ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ImcSystemsHolder:   " + ImcSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
 
             OdssStoqsTrackFetcher osf = new OdssStoqsTrackFetcher(null);
             osf.debugOn = true;
@@ -684,12 +684,12 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
             osf.periodHoursToFetch = 300;
             
             
-            System.out.println("\n\n-------------- Use remote requests  -------------- \n");
+            NeptusLog.pub().info("<###>\n\n-------------- Use remote requests  -------------- \n");
             osf.getStateRemoteData();
-            System.out.println("ImcSystemsHolder:   " + ImcSystemsHolder.lookupAllSystems().length);
-            System.out.println("ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ImcSystemsHolder:   " + ImcSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
 
-            System.out.println("\n\n-------------- Use local test files -------------- \n");
+            NeptusLog.pub().info("<###>\n\n-------------- Use local test files -------------- \n");
             
             String xml = FileUtil.getFileAsString("srcTests/mbari/ODSS-Position-2.html");
             Document docProfiles = osf.loadXml(xml);
@@ -697,13 +697,13 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
             HashMap<String, PlatformReportType> sysBag = osf.processOdssStokesResponse(docProfiles, PlatformType.AUV);
             filterAndAddToList(sysBag);
             for (String key : sysBag.keySet()) {
-                System.out.println(sysBag.get(key));
+                NeptusLog.pub().info("<###> "+sysBag.get(key));
             }
             osf.sysStokesLocations.putAll(sysBag);
             osf.processRemoteStates();
             
-            System.out.println("ImcSystemsHolder:   " + ImcSystemsHolder.lookupAllSystems().length);
-            System.out.println("ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ImcSystemsHolder:   " + ImcSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
             
             xml = FileUtil.getFileAsString("srcTests/mbari/ODSS-Position-glider.html");
             docProfiles = osf.loadXml(xml);
@@ -711,13 +711,13 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
             sysBag = osf.processOdssStokesResponse(docProfiles, PlatformType.GLIDER);
             filterAndAddToList(sysBag);
             for (String key : sysBag.keySet()) {
-                System.out.println(sysBag.get(key));
+                NeptusLog.pub().info("<###> "+sysBag.get(key));
             }
             osf.sysStokesLocations.putAll(sysBag);
             osf.processRemoteStates();
             
-            System.out.println("ImcSystemsHolder:     " + ImcSystemsHolder.lookupAllSystems().length);
-            System.out.println("ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ImcSystemsHolder:     " + ImcSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
         }
         catch (Exception e) {
             e.printStackTrace();

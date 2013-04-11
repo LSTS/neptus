@@ -165,7 +165,7 @@ class CHull {
     					}
     				}
     			}
-    			//System.out.println("ciclo");
+    			//NeptusLog.pub().info("<###>ciclo");
     			path.remove(index);
     			size=path.size();
     		}

@@ -40,6 +40,8 @@ import org.apache.log4j.Logger;
 
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
+import com.jme3.math.Vector3f;
+
 /**
  * Has information of one SPOT device.
  * 
@@ -100,15 +102,23 @@ public class Spot {
      * 
      */
     private LocationSpeedDirection setSpeedMpsAndDirection(TreeSet<SpotMessage> messages) {
+        if (messages.size() == 1) {
+            Spot.log.debug("Just one message");
+            return new LocationSpeedDirection(LocationSpeedDirection.NO_VALUE_F, -LocationSpeedDirection.NO_VALUE_D,
+                    new LocationType(messages.first().latitude, messages.first().longitude));
+        }
+
         long elapsedTime;
         int numMeasurements = 0;
         double sumSpeed = 0;
-        double distanceInMeters, speedMeterSecond, latDif, lonDif;
+        double distanceInMeters, speedMeterSecond;
         SpotMessage tmpMsg;
         LocationType tmpLocation, prevLocation;
         SpotMessage prevMsg = null;
         tmpLocation = prevLocation = null;
-        DirVector sumDirVector = new DirVector(0, 0);
+        Vector3f sumDirVector = new Vector3f(0f, 0f, 0f);
+        double[] movementVectorArray;
+        Vector3f movementVector;
         for (Iterator<SpotMessage> it = messages.iterator(); it.hasNext();) {
             tmpMsg = it.next();
             tmpLocation = new LocationType(tmpMsg.latitude, tmpMsg.longitude);// tmpMsg.getLocation();
@@ -120,22 +130,34 @@ public class Spot {
                 log.debug("Traveled " + distanceInMeters + " in " + elapsedTime + " = " + speedMeterSecond + "  ("
                         + tmpMsg.latitude + ", " + tmpMsg.longitude + " at " + tmpMsg.timestamp);
                 sumSpeed += speedMeterSecond;
-                latDif = tmpLocation.getLatitudeAsDoubleValueRads() - prevLocation.getLatitudeAsDoubleValueRads();
-                lonDif = tmpLocation.getLongitudeAsDoubleValueRads() - prevLocation.getLongitudeAsDoubleValueRads();
+                movementVectorArray = prevLocation.getOffsetFrom(tmpLocation);
+                movementVector = new Vector3f(new Float(movementVectorArray[0]), new Float(
+                        movementVectorArray[1]),
+                        0f);
+                movementVector = movementVector.divide(movementVector.length());
+                Spot.log.debug("Direction: (" + movementVectorArray[0] + ", " + movementVectorArray[1] + ")  --> ("
+                        + movementVector.x + ", " + movementVector.y + ")");
                 // weighted sum
-                sumDirVector.latitude += latDif * numMeasurements;
-                sumDirVector.longitude += lonDif * numMeasurements;
+                sumDirVector.x = movementVector.x * numMeasurements;
+                sumDirVector.y = movementVector.y * numMeasurements;
+
+                // latDif = tmpLocation.getLatitudeAsDoubleValueRads() - prevLocation.getLatitudeAsDoubleValueRads();
+                // lonDif = tmpLocation.getLongitudeAsDoubleValueRads() - prevLocation.getLongitudeAsDoubleValueRads();
+                // // weighted sum
+                // sumDirVector.latitude += latDif * numMeasurements;
+                // sumDirVector.longitude += lonDif * numMeasurements;
             }
             prevMsg = tmpMsg;
             prevLocation = tmpLocation;
         }
-        double factorial = gamma(numMeasurements - 1);
+        Float factorial = new Float(gamma(numMeasurements - 1));
         // weighted mean
-        sumDirVector.latitude = sumDirVector.latitude / factorial;
-        sumDirVector.longitude = sumDirVector.longitude / factorial;
+        sumDirVector.x = sumDirVector.x / factorial;
+        sumDirVector.y = sumDirVector.y / factorial;
         Float finalSpeed = new Float(sumSpeed / (numMeasurements - 1));
-        double finalDirection = Math.atan(sumDirVector.longitude / sumDirVector.latitude);
-        log.debug("finalSpeed " + finalSpeed + "direction" + finalDirection);
+        double finalDirection = Math.atan(sumDirVector.y / sumDirVector.x);
+        log.debug("finalSpeed " + finalSpeed + ", direction: (" + sumDirVector.x + ", " + sumDirVector.y + ")"
+                + finalDirection);
         return new LocationSpeedDirection(finalSpeed, finalDirection, prevLocation);
     }
 
@@ -185,6 +207,8 @@ public class Spot {
     }
 
     class LocationSpeedDirection {
+        public final static float NO_VALUE_F = -1;
+        public final static double NO_VALUE_D = -1;
         public final double direction;
         public final Float speed;
         public final LocationType location;

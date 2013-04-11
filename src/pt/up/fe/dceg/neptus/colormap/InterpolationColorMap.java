@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.editor.ColorMapPropertyEditor;
 import pt.up.fe.dceg.neptus.plugins.PropertyType;
 
@@ -125,12 +126,12 @@ public class InterpolationColorMap implements ColorMap, PropertyType {
 
     public static void main(String args[]) throws Exception {
         ColorMap cmap = new InterpolationColorMap("c:/cmap.txt");
-        System.out.println(cmap.getColor(0.1f));
+        NeptusLog.pub().info("<###> "+cmap.getColor(0.1f));
     }
 
     public Color getColor(double value) {	
         if (debug)
-            System.out.println("getColor()");
+            NeptusLog.pub().info("<###>getColor()");
         
         if (value >= values[values.length-1])
             return colors[values.length-1];
@@ -158,7 +159,7 @@ public class InterpolationColorMap implements ColorMap, PropertyType {
     private Color interpolate(double belowValue, Color belowColor, double value, double aboveValue, Color aboveColor) {
 
         if (debug)
-            System.out.println("interpolate()");
+            NeptusLog.pub().info("<###>interpolate()");
 
         double totalDist = aboveValue - belowValue;
 
@@ -166,7 +167,7 @@ public class InterpolationColorMap implements ColorMap, PropertyType {
         double belowDist = (aboveValue - value) / totalDist;
 
         if (debug)
-            System.out.println("aboveDist="+aboveDist+", belowDist="+belowDist);
+            NeptusLog.pub().info("<###>aboveDist="+aboveDist+", belowDist="+belowDist);
 
         return new Color(
                 (int) (belowColor.getRed() * belowDist + aboveColor.getRed() * aboveDist),

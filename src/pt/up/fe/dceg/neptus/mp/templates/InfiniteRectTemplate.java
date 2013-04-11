@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.mp.templates;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
@@ -117,7 +118,7 @@ public class InfiniteRectTemplate extends AbstractPlanTemplate {
 		
 		try {
 			PlanType plan = sq.generatePlan();
-			System.out.println(plan.asXML());
+			NeptusLog.pub().info("<###> "+plan.asXML());
 		}
 		catch (Exception e) {
 			e.printStackTrace();

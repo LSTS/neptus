@@ -48,6 +48,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.colormap.ColorMapUtils;
@@ -78,7 +79,7 @@ public class XYZDataUtil {
 		while (line != null) {
 			if (line.startsWith("#")) {}				
 			else {
-				//System.out.println(line);
+				//NeptusLog.pub().info("<###> "+line);
 				String[] xt = line.split("[\t ,]");
 				if (xt.length == 3) {
 					try {
@@ -96,7 +97,7 @@ public class XYZDataUtil {
 			line = br.readLine();
 		}
 		br.close();
-		System.out.println("Number of points: " + xvec.size());
+		NeptusLog.pub().info("<###>Number of points: " + xvec.size());
 		double minX = Double.POSITIVE_INFINITY;
 		double maxX = Double.NEGATIVE_INFINITY;
 		for (double xt : xvec) {
@@ -124,9 +125,9 @@ public class XYZDataUtil {
 				maxZ = zt;
 		}
 
-		System.out.println("x = ["+minX+","+maxX+"]"+"  \tdelta x = "+(Math.round(maxX-minX)));
-		System.out.println("y = ["+minY+","+maxY+"]"+"  \tdelta y = "+(Math.round(maxY-minY)));
-		System.out.println("z = ["+minZ+","+maxZ+"]"+"  \t\tdelta z = "+(Math.round(maxZ-minZ)));
+		NeptusLog.pub().info("<###>x = ["+minX+","+maxX+"]"+"  \tdelta x = "+(Math.round(maxX-minX)));
+		NeptusLog.pub().info("<###>y = ["+minY+","+maxY+"]"+"  \tdelta y = "+(Math.round(maxY-minY)));
+		NeptusLog.pub().info("<###>z = ["+minZ+","+maxZ+"]"+"  \t\tdelta z = "+(Math.round(maxZ-minZ)));
 		
 		double[] dim = {maxX-minX, maxY-minY};
 		double scale = 1;
@@ -147,24 +148,24 @@ public class XYZDataUtil {
 		
 		Point2D[] points = new Point2D[xvec.size()];
 		
-		System.out.println("Scale: " + scale);
+		NeptusLog.pub().info("<###>Scale: " + scale);
 		
 		LocationType baseLoc = new LocationType();
 		baseLoc.setLatitude("41N09'35.293''");//41º09'35.293"N
 		baseLoc.setLongitude("08W41'35.721''");
 		baseLoc.translatePosition(-465778.48, -152987.42, 0);
 		//baseLoc = (LocationType) baseLoc.convertToAbsoluteLatLonDepth();
-		System.out.println("Base location = " + baseLoc);
+		NeptusLog.pub().info("<###>Base location = " + baseLoc);
 		
 		LocationType topCorner = new LocationType(baseLoc);
 		topCorner.translatePosition(maxX, minY, 0);
-		System.out.println("Top Left Corner location = " + topCorner);
-//		System.out.println(topCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + topCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
+		NeptusLog.pub().info("<###>Top Left Corner location = " + topCorner);
+//		NeptusLog.pub().info("<###> "+topCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + topCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
 
 		LocationType centerLocation = new LocationType(baseLoc);
 		centerLocation.translatePosition(maxX-((maxX-minX)/2), minY+((maxY-minY)/2), 0);
-		System.out.println("Center location = " + centerLocation);
-//		System.out.println(centerCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + centerCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
+		NeptusLog.pub().info("<###>Center location = " + centerLocation);
+//		NeptusLog.pub().info("<###> "+centerCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + centerCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
 
 		
 //		LocationType centerUsedCorner = new LocationType();
@@ -172,13 +173,13 @@ public class XYZDataUtil {
 //		centerUsedCorner.setLongitude("8W42.251");
 //		centerUsedCorner.setOffsetNorth(-823.643);
 //		centerUsedCorner.setOffsetEast(73.975);
-//		System.out.println("CenterUsed location = " + centerUsedCorner);
-//		System.out.println(centerUsedCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + centerUsedCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
+//		NeptusLog.pub().info("<###>CenterUsed location = " + centerUsedCorner);
+//		NeptusLog.pub().info("<###> "+centerUsedCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + centerUsedCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
 
 		LocationType bottomRightCorner = new LocationType(baseLoc);
 		bottomRightCorner.translatePosition(maxX-(maxX-minX), minY+(maxY-minY), 0);
-		System.out.println("Bottom Right Corner location = " + bottomRightCorner);
-//		System.out.println(bottomRightCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + bottomRightCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
+		NeptusLog.pub().info("<###>Bottom Right Corner location = " + bottomRightCorner);
+//		NeptusLog.pub().info("<###> "+bottomRightCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + bottomRightCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
 
 		for (int i = 0; i < xvec.size(); i++) {
 			LocationType pLoc = new LocationType(baseLoc);
@@ -190,7 +191,7 @@ public class XYZDataUtil {
 
 		//Rectangle2D bounds = new Rectangle2D.Double(minX, minY, maxX-minX, maxY-minY);
 		Rectangle2D bounds = new Rectangle2D.Double(0, 0, maxX-minX, maxY-minY);
-		System.out.println("BoundingBox: " + (maxX-minX) + " x " + (maxY-minY));
+		NeptusLog.pub().info("<###>BoundingBox: " + (maxX-minX) + " x " + (maxY-minY));
 
 //		ColorMap colormap = ColorMapFactory.createJetColorMap();
 //		double[] values = new double[zvec.size()];
@@ -356,7 +357,7 @@ public class XYZDataUtil {
         mapT.addObject(imageElement);
         mapT.saveFile("./map-" + imageNameId + ".nmap");
         
-        System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(mapT.asXML()));
+        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(mapT.asXML()));
 	}
 
 
@@ -495,10 +496,10 @@ public class XYZDataUtil {
 //		for (int i = 0; i < zGrid.length; i++) {
 //			//zGrid[i] = (zGrid[i] - min) / max;
 //			zGrid[i] = (zGrid[i] - min) / (max-min);
-//		//	System.out.println(zGrid[i]);
+//		//	NeptusLog.pub().info("<###> "+zGrid[i]);
 //		}
 //
-//		//System.out.println(min+" -> "+max+", "+dyGrid);
+//		//NeptusLog.pub().info("<###> "+min+" -> "+max+", "+dyGrid);
 //		double vals[][] = new double[numX][numY];
 //		
 //		for (int i = 0; i < numX; i++) {

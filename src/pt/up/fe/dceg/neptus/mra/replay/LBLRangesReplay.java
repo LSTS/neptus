@@ -47,7 +47,6 @@ import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.map.TransponderElement;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
 import pt.up.fe.dceg.neptus.util.lbl.LBLTriangulationHelper;
 import pt.up.fe.dceg.neptus.util.llf.LogUtils;
 
@@ -190,7 +189,7 @@ public class LBLRangesReplay implements LogReplayLayer {
             double range = message.getDouble("range");
             String accep = message.getString("acceptance");
             String reason = message.getString("reason");
-            // if (reason != null) System.out.println(reason);
+            // if (reason != null) NeptusLog.pub().info("<###> "+reason);
 
             
             RangePainter rp = rangeFixPainter.get(id);

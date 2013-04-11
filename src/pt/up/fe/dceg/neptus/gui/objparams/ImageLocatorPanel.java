@@ -52,6 +52,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.ImageScaleAndLocationPanel;
 import pt.up.fe.dceg.neptus.gui.LocationPanel;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -182,8 +183,8 @@ public class ImageLocatorPanel extends JPanel implements MouseListener {
 	public static void main(String args[]) {
 		ImageLocatorPanel ilp = new ImageLocatorPanel(ImageUtils.getImage("images/lsts.png"));
 		if (ilp.showDialog()) {
-			System.out.println("Scale: "+ilp.getScale());
-			System.out.println("Center: "+ilp.getCenter().getDebugString());
+			NeptusLog.pub().info("<###>Scale: "+ilp.getScale());
+			NeptusLog.pub().info("<###>Center: "+ilp.getCenter().getDebugString());
 		}
 	}
 	

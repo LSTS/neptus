@@ -220,7 +220,7 @@ public class PCCWaypointPainter implements Renderer2DPainter {
 		boolean drawnActive = false;
 		
 		//VehicleType v = VehiclesHolder.getVehicleById(vehicle);
-		//System.out.println(vehicle+" -> "+v);
+		//NeptusLog.pub().info("<###> "+vehicle+" -> "+v);
 		
 		Color c1 = VehiclesHolder.getVehicleById(vehicle).getIconColor();
 		Color c2 = c1.brighter();
@@ -333,7 +333,7 @@ public class PCCWaypointPainter implements Renderer2DPainter {
 		// To draw the active path if no from is active
 		if (!drawnActive && (wpts.get(destinationWaypoint) != null)) {
 			LocationType dest = wpts.get(destinationWaypoint).location;
-			// System.out.println("active wpt is virtual from "+vehiclePosition+" to "+dest);
+			// NeptusLog.pub().info("<###>active wpt is virtual from "+vehiclePosition+" to "+dest);
 
 			LocationType vehiclePosition = vehiclePositionList.get(vehicle);
 			if (vehiclePosition != null) {

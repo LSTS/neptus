@@ -54,6 +54,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
 import pt.up.fe.dceg.neptus.renderer2d.InteractionAdapter;
 import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
@@ -356,6 +357,6 @@ public class RectangleEditor extends JPanel implements Renderer2DPainter, StateR
 		MissionType mission = new MissionType("/home/zp/workspace/Neptus/missions/APDL/missao-apdl.nmisz");
 		RectangleEditor editor = new RectangleEditor(mission);
 		
-		System.out.println(editor.showDialog(new JFrame()));
+		NeptusLog.pub().info("<###> "+editor.showDialog(new JFrame()));
 	}
 }

@@ -421,6 +421,7 @@ public class RemotePlanControl extends SimpleSubPanel implements ConfigurationLi
                 }
             }
             catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return true;
@@ -747,7 +748,7 @@ public class RemotePlanControl extends SimpleSubPanel implements ConfigurationLi
             ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
 
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                System.out.println("[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
+                NeptusLog.pub().info("<###>[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                         + iGetResultCode.getStatusLine().getReasonPhrase() + " code was return from the server");
                 if (post != null) {
                     post.abort();

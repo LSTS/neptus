@@ -39,6 +39,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.i18n.I18n;
@@ -130,7 +131,7 @@ public class SidescanReplay implements LogReplayLayer {
                     g2.scale(imageScaleX, 1);
                     //g2.drawImage(ssd.img, null, 0, 0);
                     //int ysize =  (int)((ssd.alongTrackLength*invGR) > 1 ? (ssd.alongTrackLength*invGR) : 1);
-//                    System.out.println(ysize + " " + groundResolution + " " + ssd.alongTrackLength);
+//                    NeptusLog.pub().info("<###> "+ysize + " " + groundResolution + " " + ssd.alongTrackLength);
                     g2.drawImage(ssd.img, 0, 0, null);
                     g2.dispose();
                     rend.repaint();
@@ -175,7 +176,7 @@ public class SidescanReplay implements LogReplayLayer {
 
     @Override
     public void parse(IMraLogGroup source) {
-        //System.out.println("parsing sidescan for replay");
+        //NeptusLog.pub().info("<###>parsing sidescan for replay");
         IMraLog ssParse = source.getLog("SonarData");
         IMraLog esParse = source.getLog("EstimatedState");
 
@@ -192,7 +193,7 @@ public class SidescanReplay implements LogReplayLayer {
         double maxLon = -360;
         
         range = (float) msgSS.getFloat("max_range");
-        System.out.println("Range = " + range);
+        NeptusLog.pub().info("<###>Range = " + range);
         while (msgSS != null) {
             if(msgSS.getInteger("type") == SonarData.TYPE.SIDESCAN.value()) {
                 msgES = esParse.getEntryAtOrAfter(msgSS.getTimestampMillis());

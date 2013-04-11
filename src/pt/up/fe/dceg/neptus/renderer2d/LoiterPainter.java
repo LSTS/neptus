@@ -41,6 +41,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.mp.maneuvers.Loiter;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -240,7 +241,7 @@ public class LoiterPainter implements Renderer2DPainter {
 	
 	public static Image previewLoiter(Loiter loiter, int width, int height) {
 		BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		System.out.println("width="+width);
+		NeptusLog.pub().info("<###>width="+width);
 		Graphics2D g = (Graphics2D) bi.getGraphics();
 		g.translate(width/2.0, height/2.0);		
 		paint(loiter, g, 1.0, 0.0, false);

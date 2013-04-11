@@ -49,6 +49,8 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 import com.sun.j3d.utils.geometry.ColorCube;
 import com.sun.j3d.utils.geometry.Primitive;
 import com.sun.j3d.utils.geometry.Sphere;
@@ -160,17 +162,17 @@ public class RayTest extends MouseAdapter {
         PickResult result = pickTool.pickClosest();
         if (result == null) {
 
-            System.out.println("---Nothing picked---");
+            NeptusLog.pub().info("<###>---Nothing picked---");
 
         }
         else {
-            System.out.println("--------------- picked---");
+            NeptusLog.pub().info("<###>--------------- picked---");
             // result.setFirstIntersectOnly(true);
-            // System.out.println(result);
+            // NeptusLog.pub().info("<###> "+result);
 
-            // System.out.println("Coordinates:"+result.getClosestIntersection(new
+            // NeptusLog.pub().info("<###>Coordinates:"+result.getClosestIntersection(new
             // Point3d(-10,0.1,0)).getPointCoordinates());
-            System.out.println("Coordinates to world:"
+            NeptusLog.pub().info("<###>Coordinates to world:"
                     + result.getClosestIntersection(new Point3d(10, 0.1, 0)).getPointCoordinatesVW());
 
             Primitive p = (Primitive) result.getNode(PickResult.PRIMITIVE);
@@ -179,22 +181,22 @@ public class RayTest extends MouseAdapter {
 
             if (p != null) {
 
-                System.out.println(p.getClass().getName());
+                NeptusLog.pub().info("<###> "+p.getClass().getName());
 
             }
             else if (s != null) {
 
-                System.out.println(s.getClass().getName());
+                NeptusLog.pub().info("<###> "+s.getClass().getName());
 
             }
             else {
 
-                System.out.println("null");
+                NeptusLog.pub().info("<###>null");
 
             }
 
         }
-        System.out.println("--------------- end  picked---");
+        NeptusLog.pub().info("<###>--------------- end  picked---");
         /*
          * pickCanvas.setShapeLocation(e);
          * 
@@ -202,11 +204,11 @@ public class RayTest extends MouseAdapter {
          * 
          * if (result == null) {
          * 
-         * System.out.println("Nothing picked");
+         * NeptusLog.pub().info("<###>Nothing picked");
          * 
          * } else {
          * 
-         * System.out.println(result);
+         * NeptusLog.pub().info("<###> "+result);
          * 
          * Primitive p = (Primitive)result.getNode(PickResult.PRIMITIVE);
          * 
@@ -214,15 +216,15 @@ public class RayTest extends MouseAdapter {
          * 
          * if (p != null) {
          * 
-         * System.out.println(p.getClass().getName());
+         * NeptusLog.pub().info("<###> "+p.getClass().getName());
          * 
          * } else if (s != null) {
          * 
-         * System.out.println(s.getClass().getName());
+         * NeptusLog.pub().info("<###> "+s.getClass().getName());
          * 
          * } else{
          * 
-         * System.out.println("null");
+         * NeptusLog.pub().info("<###>null");
          * 
          * }
          * 

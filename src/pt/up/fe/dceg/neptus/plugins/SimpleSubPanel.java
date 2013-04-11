@@ -386,7 +386,7 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
         ImcMsgManager.registerBusListener(this);
 
         if (this instanceof NeptusMessageListener) {
-            // System.out.println("Adding myself as message listener");
+            // NeptusLog.pub().info("<###>Adding myself as message listener");
             for (String msg : ((NeptusMessageListener) this).getObservedMessages()) {
                 int id = -1;
                 try {
@@ -401,13 +401,13 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
                     System.err.println("Message " + msg
                             + " is not valid in the current IMC specification (requested by "
                             + PluginUtils.getPluginName(this.getClass()) + ")");
-                // System.out.println(getName()+ "listening to "+messagesToListen.size()+" message types");
+                // NeptusLog.pub().info("<###> "+getName()+ "listening to "+messagesToListen.size()+" message types");
             }
 
             if (getConsole() != null && !messagesToListen.isEmpty())
                 ImcMsgManager.getManager().addListener(this, getConsole().getMainSystem());
             else {
-                System.out.println("Console is null..." + this.getName());
+                NeptusLog.pub().info("<###>Console is null..." + this.getName());
             }
         }
     }
@@ -576,7 +576,7 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
             JMenu menu = console.getOrCreateJMenu(new String[] { I18n.text("View") });
             menu.remove(menuItem);
             if (dialog.isVisible()){
-                System.out.println(this.getName());
+                NeptusLog.pub().info("<###> "+this.getName());
                 dialog.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 dialog.dispose();
             }

@@ -105,7 +105,7 @@ public class PeriodicUpdatesService {
         if (clients.contains(client)) {
             clients.remove(client);
             if (clients.isEmpty()) {
-                System.out.println("Periodic Listener Service with 0 clients - cleaning...");
+                NeptusLog.pub().info("Periodic Listener Service with 0 clients - cleaning...");
                 for (Thread t : updaterThreads) {
                     t.interrupt();
                 }
@@ -197,7 +197,7 @@ public class PeriodicUpdatesService {
 
             @Override
             public boolean update() {
-                System.out.println("a "+(System.currentTimeMillis()-previousTime));
+                NeptusLog.pub().info("<###>a "+(System.currentTimeMillis()-previousTime));
                 previousTime = System.currentTimeMillis();
                 return true;
             }
@@ -212,7 +212,7 @@ public class PeriodicUpdatesService {
 
             @Override
             public boolean update() {
-                System.out.println("b "+(System.currentTimeMillis()-previousTime));
+                NeptusLog.pub().info("<###>b "+(System.currentTimeMillis()-previousTime));
                 previousTime = System.currentTimeMillis();
                 return true;
             }

@@ -346,7 +346,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
         }
         beacons.clear();
         holder.removeAll();
-        System.out.println("lbl cleanup end");
+        NeptusLog.pub().debug("lbl cleanup end");
     }
 
     /*
@@ -364,7 +364,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
         }
 
 //        if (!system.equals("main"))
-//            System.out.println("draw from other tree");
+//            NeptusLog.pub().info("<###>draw from other tree");
     }
 
     private void reset() {

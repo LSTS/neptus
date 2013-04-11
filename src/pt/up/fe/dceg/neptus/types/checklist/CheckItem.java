@@ -126,7 +126,7 @@ implements XmlOutputMethods
             
             List<?> lt = doc.selectNodes("/item/subItems/*");
             
-            //System.out.println("tamanho:"+lt.size());
+            //NeptusLog.pub().info("<###>tamanho:"+lt.size());
             if (!lt.isEmpty())
             {
                 Iterator<?> it = lt.iterator();
@@ -134,7 +134,7 @@ implements XmlOutputMethods
                 {
                 	Node aux=((Node)it.next());
                 	CheckAutoSubItem casi = null;
-                	//System.out.println("Nome:"+aux.getName());
+                	//NeptusLog.pub().info("<###>Nome:"+aux.getName());
                 	if(aux.getName().equals("variableTestRange"))
                 	{               	//.asXML()
                 		casi = new CheckAutoVarIntervalItem(aux.asXML());

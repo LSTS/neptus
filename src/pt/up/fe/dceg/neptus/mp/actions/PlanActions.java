@@ -124,7 +124,7 @@ public class PlanActions {
 			Element pldcfgElement = root.addElement("payload-config");
 			for (PayloadConfig plcfg : payloadConfigs) {
 				Element ndcf = plcfg.getXmlNode();
-//				System.out.println("PayloadConfig _________________\n"+ndcf.asXML());
+//				NeptusLog.pub().info("<###>PayloadConfig _________________\n"+ndcf.asXML());
 				if (ndcf != null) {
 					//ndcf.setName("payload");
 					//pldcfgElement.add(ndcf.detach());
@@ -138,13 +138,13 @@ public class PlanActions {
 			Element plActionsElement = root.addElement("messages");
 			for (PlanActionElementConfig plcfg : actionMsgs) {
 				Element ndcf = plcfg.getXmlNode();
-//				System.out.println("ActionsConfig _________________\n"+ndcf.asXML());
+//				NeptusLog.pub().info("<###>ActionsConfig _________________\n"+ndcf.asXML());
 				if (ndcf != null) {
 					plActionsElement.add(((Node) ndcf.clone()).detach());
 				}
 			}
 		}
-//		System.out.println(document.asXML());
+//		NeptusLog.pub().info("<###> "+document.asXML());
         
         return document;
     }

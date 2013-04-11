@@ -78,6 +78,8 @@ import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 //import com.sun.image.codec.jpeg.JPEGCodec;
 //import com.sun.image.codec.jpeg.JPEGEncodeParam;
 //import com.sun.image.codec.jpeg.JPEGImageEncoder;
@@ -133,7 +135,7 @@ public class JWebCam extends JPanel implements ComponentListener {
         // super(frameTitle);
         /*
          * try { UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel"); } catch (Exception cnfe) {
-         * System.out.println("Note : Cannot load look and feel settings"); }
+         * NeptusLog.pub().info("<###>Note : Cannot load look and feel settings"); }
          */
 
         setSize(320, 260); // default size...
@@ -175,14 +177,14 @@ public class JWebCam extends JPanel implements ComponentListener {
 
     public boolean initialise() throws Exception {
         MyCaptureDeviceInfo[] cams = autoDetect();
-        System.out.println("cameras detectadas" + cams.length);
+        NeptusLog.pub().info("<###>cameras detectadas" + cams.length);
         if (cams.length > 0) {
             if (cams.length == 1) {
-                System.out.println("Note : 1 web cam detected");
+                NeptusLog.pub().info("<###>Note : 1 web cam detected");
                 return (initialise(cams[0].capDevInfo));
             }
             else {
-                System.out.println("Note : " + cams.length + " web cams detected");
+                NeptusLog.pub().info("<###>Note : " + cams.length + " web cams detected");
                 Object selected = JOptionPane.showInputDialog(this, "Select Video format", "Capture format selection",
                         JOptionPane.INFORMATION_MESSAGE, null, // Icon icon,
                         cams, // videoFormats,
@@ -316,7 +318,7 @@ public class JWebCam extends JPanel implements ComponentListener {
 
             statusBar.setText("Format : " + currentFormat);
 
-            System.out.println("Format : " + currentFormat);
+            NeptusLog.pub().info("<###>Format : " + currentFormat);
 
             formatControl.setFormat(currentFormat);
 
@@ -331,7 +333,7 @@ public class JWebCam extends JPanel implements ComponentListener {
             // pack();
         }
         else {
-            System.out.println("Visual component not an instance of FormatControl");
+            NeptusLog.pub().info("<###>Visual component not an instance of FormatControl");
             statusBar.setText("Visual component cannot change format");
         }
     }
@@ -391,7 +393,7 @@ public class JWebCam extends JPanel implements ComponentListener {
     public MyCaptureDeviceInfo[] autoDetect() {
         Vector<?> list = CaptureDeviceManager.getDeviceList(null);
 
-        System.out.println("lista-" + list.size());
+        NeptusLog.pub().info("<###>lista-" + list.size());
         CaptureDeviceInfo devInfo = null;
         String name;
         Vector<MyCaptureDeviceInfo> capDevices = new Vector<MyCaptureDeviceInfo>();
@@ -401,9 +403,9 @@ public class JWebCam extends JPanel implements ComponentListener {
             for (int i = 0; i < list.size(); i++) {
                 devInfo = (CaptureDeviceInfo) list.elementAt(i);
                 name = devInfo.getName();
-                System.out.println(name);
+                NeptusLog.pub().info("<###> "+name);
                 if (name.startsWith("vfw:")) {
-                    System.out.println("DeviceManager List : " + name);
+                    NeptusLog.pub().info("<###>DeviceManager List : " + name);
                     capDevices.addElement(new MyCaptureDeviceInfo(devInfo));
                 }
             }
@@ -412,7 +414,7 @@ public class JWebCam extends JPanel implements ComponentListener {
           * 
           * name = VFWCapture.capGetDriverDescriptionName(i); if (name != null && name.length() > 1) { devInfo =
           * com.sun.media.protocol.vfw.VFWSourceStream .autoDetect(i); if (devInfo != null) {
-          * System.out.println("VFW Autodetect List : " + name); capDevices.addElement(new MyCaptureDeviceInfo(
+          * NeptusLog.pub().info("<###>VFW Autodetect List : " + name); capDevices.addElement(new MyCaptureDeviceInfo(
           * devInfo)); } } } catch (Exception ioEx) {
           * 
           * System.err.println("Error connecting to [" + webCamDeviceInfo.getName() + "] : " + ioEx.getMessage());
@@ -451,7 +453,7 @@ public class JWebCam extends JPanel implements ComponentListener {
             }
         }
         else {
-            System.out.println("Error : No web cam detected");
+            NeptusLog.pub().info("<###>Error : No web cam detected");
         }
     }
 
@@ -504,7 +506,7 @@ public class JWebCam extends JPanel implements ComponentListener {
             }            
         }
         else {
-            System.out.println("Error : Buffer grabbed is null");
+            NeptusLog.pub().info("<###>Error : Buffer grabbed is null");
         }
         return (null);        
     }
@@ -556,7 +558,7 @@ public class JWebCam extends JPanel implements ComponentListener {
     }
 
     protected void finalize() throws Throwable {
-        System.out.println("foi chamado");
+        NeptusLog.pub().info("<###>foi chamado");
         playerClose();
         super.finalize();
     }
@@ -717,7 +719,7 @@ public class JWebCam extends JPanel implements ComponentListener {
                 saved = true;
             }
             catch (Exception ex) {
-                System.out.println("Error saving JPEG : " + ex.getMessage());
+                NeptusLog.pub().info("<###>Error saving JPEG : " + ex.getMessage());
             }
 
             return (saved);
@@ -729,7 +731,7 @@ public class JWebCam extends JPanel implements ComponentListener {
         try {
             final JWebCam myWebCam = new JWebCam();
             if (!myWebCam.initialise()) {
-                System.out.println("Web Cam not detected / initialised");
+                NeptusLog.pub().info("<###>Web Cam not detected / initialised");
             }
             myWebCam.setVisible(true);
             JFrame frame = new JFrame("Web Cam Capture");

@@ -291,7 +291,7 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
         }
         else {
             if (state == EDITION_STATES.ADDING_OBSTACLE) {
-                System.out.println(renderer.getRealWorldLocation(mousePosition));
+                NeptusLog.pub().info("<###> "+renderer.getRealWorldLocation(mousePosition));
                 LocationType loc = renderer.getRealWorldLocation(mousePosition);
                 double offsets[] = loc.getOffsetFrom(currentObstacle.getCenterLocation());
                 currentObstacle.addPoint(offsets[1], offsets[0], 0, false);
@@ -364,7 +364,7 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
 
         }
         writer.close();
-        // System.out.println("Escrevi ini em '"+output+"'");
+        // NeptusLog.pub().info("<###>Escrevi ini em '"+output+"'");
 
         String result = "<html>"
                 + execCommand("matlab -nodisplay -r shortestPath_no_plots('" + output.getAbsolutePath() + "','"
@@ -378,7 +378,7 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
 
         String in = FileUtil.getFileAsString(input);
 
-        System.out.println(in);
+        NeptusLog.pub().info("<###> "+in);
         try {
             String[] lines = in.split("\n");
             for (String l : lines) {
@@ -409,11 +409,11 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
         errors = "";
         output = "";
 
-        System.out.println("$>" + command + "\n");
+        NeptusLog.pub().info("<###>$>" + command + "\n");
         String result = "<p>Executing <b>" + command + "</b>...</p>\n";
         try {
             // String s;
-            // System.out.println(new File("astar").listFiles().length);
+            // NeptusLog.pub().info("<###> "+new File("astar").listFiles().length);
             Process p = Runtime.getRuntime().exec(command);
             final BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
@@ -425,10 +425,10 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
                     try {
                         while ((s = stdInput.readLine()) != null) {
                             output += s + "\n";
-                            System.out.println(s);
+                            NeptusLog.pub().info("<###> "+s);
 
                         }
-                        System.out.println("closed");
+                        NeptusLog.pub().info("<###>closed");
                     }
                     catch (Exception e) {
                         e.printStackTrace();
@@ -458,7 +458,7 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
             while (out.isAlive() && err.isAlive())
                 try {
                     Thread.sleep(500);
-                    System.out.println(".");
+                    NeptusLog.pub().info("<###>.");
                 }
                 catch (Exception e) {
                     e.printStackTrace();

@@ -40,6 +40,7 @@ import java.util.Vector;
 import org.apache.http.HttpHost;
 import org.apache.http.conn.routing.HttpRoute;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.MapTileProvider;
 import pt.up.fe.dceg.neptus.util.coord.MapTileUtil;
 
@@ -107,7 +108,7 @@ public class TileGEBCO extends TileHttpFetcher {
         		"BBOX=" + lon1 + "," + lat1 + "," + lon2 + "," + lat2 +
         		"&srs=EPSG:4326&format=image/jpeg&layers=gebco_08_grid&" +
         		"width=256&height=256&version=1.1.1";
-        System.out.println(urlGet);
+        NeptusLog.pub().info("<###> "+urlGet);
         return urlGet;
     }
     

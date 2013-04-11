@@ -35,6 +35,8 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPFile;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 
 /**
  * @author jqcorreia
@@ -51,13 +53,13 @@ public class FtpTest {
         client.enterLocalPassiveMode();
         client.login("anonymous", "");
         
-        System.out.println(client.printWorkingDirectory());
+        NeptusLog.pub().info("<###> "+client.printWorkingDirectory());
 
         for(FTPFile f: client.listFiles()) {
-            System.out.println(f.getName());
+            NeptusLog.pub().info("<###> "+f.getName());
         }
         
-        System.out.println(client.retrieveFileStream("/lauv-seacon-3/20121211/182554_idle/IMC.xml"));
+        NeptusLog.pub().info("<###> "+client.retrieveFileStream("/lauv-seacon-3/20121211/182554_idle/IMC.xml"));
         client.disconnect();
     }
 }

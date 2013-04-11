@@ -80,7 +80,8 @@ public class SubPanel extends JPanel implements PropertiesProvider, XmlInOutMeth
     public SubPanel(ConsoleLayout console) {
         this.console = console;
         this.mainpanel = console == null ? null : console.getMainPanel();
-        NeptusEvents.register(this, console);
+        if (console != null)
+            NeptusEvents.register(this, console);
     }
 
     /**
@@ -327,6 +328,6 @@ public class SubPanel extends JPanel implements PropertiesProvider, XmlInOutMeth
     public String getName() {
         if (super.getName() == null)
             return getClass().getSimpleName();
-        return super.getName() ;
+        return super.getName();
     }
 }

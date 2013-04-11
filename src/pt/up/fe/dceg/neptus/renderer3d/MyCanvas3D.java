@@ -125,7 +125,7 @@ class MyCanvas3D extends Canvas3D {
 		Transform3D temp = new Transform3D();
 		this.getVworldToImagePlate(temp);
 		temp.transform(point3d);
-		//System.out.println(point3d.z);
+		//NeptusLog.pub().info("<###> "+point3d.z);
 		
 		Point2d point2d = new Point2d();
 		if (point3d.z>0.0 )
@@ -140,7 +140,7 @@ class MyCanvas3D extends Canvas3D {
 		Transform3D temp = new Transform3D();
 		this.getVworldToImagePlate(temp);
 		temp.transform(point3d);
-		//System.out.println(point3d.z);
+		//NeptusLog.pub().info("<###> "+point3d.z);
 		
 		Point2d point2d = new Point2d();
 		if(camera.projection==View.PARALLEL_PROJECTION)
@@ -716,7 +716,7 @@ class MyCanvas3D extends Canvas3D {
 							(camera.psi + camera.lockobj.yaw) + Math.PI / 2,
 							(camera.theta/*-camera.lockobj.pitch*/),
 							-((camera.phi/*+camera.lockobj.roll*/) - Math.PI));
-		//System.out.println("psi="+camera.psi+" theta="+camera.theta+" phi="+camera.phi);//ok...
+		//NeptusLog.pub().info("<###>psi="+camera.psi+" theta="+camera.theta+" phi="+camera.phi);//ok...
 		int xr1 = w - 78, yr1 = 8, xr2 = w - 8, yr2 = 89;
 		window(xr1, yr1, xr2, yr2);
 		int xc = w - 58, yc = 51;
@@ -737,16 +737,16 @@ class MyCanvas3D extends Canvas3D {
 			Transform3D temp = new Transform3D();
 			camera.canvas.getImagePlateToVworld(temp);
 			temp.transform(point3d1);
-			//System.out.println("x1:"+point3d1.x+"y1:"+point3d1.y+"z1:"+point3d1.z);
+			//NeptusLog.pub().info("<###>x1:"+point3d1.x+"y1:"+point3d1.y+"z1:"+point3d1.z);
 
 			Point3d point3d2 = new Point3d();
 			camera.canvas.getPixelLocationInImagePlate(x2, y2, point3d2);
 
 			temp.transform(point3d2);
-			// System.out.println("x2:"+point3d2.x+"y2:"+point3d2.y+"z2:"+point3d2.z);
+			// NeptusLog.pub().info("<###>x2:"+point3d2.x+"y2:"+point3d2.y+"z2:"+point3d2.z);
 
 			double scale = point3d2.distance(point3d1);
-			// System.out.println("dist:"+scale);
+			// NeptusLog.pub().info("<###>dist:"+scale);
 
 			String units = " m";
 

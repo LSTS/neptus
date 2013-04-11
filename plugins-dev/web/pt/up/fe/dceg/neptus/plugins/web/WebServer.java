@@ -65,6 +65,7 @@ public class WebServer {
             return s;
         }
         catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
         // restart();
@@ -81,7 +82,7 @@ public class WebServer {
     }
 
     public static void restart() {
-        System.out.println("Restarting Neptus Web Server Request (was " + (isRunning() ? "" : "not ") + "running)...");
+        NeptusLog.pub().info("<###>Restarting Neptus Web Server Request (was " + (isRunning() ? "" : "not ") + "running)...");
         start(port);
     }
 
@@ -120,11 +121,11 @@ public class WebServer {
                 try {
                     System.out.print("Starting Neptus Web Server...");
                     server.start();
-                    System.out.println("DONE.\nNeptus Web Server listening on port "
+                    NeptusLog.pub().info("<###>DONE.\nNeptus Web Server listening on port "
                             + WebServer.port + ".");
                     server.join();
                 }
-                catch (Exception e) {
+                catch (Exception e) { // $codepro.audit.disable logExceptions
                     NeptusLog.pub().error("Error while binding web server to port "
                             + WebServer.port);
                 }
@@ -147,14 +148,14 @@ public class WebServer {
                     registerUnregisterPath(false, path);
                 }
 
-                System.out.println("DONE.");
+                NeptusLog.pub().info("<###>DONE.");
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
         }
         else {
-            System.out.println("NO SERVER RUNNING.");
+            NeptusLog.pub().info("<###>NO SERVER RUNNING.");
         }
         server = null;
     }
@@ -189,7 +190,8 @@ public class WebServer {
             ds.setReuseAddress(true);
             return true;
         }
-        catch (IOException e) {
+        catch (IOException e) { // $codepro.audit.disable logExceptions
+            e.printStackTrace();
         }
         finally {
             if (ds != null) {
@@ -201,6 +203,7 @@ public class WebServer {
                     ss.close();
                 }
                 catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }

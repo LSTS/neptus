@@ -66,22 +66,22 @@ public class ComboEditorWithDependancy<T extends Object> extends ComboEditor<T> 
         @SuppressWarnings("unchecked")
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-//            System.out.println("-------------- 2");
+//            NeptusLog.pub().info("<###>-------------- 2");
             if(evt.getSource() instanceof SystemProperty) {
                 SystemProperty sp = (SystemProperty) evt.getSource();
-//                System.out.println("-------------- 3");
-//                System.out.println(sp);
+//                NeptusLog.pub().info("<###>-------------- 3");
+//                NeptusLog.pub().info("<###> "+sp);
                 if (sp.getValue() instanceof Number) {
                     for (int i = 0; i < pec.getValuesIfTests().size(); i++) {
                         PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<?, ?> vl = (ValuesIf<?, ?>) pec.getValuesIfTests().get(i);
                         PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<?, ?> vlI18n = (ValuesIf<?, ?>) pec.getValuesI18nIfTests().get(i);
-//                        System.out.println("-------------- 4 " + i + "  " + vl.dependantParamId + " " + sp.getName());
+//                        NeptusLog.pub().info("<###>-------------- 4 " + i + "  " + vl.dependantParamId + " " + sp.getName());
                         if (!vl.dependantParamId.equals(sp.getName()))
                             continue;
-//                        System.out.println("-------------- 5 " + i);
+//                        NeptusLog.pub().info("<###>-------------- 5 " + i);
                         
                         if (vl.testValue.doubleValue() == ((Number)sp.getValue()).doubleValue()) {
-//                            System.out.println("-------------- 6 " + i);
+//                            NeptusLog.pub().info("<###>-------------- 6 " + i);
                             combo.removeAllItems();
                             for (Object item : vl.values)
                                 combo.addItem((T) item);

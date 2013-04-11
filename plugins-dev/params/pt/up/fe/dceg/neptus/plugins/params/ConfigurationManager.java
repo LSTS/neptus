@@ -275,7 +275,6 @@ public class ConfigurationManager {
                             size = Integer.parseInt(sizeList);
                         }
                         catch (NumberFormatException e) {
-                            e.printStackTrace();
                         }
                         minSize = maxSize = size;
                     }
@@ -285,7 +284,6 @@ public class ConfigurationManager {
                                 minSize = Integer.parseInt(sizeMinList);
                             }
                             catch (NumberFormatException e) {
-                                e.printStackTrace();
                             }
                         }
                         if (sizeMaxList != null) {
@@ -293,7 +291,6 @@ public class ConfigurationManager {
                                 maxSize = Integer.parseInt(sizeMaxList);
                             }
                             catch (NumberFormatException e) {
-                                e.printStackTrace();
                             }
                         }
                     }
@@ -335,7 +332,7 @@ public class ConfigurationManager {
                 }
                 else if (pValues != null) {
                     property = new SystemProperty();
-//                    System.out.println(pValues.getStringValue());
+//                    NeptusLog.pub().info("<###> "+pValues.getStringValue());
                     String vlStr = pValues.getStringValue();
                     ArrayList<?> values = extractStringListToArrayList(type, vlStr);
                     ComboEditor<?> comboEditor = null;
@@ -485,6 +482,7 @@ public class ConfigurationManager {
                             lstSizeTxt += sl;
                         }
                         catch (NumberFormatException e) {
+                            e.printStackTrace();
                             lstSizeTxt += "*";
                         }
                     }
@@ -495,12 +493,14 @@ public class ConfigurationManager {
                             minS = Double.parseDouble(sizeMinList);
                         }
                         catch (Exception e) {
+                            e.printStackTrace();
                             minS = 0;
                         }
                         try {
                             maxS = Double.parseDouble(sizeMaxList);
                         }
                         catch (Exception e) {
+                            e.printStackTrace();
                             maxS = ArrayListEditor.UNLIMITED_SIZE;
                         }
                         if (minS < 0)
@@ -546,7 +546,7 @@ public class ConfigurationManager {
 
             }
         }
-        //System.out.println(params);        
+        //NeptusLog.pub().info("<###> "+params);        
         return params;
     }
 
@@ -750,9 +750,9 @@ public class ConfigurationManager {
     public static void main(String[] args) {
         ConfigurationManager confMan = new ConfigurationManager();
         confMan.loadConfigurations();
-        System.out.println(confMan.getPropertiesByEntity("lauv-dolphin-1", "Sidescan", Visibility.USER, Scope.MANEUVER));
-        System.out.println(confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.MANEUVER));
-        System.out.println(confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.PLAN));
-        System.out.println(confMan.getProperties("lauv-dolphin-1", Visibility.DEVELOPER, Scope.GLOBAL));
+        NeptusLog.pub().info("<###> "+confMan.getPropertiesByEntity("lauv-dolphin-1", "Sidescan", Visibility.USER, Scope.MANEUVER));
+        NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.MANEUVER));
+        NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.PLAN));
+        NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.DEVELOPER, Scope.GLOBAL));
     }
 }

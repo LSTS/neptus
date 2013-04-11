@@ -45,6 +45,7 @@ import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.FileUtil;
 
 /**
@@ -134,12 +135,12 @@ public class MJPEGCreator {
 	}
 	
 	public void finishAVI() throws Exception {
-		System.out.println("closing avi file...");
+		NeptusLog.pub().info("<###>closing avi file...");
 		byte[] indexlistBytes = indexlist.toBytes();
 		aviOutput.write(indexlistBytes);
 		aviOutput.close();
 		long size = aviFile.length();
-		System.out.println("   adding file size ("+size+") to file");
+		NeptusLog.pub().info("<###>   adding file size ("+size+") to file");
 		RandomAccessFile raf = new RandomAccessFile(aviFile, "rw");
 		raf.seek(4);
 		raf.write(intBytes(swapInt((int) size - 8)));
@@ -148,14 +149,14 @@ public class MJPEGCreator {
 		
 		if (countFrames) {
 			
-			System.out.println("   adding frame count ("+numFrames+") to file");
+			NeptusLog.pub().info("<###>   adding frame count ("+numFrames+") to file");
 			raf.seek(48);
 			raf.write(intBytes(swapInt((int) numFrames)));
 			raf.seek(140);
 			raf.write(intBytes(swapInt((int) numFrames)));
 		}
 		raf.close();
-		System.out.println("   done.");
+		NeptusLog.pub().info("<###>   done.");
 		
 	}
 
@@ -252,7 +253,7 @@ public class MJPEGCreator {
 			baos.write(intBytes(swapInt(dwMaxBytesPerSec)));
 			baos.write(intBytes(swapInt(dwPaddingGranularity)));
 			baos.write(intBytes(swapInt(dwFlags)));
-			//System.out.println("Avi mainHeader offset:"+baos.size());
+			//NeptusLog.pub().info("<###>Avi mainHeader offset:"+baos.size());
 			baos.write(intBytes(swapInt(dwTotalFrames)));
 			baos.write(intBytes(swapInt(dwInitialFrames)));
 			baos.write(intBytes(swapInt(dwStreams)));
@@ -526,7 +527,7 @@ public class MJPEGCreator {
 		MJPEGCreator m = new MJPEGCreator(new File("movie.avi"), 640, 480,
 				framerate, numFrames);
 		for (int i = 0; i < files.length; i++) {
-			System.out.println("processing file " +(i+1)+" / "+files.length);
+			NeptusLog.pub().info("<###>processing file " +(i+1)+" / "+files.length);
 			m.addImage(files[i]);
 		}
 		m.finishAVI();

@@ -43,6 +43,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.swing.NeptusFileView;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
@@ -111,7 +112,7 @@ public class ImageFileChooser extends JFileChooser {
 	
 	public static void main(String[] args) {
 		File f = ImageFileChooser.showOpenImageDialog();
-		System.out.println(f);
+		NeptusLog.pub().info("<###> "+f);
 	}
 }
 

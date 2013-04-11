@@ -31,7 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.mra.importers.jsf;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -39,7 +38,6 @@ import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mra.api.SidescanLine;
 import pt.up.fe.dceg.neptus.mra.api.SidescanParser;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 /**
  * @author jqcorreia
@@ -76,7 +74,6 @@ public class JsfSidescanParser implements SidescanParser {
         ArrayList<JsfSonarData> nextPing;
         
         if(ping.size() == 0) return list;
-        int ypos = 0;
         while(ping.get(0).getTimestamp() < timestamp2) {
             int size = 1;
             JsfSonarData sboard = null;

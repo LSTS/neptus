@@ -861,7 +861,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     @Override
     public boolean update() {
         if (filterSwitch == null) {
-            System.out.println(SystemsList.class.getSimpleName()
+            NeptusLog.pub().info("<###> "+SystemsList.class.getSimpleName()
                     + " : update of SystemsList called after cleanup call!!!!!");
             return true;
         }
@@ -882,7 +882,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
 
     private synchronized void updateSystemsList() {
         if (filterSwitch == null) {
-            System.out.println(SystemsList.class.getSimpleName()
+            NeptusLog.pub().info("<###> "+SystemsList.class.getSimpleName()
                     + " : updateSystemsList called after cleanup call!!!!!");
             return;
         }
@@ -1328,7 +1328,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
                 @Override
                 public void mouseMoved(MouseEvent event, StateRenderer2D source) {
                     super.mouseMoved(event, source);
-                    System.out.println("mouse: " + event.getX() + ":" + event.getY() + " -> " + source);
+                    NeptusLog.pub().info("<###>mouse: " + event.getX() + ":" + event.getY() + " -> " + source);
                 }
             };
         }
@@ -1377,7 +1377,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
             Font fontTxt = new Font("Arial", 0, fontSize);
 
             if (printPaintDebug)
-                System.out.println(" ><<><><><><>< ");
+                NeptusLog.pub().info("<###> ><<><><><><>< ");
 
             // Now let's collect data for the balloon
             LinkedHashMap<SystemDisplay, RenderPainterSystemData> painterData = new LinkedHashMap<SystemDisplay, SystemsList.RenderPainterSystemData>();
@@ -1488,7 +1488,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
             int contentLineSpacer, int boxBorderSize) {
 
         if (printPaintDebug)
-            System.out.println(" > " + sys.getName());
+            NeptusLog.pub().info("<###> > " + sys.getName());
 
         Graphics2D g2 = (Graphics2D) g.create(); // mainly use to getFontMetrics, we don't paint in this cycle
 
@@ -1576,7 +1576,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
                 closeBad.add(pd);
         }
         if (printPaintDebug)
-            System.out.println(">> " + closeBad.size());
+            NeptusLog.pub().info("<###>>> " + closeBad.size());
         for (;;) { // To allow multiple tries to find empty space to put the balloon
             // Temporary calculation with temporary offsets (recalculated bellow again)
             rpd.boxContentXOffset = rpd.offsetX + (Math.signum(rpd.offsetX) < 0 ? -rpd.boxContentW : 0);
@@ -1588,7 +1588,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
                     + rpd.boxYOffset, rpd.boxW, rpd.boxH);
 
             if (printPaintDebug)
-                System.out.println(">>>   " + placeBBox);
+                NeptusLog.pub().info("<###>>>>   " + placeBBox);
             boolean freeSpaceFound = true;
             for (RenderPainterSystemData pd : closeBad) {
                 Rectangle2D bBox = new Rectangle2D.Double(pd.pt.getX() + pd.boxXOffset, pd.pt.getY() + pd.boxYOffset,
@@ -1596,11 +1596,11 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
                 if (placeBBox.intersects(bBox)) {
                     freeSpaceFound = false;
                     if (printPaintDebug)
-                        System.out.println(">>>    " + pd.sysName + " > NOT FREE  " + bBox);
+                        NeptusLog.pub().info("<###>>>>    " + pd.sysName + " > NOT FREE  " + bBox);
                     break;
                 }
                 if (printPaintDebug)
-                    System.out.println(">>>    " + pd.sysName + " > FREE  " + bBox);
+                    NeptusLog.pub().info("<###>>>>    " + pd.sysName + " > FREE  " + bBox);
             }
             if (freeSpaceFound) {
                 break;

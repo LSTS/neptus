@@ -41,6 +41,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.gz.MultiMemberGZIPInputStream;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
@@ -149,7 +150,7 @@ public class LsfLogSource implements IMraLogGroup {
                 return null;
         }
         catch (Exception e) {
-            System.out.println("Index is: " + index);
+            NeptusLog.pub().info("<###>Index is: " + index);
             e.printStackTrace();
             return null;
         }
@@ -244,7 +245,7 @@ public class LsfLogSource implements IMraLogGroup {
     
     public static void main(String[] args) throws Exception {
         LsfLogSource source = new LsfLogSource("/home/jqcorreia/Desktop/merge2/Data.lsf", null);
-//        System.out.println(source.listLogs());
-        System.out.println(source.getVehicleSources().size()+ "sfsfsf ");
+//        NeptusLog.pub().info("<###> "+source.listLogs());
+        NeptusLog.pub().info("<###> "+source.getVehicleSources().size()+ "sfsfsf ");
     }
 }

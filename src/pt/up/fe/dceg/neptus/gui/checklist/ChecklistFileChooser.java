@@ -152,7 +152,7 @@ public class ChecklistFileChooser extends JFileChooser {
     public static void main(String[] args) {
         ConfigFetch.initialize();
         File f = ChecklistFileChooser.showOpenDialog();
-        System.out.println(f);
+        NeptusLog.pub().info("<###> "+f);
     }
 }
 

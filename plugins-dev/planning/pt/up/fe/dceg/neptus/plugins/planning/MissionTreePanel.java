@@ -58,6 +58,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.plugins.IPlanSelection;
 import pt.up.fe.dceg.neptus.console.plugins.ISystemsSelection;
@@ -167,8 +168,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     ByteUtil.dumpAsHex(p1.payloadMD5(), System.out);
                     ByteUtil.dumpAsHex(p2.payloadMD5(), System.out);
 
-                    // System.out.println(IMCUtil.getAsHtml(p1));
-                    // System.out.println(IMCUtil.getAsHtml(p2));
+                    // NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(p1));
+                    // NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(p2));
 
                     p1.serialize(imcOs);
                     ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
@@ -285,7 +286,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                                         catch (Exception e1) {
                                             e1.printStackTrace();
                                         }
-                                        System.out.println(str);
+                                        NeptusLog.pub().info("<###> "+str);
                                     }
                                 }
                             });
@@ -298,11 +299,11 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                                                 IMCMessage pm1 = sel.asIMCPlan();
                                                 PlanType p2 = IMCUtils.parsePlanSpecification(new MissionType(), pm1);
                                                 IMCMessage pm2 = p2.asIMCPlan();
-                                                System.out.println(".....");
-                                                System.out.println(ByteUtil.encodeAsString(pm1.payloadMD5()));
-                                                System.out.println(ByteUtil.encodeAsString(pm2.payloadMD5()));
-                                                System.out.println(IMCUtil.getAsHtml(pm1));
-                                                System.out.println(IMCUtil.getAsHtml(pm2));
+                                                NeptusLog.pub().info("<###>.....");
+                                                NeptusLog.pub().info("<###> "+ByteUtil.encodeAsString(pm1.payloadMD5()));
+                                                NeptusLog.pub().info("<###> "+ByteUtil.encodeAsString(pm2.payloadMD5()));
+                                                NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(pm1));
+                                                NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(pm2));
                                             }
                                         }
                                     });
@@ -736,7 +737,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         // Transferable tr = dtde.getTransferable();
         // DataFlavor[] flavors = tr.getTransferDataFlavors();
         // for (int i = 0; i < flavors.length; i++) {
-        // // System.out.println("Possible flavor: " + flavors[i].getMimeType());
+        // // NeptusLog.pub().info("<###>Possible flavor: " + flavors[i].getMimeType());
         // if (flavors[i].isMimeTypeEqual("text/plain; class=java.lang.String; charset=Unicode")) {
         // dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
         // String url = null;
@@ -797,7 +798,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public void mainVehicleChangeNotification(String id) {
-        System.out.println("id:" + id + ", getMainVehicleId:" + getMainVehicleId());
+        NeptusLog.pub().debug("id:" + id + ", getMainVehicleId:" + getMainVehicleId());
         browser.stopTimers(getMainVehicleId());
         planControlUpdate(id);
     }

@@ -17,6 +17,8 @@ import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
@@ -281,7 +283,7 @@ public class BarCodesUtil {
 				fx = new File("test-" + format + ".png");
 				createBarCodeImageToFile(dx, format, 200, 200, "png", fx);
 				Result result = decodeBarCode(ImageIO.read(fx));
-				System.out.println(result.getText());
+				NeptusLog.pub().info("<###> "+result.getText());
 			} catch (Exception e) {
 				e.printStackTrace(System.out);
 			}

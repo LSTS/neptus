@@ -36,6 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
@@ -119,7 +120,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                 "info", "Plan sent by Neptus version "+ConfigFetch.getNeptusVersion()
         );
         
-//        System.out.println("Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
+//        NeptusLog.pub().info("<###>Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
     
@@ -131,7 +132,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                 "plan_id", plan_id
         );
         
-//        System.out.println("Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
+//        NeptusLog.pub().info("<###>Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
     
@@ -146,7 +147,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                 "request_id", IMCSendMessageUtils.getNextRequestId(),
                 "plan_id", plan_id
         );
-//        System.out.println("Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
+//        NeptusLog.pub().info("<###>Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
     
@@ -158,7 +159,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                 "request_id", IMCSendMessageUtils.getNextRequestId(),
                 "plan_id", plan_id
         );
-        System.out.println("Sending to " + remoteSystemId);
+        NeptusLog.pub().debug("Sending to " + remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
     
@@ -184,7 +185,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
             }
         }
         //msg.dump(System.err);
-        //System.out.println(msg.getString("op"));
+        //NeptusLog.pub().info("<###> "+msg.getString("op"));
         if (msg.getString("type").equals("SUCCESS")) {
             if (msg.getString("op").equals("GET_STATE")) {
                 if (remoteState == null)
@@ -205,25 +206,26 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
 //                if (console != null) {
                     PlanType pt = IMCUtils.parsePlanSpecification(new MissionType()/*console.getMission()*/, msg.getMessage("arg"));
                     IMCMessage p0 = msg.getMessage("arg");
-                    System.out.println("Plan received        " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p0.payloadMD5()));
+                    NeptusLog.pub().debug("Plan received        " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p0.payloadMD5()));
                     IMCMessage p1 = pt.asIMCPlan();
-                    System.out.println("Plan from plan       " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p1.payloadMD5()));
+                    NeptusLog.pub().debug("Plan from plan       " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p1.payloadMD5()));
                     IMCMessage p2 = pt.clonePlan().asIMCPlan();
-                    System.out.println("Plan from clone plan " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p2.payloadMD5()));
+                    NeptusLog.pub().debug("Plan from clone plan " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p2.payloadMD5()));
 
                     try {
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         IMCOutputStream imcOs = new IMCOutputStream(baos);
                         p0.serialize(imcOs);
-                        ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
+                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));
+                        
                         baos = new ByteArrayOutputStream();
                         imcOs = new IMCOutputStream(baos);
                         p1.serialize(imcOs);
-                        ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
+                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));
                         baos = new ByteArrayOutputStream();
                         imcOs = new IMCOutputStream(baos);
                         p2.serialize(imcOs);
-                        ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
+                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));                        
                     }
                     catch (IOException e) {
                         e.printStackTrace();

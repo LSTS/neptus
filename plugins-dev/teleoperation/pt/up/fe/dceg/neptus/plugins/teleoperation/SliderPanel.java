@@ -112,14 +112,14 @@ public class SliderPanel extends JPanel {
 			
 			@Override
 			public void focusLost(FocusEvent e) {
-				//System.out.println(title.getText()+": focus lost!");
+				//NeptusLog.pub().info("<###> "+title.getText()+": focus lost!");
 				hasFocus = false;
 				repaint();
 			}
 			
 			@Override
 			public void focusGained(FocusEvent e) {
-				//System.out.println(title.getText()+": focus gained!");
+				//NeptusLog.pub().info("<###> "+title.getText()+": focus gained!");
 				hasFocus = true;
 				repaint();
 			}

@@ -299,25 +299,25 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 
 			if (cs.getDistanceInMeters(new LocationType(originalCoordinateSystem)) != 0 && getApplyToMisson().isSelected()) {
 				//JOptionPane.showOptionDialog(this, "How to move the mission?", "Propagate...", JOptionPane.)
-				//System.out.println("Propagating...");
+				//NeptusLog.pub().info("<###>Propagating...");
 				// Translate all objects (maps, plans) in the mission
 				MapGroup missonMaps = MapGroup.getMapGroupInstance(getMissionType());
 				LinkedHashMap<String, PlanType> plans = getMissionType().getIndividualPlansList();
 				
 				double[] offsets = cs.getOffsetFrom(originalCoordinateSystem);
 				double offsetNorth = offsets[0], offsetEast = offsets[1], offsetDown = offsets[2];
-				//System.out.println("OffsetNorth: "+offsetNorth+", offsetEast: "+offsetEast+", offsetDown: "+offsetDown+", distance: "+cs.getDistanceInMeters(new LocationType(originalCoordinateSystem)));
+				//NeptusLog.pub().info("<###>OffsetNorth: "+offsetNorth+", offsetEast: "+offsetEast+", offsetDown: "+offsetDown+", distance: "+cs.getDistanceInMeters(new LocationType(originalCoordinateSystem)));
 				
 				for (MapType map : missonMaps.maps.values()) {
-					//System.out.println("Translating map "+map.getMapID()+"...");
+					//NeptusLog.pub().info("<###>Translating map "+map.getMapID()+"...");
 					NeptusLog.pub().debug("Translating map "+map.getId()+"...");
 					for (AbstractElement mo : map.getObjects()) {
-						//System.out.println("\tTranslating the "+mo.getClass().getSimpleName()+" "+mo.getId()+"...");
+						//NeptusLog.pub().info("<###>\tTranslating the "+mo.getClass().getSimpleName()+" "+mo.getId()+"...");
 						NeptusLog.pub().debug("\tTranslating the "+mo.getClass().getSimpleName()+" "+mo.getId()+"...");
 						LocationType lt = mo.getCenterLocation();						
 						//System.out.print("\t > northing: "+lt.getOffsetNorth()+", easting: "+lt.getOffsetEast()+", down: "+lt.getOffsetDown()+" ---> ");
 						lt.translatePosition(offsetNorth, offsetEast, offsetDown);
-						//System.out.println("northing: "+lt.getOffsetNorth()+", easting: "+lt.getOffsetEast()+", down: "+lt.getOffsetDown()+".");
+						//NeptusLog.pub().info("<###>northing: "+lt.getOffsetNorth()+", easting: "+lt.getOffsetEast()+", down: "+lt.getOffsetDown()+".");
 						mo.setCenterLocation(lt);
 					}
 					map.warnChangeListeners(new MapChangeEvent(MapChangeEvent.MAP_RESET));
@@ -439,6 +439,6 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 
 	public static void main(String args[]) {
 	    CoordinateSystem cs = CoordinateSystemPanel.showCoordinateSystemDialog("Teste unitário", null);
-	    System.out.println(cs);
+	    NeptusLog.pub().info("<###> "+cs);
 	}
 }

@@ -232,7 +232,7 @@ extends SSHCommon
 			    }
 			    if (channel.isClosed())
 			    {
-			        System.out.println("exit-status: "
+			        NeptusLog.pub().info("<###>exit-status: "
 			                + channel.getExitStatus());
 			        exitStatus = channel.getExitStatus();
 			        break;
@@ -303,9 +303,9 @@ extends SSHCommon
     {
         ConfigFetch.initialize();
         boolean rt = SSHExec.exec("rov-sim", "set|grep SSH");
-        System.out.println(rt);
+        NeptusLog.pub().info("<###> "+rt);
         rt = SSHExec.exec("rov-sim", "date");
-        System.out.println(rt);
+        NeptusLog.pub().info("<###> "+rt);
     }
     
 }

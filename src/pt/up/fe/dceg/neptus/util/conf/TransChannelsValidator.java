@@ -32,6 +32,8 @@
  */
 package pt.up.fe.dceg.neptus.util.conf;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 
 /**
  * @author pdias
@@ -54,12 +56,12 @@ public class TransChannelsValidator extends StringPatternValidator {
 	 */
 	public static void main(String[] args) {
 		TransChannelsValidator t = new TransChannelsValidator();
-		System.out.println("ok: " + t.validate("T23"));
-		System.out.println("nok: " + t.validate("T23(la)"));
-		System.out.println("nok: " + t.validate("t23 (la)"));
-		System.out.println("ok: " + t.validate("T23 (lsts1)"));
-		System.out.println("nok: " + t.validate("T55 (la)"));
-		System.out.println("nok: " + t.validate("T23 ()"));
+		NeptusLog.pub().info("<###>ok: " + t.validate("T23"));
+		NeptusLog.pub().info("<###>nok: " + t.validate("T23(la)"));
+		NeptusLog.pub().info("<###>nok: " + t.validate("t23 (la)"));
+		NeptusLog.pub().info("<###>ok: " + t.validate("T23 (lsts1)"));
+		NeptusLog.pub().info("<###>nok: " + t.validate("T55 (la)"));
+		NeptusLog.pub().info("<###>nok: " + t.validate("T23 ()"));
 	}
 
 }

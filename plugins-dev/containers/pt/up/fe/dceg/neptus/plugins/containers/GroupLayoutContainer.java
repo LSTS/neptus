@@ -86,11 +86,11 @@ import pt.up.fe.dceg.neptus.gui.MenuScroller;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.up.fe.dceg.neptus.plugins.PluginClassLoader;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.up.fe.dceg.neptus.plugins.containers.propeditor.HorizontalGroupPropertyEditor;
 import pt.up.fe.dceg.neptus.plugins.containers.propeditor.LinkSizeHorizontalPropertyEditor;
 import pt.up.fe.dceg.neptus.plugins.containers.propeditor.LinkSizeVerticalPropertyEditor;
@@ -405,17 +405,17 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
             Matcher m = pat.matcher(profToChange);
             m.find();
             if (m.groupCount() > 0) {
-                // System.out.println("Change " + (m.group(2) != null ? m.group(2) : m.group(4))
+                // NeptusLog.pub().info("<###>Change " + (m.group(2) != null ? m.group(2) : m.group(4))
                 // + " with " + defaultProfile);
                 String aspas = (m.group(2) != null ? "\"" : "'");
                 if (toChangeOrRemove)
                     profiles = m.replaceFirst("<Default profile=" + aspas + defaultProfile + aspas + " />");
                 else
                     profiles = m.replaceFirst("");
-                // System.out.println(profiles);
+                // NeptusLog.pub().info("<###> "+profiles);
             }
             else {
-                System.out.println("Not able to change default profile from "
+                NeptusLog.pub().info("<###>Not able to change default profile from "
                         + (m.group(2) != null ? m.group(2) : m.group(4)) + " with " + defaultProfile);
             }
         }
@@ -472,6 +472,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                             exclude = Boolean.parseBoolean(bn.getAttributes().getNamedItem("exclude").getTextContent());
                         }
                         catch (Exception e) {
+                            e.printStackTrace();
                         }
                         String pStringList = !exclude ? "+" : "-";
                         LayoutHolder layouHolder = null;
@@ -795,13 +796,13 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                 firstComponent = Integer.parseInt(fcl1);
             }
             catch (Exception e) {
-                // NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + e.getMessage());
+                 NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + e.getMessage());
             }
             try {
                 secondComponent = Integer.parseInt(fcl2);
             }
             catch (Exception e) {
-                // NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + e.getMessage());
+                 NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + e.getMessage());
             }
         }
         try {
@@ -909,7 +910,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
             id = Integer.parseInt(il);
         }
         catch (Exception e) {
-            // NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + e.getMessage());
+             NeptusLog.pub().error(ReflectionUtil.getCallerStamp() + e.getMessage());
             // return;
         }
 
@@ -924,6 +925,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                 ((ParallelGroup) groupBase).addComponent(comp, alignment, min, pref, max);
             }
             catch (Exception e) {
+                e.printStackTrace();
                 groupBase.addComponent(comp, min, pref, max);
             }
         }
@@ -950,6 +952,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                             idx = Integer.parseInt(cil);
                         }
                         catch (NumberFormatException e) {
+                            e.printStackTrace();
                         }
                         SubPanel comp = (idx >= 0) ? panels.get(idx) : getSubPanelByName(cil);
                         if (comp != null)
@@ -1042,6 +1045,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                                     hidden = ssp.getVisibility() ? false : true;
                                 }
                                 catch (Exception e1) {
+                                    e1.printStackTrace();
                                 }
                                 JMenuItem cjmi = new JMenuItem(new AbstractAction("(" + (i++) + ") " + spName /*
                                                                                                                * PluginUtils
@@ -1076,6 +1080,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                                     hidden = ssp.getVisibility() ? false : true;
                                 }
                                 catch (Exception e1) {
+                                    e1.printStackTrace();
                                 }
                                 JMenuItem cjmi = new JMenuItem(new AbstractAction("(" + (i++) + ") " + spName /*
                                                                                                                * PluginUtils
@@ -1270,7 +1275,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                 }
                 catch (NullPointerException e) {
                     // This happens on the first call from the constructor
-                    // e.printStackTrace();
+                    e.printStackTrace();
                 }
             }
 
@@ -1298,6 +1303,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                     id = Integer.parseInt(plst[i].trim());
                 }
                 catch (Exception e) {
+                    e.printStackTrace();
                 }
                 SubPanel comp = (id >= 0) ? panels.get(id) : getSubPanelByName(plst[i].trim());
                 components.add(comp);
@@ -1329,7 +1335,8 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
         catch (Exception e) {
             this.invalidate();
             this.repaint();
-
+            e.printStackTrace();
+            
             return false;
         }
     }
@@ -1398,6 +1405,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                             cp.setVisible(false);
                     }
                     catch (Exception e) {
+                        e.printStackTrace();
                         cp.setVisible(visible);
                     }
                     break;
@@ -1461,9 +1469,9 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
         Pattern pat = Pattern.compile("^<Default\\s+profile=\\s*(\"((.|\\s)+?)\"|'((.|\\s)+?)')\\s*/>");
         Matcher m = pat.matcher(profToChange);
         m.find();
-        System.out.println(m.groupCount());
-        System.out.println(m.group(2) + "    " + m.group(4));
-        System.out.println(m.replaceFirst("<Default profile=\"def\" />"));
+        NeptusLog.pub().info("<###> "+m.groupCount());
+        NeptusLog.pub().info("<###> "+m.group(2) + "    " + m.group(4));
+        NeptusLog.pub().info("<###> "+m.replaceFirst("<Default profile=\"def\" />"));
 
         // if (true)
         // return;
@@ -1505,7 +1513,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                 }
             });
 
-            System.out.println(ReflectionUtil.class.getPackage().getName());
+            NeptusLog.pub().info("<###> "+ReflectionUtil.class.getPackage().getName());
             validator.validate(new StreamSource(bais));
 
             bais.reset();

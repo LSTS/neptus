@@ -169,7 +169,7 @@ public class PluginClassLoader extends URLClassLoader {
                                             // the plugins repository
                                             PluginsRepository.addOtherPlugin(itf, ClassLoader.getSystemClassLoader()
                                                     .loadClass(line));
-                                            // System.out.println("\t"+line);
+                                            // NeptusLog.pub().info("<###>\t"+line);
                                         }
                                         catch (Exception e) {
                                         }
@@ -184,7 +184,7 @@ public class PluginClassLoader extends URLClassLoader {
                     // try to open the file "plugins.lst"
                     ZipEntry pluginsEntry = zf.getEntry("plugins.lst");
 
-                    // System.out.println(pluginsEntry);
+                    // NeptusLog.pub().info("<###> "+pluginsEntry);
                     if (pluginsEntry != null && !pluginsEntry.isDirectory()) {
                         br = new BufferedReader(new InputStreamReader(zf.getInputStream(pluginsEntry)));
                     }

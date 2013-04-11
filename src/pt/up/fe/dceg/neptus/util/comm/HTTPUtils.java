@@ -171,11 +171,11 @@ public class HTTPUtils {
 	}
 	
 	public static void main(String[] args) {
-		//System.out.println(isValidURL("http://www.iol.pt/nota.txt"));
-		//System.out.println(get("http://localhost:8080/dune/config/list"));
-		//System.out.println(getRemoteFileLength("http://whale.fe.up.pt/"));
+		//NeptusLog.pub().info("<###> "+isValidURL("http://www.iol.pt/nota.txt"));
+		//NeptusLog.pub().info("<###> "+get("http://localhost:8080/dune/config/list"));
+		//NeptusLog.pub().info("<###> "+getRemoteFileLength("http://whale.fe.up.pt/"));
 		
-		System.out.println(downloadFile("http://www.mirrorservice.org/sites/download.eclipse.org/eclipseMirror/technology/epp/downloads/release/20070702/eclipse-java-europa-win32.zip", 
+		NeptusLog.pub().info("<###> "+downloadFile("http://www.mirrorservice.org/sites/download.eclipse.org/eclipseMirror/technology/epp/downloads/release/20070702/eclipse-java-europa-win32.zip", 
 				"files/downloads/file.zip"));
 	}
 	
@@ -258,7 +258,7 @@ public class HTTPUtils {
 				if (bytes == -1) {
 					eof = true;
 					if (bytesRead < contentLength) {
-						System.out.println("Connection closed before getting entire file ("+bytesRead+" bytes read, expecting "+contentLength+")");
+						NeptusLog.pub().info("<###>Connection closed before getting entire file ("+bytesRead+" bytes read, expecting "+contentLength+")");
 					}
 				}
 				else {

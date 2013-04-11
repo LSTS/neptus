@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mortbay.jetty.security.Credential.MD5;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.FileUtil;
 import pt.up.fe.dceg.neptus.util.StreamUtil;
 import pt.up.fe.dceg.neptus.util.ZipUtils;
@@ -81,7 +82,7 @@ public class LogsServlet extends HttpServlet {
 					(req.getHeader("cacheControl") != null && req.getHeader("cacheControl").equalsIgnoreCase("no-store")) || 
 					!temp.exists())
 			{
-				System.out.println("zipping "+new File("log",dir).getAbsolutePath()+" to "+temp);
+				NeptusLog.pub().info("<###>zipping "+new File("log",dir).getAbsolutePath()+" to "+temp);
 				ZipUtils.zipDir(temp.getAbsolutePath(), new File("log",dir).getAbsolutePath());
 				
 			}

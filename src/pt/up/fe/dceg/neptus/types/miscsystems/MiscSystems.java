@@ -616,6 +616,6 @@ public class MiscSystems implements XmlOutputMethods, XmlInputMethods {
 
 	
 	public static void main(String[] args) {
-		System.out.println(MiscSystems.class.getPackage().getName());
+		NeptusLog.pub().info("<###> "+MiscSystems.class.getPackage().getName());
 	}
 }

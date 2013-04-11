@@ -72,6 +72,7 @@ import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.MiniButton;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.util.DateTimeUtil;
@@ -511,15 +512,15 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 //		get.setFollowRedirects(true);
 		
 		if (debug) {
-		    System.out.println("URI: " + uri);
-		    System.out.println("-- Beg. Byte: " + begByte + " --");
+		    NeptusLog.pub().info("<###>URI: " + uri);
+		    NeptusLog.pub().info("<###>-- Beg. Byte: " + begByte + " --");
 		}
 		if (begByte > 0) {
 		    get.addHeader("Range", "bytes=" + begByte +"-");
 		}
 		if (debug) {
 		    for (Header header : get.getAllHeaders()) {
-		        System.out.println(header.toString());
+		        NeptusLog.pub().info("<###> "+header.toString());
 		    }
 		}
 
@@ -532,9 +533,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			HttpResponse iGetResultCode = client.execute(get);
             
 			if (debug) {
-    			System.out.println("-- Resp Code: " + iGetResultCode.getStatusLine().getStatusCode() + " --");
+    			NeptusLog.pub().info("<###>-- Resp Code: " + iGetResultCode.getStatusLine().getStatusCode() + " --");
     			for (Header header : iGetResultCode.getAllHeaders()) {
-                    System.out.println(header.toString());
+                    NeptusLog.pub().info("<###> "+header.toString());
                 }
 			}
 			
@@ -650,7 +651,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			boolean streamRes = StreamUtil.copyStreamToFile(ioS, outFile, begByte == 0 ? false : true);
 
 			if (debug) {
-			    System.out.println("To receive / received: " + (begByte > 0 ? fullSize - begByte: fullSize) + "/" + downloadedSize);
+			    NeptusLog.pub().info("<###>To receive / received: " + (begByte > 0 ? fullSize - begByte: fullSize) + "/" + downloadedSize);
 			}
 			
 			endTimeMillis = System.currentTimeMillis();
@@ -874,7 +875,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			        ((bps < 0) ? "" : " @"+MathMiscUtils.parseToEngineeringRadix2Notation(movingAverage.mean(), 1) + "B/s"),
 			        getTimeLeft(movingAverage.mean())));
 			
-//			System.out.println(movingAverage);
+//			NeptusLog.pub().info("<###> "+movingAverage);
 		}
 		
 		/**
@@ -898,7 +899,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 				
 				@Override
 				public void run() {
-//					System.out.println("............ "+DateTimeUtil.dateTimeFormater.format(new Date(System.currentTimeMillis())));
+//					NeptusLog.pub().info("<###>............ "+DateTimeUtil.dateTimeFormater.format(new Date(System.currentTimeMillis())));
 //					System.out.flush();
 //					if (ttaskIdle != null) {
 //						ttaskIdle.cancel();
@@ -919,7 +920,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			return new TimerTask() {
 				@Override
 				public void run() {
-//					System.out.println("     ------------S "+DateTimeUtil.dateTimeFormater.format(new Date(System.currentTimeMillis())));
+//					NeptusLog.pub().info("<###>     ------------S "+DateTimeUtil.dateTimeFormater.format(new Date(System.currentTimeMillis())));
 //					System.out.flush();
 					updateValueInMessagePanel();
 					//updateProgressInfo();
@@ -963,9 +964,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         HttpResponse iGetResultCode;
         try {
             iGetResultCode = client.execute(head);
-            System.out.println(iGetResultCode.getStatusLine().getStatusCode());
+            NeptusLog.pub().info("<###> "+iGetResultCode.getStatusLine().getStatusCode());
             for (Header header : iGetResultCode.getAllHeaders()) {
-                System.out.println(header.toString());
+                NeptusLog.pub().info("<###> "+header.toString());
             }
         }
         catch (Exception e) {

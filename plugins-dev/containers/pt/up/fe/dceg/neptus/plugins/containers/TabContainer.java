@@ -50,8 +50,8 @@ import pt.up.fe.dceg.neptus.console.SubPanel;
 import pt.up.fe.dceg.neptus.console.plugins.AlarmProviderOld;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.plugins.update.PeriodicUpdatesService;
 
@@ -151,7 +151,7 @@ public class TabContainer extends ContainerSubPanel implements ConfigurationList
 		{
 		    if(c instanceof AlarmProviderOld)
 		    {
-		        //System.out.println(c);
+		        //NeptusLog.pub().info("<###> "+c);
 		        l.add((AlarmProviderOld)c);
 		    }
 		}

@@ -397,6 +397,7 @@ public class EmergencyControlPanel extends SimpleSubPanel implements Configurati
             stateSymbolLabel.setActive(true);
         }
         catch (Exception e) {
+            e.printStackTrace();
             stateSymbolLabel.setStatus(EmergencyStatus.NOT_CONFIGURED); // this happens on unknown state
             stateSymbolLabel.setActive(false);
         }
@@ -414,12 +415,11 @@ public class EmergencyControlPanel extends SimpleSubPanel implements Configurati
             public void messageArrived(ImcId16 id, IMCMessage msg) {
                 if ("EmergencyControlState".equalsIgnoreCase(msg.getAbbrev())) {
                     String strPlanId;
-                    try {
-                        strPlanId = msg.getString("plan_id");
-                    }
-                    catch (Exception e) {
+                    strPlanId = msg.getString("plan_id");
+                    
+                    if(strPlanId == null)
                         strPlanId = msg.getString("mission_id");
-                    }
+                    
                     int stateEn = msg.getInteger("state");
                     int commLevel = (int) msg.getDouble("comm_level");
 
@@ -538,7 +538,7 @@ public class EmergencyControlPanel extends SimpleSubPanel implements Configurati
                 setReportedPlanId(tmp.getEmergencyPlanId());
             }
             catch (Exception e) {
-                // e.printStackTrace();
+                 e.printStackTrace();
             }
             refreshUI();
         }

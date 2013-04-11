@@ -64,7 +64,7 @@ public class TileVirtualEarth extends TileHttpFetcher {
     * 
     * String base = "http://r0.ortho.tiles.virtualearth.net/tiles/r";
     //count = (++count) % 4;
-    //System.out.println("count="+count);
+    //NeptusLog.pub().info("<###>count="+count);
     return base + getSatURLString(x, y, zoom)+".png?g=1";
     
     *  private String getSatURLString (int x, int y, int z) {
@@ -78,7 +78,7 @@ public class TileVirtualEarth extends TileHttpFetcher {
                    cell += 2;
                ret = ret + cell;
            }
-           System.out.println(ret);
+           NeptusLog.pub().info("<###> "+ret);
            return ret;
        }
 */

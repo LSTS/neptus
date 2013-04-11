@@ -40,6 +40,7 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
  *
  */
 public class BathymetryInfo implements Serializable {
+    private static final long serialVersionUID = -7665273607640799265L;
     public LocationType topLeft = new LocationType();
     public LocationType bottomRight = new LocationType();
     

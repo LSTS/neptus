@@ -41,6 +41,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 
@@ -78,7 +79,7 @@ public class FetcherWMS {
 			
 			//BoundingBox bbox = new BoundingBox("EPSG:4326", (float)topLeft.getLongitudeAsDoubleValue(),(float)topLeft.getLatitudeAsDoubleValue(),(float)bottomRight.getLongitudeAsDoubleValue(),(float)bottomRight.getLatitudeAsDoubleValue());
 			BoundingBox bbox = new BoundingBox("EPSG:4326", (float) latLon2[1], (float) latLon1[0], (float) latLon1[1], (float) latLon2[0]);
-			System.out.println("minX:"+bbox.getMinX()+", minY:"+bbox.getMinY()+", maxX:"+bbox.getMaxX()+", maxY:"+bbox.getMaxY());
+			NeptusLog.pub().info("<###>minX:"+bbox.getMinX()+", minY:"+bbox.getMinY()+", maxX:"+bbox.getMaxX()+", maxY:"+bbox.getMaxY());
 			request.setBoundingBox(bbox);
 
 			LinkedList<String> layers = new LinkedList<String>();
@@ -91,7 +92,7 @@ public class FetcherWMS {
 			request.setLayers(layers);
 			request.setFormat("PNG");
 			
-			System.out.println(request.getURL());
+			NeptusLog.pub().info("<###> "+request.getURL());
 			resultingImage = request.getImage();
 		}
 		catch (Exception e) {

@@ -129,7 +129,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     public void loadFromXML(String xml) {
         try {
             Document doc = DocumentHelper.parseText(xml);
-            //System.out.println(doc.asXML());
+            //NeptusLog.pub().info("<###> "+doc.asXML());
             // basePoint
             Node node = doc.selectSingleNode("//basePoint/point");
             ManeuverLocation loc = new ManeuverLocation();
@@ -897,7 +897,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         props.add(ssRangeShadowtP);
 
         //        for (DefaultProperty p : props) {
-        //            System.out.println("* "+p.getName()+"="+p.getValue());
+        //            NeptusLog.pub().info("<###>* "+p.getName()+"="+p.getValue());
         //        }
 
         return props;
@@ -1002,9 +1002,9 @@ IMCSerialization, StatisticsProvider, PathProvider {
     public static void main(String[] args) {
         
         RowsManeuver rows = new RowsManeuver();
-        System.out.println(rows.getManeuverLocation());
-        System.out.println(rows.getStartLocation());
-        System.out.println(rows.getEndLocation());
+        NeptusLog.pub().info("<###> "+rows.getManeuverLocation());
+        NeptusLog.pub().info("<###> "+rows.getStartLocation());
+        NeptusLog.pub().info("<###> "+rows.getEndLocation());
 
         RowsManeuver man = new RowsManeuver();
         //        man.latRad = Math.toRadians(38.45);
@@ -1019,14 +1019,14 @@ IMCSerialization, StatisticsProvider, PathProvider {
         //        man.speed = 1000;
         //        man.speed_units = "RPM";
         String xml = man.getManeuverAsDocument("Rows").asXML();
-        System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(xml));
+        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(xml));
         //        RowsManeuver clone = (RowsManeuver) man.clone();
-        //        System.out.println(xml);
-        //        System.out.println(clone.getManeuverAsDocument("Rows").asXML());
+        //        NeptusLog.pub().info("<###> "+xml);
+        //        NeptusLog.pub().info("<###> "+clone.getManeuverAsDocument("Rows").asXML());
         //        
         //        RowsManeuver tmp = new RowsManeuver();
         //        tmp.loadFromXML(clone.getManeuverAsDocument("Rows").asXML());
-        //        System.out.println(tmp.getManeuverAsDocument("Rows").asXML());
+        //        NeptusLog.pub().info("<###> "+tmp.getManeuverAsDocument("Rows").asXML());
         //        
         //                MissionType mission = new MissionType("./missions/rep10/rep10.nmisz");
         //                StateRenderer2D r2d = new StateRenderer2D(MapGroup.getMapGroupInstance(mission));
@@ -1044,7 +1044,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
         ConsoleParse.consoleLayoutLoader("./conf/consoles/seacon-basic.ncon");
         //        
-        //        System.out.println(new RowsManeuver().getManeuverAsDocument("Rows").asXML());
+        //        NeptusLog.pub().info("<###> "+new RowsManeuver().getManeuverAsDocument("Rows").asXML());
         //        
     }
 }

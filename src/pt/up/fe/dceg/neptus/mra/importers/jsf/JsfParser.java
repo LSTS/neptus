@@ -44,6 +44,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author jqcorreia
  * 
@@ -62,11 +64,11 @@ public class JsfParser {
             fis = new FileInputStream(file);
             channel = fis.getChannel();
             if (!new File(file.getParent() + "/jsf.index").exists()) {
-                System.out.println("Generating JSF index for " + file.getAbsolutePath());
+                NeptusLog.pub().info("<###>Generating JSF index for " + file.getAbsolutePath());
                 generateIndex();
             }
             else {
-                System.out.println("Loading JSF index for " + file.getAbsolutePath());
+                NeptusLog.pub().info("<###>Loading JSF index for " + file.getAbsolutePath());
                 loadIndex();
             }
 
@@ -96,7 +98,7 @@ public class JsfParser {
                     buf.order(ByteOrder.LITTLE_ENDIAN);
                     ping.parseHeader(buf);
                     curPosition += header.getMessageSize();
-//                     System.out.println(ping.getPingNumber() + " " + ping.getTimestamp() + " " +
+//                     NeptusLog.pub().info("<###> "+ping.getPingNumber() + " " + ping.getTimestamp() + " " +
 //                     ping.getNumberOfSamples() + " " +
 //                     ping.getFrequency() + " "
 //                     + ping.getHeader().getSubsystem() + " " + ping.getHeader().getChannel());
@@ -244,7 +246,7 @@ public class JsfParser {
         JsfParser parser = new JsfParser(new File("/home/jqcorreia/lsts/logs/182142_edgetch_sweep/Data.jsf"));
     
         for(Integer i : parser.index.subSystemsList) {
-            System.out.println(i);
+            NeptusLog.pub().info("<###> "+i);
         }
     }
 }

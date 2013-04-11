@@ -36,7 +36,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;

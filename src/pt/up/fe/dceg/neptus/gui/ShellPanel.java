@@ -161,14 +161,14 @@ public class ShellPanel extends JPanel {
             // shellTextPane.add(getEditPopupMenu());
             shellTextPane.addKeyListener(new KeyAdapter() {
                 public void keyPressed(KeyEvent e) {
-                    // System.out.println("keyPressed() " + e.getKeyCode() + " :" + e.getKeyText(e.getKeyCode()));
+                    // NeptusLog.pub().info("<###>keyPressed() " + e.getKeyCode() + " :" + e.getKeyText(e.getKeyCode()));
                     if (e.getKeyCode() == KeyEvent.VK_UP) {
                         // History previous
                         e.consume(); // Importante!!
                         if (processing)
                             return;
                         processing = true;
-                        // System.out.println("UP | caret:" + caretMoved);
+                        // NeptusLog.pub().info("<###>UP | caret:" + caretMoved);
                         // System.err.println(">>" + KeyEvent.getKeyText(e.getKeyCode()));
                         processHistory(HISTORY_UP);
                         processing = false;
@@ -179,7 +179,7 @@ public class ShellPanel extends JPanel {
                         if (processing)
                             return;
                         processing = true;
-                        // System.out.println("DOWN | caret:" + caretMoved);
+                        // NeptusLog.pub().info("<###>DOWN | caret:" + caretMoved);
                         // System.err.println(">>" + KeyEvent.getKeyText(e.getKeyCode()));
                         processHistory(HISTORY_DOWN);
                         processing = false;
@@ -187,7 +187,7 @@ public class ShellPanel extends JPanel {
                 }
 
                 public void keyReleased(java.awt.event.KeyEvent e) {
-                    // System.out.println("keyReleased()");
+                    // NeptusLog.pub().info("<###>keyReleased()");
                 }
 
                 public void keyTyped(java.awt.event.KeyEvent e) {
@@ -195,9 +195,9 @@ public class ShellPanel extends JPanel {
                         return;
                     processing = true;
 
-                    // System.out.println("keyTyped()" + (int)e.getKeyChar() + " " + e.getModifiers() + " " +
+                    // NeptusLog.pub().info("<###>keyTyped()" + (int)e.getKeyChar() + " " + e.getModifiers() + " " +
                     // e.getModifiersEx());
-                    // System.out.println("keyTyped()" + Character.isDefined(e.getKeyChar()) +
+                    // NeptusLog.pub().info("<###>keyTyped()" + Character.isDefined(e.getKeyChar()) +
                     // Character.isLetterOrDigit(e.getKeyChar()));
                     if (e.getKeyChar() == KeyEvent.VK_DELETE || e.getKeyChar() == KeyEvent.VK_BACK_SPACE) {
                         if (!("".equals(cmd) || caretMoved == true))
@@ -236,23 +236,23 @@ public class ShellPanel extends JPanel {
                         return;
                     processing = true;
                     caretMoved = true;
-                    // System.out.println("caretUpdate()");
+                    // NeptusLog.pub().info("<###>caretUpdate()");
                     processing = false;
                 }
             });
             shellTextPane.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseReleased(java.awt.event.MouseEvent e) {
-                    // System.out.println("mouseReleased()"); // TODO Auto-generated Event stub mouseReleased()
+                    // NeptusLog.pub().info("<###>mouseReleased()"); // TODO Auto-generated Event stub mouseReleased()
                     caretMoved = false;
                 }
 
                 public void mousePressed(java.awt.event.MouseEvent e) {
-                    // System.out.println("mousePressed()"); // TODO Auto-generated Event stub mousePressed()
+                    // NeptusLog.pub().info("<###>mousePressed()"); // TODO Auto-generated Event stub mousePressed()
                     caretMoved = false;
                 }
 
                 public void mouseClicked(java.awt.event.MouseEvent e) {
-                    // System.out.println("mouseClicked() caret:" + caretMoved);
+                    // NeptusLog.pub().info("<###>mouseClicked() caret:" + caretMoved);
                     caretMoved = false;
                     if (e.getButton() == MouseEvent.BUTTON3 & e.getClickCount() == 1) {
                         if (getShellTextPane().isEnabled()) {

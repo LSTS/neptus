@@ -35,6 +35,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * Helper methods that can be hand for several situations
  */
@@ -59,8 +61,8 @@ public class DateUtils {
             return date;
         }
         catch (ParseException e) {
-            System.out.println("The date "+dateAndHour+" is not compatible with "+dateRegEx);
-            System.out.println(e.getMessage());  
+            NeptusLog.pub().info("<###>The date "+dateAndHour+" is not compatible with "+dateRegEx);
+            NeptusLog.pub().info("<###> "+e.getMessage());  
             throw e;
         }
     }

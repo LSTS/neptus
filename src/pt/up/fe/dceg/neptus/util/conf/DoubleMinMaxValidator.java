@@ -31,6 +31,8 @@
  */
 package pt.up.fe.dceg.neptus.util.conf;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author Paulo Dias
  *
@@ -133,10 +135,10 @@ public class DoubleMinMaxValidator implements Validator
     }
     
     public static void main(String[] args) {
-		System.out.println(new DoubleMinMaxValidator(1.0, 10.0).validate(20.0));
-		System.out.println(new DoubleMinMaxValidator(1.0, 10.0, true, false).validate(10.0));
-		System.out.println(new DoubleMinMaxValidator(1.0, 10.0, true, false).validate(1.0));
-		System.out.println(new DoubleMinMaxValidator(1.0, 10.0, true, true).validate(10.0));
-		System.out.println(new DoubleMinMaxValidator(1.0, 10.0, false, true).validate(1.0));
+		NeptusLog.pub().info("<###> "+new DoubleMinMaxValidator(1.0, 10.0).validate(20.0));
+		NeptusLog.pub().info("<###> "+new DoubleMinMaxValidator(1.0, 10.0, true, false).validate(10.0));
+		NeptusLog.pub().info("<###> "+new DoubleMinMaxValidator(1.0, 10.0, true, false).validate(1.0));
+		NeptusLog.pub().info("<###> "+new DoubleMinMaxValidator(1.0, 10.0, true, true).validate(10.0));
+		NeptusLog.pub().info("<###> "+new DoubleMinMaxValidator(1.0, 10.0, false, true).validate(1.0));
 	}
 }

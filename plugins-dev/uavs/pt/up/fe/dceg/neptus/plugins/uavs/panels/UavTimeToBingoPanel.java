@@ -211,7 +211,7 @@ public class UavTimeToBingoPanel extends SimpleSubPanel{
             
             @Override
             public void actionPerformed(ActionEvent e) {
-//                System.out.println("ActionTimer");
+//                NeptusLog.pub().info("<###>ActionTimer");
                 bar.setValue((int) (System.currentTimeMillis() - startTime));
                 
                 if (System.currentTimeMillis() > (startTime + endTime)){

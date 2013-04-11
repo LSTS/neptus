@@ -24,6 +24,8 @@ import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.Locale;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * The Locator is a utility class which is used to find certain items
  * in the environment
@@ -199,7 +201,7 @@ public final class Locator {
         }
         File toolsJar = new File(javaHome + "/lib/tools.jar");
         if (!toolsJar.exists()) {
-            System.out.println("Unable to locate tools.jar. "
+            NeptusLog.pub().info("<###>Unable to locate tools.jar. "
                  + "Expected to find it in " + toolsJar.getPath());
             return null;
         }

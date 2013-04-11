@@ -141,19 +141,9 @@ public class JmeComponent extends SimpleApplication {
         BathymetryLogInfo bathyInfo = null;
         bathyGen = new Bathymetry3DGenerator(source, harbor);
         if (source.getLsfIndex().getDefinitions().getVersion().compareTo("5.0.0") >= 0) {
-            try {
-                bathyInfo = bathyGen.extractBathymetryInfoIMC5(true);
-            }
-            catch (Exception e) {
-                try {
-                    bathyInfo = bathyGen.extractBathymetryInfoIMC5(false);
-                }
-                catch (Exception e1) {
-                    // This should never happen because call with false doe not use methods that generate exception
-                    handleError("", e1);
-                    e1.printStackTrace();
-                }
-            }
+            bathyInfo = bathyGen.extractBathymetryInfoIMC5(true);
+            if(bathyInfo == null)
+                bathyInfo = bathyGen.extractBathymetryInfoIMC5(false);
         }
         else {
             try {

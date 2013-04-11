@@ -184,7 +184,7 @@ public class CheckAutoVarIntervalItem extends CheckAutoSubItem {
                
                nd = doc.selectSingleNode("/variableTestRange/variablePath");
                if (nd != null) {
-                   System.out.println(nd.getText());
+                   NeptusLog.pub().info("<###> "+nd.getText());
                    this.setVarPath(nd.getText());
                }
                nd = doc.selectSingleNode("/variableTestRange/registedValue");

@@ -40,6 +40,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.alarms.AlarmChangeListener;
 import pt.up.fe.dceg.neptus.alarms.AlarmManager.AlarmLevel;
 import pt.up.fe.dceg.neptus.alarms.AlarmProvider;
@@ -137,7 +138,7 @@ public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPaint
         }
         catch (Exception e1) {
             e1.printStackTrace();
-            System.out.println("Font Loading Error");
+            NeptusLog.pub().info("<###>Font Loading Error");
         }
     }
 

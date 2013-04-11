@@ -361,7 +361,7 @@ public class FileUtil {
             e.printStackTrace();
             return null;
         }
-        // System.out.println(ba.toString());
+        // NeptusLog.pub().info("<###> "+ba.toString());
         String result;
         try {
             result = ba.toString(enc);
@@ -660,7 +660,7 @@ public class FileUtil {
         String pS, fS;
         try {
             pS = fxP.getCanonicalPath();
-            // System.out.println(pS);
+            // NeptusLog.pub().info("<###> "+pS);
         }
         catch (IOException e) {
             // e.printStackTrace();
@@ -699,7 +699,7 @@ public class FileUtil {
                 }
                 lev++;
                 tmp = tmp.substring(0, i);
-                // System.out.println(tmp);
+                // NeptusLog.pub().info("<###> "+tmp);
                 if (fS.regionMatches(0, tmp, 0, tmp.length())) {
                     res = fS.substring(tmp.length() + 1, fS.length());
                     break;
@@ -742,7 +742,7 @@ public class FileUtil {
                 deltree(tmp.getAbsolutePath());
             }
             else {
-                // System.out.println("deleting "+tmp.getAbsolutePath());
+                // NeptusLog.pub().info("<###>deleting "+tmp.getAbsolutePath());
                 try {
                     tmp.delete();
                 }
@@ -836,22 +836,22 @@ public class FileUtil {
 
     public static void main(String[] args) throws IOException {
         ConfigFetch.initialize();
-        System.out.println(relativizeFilePath("D:\\FEUP\\NeptusProj\\neptus_ini\\testemission.xml",
+        NeptusLog.pub().info("<###> "+relativizeFilePath("D:\\FEUP\\NeptusProj\\neptus_ini\\testemission.xml",
                 "D:\\FEUP\\NeptusProj\\neptus_ini\\teste\\cl.xml"));
 
-        System.out.println(relativizeFilePath("D:/cl.xml", "D:/FEUP/NeptusProj/neptus_ini/teste/mission.xml"));
+        NeptusLog.pub().info("<###> "+relativizeFilePath("D:/cl.xml", "D:/FEUP/NeptusProj/neptus_ini/teste/mission.xml"));
 
         File f = new File("C:/AUTOEXEC.BAT");
-        System.out.println(getFileExtension(f));
+        NeptusLog.pub().info("<###> "+getFileExtension(f));
         f = new File("C:/AUTOEXEC");
-        System.out.println(getFileExtension(f));
+        NeptusLog.pub().info("<###> "+getFileExtension(f));
 
         f = new File("D:\\FEUP\\NeptusProj\\neptus_ini\\missions\\alfena\\MISSIO~1.NMI");
-        System.out.println(f.getAbsolutePath());
-        System.out.println(f.getCanonicalPath());
-        System.out.println(f.canRead());
+        NeptusLog.pub().info("<###> "+f.getAbsolutePath());
+        NeptusLog.pub().info("<###> "+f.getCanonicalPath());
+        NeptusLog.pub().info("<###> "+f.canRead());
 
-        System.out.println(relativizeFilePathAsURI("D:\\FEUP\\NeptusProj\\neptus_ini\\testemission.xml",
+        NeptusLog.pub().info("<###> "+relativizeFilePathAsURI("D:\\FEUP\\NeptusProj\\neptus_ini\\testemission.xml",
                 "D:\\FEUP\\NeptusProj\\neptus_ini\\teste\\cl.xml"));
     }
 }

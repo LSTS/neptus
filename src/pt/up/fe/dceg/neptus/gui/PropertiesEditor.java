@@ -238,7 +238,7 @@ public class PropertiesEditor {
                 provider.getPropertiesDialogTitle());
 
         LinkedHashMap<String, DefaultProperty> original = createHashMap(properties);
-        System.out.println(original);
+        
         boolean end = false;
         while (!end) {
             if (!propertySheetDialog.ask()) {
@@ -292,9 +292,9 @@ public class PropertiesEditor {
 
         // To I18n PropertySheetDialog our way
         int sb = 1;
-        // System.out.println(propertySheetDialog.getRootPane().getComponents().length);
+        // NeptusLog.pub().info("<###> "+propertySheetDialog.getRootPane().getComponents().length);
         for (Component compL0 : propertySheetDialog.getRootPane().getComponents()) {
-            // System.out.println(compL0);
+            // NeptusLog.pub().info("<###> "+compL0);
             if (compL0 instanceof JLayeredPane) {
                 for (Component compL01 : ((JLayeredPane) compL0).getComponents()) {
                     if (!(compL01 instanceof JPanel))

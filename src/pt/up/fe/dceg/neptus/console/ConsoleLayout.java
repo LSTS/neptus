@@ -336,9 +336,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         // if(e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_S){
         // NeptusEvents.manager().post(new NeptusEventHiddenMenus());
         // if(eventType == KeyEvent.KEY_PRESSED)
-        // System.out.println("pressed");
+        // NeptusLog.pub().info("<###>pressed");
         // else if(eventType == KeyEvent.KEY_RELEASED)
-        // System.out.println("released");
+        // NeptusLog.pub().info("<###>released");
         // }
         // return false;
         // }
@@ -1420,7 +1420,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     public void executeCheckList(ChecklistType ct) {
-        // System.out.println("Ok:"+ct);
+        // NeptusLog.pub().info("<###>Ok:"+ct);
         if (getMission() != null) {
             if (getMission().getCompressedFilePath() != null) {
                 File file = new File(getMission().getCompressedFilePath());
@@ -1744,6 +1744,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         ConsoleLayout console = ConsoleLayout.forge("conf/consoles/lauv.ncon", loader);
         NeptusMain.wrapMainApplicationWindowWithCloseActionWindowAdapter(console);
-        System.out.println("BENCHMARK " + ((System.currentTimeMillis() - ConfigFetch.STARTTIME) / 1E3) + "s");
+        NeptusLog.pub().info("<###>BENCHMARK " + ((System.currentTimeMillis() - ConfigFetch.STARTTIME) / 1E3) + "s");
     }
 }

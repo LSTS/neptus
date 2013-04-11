@@ -41,6 +41,7 @@ import javax.swing.JLabel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.ChartPanel;
 import pt.up.fe.dceg.neptus.gui.checklist.CheckItemPanel;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
@@ -146,7 +147,7 @@ public class CheckVariableItem extends CheckSubItemExe implements MessageListene
 
 		if (min && max) {
 			checkSubItem.setChecked(true);
-			System.out.println("ok");
+			NeptusLog.pub().info("<###>ok");
 			this.setBackground(CheckItemPanel.CHECK_COLOR);
 			this.chart.addValue(checkSubItem.getVarName(), System
 					.currentTimeMillis()/*-timeZero*/, value, Color.GREEN);

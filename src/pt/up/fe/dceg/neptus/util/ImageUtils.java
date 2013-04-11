@@ -324,10 +324,13 @@ public class ImageUtils {
 
     public static ImageIcon getScaledIcon(Image img, int maxWidth, int maxHeight) {
         img = ImageUtils.getScaledImage(img, maxWidth, maxHeight, false);
-        if (img != null)
+        try {
             return new ImageIcon(img);
-        else
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
             return new ImageIcon(getImage("images/menus/no.png"));
+        }
     }
 
     public static Image getScaledImage(String imagePath, int maxWidth, int maxHeight) {

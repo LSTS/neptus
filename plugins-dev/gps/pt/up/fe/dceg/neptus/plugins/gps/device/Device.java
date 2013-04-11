@@ -44,6 +44,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 public class Device implements SerialPortEventListener {
     /** Frame type: 8 data bits, 1 stop bit, no parity. */
     public static final String FRAME_8N1 = "8n1";
@@ -168,7 +170,7 @@ public class Device implements SerialPortEventListener {
                     parser.parse(buffer[i]);
                 }
                 catch (Exception e) {
-                    System.out.println(e);
+                    NeptusLog.pub().info("<###> "+e);
                 }
             }
         }
@@ -235,7 +237,7 @@ public class Device implements SerialPortEventListener {
                 devs.add(dev.getName());
             }
             catch (PortInUseException e) {
-                System.out.println("ERROR: serial port '" + dev.getName() + "' is in use");
+                NeptusLog.pub().info("<###>ERROR: serial port '" + dev.getName() + "' is in use");
             }
             catch (Exception e) {
                 System.err.println("ERROR: failed to open serial port '" + dev.getName() + "'");

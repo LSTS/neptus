@@ -519,6 +519,7 @@ MissionChangeListener {
             }
         }
         catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
@@ -964,6 +965,7 @@ MissionChangeListener {
                                 validVel = true;
                             }
                             catch (Exception ex) {
+                                ex.printStackTrace();
                                 GuiUtils.errorMessage(getConsole(), I18n.text("Set plan speed"),
                                         I18n.text("Speed must be a numeric value"));
                             }
@@ -1030,7 +1032,7 @@ MissionChangeListener {
                             
                             for (Maneuver m : plan.getGraph().getAllManeuvers()) {
                                 m.getStartActions().parseMessages(startActions);
-                                System.out.println(m.getId());
+                                NeptusLog.pub().info("<###> "+m.getId());
                             }
                         }
                     }                    

@@ -118,10 +118,10 @@ public class SymbolLabel extends JXPanel implements Painter<JXPanel>, IPeriodicU
 		synchronized (blinkingState) {
 		    if (blink)
 		        time = System.currentTimeMillis();
-//            System.out.println("Test if PeriodicUpdatesService.register(this) " + blinkingState);
+//            NeptusLog.pub().info("<###>Test if PeriodicUpdatesService.register(this) " + blinkingState);
 		    if (blink && (blinkingState == BlinkingStateEnum.NOT_BLINKING)) {
 		        blinkingState = BlinkingStateEnum.BLINKING_NORMAL;
-//		        System.out.println("PeriodicUpdatesService.register(this)");
+//		        NeptusLog.pub().info("<###>PeriodicUpdatesService.register(this)");
 		        // PeriodicUpdatesService.register(this);
 		        scheduleUpdateTask();
 		    }
@@ -260,7 +260,7 @@ public class SymbolLabel extends JXPanel implements Painter<JXPanel>, IPeriodicU
             @Override
             public void run() {
                 synchronized (blinkingState) {
-//                    System.out.println(blinkingState);
+//                    NeptusLog.pub().info("<###> "+blinkingState);
                     if (blinkTime > 0 && (System.currentTimeMillis() - time > blinkTime)) {
                         blinkingState = BlinkingStateEnum.NOT_BLINKING;
                     }
@@ -323,7 +323,7 @@ public class SymbolLabel extends JXPanel implements Painter<JXPanel>, IPeriodicU
 	@Override
 	public boolean update() {
 //        if (blinkingState == BlinkingStateEnum.BLINKING_BRILLIANT) {
-//            System.out.println("Update FuelLevel state: " + blinkingState + "  ::   " + (System.currentTimeMillis() - time) + "ms");
+//            NeptusLog.pub().info("<###>Update FuelLevel state: " + blinkingState + "  ::   " + (System.currentTimeMillis() - time) + "ms");
 //        }
 
 	    synchronized (blinkingState) {
@@ -378,7 +378,7 @@ public class SymbolLabel extends JXPanel implements Painter<JXPanel>, IPeriodicU
 		sp.lineTo(10, 6);
 		g2.draw(sp);
 		
-//		System.out.println("  .... "+width+" by "+height);
+//		NeptusLog.pub().info("<###>  .... "+width+" by "+height);
 	}
 
 	/**

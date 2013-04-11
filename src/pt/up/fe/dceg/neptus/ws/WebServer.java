@@ -35,6 +35,7 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 import pt.up.fe.dceg.neptus.util.logdb.SQLiteSerialization;
@@ -75,14 +76,14 @@ public class WebServer {
 		if (server != null) {
 			try {
 				server.stop();
-				System.out.println("Running server stopped");
+				NeptusLog.pub().info("<###>Running server stopped");
 			}
 			catch (Exception e) {
 				e.printStackTrace();				
 			}
 		}
 		else {
-			System.out.println("No server is running");
+			NeptusLog.pub().info("<###>No server is running");
 		}
 	}
 	

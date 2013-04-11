@@ -47,6 +47,7 @@ import java.util.zip.ZipInputStream;
 
 import org.jfree.chart.JFreeChart;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.LblBeacon;
 import pt.up.fe.dceg.neptus.imc.SonarData;
@@ -124,7 +125,7 @@ public class LogUtils {
         long startMillis = parser.getCurrentEntry().getTimestampMillis(); //source.getLog("EstimatedState").currentTimeMillis();
         long startMillis2 = parser.firstLogEntry().getTimestampMillis();
         
-        System.out.println(startMillis + "" + startMillis2);
+        NeptusLog.pub().info("<###> "+startMillis + "" + startMillis2);
         double lastTime = 0;
 
         double maxDepth = 0;
@@ -285,7 +286,7 @@ public class LogUtils {
         IMraLog parser = source.getLog("HomeRef");
         if (parser != null) {
             IMCMessage lastEntry = parser.getLastEntry();
-//            System.out.println("-----" + lastEntry);
+//            NeptusLog.pub().info("<###>-----" + lastEntry);
             double lat = lastEntry.getDouble("lat");
             double lon = lastEntry.getDouble("lon");
             double depth = lastEntry.getDouble("depth");
@@ -978,7 +979,7 @@ public class LogUtils {
     }
 
     public static void main(String[] args) {
-        System.out.println(parseInlineName("%INLINE{Goto}"));
-        System.out.println(parseInlineName("%INLINE{Popup}"));
+        NeptusLog.pub().info("<###> "+parseInlineName("%INLINE{Goto}"));
+        NeptusLog.pub().info("<###> "+parseInlineName("%INLINE{Popup}"));
     }
 }

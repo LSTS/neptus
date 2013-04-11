@@ -81,7 +81,7 @@ public class LongStringPropertyEditor extends AbstractPropertyEditor {
 			public void actionPerformed(ActionEvent e) {
 				value = showStringDialog("Text Editor", value, true, SwingUtilities.getWindowAncestor(textField));
 				textField.setText(value);
-				//System.out.println("value:\n"+value);
+				//NeptusLog.pub().info("<###>value:\n"+value);
 			}
 		});
 	}
@@ -163,11 +163,11 @@ public class LongStringPropertyEditor extends AbstractPropertyEditor {
 		
 		dialog.setVisible(true);
 		if (canceled) {
-		//	System.out.println("CANCELED");
+		//	NeptusLog.pub().info("<###>CANCELED");
 			return previousValue;
 		}
 		else {
-		//	System.out.println("NOT CANCELED: "+msgTextArea.getText());
+		//	NeptusLog.pub().info("<###>NOT CANCELED: "+msgTextArea.getText());
 			return msgTextArea.getText();
 		}
 	}

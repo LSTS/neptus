@@ -243,7 +243,7 @@ public abstract class AbstractImcManeuver<T extends IMCMessage> extends DefaultM
         ConfigFetch.initialize();
         CoverArea ca = new CoverArea();
         String xml = ca.asXML();
-        System.out.println(xml);
+        NeptusLog.pub().info("<###> "+xml);
         
         
     }

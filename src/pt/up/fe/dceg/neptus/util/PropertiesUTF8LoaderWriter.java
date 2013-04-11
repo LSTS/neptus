@@ -45,6 +45,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Properties;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author pdias
  *
@@ -150,7 +152,7 @@ public class PropertiesUTF8LoaderWriter {
         prop1.load(new FileInputStream("propUtf8.properties"));
         propUtf8 = loadProperties(new FileInputStream("propUtf8.properties"));
         
-        System.out.println(prop1.getProperty("test 1"));
-        System.out.println(propUtf8.getProperty("test 1"));
+        NeptusLog.pub().info("<###> "+prop1.getProperty("test 1"));
+        NeptusLog.pub().info("<###> "+propUtf8.getProperty("test 1"));
     }
 }

@@ -275,7 +275,7 @@ public class LBLTriangulationHelper {
             LocationType[] locArray = calculate(trans1, trans2, trans1ToVehicleDistance, trans2ToVehicleDistance, cs,
                     distance);
             if (locArray == null) {
-                NeptusLog.pub().info("LBL Range updatePosition" + "\nInvalid fix for calculation!!");
+                NeptusLog.pub().debug("LBL Range updatePosition" + "\nInvalid fix for calculation!!");
                 return null;
             }
             LocationType loc = fixLocationWithLastKnown(locArray, lastKnownPos, start);
@@ -316,7 +316,7 @@ public class LBLTriangulationHelper {
                 / (2 * pbY - 2 * paY);
         double offsetX = Math.sqrt(Math.pow(daH1, 2) - Math.pow(offsetY - paY, 2));
 
-//        System.out.println("\n....... offsetX= " + offsetX + "    offsetY= " + offsetY);
+//        NeptusLog.pub().info("<###>\n....... offsetX= " + offsetX + "    offsetY= " + offsetY);
         if (Double.isNaN(offsetX) || Double.isNaN(offsetY))
             return null;
 
@@ -365,14 +365,14 @@ public class LBLTriangulationHelper {
         double lasKnownLocDist = lasKnownLoc.getDistanceInMeters(helperLoc);
         if (newLocDist <= lasKnownLocDist) {
             fixedLoc = newLoc;
-//            System.out.println(newLocDist + " & " + lasKnownLocDist);
+//            NeptusLog.pub().info("<###> "+newLocDist + " & " + lasKnownLocDist);
         }
         else {
             fixedLoc = helperLoc;
-//            System.out.println("\nTrocou!! " + newLocDist + " & " + lasKnownLocDist);
+//            NeptusLog.pub().info("<###>\nTrocou!! " + newLocDist + " & " + lasKnownLocDist);
         }
-//        System.out.println("\n    " + newLoc.getDebugString());
-//        System.out.println("\n    " + helperLoc.getDebugString());
+//        NeptusLog.pub().info("<###>\n    " + newLoc.getDebugString());
+//        NeptusLog.pub().info("<###>\n    " + helperLoc.getDebugString());
 
         return fixedLoc;
     }

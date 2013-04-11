@@ -37,6 +37,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.InterpolationColorMap;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
@@ -107,7 +108,6 @@ public class MultibeamReplay implements LogReplayLayer {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        System.out.println("canBeApplied " + source.getFile("multibeam.83P") != null);
         return source.getFile("multibeam.83P") != null;
     }
 
@@ -122,7 +122,7 @@ public class MultibeamReplay implements LogReplayLayer {
         double heights[] = new double[colors.length];
         double diffHeight = multibeamData.maxHeight - multibeamData.minHeight; 
        
-        System.out.println("Min Height : " + multibeamData.minHeight + " Max Height : " + multibeamData.maxHeight);
+        NeptusLog.pub().info("<###>Min Height : " + multibeamData.minHeight + " Max Height : " + multibeamData.maxHeight);
         for(int i = 0; i < colors.length ; i++)
             heights[i] = multibeamData.minHeight + diffHeight/colors.length * i;
         cm = new InterpolationColorMap(heights, colors);

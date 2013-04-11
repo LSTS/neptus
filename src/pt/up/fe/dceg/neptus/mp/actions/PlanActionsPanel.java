@@ -63,6 +63,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.ToolbarButton;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
@@ -410,6 +411,6 @@ public class PlanActionsPanel extends JPanel {
 		pap.getDialog(new JFrame(), "eeeeeeeeeeee");
 		
         Element eActionsElm = pa.asElement("end-actions");
-        System.out.println(eActionsElm.asXML());
+        NeptusLog.pub().info("<###> "+eActionsElm.asXML());
 	}
 }

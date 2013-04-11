@@ -175,6 +175,10 @@ public class MessageListenerQueueProvider<Mi extends MessageInfo, M extends IMes
         catch (InterruptedException e) {
             return false;
         }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+            return false;
+        }
     }
     
     /**
@@ -197,8 +201,7 @@ public class MessageListenerQueueProvider<Mi extends MessageInfo, M extends IMes
      */
     private Thread getDispacherThread() {
         if (dispacherThread == null) {
-            Thread listenerThread = new Thread(MessageListenerQueueProvider.class.getSimpleName()
-                    + ": Dispacher Thread " + Integer.toHexString(this.hashCode()) + "for " + listener) {
+            Thread listenerThread = new Thread("Queue Dispacher " + Integer.toHexString(this.hashCode()) + "for " + listener.getClass().getSimpleName()) {
                 public synchronized void start() {
                     NeptusLog.pub().debug(this + "Dispacher Thread Started");
                     super.start();              

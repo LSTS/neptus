@@ -532,8 +532,8 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
     }
 
     public static boolean validate(Document doc) {
-        System.out.println("validating map: " + doc.toString());
-        System.out.println("schema: " + ConfigFetch.getMapSchemaLocation());
+        NeptusLog.pub().info("<###>validating map: " + doc.toString());
+        NeptusLog.pub().info("<###>schema: " + ConfigFetch.getMapSchemaLocation());
         try {
             String sLoc = new File(ConfigFetch.getMapSchemaLocation()).getAbsoluteFile().toURI().toASCIIString();
 

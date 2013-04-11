@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.junit.util.conf;
 
 import junit.framework.TestCase;
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 /**
@@ -81,7 +82,7 @@ public class ConfigFetchTest extends TestCase
     	if (lo == null)
     		TestCase.fail("Fail to read config file!");
     	else
-    		System.out.println(lo);
+    		NeptusLog.pub().info("<###> "+lo);
     }
 
     /*

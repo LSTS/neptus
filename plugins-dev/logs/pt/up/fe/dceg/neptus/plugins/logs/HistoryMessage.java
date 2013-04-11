@@ -75,6 +75,7 @@ public class HistoryMessage implements Comparable<HistoryMessage> {
             o = (HistoryMessage) obj;
         }
         catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
         if (timestamp == o.timestamp && text.equalsIgnoreCase(o.text) && context.equalsIgnoreCase(o.context)

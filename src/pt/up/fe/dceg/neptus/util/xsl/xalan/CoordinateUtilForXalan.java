@@ -38,6 +38,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.io.DOMReader;
 import org.dom4j.io.DOMWriter;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
@@ -92,7 +93,7 @@ public class CoordinateUtilForXalan
         if (offsetDown.equals(""))
             offsetDown = "0";
         
-        //System.out.println("#################"+offsetDistance+"#"+azimuth+"#"+zenith+"#"+offsetNorth+"#"+offsetSouth
+        //NeptusLog.pub().info("<###>#################"+offsetDistance+"#"+azimuth+"#"+zenith+"#"+offsetNorth+"#"+offsetSouth
         //	+"#"+offsetEast+"#"+offsetWest+"#"+offsetUp+"#"+offsetDown);
         double r = Double.parseDouble(offsetDistance);
         double theta = Double.parseDouble(azimuth);
@@ -208,7 +209,7 @@ public class CoordinateUtilForXalan
         {
             res += " # " + vec[i];
         }
-        System.out.println(res);
+        NeptusLog.pub().info("<###> "+res);
     }
     
     

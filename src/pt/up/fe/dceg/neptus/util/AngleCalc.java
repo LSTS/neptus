@@ -36,6 +36,8 @@ import java.util.Vector;
 
 import javax.vecmath.Vector2d;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author zecarlos
  * @author RJPG
@@ -235,10 +237,10 @@ public class AngleCalc {
                 System.out.print("y2: "); y2 = Float.parseFloat(in.readLine());
                 double rad = calcAngle(x1,y1,x2,y2);
                 double radPi = rad / Math.PI;
-                System.out.println("Angle: "+rad+" rad");
-                System.out.println("Angle: "+radPi+" pi rad"); //"\u03C0"
-                System.out.println("Angle: "+Math.toDegrees(rad)+"\u00B0");
-                System.out.println();
+                NeptusLog.pub().info("<###>Angle: "+rad+" rad");
+                NeptusLog.pub().info("<###>Angle: "+radPi+" pi rad"); //"\u03C0"
+                NeptusLog.pub().info("<###>Angle: "+Math.toDegrees(rad)+"\u00B0");
+                NeptusLog.pub().info("<###> "+);
             }
         }
         catch (Exception e) {}
@@ -246,40 +248,36 @@ public class AngleCalc {
 */
 
     public static void main(String[] args) {
-		System.out.println(Math.toDegrees(nomalizeAngleRads2Pi(Math.toRadians(360+120))));
-		System.out.println(Math.toDegrees(nomalizeAngleRads2Pi(Math.toRadians(-120))));
-		System.out.println(Math.toDegrees(nomalizeAngleRads2Pi(Math.PI*4.2)));
-		System.out.println(Math.toDegrees(nomalizeAngleRads2Pi(Math.PI*3)));
+		NeptusLog.pub().info("<###> "+Math.toDegrees(nomalizeAngleRads2Pi(Math.toRadians(360+120))));
+		NeptusLog.pub().info("<###> "+Math.toDegrees(nomalizeAngleRads2Pi(Math.toRadians(-120))));
+		NeptusLog.pub().info("<###> "+Math.toDegrees(nomalizeAngleRads2Pi(Math.PI*4.2)));
+		NeptusLog.pub().info("<###> "+Math.toDegrees(nomalizeAngleRads2Pi(Math.PI*3)));
 		
-        System.out.println(Math.toDegrees(calcAngle(0, 0, 1, 0)));
-        System.out.println(Math.toDegrees(calcAngle(0, 0, 1, 0.2)));
+        NeptusLog.pub().info("<###> "+Math.toDegrees(calcAngle(0, 0, 1, 0)));
+        NeptusLog.pub().info("<###> "+Math.toDegrees(calcAngle(0, 0, 1, 0.2)));
 		
 		double[] xy = rotate(Math.PI/4, 1, .2, true);
-        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
+        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.PI/4, 1, 0.2, false);
-        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
+        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
         
         
-
-        System.out.println();
-        System.out.println();
-        System.out.println();
         xy = rotate(Math.toRadians(-2), 8233.212457347916, 3936.711000673984, false);
-        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
+        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.toRadians(-2), xy[0], xy[1], false);
-        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
+        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.toRadians(-2), xy[0], xy[1], false);
-        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
+        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.toRadians(-2), xy[0], xy[1], false);
-        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
+        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.toRadians(-2), xy[0], xy[1], false);
-        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
+        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.toRadians(-2), xy[0], xy[1], false);
-        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
+        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.toRadians(-2), xy[0], xy[1], false);
-        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
+        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
         xy = rotate(Math.toRadians(-2), xy[0], xy[1], false);
-        System.out.println("[" + xy[0] + ", " + xy[1] + "]");
+        NeptusLog.pub().info("<###>[" + xy[0] + ", " + xy[1] + "]");
         
 	}
 }

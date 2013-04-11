@@ -76,7 +76,6 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
     // private long planStarTimeMllisUTC = -1;
     private String nodeId = "";
     private String lastOutcome = "<html><font color='0x666666'>" + I18n.text("N/A") + "</font>";
-    private String lastProgress = I18n.text("N/A");
     private int nodeTypeImcId = -1;
     private long nodeStarTimeMillisUTC = -1;
     private long nodeEtaSec = -1;

@@ -73,7 +73,6 @@ import pt.up.fe.dceg.neptus.gui.DesktopIcon;
 import pt.up.fe.dceg.neptus.gui.HideMenusListener;
 import pt.up.fe.dceg.neptus.gui.IFrameOpener;
 import pt.up.fe.dceg.neptus.gui.LatLonConv;
-import pt.up.fe.dceg.neptus.gui.MapFileChooser;
 import pt.up.fe.dceg.neptus.gui.MenuScroller;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.StatusLed;
@@ -118,7 +117,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     private int nShellOpened = 0;
 
     private JFileChooser fileDialog = null;
-    private JMenuItem meMenuItem = null;
 
     private final LinkedHashMap<JMenuItem, File> missionFilesOpened = new LinkedHashMap<JMenuItem, File>();
     private final LinkedHashMap<JMenuItem, File> miscFilesOpened = new LinkedHashMap<JMenuItem, File>();
@@ -166,9 +164,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     private JMenu reviewMenu = null;
     private JDesktopPane jDesktopPane = null;
 
-    private JMenu mapsMenu = null;
-    private JMenuItem openMapMenuItem = null;
-    private JMenuItem newMapMenuItem = null;
     private JMenu checklistsMenu = null;
     private JMenuItem openChecklistMenuItem = null;
     private JMenuItem newChecklistMenuItem = null;
@@ -273,7 +268,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 //            public void keyPressed(KeyEvent e) {
 //                if (e.isShiftDown()) {
 //                    if (e.getKeyCode() == KeyEvent.VK_S) {
-//                        System.out.println("shift S ---");
+//                        NeptusLog.pub().info("<###>shift S ---");
 //                        NeptusEvents.post(new NeptusEventHiddenMenus());
 //                    }
 //                }
@@ -547,31 +542,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         }
         return recentlyOpenFilesMenu;
     }
-
-    /**
-     * This method initializes jMenuItem
-     * 
-     * @return javax.swing.JMenuItem
-     */
-    private JMenuItem getOpenMapMenuItem() {
-        if (openMapMenuItem == null) {
-            openMapMenuItem = new JMenuItem();
-            openMapMenuItem.setText(I18n.text("Open"));
-            openMapMenuItem.setIcon(OPEN_ICON);
-            openMapMenuItem.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    // FIXME with SwingWorker
-                    // System.out.println("actionPerformed()");
-                    // File fx = openMapFileAction();
-                    File fx = MapFileChooser.showOpenMapDialog(Workspace.this);
-                    openMapTypeFile(fx);
-                }
-            });
-        }
-        return openMapMenuItem;
-    }
-
+    
     /**
      * This method initializes jMenu
      * 
@@ -937,7 +908,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     // FIXME with SwingWorker ?
-                    // System.out.println("actionPerformed()");
+                    // NeptusLog.pub().info("<###>actionPerformed()");
                     File fx = openFileAction();
                     openMiscTypeFile(fx);
                 }

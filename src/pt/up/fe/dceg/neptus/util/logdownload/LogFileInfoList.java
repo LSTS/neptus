@@ -50,6 +50,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.jdesktop.swingx.JXList;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.MathMiscUtils;
@@ -273,9 +274,8 @@ public class LogFileInfoList extends JXList {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 for (Object sel : list.getSelectedValues()) { // getSelectedValuesList não dá os valores correctos
-                    System.out.println(((LogFileInfo)sel));
+                    NeptusLog.pub().info("<###> "+((LogFileInfo)sel));
                 }
-                System.out.println();
             }});
 		GuiUtils.testFrame(list);
 		

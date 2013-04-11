@@ -1031,16 +1031,16 @@ public class ImcSystem implements Comparable<ImcSystem> {
 //		ConfigFetch.initialize();
 //		VehicleType vehicle = VehiclesHolder.getVehicleById("lauv-blue");
 //		Imc3System imcSystem = new Imc3System(vehicle);
-//		System.out.println("Id: " + imcSystem.getId() +
+//		NeptusLog.pub().info("<###>Id: " + imcSystem.getId() +
 //				" | Name: " + imcSystem.getName() + 
 //				" | Type: " + imcSystem.getType());
-//		System.out.println(imcSystem.getInetSocketAddress());
+//		NeptusLog.pub().info("<###> "+imcSystem.getInetSocketAddress());
 //		imcSystem = new Imc3System(new ImcId16("e3:33"));
-//		System.out.println("Id: " + imcSystem.getId() +
+//		NeptusLog.pub().info("<###>Id: " + imcSystem.getId() +
 //				" | Name: " + imcSystem.getName() + 
 //				" | Type: " + imcSystem.getType());
-//		System.out.println(imcSystem.getInetSocketAddress());
+//		NeptusLog.pub().info("<###> "+imcSystem.getInetSocketAddress());
 		
-		System.out.println(" " + translateSystemTypeFromMessage("CCU"));
+		NeptusLog.pub().info("<###> " + translateSystemTypeFromMessage("CCU"));
 	}
 }

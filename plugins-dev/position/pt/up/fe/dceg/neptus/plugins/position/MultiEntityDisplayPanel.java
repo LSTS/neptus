@@ -181,7 +181,7 @@ public class MultiEntityDisplayPanel extends SimpleSubPanel implements Configura
                 d.setText(value);
             }
             catch (Exception e) {
-                // TODO: handle exception
+                e.printStackTrace();
             }
         }
         return true;
@@ -251,6 +251,7 @@ public class MultiEntityDisplayPanel extends SimpleSubPanel implements Configura
             }
             catch (Exception e) {
                 // So is not a Number and so toString works.
+                e.getMessage();
                 valueStr = value.toString();
             }
             String unitPostfix = "";

@@ -40,6 +40,8 @@ import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author zp
  *
@@ -170,16 +172,16 @@ public class PoFile {
         file.load(new File("conf/i18n/neptus.pot"));
         
         for (String key : file.translations.keySet()) {
-            System.out.println(key + "=" + file.translations.get(key));
+            NeptusLog.pub().info("<###> "+key + "=" + file.translations.get(key));
         }
 
-        System.out.println("\n\n______________________________________________________________\n\n");
+        NeptusLog.pub().info("<###>\n\n______________________________________________________________\n\n");
         
         file = new PoFile();
         file.load(new File("conf/i18n/pt/neptus.po"));
         
         for (String key : file.translations.keySet()) {
-            System.out.println(key + "=" + file.translations.get(key));
+            NeptusLog.pub().info("<###> "+key + "=" + file.translations.get(key));
         }
 
     }

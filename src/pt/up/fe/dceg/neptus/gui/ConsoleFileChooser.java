@@ -38,6 +38,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.swing.NeptusFileView;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.util.FileUtil;
@@ -161,6 +162,6 @@ public class ConsoleFileChooser extends JFileChooser {
     public static void main(String[] args) {
         ConfigFetch.initialize();
         File f = ConsoleFileChooser.showOpenConsoleDialog();
-        System.out.println(f);
+        NeptusLog.pub().info("<###> "+f);
     }
 }

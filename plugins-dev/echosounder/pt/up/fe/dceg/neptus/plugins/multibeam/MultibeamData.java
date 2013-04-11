@@ -52,6 +52,7 @@ import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
@@ -106,6 +107,7 @@ public class MultibeamData implements Serializable {
             return res;
         }
         catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -121,7 +123,7 @@ public class MultibeamData implements Serializable {
             output.close();
         }
         catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
     @SuppressWarnings("unused")
@@ -346,7 +348,7 @@ public class MultibeamData implements Serializable {
                 startAngle = buf.readShort() / 100f - 180;
                 angleIncrement = buf.read() / 100f;
 
-                // System.out.println(numBeams + " " + intensity + " " + pingTotalSize + " " + samplesPerBeam + " "
+                // NeptusLog.pub().info("<###> "+numBeams + " " + intensity + " " + pingTotalSize + " " + samplesPerBeam + " "
                 // + altitude + " $ " + heading + " " + startAngle + " " + angleIncrement + " " + sectorSize + " " +
                 // acousticRange + " ");
 
@@ -388,9 +390,9 @@ public class MultibeamData implements Serializable {
                 // Skip to the end of the ping
                 buf.seek(currPingStartOffset + pingTotalSize);
                 c++;
-                System.out.println(buf.getFilePointer());
+                NeptusLog.pub().info("<###> "+buf.getFilePointer());
             }
-            System.out.println("Total ping number " + c);
+            NeptusLog.pub().info("<###>Total ping number " + c);
 
             // Reset buffer
             buf.seek(0);

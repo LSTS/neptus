@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.r3d;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.DesiredPath;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
@@ -55,7 +56,7 @@ public class ValidateTideCorrection {
     }
 
     public void printRelevantData() throws Exception {
-        System.out.println();
+        NeptusLog.pub().info("<###>");
         LsfIndex lsfIndex = source.getLsfIndex();
         LsfIterator<DesiredPath> desiredPathIt = lsfIndex.getIterator(DesiredPath.class);
         // -- Start tide prediction
@@ -64,23 +65,23 @@ public class ValidateTideCorrection {
         desiredPathIt.next();
         desiredPathIt.next();
         // Third goto
-        System.out.println("\nThird Goto!");
+        NeptusLog.pub().info("<###>\nThird Goto!");
         checkGoto(desiredPathIt, tidePrediction);
 
         // Forth goto
-        System.out.println("\nForth Goto!");
+        NeptusLog.pub().info("<###>\nForth Goto!");
         checkGoto(desiredPathIt, tidePrediction);
-        System.out.println();
+        NeptusLog.pub().info("<###>");
     }
 
     private void checkGoto(LsfIterator<DesiredPath> desiredPathIt,
             TidePredictionFinder tidePrediction) throws Exception {
         DesiredPath desiredPathMsg = desiredPathIt.next();
         double gotoTimestamp = desiredPathMsg.getTimestamp();
-        System.out.println("Desired path timestamp:   " + gotoTimestamp);
+        NeptusLog.pub().info("<###>Desired path timestamp:   " + gotoTimestamp);
         EstimatedState estimatedStateGoto = (EstimatedState) source.getLsfIndex().getMessageAtOrAfter("EstimatedState",
                 0, gotoTimestamp);
-        System.out.println("Estimated State timestamp:" + gotoTimestamp);
+        NeptusLog.pub().info("<###>Estimated State timestamp:" + gotoTimestamp);
         loopCode(estimatedStateGoto, tidePrediction);
     }
 
@@ -93,7 +94,7 @@ public class ValidateTideCorrection {
         double waterColumn, tideOff, terrainAltitude;
         depth = currEstStateMsg.getDepth();
         if (depth < 0) {
-            System.out.println("Nothing written");
+            NeptusLog.pub().info("<###>Nothing written");
             return;
         }
         // Take vehicle path info
@@ -101,16 +102,16 @@ public class ValidateTideCorrection {
         alt = currEstStateMsg.getAlt();
         float currPrediction;
         if (alt < 0 || depth < 1) {
-            System.out.println("vehicleDepthVec 0, the end");
+            NeptusLog.pub().info("<###>vehicleDepthVec 0, the end");
             return;
         }
         currPrediction = tidePrediction.getTidePrediction(currEstStateMsg.getDate(), harbor, true);
 
         tideOff = currPrediction;// - tideOfFirstDepth;
-        System.out.println("Tide:" + currPrediction);
+        NeptusLog.pub().info("<###>Tide:" + currPrediction);
         waterColumn = depth + alt;
         terrainAltitude = waterColumn - tideOff;
-        System.out.println("Water column:"+waterColumn+" = "+depth+" + "+alt);
-        System.out.println("Estimated state:" + estStateMsgLocation.toString() + " terrainAltitude:" + terrainAltitude);
+        NeptusLog.pub().info("<###>Water column:"+waterColumn+" = "+depth+" + "+alt);
+        NeptusLog.pub().info("<###>Estimated state:" + estStateMsgLocation.toString() + " terrainAltitude:" + terrainAltitude);
     }
 }

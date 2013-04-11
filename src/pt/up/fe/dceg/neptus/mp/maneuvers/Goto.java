@@ -129,7 +129,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	        
 	    }
 	    catch (Exception e) {
-	        System.out.println(I18n.text("Error while loading the XML:")+"{" + xml + "}");
+	        NeptusLog.pub().info("<###> "+I18n.text("Error while loading the XML:")+"{" + xml + "}");
 	        NeptusLog.pub().error(this, e);
 	        return;
 	    }
@@ -416,7 +416,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     	Goto g = new Goto();
 		PropertiesEditor.editProperties(g, true);
 		PropertiesEditor.editProperties(g, true);
-		//System.out.println(new Float(Math.PI/4));
+		//NeptusLog.pub().info("<###> "+new Float(Math.PI/4));
 	}
 
 }

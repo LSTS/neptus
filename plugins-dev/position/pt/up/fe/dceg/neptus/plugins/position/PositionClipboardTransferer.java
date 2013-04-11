@@ -37,6 +37,7 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.imc.state.ImcSysState;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
@@ -88,7 +89,7 @@ public class PositionClipboardTransferer extends SimpleSubPanel {
 						ImageUtils.getIcon(PluginUtils.getPluginIcon(PositionClipboardTransferer.class)),vids.toArray(new String[0]), getConsole().getMainSystem());
 				if (answer == null)
 					return;
-				System.out.println("get position from "+answer);
+				NeptusLog.pub().info("<###>get position from "+answer);
 				
 				ImcSysState state = ImcMsgManager.getManager().getState(console.getSystem((String)answer).getVehicle().getId());
 				if (state == null)
@@ -100,7 +101,7 @@ public class PositionClipboardTransferer extends SimpleSubPanel {
 				loc.setLatitude(lat);
 				loc.setLongitude(lon);
 				
-				System.out.println(loc);
+				NeptusLog.pub().info("<###> "+loc);
 				
 				CoordinateUtil.copyToClipboard(loc);
 			}

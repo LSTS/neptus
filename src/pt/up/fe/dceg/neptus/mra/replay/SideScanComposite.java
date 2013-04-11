@@ -65,7 +65,7 @@ public class SideScanComposite implements Composite {
                 int[] srcPixels = new int[width];
                 int[] dstPixels = new int[width];
 
-//                System.out.println(src.getWidth() + " " + src.getHeight() + " " + dstIn.getWidth() + " " + dstIn.getHeight());
+//                NeptusLog.pub().info("<###> "+src.getWidth() + " " + src.getHeight() + " " + dstIn.getWidth() + " " + dstIn.getHeight());
 
                 for (int y = 0; y < height; y++) {
                     src.getDataElements(0, y, width, 1, srcPixels);

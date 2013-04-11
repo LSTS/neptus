@@ -260,7 +260,7 @@ public class VehicleFormation extends FollowTrajectory {
                 offsets[0] = participant.getDouble("off_x");
                 offsets[1] = participant.getDouble("off_y");
                 offsets[2] = participant.getDouble("off_z");          
-                System.out.println(vt);
+                NeptusLog.pub().info("<###> "+vt);
                 if (vt != null) {
                     participants.add(vt);
                     participantOffsets.add(offsets);
@@ -590,7 +590,7 @@ public class VehicleFormation extends FollowTrajectory {
         formation.getParticipantOffsets().add(new Double[] {0d,1d,2d});
         formation.getParticipantOffsets().add(new Double[] {3d,4d,5d});
         formation.getParticipantOffsets().add(new Double[] {6d,7d,8d});
-        System.out.println(formation.getManeuverAsDocument("VehicleFormation").asXML());
+        NeptusLog.pub().info("<###> "+formation.getManeuverAsDocument("VehicleFormation").asXML());
         MissionType mt = new MissionType();
         PlanType plan = new PlanType(mt);
         plan.getGraph().addManeuver(formation);        
@@ -602,6 +602,6 @@ public class VehicleFormation extends FollowTrajectory {
         GuiUtils.testFrame(r2d);
          */
         VehicleFormation formation = new VehicleFormation();
-        System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(formation.getManeuverAsDocument("VehicleFormation")));
+        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(formation.getManeuverAsDocument("VehicleFormation")));
     }
 }

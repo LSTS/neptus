@@ -35,8 +35,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import com.google.common.eventbus.AsyncEventBus;
-
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.AcousticSystems;
@@ -70,6 +68,8 @@ import pt.up.fe.dceg.neptus.util.comm.manager.SystemCommBaseInfo;
 import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
 import pt.up.fe.dceg.neptus.util.conf.PreferencesListener;
 import pt.up.fe.dceg.neptus.util.llf.NeptusMessageLogger;
+
+import com.google.common.eventbus.AsyncEventBus;
 
 /**
  * @author pdias
@@ -140,7 +140,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
             if (message == null || !StringUtils.isTokenInList("Announce,EntityList", message.getAbbrev())) {
                 if (!useActivityCounter) {
                     sys.setActive(isActive);
-                    // System.out.println(sys.getName()+": "+isActive()+"  "+(message !=
+                    // NeptusLog.pub().info("<###> "+sys.getName()+": "+isActive()+"  "+(message !=
                     // null?message.getAbbrevName():""));
                 }
                 else {

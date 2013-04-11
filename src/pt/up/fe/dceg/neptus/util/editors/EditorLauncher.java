@@ -135,7 +135,7 @@ implements Runnable, FileHandler
 			jButton.setMnemonic(java.awt.event.KeyEvent.VK_D);
 			jButton.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					System.out.println("actionPerformed()");
+					NeptusLog.pub().info("<###>actionPerformed()");
 					getJFrame().dispose();
 				}
 			});
@@ -302,7 +302,7 @@ implements Runnable, FileHandler
                 jTextField.setText(exeCmd + " " + path);
                 showFramed();
                 ps.waitFor();                
-                System.out.println(ps.exitValue());
+                NeptusLog.pub().info("<###> "+ps.exitValue());
                 jFrame.dispose();
                 
             }
@@ -335,7 +335,7 @@ implements Runnable, FileHandler
 			jButton1.setMnemonic(java.awt.event.KeyEvent.VK_T);
 			jButton1.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					System.out.println("actionPerformed()");
+					NeptusLog.pub().info("<###>actionPerformed()");
 					ps.destroy();
 					jFrame.dispose();
 				}
@@ -377,7 +377,7 @@ implements Runnable, FileHandler
         EditorLauncher ed = new EditorLauncher();
         boolean rsb = ed.editFile("/home/zp/teste.txt",
                 ed.TEXT_EDITOR_TYPE, true);
-        System.out.println(">" + rsb);
+        NeptusLog.pub().info("<###>>" + rsb);
     }
 
 	

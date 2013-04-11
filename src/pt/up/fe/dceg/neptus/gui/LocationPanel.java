@@ -652,14 +652,14 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
         LocationType loc = new LocationType(41, -8);
         loc.setDepth(-45);
         
-        System.out.println(loc.asXML());
+        NeptusLog.pub().info("<###> "+loc.asXML());
         
         LocationType other = new LocationType();
         other.setLocation(loc);
-        System.out.println(other.asXML());
+        NeptusLog.pub().info("<###> "+other.asXML());
 
         loc = LocationPanel.showLocationDialog("Testing..", loc, null);
-        System.out.println("AFTER:");
-        System.out.println(loc.asXML());
+        NeptusLog.pub().info("<###>AFTER:");
+        NeptusLog.pub().info("<###> "+loc.asXML());
     }
 }

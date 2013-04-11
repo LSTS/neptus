@@ -167,8 +167,8 @@ implements PropertyChangeListener
         /*
         this.addMouseListener(new java.awt.event.MouseAdapter() { 
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                System.out.println("mouseClickedItemCI()" + e.isControlDown());
-                System.out.println("Source" + ((Component)e.getSource()).getParent().getParent().getParent().getParent().getClass());
+                NeptusLog.pub().info("<###>mouseClickedItemCI()" + e.isControlDown());
+                NeptusLog.pub().info("<###>Source" + ((Component)e.getSource()).getParent().getParent().getParent().getParent().getClass());
                 MyJTaskPaneGroup mjtpg = getMyJTaskPaneGroupFromItem((Component) e
                             .getSource()); 
                 }});
@@ -293,7 +293,7 @@ implements PropertyChangeListener
             checkBox.setInheritsPopupMenu(true);
 			checkBox.addItemListener(new ItemListener() { 
 				public void itemStateChanged(ItemEvent e) {    
-					//System.out.println("itemStateChanged()");
+					//NeptusLog.pub().info("<###>itemStateChanged()");
                     MyJTaskPaneGroup mtpg = getMyJTaskPaneGroupFromItem(CheckItemPanel.this);
                     if (getCheckBox().isSelected()) {
                         setBackground(CHECK_COLOR);
@@ -444,7 +444,7 @@ implements PropertyChangeListener
 			noteTextArea.addKeyListener(new KeyAdapter() {
 					@Override
 			        public void keyTyped(KeyEvent e) {
-			            //System.out.println("keyTyped()");
+			            //NeptusLog.pub().info("<###>keyTyped()");
                         CheckItemPanel.this.fireChangeEvent((Component) e.getSource());
 			        }
 			        
@@ -471,7 +471,7 @@ implements PropertyChangeListener
 			noteToggleButton.setFont(new Font("Dialog", Font.BOLD, 10));
 			noteToggleButton.addItemListener(new ItemListener() { 
 				public void itemStateChanged(ItemEvent e) {    
-					//System.out.println("itemStateChanged()");
+					//NeptusLog.pub().info("<###>itemStateChanged()");
 					if (getNoteToggleButton().isSelected()) {
 					    getNotesPanel().setVisible(true);
 					    getActionsPanel().setVisible(true);
@@ -480,7 +480,7 @@ implements PropertyChangeListener
 					    getNotesPanel().setVisible(false);
 					    getActionsPanel().setVisible(false);
 					}
-					//System.out.println("Text press");
+					//NeptusLog.pub().info("<###>Text press");
 				}
 			});
 		}
@@ -502,7 +502,7 @@ implements PropertyChangeListener
     		dateChangedLabel.addPropertyChangeListener("text",
     		        new PropertyChangeListener() {
     		                public void propertyChange(PropertyChangeEvent e) {
-    		                    //System.out.println("propertyChange(text)");
+    		                    //NeptusLog.pub().info("<###>propertyChange(text)");
                                 // TODO Auto-generated property Event stub "text" 
     		                }
     		            });
@@ -588,13 +588,13 @@ implements PropertyChangeListener
         ci.setNote(noteTextArea.getText());
         
         Component[] list = getActionsListPanelHolder().getComponents();
-        //System.out.println("num de elem: "+list.length);
+        //NeptusLog.pub().info("<###>num de elem: "+list.length);
         for(Component c : list) {
-        	//System.out.println("antes de tentar");
+        	//NeptusLog.pub().info("<###>antes de tentar");
         	try {			
-        		//System.out.println(c);
+        		//NeptusLog.pub().info("<###> "+c);
         		ci.addAutoSubItem( ((CheckSubItem) c).getCheckAutoSubItem());
-        		//System.out.println("adicionou");
+        		//NeptusLog.pub().info("<###>adicionou");
         	}
         	catch (Exception e2) {
         		//e2.printStackTrace();

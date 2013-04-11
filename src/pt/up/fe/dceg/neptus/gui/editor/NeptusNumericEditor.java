@@ -40,6 +40,8 @@ import java.util.Locale;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.swing.LookAndFeelTweaks;
 
@@ -52,7 +54,7 @@ public class NeptusNumericEditor extends AbstractPropertyEditor {
 	protected static NumberFormat nf = new DecimalFormat("###.##");
 	
 	public NeptusNumericEditor() {
-		System.out.println("Created a numericeditor!");
+		NeptusLog.pub().info("<###>Created a numericeditor!");
 		textField.setLocale(Locale.US);
 		editor = new JPanel(new BorderLayout(0,0));
 		((JPanel)editor).add(textField, BorderLayout.CENTER);

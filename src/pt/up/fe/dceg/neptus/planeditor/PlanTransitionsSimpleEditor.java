@@ -129,7 +129,7 @@ public class PlanTransitionsSimpleEditor extends JPanel {
 //        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
 //            strNodes += " \"" + man.getId() + "\"";
 //        }
-//        System.out.println(str);
+//        NeptusLog.pub().info("<###> "+str);
         setLayout(new BorderLayout(5, 10));
 //        add(new JLabel(strNodes), BorderLayout.NORTH);
         
@@ -314,7 +314,7 @@ public class PlanTransitionsSimpleEditor extends JPanel {
             for (PlanTransitionGuiPanel pttr : toRemoveFromPlanGraph) {
                 if (pttr.transition != null) {
                     transitions.remove(pttr.transition.getId());
-                    //System.out.println("Transition: "+pttr.transition.getId());
+                    //NeptusLog.pub().info("<###>Transition: "+pttr.transition.getId());
                 }
             }
         }

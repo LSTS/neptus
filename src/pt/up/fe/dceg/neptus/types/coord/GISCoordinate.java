@@ -6,6 +6,8 @@
 
 package pt.up.fe.dceg.neptus.types.coord;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  *
  * @author  Tomer Petel (tomer@pacbell.net)
@@ -399,14 +401,14 @@ public class GISCoordinate {
             System.out.println();
             double movedist=2640;//5280.0;
             double movedeg=167; 
-            System.out.println("Moving "+movedist+" Feet, in a direction of "+movedeg+" degrees...");
+            NeptusLog.pub().info("<###>Moving "+movedist+" Feet, in a direction of "+movedeg+" degrees...");
             g.move(movedist, movedeg, NAD83);
             System.out.print("New location in decimal degrees:");
             g.printDEGDEC(System.out);
             System.out.println();
             System.out.print("New location in degrees:");
             g.printDEGMIN(System.out);
-            System.out.println("\ntesting the toString function:"+GISCoordinate.FromString(g.toString()).toString());
+            NeptusLog.pub().info("<###>\ntesting the toString function:"+GISCoordinate.FromString(g.toString()).toString());
         } catch (Throwable t) {
             t.printStackTrace();
         }

@@ -750,7 +750,7 @@ public class ImcMsgManager extends
             imcState.setMessage(msg);
             
             vci = getCommInfoById(id);
-            // System.out.println(localId + " " + id);
+            // NeptusLog.pub().info("<###> "+localId + " " + id);
             if (!ImcId16.NULL_ID.equals(id) && !ImcId16.BROADCAST_ID.equals(id) && !ImcId16.ANNOUNCE.equals(id)
                     && !localId.equals(id)) {
                 if (Announce.ID_STATIC == msg.getMgid()) {
@@ -783,7 +783,7 @@ public class ImcMsgManager extends
                                     + vci.getSystemCommId() + ".");
                     vci.onMessage(info, msg);
 //                    bus.post(msg);
-                    //System.out.println(msg.hashCode());
+                    //NeptusLog.pub().info("<###> "+msg.hashCode());
                     return true;
                 }
             }
@@ -915,7 +915,7 @@ public class ImcMsgManager extends
         String type = ann.getSysType().toString();
         vci.setSystemIdName(name);
         ImcSystem resSys = ImcSystemsHolder.lookupSystem(id);
-        // System.out.println("......................Announce..." + name + " | " + type + " :: " + hostUdp + "  " +
+        // NeptusLog.pub().info("<###>......................Announce..." + name + " | " + type + " :: " + hostUdp + "  " +
         // portUdp);
         // NeptusLog.pub().warn(ReflectionUtil.getCallerStamp()+ " ..........................| " + name + " | " + type);
         if (resSys != null) {
@@ -1762,7 +1762,7 @@ public class ImcMsgManager extends
 
         ImcSystem[] systems = ImcSystemsHolder.lookupActiveSystemCCUs();
         for (ImcSystem s : systems) {
-            System.out.println("sending msg '" + msg.getAbbrev() + "' to '" + s.getName() + "'...");
+            NeptusLog.pub().info("<###>sending msg '" + msg.getAbbrev() + "' to '" + s.getName() + "'...");
             ImcMsgManager.getManager().sendMessage(msg, s.getId(), null);
         }
     }

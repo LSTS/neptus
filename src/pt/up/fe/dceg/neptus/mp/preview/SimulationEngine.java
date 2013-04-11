@@ -147,11 +147,11 @@ public class SimulationEngine {
                 Maneuver next = plan.getGraph().getFollowingManeuver(m.getId());
                 if (next == null) {
                     finished = true;
-                    NeptusLog.pub().warn("Plan finished at " + new Date());
+                    NeptusLog.pub().info("Plan finished at " + new Date());
                 }
                 else{
                     manId = next.getId();
-                    NeptusLog.pub().info("Simulating " + manId);
+                    NeptusLog.pub().debug("Simulating " + manId);
                 }
             }
             catch (Exception e) {

@@ -363,12 +363,12 @@ public class MapGroup implements MapChangeListener {
 	 *
 	 */
 	public void warnListeners(MapChangeEvent changeEvent) {
-	//	System.out.println(ReflectionUtil.getCallerStamp());
-		//System.out.println("Warning "+listeners.size()+" listeners");
+	//	NeptusLog.pub().info("<###> "+ReflectionUtil.getCallerStamp());
+		//NeptusLog.pub().info("<###>Warning "+listeners.size()+" listeners");
 		for (int i = 0; i < listeners.size(); i++) {
 			
 			MapChangeListener tmp = listeners.get(i);
-			//vSystem.out.println(tmp.getClass());
+			//vNeptusLog.pub().info("<###> "+tmp.getClass());
 			tmp.mapChanged(changeEvent);
 		}
 	}
@@ -562,7 +562,7 @@ public class MapGroup implements MapChangeListener {
 		for (int i = elems.length-1; i >= 0; i--) {			
 			IMCMessage shpMsg = createShape(elems[i]);
 			if (shpMsg != null) {
-				//System.out.println("Shape for element "+elems[i].getType()+"-"+elems[i].getId()+" is not null");
+				//NeptusLog.pub().info("<###>Shape for element "+elems[i].getType()+"-"+elems[i].getId()+" is not null");
 				if (nextShape != null)
 					shpMsg.setValue("nextshape", nextShape);
 				else
@@ -570,7 +570,7 @@ public class MapGroup implements MapChangeListener {
 				
 				nextShape = shpMsg;
 			}
-			//System.out.println("Shape for element "+elems[i].getType()+"-"+elems[i].getId()+" is null");
+			//NeptusLog.pub().info("<###>Shape for element "+elems[i].getType()+"-"+elems[i].getId()+" is null");
 		}
 		if (nextShape != null)
 			msg.setValue("features", nextShape);

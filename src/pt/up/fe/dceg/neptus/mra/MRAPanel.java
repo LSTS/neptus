@@ -326,7 +326,7 @@ public class MRAPanel extends JPanel {
             loc.translatePosition(state.getDouble("x"), state.getDouble("y"), 0);
 
             if (loc.getDistanceInMeters(l) <= distance) {
-                System.out.println(marker.label + " --- " + state.getTimestampMillis());
+                NeptusLog.pub().info("<###> "+marker.label + " --- " + state.getTimestampMillis());
             }
         }
     }

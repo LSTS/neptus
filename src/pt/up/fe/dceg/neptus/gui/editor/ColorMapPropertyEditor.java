@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.gui.editor;
 
 import javax.swing.JComboBox;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.gui.ColorMapListRenderer;
@@ -78,7 +79,7 @@ public class ColorMapPropertyEditor extends AbstractPropertyEditor {
 			}
 			
 			public void setProperties(Property[] properties) {
-				System.out.println(properties[0]);
+				NeptusLog.pub().info("<###> "+properties[0]);
 			}
 			
 			public String[] getPropertiesErrors(Property[] properties) {

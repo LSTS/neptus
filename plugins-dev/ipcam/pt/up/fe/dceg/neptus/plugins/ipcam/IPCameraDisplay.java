@@ -70,8 +70,8 @@ import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.Popup;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
+import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -339,7 +339,7 @@ public class IPCameraDisplay extends SimpleSubPanel implements ConfigurationList
                         NeptusLog.pub().warn(e);
                     }
                 }
-                System.out.println("Thread exiting...");
+                NeptusLog.pub().info("<###>Thread exiting...");
             }
         };
     }
@@ -351,11 +351,13 @@ public class IPCameraDisplay extends SimpleSubPanel implements ConfigurationList
         int offset = 0;
         char prev = '\0';
         int r = 0;
+        
         while (prev != '\n') {
             try {
                 r = is.read(buff, offset, 1);
             }
             catch (Exception e) {
+                e.printStackTrace();
                 return "ERROR";
             }
             if (r == -1)

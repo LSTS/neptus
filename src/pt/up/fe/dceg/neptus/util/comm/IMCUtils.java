@@ -676,7 +676,7 @@ public class IMCUtils {
         for (IMCMessage m : transps)
             msgs.add(m);
 
-        System.out.println("Sending the mission spec (plan) to " + destination.getHostName() + ":"
+        NeptusLog.pub().info("<###>Sending the mission spec (plan) to " + destination.getHostName() + ":"
                 + destination.getPort() + "...");
         msg = generatePlanSpecification(mt.getIndividualPlansList().get(planId));
         msgs.add(msg);
@@ -1065,7 +1065,7 @@ public class IMCUtils {
                         ap.setDisplayName(headerType.getLongFieldName(hf));
                     }
                     else {
-                        System.out.println(hf + " is null [" + 
+                        NeptusLog.pub().info("<###> "+hf + " is null [" + 
                                 // headerType.getFieldType(hf)+"]");
                                 headerType.getTypeOf(hf)+"]");
                         continue;
@@ -1242,11 +1242,11 @@ public class IMCUtils {
                 + "http://172.16.216.1:8080/dune;" + "neptus:///uid/1294925553839635/;"
                 + "dune:///uid/81294925553839635/;";
 
-        System.out.println(getServiceProvided(services, "imc+udp", "*"));
-        System.out.println(getServiceProvided(services, "http", "dune"));
-        System.out.println(getServiceProvided(services, "*", "*"));
-        System.out.println(getServiceProvided(services, "dune", "*"));
-        System.out.println(getServiceProvided(services, "*", "uid"));
+        NeptusLog.pub().info("<###> "+getServiceProvided(services, "imc+udp", "*"));
+        NeptusLog.pub().info("<###> "+getServiceProvided(services, "http", "dune"));
+        NeptusLog.pub().info("<###> "+getServiceProvided(services, "*", "*"));
+        NeptusLog.pub().info("<###> "+getServiceProvided(services, "dune", "*"));
+        NeptusLog.pub().info("<###> "+getServiceProvided(services, "*", "uid"));
 
         // ConfigFetch.initialize();
         //
@@ -1284,10 +1284,10 @@ public class IMCUtils {
          * @Override public void actionPerformed(ActionEvent e) { System.out.print("creating inetsocket...");
          * 
          * InetSocketAddress addrs = new InetSocketAddress(addr.getText(), Integer.parseInt(port.getText()));
-         * System.out.println("DONE."); System.out.print("sending...");
+         * NeptusLog.pub().info("<###>DONE."); System.out.print("sending...");
          * 
          * boolean ret = sendMissionConfiguration(mt, plans .getSelectedItem().toString(), addrs);
-         * System.out.println("DONE."); System.out.println(ret); } });
+         * NeptusLog.pub().info("<###>DONE."); NeptusLog.pub().info("<###> "+ret); } });
          * 
          * JButton missButton = new JButton("Mission..."); missButton.addActionListener(new ActionListener() {
          * 
@@ -1314,15 +1314,15 @@ public class IMCUtils {
         Vector<IMCMessage> emlst = extractMessagesFromMessageListMsg(mlst);
         GuiUtils.printList(emlst);
 
-        System.out.println("\n\n\n\n");
-        System.out.println(reduceSystemName("lauv-seacon-1"));
-        System.out.println(reduceSystemName("lauv-xtreme-2"));
-        System.out.println(reduceSystemName("lauv-noptilus-0"));
-        System.out.println(reduceSystemName("ccu-pdias-88-191"));
-        System.out.println(reduceSystemName("ccu-pdias-388-191"));
-        System.out.println(reduceSystemName("cularis-05"));
-        System.out.println(reduceSystemName("pilatus-07"));
-        System.out.println(reduceSystemName("adamastor"));
-        System.out.println(reduceSystemName("swordfish"));
+        NeptusLog.pub().info("<###>\n\n\n\n");
+        NeptusLog.pub().info("<###> "+reduceSystemName("lauv-seacon-1"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("lauv-xtreme-2"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("lauv-noptilus-0"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("ccu-pdias-88-191"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("ccu-pdias-388-191"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("cularis-05"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("pilatus-07"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("adamastor"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("swordfish"));
     }
 }

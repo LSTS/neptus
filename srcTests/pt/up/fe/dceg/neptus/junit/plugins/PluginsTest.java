@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.junit.plugins;
 import java.util.LinkedHashMap;
 
 import junit.framework.TestCase;
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.plugins.SubPanelProvider;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.PluginClassLoader;
@@ -56,7 +57,7 @@ public class PluginsTest extends TestCase {
         for (String p : sp.keySet()) {
             Object o = null;
             try {
-                System.out.println("instantiating "+p);
+                NeptusLog.pub().info("<###>instantiating "+p);
                 o = sp.get(p).newInstance();
             }
             catch (Error e) {
@@ -78,7 +79,7 @@ public class PluginsTest extends TestCase {
         for (String p : sp.keySet()) {
             Object o = null;
             try {
-                System.out.println("instantiating "+p);
+                NeptusLog.pub().info("<###>instantiating "+p);
                 o = sp.get(p).newInstance();
             }
             catch (Error e) {

@@ -51,6 +51,7 @@ import javax.media.j3d.TransformGroup;
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.colormap.InterpolationColorMap;
@@ -211,7 +212,7 @@ public class ScatterPointsElement extends AbstractElement {
 		setLastAdded(new Point3d(offsetNorth, offsetEast, offsetDown));
 		getParentMap().warnChangeListeners(mce);
 //		getMapGroup().warnListeners(mce);
-		//System.out.println("I send mce to "+getMapGroup());
+		//NeptusLog.pub().info("<###>I send mce to "+getMapGroup());
 		//lock.unlock();
 		setLastAdded(null);
 	}
@@ -243,7 +244,7 @@ public class ScatterPointsElement extends AbstractElement {
 
 		Material mat = new Material();
 		gradientcolor++;
-		System.out.println(gradientcolor);
+		NeptusLog.pub().info("<###> "+gradientcolor);
 		//0xfffffffB
 		//Color color=Color.WHITE;
 		//Color color=new Color(gradientcolor, gradientcolor, gradientcolor);

@@ -31,6 +31,8 @@
  */
 package pt.up.fe.dceg.neptus.types.coord;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * Code from http://www.gpsy.com/gpsinfo/geotoutm/gantz/LatLong-UTMconversion.cpp
  * @author ZP
@@ -62,8 +64,8 @@ public class UTMCoordinates {
 		this.latitudeDegrees = latitudeDegrees;
 		this.longitudeDegrees = longitudeDegrees;
 		LLtoUTM();		
-		//System.out.println(latitude);
-		//System.out.println(longitude);
+		//NeptusLog.pub().info("<###> "+latitude);
+		//NeptusLog.pub().info("<###> "+longitude);
 	}
 	
 	private void UTMtoLL() {
@@ -222,7 +224,7 @@ public class UTMCoordinates {
         northing = utmNorthing;
         easting = utmEasting;
         
-        //System.out.println("Easting: "+easting+ " Northing: "+northing);
+        //NeptusLog.pub().info("<###>Easting: "+easting+ " Northing: "+northing);
         
         zoneNumber = zoneNumberTmp;
         zoneLetter = 'N';
@@ -344,32 +346,32 @@ public class UTMCoordinates {
 	
 	public static void main(String[] args) {
 	    UTMCoordinates utm = new UTMCoordinates(41, -8); 
-	    System.out.println("\nUTM: northing:4539238.6   easthing:584102.1 zone:29 N");
+	    NeptusLog.pub().info("<###>\nUTM: northing:4539238.6   easthing:584102.1 zone:29 N");
 	    // NATO UTM (Military Grid Reference System (MGRS)): northing:39238.6     easthing:84102.1 long_zone:29 lat_zone:T digraph:NF
 	    
-	    System.out.println("northing: " + utm.getNorthing() + "   easting: " + utm.getEasting() +
+	    NeptusLog.pub().info("<###>northing: " + utm.getNorthing() + "   easting: " + utm.getEasting() +
 	            "  zone number: " + utm.getZoneNumber() + 
 	            "  zone letter: " + utm.getZoneLetter());
 	    
         UTMCoordinates utm2 = new UTMCoordinates(584102.1, 4539238.6, 29, 'N'); 
-        System.out.println("lat: " + utm2.getLatitudeDegrees() + "   lon: " + utm2.getLongitudeDegrees());
+        NeptusLog.pub().info("<###>lat: " + utm2.getLatitudeDegrees() + "   lon: " + utm2.getLongitudeDegrees());
         
         
         utm = new UTMCoordinates(40.5, -73.5);
-        System.out.println("\nUTM: northing:4484335.4   easthing:627103.1 zone:18 N");
-        System.out.println("northing: " + utm.getNorthing() + "   easting: " + utm.getEasting() +
+        NeptusLog.pub().info("<###>\nUTM: northing:4484335.4   easthing:627103.1 zone:18 N");
+        NeptusLog.pub().info("<###>northing: " + utm.getNorthing() + "   easting: " + utm.getEasting() +
                 "  zone number: " + utm.getZoneNumber() + 
                 "  zone letter: " + utm.getZoneLetter());
 
         utm = new UTMCoordinates(-26, 65);
-        System.out.println("\nUTM: northing:7122784.2   easthing:700180.5 zone:41 S");
-        System.out.println("northing: " + utm.getNorthing() + "   easting: " + utm.getEasting() +
+        NeptusLog.pub().info("<###>\nUTM: northing:7122784.2   easthing:700180.5 zone:41 S");
+        NeptusLog.pub().info("<###>northing: " + utm.getNorthing() + "   easting: " + utm.getEasting() +
                 "  zone number: " + utm.getZoneNumber() + 
                 "  zone letter: " + utm.getZoneLetter());
 
         utm = new UTMCoordinates(38.094097, -118.86528);
-        System.out.println("\nUTM: northing:4217898.3   easthing:336435.9 zone:11 N");
-        System.out.println("northing: " + utm.getNorthing() + "   easting: " + utm.getEasting() +
+        NeptusLog.pub().info("<###>\nUTM: northing:4217898.3   easthing:336435.9 zone:11 N");
+        NeptusLog.pub().info("<###>northing: " + utm.getNorthing() + "   easting: " + utm.getEasting() +
                 "  zone number: " + utm.getZoneNumber() + 
                 "  zone letter: " + utm.getZoneLetter());
 	}

@@ -44,6 +44,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.imc.Distance;
@@ -110,7 +111,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     }
 
     public void generateImage() {
-        System.out.println("Generating Echo sounder image");
+        NeptusLog.pub().info("<###>Generating Echo sounder image");
         int c = 0;
         Iterator<IMCMessage> i= source.getLsfIndex().getIterator("SonarData");
         for(IMCMessage msg = i.next(); i.hasNext(); msg = i.next()) {
@@ -130,7 +131,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
             if(msg.getInteger("type") == SonarData.TYPE.ECHOSOUNDER.value()) {
                 int y = 0;
                 for(byte b : msg.getRawData("data")) {
-                    //                    System.out.println(x + " " + y + " " + b + " " + new Byte(b).doubleValue() + " " + colormap.getColor(new Byte(b).doubleValue()).getBlue());
+                    //                    NeptusLog.pub().info("<###> "+x + " " + y + " " + b + " " + new Byte(b).doubleValue() + " " + colormap.getColor(new Byte(b).doubleValue()).getBlue());
                     image.setRGB(x, imageHeight - y - 1, colormap.getColor(new Byte(b).doubleValue() * 2 / 255).getRGB());
                     y++;
                 }
@@ -167,7 +168,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     }
     @Override
     public void paint(Graphics g) {
-        System.out.println(this.getWidth() + " " + this.getHeight());
+        NeptusLog.pub().info("<###> "+this.getWidth() + " " + this.getHeight());
         g.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), 0, 0, imageWidth, imageHeight,null);
     }
 

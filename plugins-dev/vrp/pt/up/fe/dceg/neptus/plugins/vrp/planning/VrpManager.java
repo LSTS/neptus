@@ -39,6 +39,7 @@ import java.util.Vector;
 
 import javax.vecmath.Point2d;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import drasys.or.graph.DuplicateVertexException;
 import drasys.or.graph.EdgeI;
 import drasys.or.graph.GraphI;
@@ -121,25 +122,25 @@ public class VrpManager {
 
         Vector<?>[] tours = null;
         try {
-            System.out.println("chamada ao solver");
+            NeptusLog.pub().debug("solver called");
             vrp.constructClosedTours("Depot");
-            System.out.println("passou");
+            NeptusLog.pub().debug("passed");
             tours = vrp.getTours();
         }
         catch (SolutionNotFoundException e) {
             // TODO Auto-generated catch block
-            System.out.println("solution not found");
+            NeptusLog.pub().debug("solution not found");
             e.printStackTrace();
         }
         catch (VertexNotFoundException e) {
-            System.out.println("Vertex not found");
+            NeptusLog.pub().debug("vertex not found");
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
         double meters = 0;
         if (n_vehicles == tours.length)
-            System.out.println("OK - One path for each vehicle");
+            NeptusLog.pub().info("solved - One path for each vehicle");
 
         for (int i = 0; i < tours.length; i++) {
             Vector<Point2d> path = new Vector<Point2d>();
@@ -167,7 +168,7 @@ public class VrpManager {
         }
         String msg = "Vehicles - " + tours.length + ", ";
         msg += "Distance(Km) - " + meters / 1000;
-        System.out.println(msg);
+        NeptusLog.pub().info(msg);
 
         dist = meters;
         // ------------------------------------------------------------------
@@ -181,15 +182,15 @@ public class VrpManager {
         while (returnVector.size() != n_vehicles) {
 
             vrp.setCostConstraint(rangeConstraint/* rangeConstraint*1000 */);
-            System.out.println("range:" + rangeConstraint);
-            System.out.println("step:" + step);
-            System.out.println("Vehicles:" + returnVector.size());
-            System.out.println("Last:" + last);
+            NeptusLog.pub().debug("range:" + rangeConstraint);
+            NeptusLog.pub().debug("step:" + step);
+            NeptusLog.pub().debug("Vehicles:" + returnVector.size());
+            NeptusLog.pub().debug("Last:" + last);
 
             try {
-                System.out.println("chamada ao solver");
+                NeptusLog.pub().debug("solver was called");
                 vrp.constructClosedTours("Depot");
-                System.out.println("passou");
+                NeptusLog.pub().debug("passed");
                 tours = vrp.getTours();
 
                 if (last == 0)
@@ -197,7 +198,7 @@ public class VrpManager {
             }
             catch (SolutionNotFoundException e) {
                 // TODO Auto-generated catch block
-                System.out.println("solution not found : increasin distance");
+                NeptusLog.pub().debug("solution not found : increasing distance");
                 // e.printStackTrace();
                 if (last != 0)
                     step /= 2;
@@ -206,7 +207,7 @@ public class VrpManager {
 
             }
             catch (VertexNotFoundException e) {
-                System.out.println("Vertex not found");
+                NeptusLog.pub().debug("Vertex not found");
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
@@ -286,7 +287,7 @@ public class VrpManager {
      * 
      * returnVector = computePathsSingleDepot2(depot, pointList, n_vehicles, rangeConstraint);
      * 
-     * System.out.println("Vehicles foud"+returnVector.size()); System.out.println("Total dist"+dist);
+     * NeptusLog.pub().info("<###>Vehicles foud"+returnVector.size()); NeptusLog.pub().info("<###>Total dist"+dist);
      * 
      * if (returnVector.size() > n_vehicles) { if (last < 0) { step /= 2; }
      * 
@@ -344,7 +345,7 @@ public class VrpManager {
         });
         for (int i = 0; i <= sizeVisitPoints; i++) {
             if (arrayCHull.get(i) == depot)
-                System.out.println("encontrei depot");
+                NeptusLog.pub().info("found depot");
         }
 
         ArrayList<Point2d> hull = CHull.cHull(arrayCHull);
@@ -365,7 +366,7 @@ public class VrpManager {
             e.printStackTrace();
         }
         if (depot_out_hull) {
-            System.out.println("Depot fora");
+            NeptusLog.pub().debug("depot is out");
             hull = CHull.resizePath(n_vehicles + 1, hull, arrayCHull, depot);
 
             // int index_aux=-1; // must find depot on hull
@@ -373,7 +374,7 @@ public class VrpManager {
             // {
             // if( hull.get(i)==d)
             // {
-            // System.out.println("encontrei depot no resize hull");
+            // NeptusLog.pub().info("<###>encontrei depot no resize hull");
             // index_aux=i; // FOUND
             // }
             // }
@@ -384,7 +385,7 @@ public class VrpManager {
                     arrayVRP[i] = new PointIdoubleI(0, pointList.get(i - 1));
                     for (int x = 0; x < hull.size(); x++) {
                         if (hull.get(x) == arrayVRP[i].getPoint2d()) {
-                            System.out.println("encontrei listpoint em hull (ponto com carga 1)");
+                            NeptusLog.pub().debug("found listpoint in hull");
                             arrayVRP[i].setLoad(1);
                         }
 
@@ -399,7 +400,7 @@ public class VrpManager {
 
         }
         else {
-            System.out.println("Depot dentro");
+            NeptusLog.pub().debug("depot is in");
             hull = CHull.resizePath(n_vehicles, hull, arrayCHull, null);
 
             arrayVRP = new PointIdoubleI[sizeVisitPoints + 1];
@@ -410,7 +411,7 @@ public class VrpManager {
                     arrayVRP[i] = new PointIdoubleI(0, pointList.get(i - 1));
                     for (int x = 0; x < hull.size(); x++) {
                         if (hull.get(x) == arrayVRP[i].getPoint2d()) {
-                            System.out.println("encontrei listpoint em hull (ponto com carga 1)");
+                            NeptusLog.pub().debug("found listpoint in hull");
                             arrayVRP[i].setLoad(1);
                         }
 
@@ -451,9 +452,9 @@ public class VrpManager {
 
         Vector<?>[] tours = null;
         try {
-            System.out.println("chamada ao solver");
+            NeptusLog.pub().debug("solver called");
             vrp.constructClosedTours("Depot");
-            System.out.println("passou");
+            NeptusLog.pub().debug("passed");
             tours = vrp.getTours();
         }
         catch (SolutionNotFoundException e) {
@@ -466,7 +467,7 @@ public class VrpManager {
         }
 
         if (n_vehicles == tours.length)
-            System.out.println("OK - One path for each vehicle");
+            NeptusLog.pub().debug("Solved - One path for each vehicle");
 
         Vector<Vector<Point2d>> returnVector = new Vector<Vector<Point2d>>();
 

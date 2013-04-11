@@ -208,7 +208,7 @@ public class TileMercadorSVG extends Tile {
                 
                 TileMercadorSVG.this.setState(TileState.LOADED);
                 saveTile();
-                //System.out.println(image);
+                //NeptusLog.pub().info("<###> "+image);
             }
         }.start();
     }

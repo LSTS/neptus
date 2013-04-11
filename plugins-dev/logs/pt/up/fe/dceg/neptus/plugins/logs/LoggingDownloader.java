@@ -355,12 +355,12 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
         LogsDownloaderWorker dw = getDownloadWorker();
         String[] listFolders = dw.doGiveListOfLogFolders();
         long nTotal = 0, nDownloading = 0, nError = 0, nNew = 0, nIncomplete = 0, nSync = 0, nUnknown = 0;
-        // System.out.println("listFolders  filter: "+listFolders.length);
+        // NeptusLog.pub().info("<###>listFolders  filter: "+listFolders.length);
         for (String strLFd : listFolders) {
             if (!isMissionLogFromToday(strLFd))
                 continue;
             LinkedHashMap<String, State> sfiles = dw.doGiveStateOfLogFolderFiles(strLFd);
-            // System.out.println(strLFd+"  filter: "+sfiles.size());
+            // NeptusLog.pub().info("<###> "+strLFd+"  filter: "+sfiles.size());
             for (String strFx : sfiles.keySet()) {
                 if (sfiles.get(strFx) != LogFolderInfo.State.LOCAL) {
                     nTotal++;
@@ -485,6 +485,7 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
                 scheduleDownloadListFromServer();
             }
             catch (Exception e) {
+                e.printStackTrace();
                 getDownloadWorker(id).setHost("");
                 getDownloadWorker(id).setLogLabel(id.toLowerCase());
                 getDownloadWorker(id).doReset(false);
@@ -795,7 +796,7 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
 
         Operation op = Operation.valueOf(msg.getString("op"));
 
-        System.out.println(op);
+        NeptusLog.pub().info("<###> "+op);
 
         GuiUtils.testFrame(new LoggingDownloader(null));
     }

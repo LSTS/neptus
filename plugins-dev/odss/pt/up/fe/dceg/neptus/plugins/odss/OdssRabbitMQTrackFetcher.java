@@ -372,7 +372,7 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
         try {
             channel.basicPublish(exchange, "", null, data);
             if (debugOn) {
-                System.out.println(" [x] Sent to exchange '" + exchange + "':\n" + ByteUtil.dumpAsHexToString(data));
+                NeptusLog.pub().info("<###> [x] Sent to exchange '" + exchange + "':\n" + ByteUtil.dumpAsHexToString(data));
             }
         }
         catch (IOException e) {
@@ -528,13 +528,13 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
                             
                             HashMap<String, PlatformReportType> sysBag = new HashMap<String, PlatformReportType>();
                             if (debugOn)
-                                System.out.println("Arrived message: " + pr.toString() + pr.hasType()
+                                NeptusLog.pub().info("<###>Arrived message: " + pr.toString() + pr.hasType()
                                         + "  from Exchange '" + exchangeName + "'");
                             if (!pr.hasName() && !pr.hasEpochSeconds() /*&& !pr.hasType()*/ && !pr.hasLatitude()
                                     && !pr.hasLongitude())
                                 continue;
                             if (debugOn)
-                                System.out.println("Message accepted from: " + ">>>" + pr.getName() + " and with"
+                                NeptusLog.pub().info("<###>Message accepted from: " + ">>>" + pr.getName() + " and with"
                                         + (pr.hasType() ? "" : "out") + " type" + "  from Exchange '" + exchangeName
                                         + "'");
                             PlatformType type = platformType;
@@ -582,7 +582,7 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
                             e.printStackTrace();
                         }
                         if (debugOn)
-                            System.out.println(" [x] Received '" + message + "'  from Exchange '" + exchangeName + "'");
+                            NeptusLog.pub().info("<###> [x] Received '" + message + "'  from Exchange '" + exchangeName + "'");
                     }
                     catch (ShutdownSignalException e) {
                         NeptusLog.pub().warn(OdssRabbitMQTrackFetcher.class.getSimpleName() + ": ShutdownSignalException" + "  from Exchange '" + exchangeName + "'");
@@ -593,7 +593,7 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
                         break;
                     }
                     catch (InterruptedException e) {
-                        // e.printStackTrace();
+                        e.printStackTrace();
                         break;
                     }
                 }
@@ -634,13 +634,13 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
                             
                             new HashMap<String, PlatformReportType>();
                             if (debugOn)
-                                System.out.println("Arrived message: " + pr.toString()
+                                NeptusLog.pub().info("<###>Arrived message: " + pr.toString()
                                         + "  from Exchange '" + exchangeName + "'");
 //                            if (!pr.hasName() && !pr.hasEpochSeconds() /*&& !pr.hasType()*/ && !pr.hasLatitude()
 //                                    && !pr.hasLongitude())
 //                                continue;
 //                            if (debugOn)
-//                                System.out.println("Message accepted from: " + ">>>" + pr.getName() + " and with"
+//                                NeptusLog.pub().info("<###>Message accepted from: " + ">>>" + pr.getName() + " and with"
 //                                        + (pr.hasType() ? "" : "out") + " type" + "  from Exchange '" + exchangeName
 //                                        + "'");
 
@@ -652,7 +652,7 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
                             e.printStackTrace();
                         }
                         if (debugOn)
-                            System.out.println(" [x] Received '" + message + "'  from Exchange '" + exchangeName + "'");
+                            NeptusLog.pub().info("<###> [x] Received '" + message + "'  from Exchange '" + exchangeName + "'");
                     }
                     catch (ShutdownSignalException e) {
                         NeptusLog.pub().warn(OdssRabbitMQTrackFetcher.class.getSimpleName() + ": ShutdownSignalException" + "  from Exchange '" + exchangeName + "'");
@@ -663,7 +663,7 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
                         break;
                     }
                     catch (InterruptedException e) {
-                        // e.printStackTrace();
+                        e.printStackTrace();
                         break;
                     }
                 }
@@ -714,9 +714,9 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
         rmq.fetchAISType = true;
         rmq.startComms();
         
-        try { Thread.sleep(30000); } catch (InterruptedException e) { }
+        try { Thread.sleep(30000); } catch (InterruptedException e) { e.printStackTrace();}
         rmq.stopComms();
-        try { Thread.sleep(10000); } catch (InterruptedException e) { }
+        try { Thread.sleep(10000); } catch (InterruptedException e) { e.printStackTrace();}
         rmq.fetchAISType = false;
         rmq.startComms();
     }

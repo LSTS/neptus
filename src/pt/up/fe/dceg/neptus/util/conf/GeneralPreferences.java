@@ -501,7 +501,7 @@ public class GeneralPreferences implements PropertiesProvider {
         GeneralPreferences.addPreferencesListener(new PreferencesListener() {
             @Override
             public void preferencesUpdated() {
-                System.out.println("preferencesUpdated");
+                NeptusLog.pub().info("<###>preferencesUpdated");
             }
         });
 

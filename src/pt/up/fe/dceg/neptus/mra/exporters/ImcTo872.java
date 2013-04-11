@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.util.llf.LsfLogSource;
@@ -126,7 +127,7 @@ public class ImcTo872 {
         catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("end");
+        NeptusLog.pub().info("<###>end");
     }
     
     public static void main(String args[]) throws Exception {

@@ -77,7 +77,7 @@ public class WebServerPlugin extends SimpleSubPanel implements ConfigurationList
 		alreadyStarted = true;
 		
         String menuPrefixStr = I18n.text("Settings") + ">" + I18n.text("Web Server") + ">";
-		//System.out.println("init WebServer");
+		//NeptusLog.pub().info("<###>init WebServer");
 		try {
             enabledMenuItem = addMenuItem(menuPrefixStr + I18n.text("Disable"),
                     ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {

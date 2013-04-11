@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.test;
 
 import java.io.File;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.ZipUtils;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
@@ -55,7 +56,7 @@ public class TestWorkspace
             if (!wsDir.exists())
             {
                 String fxWsPath = ConfigFetch.resolvePath("dist/workspace.jar");
-                System.out.println(fxWsPath);
+                NeptusLog.pub().info("<###> "+fxWsPath);
                 wsDir.mkdirs();
                 ZipUtils.unZip(fxWsPath, wsDir.getAbsolutePath());
                 //cf = ConfigFetch.initialize();

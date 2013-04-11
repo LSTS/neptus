@@ -106,8 +106,8 @@ public class Grid3D extends JDialog {
 		getCheckUE().setSelected(renderer.gUE);
 		getCheckUN().setSelected(renderer.gUN);
 		showValues.setSelected(renderer.gtext);
-		//System.out.println(String.valueOf(renderer.gdimension));
-		//System.out.println(String.valueOf(renderer.gspacing));
+		//NeptusLog.pub().info("<###> "+String.valueOf(renderer.gdimension));
+		//NeptusLog.pub().info("<###> "+String.valueOf(renderer.gspacing));
 		dimField.setText(String.valueOf(renderer.gdimension)); //converter float em String
 		cellSize.setText(String.valueOf(renderer.gspacing));
 		depthField.setText(String.valueOf(renderer.gcenter.z));
@@ -268,7 +268,7 @@ public class Grid3D extends JDialog {
 			colorBtn.setText("Color...");
 			colorBtn.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					//System.out.println("actionPerformed()"); // TODO Auto-generated Event stub actionPerformed()
+					//NeptusLog.pub().info("<###>actionPerformed()"); // TODO Auto-generated Event stub actionPerformed()
 					Color c = JColorChooser.showDialog(new JFrame(), "Select the grid color", getColor().getBackground());
 					if (c != null)
 						getColor().setBackground(c);

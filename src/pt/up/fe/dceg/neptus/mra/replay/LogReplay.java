@@ -293,7 +293,7 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
         currentTime = entry.getTimestamp();
 
         int sec = (int) (currentTime - startTime);
-        // System.out.println(">"+sec);
+        // NeptusLog.pub().info("<###>>"+sec);
         if (sec != timeline.getValue()) {
             timeline.setValue(sec);
             curTimeLbl.setText(format.format(new Date((long) (currentTime * 1000))) + " (" + speed + "x)");
@@ -348,7 +348,7 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
                     parser.firstLogEntry();
                 
                 if ((entry = parser.getEntryAtOrAfter((long) (missionTime * 1000))) != null) {
-                    System.out.println(entry.getSrc());
+                    NeptusLog.pub().info("<###> "+entry.getSrc());
                     currentTime = entry.getTimestamp();
                     setState(entry);
 
@@ -406,7 +406,7 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
     }
 
     public void play() {
-        System.out.println("play");
+        NeptusLog.pub().info("<###>play");
         if (timer != null) {
             timer.purge();
             timer.cancel();

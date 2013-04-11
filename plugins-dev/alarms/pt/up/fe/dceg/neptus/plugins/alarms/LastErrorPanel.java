@@ -240,9 +240,11 @@ public class LastErrorPanel extends SimpleSubPanel implements MainVehicleChangeL
                     getMainpanel().getAlarmlistener().updateAlarmsListeners(this);
                 }
                 catch (RuntimeException e) {
+                    e.printStackTrace();
                 }
             }
             catch (RuntimeException e) {
+                e.printStackTrace();
             }
             oldState = alarmState;
         }

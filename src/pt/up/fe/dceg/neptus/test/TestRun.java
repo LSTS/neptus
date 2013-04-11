@@ -33,6 +33,8 @@ package pt.up.fe.dceg.neptus.test;
 
 import java.io.IOException;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author Paulo
  *
@@ -52,10 +54,10 @@ public class TestRun
 
     public static void main(String[] args) throws IOException, InterruptedException
     {
-        System.out.println(System.getProperty("os.name"));
+        NeptusLog.pub().info("<###> "+System.getProperty("os.name"));
         Runtime rt = Runtime.getRuntime();
         Process ps = rt.exec("notepad");
         ps.waitFor();
-        System.out.println(ps.exitValue());
+        NeptusLog.pub().info("<###> "+ps.exitValue());
     }
 }

@@ -39,6 +39,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author Hugo Dias
  *
@@ -83,8 +85,8 @@ public class MapTileUtilTest {
         Point2D xy = MapTileUtil.degreesToXY(latitude, longitude, levelOfDetail);
         
         double[] actual = MapTileUtil.XYToDegrees(xy.getX(), xy.getY(), levelOfDetail);
-        System.out.println(latitude+","+longitude);
-        System.out.println(actual[0]+","+actual[1]);
+        NeptusLog.pub().info("<###> "+latitude+","+longitude);
+        NeptusLog.pub().info("<###> "+actual[0]+","+actual[1]);
 
     }
     
@@ -99,8 +101,8 @@ public class MapTileUtilTest {
         Point2D xy = MapTileUtil.degreesToXY(latitude, longitude, levelOfDetail);
         
         double[] actual = MapTileUtil.XYToDegrees(xy.getX()+deltaX, xy.getY()+deltaY, levelOfDetail);
-        System.out.println(latitude+","+longitude);
-        System.out.println(actual[0]+","+actual[1]);
+        NeptusLog.pub().info("<###> "+latitude+","+longitude);
+        NeptusLog.pub().info("<###> "+actual[0]+","+actual[1]);
 
     }
 

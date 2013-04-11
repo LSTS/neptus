@@ -135,7 +135,7 @@ public class ScaleBar extends JPanel {
 		if (getWidth() == 0)
 			return;
 
-		//System.out.println("chamou newvalues");
+		//NeptusLog.pub().info("<###>chamou newvalues");
 		//falha a 1 acaba  
 		//se passa à segunda condição ok -->
 		//NumberFormat nf = GuiUtils.getNeptusDecimalFormat(precision);
@@ -284,8 +284,8 @@ public class ScaleBar extends JPanel {
 					
 
 				//g.drawArc(borderx,bordery,width,height,-190,190);
-				//System.out.println(g2);
-				//System.out.println(bi);
+				//NeptusLog.pub().info("<###> "+g2);
+				//NeptusLog.pub().info("<###> "+bi);
 			} else {
 				Font font = new Font("Arial", Font.PLAIN,
 						2 * (int) ((axisy - bordery) + this.step) / 20);
@@ -382,8 +382,8 @@ public class ScaleBar extends JPanel {
 							width - (borderx * 10 + (int) (stringBounds.getWidth())),height-i);
 
 				//g.drawArc(borderx,bordery,width,height,-190,190);
-				//System.out.println(g2);
-				//System.out.println(bi);
+				//NeptusLog.pub().info("<###> "+g2);
+				//NeptusLog.pub().info("<###> "+bi);
 			}
 
 			g2.drawImage(bi, 0, 0, this);
@@ -400,10 +400,10 @@ public class ScaleBar extends JPanel {
 		for (int i = 00;; i += 2) {
 			//motor.reDraw();
 			try {//nada
-				//System.out.println("espera...");
+				//NeptusLog.pub().info("<###>espera...");
 				m.setValue(i);
 				Thread.sleep(100);
-				//System.out.println("esperou");
+				//NeptusLog.pub().info("<###>esperou");
 			} catch (Exception e) {
 			    e.printStackTrace();
 			}

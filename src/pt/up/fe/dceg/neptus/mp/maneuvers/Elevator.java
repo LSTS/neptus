@@ -249,7 +249,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
     }
 
     public String validatePitchAngleDegrees(float value) {
-        System.out.println("validate...");
+        NeptusLog.pub().info("<###>validate...");
         if (value < 0 || value > (float)45)
             return "Pitch angle shoud be bounded between [0\u00B0, 45\u00B0]";
         return null;
@@ -323,7 +323,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
         loc.setLatitude(Math.toDegrees(elev.getLat()));
         loc.setLongitude(Math.toDegrees(elev.getLon()));
         loc.setZ(elev.getEndZ());
-        System.out.println(elev.getEndZUnits());
+        NeptusLog.pub().info("<###> "+elev.getEndZUnits());
 //        loc.setZUnits(pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(elev.getEndZUnits().toString()));
         loc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(message.getString("end_z_units").toString()));
         setManeuverLocation(loc);

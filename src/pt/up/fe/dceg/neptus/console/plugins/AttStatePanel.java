@@ -191,9 +191,9 @@ public class AttStatePanel extends JPanel {
 			buss.setPitch(i/12);
 			buss.setRoll(i/13);
 			try {//nada
-				//System.out.println("espera...");
+				//NeptusLog.pub().info("<###>espera...");
 				Thread.sleep(10);
-				//System.out.println("esperou");
+				//NeptusLog.pub().info("<###>esperou");
 			}
 			catch (Exception e){
 			    e.printStackTrace();

@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import pt.up.fe.dceg.neptus.NeptusConfig;
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.Announce;
 import pt.up.fe.dceg.neptus.systems.links.ImcSystemLink;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -87,7 +88,7 @@ public class SystemsManager {
      */
     @Subscribe
     public void handleIMCAnnounce(Announce announce) {
-        System.out.println(announce.getSrc() + " " + announce.getSysName());
+        NeptusLog.pub().info("<###> "+announce.getSrc() + " " + announce.getSysName());
         int id = announce.getSrc();
         if (systems.containsKey(id)) {
             SystemType system = systems.get(id);

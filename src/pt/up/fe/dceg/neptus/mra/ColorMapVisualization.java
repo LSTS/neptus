@@ -448,13 +448,13 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
         Rectangle2D bounds = new Rectangle2D.Double(cx-dx/2, cy-dy/2, dx, dy);
 
         BufferedImage img = new BufferedImage(defaultWidth,defaultHeight,BufferedImage.TYPE_INT_ARGB);
-        System.out.println(img);
+        NeptusLog.pub().info("<###> "+img);
 
         try {
             ColorMapUtils.generateInterpolatedColorMap(bounds, dps, var, img.createGraphics(), img.getWidth(), img.getHeight(), 255, (ColorMap)cmapCombo.getSelectedItem(), dd.minVal[var]*0.995, dd.maxVal[var]*1.005);
         }
         catch (NullPointerException e) {
-            System.out.println(bounds+","+
+            NeptusLog.pub().info("<###> "+bounds+","+
                     dps+","+
                     img+","+
                     cmapCombo);

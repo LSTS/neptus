@@ -38,6 +38,8 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 
 /**
  * @author zp
@@ -66,13 +68,13 @@ public class GenerateLaunchers {
 		String batContents = readFile(srcBatFile);		
 		batContents = batContents.replaceFirst(replaceString, windowsLibs);		
 		
-		System.out.println("NEPTUS.BAT CONTENTS:\n"+batContents+"\n\n");		
+		NeptusLog.pub().info("<###>NEPTUS.BAT CONTENTS:\n"+batContents+"\n\n");		
 		writeFile(dstBatFile, batContents);
 		
 		String linuxLibs = listContents(libsDir, f, ':');
 		String shContents = readFile(srcShFile);
 		shContents = shContents.replaceFirst(replaceString, linuxLibs);
-		System.out.println("NEPTUS.SH CONTENTS:\n"+shContents+"\n");
+		NeptusLog.pub().info("<###>NEPTUS.SH CONTENTS:\n"+shContents+"\n");
 		
 		writeFile(dstShFile, shContents);
 		

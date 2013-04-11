@@ -40,6 +40,7 @@ import java.util.zip.GZIPInputStream;
 
 import javax.swing.JFileChooser;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.util.FileUtil;
 
@@ -71,11 +72,11 @@ public class ConcatenateLsfLog {
         destination.mkdirs();
         Arrays.sort(folders);
         
-        System.out.println(I18n.textf("Copying %filename", new File(folders[0], "IMC.xml").getAbsolutePath()));
+        NeptusLog.pub().info("<###> "+I18n.textf("Copying %filename", new File(folders[0], "IMC.xml").getAbsolutePath()));
         FileUtil.copyFile(new File(folders[0], "IMC.xml").getAbsolutePath(),
                 new File(destination, "IMC.xml").getAbsolutePath());
         
-        System.out.println(I18n.textf("Copying %filename", new File(folders[0], "Config.ini").getAbsolutePath()));
+        NeptusLog.pub().info("<###> "+I18n.textf("Copying %filename", new File(folders[0], "Config.ini").getAbsolutePath()));
         FileUtil.copyFile(new File(folders[0], "Config.ini").getAbsolutePath(),
                 new File(destination, "Config.ini").getAbsolutePath());
 
@@ -83,7 +84,7 @@ public class ConcatenateLsfLog {
             File src = new File(folder, "Data.lsf");
             if (src.canRead()) {
                 FileUtil.appendToFile(new File(destination, "Data.lsf"), new File(folder, "Data.lsf"));
-                System.out.println(I18n.textf("Concatenating %filename",new File(folder, "Data.lsf").getAbsolutePath()));
+                NeptusLog.pub().info("<###> "+I18n.textf("Concatenating %filename",new File(folder, "Data.lsf").getAbsolutePath()));
             }
             else {
                 src = new File(folder, "Data.lsf.gz");
@@ -91,7 +92,7 @@ public class ConcatenateLsfLog {
                     FileUtil.appendToFile(new File(destination, "Data.lsf"), new GZIPInputStream(new FileInputStream(
                             new File(folder, "Data.lsf.gz"))));
                     
-                    System.out.println(I18n.textf("Concatenating %filename", new File(folder, "Data.lsf.gz").getAbsolutePath()));
+                    NeptusLog.pub().info("<###> "+I18n.textf("Concatenating %filename", new File(folder, "Data.lsf.gz").getAbsolutePath()));
                 }
             }
         }

@@ -54,7 +54,7 @@ public class ColorMapUtils {
 
 	private static void generateInterpolatedColorMap(Rectangle2D bounds, Point2D[] points, Double[] values, Graphics2D destination, double width, double height, int alpha, ColorMap colorMap, double min, double max) {
 		if (points.length != values.length || points.length == 0) {
-			//System.out.println(points.length+", "+values.length);
+			//NeptusLog.pub().info("<###> "+points.length+", "+values.length);
 			
 			System.err.println("Number of locations must be positive and match the number of values!");
 			return;			
@@ -143,7 +143,7 @@ public class ColorMapUtils {
 
 		for (int i = 0; i < zGrid.length; i++) {
 			zGrid[i] = (zGrid[i] - min) / (max-min);
-			//System.out.println(zGrid[i]);
+			//NeptusLog.pub().info("<###> "+zGrid[i]);
 		}
 		
 		double vals[][] = new double[numX][numY];
@@ -215,7 +215,7 @@ public class ColorMapUtils {
 	private static void generateInterpolatedColorMap(Point2D[] points, Double[] values, Graphics2D destination, double width, double height, int alpha, ColorMap colorMap) {
 		
 		if (points.length != values.length || points.length == 0) {
-			//System.out.println(points.length+", "+values.length);
+			//NeptusLog.pub().info("<###> "+points.length+", "+values.length);
 			System.err.println("Number of locations must be positive and match the number of values!");
 			return;			
 		}
@@ -270,7 +270,7 @@ public class ColorMapUtils {
 	private static void generateInterpolatedColorMap(Location[] locs, Double[] values, Graphics2D destination, double width, double height, int alpha, ColorMap colorMap) {
 
 		if (locs.length != values.length || locs.length == 0) {
-			//System.out.println(locs.length+", "+values.length);
+			//NeptusLog.pub().info("<###> "+locs.length+", "+values.length);
 			System.err.println("Number of locations must be positive and match the number of values!");
 			return;			
 		}
@@ -520,7 +520,7 @@ public class ColorMapUtils {
 		
 		if (orientation == VERTICAL_ORIENTATION) {
 			for (int i = 0; i < img.getHeight(); i++) {
-				//System.out.println(colors.getGraphics().getColor());
+				//NeptusLog.pub().info("<###> "+colors.getGraphics().getColor());
 				g2d.setColor(cmap.getColor((double)i/(double)img.getHeight()));
 				g2d.drawLine(0, i, img.getWidth(), i);
 			}

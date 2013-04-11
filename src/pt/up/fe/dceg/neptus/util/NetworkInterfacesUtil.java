@@ -43,6 +43,8 @@ import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author pdias
  *
@@ -136,7 +138,7 @@ public class NetworkInterfacesUtil {
 			}
 			stringDesc = ni.toString();
 			for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
-				//System.out.println("      "+"      "+ia.getAddress().getHostAddress()+" "+(ia.getBroadcast()!=null?ia.getBroadcast().getHostAddress():""));
+				//NeptusLog.pub().info("<###>      "+"      "+ia.getAddress().getHostAddress()+" "+(ia.getBroadcast()!=null?ia.getBroadcast().getHostAddress():""));
 			    try {
 			        Inet4Address address = (Inet4Address) ia.getAddress();
 			        Inet4Address broadcastAddress = (Inet4Address) ia.getBroadcast();
@@ -251,22 +253,22 @@ public class NetworkInterfacesUtil {
 			while (nintf.hasMoreElements()) {
 				NetworkInterface ni = nintf.nextElement();
 				if (ni.isUp()) {
-					System.out.println(">>>>  "+ni);
-					System.out.println("      isLoopback "+ni.isLoopback());
-					System.out.println("      isPointToPoint "+ni.isPointToPoint());
-					System.out.println("      multicast "+ni.supportsMulticast());
-					System.out.println("      virtual "+ni.isVirtual());
-					System.out.println("      mtu "+ni.getMTU());
-					System.out.println("      n addresses "+ni.getInterfaceAddresses().size());
+					NeptusLog.pub().info("<###>>>>>  "+ni);
+					NeptusLog.pub().info("<###>      isLoopback "+ni.isLoopback());
+					NeptusLog.pub().info("<###>      isPointToPoint "+ni.isPointToPoint());
+					NeptusLog.pub().info("<###>      multicast "+ni.supportsMulticast());
+					NeptusLog.pub().info("<###>      virtual "+ni.isVirtual());
+					NeptusLog.pub().info("<###>      mtu "+ni.getMTU());
+					NeptusLog.pub().info("<###>      n addresses "+ni.getInterfaceAddresses().size());
 					Enumeration<InetAddress> iadde = ni.getInetAddresses();
 					while (iadde.hasMoreElements()) {
 						InetAddress inetAddress = (InetAddress) iadde
 								.nextElement();
-						System.out.println(":      "+"      "+inetAddress.getHostAddress());
+						NeptusLog.pub().info("<###>:      "+"      "+inetAddress.getHostAddress());
 					}
-					System.out.println("      InterfaceAddresses:"+ni.getInterfaceAddresses());
+					NeptusLog.pub().info("<###>      InterfaceAddresses:"+ni.getInterfaceAddresses());
 					for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
-                        System.out.println("      " + "      Host:" + ia.getAddress().getHostAddress() + " Broadcast:"
+                        NeptusLog.pub().info("<###>      " + "      Host:" + ia.getAddress().getHostAddress() + " Broadcast:"
                                 + (ia.getBroadcast() != null ? ia.getBroadcast().getHostAddress() : "")
                                 + " NetworkPrefixLength:" + ia.getNetworkPrefixLength());
 					}
@@ -280,9 +282,9 @@ public class NetworkInterfacesUtil {
 
 		InetAddress ii = new  InetSocketAddress("192.168.106.30", 6002).getAddress();
 		try {
-			System.out.println(ii.isReachable(2000));
+			NeptusLog.pub().info("<###> "+ii.isReachable(2000));
 			ii = new  InetSocketAddress("192.168.56.2", 6002).getAddress();
-			System.out.println(ii.isReachable(2000));
+			NeptusLog.pub().info("<###> "+ii.isReachable(2000));
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

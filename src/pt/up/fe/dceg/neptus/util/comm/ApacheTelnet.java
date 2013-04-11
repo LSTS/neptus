@@ -45,6 +45,8 @@ import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
 import org.apache.commons.net.telnet.TerminalTypeOptionHandler;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author Paulo Dias
  */
@@ -117,13 +119,13 @@ implements Runnable, TelnetNotificationHandler
 
                 Thread reader = new Thread (new ApacheTelnet());
                 tc.registerNotifHandler(new ApacheTelnet());
-                System.out.println("TelnetClientExample");
-                System.out.println("Type AYT to send an AYT telnet command");
-                System.out.println("Type OPT to print a report of status of options (0-24)");
-                System.out.println("Type REGISTER to register a new SimpleOptionHandler");
-                System.out.println("Type UNREGISTER to unregister an OptionHandler");
-                System.out.println("Type SPY to register the spy (connect to port 3333 to spy)");
-                System.out.println("Type UNSPY to stop spying the connection");
+                NeptusLog.pub().info("<###>TelnetClientExample");
+                NeptusLog.pub().info("<###>Type AYT to send an AYT telnet command");
+                NeptusLog.pub().info("<###>Type OPT to print a report of status of options (0-24)");
+                NeptusLog.pub().info("<###>Type REGISTER to register a new SimpleOptionHandler");
+                NeptusLog.pub().info("<###>Type UNREGISTER to unregister an OptionHandler");
+                NeptusLog.pub().info("<###>Type SPY to register the spy (connect to port 3333 to spy)");
+                NeptusLog.pub().info("<###>Type UNSPY to stop spying the connection");
 
                 reader.start();
                 OutputStream outstr = tc.getOutputStream();
@@ -142,9 +144,9 @@ implements Runnable, TelnetNotificationHandler
                             {
                                 try
                                 {
-                                    System.out.println("Sending AYT");
+                                    NeptusLog.pub().info("<###>Sending AYT");
 
-                                    System.out.println("AYT response:" + tc.sendAYT(5000));
+                                    NeptusLog.pub().info("<###>AYT response:" + tc.sendAYT(5000));
                                 }
                                 catch (Exception e)
                                 {
@@ -153,9 +155,9 @@ implements Runnable, TelnetNotificationHandler
                             }
                             else if((new String(buff, 0, ret_read)).startsWith("OPT"))
                             {
-                                 System.out.println("Status of options:");
+                                 NeptusLog.pub().info("<###>Status of options:");
                                  for(int ii=0; ii<25; ii++)
-                                    System.out.println("Local Option " + ii + ":" + tc.getLocalOptionState(ii) + " Remote Option " + ii + ":" + tc.getRemoteOptionState(ii));
+                                    NeptusLog.pub().info("<###>Local Option " + ii + ":" + tc.getLocalOptionState(ii) + " Remote Option " + ii + ":" + tc.getRemoteOptionState(ii));
                             }
                             else if((new String(buff, 0, ret_read)).startsWith("REGISTER"))
                             {
@@ -294,7 +296,7 @@ implements Runnable, TelnetNotificationHandler
         {
             command = "WONT";
         }
-        System.out.println("Received " + command + " for option code " + option_code);
+        NeptusLog.pub().info("<###>Received " + command + " for option code " + option_code);
    }
 
     /***

@@ -43,6 +43,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.SelectAllFocusListener;
 import pt.up.fe.dceg.neptus.gui.tablelayout.TableLayout;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
@@ -188,12 +189,12 @@ public class ImcId16Editor extends AbstractPropertyEditor {
 		test.imcId16Editor.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                System.out.println(e.getKeyCode());
+                NeptusLog.pub().info("<###> "+e.getKeyCode());
             }
         });
 		test.setValue(new ImcId16("ed:01"));
 		GuiUtils.testFrame(test.imcId16Editor, "sdsd");
-		System.out.println(test.getValue());
+		NeptusLog.pub().info("<###> "+test.getValue());
 	}
 	
 	

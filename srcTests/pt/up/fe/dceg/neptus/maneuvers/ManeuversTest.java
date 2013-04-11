@@ -36,6 +36,7 @@ import java.util.LinkedHashMap;
 import org.junit.Assert;
 import org.junit.Test;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCUtil;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
@@ -58,7 +59,7 @@ public class ManeuversTest {
         for (String man : fac.getAvailableManeuversIDs()) {
             Maneuver maneuver = fac.getManeuver(man);
             if (maneuver instanceof IMCSerialization) {
-                System.out.println("now testing "+maneuver.getType());
+                NeptusLog.pub().info("<###>now testing "+maneuver.getType());
                 IMCSerialization ser = ((IMCSerialization) maneuver);
                 IMCMessage random = ser.serializeToIMC();
                 if (random.getTypeOf("custom") != null) {
@@ -71,9 +72,9 @@ public class ManeuversTest {
                     IMCUtil.fillWithRandomData(random);
                 }
                 String before = random.asXml(true);
-                System.out.println(before);
+                NeptusLog.pub().info("<###> "+before);
                 ((IMCSerialization) maneuver).parseIMCMessage(random);
-                System.out.println(maneuver.asXML());
+                NeptusLog.pub().info("<###> "+maneuver.asXML());
                 String after = ser.serializeToIMC().asXml(true);                
                 Assert.assertEquals(before, after);                
             }
