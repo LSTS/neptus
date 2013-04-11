@@ -67,6 +67,7 @@ import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.plugins.update.PeriodicUpdatesService;
+import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
@@ -78,6 +79,7 @@ import com.google.gson.Gson;
  * 
  */
 @PluginDescription(author = "ZP", name = "AIS Overlay", icon = "pt/up/fe/dceg/neptus/plugins/ais/mt.png")
+@LayerPriority(priority=-50)
 public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUpdates, IEditorMenuExtension {
     private static final long serialVersionUID = 1L;
 

@@ -850,7 +850,6 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
 
             ObjectPropertiesEdit edit = new ObjectPropertiesEdit(draggedObject, orignalXML);
             manager.addEdit(edit);
-            NeptusLog.pub().info("<###> "+edit);
         }
 
         objectMoved = false;
