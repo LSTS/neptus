@@ -82,7 +82,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     }
     protected static final String TILE_FX_EXTENSION = "png";
     
-    public static final long MILISECONDS_TO_TILE_MEM_REMOVAL = 180000;
+    public static final long MILISECONDS_TO_TILE_MEM_REMOVAL = 20000;
     private static final int MILLIS_TO_NOT_TRY_LOAD_LOW_LEVEL_IMAGE = 30000;
     
     private static final Color COLOR_WHITE_TRANS_100 = ColorUtils.setTransparencyToColor(Color.WHITE, 100);

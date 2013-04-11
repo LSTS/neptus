@@ -366,7 +366,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     };
 
     static {
-        timer.scheduleAtFixedRate(ttask, 30000, 20000);
+        timer.scheduleAtFixedRate(ttask, 30000, Tile.MILISECONDS_TO_TILE_MEM_REMOVAL / 2);
         timer.scheduleAtFixedRate(ttask1, 5000, 1000);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
