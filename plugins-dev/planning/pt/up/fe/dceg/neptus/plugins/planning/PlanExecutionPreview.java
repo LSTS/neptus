@@ -104,7 +104,7 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
         if (getVehicleDepth() > 1 && debug)
             return;
         
-        //System.out.println("Got an estimated state");
+        //NeptusLog.pub().info("<###>Got an estimated state");
 
         lastVehicleState = IMCUtils.parseState(msg);
 
@@ -123,7 +123,7 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
             return;
         lastEstimateTime = System.currentTimeMillis();
         
-        //System.out.println("Got a position estimation");
+        //NeptusLog.pub().info("<###>Got a position estimation");
         if (System.currentTimeMillis() - lastStateTime < 1000 || simulator == null)
             return;
         else {

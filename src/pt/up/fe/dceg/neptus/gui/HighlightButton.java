@@ -47,6 +47,8 @@ import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 import com.jgoodies.looks.LookUtils;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 
@@ -128,7 +130,7 @@ public class HighlightButton extends JButton {
 		test.getContentPane().add(btn);
 		btn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("ioops");
+				NeptusLog.pub().info("<###>ioops");
 			}
 		});
 		btn = new HighlightButton("green");

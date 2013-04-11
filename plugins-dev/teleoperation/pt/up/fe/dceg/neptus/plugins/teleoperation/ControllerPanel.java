@@ -383,13 +383,13 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
 
             Element system = (Element) systems.selectSingleNode("system[@name='" + console.getMainSystem() + "']");
             if(system == null) {
-                System.out.println("adding new system");
+                NeptusLog.pub().info("<###>adding new system");
                 system = systems.addElement("system").addAttribute("name", console.getMainSystem());
             }
             
             Element controller = (Element) system.selectSingleNode("controller[@name='" + currentController + "']");
             if(controller == null) {
-                System.out.println("adding new controller");
+                NeptusLog.pub().info("<###>adding new controller");
                 controller = system.addElement("controller").addAttribute("name", currentController);
             }
 

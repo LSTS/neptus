@@ -63,6 +63,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.notifications.Notification;
 import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
@@ -418,19 +419,19 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
 
     protected boolean storeXml(String xml) {
         if (!separateOpAreas && operationLimitsFile.canRead()) {
-            System.out.println("saving to " + operationLimitsFile.getAbsolutePath());
+            NeptusLog.pub().info("<###>saving to " + operationLimitsFile.getAbsolutePath());
             return FileUtil.saveToFile(operationLimitsFile.getAbsolutePath(), xml);
         }
         else if (getConsole().getMainSystem() != null) {
             File f = new File("conf/oplimits/" + getConsole().getMainSystem() + ".xml");
             f.getParentFile().mkdirs();
-            System.out.println("saving to " + f.getAbsolutePath());
+            NeptusLog.pub().info("<###>saving to " + f.getAbsolutePath());
             return FileUtil.saveToFile(f.getAbsolutePath(), xml);
         }
         else {
             operationLimitsFile = new File("conf/oplimits/limits.xml");
             operationLimitsFile.getParentFile().mkdirs();
-            System.out.println("saving to " + operationLimitsFile.getAbsolutePath());
+            NeptusLog.pub().info("<###>saving to " + operationLimitsFile.getAbsolutePath());
             return FileUtil.saveToFile(operationLimitsFile.getAbsolutePath(), xml);
         }
     }

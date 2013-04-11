@@ -120,7 +120,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                 "info", "Plan sent by Neptus version "+ConfigFetch.getNeptusVersion()
         );
         
-//        System.out.println("Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
+//        NeptusLog.pub().info("<###>Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
     
@@ -132,7 +132,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                 "plan_id", plan_id
         );
         
-//        System.out.println("Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
+//        NeptusLog.pub().info("<###>Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
     
@@ -147,7 +147,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                 "request_id", IMCSendMessageUtils.getNextRequestId(),
                 "plan_id", plan_id
         );
-//        System.out.println("Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
+//        NeptusLog.pub().info("<###>Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
     
@@ -206,11 +206,11 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
 //                if (console != null) {
                     PlanType pt = IMCUtils.parsePlanSpecification(new MissionType()/*console.getMission()*/, msg.getMessage("arg"));
                     IMCMessage p0 = msg.getMessage("arg");
-                    System.out.println("Plan received        " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p0.payloadMD5()));
+                    NeptusLog.pub().info("<###>Plan received        " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p0.payloadMD5()));
                     IMCMessage p1 = pt.asIMCPlan();
-                    System.out.println("Plan from plan       " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p1.payloadMD5()));
+                    NeptusLog.pub().info("<###>Plan from plan       " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p1.payloadMD5()));
                     IMCMessage p2 = pt.clonePlan().asIMCPlan();
-                    System.out.println("Plan from clone plan " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p2.payloadMD5()));
+                    NeptusLog.pub().info("<###>Plan from clone plan " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p2.payloadMD5()));
 
                     try {
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();

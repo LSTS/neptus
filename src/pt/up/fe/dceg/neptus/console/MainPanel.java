@@ -207,12 +207,12 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             try {
                 SubPanel sp = PluginsRepository.getPanelPlugin(PluginUtils.getPluginName(subadd), console);
                 if (innerMostContainer != null) { // we found a containerSubPanel
-                    // System.out.println("found container " + innerMostContainer.getName());
+                    // NeptusLog.pub().info("<###>found container " + innerMostContainer.getName());
                     innerMostContainer.addSubPanel(sp);
                     NeptusLog.pub().warn("Added new plugin: " + sp.getName());
                 }
                 else {// we didn't so will add to the main panel
-                      // System.out.println("found only the main panel");
+                      // NeptusLog.pub().info("<###>found only the main panel");
                     this.addSubPanel(sp, e.getX(), e.getY());
                 }
                 sp.init();
@@ -528,7 +528,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     }
 
     public void setAdding(final String string) {
-        System.out.println("adding");
+        NeptusLog.pub().info("<###>adding");
         adding = string;
         setCursor(new Cursor(Cursor.HAND_CURSOR));
     }

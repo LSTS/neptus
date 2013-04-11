@@ -89,6 +89,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.system.AppSettings;
@@ -248,7 +250,7 @@ public class TestCanvas {
     }
 
     public static void createCanvas(String appClass){
-        System.out.println("createCanvas EvtDispatchThread? " + EventQueue.isDispatchThread() + " Thread id:"
+        NeptusLog.pub().info("<###>createCanvas EvtDispatchThread? " + EventQueue.isDispatchThread() + " Thread id:"
                 + Thread.currentThread().getId());
         AppSettings settings = new AppSettings(true);
         settings.setWidth(640);
@@ -277,7 +279,7 @@ public class TestCanvas {
     }
 
     public static void startApp(){
-        System.out.println("startApp EvtDispatchThread? " + EventQueue.isDispatchThread() + " Thread id:"
+        NeptusLog.pub().info("<###>startApp EvtDispatchThread? " + EventQueue.isDispatchThread() + " Thread id:"
                 + Thread.currentThread().getId());
         app.startCanvas();
         app.enqueue(new Callable<Void>(){

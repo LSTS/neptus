@@ -47,7 +47,6 @@ import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.map.TransponderElement;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
 import pt.up.fe.dceg.neptus.util.lbl.LBLTriangulationHelper;
 import pt.up.fe.dceg.neptus.util.llf.LogUtils;
 

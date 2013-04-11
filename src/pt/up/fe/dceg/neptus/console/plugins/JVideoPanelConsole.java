@@ -73,7 +73,7 @@ public class JVideoPanelConsole extends SubPanel {
             jwc = new JWebCam();
 
             if (!jwc.initialise()) {
-                System.out.println("Web Cam not detected / initialised");
+                NeptusLog.pub().info("<###>Web Cam not detected / initialised");
                 setLayout(new BorderLayout());
                 // JPanel JP=new JPanel();
                 // JP.setBackground(Color.BLACK);
@@ -109,7 +109,7 @@ public class JVideoPanelConsole extends SubPanel {
 
             Image im = jwc.grabFrameImage();
             if (im == null) {
-                // System.out.println("No grabbed image");
+                // NeptusLog.pub().info("<###>No grabbed image");
                 return null;
             }
 

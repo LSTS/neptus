@@ -256,14 +256,14 @@ public class UavPiccoloControl extends SimpleSubPanel implements MainVehicleChan
                     public void run() {
                         if (isUAV(getMainVehicleId())) {
                             send(IMCDefinition.getInstance().create("ListPiccoloWaypoints"));
-                            System.out.println("----------Send to " + getMainVehicleId());
+                            NeptusLog.pub().info("<###>----------Send to " + getMainVehicleId());
                             System.out.flush();
                         }
                         String[] vlst = wptPainter.getVehiclesList();
                         for (String vehicleID : vlst) {
                             if (vehicleID.equalsIgnoreCase(getMainVehicleId()))
                                 continue;
-                            System.out.println("----------Send to " + vehicleID);
+                            NeptusLog.pub().info("<###>----------Send to " + vehicleID);
                             System.out.flush();
                             ImcMsgManager.getManager().sendMessageToVehicle(
                                     IMCDefinition.getInstance().create("ListPiccoloWaypoints"),
@@ -283,14 +283,14 @@ public class UavPiccoloControl extends SimpleSubPanel implements MainVehicleChan
                     public void run() {
                         if (isUAV(getMainVehicleId())) {
                             send(IMCDefinition.getInstance().create("GetPiccoloControlConfiguration"));
-                            System.out.println("----------Send to " + getMainVehicleId());
+                            NeptusLog.pub().info("<###>----------Send to " + getMainVehicleId());
                             System.out.flush();
                         }
                         String[] vlst = wptPainter.getVehiclesList();
                         for (String vehicleID : vlst) {
                             if (vehicleID.equalsIgnoreCase(getMainVehicleId()))
                                 continue;
-                            System.out.println("----------Send to " + vehicleID);
+                            NeptusLog.pub().info("<###>----------Send to " + vehicleID);
                             System.out.flush();
                             ImcMsgManager.getManager().sendMessageToVehicle(
                                     IMCDefinition.getInstance().create("GetPiccoloControlConfiguration"),
@@ -696,7 +696,7 @@ public class UavPiccoloControl extends SimpleSubPanel implements MainVehicleChan
         }
         
         for (String id : configs.keySet()) {
-            //System.out.println("entering FOR with id:"+id+", pState is:"+planStates.get(id)+", cState is:"+controlStates.get(id));
+            //NeptusLog.pub().info("<###>entering FOR with id:"+id+", pState is:"+planStates.get(id)+", cState is:"+controlStates.get(id));
             try {
                 int wpTo = wptPainter.getDestinationWaypoint(id);
                 PiccoloControlConfiguration pCConfig = configs.get(id);
@@ -785,7 +785,7 @@ public class UavPiccoloControl extends SimpleSubPanel implements MainVehicleChan
                         String vid = VehiclesHolder.getVehicleWithImc(id).getId();
                         PCCWaypoint w = parseWaypoint(message);
                         if (StringUtils.isTokenInList("PiccoloWaypoint", message.getAbbrev())) {
-                            System.out.println("received waypoint " + w.getId()
+                            NeptusLog.pub().info("<###>received waypoint " + w.getId()
                                     + " attached to vehicle " + vid);
                         }
 

@@ -88,7 +88,7 @@ implements AlarmListener, AlarmProviderOld
 				}
 		}
 		
-		//System.out.println("CHAMOU ALARMES-- min:");
+		//NeptusLog.pub().info("<###>CHAMOU ALARMES-- min:");
 		
 		
 		String amsg=alarm.getAlarmMessage();

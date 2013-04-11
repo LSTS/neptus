@@ -607,7 +607,7 @@ public class RowsPattern extends FollowPath {
         }
 
         //        for (DefaultProperty p : props) {
-        //            System.out.println("* "+p.getName()+"="+p.getValue());
+        //            NeptusLog.pub().info("<###>* "+p.getName()+"="+p.getValue());
         //        }
 
         return props;

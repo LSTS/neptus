@@ -113,7 +113,7 @@ public class JRoundButton extends JButton {
 
 	protected void paintComponent(Graphics g) {
 		//setCircular(isCircular());
-        //System.out.println("paint");
+        //NeptusLog.pub().info("<###>paint");
         Graphics2D g2 = (Graphics2D) g;
         g2.setColor(getBackground());
 
@@ -252,7 +252,7 @@ public class JRoundButton extends JButton {
 
     @Override
     public void setBounds(int x, int y, int width, int height) {
-    	//System.out.println("SetBounds");
+    	//NeptusLog.pub().info("<###>SetBounds");
     	if (isCircular())
     		width = height = Math.min(width, height);
     	super.setBounds(x, y, width, height);

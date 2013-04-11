@@ -40,6 +40,7 @@ import java.awt.Image;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import drasys.or.geom.GeomException;
 import drasys.or.geom.geo.proj.Albers;
 import drasys.or.geom.geo.proj.LambertConic;
@@ -465,7 +466,7 @@ public class TutorialApplet extends Applet {
             else if (projectionStr.equals("Lambert Conic"))
                 projection = new LambertConic(geoRange);
             else
-                System.out.println("Can't find: " + projectionStr);
+                NeptusLog.pub().info("<###>Can't find: " + projectionStr);
 
             xyRange = projection.forward(geoRange);
             PointI xyLowerLeft = projection.forward(geoRange.southwest());
@@ -564,7 +565,7 @@ public class TutorialApplet extends Applet {
             else if (subalgorithmStr.equals("US-5"))
                 subalgorithm = new drasys.or.graph.tsp.Us(5);
             else
-                System.out.println("Can't find: " + subalgorithmStr);
+                NeptusLog.pub().info("<###>Can't find: " + subalgorithmStr);
 
             ConstructI construct = null;
             if (constructStr.equals("Clarke&Wright - savings list"))
@@ -578,7 +579,7 @@ public class TutorialApplet extends Applet {
                 construct = bestOf;
             }
             else
-                System.out.println("Can't find: " + constructStr);
+                NeptusLog.pub().info("<###>Can't find: " + constructStr);
 
             ImproveI improve = null;
             if (improveStr.equals("None"))
@@ -590,7 +591,7 @@ public class TutorialApplet extends Applet {
             else if (improveStr.equals("Improve With Tsp: US-5"))
                 improve = new ImproveWithTSP((drasys.or.graph.tsp.ImproveI) new drasys.or.graph.tsp.Us(5));
             else
-                System.out.println("Can't find: " + improveStr);
+                NeptusLog.pub().info("<###>Can't find: " + improveStr);
 
             vrp = new Composite(construct, improve);
             vrp.setCostConstraint(1000);

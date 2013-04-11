@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.junit.types.coord;
 
 import junit.framework.TestCase;
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
 public class LocationTypeTest extends TestCase {
@@ -120,15 +121,15 @@ public class LocationTypeTest extends TestCase {
 		//first.setOffsetSouth(100);
 		
 		//double offsets1[] = first.getOffsetFrom(new LocationType());
-		//System.out.println("Offsets[0]="+offsets1[0]+", Offsets[1]="+offsets1[1]);
+		//NeptusLog.pub().info("<###>Offsets[0]="+offsets1[0]+", Offsets[1]="+offsets1[1]);
 		
 		second = new LocationType();
 		
 		//second.setOffsetNorth(offsets1[0]);
 		//second.setOffsetEast(offsets1[1]);
 		
-		System.out.println("FIRST:\n"+first.getDebugString());
-		System.out.println("SECOND:\n"+second.getDebugString());
+		NeptusLog.pub().info("<###>FIRST:\n"+first.getDebugString());
+		NeptusLog.pub().info("<###>SECOND:\n"+second.getDebugString());
 		
 		//second.setLocation(first);
 		//second.setZenith(0.00);
@@ -137,8 +138,8 @@ public class LocationTypeTest extends TestCase {
 		
 		double offsets1[] = second.getOffsetFrom(first);
 		double offsets2[] = first.getOffsetFrom(second);
-		System.out.println("Offsets[0]="+offsets1[0]+", Offsets[1]="+offsets1[1]);
-		System.out.println("Offsets[0]="+offsets2[0]+", Offsets[1]="+offsets2[1]);
+		NeptusLog.pub().info("<###>Offsets[0]="+offsets1[0]+", Offsets[1]="+offsets1[1]);
+		NeptusLog.pub().info("<###>Offsets[0]="+offsets2[0]+", Offsets[1]="+offsets2[1]);
 		assertEquals(offsets1[0], 0, 0.0001);
 		assertEquals(offsets1[1], 0, 0.0001);
 		assertEquals(offsets1[2], 0, 0.0001);

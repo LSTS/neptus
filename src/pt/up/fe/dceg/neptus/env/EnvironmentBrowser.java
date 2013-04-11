@@ -139,7 +139,7 @@ public class EnvironmentBrowser extends JPanel implements EnvironmentListener {
 		
 		for (String varName : environment.getVariableNames()) {
 			DefaultMutableTreeNode curParent = root;
-			//System.out.println("adding var "+varName);
+			//NeptusLog.pub().info("<###>adding var "+varName);
 			String[] parts = environment.getEnv(varName).getIdParts();
 			for (int j = 0; j < parts.length - 1; j++) {
 				String curPart = parts[j];
@@ -153,7 +153,7 @@ public class EnvironmentBrowser extends JPanel implements EnvironmentListener {
 					}
 				}
 				if (!dirCreated) {
-					//System.out.println("Creating node "+curPart);
+					//NeptusLog.pub().info("<###>Creating node "+curPart);
 					DefaultMutableTreeNode tmp = new DefaultMutableTreeNode(curPart);
 					curParent.add(tmp);
 					curParent = tmp;

@@ -239,7 +239,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
             mraPanel.cleanup();
         mraPanel = null;
         getContentPane().removeAll();
-        System.out.println("Log source was closed.");
+        NeptusLog.pub().info("<###>Log source was closed.");
     }
     
     public void openLogSource(IMraLogGroup source) {

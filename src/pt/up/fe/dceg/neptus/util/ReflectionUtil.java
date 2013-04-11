@@ -70,7 +70,7 @@ public class ReflectionUtil {
         ArrayList<File> directories = new ArrayList<File>();
         ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
 
-        // System.out.println("evaluating "+pckgname);
+        // NeptusLog.pub().info("<###>evaluating "+pckgname);
 
         try {
             ClassLoader cld = Thread.currentThread().getContextClassLoader();

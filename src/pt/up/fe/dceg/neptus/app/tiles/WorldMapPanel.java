@@ -663,7 +663,7 @@ public class WorldMapPanel extends JPanel {
                             Point2D pointXY = renderer.getScreenPosition(loc);
                             Rectangle2D bbox = new Rectangle2D.Double(pointXY.getX() - offSetDiv2, pointXY.getY()
                                     - offSetDiv2, offSet, offSet);
-                            // System.out.println("mouseClicked > " + e.getX() + " :: " + e.getY() + "   " +
+                            // NeptusLog.pub().info("<###>mouseClicked > " + e.getX() + " :: " + e.getY() + "   " +
                             // pointXY.getX() + " :: " + pointXY.getY() + "    " +
                             // bbox.contains((Point2D)e.getPoint()));
                             if (bbox.contains((Point2D) e.getPoint())) {
@@ -673,7 +673,7 @@ public class WorldMapPanel extends JPanel {
                         }
 
                     }
-                    // System.out.println("mouseClicked > " + e.getX() + " :: " + e.getY());
+                    // NeptusLog.pub().info("<###>mouseClicked > " + e.getX() + " :: " + e.getY());
                 }
 
                 @Override
@@ -687,13 +687,13 @@ public class WorldMapPanel extends JPanel {
                 @Override
                 public void mouseEntered(MouseEvent e) {
                     mouseActive = true;
-                    // System.out.println("mouseEntered > " + e.getX() + " :: " + e.getY());
+                    // NeptusLog.pub().info("<###>mouseEntered > " + e.getX() + " :: " + e.getY());
                 }
 
                 @Override
                 public void mouseExited(MouseEvent e) {
                     mouseActive = false;
-                    // System.out.println("mouseExited > " + e.getX() + " :: " + e.getY());
+                    // NeptusLog.pub().info("<###>mouseExited > " + e.getX() + " :: " + e.getY());
                 }
             };
         }
@@ -717,7 +717,7 @@ public class WorldMapPanel extends JPanel {
                     // else
                     // hb.setHovering(false);
                     // }
-                    // System.out.println("mouseMoved > " + e.getX() + " :: " + e.getY());
+                    // NeptusLog.pub().info("<###>mouseMoved > " + e.getX() + " :: " + e.getY());
                 }
 
                 @Override

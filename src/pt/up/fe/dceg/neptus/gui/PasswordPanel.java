@@ -108,7 +108,7 @@ public class PasswordPanel extends JPanel {
             // passwordField.setFocusable(true);
             passwordField.addKeyListener(new java.awt.event.KeyAdapter() {
                 public void keyPressed(java.awt.event.KeyEvent e) {
-                    // System.out.println("keyPressed()");
+                    // NeptusLog.pub().info("<###>keyPressed()");
                     if (e.getKeyCode() == KeyEvent.VK_ENTER)
                         okAction();
                 }
@@ -166,14 +166,14 @@ public class PasswordPanel extends JPanel {
             okButton.setText("Ok");
             okButton.addKeyListener(new java.awt.event.KeyAdapter() {
                 public void keyPressed(java.awt.event.KeyEvent e) {
-                    // System.out.println("keyPressed()");
+                    // NeptusLog.pub().info("<###>keyPressed()");
                     if (e.getKeyCode() == KeyEvent.VK_ENTER)
                         okAction();
                 }
             });
             okButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    // System.out.println("actionPerformed()");
+                    // NeptusLog.pub().info("<###>actionPerformed()");
                     okAction();
                 }
             });

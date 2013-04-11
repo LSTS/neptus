@@ -140,7 +140,7 @@ public class Util3D {
         while (childs.hasMoreElements()) {
             Object child = childs.nextElement();
             if (child instanceof Sphere) {
-                // System.out.println("-------------FOUND-------------");
+                // NeptusLog.pub().info("<###>-------------FOUND-------------");
                 return (Sphere) child;
             }
             else if (child instanceof TransformGroup) {
@@ -156,7 +156,7 @@ public class Util3D {
         while (childs.hasMoreElements()) {
             Object child = childs.nextElement();
             if (child instanceof Cylinder) {
-                // System.out.println("-------------FOUND-------------");
+                // NeptusLog.pub().info("<###>-------------FOUND-------------");
                 return (Cylinder) child;
             }
             else if (child instanceof TransformGroup) {
@@ -373,15 +373,15 @@ public class Util3D {
         for (Shape3D s : gShapeObjects) {
             Enumeration<?> list = s.getAllGeometries();
 
-            // System.out.println("tem elementos ? "+list.hasMoreElements());
+            // NeptusLog.pub().info("<###>tem elementos ? "+list.hasMoreElements());
             for (; list.hasMoreElements();) {
                 Geometry g = (Geometry) list.nextElement();
-                // System.out.println("Elemento: "+g);
+                // NeptusLog.pub().info("<###>Elemento: "+g);
                 GeometryInfo gi = new GeometryInfo((GeometryArray) g);
                 Point3f[] pointlist = gi.getCoordinates();
                 // Point3d[] pointlist=((GeometryArray)g).getCoordRef3d();
                 for (Point3f p : pointlist) {
-                    // System.out.println("estudando o vertice"+p);
+                    // NeptusLog.pub().info("<###>estudando o vertice"+p);
                     if (p.x > retmax.x)
                         retmax.x = p.x;
                     if (p.y > retmax.y)
@@ -454,7 +454,7 @@ public class Util3D {
                 GetShapeNodes((TransformGroup) tNode, gShapeObjects);
             }
             else if (tNode.getClass() == Shape3D.class) {
-                // System.out.println("encontri");
+                // NeptusLog.pub().info("<###>encontri");
                 gShapeObjects.add((Shape3D) tNode);
             }
         }
@@ -487,7 +487,7 @@ public class Util3D {
              */
             PickTool.setCapabilities(node, PickTool.INTERSECT_FULL);
 
-            // System.out.println("ok em "+node);
+            // NeptusLog.pub().info("<###>ok em "+node);
 
             for (Enumeration<?> e = shape.getAllGeometries(); e.hasMoreElements();) {
 
@@ -513,7 +513,7 @@ public class Util3D {
     // int ttype = 0;
     // boolean byRef = true;
     // String os = System.getProperty("os.name");
-    // //System.out.println("running on " + os);
+    // //NeptusLog.pub().info("<###>running on " + os);
     // if ( os.startsWith("W") || os.startsWith("w")) {
     // btype = BufferedImage.TYPE_3BYTE_BGR;
     // itype = ImageComponent.FORMAT_RGB;

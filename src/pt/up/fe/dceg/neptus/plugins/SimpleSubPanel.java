@@ -386,7 +386,7 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
         ImcMsgManager.registerBusListener(this);
 
         if (this instanceof NeptusMessageListener) {
-            // System.out.println("Adding myself as message listener");
+            // NeptusLog.pub().info("<###>Adding myself as message listener");
             for (String msg : ((NeptusMessageListener) this).getObservedMessages()) {
                 int id = -1;
                 try {
@@ -407,7 +407,7 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
             if (getConsole() != null && !messagesToListen.isEmpty())
                 ImcMsgManager.getManager().addListener(this, getConsole().getMainSystem());
             else {
-                System.out.println("Console is null..." + this.getName());
+                NeptusLog.pub().info("<###>Console is null..." + this.getName());
             }
         }
     }

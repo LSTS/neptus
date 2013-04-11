@@ -51,6 +51,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.swing.JRoundButton;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
@@ -193,7 +194,7 @@ public class NeptusComboButton extends JButton implements ActionListener{
 	 */
 	private void fixGui() {
 		Vector<String> vecEnable = getEnableActions();
-		//System.out.println("NeptusComboButton:"+ vecEnable.size());
+		//NeptusLog.pub().info("<###>NeptusComboButton:"+ vecEnable.size());
 		if (vecEnable.size() <= 1) {
 			dropButton.setEnabled(false);
 			dropButton.setVisible(false);
@@ -260,7 +261,7 @@ public class NeptusComboButton extends JButton implements ActionListener{
 		but.setEnabled(true);
 		but.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("ACTION: "+e.getActionCommand());
+				NeptusLog.pub().info("<###>ACTION: "+e.getActionCommand());
 			}
 		});
 		
@@ -270,7 +271,7 @@ public class NeptusComboButton extends JButton implements ActionListener{
 		but2.setEnabled(true);
 		but2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("ACTION: "+e.getActionCommand());
+				NeptusLog.pub().info("<###>ACTION: "+e.getActionCommand());
 			}
 		});
 

@@ -111,7 +111,7 @@ public class UnicycleModel {
      * @param timestepSecs
      */
     public void advance(double timestepSecs) {
-        //System.out.println("speed: "+speedMPS+", yaw: "+yawRad);
+        //NeptusLog.pub().info("<###>speed: "+speedMPS+", yaw: "+yawRad);
         double angle = yawRad;
         x += speedMPS * timestepSecs * Math.sin(angle);
         y += speedMPS * timestepSecs * Math.cos(angle);

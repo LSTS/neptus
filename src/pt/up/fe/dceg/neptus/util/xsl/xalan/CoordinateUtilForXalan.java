@@ -92,7 +92,7 @@ public class CoordinateUtilForXalan
         if (offsetDown.equals(""))
             offsetDown = "0";
         
-        //System.out.println("#################"+offsetDistance+"#"+azimuth+"#"+zenith+"#"+offsetNorth+"#"+offsetSouth
+        //NeptusLog.pub().info("<###>#################"+offsetDistance+"#"+azimuth+"#"+zenith+"#"+offsetNorth+"#"+offsetSouth
         //	+"#"+offsetEast+"#"+offsetWest+"#"+offsetUp+"#"+offsetDown);
         double r = Double.parseDouble(offsetDistance);
         double theta = Double.parseDouble(azimuth);

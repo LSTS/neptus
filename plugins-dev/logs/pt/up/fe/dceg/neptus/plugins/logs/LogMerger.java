@@ -51,6 +51,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.miginfocom.swing.MigLayout;
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 
 /**
@@ -141,7 +142,7 @@ public class LogMerger extends JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Merging");
+                NeptusLog.pub().info("<###>Merging");
             }
         });
         

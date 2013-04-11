@@ -54,7 +54,7 @@ public class ImcSystemsHolder {
 		lookupTable.put(system.getId(), system);
 		namesTable.put(system.getName(), system);
 		
-		//System.out.println("$$$$$$$$$$$$$$ register " + system.getId());
+		//NeptusLog.pub().info("<###>$$$$$$$$$$$$$$ register " + system.getId());
 		return true;
 	}
 	
@@ -75,20 +75,20 @@ public class ImcSystemsHolder {
 	 * @return
 	 */
 	public static ImcSystem lookupSystemByName(String name) {
-		//System.out.println("... lookupSystemByName()"+name);
+		//NeptusLog.pub().info("<###>... lookupSystemByName()"+name);
 		if (name == null)
 			return null; // new ImcSystem[0];
 		else if ("".equalsIgnoreCase(name))
 			return null; // new ImcSystem[0];
 		LinkedList<ImcSystem> list = new LinkedList<ImcSystem>();
 		for (ImcSystem is : lookupTable.values()) {
-			//System.out.println("... lookupSystemByName()"+is.getName());
+			//NeptusLog.pub().info("<###>... lookupSystemByName()"+is.getName());
 			if (name.equalsIgnoreCase(is.getName())) {
 				list.add(is);
 				break;
 			}
 		}
-		//System.out.println("... lookupSystemByName()"+list.size());
+		//NeptusLog.pub().info("<###>... lookupSystemByName()"+list.size());
 		return list.isEmpty() ? null : list.getFirst();
 	}
 	
@@ -103,7 +103,7 @@ public class ImcSystemsHolder {
 			allTypes = true;
 		LinkedList<ImcSystem> list = new LinkedList<ImcSystem>();
 		for (ImcSystem is : lookupTable.values()) {
-			//System.out.println("... lookupSystemByName()"+is.getName());
+			//NeptusLog.pub().info("<###>... lookupSystemByName()"+is.getName());
 			if (allTypes || type == SystemTypeEnum.ALL || type == is.getType()) {
 				if (onlyActiveSystems && !is.isActive()) {
 					continue;
@@ -111,7 +111,7 @@ public class ImcSystemsHolder {
 				list.add(is);
 			}
 		}
-		//System.out.println("... lookupSystemByName()"+list.size());
+		//NeptusLog.pub().info("<###>... lookupSystemByName()"+list.size());
 		return list.toArray(new ImcSystem[list.size()]);
 	}
 	
@@ -168,7 +168,7 @@ public class ImcSystemsHolder {
 			allTypes = true;
 		LinkedList<ImcSystem> list = new LinkedList<ImcSystem>();
 		for (ImcSystem is : lookupTable.values()) {
-			//System.out.println("... lookupSystemByService()"+is.getName());
+			//NeptusLog.pub().info("<###>... lookupSystemByService()"+is.getName());
 			if (allTypes || type == SystemTypeEnum.ALL || type == is.getType()) {
 				if (onlyActiveSystems && !is.isActive()) {
 					continue;
@@ -177,7 +177,7 @@ public class ImcSystemsHolder {
 					list.add(is);
 			}
 		}
-		//System.out.println("... lookupSystemByService()"+list.size());
+		//NeptusLog.pub().info("<###>... lookupSystemByService()"+list.size());
 		return list.toArray(new ImcSystem[list.size()]);
 	}
 

@@ -64,7 +64,6 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mp.actions.PlanActions;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.params.ManeuverPayloadConfig;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -692,9 +691,9 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         }
 
         Element sActionsElm = startActions.asElement("start-actions");
-        // System.out.println("sActionsElm******************** "+ sActionsElm.asXML());
+        // NeptusLog.pub().info("<###>sActionsElm******************** "+ sActionsElm.asXML());
         Element eActionsElm = endActions.asElement("end-actions");
-        // System.out.println("eActionsElm******************** "+ eActionsElm.asXML());
+        // NeptusLog.pub().info("<###>eActionsElm******************** "+ eActionsElm.asXML());
         if (sActionsElm.hasContent() || eActionsElm.hasContent()) {
             Element acElm = root.addElement("actions");
             if (sActionsElm.hasContent())
@@ -703,7 +702,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                 acElm.add(eActionsElm);
         }
 
-        // System.out.println("node-----------------\n"+document.asXML());
+        // NeptusLog.pub().info("<###>node-----------------\n"+document.asXML());
 
         return document;
     }

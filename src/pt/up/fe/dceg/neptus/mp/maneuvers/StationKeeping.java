@@ -197,7 +197,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 		props.add(radius);
 		
 		for (DefaultProperty p : props) {
-			System.out.println("* "+p.getName()+"="+p.getValue());
+			NeptusLog.pub().info("<###>* "+p.getName()+"="+p.getValue());
 		}
 		
 		return props;

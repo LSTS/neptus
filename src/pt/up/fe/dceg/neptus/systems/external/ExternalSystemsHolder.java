@@ -114,7 +114,7 @@ public class ExternalSystemsHolder {
             allTypes = true;
         LinkedList<ExternalSystem> list = new LinkedList<ExternalSystem>();
         for (ExternalSystem is : lookupTable.values()) {
-            //System.out.println("... lookupSystemByName()"+is.getName());
+            //NeptusLog.pub().info("<###>... lookupSystemByName()"+is.getName());
             if (allTypes || type == SystemTypeEnum.ALL || type == is.getType()) {
                 if (onlyActiveSystems && !is.isActive()) {
                     continue;
@@ -122,7 +122,7 @@ public class ExternalSystemsHolder {
                 list.add(is);
             }
         }
-        //System.out.println("... lookupSystemByName()"+list.size());
+        //NeptusLog.pub().info("<###>... lookupSystemByName()"+list.size());
         return list.toArray(new ExternalSystem[list.size()]);
     }
 
@@ -136,7 +136,7 @@ public class ExternalSystemsHolder {
             allTypes = true;
         LinkedList<ExternalSystem> list = new LinkedList<ExternalSystem>();
         for (ExternalSystem is : lookupTable.values()) {
-            //System.out.println("... lookupSystemByName()"+is.getName());
+            //NeptusLog.pub().info("<###>... lookupSystemByName()"+is.getName());
             if (allTypes || type == ExternalSystem.ExternalTypeEnum.ALL || type == is.getTypeExternal()) {
                 if (onlyActiveSystems && !is.isActive()) {
                     continue;
@@ -144,7 +144,7 @@ public class ExternalSystemsHolder {
                 list.add(is);
             }
         }
-        //System.out.println("... lookupSystemByName()"+list.size());
+        //NeptusLog.pub().info("<###>... lookupSystemByName()"+list.size());
         return list.toArray(new ExternalSystem[list.size()]);
     }
 

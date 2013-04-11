@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.Timer;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
@@ -115,7 +116,7 @@ public class Loader extends JFrame implements ActionListener {
      * This method will receive an ActionEvent when it has to be closed
      */
     public void actionPerformed(ActionEvent action) {
-        System.out.println("end");
+        NeptusLog.pub().info("<###>end");
         ((Timer) action.getSource()).stop();
         this.end();
     }

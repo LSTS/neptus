@@ -93,7 +93,7 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
            }
            else {
                boolean isList = false;
-//               System.out.println("Prop type and if is list:: " + p.getType() + " " + (ArrayList.class.equals(p.getType())));
+//               NeptusLog.pub().info("<###>Prop type and if is list:: " + p.getType() + " " + (ArrayList.class.equals(p.getType())));
                if (ArrayList.class.equals(p.getType()))
                    isList = true;
                //Object value = ConfigurationManager.getValueTypedFromString(ep.getValue(), p.getValueType());

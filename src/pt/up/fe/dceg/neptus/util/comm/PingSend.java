@@ -66,7 +66,7 @@ public class PingSend
         {
             InetAddress address = InetAddress.getByName(host);
             boolean ret = address.isReachable(TIME_OUT);
-            //System.out.println("Ping " + ret);
+            //NeptusLog.pub().info("<###>Ping " + ret);
             NeptusLog.pub().info("Pinging " + host + "... " + Boolean.toString(ret));
             return ret;
         } catch (UnknownHostException e)
@@ -175,7 +175,7 @@ public class PingSend
         buf = byteArrayOutputStream.toByteArray();
         
         /*for (int i=0;i<buf.length;i++){
-            System.out.println("buf["+i+"] " + buf[i]);
+            NeptusLog.pub().info("<###>buf["+i+"] " + buf[i]);
         }*/
         
         //InetAddress address = InetAddress.getByAddress(new byte[]{127,0,0,1});
@@ -183,12 +183,12 @@ public class PingSend
         
         //InetAddress address = InetAddress.getByName("192.168.106.15");
         //boolean ret = address.isReachable(1000);
-        //System.out.println("Ping " + ret);
+        //NeptusLog.pub().info("<###>Ping " + ret);
         
         //DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 7);
         //socketTx.send(packet);
         //ret = address.isLoopbackAddress();
-        //System.out.println("Ping " + ret);
+        //NeptusLog.pub().info("<###>Ping " + ret);
          
         
         
@@ -217,7 +217,7 @@ public class PingSend
         
         while ((userInput = stdIn.readLine()) != null) {
             out.println(userInput);
-            System.out.println("echo: " + in.readLine());
+            NeptusLog.pub().info("<###>echo: " + in.readLine());
         }
         
         out.close();

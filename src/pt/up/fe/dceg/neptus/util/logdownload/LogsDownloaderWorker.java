@@ -360,7 +360,7 @@ public class LogsDownloaderWorker {
 		logFolderList.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				//System.out.println(""+e.getValueIsAdjusting());
+				//NeptusLog.pub().info("<###>"+e.getValueIsAdjusting());
 				if (e.getValueIsAdjusting())
 					return;
 //				SwingUtilities.invokeLater(new Runnable() {
@@ -697,7 +697,7 @@ public class LogsDownloaderWorker {
 					@Override
 					public Object run() throws Exception {
 						//long time = System.currentTimeMillis();
-						//System.out.println(".......downloadListAction");
+						//NeptusLog.pub().info("<###>.......downloadListAction");
 						listHandlingProgressBar.setValue(0);
 						listHandlingProgressBar.setString(I18n.text("Starting..."));
 
@@ -712,7 +712,7 @@ public class LogsDownloaderWorker {
 						listHandlingProgressBar.setString(I18n.text("Connecting to remote system for log list update..."));
 //						long timeD1 = System.currentTimeMillis();
 						LinkedHashSet<String> retList = getLogsListFromServer();
-						//System.out.println(".......get list from server " + (System.currentTimeMillis()-timeD1));
+						//NeptusLog.pub().info("<###>.......get list from server " + (System.currentTimeMillis()-timeD1));
 						if (retList == null) {
 						    msgPanel.writeMessageTextln(I18n.text("Done"));
 							return null;
@@ -745,7 +745,7 @@ public class LogsDownloaderWorker {
 							catch (Exception e) {
 							}
 						}
-						//System.out.println(".......Removing from already existing LogFolders to LOCAL state " + (System.currentTimeMillis()-timeC1));
+						//NeptusLog.pub().info("<###>.......Removing from already existing LogFolders to LOCAL state " + (System.currentTimeMillis()-timeC1));
 						
 						//->Adding new LogFolders
 						LinkedList<LogFolderInfo> existenteLogFoldersFromServer = new LinkedList<LogFolderInfo>();
@@ -774,7 +774,7 @@ public class LogsDownloaderWorker {
 						listHandlingProgressBar.setString(I18n.text("Contacting remote system for complete log file list..."));
 //						long timeD2 = System.currentTimeMillis();
 						String listXhtml = getLogsFileListFromServer();
-						//System.out.println(".......get list.xml from server " + (System.currentTimeMillis()-timeD2));
+						//NeptusLog.pub().info("<###>.......get list.xml from server " + (System.currentTimeMillis()-timeD2));
 						listHandlingProgressBar.setValue(40);
 						listHandlingProgressBar.setIndeterminate(false);
 						listHandlingProgressBar.setString(I18n.text("Processing log list..."));
@@ -810,7 +810,7 @@ public class LogsDownloaderWorker {
 										//logFx.setSize(size);
 										logFolder.addFile(logFx);
 //										long sizeD = getDiskSizeFromLocal(logFx);
-//										System.out.println("Size: " + size + "  "+sizeD);
+//										NeptusLog.pub().info("<###>Size: " + size + "  "+sizeD);
 //										if (size == sizeD) {
 //											logFx.setState(LogFolderInfo.State.SYNC);
 //										}
@@ -859,14 +859,14 @@ public class LogsDownloaderWorker {
 							catch (Exception e) {
 							}
 						}
-						//System.out.println(".......Testing for log files from each log folder " + (System.currentTimeMillis()-timeF1));
+						//NeptusLog.pub().info("<###>.......Testing for log files from each log folder " + (System.currentTimeMillis()-timeF1));
 
 						//long timeF2 = System.currentTimeMillis();
 						testNewReportedLogFoldersForLocalCorrespondent(newLogFoldersFromServer);
 						for (LogFolderInfo logFolder : existenteLogFoldersFromServer) {
 							updateLogFolderState(logFolder);
 						}
-						//System.out.println(".......Updating LogFolders State " + (System.currentTimeMillis()-timeF2));
+						//NeptusLog.pub().info("<###>.......Updating LogFolders State " + (System.currentTimeMillis()-timeF2));
 						
 						//long timeF3 = System.currentTimeMillis();
 						//updateFilesListGUIForFolderSelected();
@@ -875,7 +875,7 @@ public class LogsDownloaderWorker {
 						        updateFilesListGUIForFolderSelected();
 						    };
 						}.start();
-						//System.out.println(".......updateFilesListGUIForFolderSelected " + (System.currentTimeMillis()-timeF3));
+						//NeptusLog.pub().info("<###>.......updateFilesListGUIForFolderSelected " + (System.currentTimeMillis()-timeF3));
 						
 						listHandlingProgressBar.setValue(90);
 						listHandlingProgressBar.setIndeterminate(false);
@@ -889,7 +889,7 @@ public class LogsDownloaderWorker {
 						//logFilesList.repaint();
 						logFilesList.setEnabled(true);
 						
-						//System.out.println(".......downloadListAction " + (System.currentTimeMillis()-time));
+						//NeptusLog.pub().info("<###>.......downloadListAction " + (System.currentTimeMillis()-time));
 						listHandlingProgressBar.setValue(100);
 						listHandlingProgressBar.setIndeterminate(false);
 						listHandlingProgressBar.setString(I18n.text("Done"));
@@ -938,7 +938,7 @@ public class LogsDownloaderWorker {
 						downloadSelectedLogDirsButton.setEnabled(false);
 						for (Object comp : logFolderList.getSelectedValues()) {
 							try {
-								//System.out.println("... updateFilesForFolderSelected");
+								//NeptusLog.pub().info("<###>... updateFilesForFolderSelected");
 								LogFolderInfo logFd = (LogFolderInfo) comp;
 								for (LogFileInfo lfx : logFd.logFiles) {
 									singleLogFileDownloadWorker(lfx, logFd);
@@ -979,7 +979,7 @@ public class LogsDownloaderWorker {
 
 						for (Object comp :logFilesList.getSelectedValues()) {
 							try {
-								//System.out.println("... updateFilesForFolderSelected");
+								//NeptusLog.pub().info("<###>... updateFilesForFolderSelected");
 								//FIXME Find out LogFolderInfo for LogFileInfo
 								LogFileInfo lfx = (LogFileInfo) comp;
 								singleLogFileDownloadWorker(lfx, findLogFolderInfoForFile(lfx));
@@ -1033,7 +1033,7 @@ public class LogsDownloaderWorker {
 						dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
 						dialog.setVisible(true);
 						Object userChoice = jop.getValue();
-						//System.out.println("user option: "+userChoice);
+						//NeptusLog.pub().info("<###>user option: "+userChoice);
 						try {
 							if (((Integer)userChoice) != JOptionPane.YES_OPTION) {
 								return null;
@@ -1043,7 +1043,7 @@ public class LogsDownloaderWorker {
 							//e2.printStackTrace();
 							return null;
 						}
-						//System.out.println("user option: "+userChoice);
+						//NeptusLog.pub().info("<###>user option: "+userChoice);
 						deleteSelectedLogFoldersButton.setEnabled(true);
 						for (Object comp : objArray) {
 							try {
@@ -1112,7 +1112,7 @@ public class LogsDownloaderWorker {
                         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
                         dialog.setVisible(true);
                         Object userChoice = jop.getValue();
-                        //System.out.println("user option: "+userChoice);
+                        //NeptusLog.pub().info("<###>user option: "+userChoice);
                         try {
                             if (((Integer)userChoice) != JOptionPane.YES_OPTION) {
                                 return null;
@@ -1224,7 +1224,7 @@ public class LogsDownloaderWorker {
 			ttaskLocalDiskSpace = new TimerTask() {
 				@Override
 				public void run() {
-					//System.out.println("Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File(logFetcher.dirBaseToStoreFiles).getUsableSpace(),2)+"B");
+					//NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File(logFetcher.dirBaseToStoreFiles).getUsableSpace(),2)+"B");
 					try {
 						File fxD = new File(dirBaseToStoreFiles);
 						long tspace = fxD.getTotalSpace();
@@ -1233,7 +1233,7 @@ public class LogsDownloaderWorker {
 							String tSpStr = MathMiscUtils.parseToEngineeringRadix2Notation(tspace, 2) + "B";
 							String uSpStr = MathMiscUtils.parseToEngineeringRadix2Notation(uspace, 2) + "B";
 							double pFree = 1.0*(tspace - uspace) / tspace;
-							//System.out.println("Free Space: "+(tspace - uspace)+" "+((tspace - uspace)*1.0 / tspace)+" "+pFree);
+							//NeptusLog.pub().info("<###>Free Space: "+(tspace - uspace)+" "+((tspace - uspace)*1.0 / tspace)+" "+pFree);
 							diskFreeLabel.setText("<html><b>"+uSpStr );
                             diskFreeLabel.setToolTipText(I18n.textf("Local free disk space %usedspace of %totalspace", uSpStr, tSpStr));
 							updateDiskFreeLabelBackColor(diskFreeColorMap.getColor(pFree));
@@ -1527,16 +1527,16 @@ public class LogsDownloaderWorker {
 	        exitRequest = false;
 
 //	        long start = System.currentTimeMillis();
-	        //System.out.println("updateFilesForFolderSelected");
+	        //NeptusLog.pub().info("<###>updateFilesForFolderSelected");
 //	        logFilesList.setEnabled(false);
 	        logFilesList.setValueIsAdjusting(true);
 
 	        final LinkedHashSet<LogFileInfo> validFiles = new LinkedHashSet<LogFileInfo>();
 	        for (Object comp : logFolderList.getSelectedValues()) {
 	            try {
-	                //System.out.println("... updateFilesForFolderSelected");
+	                //NeptusLog.pub().info("<###>... updateFilesForFolderSelected");
 	                LogFolderInfo log = (LogFolderInfo) comp;
-	                // System.out.println("LogFolder Sel: " + log.getName());
+	                // NeptusLog.pub().info("<###>LogFolder Sel: " + log.getName());
 	                for (LogFileInfo lgfl : log.logFiles) {
 	                    validFiles.add(lgfl);
 
@@ -1597,8 +1597,8 @@ public class LogsDownloaderWorker {
 	        logFilesList.invalidate();
 	        logFilesList.validate();
 //	        logFilesList.setEnabled(true);
-	        //System.out.println("end  updateFilesForFolderSelected");
-//	        System.out.println("end  updateFilesForFolderSelected " + System.currentTimeMillis() +
+	        //NeptusLog.pub().info("<###>end  updateFilesForFolderSelected");
+//	        NeptusLog.pub().info("<###>end  updateFilesForFolderSelected " + System.currentTimeMillis() +
 //	                "        " + (System.currentTimeMillis() - start) + "ms " + logFilesList.myModel.size() +
 //	                " fxs");
 	        isUpdatingFileList = false;
@@ -1620,7 +1620,7 @@ public class LogsDownloaderWorker {
 					if (testFx.exists()) {
 						lfx.setState(LogFolderInfo.State.UNKNOWN);
 						long sizeD = getDiskSizeFromLocal(lfx);
-						//System.out.println("Size: " + lfx.getSize() + "  "+sizeD);
+						//NeptusLog.pub().info("<###>Size: " + lfx.getSize() + "  "+sizeD);
 						if (lfx.getSize() == sizeD) {
 							lfx.setState(LogFolderInfo.State.SYNC);
 						}
@@ -1826,9 +1826,9 @@ public class LogsDownloaderWorker {
 		for (Component cp : components) {
 			try {
 				DownloaderPanel dpp = (DownloaderPanel) cp;
-				//System.out.println("........... "+dpp.getName());
+				//NeptusLog.pub().info("<###>........... "+dpp.getName());
 				if (workerD.getName().equals(dpp.getName())) {
-					//System.out.println("...........");
+					//NeptusLog.pub().info("<###>...........");
 					workerD = dpp;
 					if (workerD.getState() == DownloaderPanel.State.ERROR ||
 							workerD.getState() == DownloaderPanel.State.IDLE ||
@@ -2044,7 +2044,7 @@ public class LogsDownloaderWorker {
 	 */
 	private Document loadXhtmlToDocument(String xhtmlLogFilesList) {
 		//long time = System.currentTimeMillis();
-		//System.out.println(".......loadXhtmlToDocument");
+		//NeptusLog.pub().info("<###>.......loadXhtmlToDocument");
 		Document docList;
 		try {
 			//docList = DocumentHelper.parseText(htmlLogFilesList);
@@ -2068,7 +2068,7 @@ public class LogsDownloaderWorker {
             msgPanel.writeMessageTextln(I18n.textf("Error reading page. Error: %errormessage", e.getMessage()), MessagePanel.ERROR);
 			return null;
 		}
-		//System.out.println(".......loadXhtmlToDocument " + (System.currentTimeMillis()-time));
+		//NeptusLog.pub().info("<###>.......loadXhtmlToDocument " + (System.currentTimeMillis()-time));
 		return docList;
 	}
 
@@ -2080,7 +2080,7 @@ public class LogsDownloaderWorker {
 	 */
 	private LinkedList<LogFolderInfo> getLogListAsTemporaryStructureFromDOM(Document docList, LinkedHashSet<String> logsDirList) {
 		//long time = System.currentTimeMillis();
-		//System.out.println(".......getLogListAsTemporaryStructureFromDOM");
+		//NeptusLog.pub().info("<###>.......getLogListAsTemporaryStructureFromDOM");
 		
 	    if (docList == null || logsDirList.size() == 0)
 	        return new LinkedList<LogFolderInfo>();
@@ -2133,7 +2133,7 @@ public class LogsDownloaderWorker {
 				retLogFolders.add(lfolder);
 			}
 		}
-		//System.out.println(".......getLogListAsTemporaryStructureFromDOM " + (System.currentTimeMillis()-time));
+		//NeptusLog.pub().info("<###>.......getLogListAsTemporaryStructureFromDOM " + (System.currentTimeMillis()-time));
 		return retLogFolders;
 	}
 
@@ -2492,9 +2492,9 @@ public class LogsDownloaderWorker {
         	for (Component cp : components) {
         		try {
         			DownloaderPanel dpp = (DownloaderPanel) cp;
-        			//System.out.println("........... "+dpp.getName());
+        			//NeptusLog.pub().info("<###>........... "+dpp.getName());
         			if (workerD.getName().equals(dpp.getName())) {
-        				//System.out.println("...........");
+        				//NeptusLog.pub().info("<###>...........");
         				workerD = dpp;
         				if (workerD.getState() == DownloaderPanel.State.WORKING) {
         					workerD.addStateChangeListener(null);
@@ -2561,9 +2561,9 @@ public class LogsDownloaderWorker {
 		logFetcher.setEnableLogLabel(true);
 		logFetcher.setVisible(true);
 		
-		System.out.println(" doGiveListOfLogFolders");
+		NeptusLog.pub().info("<###> doGiveListOfLogFolders");
 		for (String str : logFetcher.doGiveListOfLogFolders()) {
-			System.out.println("  ->"+str);
+			NeptusLog.pub().info("<###>  ->"+str);
 		}
 		
 		
@@ -2576,9 +2576,9 @@ public class LogsDownloaderWorker {
 		}
 		logFetcher.doDownloadLogFoldersFromServer("20090918/174214", "20090916/152804");
 
-//		System.out.println(" doGiveListOfLogFolders");
+//		NeptusLog.pub().info("<###> doGiveListOfLogFolders");
 //		for (String str : logFetcher.doGiveListOfLogFolders()) {
-//			System.out.println("  ->"+str);
+//			NeptusLog.pub().info("<###>  ->"+str);
 //		}
 //
 //		logFetcher.setVisible(false);
@@ -2591,15 +2591,15 @@ public class LogsDownloaderWorker {
 //		}
 //
 //		LinkedHashMap<String, LogFolderInfo.State> states = logFetcher.doGiveStateOfLogFolders();
-//		System.out.println(" doGiveStateOfLogFolders no filter");
+//		NeptusLog.pub().info("<###> doGiveStateOfLogFolders no filter");
 //		for (String str : states.keySet()) {
-//			System.out.println("  .....>"+str+"  "+states.get(str));
+//			NeptusLog.pub().info("<###>  .....>"+str+"  "+states.get(str));
 //		}
 //
 //		states = logFetcher.doGiveStateOfLogFolders("20090918/174214");
-//		System.out.println(" doGiveStateOfLogFolders with filter");
+//		NeptusLog.pub().info("<###> doGiveStateOfLogFolders with filter");
 //		for (String str : states.keySet()) {
-//			System.out.println("  .....>"+str+"  "+states.get(str));
+//			NeptusLog.pub().info("<###>  .....>"+str+"  "+states.get(str));
 //		}
 //
 //		logFetcher.doDeleteLogFoldersFromServer("20090918/174214");
@@ -2613,13 +2613,13 @@ public class LogsDownloaderWorker {
 //		}
 //		logFetcher.setVisible(true);
 
-//		System.out.println("Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File(logFetcher.dirBaseToStoreFiles).getUsableSpace(),2)+"B");
-//		System.out.println("Free   space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File(logFetcher.dirBaseToStoreFiles).getFreeSpace(),2)+"B");
-//		System.out.println("Total  space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File(logFetcher.dirBaseToStoreFiles).getTotalSpace(),2)+"B");
-//		System.out.println("Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File("d:\\").getUsableSpace(),2)+"B");
-//		System.out.println("Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File(".").getUsableSpace(),2)+"B");
-//		System.out.println("Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File("sdd").getUsableSpace(),2)+"B");
-//		System.out.println("Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File("k:\\").getUsableSpace(),2)+"B");
+//		NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File(logFetcher.dirBaseToStoreFiles).getUsableSpace(),2)+"B");
+//		NeptusLog.pub().info("<###>Free   space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File(logFetcher.dirBaseToStoreFiles).getFreeSpace(),2)+"B");
+//		NeptusLog.pub().info("<###>Total  space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File(logFetcher.dirBaseToStoreFiles).getTotalSpace(),2)+"B");
+//		NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File("d:\\").getUsableSpace(),2)+"B");
+//		NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File(".").getUsableSpace(),2)+"B");
+//		NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File("sdd").getUsableSpace(),2)+"B");
+//		NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new File("k:\\").getUsableSpace(),2)+"B");
 
 	
 //		try {

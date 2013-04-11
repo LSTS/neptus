@@ -36,7 +36,6 @@ import java.beans.PropertyChangeListener;
 
 import pt.up.fe.dceg.neptus.plugins.params.renderer.PropertyRenderer;
 
-
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
@@ -144,7 +143,7 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         boolean equals = false;
         if (getValue() != null && getValue().equals(value))
             equals = true;
-//        System.out.println("##################################### " + getName() + " equals=" + equals);
+//        NeptusLog.pub().info("<###>##################################### " + getName() + " equals=" + equals);
         super.setValue(value);
         if (!equals)
             setTimeDirty(System.currentTimeMillis());
@@ -312,7 +311,7 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         
         // SystemProperty sp = (SystemProperty) evt.getSource();
         if (editor != null && editor instanceof PropertyChangeListener) {
-//            System.out.println("-------------- 1");
+//            NeptusLog.pub().info("<###>-------------- 1");
             ((PropertyChangeListener) editor).propertyChange(evt);
             editor.setValue(getValue());
             setValue(editor.getValue());

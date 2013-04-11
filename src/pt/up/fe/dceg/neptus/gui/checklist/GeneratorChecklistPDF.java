@@ -521,7 +521,7 @@ public class GeneratorChecklistPDF {
 		ConfigFetch.initialize();
 
 //		if (args.length == 0) {
-//			System.out.println("Usage: LLFReport <directory>");
+//			NeptusLog.pub().info("<###>Usage: LLFReport <directory>");
 //			System.exit(1);
 //		}
 

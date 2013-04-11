@@ -206,7 +206,7 @@ public abstract class TileHttpFetcher extends Tile {
                             || TileHttpFetcher.this.getState() == TileState.FATAL_ERROR)
                         return;
 
-//                    System.out.println("Fetching " + id + ": " + urlGet + "    "  
+//                    NeptusLog.pub().info("<###>Fetching " + id + ": " + urlGet + "    "  
 //                            + DateTimeUtil.timeFormater.format(new Date(System.currentTimeMillis())) 
 //                            + "  sleep:"  + sleepT + "ms  "+ retries 
 //                            + " lastForbidden@ " + DateTimeUtil.timeFormater.format(new Date(lastForbiddenTimeMillis)));
@@ -239,7 +239,7 @@ public abstract class TileHttpFetcher extends Tile {
 
                         retries++;
                         sleepT = retries * 60000 + 30000 * rnd.nextDouble();
-//                        System.out.println("Retrying " + id + ": " + urlGet + "    "  
+//                        NeptusLog.pub().info("<###>Retrying " + id + ": " + urlGet + "    "  
 //                                + DateTimeUtil.timeFormater.format(new Date(System.currentTimeMillis())) 
 //                                + "  in:"  + sleepT + "ms  "+ retries + "retries.");
                         try { Thread.sleep((long) (sleepT)); } catch (Exception e) { }
@@ -298,7 +298,7 @@ public abstract class TileHttpFetcher extends Tile {
                 }
                 catch (UnknownHostException e) {
 //                    double sleepT = 30000 + 10000 * rnd.nextDouble();
-//                    System.out.println("UnknownHostException Retrying " + id + ": " + urlGet + "    "  
+//                    NeptusLog.pub().info("<###>UnknownHostException Retrying " + id + ": " + urlGet + "    "  
 //                            + DateTimeUtil.timeFormater.format(new Date(System.currentTimeMillis())) 
 //                            + "  in:"  + sleepT + "ms  "+ retries + "retries.");
 //                    try { Thread.sleep((long) (sleepT)); } catch (Exception e1) { }
@@ -572,7 +572,7 @@ public abstract class TileHttpFetcher extends Tile {
 
                                 retries++;
                                 double sleepT = retries * 60000 + 30000 * rnd.nextDouble();
-                                // System.out.println("Retrying " + id + ": " + urlGet + "    "
+                                // NeptusLog.pub().info("<###>Retrying " + id + ": " + urlGet + "    "
                                 // + DateTimeUtil.timeFormater.format(new Date(System.currentTimeMillis()))
                                 // + "  in:" + sleepT + "ms  "+ retries + "retries.");
 
@@ -656,7 +656,7 @@ public abstract class TileHttpFetcher extends Tile {
                         }
                         catch (UnknownHostException e) {
                             // double sleepT = 30000 + 10000 * rnd.nextDouble();
-                            // System.out.println("UnknownHostException Retrying " + id + ": " + urlGet + "    "
+                            // NeptusLog.pub().info("<###>UnknownHostException Retrying " + id + ": " + urlGet + "    "
                             // + DateTimeUtil.timeFormater.format(new Date(System.currentTimeMillis()))
                             // + "  in:" + sleepT + "ms  "+ retries + "retries.");
                             // try { Thread.sleep((long) (sleepT)); } catch (Exception e1) { }

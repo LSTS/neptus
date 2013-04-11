@@ -748,7 +748,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         chkDir.mkdirs();
 
         Document myDoc = asDocument();
-        // System.out.println("Mission Zip +++++++++++++++++++++++ " + myDoc.asXML());
+        // NeptusLog.pub().info("<###>Mission Zip +++++++++++++++++++++++ " + myDoc.asXML());
         if (originalFilePath == null || originalFilePath.length() == 0) {
             GuiUtils.errorMessage(null, I18n.text("Mission not saved"), I18n.text("The mission has to be saved first"));
             return false;
@@ -759,8 +759,8 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         compressedFilePath = oldPath;
 
         String missionDir = originalFilePath.substring(0, originalFilePath.lastIndexOf(sep));
-        // System.out.println("missiondir="+missionDir);
-        // System.out.println("outdir="+outDir.getAbsolutePath());
+        // NeptusLog.pub().info("<###>missiondir="+missionDir);
+        // NeptusLog.pub().info("<###>outdir="+outDir.getAbsolutePath());
 
         List<?> lst = myDoc.selectNodes("//href");
         Iterator<?> lstIt = lst.iterator();
@@ -790,7 +790,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 Node n = (Node) l2.next();
                 String imgHref = ConfigFetch.resolvePathWithParent(mapDir, n.getText());
                 String imgName = imgHref.substring(imgHref.lastIndexOf(sep) + 1, imgHref.length());
-                // System.out.println("IMAGE> "+imgHref+ " -> " + outDir.getAbsolutePath()+sep+imgName);
+                // NeptusLog.pub().info("<###>IMAGE> "+imgHref+ " -> " + outDir.getAbsolutePath()+sep+imgName);
                 FileUtil.copyFile(imgHref, outDir.getAbsolutePath() + sep + "images" + sep + imgName);
                 n.setText("../images/" + imgName);
             }
@@ -800,7 +800,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 Node n = (Node) l2.next();
                 String imgHref = ConfigFetch.resolvePathWithParent(mapDir, n.getText());
                 String imgName = imgHref.substring(imgHref.lastIndexOf(sep) + 1, imgHref.length());
-                // System.out.println("BATHIMAGE> "+imgHref+ " -> " + outDir.getAbsolutePath()+sep+imgName);
+                // NeptusLog.pub().info("<###>BATHIMAGE> "+imgHref+ " -> " + outDir.getAbsolutePath()+sep+imgName);
                 FileUtil.copyFile(imgHref, outDir.getAbsolutePath() + sep + "images" + sep + imgName);
                 n.setText("../images/" + imgName);
             }
@@ -810,7 +810,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 Node n = (Node) l2.next();
                 String imgHref = ConfigFetch.resolvePathWithParent(mapDir, n.getText());
                 String imgName = imgHref.substring(imgHref.lastIndexOf(sep) + 1, imgHref.length());
-                // System.out.println("BATHIMAGE> "+imgHref+ " -> " + outDir.getAbsolutePath()+sep+imgName);
+                // NeptusLog.pub().info("<###>BATHIMAGE> "+imgHref+ " -> " + outDir.getAbsolutePath()+sep+imgName);
                 FileUtil.copyFile(imgHref, outDir.getAbsolutePath() + sep + "images" + sep + imgName);
                 n.setText("../images/" + imgName);
             }
@@ -821,7 +821,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 Node n = (Node) l2.next();
                 String imgHref = ConfigFetch.resolvePathWithParent(mapDir, n.getText());
                 String imgName = imgHref.substring(imgHref.lastIndexOf(sep) + 1, imgHref.length());
-                // System.out.println("IMAGE> "+imgHref+ " -> " + outDir.getAbsolutePath()+sep+imgName);
+                // NeptusLog.pub().info("<###>IMAGE> "+imgHref+ " -> " + outDir.getAbsolutePath()+sep+imgName);
                 FileUtil.copyFile(imgHref, outDir.getAbsolutePath() + sep + "models" + sep + imgName);
                 n.setText("../models/" + imgName);
 
@@ -846,13 +846,13 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 Node n = (Node) l2.next();
                 String imgHref = ConfigFetch.resolvePathWithParent(mapDir, n.getText());
                 String imgName = imgHref.substring(imgHref.lastIndexOf(sep) + 1, imgHref.length());
-                // System.out.println("IMAGE> "+imgHref+ " -> " + outDir.getAbsolutePath()+sep+imgName);
+                // NeptusLog.pub().info("<###>IMAGE> "+imgHref+ " -> " + outDir.getAbsolutePath()+sep+imgName);
                 FileUtil.copyFile(imgHref, outDir.getAbsolutePath() + sep + "models" + sep + imgName);
                 n.setText("../models/" + imgName);
             }
 
             String mapName = mapHref.substring(mapHref.lastIndexOf(sep), mapHref.length());
-            // System.out.println("MAP> "+mapHref+ " -> " + outDir+sep+mapName);
+            // NeptusLog.pub().info("<###>MAP> "+mapHref+ " -> " + outDir+sep+mapName);
             // FileUtil.saveToFile(outDir+sep+mapName, mapDoc.asXML());
             FileUtil.saveToFile(outDir + sep + "maps" + sep + mapName,
                     FileUtil.getAsPrettyPrintFormatedXMLString(mapDoc));
@@ -871,7 +871,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         // FileUtil.saveToFile(outDir.getAbsolutePath()+sep+"mission.nmis", myDoc.asXML());
         FileUtil.saveToFile(outDir.getAbsolutePath() + sep + "mission.nmis",
                 FileUtil.getAsPrettyPrintFormatedXMLString(FileUtil.getAsCompactFormatedXMLString(myDoc)));
-        // System.out.println("Mission ziiiiiiiiiiiiiiiiiiiiiiiiiiiiiiip " + myDoc.asXML());
+        // NeptusLog.pub().info("<###>Mission ziiiiiiiiiiiiiiiiiiiiiiiiiiiiiiip " + myDoc.asXML());
 
         if (saveNeptusConfigurations) {
             FileUtil.copyFile(ConfigFetch.resolvePath("conf/general-properties.xml"), outDir + sep

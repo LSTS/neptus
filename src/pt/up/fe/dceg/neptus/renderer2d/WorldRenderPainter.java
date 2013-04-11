@@ -996,7 +996,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         int tileYMax = tmmr[3];
         int levelOfDetail = renderer.getLevelOfDetail();
         int maxLevelOfDetail = Math.min(getMaxLevelOfDetail(mapStyle), levelOfDetail + 2);
-        System.out.println("tileXMin=" + tileXMin + ", tileYMin=" + tileYMin + ", tileXMax=" + tileXMax + ", tileYMax=" + tileYMax);
+        NeptusLog.pub().info("<###>tileXMin=" + tileXMin + ", tileYMin=" + tileYMin + ", tileXMax=" + tileXMax + ", tileYMax=" + tileYMax);
         Vector<String> bagList = new Vector<String>();
         for (int x = tileXMin; x <= tileXMax; x++) {
             for (int y = tileYMin; y <= tileYMax; y++) {
@@ -1536,7 +1536,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             else
                 hb.setHovering(false);
         }
-        //        System.out.println("mouseMoved > " +  e.getX() + " :: " + e.getY());
+        //        NeptusLog.pub().info("<###>mouseMoved > " +  e.getX() + " :: " + e.getY());
     }
 
     /* (non-Javadoc)
@@ -1551,7 +1551,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             if(ret.contains((Point2D)e.getPoint()))
                 hb.toggleSelected();
         }
-        //        System.out.println("mouseClicked > " + e.getX() + " :: " + e.getY());
+        //        NeptusLog.pub().info("<###>mouseClicked > " + e.getX() + " :: " + e.getY());
     }
 
     /* (non-Javadoc)
@@ -1574,7 +1574,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     @Override
     public void mouseEntered(MouseEvent e) {
         mouseActive = true;
-        //        System.out.println("mouseEntered > " + e.getX() + " :: " + e.getY());
+        //        NeptusLog.pub().info("<###>mouseEntered > " + e.getX() + " :: " + e.getY());
     }
 
     /* (non-Javadoc)
@@ -1586,6 +1586,6 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         for (HoveringButton hb : controlRenderButtons) {
             hb.setHovering(false);
         }
-        //        System.out.println("mouseExited > " + e.getX() + " :: " + e.getY());
+        //        NeptusLog.pub().info("<###>mouseExited > " + e.getX() + " :: " + e.getY());
     }
 }

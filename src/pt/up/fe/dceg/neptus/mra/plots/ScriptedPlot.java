@@ -43,6 +43,7 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.tools.shell.Global;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
@@ -138,7 +139,7 @@ public class ScriptedPlot extends MraTimeSeriesPlot {
                 GuiUtils.errorMessage(mraPanel, "Init script Error", e.getMessage());
                 e.printStackTrace();
             }
-            System.out.println("init");
+            NeptusLog.pub().info("<###>init");
         }
         
         if (end != null) {
@@ -149,7 +150,7 @@ public class ScriptedPlot extends MraTimeSeriesPlot {
                 GuiUtils.errorMessage(mraPanel, "End script Error", e.getMessage());
                 e.printStackTrace();
             }
-            System.out.println("end");
+            NeptusLog.pub().info("<###>end");
         }
         
         for (Entry<String, String> t : traces.entrySet()) {

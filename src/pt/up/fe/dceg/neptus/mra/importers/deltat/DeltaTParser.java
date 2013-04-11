@@ -247,7 +247,7 @@ public class DeltaTParser implements BathymetryParser {
 //                    f[1] = new Double(r[1]).floatValue();
 //                    
 //                    System.out.println(r[0]);
-//                    System.out.println(" " + f[0]);
+//                    NeptusLog.pub().info("<###> " + f[0]);
 //                }
                 c++;
 //                kryo.writeObject(output, bs);

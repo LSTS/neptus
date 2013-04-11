@@ -676,7 +676,7 @@ public class IMCUtils {
         for (IMCMessage m : transps)
             msgs.add(m);
 
-        System.out.println("Sending the mission spec (plan) to " + destination.getHostName() + ":"
+        NeptusLog.pub().info("<###>Sending the mission spec (plan) to " + destination.getHostName() + ":"
                 + destination.getPort() + "...");
         msg = generatePlanSpecification(mt.getIndividualPlansList().get(planId));
         msgs.add(msg);
@@ -1284,10 +1284,10 @@ public class IMCUtils {
          * @Override public void actionPerformed(ActionEvent e) { System.out.print("creating inetsocket...");
          * 
          * InetSocketAddress addrs = new InetSocketAddress(addr.getText(), Integer.parseInt(port.getText()));
-         * System.out.println("DONE."); System.out.print("sending...");
+         * NeptusLog.pub().info("<###>DONE."); System.out.print("sending...");
          * 
          * boolean ret = sendMissionConfiguration(mt, plans .getSelectedItem().toString(), addrs);
-         * System.out.println("DONE."); System.out.println(ret); } });
+         * NeptusLog.pub().info("<###>DONE."); System.out.println(ret); } });
          * 
          * JButton missButton = new JButton("Mission..."); missButton.addActionListener(new ActionListener() {
          * 
@@ -1314,7 +1314,7 @@ public class IMCUtils {
         Vector<IMCMessage> emlst = extractMessagesFromMessageListMsg(mlst);
         GuiUtils.printList(emlst);
 
-        System.out.println("\n\n\n\n");
+        NeptusLog.pub().info("<###>\n\n\n\n");
         System.out.println(reduceSystemName("lauv-seacon-1"));
         System.out.println(reduceSystemName("lauv-xtreme-2"));
         System.out.println(reduceSystemName("lauv-noptilus-0"));

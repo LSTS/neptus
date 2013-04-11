@@ -285,7 +285,7 @@ public class LogUtils {
         IMraLog parser = source.getLog("HomeRef");
         if (parser != null) {
             IMCMessage lastEntry = parser.getLastEntry();
-//            System.out.println("-----" + lastEntry);
+//            NeptusLog.pub().info("<###>-----" + lastEntry);
             double lat = lastEntry.getDouble("lat");
             double lon = lastEntry.getDouble("lon");
             double depth = lastEntry.getDouble("depth");

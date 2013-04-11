@@ -897,7 +897,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         props.add(ssRangeShadowtP);
 
         //        for (DefaultProperty p : props) {
-        //            System.out.println("* "+p.getName()+"="+p.getValue());
+        //            NeptusLog.pub().info("<###>* "+p.getName()+"="+p.getValue());
         //        }
 
         return props;

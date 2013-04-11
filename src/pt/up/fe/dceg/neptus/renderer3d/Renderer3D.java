@@ -369,7 +369,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 		/*
 		 * Thread t = new Thread(new Runnable() { public void run() { double
 		 * offset=0; for(;;) { try {//nada
-		 * //System.out.println("----------Novo state ----------"); LocationType
+		 * //NeptusLog.pub().info("<###>----------Novo state ----------"); LocationType
 		 * loc1 = new LocationType(); loc1.setDepth(-10); offset+=0.1;
 		 * loc1.setLatitude(location.getLatitude());
 		 * loc1.setLongitude(location.getLongitude());
@@ -377,8 +377,8 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 		 * VehicleState(loc1, 0., -Math.PI/3, 0.0); VehicleType
 		 * v=VehiclesHolder.getVehicleById("rov-sim");
 		 * Renderer3D.this.vehicleStateChanged(v,sv1);
-		 * //System.out.println("esperou"); Thread.sleep(2000); } catch
-		 * (Exception e){ System.out.println("excepcao"); } } } });
+		 * //NeptusLog.pub().info("<###>esperou"); Thread.sleep(2000); } catch
+		 * (Exception e){ NeptusLog.pub().info("<###>excepcao"); } } } });
 		 * 
 		 * t.start();
 		 */
@@ -591,7 +591,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 		if (plan != null)
 			removeObj3D(plan);
 
-		// System.out.println("setPlanObj("+obj+")");
+		// NeptusLog.pub().info("<###>setPlanObj("+obj+")");
 		plan = obj;
 		if (plan != null)
 			addObj3D(plan);
@@ -1194,7 +1194,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 			// cams[0].canvas.startRenderer();
 			// cams[0].canvas.startRenderer();
 			// cams[0].canvas.stopRenderer();
-			// System.out.println("já existe");
+			// NeptusLog.pub().info("<###>já existe");
 			// cams[0].canvas.preRender();
 
 			// double d[]=state.getNEDPosition();
@@ -1259,8 +1259,8 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 	/*--------------------------main para testar------------------*/
 	public static void main(String args[]) {
 
-		// System.out.println("d"+Math.tan();
-		System.out.println("angulo" + 2 * Math.toDegrees(Math.atan(1 / 3.45)));
+		// NeptusLog.pub().info("<###>d"+Math.tan();
+		NeptusLog.pub().info("<###>angulo" + 2 * Math.toDegrees(Math.atan(1 / 3.45)));
 
 		ConfigFetch.initialize();
 		VehiclesHolder.loadVehicles();
@@ -1381,7 +1381,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				}
 			}
 
-			// System.out.println("está lock");
+			// NeptusLog.pub().info("<###>está lock");
 		} else {
 			cams[view].lockobj.removeCamera3D(cams[view]);
 			obje.addCamera3D(cams[view]);
@@ -1508,7 +1508,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 			 * v3D=(Obj3D)vehicles.get(veicle_op);
 			 * v3D.addCamera3D(cams[panel_op]); cams[panel_op].lock=veicle_op;
 			 * cams[panel_op].lockobj=v3D; cams[panel_op].lockmapobj=null;
-			 * //System.out.println("está lock"); } else{
+			 * //NeptusLog.pub().info("<###>está lock"); } else{
 			 * if(cams[panel_op].lock==veicle_op) //se está presa e é o
 			 * proprio { Obj3D v3D;
 			 * v3D=(Obj3D)vehicles.get(cams[panel_op].lock);
@@ -1760,7 +1760,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 		}
 
 		if ("propreties".equals(e.getActionCommand().substring(0, 10))) {
-			// System.out.println("carregou em properties");
+			// NeptusLog.pub().info("<###>carregou em properties");
 			// System.out.println(e.getActionCommand().substring(10));
 
 			Enumeration<AbstractElement> enuma = objects.keys();
@@ -2143,7 +2143,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 												projObj), true);
 								// if(projObj.getVideoSource()!=null)
 								// {
-								// System.out.println("grabFrame:"+projObj.getVideoSource().grabFrameImage());
+								// NeptusLog.pub().info("<###>grabFrame:"+projObj.getVideoSource().grabFrameImage());
 								// }
 							}
 
@@ -2161,14 +2161,14 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				 * Vector3d(10,10,10)); //pickTool. PickResult result =
 				 * pickTool.pickClosest(); if (result == null) {
 				 * 
-				 * System.out.println("---Nothing picked---");
+				 * NeptusLog.pub().info("<###>---Nothing picked---");
 				 * 
-				 * } else { System.out.println("--------------- picked---");
+				 * } else { NeptusLog.pub().info("<###>--------------- picked---");
 				 * //result.setFirstIntersectOnly(true);
 				 * //System.out.println(result);
 				 * 
 				 * 
-				 * //System.out.println("Coordinates:"+result.getClosestIntersection
+				 * //NeptusLog.pub().info("<###>Coordinates:"+result.getClosestIntersection
 				 * (new Point3d(-10,0.1,0)).getPointCoordinates());
 				 * System.out.println
 				 * ("Coordinates to world:"+result.getClosestIntersection(new
@@ -2200,11 +2200,11 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				 * 
 				 * } else{
 				 * 
-				 * System.out.println("null");
+				 * NeptusLog.pub().info("<###>null");
 				 * 
 				 * }
 				 * 
-				 * } System.out.println("--------------- end  picked---");
+				 * } NeptusLog.pub().info("<###>--------------- end  picked---");
 				 * //Sphere s=new Sphere(1.0f, Sphere.GENERATE_NORMALS| //
 				 * Sphere.GENERATE_TEXTURE_COORDS,null); //TransformGroup ts=new
 				 * TransformGroup(); //Transform3D trs=new Transform3D();
@@ -2250,7 +2250,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 												sensorObj), true);
 								// if(projObj.getVideoSource()!=null)
 								// {
-								// System.out.println("grabFrame:"+projObj.getVideoSource().grabFrameImage());
+								// NeptusLog.pub().info("<###>grabFrame:"+projObj.getVideoSource().grabFrameImage());
 								// }
 							
 
@@ -2321,7 +2321,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
 
-		// System.out.println("arastou");
+		// NeptusLog.pub().info("<###>arastou");
 
 	}
 
@@ -2343,13 +2343,13 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 	public void mousePressed(MouseEvent e) {
 
 		if (e.getButton() == MouseEvent.BUTTON1) {
-			// System.out.println("press1");
+			// NeptusLog.pub().info("<###>press1");
 			mouse1 = true;
 			mousex = e.getX();
 			mousey = e.getY();
 		}
 		if (e.getButton() == MouseEvent.BUTTON3) {
-			// System.out.println("press1");
+			// NeptusLog.pub().info("<###>press1");
 			mouse3 = true;
 			mousex = e.getX();
 			mousey = e.getY();
@@ -2364,13 +2364,13 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 	 */
 	public void mouseReleased(MouseEvent e) {
 		// // TODO Auto-generated method stub
-		// System.out.println("rel");
+		// NeptusLog.pub().info("<###>rel");
 		if (e.getButton() == MouseEvent.BUTTON1) {
-			// System.out.println("rel1");
+			// NeptusLog.pub().info("<###>rel1");
 			mouse1 = false;
 		}
 		if (e.getButton() == MouseEvent.BUTTON3) {
-			// System.out.println("rel1");
+			// NeptusLog.pub().info("<###>rel1");
 			mouse3 = false;
 		}
 	}
@@ -2588,7 +2588,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 						mousex = mx;
 						mousey = my;
 					}
-			// System.out.println("drag");
+			// NeptusLog.pub().info("<###>drag");
 		}
 
 		if (mouse3) {
@@ -2667,7 +2667,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 						mousex = mx;
 						mousey = my;
 					}
-			// System.out.println("drag");
+			// NeptusLog.pub().info("<###>drag");
 		}
 		// }
 	}
@@ -2680,7 +2680,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 	 */
 	public void mouseMoved(MouseEvent e) {
 		// TODO Auto-generated method stub
-		// System.out.println("move");
+		// NeptusLog.pub().info("<###>move");
 
 		if (viewing == Renderer.RULER && e.getSource() == cams[panel_op].canvas)
 			if (rule == 1) // arrastou e clicou
@@ -2807,7 +2807,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 		/*
 		 * Collection col=objects.values(); if (!col.isEmpty()) for (int i
 		 * =0;i<objects.values().toArray().length;i++) objarray[i]= (Obj3D)
-		 * objects.values().toArray()[i]; else System.out.println("erro");
+		 * objects.values().toArray()[i]; else NeptusLog.pub().info("<###>erro");
 		 * for(int i=0;i<objarray.length;i++) { double newpos[]=objarray[i].pos;
 		 * newpos[0]+=d[0]; newpos[1]+=d[1]; newpos[2]+=d[2];
 		 * objarray[i].setPos(newpos); }
@@ -2852,7 +2852,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 		while (childs.hasMoreElements()) {
 			Object child = childs.nextElement();
 			if (child instanceof Cylinder) {
-				// System.out.println("-------------FOUND-------------");
+				// NeptusLog.pub().info("<###>-------------FOUND-------------");
 				return (Cylinder) child;
 			} else if (child instanceof TransformGroup) {
 				return foundCylinder((TransformGroup) child);
@@ -3268,7 +3268,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 			Object key = e.nextElement();
 			Obj3D obj = (Obj3D) objects.get(key);
 			contentsTransGr.removeChild(obj.getFullObj3D());
-			// System.out.println("removing object "+key);
+			// NeptusLog.pub().info("<###>removing object "+key);
 		}
 		objects.clear();
 
@@ -3287,7 +3287,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 
 	public void mapChanged(MapChangeEvent mapChange) {
 
-		// System.out.println("MAp Changed!");
+		// NeptusLog.pub().info("<###>MAp Changed!");
 
 		// System.err
 		// .println("||||||||||||||Mapa alterado 3D |||||||||||||||||||");
@@ -3317,7 +3317,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				Object key = e.nextElement();
 				Obj3D obj = (Obj3D) objects.get(key);
 				contentsTransGr.removeChild(obj.getFullObj3D());
-				// System.out.println("removing object "+key);
+				// NeptusLog.pub().info("<###>removing object "+key);
 			}
 			objects.clear();
 
@@ -3337,7 +3337,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 		 * if (mapChange.getChangedObject() == null) return;
 		 */
 		if (mapChange.getEventType() == MapChangeEvent.OBJECT_CHANGED) {
-			// System.out.println("Object Changed!");
+			// NeptusLog.pub().info("<###>Object Changed!");
 			lock.lock();
 			AbstractElement objs = mapChange.getChangedObject();
 			if (objs == null) {
@@ -3658,7 +3658,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 			Obj3D obj;
 			obj = (Obj3D) objects.get(objs);
 			// System.err.println("MapChangeEvent: "+mapChange.getEventType()+" no objecto "+mapChange.getChangedObject()+", ("+mapChange.getChangedObject().hashCode()+")");
-			// System.out.println("Object="+obj);
+			// NeptusLog.pub().info("<###>Object="+obj);
 			if (obj == null) {
 				// System.err.println("TEntativa de remover um objecto não existente ("+objs.hashCode()+")");
 				return;
@@ -3824,7 +3824,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 
 		contentsNoPickTransGr.removeAllChildren();
 		vehicles.clear();
-		// System.out.println("removeu Todos");
+		// NeptusLog.pub().info("<###>removeu Todos");
 	}
 
 	public void removeVehicle(VehicleType vehicle) {
@@ -3833,7 +3833,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 			contentsNoPickTransGr.removeChild(((Obj3D) vehicles.get(vehicle))
 					.getFullObj3D());
 		vehicles.remove(vehicle);
-		// System.out.println("removeu");
+		// NeptusLog.pub().info("<###>removeu");
 	}
 
 	public void followVehicle(String system) {

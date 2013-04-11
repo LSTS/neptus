@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.loader.NeptusMain;
 import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
@@ -326,7 +327,7 @@ public abstract class MultiSystemIMCMessageListener {
         catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("-------------- Change");
+        NeptusLog.pub().info("<###>-------------- Change");
         msl.setSystemToListen(new ImcId16("00:16"));
         try {
             Thread.sleep(10000);
@@ -334,7 +335,7 @@ public abstract class MultiSystemIMCMessageListener {
         catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("-------------- Change");
+        NeptusLog.pub().info("<###>-------------- Change");
         msl.setMessagesToListen("EstimatedState", "Abort");
         try {
             Thread.sleep(10000);
@@ -342,7 +343,7 @@ public abstract class MultiSystemIMCMessageListener {
         catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("-------------- Change");
+        NeptusLog.pub().info("<###>-------------- Change");
         msl.setSystemToListen(new ImcId16("00:15"));
         try {
             Thread.sleep(10000);
@@ -350,7 +351,7 @@ public abstract class MultiSystemIMCMessageListener {
         catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("-------------- Change");
+        NeptusLog.pub().info("<###>-------------- Change");
         msl.setMessagesToListen();
         try {
             Thread.sleep(10000);
@@ -358,7 +359,7 @@ public abstract class MultiSystemIMCMessageListener {
         catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("-------------- Change");
+        NeptusLog.pub().info("<###>-------------- Change");
         msl.setSystemToListenStrings();
         try {
             Thread.sleep(10000);
@@ -366,7 +367,7 @@ public abstract class MultiSystemIMCMessageListener {
         catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("-------------- Change");
+        NeptusLog.pub().info("<###>-------------- Change");
         msl.setSystemToListenStrings("00:16", "lauv-seacon-3");
     }
 }

@@ -39,6 +39,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
@@ -147,7 +148,7 @@ public class QRouteElement extends SimpleMapElement implements ConfigurationList
     
     @Override
     public void setCenterLocation(LocationType centralLocation) {
-        System.out.println("Set center location");
+        NeptusLog.pub().info("<###>Set center location");
         LocationType prevLocation = new LocationType(getCenterLocation());
         super.setCenterLocation(centralLocation);
         

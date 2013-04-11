@@ -78,7 +78,7 @@ public class DebugStructures extends Element3D {
 
         // rootNode.attachChild(createPlane(0, "45", ColorRGBA.Pink));
         // rootNode.attachChild(createPlane(worldInfo.getTerrainLvl(), "ground", ColorRGBA.Cyan));
-        // System.out.println("worldInfo.getTerrainLvl():" + worldInfo.getTerrainLvl());
+        // NeptusLog.pub().info("<###>worldInfo.getTerrainLvl():" + worldInfo.getTerrainLvl());
     }
 
 }

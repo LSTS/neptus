@@ -144,7 +144,7 @@ public class GraphType implements XmlOutputMethods {
             e.printStackTrace();
             return false;
         }
-        //System.out.println("the initial maneuver is "+getInitialManeuverId());
+        //NeptusLog.pub().info("<###>the initial maneuver is "+getInitialManeuverId());
         return true;
     }
 
@@ -462,7 +462,7 @@ public class GraphType implements XmlOutputMethods {
             Element idElem = (Element) manElemRoot.selectSingleNode("./id").detach();
             Element manElem = (Element) manElemRoot.selectSingleNode("./maneuver").detach();
             manElem.addAttribute("id", idElem.getText());
-            //System.out.println("ManElem:\n"+manElemRoot);
+            //NeptusLog.pub().info("<###>ManElem:\n"+manElemRoot);
             root.add(manElem);
 
             visitedIDs.add(curID);
@@ -682,7 +682,7 @@ public class GraphType implements XmlOutputMethods {
         	root.add(edges[i].asElement());
         }
 		
-        //System.out.println("Graph-----------------\n"+document.asXML());
+        //NeptusLog.pub().info("<###>Graph-----------------\n"+document.asXML());
         return document;
         
         
@@ -696,7 +696,7 @@ public class GraphType implements XmlOutputMethods {
     
     public Document asDocument2(String rootElementName)
     {
-    	System.out.println("Save as trajectory!");
+    	NeptusLog.pub().info("<###>Save as trajectory!");
         Document document = DocumentHelper.createDocument();
         Element root = document.addElement( rootElementName );
         

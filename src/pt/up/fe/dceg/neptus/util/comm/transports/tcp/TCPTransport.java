@@ -350,9 +350,9 @@ public class TCPTransport {
 	            try { Thread.sleep(10); } catch (InterruptedException e1) { }
 	        }
             selector.wakeup();
-//	        System.out.println("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
+//	        NeptusLog.pub().info("<###>rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
 	        channel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-//	        System.out.println("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
+//	        NeptusLog.pub().info("<###>RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
 	        return channel;
 	    }
 	    catch (Exception e) {
@@ -546,7 +546,7 @@ public class TCPTransport {
     							                    if (System.currentTimeMillis() - lastTime > 20000) {
     							                        channel.close();
     							                        channel.keyFor(selector).cancel();
-//    							                        System.out.println("CLEAN  ...........................................");
+//    							                        NeptusLog.pub().info("<###>CLEAN  ...........................................");
     							                    }
     							                }
     							            }
@@ -619,7 +619,7 @@ public class TCPTransport {
 												channel.close();
 											}
 											receptionMessageList.offer(info);
-		                                    //System.out.println(">>> Channel: "+channel+ " READ " + lengthReceived + "B");
+		                                    //NeptusLog.pub().info("<###>>>> Channel: "+channel+ " READ " + lengthReceived + "B");
                                             NeptusLog.pub().debug(TCPTransport.class.getSimpleName()
                                                     + ": Listener Thread " + ">>> Channel: " + channel + " READ "
                                                     + lengthReceived + "B");
@@ -655,10 +655,10 @@ public class TCPTransport {
                                                 }
                                             }
                                             if (sendAck) {
-//                                                System.out.println("WRITE  ...........................................");
+//                                                NeptusLog.pub().info("<###>WRITE  ...........................................");
                                                 SocketChannel channel = (SocketChannel) key.channel();
                                                 ByteBuffer bf = ByteBuffer.wrap(new byte[] { (byte) 0xFFFF });
-//                                                System.out.println("WRITE  " + channel.write(bf));
+//                                                NeptusLog.pub().info("<###>WRITE  " + channel.write(bf));
                                                 channel.write(bf);
                                                 key.attach(System.currentTimeMillis());
                                             }
@@ -772,7 +772,7 @@ public class TCPTransport {
 	                            
 	                            ByteBuffer bbuf = ByteBuffer.wrap(req.getBuffer());
 	                            int writtenBytes = channel.write(bbuf);
-//	                            System.out.println("......... " + writtenBytes + "   ");
+//	                            NeptusLog.pub().info("<###>......... " + writtenBytes + "   ");
 	                            if (writtenBytes != req.getBuffer().length) {
 	                                informDeliveryListener(req, ResultEnum.Error, null);
                                     synchronized (clients) {
@@ -916,7 +916,7 @@ public class TCPTransport {
 //                            pis, TCPMessageProcessor.this, null);
                     try {
                         while(!isInputClosed && pis.available() >= 0) { // the pis.available() not always when return '0' means end of stream
-//                            System.out.println("pis.available()" + pis.available());
+//                            NeptusLog.pub().info("<###>pis.available()" + pis.available());
                             if (pis.available() == 0) {
                                 try { Thread.sleep(20); } catch (InterruptedException e) { }
                                 continue;
@@ -946,9 +946,9 @@ public class TCPTransport {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
-                    System.out.println("pis.available()------------");
+                    NeptusLog.pub().info("<###>pis.available()------------");
                     try {
-                        System.out.println("pis.available()" + pis.available());
+                        NeptusLog.pub().info("<###>pis.available()" + pis.available());
                     }
                     catch (IOException e) {
                         // TODO Auto-generated catch block
@@ -972,7 +972,7 @@ public class TCPTransport {
                     pos.flush();
                     pos.close();
                     isInputClosed = true;
-                    System.out.println("POS Closed");
+                    NeptusLog.pub().info("<###>POS Closed");
                 }
                 else
                     pos.write(req.getBuffer());
@@ -1005,9 +1005,9 @@ public class TCPTransport {
 			
 			@Override
 			public void onTCPMessageNotification(TCPNotification req) {
-//				System.out.println("ssssssssssssssssssss "+req.getTimeMillis());
+//				NeptusLog.pub().info("<###>ssssssssssssssssssss "+req.getTimeMillis());
 			    String id = req.getAddress().toString();
-//			    System.out.println("---id: "+id);
+//			    NeptusLog.pub().info("<###>---id: "+id);
 			    TCPMessageProcessor proc = listProc.get(id);
 			    if (proc == null) {
 			        proc = new TCPMessageProcessor(id);
@@ -1052,7 +1052,7 @@ public class TCPTransport {
 
         try { Thread.sleep(10000); } catch (InterruptedException e1) { }
 
-        System.out.println("Start --------------------------------------------");
+        NeptusLog.pub().info("<###>Start --------------------------------------------");
 		try { Thread.sleep(5000); } catch (InterruptedException e1) { }
 		tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
         try { Thread.sleep(5000); } catch (InterruptedException e1) { }

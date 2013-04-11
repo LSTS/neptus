@@ -60,6 +60,7 @@ import javax.swing.JTextPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.ChronometerPanel;
 import pt.up.fe.dceg.neptus.gui.checklist.CheckItemPanel;
 import pt.up.fe.dceg.neptus.gui.checklist.GeneratorChecklistPDF;
@@ -670,7 +671,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
                     "images/buttons/report.png", 16, 16)));
             produceReport.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    // System.out.println("To PDF actionPerformed()");
+                    // NeptusLog.pub().info("<###>To PDF actionPerformed()");
 
                     // FIXME Perguntar se quer guardar ou não (tem q testar se
                     // tem alterações)
@@ -816,7 +817,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
         this.listSubItems.add(getEndPanel());
         repaintCheck();
 
-        System.out.println("Check List Ended");
+        NeptusLog.pub().info("<###>Check List Ended");
     }
 
     private void skipItem() {
@@ -884,14 +885,14 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
     public CheckItem getCurrentItem() {
         String currGroup = getCurrentGroup();
 
-        System.out.println("CurrentGroup : " + currentGroup + "   item :" + currentItem);
-        System.out.println("getCurrentGroup() : " + getCurrentGroup());
-        System.out.println("checklist.getGroupList() : " + checklist.getGroupList());
-        System.out.println("(CheckItem) checklist.getGroupList().get(currGroup) : " + checklist.getGroupList());
+        NeptusLog.pub().info("<###>CurrentGroup : " + currentGroup + "   item :" + currentItem);
+        NeptusLog.pub().info("<###>getCurrentGroup() : " + getCurrentGroup());
+        NeptusLog.pub().info("<###>checklist.getGroupList() : " + checklist.getGroupList());
+        NeptusLog.pub().info("<###>(CheckItem) checklist.getGroupList().get(currGroup) : " + checklist.getGroupList());
 
-        System.out.println("contain: : " + checklist.getGroupList().containsKey(currGroup));
+        NeptusLog.pub().info("<###>contain: : " + checklist.getGroupList().containsKey(currGroup));
 
-        System.out.println("contain: : " + checklist.getGroupList().keySet().toArray()[0]);
+        NeptusLog.pub().info("<###>contain: : " + checklist.getGroupList().keySet().toArray()[0]);
 
         CheckItem ci = (CheckItem) checklist.getGroupList().get(currGroup).toArray()[currentItem];
         // ci.getAutoSubItems().toArray()[0].

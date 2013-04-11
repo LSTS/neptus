@@ -52,6 +52,7 @@ import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
@@ -390,7 +391,7 @@ public class MultibeamData implements Serializable {
                 c++;
                 System.out.println(buf.getFilePointer());
             }
-            System.out.println("Total ping number " + c);
+            NeptusLog.pub().info("<###>Total ping number " + c);
 
             // Reset buffer
             buf.seek(0);

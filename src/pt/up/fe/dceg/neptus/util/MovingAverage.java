@@ -33,6 +33,8 @@ package pt.up.fe.dceg.neptus.util;
 
 import java.util.ArrayList;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author pdias (taken from DUNE, by Ricardo Martins)
  * 
@@ -139,36 +141,36 @@ public class MovingAverage {
     public static void main(String[] args) {
         MovingAverage ma = new MovingAverage((short) 5);
 
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(2);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(2.3);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(5.1);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(1.2);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(4);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(3.2);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(10.3);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(30.2);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(2);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(4.3);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(2.4);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(32);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(12);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(3.4);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
         ma.update(2.3);
-        System.out.println("mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
+        NeptusLog.pub().info("<###>mean=" + ma.mean() + "\t\t    stdev=" + ma.stdev() + "         " + ma.window);
     }
 }

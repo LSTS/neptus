@@ -34,6 +34,8 @@ package pt.up.fe.dceg.neptus.util;
 import java.util.GregorianCalendar;
 import java.util.Random;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author zecarlos
  */
@@ -123,7 +125,7 @@ public class NameNormalizer {
     public static void main(String args[]) {
         String[] tests = new String[] {"Olá mundo", "Isto é um teste", " Ora Ora Ora", "12312+2", "!!!!"};
         for (int i = 0; i < tests.length; i++) {
-            System.out.println("Test phrase: \""+tests[i]+"\", Result: \""+NameNormalizer.asIdentifier(tests[i])+"\"");
+            NeptusLog.pub().info("<###>Test phrase: \""+tests[i]+"\", Result: \""+NameNormalizer.asIdentifier(tests[i])+"\"");
         }
     }
 }

@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
@@ -134,7 +135,7 @@ public class PCDExporter implements MraExporter{
             double lat = 0, lon = 0;
             int numOfEntries = 0;
             
-            System.out.println("Reading 83P Profile Information");
+            NeptusLog.pub().info("<###>Reading 83P Profile Information");
             while (curPosition < channel.size()) {
                 // Process Header ---------
                 b = channel.map(MapMode.READ_ONLY, curPosition, 256); // Read header from file to buffer
@@ -145,7 +146,7 @@ public class PCDExporter implements MraExporter{
                 
                 curPosition += pingTotalSize;
             }            
-            System.out.println("Final number of entries: " + numOfEntries);
+            NeptusLog.pub().info("<###>Final number of entries: " + numOfEntries);
             out.writeBytes("VERSION .7\n");
             out.writeBytes("FIELDS x y z\n");
             out.writeBytes("SIZE 4 4 4\n");
@@ -158,7 +159,7 @@ public class PCDExporter implements MraExporter{
             out.writeBytes("DATA ascii\n");
             
             curPosition = 0;
-            System.out.println("Processing Information");
+            NeptusLog.pub().info("<###>Processing Information");
             while (curPosition < channel.size()) {
                 // Process Header ---------
                 b = channel.map(MapMode.READ_ONLY, curPosition, 256); // Read header from file to buffer
@@ -262,7 +263,7 @@ public class PCDExporter implements MraExporter{
                 pingCount++;
                 curPosition += pingTotalSize;
             }
-            System.out.println("Wrinting PCD file");
+            NeptusLog.pub().info("<###>Wrinting PCD file");
 //            topLeftLT = new LocationType(maxLat, minLon);
 //            bottomRightLT = new LocationType(minLat, maxLon);
 //

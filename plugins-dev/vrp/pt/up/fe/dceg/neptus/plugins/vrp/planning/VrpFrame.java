@@ -44,6 +44,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.vecmath.Point2d;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 
 /**
  * @author Rui Gonçalves
@@ -84,7 +86,7 @@ public class VrpFrame extends JFrame {
 	Vector<Vector<Point2d>> paths=VrpManager.computePathsSingleDepot(depot,array, 5);
 	long time2 = System.nanoTime();
 	
-	System.out.println("Time:"+((double)(time2-time)*1E-9d));
+	NeptusLog.pub().info("<###>Time:"+((double)(time2-time)*1E-9d));
 	
 	
 	VrpDrawPanel dp = new VrpDrawPanel(depot,array,paths);

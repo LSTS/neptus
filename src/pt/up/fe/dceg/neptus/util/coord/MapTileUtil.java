@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.util.coord;
 
 import java.awt.geom.Point2D;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
 /**
@@ -360,18 +361,18 @@ public class MapTileUtil {
         LocationType loc1 = new LocationType();
         loc1.setLatitude("41N10.6938");
         loc1.setLongitude("8W42.5051");
-        System.out.println("{" + loc1.getLatitudeAsDoubleValue() + "\u00B0, " + loc1.getLongitudeAsDoubleValue() + "\u00B0, " + loc1.getDepth() + "]");
+        NeptusLog.pub().info("<###>{" + loc1.getLatitudeAsDoubleValue() + "\u00B0, " + loc1.getLongitudeAsDoubleValue() + "\u00B0, " + loc1.getDepth() + "]");
 
         LocationType loc2 = new LocationType();
         loc2.setLatitude("44N40.7312");
         loc2.setLongitude("63W32.2072");
-        System.out.println("{" + loc2.getLatitudeAsDoubleValue() + "\u00B0, " + loc2.getLongitudeAsDoubleValue() + "\u00B0, " + loc1.getDepth() + "]");
+        NeptusLog.pub().info("<###>{" + loc2.getLatitudeAsDoubleValue() + "\u00B0, " + loc2.getLongitudeAsDoubleValue() + "\u00B0, " + loc1.getDepth() + "]");
 
         double[] diff1 = getOffsetFrom(loc1.getLatitudeAsDoubleValue(), loc1.getLongitudeAsDoubleValue(), loc2.getLatitudeAsDoubleValue(),
                 loc2.getLongitudeAsDoubleValue());
-        System.out.println("[" + diff1[0] + ", " + diff1[1] + "]");
+        NeptusLog.pub().info("<###>[" + diff1[0] + ", " + diff1[1] + "]");
         
-        System.out.println("\n--------------------------------------------------------");
+        NeptusLog.pub().info("<###>\n--------------------------------------------------------");
         
         LocationType locS1 = new LocationType(loc1);
         System.out.println(locS1);

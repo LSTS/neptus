@@ -169,7 +169,7 @@ public class PluginClassLoader extends URLClassLoader {
                                             // the plugins repository
                                             PluginsRepository.addOtherPlugin(itf, ClassLoader.getSystemClassLoader()
                                                     .loadClass(line));
-                                            // System.out.println("\t"+line);
+                                            // NeptusLog.pub().info("<###>\t"+line);
                                         }
                                         catch (Exception e) {
                                         }

@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import junit.framework.TestCase;
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
@@ -68,7 +69,7 @@ public class CommunicationsTest extends TestCase {
 				//FIXME Zé podes ver como fazer isto?? (pdias 20111019)
                 assertEquals(m.getHeader().getPayloadSize() + m.getPayloadSize() + 2/* footer */,
                         size);
-				System.out.println("OK (size is "+size+")");
+				NeptusLog.pub().info("<###>OK (size is "+size+")");
 			}
 			catch (Exception e) {
 				e.printStackTrace();
@@ -76,14 +77,14 @@ public class CommunicationsTest extends TestCase {
 			}
 		}
 		
-		System.out.println("\n * SERIALIZED ALL MESSAGES... NOW GOING FOR DESEREALIZATION * \n");
+		NeptusLog.pub().info("<###>\n * SERIALIZED ALL MESSAGES... NOW GOING FOR DESEREALIZATION * \n");
 		
 		for (byte[] buffer : msgs) {
 			System.out.print("Testing deserialization of message...");
 	        IMCMessage m;
 			try {
 				m = imcDef.unserialize(new ByteArrayInputStream(buffer));
-                System.out.println("OK (type is " + m.getMessageType().getShortName() + ")");
+                NeptusLog.pub().info("<###>OK (type is " + m.getMessageType().getShortName() + ")");
 			}
 			catch (Exception e) {
 				e.printStackTrace();

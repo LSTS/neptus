@@ -81,7 +81,7 @@ public class WebServer {
     }
 
     public static void restart() {
-        System.out.println("Restarting Neptus Web Server Request (was " + (isRunning() ? "" : "not ") + "running)...");
+        NeptusLog.pub().info("<###>Restarting Neptus Web Server Request (was " + (isRunning() ? "" : "not ") + "running)...");
         start(port);
     }
 
@@ -120,7 +120,7 @@ public class WebServer {
                 try {
                     System.out.print("Starting Neptus Web Server...");
                     server.start();
-                    System.out.println("DONE.\nNeptus Web Server listening on port "
+                    NeptusLog.pub().info("<###>DONE.\nNeptus Web Server listening on port "
                             + WebServer.port + ".");
                     server.join();
                 }
@@ -147,14 +147,14 @@ public class WebServer {
                     registerUnregisterPath(false, path);
                 }
 
-                System.out.println("DONE.");
+                NeptusLog.pub().info("<###>DONE.");
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
         }
         else {
-            System.out.println("NO SERVER RUNNING.");
+            NeptusLog.pub().info("<###>NO SERVER RUNNING.");
         }
         server = null;
     }

@@ -46,7 +46,7 @@ public class NeptusNumericTypeEditor extends AbstractPropertyEditor {
 //	protected NativeNumber nativeType = null;
 //	
 //	public NeptusNumericTypeEditor() {
-//		System.out.println("Created a numericeditor!");
+//		NeptusLog.pub().info("<###>Created a numericeditor!");
 //		textField.setLocale(Locale.US);
 //		editor = new JPanel(new BorderLayout(0,0));
 //		((JPanel)editor).add(textField, BorderLayout.CENTER);

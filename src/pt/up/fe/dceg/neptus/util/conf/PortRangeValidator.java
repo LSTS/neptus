@@ -31,6 +31,8 @@
  */
 package pt.up.fe.dceg.neptus.util.conf;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author pdias
  *
@@ -51,12 +53,12 @@ public class PortRangeValidator extends StringPatternValidator {
 		//StringPatternValidator t1 = new StringPatternValidator("\\d{1,5}(,\\s?\\d{1,5})*");
 		//StringPatternValidator t1 = new StringPatternValidator("\\d{1,5}(-\\d{1,5})?(,\\ ?\\d{1,5}(-\\d{1,5})?)*");
 		PortRangeValidator t1 = new PortRangeValidator();
-		System.out.println("ok: " + t1.validate("52000"));
-		System.out.println("ok: " + t1.validate("52000, 22"));
-		System.out.println("ok: " + t1.validate("52000,22"));
-		System.out.println("nok: " + t1.validate("52000,22,223333"));
-		System.out.println("ok: " + t1.validate("52000,22,23333"));
-		System.out.println("ok: " + t1.validate("52000-52003"));
+		NeptusLog.pub().info("<###>ok: " + t1.validate("52000"));
+		NeptusLog.pub().info("<###>ok: " + t1.validate("52000, 22"));
+		NeptusLog.pub().info("<###>ok: " + t1.validate("52000,22"));
+		NeptusLog.pub().info("<###>nok: " + t1.validate("52000,22,223333"));
+		NeptusLog.pub().info("<###>ok: " + t1.validate("52000,22,23333"));
+		NeptusLog.pub().info("<###>ok: " + t1.validate("52000-52003"));
 	}
 
 }

@@ -292,7 +292,7 @@ public class SSHConnectionDialog extends JPanel {
             // passwordField.setFocusable(true);
             passwordField.addKeyListener(new KeyAdapter() {
                 public void keyPressed(KeyEvent e) {
-                    // System.out.println("keyPressed()");
+                    // NeptusLog.pub().info("<###>keyPressed()");
                     if (e.getKeyCode() == KeyEvent.VK_ENTER)
                         okAction();
                 }
@@ -379,14 +379,14 @@ public class SSHConnectionDialog extends JPanel {
             okButton.setText(I18n.text("OK"));
 //            okButton.addKeyListener(new KeyAdapter() {
 //                public void keyPressed(KeyEvent e) {
-//                    // System.out.println("keyPressed()");
+//                    // NeptusLog.pub().info("<###>keyPressed()");
 //                    if (e.getKeyCode() == KeyEvent.VK_ENTER)
 //                        okAction();
 //                }
 //            });
             okButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    // System.out.println("actionPerformed()");
+                    // NeptusLog.pub().info("<###>actionPerformed()");
                     okAction();
                 }
             });
@@ -407,14 +407,14 @@ public class SSHConnectionDialog extends JPanel {
             cancelButton.setText(I18n.text("Cancel"));
 //            cancelButton.addKeyListener(new KeyAdapter() {
 //                public void keyPressed(KeyEvent e) {
-//                    System.out.println("keyPressed()");
+//                    NeptusLog.pub().info("<###>keyPressed()");
 //                    if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
 //                        cancelAction();
 //                }
 //            });
             cancelButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    // System.out.println("actionPerformed()");
+                    // NeptusLog.pub().info("<###>actionPerformed()");
                     cancelAction();
                 }
             });

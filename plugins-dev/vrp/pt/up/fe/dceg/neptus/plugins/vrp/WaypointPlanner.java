@@ -173,7 +173,7 @@ public class WaypointPlanner extends SimpleSubPanel implements Renderer2DPainter
         int option = chooser.showOpenDialog(getConsole());
         chooser.setMultiSelectionEnabled(false);
         if (option == JFileChooser.APPROVE_OPTION) {
-            System.out.println("open " + chooser.getSelectedFile());
+            NeptusLog.pub().info("<###>open " + chooser.getSelectedFile());
             workingFile = chooser.getSelectedFile();
 
             try {

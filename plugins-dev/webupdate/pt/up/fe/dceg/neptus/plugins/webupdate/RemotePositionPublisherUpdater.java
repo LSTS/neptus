@@ -749,7 +749,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
             ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
 
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                System.out.println("publishData [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
+                NeptusLog.pub().info("<###>publishData [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                         + iGetResultCode.getStatusLine().getReasonPhrase() + " code was return from the server");
                 if (postHttpRequestPublishState != null) {
                     postHttpRequestPublishState.abort();
@@ -851,7 +851,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
             ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
 
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                System.out.println("publishData [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
+                NeptusLog.pub().info("<###>publishData [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                         + iGetResultCode.getStatusLine().getReasonPhrase() + " code was return from the server");
                 if (postHttpRequestPublishPlan != null) {
                     postHttpRequestPublishPlan.abort();
@@ -907,7 +907,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
             HttpResponse iGetResultCode = client.execute(post);
 
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                System.out.println("postMessages [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
+                NeptusLog.pub().info("<###>postMessages [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                         + iGetResultCode.getStatusLine().getReasonPhrase() + " code was return from the server");
                 if (post != null) {
                     post.abort();
@@ -921,7 +921,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
                 String timeStr = StreamUtil.copyStreamToString(streamGetResponseBody).trim();
                 @SuppressWarnings("unused")
                 long serverTime = Long.parseLong(timeStr);
-                // System.out.println("server time delta: " +
+                // NeptusLog.pub().info("<###>server time delta: " +
                 // (System.currentTimeMillis() - serverTime) + "ms");
             }
             catch (Exception e) {
@@ -959,7 +959,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
             long reqTime = System.currentTimeMillis();
             HttpResponse iGetResultCode = client.execute(getHttpRequestImcMsg);
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                System.out.println("getRemoteImcData [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
+                NeptusLog.pub().info("<###>getRemoteImcData [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                         + iGetResultCode.getStatusLine().getReasonPhrase() + " code was return from the server");
                 if (getHttpRequestImcMsg != null) {
                     getHttpRequestImcMsg.abort();
@@ -968,7 +968,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
             }
             try {
                 long serverTime = Long.parseLong(iGetResultCode.getFirstHeader("server-time").getValue().trim());
-                // System.out.println("server time delta: " + (reqTime -
+                // NeptusLog.pub().info("<###>server time delta: " + (reqTime -
                 // serverTime) + "ms");
                 lastFetchPosTimeMillis = serverTime;
             }
@@ -1132,7 +1132,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
             getHttpRequestRemoteState = new HttpGet(uri);
             HttpResponse iGetResultCode = client.execute(getHttpRequestRemoteState);
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                System.out.println("[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
+                NeptusLog.pub().info("<###>[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                         + iGetResultCode.getStatusLine().getReasonPhrase() + " code was return from the server");
                 if (getHttpRequestRemoteState != null) {
                     getHttpRequestRemoteState.abort();

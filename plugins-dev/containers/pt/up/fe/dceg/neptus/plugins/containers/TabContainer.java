@@ -50,8 +50,8 @@ import pt.up.fe.dceg.neptus.console.SubPanel;
 import pt.up.fe.dceg.neptus.console.plugins.AlarmProviderOld;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.plugins.update.PeriodicUpdatesService;
 

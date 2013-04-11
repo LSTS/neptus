@@ -98,7 +98,7 @@ public class DynamicElement extends MarkElement implements PropertiesProvider {
 
 	public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
 		
-		//System.out.println("Dynamic Element: paint");
+		//NeptusLog.pub().info("<###>Dynamic Element: paint");
 		
 		double zoom = renderer.getZoom();
         

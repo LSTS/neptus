@@ -86,11 +86,11 @@ import pt.up.fe.dceg.neptus.gui.MenuScroller;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.up.fe.dceg.neptus.plugins.PluginClassLoader;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.up.fe.dceg.neptus.plugins.containers.propeditor.HorizontalGroupPropertyEditor;
 import pt.up.fe.dceg.neptus.plugins.containers.propeditor.LinkSizeHorizontalPropertyEditor;
 import pt.up.fe.dceg.neptus.plugins.containers.propeditor.LinkSizeVerticalPropertyEditor;
@@ -405,7 +405,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
             Matcher m = pat.matcher(profToChange);
             m.find();
             if (m.groupCount() > 0) {
-                // System.out.println("Change " + (m.group(2) != null ? m.group(2) : m.group(4))
+                // NeptusLog.pub().info("<###>Change " + (m.group(2) != null ? m.group(2) : m.group(4))
                 // + " with " + defaultProfile);
                 String aspas = (m.group(2) != null ? "\"" : "'");
                 if (toChangeOrRemove)
@@ -415,7 +415,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                 // System.out.println(profiles);
             }
             else {
-                System.out.println("Not able to change default profile from "
+                NeptusLog.pub().info("<###>Not able to change default profile from "
                         + (m.group(2) != null ? m.group(2) : m.group(4)) + " with " + defaultProfile);
             }
         }

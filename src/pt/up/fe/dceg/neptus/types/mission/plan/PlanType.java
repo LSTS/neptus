@@ -333,7 +333,7 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, Identifia
                 acElm.add(eActionsElm);
         }
 
-        //        System.out.println("Plan-----------------\n"+document.asXML());
+        //        NeptusLog.pub().info("<###>Plan-----------------\n"+document.asXML());
         return document;
     }
 

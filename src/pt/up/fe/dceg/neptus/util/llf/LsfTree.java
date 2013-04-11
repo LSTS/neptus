@@ -41,6 +41,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
@@ -94,7 +95,7 @@ public class LsfTree extends JTree {
 		}
 		catch (Exception e) {			
 		    e.printStackTrace();
-		    System.out.println("Missing file: " + logName);
+		    NeptusLog.pub().info("<###>Missing file: " + logName);
 		}
 	}
 }

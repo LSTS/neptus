@@ -232,7 +232,7 @@ extends SSHExec
 					}
 				}
 
-				// System.out.println("filesize="+filesize+", file="+file);
+				// NeptusLog.pub().info("<###>filesize="+filesize+", file="+file);
 
 				// send '\0'
 				buf[0] = 0;

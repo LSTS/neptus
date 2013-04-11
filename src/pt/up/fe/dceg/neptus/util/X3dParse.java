@@ -159,7 +159,7 @@ public class X3dParse {
     	Point2f[] ret=new Point2f[str.length];
     	for(int i=0;i<str.length;i++)
     	{
-    		//System.out.println("parsing"+i+":"+str[i]);
+    		//NeptusLog.pub().info("<###>parsing"+i+":"+str[i]);
     		
     		String[] result = str[i].split(" ");
     		ret[i]=new Point2f();
@@ -180,7 +180,7 @@ public class X3dParse {
     	for(int i=0;i<str.length;i++)
     	{
     		String[] result = str[i].split(" ");
-    	//	//System.out.println("parsing"+i+":"+str[i]);
+    	//	//NeptusLog.pub().info("<###>parsing"+i+":"+str[i]);
     		ret[i]=new Point3f();
     		 ret[i].x=Float.parseFloat(result[0]);
     	  	 ret[i].z=-Float.parseFloat(result[1]);
@@ -197,7 +197,7 @@ public class X3dParse {
     	int auxiniciospace=0;
     	if(aux.charAt(0)==' ')
     		auxiniciospace++;
-    	//System.out.println("edwefwefwefwefwef:"+aux);
+    	//NeptusLog.pub().info("<###>edwefwefwefwefwef:"+aux);
     	String[] str=aux.split(" ");
     	int[] ret=new int[str.length-auxiniciospace];
     	for(int i=0;i<str.length-auxiniciospace;i++)
@@ -206,7 +206,7 @@ public class X3dParse {
     				auxiniciospace++;
     			
     			ret[i]=Integer.parseInt(str[i+auxiniciospace]);
-    			//System.out.println("parsing"+i+":"+str[i+auxiniciospace]);
+    			//NeptusLog.pub().info("<###>parsing"+i+":"+str[i+auxiniciospace]);
     	}
     	return ret;
     }
@@ -272,7 +272,7 @@ public class X3dParse {
 
             if("translation".equals(attribute.getName()))
   			{
-            	//System.out.println("Entrei no translation");
+            	//NeptusLog.pub().info("<###>Entrei no translation");
             	  ret.mul(parseTranslation(attribute.getValue()));
   			}
 
@@ -578,7 +578,7 @@ public class X3dParse {
 	  			}
 	            if("ImageTexture".equals(element.getName()))
 	  			{
-	            	//System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+	            	//NeptusLog.pub().info("<###>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 	            	app.setTexture (parseImageTexture((org.dom4j.Node)element));
 	            	
 	  			}
@@ -604,9 +604,9 @@ public class X3dParse {
     		if("url".equals(attribute.getName()))
     		{
     			String pathtext=resolvePathWithParent(fileX3d,attribute.getValue());
-    			//System.out.println("File:"+fileX3d);
-    			//System.out.println("attrib:"+attribute.getValue());
-    			//System.out.println("total:"+pathtext);
+    			//NeptusLog.pub().info("<###>File:"+fileX3d);
+    			//NeptusLog.pub().info("<###>attrib:"+attribute.getValue());
+    			//NeptusLog.pub().info("<###>total:"+pathtext);
     			Image texture= new ImageIcon(pathtext).getImage();
     			ret= new TextureLoader( texture, null).getTexture(); 
 
@@ -685,7 +685,7 @@ public class X3dParse {
   		  //System.err.println(attribute.getValue());
   		  if("coordIndex".equals(attribute.getName()))
   		  {
-  			  //System.out.println("Encontrei:"+attribute.getName());
+  			  //NeptusLog.pub().info("<###>Encontrei:"+attribute.getName());
   			  propreties=propreties|TriangleArray.COORDINATES;
   			  indexpoints=stringToInt3(attribute.getValue());
   			  
@@ -694,11 +694,11 @@ public class X3dParse {
 		  {
 			  propreties=propreties|TriangleArray.TEXTURE_COORDINATE_2;
 			  indextextpoints=stringToInt3(attribute.getValue());
-			  //System.out.println("Encontrei:"+attribute.getName());
+			  //NeptusLog.pub().info("<###>Encontrei:"+attribute.getName());
 		  }
   		 if("colorIndex".equals(attribute.getName()))
 		  {
-  			 //System.out.println("Encontrei:"+attribute.getValue());
+  			 //NeptusLog.pub().info("<###>Encontrei:"+attribute.getValue());
 			  propreties=propreties|TriangleArray.COLOR_3;
 			  stringToInt3(attribute.getValue());
 			 
@@ -732,7 +732,7 @@ public class X3dParse {
       }
   	  
   	  int numvertices=indexpoints.length;
-      //System.out.println("numvertices:"+indexpoints.length);
+      //NeptusLog.pub().info("<###>numvertices:"+indexpoints.length);
   	  TriangleArray GFront=new TriangleArray(numvertices,propreties);
   	 
   	  for (int i=0;i<numvertices;i++)
@@ -827,7 +827,7 @@ public class X3dParse {
 			  doc = this.initparse(fileX3d);
 		} catch (DocumentException e) {
 			  e.printStackTrace();
-				//System.out.println("Erro em parse:DocumentHelper.parseText(fileX3d)");
+				//NeptusLog.pub().info("<###>Erro em parse:DocumentHelper.parseText(fileX3d)");
 				return null;  
 		}
 		//System.out.println(doc.asXML());

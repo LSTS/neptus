@@ -352,7 +352,7 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
             depth = state.getDouble("z");
         
         LocationType location = IMCUtils.getLocation(state);
-        // System.out.println("[Plot3D] Location for " + marker.label + " " + marker.timestamp + ": ("
+        // NeptusLog.pub().info("<###>[Plot3D] Location for " + marker.label + " " + marker.timestamp + ": ("
         // + location.getLatitude() + ", "
         // + location.getLongitude() + ")");
         double[] xyz = location.getOffsetFrom(ref);

@@ -220,7 +220,7 @@ public class VehiclesHolder {
             consolesTable = new Hashtable<String, ConsoleLayout>();
             openConsolesByVehicle.put(vehicleId, consolesTable);
         }
-        // System.out.println("-->>>> " + consoleID + "    -----   " + console);
+        // NeptusLog.pub().info("<###>-->>>> " + consoleID + "    -----   " + console);
         consolesTable.put(consoleID, console);
         return true;
     }

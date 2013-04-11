@@ -45,6 +45,7 @@ import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
 import pt.up.fe.dceg.neptus.mp.maneuvers.VehicleFormation;
@@ -101,7 +102,7 @@ public class FormationPlanner extends SimpleSubPanel implements Renderer2DPainte
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
 
         if (event.getButton() == MouseEvent.BUTTON3) {
-            System.out.println("show popup...");
+            NeptusLog.pub().info("<###>show popup...");
             JPopupMenu popup = new JPopupMenu();
             popup.add(new AbstractAction("Set participants") {
 
@@ -141,7 +142,7 @@ public class FormationPlanner extends SimpleSubPanel implements Renderer2DPainte
 
         }
         else if (event.getClickCount() == 2) {
-            System.out.println("add point...");
+            NeptusLog.pub().info("<###>add point...");
             // TODO
         }
         else
@@ -160,7 +161,7 @@ public class FormationPlanner extends SimpleSubPanel implements Renderer2DPainte
 
     @Override
     public void mouseMoved(MouseEvent event, StateRenderer2D source) {
-        System.out.println("mouse moved");
+        NeptusLog.pub().info("<###>mouse moved");
         adapter.mouseMoved(event, source);
     }
 

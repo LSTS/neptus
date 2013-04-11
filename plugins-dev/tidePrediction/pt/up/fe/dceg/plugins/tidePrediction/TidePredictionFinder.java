@@ -43,6 +43,7 @@ import java.util.List;
 
 import org.apache.commons.logging.LogFactory;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.plugins.tidePrediction.TidePrediction.TIDE_TYPE;
 import pt.up.fe.dceg.plugins.tidePrediction.util.DateUtils;
 
@@ -161,7 +162,7 @@ public class TidePredictionFinder {
     }
 
     private void logError(Exception e){
-        System.out.println("[ERROR] There was a problem finding the tide prediction.");
+        NeptusLog.pub().info("<###>[ERROR] There was a problem finding the tide prediction.");
         e.printStackTrace();
     }
 
@@ -203,7 +204,7 @@ public class TidePredictionFinder {
             prediction = ihFuncAfterLowTide(predictions, date);
         }
         if (print) {
-            System.out.println("For " + date + " in " + harbor.toString());
+            NeptusLog.pub().info("<###>For " + date + " in " + harbor.toString());
             System.out.println(predictions[0].toString());
             System.out.println(predictions[1].toString());
         }

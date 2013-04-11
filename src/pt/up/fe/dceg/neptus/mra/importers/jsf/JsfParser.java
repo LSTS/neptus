@@ -44,6 +44,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author jqcorreia
  * 
@@ -62,11 +64,11 @@ public class JsfParser {
             fis = new FileInputStream(file);
             channel = fis.getChannel();
             if (!new File(file.getParent() + "/jsf.index").exists()) {
-                System.out.println("Generating JSF index for " + file.getAbsolutePath());
+                NeptusLog.pub().info("<###>Generating JSF index for " + file.getAbsolutePath());
                 generateIndex();
             }
             else {
-                System.out.println("Loading JSF index for " + file.getAbsolutePath());
+                NeptusLog.pub().info("<###>Loading JSF index for " + file.getAbsolutePath());
                 loadIndex();
             }
 

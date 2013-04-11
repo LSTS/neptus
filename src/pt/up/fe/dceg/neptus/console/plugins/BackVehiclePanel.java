@@ -181,9 +181,9 @@ public class BackVehiclePanel extends JPanel {
         for (int i = 0;; i -= 2) {
             buss.setPitch(((float) Math.toRadians((double) i)));
             try {// nada
-                 // System.out.println("espera...");
+                 // NeptusLog.pub().info("<###>espera...");
                 Thread.sleep(50);
-                // System.out.println("esperou");
+                // NeptusLog.pub().info("<###>esperou");
             }
             catch (Exception e) {
                 e.printStackTrace();

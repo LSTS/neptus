@@ -91,6 +91,8 @@ import javax.swing.plaf.ColorUIResource;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 public class UIManagerDefaults implements ActionListener, ItemListener {
     private final static String[] COLUMN_NAMES = { "Key", "Value", "Sample" };
     private static String selectedItem;
@@ -667,7 +669,7 @@ public class UIManagerDefaults implements ActionListener, ItemListener {
                 frame.setVisible(true);
             }
             catch (Exception ex) {
-                System.out.println("Failed loading L&F: " + laf);
+                NeptusLog.pub().info("<###>Failed loading L&F: " + laf);
                 System.out.println(ex);
             }
         }

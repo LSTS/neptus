@@ -51,6 +51,7 @@ import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 /**
@@ -239,8 +240,8 @@ public class TransformFOP
     {
         try
         {
-            System.out.println("FOP ExampleXML2PDF\n");
-            System.out.println("Preparing...");
+            NeptusLog.pub().info("<###>FOP ExampleXML2PDF\n");
+            NeptusLog.pub().info("<###>Preparing...");
 
             // Setup directories
             File baseDir = new File(".");
@@ -252,16 +253,16 @@ public class TransformFOP
             File xsltfile = new File("conf/checklist-fo.xsl");
             File pdffile = new File("checklists/teste.pdf");
 
-            System.out.println("Input: XML (" + xmlfile + ")");
-            System.out.println("Stylesheet: " + xsltfile);
-            System.out.println("Output: PDF (" + pdffile + ")");
+            NeptusLog.pub().info("<###>Input: XML (" + xmlfile + ")");
+            NeptusLog.pub().info("<###>Stylesheet: " + xsltfile);
+            NeptusLog.pub().info("<###>Output: PDF (" + pdffile + ")");
             System.out.println();
-            System.out.println("Transforming...");
+            NeptusLog.pub().info("<###>Transforming...");
 
             //TransformFOP app = new TransformFOP();
             convertXML2PDF(xmlfile, xsltfile, pdffile);
 
-            System.out.println("Success!");
+            NeptusLog.pub().info("<###>Success!");
         } catch (Exception e)
         {
             e.printStackTrace();

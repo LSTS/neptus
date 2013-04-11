@@ -915,7 +915,7 @@ public class ImcMsgManager extends
         String type = ann.getSysType().toString();
         vci.setSystemIdName(name);
         ImcSystem resSys = ImcSystemsHolder.lookupSystem(id);
-        // System.out.println("......................Announce..." + name + " | " + type + " :: " + hostUdp + "  " +
+        // NeptusLog.pub().info("<###>......................Announce..." + name + " | " + type + " :: " + hostUdp + "  " +
         // portUdp);
         // NeptusLog.pub().warn(ReflectionUtil.getCallerStamp()+ " ..........................| " + name + " | " + type);
         if (resSys != null) {
@@ -1762,7 +1762,7 @@ public class ImcMsgManager extends
 
         ImcSystem[] systems = ImcSystemsHolder.lookupActiveSystemCCUs();
         for (ImcSystem s : systems) {
-            System.out.println("sending msg '" + msg.getAbbrev() + "' to '" + s.getName() + "'...");
+            NeptusLog.pub().info("<###>sending msg '" + msg.getAbbrev() + "' to '" + s.getName() + "'...");
             ImcMsgManager.getManager().sendMessage(msg, s.getId(), null);
         }
     }

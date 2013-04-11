@@ -135,7 +135,7 @@ public class PublishHelper {
 //            ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
 //
 //            if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-//                System.out.println("[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
+//                NeptusLog.pub().info("<###>[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
 //                        + iGetResultCode.getStatusLine().getReasonPhrase()
 //                        + " code was return from the server");
 //                if (post != null) {
@@ -180,7 +180,7 @@ public class PublishHelper {
 //            HttpResponse iGetResultCode = client.execute(post);
 //
 //            if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-//                System.out.println("[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
+//                NeptusLog.pub().info("<###>[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
 //                        + iGetResultCode.getStatusLine().getReasonPhrase()
 //                        + " code was return from the server");
 //                if (post != null) {

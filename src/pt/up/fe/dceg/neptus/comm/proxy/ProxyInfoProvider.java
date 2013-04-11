@@ -236,20 +236,20 @@ public class ProxyInfoProvider {
                 AuthState proxyAuthState = (AuthState) localContext
                         .getAttribute(ClientContext.PROXY_AUTH_STATE);
                 if (proxyAuthState != null) {
-                    // System.out.println("Proxy auth state: " + proxyAuthState.getState());
+                    // NeptusLog.pub().info("<###>Proxy auth state: " + proxyAuthState.getState());
                     if (proxyAuthState.getAuthScheme() != null)
-                        System.out.println("Proxy auth scheme: " + proxyAuthState.getAuthScheme());
+                        NeptusLog.pub().info("<###>Proxy auth scheme: " + proxyAuthState.getAuthScheme());
                     if (proxyAuthState.getCredentials() != null)
-                        System.out.println("Proxy auth credentials: " + proxyAuthState.getCredentials());
+                        NeptusLog.pub().info("<###>Proxy auth credentials: " + proxyAuthState.getCredentials());
                 }
                 AuthState targetAuthState = (AuthState) localContext
                         .getAttribute(ClientContext.TARGET_AUTH_STATE);
                 if (targetAuthState != null) {
-                    // System.out.println("Target auth state: " + targetAuthState.getState());
+                    // NeptusLog.pub().info("<###>Target auth state: " + targetAuthState.getState());
                     if (targetAuthState.getAuthScheme() != null)
-                        System.out.println("Target auth scheme: " + targetAuthState.getAuthScheme());
+                        NeptusLog.pub().info("<###>Target auth scheme: " + targetAuthState.getAuthScheme());
                     if (targetAuthState.getCredentials() != null)
-                        System.out.println("Target auth credentials: " + targetAuthState.getCredentials());
+                        NeptusLog.pub().info("<###>Target auth credentials: " + targetAuthState.getCredentials());
                 }
             }
         }
@@ -272,7 +272,7 @@ public class ProxyInfoProvider {
                 }
                 if (authState != null) {
                     AuthScheme authscheme = authState.getAuthScheme();
-                    System.out.println("Using proxy for " + authscheme.getRealm() + " ...");
+                    NeptusLog.pub().info("<###>Using proxy for " + authscheme.getRealm() + " ...");
                     Credentials creds = getProxyCredentials();
                     client.getCredentialsProvider().setCredentials(new AuthScope(authhost), creds);
                 }

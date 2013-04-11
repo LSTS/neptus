@@ -314,7 +314,7 @@ public class PlanTransitionsSimpleEditor extends JPanel {
             for (PlanTransitionGuiPanel pttr : toRemoveFromPlanGraph) {
                 if (pttr.transition != null) {
                     transitions.remove(pttr.transition.getId());
-                    //System.out.println("Transition: "+pttr.transition.getId());
+                    //NeptusLog.pub().info("<###>Transition: "+pttr.transition.getId());
                 }
             }
         }

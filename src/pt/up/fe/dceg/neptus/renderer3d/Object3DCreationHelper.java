@@ -962,7 +962,7 @@ public class Object3DCreationHelper {
                 }
 
                 if (Util3D.removeBackgroud(themodel))
-                    System.out.println("tem back");
+                    NeptusLog.pub().info("<###>tem back");
             }
             catch (Exception e) {
                 NeptusLog.pub().error("Model3dElement parse file error", e);
@@ -1241,7 +1241,7 @@ public class Object3DCreationHelper {
     public static TransformGroup getTransponderModel3D(TransponderElement transp) {
 
         InputStream istt = Object3DCreationHelper.class.getResourceAsStream("/models/trans1.3ds");
-        // System.out.println("-----------  "+istt);
+        // NeptusLog.pub().info("<###>-----------  "+istt);
         String inFileNamet = StreamUtil.copyStreamToTempFile(istt).getAbsolutePath();
 
         InputStream istb = Object3DCreationHelper.class.getResourceAsStream("/models/boia1.3ds");

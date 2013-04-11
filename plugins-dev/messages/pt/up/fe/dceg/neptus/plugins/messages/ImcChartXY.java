@@ -44,6 +44,7 @@ import java.util.LinkedHashMap;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.plugins.MultiSystemIMCMessageListener;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
@@ -84,7 +85,7 @@ public class ImcChartXY extends JPanel {
     
     
     public ImcChartXY(String system) {
-        System.out.println("init");
+        NeptusLog.pub().info("<###>init");
         setLayout(new BorderLayout());
         chart.setUseAntialiasing(true);
         add(chart, BorderLayout.CENTER);

@@ -34,6 +34,8 @@ package pt.up.fe.dceg.neptus.util.conf;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author pdias
  * 
@@ -79,14 +81,14 @@ public class StringPatternValidator implements Validator {
      */
     public static void main(String[] args) {
         StringPatternValidator t = new StringPatternValidator();
-        System.out.println("ok: " + t.validate("Main"));
-        System.out.println("ok: " + t.validate(""));
-        System.out.println("ok: " + t.validate("Main,W1"));
-        System.out.println("ok: " + t.validate("Main, W1"));
-        System.out.println("ok: " + t.validate("Main, W1 ,Main , W1"));
-        System.out.println("ok: " + t.validate("Main, W1 ,Main , W1,"));
-        System.out.println("nok: " + t.validate("Main:, W1 ,Main , W1"));
-        System.out.println("nok: " + t.validate(",Main, W1 ,Main , W1"));
+        NeptusLog.pub().info("<###>ok: " + t.validate("Main"));
+        NeptusLog.pub().info("<###>ok: " + t.validate(""));
+        NeptusLog.pub().info("<###>ok: " + t.validate("Main,W1"));
+        NeptusLog.pub().info("<###>ok: " + t.validate("Main, W1"));
+        NeptusLog.pub().info("<###>ok: " + t.validate("Main, W1 ,Main , W1"));
+        NeptusLog.pub().info("<###>ok: " + t.validate("Main, W1 ,Main , W1,"));
+        NeptusLog.pub().info("<###>nok: " + t.validate("Main:, W1 ,Main , W1"));
+        NeptusLog.pub().info("<###>nok: " + t.validate(",Main, W1 ,Main , W1"));
     }
 
 }

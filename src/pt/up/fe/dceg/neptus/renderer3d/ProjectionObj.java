@@ -51,6 +51,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.TexCoord2f;
 import javax.vecmath.Vector3d;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.plugins.JVideoPanelConsole;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 
@@ -236,9 +237,9 @@ public class ProjectionObj {
 
 	private void setPointArray(int i,int j,Vector3d p)
 	{
-		//System.out.println("Lenght:"+pointArray.length+" index:"+i*(gridResolutionH+1)+j);
-		//System.out.println("i:"+i+" j:"+j);
-		//System.out.println("gridH:"+gridResolutionH);
+		//NeptusLog.pub().info("<###>Lenght:"+pointArray.length+" index:"+i*(gridResolutionH+1)+j);
+		//NeptusLog.pub().info("<###>i:"+i+" j:"+j);
+		//NeptusLog.pub().info("<###>gridH:"+gridResolutionH);
 		
 		//pointArray[i*(gridResolutionH+1)+j]=p;
 		pointArray[i][j]=p;
@@ -258,7 +259,7 @@ public class ProjectionObj {
 		geometry.setTextureCoordinate (0,3, new TexCoord2f(0.0f,1.0f));
 		*/
 		
-		//System.out.println("H:"+gridResolutionH+" V"+gridResolutionV);
+		//NeptusLog.pub().info("<###>H:"+gridResolutionH+" V"+gridResolutionV);
 		pointArray=new Vector3d[(gridResolutionH+1)][(gridResolutionV+1)];
 		//pointArray[0]=topLeft3d;
 		//pointArray[1]=topRight3d;
@@ -285,8 +286,8 @@ public class ProjectionObj {
 		double baseHorD=baseHor*2;
 		double baseVertD=baseVert*2;
 		
-		//System.out.println("baseHor:"+baseHor);
-		//System.out.println("baseVert:"+baseVert);
+		//NeptusLog.pub().info("<###>baseHor:"+baseHor);
+		//NeptusLog.pub().info("<###>baseVert:"+baseVert);
 		
 		for(int j=0;j<gridResolutionV+1;j++)
 		{
@@ -338,7 +339,7 @@ public class ProjectionObj {
 		
 		Points=new Point3d[gridResolutionH*gridResolutionV*4];
 
-		System.out.println("chamado o rebuild");
+		NeptusLog.pub().info("<###>chamado o rebuild");
 		//geometry.setInitialCoordIndex(0);
 
 
@@ -402,7 +403,7 @@ public class ProjectionObj {
 
 	//double i=0.5;
 	public void refreshVideoMap() {
-		//System.out.println("refresh video");
+		//NeptusLog.pub().info("<###>refresh video");
 		//geometry.setCoordinate(0, new Point3d(1,0.5,i+=0.2));		  
 		if (videoSource != null) {
 			imGlobal = (BufferedImage) videoSource.grabFrameImage(ptop,pdown,pleft,pright);
@@ -410,18 +411,18 @@ public class ProjectionObj {
 				ic.set(imGlobal);
 				texture.setImage(0, ic);
 			} else
-				System.out.println("Null BufferedImage");
+				NeptusLog.pub().info("<###>Null BufferedImage");
 		}
 	}
 
 	public static void main(String args[]) {
 		//Vector3d v = new Vector3d(10, 0, 0);
-		//System.out.println("orig:" + v);
-		//System.out.println("rodado:"
+		//NeptusLog.pub().info("<###>orig:" + v);
+		//NeptusLog.pub().info("<###>rodado:"
 		//		+ Util3D.setTransform(v, 0,  Math.PI/2/*+Math.PI / 2*/, 0));
 		
-		System.out.println("Angulo vertical:"+Math.toDegrees(Math.atan(0.33))*2);
-		System.out.println("Angulo vertical:"+Math.toDegrees(Math.atan(0.445))*2);
+		NeptusLog.pub().info("<###>Angulo vertical:"+Math.toDegrees(Math.atan(0.33))*2);
+		NeptusLog.pub().info("<###>Angulo vertical:"+Math.toDegrees(Math.atan(0.445))*2);
 		//ConfigFetch.initialize();
 		//ProjectionObj pj=new ProjectionObj(new Renderer3D(),VehiclesHolder.getVehicleById("isurus"));
 		//pj.setGridResolutionH(1);
@@ -469,7 +470,7 @@ public class ProjectionObj {
 			for(int i=0;i<Points.length;i+=4)
 			{
 				//System.err.println("BASE:pointo("+x+","+y+"):"+getPointArray(x, y));
-				//System.out.println("ciclo");
+				//NeptusLog.pub().info("<###>ciclo");
 				//----------------------------Top Left
 				//v=Util3D
 				//.setTransform(new Vector3d(getPointArray(x,y)), roll,tiltCalc,panCalc);
@@ -573,7 +574,7 @@ public class ProjectionObj {
 			
 			/*Transform3D t = new Transform3D();
 			//Matrix3d a = new Matrix3d();
-			//System.out.println("Ponto:" + point);
+			//NeptusLog.pub().info("<###>Ponto:" + point);
 			if (point == null) {
 				tg.setTransform(t);
 			} else {
@@ -581,9 +582,9 @@ public class ProjectionObj {
 				tg.setTransform(t);
 			}*/
 
-			//System.out.println("construir objecto de projecção (Activo)");
+			//NeptusLog.pub().info("<###>construir objecto de projecção (Activo)");
 		} else {
-			//System.out.println("construção inactiva..");
+			//NeptusLog.pub().info("<###>construção inactiva..");
 		}
 	}
 
@@ -808,7 +809,7 @@ public class ProjectionObj {
 		for(int i=0;i<RESOLUTION*RESOLUTION*4;i+=4)
 		{
 			//System.err.println("BASE:pointo("+x+","+y+"):"+getPointArray(x, y));
-			//System.out.println("ciclo");
+			//NeptusLog.pub().info("<###>ciclo");
 			//----------------------------Top Left
 			//v=Util3D
 			//.setTransform(new Vector3d(pointArrayCopy[x][y]), lastroll,tiltCalc,panCalc);

@@ -268,7 +268,7 @@ public class Grid3D extends JDialog {
 			colorBtn.setText("Color...");
 			colorBtn.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					//System.out.println("actionPerformed()"); // TODO Auto-generated Event stub actionPerformed()
+					//NeptusLog.pub().info("<###>actionPerformed()"); // TODO Auto-generated Event stub actionPerformed()
 					Color c = JColorChooser.showDialog(new JFrame(), "Select the grid color", getColor().getBackground());
 					if (c != null)
 						getColor().setBackground(c);

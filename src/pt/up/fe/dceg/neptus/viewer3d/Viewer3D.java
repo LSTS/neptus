@@ -390,12 +390,12 @@ public class Viewer3D extends JPanel implements ActionListener {
 
 		X3dParse parse = new X3dParse();
 		parse.setFileX3d(xml.getAbsolutePath().toString());
-		// System.out.println("File loading:"+xml.getAbsolutePath().toString());
+		// NeptusLog.pub().info("<###>File loading:"+xml.getAbsolutePath().toString());
 		// parse.setFileSchema(this.getClass().getClassLoader().getResource("schema/x3d-3.0.xsd").getPath());
 		// if(!parse.validateDtd())
 		// {
 		// fazer msgbox
-		// System.out.println("Erro na validação do schema");
+		// NeptusLog.pub().info("<###>Erro na validação do schema");
 		// return null;
 		// }
 		try {

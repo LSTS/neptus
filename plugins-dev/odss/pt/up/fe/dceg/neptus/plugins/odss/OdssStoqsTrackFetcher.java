@@ -675,8 +675,8 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
             ImcMsgManager.getManager().start();
             ImcMsgManager.getManager().initVehicleCommInfo("lauv-seacon-1", "127.0.0.1");
 
-            System.out.println("ImcSystemsHolder:   " + ImcSystemsHolder.lookupAllSystems().length);
-            System.out.println("ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ImcSystemsHolder:   " + ImcSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
 
             OdssStoqsTrackFetcher osf = new OdssStoqsTrackFetcher(null);
             osf.debugOn = true;
@@ -684,12 +684,12 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
             osf.periodHoursToFetch = 300;
             
             
-            System.out.println("\n\n-------------- Use remote requests  -------------- \n");
+            NeptusLog.pub().info("<###>\n\n-------------- Use remote requests  -------------- \n");
             osf.getStateRemoteData();
-            System.out.println("ImcSystemsHolder:   " + ImcSystemsHolder.lookupAllSystems().length);
-            System.out.println("ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ImcSystemsHolder:   " + ImcSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
 
-            System.out.println("\n\n-------------- Use local test files -------------- \n");
+            NeptusLog.pub().info("<###>\n\n-------------- Use local test files -------------- \n");
             
             String xml = FileUtil.getFileAsString("srcTests/mbari/ODSS-Position-2.html");
             Document docProfiles = osf.loadXml(xml);
@@ -702,8 +702,8 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
             osf.sysStokesLocations.putAll(sysBag);
             osf.processRemoteStates();
             
-            System.out.println("ImcSystemsHolder:   " + ImcSystemsHolder.lookupAllSystems().length);
-            System.out.println("ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ImcSystemsHolder:   " + ImcSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
             
             xml = FileUtil.getFileAsString("srcTests/mbari/ODSS-Position-glider.html");
             docProfiles = osf.loadXml(xml);
@@ -716,8 +716,8 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
             osf.sysStokesLocations.putAll(sysBag);
             osf.processRemoteStates();
             
-            System.out.println("ImcSystemsHolder:     " + ImcSystemsHolder.lookupAllSystems().length);
-            System.out.println("ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ImcSystemsHolder:     " + ImcSystemsHolder.lookupAllSystems().length);
+            NeptusLog.pub().info("<###>ExternalSystemsHolder: " + ExternalSystemsHolder.lookupAllSystems().length);
         }
         catch (Exception e) {
             e.printStackTrace();

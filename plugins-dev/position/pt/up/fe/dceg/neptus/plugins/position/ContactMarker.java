@@ -142,7 +142,7 @@ public class ContactMarker extends SimpleSubPanel implements IEditorMenuExtensio
         // MapMission mapMission = mapList.values().iterator().next();
         MapGroup.resetMissionInstance(getConsole().getMission());
         MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];// mapMission.getMap();
-        // System.out.println("MARKER --------------- " + mapType.getId());
+        // NeptusLog.pub().info("<###>MARKER --------------- " + mapType.getId());
         MarkElement contact = new MarkElement(mapType.getMapGroup(), mapType);
 
         contact.setId(id);

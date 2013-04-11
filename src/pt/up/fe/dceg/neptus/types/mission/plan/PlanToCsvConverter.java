@@ -40,6 +40,7 @@ import java.util.Vector;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.MissionFileChooser;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
@@ -64,7 +65,7 @@ public class PlanToCsvConverter {
 			
 			JFileChooser chooser = new JFileChooser();			
 			if (chooser.showSaveDialog(null) != JFileChooser.CANCEL_OPTION) {
-				System.out.println("Save "+res+" to "+chooser.getSelectedFile().getAbsolutePath());
+				NeptusLog.pub().info("<###>Save "+res+" to "+chooser.getSelectedFile().getAbsolutePath());
 				saveAsCsv(mt.getIndividualPlansList().get(res.toString()), chooser.getSelectedFile());
 			}
 			

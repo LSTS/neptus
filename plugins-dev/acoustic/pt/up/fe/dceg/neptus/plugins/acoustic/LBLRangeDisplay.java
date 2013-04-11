@@ -364,7 +364,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
         }
 
 //        if (!system.equals("main"))
-//            System.out.println("draw from other tree");
+//            NeptusLog.pub().info("<###>draw from other tree");
     }
 
     private void reset() {

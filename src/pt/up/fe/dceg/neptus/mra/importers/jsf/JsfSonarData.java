@@ -33,6 +33,8 @@ package pt.up.fe.dceg.neptus.mra.importers.jsf;
 
 import java.nio.ByteBuffer;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author jqcorreia
  *
@@ -436,7 +438,7 @@ public class JsfSonarData {
         speed = (buf.getShort(194) / 10f);
 
         if(numberOfSamples < 0) {
-            System.out.println("asdd " + this);
+            NeptusLog.pub().info("<###>asdd " + this);
         }
         data = new double[numberOfSamples];
     }
