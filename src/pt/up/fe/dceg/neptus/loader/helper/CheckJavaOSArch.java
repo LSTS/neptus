@@ -31,9 +31,9 @@
  */
 package pt.up.fe.dceg.neptus.loader.helper;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 
 /**
+ * Used in the bat and sh lauchers. Don't use Neptus log.
  * @author pdias
  *
  */
@@ -46,6 +46,6 @@ public class CheckJavaOSArch {
         String arch = "x86";
         if (osArch.contains("64"))
             arch = "x64";
-        NeptusLog.pub().info("<###> "+arch); 
+        System.out.println(arch); 
     }
 }
