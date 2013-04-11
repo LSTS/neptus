@@ -34,7 +34,6 @@ package pt.up.fe.dceg.neptus.plugins.spot;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
@@ -58,7 +57,6 @@ import pt.up.fe.dceg.neptus.plugins.update.PeriodicUpdatesService;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 /**
  * @author Margarida Faria
@@ -71,7 +69,6 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     private static final long serialVersionUID = -4807939956933128721L;
     private final int updateMillis;
-    private final Image arrow;
 
     @NeptusProperty
     public boolean showOnlyWhenInteractionIsActive = true;
@@ -98,7 +95,6 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     public SpotOverlay(ConsoleLayout console) {
         super(console);
         updateMillis = 60 * 5 * 1000;
-        arrow = ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/spot/images/spotArrow.png");
         spotsOnMap = new Vector<Spot>();
     }
 
@@ -178,10 +174,8 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        Spot.log.debug(spotsOnMap.size() + " spots:");
         for (Spot spot : spotsOnMap) {
             LocationType spotLoc = spot.getLastLocation();
-            Spot.log.debug(spot.getName() + " at " + spotLoc);
             if (spotLoc == null) {
                 continue;
             }
@@ -196,17 +190,18 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
             }
 
             double speedMps = spot.getSpeed();
-            if (showSpeedValue) {
+            if (speedMps != -1) {
+                if (showSpeedValue) {
+                    g.setColor(Color.black);
+                    g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 12, 10);
+                }
+                g.rotate(spot.direction);
                 g.setColor(Color.black);
-                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 12, 10);
+                g.fill(gp);
+                g.setStroke(new BasicStroke(0.9f));
+                g.setColor(Color.white);
+                g.draw(gp);
             }
-
-            g.rotate(-spot.direction);
-            g.setColor(Color.black);
-            g.fill(gp);
-            g.setStroke(new BasicStroke(0.9f));
-            g.setColor(Color.white);
-            g.draw(gp);
 
         }
         

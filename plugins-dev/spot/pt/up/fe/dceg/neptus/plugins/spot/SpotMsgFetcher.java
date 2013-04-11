@@ -104,11 +104,9 @@ public class SpotMsgFetcher {
                         spotMsgTree = new TreeSet<SpotMessage>();
                         msgBySpot.put(id, spotMsgTree);
                     }
+                    Spot.log.debug("Adding " + id + " " + timestamp + " @ (" + lat + ", " + lon + ")");
                     spotMsgTree.add(new SpotMessage(lat, lon, timestamp, id));
 
-                }
-                else {
-                    Spot.log.debug(id + " " + timestamp + " < " + startOfTimeWindowSecs);
                 }
             }
         }
