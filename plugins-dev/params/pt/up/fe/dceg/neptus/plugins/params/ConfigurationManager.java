@@ -256,14 +256,12 @@ public class ConfigurationManager {
                         minV = Double.parseDouble(minStr);
                     }
                     catch (Exception e) {
-                        e.printStackTrace();
                         minV = null;
                     }
                     try {
                         maxV = Double.parseDouble(maxStr);
                     }
                     catch (Exception e) {
-                        e.printStackTrace();
                         maxV = null;
                     }
                 }
@@ -277,7 +275,6 @@ public class ConfigurationManager {
                             size = Integer.parseInt(sizeList);
                         }
                         catch (NumberFormatException e) {
-                            e.printStackTrace();
                         }
                         minSize = maxSize = size;
                     }
@@ -287,7 +284,6 @@ public class ConfigurationManager {
                                 minSize = Integer.parseInt(sizeMinList);
                             }
                             catch (NumberFormatException e) {
-                                e.printStackTrace();
                             }
                         }
                         if (sizeMaxList != null) {
@@ -295,7 +291,6 @@ public class ConfigurationManager {
                                 maxSize = Integer.parseInt(sizeMaxList);
                             }
                             catch (NumberFormatException e) {
-                                e.printStackTrace();
                             }
                         }
                     }
