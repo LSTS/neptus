@@ -40,6 +40,8 @@ import org.apache.log4j.Logger;
 
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
+import com.jme3.math.Vector3f;
+
 /**
  * Has information of one SPOT device.
  * 
@@ -108,7 +110,9 @@ public class Spot {
         LocationType tmpLocation, prevLocation;
         SpotMessage prevMsg = null;
         tmpLocation = prevLocation = null;
-        DirVector sumDirVector = new DirVector(0, 0);
+        Vector3f sumDirVector = new Vector3f(0f, 0f, 0f);
+        double[] movementVectorArray;
+        Vector3f movementVector;
         for (Iterator<SpotMessage> it = messages.iterator(); it.hasNext();) {
             tmpMsg = it.next();
             tmpLocation = new LocationType(tmpMsg.latitude, tmpMsg.longitude);// tmpMsg.getLocation();
@@ -120,21 +124,30 @@ public class Spot {
                 log.debug("Traveled " + distanceInMeters + " in " + elapsedTime + " = " + speedMeterSecond + "  ("
                         + tmpMsg.latitude + ", " + tmpMsg.longitude + " at " + tmpMsg.timestamp);
                 sumSpeed += speedMeterSecond;
-                latDif = tmpLocation.getLatitudeAsDoubleValueRads() - prevLocation.getLatitudeAsDoubleValueRads();
-                lonDif = tmpLocation.getLongitudeAsDoubleValueRads() - prevLocation.getLongitudeAsDoubleValueRads();
+                movementVectorArray = tmpLocation.getOffsetFrom(prevLocation);
+                movementVector = new Vector3f(new Float(movementVectorArray[0]), new Float(
+                        movementVectorArray[1]),
+                        0f);
+                movementVector = movementVector.divide(movementVector.length());
                 // weighted sum
-                sumDirVector.latitude += latDif * numMeasurements;
-                sumDirVector.longitude += lonDif * numMeasurements;
+                sumDirVector.x = movementVector.x * numMeasurements;
+                sumDirVector.y = movementVector.y * numMeasurements;
+
+                // latDif = tmpLocation.getLatitudeAsDoubleValueRads() - prevLocation.getLatitudeAsDoubleValueRads();
+                // lonDif = tmpLocation.getLongitudeAsDoubleValueRads() - prevLocation.getLongitudeAsDoubleValueRads();
+                // // weighted sum
+                // sumDirVector.latitude += latDif * numMeasurements;
+                // sumDirVector.longitude += lonDif * numMeasurements;
             }
             prevMsg = tmpMsg;
             prevLocation = tmpLocation;
         }
-        double factorial = gamma(numMeasurements - 1);
+        Float factorial = new Float(gamma(numMeasurements - 1));
         // weighted mean
-        sumDirVector.latitude = sumDirVector.latitude / factorial;
-        sumDirVector.longitude = sumDirVector.longitude / factorial;
+        sumDirVector.x = sumDirVector.x / factorial;
+        sumDirVector.y = sumDirVector.y / factorial;
         Float finalSpeed = new Float(sumSpeed / (numMeasurements - 1));
-        double finalDirection = Math.atan(sumDirVector.longitude / sumDirVector.latitude);
+        double finalDirection = Math.atan(sumDirVector.y / sumDirVector.x);
         log.debug("finalSpeed " + finalSpeed + "direction" + finalDirection);
         return new LocationSpeedDirection(finalSpeed, finalDirection, prevLocation);
     }

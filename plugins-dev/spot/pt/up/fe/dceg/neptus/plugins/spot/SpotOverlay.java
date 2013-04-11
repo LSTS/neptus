@@ -177,7 +177,6 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        // super.paint(g, renderer);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Spot.log.debug(spotsOnMap.size() + " spots:");
         for (Spot spot : spotsOnMap) {
@@ -190,7 +189,6 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
             double xScreenPos = pt.getX();
             double yScreenPos = pt.getY();
             g.translate(xScreenPos, yScreenPos);
-            Spot.log.debug("; rendered at (" + xScreenPos + ", " + yScreenPos + ")");
 
             if (showNames) {
                 g.setColor(Color.red.darker().darker());
@@ -203,22 +201,12 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
                 g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 12, 10);
             }
 
-            int xArrowScreenCoord = -7;// arrow.getWidth(renderer);
-            int yArrowScreenCoord = -7; // arrow.getHeight(renderer);
-            int widthArrow = arrow.getWidth(null);
-            int heightArrow = arrow.getHeight(null);
             g.rotate(-spot.direction);
-            // g.drawImage(arrow, xArrowScreenCoord, yArrowScreenCoord, widthArrow, heightArrow, null);
             g.setColor(Color.black);
             g.fill(gp);
             g.setStroke(new BasicStroke(0.9f));
             g.setColor(Color.white);
             g.draw(gp);
-            // g.rotate(spot.direction);
-            Spot.log.debug(", arrow: coords(" + xArrowScreenCoord + "," + yArrowScreenCoord + ") dimensions:("
-                    + widthArrow + ", " + heightArrow + ")");
-
-            // g.translate(-xScreenPos, -yScreenPos);
 
         }
         
