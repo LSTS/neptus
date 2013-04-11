@@ -53,12 +53,16 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Compass;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.CubeAxes;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
 import vtk.vtkActor;
+import vtk.vtkCellArray;
 import vtk.vtkCompassRepresentation;
 import vtk.vtkCompassWidget;
 import vtk.vtkDelaunay2D;
 import vtk.vtkDelaunay3D;
 import vtk.vtkGeoAssignCoordinates;
+import vtk.vtkIdList;
+import vtk.vtkIdTypeArray;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPanel;
 import vtk.vtkPointSource;
@@ -68,6 +72,7 @@ import vtk.vtkPolyDataMapper;
 import vtk.vtkRenderWindow;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
+import vtk.vtkVertexGlyphFilter;
 
 /**
  * @author hfq
@@ -109,108 +114,127 @@ public class Vtk extends JPanel implements MRAVisualization {
 
     }
     
+    /**
+     * Ideia: se for pretendido colocar vários actores no render fazer
+     * um HashMap<String, Actor>
+     * @param panel
+     */
     public Vtk(MRAPanel panel) {
         super(new BorderLayout());
    
-        vtkPanel = new vtkPanel();
-               
+        vtkPanel = new vtkPanel();   
+        Window win = new Window(vtkPanel);
+        
         // a Render Window
-        vtkRenderWindow renWin = new vtkRenderWindow();
-        renWin.AddRenderer(vtkPanel.GetRenderer());
-        
+//        vtkRenderWindow renWin = new vtkRenderWindow();
+//        renWin.AddRenderer(vtkPanel.GetRenderer());
+//        
         // an interactor
-        vtkRenderWindowInteractor renderWinInteractor = new vtkRenderWindowInteractor();
-        renderWinInteractor.SetRenderWindow(renWin);
+//        vtkRenderWindowInteractor renderWinInteractor = new vtkRenderWindowInteractor();
+//        renderWinInteractor.SetRenderWindow(renWin);
+//        
+//        Compass.addCompassToVisualization(renderWinInteractor);
         
-        Compass.addCompassToVisualization(renderWinInteractor);
-        
-        vtkGeoAssignCoordinates geoAssignCoords = new vtkGeoAssignCoordinates();
-        //geoAssignCoords.set
-        
-        vtkPoints points = new vtkPoints();     
-        float x = (float) 5.0;
-        float y = (float) 1.0;
-        float z = (float) 10.0;
-        PointXYZ p = new PointXYZ(x, y, z);
-        int id = 1;
-        //points.InsertPoint(id, 0.0, 0.0, 0.0);
-        points.InsertNextPoint(p.getX(), p.getY(), p.getZ());
-        
-        vtkPolyData poly = new vtkPolyData();
-        poly.SetPoints(points);
-        
-        vtkPolyDataMapper mapper = new vtkPolyDataMapper();
-        mapper.SetInput(poly);
-        
-        vtkActor pointsActor = new vtkActor();
-        pointsActor.SetMapper(mapper);
-        
-        //vtkPanel.GetRenderer().AddActor(coneActor);
-
-        pointsActor.GetProperty().SetPointSize(5.0);
-        vtkPanel.GetRenderer().AddActor(pointsActor);
-        
-        vtkPointSource pointSource = new vtkPointSource();
-        pointSource.SetNumberOfPoints(150000);
-        //pointSource.SetCenter(0.0, 0.0, 0.0);
-        pointSource.SetDistributionToUniform();
-        //pointSource.SetDistributionToShell();
-        pointSource.SetRadius(10.0);
-
-        //polyData = pointSource.GetPolyDataInput(ALLBITS);
-        
-        vtkPolyDataMapper inputMapper = new vtkPolyDataMapper();
-        inputMapper.SetInput(pointSource.GetOutput());
-          
-        vtkActor actor2 = new vtkActor();
-        actor2.SetMapper(inputMapper);
-        
-        
-        vtkPoints points2 = getPoints();
-        vtkPolyData polyData = new vtkPolyData();
-        
-        polyData.SetPoints(points2);
-        
-        vtkDelaunay2D delauny = new vtkDelaunay2D();
-        //vtkDelaunay3D delauny = new vtkDelaunay3D(); -> dá erro
-        delauny.SetInputConnection(polyData.GetProducerPort());
-        
-        vtkPolyDataMapper mapper2 = new vtkPolyDataMapper();
-        //mapper2.SetInput(polyData);
-        mapper2.SetInputConnection(delauny.GetOutputPort());
-        
-        vtkActor actor_2 = new vtkActor();
-        actor_2.SetMapper(mapper2);
-        
-        actor_2.GetProperty().SetPointSize(20);
-        
-        vtkPanel.GetRenderer().AddActor(CubeAxes.AddCubeAxesToVisualizer(vtkPanel.GetRenderer(), polyData));
-        vtkPanel.GetRenderer().AddActor(actor_2);
-        
-        
-        //vtkPanel.GetRenderer().AddActor(actor2);
- 
+//        vtkGeoAssignCoordinates geoAssignCoords = new vtkGeoAssignCoordinates();
+//        //geoAssignCoords.set
+//        
+//        vtkPoints points = new vtkPoints();     
+//        float x = (float) 5.0;
+//        float y = (float) 1.0;
+//        float z = (float) 10.0;
+//        PointXYZ p = new PointXYZ(x, y, z);
+//        int id = 1;
+//        //points.InsertPoint(id, 0.0, 0.0, 0.0);
+//        points.InsertNextPoint(p.getX(), p.getY(), p.getZ());
+//        
+//        //vtkCellArray verts = new vtkCellArray();
+//        //vtkIdTypeArray idTypes = new vtkIdTypeArray();
+//        
+//        
+//        vtkPolyData poly = new vtkPolyData();
+//        poly.SetPoints(points);
+//        
+//        // apply vtkVertexGlyphFilter to make cells around points, vtk only render cells
+//        vtkVertexGlyphFilter vertexGlyphFilter = new vtkVertexGlyphFilter();
+//        vertexGlyphFilter.SetInput(poly);
+//        
+//        vtkPolyDataMapper mapper = new vtkPolyDataMapper();
+//        //mapper.SetInput(poly);
+//        mapper.SetInputConnection(vertexGlyphFilter.GetOutputPort());
+//        
+//        vtkActor pointsActor = new vtkActor();
+//        pointsActor.SetMapper(mapper);
+//
+//        pointsActor.GetProperty().SetPointSize(5.0);
+//        vtkPanel.GetRenderer().AddActor(pointsActor);
+//        
+//        vtkPointSource pointSource = new vtkPointSource();
+//        pointSource.SetNumberOfPoints(150000);
+//        //pointSource.SetCenter(0.0, 0.0, 0.0);
+//        pointSource.SetDistributionToUniform();
+//        //pointSource.SetDistributionToShell();
+//        pointSource.SetRadius(10.0);
+//
+//        //polyData = pointSource.GetPolyDataInput(ALLBITS);
+//        
+//        vtkPolyDataMapper inputMapper = new vtkPolyDataMapper();
+//        inputMapper.SetInput(pointSource.GetOutput());
+//          
+//        vtkActor actor2 = new vtkActor();
+//        actor2.SetMapper(inputMapper);
+//        
+//        
+//        vtkPoints points2 = getPoints();
+//        vtkPolyData polyData = new vtkPolyData();
+//        
+//        polyData.SetPoints(points2);
+//        
+//        vtkCellArray verts = new vtkCellArray();
+//        vtkIdTypeArray idTypeArray = new vtkIdTypeArray();
+//        
+//        
+//        
+//        
+//        //vtkDelaunay2D delauny = new vtkDelaunay2D();
+//        //vtkDelaunay3D delauny = new vtkDelaunay3D(); -> dá erro
+//        //delauny.SetInputConnection(polyData.GetProducerPort());
+//        
+//        vtkPolyDataMapper mapper2 = new vtkPolyDataMapper();
+//        mapper2.SetInput(polyData);
+//        //mapper2.SetInputConnection(delauny.GetOutputPort());
+//        
+//        vtkActor actor_2 = new vtkActor();
+//        actor_2.SetMapper(mapper2);
+//        
+//        actor_2.GetProperty().SetPointSize(20);
+//        actor_2.GetProperty().SetColor(1.0, 0.0, 0.0);
+//        
+//        vtkPanel.GetRenderer().AddActor(CubeAxes.AddCubeAxesToVisualizer(vtkPanel.GetRenderer(), polyData));
+//        vtkPanel.GetRenderer().AddActor(actor_2);
+//        
+//        
+//        //vtkPanel.GetRenderer().AddActor(actor2);
+// 
         Axes ax = new Axes(); 
-        
-/*        vtkConeSource cone = new vtkConeSource();
-        cone.SetResolution(8);
-
-        vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
-        coneMapper.SetInputConnection(cone.GetOutputPort());
-
-        vtkActor coneActor = new vtkActor();
-        coneActor.SetMapper(coneMapper);*/
-        
-        //vtkRenderer renderer = new vtkRenderer();
-        //renderer.AddActor(ax.getAxesActor());
-        
+//        
+///*        vtkConeSource cone = new vtkConeSource();
+//        cone.SetResolution(8);
+//
+//        vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
+//        coneMapper.SetInputConnection(cone.GetOutputPort());
+//
+//        vtkActor coneActor = new vtkActor();
+//        coneActor.SetMapper(coneMapper);*/
+//        
+//        
+//        
         vtkPanel.GetRenderer().AddActor(ax.getAxesActor());
         
         vtkPanel.GetRenderer().ResetCamera();
-        //vtkPanel.GetRenderer().ResetCameraClippingRange();
+        vtkPanel.GetRenderer().ResetCameraClippingRange();
         vtkPanel.GetRenderer().LightFollowCameraOn();
         vtkPanel.GetRenderer().VisibleActorCount();
-        //vtkPanel.GetRenderer().ViewToDisplay();
+        vtkPanel.GetRenderer().ViewToDisplay();
         
         add(vtkPanel, BorderLayout.CENTER);
     }
