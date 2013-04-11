@@ -67,7 +67,7 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
 
     private static final long serialVersionUID = 1L;
     protected boolean debug = false;
-    
+
     protected PlanSimulator simulator = null;
     protected SystemPositionAndAttitude lastVehicleState = null;
     protected long lastStateTime = 0;
@@ -85,10 +85,14 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
         super(console);
         setVisibility(false);
     }
-    
+
+    EstimatedState lastEState = null;
+
     protected double getVehicleDepth() {
         try {
-            return ImcMsgManager.getManager().getState(getConsole().getMainSystem()).lastEstimatedState().getDepth();
+            if (lastEState != null && lastEState.getSourceName().equals(getConsole().getMainSystem()))            
+                return ImcMsgManager.getManager().getState(getConsole().getMainSystem()).lastEstimatedState().getDepth();
+            return 0;
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -98,13 +102,15 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
 
     @Subscribe
     public void consume(EstimatedState msg) {
-      
+
+
         if (msg.getSourceName() != null && !msg.getSourceName().equals(getConsole().getMainSystem()))
             return;
 
+        lastEState = msg;
         if (getVehicleDepth() > 1 && debug)
             return;
-        
+
         //NeptusLog.pub().info("<###>Got an estimated state");
 
         lastVehicleState = IMCUtils.parseState(msg);
@@ -116,14 +122,14 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
     }
 
     protected long lastEstimateTime = 0;
-    
+
     @Subscribe
     public void consume(ConsoleEventPositionEstimation estimate) {
 
         if (System.currentTimeMillis() - lastEstimateTime < 45000 && debug)
             return;
         lastEstimateTime = System.currentTimeMillis();
-        
+
         //NeptusLog.pub().info("<###>Got a position estimation");
         if (System.currentTimeMillis() - lastStateTime < 1000 || simulator == null)
             return;
@@ -145,7 +151,7 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
 
     @Subscribe
     public synchronized void consume(PlanControlState msg) {
-        
+
         if (getVehicleDepth() > 1 && debug)
             return;
 
@@ -161,7 +167,7 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
                 stopSimulator();
                 PlanType plan = getConsole().getMission().getIndividualPlansList().get(planid);
                 if (plan != null) {
-                    
+
                     EstimatedState last = ImcMsgManager.getManager().getState(msg.getSourceName()).lastEstimatedState();
                     if (last != null)
                         simulator = new PlanSimulator(plan, new SystemPositionAndAttitude(last));
@@ -202,7 +208,7 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        
+
         if (simulator != null && simulator.isRunning()) {
             long simTime = System.currentTimeMillis() - lastStateTime;
             if (simTime > 1000) {
