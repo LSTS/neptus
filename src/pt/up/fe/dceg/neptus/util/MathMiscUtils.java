@@ -234,8 +234,8 @@ public class MathMiscUtils {
 
 		strt = new StringTokenizer(engValue, delim);
 		strtTkn = new StringTokenizer(engValue, delim, true);
-		// System.out.println(strt.countTokens());
-		// System.out.println(strtTkn.countTokens());
+		// NeptusLog.pub().info("<###> "+strt.countTokens());
+		// NeptusLog.pub().info("<###> "+strtTkn.countTokens());
 		if ((strt.countTokens() == 1)
 				&& (strtTkn.countTokens() <= (strt.countTokens() + 1))) {
 			// NOP
@@ -253,7 +253,7 @@ public class MathMiscUtils {
 				double multiplier = getEngMultiplier(multiplierStr);
 				doubleValue *= multiplier;
 			}
-			// System.out.println(doubleValue);
+			// NeptusLog.pub().info("<###> "+doubleValue);
 		}
 
 		return doubleValue;
@@ -544,8 +544,8 @@ public class MathMiscUtils {
 
 		strt = new StringTokenizer(engValue, delim);
 		strtTkn = new StringTokenizer(engValue, delim, true);
-		// System.out.println(strt.countTokens());
-		// System.out.println(strtTkn.countTokens());
+		// NeptusLog.pub().info("<###> "+strt.countTokens());
+		// NeptusLog.pub().info("<###> "+strtTkn.countTokens());
 		if ((strt.countTokens() == 1)
 				&& (strtTkn.countTokens() <= (strt.countTokens() + 2))) {
 			// NOP
@@ -565,7 +565,7 @@ public class MathMiscUtils {
 				double multiplier = getEngRadix2Multiplier(multiplierStr);
 				doubleValue *= multiplier;
 			}
-			// System.out.println(doubleValue);
+			// NeptusLog.pub().info("<###> "+doubleValue);
 		}
 
 		return doubleValue;
@@ -726,11 +726,11 @@ public class MathMiscUtils {
 	/*-------------------------------------------------------------*/
 
 	public static void main(String[] args) {
-		System.out.println(parseEngineeringModeToDouble("10M"));
-		System.out.println(parseToEngineeringNotation(0.000003, 2));
+		NeptusLog.pub().info("<###> "+parseEngineeringModeToDouble("10M"));
+		NeptusLog.pub().info("<###> "+parseToEngineeringNotation(0.000003, 2));
 
-        System.out.println(MathMiscUtils.parseToEngineeringNotation(3.56, 0) + "=4");
-        System.out.println(MathMiscUtils.parseToEngineeringNotation(3.56, 1) + "=3.6");
+        NeptusLog.pub().info("<###> "+MathMiscUtils.parseToEngineeringNotation(3.56, 0) + "=4");
+        NeptusLog.pub().info("<###> "+MathMiscUtils.parseToEngineeringNotation(3.56, 1) + "=3.6");
 
 		
 		if (MathMiscUtils.parseEngineeringModeToDouble("100M") > MathMiscUtils
@@ -740,27 +740,27 @@ public class MathMiscUtils {
 			NeptusLog.pub().info("<###>Nops");
 		}
 
-		System.out.println(MathMiscUtils.parseToEngineeringRadix2Notation(
+		NeptusLog.pub().info("<###> "+MathMiscUtils.parseToEngineeringRadix2Notation(
 				1887115, 1) + "=1.8Mi");
-		System.out.println(MathMiscUtils
+		NeptusLog.pub().info("<###> "+MathMiscUtils
 				.parseEngineeringRadix2ModeToDouble("1.79969310760498046875Mi")
 				+ "=1887115.0");
 
-		System.out.println(MathMiscUtils.parseToEngineeringRadix2Notation(876,
+		NeptusLog.pub().info("<###> "+MathMiscUtils.parseToEngineeringRadix2Notation(876,
 				1) + "=876");
 
-		System.out.println(MathMiscUtils.parseToEngineeringRadix2Notation(0,
+		NeptusLog.pub().info("<###> "+MathMiscUtils.parseToEngineeringRadix2Notation(0,
 		        1) + "=0");
 
-		System.out.println(parseEngineeringRadix2ModeToDouble("1ki"));
-		System.out.println(parseEngineeringRadix2ModeToDouble("1Ki"));
-		System.out.println(parseEngineeringRadix2ModeToDouble("1Mi"));
-		System.out.println(parseEngineeringRadix2ModeToDouble("1\u00B5i"));
-		System.out.println(parseEngineeringRadix2ModeToDouble("1ui"));
+		NeptusLog.pub().info("<###> "+parseEngineeringRadix2ModeToDouble("1ki"));
+		NeptusLog.pub().info("<###> "+parseEngineeringRadix2ModeToDouble("1Ki"));
+		NeptusLog.pub().info("<###> "+parseEngineeringRadix2ModeToDouble("1Mi"));
+		NeptusLog.pub().info("<###> "+parseEngineeringRadix2ModeToDouble("1\u00B5i"));
+		NeptusLog.pub().info("<###> "+parseEngineeringRadix2ModeToDouble("1ui"));
 
-        System.out.println(round(Math.PI, 2));
-        System.out.println(round(Math.PI, 1));
-        System.out.println(round(Math.PI, 0));
-        System.out.println(clamp(41,50,100));
+        NeptusLog.pub().info("<###> "+round(Math.PI, 2));
+        NeptusLog.pub().info("<###> "+round(Math.PI, 1));
+        NeptusLog.pub().info("<###> "+round(Math.PI, 0));
+        NeptusLog.pub().info("<###> "+clamp(41,50,100));
 	}
 }

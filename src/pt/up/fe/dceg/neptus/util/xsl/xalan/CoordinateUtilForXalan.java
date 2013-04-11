@@ -38,6 +38,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.io.DOMReader;
 import org.dom4j.io.DOMWriter;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
@@ -208,7 +209,7 @@ public class CoordinateUtilForXalan
         {
             res += " # " + vec[i];
         }
-        System.out.println(res);
+        NeptusLog.pub().info("<###> "+res);
     }
     
     

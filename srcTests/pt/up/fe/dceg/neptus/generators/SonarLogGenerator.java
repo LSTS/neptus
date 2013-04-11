@@ -146,7 +146,7 @@ public class SonarLogGenerator {
 //        IMraLog log = source.getLog("SonarData");
 //        IMCMessage ping = log.firstLogEntry();
 //        while(ping != null) {
-//            System.out.println(ping.getTimestampMillis());
+//            NeptusLog.pub().info("<###> "+ping.getTimestampMillis());
 //            ping = log.nextLogEntry();
 //        }
     }

@@ -897,7 +897,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         // }
         // if (id != null) {
         // treeModel.removeNodeFromParent(childPlan);
-        // // System.out.println(id);
+        // // NeptusLog.pub().info("<###> "+id);
         // }
         // }
         // catch (Exception e) {

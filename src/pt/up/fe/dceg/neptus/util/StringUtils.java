@@ -148,14 +148,14 @@ public class StringUtils {
 "4097818 [Foxtrot Multi Worker Thread Runner #70] INFO org.apache.http.impl.client.DefaultHttpClient  - I/O exception (java.net.NoRouteToHostException) caught when connecting to the target host: No route to host: connect"+
 "- Retrying connect"+
 "4097818 [Foxtrot Multi Worker Thread Runner #70] INFO org.apache.http.impl.client.DefaultHttpClient  - Retrying connect xxxx";
-		System.out.println(wrapEveryNChars(txt, (short) 100));
+		NeptusLog.pub().info("<###> "+wrapEveryNChars(txt, (short) 100));
 		NeptusLog.pub().info("<###>\n\n------------------------------------------------\n\n");
-		System.out.println(wrapEveryNChars(txt, (short) 100, 100, true));
+		NeptusLog.pub().info("<###> "+wrapEveryNChars(txt, (short) 100, 100, true));
         NeptusLog.pub().info("<###>\n\n------------------------------------------------\n\n");
-        System.out.println(wrapEveryNChars(txt, (short) 100, 1000, true));
+        NeptusLog.pub().info("<###> "+wrapEveryNChars(txt, (short) 100, 1000, true));
         NeptusLog.pub().info("<###>\n\n------------------------------------------------\n\n");
-        System.out.println(wrapEveryNChars(txt, (short) 100, 100, true));
-        System.out.println(wrapEveryNChars(txt, (short) 120, 100, true));
+        NeptusLog.pub().info("<###> "+wrapEveryNChars(txt, (short) 100, 100, true));
+        NeptusLog.pub().info("<###> "+wrapEveryNChars(txt, (short) 120, 100, true));
 	}
 
 }

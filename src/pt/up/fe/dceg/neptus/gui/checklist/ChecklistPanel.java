@@ -774,7 +774,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                     // NeptusLog.pub().info("<###>Ok actionPerformed()");
                     userCancel = false;
                     // hideFrame();
-                    // System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(getChecklistType().asXML()));
+                    // NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(getChecklistType().asXML()));
                     saveFile();
                 }
 
@@ -1058,7 +1058,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                     // NeptusLog.pub().info("<###>wxh                   :" +
                     // mtpg.getWidth() + "|" + mtpg.getHeight());
                     if ((mtpg.getHeight() - e.getY()) < 20) {
-                        // System.out.println(true);
+                        // NeptusLog.pub().info("<###> "+true);
                         addNewCheckItemWorker(mtpg, false, null);
                     }
                     // mtpg.setBackground(Color.RED);
@@ -1085,11 +1085,11 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         // //JTaskPaneGroup tpg = (JTaskPaneGroup) e.getSource();
         // if (ignoreExpandTaskGroup)
         // {
-        // //System.out.println(tpg.getText() + " propertyChange(expanded)");
+        // //NeptusLog.pub().info("<###> "+tpg.getText() + " propertyChange(expanded)");
         // return;
         // }
         // ignoreExpandTaskGroup = true;
-        // //System.out.println(tpg.getText() + " propertyChange(expanded)" +
+        // //NeptusLog.pub().info("<###> "+tpg.getText() + " propertyChange(expanded)" +
         // e.getNewValue());
         // e.getNewValue();
         // ignoreExpandTaskGroup = false;
@@ -1099,7 +1099,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         templateTaskPaneGroup.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
-                // System.out.println(e.getKeyCode() + " " + KeyEvent.VK_LEFT);
+                // NeptusLog.pub().info("<###> "+e.getKeyCode() + " " + KeyEvent.VK_LEFT);
                 if (e.getKeyCode() == KeyEvent.VK_LEFT) {
                     MyJTaskPaneGroup mtpg = (MyJTaskPaneGroup) e.getSource();
                     if (!mtpg.isCollapsed())
@@ -1206,7 +1206,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         }
         else {
             if (getCheckTaskPane().getComponentCount() > 0) {
-                // System.out.println(getCheckTaskPane().getComponentCount());
+                // NeptusLog.pub().info("<###> "+getCheckTaskPane().getComponentCount());
                 // Component[] ff = getCheckTaskPane().getComponents();
                 Component[] compJTaskPaneGroup = getCheckTaskPane().getComponents();
 

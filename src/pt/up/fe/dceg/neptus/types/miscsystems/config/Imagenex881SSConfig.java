@@ -38,6 +38,7 @@ import java.util.HashMap;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SonarConfig;
@@ -171,8 +172,8 @@ public class Imagenex881SSConfig extends OptionsConfiguration {
                 freq, range);
 		d.setTitle(name);
 		GuiUtils.centerParent(d, parent);
-		System.out.println(d.setSelectedFrequency(freq));
-		System.out.println(d.setSelectedRange(range));
+		NeptusLog.pub().info("<###> "+d.setSelectedFrequency(freq));
+		NeptusLog.pub().info("<###> "+d.setSelectedRange(range));
 		d.setModalityType(ModalityType.DOCUMENT_MODAL);
 		d.setVisible(true);
 		if (!d.isUserCanceled()) {

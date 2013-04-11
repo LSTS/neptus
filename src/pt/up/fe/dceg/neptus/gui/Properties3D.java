@@ -85,7 +85,7 @@ public class Properties3D extends JDialog  {
 	{
 		obj=mobj;
 		jLabel2.setText("Map Object "+obj.getName()); //nome
-		//System.out.println(renderer.istrans(obj));
+		//NeptusLog.pub().info("<###> "+renderer.istrans(obj));
 		
 		checktrans.setSelected(renderer.isTrans(obj));//transp
 		if (!(obj instanceof EllipsoidElement) && !(obj instanceof CylinderElement) &&!(obj instanceof ParallelepipedElement) &&!(obj instanceof ImageElement))

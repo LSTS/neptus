@@ -80,11 +80,11 @@ public class StateRenderer2DTest {
     public void test() {
         LocationType center = srend.getCenter();
         NeptusLog.pub().info("<###>panel size: "+ srend.getWidth()+","+srend.getHeight()+" lod: "+srend.getLevelOfDetail());
-        System.out.println(center);
-        System.out.println(srend.getScreenPosition(center));
+        NeptusLog.pub().info("<###> "+center);
+        NeptusLog.pub().info("<###> "+srend.getScreenPosition(center));
         //srend.setCenter(new LocationType(41, 41));
-        //System.out.println(srend.getCenter());
-        System.out.println(srend.getScreenPosition(new LocationType(41.711233, -9.18457)));
+        //NeptusLog.pub().info("<###> "+srend.getCenter());
+        NeptusLog.pub().info("<###> "+srend.getScreenPosition(new LocationType(41.711233, -9.18457)));
     }
 
 }

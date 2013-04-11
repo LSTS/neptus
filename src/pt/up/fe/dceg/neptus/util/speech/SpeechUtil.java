@@ -272,7 +272,7 @@ public class SpeechUtil {
 	    ConfigFetch.initialize();
 	    String[] vehicles = VehiclesHolder.getVehiclesArray(); 
 	    for (int i = vehicles.length-1; i>=0; i--) {
-	        System.out.println(vehicles[i]);
+	        NeptusLog.pub().info("<###> "+vehicles[i]);
 	        SpeechUtil.readSimpleText(vehicles[i]+"is ready");
 	    }	   
 	}

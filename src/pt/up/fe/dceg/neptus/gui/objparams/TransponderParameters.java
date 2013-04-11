@@ -49,6 +49,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.LocationPanel;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -272,7 +273,7 @@ public class TransponderParameters extends ParametersPanel {
             @Override
             public boolean accept(File pathname) {
                 String name = pathname.getName();
-                System.out.println(name + ": " + name.matches("^(lsts[0-9]+\\.conf)|([A-Za-z]+[0-9]+\\.conf)$"));
+                NeptusLog.pub().info("<###> "+name + ": " + name.matches("^(lsts[0-9]+\\.conf)|([A-Za-z]+[0-9]+\\.conf)$"));
                 if (name.matches("^(lsts[0-9]+\\.conf)|([A-Za-z]+[0-9]+\\.conf)$")) {
                     return true;
                 }
@@ -290,7 +291,7 @@ public class TransponderParameters extends ParametersPanel {
             }
         });
         for (File file : files) {
-            System.out.println(file.getName());
+            NeptusLog.pub().info("<###> "+file.getName());
             aTranspondersFiles.add(file.getName());
         }
     }

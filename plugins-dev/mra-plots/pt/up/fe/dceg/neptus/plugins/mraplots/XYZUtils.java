@@ -461,9 +461,9 @@ public class XYZUtils {
 
     public static void main(String[] args) throws Exception {
         double[] vec = calcWidthHeightScale(417.4842522414401, 417.05859590325053, 800, 600);
-        System.out.println(vec[0]);
-        System.out.println(vec[1]);
-        System.out.println(vec[2]);
+        NeptusLog.pub().info("<###> "+vec[0]);
+        NeptusLog.pub().info("<###> "+vec[1]);
+        NeptusLog.pub().info("<###> "+vec[2]);
         
         
         //41N09'35.293'' 08W41'35.721''
@@ -474,7 +474,7 @@ public class XYZUtils {
         while (line != null) {
             if (line.startsWith("#")) {}                
             else {
-                //System.out.println(line);
+                //NeptusLog.pub().info("<###> "+line);
                 String[] xt = line.split("[\t ,]");
                 if (xt.length == 3) {
                     try {
@@ -540,6 +540,6 @@ public class XYZUtils {
         MapType mapT = getAsMapType(destination, destination2, "APDL-Bat", ".", xyzData.centerLoc,
                 xyzData.scale, xyzData.maxZ, xyzData.minZ);
 
-        System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(mapT.asXML()));
+        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(mapT.asXML()));
     }
 }

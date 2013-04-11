@@ -283,10 +283,10 @@ public class ProxyInfoProvider {
     public static void main(String[] args) {
         savePropertiesToDisk();
         
-        System.out.println(enableProxy);
-        System.out.println(httpProxyHost);
-        System.out.println(httpProxyPort);
-        System.out.println(username);
-        System.out.println(password);
+        NeptusLog.pub().info("<###> "+enableProxy);
+        NeptusLog.pub().info("<###> "+httpProxyHost);
+        NeptusLog.pub().info("<###> "+httpProxyPort);
+        NeptusLog.pub().info("<###> "+username);
+        NeptusLog.pub().info("<###> "+password);
     }
 }

@@ -79,7 +79,7 @@ public class XYZDataUtil {
 		while (line != null) {
 			if (line.startsWith("#")) {}				
 			else {
-				//System.out.println(line);
+				//NeptusLog.pub().info("<###> "+line);
 				String[] xt = line.split("[\t ,]");
 				if (xt.length == 3) {
 					try {
@@ -160,12 +160,12 @@ public class XYZDataUtil {
 		LocationType topCorner = new LocationType(baseLoc);
 		topCorner.translatePosition(maxX, minY, 0);
 		NeptusLog.pub().info("<###>Top Left Corner location = " + topCorner);
-//		System.out.println(topCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + topCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
+//		NeptusLog.pub().info("<###> "+topCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + topCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
 
 		LocationType centerLocation = new LocationType(baseLoc);
 		centerLocation.translatePosition(maxX-((maxX-minX)/2), minY+((maxY-minY)/2), 0);
 		NeptusLog.pub().info("<###>Center location = " + centerLocation);
-//		System.out.println(centerCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + centerCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
+//		NeptusLog.pub().info("<###> "+centerCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + centerCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
 
 		
 //		LocationType centerUsedCorner = new LocationType();
@@ -174,12 +174,12 @@ public class XYZDataUtil {
 //		centerUsedCorner.setOffsetNorth(-823.643);
 //		centerUsedCorner.setOffsetEast(73.975);
 //		NeptusLog.pub().info("<###>CenterUsed location = " + centerUsedCorner);
-//		System.out.println(centerUsedCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + centerUsedCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
+//		NeptusLog.pub().info("<###> "+centerUsedCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + centerUsedCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
 
 		LocationType bottomRightCorner = new LocationType(baseLoc);
 		bottomRightCorner.translatePosition(maxX-(maxX-minX), minY+(maxY-minY), 0);
 		NeptusLog.pub().info("<###>Bottom Right Corner location = " + bottomRightCorner);
-//		System.out.println(bottomRightCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + bottomRightCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
+//		NeptusLog.pub().info("<###> "+bottomRightCorner.getNewAbsoluteLatLonDepth().getLatitudeAsPrettyString() + "  " + bottomRightCorner.getNewAbsoluteLatLonDepth().getLongitudeAsPrettyString());
 
 		for (int i = 0; i < xvec.size(); i++) {
 			LocationType pLoc = new LocationType(baseLoc);
@@ -357,7 +357,7 @@ public class XYZDataUtil {
         mapT.addObject(imageElement);
         mapT.saveFile("./map-" + imageNameId + ".nmap");
         
-        System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(mapT.asXML()));
+        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(mapT.asXML()));
 	}
 
 
@@ -496,10 +496,10 @@ public class XYZDataUtil {
 //		for (int i = 0; i < zGrid.length; i++) {
 //			//zGrid[i] = (zGrid[i] - min) / max;
 //			zGrid[i] = (zGrid[i] - min) / (max-min);
-//		//	System.out.println(zGrid[i]);
+//		//	NeptusLog.pub().info("<###> "+zGrid[i]);
 //		}
 //
-//		//System.out.println(min+" -> "+max+", "+dyGrid);
+//		//NeptusLog.pub().info("<###> "+min+" -> "+max+", "+dyGrid);
 //		double vals[][] = new double[numX][numY];
 //		
 //		for (int i = 0; i < numX; i++) {

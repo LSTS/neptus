@@ -281,6 +281,6 @@ public class ZipUtils {
         // ZipUtils.unZip("teste.zip", "tmp/teste");
         // ZipUtils.zipDir("teste-nep.zip", "D:\\Program Files\\BitComet");
         // System.err.println(Charset.isSupported("ibm437"));
-        // System.out.println(new String("Cópia".getBytes(), "IBM437"));
+        // NeptusLog.pub().info("<###> "+new String("Cópia".getBytes(), "IBM437"));
     }
 }

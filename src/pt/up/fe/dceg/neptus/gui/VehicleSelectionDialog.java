@@ -206,6 +206,6 @@ public class VehicleSelectionDialog extends JPanel {
        JFrame f = GuiUtils.testFrame(new VehicleSelectionDialog());
         String[] sel = VehicleSelectionDialog.showSelectionDialog(f, new String[] {"Isurus", "NAUV"});
         for (String s : sel)
-            System.out.println(s);
+            NeptusLog.pub().info("<###> "+s);
     }
 }

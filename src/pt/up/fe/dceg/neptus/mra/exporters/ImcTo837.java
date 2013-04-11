@@ -146,8 +146,8 @@ public class ImcTo837 implements MraExporter {
                         m = ((res[1] - d) * 60);
                         lon = String.format("%03d.%.5f",Math.abs(d),Math.abs(m)) + (d > 0 ? " E" : " W");
 //                        
-                        System.out.println(lat);
-                        System.out.println(lon);
+                        NeptusLog.pub().info("<###> "+lat);
+                        NeptusLog.pub().info("<###> "+lon);
                         
 //                        if(heading < 0)
 //                            heading = (short) (360 + heading);
@@ -267,7 +267,7 @@ public class ImcTo837 implements MraExporter {
 //            try {
 //                Thread.sleep(1000);
 //                st+=10;
-//                System.out.println(st);
+//                NeptusLog.pub().info("<###> "+st);
 //                break;
 //            }
 //            catch (InterruptedException e) {

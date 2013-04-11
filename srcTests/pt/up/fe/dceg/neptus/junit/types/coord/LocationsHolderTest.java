@@ -78,18 +78,18 @@ public class LocationsHolderTest extends TestCase
         assertTrue(LocationsHolder.putAbstractLocationPoint(loc2));
         assertTrue(LocationsHolder.putAbstractLocationPoint(loc3));
         
-        System.out.println(LocationsHolder.generateReport());
+        NeptusLog.pub().info("<###> "+LocationsHolder.generateReport());
 
         assertTrue(LocationsHolder.removeRefToAbstractLocationPoint(loc1.getId(), loc2.getId()));
 
         NeptusLog.pub().info("<###>_________________________________________\n");
-        System.out.println(LocationsHolder.generateReport());
+        NeptusLog.pub().info("<###> "+LocationsHolder.generateReport());
 
         
         assertTrue(LocationsHolder.removeAbstractLocationPoint(loc1.getId()));
 
         NeptusLog.pub().info("<###>_________________________________________\n");
-        System.out.println(LocationsHolder.generateReport());
+        NeptusLog.pub().info("<###> "+LocationsHolder.generateReport());
 
     }
 

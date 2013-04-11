@@ -230,7 +230,7 @@ public class RowsPattern extends FollowPath {
         // TODO FIXME 
         try {
             Document doc = DocumentHelper.parseText(xml);
-            //System.out.println(doc.asXML());
+            //NeptusLog.pub().info("<###> "+doc.asXML());
             // basePoint
             Node node = doc.selectSingleNode("//basePoint/point");
             ManeuverLocation loc = new ManeuverLocation();
@@ -644,14 +644,14 @@ public class RowsPattern extends FollowPath {
     public static void main(String[] args) {
         RowsPattern man = new RowsPattern();
         //man("<FollowPath kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><path><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></path><speed unit=\"RPM\">1000.0</speed></FollowPath>");
-        //System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("FollowTrajectory")));
+        //NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("FollowTrajectory")));
         man.setSpeed(1);
         man.setUnits("m/s");        
-        //        System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("RIPattern")));
+        //        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("RIPattern")));
 
         man.setSpeed(2);
         man.setUnits("m/s");        
-        //        System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("RIPattern")));
+        //        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(man.getManeuverAsDocument("RIPattern")));
 
 
         MissionType mission = new MissionType("./missions/rep10/rep10.nmisz");

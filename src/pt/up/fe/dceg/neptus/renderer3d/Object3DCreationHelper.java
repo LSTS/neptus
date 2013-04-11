@@ -594,7 +594,7 @@ public class Object3DCreationHelper {
                 Shape3D aux = (Shape3D) child;
                 aux.setCapability(Shape3D.ALLOW_APPEARANCE_READ);
                 aux.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
-                // System.out.println(i);
+                // NeptusLog.pub().info("<###> "+i);
             }
         }
 
@@ -746,7 +746,7 @@ public class Object3DCreationHelper {
         sphere.setAppearance(appearance3);
 
         // cube.setCapability(Box.);
-        // System.out.println(sphere);
+        // NeptusLog.pub().info("<###> "+sphere);
         model.addChild(sphere);
         model.setTransform(t);
         // model.setCapability(BranchGroup.ALLOW_DETACH); //rdiclo :-)
@@ -894,7 +894,7 @@ public class Object3DCreationHelper {
         sphere.setAppearance(appearance3);
 
         // cube.setCapability(Box.);
-        // System.out.println(sphere);
+        // NeptusLog.pub().info("<###> "+sphere);
         model.addChild(sphere);
         model.setTransform(t);
         sphere.getAppearance();
@@ -1120,7 +1120,7 @@ public class Object3DCreationHelper {
                 new Point3d(1, -1, 1), new Point3d(1, 1, 1), new Point3d(1, -1, -1), new Point3d(1, 1, -1),
                 new Point3d(-1, -1, 1), new Point3d(-1, 1, 1), new Point3d(-1, -1, -1), new Point3d(-1, 1, -1), };
 
-        // System.out.println(x);
+        // NeptusLog.pub().info("<###> "+x);
         // Point3d listp[]=new Point3d[myCoords.length*2];
 
         LineArray myLines = new LineArray(myCoords.length, LineArray.COORDINATES);

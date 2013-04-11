@@ -175,6 +175,10 @@ public class MessageListenerQueueProvider<Mi extends MessageInfo, M extends IMes
         catch (InterruptedException e) {
             return false;
         }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+            return false;
+        }
     }
     
     /**

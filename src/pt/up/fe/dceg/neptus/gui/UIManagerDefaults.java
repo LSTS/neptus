@@ -622,8 +622,8 @@ public class UIManagerDefaults implements ActionListener, ItemListener {
                 super.paint(g);
             }
             catch (Exception e) {
-                // System.out.println(e);
-                // System.out.println(e.getStackTrace()[0]);
+                // NeptusLog.pub().info("<###> "+e);
+                // NeptusLog.pub().info("<###> "+e.getStackTrace()[0]);
             }
         }
     }
@@ -670,7 +670,7 @@ public class UIManagerDefaults implements ActionListener, ItemListener {
             }
             catch (Exception ex) {
                 NeptusLog.pub().info("<###>Failed loading L&F: " + laf);
-                System.out.println(ex);
+                NeptusLog.pub().info("<###> "+ex);
             }
         }
     }

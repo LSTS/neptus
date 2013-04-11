@@ -52,6 +52,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
@@ -143,7 +144,7 @@ public class ZValueSelector extends ParametersPanel {
         
         ZValueSelector.showHeightDepthDialog(null, loc, "Set plan depth / altitude");
         
-        System.out.println(loc.asXML());
+        NeptusLog.pub().info("<###> "+loc.asXML());
         
     }
 

@@ -219,7 +219,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
 
                 for (int i = 0; i < 4; i++) {
-                    System.out.println(surveyArea[i].asXML());
+                    NeptusLog.pub().info("<###> "+surveyArea[i].asXML());
                 }
 
 

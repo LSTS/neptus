@@ -237,6 +237,6 @@ public class SimpleTransponderPanel extends SimpleLocationPanel {
 		GuiUtils.setLookAndFeel();
 		TransponderElement elem = new TransponderElement(MapGroup.getNewInstance(new CoordinateSystem()), null);
 		elem = showTransponderDialog(elem, "testing", true, true, new String[0], null);
-		System.out.println(elem);
+		NeptusLog.pub().info("<###> "+elem);
 	}
 }

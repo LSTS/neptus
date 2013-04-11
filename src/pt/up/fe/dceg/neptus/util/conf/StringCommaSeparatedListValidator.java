@@ -33,6 +33,8 @@ package pt.up.fe.dceg.neptus.util.conf;
 
 import java.util.HashSet;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author pdias
  *
@@ -72,10 +74,10 @@ public class StringCommaSeparatedListValidator extends StringListValidator {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(new StringCommaSeparatedListValidator("UDP", "RTPS").validate(""));
-		System.out.println(new StringCommaSeparatedListValidator("UDP", "RTPS").validate("UDP"));
-		System.out.println(new StringCommaSeparatedListValidator("UDP", "RTPS").validate("UDP,RTPS"));
-		System.out.println(new StringCommaSeparatedListValidator("UDP", "RTPS").validate("RTPS , UDP"));
-		System.out.println(new StringCommaSeparatedListValidator("UDP", "RTPS").validValuesDesc());
+		NeptusLog.pub().info("<###> "+new StringCommaSeparatedListValidator("UDP", "RTPS").validate(""));
+		NeptusLog.pub().info("<###> "+new StringCommaSeparatedListValidator("UDP", "RTPS").validate("UDP"));
+		NeptusLog.pub().info("<###> "+new StringCommaSeparatedListValidator("UDP", "RTPS").validate("UDP,RTPS"));
+		NeptusLog.pub().info("<###> "+new StringCommaSeparatedListValidator("UDP", "RTPS").validate("RTPS , UDP"));
+		NeptusLog.pub().info("<###> "+new StringCommaSeparatedListValidator("UDP", "RTPS").validValuesDesc());
 	}
 }

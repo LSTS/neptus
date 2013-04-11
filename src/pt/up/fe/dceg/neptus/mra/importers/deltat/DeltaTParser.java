@@ -42,6 +42,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryInfo;
@@ -153,7 +154,7 @@ public class DeltaTParser implements BathymetryParser {
                 e.printStackTrace();
             }
         }
-        System.out.println(info.maxDepth);
+        NeptusLog.pub().info("<###> "+info.maxDepth);
     }
     
     @Override
@@ -244,13 +245,13 @@ public class DeltaTParser implements BathymetryParser {
 //                    f[0] = (float) (r[0] * 1000000f);
 //                    f[1] = new Double(r[1]).floatValue();
 //                    
-//                    System.out.println(r[0]);
+//                    NeptusLog.pub().info("<###> "+r[0]);
 //                    NeptusLog.pub().info("<###> " + f[0]);
 //                }
                 c++;
 //                kryo.writeObject(output, bs);
             }
-            System.out.println(c);
+            NeptusLog.pub().info("<###> "+c);
         }
         catch (Exception e) {
             e.printStackTrace();

@@ -351,6 +351,7 @@ public class IPCameraDisplay extends SimpleSubPanel implements ConfigurationList
         int offset = 0;
         char prev = '\0';
         int r = 0;
+        
         while (prev != '\n') {
             try {
                 r = is.read(buff, offset, 1);

@@ -56,7 +56,7 @@ public class VehicleSelectionEditor extends AbstractPropertyEditor {
 	public VehicleSelectionEditor() {
 			
 		String[] list=VehiclesHolder.getVehiclesArray();
-		//System.out.println(list);
+		//NeptusLog.pub().info("<###> "+list);
 		combobox = new JComboBox<Object>(list);
 		editor = new JPanel(new BorderLayout(0,0));
 		combobox.setLocale(Locale.US);

@@ -196,14 +196,14 @@ public class CoordinateUtilTest extends TestCase
         {
             res += " # " + vec[i];
         }
-        System.out.println(res);
+        NeptusLog.pub().info("<###> "+res);
     }
     public void testParseLatitudeCoordToStringArray()
     {
 	    String te = "41N3.6117";
 	    String[] st = 
 	        CoordinateUtil.parseLatitudeCoordToStringArray(te);
-	    //System.out.println(st[1]+st[0]+st[2]+" "+st[3]);
+	    //NeptusLog.pub().info("<###> "+st[1]+st[0]+st[2]+" "+st[3]);
 	    assertEquals("N", st[0]);
 	    assertEquals("41", st[1]);
 	    assertEquals("3.6117", st[2]);
@@ -222,7 +222,7 @@ public class CoordinateUtilTest extends TestCase
 	    String te = "8W27.4009";
 	    String[] st = 
 	        CoordinateUtil.parseLongitudeCoordToStringArray(te);
-	    //System.out.println(st[1]+st[0]+st[2]+" "+st[3]);
+	    //NeptusLog.pub().info("<###> "+st[1]+st[0]+st[2]+" "+st[3]);
 	    assertEquals("W", st[0]);
 	    assertEquals("8", st[1]);
 	    assertEquals("27.4009", st[2]);
@@ -248,7 +248,7 @@ public class CoordinateUtilTest extends TestCase
             dms = CoordinateUtil.decimalDegreesToDMS(teste);
             assertEquals(teste, CoordinateUtil.dmsToDecimalDegrees(dms[0],
                     dms[1], dms[2]), 0d);
-            //System.out.println(teste + " <=> "
+            //NeptusLog.pub().info("<###> "+teste + " <=> "
             //        + CoordinateUtil.dmsToString(dms));
         }
 

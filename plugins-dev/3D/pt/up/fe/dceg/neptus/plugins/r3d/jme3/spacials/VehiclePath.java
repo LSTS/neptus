@@ -217,13 +217,13 @@ public class VehiclePath extends Element3D {
             distance = pointA.getPositionXYZ().distance(pointB.getPositionXYZ());
             if (distance < (WINDOW_RELEVANT_MOVEMENT * worldInfo.SCALE_METERS2JME_DIRECT_FROM_LOG)) {
                 // to small to build more vertexs
-                System.out.print(" -> " + distance);
+                NeptusLog.pub().info("<###> "+ distance);
                 skiped++;
                 continue;
             }
-            System.out.println();
+            NeptusLog.pub().info("<###> ");
 
-            System.out.println(locationIndex + " central point:" + pointB.getPositionXYZ().toString());
+            NeptusLog.pub().info("<###> "+locationIndex + " central point:" + pointB.getPositionXYZ().toString());
             calcAndSetWingPoints(pointB);
             // Set those points in the final vertex array
             finalVertices[localIndexTimes2 + 2] = pointB.getWingLeft();
@@ -253,12 +253,11 @@ public class VehiclePath extends Element3D {
                 }
             }
 
-            System.out.println();
-            System.out.println(finalVertices[up[localIndexTimes2 + 0]] + " - "
+            NeptusLog.pub().info("<###> "+finalVertices[up[localIndexTimes2 + 0]] + " - "
                     + finalVertices[up[localIndexTimes2 + 1]] + " - " + finalVertices[up[localIndexTimes2 + 2]]
                     + " is visible? "
                     + isVisible(Arrays.copyOfRange(up, localIndexTimes2 + 0, localIndexTimes2 + 3), finalVertices));
-            System.out.println(finalVertices[up[localIndexTimes2 + 0]] + " - "
+            NeptusLog.pub().info("<###> "+finalVertices[up[localIndexTimes2 + 0]] + " - "
                     + finalVertices[up[localIndexTimes2 + 1]] + " - " + finalVertices[up[localIndexTimes2 + 2]]
                     + " is visible? "
                     + isVisible(Arrays.copyOfRange(up, localIndexTimes2 + 3, localIndexTimes2 + 6), finalVertices));

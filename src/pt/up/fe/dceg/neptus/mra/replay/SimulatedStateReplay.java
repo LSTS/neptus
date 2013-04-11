@@ -85,7 +85,7 @@ public class SimulatedStateReplay implements LogReplayLayer {
     public void parse(IMraLogGroup source) {
         IMraLog log = source.getLog("NavigationStartupPoint");
         
-//        System.out.println(log.getNumberOfEntries());
+//        NeptusLog.pub().info("<###> "+log.getNumberOfEntries());
         
         IMCMessage m = log.firstLogEntry();
         

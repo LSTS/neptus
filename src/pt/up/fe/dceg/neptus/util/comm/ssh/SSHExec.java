@@ -303,9 +303,9 @@ extends SSHCommon
     {
         ConfigFetch.initialize();
         boolean rt = SSHExec.exec("rov-sim", "set|grep SSH");
-        System.out.println(rt);
+        NeptusLog.pub().info("<###> "+rt);
         rt = SSHExec.exec("rov-sim", "date");
-        System.out.println(rt);
+        NeptusLog.pub().info("<###> "+rt);
     }
     
 }

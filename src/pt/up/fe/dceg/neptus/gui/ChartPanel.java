@@ -49,6 +49,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.env.Environment;
 import pt.up.fe.dceg.neptus.env.EnvironmentBrowser;
 import pt.up.fe.dceg.neptus.env.EnvironmentChangedEvent;
@@ -264,7 +265,7 @@ public class ChartPanel extends JPanel {
 			for (String traceNm : traces.keySet()) {
 				Double val = previousValues.get(traceNm);
 				traces.get(traceNm).addPoint(x, (val != null)? val : 0);
-				System.out.println(traceName+"="+val);
+				NeptusLog.pub().info("<###> "+traceName+"="+val);
 			}
 		}
 		else {

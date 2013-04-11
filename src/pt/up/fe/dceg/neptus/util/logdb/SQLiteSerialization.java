@@ -395,7 +395,7 @@ public class SQLiteSerialization {
 		ConfigFetch.initialize();
 		final SQLiteSerialization ser = SQLiteSerialization.connect("myDb.db");
 
-		System.out.println(System.currentTimeMillis());
+		NeptusLog.pub().info("<###> "+System.currentTimeMillis());
 		
 		LinkedHashMap<Double, Long> all = new LinkedHashMap<Double, Long>();
 		
@@ -407,12 +407,12 @@ public class SQLiteSerialization {
 			}
 			rs.close();			
 		}
-		System.out.println(all.size());
-		System.out.println(System.currentTimeMillis());
+		NeptusLog.pub().info("<###> "+all.size());
+		NeptusLog.pub().info("<###> "+System.currentTimeMillis());
 		//for (double d : all.keySet()) {
-		//	System.out.println(d+"="+all.get(d));
+		//	NeptusLog.pub().info("<###> "+d+"="+all.get(d));
 		//}
-		//System.out.println(all.size());
+		//NeptusLog.pub().info("<###> "+all.size());
 		
 		IMCMessage msg;
 		
@@ -425,7 +425,7 @@ public class SQLiteSerialization {
 						Thread.sleep(1000);
 						for (int i = 0; i < 10; i++) {
 							IMCMessage m = ser.getLastMessageOfType(3);
-							System.out.println(m.getValue("x"));
+							NeptusLog.pub().info("<###> "+m.getValue("x"));
 						}
 					}
 					catch (Exception e) {
@@ -446,7 +446,7 @@ public class SQLiteSerialization {
 						Thread.sleep(1202);
 						for (int i = 0; i < 10; i++) {
 							IMCMessage m = ser.getLastMessageOfType(3);
-							System.out.println(m.getValue("x"));
+							NeptusLog.pub().info("<###> "+m.getValue("x"));
 						}
 					}
 					catch (Exception e) {
@@ -467,7 +467,7 @@ public class SQLiteSerialization {
                 e.printStackTrace();
             }
 			System.out.flush();
-			System.out.println(i);
+			NeptusLog.pub().info("<###> "+i);
 			ser.store(msg);		
 		}
 

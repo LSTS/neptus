@@ -172,7 +172,7 @@ public class PoFile {
         file.load(new File("conf/i18n/neptus.pot"));
         
         for (String key : file.translations.keySet()) {
-            System.out.println(key + "=" + file.translations.get(key));
+            NeptusLog.pub().info("<###> "+key + "=" + file.translations.get(key));
         }
 
         NeptusLog.pub().info("<###>\n\n______________________________________________________________\n\n");
@@ -181,7 +181,7 @@ public class PoFile {
         file.load(new File("conf/i18n/pt/neptus.po"));
         
         for (String key : file.translations.keySet()) {
-            System.out.println(key + "=" + file.translations.get(key));
+            NeptusLog.pub().info("<###> "+key + "=" + file.translations.get(key));
         }
 
     }

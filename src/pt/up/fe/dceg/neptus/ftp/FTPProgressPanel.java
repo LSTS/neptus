@@ -96,13 +96,13 @@ public class FTPProgressPanel extends ProgressPanel {
             int counter = 0;
             while (true) {
                 int bytes = in.read(buffer);    
-                System.out.println(bytes);
+                NeptusLog.pub().info("<###> "+bytes);
                 if (bytes < 0)
                     break;
 
                 out.write(buffer, 0, bytes);
                 counter += bytes;
-                System.out.println(counter);
+                NeptusLog.pub().info("<###> "+counter);
             }
             NeptusLog.pub().info("<###>Finished Transfering");
             out.close();

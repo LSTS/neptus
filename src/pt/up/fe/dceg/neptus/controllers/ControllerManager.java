@@ -64,7 +64,7 @@ public class ControllerManager {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-//		System.out.println(controllerMappings);
+//		NeptusLog.pub().info("<###> "+controllerMappings);
 	}
 
 	public void saveMappingsXML() {
@@ -182,7 +182,7 @@ public class ControllerManager {
 //				for (String k : res.keySet()) {
 //					System.out.print(k + " " + res.get(k).getPollData() + " ");
 //				}
-//				System.out.println();
+//				NeptusLog.pub().info("<###> "+);
 //			}
 //			
 //			try {

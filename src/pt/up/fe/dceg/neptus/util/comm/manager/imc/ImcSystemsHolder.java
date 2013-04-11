@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.util.comm.manager.imc;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 
@@ -207,6 +208,6 @@ public class ImcSystemsHolder {
 		ImcSystemsHolder.registerSystem(imc1);
 		ImcSystemsHolder.registerSystem(imc2);
 		
-		System.out.println(ImcSystemsHolder.lookupSystem(new ImcId16("22:10")));
+		NeptusLog.pub().info("<###> "+ImcSystemsHolder.lookupSystem(new ImcId16("22:10")));
 	}
 }

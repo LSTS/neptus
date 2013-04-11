@@ -40,6 +40,8 @@ import java.util.Enumeration;
 
 import org.junit.Test;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author guga
  * 
@@ -77,12 +79,12 @@ public class SystemsManagerTest {
             }
         }
         String[] sl2 = hostadr.split("\\.");
-        System.out.println(sl2[0] + " " + sl2[1] + " " + sl2[2] + " " + sl2[3]);
+        NeptusLog.pub().info("<###> "+sl2[0] + " " + sl2[1] + " " + sl2[2] + " " + sl2[3]);
     }
 
     @Test
     public void testLocalIp() {
-        System.out.println(SystemsManagerTest.getLocalIP());
+        NeptusLog.pub().info("<###> "+SystemsManagerTest.getLocalIP());
     }
 
     public static String getLocalIP() {

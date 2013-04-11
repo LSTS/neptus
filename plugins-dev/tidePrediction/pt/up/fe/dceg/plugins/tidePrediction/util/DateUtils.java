@@ -62,7 +62,7 @@ public class DateUtils {
         }
         catch (ParseException e) {
             NeptusLog.pub().info("<###>The date "+dateAndHour+" is not compatible with "+dateRegEx);
-            System.out.println(e.getMessage());  
+            NeptusLog.pub().info("<###> "+e.getMessage());  
             throw e;
         }
     }

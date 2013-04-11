@@ -673,7 +673,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         manElement.addElement("maxTime").setText(String.valueOf(getMaxTime()));
 
         manElement.add(getManeuverAsDocument(getType()).getRootElement());
-        // System.out.println(FileUtil.getAsPrettyPrintFormatedXMLString(document));
+        // NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(document));
         if (!customSettings.isEmpty()) {
             Element customSettingsElem = manElement.addElement("custom-settings");
 

@@ -506,7 +506,7 @@ public class PathElement extends AbstractElement {
             LocationType tmp = new LocationType(lt);
             tmp.translatePosition(pt.x, pt.y, pt.z);
             ret.add(tmp);
-            // System.out.println(tmp.getOffsetNorth()+", "+tmp.getOffsetEast());
+            // NeptusLog.pub().info("<###> "+tmp.getOffsetNorth()+", "+tmp.getOffsetEast());
         }
 
         return ret;

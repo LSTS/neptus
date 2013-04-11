@@ -41,6 +41,7 @@ import java.io.StringWriter;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
@@ -218,8 +219,8 @@ public class OperationLimits implements Renderer2DPainter {
 		lims.setMaxAltitude(200d);
 		lims.setMinAltitude(100d);
 		String xml = lims.asXml();
-		System.out.println(xml);
+		NeptusLog.pub().info("<###> "+xml);
 		OperationLimits lims2 = OperationLimits.loadXml(xml);
-		System.out.println(lims2.asXml());
+		NeptusLog.pub().info("<###> "+lims2.asXml());
 	}
 }

@@ -375,7 +375,7 @@ public class ColorMapFactory {
             inv[i] = original.getValues()[i];
             colors[i] = original.getColor(Math.max(0.001, original.getValues()[--j]));
 
-            //System.out.println(i+"->"+colors[i].toString());
+            //NeptusLog.pub().info("<###> "+i+"->"+colors[i].toString());
         }
 
 

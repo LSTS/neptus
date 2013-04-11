@@ -64,8 +64,8 @@ public class UTMCoordinates {
 		this.latitudeDegrees = latitudeDegrees;
 		this.longitudeDegrees = longitudeDegrees;
 		LLtoUTM();		
-		//System.out.println(latitude);
-		//System.out.println(longitude);
+		//NeptusLog.pub().info("<###> "+latitude);
+		//NeptusLog.pub().info("<###> "+longitude);
 	}
 	
 	private void UTMtoLL() {

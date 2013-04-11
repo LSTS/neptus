@@ -72,9 +72,9 @@ public class ManeuversTest {
                     IMCUtil.fillWithRandomData(random);
                 }
                 String before = random.asXml(true);
-                System.out.println(before);
+                NeptusLog.pub().info("<###> "+before);
                 ((IMCSerialization) maneuver).parseIMCMessage(random);
-                System.out.println(maneuver.asXML());
+                NeptusLog.pub().info("<###> "+maneuver.asXML());
                 String after = ser.serializeToIMC().asXml(true);                
                 Assert.assertEquals(before, after);                
             }

@@ -106,8 +106,8 @@ public class Grid3D extends JDialog {
 		getCheckUE().setSelected(renderer.gUE);
 		getCheckUN().setSelected(renderer.gUN);
 		showValues.setSelected(renderer.gtext);
-		//System.out.println(String.valueOf(renderer.gdimension));
-		//System.out.println(String.valueOf(renderer.gspacing));
+		//NeptusLog.pub().info("<###> "+String.valueOf(renderer.gdimension));
+		//NeptusLog.pub().info("<###> "+String.valueOf(renderer.gspacing));
 		dimField.setText(String.valueOf(renderer.gdimension)); //converter float em String
 		cellSize.setText(String.valueOf(renderer.gspacing));
 		depthField.setText(String.valueOf(renderer.gcenter.z));

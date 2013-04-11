@@ -51,6 +51,7 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 
 import net.miginfocom.swing.MigLayout;
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.params.SystemProperty;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
@@ -544,7 +545,7 @@ public class ArrayListEditor<E extends ArrayList<T>, T extends Object> extends S
                     sb.append("\",\n");
                 }
                 sb.append("}");
-                System.out.println(sb.toString());
+                NeptusLog.pub().info("<###> "+sb.toString());
             }
         });
         panel.add(dumpButton);

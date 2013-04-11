@@ -520,7 +520,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		}
 		if (debug) {
 		    for (Header header : get.getAllHeaders()) {
-		        System.out.println(header.toString());
+		        NeptusLog.pub().info("<###> "+header.toString());
 		    }
 		}
 
@@ -535,7 +535,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			if (debug) {
     			NeptusLog.pub().info("<###>-- Resp Code: " + iGetResultCode.getStatusLine().getStatusCode() + " --");
     			for (Header header : iGetResultCode.getAllHeaders()) {
-                    System.out.println(header.toString());
+                    NeptusLog.pub().info("<###> "+header.toString());
                 }
 			}
 			
@@ -875,7 +875,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			        ((bps < 0) ? "" : " @"+MathMiscUtils.parseToEngineeringRadix2Notation(movingAverage.mean(), 1) + "B/s"),
 			        getTimeLeft(movingAverage.mean())));
 			
-//			System.out.println(movingAverage);
+//			NeptusLog.pub().info("<###> "+movingAverage);
 		}
 		
 		/**
@@ -964,9 +964,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         HttpResponse iGetResultCode;
         try {
             iGetResultCode = client.execute(head);
-            System.out.println(iGetResultCode.getStatusLine().getStatusCode());
+            NeptusLog.pub().info("<###> "+iGetResultCode.getStatusLine().getStatusCode());
             for (Header header : iGetResultCode.getAllHeaders()) {
-                System.out.println(header.toString());
+                NeptusLog.pub().info("<###> "+header.toString());
             }
         }
         catch (Exception e) {

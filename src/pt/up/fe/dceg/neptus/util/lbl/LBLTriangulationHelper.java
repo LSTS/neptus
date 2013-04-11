@@ -365,7 +365,7 @@ public class LBLTriangulationHelper {
         double lasKnownLocDist = lasKnownLoc.getDistanceInMeters(helperLoc);
         if (newLocDist <= lasKnownLocDist) {
             fixedLoc = newLoc;
-//            System.out.println(newLocDist + " & " + lasKnownLocDist);
+//            NeptusLog.pub().info("<###> "+newLocDist + " & " + lasKnownLocDist);
         }
         else {
             fixedLoc = helperLoc;

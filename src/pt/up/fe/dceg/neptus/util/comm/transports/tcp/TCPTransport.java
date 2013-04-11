@@ -255,7 +255,7 @@ public class TCPTransport {
         synchronized (clients) {
             for (SocketChannel channelTmp : clients) {
                 try {
-//                    System.out.println(resolveAddress(host) +"  " +port + "   " +channelTmp.socket().getInetAddress() + " " + channelTmp.socket().getPort());
+//                    NeptusLog.pub().info("<###> "+resolveAddress(host) +"  " +port + "   " +channelTmp.socket().getInetAddress() + " " + channelTmp.socket().getPort());
                     if (resolveAddress(host).toString().equalsIgnoreCase(channelTmp.socket().getInetAddress().toString())
                             && port == channelTmp.socket().getPort()) {
                         channel = channelTmp;
@@ -267,7 +267,7 @@ public class TCPTransport {
                 }
             }
         }
-//        if (channel != null) System.out.println(host +"@" +port + "   " + channel + "   " + channel.socket().getInetAddress());
+//        if (channel != null) NeptusLog.pub().info("<###> "+host +"@" +port + "   " + channel + "   " + channel.socket().getInetAddress());
         return channel;
     }
 
@@ -522,7 +522,7 @@ public class TCPTransport {
 							int lengthReceived = 0;
 							try {
 							    if (System.currentTimeMillis() - time > 10000 && previousConnectedClients != clients.size()) {
-							        //System.out.println(getBindPort() + " clients " + clients.size());
+							        //NeptusLog.pub().info("<###> "+getBindPort() + " clients " + clients.size());
                                     NeptusLog.pub().debug(TCPTransport.class.getSimpleName()
                                             + ": Listener Thread " + getBindPort() + " now " + clients.size()
                                             + " clients");
@@ -554,7 +554,7 @@ public class TCPTransport {
     							                e.printStackTrace();
     							            }
                                         }
-//	                                    System.out.println(channel.socket() + "  c " + channel.socket().isConnected() + "  " + channel.isOpen() + "    " + channel.isConnected());
+//	                                    NeptusLog.pub().info("<###> "+channel.socket() + "  c " + channel.socket().isConnected() + "  " + channel.isOpen() + "    " + channel.isConnected());
 							        }
 							    }
 							    
@@ -589,7 +589,7 @@ public class TCPTransport {
 										channel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 //										InetAddress dd = channel.socket().getInetAddress();
 //										int pp = channel.socket().getPort();
-//										System.out.println(getBindPort()+"======== " + dd.getHostAddress() + "@" + pp);
+//										NeptusLog.pub().info("<###> "+getBindPort()+"======== " + dd.getHostAddress() + "@" + pp);
                                         key.attach(System.currentTimeMillis());
 										synchronized (clients) {
 										    clients.add(channel);

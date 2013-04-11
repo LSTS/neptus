@@ -363,7 +363,7 @@ public class AnnounceWorker {
 	}
 	
 	public InetSocketAddress[] getImcIpsPortsFromMessage(String services, String scheme) {
-//		System.out.println(services);
+//		NeptusLog.pub().info("<###> "+services);
 		String[] listSer = services.split(";");
 		LinkedList<String> ipList = new LinkedList<String>();
 		LinkedList<Integer> portList = new LinkedList<Integer>();
@@ -537,14 +537,14 @@ public class AnnounceWorker {
 		URI url1 = URI.create("imc+udp://SENDER-REMOTE-IP:6002/path/ye");
 		url1 = URI.create("imc+udp://192.168.106.30:6002/");
 		
-		System.out.println(url1.getScheme());
-		System.out.println(url1.getHost());
-		System.out.println(url1.getPort());
-		System.out.println(url1.getAuthority());
-		System.out.println(url1.getUserInfo());
-		System.out.println(url1.getRawAuthority());
-		System.out.println(url1.getPath());
-		System.out.println(NetworkInterfacesUtil.testForReachability(url1.getHost()));
+		NeptusLog.pub().info("<###> "+url1.getScheme());
+		NeptusLog.pub().info("<###> "+url1.getHost());
+		NeptusLog.pub().info("<###> "+url1.getPort());
+		NeptusLog.pub().info("<###> "+url1.getAuthority());
+		NeptusLog.pub().info("<###> "+url1.getUserInfo());
+		NeptusLog.pub().info("<###> "+url1.getRawAuthority());
+		NeptusLog.pub().info("<###> "+url1.getPath());
+		NeptusLog.pub().info("<###> "+NetworkInterfacesUtil.testForReachability(url1.getHost()));
 		
 		try {
 			Enumeration<NetworkInterface> nintf = java.net.NetworkInterface.getNetworkInterfaces();

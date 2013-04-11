@@ -284,8 +284,8 @@ public class ScaleBar extends JPanel {
 					
 
 				//g.drawArc(borderx,bordery,width,height,-190,190);
-				//System.out.println(g2);
-				//System.out.println(bi);
+				//NeptusLog.pub().info("<###> "+g2);
+				//NeptusLog.pub().info("<###> "+bi);
 			} else {
 				Font font = new Font("Arial", Font.PLAIN,
 						2 * (int) ((axisy - bordery) + this.step) / 20);
@@ -382,8 +382,8 @@ public class ScaleBar extends JPanel {
 							width - (borderx * 10 + (int) (stringBounds.getWidth())),height-i);
 
 				//g.drawArc(borderx,bordery,width,height,-190,190);
-				//System.out.println(g2);
-				//System.out.println(bi);
+				//NeptusLog.pub().info("<###> "+g2);
+				//NeptusLog.pub().info("<###> "+bi);
 			}
 
 			g2.drawImage(bi, 0, 0, this);

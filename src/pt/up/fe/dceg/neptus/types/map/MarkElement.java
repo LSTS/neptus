@@ -102,7 +102,7 @@ public class MarkElement extends AbstractElement {
         params.setLocation(getCenterLocation());
         params.setEditable(editable);
 
-        // System.out.println(map.numObjects());
+        // NeptusLog.pub().info("<###> "+map.numObjects());
         return params;
     }
 

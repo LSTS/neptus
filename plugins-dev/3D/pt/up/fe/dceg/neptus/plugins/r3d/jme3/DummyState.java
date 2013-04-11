@@ -55,7 +55,7 @@ public class DummyState extends AbstractAppState {
         if (count > 1000) {
             NeptusLog.pub().info("<###>update EvtDispatchThread? " + EventQueue.isDispatchThread() + " Thread id:"
                     + Thread.currentThread().getId());
-            System.out.println(geom.checkCulling(cam));
+            NeptusLog.pub().info("<###> "+geom.checkCulling(cam));
             count = 0;
         }
         count++;

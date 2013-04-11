@@ -37,6 +37,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.graph.NeptusEdgeElement;
 import pt.up.fe.dceg.neptus.graph.NeptusGraph;
 import pt.up.fe.dceg.neptus.graph.NeptusNodeElement;
@@ -59,7 +60,7 @@ public class RemoveNodeEdit extends AbstractUndoableEdit {
 		referredEdges.addAll(node.getIncomingEdges().values());
 		referredEdges.addAll(node.getOutgoingEdges().values());
 		
-		System.out.println(referredEdges.size()+" edges referred");
+		NeptusLog.pub().info("<###> "+referredEdges.size()+" edges referred");
 	}
 	
 	@Override

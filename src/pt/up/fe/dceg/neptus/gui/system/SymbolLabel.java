@@ -260,7 +260,7 @@ public class SymbolLabel extends JXPanel implements Painter<JXPanel>, IPeriodicU
             @Override
             public void run() {
                 synchronized (blinkingState) {
-//                    System.out.println(blinkingState);
+//                    NeptusLog.pub().info("<###> "+blinkingState);
                     if (blinkTime > 0 && (System.currentTimeMillis() - time > blinkTime)) {
                         blinkingState = BlinkingStateEnum.NOT_BLINKING;
                     }

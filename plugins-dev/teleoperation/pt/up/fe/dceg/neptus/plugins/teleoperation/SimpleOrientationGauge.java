@@ -41,6 +41,7 @@ import java.text.NumberFormat;
 
 import javax.swing.JPanel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 /**
@@ -89,7 +90,7 @@ public class SimpleOrientationGauge extends JPanel {
 		String text = nf.format(distance)+"m";
 		
 		double width = g2.getFontMetrics(g2.getFont()).getStringBounds(text, g2).getWidth();
-		System.out.println(width);
+		NeptusLog.pub().info("<###> "+width);
 		g2.drawString(nf.format(distance)+"m", (int)((getWidth()/2)-width/2), getHeight()-10);
 		
 		GeneralPath gp = new GeneralPath();

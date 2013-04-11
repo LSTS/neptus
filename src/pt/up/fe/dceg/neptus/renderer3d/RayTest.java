@@ -168,7 +168,7 @@ public class RayTest extends MouseAdapter {
         else {
             NeptusLog.pub().info("<###>--------------- picked---");
             // result.setFirstIntersectOnly(true);
-            // System.out.println(result);
+            // NeptusLog.pub().info("<###> "+result);
 
             // NeptusLog.pub().info("<###>Coordinates:"+result.getClosestIntersection(new
             // Point3d(-10,0.1,0)).getPointCoordinates());
@@ -181,12 +181,12 @@ public class RayTest extends MouseAdapter {
 
             if (p != null) {
 
-                System.out.println(p.getClass().getName());
+                NeptusLog.pub().info("<###> "+p.getClass().getName());
 
             }
             else if (s != null) {
 
-                System.out.println(s.getClass().getName());
+                NeptusLog.pub().info("<###> "+s.getClass().getName());
 
             }
             else {
@@ -208,7 +208,7 @@ public class RayTest extends MouseAdapter {
          * 
          * } else {
          * 
-         * System.out.println(result);
+         * NeptusLog.pub().info("<###> "+result);
          * 
          * Primitive p = (Primitive)result.getNode(PickResult.PRIMITIVE);
          * 
@@ -216,11 +216,11 @@ public class RayTest extends MouseAdapter {
          * 
          * if (p != null) {
          * 
-         * System.out.println(p.getClass().getName());
+         * NeptusLog.pub().info("<###> "+p.getClass().getName());
          * 
          * } else if (s != null) {
          * 
-         * System.out.println(s.getClass().getName());
+         * NeptusLog.pub().info("<###> "+s.getClass().getName());
          * 
          * } else{
          * 

@@ -92,7 +92,7 @@ public class FetcherWMS {
 			request.setLayers(layers);
 			request.setFormat("PNG");
 			
-			System.out.println(request.getURL());
+			NeptusLog.pub().info("<###> "+request.getURL());
 			resultingImage = request.getImage();
 		}
 		catch (Exception e) {

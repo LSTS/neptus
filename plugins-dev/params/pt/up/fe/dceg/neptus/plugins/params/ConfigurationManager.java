@@ -335,7 +335,7 @@ public class ConfigurationManager {
                 }
                 else if (pValues != null) {
                     property = new SystemProperty();
-//                    System.out.println(pValues.getStringValue());
+//                    NeptusLog.pub().info("<###> "+pValues.getStringValue());
                     String vlStr = pValues.getStringValue();
                     ArrayList<?> values = extractStringListToArrayList(type, vlStr);
                     ComboEditor<?> comboEditor = null;
@@ -546,7 +546,7 @@ public class ConfigurationManager {
 
             }
         }
-        //System.out.println(params);        
+        //NeptusLog.pub().info("<###> "+params);        
         return params;
     }
 
@@ -750,9 +750,9 @@ public class ConfigurationManager {
     public static void main(String[] args) {
         ConfigurationManager confMan = new ConfigurationManager();
         confMan.loadConfigurations();
-        System.out.println(confMan.getPropertiesByEntity("lauv-dolphin-1", "Sidescan", Visibility.USER, Scope.MANEUVER));
-        System.out.println(confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.MANEUVER));
-        System.out.println(confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.PLAN));
-        System.out.println(confMan.getProperties("lauv-dolphin-1", Visibility.DEVELOPER, Scope.GLOBAL));
+        NeptusLog.pub().info("<###> "+confMan.getPropertiesByEntity("lauv-dolphin-1", "Sidescan", Visibility.USER, Scope.MANEUVER));
+        NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.MANEUVER));
+        NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.USER, Scope.PLAN));
+        NeptusLog.pub().info("<###> "+confMan.getProperties("lauv-dolphin-1", Visibility.DEVELOPER, Scope.GLOBAL));
     }
 }

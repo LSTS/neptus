@@ -247,7 +247,7 @@ public class ApacheFTP {
                 }
             }
             catch (IOException e) {
-                // System.out.println(e.getMessage());
+                // NeptusLog.pub().info("<###> "+e.getMessage());
                 NeptusLog.pub().debug("ApacheFTP::get:: " + e.getMessage());
                 // TODO um System.exit(-1) aqui é perigoso
                 // System.exit(-1);

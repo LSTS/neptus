@@ -101,7 +101,7 @@ public class PathControlLayer extends SimpleSubPanel implements Renderer2DPainte
         g.setColor(new Color(0,0,0,128));
         g.setStroke(new BasicStroke(1.5f));
         
-       // System.out.println(lastMsgs.values());
+       // NeptusLog.pub().info("<###> "+lastMsgs.values());
         
         for (PathControlState pcs : lastMsgs.values()) {
             

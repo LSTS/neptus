@@ -363,12 +363,12 @@ public class MapGroup implements MapChangeListener {
 	 *
 	 */
 	public void warnListeners(MapChangeEvent changeEvent) {
-	//	System.out.println(ReflectionUtil.getCallerStamp());
+	//	NeptusLog.pub().info("<###> "+ReflectionUtil.getCallerStamp());
 		//NeptusLog.pub().info("<###>Warning "+listeners.size()+" listeners");
 		for (int i = 0; i < listeners.size(); i++) {
 			
 			MapChangeListener tmp = listeners.get(i);
-			//vSystem.out.println(tmp.getClass());
+			//vNeptusLog.pub().info("<###> "+tmp.getClass());
 			tmp.mapChanged(changeEvent);
 		}
 	}

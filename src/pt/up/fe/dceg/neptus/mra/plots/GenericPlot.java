@@ -99,7 +99,7 @@ public class GenericPlot extends MraTimeSeriesPlot {
                     seriesName = m.getSourceName()+"."+source.getEntityName(m.getSrc(), m.getSrcEnt())+"."+field+"."+m.getValue("id");
                 } 
                 else { 
-//                    System.out.println(m.getAbbrev() + " " + source.getEntityName(m.getSrc(), m.getSrcEnt()));
+//                    NeptusLog.pub().info("<###> "+m.getAbbrev() + " " + source.getEntityName(m.getSrc(), m.getSrcEnt()));
                     seriesName = m.getSourceName()+"."+source.getEntityName(m.getSrc(), m.getSrcEnt())+"."+field;
                 }
                 

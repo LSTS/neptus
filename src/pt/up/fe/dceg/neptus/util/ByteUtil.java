@@ -39,6 +39,8 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author pdias
  *
@@ -245,10 +247,10 @@ public class ByteUtil {
 
 		String tt = "\0\1Isto é de facto um teste para ver se imprime bem Hex!";
 		tt = FileUtil.getFileAsString("legal/Neptus-LICENSE.txt");
-		System.out.println(new String(Base64.encodeBase64Chunked(tt.getBytes())));
+		NeptusLog.pub().info("<###> "+new String(Base64.encodeBase64Chunked(tt.getBytes())));
 		//dumpAsHex(tt.getBytes(), System.out);
 
-		System.out.println(new String(Base64.decodeBase64(Base64.encodeBase64Chunked(tt.getBytes()))));
+		NeptusLog.pub().info("<###> "+new String(Base64.decodeBase64(Base64.encodeBase64Chunked(tt.getBytes()))));
 
 		System.err.println(dumpAsHexToString(FileUtil.getFileAsString("legal/Neptus-LICENSE.txt").getBytes()));
 

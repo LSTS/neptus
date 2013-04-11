@@ -170,7 +170,7 @@ public class Device implements SerialPortEventListener {
                     parser.parse(buffer[i]);
                 }
                 catch (Exception e) {
-                    System.out.println(e);
+                    NeptusLog.pub().info("<###> "+e);
                 }
             }
         }

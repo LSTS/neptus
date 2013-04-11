@@ -302,7 +302,7 @@ implements Runnable, FileHandler
                 jTextField.setText(exeCmd + " " + path);
                 showFramed();
                 ps.waitFor();                
-                System.out.println(ps.exitValue());
+                NeptusLog.pub().info("<###> "+ps.exitValue());
                 jFrame.dispose();
                 
             }

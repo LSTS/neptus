@@ -403,7 +403,7 @@ public class JWebCam extends JPanel implements ComponentListener {
             for (int i = 0; i < list.size(); i++) {
                 devInfo = (CaptureDeviceInfo) list.elementAt(i);
                 name = devInfo.getName();
-                System.out.println(name);
+                NeptusLog.pub().info("<###> "+name);
                 if (name.startsWith("vfw:")) {
                     NeptusLog.pub().info("<###>DeviceManager List : " + name);
                     capDevices.addElement(new MyCaptureDeviceInfo(devInfo));

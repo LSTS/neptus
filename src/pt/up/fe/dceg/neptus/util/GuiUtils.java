@@ -649,7 +649,7 @@ public class GuiUtils {
             parentBounds.y += parentComp.getBounds().y;
         }
 
-        // System.out.println(childComp.getBounds());
+        // NeptusLog.pub().info("<###> "+childComp.getBounds());
 
         // childBounds.x += parentBounds.x;
         // childBounds.y += parentBounds.y;
@@ -798,7 +798,7 @@ public class GuiUtils {
 
         }
         catch (Exception e) {
-            System.out.println(e.getMessage());
+            NeptusLog.pub().info("<###> "+e.getMessage());
             NeptusLog.pub().error("SetLookandFeel " + e.getMessage());
         }
     }
@@ -806,7 +806,7 @@ public class GuiUtils {
     public static void setLookAndFeelNimbus() {
         try {
             for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                System.out.println(info.getName());
+                NeptusLog.pub().info("<###> "+info.getName());
                 if ("Nimbus".equals(info.getName())) {
                     UIManager.setLookAndFeel(info.getClassName());
                     break;
@@ -860,24 +860,24 @@ public class GuiUtils {
 
     public static void printArray(Object[] array) {
         if (array == null)
-            System.out.println(array);
+            NeptusLog.pub().info("<###> "+array);
 
-        System.out.println(array.getClass().getSimpleName() + "[" + array.length + "] {");
+        NeptusLog.pub().info("<###> "+array.getClass().getSimpleName() + "[" + array.length + "] {");
         for (int i = 0; i < array.length; i++) {
             NeptusLog.pub().info("<###>\t(" + i + ") " + array[i].toString());
         }
-        System.out.println('}');
+        NeptusLog.pub().info("<###> "+'}');
     }
 
     public static void printList(List<?> list) {
         if (list == null)
-            System.out.println(list);
+            NeptusLog.pub().info("<###> "+list);
 
-        System.out.println(list.getClass().getSimpleName() + "[" + list.size() + "] {");
+        NeptusLog.pub().info("<###> "+list.getClass().getSimpleName() + "[" + list.size() + "] {");
         for (int i = 0; i < list.size(); i++) {
             NeptusLog.pub().info("<###>\t(" + i + ") " + list.get(i).toString());
         }
-        System.out.println('}');
+        NeptusLog.pub().info("<###> "+'}');
     }
 
     /**
@@ -1095,12 +1095,12 @@ public class GuiUtils {
      */
     public static void main(String args[]) {
         /*
-         * String id = idSelector(new String[] { "ola", "ole" }, NameNormalizer .getRandomID()); System.out.println(id);
+         * String id = idSelector(new String[] { "ola", "ole" }, NameNormalizer .getRandomID()); NeptusLog.pub().info("<###> "+id);
          * testFrame(new JLabel("dsdssdsdsdsdssssssssssssss")); GuiUtils.errorMessage(testFrame(new JLabel("dddddddd")),
          * "No more data to read", "Reached the end of stream. Cable unplugged?");
          */
 //        testFrame(new JLabel(getLetterIcon('R', Color.white, Color.blue.darker(), 22)));
 
-        System.out.println(getLogFileName("mission_state", "zip"));
+        NeptusLog.pub().info("<###> "+getLogFileName("mission_state", "zip"));
     }
 }

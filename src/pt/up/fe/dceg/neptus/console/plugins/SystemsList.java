@@ -861,7 +861,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     @Override
     public boolean update() {
         if (filterSwitch == null) {
-            System.out.println(SystemsList.class.getSimpleName()
+            NeptusLog.pub().info("<###> "+SystemsList.class.getSimpleName()
                     + " : update of SystemsList called after cleanup call!!!!!");
             return true;
         }
@@ -882,7 +882,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
 
     private synchronized void updateSystemsList() {
         if (filterSwitch == null) {
-            System.out.println(SystemsList.class.getSimpleName()
+            NeptusLog.pub().info("<###> "+SystemsList.class.getSimpleName()
                     + " : updateSystemsList called after cleanup call!!!!!");
             return;
         }

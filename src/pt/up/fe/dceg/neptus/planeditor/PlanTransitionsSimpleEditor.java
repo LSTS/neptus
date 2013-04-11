@@ -129,7 +129,7 @@ public class PlanTransitionsSimpleEditor extends JPanel {
 //        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
 //            strNodes += " \"" + man.getId() + "\"";
 //        }
-//        System.out.println(str);
+//        NeptusLog.pub().info("<###> "+str);
         setLayout(new BorderLayout(5, 10));
 //        add(new JLabel(strNodes), BorderLayout.NORTH);
         

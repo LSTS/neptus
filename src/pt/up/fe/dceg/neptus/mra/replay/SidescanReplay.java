@@ -131,7 +131,7 @@ public class SidescanReplay implements LogReplayLayer {
                     g2.scale(imageScaleX, 1);
                     //g2.drawImage(ssd.img, null, 0, 0);
                     //int ysize =  (int)((ssd.alongTrackLength*invGR) > 1 ? (ssd.alongTrackLength*invGR) : 1);
-//                    System.out.println(ysize + " " + groundResolution + " " + ssd.alongTrackLength);
+//                    NeptusLog.pub().info("<###> "+ysize + " " + groundResolution + " " + ssd.alongTrackLength);
                     g2.drawImage(ssd.img, 0, 0, null);
                     g2.dispose();
                     rend.repaint();

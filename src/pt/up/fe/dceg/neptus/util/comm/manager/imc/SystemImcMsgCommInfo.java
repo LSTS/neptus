@@ -140,7 +140,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
             if (message == null || !StringUtils.isTokenInList("Announce,EntityList", message.getAbbrev())) {
                 if (!useActivityCounter) {
                     sys.setActive(isActive);
-                    // System.out.println(sys.getName()+": "+isActive()+"  "+(message !=
+                    // NeptusLog.pub().info("<###> "+sys.getName()+": "+isActive()+"  "+(message !=
                     // null?message.getAbbrevName():""));
                 }
                 else {

@@ -849,7 +849,7 @@ public class MonitorIMCComms extends
             public void onMessage(MessageInfo arg0, IMCMessage msg) {
                 if (msg.getMessageType().getShortName().equalsIgnoreCase("EntityState")) {
                     for (String k : msg.getBitmask("flags").keySet())
-                        System.out.println(k + " " + msg.getBitmask("flags").get(k));
+                        NeptusLog.pub().info("<###> "+k + " " + msg.getBitmask("flags").get(k));
                 }
             }
 

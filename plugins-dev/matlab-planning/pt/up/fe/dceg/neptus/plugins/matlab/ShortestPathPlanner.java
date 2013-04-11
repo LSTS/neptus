@@ -291,7 +291,7 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
         }
         else {
             if (state == EDITION_STATES.ADDING_OBSTACLE) {
-                System.out.println(renderer.getRealWorldLocation(mousePosition));
+                NeptusLog.pub().info("<###> "+renderer.getRealWorldLocation(mousePosition));
                 LocationType loc = renderer.getRealWorldLocation(mousePosition);
                 double offsets[] = loc.getOffsetFrom(currentObstacle.getCenterLocation());
                 currentObstacle.addPoint(offsets[1], offsets[0], 0, false);
@@ -378,7 +378,7 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
 
         String in = FileUtil.getFileAsString(input);
 
-        System.out.println(in);
+        NeptusLog.pub().info("<###> "+in);
         try {
             String[] lines = in.split("\n");
             for (String l : lines) {
@@ -413,7 +413,7 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
         String result = "<p>Executing <b>" + command + "</b>...</p>\n";
         try {
             // String s;
-            // System.out.println(new File("astar").listFiles().length);
+            // NeptusLog.pub().info("<###> "+new File("astar").listFiles().length);
             Process p = Runtime.getRuntime().exec(command);
             final BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
@@ -425,7 +425,7 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
                     try {
                         while ((s = stdInput.readLine()) != null) {
                             output += s + "\n";
-                            System.out.println(s);
+                            NeptusLog.pub().info("<###> "+s);
 
                         }
                         NeptusLog.pub().info("<###>closed");

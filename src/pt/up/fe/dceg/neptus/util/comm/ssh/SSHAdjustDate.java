@@ -131,10 +131,10 @@ public class SSHAdjustDate extends SSHExec
 	{
 		ConfigFetch.initialize();
         //boolean rt = SSHExec.exec("lauv", SSHExec.ADJUST_DATE);
-        //System.out.println(rt);
+        //NeptusLog.pub().info("<###> "+rt);
 		
 //		boolean rt = adjust("lauv");
-//        System.out.println(rt);
+//        NeptusLog.pub().info("<###> "+rt);
         
 //        PanelResult pRes = new PanelResult((Window)null);
 //        pRes.setVisible(true);

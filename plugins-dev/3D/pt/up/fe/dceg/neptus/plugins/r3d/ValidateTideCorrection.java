@@ -56,7 +56,7 @@ public class ValidateTideCorrection {
     }
 
     public void printRelevantData() throws Exception {
-        System.out.println();
+        NeptusLog.pub().info("<###>");
         LsfIndex lsfIndex = source.getLsfIndex();
         LsfIterator<DesiredPath> desiredPathIt = lsfIndex.getIterator(DesiredPath.class);
         // -- Start tide prediction
@@ -71,7 +71,7 @@ public class ValidateTideCorrection {
         // Forth goto
         NeptusLog.pub().info("<###>\nForth Goto!");
         checkGoto(desiredPathIt, tidePrediction);
-        System.out.println();
+        NeptusLog.pub().info("<###>");
     }
 
     private void checkGoto(LsfIterator<DesiredPath> desiredPathIt,

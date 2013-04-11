@@ -133,7 +133,7 @@ public class MissionFileChooser extends JFileChooser {
     public static void main(String[] args) {
         ConfigFetch.initialize();
         File f = MissionFileChooser.showOpenMissionDialog(new String[] { "nmis", "xml" });
-        System.out.println(f);
+        NeptusLog.pub().info("<###> "+f);
     }
 }
 

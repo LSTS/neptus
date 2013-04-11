@@ -1002,7 +1002,7 @@ public class UavPiccoloControl extends SimpleSubPanel implements MainVehicleChan
                     String[] parts = lines[i].split("[ \\-\\(,\\)]+");
                     if (parts.length < 5) {
                         for (String p : parts)
-                            System.out.println(p + " --- ");
+                            NeptusLog.pub().info("<###> "+p + " --- ");
                         throw new Exception("Syntax Error on line " + (i + 1) + ", " + parts.length);
                     }
                     min = Integer.parseInt(parts[0]);

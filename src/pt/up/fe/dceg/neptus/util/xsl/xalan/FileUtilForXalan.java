@@ -208,7 +208,7 @@ public class FileUtilForXalan
         }
         String res = FileUtil.getFileAsString(urlG);
         res = res.replaceAll("\r", "");
-        //System.out.println(res);
+        //NeptusLog.pub().info("<###> "+res);
         /*
         char[] ca = new char[2];
         ca[0] = 0xD;

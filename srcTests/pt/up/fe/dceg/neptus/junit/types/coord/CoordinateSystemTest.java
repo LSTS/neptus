@@ -176,8 +176,8 @@ public class CoordinateSystemTest extends TestCase
             OutputFormat format = OutputFormat.createCompactFormat();
             XMLWriter writer = new XMLWriter( ba, format );
             writer.write( doc );
-            //System.out.println(ba.toString());
-            //System.out.println(cst.asXML());
+            //NeptusLog.pub().info("<###> "+ba.toString());
+            //NeptusLog.pub().info("<###> "+cst.asXML());
             assertEquals(ba.toString(), cst.asXML());
 
             //TCS2
@@ -188,8 +188,8 @@ public class CoordinateSystemTest extends TestCase
             format = OutputFormat.createCompactFormat();
             writer = new XMLWriter( ba, format );
             writer.write( doc );
-            //System.out.println(ba.toString());
-            //System.out.println(cst.asXML());
+            //NeptusLog.pub().info("<###> "+ba.toString());
+            //NeptusLog.pub().info("<###> "+cst.asXML());
             assertEquals(ba.toString(), cst.asXML());
         }
         catch (Exception e)

@@ -629,11 +629,11 @@ public class TutorialApplet extends Applet {
         }
         catch (VertexNotFoundException e) {
             messageLabel.setText("Can't find the depot.");
-            System.out.println(e.getMessage());
+            NeptusLog.pub().info("<###> "+e.getMessage());
         }
         catch (SolutionNotFoundException e) {
             messageLabel.setText("Can't find a solution (see console msg).");
-            System.out.println(e.getMessage());
+            NeptusLog.pub().info("<###> "+e.getMessage());
         }
     }
 

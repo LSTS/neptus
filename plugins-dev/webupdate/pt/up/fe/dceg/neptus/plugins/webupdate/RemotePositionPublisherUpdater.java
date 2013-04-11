@@ -729,7 +729,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
         }
 
         String xml = doc.asXML();
-        // System.out.println(xml);
+        // NeptusLog.pub().info("<###> "+xml);
 
         if (postHttpRequestPublishState != null)
             postHttpRequestPublishState.abort();
@@ -831,7 +831,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
             e1.printStackTrace();
             return false;
         }
-        // System.out.println(xml);
+        // NeptusLog.pub().info("<###> "+xml);
 
         if (postHttpRequestPublishPlan != null)
             postHttpRequestPublishPlan.abort();
@@ -926,12 +926,12 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
             }
             catch (Exception e) {
                 // e.printStackTrace();
-                System.out.println(e.getMessage());
+                NeptusLog.pub().info("<###> "+e.getMessage());
             }
         }
         catch (Exception e) {
             // e.printStackTrace();
-            System.out.println(e.getMessage());
+            NeptusLog.pub().info("<###> "+e.getMessage());
         }
         finally {
             if (post != null) {
@@ -1043,7 +1043,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
      * @param msg
      */
     private void processWebCCUMessage(MessageInfo info, IMCMessage msg) {
-        // System.out.println(msg.asJSON());
+        // NeptusLog.pub().info("<###> "+msg.asJSON());
 
         if ("PlanSpecification".equalsIgnoreCase(msg.getAbbrev())) {
             try {

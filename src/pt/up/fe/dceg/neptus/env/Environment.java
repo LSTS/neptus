@@ -39,6 +39,8 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 public class Environment {
 
 	private Hashtable<String,NeptusVariable> variables = new Hashtable<String,NeptusVariable>();
@@ -139,7 +141,7 @@ public class Environment {
 	public void printEnv() {
 		String[] names = getVariableNames();
 		for (int i = 0 ; i < names.length; i++) {
-			System.out.println(names[i]+" = "+getEnv(names[i])+" ("+getType(names[i])+")");
+			NeptusLog.pub().info("<###> "+names[i]+" = "+getEnv(names[i])+" ("+getType(names[i])+")");
 		}
 	}	
 	

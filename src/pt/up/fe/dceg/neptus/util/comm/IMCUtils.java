@@ -1065,7 +1065,7 @@ public class IMCUtils {
                         ap.setDisplayName(headerType.getLongFieldName(hf));
                     }
                     else {
-                        System.out.println(hf + " is null [" + 
+                        NeptusLog.pub().info("<###> "+hf + " is null [" + 
                                 // headerType.getFieldType(hf)+"]");
                                 headerType.getTypeOf(hf)+"]");
                         continue;
@@ -1242,11 +1242,11 @@ public class IMCUtils {
                 + "http://172.16.216.1:8080/dune;" + "neptus:///uid/1294925553839635/;"
                 + "dune:///uid/81294925553839635/;";
 
-        System.out.println(getServiceProvided(services, "imc+udp", "*"));
-        System.out.println(getServiceProvided(services, "http", "dune"));
-        System.out.println(getServiceProvided(services, "*", "*"));
-        System.out.println(getServiceProvided(services, "dune", "*"));
-        System.out.println(getServiceProvided(services, "*", "uid"));
+        NeptusLog.pub().info("<###> "+getServiceProvided(services, "imc+udp", "*"));
+        NeptusLog.pub().info("<###> "+getServiceProvided(services, "http", "dune"));
+        NeptusLog.pub().info("<###> "+getServiceProvided(services, "*", "*"));
+        NeptusLog.pub().info("<###> "+getServiceProvided(services, "dune", "*"));
+        NeptusLog.pub().info("<###> "+getServiceProvided(services, "*", "uid"));
 
         // ConfigFetch.initialize();
         //
@@ -1287,7 +1287,7 @@ public class IMCUtils {
          * NeptusLog.pub().info("<###>DONE."); System.out.print("sending...");
          * 
          * boolean ret = sendMissionConfiguration(mt, plans .getSelectedItem().toString(), addrs);
-         * NeptusLog.pub().info("<###>DONE."); System.out.println(ret); } });
+         * NeptusLog.pub().info("<###>DONE."); NeptusLog.pub().info("<###> "+ret); } });
          * 
          * JButton missButton = new JButton("Mission..."); missButton.addActionListener(new ActionListener() {
          * 
@@ -1315,14 +1315,14 @@ public class IMCUtils {
         GuiUtils.printList(emlst);
 
         NeptusLog.pub().info("<###>\n\n\n\n");
-        System.out.println(reduceSystemName("lauv-seacon-1"));
-        System.out.println(reduceSystemName("lauv-xtreme-2"));
-        System.out.println(reduceSystemName("lauv-noptilus-0"));
-        System.out.println(reduceSystemName("ccu-pdias-88-191"));
-        System.out.println(reduceSystemName("ccu-pdias-388-191"));
-        System.out.println(reduceSystemName("cularis-05"));
-        System.out.println(reduceSystemName("pilatus-07"));
-        System.out.println(reduceSystemName("adamastor"));
-        System.out.println(reduceSystemName("swordfish"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("lauv-seacon-1"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("lauv-xtreme-2"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("lauv-noptilus-0"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("ccu-pdias-88-191"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("ccu-pdias-388-191"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("cularis-05"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("pilatus-07"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("adamastor"));
+        NeptusLog.pub().info("<###> "+reduceSystemName("swordfish"));
     }
 }

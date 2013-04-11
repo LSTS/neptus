@@ -46,6 +46,7 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.tablelayout.TableLayout;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
@@ -118,6 +119,6 @@ public class PlanPropertiesPanel extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		String propName = e.getActionCommand();
 		PropertyEditor editor = propEditors.get(propName);		
-		System.out.println(propName+" = "+editor.getValue());
+		NeptusLog.pub().info("<###> "+propName+" = "+editor.getValue());
 	}
 }

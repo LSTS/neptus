@@ -58,6 +58,7 @@ import javax.swing.event.ChangeListener;
 
 import org.jdesktop.swingx.JXLabel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.ImagePanel;
 import pt.up.fe.dceg.neptus.gui.InfiniteProgressPanel;
 import pt.up.fe.dceg.neptus.gui.ToolbarButton;
@@ -290,7 +291,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
         }
 
         Date date = new Date(Double.valueOf(startTimeFull * 1000).longValue());
-        System.out.println(date + " [" + (minTimeFull - startTimeFull) + ":" + (maxTimeFull - startTimeFull) + "]");
+        NeptusLog.pub().info("<###> "+date + " [" + (minTimeFull - startTimeFull) + ":" + (maxTimeFull - startTimeFull) + "]");
 
         minTime = minTimeFull - startTimeFull;
         maxTime = maxTimeFull - startTimeFull;
@@ -409,7 +410,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
                         double dST = startTimeFull - logStartTime;
                         double curFixTime = currentTime - dST;
                         double curMaxFixTime = maxCurrentTime - dST;
-                        // System.out.println(logStartTime + "\t" + startTimeFull + "  dt:" + dST + "  " + currentTime +
+                        // NeptusLog.pub().info("<###> "+logStartTime + "\t" + startTimeFull + "  dt:" + dST + "  " + currentTime +
                         // " :: " +curFixTime +" till " + curMaxFixTime);
                         if (curFixTime < 0)
                             curFixTime = 0;
@@ -428,7 +429,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
                             if (parser.nextLogEntry() == null)
                                 break;
                         }
-                        // if (debug) System.out.println(i + " " + parser.getLogFormat().getSimpleName());
+                        // if (debug) NeptusLog.pub().info("<###> "+i + " " + parser.getLogFormat().getSimpleName());
                     }
 
                     // @FIXME IMC3
@@ -438,7 +439,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
                     for (int i = 0; i < entriesVector.size(); i++) {
                         if (vci == null) // FIXME
                             break;
-                        // System.out.println(entry.getAsMessage());
+                        // NeptusLog.pub().info("<###> "+entry.getAsMessage());
                         IMCMessage entry = entriesVector.get(i);
                         double timeStp = entriesTimeAbsVector.get(i);
                         IMCMessage msg;

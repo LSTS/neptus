@@ -39,6 +39,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.BitmaskPanel;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
@@ -112,7 +113,7 @@ public class BitmaskPropertyEditor extends AbstractPropertyEditor {
 			}
 			
 			public void setProperties(Property[] properties) {
-				System.out.println(properties[0]);
+				NeptusLog.pub().info("<###> "+properties[0]);
 			}
 			
 			public String[] getPropertiesErrors(Property[] properties) {

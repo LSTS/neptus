@@ -40,6 +40,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Node;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.gui.editor.UnixTimeEditor;
@@ -202,11 +203,11 @@ public class TrexGoal implements PropertiesProvider {
         
         PropertiesEditor.editProperties(goal, true);
         String xml = goal.asXml();
-        System.out.println(xml);
+        NeptusLog.pub().info("<###> "+xml);
         PropertiesEditor.editProperties(goal, true);
         goal.parseXml(xml);
         
-        System.out.println(goal.asXml());
+        NeptusLog.pub().info("<###> "+goal.asXml());
     }
     
     

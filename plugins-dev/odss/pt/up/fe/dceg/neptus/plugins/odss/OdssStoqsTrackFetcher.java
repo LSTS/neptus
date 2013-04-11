@@ -311,7 +311,7 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
                 ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
                 
                 if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                    System.out.println(OdssStoqsTrackFetcher.this.getClass().getSimpleName() 
+                    NeptusLog.pub().info("<###> "+OdssStoqsTrackFetcher.this.getClass().getSimpleName() 
                             + "[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                             + iGetResultCode.getStatusLine().getReasonPhrase()
                             + " code was return from the server");
@@ -332,7 +332,7 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
                 filterAndAddToList(sysBag);
                 if (debugOn) {
                     for (String key : sysBag.keySet()) {
-                        System.out.println(sysBag.get(key));
+                        NeptusLog.pub().info("<###> "+sysBag.get(key));
                     }
                 }
 
@@ -477,7 +477,7 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
         }
         if (debugOn) {
             for (String key : dataBag.keySet()) {
-                System.out.println(dataBag.get(key));
+                NeptusLog.pub().info("<###> "+dataBag.get(key));
             }
         }
         
@@ -500,7 +500,7 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
             long time = Math.round(pr.getEpochSeconds() * 1000d);
             CoordinateSystem coordinateSystem = new CoordinateSystem();
             coordinateSystem.setLocation(pr.getHasLocation());
-//            System.out.println(key + " :: " +coordinateSystem);
+//            NeptusLog.pub().info("<###> "+key + " :: " +coordinateSystem);
 
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(id);
             if (sys != null) {
@@ -697,7 +697,7 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
             HashMap<String, PlatformReportType> sysBag = osf.processOdssStokesResponse(docProfiles, PlatformType.AUV);
             filterAndAddToList(sysBag);
             for (String key : sysBag.keySet()) {
-                System.out.println(sysBag.get(key));
+                NeptusLog.pub().info("<###> "+sysBag.get(key));
             }
             osf.sysStokesLocations.putAll(sysBag);
             osf.processRemoteStates();
@@ -711,7 +711,7 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
             sysBag = osf.processOdssStokesResponse(docProfiles, PlatformType.GLIDER);
             filterAndAddToList(sysBag);
             for (String key : sysBag.keySet()) {
-                System.out.println(sysBag.get(key));
+                NeptusLog.pub().info("<###> "+sysBag.get(key));
             }
             osf.sysStokesLocations.putAll(sysBag);
             osf.processRemoteStates();

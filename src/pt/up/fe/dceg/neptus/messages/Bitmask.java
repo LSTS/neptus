@@ -11,6 +11,8 @@ package pt.up.fe.dceg.neptus.messages;
 
 import java.util.LinkedHashMap;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * Utility class to wrap bitmask values.
  */
@@ -129,11 +131,11 @@ public class Bitmask extends Number implements Comparable<Bitmask> {
         posVals.put((long)4, "Bit3");
         posVals.put((long)8, "Bit4");
         Bitmask bm = new Bitmask(posVals, 6);
-        System.out.println(bm);
+        NeptusLog.pub().info("<###> "+bm);
         bm.setBit("Bit4", true);
-        System.out.println(bm);
+        NeptusLog.pub().info("<###> "+bm);
         bm.setBit("Bit2", false);
-        System.out.println(bm);
+        NeptusLog.pub().info("<###> "+bm);
     }
 
     public long getCurrentValue() {

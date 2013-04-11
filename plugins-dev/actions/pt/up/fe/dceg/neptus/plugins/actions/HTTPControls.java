@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.actions;
 
 import java.awt.event.ActionEvent;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
@@ -74,7 +75,7 @@ public class HTTPControls extends SimpleAction implements ConfigurationListener 
 
     @Override
     public void propertiesChanged() {
-        System.out.println(port);
+        NeptusLog.pub().info("<###> "+port);
         if (port != WebServer.getPort() && isSelected()) {
             WebServer.stop();
             WebServer.start(port);

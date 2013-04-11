@@ -360,7 +360,7 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
             if (!isMissionLogFromToday(strLFd))
                 continue;
             LinkedHashMap<String, State> sfiles = dw.doGiveStateOfLogFolderFiles(strLFd);
-            // System.out.println(strLFd+"  filter: "+sfiles.size());
+            // NeptusLog.pub().info("<###> "+strLFd+"  filter: "+sfiles.size());
             for (String strFx : sfiles.keySet()) {
                 if (sfiles.get(strFx) != LogFolderInfo.State.LOCAL) {
                     nTotal++;
@@ -795,7 +795,7 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
 
         Operation op = Operation.valueOf(msg.getString("op"));
 
-        System.out.println(op);
+        NeptusLog.pub().info("<###> "+op);
 
         GuiUtils.testFrame(new LoggingDownloader(null));
     }

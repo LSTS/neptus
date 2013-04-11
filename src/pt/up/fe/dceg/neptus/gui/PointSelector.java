@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.gui;
 
 import java.awt.BorderLayout;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -95,7 +96,7 @@ public class PointSelector extends ParametersPanel {
 		location.setDepth(getHeightDepthSelector().getDepth());
 		location.setLatitude(getLatLongSelector().getLatitude());
 		location.setLongitude(getLatLongSelector().getLongitude());
-		System.out.println(location);
+		NeptusLog.pub().info("<###> "+location);
 		return location;
 	}
 	

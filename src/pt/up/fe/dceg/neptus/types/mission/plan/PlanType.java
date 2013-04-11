@@ -746,7 +746,7 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, Identifia
 //        };
 //        MessageDigest md = MessageDigest.getInstance("MD5");
 //        md.update(bytes);
-//        System.out.println(ByteUtil.encodeAsString(md.digest()) + " = \n" + "61245d173dc0d18b97b54541a0d14284");
+//        NeptusLog.pub().info("<###> "+ByteUtil.encodeAsString(md.digest()) + " = \n" + "61245d173dc0d18b97b54541a0d14284");
 //        
         
         
@@ -770,12 +770,12 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, Identifia
 
             ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
             String p1Md5 = ByteUtil.encodeAsString(p1.payloadMD5());
-            System.out.println(p1Md5);
+            NeptusLog.pub().info("<###> "+p1Md5);
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] ba = baos.toByteArray();
             md.update(Arrays.copyOfRange(ba, 0x14, ba.length - 2));
             String p1Md5Calc = ByteUtil.encodeAsString(md.digest());
-            System.out.println(p1Md5Calc);
+            NeptusLog.pub().info("<###> "+p1Md5Calc);
                         
 //            ByteArrayInputStream bais = new ByteArrayInputStream(ba);
 //            IMCInputStream imcIs = new IMCInputStream(bais);
@@ -787,9 +787,9 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, Identifia
             
             PlanType plan3 = plan2.clonePlan();
 
-            System.out.println(ByteUtil.encodeAsString(p2.payloadMD5()));
-            System.out.println(ByteUtil.encodeAsString(plan2.asIMCPlan().payloadMD5()));
-            System.out.println(ByteUtil.encodeAsString(plan3.asIMCPlan().payloadMD5()));
+            NeptusLog.pub().info("<###> "+ByteUtil.encodeAsString(p2.payloadMD5()));
+            NeptusLog.pub().info("<###> "+ByteUtil.encodeAsString(plan2.asIMCPlan().payloadMD5()));
+            NeptusLog.pub().info("<###> "+ByteUtil.encodeAsString(plan3.asIMCPlan().payloadMD5()));
         }
         
         {
@@ -797,25 +797,25 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, Identifia
             LocationType loc = new LocationType();
             loc.setLatitude("41N11'6.139669166224781''");
             loc.setLongitude("8W42'21.723814187086976''");
-            System.out.println(loc.getLatitudeAsDoubleValue()  + "  " + loc.getLongitudeAsDoubleValue());
-            System.out.println(Long.toHexString(Double.doubleToLongBits(loc.getLatitudeAsDoubleValueRads()))  + "  " + 
+            NeptusLog.pub().info("<###> "+loc.getLatitudeAsDoubleValue()  + "  " + loc.getLongitudeAsDoubleValue());
+            NeptusLog.pub().info("<###> "+Long.toHexString(Double.doubleToLongBits(loc.getLatitudeAsDoubleValueRads()))  + "  " + 
                     Long.toHexString(Double.doubleToLongBits(loc.getLongitudeAsDoubleValueRads())));
-            System.out.println(Double.longBitsToDouble(0x3fe70087540c7199L));
-            System.out.println(Double.longBitsToDouble(0x3fe70087540c719fL));
+            NeptusLog.pub().info("<###> "+Double.longBitsToDouble(0x3fe70087540c7199L));
+            NeptusLog.pub().info("<###> "+Double.longBitsToDouble(0x3fe70087540c719fL));
             
             double la1r = Double.longBitsToDouble(0x3fe70087540c7199L);
             double la2r = Double.longBitsToDouble(0x3fe70087540c719fL);
             double la1d = Math.toDegrees(la1r);
             double la2d = Math.toDegrees(la2r);
-            System.out.println(la1d);
-            System.out.println(la2d);
+            NeptusLog.pub().info("<###> "+la1d);
+            NeptusLog.pub().info("<###> "+la2d);
             
             double absoluteLatLonDepth[] = loc.getAbsoluteLatLonDepth(); 
             double latRad = Math.toRadians(absoluteLatLonDepth[0]);
             Math.toRadians(absoluteLatLonDepth[1]);
-            System.out.println(latRad);
-            System.out.println(Math.toDegrees(latRad));
-            System.out.println(Long.toHexString(Double.doubleToLongBits(latRad)));
+            NeptusLog.pub().info("<###> "+latRad);
+            NeptusLog.pub().info("<###> "+Math.toDegrees(latRad));
+            NeptusLog.pub().info("<###> "+Long.toHexString(Double.doubleToLongBits(latRad)));
 
         }
     }

@@ -363,7 +363,7 @@ public class PCDExporter implements MraExporter{
 //                startAngle = buf.readShort() / 100f - 180;
 //                angleIncrement = buf.read() / 100f;
 //
-//                // System.out.println(numBeams + " " + intensity + " " + pingTotalSize + " " + samplesPerBeam + " "
+//                // NeptusLog.pub().info("<###> "+numBeams + " " + intensity + " " + pingTotalSize + " " + samplesPerBeam + " "
 //                // + altitude + " $ " + heading + " " + startAngle + " " + angleIncrement + " " + sectorSize + " " +
 //                // acousticRange + " ");
 //                
@@ -378,7 +378,7 @@ public class PCDExporter implements MraExporter{
 //                double height;
 //                
 //                if (c == 0) {
-//                    System.out.println(heading);
+//                    NeptusLog.pub().info("<###> "+heading);
 //                }
 //
 //                for (int i = 0; i < dataBuffer.length; i += 2) {
@@ -411,7 +411,7 @@ public class PCDExporter implements MraExporter{
 //                    pointList.add(offHeight);
 //                    
 //                }
-////                System.out.println();
+////                NeptusLog.pub().info("<###> "+);
 //                // Skip to the end of the ping
 //                buf.seek(currPingStartOffset + pingTotalSize);
 //                c++;

@@ -214,7 +214,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 for (int i = 0; i < lst.size(); i++) {
                     Class<? extends MapTileProvider> clazzC = lst.get(i);
                     String idComp = clazzC.getAnnotation(MapTileProvider.class).name();
-                    //                    System.out.println(idComp);
+                    //                    NeptusLog.pub().info("<###> "+idComp);
                     if (id.compareTo(idComp) < 0) {
                         int indx = lst.indexOf(clazzC);
                         lst.add(indx, clazz);
@@ -316,7 +316,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             //            for (Map<String, ?> map : list) {
             //                txt += "\n\t " + map.size() + "\t    " + map.getClass().getSimpleName();
             //            }
-            //            System.out.println(txt);
+            //            NeptusLog.pub().info("<###> "+txt);
 
             for (Map<String, ?> map : list) {
                 String[] tlist = map.keySet().toArray(new String[0]);
@@ -333,7 +333,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             //            for (Map<String, ?> map : list) {
             //                txt += "\n\t " + map.size() + "\t    " + map.getClass().getSimpleName();
             //            }
-            //            System.out.println(txt);
+            //            NeptusLog.pub().info("<###> "+txt);
         }
     };
 
@@ -1002,7 +1002,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             for (int y = tileYMin; y <= tileYMax; y++) {
                 String quadKey = MapTileUtil.tileXYToQuadKey(x, y, levelOfDetail);
                 bagList.add(quadKey);
-                //                System.out.println(maxLevelOfDetail + " >= \t" + levelOfDetail + " :: \t" + quadKey);
+                //                NeptusLog.pub().info("<###> "+maxLevelOfDetail + " >= \t" + levelOfDetail + " :: \t" + quadKey);
                 if (levelOfDetail >= maxLevelOfDetail)
                     continue;
                 for (int sLoD = levelOfDetail + 1; sLoD <= maxLevelOfDetail; sLoD++) {
@@ -1010,7 +1010,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 }
             }
         }
-        System.out.println(bagList.size() + " tiles");
+        NeptusLog.pub().info("<###> "+bagList.size() + " tiles");
         Collections.sort(bagList, new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
@@ -1054,13 +1054,13 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         bagList.add(qk2);
         bagList.add(qk3);
 
-        //        System.out.println(maxLevelOfDetail + " >= \t" + (quadKey.length() + 1) + " :: \t" + qk0);
+        //        NeptusLog.pub().info("<###> "+maxLevelOfDetail + " >= \t" + (quadKey.length() + 1) + " :: \t" + qk0);
         produceQuadKeysWorker(qk0, maxLevelOfDetail, bagList);
-        //        System.out.println(maxLevelOfDetail + " >= \t" + (quadKey.length() + 1) + " :: \t" + qk1);
+        //        NeptusLog.pub().info("<###> "+maxLevelOfDetail + " >= \t" + (quadKey.length() + 1) + " :: \t" + qk1);
         produceQuadKeysWorker(qk1, maxLevelOfDetail, bagList);
-        //        System.out.println(maxLevelOfDetail + " >= \t" + (quadKey.length() + 1) + " :: \t" + qk2);
+        //        NeptusLog.pub().info("<###> "+maxLevelOfDetail + " >= \t" + (quadKey.length() + 1) + " :: \t" + qk2);
         produceQuadKeysWorker(qk2, maxLevelOfDetail, bagList);
-        //        System.out.println(maxLevelOfDetail + " >= \t" + (quadKey.length() + 1) + " :: \t" + qk3);
+        //        NeptusLog.pub().info("<###> "+maxLevelOfDetail + " >= \t" + (quadKey.length() + 1) + " :: \t" + qk3);
         produceQuadKeysWorker(qk3, maxLevelOfDetail, bagList);
 
         return bagList;

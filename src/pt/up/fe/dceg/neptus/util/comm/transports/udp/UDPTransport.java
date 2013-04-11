@@ -878,7 +878,7 @@ public class UDPTransport {
                         + req.getAddress() + " :: ");
                 // + new String(req.getBuffer(), 0, req
                 // .getBuffer().length));
-                System.out.println(udpTB.receptionMessageList.size());
+                NeptusLog.pub().info("<###> "+udpTB.receptionMessageList.size());
             }
         });
 

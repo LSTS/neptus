@@ -231,7 +231,7 @@ public class GPSConnection implements PropertyChangeListener {
 			}
 		}
 		lastGPSState = (GPSState) currentGPSState.clone();
-		//System.out.println(currentGPSState);
+		//NeptusLog.pub().info("<###> "+currentGPSState);
 	};
 	
 	/**
@@ -344,7 +344,7 @@ public class GPSConnection implements PropertyChangeListener {
 			conn.connect();
 			conn.addGPSListener(new GPSListener() {
 				public void GPSStateChanged(GPSState oldState, GPSState newState) {
-					System.out.println(newState.toString());
+					NeptusLog.pub().info("<###> "+newState.toString());
 				};
 			});
 			//conn.disconnect();

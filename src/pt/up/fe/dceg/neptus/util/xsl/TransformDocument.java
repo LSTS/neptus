@@ -528,7 +528,7 @@ public class TransformDocument
 			    //Tive de transformar num Stream já que com o JDK5 dá erro de
 			    //não encontrar o ficheiro!!!
 			    FileOutputStream fx = new FileOutputStream(new File(outFileName));
-			    //System.out.println(fx.createNewFile());
+			    //NeptusLog.pub().info("<###> "+fx.createNewFile());
 			    out = new StreamResult (fx);
 			}
 			else

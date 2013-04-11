@@ -256,7 +256,6 @@ public class TransformFOP
             NeptusLog.pub().info("<###>Input: XML (" + xmlfile + ")");
             NeptusLog.pub().info("<###>Stylesheet: " + xsltfile);
             NeptusLog.pub().info("<###>Output: PDF (" + pdffile + ")");
-            System.out.println();
             NeptusLog.pub().info("<###>Transforming...");
 
             //TransformFOP app = new TransformFOP();

@@ -401,7 +401,7 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
                     System.err.println("Message " + msg
                             + " is not valid in the current IMC specification (requested by "
                             + PluginUtils.getPluginName(this.getClass()) + ")");
-                // System.out.println(getName()+ "listening to "+messagesToListen.size()+" message types");
+                // NeptusLog.pub().info("<###> "+getName()+ "listening to "+messagesToListen.size()+" message types");
             }
 
             if (getConsole() != null && !messagesToListen.isEmpty())
@@ -576,7 +576,7 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
             JMenu menu = console.getOrCreateJMenu(new String[] { I18n.text("View") });
             menu.remove(menuItem);
             if (dialog.isVisible()){
-                System.out.println(this.getName());
+                NeptusLog.pub().info("<###> "+this.getName());
                 dialog.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 dialog.dispose();
             }

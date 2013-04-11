@@ -295,8 +295,8 @@ public class ImcToSds {
 
 	public static void main(String args[]) {
 		ImcToSds converter = new ImcToSds(new File(args[0]), IMCDefinition.getInstance());
-		System.out.println(converter.inputFile.getAbsolutePath());
+		NeptusLog.pub().info("<###> "+converter.inputFile.getAbsolutePath());
 		converter.convertToSDSFile(new File(args[1]));
-		System.out.println(converter.outputFile.getAbsolutePath());
+		NeptusLog.pub().info("<###> "+converter.outputFile.getAbsolutePath());
 	}
 }

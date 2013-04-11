@@ -31,6 +31,8 @@
  */
 package pt.up.fe.dceg.neptus.loader.helper;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author pdias
  *
@@ -44,6 +46,6 @@ public class CheckJavaOSArch {
         String arch = "x86";
         if (osArch.contains("64"))
             arch = "x64";
-        System.out.println(arch); 
+        NeptusLog.pub().info("<###> "+arch); 
     }
 }

@@ -144,7 +144,7 @@ public class PlanActions {
 				}
 			}
 		}
-//		System.out.println(document.asXML());
+//		NeptusLog.pub().info("<###> "+document.asXML());
         
         return document;
     }

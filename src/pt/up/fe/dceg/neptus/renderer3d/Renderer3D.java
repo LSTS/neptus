@@ -1055,7 +1055,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 		for (int i = 0; i < objs.length; i++) {
 			// System.err.println("Adicionado o objecto "+objs[i]+", ("+objs[i].hashCode()+")");
 			if (!(objects.containsKey(objs[i]))) { // novo
-				// System.out.println(((Path2D) objs[i]).isFinished());
+				// NeptusLog.pub().info("<###> "+((Path2D) objs[i]).isFinished());
 				if (objs[i] instanceof PathElement
 						&& ((PathElement) objs[i]).isFinished()) { // corrigir a
 																	// flag na
@@ -1328,7 +1328,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 			// GuiUtils.takeSnapshot(r,"");
 		}
 
-		// System.out.println(s);
+		// NeptusLog.pub().info("<###> "+s);
 	}
 
 	public void setMap(MapType map) {
@@ -1761,7 +1761,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 
 		if ("propreties".equals(e.getActionCommand().substring(0, 10))) {
 			// NeptusLog.pub().info("<###>carregou em properties");
-			// System.out.println(e.getActionCommand().substring(10));
+			// NeptusLog.pub().info("<###> "+e.getActionCommand().substring(10));
 
 			Enumeration<AbstractElement> enuma = objects.keys();
 			while (enuma.hasMoreElements()) {
@@ -1806,7 +1806,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				 */
 
 				panel_op = i;
-				// System.out.println(panel_op);
+				// NeptusLog.pub().info("<###> "+panel_op);
 				// cams[i].canvas.renderField(MyCanvas3D.FIELD_ALL);
 				// cams[panel_op].canvas.repaint();
 
@@ -2165,7 +2165,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				 * 
 				 * } else { NeptusLog.pub().info("<###>--------------- picked---");
 				 * //result.setFirstIntersectOnly(true);
-				 * //System.out.println(result);
+				 * //NeptusLog.pub().info("<###> "+result);
 				 * 
 				 * 
 				 * //NeptusLog.pub().info("<###>Coordinates:"+result.getClosestIntersection
@@ -2192,11 +2192,11 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				 * 
 				 * if (p != null) {
 				 * 
-				 * System.out.println(p.getClass().getName());
+				 * NeptusLog.pub().info("<###> "+p.getClass().getName());
 				 * 
 				 * } else if (s != null) {
 				 * 
-				 * System.out.println(s.getClass().getName());
+				 * NeptusLog.pub().info("<###> "+s.getClass().getName());
 				 * 
 				 * } else{
 				 * 
@@ -2429,7 +2429,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 								vaux2.y = (vaux.x * Math.sin(-cams[i].phi))
 										+ (vaux.y * Math.cos(-cams[i].phi));
 
-								// System.out.println(cams[i].phi);
+								// NeptusLog.pub().info("<###> "+cams[i].phi);
 								vec.y += vaux2.y;
 								vec.x += vaux2.x;
 								// vec.y += difx / ((cams[i].scale/2))/(auxx);
@@ -2527,7 +2527,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 								vaux2.y = (vaux.y * Math.sin(cams[i].psi))
 										+ (vaux.x * Math.cos(cams[i].psi));
 
-								// System.out.println(cams[i].phi);
+								// NeptusLog.pub().info("<###> "+cams[i].phi);
 								vec.y += vaux2.y;
 								vec.x += vaux2.x;
 								// vec.y += difx / (150/(cams[i].rho));
@@ -2872,7 +2872,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				TransformGroup model = obj.getModel3D();
 				// Cylinder shape=foundCylinder(model);
 				Sphere shape = Util3D.foundSphere(model);
-				// System.out.println(shape);
+				// NeptusLog.pub().info("<###> "+shape);
 				Appearance appearance3 = shape.getAppearance();
 				TransparencyAttributes trans = new TransparencyAttributes();
 				// trans.setTransparency(0.3f);
@@ -2880,13 +2880,13 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				trans.setCapability(TransparencyAttributes.ALLOW_VALUE_WRITE);
 				trans.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
 				appearance3.setTransparencyAttributes(trans);
-				// System.out.println(shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
+				// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 				shape.setAppearance(appearance3);
 			}
 			if (key instanceof pt.up.fe.dceg.neptus.types.map.CylinderElement) {
 				TransformGroup model = obj.getModel3D();
 				Cylinder shape = foundCylinder(model);
-				// System.out.println(shape);
+				// NeptusLog.pub().info("<###> "+shape);
 				Appearance appearance3 = shape.getAppearance();
 				TransparencyAttributes trans = new TransparencyAttributes();
 				// trans.setTransparency(0.3f);
@@ -2894,13 +2894,13 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				trans.setCapability(TransparencyAttributes.ALLOW_VALUE_WRITE);
 				trans.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
 				appearance3.setTransparencyAttributes(trans);
-				// System.out.println(shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
+				// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 				shape.setAppearance(appearance3);
 			}
 			if (key instanceof ParallelepipedElement) {
 				TransformGroup model = obj.getModel3D();
 				Box shape = Util3D.foundBox(model);
-				// System.out.println(shape);
+				// NeptusLog.pub().info("<###> "+shape);
 				Appearance appearance3 = shape.getAppearance();
 				TransparencyAttributes trans = new TransparencyAttributes();
 				// trans.setTransparency(0.3f);
@@ -2908,7 +2908,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				trans.setCapability(TransparencyAttributes.ALLOW_VALUE_WRITE);
 				trans.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
 				appearance3.setTransparencyAttributes(trans);
-				// System.out.println(shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
+				// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 				shape.setAppearance(appearance3);
 			}
 		}
@@ -2923,7 +2923,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				TransformGroup model = obj.getModel3D();
 				// Cylinder shape=foundCylinder(model);
 				Sphere shape = Util3D.foundSphere(model);
-				// System.out.println(shape);
+				// NeptusLog.pub().info("<###> "+shape);
 				Appearance appearance3 = shape.getAppearance();
 				TransparencyAttributes trans = new TransparencyAttributes();
 				trans.setTransparency(0.3f);
@@ -2931,13 +2931,13 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				trans.setCapability(TransparencyAttributes.ALLOW_VALUE_WRITE);
 				trans.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
 				appearance3.setTransparencyAttributes(trans);
-				// System.out.println(shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
+				// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 				shape.setAppearance(appearance3);
 			}
 			if (key instanceof pt.up.fe.dceg.neptus.types.map.CylinderElement) {
 				TransformGroup model = obj.getModel3D();
 				Cylinder shape = foundCylinder(model);
-				// System.out.println(shape);
+				// NeptusLog.pub().info("<###> "+shape);
 				Appearance appearance3 = shape.getAppearance();
 
 				TransparencyAttributes trans = new TransparencyAttributes();
@@ -2946,13 +2946,13 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				trans.setCapability(TransparencyAttributes.ALLOW_VALUE_WRITE);
 				trans.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
 				appearance3.setTransparencyAttributes(trans);
-				// System.out.println(shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
+				// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 				shape.setAppearance(appearance3);
 			}
 			if (key instanceof ParallelepipedElement) {
 				TransformGroup model = obj.getModel3D();
 				Box shape = Util3D.foundBox(model);
-				// System.out.println(shape);
+				// NeptusLog.pub().info("<###> "+shape);
 				Appearance appearance3 = shape.getAppearance();
 				TransparencyAttributes trans = new TransparencyAttributes();
 				trans.setTransparency(0.3f);
@@ -2960,7 +2960,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				trans.setCapability(TransparencyAttributes.ALLOW_VALUE_WRITE);
 				trans.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
 				appearance3.setTransparencyAttributes(trans);
-				// System.out.println(shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
+				// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 				shape.setAppearance(appearance3);
 			}
 
@@ -2991,7 +2991,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 					TransformGroup model = obj.getModel3D();
 					// Cylinder shape=foundCylinder(model);
 					Sphere shape = Util3D.foundSphere(model);
-					// System.out.println(shape);
+					// NeptusLog.pub().info("<###> "+shape);
 					Appearance appearance3 = shape.getAppearance();
 					TransparencyAttributes trans = new TransparencyAttributes();
 					trans.setTransparency(transp);
@@ -3001,13 +3001,13 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 					trans
 							.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
 					appearance3.setTransparencyAttributes(trans);
-					// System.out.println(shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
+					// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 					shape.setAppearance(appearance3);
 				}
 				if (key instanceof pt.up.fe.dceg.neptus.types.map.CylinderElement) {
 					TransformGroup model = obj.getModel3D();
 					Cylinder shape = foundCylinder(model);
-					// System.out.println(shape);
+					// NeptusLog.pub().info("<###> "+shape);
 					Appearance appearance3 = shape.getAppearance();
 
 					TransparencyAttributes trans = new TransparencyAttributes();
@@ -3018,13 +3018,13 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 					trans
 							.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
 					appearance3.setTransparencyAttributes(trans);
-					// System.out.println(shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
+					// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 					shape.setAppearance(appearance3);
 				}
 				if (key instanceof ParallelepipedElement) {
 					TransformGroup model = obj.getModel3D();
 					Box shape = Util3D.foundBox(model);
-					// System.out.println(shape);
+					// NeptusLog.pub().info("<###> "+shape);
 					Appearance appearance3 = shape.getAppearance();
 					TransparencyAttributes trans = new TransparencyAttributes();
 					trans.setTransparency(transp);
@@ -3034,14 +3034,14 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 					trans
 							.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
 					appearance3.setTransparencyAttributes(trans);
-					// System.out.println(shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
+					// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 					shape.setAppearance(appearance3);
 				}
 
 				if (key instanceof ImageElement) {
 					TransformGroup model = obj.getModel3D();
 					Shape3D shape = Util3D.foundImageShape(model);
-					// System.out.println(shape);
+					// NeptusLog.pub().info("<###> "+shape);
 					Appearance appearance3 = shape.getAppearance();
 					TransparencyAttributes trans = appearance3
 							.getTransparencyAttributes();
@@ -3067,7 +3067,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 					 * TransformGroup model=obj.getModel3D(); //Cylinder
 					 * shape=foundCylinder(model); Sphere
 					 * shape=Util3D.foundImage(model);
-					 * //System.out.println(shape); Appearance
+					 * //NeptusLog.pub().info("<###> "+shape); Appearance
 					 * appearance3=shape.getAppearance(); TransparencyAttributes
 					 * trans=new TransparencyAttributes();
 					 * //trans.setTransparency(0.3f);
@@ -3086,7 +3086,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 					TransformGroup model = obj.getModel3D();
 					// Cylinder shape=foundCylinder(model);
 					Sphere shape = Util3D.foundSphere(model);
-					// System.out.println(shape);
+					// NeptusLog.pub().info("<###> "+shape);
 					Appearance appearance3 = shape.getAppearance();
 					TransparencyAttributes trans = new TransparencyAttributes();
 					// trans.setTransparency(0.3f);
@@ -3096,13 +3096,13 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 					trans
 							.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
 					appearance3.setTransparencyAttributes(trans);
-					// System.out.println(shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
+					// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 					shape.setAppearance(appearance3);
 				}
 				if (key instanceof pt.up.fe.dceg.neptus.types.map.CylinderElement) {
 					TransformGroup model = obj.getModel3D();
 					Cylinder shape = foundCylinder(model);
-					// System.out.println(shape);
+					// NeptusLog.pub().info("<###> "+shape);
 					Appearance appearance3 = shape.getAppearance();
 					TransparencyAttributes trans = new TransparencyAttributes();
 					// trans.setTransparency(0.3f);
@@ -3112,13 +3112,13 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 					trans
 							.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
 					appearance3.setTransparencyAttributes(trans);
-					// System.out.println(shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
+					// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 					shape.setAppearance(appearance3);
 				}
 				if (key instanceof ParallelepipedElement) {
 					TransformGroup model = obj.getModel3D();
 					Box shape = Util3D.foundBox(model);
-					// System.out.println(shape);
+					// NeptusLog.pub().info("<###> "+shape);
 					Appearance appearance3 = shape.getAppearance();
 					TransparencyAttributes trans = new TransparencyAttributes();
 					// trans.setTransparency(0.3f);
@@ -3128,14 +3128,14 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 					trans
 							.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
 					appearance3.setTransparencyAttributes(trans);
-					// System.out.println(shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
+					// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 					shape.setAppearance(appearance3);
 				}
 
 				if (key instanceof ImageElement) {
 					TransformGroup model = obj.getModel3D();
 					Shape3D shape = Util3D.foundImageShape(model);
-					// System.out.println(shape);
+					// NeptusLog.pub().info("<###> "+shape);
 					Appearance appearance3 = shape.getAppearance();
 					TransparencyAttributes trans = appearance3
 							.getTransparencyAttributes();
@@ -3155,26 +3155,26 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 					TransformGroup model = obj.getModel3D();
 					// Cylinder shape=foundCylinder(model);
 					Sphere shape = Util3D.foundSphere(model);
-					// System.out.println(shape);
+					// NeptusLog.pub().info("<###> "+shape);
 					Appearance appearance3 = shape.getAppearance();
 					TransparencyAttributes trans = new TransparencyAttributes();
 
 					trans = appearance3.getTransparencyAttributes();
 					// trans.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
 
-					// System.out.println(trans.getCapability(TransparencyAttributes.ALLOW_VALUE_READ));
+					// NeptusLog.pub().info("<###> "+trans.getCapability(TransparencyAttributes.ALLOW_VALUE_READ));
 					if (trans.getTransparency() > 0.)
 						return true;
 					else
 						return false;
 
-					// System.out.println(shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
+					// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 					// shape.setAppearance(appearance3);
 				}
 				if (key instanceof pt.up.fe.dceg.neptus.types.map.CylinderElement) {
 					TransformGroup model = obj.getModel3D();
 					Cylinder shape = foundCylinder(model);
-					// System.out.println(shape);
+					// NeptusLog.pub().info("<###> "+shape);
 					Appearance appearance3 = shape.getAppearance();
 
 					TransparencyAttributes trans = new TransparencyAttributes();
@@ -3190,7 +3190,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				if (key instanceof ParallelepipedElement) {
 					TransformGroup model = obj.getModel3D();
 					Box shape = Util3D.foundBox(model);
-					// System.out.println(shape);
+					// NeptusLog.pub().info("<###> "+shape);
 					Appearance appearance3 = shape.getAppearance();
 					TransparencyAttributes trans = new TransparencyAttributes();
 					trans
@@ -3206,7 +3206,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				if (key instanceof ImageElement) {
 					TransformGroup model = obj.getModel3D();
 					Shape3D shape = Util3D.foundImageShape(model);
-					// System.out.println(shape);
+					// NeptusLog.pub().info("<###> "+shape);
 					Appearance appearance3 = shape.getAppearance();
 					TransparencyAttributes trans = new TransparencyAttributes();
 					trans

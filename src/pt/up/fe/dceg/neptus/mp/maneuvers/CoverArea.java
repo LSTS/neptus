@@ -248,6 +248,6 @@ public class CoverArea extends AbstractImcManeuver<pt.up.fe.dceg.neptus.imc.Cove
     public static void main(String[] args) {
         CoverArea area = new CoverArea();
 
-        System.out.println(area.asXML());
+        NeptusLog.pub().info("<###> "+area.asXML());
     }
 }

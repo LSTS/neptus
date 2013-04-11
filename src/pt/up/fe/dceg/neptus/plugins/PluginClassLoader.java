@@ -184,7 +184,7 @@ public class PluginClassLoader extends URLClassLoader {
                     // try to open the file "plugins.lst"
                     ZipEntry pluginsEntry = zf.getEntry("plugins.lst");
 
-                    // System.out.println(pluginsEntry);
+                    // NeptusLog.pub().info("<###> "+pluginsEntry);
                     if (pluginsEntry != null && !pluginsEntry.isDirectory()) {
                         br = new BufferedReader(new InputStreamReader(zf.getInputStream(pluginsEntry)));
                     }

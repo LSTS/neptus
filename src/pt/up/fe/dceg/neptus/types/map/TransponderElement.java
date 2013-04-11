@@ -78,7 +78,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
             @Override
             public boolean accept(File pathname) {
                 String name = pathname.getName();
-                // System.out.println(name + ": " +
+                // NeptusLog.pub().info("<###> "+name + ": " +
                 // name.matches("^(lsts[0-9]+\\.conf)|([A-Za-z][A-Za-z\\-_0-9]+\\.conf)$"));
                 if (name.matches("^(lsts[0-9]+\\.conf)|([A-Za-z][A-Za-z0-9\\-\\_]*\\.conf)$")) {
                     return true;
@@ -97,7 +97,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
             }
         });
         for (File file : files) {
-            // System.out.println(file.getName());
+            // NeptusLog.pub().info("<###> "+file.getName());
             aTranspondersFiles.add(file.getName());
         }
         transpondersListArray = aTranspondersFiles.toArray(new String[aTranspondersFiles.size()]);

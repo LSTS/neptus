@@ -38,6 +38,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 
@@ -88,7 +89,7 @@ public class UnixTimeEditor extends AbstractPropertyEditor {
             };
 
             public void setProperties(Property[] properties) {
-                System.out.println(properties[0]);
+                NeptusLog.pub().info("<###> "+properties[0]);
             };
 
             public String[] getPropertiesErrors(Property[] properties) {

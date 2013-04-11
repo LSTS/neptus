@@ -1030,7 +1030,7 @@ MissionChangeListener {
                             
                             for (Maneuver m : plan.getGraph().getAllManeuvers()) {
                                 m.getStartActions().parseMessages(startActions);
-                                System.out.println(m.getId());
+                                NeptusLog.pub().info("<###> "+m.getId());
                             }
                         }
                     }                    

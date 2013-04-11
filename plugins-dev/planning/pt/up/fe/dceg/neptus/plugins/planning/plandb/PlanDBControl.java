@@ -185,7 +185,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
             }
         }
         //msg.dump(System.err);
-        //System.out.println(msg.getString("op"));
+        //NeptusLog.pub().info("<###> "+msg.getString("op"));
         if (msg.getString("type").equals("SUCCESS")) {
             if (msg.getString("op").equals("GET_STATE")) {
                 if (remoteState == null)

@@ -297,30 +297,30 @@ public class X3dParse {
 	      for (Iterator i = list.iterator(); i.hasNext(); ) {
 	            
             Element element = (Element) i.next();
-            //System.out.println(element.getName());
+            //NeptusLog.pub().info("<###> "+element.getName());
             
             if("StaticGroup".equals(element.getName()))
 			{
-			 //System.out.println(element.getName());
+			 //NeptusLog.pub().info("<###> "+element.getName());
 			 ret.addChild(parseScene((org.dom4j.Node)element));
 			}
             
             
 			if("Group".equals(element.getName()))
 			{
-			 //System.out.println(element.getName());
+			 //NeptusLog.pub().info("<###> "+element.getName());
 			 ret.addChild(parseScene((org.dom4j.Node)element));
 			}
 			
 			if("Shape".equals(element.getName()))
 			{
-			 //System.out.println(element.getName());
+			 //NeptusLog.pub().info("<###> "+element.getName());
 			 ret.addChild(parseShape((org.dom4j.Node)element));
 			}
 			
 			if("Transform".equals(element.getName()))
 			{
-			 //System.out.println(element.getName());
+			 //NeptusLog.pub().info("<###> "+element.getName());
 			 TransformGroup trans=new TransformGroup();
 			 Transform3D tr=parseTransform((org.dom4j.Node)element);
 			 trans.setTransform(tr);
@@ -566,7 +566,7 @@ public class X3dParse {
     	List list = node.selectNodes( "*" );
 	      for (Iterator i = list.iterator(); i.hasNext(); ) {
 	    	    Element element = (Element) i.next();
-	            //System.out.println(element.getName());
+	            //NeptusLog.pub().info("<###> "+element.getName());
 	           
 	            if("Material".equals(element.getName()))
 	  			{
@@ -709,17 +709,17 @@ public class X3dParse {
       for (Iterator i = list.iterator(); i.hasNext(); ) 
       {      
     	  Element element = (Element) i.next();
-    	  //System.out.println(element.getName());
+    	  //NeptusLog.pub().info("<###> "+element.getName());
      
     	  if("Coordinate".equals(element.getName()))
     	  {
-    		  //System.out.println(element.getName());
+    		  //NeptusLog.pub().info("<###> "+element.getName());
     		  pointsvector=parseCoordinate((org.dom4j.Node)element);
     	  }
     	  
     	  if("TextureCoordinate".equals(element.getName()))
     	  {
-    		  //System.out.println(element.getName());
+    		  //NeptusLog.pub().info("<###> "+element.getName());
     		  pointstextvector=parseTextureCoordinate((org.dom4j.Node)element);
     	  }
     	  
@@ -764,11 +764,11 @@ public class X3dParse {
 	      for (Iterator i = list.iterator(); i.hasNext(); ) {
 	            
           Element element = (Element) i.next();
-          //System.out.println(element.getName());
+          //NeptusLog.pub().info("<###> "+element.getName());
          
           if("Appearance".equals(element.getName()))
 			{
-			 //System.out.println(element.getName());
+			 //NeptusLog.pub().info("<###> "+element.getName());
 			 app=parseAppearance((org.dom4j.Node)element);
 			 
 			}
@@ -779,36 +779,36 @@ public class X3dParse {
 	      for (Iterator i = list.iterator(); i.hasNext(); ) {
 	            
             Element element = (Element) i.next();
-            //System.out.println(element.getName());
+            //NeptusLog.pub().info("<###> "+element.getName());
            
             if("Cylinder".equals(element.getName()))
 			{
-			 //System.out.println(element.getName());
+			 //NeptusLog.pub().info("<###> "+element.getName());
 			 ret.addChild(parseCylinder((org.dom4j.Node)element,app));
 			}     
             
             if("Box".equals(element.getName()))
 			{
-			 //System.out.println(element.getName());
+			 //NeptusLog.pub().info("<###> "+element.getName());
 			 ret.addChild(parseBox((org.dom4j.Node)element,app));
 			}     
             
             if("Sphere".equals(element.getName()))
 			{
-			 //System.out.println(element.getName());
+			 //NeptusLog.pub().info("<###> "+element.getName());
 			 ret.addChild(parseSphere((org.dom4j.Node)element,app));
 			}     
             
             if("Cone".equals(element.getName()))
 			{
-			 //System.out.println(element.getName());
+			 //NeptusLog.pub().info("<###> "+element.getName());
 			 ret.addChild(parseCone((org.dom4j.Node)element,app));
 			}
             
           
            if("IndexedFaceSet".equals(element.getName()))
             {
-            	//System.out.println(element.getName());
+            	//NeptusLog.pub().info("<###> "+element.getName());
    			 	ret.addChild(parseIndexedFaceSet((org.dom4j.Node)element,app));
             }
             
@@ -830,7 +830,7 @@ public class X3dParse {
 				//NeptusLog.pub().info("<###>Erro em parse:DocumentHelper.parseText(fileX3d)");
 				return null;  
 		}
-		//System.out.println(doc.asXML());
+		//NeptusLog.pub().info("<###> "+doc.asXML());
 		
 		//Element root = doc.getRootElement();
 		//org.dom4j.Node shape= doc.selectSingleNode("//X3D/Scene/Shape");
@@ -839,17 +839,17 @@ public class X3dParse {
 	      for (Iterator i = list.iterator(); i.hasNext(); ) {
 	            
 	            Element element = (Element) i.next();
-	            //System.out.println(element.getName());
+	            //NeptusLog.pub().info("<###> "+element.getName());
 	            
 	           if("Scene".equals(element.getName()))
 				 {
-					 //System.out.println(element.getName());
+					 //NeptusLog.pub().info("<###> "+element.getName());
 					 tr.addChild(parseScene((org.dom4j.Node)element));
 				 }
 	           /* 
 	            if("Group".equals(element.getName()))
 				 {
-					 //System.out.println(element.getName());
+					 //NeptusLog.pub().info("<###> "+element.getName());
 					 tr.addChild(parseScene((org.dom4j.Node)element));
 				 }
 			*/	 

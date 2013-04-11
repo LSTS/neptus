@@ -339,9 +339,9 @@ public class ConfigFetch {
                     + System.getProperty("java.version");
             String strOSVersion = "On OS: " + System.getProperty("os.name") + " | Version: "
                     + System.getProperty("os.version") + " | Arch.: " + System.getProperty("os.arch");
-            //System.out.println(strNeptusVersion);
-            //System.out.println(strJavaVersion);
-            //System.out.println(strOSVersion + "\n");
+            //NeptusLog.pub().info("<###> "+strNeptusVersion);
+            //NeptusLog.pub().info("<###> "+strJavaVersion);
+            //NeptusLog.pub().info("<###> "+strOSVersion + "\n");
             NeptusLog.pub().info(strNeptusVersion);
             NeptusLog.pub().info(strJavaVersion);
             NeptusLog.pub().info(strOSVersion);
@@ -1203,12 +1203,12 @@ public class ConfigFetch {
      * @param args
      */
     public static void main(String[] args) {
-        System.out.println(ConfigFetch.getLoggingPropertiesLocation());
+        NeptusLog.pub().info("<###> "+ConfigFetch.getLoggingPropertiesLocation());
 
         String st = ConfigFetch.getConfigFile();
         String st1 = ConfigFetch.resolvePathWithParent(st, "../fe.txt");
-        System.out.println(st.concat("\n").concat(st1));
+        NeptusLog.pub().info("<###> "+st.concat("\n").concat(st1));
         st1 = ConfigFetch.resolvePathWithParent(st, "c:/fe.txt");
-        System.out.println(st.concat("\n").concat(st1));
+        NeptusLog.pub().info("<###> "+st.concat("\n").concat(st1));
     }
 }

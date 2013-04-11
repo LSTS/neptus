@@ -151,7 +151,7 @@ public class TabContainer extends ContainerSubPanel implements ConfigurationList
 		{
 		    if(c instanceof AlarmProviderOld)
 		    {
-		        //System.out.println(c);
+		        //NeptusLog.pub().info("<###> "+c);
 		        l.add((AlarmProviderOld)c);
 		    }
 		}

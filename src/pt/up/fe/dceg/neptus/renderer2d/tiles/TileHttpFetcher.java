@@ -200,7 +200,7 @@ public abstract class TileHttpFetcher extends Tile {
                     double sleepT = 2000 + 15000 * rnd.nextDouble();
                     if (isInStateForbidden && retries == 0)
                         sleepT = 60000 + 30000 * rnd.nextDouble();
-//                    System.out.println(sleepT + "ms");
+//                    NeptusLog.pub().info("<###> "+sleepT + "ms");
                     try { Thread.sleep((long) (sleepT)); } catch (Exception e) { }
                     if (TileHttpFetcher.this.getState() == TileState.DISPOSING
                             || TileHttpFetcher.this.getState() == TileState.FATAL_ERROR)
@@ -231,7 +231,7 @@ public abstract class TileHttpFetcher extends Tile {
                     
                     ProxyInfoProvider.authenticateConnectionIfNeeded(resp, localContext, client);
                     
-//                    System.out.println(resp.getStatusLine().getStatusCode());
+//                    NeptusLog.pub().info("<###> "+resp.getStatusLine().getStatusCode());
                     if (TileHttpFetcher.this.getState() != TileState.DISPOSING
                             && retries < MAX_RETRIES
                             && resp.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
@@ -285,13 +285,13 @@ public abstract class TileHttpFetcher extends Tile {
                     tsave.join();
                 }
                 catch (IllegalStateException e) {
-//                  System.out.println(e);
+//                  NeptusLog.pub().info("<###> "+e);
                     lasErrorMessage = "Not able to fetch " + this.getClass().getSimpleName()
                             + " Image, " + (retries <= MAX_RETRIES ? ", retrying" : "") + ": " + e;
                     setState(TileState.ERROR);
                 }
                 catch (ConnectionPoolTimeoutException e) {
-//                    System.out.println(e);
+//                    NeptusLog.pub().info("<###> "+e);
                     lasErrorMessage = "Not able to fetch " + this.getClass().getSimpleName()
                             + " Image, " + (retries <= MAX_RETRIES ? ", retrying" : "") + ": " + e;
                     setState(TileState.ERROR);
@@ -313,7 +313,7 @@ public abstract class TileHttpFetcher extends Tile {
                     lasErrorMessage = "Not able to fetch " + this.getClass().getSimpleName()
                             + " Image" + (retries <= MAX_RETRIES ? ", retrying" : "") + ": " + e;
                     if (retries > MAX_RETRIES)
-                        System.out.println(lasErrorMessage + " :: " + e);
+                        NeptusLog.pub().info("<###> "+lasErrorMessage + " :: " + e);
                     setState(TileState.ERROR);
                 }
                 finally {
@@ -359,7 +359,7 @@ public abstract class TileHttpFetcher extends Tile {
                         if (toFetch != null) {
                             lastJobTimeMillis = System.currentTimeMillis();
                             if (toFetch.getTimeToRun() < 0 || toFetch.getTimeToRun() - System.currentTimeMillis() < 0) {
-//                                System.out.println(httpFetcherWorkerList.size() + "  " + toFetch.getIdStr());
+//                                NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + toFetch.getIdStr());
                                 setName(toFetch.getIdStr());
                                 toFetch.run();
                                 if (toFetch.getTileLoadingState() != LoadHttpTileState.END) {
@@ -445,17 +445,17 @@ public abstract class TileHttpFetcher extends Tile {
                         double sleepT = 2000 + 15000 * rnd.nextDouble();
                         if (isInStateForbidden && retries == 0)
                             sleepT = 60000 + 30000 * rnd.nextDouble();
-                        // System.out.println(sleepT + "ms");
+                        // NeptusLog.pub().info("<###> "+sleepT + "ms");
     
                         if (sleepT == 0) {
                             timeToRun = -1;
                             tileLoadingState = LoadHttpTileState.DECIDE_TO_LOCK_OR_CONTINUE;
-                            if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
+                            if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
                         }
                         else {
                             timeToRun = System.currentTimeMillis() + (long) (sleepT);
                             tileLoadingState = LoadHttpTileState.WAIT_FORBIDDEN;
-                            if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr() + "   " + (timeToRun - System.currentTimeMillis()));System.out.flush(); }
+                            if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr() + "   " + (timeToRun - System.currentTimeMillis()));System.out.flush(); }
                         }
                     }
                     break;
@@ -469,19 +469,19 @@ public abstract class TileHttpFetcher extends Tile {
                                 || TileHttpFetcher.this.getState() == TileState.FATAL_ERROR) {
                             timeToRun = -1;
                             tileLoadingState = LoadHttpTileState.END;
-                            if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
+                            if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
                             return;
                         }
     
                         timeToRun = -1;
                         if (tileLoadingState == LoadHttpTileState.WAIT_FORBIDDEN) {
                             tileLoadingState = LoadHttpTileState.DECIDE_TO_LOCK_OR_CONTINUE;
-                            if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
+                            if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
                         }
                         else if (tileLoadingState == LoadHttpTileState.RETRY_FORBIDDEN) {
                             setState(TileState.RETRYING);
                             tileLoadingState = LoadHttpTileState.START;
-                            if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
+                            if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
                         }
                         else { // WAIT_BETWEEN_CONNECTIONS_RETRY || WAIT_BETWEEN_CONNECTIONS_END
                             if (getWaitTimeLock().isLocked() && getWaitTimeLock().isHeldByCurrentThread()) {
@@ -489,10 +489,10 @@ public abstract class TileHttpFetcher extends Tile {
                                 timeToRun = -1;
                                 tileLoadingState = (tileLoadingState == LoadHttpTileState.WAIT_BETWEEN_CONNECTIONS_END ? LoadHttpTileState.END :
                                     LoadHttpTileState.RETRY_FORBIDDEN);
-                                if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr() + " unlock");System.out.flush(); }
+                                if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr() + " unlock");System.out.flush(); }
                             }
                             else {
-                                if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr() + " try unlock");System.out.flush(); }
+                                if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr() + " try unlock");System.out.flush(); }
                             }
                         }
                     }
@@ -504,12 +504,12 @@ public abstract class TileHttpFetcher extends Tile {
                         if (waitTime > 0 && getWaitTimeLock() != null) {
                             timeToRun = -1;
                             tileLoadingState = LoadHttpTileState.GET_LOCK;
-                            if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr() + " try lock");System.out.flush(); }
+                            if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr() + " try lock");System.out.flush(); }
                         }
                         else {
                             timeToRun = -1;
                             tileLoadingState = LoadHttpTileState.FETCH_HTTP;
-                            if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
+                            if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
                         }
                     }
                     break;
@@ -518,19 +518,19 @@ public abstract class TileHttpFetcher extends Tile {
                         if (TileHttpFetcher.this.getState() == TileState.DISPOSING) {
                             timeToRun = -1;
                             tileLoadingState = LoadHttpTileState.END;
-                            if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr() + " disposing");System.out.flush(); }
+                            if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr() + " disposing");System.out.flush(); }
                         }
                         else {
                             try {
                                 if (getWaitTimeLock().tryLock(1000, TimeUnit.MILLISECONDS)) {
                                     timeToRun = -1;
                                     tileLoadingState = LoadHttpTileState.FETCH_HTTP;
-                                    if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  lock" + getIdStr());System.out.flush(); }
+                                    if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  lock" + getIdStr());System.out.flush(); }
                                 }
                                 else {
                                     timeToRun = -1;
                                     tileLoadingState = LoadHttpTileState.GET_LOCK;
-                                    if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr() + " try lock");System.out.flush(); }
+                                    if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr() + " try lock");System.out.flush(); }
                                 }
                             }
                             catch (InterruptedException e) {
@@ -538,7 +538,7 @@ public abstract class TileHttpFetcher extends Tile {
                                 TileHttpFetcher.this.setState(TileState.FATAL_ERROR);
                                 timeToRun = -1;
                                 tileLoadingState = LoadHttpTileState.END;
-                                if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
+                                if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
                             }
                         }
                     }
@@ -565,7 +565,7 @@ public abstract class TileHttpFetcher extends Tile {
 
                             ProxyInfoProvider.authenticateConnectionIfNeeded(resp, localContext, client);
 
-                            // System.out.println(resp.getStatusLine().getStatusCode());
+                            // NeptusLog.pub().info("<###> "+resp.getStatusLine().getStatusCode());
                             if (TileHttpFetcher.this.getState() != TileState.DISPOSING && retries < MAX_RETRIES
                                     && resp.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN) {
                                 isInStateForbidden = true;
@@ -578,7 +578,7 @@ public abstract class TileHttpFetcher extends Tile {
 
                                 timeToRun = System.currentTimeMillis() + (long) (sleepT);
                                 tileLoadingState = LoadHttpTileState.RETRY_FORBIDDEN;
-                                if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr() + "   " + (timeToRun - System.currentTimeMillis()));System.out.flush(); }
+                                if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr() + "   " + (timeToRun - System.currentTimeMillis()));System.out.flush(); }
                                 return;
                             }
                             else if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
@@ -590,7 +590,7 @@ public abstract class TileHttpFetcher extends Tile {
 
                                 timeToRun = -1;
                                 tileLoadingState = LoadHttpTileState.END;
-                                if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
+                                if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
                                 return;                                
                             }
                             else if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
@@ -605,7 +605,7 @@ public abstract class TileHttpFetcher extends Tile {
 
                                 timeToRun = -1;
                                 tileLoadingState = LoadHttpTileState.END;
-                                if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
+                                if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
                                 return;
                             }
 
@@ -632,27 +632,27 @@ public abstract class TileHttpFetcher extends Tile {
 
                             timeToRun = -1;
                             tileLoadingState = LoadHttpTileState.END;
-                            if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
+                            if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
                         }
                         catch (IllegalStateException e) {
-                            // System.out.println(e);
+                            // NeptusLog.pub().info("<###> "+e);
                             lasErrorMessage = "Not able to fetch " + this.getClass().getSimpleName() + " Image, "
                                     + (retries <= MAX_RETRIES ? ", retrying" : "") + ": " + e;
                             setState(TileState.ERROR);
 
                             timeToRun = -1;
                             tileLoadingState = LoadHttpTileState.END;
-                            if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
+                            if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
                         }
                         catch (ConnectionPoolTimeoutException e) {
-                            // System.out.println(e);
+                            // NeptusLog.pub().info("<###> "+e);
                             lasErrorMessage = "Not able to fetch " + this.getClass().getSimpleName() + " Image, "
                                     + (retries <= MAX_RETRIES ? ", retrying" : "") + ": " + e;
                             setState(TileState.ERROR);
 
                             timeToRun = -1;
                             tileLoadingState = LoadHttpTileState.END;
-                            if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
+                            if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
                         }
                         catch (UnknownHostException e) {
                             // double sleepT = 30000 + 10000 * rnd.nextDouble();
@@ -669,18 +669,18 @@ public abstract class TileHttpFetcher extends Tile {
 
                             timeToRun = -1;
                             tileLoadingState = LoadHttpTileState.END;
-                            if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
+                            if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
                         }
                         catch (Exception e) {
                             lasErrorMessage = "Not able to fetch " + this.getClass().getSimpleName() + " Image"
                                     + (retries <= MAX_RETRIES ? ", retrying" : "") + ": " + e;
                             if (retries > MAX_RETRIES)
-                                System.out.println(lasErrorMessage + " :: " + e);
+                                NeptusLog.pub().info("<###> "+lasErrorMessage + " :: " + e);
                             setState(TileState.ERROR);
 
                             timeToRun = -1;
                             tileLoadingState = LoadHttpTileState.END;
-                            if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
+                            if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr());System.out.flush(); }
                         }
                         finally {
                             get.abort();
@@ -696,7 +696,7 @@ public abstract class TileHttpFetcher extends Tile {
                                     timeToRun = System.currentTimeMillis() + waitTime;
                                     tileLoadingState = (tileLoadingState == LoadHttpTileState.END ? LoadHttpTileState.WAIT_BETWEEN_CONNECTIONS_END :
                                         LoadHttpTileState.WAIT_BETWEEN_CONNECTIONS_RETRY);
-                                    if (DEBUG) { System.out.println(httpFetcherWorkerList.size() + "  " + getIdStr() + "   " + (timeToRun - System.currentTimeMillis()));System.out.flush(); }
+                                    if (DEBUG) { NeptusLog.pub().info("<###> "+httpFetcherWorkerList.size() + "  " + getIdStr() + "   " + (timeToRun - System.currentTimeMillis()));System.out.flush(); }
                                 }
                             }
                         }

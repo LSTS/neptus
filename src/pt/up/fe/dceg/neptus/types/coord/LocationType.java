@@ -1308,11 +1308,11 @@ Comparable<LocationType> {
         loc.setOffsetNorth(95.97593750551583);
         loc.setOffsetEast(-274.7049781636526);
         loc.setOffsetDown(1.6755575514192749);
-        System.out.println(loc);
+        NeptusLog.pub().info("<###> "+loc);
         loc.convertToAbsoluteLatLonDepth();
-        System.out.println(loc);
+        NeptusLog.pub().info("<###> "+loc);
         LocationType loc2 = LocationType.valueOf(loc.toString());
-        System.out.println(loc2);
+        NeptusLog.pub().info("<###> "+loc2);
     }
     
     public static void main(String[] args) {

@@ -126,7 +126,7 @@ public class InterpolationColorMap implements ColorMap, PropertyType {
 
     public static void main(String args[]) throws Exception {
         ColorMap cmap = new InterpolationColorMap("c:/cmap.txt");
-        System.out.println(cmap.getColor(0.1f));
+        NeptusLog.pub().info("<###> "+cmap.getColor(0.1f));
     }
 
     public Color getColor(double value) {	

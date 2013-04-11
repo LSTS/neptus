@@ -40,6 +40,7 @@ import java.util.List;
 
 import org.dinopolis.gpstool.gpsinput.nmea.NMEA0183Sentence;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCMessageType;
@@ -256,7 +257,7 @@ public class NMEAUtils {
 	public static void main(String[] args) {
 		String nmea = "$GPGGA,120602.476,4112.4827,N,00832.0861,W,1,03,3.4,-51.3,M,51.3,M,,0000*5C";
 		LocationType lt = NMEAUtils.processGGASentence(nmea);
-		System.out.println(lt.getDebugString());
+		NeptusLog.pub().info("<###> "+lt.getDebugString());
 		if (lt != null) {
 			IMCMessage msg = IMCDefinition.getInstance().create("RemoteSensorInfo");
 			msg.setValue("id", "914785889");

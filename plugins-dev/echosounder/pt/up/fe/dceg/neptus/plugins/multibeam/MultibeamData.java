@@ -347,7 +347,7 @@ public class MultibeamData implements Serializable {
                 startAngle = buf.readShort() / 100f - 180;
                 angleIncrement = buf.read() / 100f;
 
-                // System.out.println(numBeams + " " + intensity + " " + pingTotalSize + " " + samplesPerBeam + " "
+                // NeptusLog.pub().info("<###> "+numBeams + " " + intensity + " " + pingTotalSize + " " + samplesPerBeam + " "
                 // + altitude + " $ " + heading + " " + startAngle + " " + angleIncrement + " " + sectorSize + " " +
                 // acousticRange + " ");
 
@@ -389,7 +389,7 @@ public class MultibeamData implements Serializable {
                 // Skip to the end of the ping
                 buf.seek(currPingStartOffset + pingTotalSize);
                 c++;
-                System.out.println(buf.getFilePointer());
+                NeptusLog.pub().info("<###> "+buf.getFilePointer());
             }
             NeptusLog.pub().info("<###>Total ping number " + c);
 

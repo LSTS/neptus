@@ -295,7 +295,7 @@ public class EGM96Util {
 									* rleg[n1 - 2]);
 				}
 		}
-		//System.out.println(Arrays.toString(rleg));
+		//NeptusLog.pub().info("<###> "+Arrays.toString(rleg));
 		return rleg;
 	}
 

@@ -40,6 +40,7 @@ import javax.swing.JDialog;
 import javax.swing.JPopupMenu;
 import javax.swing.tree.TreePath;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.CloseTabbedPane;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.ColorMapVisualization;
@@ -122,7 +123,7 @@ public class LsfTreeMouseAdapter extends MouseAdapter {
             JPopupMenu popup = new JPopupMenu();
             popup.add(I18n.text("Plot data")).addActionListener(new ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    System.out.println(fieldsToPlot);
+                    NeptusLog.pub().info("<###> "+fieldsToPlot);
                     panel.loadVisualization(new GenericPlot(fieldsToPlot.toArray(new String[0]), panel), true);
                 }
             });
@@ -144,7 +145,7 @@ public class LsfTreeMouseAdapter extends MouseAdapter {
             if(count == 1) {
                 popup.add(I18n.text("Plot ColorMap")).addActionListener(new ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent e) {
-                        System.out.println(fieldsToPlot);
+                        NeptusLog.pub().info("<###> "+fieldsToPlot);
                         panel.loadVisualization(new ColorMapVisualization(panel, fieldsToPlot.get(0)), true);
                     }
                 });

@@ -402,7 +402,7 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
         
         IMCMessage msg = cr.serializeToIMC();
         
-        System.out.println(cr.asXML());
+        NeptusLog.pub().info("<###> "+cr.asXML());
         cr.serializeToIMC().dump(System.out);
         msg.dump(System.out);
     }

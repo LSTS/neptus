@@ -168,8 +168,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     ByteUtil.dumpAsHex(p1.payloadMD5(), System.out);
                     ByteUtil.dumpAsHex(p2.payloadMD5(), System.out);
 
-                    // System.out.println(IMCUtil.getAsHtml(p1));
-                    // System.out.println(IMCUtil.getAsHtml(p2));
+                    // NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(p1));
+                    // NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(p2));
 
                     p1.serialize(imcOs);
                     ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
@@ -286,7 +286,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                                         catch (Exception e1) {
                                             e1.printStackTrace();
                                         }
-                                        System.out.println(str);
+                                        NeptusLog.pub().info("<###> "+str);
                                     }
                                 }
                             });
@@ -300,10 +300,10 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                                                 PlanType p2 = IMCUtils.parsePlanSpecification(new MissionType(), pm1);
                                                 IMCMessage pm2 = p2.asIMCPlan();
                                                 NeptusLog.pub().info("<###>.....");
-                                                System.out.println(ByteUtil.encodeAsString(pm1.payloadMD5()));
-                                                System.out.println(ByteUtil.encodeAsString(pm2.payloadMD5()));
-                                                System.out.println(IMCUtil.getAsHtml(pm1));
-                                                System.out.println(IMCUtil.getAsHtml(pm2));
+                                                NeptusLog.pub().info("<###> "+ByteUtil.encodeAsString(pm1.payloadMD5()));
+                                                NeptusLog.pub().info("<###> "+ByteUtil.encodeAsString(pm2.payloadMD5()));
+                                                NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(pm1));
+                                                NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(pm2));
                                             }
                                         }
                                     });

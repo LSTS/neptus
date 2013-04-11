@@ -463,25 +463,6 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
 
             data.get(row).setElement(col, value);
             fireTableCellUpdated(row, col);
-
-            if (DEBUG) {
-                NeptusLog.pub().info("<###>New value of data:");
-                printDebugData();
-            }
-        }
-
-        private void printDebugData() {
-            int numRows = getRowCount();
-            int numCols = getColumnCount();
-
-            for (int i = 0; i < numRows; i++) {
-                System.out.print("    row " + i + ":");
-                for (int j = 0; j < numCols; j++) {
-                    System.out.print("  " + data.get(i).getElement(j));
-                }
-                System.out.println();
-            }
-            NeptusLog.pub().info("<###>--------------------------");
         }
     }
 
@@ -695,7 +676,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
             // SimpleDateFormat dateFormater = new SimpleDateFormat(
             // "HH:mm:ss.SSS");
             // "yyyy-MM-dd'T'HH:mm:ss'.0Z'");
-            // System.out.println(dateFormater.format(enu));
+            // NeptusLog.pub().info("<###> "+dateFormater.format(enu));
 
             // setText(dateFormater.format(enu));
             setText(DateTimeUtil.milliSecondsToFormatedString(enu / 1000 * 1000));

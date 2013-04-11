@@ -412,7 +412,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                     profiles = m.replaceFirst("<Default profile=" + aspas + defaultProfile + aspas + " />");
                 else
                     profiles = m.replaceFirst("");
-                // System.out.println(profiles);
+                // NeptusLog.pub().info("<###> "+profiles);
             }
             else {
                 NeptusLog.pub().info("<###>Not able to change default profile from "
@@ -1461,9 +1461,9 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
         Pattern pat = Pattern.compile("^<Default\\s+profile=\\s*(\"((.|\\s)+?)\"|'((.|\\s)+?)')\\s*/>");
         Matcher m = pat.matcher(profToChange);
         m.find();
-        System.out.println(m.groupCount());
-        System.out.println(m.group(2) + "    " + m.group(4));
-        System.out.println(m.replaceFirst("<Default profile=\"def\" />"));
+        NeptusLog.pub().info("<###> "+m.groupCount());
+        NeptusLog.pub().info("<###> "+m.group(2) + "    " + m.group(4));
+        NeptusLog.pub().info("<###> "+m.replaceFirst("<Default profile=\"def\" />"));
 
         // if (true)
         // return;
@@ -1505,7 +1505,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                 }
             });
 
-            System.out.println(ReflectionUtil.class.getPackage().getName());
+            NeptusLog.pub().info("<###> "+ReflectionUtil.class.getPackage().getName());
             validator.validate(new StreamSource(bais));
 
             bais.reset();

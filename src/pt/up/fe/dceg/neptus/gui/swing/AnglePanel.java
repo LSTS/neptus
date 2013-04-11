@@ -133,7 +133,7 @@ public class AnglePanel extends JPanel {
 		negAngles.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				//System.out.println(e.getStateChange());
+				//NeptusLog.pub().info("<###> "+e.getStateChange());
 				if (e.getStateChange() == ItemEvent.SELECTED) {
 					aPanel.negValuesAllowed(true);
 				}

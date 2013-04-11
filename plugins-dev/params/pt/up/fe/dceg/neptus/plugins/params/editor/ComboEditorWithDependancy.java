@@ -70,7 +70,7 @@ public class ComboEditorWithDependancy<T extends Object> extends ComboEditor<T> 
             if(evt.getSource() instanceof SystemProperty) {
                 SystemProperty sp = (SystemProperty) evt.getSource();
 //                NeptusLog.pub().info("<###>-------------- 3");
-//                System.out.println(sp);
+//                NeptusLog.pub().info("<###> "+sp);
                 if (sp.getValue() instanceof Number) {
                     for (int i = 0; i < pec.getValuesIfTests().size(); i++) {
                         PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf<?, ?> vl = (ValuesIf<?, ?>) pec.getValuesIfTests().get(i);

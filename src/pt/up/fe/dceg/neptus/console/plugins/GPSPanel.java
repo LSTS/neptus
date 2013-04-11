@@ -56,6 +56,7 @@ import javax.swing.SwingUtilities;
 
 import org.jdesktop.swingx.JXPanel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.gps.GPSConnection;
 import pt.up.fe.dceg.neptus.gps.GPSListener;
@@ -214,7 +215,7 @@ public class GPSPanel extends SimpleSubPanel implements GPSListener,
             		connButton.setEnabled(true);
             		return;
             	}
-            	System.out.println(commID.getName() + "   " + ps.getSerialPortParameters().getBaudrate());
+            	NeptusLog.pub().info("<###> "+commID.getName() + "   " + ps.getSerialPortParameters().getBaudrate());
             	gpsConn = new GPSConnection(commID.getName(), ps
             			.getSerialPortParameters().getBaudrate());// 9600
             	gpsConn.connect();

@@ -220,7 +220,7 @@ public class PCCWaypointPainter implements Renderer2DPainter {
 		boolean drawnActive = false;
 		
 		//VehicleType v = VehiclesHolder.getVehicleById(vehicle);
-		//System.out.println(vehicle+" -> "+v);
+		//NeptusLog.pub().info("<###> "+vehicle+" -> "+v);
 		
 		Color c1 = VehiclesHolder.getVehicleById(vehicle).getIconColor();
 		Color c2 = c1.brighter();

@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.doc;
 
 import java.io.File;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.FileUtil;
 
 /**
@@ -54,7 +55,7 @@ public class Html2Latex {
         html = html.replaceAll("<h2>([^<]*)</h2>", "\n\n\\\\section{$1}");
         html = html.replaceAll("<h3>([^<]*)</h3>", "\\\\subsection{$1}");
         html = html.replaceAll("<a name=\"(.*)\" .*</a>", "\\\\label{$1}");
-        System.out.println(html);
+        NeptusLog.pub().info("<###> "+html);
     }
     
     public static void main(String[] args) {

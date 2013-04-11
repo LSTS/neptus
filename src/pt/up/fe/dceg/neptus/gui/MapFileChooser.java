@@ -45,6 +45,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.swing.NeptusFileView;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer;
@@ -153,7 +154,7 @@ public class MapFileChooser extends JFileChooser {
 	public static void main(String[] args) {
         ConfigFetch.initialize();
 		File f = MapFileChooser.showOpenMapDialog();
-		System.out.println(f);
+		NeptusLog.pub().info("<###> "+f);
 	}
 }
 

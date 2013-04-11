@@ -80,7 +80,7 @@ public class FTPDownloader extends JDialog {
                 if(e.getClickCount()==1) {
                     // Single Click
                     // TODO
-                    System.out.println(tree.getSelectionCount());
+                    NeptusLog.pub().info("<###> "+tree.getSelectionCount());
                 }
                 if(e.getClickCount()==2){ 
                     // Double Click

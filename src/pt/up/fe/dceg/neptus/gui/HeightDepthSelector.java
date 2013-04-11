@@ -46,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -134,7 +135,7 @@ public class HeightDepthSelector extends ParametersPanel {
         
         HeightDepthSelector.showHeightDepthDialog(loc, I18n.text("Set plan depth / altitude"));
         
-        System.out.println(loc);
+        NeptusLog.pub().info("<###> "+loc);
         
     }
 

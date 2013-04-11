@@ -33,6 +33,8 @@ package pt.up.fe.dceg.neptus.util.comm.manager.imc;
 
 import java.util.StringTokenizer;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * This class manages IMC 16 bits IDs of the form xx:xx (hexadecimal)
  * @author Paulo Dias
@@ -255,40 +257,40 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
 
     public static void main(String[] args) throws Exception {
         ImcId16 id = new ImcId16("ed:01");
-        System.out.println(id.intValue());
-        System.out.println(id.toPrettyString());
+        NeptusLog.pub().info("<###> "+id.intValue());
+        NeptusLog.pub().info("<###> "+id.toPrettyString());
 
-        System.out.println(id.getFirstByte());
-        System.out.println(id.getSecondByte());
+        NeptusLog.pub().info("<###> "+id.getFirstByte());
+        NeptusLog.pub().info("<###> "+id.getSecondByte());
 
         
         ImcId16 id1 = new ImcId16(60910);
-        System.out.println(id1.intValue());
-        System.out.println(id1.toPrettyString());
+        NeptusLog.pub().info("<###> "+id1.intValue());
+        NeptusLog.pub().info("<###> "+id1.toPrettyString());
 
-        System.out.println(id1.getFirstByte());
-        System.out.println(id1.getSecondByte());
+        NeptusLog.pub().info("<###> "+id1.getFirstByte());
+        NeptusLog.pub().info("<###> "+id1.getSecondByte());
 
-        System.out.println(id.equals(id1));
+        NeptusLog.pub().info("<###> "+id.equals(id1));
 
-        System.out.println(id == id1);
+        NeptusLog.pub().info("<###> "+(id == id1));
 
         
         ImcId16 id2 = new ImcId16(334360910);
-        System.out.println(id2.intValue());
-        System.out.println(id2.toPrettyString());
+        NeptusLog.pub().info("<###> "+id2.intValue());
+        NeptusLog.pub().info("<###> "+id2.toPrettyString());
 
         ImcId16 idC1 = new ImcId16("a0:01");
         ImcId16 idC2 = new ImcId16("a0:01");
-        System.out.println(idC1.intValue());
-        System.out.println(idC2.intValue());
-        System.out.println(idC1.equals(idC2));
-        System.out.println(idC1 == idC2);
+        NeptusLog.pub().info("<###> "+idC1.intValue());
+        NeptusLog.pub().info("<###> "+idC2.intValue());
+        NeptusLog.pub().info("<###> "+idC1.equals(idC2));
+        NeptusLog.pub().info("<###> "+(idC1 == idC2));
         
-        System.out.println(new Long(8) == new Long(8));
+        NeptusLog.pub().info("<###> "+(new Long(8) == new Long(8)));
 
         ImcId16 id3 = new ImcId16("0xa001");
-        System.out.println(id3.intValue());
-        System.out.println(id3.toPrettyString());
+        NeptusLog.pub().info("<###> "+id3.intValue());
+        NeptusLog.pub().info("<###> "+id3.toPrettyString());
     }
 }

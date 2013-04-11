@@ -35,6 +35,7 @@ import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -127,7 +128,7 @@ public class NetcdfTimeSeriesExporter {
             }
         }
         
-        System.out.println(scalars);
+        NeptusLog.pub().info("<###> "+scalars);
     }
     
     public static void main(String[] args) throws Exception {

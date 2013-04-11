@@ -36,6 +36,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 
@@ -291,9 +292,9 @@ extends SSHExec
 		ConfigFetch.initialize();
 		SSHScp scw = new SSHScp("lauv");
 		boolean ret = scw.execScpTo("neptus-config.xml", "~/");
-		System.out.println(ret + " " + scw.getExitStatus());
+		NeptusLog.pub().info("<###> "+ret + " " + scw.getExitStatus());
 		ret = scw.execScpFrom("~/testeHD.txt", "t.txt");
-		System.out.println(ret + " " + scw.getExitStatus());
+		NeptusLog.pub().info("<###> "+ret + " " + scw.getExitStatus());
 	}
 
 }

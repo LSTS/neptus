@@ -153,7 +153,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
         int[] pxy = MapTileUtil.tileXYToPixelXY(tileX, tileY);
         worldX = pxy[0];
         worldY = pxy[1];
-//        System.out.println(id + "  " + levelOfDetail + "  " + tileX + "  " + tileY + "  " + worldX + "  " + worldY);
+//        NeptusLog.pub().info("<###> "+id + "  " + levelOfDetail + "  " + tileX + "  " + tileY + "  " + worldX + "  " + worldY);
         loadOrCreateTileImage();
     }
 
@@ -500,7 +500,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
             return;
         
         String quadKey = MapTileUtil.tileXYToQuadKey(tileX, tileY, levelOfDetail);
-//        System.out.println(quadKey);
+//        NeptusLog.pub().info("<###> "+quadKey);
         
         int currentLevelOfDetailFromImageFromLowerLevelOfDetail = imageFromLowerLevelOfDetail == null ? 0
                 : levelOfDetailFromImageFromLowerLevelOfDetail;

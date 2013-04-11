@@ -279,8 +279,8 @@ public class SideScanConfigPanel extends JDialog {
 	public static void main(String args[]) {
 	    JFrame frame = new JFrame();
 		SideScanConfigPanel d = new SideScanConfigPanel(frame);
-		System.out.println(d.setSelectedFrequency("Low"));
-		System.out.println(d.setSelectedRange("15"));
+		NeptusLog.pub().info("<###> "+d.setSelectedFrequency("Low"));
+		NeptusLog.pub().info("<###> "+d.setSelectedRange("15"));
 		d.setModalityType(ModalityType.DOCUMENT_MODAL);
 		d.setVisible(true);
 		frame.dispose();

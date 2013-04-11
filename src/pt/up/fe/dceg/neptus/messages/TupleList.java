@@ -12,6 +12,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * Tuple list datum in the form of 'name1=value;name2=value2;'.
  * @author Eduardo Marques
@@ -153,11 +155,11 @@ public class TupleList implements Comparable<TupleList>
     public static void main(String[] args) throws InvalidFieldValueException
     {
       TupleList tl = new TupleList("x=0;y=abc;z=0.00;w=92.2;");
-      System.out.println(tl.get("z", Float.class));
+      NeptusLog.pub().info("<###> "+tl.get("z", Float.class));
       tl.set("z", 3.0f);
       tl.set("flag", true);
-      System.out.println(tl.get("z", Float.class));
-      System.out.println(tl.get("flag", Boolean.class));
-      System.out.println(tl);
+      NeptusLog.pub().info("<###> "+tl.get("z", Float.class));
+      NeptusLog.pub().info("<###> "+tl.get("flag", Boolean.class));
+      NeptusLog.pub().info("<###> "+tl);
     }
 }

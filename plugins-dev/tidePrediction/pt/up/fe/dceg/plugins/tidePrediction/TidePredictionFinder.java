@@ -205,8 +205,8 @@ public class TidePredictionFinder {
         }
         if (print) {
             NeptusLog.pub().info("<###>For " + date + " in " + harbor.toString());
-            System.out.println(predictions[0].toString());
-            System.out.println(predictions[1].toString());
+            NeptusLog.pub().info("<###> "+predictions[0].toString());
+            NeptusLog.pub().info("<###> "+predictions[1].toString());
         }
         return prediction;
     }

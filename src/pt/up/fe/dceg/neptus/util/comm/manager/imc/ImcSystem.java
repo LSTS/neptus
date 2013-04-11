@@ -1034,12 +1034,12 @@ public class ImcSystem implements Comparable<ImcSystem> {
 //		NeptusLog.pub().info("<###>Id: " + imcSystem.getId() +
 //				" | Name: " + imcSystem.getName() + 
 //				" | Type: " + imcSystem.getType());
-//		System.out.println(imcSystem.getInetSocketAddress());
+//		NeptusLog.pub().info("<###> "+imcSystem.getInetSocketAddress());
 //		imcSystem = new Imc3System(new ImcId16("e3:33"));
 //		NeptusLog.pub().info("<###>Id: " + imcSystem.getId() +
 //				" | Name: " + imcSystem.getName() + 
 //				" | Type: " + imcSystem.getType());
-//		System.out.println(imcSystem.getInetSocketAddress());
+//		NeptusLog.pub().info("<###> "+imcSystem.getInetSocketAddress());
 		
 		NeptusLog.pub().info("<###> " + translateSystemTypeFromMessage("CCU"));
 	}

@@ -482,8 +482,8 @@ public class Util3D {
 
             Shape3D shape = (Shape3D) node;
             /*
-             * if(node.isLive()) System.out.println(node+" node está vivo"); else if(node.isCompiled())
-             * System.out.println(node+" node está compilado"); else System.out.println(node+" node nem vivo nem comp");
+             * if(node.isLive()) NeptusLog.pub().info("<###> "+node+" node está vivo"); else if(node.isCompiled())
+             * NeptusLog.pub().info("<###> "+node+" node está compilado"); else NeptusLog.pub().info("<###> "+node+" node nem vivo nem comp");
              */
             PickTool.setCapabilities(node, PickTool.INTERSECT_FULL);
 

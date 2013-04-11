@@ -672,7 +672,7 @@ public class GraphType implements XmlOutputMethods {
         Maneuver[] mans = getAllManeuvers();
         
         for (int i = 0; i < mans.length; i++) {
-        	//System.out.println(mans[i].getId());
+        	//NeptusLog.pub().info("<###> "+mans[i].getId());
         	root.add(mans[i].asElement("node"));
         }
         

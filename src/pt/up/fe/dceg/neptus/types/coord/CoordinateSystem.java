@@ -612,19 +612,19 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     public static void main(String[] args) {
         CoordinateSystem c1 = new CoordinateSystem();
         CoordinateSystem c2 = c1.getNewAbsoluteLatLonDepth();
-        System.out.println(c1);
-        System.out.println(c2);
+        NeptusLog.pub().info("<###> "+c1);
+        NeptusLog.pub().info("<###> "+c2);
         
         LocationType l1 = new LocationType();
         LocationType l2 = l1.getNewAbsoluteLatLonDepth();
         LocationType l3 = c1.getNewAbsoluteLatLonDepth();
-        System.out.println(l1);
-        System.out.println(l2);
-        System.out.println(l3);
+        NeptusLog.pub().info("<###> "+l1);
+        NeptusLog.pub().info("<###> "+l2);
+        NeptusLog.pub().info("<###> "+l3);
         try {
             c2 = l1.getNewAbsoluteLatLonDepth();
-            System.out.println(l1);
-            System.out.println(c2);
+            NeptusLog.pub().info("<###> "+l1);
+            NeptusLog.pub().info("<###> "+c2);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -640,14 +640,14 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
         cc2.fromClipboardText(cc1.getClipboardText());
         LocationType ll2 = new LocationType();
         ll2.fromClipboardText(cc2.getClipboardText());
-        System.out.println(l1);
-        System.out.println(cc1);
-        System.out.println(ll1);
-        System.out.println(cc2);
-        System.out.println(ll2);
+        NeptusLog.pub().info("<###> "+l1);
+        NeptusLog.pub().info("<###> "+cc1);
+        NeptusLog.pub().info("<###> "+ll1);
+        NeptusLog.pub().info("<###> "+cc2);
+        NeptusLog.pub().info("<###> "+ll2);
         
         
-        System.out.println(l1.asXML());        
-        System.out.println(c1.asXML());
+        NeptusLog.pub().info("<###> "+l1.asXML());        
+        NeptusLog.pub().info("<###> "+c1.asXML());
     }
 }

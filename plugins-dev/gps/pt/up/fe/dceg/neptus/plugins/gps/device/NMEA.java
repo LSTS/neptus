@@ -36,6 +36,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * NMEA Parser.
  * 
@@ -358,7 +360,7 @@ public class NMEA {
             chunks.add(new String(chunk.array(), 0, chunkIdx, "US-ASCII"));
         }
         catch (UnsupportedEncodingException e) {
-            System.out.println(e);
+            NeptusLog.pub().info("<###> "+e);
         }
 
         chunk.clear();

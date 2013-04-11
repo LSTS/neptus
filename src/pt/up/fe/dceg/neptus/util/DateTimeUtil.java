@@ -36,6 +36,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author pdias
  *
@@ -137,12 +139,12 @@ public class DateTimeUtil {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		System.out.println(getUID());
-		System.out.println(dateTimeFileNameFormater.format(new Date(System.currentTimeMillis())));
+		NeptusLog.pub().info("<###> "+getUID());
+		NeptusLog.pub().info("<###> "+dateTimeFileNameFormater.format(new Date(System.currentTimeMillis())));
         
-		System.out.println(milliSecondsToFormatedString(HOUR*24));
-        System.out.println(milliSecondsToFormatedString(HOUR*36+MINUTE*30));
-        System.out.println(milliSecondsToFormatedString(DAY*78+HOUR*36+MINUTE*30));
+		NeptusLog.pub().info("<###> "+milliSecondsToFormatedString(HOUR*24));
+        NeptusLog.pub().info("<###> "+milliSecondsToFormatedString(HOUR*36+MINUTE*30));
+        NeptusLog.pub().info("<###> "+milliSecondsToFormatedString(DAY*78+HOUR*36+MINUTE*30));
 
 		int i = 0;
 		while (i++ < 10) {
@@ -155,7 +157,7 @@ public class DateTimeUtil {
 			System.out.printf("" + m + "  " + n + "  " + nn + "  " + (m - n) + "\n");
 		}
 		
-		System.out.println(dateTimeFormater2UTC.format(new Date()));
-		System.out.println(new Date());
+		NeptusLog.pub().info("<###> "+dateTimeFormater2UTC.format(new Date()));
+		NeptusLog.pub().info("<###> "+new Date());
 	}
 }

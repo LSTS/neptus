@@ -629,7 +629,7 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
 
             }
             catch (NullPointerException e) {
-                System.out.println(bounds + "," + dps + "," + image + "," + cmapCombo);
+                NeptusLog.pub().info("<###> "+bounds + "," + dps + "," + image + "," + cmapCombo);
             }
 
             // Clip with CHull

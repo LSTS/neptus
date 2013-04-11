@@ -282,9 +282,9 @@ public class NetworkInterfacesUtil {
 
 		InetAddress ii = new  InetSocketAddress("192.168.106.30", 6002).getAddress();
 		try {
-			System.out.println(ii.isReachable(2000));
+			NeptusLog.pub().info("<###> "+ii.isReachable(2000));
 			ii = new  InetSocketAddress("192.168.56.2", 6002).getAddress();
-			System.out.println(ii.isReachable(2000));
+			NeptusLog.pub().info("<###> "+ii.isReachable(2000));
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

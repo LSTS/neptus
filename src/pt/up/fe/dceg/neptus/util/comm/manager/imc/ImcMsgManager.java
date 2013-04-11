@@ -750,7 +750,7 @@ public class ImcMsgManager extends
             imcState.setMessage(msg);
             
             vci = getCommInfoById(id);
-            // System.out.println(localId + " " + id);
+            // NeptusLog.pub().info("<###> "+localId + " " + id);
             if (!ImcId16.NULL_ID.equals(id) && !ImcId16.BROADCAST_ID.equals(id) && !ImcId16.ANNOUNCE.equals(id)
                     && !localId.equals(id)) {
                 if (Announce.ID_STATIC == msg.getMgid()) {
@@ -783,7 +783,7 @@ public class ImcMsgManager extends
                                     + vci.getSystemCommId() + ".");
                     vci.onMessage(info, msg);
 //                    bus.post(msg);
-                    //System.out.println(msg.hashCode());
+                    //NeptusLog.pub().info("<###> "+msg.hashCode());
                     return true;
                 }
             }

@@ -78,7 +78,7 @@ public class TileVirtualEarth extends TileHttpFetcher {
                    cell += 2;
                ret = ret + cell;
            }
-           System.out.println(ret);
+           NeptusLog.pub().info("<###> "+ret);
            return ret;
        }
 */

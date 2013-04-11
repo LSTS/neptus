@@ -236,7 +236,7 @@ public class XMLUtil {
         NeptusLog.pub().info("<###>'"+getAsPrettyPrintFormatedXMLString(test)+"'");
         
         Document doc = createDocumentFromXmlString("<root>fd" + test + "</root>");
-        System.out.println(nodeToString(doc.getDocumentElement()));
-        System.out.println(nodeChildsToString(doc.getDocumentElement()));
+        NeptusLog.pub().info("<###> "+nodeToString(doc.getDocumentElement()));
+        NeptusLog.pub().info("<###> "+nodeChildsToString(doc.getDocumentElement()));
     }
 }

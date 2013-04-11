@@ -348,7 +348,7 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
                     parser.firstLogEntry();
                 
                 if ((entry = parser.getEntryAtOrAfter((long) (missionTime * 1000))) != null) {
-                    System.out.println(entry.getSrc());
+                    NeptusLog.pub().info("<###> "+entry.getSrc());
                     currentTime = entry.getTimestamp();
                     setState(entry);
 

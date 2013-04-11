@@ -384,14 +384,14 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                 if (option.toString().endsWith("js")) {
                     ScriptedPlanTemplate planTemplate = new ScriptedPlanTemplate();
                     String source = FileUtil.getFileAsString(scriptsDir + option);
-                    // System.out.println(scriptsDir+option+":\n"+source);
+                    // NeptusLog.pub().info("<###> "+scriptsDir+option+":\n"+source);
                     planTemplate.setSource(source);
 
                     planTemplate.setMission(getConsole().getMission());
                     PropertiesEditor.editProperties(planTemplate, true);
                     try {
                         plan = planTemplate.generatePlan();
-                        // System.out.println(plan.asXML());
+                        // NeptusLog.pub().info("<###> "+plan.asXML());
                     }
                     catch (Exception e) {
                         e.printStackTrace();
@@ -405,7 +405,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                             break;
                         }
                         else {
-                            System.out.println(option + " != " + PluginUtils.getPluginName(classes[i]));
+                            NeptusLog.pub().info("<###> "+option + " != " + PluginUtils.getPluginName(classes[i]));
                         }
                     }
 

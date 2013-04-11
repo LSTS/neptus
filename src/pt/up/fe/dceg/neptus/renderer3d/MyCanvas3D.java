@@ -125,7 +125,7 @@ class MyCanvas3D extends Canvas3D {
 		Transform3D temp = new Transform3D();
 		this.getVworldToImagePlate(temp);
 		temp.transform(point3d);
-		//System.out.println(point3d.z);
+		//NeptusLog.pub().info("<###> "+point3d.z);
 		
 		Point2d point2d = new Point2d();
 		if (point3d.z>0.0 )
@@ -140,7 +140,7 @@ class MyCanvas3D extends Canvas3D {
 		Transform3D temp = new Transform3D();
 		this.getVworldToImagePlate(temp);
 		temp.transform(point3d);
-		//System.out.println(point3d.z);
+		//NeptusLog.pub().info("<###> "+point3d.z);
 		
 		Point2d point2d = new Point2d();
 		if(camera.projection==View.PARALLEL_PROJECTION)

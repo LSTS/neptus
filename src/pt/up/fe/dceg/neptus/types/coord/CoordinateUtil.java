@@ -99,11 +99,11 @@ public class CoordinateUtil {
             return null;
 
         strt = new StringTokenizer(coord, DELIM);
-        // System.out.println(strt.countTokens());
+        // NeptusLog.pub().info(strt.countTokens());
         if ((strt.countTokens() < 1) | (strt.countTokens() > 3))
             return null;
         for (int i = 1; strt.hasMoreTokens(); i++) {
-            // System.out.println(strt.nextToken());
+            // NeptusLog.pub().info(strt.nextToken());
             result[i] = strt.nextToken();
             // Tries to see if the value is a valid double number
             try {
@@ -669,11 +669,11 @@ public class CoordinateUtil {
 //        lt2.setLongitude(longitude + 1);
 //
 //        double metersPerLongitudeDegree = lt2.getDistanceInMeters(lt1);
-//        // NeptusLog.pub().info("<###>metersPerLongitudeDegree="+metersPerLongitudeDegree);
+//        // NeptusLog.pub().info("metersPerLongitudeDegree="+metersPerLongitudeDegree);
 //        double lat = latitude + northOffset / metersPerLatitudeDegree;
 //        double lon = longitude + eastOffset / metersPerLongitudeDegree;
 //
-//        // NeptusLog.pub().info("<###>Result: "+lat+", "+lon);
+//        // NeptusLog.pub().info("Result: "+lat+", "+lon);
 //
 //        return new double[] { lat, lon };
 //    }
@@ -769,7 +769,7 @@ public class CoordinateUtil {
 //        double lat_rad = lat * Math.PI / 180;
 //        double n = (alat - lat) * (111132.92 - 559.82 * Math.cos(2 * lat_rad) + 1.175 * Math.cos(4 * lat_rad));
 //        double e = (alon - lon) * (111412.84 * Math.cos(lat_rad) - 93.5 * Math.cos(3 * lat_rad));
-//        // NeptusLog.pub().info("<###>n/e: " + n + " ;" + e);
+//        // NeptusLog.pub().info("n/e: " + n + " ;" + e);
 //        double[] NE = new double[2];
 //        NE[0] = n;
 //        NE[1] = e;
@@ -1575,7 +1575,7 @@ public class CoordinateUtil {
 
     public static void main(String[] args) {
 
-        System.out.println(heading3DigitsFormat.format(34));
+        NeptusLog.pub().info(heading3DigitsFormat.format(34));
         
         LocationType locA = new LocationType();
         locA.setLatitude("41N10.6938");
@@ -1632,25 +1632,25 @@ public class CoordinateUtil {
             LocationType loc1 = locations[i];
             LocationType loc2 = locations[++i];
 
-            NeptusLog.pub().info("<###>_______________________________________________________________________________");
-            NeptusLog.pub().info("<###>>>> " + obs[i / 2] + " <<<");
+            NeptusLog.pub().info("_______________________________________________________________________________");
+            NeptusLog.pub().info(">>> " + obs[i / 2] + " <<<");
             System.out
                     .println("loc1: {" + loc1.getLatitudeAsDoubleValue() + "\u00B0, " + loc1.getLongitudeAsDoubleValue() + "\u00B0, " + loc1.getDepth() + "]");
             System.out
                     .println("loc2: {" + loc2.getLatitudeAsDoubleValue() + "\u00B0, " + loc2.getLongitudeAsDoubleValue() + "\u00B0, " + loc1.getDepth() + "]");
 
             double[] diff1 = loc1.getOffsetFrom(loc2);
-            NeptusLog.pub().info("<###>loc1.getOffsetFrom(loc2)\t\t[" + diff1[0] + ", " + diff1[1] + ", " + diff1[2] + "]");
+            NeptusLog.pub().info("loc1.getOffsetFrom(loc2)\t\t[" + diff1[0] + ", " + diff1[1] + ", " + diff1[2] + "]");
 
             double[] neDiff = CoordinateUtil.latLonDiff(loc2.latitude, loc2.longitude, loc1.latitude, loc1.longitude);
-            NeptusLog.pub().info("<###>loc1.getOffsetFromWorker(loc2)\t\t[" + neDiff[0] + ", " + neDiff[1] + ", " + 0 + "]");
+            NeptusLog.pub().info("loc1.getOffsetFromWorker(loc2)\t\t[" + neDiff[0] + ", " + neDiff[1] + ", " + 0 + "]");
 
             double[] locC1 = CoordinateUtil.latLonDepthToGeocentricXYZ(loc1.getLatitudeAsDoubleValue(), loc1.getLongitudeAsDoubleValue(), loc1.getDepth());
-            NeptusLog.pub().info("<###>latLonDepthToGeocentricXYZ:loc1 \t[[" + locC1[0] + ", " + locC1[1] + ", " + locC1[2] + "]]");
+            NeptusLog.pub().info("latLonDepthToGeocentricXYZ:loc1 \t[[" + locC1[0] + ", " + locC1[1] + ", " + locC1[2] + "]]");
             double[] locC2 = CoordinateUtil.latLonDepthToGeocentricXYZ(loc2.getLatitudeAsDoubleValue(), loc2.getLongitudeAsDoubleValue(), loc2.getDepth());
-            NeptusLog.pub().info("<###>latLonDepthToGeocentricXYZ:loc2 \t[[" + locC2[0] + ", " + locC2[1] + ", " + locC2[2] + "]]");
+            NeptusLog.pub().info("latLonDepthToGeocentricXYZ:loc2 \t[[" + locC2[0] + ", " + locC2[1] + ", " + locC2[2] + "]]");
             double[] diff2 = { locC1[0] - locC2[0], locC1[1] - locC2[1], locC1[2] - locC2[2] };
-            NeptusLog.pub().info("<###>diff of latLonDepthToGeocentricXYZ \t[" + diff2[0] + ", \t" + diff2[1] + ", \t" + diff2[2] + "]");
+            NeptusLog.pub().info("diff of latLonDepthToGeocentricXYZ \t[" + diff2[0] + ", \t" + diff2[1] + ", \t" + diff2[2] + "]");
             double ox = locC1[0] - locC2[0];
             double oy = locC1[1] - locC2[1];
             double oz = locC1[2] - locC2[2];
@@ -1660,50 +1660,47 @@ public class CoordinateUtil {
             double clon = Math.cos(loc2.getLongitudeAsDoubleValueRads());
             double n = -slat * clon * ox - slat * slon * oy + clat * oz; // North
             double e = -slon * ox + clon * oy; // East
-            NeptusLog.pub().info("<###>diff similar to dune \t\t\t[" + n + ", \t" + e + ", \t" + 0 + "]");
+            NeptusLog.pub().info("diff similar to dune \t\t\t[" + n + ", \t" + e + ", \t" + 0 + "]");
 
             double[] locC3 = CoordinateUtil.WGS84displacement(loc2, loc1);
-            NeptusLog.pub().info("<###>WGS84displacement(loc2, loc1) \t\t[" + locC3[0] + ", \t" + locC3[1] + ", \t" + locC3[2] + "]");
+            NeptusLog.pub().info("WGS84displacement(loc2, loc1) \t\t[" + locC3[0] + ", \t" + locC3[1] + ", \t" + locC3[2] + "]");
             double[] diffPx = MapTileUtil.getOffsetFrom(loc2.latitude, loc2.longitude, loc1.latitude, loc1.longitude);
-            NeptusLog.pub().info("<###>MapTileUtil.getOffsetFrom(loc2, loc1) \t[" + diffPx[0] + ", \t" + diffPx[1] + ", \t" + 0 + "]");
+            NeptusLog.pub().info("MapTileUtil.getOffsetFrom(loc2, loc1) \t[" + diffPx[0] + ", \t" + diffPx[1] + ", \t" + 0 + "]");
 
-            NeptusLog.pub().info("<###>_______________________________________________________________________________");
-        }
-        System.out.println();
+            NeptusLog.pub().info("_______________________________________________________________________________");
+        }        
 
         // 41N3.6117
         // 8W27.4009
         String te = "41N3.6117";
         String[] st = CoordinateUtil.parseLatitudeCoordToStringArray(te);
-        System.out.println(st[1] + st[0] + st[2] + " " + st[3]);
-        System.out.println(CoordinateUtil.parseLatitudeCoordToDoubleValue(te));
-        // System.out.println(CoordinateUtil.strtolat(te));
+        NeptusLog.pub().info(st[1] + st[0] + st[2] + " " + st[3]);
+        NeptusLog.pub().info(CoordinateUtil.parseLatitudeCoordToDoubleValue(te));
+        // NeptusLog.pub().info(CoordinateUtil.strtolat(te));
 
         te = "8W27.4009";
         st = CoordinateUtil.parseLongitudeCoordToStringArray(te);
-        System.out.println(st[1] + st[0] + st[2] + " " + st[3]);
-        System.out.println(CoordinateUtil.parseLongitudeCoordToDoubleValue(te));
-//        System.out.println(CoordinateUtil.strtolon(te));
+        NeptusLog.pub().info(st[1] + st[0] + st[2] + " " + st[3]);
+        NeptusLog.pub().info(CoordinateUtil.parseLongitudeCoordToDoubleValue(te));
+//        NeptusLog.pub().info(CoordinateUtil.strtolon(te));
 
-        NeptusLog.pub().info("<###>\nVandalizado por RG em 20/1/2005");
-        NeptusLog.pub().info("<###>rotation of pi/2 of point (1,1,1). The result should be (-1,1,1)");
+        NeptusLog.pub().info("\nVandalizado por RG em 20/1/2005");
+        NeptusLog.pub().info("rotation of pi/2 of point (1,1,1). The result should be (-1,1,1)");
         double[] teste = CoordinateUtil.bodyFrameToInertialFrame(1, 1, 1, 0, 0, Math.PI / 2);
-        System.out.println(teste[0] + " " + teste[1] + " " + teste[2]);
+        NeptusLog.pub().info(teste[0] + " " + teste[1] + " " + teste[2]);
 
-        NeptusLog.pub().info("<###>rotation of -pi/2 of point (-1,1,1). The result should be initial (1,1,1)");
+        NeptusLog.pub().info("rotation of -pi/2 of point (-1,1,1). The result should be initial (1,1,1)");
         teste = CoordinateUtil.inertialFrameToBodyFrame(-1, 1, 1, 0, 0, Math.PI / 2);
-        System.out.println(teste[0] + " " + teste[1] + " " + teste[2]);
+        NeptusLog.pub().info(teste[0] + " " + teste[1] + " " + teste[2]);
 
-        System.out.println();
-        NeptusLog.pub().info("<###>>>> Test latLonDepthToGeocentricXYZ and geocentricXYZToLatLonDepth:");
+        NeptusLog.pub().info(">>> Test latLonDepthToGeocentricXYZ and geocentricXYZToLatLonDepth:");
         double latLonDep[] = new double[] { 41.3433, -8.2334, 100 };
         double rev[] = latLonDepthToGeocentricXYZ(latLonDep[0], latLonDep[1], latLonDep[2]);
         double latLonDep2[] = geocentricXYZToLatLonDepth(rev);
-        NeptusLog.pub().info("<###>Lat: " + latLonDep[0] + ", Lon: " + latLonDep[1] + ", Dep: " + latLonDep[2]);
-        NeptusLog.pub().info("<###>X: " + rev[0] + ", Y: " + rev[1] + ", Z: " + rev[2]);
-        NeptusLog.pub().info("<###>Lat: " + latLonDep2[0] + ", Lon: " + latLonDep2[1] + ", Dep: " + latLonDep2[2]);
+        NeptusLog.pub().info("Lat: " + latLonDep[0] + ", Lon: " + latLonDep[1] + ", Dep: " + latLonDep[2]);
+        NeptusLog.pub().info("X: " + rev[0] + ", Y: " + rev[1] + ", Z: " + rev[2]);
+        NeptusLog.pub().info("Lat: " + latLonDep2[0] + ", Lon: " + latLonDep2[1] + ", Dep: " + latLonDep2[2]);
 
-        System.out.println();
 
         LocationType lt1 = new LocationType();
         lt1.setLatitude(41);
@@ -1724,7 +1721,7 @@ public class CoordinateUtil {
         LocationType lt3 = new LocationType(lt1);
         lt3.translatePosition(offs[0], offs[1], offs[2]);
 
-        System.out.println(lt3.getDistanceInMeters(lt2));
+        NeptusLog.pub().info(lt3.getDistanceInMeters(lt2));
 
         // lt1.translatePosition(340, 45, -3);
         // lt1.translatePosition(-34, 450, 34);
@@ -1745,38 +1742,38 @@ public class CoordinateUtil {
         /*
          * LocationType lt2 = new LocationType(); lt2.setLatitude(42.655); lt2.setLongitude(-8.0012); double offLong = lt2.getOffsetFrom(lt1)[1]; double offLat
          * = lt2.getOffsetFrom(lt1)[0]; double[] newCoords = latLonAddNE2(41, -8, 183749.21572828665, -2237.252129562752);
-         * NeptusLog.pub().info("<###>Offset lat: "+offLat+", Offset lon: "+offLong); lt2.setLatitude(newCoords[0]); lt2.setLongitude(newCoords[1]); offLong =
-         * lt2.getOffsetFrom(lt1)[1]; offLat = lt2.getOffsetFrom(lt1)[0]; NeptusLog.pub().info("<###>Offset lat: "+offLat+", Offset lon: "+offLong);
-         * NeptusLog.pub().info("<###>lat: "+newCoords[0]+", lon: "+newCoords[1]);
+         * NeptusLog.pub().info("Offset lat: "+offLat+", Offset lon: "+offLong); lt2.setLatitude(newCoords[0]); lt2.setLongitude(newCoords[1]); offLong =
+         * lt2.getOffsetFrom(lt1)[1]; offLat = lt2.getOffsetFrom(lt1)[0]; NeptusLog.pub().info("Offset lat: "+offLat+", Offset lon: "+offLong);
+         * NeptusLog.pub().info("lat: "+newCoords[0]+", lon: "+newCoords[1]);
          */
-        System.out.println(latitudeAsPrettyString(39.543, false));
+        NeptusLog.pub().info(latitudeAsPrettyString(39.543, false));
 
         double lat1 = 41.3456345678343434;
         String lat1Str = dmsToLatString(CoordinateUtil.decimalDegreesToDMS(lat1));
         double lat1M = CoordinateUtil.parseLatitudeCoordToDoubleValue(lat1Str);
-        NeptusLog.pub().info("<###>--------------------------------------------------------");
-        System.out.println(lat1);
-        System.out.println(lat1Str);
-        System.out.println(lat1M);
-        System.out.println(latitudeAsPrettyString(lat1, true));
+        NeptusLog.pub().info("--------------------------------------------------------");
+        NeptusLog.pub().info(lat1);
+        NeptusLog.pub().info(lat1Str);
+        NeptusLog.pub().info(lat1M);
+        NeptusLog.pub().info(latitudeAsPrettyString(lat1, true));
         
-        NeptusLog.pub().info("<###>_________________________________________________________");
-        System.out.println(locC);
+        NeptusLog.pub().info("_________________________________________________________");
+        NeptusLog.pub().info(locC);
         
-        System.out.println(CoordinateUtil.latitudeAsString(0.56, true));
-        System.out.println(CoordinateUtil.latitudeAsString(1.06, true));
-        System.out.println(CoordinateUtil.latitudeAsString(-0.56, true));
-        System.out.println(CoordinateUtil.latitudeAsString(-1.06, true));
+        NeptusLog.pub().info(CoordinateUtil.latitudeAsString(0.56, true));
+        NeptusLog.pub().info(CoordinateUtil.latitudeAsString(1.06, true));
+        NeptusLog.pub().info(CoordinateUtil.latitudeAsString(-0.56, true));
+        NeptusLog.pub().info(CoordinateUtil.latitudeAsString(-1.06, true));
 
-        System.out.println(CoordinateUtil.longitudeAsString(0.56, true));
-        System.out.println(CoordinateUtil.longitudeAsString(1.06, true));
-        System.out.println(CoordinateUtil.longitudeAsString(-0.56, true));
-        System.out.println(CoordinateUtil.longitudeAsString(-1.06, true));
+        NeptusLog.pub().info(CoordinateUtil.longitudeAsString(0.56, true));
+        NeptusLog.pub().info(CoordinateUtil.longitudeAsString(1.06, true));
+        NeptusLog.pub().info(CoordinateUtil.longitudeAsString(-0.56, true));
+        NeptusLog.pub().info(CoordinateUtil.longitudeAsString(-1.06, true));
 
-        NeptusLog.pub().info("<###>_________________________________________________________");
+        NeptusLog.pub().info("_________________________________________________________");
 
         LocationType locA1 = new LocationType(0, 0);
         LocationType locA2 = new LocationType(0.000001, 0);
-        System.out.println(locA1.getDistanceInMeters(locA2));
+        NeptusLog.pub().info(locA1.getDistanceInMeters(locA2));
     }
 }

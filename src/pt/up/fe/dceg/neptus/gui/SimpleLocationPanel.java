@@ -47,6 +47,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
@@ -190,6 +191,6 @@ public class SimpleLocationPanel extends JPanel {
         GuiUtils.setLookAndFeel();
         LocationType lt = new LocationType();
         lt = showHorizontalLocationDialog(lt, "Testing LocationDialog", true, null);
-        System.out.println(lt);
+        NeptusLog.pub().info("<###> "+lt);
     }
 }

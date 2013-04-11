@@ -56,6 +56,7 @@ import org.apache.batik.transcoder.print.PrintTranscoder;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.jfree.chart.JFreeChart;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
@@ -276,10 +277,8 @@ public class LsfReport {
                 llfCharts.add(chart);
             }
             catch (Exception e) {
-
+                NeptusLog.pub().error(e);
             }
-
-            System.out.println();
         }
 
         Rectangle pageSize = PageSize.A4.rotate();

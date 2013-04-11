@@ -147,6 +147,6 @@ public class LocationTypeTest extends TestCase {
 		//LocationType third = new LocationType();
 		
 		//third.setOffsetNorth(552871.375);
-		//System.out.println(third.getOffsetFrom(new LocationType())[0]);
+		//NeptusLog.pub().info("<###> "+third.getOffsetFrom(new LocationType())[0]);
 	}
 }

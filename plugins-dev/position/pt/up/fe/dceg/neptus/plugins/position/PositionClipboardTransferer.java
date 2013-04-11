@@ -101,7 +101,7 @@ public class PositionClipboardTransferer extends SimpleSubPanel {
 				loc.setLatitude(lat);
 				loc.setLongitude(lon);
 				
-				System.out.println(loc);
+				NeptusLog.pub().info("<###> "+loc);
 				
 				CoordinateUtil.copyToClipboard(loc);
 			}

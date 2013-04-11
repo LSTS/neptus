@@ -48,6 +48,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
 import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
@@ -358,7 +359,7 @@ public class MissionInfoPanel extends ParametersPanel implements ActionListener 
          MissionType mt = new MissionType();
          
          mt =  MissionInfoPanel.changeMissionParameters(mt);
-         System.out.println(mt);
+         NeptusLog.pub().info("<###> "+mt);
     }
     public MissionType getMission() {
         return mission;

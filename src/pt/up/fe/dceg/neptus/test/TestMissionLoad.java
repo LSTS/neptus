@@ -201,8 +201,8 @@ public class TestMissionLoad
     {
         TestMissionLoad tr = new TestMissionLoad();
         tr.run();
-        System.out.println(System.getProperty("user.name", "unknown"));
-        System.out.println(System.getProperty("user.home", "."));
-        System.out.println(System.getProperty("user.dir", "."));
+        NeptusLog.pub().info("<###> "+System.getProperty("user.name", "unknown"));
+        NeptusLog.pub().info("<###> "+System.getProperty("user.home", "."));
+        NeptusLog.pub().info("<###> "+System.getProperty("user.dir", "."));
     }
 }

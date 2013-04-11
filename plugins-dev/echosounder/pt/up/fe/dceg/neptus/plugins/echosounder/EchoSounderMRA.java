@@ -131,7 +131,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
             if(msg.getInteger("type") == SonarData.TYPE.ECHOSOUNDER.value()) {
                 int y = 0;
                 for(byte b : msg.getRawData("data")) {
-                    //                    System.out.println(x + " " + y + " " + b + " " + new Byte(b).doubleValue() + " " + colormap.getColor(new Byte(b).doubleValue()).getBlue());
+                    //                    NeptusLog.pub().info("<###> "+x + " " + y + " " + b + " " + new Byte(b).doubleValue() + " " + colormap.getColor(new Byte(b).doubleValue()).getBlue());
                     image.setRGB(x, imageHeight - y - 1, colormap.getColor(new Byte(b).doubleValue() * 2 / 255).getRGB());
                     y++;
                 }
@@ -168,7 +168,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     }
     @Override
     public void paint(Graphics g) {
-        System.out.println(this.getWidth() + " " + this.getHeight());
+        NeptusLog.pub().info("<###> "+this.getWidth() + " " + this.getHeight());
         g.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), 0, 0, imageWidth, imageHeight,null);
     }
 

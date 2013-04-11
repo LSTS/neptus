@@ -123,8 +123,8 @@ public class ConsoleScript implements PropertyType {
         
 		
 		this.variables = vars;
-		//System.out.println(script);
-        //System.out.println(this.variables);
+		//NeptusLog.pub().info("<###> "+script);
+        //NeptusLog.pub().info("<###> "+this.variables);
 		
 		//String s = "function ask(str) { return javax.swing.JOptionPane.showInputDialog(str); }\n";
 		compile(script);

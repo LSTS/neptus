@@ -592,7 +592,7 @@ implements PropertyChangeListener
         for(Component c : list) {
         	//NeptusLog.pub().info("<###>antes de tentar");
         	try {			
-        		//System.out.println(c);
+        		//NeptusLog.pub().info("<###> "+c);
         		ci.addAutoSubItem( ((CheckSubItem) c).getCheckAutoSubItem());
         		//NeptusLog.pub().info("<###>adicionou");
         	}

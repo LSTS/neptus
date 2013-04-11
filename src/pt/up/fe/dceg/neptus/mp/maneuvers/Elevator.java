@@ -323,7 +323,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
         loc.setLatitude(Math.toDegrees(elev.getLat()));
         loc.setLongitude(Math.toDegrees(elev.getLon()));
         loc.setZ(elev.getEndZ());
-        System.out.println(elev.getEndZUnits());
+        NeptusLog.pub().info("<###> "+elev.getEndZUnits());
 //        loc.setZUnits(pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(elev.getEndZUnits().toString()));
         loc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(message.getString("end_z_units").toString()));
         setManeuverLocation(loc);

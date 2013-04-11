@@ -547,7 +547,7 @@ public class RemotePositionFetcherUpdater extends SimpleSubPanel implements IPer
      * @param msg
      */
     private void processWebCCUMessage(MessageInfo info, IMCMessage msg) {
-        // System.out.println(msg.asJSON());
+        // NeptusLog.pub().info("<###> "+msg.asJSON());
 
         if ("PlanSpecification".equalsIgnoreCase(msg.getAbbrev())) {
             try {

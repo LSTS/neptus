@@ -872,7 +872,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         g.drawImage(stage,0,0,getWidth(), getHeight(),null);
         forceRepaint = false;
         lastPaintTime = System.currentTimeMillis();
-//        System.out.println((System.nanoTime() - nt) / Math.pow(10,6));
+//        NeptusLog.pub().info("<###> "+(System.nanoTime() - nt) / Math.pow(10,6));
     }
 
     /**
@@ -991,7 +991,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         Graphics2D original = g2d;
         if (lockedVehicle != null && vehicleStates.get(lockedVehicle) != null) {
             SystemPositionAndAttitude state = vehicleStates.get(lockedVehicle);
-            // System.out.println(state);
+            // NeptusLog.pub().info("<###> "+state);
             LocationType loc = new LocationType(state.getPosition());
             loc.convertToAbsoluteLatLonDepth();
             setRotation(state.getYaw());

@@ -98,7 +98,7 @@ public class JsfParser {
                     buf.order(ByteOrder.LITTLE_ENDIAN);
                     ping.parseHeader(buf);
                     curPosition += header.getMessageSize();
-//                     System.out.println(ping.getPingNumber() + " " + ping.getTimestamp() + " " +
+//                     NeptusLog.pub().info("<###> "+ping.getPingNumber() + " " + ping.getTimestamp() + " " +
 //                     ping.getNumberOfSamples() + " " +
 //                     ping.getFrequency() + " "
 //                     + ping.getHeader().getSubsystem() + " " + ping.getHeader().getChannel());
@@ -246,7 +246,7 @@ public class JsfParser {
         JsfParser parser = new JsfParser(new File("/home/jqcorreia/lsts/logs/182142_edgetch_sweep/Data.jsf"));
     
         for(Integer i : parser.index.subSystemsList) {
-            System.out.println(i);
+            NeptusLog.pub().info("<###> "+i);
         }
     }
 }

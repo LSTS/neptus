@@ -81,7 +81,7 @@ public class SubPlan extends Maneuver implements IMCSerialization {
 	@Override
 	public void paintOnMap(Graphics2D g2d, PlanElement planElement,
 			StateRenderer2D renderer) {
-		System.out.println(subplan);
+		NeptusLog.pub().info("<###> "+subplan);
 		if (drawSubPlan) {
 			if (subplan == null) {
 				PlanType plan = planElement.getMissionType().getIndividualPlansList().get(planId);
@@ -109,7 +109,7 @@ public class SubPlan extends Maneuver implements IMCSerialization {
 		Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
     	DefaultProperty plan_id = PropertiesEditor.getPropertyInstance("Plan to execute", String.class, getPlanId(), true);
     	
-    	System.out.println(getMissionType());
+    	NeptusLog.pub().info("<###> "+getMissionType());
     	//String[] planIds = getMissionType().getIndividualPlansList().keySet().toArray(new String[0]);
     	//PropertiesEditor.getPropertyEditorRegitry().registerEditor(plan_id, new ComboEditor(planIds));
     	properties.add(plan_id);

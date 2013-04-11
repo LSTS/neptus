@@ -245,7 +245,7 @@ public class LsfLogSource implements IMraLogGroup {
     
     public static void main(String[] args) throws Exception {
         LsfLogSource source = new LsfLogSource("/home/jqcorreia/Desktop/merge2/Data.lsf", null);
-//        System.out.println(source.listLogs());
-        System.out.println(source.getVehicleSources().size()+ "sfsfsf ");
+//        NeptusLog.pub().info("<###> "+source.listLogs());
+        NeptusLog.pub().info("<###> "+source.getVehicleSources().size()+ "sfsfsf ");
     }
 }

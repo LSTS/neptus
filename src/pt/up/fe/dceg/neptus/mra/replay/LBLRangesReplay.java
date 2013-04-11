@@ -189,7 +189,7 @@ public class LBLRangesReplay implements LogReplayLayer {
             double range = message.getDouble("range");
             String accep = message.getString("acceptance");
             String reason = message.getString("reason");
-            // if (reason != null) System.out.println(reason);
+            // if (reason != null) NeptusLog.pub().info("<###> "+reason);
 
             
             RangePainter rp = rangeFixPainter.get(id);

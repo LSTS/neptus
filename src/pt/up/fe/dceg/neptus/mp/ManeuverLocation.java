@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.mp;
 import org.dom4j.Document;
 import org.dom4j.Node;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
 /**
@@ -139,7 +140,7 @@ public class ManeuverLocation extends LocationType {
         String xml = loc.asXML();
         ManeuverLocation loc2 = new ManeuverLocation();
         loc2.load(xml);
-        System.out.println(loc2.asXML());
+        NeptusLog.pub().info("<###> "+loc2.asXML());
         
     }
 }

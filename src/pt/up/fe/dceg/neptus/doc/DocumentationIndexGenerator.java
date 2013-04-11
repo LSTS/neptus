@@ -39,6 +39,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 
 /**
  * This class provides a program that generates the manual index to be used in the Neptus Help window
@@ -62,7 +64,7 @@ public class DocumentationIndexGenerator {
                 String className = f.getName().substring(0, f.getName().length()-5);
                 if (curPackage.length() > 0)
                     className = curPackage+"."+className;
-                System.out.println(className);
+                NeptusLog.pub().info("<###> "+className);
                 try {                          
                     Class<?> c = Class.forName(className);
                     DocumentationWrapper wrapper = new DocumentationWrapper(c);

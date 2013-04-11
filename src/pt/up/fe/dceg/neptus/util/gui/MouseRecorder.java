@@ -52,6 +52,8 @@ import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author zp
  */
@@ -119,7 +121,7 @@ public class MouseRecorder implements AWTEventListener {
         Point point = mouseEvent.getLocationOnScreen();
         switch (event.getID()) {
             case MouseEvent.MOUSE_CLICKED:
-                System.out.println(MouseEvent.BUTTON1 & event.getID());
+                NeptusLog.pub().info("<###> "+(MouseEvent.BUTTON1 & event.getID()));
                 // desenhar click e passar event
                 createSnapshot(point, leftClick);
                 DelayedSnapshot timerTask = new DelayedSnapshot();

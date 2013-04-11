@@ -37,6 +37,7 @@ import javax.swing.SwingUtilities;
 
 import org.dom4j.Element;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.MessageEditorImc;
@@ -112,7 +113,7 @@ public class OptionsConfiguration implements PropertiesProvider {
 	public static void main(String[] args) {
 	    String[] sp = "CATWRK3|VALSOU|".split("[|]");
 	    for (String str : sp)
-	        System.out.println(str);
+	        NeptusLog.pub().info("<###> "+str);
 	}
 
 }

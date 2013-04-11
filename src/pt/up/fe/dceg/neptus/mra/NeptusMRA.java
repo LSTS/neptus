@@ -663,7 +663,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
                             }
                         }
                         catch (Exception e1) {
-                            System.out.println(system + " "+I18n.text("not selectable"));
+                            NeptusLog.pub().info("<###> "+system + " "+I18n.text("not selectable"));
                         }
                     }
 

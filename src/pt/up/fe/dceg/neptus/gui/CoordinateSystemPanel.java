@@ -439,6 +439,6 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 
 	public static void main(String args[]) {
 	    CoordinateSystem cs = CoordinateSystemPanel.showCoordinateSystemDialog("Teste unitário", null);
-	    System.out.println(cs);
+	    NeptusLog.pub().info("<###> "+cs);
 	}
 }

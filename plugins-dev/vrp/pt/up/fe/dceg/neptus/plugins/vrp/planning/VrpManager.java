@@ -168,7 +168,7 @@ public class VrpManager {
         }
         String msg = "Vehicles - " + tours.length + ", ";
         msg += "Distance(Km) - " + meters / 1000;
-        System.out.println(msg);
+        NeptusLog.pub().info("<###> "+msg);
 
         dist = meters;
         // ------------------------------------------------------------------

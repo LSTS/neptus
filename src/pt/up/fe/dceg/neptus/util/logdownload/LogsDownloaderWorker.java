@@ -1653,7 +1653,7 @@ public class LogsDownloaderWorker {
             e.printStackTrace();
             pathEscaped = path;
         }
-	    //System.out.println(pathEscaped);
+	    //NeptusLog.pub().info("<###> "+pathEscaped);
 		return "http://" + host + (port != 80 ? ":" + port : "")
 				+ (pathEscaped.startsWith("/") ? pathEscaped : "/" + pathEscaped);
 	}
@@ -2007,7 +2007,7 @@ public class LogsDownloaderWorker {
 	private boolean deleteLogFolderFromServer(String path) {
 		path = getFullPartialPath(deleteUriCommand+path);
 		String uri = createURI(host, port, path);
-		//System.out.println(uri);
+		//NeptusLog.pub().info("<###> "+uri);
 		HttpGet get = new HttpGet(uri);
 //		get.setFollowRedirects(true);
 
