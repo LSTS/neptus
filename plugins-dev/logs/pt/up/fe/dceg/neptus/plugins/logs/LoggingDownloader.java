@@ -485,6 +485,7 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
                 scheduleDownloadListFromServer();
             }
             catch (Exception e) {
+                e.printStackTrace();
                 getDownloadWorker(id).setHost("");
                 getDownloadWorker(id).setLogLabel(id.toLowerCase());
                 getDownloadWorker(id).doReset(false);

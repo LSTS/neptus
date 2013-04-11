@@ -126,9 +126,11 @@ public class SystemsManagerTest {
             }
         }
         catch (SocketException e) {
+            e.printStackTrace();
             return "";
         }
         catch (UnknownHostException e) {
+            e.printStackTrace();
             return "";
         }
 

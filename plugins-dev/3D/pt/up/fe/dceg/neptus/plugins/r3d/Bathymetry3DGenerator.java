@@ -224,7 +224,7 @@ public class Bathymetry3DGenerator {
      * 
      * @throws Exception
      */
-    public BathymetryLogInfo extractBathymetryInfoIMC5(boolean tideAdjust) throws Exception {
+    public BathymetryLogInfo extractBathymetryInfoIMC5(boolean tideAdjust) {
         if (data == null) {
             data = new BathymetryLogInfo();
         }
@@ -271,7 +271,13 @@ public class Bathymetry3DGenerator {
                     vehicleDepthVec.add((double) 0);
                     continue;
                 }
-                currPrediction = tidePrediction.getTidePrediction(currEstStateMsg.getDate(), harbor, false);
+                try {
+                    currPrediction = tidePrediction.getTidePrediction(currEstStateMsg.getDate(), harbor, false);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
 
                 waterColumn = depth + alt;
                 terrainAltitude = waterColumn - currPrediction;

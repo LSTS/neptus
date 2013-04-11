@@ -148,13 +148,10 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
         else {
             imcVersion = 4;
             boolean ret = true;
-            try {
-                ret = ret && source.getLog("EstimatedState") != null;
-                ret = ret && source.getLog("BottomDistance") != null;
-            }
-            catch (Exception e) {
-                return false;
-            }
+            
+            ret = ret && source.getLog("EstimatedState") != null;
+            ret = ret && source.getLog("BottomDistance") != null;
+            
             return ret;
         }
     }
@@ -447,6 +444,7 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
                     timestep = Double.parseDouble(timeStepTextField.getText());
                 }
                 catch (NumberFormatException e) {
+                    e.printStackTrace();
                     timeStepTextField.setText("" + timestep);
                 }
 
@@ -470,6 +468,7 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
                     gridSize = Integer.parseInt(gridSizeTextField.getText());
                 }
                 catch (NumberFormatException e1) {
+                    e1.printStackTrace();
                     gridSizeTextField.setText("" + 100);
                 }
 
@@ -559,6 +558,7 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
                     targetImageWidth = Integer.parseInt(widthSizeTextField.getText());
                 }
                 catch (NumberFormatException e) {
+                    e.printStackTrace();
                     widthSizeTextField.setText("" + targetImageWidth);
                 }
 
@@ -566,6 +566,7 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
                     targetImageHeight = Integer.parseInt(heightSizeTextField.getText());
                 }
                 catch (NumberFormatException e) {
+                    e.printStackTrace();
                     heightSizeTextField.setText("" + targetImageHeight);
                 }
 

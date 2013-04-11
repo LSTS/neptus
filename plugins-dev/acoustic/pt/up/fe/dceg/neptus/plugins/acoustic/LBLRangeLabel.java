@@ -230,6 +230,7 @@ public class LBLRangeLabel extends JXPanel {
 			LBLRangeLabel cmp = (LBLRangeLabel) obj;
 			return cmp.getName().equals(name);
 		} catch (Exception e) {
+		    e.printStackTrace();
 			return false;
 		}
 	}

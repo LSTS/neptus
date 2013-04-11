@@ -91,6 +91,7 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
             return ImcMsgManager.getManager().getState(getConsole().getMainSystem()).lastEstimatedState().getDepth();
         }
         catch (Exception e) {
+            e.printStackTrace();
             return 0;
         }
     }

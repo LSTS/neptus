@@ -107,6 +107,7 @@ public class MultibeamData implements Serializable {
             return res;
         }
         catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -122,7 +123,7 @@ public class MultibeamData implements Serializable {
             output.close();
         }
         catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
     @SuppressWarnings("unused")

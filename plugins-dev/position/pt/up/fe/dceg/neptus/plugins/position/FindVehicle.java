@@ -148,6 +148,7 @@ public class FindVehicle extends SimpleSubPanel implements ConfigurationListener
                 oldPos = true;
         }
         catch (Exception e) {
+            e.printStackTrace();
             icon.setAngleRadians(Double.NaN);
             display.setText(I18n.text("pos? "));
             display.setToolTipText(I18n.text("unknown vehicle position"));

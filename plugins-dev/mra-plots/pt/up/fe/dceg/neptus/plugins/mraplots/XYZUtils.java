@@ -485,6 +485,7 @@ public class XYZUtils {
                         yvec.add(yy);
                         zvec.add(-zz);
                     } catch (NumberFormatException e) {
+                        e.getMessage();
                     }
                 }
             }           

@@ -65,6 +65,7 @@ public class WebServer {
             return s;
         }
         catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
         // restart();
@@ -124,7 +125,7 @@ public class WebServer {
                             + WebServer.port + ".");
                     server.join();
                 }
-                catch (Exception e) {
+                catch (Exception e) { // $codepro.audit.disable logExceptions
                     NeptusLog.pub().error("Error while binding web server to port "
                             + WebServer.port);
                 }
@@ -189,7 +190,8 @@ public class WebServer {
             ds.setReuseAddress(true);
             return true;
         }
-        catch (IOException e) {
+        catch (IOException e) { // $codepro.audit.disable logExceptions
+            e.printStackTrace();
         }
         finally {
             if (ds != null) {
@@ -201,6 +203,7 @@ public class WebServer {
                     ss.close();
                 }
                 catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }

@@ -421,6 +421,7 @@ public class RemotePlanControl extends SimpleSubPanel implements ConfigurationLi
                 }
             }
             catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return true;

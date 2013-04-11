@@ -308,6 +308,7 @@ public class TestCanvas {
         try {
             Thread.sleep(500);
         } catch (InterruptedException ex) {
+            ex.printStackTrace();
         }
        
         SwingUtilities.invokeLater(new Runnable() {

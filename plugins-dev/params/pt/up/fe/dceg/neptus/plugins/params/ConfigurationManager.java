@@ -256,12 +256,14 @@ public class ConfigurationManager {
                         minV = Double.parseDouble(minStr);
                     }
                     catch (Exception e) {
+                        e.printStackTrace();
                         minV = null;
                     }
                     try {
                         maxV = Double.parseDouble(maxStr);
                     }
                     catch (Exception e) {
+                        e.printStackTrace();
                         maxV = null;
                     }
                 }
@@ -485,6 +487,7 @@ public class ConfigurationManager {
                             lstSizeTxt += sl;
                         }
                         catch (NumberFormatException e) {
+                            e.printStackTrace();
                             lstSizeTxt += "*";
                         }
                     }
@@ -495,12 +498,14 @@ public class ConfigurationManager {
                             minS = Double.parseDouble(sizeMinList);
                         }
                         catch (Exception e) {
+                            e.printStackTrace();
                             minS = 0;
                         }
                         try {
                             maxS = Double.parseDouble(sizeMaxList);
                         }
                         catch (Exception e) {
+                            e.printStackTrace();
                             maxS = ArrayListEditor.UNLIMITED_SIZE;
                         }
                         if (minS < 0)

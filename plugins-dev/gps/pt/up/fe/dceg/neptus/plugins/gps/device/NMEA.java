@@ -235,7 +235,7 @@ public class NMEA {
             return time;
         }
         catch (Exception e) {
-
+            e.printStackTrace();
         }
 
         return time;
@@ -253,7 +253,7 @@ public class NMEA {
             return Double.parseDouble(str);
         }
         catch (Exception e) {
-
+            e.printStackTrace();
         }
 
         return 0;
@@ -271,7 +271,7 @@ public class NMEA {
             return Integer.parseInt(str, 10);
         }
         catch (Exception e) {
-
+            e.printStackTrace();
         }
 
         return 0;
@@ -299,6 +299,7 @@ public class NMEA {
             return value;
         }
         catch (Exception e) {
+            e.printStackTrace();
         }
 
         return 0;
@@ -326,6 +327,7 @@ public class NMEA {
             return value;
         }
         catch (Exception e) {
+            e.printStackTrace();
         }
 
         return 0;

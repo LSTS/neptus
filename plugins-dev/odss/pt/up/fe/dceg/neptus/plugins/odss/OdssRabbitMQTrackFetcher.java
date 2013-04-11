@@ -593,7 +593,7 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
                         break;
                     }
                     catch (InterruptedException e) {
-                        // e.printStackTrace();
+                        e.printStackTrace();
                         break;
                     }
                 }
@@ -663,7 +663,7 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
                         break;
                     }
                     catch (InterruptedException e) {
-                        // e.printStackTrace();
+                        e.printStackTrace();
                         break;
                     }
                 }
@@ -714,9 +714,9 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
         rmq.fetchAISType = true;
         rmq.startComms();
         
-        try { Thread.sleep(30000); } catch (InterruptedException e) { }
+        try { Thread.sleep(30000); } catch (InterruptedException e) { e.printStackTrace();}
         rmq.stopComms();
-        try { Thread.sleep(10000); } catch (InterruptedException e) { }
+        try { Thread.sleep(10000); } catch (InterruptedException e) { e.printStackTrace();}
         rmq.fetchAISType = false;
         rmq.startComms();
     }

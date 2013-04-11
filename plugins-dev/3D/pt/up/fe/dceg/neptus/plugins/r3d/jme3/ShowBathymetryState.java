@@ -472,6 +472,7 @@ public class ShowBathymetryState extends AbstractAppState implements ActionListe
             resizeOnScreenSwitch = true;
         }
         catch (Exception e) {
+            e.printStackTrace();
             return;
         }
     }

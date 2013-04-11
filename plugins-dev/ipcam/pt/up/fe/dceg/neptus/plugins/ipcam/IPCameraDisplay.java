@@ -357,6 +357,7 @@ public class IPCameraDisplay extends SimpleSubPanel implements ConfigurationList
                 r = is.read(buff, offset, 1);
             }
             catch (Exception e) {
+                e.printStackTrace();
                 return "ERROR";
             }
             if (r == -1)
