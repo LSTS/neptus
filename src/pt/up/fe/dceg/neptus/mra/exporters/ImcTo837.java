@@ -37,13 +37,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Calendar;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SonarData;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.llf.LsfLogSource;
 
 /**
  * Class to extract data from a LogSource and generate Imagenex .837 file from data acquired from Delta T Multibeam 
@@ -257,7 +257,7 @@ public class ImcTo837 implements MraExporter {
         catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("end");
+        NeptusLog.pub().info("<###>end");
     }
     
 //    public static void main(String args[]) throws Exception {

@@ -131,9 +131,9 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
     public ConsoleSystem enableIMC() {
         if (neptusCommunications == false) {
             if (imcSystem == null)
-                System.out.println("vehicle null");
+                NeptusLog.pub().info("<###>vehicle null");
             if (imc == null)
-                System.out.println("imc null");
+                NeptusLog.pub().info("<###>imc null");
             this.imc.addListener(this, imcSystem.getId());
             neptusCommunications = true;
         }

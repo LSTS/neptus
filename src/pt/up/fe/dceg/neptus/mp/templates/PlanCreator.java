@@ -35,6 +35,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
 import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
@@ -62,7 +63,7 @@ class PlanCreator {
 		Class<?> mans[] = ReflectionUtil.listManeuvers();
 		for (Class<?> c : mans) {
 			maneuvers.put(c.getSimpleName().toLowerCase(), c);
-			//System.out.println("Maneuver: "+c.getSimpleName().toLowerCase());
+			//NeptusLog.pub().info("<###>Maneuver: "+c.getSimpleName().toLowerCase());
 		}			
 	}
 	
@@ -128,7 +129,7 @@ class PlanCreator {
 			return addManeuver(man, properties);
 		}
 		else {
-			System.out.println("The maneuver "+name+" was not found");
+			NeptusLog.pub().info("<###>The maneuver "+name+" was not found");
 		}
 		return null;
 	}
@@ -139,7 +140,7 @@ class PlanCreator {
 	    String before = ""+(count-1);
         String id = ""+count;
         
-	  //  System.out.println("[PlanCreator] "+id+" := addManeuver("+manClass.getSimpleName()+", "+properties+")");
+	  //  NeptusLog.pub().info("<###>[PlanCreator] "+id+" := addManeuver("+manClass.getSimpleName()+", "+properties+")");
 	    
 		try {
 			Maneuver man = (Maneuver) manClass.newInstance();

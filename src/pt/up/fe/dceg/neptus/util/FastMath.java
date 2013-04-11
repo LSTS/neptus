@@ -1,4 +1,7 @@
 package pt.up.fe.dceg.neptus.util;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 public class FastMath
 {
     public static void main(String[] args)
@@ -24,9 +27,9 @@ public class FastMath
             long t1B = System.nanoTime() / 1000000L;
 
             System.out.println();
-            System.out.println("FastMath: " + (t1A - t0A) + "ms, sum=" + sumA);
-            System.out.println("JavaMath: " + (t1B - t0B) + "ms, sum=" + sumB);
-            System.out.println("factor: " + (float)(t1B - t0B) / (t1A - t0A));
+            NeptusLog.pub().info("<###>FastMath: " + (t1A - t0A) + "ms, sum=" + sumA);
+            NeptusLog.pub().info("<###>JavaMath: " + (t1B - t0B) + "ms, sum=" + sumB);
+            NeptusLog.pub().info("<###>factor: " + (float)(t1B - t0B) / (t1A - t0A));
         }
     }
 

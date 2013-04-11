@@ -742,7 +742,7 @@ public class FileUtil {
                 deltree(tmp.getAbsolutePath());
             }
             else {
-                // System.out.println("deleting "+tmp.getAbsolutePath());
+                // NeptusLog.pub().info("<###>deleting "+tmp.getAbsolutePath());
                 try {
                     tmp.delete();
                 }

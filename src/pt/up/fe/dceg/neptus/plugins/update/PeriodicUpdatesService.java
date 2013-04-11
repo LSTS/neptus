@@ -197,7 +197,7 @@ public class PeriodicUpdatesService {
 
             @Override
             public boolean update() {
-                System.out.println("a "+(System.currentTimeMillis()-previousTime));
+                NeptusLog.pub().info("<###>a "+(System.currentTimeMillis()-previousTime));
                 previousTime = System.currentTimeMillis();
                 return true;
             }
@@ -212,7 +212,7 @@ public class PeriodicUpdatesService {
 
             @Override
             public boolean update() {
-                System.out.println("b "+(System.currentTimeMillis()-previousTime));
+                NeptusLog.pub().info("<###>b "+(System.currentTimeMillis()-previousTime));
                 previousTime = System.currentTimeMillis();
                 return true;
             }

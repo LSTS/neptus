@@ -190,7 +190,7 @@ public class XMLUtil {
             t.transform(new DOMSource(node), new StreamResult(sw));
         }
         catch (TransformerException te) {
-            System.out.println("nodeToString Transformer Exception");
+            NeptusLog.pub().info("<###>nodeToString Transformer Exception");
         }
         return sw.toString();
     }
@@ -232,8 +232,8 @@ public class XMLUtil {
     public static void main(String[] args) {
         String test = "<Profile name=\"P1\">\n<Component id=\"1\"/>\n</Profile>\n" +
                 "<Profile name=\"P2\">\n<Component id=\"2\"/>\n</Profile>";
-        System.out.println("'"+getAsCompactFormatedXMLString(test)+"'");
-        System.out.println("'"+getAsPrettyPrintFormatedXMLString(test)+"'");
+        NeptusLog.pub().info("<###>'"+getAsCompactFormatedXMLString(test)+"'");
+        NeptusLog.pub().info("<###>'"+getAsPrettyPrintFormatedXMLString(test)+"'");
         
         Document doc = createDocumentFromXmlString("<root>fd" + test + "</root>");
         System.out.println(nodeToString(doc.getDocumentElement()));

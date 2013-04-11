@@ -261,7 +261,7 @@ public class SQLiteSerialization {
 		commitTime = System.currentTimeMillis();
 		
 		synchronized (conn) {
-			//System.out.println("commiting db...");
+			//NeptusLog.pub().info("<###>commiting db...");
 			conn.commit();
 		}		
 	}
@@ -283,7 +283,7 @@ public class SQLiteSerialization {
 						synchronized (conn) {
 							conn.close();
 						}
-						System.out.println("Done.");
+						NeptusLog.pub().info("<###>Done.");
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

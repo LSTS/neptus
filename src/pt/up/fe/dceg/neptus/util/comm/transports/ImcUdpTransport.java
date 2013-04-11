@@ -271,7 +271,7 @@ public class ImcUdpTransport {
             boolean ret = getUdpTransport().sendMessage(destination, port, baos.toByteArray(), listener);
 //            message.dump(System.err);
 //            if (message.getAbbrev().equalsIgnoreCase("LblConfig")) {
-//                System.out.println(" sissssssssssss" + baos.toByteArray().length);
+//                NeptusLog.pub().info("<###> sissssssssssss" + baos.toByteArray().length);
 //                ByteUtil.dumpAsHex(message.getAbbrev(), baos.toByteArray(), System.out);
 //            }
             if (!ret) {
@@ -367,7 +367,7 @@ public class ImcUdpTransport {
 //		}
 //
 //		udpT2.purgeAll();
-//		System.out.println("STOP_______________________" + udpT2.getUdpTransport().isRunnning() + udpT2.getUdpTransport().isStopping());
+//		NeptusLog.pub().info("<###>STOP_______________________" + udpT2.getUdpTransport().isRunnning() + udpT2.getUdpTransport().isStopping());
 //		try {
 //			Thread.sleep(5000);
 //		} catch (InterruptedException e) {
@@ -375,7 +375,7 @@ public class ImcUdpTransport {
 //			e.printStackTrace();
 //		}
 //		udpT2.reStartAll();
-//		System.out.println("START______________________" + udpT2.getUdpTransport().isRunnning() + udpT2.getUdpTransport().isStopping());
+//		NeptusLog.pub().info("<###>START______________________" + udpT2.getUdpTransport().isRunnning() + udpT2.getUdpTransport().isStopping());
 //		udpT2.reStartAll();
 		
 		

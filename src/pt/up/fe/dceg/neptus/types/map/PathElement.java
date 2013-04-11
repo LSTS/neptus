@@ -166,7 +166,7 @@ public class PathElement extends AbstractElement {
                 this.setMyColor(new Color(rr, gg, bb));
             }
             else {
-                System.out.println("Didn't found color!!");
+                NeptusLog.pub().info("<###>Didn't found color!!");
             }
 
             nd = doc.selectSingleNode("//filled");
@@ -177,7 +177,7 @@ public class PathElement extends AbstractElement {
                     isShape = false;
             }
             else {
-                System.out.println("Unable to find filled tag (defaulting to false)!!");
+                NeptusLog.pub().info("<###>Unable to find filled tag (defaulting to false)!!");
             }
 
             setFinished(true);
@@ -295,7 +295,7 @@ public class PathElement extends AbstractElement {
             colorE.addElement("b").setText(Integer.toString(getMyColor().getBlue()));
         }
         else {
-            System.out.println("Getmycolor = null (" + getId() + ")");
+            NeptusLog.pub().info("<###>Getmycolor = null (" + getId() + ")");
         }
 
         if (offsets3D.size() == 0)
@@ -433,7 +433,7 @@ public class PathElement extends AbstractElement {
             offsets3D.add(new Point3d(northOffset, eastOffset, depthOffset));
         }
         else {
-            System.out.println("add point absolute!: " + ReflectionUtil.getCallerStamp());
+            NeptusLog.pub().info("<###>add point absolute!: " + ReflectionUtil.getCallerStamp());
             tmp.setOffsetEast(eastOffset);
             tmp.setOffsetNorth(northOffset);
             double offsets[] = tmp.getOffsetFrom(getCenterLocation());
@@ -479,10 +479,10 @@ public class PathElement extends AbstractElement {
     }
 
     public LocationType getCenterPoint() {
-        // System.out.println("south="+bounds3d[SOUTH_COORD]);
-        // System.out.println("north="+bounds3d[NORTH_COORD]);
-        // System.out.println("east="+bounds3d[EAST_COORD]);
-        // System.out.println("west="+bounds3d[WEST_COORD]);
+        // NeptusLog.pub().info("<###>south="+bounds3d[SOUTH_COORD]);
+        // NeptusLog.pub().info("<###>north="+bounds3d[NORTH_COORD]);
+        // NeptusLog.pub().info("<###>east="+bounds3d[EAST_COORD]);
+        // NeptusLog.pub().info("<###>west="+bounds3d[WEST_COORD]);
         //
         LocationType lt = new LocationType(getCenterLocation());
         lt.translatePosition((bounds3d[NORTH_COORD] + bounds3d[SOUTH_COORD]) / 2,

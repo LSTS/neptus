@@ -41,6 +41,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
@@ -159,7 +160,7 @@ public class SideVehiclePanel extends JPanel {
             g.setColor(Color.BLUE);
             int watterPos = (int) (getHeight() / 2 - (this.depth * metersByPixel));
 
-            // System.out.println("depth:"+this.depth +"\nmeterbyPixel:"+metersByPixel+"\nwatterPos:"+watterPos
+            // NeptusLog.pub().info("<###>depth:"+this.depth +"\nmeterbyPixel:"+metersByPixel+"\nwatterPos:"+watterPos
             // +"this.depth*metersByPixel:"+this.depth*metersByPixel);
 
             g.scale(scale, scale);
@@ -215,12 +216,12 @@ public class SideVehiclePanel extends JPanel {
         for (int i = 0;; i -= 2) {
             buss.setPitch(((float) Math.toRadians((double) i)));
             try {// nada
-                 // System.out.println("espera...");
+                 // NeptusLog.pub().info("<###>espera...");
                 Thread.sleep(50);
-                // System.out.println("esperou");
+                // NeptusLog.pub().info("<###>esperou");
             }
             catch (Exception e) {
-                System.out.println("excepcao");
+                NeptusLog.pub().info("<###>excepcao");
             }
         }
     }

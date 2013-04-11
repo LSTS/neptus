@@ -89,7 +89,7 @@ public class VehicleSelectionEditor extends AbstractPropertyEditor {
 	}
 	
 	public Object getValue() {
-		//System.out.println("erro aqui :"+(String)combobox.getSelectedItem());
+		//NeptusLog.pub().info("<###>erro aqui :"+(String)combobox.getSelectedItem());
 		if ((String)combobox.getSelectedItem()==null) return null;
 		return VehiclesHolder.getVehicleById((String)combobox.getSelectedItem());
 	}

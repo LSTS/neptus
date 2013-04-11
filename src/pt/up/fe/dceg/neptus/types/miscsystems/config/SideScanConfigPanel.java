@@ -44,6 +44,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 /**
@@ -241,8 +242,8 @@ public class SideScanConfigPanel extends JDialog {
 
 	public void setReturnValues() {
 		// set the selected values on the "parent" object
-		System.out.println("Type: " + ctype.getSelectedItem());
-		System.out.println("Value: " + cvalues.getSelectedItem());
+		NeptusLog.pub().info("<###>Type: " + ctype.getSelectedItem());
+		NeptusLog.pub().info("<###>Value: " + cvalues.getSelectedItem());
 	}
 
 	public boolean setSelectedFrequency(String str) {

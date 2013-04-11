@@ -57,6 +57,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 
 /**
  *
@@ -443,7 +445,7 @@ public class TransformDocument
            MalformedURLException//,
            //SAXException
 	{
-		System.out.println("\n-- Start Processing ----------------\n");
+		NeptusLog.pub().info("<###>\n-- Start Processing ----------------\n");
 		System.out.flush();
 
 		//XSLTErrorResources resbundle = (XSLTErrorResources)(XSLMessages.loadResourceBundle(Constants.ERROR_RESOURCES));
@@ -452,8 +454,8 @@ public class TransformDocument
 		{
 			//printArgOptions(resbundle);
 			printArgOptions();
-			System.out.println("\n   Tranformation done: false");
-			System.out.println("\n-- End Processing ------------------");
+			NeptusLog.pub().info("<###>\n   Tranformation done: false");
+			NeptusLog.pub().info("<###>\n-- End Processing ------------------");
 			System.out.flush();
 			return;
 		}
@@ -535,17 +537,17 @@ public class TransformDocument
 		else
 		{
 			printArgOptions();
-			System.out.println("\n   Tranformation done: false");
-			System.out.println("\n-- End Processing ------------------");
+			NeptusLog.pub().info("<###>\n   Tranformation done: false");
+			NeptusLog.pub().info("<###>\n-- End Processing ------------------");
 			System.out.flush();
 			return;
 		}
 
 		//boolean bl = processor.processDocuments(in, xsl, out, styleSheetParam);
 		boolean bl = processor.doTransformation(in, xsl, out, styleSheetParam);
-		System.out.println("\n   Tranformation done: " + bl);
-		System.out.println("\n   " + processor.transformationMessage);
-		System.out.println("\n-- End Processing ------------------");
+		NeptusLog.pub().info("<###>\n   Tranformation done: " + bl);
+		NeptusLog.pub().info("<###>\n   " + processor.transformationMessage);
+		NeptusLog.pub().info("<###>\n-- End Processing ------------------");
 		System.out.flush();
 	}
 
@@ -553,11 +555,11 @@ public class TransformDocument
 
   protected static void printArgOptions()
   {
-    System.out.println("xslproc options: ");
-    System.out.println("    -IN inputXMLURL");
-    System.out.println("   [-XSL XSLTransformationURL]");
-    System.out.println("   [-OUT outputFileName]");
-    System.out.println("   [-PARAM name expression (Set a stylesheet parameter)]");
+    NeptusLog.pub().info("<###>xslproc options: ");
+    NeptusLog.pub().info("<###>    -IN inputXMLURL");
+    NeptusLog.pub().info("<###>   [-XSL XSLTransformationURL]");
+    NeptusLog.pub().info("<###>   [-OUT outputFileName]");
+    NeptusLog.pub().info("<###>   [-PARAM name expression (Set a stylesheet parameter)]");
     System.out.flush();
   }
 

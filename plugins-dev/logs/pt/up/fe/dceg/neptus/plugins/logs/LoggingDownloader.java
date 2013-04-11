@@ -355,7 +355,7 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
         LogsDownloaderWorker dw = getDownloadWorker();
         String[] listFolders = dw.doGiveListOfLogFolders();
         long nTotal = 0, nDownloading = 0, nError = 0, nNew = 0, nIncomplete = 0, nSync = 0, nUnknown = 0;
-        // System.out.println("listFolders  filter: "+listFolders.length);
+        // NeptusLog.pub().info("<###>listFolders  filter: "+listFolders.length);
         for (String strLFd : listFolders) {
             if (!isMissionLogFromToday(strLFd))
                 continue;

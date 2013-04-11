@@ -37,8 +37,8 @@ import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.ContainerSubPanel;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 
 /**
  * @author ZP

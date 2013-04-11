@@ -457,7 +457,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
          */
         public void setValueAt(Object value, int row, int col) {
             if (DEBUG) {
-                System.out.println("Setting value at " + row + "," + col + " to " + value + " (an instance of "
+                NeptusLog.pub().info("<###>Setting value at " + row + "," + col + " to " + value + " (an instance of "
                         + value.getClass() + ")");
             }
 
@@ -465,7 +465,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
             fireTableCellUpdated(row, col);
 
             if (DEBUG) {
-                System.out.println("New value of data:");
+                NeptusLog.pub().info("<###>New value of data:");
                 printDebugData();
             }
         }
@@ -481,7 +481,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
                 }
                 System.out.println();
             }
-            System.out.println("--------------------------");
+            NeptusLog.pub().info("<###>--------------------------");
         }
     }
 

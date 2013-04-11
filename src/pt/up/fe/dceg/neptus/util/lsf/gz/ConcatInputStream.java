@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * An input stream which reads sequentially from multiple sources.
  * More information about this class is available from <a target="_top" href=
@@ -450,8 +452,8 @@ public class ConcatInputStream extends InputStream {
         byte[] buff = new byte[255];
 
         while(cis.read(buff, 0, 255) != -1)
-            System.out.println("read");
-        System.out.println("finito");
+            NeptusLog.pub().info("<###>read");
+        NeptusLog.pub().info("<###>finito");
         cis.close();
     }
 }

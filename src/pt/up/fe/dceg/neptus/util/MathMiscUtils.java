@@ -38,6 +38,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author Paulo Dias
  * 
@@ -733,9 +735,9 @@ public class MathMiscUtils {
 		
 		if (MathMiscUtils.parseEngineeringModeToDouble("100M") > MathMiscUtils
 				.parseEngineeringModeToDouble("10M")) {
-			System.out.println("Hello");
+			NeptusLog.pub().info("<###>Hello");
 		} else {
-			System.out.println("Nops");
+			NeptusLog.pub().info("<###>Nops");
 		}
 
 		System.out.println(MathMiscUtils.parseToEngineeringRadix2Notation(

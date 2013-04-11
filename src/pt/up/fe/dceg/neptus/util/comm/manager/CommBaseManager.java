@@ -192,7 +192,7 @@ public abstract class CommBaseManager<M extends IMessage, Mi extends MessageInfo
         try {
             if (!started)
                 return true; // do nothing
-            System.out.println("STOP IMC");
+            NeptusLog.pub().info("<###>STOP IMC");
             if(timerThread != null) {
                 timerThread.interrupt();
                 timerThread = null;
@@ -711,7 +711,7 @@ public abstract class CommBaseManager<M extends IMessage, Mi extends MessageInfo
             // if (rt) r++;
             ret = ret || rt;
         }
-        // System.out.println("remove " + listener.getClass().getName() + " | " + r + " | " +listener.hashCode());
+        // NeptusLog.pub().info("<###>remove " + listener.getClass().getName() + " | " + r + " | " +listener.hashCode());
         return ret;
     }
 

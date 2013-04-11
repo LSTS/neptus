@@ -246,7 +246,7 @@ implements Runnable, TelnetNotificationHandler
         {
             command = "WONT";
         }
-        System.out.println("Received " + command + " for option code " + option_code);
+        NeptusLog.pub().info("<###>Received " + command + " for option code " + option_code);
    }
 
     

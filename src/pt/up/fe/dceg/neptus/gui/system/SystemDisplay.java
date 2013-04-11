@@ -169,7 +169,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
 	 */
 	@Override
 	public Dimension getMinimumSize() {
-		//System.out.println("......");
+		//NeptusLog.pub().info("<###>......");
 		return new Dimension(iconSize + label.getWidth() + 10, iconSize
 				+ indicatorsSize + label.getHeight() + infoLabel.getHeight()); //20
 	}

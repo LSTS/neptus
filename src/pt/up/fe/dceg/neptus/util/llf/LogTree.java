@@ -45,6 +45,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
@@ -124,7 +125,7 @@ public class LogTree extends JTree {
                         }
                         // 'New plot' case
                         if (n == newPlotNode ) {
-                            System.out.println("New Plot");
+                            NeptusLog.pub().info("<###>New Plot");
                         }
 
                         // MRAVisualization case

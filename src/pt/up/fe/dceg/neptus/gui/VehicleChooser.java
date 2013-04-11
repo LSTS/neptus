@@ -122,7 +122,7 @@ public class VehicleChooser extends ParametersPanel implements ActionListener {
             dialog = new JDialog((Dialog)window, title, true);
         }
 
-        //System.out.println("Ancestor: "+window);
+        //NeptusLog.pub().info("<###>Ancestor: "+window);
         
 	    dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
 	    dialog.add(this);
@@ -203,7 +203,7 @@ public class VehicleChooser extends ParametersPanel implements ActionListener {
 		
 		if ("ok".equals(action.getActionCommand())) {
 			this.vehicle = (VehicleType) vehiclesVector.get(vehicleList.getSelectedIndex());
-			//System.out.println("The chosen vehicle is "+vt);
+			//NeptusLog.pub().info("<###>The chosen vehicle is "+vt);
 			
 			this.setVisible(false);
 			dialog.dispose();

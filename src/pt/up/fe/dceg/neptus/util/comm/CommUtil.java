@@ -237,7 +237,7 @@ public class CommUtil {
 
         for (int i = startPos; i < length; i++) {
             crc = (crc >> 8) ^ crc16_table[(crc ^ data[i]) & 0xff];
-            // System.out.println("crc calc index:"+i+" data:" + data[i] +" crc calc=" + crc);
+            // NeptusLog.pub().info("<###>crc calc index:"+i+" data:" + data[i] +" crc calc=" + crc);
         }
 
         return crc;
@@ -249,7 +249,7 @@ public class CommUtil {
 
         for (int i = startPos; i < data.length; i++) {
             crc = (crc >> 8) ^ crc16_table[(crc ^ data[i]) & 0xff];
-            // System.out.println("crc calc index:"+i+" data:" + data[i] +" crc calc=" + crc);
+            // NeptusLog.pub().info("<###>crc calc index:"+i+" data:" + data[i] +" crc calc=" + crc);
         }
 
         return crc;
@@ -370,7 +370,7 @@ public class CommUtil {
         //
         //
         //
-        // System.out.println("CRC should be = 21287 and is " + computeCrc16(arr, 0, 0));
+        // NeptusLog.pub().info("<###>CRC should be = 21287 and is " + computeCrc16(arr, 0, 0));
         //
         // IMCMessage msg = MessageFactory.parseMessage(foo);
         //

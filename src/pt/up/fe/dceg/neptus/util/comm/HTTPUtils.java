@@ -258,7 +258,7 @@ public class HTTPUtils {
 				if (bytes == -1) {
 					eof = true;
 					if (bytesRead < contentLength) {
-						System.out.println("Connection closed before getting entire file ("+bytesRead+" bytes read, expecting "+contentLength+")");
+						NeptusLog.pub().info("<###>Connection closed before getting entire file ("+bytesRead+" bytes read, expecting "+contentLength+")");
 					}
 				}
 				else {

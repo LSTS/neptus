@@ -53,6 +53,7 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleConstants.ColorConstants;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 /**
@@ -287,7 +288,7 @@ public class MessagePanel extends JPanel {
     	try {
 			doc.remove(offset, length);
 		} catch (BadLocationException e) {
-			System.out.println("offset="+offset+"  length="+length+"   docsize="+doc.getLength());
+			NeptusLog.pub().info("<###>offset="+offset+"  length="+length+"   docsize="+doc.getLength());
 			e.printStackTrace();
 		}
     }

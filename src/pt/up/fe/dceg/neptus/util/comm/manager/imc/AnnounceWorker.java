@@ -144,7 +144,7 @@ public class AnnounceWorker {
 
 		announceMessage.setValue("owner", ImcId16.NULL_ID.longValue());
 		LocationType loc = new LocationType(MyState.getLocation().convertToAbsoluteLatLonDepth());
-		//System.out.println("       " + loc);
+		//NeptusLog.pub().info("<###>       " + loc);
 		announceMessage.setValue("lat", loc.getLatitudeAsDoubleValueRads());
 		announceMessage.setValue("lon", loc.getLongitudeAsDoubleValueRads());
 		announceMessage.setValue("height", loc.getHeight());
@@ -160,7 +160,7 @@ public class AnnounceWorker {
 
 		announceMessage.setValue("owner", ImcId16.NULL_ID.longValue());
 		LocationType loc = new LocationType(MyState.getLocation().convertToAbsoluteLatLonDepth());
-		//System.out.println("       " + loc);
+		//NeptusLog.pub().info("<###>       " + loc);
 		announceMessage.setValue("lat", loc.getLatitudeAsDoubleValueRads());
 		announceMessage.setValue("lon", loc.getLongitudeAsDoubleValueRads());
 		announceMessage.setValue("height", loc.getHeight());
@@ -495,7 +495,7 @@ public class AnnounceWorker {
 	 */
 	public static final void processUidFromServices(ImcSystem sys) {
 		String uid = IMCUtils.getUidFromServices(sys.getServicesProvided());
-		//System.out.println("------------------------ "+((System.currentTimeMillis()-ConfigFetch.getNeptusInitializationTime())/1E3) + "s UUI -> " + sys.getName()+" "+uid + "  "+sys.lastUid);
+		//NeptusLog.pub().info("<###>------------------------ "+((System.currentTimeMillis()-ConfigFetch.getNeptusInitializationTime())/1E3) + "s UUI -> " + sys.getName()+" "+uid + "  "+sys.lastUid);
 		if (sys.getLastUid() == null || "".equalsIgnoreCase(sys.getLastUid())) {
 			if (uid != null)
 				sys.setLastUid(uid);
@@ -551,22 +551,22 @@ public class AnnounceWorker {
 			while (nintf.hasMoreElements()) {
 				NetworkInterface ni = nintf.nextElement();
 				if (ni.isUp()) {
-					System.out.println(">>>>  "+ni);
-					System.out.println("      isLoopback "+ni.isLoopback());
-					System.out.println("      isPointToPoint "+ni.isPointToPoint());
-					System.out.println("      multicast "+ni.supportsMulticast());
-					System.out.println("      virtual "+ni.isVirtual());
-					System.out.println("      mtu "+ni.getMTU());
-					System.out.println("      "+ni.getInetAddresses());
+					NeptusLog.pub().info("<###>>>>>  "+ni);
+					NeptusLog.pub().info("<###>      isLoopback "+ni.isLoopback());
+					NeptusLog.pub().info("<###>      isPointToPoint "+ni.isPointToPoint());
+					NeptusLog.pub().info("<###>      multicast "+ni.supportsMulticast());
+					NeptusLog.pub().info("<###>      virtual "+ni.isVirtual());
+					NeptusLog.pub().info("<###>      mtu "+ni.getMTU());
+					NeptusLog.pub().info("<###>      "+ni.getInetAddresses());
 					Enumeration<InetAddress> iadde = ni.getInetAddresses();
 					while (iadde.hasMoreElements()) {
 						InetAddress inetAddress = (InetAddress) iadde
 								.nextElement();
-						System.out.println("      "+"      "+inetAddress.getHostAddress());
+						NeptusLog.pub().info("<###>      "+"      "+inetAddress.getHostAddress());
 					}
-					System.out.println("      "+ni.getInterfaceAddresses());
+					NeptusLog.pub().info("<###>      "+ni.getInterfaceAddresses());
 					for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
-						System.out.println("      "+"      "+ia.getAddress().getHostAddress()
+						NeptusLog.pub().info("<###>      "+"      "+ia.getAddress().getHostAddress()
 								+" "+(ia.getBroadcast()!=null?ia.getBroadcast().getHostAddress():""));
 					}
 				}

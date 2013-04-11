@@ -864,7 +864,7 @@ public class GuiUtils {
 
         System.out.println(array.getClass().getSimpleName() + "[" + array.length + "] {");
         for (int i = 0; i < array.length; i++) {
-            System.out.println("\t(" + i + ") " + array[i].toString());
+            NeptusLog.pub().info("<###>\t(" + i + ") " + array[i].toString());
         }
         System.out.println('}');
     }
@@ -875,7 +875,7 @@ public class GuiUtils {
 
         System.out.println(list.getClass().getSimpleName() + "[" + list.size() + "] {");
         for (int i = 0; i < list.size(); i++) {
-            System.out.println("\t(" + i + ") " + list.get(i).toString());
+            NeptusLog.pub().info("<###>\t(" + i + ") " + list.get(i).toString());
         }
         System.out.println('}');
     }

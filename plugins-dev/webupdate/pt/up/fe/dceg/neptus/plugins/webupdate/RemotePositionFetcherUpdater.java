@@ -398,7 +398,7 @@ public class RemotePositionFetcherUpdater extends SimpleSubPanel implements IPer
             ProxyInfoProvider.authenticateConnectionIfNeeded(iGetResultCode, localContext, client);
 
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                System.out.println("[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
+                NeptusLog.pub().info("<###>[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                         + iGetResultCode.getStatusLine().getReasonPhrase()
                         + " code was return from the server");
                 if (getHttpRequestState != null) {
@@ -448,7 +448,7 @@ public class RemotePositionFetcherUpdater extends SimpleSubPanel implements IPer
             long reqTime = System.currentTimeMillis();
             HttpResponse iGetResultCode = client.execute(getHttpRequestImcMsgs);
             if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                System.out.println("[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
+                NeptusLog.pub().info("<###>[" + iGetResultCode.getStatusLine().getStatusCode() + "] "
                         + iGetResultCode.getStatusLine().getReasonPhrase()
                         + " code was return from the server");
                 if (getHttpRequestImcMsgs != null) {
@@ -459,7 +459,7 @@ public class RemotePositionFetcherUpdater extends SimpleSubPanel implements IPer
             try {
                 long serverTime = Long.parseLong(iGetResultCode.getFirstHeader("server-time")
                         .getValue().trim());
-                // System.out.println("server time delta: " + (reqTime -
+                // NeptusLog.pub().info("<###>server time delta: " + (reqTime -
                 // serverTime) + "ms");
                 lastFetchPosTimeMillis = serverTime;
             }

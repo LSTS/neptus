@@ -224,11 +224,11 @@ public class PanicButton extends JRoundButton {
     protected void paintComponent(Graphics g) {
     	if (dp)
     		return;
-    	//System.out.println("## " + getText());
+    	//NeptusLog.pub().info("<###>## " + getText());
     	dp = true;
     	initTextureOfButton();
     	dp = false;
-        //System.out.println("paint1");
+        //NeptusLog.pub().info("<###>paint1");
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);

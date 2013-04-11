@@ -400,7 +400,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
                     double deltaPassedTime = speed * (thisTimeFull - lastTimeFull);
                     double maxCurrentTime = currentTime + deltaPassedTime;
 
-                    // System.out.println(">" + currentTime +" till " + maxCurrentTime);
+                    // NeptusLog.pub().info("<###>>" + currentTime +" till " + maxCurrentTime);
 
                     Vector<IMCMessage> entriesVector = new Vector<IMCMessage>();
                     Vector<Double> entriesTimeAbsVector = new Vector<Double>();
@@ -417,7 +417,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
                             continue;
                         while (true) {
                             double curET = parser.currentTimeMillis() / 1000.0;
-                            // System.out.println("curET= " + curET + "   " + (curET > curFixTime + startTimeFull) +
+                            // NeptusLog.pub().info("<###>curET= " + curET + "   " + (curET > curFixTime + startTimeFull) +
                             // " && " + (curET <= curMaxFixTime + startTimeFull));
                             if (curET > curFixTime + startTimeFull && curET <= curMaxFixTime + startTimeFull) {
                                 entriesVector.add(parser.getCurrentEntry()); // TODO check...

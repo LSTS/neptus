@@ -42,6 +42,7 @@ import java.util.Vector;
 
 import org.imgscalr.Scalr;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
@@ -205,7 +206,7 @@ public class SidescanOverlay implements LogReplayLayer {
         }
 
         else if (tiles == null) {
-            System.out.println("loading tiles...");
+            NeptusLog.pub().info("<###>loading tiles...");
             tiles = new Vector<>();
             for (File f : dir.listFiles()) {
                 if (!f.getName().endsWith(".tile"))
@@ -218,7 +219,7 @@ public class SidescanOverlay implements LogReplayLayer {
                 }                
             }
 
-            System.out.println("loaded "+tiles.size()+" tiles");
+            NeptusLog.pub().info("<###>loaded "+tiles.size()+" tiles");
         }
         else {
             for (SidescanTile t : tiles) {

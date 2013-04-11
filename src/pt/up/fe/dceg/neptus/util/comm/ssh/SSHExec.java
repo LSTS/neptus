@@ -232,7 +232,7 @@ extends SSHCommon
 			    }
 			    if (channel.isClosed())
 			    {
-			        System.out.println("exit-status: "
+			        NeptusLog.pub().info("<###>exit-status: "
 			                + channel.getExitStatus());
 			        exitStatus = channel.getExitStatus();
 			        break;

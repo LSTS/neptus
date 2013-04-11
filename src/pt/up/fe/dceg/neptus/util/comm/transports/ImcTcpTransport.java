@@ -110,9 +110,9 @@ public class ImcTcpTransport {
 		getTcpTransport().addListener(new TCPMessageListener() {
 			@Override
 			public void onTCPMessageNotification(TCPNotification req) {
-//	              System.out.println("ssssssssssssssssssss "+req.getTimeMillis());
+//	              NeptusLog.pub().info("<###>ssssssssssssssssssss "+req.getTimeMillis());
 			    String id = req.getAddress().toString();
-//	              System.out.println("---id: "+id);
+//	              NeptusLog.pub().info("<###>---id: "+id);
 			    TCPMessageProcessor proc = listProc.get(id);
 			    if (proc == null) {
 			        proc = new TCPMessageProcessor(id, listeners, imcDefinition);
@@ -363,7 +363,7 @@ public class ImcTcpTransport {
 	     */
 	    @Override
 	    public void onTCPMessageNotification(TCPNotification req) {
-	        //    System.out.println("ssssssssssssssssssss "+req.getTimeMillis());
+	        //    NeptusLog.pub().info("<###>ssssssssssssssssssss "+req.getTimeMillis());
 //	        ByteUtil.dumpAsHex(req.getAddress()+"", req.getBuffer(), System.out);
 	        host = req.getAddress().getAddress().getHostAddress();
 	        port = req.getAddress().getPort();
@@ -466,23 +466,23 @@ public class ImcTcpTransport {
         MessageDeliveryListener mdlT = new MessageDeliveryListener() {
             @Override
             public void deliveryUnreacheable(IMCMessage message) {
-                System.out.println(">>> deliveryUnreacheable: "+ message.getAbbrev());
+                NeptusLog.pub().info("<###>>>> deliveryUnreacheable: "+ message.getAbbrev());
             }
             @Override
             public void deliveryTimeOut(IMCMessage message) {
-                System.out.println(">>> deliveryTimeOut: "+ message.getAbbrev());
+                NeptusLog.pub().info("<###>>>> deliveryTimeOut: "+ message.getAbbrev());
             }
             @Override
             public void deliverySuccess(IMCMessage message) {
-                System.out.println(">>> deliverySuccess: "+ message.getAbbrev());
+                NeptusLog.pub().info("<###>>>> deliverySuccess: "+ message.getAbbrev());
             }
             @Override
             public void deliveryError(IMCMessage message, Object error) {
-                System.out.println(">>> deliveryError: "+ message.getAbbrev() + " " + error);
+                NeptusLog.pub().info("<###>>>> deliveryError: "+ message.getAbbrev() + " " + error);
             }
             @Override
             public void deliveryUncertain(IMCMessage message, Object msg) {
-                System.out.println(">>> deliveryUncertain: "+ message.getAbbrev() + " " + msg);                
+                NeptusLog.pub().info("<###>>>> deliveryUncertain: "+ message.getAbbrev() + " " + msg);                
             }
         };
         MessageDeliveryListener mdlT2 = new MessageDeliveryListener() {

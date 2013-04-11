@@ -77,7 +77,7 @@ public class FuelLevelSymbol extends SymbolLabel {
     @Override
     public void paint(Graphics2D g, JXPanel c, int width, int height) {
 //        if (blinkingState == BlinkingStateEnum.BLINKING_BRILLIANT) {
-//            System.out.println("FuelLevel state: " + blinkingState + "  ::   " + (System.currentTimeMillis() - time) + "ms");
+//            NeptusLog.pub().info("<###>FuelLevel state: " + blinkingState + "  ::   " + (System.currentTimeMillis() - time) + "ms");
 //        }
         Graphics2D g2 = (Graphics2D)g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

@@ -461,7 +461,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
             timerTask = new TimerTask() {
                 @Override
                 public void run() {
-//                    System.out.println("Run " + tileX + ":" + tileY + "   " + levelOfDetail + (imageFromLowerLevelOfDetail != null ? "|" +levelOfDetailFromImageFromLowerLevelOfDetail : "")) ;
+//                    NeptusLog.pub().info("<###>Run " + tileX + ":" + tileY + "   " + levelOfDetail + (imageFromLowerLevelOfDetail != null ? "|" +levelOfDetailFromImageFromLowerLevelOfDetail : "")) ;
                     loadImageFromLowerLevelOfDetail();
                     if (state == TileState.DISPOSING || image != null || 
                             (System.currentTimeMillis() - lastPaintTimeMillis > MILLIS_TO_NOT_TRY_LOAD_LOW_LEVEL_IMAGE)) {
@@ -508,7 +508,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
         for (int nCuts = 1; nCuts < 6; nCuts++) {
             String tmpQK = quadKey.substring(0, quadKey.length() - nCuts);
             String tmpMatrix = quadKey.substring(quadKey.length() - nCuts);
-//            System.out.println("tmpQK: " + tmpQK);
+//            NeptusLog.pub().info("<###>tmpQK: " + tmpQK);
             try {
                 int[] tmpTs = MapTileUtil.quadKeyToTileXY(tmpQK);
                 int tmpTileX = tmpTs[0], tmpTileY = tmpTs[1]; 

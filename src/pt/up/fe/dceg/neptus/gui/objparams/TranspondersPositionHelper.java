@@ -845,6 +845,6 @@ public class TranspondersPositionHelper extends JPanel {
         cs = CoordinateSystemPanel.showCoordinateSystemDialog("Set the HomeRef", cs, null);
         showTranspondersPositionHelperDialog(cs, null);
         // showTranspondersPositionHelperFrame(cs);
-        System.out.println("dfs");
+        NeptusLog.pub().info("<###>dfs");
     }
 }

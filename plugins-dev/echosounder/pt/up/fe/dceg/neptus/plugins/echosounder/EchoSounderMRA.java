@@ -44,6 +44,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.imc.Distance;
@@ -110,7 +111,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     }
 
     public void generateImage() {
-        System.out.println("Generating Echo sounder image");
+        NeptusLog.pub().info("<###>Generating Echo sounder image");
         int c = 0;
         Iterator<IMCMessage> i= source.getLsfIndex().getIterator("SonarData");
         for(IMCMessage msg = i.next(); i.hasNext(); msg = i.next()) {

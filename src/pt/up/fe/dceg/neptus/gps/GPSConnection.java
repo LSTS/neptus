@@ -208,7 +208,7 @@ public class GPSConnection implements PropertyChangeListener {
 		}
 
 		if (name.equals(GPSDataProcessor.ALTITUDE)) {
-			//System.out.println("Altitude received!");
+			//NeptusLog.pub().info("<###>Altitude received!");
 			currentGPSState.setAltitude(((Float) value).floatValue());
 		}
 		

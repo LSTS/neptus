@@ -659,7 +659,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
         System.out.println(other.asXML());
 
         loc = LocationPanel.showLocationDialog("Testing..", loc, null);
-        System.out.println("AFTER:");
+        NeptusLog.pub().info("<###>AFTER:");
         System.out.println(loc.asXML());
     }
 }

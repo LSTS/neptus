@@ -69,6 +69,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.swing.NeptusFileView;
 
 /**
@@ -476,7 +477,7 @@ public class TextEditor extends JFrame implements ActionListener {
                 undo.undo();
             }
             catch (CannotUndoException ex) {
-                System.out.println("Unable to undo: " + ex);
+                NeptusLog.pub().info("<###>Unable to undo: " + ex);
                 ex.printStackTrace();
             }
             updateUndoState();
@@ -508,7 +509,7 @@ public class TextEditor extends JFrame implements ActionListener {
                 undo.redo();
             }
             catch (CannotRedoException ex) {
-                System.out.println("Unable to redo: " + ex);
+                NeptusLog.pub().info("<###>Unable to redo: " + ex);
                 ex.printStackTrace();
             }
             updateRedoState();

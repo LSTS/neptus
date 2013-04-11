@@ -167,7 +167,7 @@ public class SimpleTransponderPanel extends SimpleLocationPanel {
 	
 	public String getConfiguration() {
 	    Object sel = getConfigurationFile().getSelectedItem();
-        // System.out.println("kkkkkkkkkkkkkkkkkkkkkkk    " + sel);
+        // NeptusLog.pub().info("<###>kkkkkkkkkkkkkkkkkkkkkkk    " + sel);
 	    return sel.toString();
 	}
 	

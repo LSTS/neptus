@@ -36,6 +36,7 @@ import java.util.GregorianCalendar;
 import java.util.Random;
 
 import junit.framework.TestCase;
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
 
 /**
@@ -280,17 +281,17 @@ public class CoordinateUtilTest extends TestCase
 	public void testLatLonDiffDoubleDoubleDoubleDouble()
 	{
 		double[] dol = CoordinateUtil.latLonDiff(41.234, -8.456, 39.455, -8.456);
-		System.out.println("val " + dol[0]  + " " + dol[1]);
+		NeptusLog.pub().info("<###>val " + dol[0]  + " " + dol[1]);
 		dol = CoordinateUtil.latLonDiff(41.234, -8.456, 41.234, -8.456);
-		System.out.println("val " + dol[0]  + " " + dol[1]);
+		NeptusLog.pub().info("<###>val " + dol[0]  + " " + dol[1]);
 		dol = CoordinateUtil.latLonDiff(41.234, -8.456, 41.0, -8.45600001);
-		System.out.println("val " + dol[0]  + " " + dol[1]);
+		NeptusLog.pub().info("<###>val " + dol[0]  + " " + dol[1]);
 		dol = CoordinateUtil.latLonDiff(0.0, 0.0, 0, 1);
-		System.out.println("val " + dol[0]  + " " + dol[1]);
+		NeptusLog.pub().info("<###>val " + dol[0]  + " " + dol[1]);
 		dol = CoordinateUtil.latLonDiff(41.234, -8.456, 41.234, -8.45);
-		System.out.println("val " + dol[0]  + " " + dol[1]);
+		NeptusLog.pub().info("<###>val " + dol[0]  + " " + dol[1]);
 		dol = CoordinateUtil.latLonDiff(39, -8.456, 33, -8.456);
-		System.out.println("val " + dol[0]  + " " + dol[1]);
+		NeptusLog.pub().info("<###>val " + dol[0]  + " " + dol[1]);
 		assertFalse(true);
 	}
 }

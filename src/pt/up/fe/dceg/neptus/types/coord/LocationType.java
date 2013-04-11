@@ -858,7 +858,7 @@ Comparable<LocationType> {
      */
     public double getDistanceInMeters(LocationType anotherLocation) {
 
-        // System.out.println("distance in meters from "+getLatitude()+","+getLongitude()+" to "+anotherLocation.getLatitude()+","+getLongitude());
+        // NeptusLog.pub().info("<###>distance in meters from "+getLatitude()+","+getLongitude()+" to "+anotherLocation.getLatitude()+","+getLongitude());
         double[] offsets = getOffsetFrom(anotherLocation);
         double sum = offsets[0] * offsets[0] + offsets[1] * offsets[1] + offsets[2] * offsets[2];
         return Math.sqrt(sum);

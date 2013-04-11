@@ -44,8 +44,8 @@ import pt.up.fe.dceg.neptus.plugins.planning.MapPanel;
 import pt.up.fe.dceg.neptus.plugins.uavs.UavLib;
 import pt.up.fe.dceg.neptus.plugins.uavs.UavVehicleIcon;
 import pt.up.fe.dceg.neptus.plugins.uavs.painters.elements.UavVehiclePainter;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author sergioferreira

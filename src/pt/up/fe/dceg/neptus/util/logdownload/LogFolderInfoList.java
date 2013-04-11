@@ -186,7 +186,7 @@ JXList provides api to access items of the underlying model in view coordinates 
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-//				System.out.println(""+((LogFolder)getSelectedValue()).logFiles.size());
+//				NeptusLog.pub().info("<###>"+((LogFolder)getSelectedValue()).logFiles.size());
 				if (e.getButton() == MouseEvent.BUTTON1
 						&& e.getModifiers() == MouseEvent.CTRL_DOWN_MASK
 						&& e.getClickCount() == 1) {

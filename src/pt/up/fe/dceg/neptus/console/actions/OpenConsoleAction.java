@@ -33,12 +33,9 @@ package pt.up.fe.dceg.neptus.console.actions;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
-
-import org.dom4j.DocumentException;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;

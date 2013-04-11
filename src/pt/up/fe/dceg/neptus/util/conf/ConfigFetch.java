@@ -1175,7 +1175,7 @@ public class ConfigFetch {
 //        timings.put(tag, System.currentTimeMillis());
     }
     public static void benchmark(String tag){
-//        System.out.println("BENCHMARK "+tag + " took " + ((System.currentTimeMillis() - timings.get(tag))) + "ms and from the start "+ ((System.currentTimeMillis() - STARTTIME) / 1E3) + "s");
+//        NeptusLog.pub().info("<###>BENCHMARK "+tag + " took " + ((System.currentTimeMillis() - timings.get(tag))) + "ms and from the start "+ ((System.currentTimeMillis() - STARTTIME) / 1E3) + "s");
     }
     
     /**

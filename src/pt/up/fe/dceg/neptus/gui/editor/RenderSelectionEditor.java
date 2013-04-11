@@ -37,6 +37,8 @@ import java.util.Locale;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.swing.LookAndFeelTweaks;
 
@@ -85,7 +87,7 @@ public class RenderSelectionEditor extends AbstractPropertyEditor {
 	}
 	
 	public Object getValue() {
-		System.out.println("erro aqui :"+(String)combobox.getSelectedItem());
+		NeptusLog.pub().info("<###>erro aqui :"+(String)combobox.getSelectedItem());
 		if ((String)combobox.getSelectedItem()==null) return null;
 		return RenderType.getRenderType((String)combobox.getSelectedItem());
 	}

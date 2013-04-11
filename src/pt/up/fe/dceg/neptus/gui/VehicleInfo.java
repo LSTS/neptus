@@ -467,7 +467,7 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
             filesTree.setRootVisible(false);
             filesTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
                 public void valueChanged(javax.swing.event.TreeSelectionEvent e) {
-                    // System.out.println("valueChanged() " + e.getSource());
+                    // NeptusLog.pub().info("<###>valueChanged() " + e.getSource());
                     DefaultMutableTreeNode node = (DefaultMutableTreeNode) filesTree.getLastSelectedPathComponent();
 
                     if (node == null)
@@ -532,7 +532,7 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
             root.add(parent);
         }
         while (it.hasNext()) {
-            // System.out.println("hello!.,,,,,,,,,");
+            // NeptusLog.pub().info("<###>hello!.,,,,,,,,,");
             TemplateFileVehicle tfx = (TemplateFileVehicle) it.next();
             DefaultMutableTreeNode child = new DefaultMutableTreeNode(tfx);
             parent.add(child);
@@ -555,7 +555,7 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
             root.add(parent);
         }
         while (it.hasNext()) {
-            // System.out.println("hello!.,,,,,,,,,");
+            // NeptusLog.pub().info("<###>hello!.,,,,,,,,,");
             FileType tfx = (FileType) it.next();
             DefaultMutableTreeNode child = new DefaultMutableTreeNode(tfx);
             parent.add(child);
@@ -712,7 +712,7 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                         else
                             edType = ed.TEXT_EDITOR_TYPE;
                         boolean rsb = ed.editFile(fxHrefTextField.getText(), edType, false);
-                        System.out.println(">" + rsb);
+                        NeptusLog.pub().info("<###>>" + rsb);
                     }
                     else {
                         // TextViewer.showFileViewer(fxHrefTextField.getText());
@@ -811,7 +811,7 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
             okButton.setPreferredSize(new java.awt.Dimension(90, 28));
             okButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    // System.out.println("actionPerformed()");
+                    // NeptusLog.pub().info("<###>actionPerformed()");
                     CoordinateSystem cs = getCoordinateSystemPanel().getCoordinateSystem();
                     coordinateSystem.setCoordinateSystem(cs);
                     closeFrame();
@@ -865,7 +865,7 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
             cancelButton.setText("Cancel");
             cancelButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    // System.out.println("actionPerformed()");
+                    // NeptusLog.pub().info("<###>actionPerformed()");
                     closeFrame();
                 }
             });

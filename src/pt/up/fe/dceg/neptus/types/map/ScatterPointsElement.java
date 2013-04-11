@@ -211,7 +211,7 @@ public class ScatterPointsElement extends AbstractElement {
 		setLastAdded(new Point3d(offsetNorth, offsetEast, offsetDown));
 		getParentMap().warnChangeListeners(mce);
 //		getMapGroup().warnListeners(mce);
-		//System.out.println("I send mce to "+getMapGroup());
+		//NeptusLog.pub().info("<###>I send mce to "+getMapGroup());
 		//lock.unlock();
 		setLastAdded(null);
 	}

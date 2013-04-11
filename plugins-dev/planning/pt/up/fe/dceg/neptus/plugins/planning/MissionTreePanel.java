@@ -299,7 +299,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                                                 IMCMessage pm1 = sel.asIMCPlan();
                                                 PlanType p2 = IMCUtils.parsePlanSpecification(new MissionType(), pm1);
                                                 IMCMessage pm2 = p2.asIMCPlan();
-                                                System.out.println(".....");
+                                                NeptusLog.pub().info("<###>.....");
                                                 System.out.println(ByteUtil.encodeAsString(pm1.payloadMD5()));
                                                 System.out.println(ByteUtil.encodeAsString(pm2.payloadMD5()));
                                                 System.out.println(IMCUtil.getAsHtml(pm1));
@@ -737,7 +737,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         // Transferable tr = dtde.getTransferable();
         // DataFlavor[] flavors = tr.getTransferDataFlavors();
         // for (int i = 0; i < flavors.length; i++) {
-        // // System.out.println("Possible flavor: " + flavors[i].getMimeType());
+        // // NeptusLog.pub().info("<###>Possible flavor: " + flavors[i].getMimeType());
         // if (flavors[i].isMimeTypeEqual("text/plain; class=java.lang.String; charset=Unicode")) {
         // dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
         // String url = null;

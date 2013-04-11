@@ -37,10 +37,8 @@ import java.util.LinkedHashMap;
 
 import javax.swing.JFrame;
 
-import org.dom4j.DocumentException;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.actions.LayoutEditConsoleAction;
 import pt.up.fe.dceg.neptus.console.actions.OpenConsoleAction;

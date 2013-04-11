@@ -231,7 +231,7 @@ public class SpeechUtil {
 			while (running) {
 				try {
 
-					// System.out.println("::::::::::");
+					// NeptusLog.pub().info("<###>::::::::::");
 					synchronized (textQueue) {
 						text = textQueue.remove();
 					}
@@ -245,9 +245,9 @@ public class SpeechUtil {
 				catch (NoSuchElementException e1) {
 					synchronized (this) {
 						try {
-							// System.out.println("zzzzzzzzzz");
+							// NeptusLog.pub().info("<###>zzzzzzzzzz");
 							wait();
-							// System.out.println("wakeeeeeee");
+							// NeptusLog.pub().info("<###>wakeeeeeee");
 							// System.out.flush();
 						}
 						catch (Exception e) {

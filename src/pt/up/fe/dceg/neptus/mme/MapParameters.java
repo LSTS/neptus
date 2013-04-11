@@ -192,7 +192,7 @@ public class MapParameters extends ParametersPanel implements ActionListener {
 			map.setName(getMapName().getText());
 			map.setId(getMapID().getText());
 			map.setDescription(getDescription().getText());
-			System.out.println("Set the map description "+getDescription().getText());
+			NeptusLog.pub().info("<###>Set the map description "+getDescription().getText());
 			map.setCenterLocation(this.homeLoc);
 			//map.setType(get)
 			getMapDialog().setVisible(false);

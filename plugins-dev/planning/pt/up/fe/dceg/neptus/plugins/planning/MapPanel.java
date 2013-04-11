@@ -513,7 +513,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
             v.addRenderFeed(this);
         }
         if (getConsole() != null) {
-            // System.out.println("--------------------" +this.getParent());
+            // NeptusLog.pub().info("<###>--------------------" +this.getParent());
             if (this.getParent() instanceof MainPanel || (this.getParent() instanceof LayoutProfileProvider &&
                     ((LayoutProfileProvider) this.getParent()).supportsMaximizePanelOnContainer())) {
                 maximizeMode.setEnabled(true);
@@ -852,7 +852,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
      */
     @Override
     public boolean addPostRenderPainter(Renderer2DPainter painter, String name) {
-        // System.out.println("Adding a post render painter: "+name);
+        // NeptusLog.pub().info("<###>Adding a post render painter: "+name);
         return renderer.addPostRenderPainter(painter, name);
     }
 

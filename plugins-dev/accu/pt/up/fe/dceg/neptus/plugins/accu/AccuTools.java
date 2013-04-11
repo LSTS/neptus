@@ -38,6 +38,7 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
@@ -53,9 +54,9 @@ import pt.up.fe.dceg.neptus.util.ConsoleParse;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
 
 /**
  * @author zp
@@ -126,7 +127,7 @@ public class AccuTools extends SimpleSubPanel {
                                     elem.setMapGroup(MapGroup.getMapGroupInstance(getConsole().getMission()));                        
                                     MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0].addObject(elem);                        
                                 }
-                                System.out.println("Setting "+elem.getId()+" transponder in the console");
+                                NeptusLog.pub().debug("Setting "+elem.getId()+" transponder in the console");
                                 elem.getMapGroup().warnListeners(new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED));
                             }
                         }

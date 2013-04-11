@@ -43,6 +43,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.ProgressPanel;
 
 /**
@@ -103,7 +104,7 @@ public class FTPProgressPanel extends ProgressPanel {
                 counter += bytes;
                 System.out.println(counter);
             }
-            System.out.println("Finished Transfering");
+            NeptusLog.pub().info("<###>Finished Transfering");
             out.close();
             in.close();
         }

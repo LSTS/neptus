@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.junit.util;
 
 import junit.framework.TestCase;
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.NameNormalizer;
 
 /**
@@ -50,7 +51,7 @@ public class NameNormalizerTest extends TestCase {
 			for (int i = 1; i < id.length(); i++) {
 				assertTrue(Character.isJavaIdentifierPart(id.charAt(i)));
 			}
-			System.out.println("generated "+id);
+			NeptusLog.pub().info("<###>generated "+id);
 		}
 	}
 	

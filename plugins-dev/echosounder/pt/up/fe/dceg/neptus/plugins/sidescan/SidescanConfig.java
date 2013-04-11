@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.sidescan;
 
 import java.awt.Color;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
@@ -85,7 +86,7 @@ public class SidescanConfig implements PropertiesProvider {
     @Override
     public void setProperties(Property[] properties) {
         PluginUtils.setPluginProperties(this, properties);
-        System.out.println("setProperties");
+        NeptusLog.pub().info("<###>setProperties");
     }
 
     @Override

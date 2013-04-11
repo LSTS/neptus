@@ -249,7 +249,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
     }
 
     public String validatePitchAngleDegrees(float value) {
-        System.out.println("validate...");
+        NeptusLog.pub().info("<###>validate...");
         if (value < 0 || value > (float)45)
             return "Pitch angle shoud be bounded between [0\u00B0, 45\u00B0]";
         return null;

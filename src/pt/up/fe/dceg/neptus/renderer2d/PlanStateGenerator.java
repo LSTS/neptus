@@ -163,7 +163,7 @@ public class PlanStateGenerator implements ActionListener {
 			}
 			// Change the current maneuver according to the transition
 			else {
-				System.out.println("Transition to "+reachIds[0]);
+				NeptusLog.pub().info("<###>Transition to "+reachIds[0]);
 				curManeuverID = reachIds[0];
 				curManeuver = (Maneuver) planType.getGraph().getManeuver(curManeuverID).clone();
 				sendAction("Transition to "+curManeuverID+".");

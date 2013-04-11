@@ -1063,7 +1063,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     name = ((TransponderElement) transNode.getUserObject()).getName();
                     timer = (LBLRangesTimer) imcSystems.retrieveData(name);
                     if (timer != null) {
-                        System.out.println("Stoping timer for " + trans + " vehicle associated "
+                        NeptusLog.pub().info("<###>Stoping timer for " + trans + " vehicle associated "
                                 + userInfo.get("vehicle"));
                         timer.stopTimer();
                     }

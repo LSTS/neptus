@@ -279,7 +279,7 @@ public class LatLonConv extends JPanel {
 			okButton.setText(I18n.text("OK"));
 			okButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					// System.out.println("actionPerformed()");
+					// NeptusLog.pub().info("<###>actionPerformed()");
 					if (jFrame != null) {
 						jFrame.setVisible(false);
 						jFrame.dispose();

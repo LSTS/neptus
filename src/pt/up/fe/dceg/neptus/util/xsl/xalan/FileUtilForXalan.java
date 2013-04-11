@@ -149,10 +149,10 @@ public class FileUtilForXalan
         String urlG = url;
         String uriCSrc = "";
         URI uriB;
-        System.out.println("url---".concat(url));
-        System.out.println("uriBase---".concat(uriBase));
-        System.out.println("uriXML---".concat(uriXML));
-        System.out.println("uriXSL---".concat(uriXSL));
+        NeptusLog.pub().info("<###>url---".concat(url));
+        NeptusLog.pub().info("<###>uriBase---".concat(uriBase));
+        NeptusLog.pub().info("<###>uriXML---".concat(uriXML));
+        NeptusLog.pub().info("<###>uriXSL---".concat(uriXSL));
 
         try
         {
@@ -174,7 +174,7 @@ public class FileUtilForXalan
 
         
         //String uriCSrc = 
-        System.out.println("uriCSrc---".concat(uriCSrc));
+        NeptusLog.pub().info("<###>uriCSrc---".concat(uriCSrc));
 
         if (!new File(url).isAbsolute())
         {
@@ -232,7 +232,7 @@ public class FileUtilForXalan
     {
         String fileLocation = null;
         
-        //System.out.println("aaaaa---".concat(expContext.getContextNode().getNamespaceURI()));
+        //NeptusLog.pub().info("<###>aaaaa---".concat(expContext.getContextNode().getNamespaceURI()));
         //XPathContext xctxt = expContext.getXPathContext();
         int whereNode = xctxt.getCurrentNode();
         fileLocation = null;
@@ -261,7 +261,7 @@ public class FileUtilForXalan
     
     public void getString (ExpressionContext expContext, String str)
     {
-        System.out.println("->>>> ".concat(str));
+        NeptusLog.pub().info("<###>->>>> ".concat(str));
     }
 
     

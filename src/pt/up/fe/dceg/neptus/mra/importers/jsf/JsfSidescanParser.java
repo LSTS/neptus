@@ -31,7 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.mra.importers.jsf;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -39,7 +38,6 @@ import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mra.api.SidescanLine;
 import pt.up.fe.dceg.neptus.mra.api.SidescanParser;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 /**
  * @author jqcorreia

@@ -135,7 +135,7 @@ public class ScaleBar extends JPanel {
 		if (getWidth() == 0)
 			return;
 
-		//System.out.println("chamou newvalues");
+		//NeptusLog.pub().info("<###>chamou newvalues");
 		//falha a 1 acaba  
 		//se passa à segunda condição ok -->
 		//NumberFormat nf = GuiUtils.getNeptusDecimalFormat(precision);
@@ -400,10 +400,10 @@ public class ScaleBar extends JPanel {
 		for (int i = 00;; i += 2) {
 			//motor.reDraw();
 			try {//nada
-				//System.out.println("espera...");
+				//NeptusLog.pub().info("<###>espera...");
 				m.setValue(i);
 				Thread.sleep(100);
-				//System.out.println("esperou");
+				//NeptusLog.pub().info("<###>esperou");
 			} catch (Exception e) {
 			    e.printStackTrace();
 			}

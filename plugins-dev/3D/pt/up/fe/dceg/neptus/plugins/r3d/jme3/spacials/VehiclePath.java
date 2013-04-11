@@ -155,9 +155,9 @@ public class VehiclePath extends Element3D {
             // East >> x Image px >> x jME coordinates
             // [N][E] >> [y Img][x Img] >> [z jME][x jME]
             float offset[] = { northOffset.floatValue(), eastOffset.floatValue() };
-            // System.out.println("[VehiclePath] offsets(" + offset[0] + ", " + offset[1] + ")");
+            // NeptusLog.pub().info("<###>[VehiclePath] offsets(" + offset[0] + ", " + offset[1] + ")");
             offset = worldInfo.convertNED2jME_heightMapScale(offset); // [y Image px][x Image px]
-            // System.out.println("[VehiclePath] JME x z (" + offset[1] + ", " + -offset[0] + ")");
+            // NeptusLog.pub().info("<###>[VehiclePath] JME x z (" + offset[1] + ", " + -offset[0] + ")");
             // Depth
             // Transforms depth into height then scales to what height is maped in the height map
             float heightConverted = worldInfo.convertDepthMeter2Px_heightMapScale(depthIterator.next().floatValue());
@@ -201,7 +201,7 @@ public class VehiclePath extends Element3D {
         Vector3f[] finalVertices = new Vector3f[vertNumber];
         finalVertices[0] = pointA.getWingLeft();
         finalVertices[1] = pointA.getWingRight();
-        System.out.println("First central point:" + pointA.getPositionXYZ().toString());
+        NeptusLog.pub().info("<###>First central point:" + pointA.getPositionXYZ().toString());
 
         int localIndexTimes2;
         ArrayList<int[]> vertexIndexUpDown;
@@ -267,7 +267,7 @@ public class VehiclePath extends Element3D {
             locationIndex++;
         }
 
-        System.out.println("Of " + maxSegments + " position, skiped " + skiped + ". " + (locationIndex + 1)
+        NeptusLog.pub().info("<###>Of " + maxSegments + " position, skiped " + skiped + ". " + (locationIndex + 1)
                 + " positions considered");
         printVector3fArray(finalVertices);
         printIntArray(up);
@@ -322,7 +322,7 @@ public class VehiclePath extends Element3D {
                 break;
             System.out.print(j.toString() + "  ");
         }
-        System.out.println(")");
+        NeptusLog.pub().info("<###>)");
     }
 
     private void printIntArray(int[] array) {
@@ -331,7 +331,7 @@ public class VehiclePath extends Element3D {
             int j = array[i];
             System.out.print(j + "  ");
         }
-        System.out.println(")");
+        NeptusLog.pub().info("<###>)");
     }
 
     private boolean isVisible(int[] order, Vector3f[] finalVertices) {

@@ -338,7 +338,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-//        System.out.println("--------------- " + evt);
+//        NeptusLog.pub().info("<###>--------------- " + evt);
         if(!refreshing && evt.getSource() instanceof SystemProperty) {
             SystemProperty sp = (SystemProperty) evt.getSource();
             sp.setValue(evt.getNewValue());
@@ -476,7 +476,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 }
                 else {
                     boolean isList = false;
-//                    System.out.println("Prop type and if is list:: " + p.getType() + " " + (ArrayList.class.equals(p.getType())));
+//                    NeptusLog.pub().info("<###>Prop type and if is list:: " + p.getType() + " " + (ArrayList.class.equals(p.getType())));
                     if (ArrayList.class.equals(p.getType()))
                         isList = true;
                     //Object value = ConfigurationManager.getValueTypedFromString(ep.getValue(), p.getValueType());
@@ -511,7 +511,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 //        ImcMsgManager.getManager().addListener(new MessageListener<MessageInfo, IMCMessage>() {
 //            @Override
 //            public void onMessage(MessageInfo info, IMCMessage msg) {
-//                System.out.println("---------");
+//                NeptusLog.pub().info("<###>---------");
 //                SystemConfigurationEditorPanel.updatePropertyWithMessageArrived(sc1, msg);
 //                SystemConfigurationEditorPanel.updatePropertyWithMessageArrived(sc2, msg);
 //            }

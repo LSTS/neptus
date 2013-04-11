@@ -829,7 +829,7 @@ public class PluginUtils {
         for (File f : PLUGINS_DIR.listFiles()) {
             if (FileUtil.getFileExtension(f).equalsIgnoreCase("jar")) {
                 try {
-                    System.out.println("Adding " + f + " to classpath...");
+                    NeptusLog.pub().info("<###>Adding " + f + " to classpath...");
                     addToClassPath(f.toURI().toURL());
                 }
                 catch (Exception e) {

@@ -33,8 +33,8 @@ package pt.up.fe.dceg.neptus.mp.preview;
 
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mp.maneuvers.RowsManeuver;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 

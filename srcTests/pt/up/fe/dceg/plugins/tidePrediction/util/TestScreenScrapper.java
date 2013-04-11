@@ -40,6 +40,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.plugins.tidePrediction.Harbors;
 import pt.up.fe.dceg.plugins.tidePrediction.TidePrediction;
 import pt.up.fe.dceg.plugins.tidePrediction.TidePrediction.TIDE_TYPE;
@@ -116,10 +117,10 @@ public class TestScreenScrapper {
             throws Exception {
         Date wantedDate;
         Float tidePredictions;
-        System.out.println("---------------------------------------------");
+        NeptusLog.pub().info("<###>---------------------------------------------");
         wantedDate = gregorianCalendar.getTime();
         tidePredictions = finder.getTidePrediction(wantedDate, harbor, true);
-        System.out.println("For " + harbor.name() + " at " + wantedDate.toString() + " height:" + tidePredictions);
+        NeptusLog.pub().info("<###>For " + harbor.name() + " at " + wantedDate.toString() + " height:" + tidePredictions);
         return tidePredictions;
     }
 }

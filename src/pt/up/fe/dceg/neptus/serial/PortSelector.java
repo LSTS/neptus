@@ -134,10 +134,10 @@ public class PortSelector extends JDialog {
 							//if (selectedPort.getPortType() == CommPortIdentifier.PORT_SERIAL) {
 								
 								/*
-								System.out.println("BAUD RATE: "+sp.getBaudRate());
-								System.out.println("DATA BITS: "+sp.getDataBits());
-								System.out.println("PARITY: "+sp.getParity());
-								System.out.println("STOP BITS: "+sp.getStopBits());
+								NeptusLog.pub().info("<###>BAUD RATE: "+sp.getBaudRate());
+								NeptusLog.pub().info("<###>DATA BITS: "+sp.getDataBits());
+								NeptusLog.pub().info("<###>PARITY: "+sp.getParity());
+								NeptusLog.pub().info("<###>STOP BITS: "+sp.getStopBits());
 								*/
 							//}
 							cmp.close();

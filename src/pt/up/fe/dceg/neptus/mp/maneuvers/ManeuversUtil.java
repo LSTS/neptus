@@ -225,9 +225,9 @@ public class ManeuversUtil {
             pt[Y] = res[1];
         }
         
-//        System.out.println("Points");
+//        NeptusLog.pub().info("<###>Points");
 //        for (double[] pt : newPoints) {
-//            System.out.println("[" + pt[X] + ", " + pt[Y] + "]");
+//            NeptusLog.pub().info("<###>[" + pt[X] + ", " + pt[Y] + "]");
 //        }
         return newPoints;
     }
@@ -267,7 +267,7 @@ public class ManeuversUtil {
         
         for (int i = 0; i < points.size(); i+=2) {
             pointI = points.get(i);
-            //System.out.println("[" + pointI[X] + ", " + pointI[Y] + "]");
+            //NeptusLog.pub().info("<###>[" + pointI[X] + ", " + pointI[Y] + "]");
             try {
                 pointF = points.get(i + 1);
             }

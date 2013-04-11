@@ -97,7 +97,7 @@ public class DrawPathInteraction extends InteractionAdapter {
         changeEvent.setSourceMap(pivot);
         AddObjectEdit edit = new AddObjectEdit(curDrawing);
         
-        //System.out.println("Adding edit "+edit.getPresentationName());
+        //NeptusLog.pub().info("<###>Adding edit "+edit.getPresentationName());
         undoManager.addEdit(edit);
 
         pivot.warnChangeListeners(changeEvent);

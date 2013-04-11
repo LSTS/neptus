@@ -51,6 +51,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.ImageFileChooser;
 import pt.up.fe.dceg.neptus.gui.ImageScaleAndLocationPanel;
 import pt.up.fe.dceg.neptus.gui.LocationPanel;
@@ -472,7 +473,7 @@ public class ImageObjectParameters extends ParametersPanel {
             batCheckBox.setText("Is bathymetric");
             batCheckBox.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
-                    System.out.println("itemStateChanged()"
+                    NeptusLog.pub().info("<###>itemStateChanged()"
                             + ((e.getStateChange() == ItemEvent.SELECTED) ? "Sel." : "Desel."));
                     if (e.getStateChange() == ItemEvent.SELECTED) {
                         getMaxHeightFormattedTextField().setEnabled(true);

@@ -52,6 +52,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.fileeditor.SyntaxDocument;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
@@ -139,7 +140,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 sent.addAll(sentGoals.keySet());
                 for (String s : sent) {
                     if (manLoc.getDistanceInMeters(sentGoals.get(s).getLocation()) < 1) {
-                        System.out.println("Distance: "+manLoc.getDistanceInMeters(sentGoals.get(s).getLocation()));
+                        NeptusLog.pub().info("<###>Distance: "+manLoc.getDistanceInMeters(sentGoals.get(s).getLocation()));
                         completeGoals.put(s, sentGoals.get(s));
                         sentGoals.remove(s);
                     }

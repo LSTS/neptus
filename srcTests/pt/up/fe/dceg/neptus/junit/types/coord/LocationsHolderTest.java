@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.junit.types.coord;
 
 import junit.framework.TestCase;
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.coord.LocationsHolder;
 
@@ -81,13 +82,13 @@ public class LocationsHolderTest extends TestCase
 
         assertTrue(LocationsHolder.removeRefToAbstractLocationPoint(loc1.getId(), loc2.getId()));
 
-        System.out.println("_________________________________________\n");
+        NeptusLog.pub().info("<###>_________________________________________\n");
         System.out.println(LocationsHolder.generateReport());
 
         
         assertTrue(LocationsHolder.removeAbstractLocationPoint(loc1.getId()));
 
-        System.out.println("_________________________________________\n");
+        NeptusLog.pub().info("<###>_________________________________________\n");
         System.out.println(LocationsHolder.generateReport());
 
     }

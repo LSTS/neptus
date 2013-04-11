@@ -50,10 +50,10 @@ import org.jfree.data.time.TimeSeriesCollection;
 
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.mra.MraChartPanel;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
 import pt.up.fe.dceg.neptus.mra.LogStatisticsItem;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
+import pt.up.fe.dceg.neptus.mra.MraChartPanel;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;

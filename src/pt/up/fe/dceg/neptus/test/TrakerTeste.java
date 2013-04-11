@@ -40,6 +40,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.renderer2d.MissionRenderer;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
@@ -340,15 +341,15 @@ public class TrakerTeste extends JPanel
         if (newLocDist <= lasKnownLocDist)
         {
             fixedLoc = newLoc;
-            System.out.println("" + newLocDist + " & " + lasKnownLocDist);
+            NeptusLog.pub().info("<###>" + newLocDist + " & " + lasKnownLocDist);
         }
         else
         {
             fixedLoc = helperLoc;
-            System.out.println("Trocou!! " + newLocDist + " & " + lasKnownLocDist);
+            NeptusLog.pub().info("<###>Trocou!! " + newLocDist + " & " + lasKnownLocDist);
         }
-        System.out.println("    " + newLoc.getDebugString());
-        System.out.println("    " + helperLoc.getDebugString());
+        NeptusLog.pub().info("<###>    " + newLoc.getDebugString());
+        NeptusLog.pub().info("<###>    " + helperLoc.getDebugString());
 
         return fixedLoc;
     }
@@ -382,13 +383,13 @@ public class TrakerTeste extends JPanel
             dataFeed.add(new DataFeed(2, 0, 12.33, 7.98));
 
             i = 0;
-            System.out.println("DataFeed: " + dataFeed.size());
+            NeptusLog.pub().info("<###>DataFeed: " + dataFeed.size());
         }
 
         @Override
         public void run()
         {
-            System.out.println("Tick: " + i);
+            NeptusLog.pub().info("<###>Tick: " + i);
             DataFeed dFeed = dataFeed.get(i++);
             LocationType[] locArray = calculate(dFeed.trans1, dFeed.trans2,
                     dFeed.dist1, dFeed.dist2);

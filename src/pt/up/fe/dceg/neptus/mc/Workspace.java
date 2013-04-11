@@ -273,7 +273,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 //            public void keyPressed(KeyEvent e) {
 //                if (e.isShiftDown()) {
 //                    if (e.getKeyCode() == KeyEvent.VK_S) {
-//                        System.out.println("shift S ---");
+//                        NeptusLog.pub().info("<###>shift S ---");
 //                        NeptusEvents.post(new NeptusEventHiddenMenus());
 //                    }
 //                }
@@ -562,7 +562,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     // FIXME with SwingWorker
-                    // System.out.println("actionPerformed()");
+                    // NeptusLog.pub().info("<###>actionPerformed()");
                     // File fx = openMapFileAction();
                     File fx = MapFileChooser.showOpenMapDialog(Workspace.this);
                     openMapTypeFile(fx);
@@ -937,7 +937,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     // FIXME with SwingWorker ?
-                    // System.out.println("actionPerformed()");
+                    // NeptusLog.pub().info("<###>actionPerformed()");
                     File fx = openFileAction();
                     openMiscTypeFile(fx);
                 }
