@@ -233,12 +233,10 @@ public class DeltaTParser implements BathymetryParser {
         try {
             LsfLogSource source = new LsfLogSource(new File("/home/jqcorreia/lsts/logs/lauv-noptilus-1/20130208/124645_bathym_plan/Data.lsf"), null);
             DeltaTParser p = new DeltaTParser(source);
-            BathymetrySwath bs;
-            
-//            Kryo kryo = new Kryo();
+            //            Kryo kryo = new Kryo();
 //            Output output = new Output(new FileOutputStream("kryo.bin"));
             int c = 0;
-            while((bs = p.nextSwath()) != null) {
+            while((p.nextSwath()) != null) {
 //                for(BathymetryPoint bp : bs.getData()) {
 //                    double r[] = CoordinateUtil.latLonAddNE2(bp.lat, bp.lon, bp.north, bp.east);
 //                    float f[] = new float[2];

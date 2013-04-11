@@ -46,8 +46,6 @@ public class PointSelector extends ParametersPanel {
 	private HeightDepthSelector heightDepthSelector = null;
 	private LatLongSelector latLongSelector = null;
     private boolean editable;
-    private boolean zSelectable = true;
-    
     public PointSelector() {
 		super();
 		initialize();
@@ -66,7 +64,6 @@ public class PointSelector extends ParametersPanel {
 	}
 	
 	public void setZSelectable(boolean zSelectable) {
-	    this.zSelectable = zSelectable;
 	    heightDepthSelector.setVisible(zSelectable);
 	}
 	

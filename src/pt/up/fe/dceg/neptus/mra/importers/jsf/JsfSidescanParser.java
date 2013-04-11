@@ -74,7 +74,6 @@ public class JsfSidescanParser implements SidescanParser {
         ArrayList<JsfSonarData> nextPing;
         
         if(ping.size() == 0) return list;
-        int ypos = 0;
         while(ping.get(0).getTimestamp() < timestamp2) {
             int size = 1;
             JsfSonarData sboard = null;

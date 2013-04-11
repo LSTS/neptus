@@ -87,7 +87,6 @@ import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 public class MissionBrowser extends JPanel implements PlanChangeListener {
 
     private static final long serialVersionUID = 1L;
-    private final boolean debugOn = false;
 
     public enum State {
         SYNC("Sync"),
@@ -913,39 +912,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         // catch (Exception e) {
         // e.printStackTrace();
         // }
-    }
-
-    /**
-     * @param planDBInfo
-     */
-    private State testPlanDBInfoForEqualityInMission(PlanDBInfo planDBInfo) {
-        DefaultMutableTreeNode plans = treeModel.plans;
-        if (plans == null)
-            return State.REMOTE;
-
-        if (plans.getChildCount() == 0)
-            return State.REMOTE;
-
-        ExtendedTreeNode childPlan = (ExtendedTreeNode) plans.getFirstChild();
-        while (childPlan != null) {
-            try {
-                if (childPlan.getUserObject() instanceof PlanType) {
-                    PlanType plan = (PlanType) childPlan.getUserObject();
-                    boolean equals = planDBInfo.getPlanId().equalsIgnoreCase(plan.getId());
-                    if (equals) {
-                        byte[] localMD5 = plan.asIMCPlan().payloadMD5();
-                        byte[] remoteMD5 = planDBInfo.getMd5();
-                        return ByteUtil.equal(localMD5, remoteMD5) ? State.SYNC : State.NOT_SYNC;
-                    }
-                }
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-            childPlan = (ExtendedTreeNode) childPlan.getNextSibling();
-        }
-
-        return State.REMOTE;
     }
 
     public void rebuildTransponderNodes(ImcSystem imcSystem) {
