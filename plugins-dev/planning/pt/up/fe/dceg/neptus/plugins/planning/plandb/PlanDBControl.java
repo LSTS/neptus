@@ -206,25 +206,26 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
 //                if (console != null) {
                     PlanType pt = IMCUtils.parsePlanSpecification(new MissionType()/*console.getMission()*/, msg.getMessage("arg"));
                     IMCMessage p0 = msg.getMessage("arg");
-                    NeptusLog.pub().info("<###>Plan received        " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p0.payloadMD5()));
+                    NeptusLog.pub().debug("Plan received        " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p0.payloadMD5()));
                     IMCMessage p1 = pt.asIMCPlan();
-                    NeptusLog.pub().info("<###>Plan from plan       " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p1.payloadMD5()));
+                    NeptusLog.pub().debug("Plan from plan       " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p1.payloadMD5()));
                     IMCMessage p2 = pt.clonePlan().asIMCPlan();
-                    NeptusLog.pub().info("<###>Plan from clone plan " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p2.payloadMD5()));
+                    NeptusLog.pub().debug("Plan from clone plan " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p2.payloadMD5()));
 
                     try {
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         IMCOutputStream imcOs = new IMCOutputStream(baos);
                         p0.serialize(imcOs);
-                        ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
+                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));
+                        
                         baos = new ByteArrayOutputStream();
                         imcOs = new IMCOutputStream(baos);
                         p1.serialize(imcOs);
-                        ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
+                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));
                         baos = new ByteArrayOutputStream();
                         imcOs = new IMCOutputStream(baos);
                         p2.serialize(imcOs);
-                        ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
+                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));                        
                     }
                     catch (IOException e) {
                         e.printStackTrace();
