@@ -31,9 +31,11 @@
  */
 package pt.up.fe.dceg.neptus.plugins.spot;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.Collection;
@@ -55,7 +57,6 @@ import pt.up.fe.dceg.neptus.plugins.update.PeriodicUpdatesService;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 /**
  * @author Margarida Faria
@@ -68,7 +69,6 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     private static final long serialVersionUID = -4807939956933128721L;
     private final int updateMillis;
-    private final Image arrow;
 
     @NeptusProperty
     public boolean showOnlyWhenInteractionIsActive = true;
@@ -77,13 +77,24 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     @NeptusProperty
     public boolean showSpeedValue = true;
 
+    protected GeneralPath gp = new GeneralPath();
+    {
+        gp.moveTo(-2, -8);
+        gp.lineTo(2, -8);
+        gp.lineTo(2, 2);
+        gp.lineTo(5, 2);
+        gp.lineTo(0, 8);
+        gp.lineTo(-5, 2);
+        gp.lineTo(-2, 2);
+        gp.closePath();
+    }
+
     /**
      * @param console
      */
     public SpotOverlay(ConsoleLayout console) {
         super(console);
         updateMillis = 60 * 5 * 1000;
-        arrow = ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/spot/images/spotArrow.png");
         spotsOnMap = new Vector<Spot>();
     }
 
@@ -162,11 +173,9 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        super.paint(g, renderer);
-        Spot.log.debug(spotsOnMap.size() + " spots:");
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         for (Spot spot : spotsOnMap) {
             LocationType spotLoc = spot.getLastLocation();
-            Spot.log.debug(spot.getName() + " at " + spotLoc);
             if (spotLoc == null) {
                 continue;
             }
@@ -174,30 +183,25 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
             double xScreenPos = pt.getX();
             double yScreenPos = pt.getY();
             g.translate(xScreenPos, yScreenPos);
-            Spot.log.debug("; rendered at (" + xScreenPos + ", " + yScreenPos + ")");
 
             if (showNames) {
                 g.setColor(Color.red.darker().darker());
-                g.drawString(spot.getName(), 10, 5);
+                g.drawString(spot.getName(), 12, 0);
             }
 
             double speedMps = spot.getSpeed();
-            if (showSpeedValue) {
+            if (speedMps != -1) {
+                if (showSpeedValue) {
+                    g.setColor(Color.black);
+                    g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 12, 10);
+                }
+                g.rotate(spot.direction);
                 g.setColor(Color.black);
-                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 10, 15);
+                g.fill(gp);
+                g.setStroke(new BasicStroke(0.9f));
+                g.setColor(Color.white);
+                g.draw(gp);
             }
-
-            int xArrowScreenCoord = -7;// arrow.getWidth(renderer);
-            int yArrowScreenCoord = -7; // arrow.getHeight(renderer);
-            int widthArrow = arrow.getWidth(null);
-            int heightArrow = arrow.getHeight(null);
-            g.rotate(-spot.direction);
-            g.drawImage(arrow, xArrowScreenCoord, yArrowScreenCoord, widthArrow, heightArrow, null);
-            g.rotate(spot.direction);
-            Spot.log.debug(", arrow: coords(" + xArrowScreenCoord + "," + yArrowScreenCoord + ") dimensions:("
-                    + widthArrow + ", " + heightArrow + ")");
-
-            g.translate(-xScreenPos, -yScreenPos);
 
         }
         

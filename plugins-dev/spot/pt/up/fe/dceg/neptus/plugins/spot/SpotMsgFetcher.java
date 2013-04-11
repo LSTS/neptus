@@ -62,7 +62,7 @@ public class SpotMsgFetcher {
     public static HashMap<String, TreeSet<SpotMessage>> get() throws ParserConfigurationException, SAXException,
             IOException {
         long currentTime = System.currentTimeMillis() / 1000;
-        long timeWindow = 8 * 60 * 60;
+        long timeWindow = 1 * 60 * 60;
         long startOfTimeWindowSecs = currentTime - timeWindow;
 
         HashMap<String, TreeSet<SpotMessage>> msgBySpot = new HashMap<String, TreeSet<SpotMessage>>();
@@ -104,11 +104,9 @@ public class SpotMsgFetcher {
                         spotMsgTree = new TreeSet<SpotMessage>();
                         msgBySpot.put(id, spotMsgTree);
                     }
+                    Spot.log.debug("Adding " + id + " " + timestamp + " @ (" + lat + ", " + lon + ")");
                     spotMsgTree.add(new SpotMessage(lat, lon, timestamp, id));
 
-                }
-                else {
-                    Spot.log.debug(id + " " + timestamp + " < " + startOfTimeWindowSecs);
                 }
             }
         }
