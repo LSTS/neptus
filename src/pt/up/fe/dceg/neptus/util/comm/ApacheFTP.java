@@ -115,9 +115,7 @@ public class ApacheFTP {
                             connMode);
                 }
                 catch (Exception e) {
-                    NeptusLog.pub().error(
-                            "ApacheFTP :: No ftp args for CommMean " + "[" + cm.getName() + "] for "
-                                    + "vehicle with id: " + vehicleId);
+                    NeptusLog.pub().error(e.getStackTrace());
                     return false;
                 }
             }
@@ -171,7 +169,7 @@ public class ApacheFTP {
                     ftp.disconnect();
                 }
                 catch (IOException f) {
-                    e.printStackTrace();
+                    NeptusLog.pub().error(f.getStackTrace());
                 }
             }
             // System.err.println("Could not connect to server.");
@@ -193,7 +191,7 @@ public class ApacheFTP {
                     ftp.disconnect();
                 }
                 catch (IOException f) {
-                    // do nothing
+                    NeptusLog.pub().error(f.getMessage());
                 }
             }
             FTPException fe = new FTPException("Login failed");
@@ -222,7 +220,7 @@ public class ApacheFTP {
                     ftp.disconnect();
                 }
                 catch (IOException f) {
-                    // do nothing
+                    NeptusLog.pub().error(f.getMessage());
                 }
             }
             return false;
@@ -248,7 +246,7 @@ public class ApacheFTP {
             }
             catch (IOException e) {
                 // NeptusLog.pub().info("<###> "+e.getMessage());
-                NeptusLog.pub().debug("ApacheFTP::get:: " + e.getMessage());
+                NeptusLog.pub().error("ApacheFTP::get:: " + e.getMessage());
                 // TODO um System.exit(-1) aqui é perigoso
                 // System.exit(-1);
                 if (ftp.isConnected()) {
@@ -256,13 +254,13 @@ public class ApacheFTP {
                         ftp.disconnect();
                     }
                     catch (IOException f) {
-                        // do nothing
+                        NeptusLog.pub().error(f.getMessage());
                     }
                 }
                 return false;
             }
             // NeptusLog.pub().info("<###>concluido!!");
-            NeptusLog.pub().debug("ApacheFTP::get:: " + "done");
+            NeptusLog.pub().info("ApacheFTP::get:: " + "done");
         }
         else if (action.equals("put")) { // coloca ficheiro no servidor
             try {
@@ -287,7 +285,7 @@ public class ApacheFTP {
                         ftp.disconnect();
                     }
                     catch (IOException f) {
-                        // do nothing
+                        NeptusLog.pub().error(f.getMessage());
                     }
                 }
                 return false;
@@ -307,7 +305,7 @@ public class ApacheFTP {
                 ftp.disconnect();
             }
             catch (IOException f) {
-                // do nothing
+                NeptusLog.pub().error(f.getStackTrace());
             }
         }
 

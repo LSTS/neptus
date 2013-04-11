@@ -174,6 +174,7 @@ public class ByteUtil {
             return addStr;
         }
         catch (Exception e) {
+            e.printStackTrace();
             return "";
         }
 	}

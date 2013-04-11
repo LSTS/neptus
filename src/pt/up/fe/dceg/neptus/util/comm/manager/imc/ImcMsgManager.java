@@ -1403,6 +1403,7 @@ public class ImcMsgManager extends
                         caller = PluginUtils.getPluginName(Class.forName(caller));
                     }
                     catch (Exception e) {
+                        NeptusLog.pub().error(e.getMessage());
                         // nothing
                     }
                     info.setLabel(caller);

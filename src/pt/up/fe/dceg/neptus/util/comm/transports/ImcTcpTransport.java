@@ -523,27 +523,27 @@ public class ImcTcpTransport {
         msg.getHeader().setValue("src", 0x3c22);
         msgES.getHeader().setValue("src", 0x0015);
         
-        try { Thread.sleep(10000); } catch (InterruptedException e1) { }
-        
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcpT.sendMessage(server2, portServer2, msg, mdlT);
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcpT.sendMessage(server2, portServer2, msg, mdlT);
-
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcpT2.sendMessage(server, portServer, msgES, mdlT2);
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcpT2.sendMessage(server, portServer, msgES, mdlT2);
-
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcpT.sendMessage(server2, portServer2, msg, mdlT);
-        tcpT2.sendMessage(server, portServer, msgES, mdlT2);
-        tcpT.sendMessage(server2, portServer2, msg, mdlT);
-
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcpT2.stop();
-
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcpT.sendMessage(server2, portServer2, msg, mdlT);
+//        try { Thread.sleep(10000); } catch (InterruptedException e1) { }
+//        
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcpT.sendMessage(server2, portServer2, msg, mdlT);
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcpT.sendMessage(server2, portServer2, msg, mdlT);
+//
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcpT2.sendMessage(server, portServer, msgES, mdlT2);
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcpT2.sendMessage(server, portServer, msgES, mdlT2);
+//
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcpT.sendMessage(server2, portServer2, msg, mdlT);
+//        tcpT2.sendMessage(server, portServer, msgES, mdlT2);
+//        tcpT.sendMessage(server2, portServer2, msg, mdlT);
+//
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcpT2.stop();
+//
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcpT.sendMessage(server2, portServer2, msg, mdlT);
 	}
 }

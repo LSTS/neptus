@@ -247,6 +247,7 @@ public class ConfigFetch {
             INSTANCE = new ConfigFetch();
         }
         catch (RuntimeException e) {
+            NeptusLog.pub().error(e.getStackTrace());
             return false;
         }
         return true;
@@ -264,6 +265,7 @@ public class ConfigFetch {
             INSTANCE = new ConfigFetch(configFile, ifLog);
         }
         catch (RuntimeException e) {
+            NeptusLog.pub().error(e.getStackTrace());
             return false;
         }
         return true;
@@ -281,6 +283,7 @@ public class ConfigFetch {
             INSTANCE = new ConfigFetch(ifLog);
         }
         catch (RuntimeException e) {
+            NeptusLog.pub().error(e.getStackTrace());
             return false;
         }
         return true;
@@ -298,6 +301,7 @@ public class ConfigFetch {
             INSTANCE = new ConfigFetch(configFile);
         }
         catch (RuntimeException e) {
+            NeptusLog.pub().error(e.getStackTrace());
             return false;
         }
         return true;
@@ -328,6 +332,7 @@ public class ConfigFetch {
                     NeptusLog.pub().debug("Log4J configured with a XML conf. file!");
                 }
                 catch (Error e) {
+                    NeptusLog.pub().debug(e.getMessage());
                     BasicConfigurator.configure();
                     NeptusLog.pub().warn("Could not configure Log4J with a default config, will try to load from configuration file!!");
                 }
@@ -415,6 +420,7 @@ public class ConfigFetch {
                     NeptusLog.pub().debug("Log4J configured with a XML conf. file!");
                 }
                 catch (Error e) {
+                    NeptusLog.pub().debug(e.getMessage());
                     BasicConfigurator.configure();
                     NeptusLog.pub().warn("Could not configure Log4J!!");
                 }
@@ -425,6 +431,7 @@ public class ConfigFetch {
                     NeptusLog.pub().debug("Log4J configured with a JavaProperties conf. file!");
                 }
                 catch (Error e1) {
+                    NeptusLog.pub().debug(e1.getMessage());
                     BasicConfigurator.configure();
                     NeptusLog.pub().warn("Could not configure Log4J!!");
                 }
@@ -461,7 +468,7 @@ public class ConfigFetch {
                     }
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    NeptusLog.pub().error(e.getStackTrace());
                 }
             }
             String[] sl2 = hostadr.split("\\.");
@@ -541,7 +548,7 @@ public class ConfigFetch {
             return null;
         }
         catch (Exception any) {
-            NeptusLog.pub().debug("The file '" + path + "' requested by "+ReflectionUtil.getCallerStamp()+" was not found in this system.");
+            NeptusLog.pub().debug(any, any);
             return null;
         }
     }
@@ -682,7 +689,7 @@ public class ConfigFetch {
                 ret = reader.read(br);
             }
             catch (Exception e) {
-                System.err.println("Sorry, configuration file not found.");
+                NeptusLog.pub().error("Configuration file not found. " + e.getMessage());
             }
         }
         else {

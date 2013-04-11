@@ -743,6 +743,7 @@ public class LogsDownloaderWorker {
 								}
 							}
 							catch (Exception e) {
+							    NeptusLog.pub().debug(e.getMessage());
 							}
 						}
 						//NeptusLog.pub().info("<###>.......Removing from already existing LogFolders to LOCAL state " + (System.currentTimeMillis()-timeC1));
@@ -857,6 +858,7 @@ public class LogsDownloaderWorker {
 									logFolder.getLogFiles().remove(lfx);
 							}
 							catch (Exception e) {
+							    NeptusLog.pub().debug(e.getMessage());
 							}
 						}
 						//NeptusLog.pub().info("<###>.......Testing for log files from each log folder " + (System.currentTimeMillis()-timeF1));
@@ -945,6 +947,7 @@ public class LogsDownloaderWorker {
 								}
 							}
 							catch (Exception e) {
+							    NeptusLog.pub().debug(e.getMessage());
 							}
 						}
 						return true;
@@ -985,6 +988,7 @@ public class LogsDownloaderWorker {
 								singleLogFileDownloadWorker(lfx, findLogFolderInfoForFile(lfx));
 							}
 							catch (Exception e) {
+							    NeptusLog.pub().debug(e.getMessage());
 							}
 						}
 						return true;
@@ -1040,7 +1044,7 @@ public class LogsDownloaderWorker {
 							}
 						}
 						catch (Exception e2) {
-							//e2.printStackTrace();
+							NeptusLog.pub().error(e2.getMessage());
 							return null;
 						}
 						//NeptusLog.pub().info("<###>user option: "+userChoice);
@@ -1059,6 +1063,7 @@ public class LogsDownloaderWorker {
 								}
 							}
 							catch (Exception e) {
+							    NeptusLog.pub().debug(e.getMessage());
 							}
 						}
 						updateFilesListGUIForFolderSelected();
@@ -1119,7 +1124,7 @@ public class LogsDownloaderWorker {
                             }
                         }
                         catch (Exception e2) {
-                            //e2.printStackTrace();
+                            NeptusLog.pub().error(e2.getMessage());
                             return null;
                         }
                         deleteSelectedLogFoldersButton.setEnabled(true);
@@ -1132,6 +1137,7 @@ public class LogsDownloaderWorker {
                                     logFiles.add(lfx);
                             }
                             catch (Exception e) {
+                                NeptusLog.pub().debug(e.getMessage());
                             }
                         }
                         updateLogFilesStateDeleted(logFiles);
@@ -1366,6 +1372,7 @@ public class LogsDownloaderWorker {
 			try {
 				Integer.parseInt(portField.getText());
 			} catch (NumberFormatException e) {
+			    NeptusLog.pub().debug(e.getMessage());
 				return false;
 			}
 		}
@@ -1389,6 +1396,7 @@ public class LogsDownloaderWorker {
 			try {
 				iPort = Integer.parseInt(portField.getText());
 			} catch (NumberFormatException e) {
+			    NeptusLog.pub().debug(e.getMessage());
 				return false;
 			}
 		}
@@ -1545,6 +1553,7 @@ public class LogsDownloaderWorker {
 	                }
 	            }
 	            catch (Exception e) {
+	                NeptusLog.pub().debug(e.getMessage());
 	            }
 
 	            if (exitRequest)
@@ -1589,7 +1598,7 @@ public class LogsDownloaderWorker {
 	            }
 	        }
 	        catch (Exception e) {
-	            //e.printStackTrace();
+	            NeptusLog.pub().error(e.getMessage());
 	        }
 	        logFilesList.setIgnoreRepaint(false);
 	        
@@ -1745,6 +1754,7 @@ public class LogsDownloaderWorker {
 			try {
 				codeR = Integer.parseInt(retStr[1]);
 			} catch (NumberFormatException e) {
+			    NeptusLog.pub().debug(e.getMessage());
 				codeR = -1;
 			}
 			warnMsg(I18n.textf("Remote system return %httpdcode code!",
@@ -1796,6 +1806,7 @@ public class LogsDownloaderWorker {
 			try {
 				codeR = Integer.parseInt(retStr[1]);
 			} catch (NumberFormatException e) {
+			    NeptusLog.pub().debug(e.getMessage());
 				codeR = -1;
 			}
 			warnMsg(I18n.textf("Remote system return %httpdcode code!",
@@ -2123,6 +2134,7 @@ public class LogsDownloaderWorker {
 					try {
 						size = Long.parseLong(tsize);
 					} catch (NumberFormatException e) {
+					    NeptusLog.pub().debug(e.getMessage());
 						size = -1;
 					}
 				}
@@ -2644,7 +2656,7 @@ public class LogsDownloaderWorker {
                 arg1.setContentType("text/html");
                 arg1.getWriter().write("<html><head><title>Neptus Web Services</title></head><body><h1>Neptus Web Services</h1>");
                 
-                try { Thread.sleep(60000*2); } catch (InterruptedException e) { }
+                try { Thread.sleep(60000*2); } catch (InterruptedException e) { NeptusLog.pub().error(e.getMessage()); }
                 
                 arg1.getWriter().write("</body></html>");
                 arg1.getWriter().close();

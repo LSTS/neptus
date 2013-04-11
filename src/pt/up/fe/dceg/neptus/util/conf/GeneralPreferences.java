@@ -490,8 +490,7 @@ public class GeneralPreferences implements PropertiesProvider {
 
         }
         catch (NumberFormatException e) {
-//            GeneralPreferences.setProperty(GeneralPreferences.IMC_CCU_ID,
-//                    GeneralPreferences.getPropertyDefaultValue(GeneralPreferences.IMC_CCU_ID));
+            NeptusLog.pub().error(e.getMessage());
         }
     }
 

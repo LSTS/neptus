@@ -72,43 +72,15 @@ public class PropertiesLoader extends Properties {
             this.workingFile = "Sistema.properties";
         }
         catch (FileNotFoundException e) {
-            NeptusLog.pub().error(this + ": File not found.");
+            NeptusLog.pub().error("File not found. : " + e.getMessage());
         }
         catch (IOException e) {
-            NeptusLog.pub().error(this + ": Can't read file.");
+            NeptusLog.pub().error("Can't read file. : " + e.getMessage());
         }
     }
 
     public PropertiesLoader(String txfile) {
-        super();
-        try {
-            setFile(txfile);
-            this.workingFile = txfile;
-        }
-        catch (FileNotFoundException e) {
-            try {
-                setFile("pt.up.fe.dceg.neptus.properties");
-                this.workingFile = "pt.up.fe.dceg.neptus.properties";
-            }
-            catch (FileNotFoundException e1) {
-                NeptusLog.pub().error(this + ": File not found.");
-            }
-            catch (IOException e1) {
-                NeptusLog.pub().error(this + ": Can't read file.");
-            }
-        }
-        catch (IOException e) {
-            try {
-                setFile("pt.up.fe.dceg.neptus.properties");
-                this.workingFile = "pt.up.fe.dceg.neptus.properties";
-            }
-            catch (FileNotFoundException e1) {
-                NeptusLog.pub().error(this + ": File not found.");
-            }
-            catch (IOException e1) {
-                NeptusLog.pub().error(this + ": Can't read file.");
-            }
-        }
+        this(txfile, PROPERTIES); 
     }
 
     /**
@@ -125,27 +97,29 @@ public class PropertiesLoader extends Properties {
                 setFile(txfile);
         }
         catch (FileNotFoundException e) {
+            NeptusLog.pub().error(e.getMessage());
             try {
                 setFile("pt.up.fe.dceg.neptus.properties");
                 this.workingFile = "pt.up.fe.dceg.neptus.properties";
             }
             catch (FileNotFoundException e1) {
-                NeptusLog.pub().error(this + ": File not found.");
+                NeptusLog.pub().error("File not found. " + e1.getMessage());
             }
             catch (IOException e1) {
-                NeptusLog.pub().error(this + ": Can't read file.");
+                NeptusLog.pub().error("Can't read file. " + e1.getMessage());
             }
         }
         catch (IOException e) {
+            NeptusLog.pub().error(e.getMessage());
             try {
                 setFile("pt.up.fe.dceg.neptus.properties");
                 this.workingFile = "pt.up.fe.dceg.neptus.properties";
             }
             catch (FileNotFoundException e1) {
-                NeptusLog.pub().error(this + ": File not found.");
+                NeptusLog.pub().error("File not found. " + e1.getMessage());
             }
             catch (IOException e1) {
-                NeptusLog.pub().error(this + ": Can't read file.");
+                NeptusLog.pub().error("Can't read file. " + e1.getMessage());
             }
         }
     }
@@ -201,7 +175,7 @@ public class PropertiesLoader extends Properties {
             super.store(out, header);
         }
         catch (IOException e) {
-            NeptusLog.pub().error(this + ": Cannot store properties.");
+            NeptusLog.pub().error("Cannot store properties. : " + e.getMessage());
         }
     }
 
@@ -223,7 +197,7 @@ public class PropertiesLoader extends Properties {
 
         }
         catch (IOException e) {
-            NeptusLog.pub().error(this + ": Cannot store properties.");
+            NeptusLog.pub().error("Cannot store properties. : " + e.getMessage());
         }
     }
 
@@ -237,7 +211,7 @@ public class PropertiesLoader extends Properties {
             super.storeToXML(out, header);
         }
         catch (IOException e) {
-            NeptusLog.pub().error(this + ": Cannot store properties.");
+            NeptusLog.pub().error("Cannot store properties. : " + e.getMessage());
         }
     }
 
@@ -251,7 +225,7 @@ public class PropertiesLoader extends Properties {
             super.storeToXML(out, header, encoding);
         }
         catch (IOException e) {
-            NeptusLog.pub().error(this + ": Cannot store properties.");
+            NeptusLog.pub().error("Cannot store properties. : " + e.getMessage());
         }
     }
 
@@ -284,6 +258,7 @@ public class PropertiesLoader extends Properties {
                 out.close();
             }
             catch (Exception e) {
+                NeptusLog.pub().error(e.getMessage());
             }
         }
     }
@@ -307,7 +282,7 @@ public class PropertiesLoader extends Properties {
 
         }
         catch (IOException e) {
-            NeptusLog.pub().error(this + ": Cannot store properties.");
+            NeptusLog.pub().error("Cannot store properties. : " + e.getMessage());
         }
     }
 

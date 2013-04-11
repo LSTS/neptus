@@ -170,7 +170,7 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
                     listenersQueueProvider.get(msgListener).clearMessages();
             }
             catch (Exception e) {
-                // TODO: handle exception
+                NeptusLog.pub().error(e.getMessage());
             }
             clearLastMessageOfType();
         }

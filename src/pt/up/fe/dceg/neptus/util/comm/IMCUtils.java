@@ -258,6 +258,7 @@ public class IMCUtils {
             }
             catch (Exception e) {
                 // e.printStackTrace();
+                NeptusLog.pub().error(e.getStackTrace());
             }
         }
         return doc;
@@ -447,6 +448,7 @@ public class IMCUtils {
             catch (NumberFormatException e2) {
                 GuiUtils.errorMessage(ConfigFetch.getSuperParentAsFrame(), "Send transponders",
                         "Bad configuration parsing for transponder " + transp.getId() + "!");
+                NeptusLog.pub().error(e2.getStackTrace());
                 return null;
             }
 
@@ -955,7 +957,7 @@ public class IMCUtils {
                 beaconMessages.add(lblBeacon);
             }
             catch (NumberFormatException e2) {
-                NeptusLog.pub().error("Malformed Transponder configuration for " + transp.getId());
+                NeptusLog.pub().error(e2.getStackTrace());
                 return null;
             }
         }
@@ -1049,27 +1051,21 @@ public class IMCUtils {
             for (String hf : headerType.getFieldNames()) {
                 try {
                     Object fieldValue;
-                    try {
-                        fieldValue = message.getHeader().getValue(hf);
-                    }
-                    catch (Exception e) {
+                    fieldValue = message.getHeader().getValue(hf);
+                    
+                    PluginProperty ap = null;
+
+                    if(fieldValue == null) {
                         continue;
                     }
-
-                    PluginProperty ap = null;
-                    if (fieldValue != null) {
+                    else {
                         if (hf.equalsIgnoreCase("src") || hf.equalsIgnoreCase("dst")) {
                             fieldValue = new ImcId16(fieldValue);
                         }
                         ap = new PluginProperty(hf, fieldValue.getClass(), fieldValue);
                         ap.setDisplayName(headerType.getLongFieldName(hf));
                     }
-                    else {
-                        NeptusLog.pub().info("<###> "+hf + " is null [" + 
-                                // headerType.getFieldType(hf)+"]");
-                                headerType.getTypeOf(hf)+"]");
-                        continue;
-                    }
+                    
                     ap.setCategory("header");
                     if (hf.equalsIgnoreCase("time") || hf.equalsIgnoreCase("mgid") || hf.equalsIgnoreCase("sync") ||
                             hf.equalsIgnoreCase("size")) {
@@ -1098,7 +1094,7 @@ public class IMCUtils {
 
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    NeptusLog.pub().error(e.getStackTrace());
                 }
             }
         }
@@ -1154,6 +1150,7 @@ public class IMCUtils {
                     ap.setShortDescription(d);
                 }
                 catch (Exception e) {
+                    NeptusLog.pub().error(e.getMessage());
                     ap.setShortDescription(desc);
                 }
 

@@ -314,12 +314,11 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
             case EmergencyControlState.ID_STATIC:
                 try {
                     String planId;
-                    try {
-                        planId = msg.getString("plan_id");
-                    }
-                    catch (Exception e) {
+                    planId = msg.getString("plan_id");
+                    
+                    if(planId == null)
                         planId = msg.getString("mission_id");
-                    }
+                    
                     String state = msg.getString("state");
                     resSys.setEmergencyPlanId(planId);
                     resSys.setEmergencyStatusStr(state);

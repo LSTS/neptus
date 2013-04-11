@@ -71,7 +71,7 @@ public class PingSend
             return ret;
         } catch (UnknownHostException e)
         {
-            NeptusLog.pub().info("Unknown host " + host + ".");
+            NeptusLog.pub().info(e.getMessage());
             return false;
         } catch (IOException e)
         {
@@ -128,12 +128,12 @@ public class PingSend
                 break;
             } catch (UnknownHostException e) {
                 NeptusLog.pub().info("Don't know about host: " +
-                        cm.getHostAddress() + ".");
+                        cm.getHostAddress() + "." + e.getMessage());
                 return false;
             } catch (IOException e) {
                 NeptusLog.pub().info("Couldn't get I/O for "
                         + "the connection to: " +
-                        cm.getHostAddress() + " [" + testPorts[i] + "].");
+                        cm.getHostAddress() + " [" + testPorts[i] + "]." + e.getMessage());
             }
         }
         if (isActive)

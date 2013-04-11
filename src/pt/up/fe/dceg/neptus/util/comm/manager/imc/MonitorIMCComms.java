@@ -367,7 +367,7 @@ public class MonitorIMCComms extends
             });
         }
         catch (Exception e) {
-            // e.printStackTrace();
+            NeptusLog.pub().error(e.getStackTrace());
         }
     }
 
@@ -544,6 +544,7 @@ public class MonitorIMCComms extends
             });
         }
         catch (Exception e) {
+            NeptusLog.pub().error(e.getStackTrace());
             // e.printStackTrace();
         }
     }
@@ -606,6 +607,7 @@ public class MonitorIMCComms extends
             return ImcId16.valueOf(id);
         }
         catch (NumberFormatException e) {
+            NeptusLog.pub().error(e.getMessage());
             return null;
         }
     }

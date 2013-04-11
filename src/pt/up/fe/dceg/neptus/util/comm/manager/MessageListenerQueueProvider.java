@@ -172,11 +172,8 @@ public class MessageListenerQueueProvider<Mi extends MessageInfo, M extends IMes
             }
             return messageList.offer(pac, 100, TimeUnit.MILLISECONDS);
         }
-        catch (InterruptedException e) {
-            return false;
-        }
         catch (Exception e) {
-            NeptusLog.pub().error(e);
+            NeptusLog.pub().error(e.getMessage());
             return false;
         }
     }
@@ -229,7 +226,7 @@ public class MessageListenerQueueProvider<Mi extends MessageInfo, M extends IMes
                                 }
                             }
                             else {
-                                try { Thread.sleep(50); } catch (Exception e) { }
+                                try { Thread.sleep(50); } catch (Exception e) { NeptusLog.pub().error(e.getMessage());}
                             }
                         }
                     }

@@ -611,6 +611,7 @@ public class ImcSystem implements Comparable<ImcSystem> {
 			int port = Integer.parseInt(lstr[1]);
 			return new InetSocketAddress(lstr[0], port);
 		} catch (NumberFormatException e) {
+		    NeptusLog.pub().error(e.getMessage());
 			return null;
 		}
 	}

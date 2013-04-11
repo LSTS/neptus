@@ -932,6 +932,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                         GuiUtils.errorMessage(getConsole(), I18n.text("Error"),
                                 I18n.text("Error Loading Mission File.\n"));
                         NeptusLog.pub().error("Console Base open file error [" + file.getAbsolutePath() + "]");
+                        NeptusLog.pub().error(e, e);
                     }
                 };
             };

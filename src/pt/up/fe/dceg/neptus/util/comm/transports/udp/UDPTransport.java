@@ -47,10 +47,15 @@ import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.avalon.framework.logger.LogEnabled;
+
+import com.sleepycat.je.log.LogManager;
+
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.ByteUtil;
 import pt.up.fe.dceg.neptus.util.comm.transports.DeliveryListener;
 import pt.up.fe.dceg.neptus.util.comm.transports.DeliveryListener.ResultEnum;
+import sun.util.logging.resources.logging;
 
 /**
  * @author pdias
@@ -350,6 +355,7 @@ public class UDPTransport {
                     senderThreads.remove(0); // shifts the right elements to the left
                 }
                 catch (Exception e) {
+                    NeptusLog.pub().error(e.getMessage());
                 }
             }
 
@@ -468,6 +474,7 @@ public class UDPTransport {
                             setMulticastActive(useMulticast);
                         }
                         catch (Exception e) {
+                            NeptusLog.pub().error(e.getMessage());
                             setMulticastActive(false);
                         }
 
@@ -478,6 +485,7 @@ public class UDPTransport {
                                 setBroadcastActive(true);
                             }
                             catch (Exception e) {
+                                NeptusLog.pub().error(e.getMessage());
                                 setBroadcastActive(false);
                             }
                         }
@@ -491,13 +499,10 @@ public class UDPTransport {
                         if (isOnBindError()) {
                             try {
                                 sock.disconnect();
-                            }
-                            catch (Exception e) {
-                            }
-                            try {
                                 sock.close();
                             }
                             catch (Exception e) {
+                                NeptusLog.pub().error(e.getStackTrace());
                             }
                         }
                     }

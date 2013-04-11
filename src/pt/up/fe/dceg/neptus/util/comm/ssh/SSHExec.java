@@ -243,6 +243,7 @@ extends SSHCommon
 			    }
 			    catch (Exception ee)
 			    {
+			        NeptusLog.pub().error(ee.getStackTrace());
 			    }
 			}
 		}

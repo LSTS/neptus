@@ -75,6 +75,7 @@ public class ImcId16 extends Number implements Comparable<ImcId16>{
         try {
 			this.id = parseImcId16(idString);
 		} catch (NumberFormatException e) {
+		    NeptusLog.pub().error(e.getMessage());
 			this.id = 0xFFFF;
 		}
     }

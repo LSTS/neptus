@@ -100,6 +100,7 @@ extends SSHExec
 			out.write(command.getBytes());
 			out.flush();
 		} catch (Exception e) {
+		    NeptusLog.pub().error(e.getStackTrace());
 			channelCleanup();
 			sessionCleanup();
 			return false;
@@ -129,6 +130,7 @@ extends SSHExec
 			out.write(buf, 0, 1);
 			out.flush();
 		} catch (Exception e) {
+		    NeptusLog.pub().error(e.getStackTrace());
 			channelCleanup();
 			sessionCleanup();
 			return false;
@@ -199,6 +201,7 @@ extends SSHExec
 			out.write(buf, 0, 1);
 			out.flush();
 		} catch (Exception e) {
+		    NeptusLog.pub().error(e.getStackTrace());
 			channelCleanup();
 			sessionCleanup();
 			return false;
@@ -275,7 +278,7 @@ extends SSHExec
 				out.flush();
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
+		    NeptusLog.pub().error(e.getStackTrace());
 		}		
 		exitStatus = channel.getExitStatus();
         channel.disconnect();

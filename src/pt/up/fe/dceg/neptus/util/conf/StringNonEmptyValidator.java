@@ -31,6 +31,8 @@
  */
 package pt.up.fe.dceg.neptus.util.conf;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author Paulo Dias
  *
@@ -49,6 +51,7 @@ public class StringNonEmptyValidator implements Validator {
         }
         catch (Exception e)
         {
+            NeptusLog.pub().debug(e.getMessage());
         }
         return "The value should not be empty.";
 	}
