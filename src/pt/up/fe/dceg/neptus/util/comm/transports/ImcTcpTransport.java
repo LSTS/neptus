@@ -437,7 +437,8 @@ public class ImcTcpTransport {
 	 * @param args
 	 * @throws MiddlewareException 
 	 */
-	public static void main(String[] args) throws Exception {
+	@SuppressWarnings("unused")
+    public static void main(String[] args) throws Exception {
 		ConfigFetch.initialize();
 
         String server = "127.0.0.1";
