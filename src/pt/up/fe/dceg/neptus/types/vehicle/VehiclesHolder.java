@@ -198,7 +198,7 @@ public class VehiclesHolder {
             VehiclesHolder.addVehicle(v);
         }
         vehiclesLoaded = true;
-        NeptusLog.pub().info("Vehicles #: " + VehiclesHolder.size());
+        NeptusLog.pub().debug("Vehicles #: " + VehiclesHolder.size());
         return vehiclesLoaded;
     }
 

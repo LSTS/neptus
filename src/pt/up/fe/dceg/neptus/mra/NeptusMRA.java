@@ -235,16 +235,18 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
     }
     
     public void closeLogSource() {
-        if (mraPanel != null)
+        if (mraPanel != null) {
             mraPanel.cleanup();
-        mraPanel = null;
-        getContentPane().removeAll();
-        NeptusLog.pub().info("<###>Log source was closed.");
+            mraPanel = null;
+            getContentPane().removeAll();
+            NeptusLog.pub().info("<###>Log source was closed.");
+        }
     }
     
     public void openLogSource(IMraLogGroup source) {
         abortPendingOpenLogActions();
         closeLogSource();
+        getContentPane().removeAll();
         mraPanel = new MRAPanel(source,this);
         getContentPane().add(mraPanel);
         invalidate();
