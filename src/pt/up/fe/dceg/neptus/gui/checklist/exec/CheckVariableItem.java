@@ -31,7 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.gui.checklist.exec;
 
-import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.BoxLayout;
@@ -50,7 +49,6 @@ public class CheckVariableItem extends CheckSubItemExe implements MessageListene
     private static final long serialVersionUID = 1L;
 	private CheckAutoVarIntervalItem checkSubItem;
 	//private ChartPanel chart;
-	private Color bg = null;
 	private String system;
 	 
 	// [0] - Message Name
@@ -72,7 +70,7 @@ public class CheckVariableItem extends CheckSubItemExe implements MessageListene
         this.setBorder(new EmptyBorder(10, 10, 10, 10));
 		this.setMaximumSize(new Dimension(2000, 150));
 		this.setMinimumSize(new Dimension(0, 150));
-		this.bg = this.getBackground();
+//		this.bg = this.getBackground();
 		if (checkSubItem.isChecked())
 			this.setBackground(CheckItemPanel.CHECK_COLOR);
 
@@ -80,8 +78,6 @@ public class CheckVariableItem extends CheckSubItemExe implements MessageListene
 
 		this.add(new JLabel(checkSubItem.getVarName()));
 
-		//this.add(getChart(), BorderLayout.CENTER);
-	
 		ImcMsgManager.getManager().addListener(this, system);
 	}
 
