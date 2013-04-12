@@ -112,13 +112,14 @@ public class Window {
      */
     private void setUpRenWin() {
         try {
-            //getRenWin().SetWindowName(windowName);
-            //getRenWin().AlphaBitPlanesOff();
-            //getRenWin().PointSmoothingOff();
-            //getRenWin().LineSmoothingOff();
-            //getRenWin().PointSmoothingOff();
-            //getRenWin().SwapBuffersOn();
-            //getRenWin().SetStereoTypeToAnaglyph();
+            windowName = "viewportNeptus";
+            getRenWin().SetWindowName(windowName);
+            getRenWin().AlphaBitPlanesOff();
+            getRenWin().PointSmoothingOff();
+            getRenWin().LineSmoothingOff();
+            getRenWin().PointSmoothingOff();
+            getRenWin().SwapBuffersOn();
+            getRenWin().SetStereoTypeToAnaglyph();
         }
         catch (Exception e) {
             // TODO Auto-generated catch block

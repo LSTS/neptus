@@ -43,6 +43,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
+import com.sun.java.swing.plaf.windows.resources.windows;
+
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
@@ -51,9 +53,11 @@ import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesActor;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Compass;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.CubeAxes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
+import vtk.vtk3DWidget;
 import vtk.vtkActor;
 import vtk.vtkCellArray;
 import vtk.vtkCompassRepresentation;
@@ -215,7 +219,16 @@ public class Vtk extends JPanel implements MRAVisualization {
 //        
 //        //vtkPanel.GetRenderer().AddActor(actor2);
 // 
-        Axes ax = new Axes(); 
+        Axes ax = new Axes();
+        AxesActor axesActor = new AxesActor(vtkPanel.GetRenderer());
+        axesActor.setAxesVisibility(true);
+        
+        vtk3DWidget widget = new vtk3DWidget();
+        widget.SetCurrentRenderer(vtkPanel.GetRenderer());
+        //widget.EnabledOn();
+        //widget.SetInteractor(win.getRenWinInteractor());
+        widget.ComputeDisplayToWorld(vtkPanel.GetRenderer(), 0.0, 0.0, 0.0);
+        
 //        
 ///*        vtkConeSource cone = new vtkConeSource();
 //        cone.SetResolution(8);
@@ -228,7 +241,7 @@ public class Vtk extends JPanel implements MRAVisualization {
 //        
 //        
 //        
-        vtkPanel.GetRenderer().AddActor(ax.getAxesActor());
+        //vtkPanel.GetRenderer().AddActor(ax.getAxesActor());
         
         vtkPanel.GetRenderer().ResetCamera();
         vtkPanel.GetRenderer().ResetCameraClippingRange();

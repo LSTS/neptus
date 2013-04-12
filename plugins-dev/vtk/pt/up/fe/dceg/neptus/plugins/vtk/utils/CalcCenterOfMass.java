@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.plugins.vtk.utils;
 
 import vtk.vtkPolyData;
+//import vtk.
 
 /**
  * @author hfq
