@@ -514,8 +514,8 @@ MissionChangeListener {
 
         try {
             if (getPropertiesPanel().getManeuver() != null) {
-                //if (plan.getGraph().getManeuver(getPropertiesPanel().getManeuver().getId()) == null)
-                getPropertiesPanel().setManeuver(null);
+                if (plan.getGraph().getManeuver(getPropertiesPanel().getManeuver().getId()) == null)
+                    getPropertiesPanel().setManeuver(null);
             }
         }
         catch (Exception e) {
