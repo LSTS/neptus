@@ -98,30 +98,31 @@ public class AxesActor extends vtkAssembly {
        zactor.GetTextProperty().ItalicOn();
        zactor.GetTextProperty().BoldOff();
        
-       //xactor.SetMaximumLineHeight(0.25);
-       //yactor.SetMaximumLineHeight(0.25);
-       //zactor.SetMaximumLineHeight(0.25);
+       xactor.SetMaximumLineHeight(0.25);
+       yactor.SetMaximumLineHeight(0.25);
+       zactor.SetMaximumLineHeight(0.25);
        
-       xactor.SetMaximumLineHeight(2.0);
-       yactor.SetMaximumLineHeight(2.0);
-       zactor.SetMaximumLineHeight(2.0);
+       //xactor.SetMaximumLineHeight(2.0);
+       //yactor.SetMaximumLineHeight(2.0);
+       //zactor.SetMaximumLineHeight(2.0);
        
        vtkTubeFilter tube = new vtkTubeFilter();
        tube.SetInputConnection(axes.GetOutputPort());
-       //tube.SetRadius(0.05);
-       tube.SetRadius(10.0);
-       tube.SetNumberOfSides(8);
+       tube.SetRadius(0.05);
+       //tube.SetRadiusFactor(10.0);
+       //tube.SetRadius(axes.GetScaleFactor() / 50.0);
+       tube.SetNumberOfSides(6);
+       
        
        vtkPolyDataMapper tubeMapper = new vtkPolyDataMapper();
-       tubeMapper.SetInputConnection(axes.GetOutputPort());
+       tubeMapper.SetInputConnection(tube.GetOutputPort());
        
        vtkActor tubeActor = new vtkActor();
        tubeActor.SetMapper(tubeMapper);
        tubeActor.PickableOff();
        
-       //int coneRes = 12;
        int coneRes = 12;
-       double coneScale = 0.1; 
+       double coneScale = 0.3;
        
        // xcone
        vtkConeSource xcone = new vtkConeSource();

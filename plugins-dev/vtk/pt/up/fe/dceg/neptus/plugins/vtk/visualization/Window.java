@@ -122,7 +122,6 @@ public class Window {
             getRenWin().SetStereoTypeToAnaglyph();
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -187,6 +186,14 @@ public class Window {
      */
     private void setRenWinInteractor(vtkRenderWindowInteractor renWinInteractor) {
         this.renWinInteractor = renWinInteractor;
+    }
+
+    /**
+     * 
+     */
+    public void setColorBackGround() {
+        
+        
     }
 
 }

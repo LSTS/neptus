@@ -104,7 +104,7 @@ public class Axes {
         vtkTubeFilter axesTubes = new vtkTubeFilter();
         axesTubes.SetInput(axesPolyData);
         axesTubes.SetRadius(axes.GetScaleFactor() / 50.0);
-        axesTubes.SetNumberOfSides(6);
+        axesTubes.SetNumberOfSides(8);
         
         vtkPolyDataMapper axesMapper = new vtkPolyDataMapper();
         axesMapper.SetScalarModeToUsePointData();

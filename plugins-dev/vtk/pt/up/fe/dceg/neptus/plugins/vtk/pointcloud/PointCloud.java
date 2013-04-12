@@ -31,15 +31,36 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 
+import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import vtk.vtkPoints;
+
+
+
 /**
  * @author hfq
  *
  */
-public class PointCloud {
+public class PointCloud<T extends PointXYZ> {
     
-    
+    public vtkPoints points;
+    private int numberOfPoints;
     
     public PointCloud () {
-        
+        points = new vtkPoints();
+        points.SetDataTypeToFloat();
+    }
+
+    /**
+     * @return the numberOfPoints
+     */
+    public int getNumberOfPoints() {
+        return numberOfPoints;
+    }
+
+    /**
+     * @param numberOfPoints the numberOfPoints to set
+     */
+    public void setNumberOfPoints(int numberOfPoints) {
+        this.numberOfPoints = numberOfPoints;
     }
 }

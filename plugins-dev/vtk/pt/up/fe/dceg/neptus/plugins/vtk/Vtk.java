@@ -32,13 +32,18 @@
 package pt.up.fe.dceg.neptus.plugins.vtk;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.ComponentOrientation;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Vector;
 
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
@@ -51,7 +56,9 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
+import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZI;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesActor;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Compass;
@@ -91,7 +98,8 @@ public class Vtk extends JPanel implements MRAVisualization {
     private JToggleButton zExaggerationToggle;
     private JToggleButton rawPointsToggle;
     private JToggleButton downsampledPointsToggle;
-    private JToggleButton resetViewportToggle;
+    private JToggleButton resetViewportToggle;  
+    private JPanel toolBar;
     
     private static Path path = null;
     private static final String FILE_83P_EXT = ".83P";
@@ -128,6 +136,8 @@ public class Vtk extends JPanel implements MRAVisualization {
    
         vtkPanel = new vtkPanel();   
         Window win = new Window(vtkPanel);
+        //win.setColorBackGround();
+
         
         // a Render Window
 //        vtkRenderWindow renWin = new vtkRenderWindow();
@@ -223,12 +233,11 @@ public class Vtk extends JPanel implements MRAVisualization {
         AxesActor axesActor = new AxesActor(vtkPanel.GetRenderer());
         axesActor.setAxesVisibility(true);
         
-        vtk3DWidget widget = new vtk3DWidget();
-        widget.SetCurrentRenderer(vtkPanel.GetRenderer());
+        //vtk3DWidget widget = new vtk3DWidget();
+        //widget.SetCurrentRenderer(vtkPanel.GetRenderer());
         //widget.EnabledOn();
         //widget.SetInteractor(win.getRenWinInteractor());
-        widget.ComputeDisplayToWorld(vtkPanel.GetRenderer(), 0.0, 0.0, 0.0);
-        
+        //widget.ComputeDisplayToWorld(vtkPanel.GetRenderer(), 0.0, 0.0, 0.0);
 //        
 ///*        vtkConeSource cone = new vtkConeSource();
 //        cone.SetResolution(8);
@@ -243,13 +252,21 @@ public class Vtk extends JPanel implements MRAVisualization {
 //        
         //vtkPanel.GetRenderer().AddActor(ax.getAxesActor());
         
+        PointCloud<PointXYZI> poi = new PointCloud<>();
+        
         vtkPanel.GetRenderer().ResetCamera();
-        vtkPanel.GetRenderer().ResetCameraClippingRange();
-        vtkPanel.GetRenderer().LightFollowCameraOn();
-        vtkPanel.GetRenderer().VisibleActorCount();
-        vtkPanel.GetRenderer().ViewToDisplay();
+        //vtkPanel.GetRenderer().ResetCameraClippingRange();
+        //vtkPanel.GetRenderer().LightFollowCameraOn();
+        //vtkPanel.GetRenderer().VisibleActorCount();
+        //vtkPanel.GetRenderer().ViewToDisplay();
         
         add(vtkPanel, BorderLayout.CENTER);
+        vtkPanel.setBackground(Color.blue);
+        //vtkPanel.setForeground(Color.green);
+        
+        toolBar = new JPanel();
+        toolBar = createToolbar();
+        add(toolBar, BorderLayout.EAST);
     }
     
     @Override
@@ -364,7 +381,17 @@ public class Vtk extends JPanel implements MRAVisualization {
     }
     
     private JPanel createToolbar() {
+        //JPanel toolbar = new JPanel();
         JPanel toolbar = new JPanel();
+        
+        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.Y_AXIS));
+        toolbar.setBackground(Color.WHITE);
+        //toolbar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+        //toolbar.setAutoscrolls(true);
+        //Rectangle rect = new Rectangle();
+        //rect.height = 50;
+        //rect.height = 50;
+        //toolbar.setBounds(rect);
         
         rawPointsToggle = new JToggleButton(I18n.text("Raw"));
         downsampledPointsToggle = new JToggleButton(I18n.text("Downsampled"));
@@ -438,26 +465,5 @@ public class Vtk extends JPanel implements MRAVisualization {
         toolbar.add(resetViewportToggle);
         
         return toolbar;
-    }
-    
-    /**
-     * 
-     * @return data points
-     */
-    static vtkPoints getPoints () {
-        vtkPoints points = new vtkPoints();
-        points.InsertNextPoint(0.5, 0, 0.);
-        points.InsertNextPoint(1, 0, 1.);
-        points.InsertNextPoint(2, 0, 0.4);
-        points.InsertNextPoint(3, 0, 0.5);
-        points.InsertNextPoint(0.5, 1, 0.3);
-        points.InsertNextPoint(1, 1, 0.3);
-        points.InsertNextPoint(2, 1, 0.8);
-        points.InsertNextPoint(3, 1, 0.6);
-        points.InsertNextPoint(0.5, 2, 0.5);
-        points.InsertNextPoint(1, 2, 0.8);
-        points.InsertNextPoint(2, 2, 0.3);
-        points.InsertNextPoint(3, 2, 0.4);
-        return points;  
     }
 }
