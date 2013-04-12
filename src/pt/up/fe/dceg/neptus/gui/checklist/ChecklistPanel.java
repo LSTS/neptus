@@ -2432,154 +2432,154 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                 options, "Report bugs to Paulo Dias <pdias@fe.up.pt>", true);
     }
 
-//    public static void main(String... args) {
-//        // create the command line parser
-//        CommandLineParser parser = new PosixParser();
-//        Options options = getCommandLineOptions();
-//        // parse the command line arguments
-//        CommandLine line = null;
-//        try {
-//            line = parser.parse(options, args);
-//        }
-//        catch (ParseException e) {
-//            // e.printStackTrace();
-//        }
-//
-//        if (line == null || line.hasOption("help")) {
-//            printUsage(options);
-//            System.exit(0);
-//        }
-//
-//        OutputMonitor.setDisable(true);
-//        NeptusLog.wasteRoot().setLevel(Level.OFF);
-//        NeptusLog.pubRoot().setLevel(Level.FATAL);
-//        ConfigFetch.initialize();
-//        // OutputMonitor.end();
-//        // BasicConfigurator.resetConfiguration();
-//        // NeptusLog.INSTANCE.logWaste.setLevel(Level.OFF);
-//        // NeptusLog.setLevel(Level.FATAL);
-//        if (ConfigFetch.isOSEqual(ConfigFetch.OS_LINUX))
-//            GuiUtils.setLookAndFeel();
-//        else
-//            GuiUtils.setSystemLookAndFeel();
-//        // GuiUtils.setLookAndFeelNimbus();
-//
-//        // ChecklistPanel clp = showChecklistPanel("checklists/check3.nchk");
-//
-//        ChecklistPanel clp = null;
-//        if (args.length < 1) {
-//            ChecklistType ck = new ChecklistType();
-//            ck.setName("New Checklist");
-//            clp = showChecklistPanel("New Checklist", ck);
-//        }
-//        else {
-//            // String path = args[0];
-//            // File fx = new File(path);
-//            // if (!fx.getAbsoluteFile().exists()) {
-//            // ChecklistType ck = new ChecklistType();
-//            // ck.setName("New Checklist");
-//            // clp = showChecklistPanel("New Checklist", ck);
-//            // } else {
-//            // clp = showChecklistPanel(fx.getAbsolutePath());
-//            // }
-//
-//            String path = null;
-//            String out = null;
-//            boolean genPDF = false;
-//            int columns = 1;
-//            if (line.hasOption("checklist")) {
-//                path = line.getOptionValue("checklist");
-//            }
-//            if (line.hasOption("generate-pdf")) {
-//                try {
-//                    genPDF = true;
-//                }
-//                catch (Exception e) {
-//                }
-//                if (!line.hasOption("checklist")) {
-//                    printUsage(options);
-//                    System.exit(0);
-//                }
-//                if (line.hasOption("pdf-columns")) {
-//                    try {
-//                        columns = Integer.parseInt(line.getOptionValue("pdf-columns"));
-//                        columns = Math.min(Math.max(columns, 1), 3);
-//                    }
-//                    catch (Exception e) {
-//                    }
-//                }
-//                if (line.hasOption("output-pdf")) {
-//                    try {
-//                        out = line.getOptionValue("output-pdf");
-//                    }
-//                    catch (Exception e) {
-//                        out = null;
-//                    }
-//                }
-//            }
-//
-//            File fx = new File(path);
-//            if (!genPDF) {
-//                if (!fx.getAbsoluteFile().exists()) {
-//                    ChecklistType ck = new ChecklistType();
-//                    ck.setName("New Checklist");
-//                    clp = showChecklistPanel("New Checklist", ck);
-//                }
-//                else {
-//                    clp = showChecklistPanel(fx.getAbsolutePath());
-//                }
-//            }
-//            else {
-//                // Gen PDF
-//                if (!fx.getAbsoluteFile().exists()) {
-//                    NeptusLog.pub().info("<###>Checklist file not found!");
-//                    System.exit(1);
-//                }
-//                try {
-//                    ChecklistType checklist = new ChecklistType(fx.getAbsolutePath());
-//                    String pdfFileName = createPDFFileName(fx.getName());
-//                    if (out != null) {
-//                        pdfFileName = out;
-//                        new File(pdfFileName).getParentFile().mkdirs();
-//                    }
-//                    File pdfFx = new File(fx.getParent(), pdfFileName);
-//                    boolean ret = GeneratorChecklistPDF.generateReport(checklist, pdfFx, (short) columns);
-//                    System.exit(ret ? 0 : 1);
-//                }
-//                catch (Exception e) {
-//                    e.printStackTrace();
-//                    System.exit(1);
-//                }
-//            }
-//        }
-//
-//        clp.setEditable(true);
-//        // clp.jFrame.setIconImage(Toolkit.getDefaultToolkit().getImage(
-//        // clp.getClass().getResource("/images/neptus-icon1.png")));
-//        clp.jFrame.setIconImages(ConfigFetch.getIconImagesForFrames());
-//
-//        clp.jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-//        clp.jFrame.setSize(790, 580);
-//        GuiUtils.centerOnScreen(clp.jFrame);
-//        clp.getCancelButton().setVisible(false);
-//        clp.getRunButton().setVisible(false);
-//        clp.getNewButton().setVisible(true);
-//        clp.getOpenButton().setVisible(true);
-//        clp.getOpenButton().requestFocusInWindow();
-//
-//        clp.getEditPanel().add(new JLabel(" | \u00A9 From Neptus " + ConfigFetch.getVersionSimpleString()));
-//        clp.makeNameEditable();
-//        clp.iconifyToolButtons();
-//        clp.jFrame.setAlwaysOnTop(false);
-//        // clp.addPropertyChangeListener(new PropertyChangeListener() {
-//        // String cur = clp.getName();
-//        // @Override
-//        // public void propertyChange(PropertyChangeEvent evt) {
-//        // if (!cur.equals(clp.getName())) {
-//        // clp.jFrame.setTitle("Checklist " + clp.getName());
-//        // cur = clp.getName();
-//        // }
-//        // }
-//        // });
-//    }
+    public static void main(String... args) {
+        // create the command line parser
+        CommandLineParser parser = new PosixParser();
+        Options options = getCommandLineOptions();
+        // parse the command line arguments
+        CommandLine line = null;
+        try {
+            line = parser.parse(options, args);
+        }
+        catch (ParseException e) {
+            // e.printStackTrace();
+        }
+
+        if (line == null || line.hasOption("help")) {
+            printUsage(options);
+            System.exit(0);
+        }
+
+        OutputMonitor.setDisable(true);
+        NeptusLog.wasteRoot().setLevel(Level.OFF);
+        NeptusLog.pubRoot().setLevel(Level.FATAL);
+        ConfigFetch.initialize();
+        // OutputMonitor.end();
+        // BasicConfigurator.resetConfiguration();
+        // NeptusLog.INSTANCE.logWaste.setLevel(Level.OFF);
+        // NeptusLog.setLevel(Level.FATAL);
+        if (ConfigFetch.isOSEqual(ConfigFetch.OS_LINUX))
+            GuiUtils.setLookAndFeel();
+        else
+            GuiUtils.setSystemLookAndFeel();
+        // GuiUtils.setLookAndFeelNimbus();
+
+        // ChecklistPanel clp = showChecklistPanel("checklists/check3.nchk");
+
+        ChecklistPanel clp = null;
+        if (args.length < 1) {
+            ChecklistType ck = new ChecklistType();
+            ck.setName("New Checklist");
+            clp = showChecklistPanel("New Checklist", ck);
+        }
+        else {
+            // String path = args[0];
+            // File fx = new File(path);
+            // if (!fx.getAbsoluteFile().exists()) {
+            // ChecklistType ck = new ChecklistType();
+            // ck.setName("New Checklist");
+            // clp = showChecklistPanel("New Checklist", ck);
+            // } else {
+            // clp = showChecklistPanel(fx.getAbsolutePath());
+            // }
+
+            String path = null;
+            String out = null;
+            boolean genPDF = false;
+            int columns = 1;
+            if (line.hasOption("checklist")) {
+                path = line.getOptionValue("checklist");
+            }
+            if (line.hasOption("generate-pdf")) {
+                try {
+                    genPDF = true;
+                }
+                catch (Exception e) {
+                }
+                if (!line.hasOption("checklist")) {
+                    printUsage(options);
+                    System.exit(0);
+                }
+                if (line.hasOption("pdf-columns")) {
+                    try {
+                        columns = Integer.parseInt(line.getOptionValue("pdf-columns"));
+                        columns = Math.min(Math.max(columns, 1), 3);
+                    }
+                    catch (Exception e) {
+                    }
+                }
+                if (line.hasOption("output-pdf")) {
+                    try {
+                        out = line.getOptionValue("output-pdf");
+                    }
+                    catch (Exception e) {
+                        out = null;
+                    }
+                }
+            }
+
+            File fx = new File(path);
+            if (!genPDF) {
+                if (!fx.getAbsoluteFile().exists()) {
+                    ChecklistType ck = new ChecklistType();
+                    ck.setName("New Checklist");
+                    clp = showChecklistPanel("New Checklist", ck);
+                }
+                else {
+                    clp = showChecklistPanel(fx.getAbsolutePath());
+                }
+            }
+            else {
+                // Gen PDF
+                if (!fx.getAbsoluteFile().exists()) {
+                    NeptusLog.pub().info("<###>Checklist file not found!");
+                    System.exit(1);
+                }
+                try {
+                    ChecklistType checklist = new ChecklistType(fx.getAbsolutePath());
+                    String pdfFileName = createPDFFileName(fx.getName());
+                    if (out != null) {
+                        pdfFileName = out;
+                        new File(pdfFileName).getParentFile().mkdirs();
+                    }
+                    File pdfFx = new File(fx.getParent(), pdfFileName);
+                    boolean ret = GeneratorChecklistPDF.generateReport(checklist, pdfFx, (short) columns);
+                    System.exit(ret ? 0 : 1);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+            }
+        }
+
+        clp.setEditable(true);
+        // clp.jFrame.setIconImage(Toolkit.getDefaultToolkit().getImage(
+        // clp.getClass().getResource("/images/neptus-icon1.png")));
+        clp.jFrame.setIconImages(ConfigFetch.getIconImagesForFrames());
+
+        clp.jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        clp.jFrame.setSize(790, 580);
+        GuiUtils.centerOnScreen(clp.jFrame);
+        clp.getCancelButton().setVisible(false);
+        clp.getRunButton().setVisible(false);
+        clp.getNewButton().setVisible(true);
+        clp.getOpenButton().setVisible(true);
+        clp.getOpenButton().requestFocusInWindow();
+
+        clp.getEditPanel().add(new JLabel(" | \u00A9 From Neptus " + ConfigFetch.getVersionSimpleString()));
+        clp.makeNameEditable();
+        clp.iconifyToolButtons();
+        clp.jFrame.setAlwaysOnTop(false);
+        // clp.addPropertyChangeListener(new PropertyChangeListener() {
+        // String cur = clp.getName();
+        // @Override
+        // public void propertyChange(PropertyChangeEvent evt) {
+        // if (!cur.equals(clp.getName())) {
+        // clp.jFrame.setTitle("Checklist " + clp.getName());
+        // cur = clp.getName();
+        // }
+        // }
+        // });
+    }
 }
