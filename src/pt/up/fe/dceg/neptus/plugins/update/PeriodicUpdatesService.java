@@ -147,10 +147,10 @@ public class PeriodicUpdatesService {
                 not_finished = ur.update();
             }
             catch (Exception e) {
-                e.printStackTrace();
+                NeptusLog.pub().error("Exception: " + ReflectionUtil.getCallerStamp(), e);
             }
             catch (Error e) {
-                e.printStackTrace();
+                NeptusLog.pub().error("Error: " + ReflectionUtil.getCallerStamp(), e);
             }
             time = System.currentTimeMillis()-time;
             Long lastTime = updateTimes.get(ur.getSource());
