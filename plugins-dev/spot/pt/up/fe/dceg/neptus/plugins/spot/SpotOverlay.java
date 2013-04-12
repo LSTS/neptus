@@ -50,6 +50,7 @@ import org.xml.sax.SAXException;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
@@ -76,6 +77,8 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     public boolean showNames = true;
     @NeptusProperty
     public boolean showSpeedValue = true;
+    @NeptusProperty(userLevel = LEVEL.REGULAR, description = "Set the time window (in hours) for considered positions. Will only consider positions in the last x hours.", name = "Time window (hours)")
+    public int hours = 1;
 
     protected GeneralPath gp = new GeneralPath();
     {
@@ -94,7 +97,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
      */
     public SpotOverlay(ConsoleLayout console) {
         super(console);
-        updateMillis = 60 * 5 * 1000;
+        updateMillis = 2 * 60 * 1000;
         spotsOnMap = new Vector<Spot>();
     }
 
@@ -126,10 +129,12 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
         Vector<Spot> nextSpotsOnMap = new Vector<Spot>();
         HashMap<String, TreeSet<SpotMessage>> msgBySpot;
         try {
-            msgBySpot = SpotMsgFetcher.get();
+            msgBySpot = SpotMsgFetcher.get(hours);
             // if no messages were found or could not reach page do nothing
-            if (msgBySpot.size() == 0)
+            if (msgBySpot.size() == 0) {
+                Spot.log.debug("No messages in the last " + hours + " hours.");
                 return;
+            }
             Collection<TreeSet<SpotMessage>> spotIds = msgBySpot.values();
             Spot.log.debug("Gonna run updates on SPOTS. There are " + spotIds.size() + " spots registered");
             TreeSet<SpotMessage> msgTreeSet;

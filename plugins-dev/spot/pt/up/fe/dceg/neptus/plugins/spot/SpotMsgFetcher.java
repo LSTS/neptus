@@ -59,10 +59,11 @@ public class SpotMsgFetcher {
      * @throws SAXException
      * @throws IOException
      */
-    public static HashMap<String, TreeSet<SpotMessage>> get() throws ParserConfigurationException, SAXException,
+    public static HashMap<String, TreeSet<SpotMessage>> get(int hours) throws ParserConfigurationException,
+            SAXException,
             IOException {
         long currentTime = System.currentTimeMillis() / 1000;
-        long timeWindow = 1 * 60 * 60;
+        long timeWindow = hours * 60 * 60;
         long startOfTimeWindowSecs = currentTime - timeWindow;
 
         HashMap<String, TreeSet<SpotMessage>> msgBySpot = new HashMap<String, TreeSet<SpotMessage>>();
