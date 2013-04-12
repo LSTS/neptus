@@ -83,7 +83,6 @@ import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.up.fe.dceg.neptus.util.DateTimeUtil;
 import pt.up.fe.dceg.neptus.util.FileUtil;
 import pt.up.fe.dceg.neptus.util.NameNormalizer;
-import pt.up.fe.dceg.neptus.util.ReflectionUtil;
 import pt.up.fe.dceg.neptus.util.StreamUtil;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
 import pt.up.fe.dceg.neptus.util.output.OutputMonitor;
