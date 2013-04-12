@@ -850,6 +850,7 @@ For simple use the main targets are:
         	<include name="pt/up/fe/dceg/vartree/*.class"/>
         	<include name="pt/up/fe/dceg/neptus/plugins/PluginProperty.class"/>
         	<include name="pt/up/fe/dceg/neptus/plugins/NeptusProperty*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/types/Identifiable*.class"/>
         	<!--include name="pt/up/fe/dceg/neptus/types/**/*.class"/ -->
         	<!-- include name="images/**/*.*" / -->
         	<include name="images/neptus-icon.png"/>
