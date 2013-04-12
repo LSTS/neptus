@@ -1348,7 +1348,7 @@ MissionChangeListener {
                 maneuverLocationBeforeMoving = ((LocatedManeuver) selectedManeuver).getManeuverLocation();
             }
             if (selectedManeuver != getPropertiesPanel().getManeuver()) {
-                if (getPropertiesPanel().isChanged()) {
+                if (getPropertiesPanel().getManeuver() != null && getPropertiesPanel().isChanged()) {
                     ManeuverChanged edit = new ManeuverChanged(getPropertiesPanel().getManeuver(), plan,
                             getPropertiesPanel().getBeforeXml());
                     manager.addEdit(edit);
