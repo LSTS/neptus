@@ -49,7 +49,7 @@ import org.xml.sax.SAXException;
  */
 public class SpotMsgFetcher {
     // private static final String id = "LSTSSPOT";
-    private static final String pageUrl = "http://tiny.cc/spot1";
+    private static final String pageUrl = "http://share.findmespot.com/messageService/guestlinkservlet?glId=0eFbYotphiMKz9YiDOI7XqR76JJ010Z0X&completeXml=true";
 
     /**
      * Get messages on SPOT page.
