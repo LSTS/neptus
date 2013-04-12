@@ -186,3 +186,4 @@ Thumbs.db
 /windows_dist
 /release.json
 /git.branch
+TCL*.tmp
