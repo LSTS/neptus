@@ -124,12 +124,12 @@ public class ControllerManager {
 		// Look for changes
 		for (String k : oldMap.keySet()) {
 			if (!controllerList.containsKey(k)) {
-				NeptusLog.pub().info("<###>Removed " + oldMap.get(k).getName());
+				NeptusLog.pub().info("Removed " + oldMap.get(k).getName());
 			}
 		}
 		for (String k : controllerList.keySet()) {
 			if (!oldMap.containsKey(k)) {
-				NeptusLog.pub().info("<###>Added " + controllerList.get(k).getName());
+				NeptusLog.pub().info("Added " + controllerList.get(k).getName());
 			}
 		}
 	}
