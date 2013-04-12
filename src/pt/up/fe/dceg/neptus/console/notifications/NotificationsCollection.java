@@ -48,7 +48,7 @@ import com.google.common.eventbus.Subscribe;
  * 
  */
 public class NotificationsCollection {
-    private static final int MAX_SIZE = 500;
+    private static final int MAX_SIZE = 100;
     private List<Notification> list = new LinkedList<Notification>();
     private ConsoleLayout console;
 
