@@ -123,10 +123,10 @@ public class UAVSymbol extends SymbolLabel {
 		panel.add(symb1, BorderLayout.CENTER);
 		GuiUtils.testFrame(panel,"",400,400);
 		
-		try {Thread.sleep(5000);} catch (Exception e) {}
-		symb1.blink(true);
-		try {Thread.sleep(5000);} catch (Exception e) {}
-		symb1.blink(false);
+//		try {Thread.sleep(5000);} catch (Exception e) {}
+//		symb1.blink(true);
+//		try {Thread.sleep(5000);} catch (Exception e) {}
+//		symb1.blink(false);
 
 	}
 

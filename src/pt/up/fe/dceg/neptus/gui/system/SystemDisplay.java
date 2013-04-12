@@ -555,14 +555,11 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
 		return thisVal.compareTo(anotherVal);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		try {
             return (compareTo((SystemDisplay) obj) == 0) ? true : false;
-		} catch (Exception e) {
+		} catch (Exception e) { 
 			return false;
 		}
 	}
@@ -1245,50 +1242,50 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
 		//sys1.setMainVehicle(true);
 		sys1.setAttentionAlert(true);
 		
-		try {Thread.sleep(5000);} catch (Exception e) {}
-//		sys1.setIconSize(100);
-//		sys1.setIndicatorsSize(70);
-
-		try {Thread.sleep(3000);} catch (Exception e) {}
-        sys1.setActive(true);
-        sys1.setTaskAlocated(false);
-        sys1.setWithAuthority(ImcSystem.IMCAuthorityState.SYSTEM_FULL);
-        sys1.setMainVehicle(true);
-        sys1.setAttentionAlert(false);
-
-        try {Thread.sleep(3000);} catch (Exception e) {}
-        sys1.setActive(true);
-        sys1.setTaskAlocated(true);
-        sys1.setWithAuthority(ImcSystem.IMCAuthorityState.SYSTEM_MONITOR);
-        sys1.setMainVehicle(false);
-        sys1.setAttentionAlert(true);
-
-        try {Thread.sleep(7000);} catch (Exception e) {}
-        sys1.setActive(true);
-        sys1.setTaskAlocated(false);
-        sys1.setWithAuthority(ImcSystem.IMCAuthorityState.SYSTEM_FULL);
-        sys1.setMainVehicle(true);
-        sys1.setAttentionAlert(false);
-
-        try {Thread.sleep(7000);} catch (Exception e) {}
-        sys1.setActive(true);
-        sys1.setTaskAlocated(true);
-        sys1.setWithAuthority(ImcSystem.IMCAuthorityState.SYSTEM_MONITOR);
-        sys1.setMainVehicle(false);
-        sys1.setAttentionAlert(true);
-
-        try {Thread.sleep(2000);} catch (Exception e) {}
-        sys1.setActive(true);
-        sys1.setTaskAlocated(false);
-        sys1.setWithAuthority(ImcSystem.IMCAuthorityState.SYSTEM_FULL);
-        sys1.setMainVehicle(true);
-        sys1.setAttentionAlert(false);
-
-        try {Thread.sleep(1000);} catch (Exception e) {}
-        sys1.setActive(true);
-        sys1.setTaskAlocated(true);
-        sys1.setWithAuthority(ImcSystem.IMCAuthorityState.SYSTEM_MONITOR);
-        sys1.setMainVehicle(false);
-        sys1.setAttentionAlert(true);
+//		try {Thread.sleep(5000);} catch (Exception e) {}
+////		sys1.setIconSize(100);
+////		sys1.setIndicatorsSize(70);
+//
+//		try {Thread.sleep(3000);} catch (Exception e) {}
+//        sys1.setActive(true);
+//        sys1.setTaskAlocated(false);
+//        sys1.setWithAuthority(ImcSystem.IMCAuthorityState.SYSTEM_FULL);
+//        sys1.setMainVehicle(true);
+//        sys1.setAttentionAlert(false);
+//
+//        try {Thread.sleep(3000);} catch (Exception e) {}
+//        sys1.setActive(true);
+//        sys1.setTaskAlocated(true);
+//        sys1.setWithAuthority(ImcSystem.IMCAuthorityState.SYSTEM_MONITOR);
+//        sys1.setMainVehicle(false);
+//        sys1.setAttentionAlert(true);
+//
+//        try {Thread.sleep(7000);} catch (Exception e) {}
+//        sys1.setActive(true);
+//        sys1.setTaskAlocated(false);
+//        sys1.setWithAuthority(ImcSystem.IMCAuthorityState.SYSTEM_FULL);
+//        sys1.setMainVehicle(true);
+//        sys1.setAttentionAlert(false);
+//
+//        try {Thread.sleep(7000);} catch (Exception e) {}
+//        sys1.setActive(true);
+//        sys1.setTaskAlocated(true);
+//        sys1.setWithAuthority(ImcSystem.IMCAuthorityState.SYSTEM_MONITOR);
+//        sys1.setMainVehicle(false);
+//        sys1.setAttentionAlert(true);
+//
+//        try {Thread.sleep(2000);} catch (Exception e) {}
+//        sys1.setActive(true);
+//        sys1.setTaskAlocated(false);
+//        sys1.setWithAuthority(ImcSystem.IMCAuthorityState.SYSTEM_FULL);
+//        sys1.setMainVehicle(true);
+//        sys1.setAttentionAlert(false);
+//
+//        try {Thread.sleep(1000);} catch (Exception e) {}
+//        sys1.setActive(true);
+//        sys1.setTaskAlocated(true);
+//        sys1.setWithAuthority(ImcSystem.IMCAuthorityState.SYSTEM_MONITOR);
+//        sys1.setMainVehicle(false);
+//        sys1.setAttentionAlert(true);
 	}
 }

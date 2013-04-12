@@ -84,7 +84,8 @@ public class TileS57 extends TileHttpFetcher {
                 PluginUtils.loadProperties(confFx, TileS57.class);
         }
         catch (Exception e) {
-           NeptusLog.pub().error("Not possible to open \"conf/" + TileS57.class.getSimpleName().toLowerCase() + ".properties\"");
+            NeptusLog.pub().error("Not possible to open \"conf/" + TileS57.class.getSimpleName().toLowerCase() + ".properties\"");
+            NeptusLog.pub().debug(e.getMessage());
         }
         
         try {
@@ -174,7 +175,8 @@ public class TileS57 extends TileHttpFetcher {
             PluginUtils.saveProperties("conf/" + TileS57.class.getSimpleName().toLowerCase() + ".properties", TileS57.class);
         }
         catch (Exception e) {
-           NeptusLog.pub().error("Not possible to open \"conf/" + TileS57.class.getSimpleName().toLowerCase() + ".properties\"");
+            NeptusLog.pub().debug(e.getMessage());
+            NeptusLog.pub().error("Not possible to open \"conf/" + TileS57.class.getSimpleName().toLowerCase() + ".properties\"");
         }
 
         try {

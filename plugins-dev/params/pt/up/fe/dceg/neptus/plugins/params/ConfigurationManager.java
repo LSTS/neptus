@@ -256,12 +256,14 @@ public class ConfigurationManager {
                         minV = Double.parseDouble(minStr);
                     }
                     catch (Exception e) {
+                        NeptusLog.pub().debug(e.getMessage());
                         minV = null;
                     }
                     try {
                         maxV = Double.parseDouble(maxStr);
                     }
                     catch (Exception e) {
+                        NeptusLog.pub().debug(e.getMessage());
                         maxV = null;
                     }
                 }
@@ -284,6 +286,7 @@ public class ConfigurationManager {
                                 minSize = Integer.parseInt(sizeMinList);
                             }
                             catch (NumberFormatException e) {
+                                NeptusLog.pub().debug(e.getMessage());
                             }
                         }
                         if (sizeMaxList != null) {
@@ -291,6 +294,7 @@ public class ConfigurationManager {
                                 maxSize = Integer.parseInt(sizeMaxList);
                             }
                             catch (NumberFormatException e) {
+                                NeptusLog.pub().debug(e.getMessage());
                             }
                         }
                     }

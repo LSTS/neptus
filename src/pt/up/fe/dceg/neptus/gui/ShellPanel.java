@@ -60,6 +60,7 @@ import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants.ColorConstants;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 
@@ -279,6 +280,7 @@ public class ShellPanel extends JPanel {
                     cmdHistory.remove(maxHistory);
                 }
                 catch (ArrayIndexOutOfBoundsException e) {
+                    NeptusLog.pub().debug(e.getMessage());
                 }
             }
         }
@@ -336,6 +338,7 @@ public class ShellPanel extends JPanel {
                 caretMoved = false;
             }
             catch (Exception e) {
+                NeptusLog.pub().debug(e.getMessage());
             }
         }
     }
@@ -380,8 +383,7 @@ public class ShellPanel extends JPanel {
             writeOut(shellPrompt);
         }
         catch (BadLocationException e) {
-            // TODO Auto-generated catch block
-            // e.printStackTrace();
+            NeptusLog.pub().debug(e.getMessage());
         }
     }
 
@@ -403,6 +405,7 @@ public class ShellPanel extends JPanel {
             getShellTextPane().setCaretPosition(doc.getLength());
         }
         catch (Exception e) {
+            NeptusLog.pub().debug(e.getMessage());
         }
     }
 
@@ -472,8 +475,7 @@ public class ShellPanel extends JPanel {
             out.flush();
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
-            // e.printStackTrace();
+            NeptusLog.pub().debug(e.getMessage());
         }
     }
 
@@ -531,11 +533,12 @@ public class ShellPanel extends JPanel {
                             Thread.sleep(1000);
                         }
                         catch (Exception ee) {
+                            NeptusLog.pub().debug(ee.getMessage());
                         }
                     }
                 }
                 catch (Exception e) {
-                    // TODO: handle exception
+                    NeptusLog.pub().debug(e.getMessage());
                 }
             };
         };

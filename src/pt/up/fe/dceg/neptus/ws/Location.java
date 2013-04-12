@@ -272,7 +272,7 @@ public class Location {
             seconds = Double.parseDouble(st.nextToken());
         }
         catch (Exception e) {
-
+            NeptusLog.pub().debug(e.getMessage());
         }
         double value = degrees + minutes / 60.0 + seconds / 3600.0;
         if (dms.contains("W") || dms.contains("S")) {

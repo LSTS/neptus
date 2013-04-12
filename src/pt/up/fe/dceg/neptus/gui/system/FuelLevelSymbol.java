@@ -166,48 +166,48 @@ public class FuelLevelSymbol extends SymbolLabel {
         panel.add(symb1, BorderLayout.CENTER);
         GuiUtils.testFrame(panel, "", 300, 300);
         
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setPercentage(0);
-        symb1.setActive(false);
-        symb1.repaint();
-
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setPercentage(9.3);
-        symb1.repaint();
-
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setPercentage(13.2);
-        symb1.repaint();
-
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setPercentage(34.1);
-        symb1.setActive(false);
-        symb1.repaint();
-
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setPercentage(50.8);
-        symb1.repaint();
-
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setPercentage(66.6);
-        symb1.repaint();
-
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setPercentage(74.2);
-        symb1.repaint();
-
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setPercentage(88.5);
-        symb1.setActive(true);
-        symb1.repaint();
-
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setPercentage(98.3);
-        symb1.repaint();
-
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setPercentage(100);
-        symb1.repaint();
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setPercentage(0);
+//        symb1.setActive(false);
+//        symb1.repaint();
+//
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setPercentage(9.3);
+//        symb1.repaint();
+//
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setPercentage(13.2);
+//        symb1.repaint();
+//
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setPercentage(34.1);
+//        symb1.setActive(false);
+//        symb1.repaint();
+//
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setPercentage(50.8);
+//        symb1.repaint();
+//
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setPercentage(66.6);
+//        symb1.repaint();
+//
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setPercentage(74.2);
+//        symb1.repaint();
+//
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setPercentage(88.5);
+//        symb1.setActive(true);
+//        symb1.repaint();
+//
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setPercentage(98.3);
+//        symb1.repaint();
+//
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setPercentage(100);
+//        symb1.repaint();
 
     }
 }

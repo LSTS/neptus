@@ -353,25 +353,25 @@ public class AbortPanel extends SimpleSubPanel implements MainVehicleChangeListe
     public void cleanSubPanel() {
     }
     
-    public static void main(String[] args) {
-        AbortPanel ap = new AbortPanel(new ConsoleLayout());
-        
-        GuiUtils.testFrame(ap);
-        
-        try { Thread.sleep(3000); } catch (InterruptedException e) { }
-        
-        ap.buttonShape = AbortButtonShapeEnum.RECTANGULAR;
-        ap.propertiesChanged();
-        
-        try { Thread.sleep(3000); } catch (InterruptedException e) { }
-        
-        ap.buttonShape = AbortButtonShapeEnum.ROUND;
-        ap.propertiesChanged();
-        
-        try { Thread.sleep(3000); } catch (InterruptedException e) { }
-        
-        ap.buttonShape = AbortButtonShapeEnum.RECTANGULAR;
-        ap.propertiesChanged();
-        
-    }
+//    public static void main(String[] args) {
+//        AbortPanel ap = new AbortPanel(new ConsoleLayout());
+//        
+//        GuiUtils.testFrame(ap);
+//        
+//        try { Thread.sleep(3000); } catch (InterruptedException e) { }
+//        
+//        ap.buttonShape = AbortButtonShapeEnum.RECTANGULAR;
+//        ap.propertiesChanged();
+//        
+//        try { Thread.sleep(3000); } catch (InterruptedException e) { }
+//        
+//        ap.buttonShape = AbortButtonShapeEnum.ROUND;
+//        ap.propertiesChanged();
+//        
+//        try { Thread.sleep(3000); } catch (InterruptedException e) { }
+//        
+//        ap.buttonShape = AbortButtonShapeEnum.RECTANGULAR;
+//        ap.propertiesChanged();
+//        
+//    }
 }

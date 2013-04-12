@@ -36,6 +36,7 @@ import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 public class ColorMapFactory {
@@ -171,6 +172,7 @@ public class ColorMapFactory {
                 hot = new TabulatedColorMap(isr);
             }
             catch (Exception e) {
+                NeptusLog.pub().debug(e.getMessage());
                 hot = new InterpolationColorMap("Hot",
                         new double[] {0.0, 0.3333333, 0.66666666, 1.0},
                         new Color[] {Color.BLACK, Color.RED, Color.YELLOW, Color.WHITE}
@@ -238,6 +240,7 @@ public class ColorMapFactory {
                 jet = new TabulatedColorMap(isr);
             }
             catch (Exception e) {
+                NeptusLog.pub().debug(e.getMessage());
                 jet = new InterpolationColorMap("Jet",
                         new double[] {0.0, 0.25, 0.5, 0.75, 1.0},
                         new Color[] {Color.blue ,Color.cyan, Color.yellow, Color.red, new Color(128,0,0)} 

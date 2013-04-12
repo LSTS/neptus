@@ -550,14 +550,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 panel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                 panel.deactivateComponents();
                 panel.setEditMode(true);
-                try {
-                    panel.setBorder(new TitledBorder(new LineBorder(
-                    // GeneralPreferences.getPropertyColor("console edit border color")
-                            GeneralPreferences.consoleEditBorderColor), panel.getName()));
-                }
-                catch (Exception e) {
-                    panel.setBorder(new TitledBorder(new LineBorder(Color.YELLOW), panel.getName()));
-                }
+                panel.setBorder(new TitledBorder(new LineBorder(GeneralPreferences.consoleEditBorderColor), panel.getName()));
             }
         }
     }

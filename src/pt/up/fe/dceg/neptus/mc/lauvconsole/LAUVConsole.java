@@ -39,6 +39,7 @@ import javax.swing.JFrame;
 
 import org.dom4j.Node;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.actions.LayoutEditConsoleAction;
 import pt.up.fe.dceg.neptus.console.actions.OpenConsoleAction;
@@ -138,6 +139,7 @@ public class LAUVConsole extends ConsoleLayout {
                     filename = f.getCanonicalPath();
                 }
                 catch (IOException e1) {
+                    NeptusLog.pub().error(e1.getStackTrace());
                 }
                 String extension = FileUtil.getFileExtension(f).toLowerCase();
                 if (FileUtil.FILE_TYPE_MISSION_COMPRESSED.equalsIgnoreCase(extension)

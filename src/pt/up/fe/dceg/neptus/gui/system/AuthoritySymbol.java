@@ -189,25 +189,25 @@ public class AuthoritySymbol extends SymbolLabel {
 		panel.add(symb1, BorderLayout.CENTER);
 		GuiUtils.testFrame(panel, "", 300, 300);
 		
-		try { Thread.sleep(2000); } catch (InterruptedException e) { }
-		symb1.setAuthorityType(IMCAuthorityState.SYSTEM_FULL);
-		symb1.repaint();
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setAuthorityType(IMCAuthorityState.SYSTEM_MONITOR);
-        symb1.repaint();
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setAuthorityType(IMCAuthorityState.PAYLOAD);
-        symb1.repaint();
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setAuthorityType(IMCAuthorityState.PAYLOAD_MONITOR);
-        symb1.repaint();
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setAuthorityType(IMCAuthorityState.NONE);
-        symb1.repaint();
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.setActive(false);
-        symb1.repaint();
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//		try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//		symb1.setAuthorityType(IMCAuthorityState.SYSTEM_FULL);
+//		symb1.repaint();
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setAuthorityType(IMCAuthorityState.SYSTEM_MONITOR);
+//        symb1.repaint();
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setAuthorityType(IMCAuthorityState.PAYLOAD);
+//        symb1.repaint();
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setAuthorityType(IMCAuthorityState.PAYLOAD_MONITOR);
+//        symb1.repaint();
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setAuthorityType(IMCAuthorityState.NONE);
+//        symb1.repaint();
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.setActive(false);
+//        symb1.repaint();
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
 //        symb1.setAuthorityType(IMCAuthorityState.SYSTEM_FULL);
 //        symb1.setActive(true);
 //        symb1.repaint();

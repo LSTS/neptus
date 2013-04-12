@@ -397,6 +397,7 @@ public class VehiclesHolder {
             }
             catch (Exception e) {
                 className = null;
+                NeptusLog.pub().debug(e.getMessage());
                 GuiUtils.errorMessage(callerComponent, "Warning", "No operational "
                         + "console(s) configured for this vehicle.\n");
             }

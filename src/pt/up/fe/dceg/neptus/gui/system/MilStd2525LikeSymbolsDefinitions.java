@@ -753,20 +753,20 @@ public class MilStd2525LikeSymbolsDefinitions {
         JScrollPane jsp = new JScrollPane(panel,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         GuiUtils.testFrame(jsp, "MIL-STD-2525 Like Symbology", 860, 750);
 
-        try { Thread.sleep(5000); } catch (InterruptedException e) { }
-        colorIntencity = SymbolColorIntencityEnum.MEDIUM;
-        panel.repaint();
-        try { Thread.sleep(5000); } catch (InterruptedException e) { }
-        colorIntencity = SymbolColorIntencityEnum.DARK;
-        panel.repaint();
-        try { Thread.sleep(5000); } catch (InterruptedException e) { }
-        colorIntencity = SymbolColorIntencityEnum.LIGHT;
-        panel.repaint();
-        try { Thread.sleep(5000); } catch (InterruptedException e) { }
-        debugOn = true;
-        panel.repaint();
-        try { Thread.sleep(5000); } catch (InterruptedException e) { }
-        debugOn = false;
-        panel.repaint();
+//        try { Thread.sleep(5000); } catch (InterruptedException e) { }
+//        colorIntencity = SymbolColorIntencityEnum.MEDIUM;
+//        panel.repaint();
+//        try { Thread.sleep(5000); } catch (InterruptedException e) { }
+//        colorIntencity = SymbolColorIntencityEnum.DARK;
+//        panel.repaint();
+//        try { Thread.sleep(5000); } catch (InterruptedException e) { }
+//        colorIntencity = SymbolColorIntencityEnum.LIGHT;
+//        panel.repaint();
+//        try { Thread.sleep(5000); } catch (InterruptedException e) { }
+//        debugOn = true;
+//        panel.repaint();
+//        try { Thread.sleep(5000); } catch (InterruptedException e) { }
+//        debugOn = false;
+//        panel.repaint();
     }
 }

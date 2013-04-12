@@ -34,6 +34,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.plugins.tidePrediction.util.DateUtils;
 
 import com.gargoylesoftware.htmlunit.html.DomElement;
@@ -92,6 +93,7 @@ public class TidePrediction {
         catch (NumberFormatException e) {
             // This means that there was a moon prediction so we'll just skip along 
             // and get it from the next one
+            NeptusLog.pub().debug(e.getMessage());
             next = tideInfo.next();
             substring = next.getTextContent().substring(1);
             height =Float.parseFloat(substring);

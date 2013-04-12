@@ -585,6 +585,7 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
                             validValue = true;
                         }
                         catch (Exception ex) {
+                            NeptusLog.pub().debug(ex.getMessage());
                             GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(),
                                     I18n.text("Introduce the heading angle to derived heading"),
                                     I18n.text("Value must be a numeric value from [-180, 180]"));
@@ -604,6 +605,7 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
                             validValue = true;
                         }
                         catch (Exception ex) {
+                            NeptusLog.pub().debug(ex.getMessage());
                             GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(),
                                     I18n.text("Introduce the offset angle to add to the derived heading"),
                                     I18n.text("Value must be a numeric value from [-180, 180]"));

@@ -626,11 +626,9 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
                 ColorMapUtils.generateInterpolatedColorMap(bounds, dps, 0, image.createGraphics(), image.getWidth(),
                         image.getHeight(), 255, (ColorMap) cmapCombo.getSelectedItem(), dd.minVal[0] * 0.995,
                         dd.maxVal[0] * 1.005);
-
-
             }
             catch (NullPointerException e) {
-                NeptusLog.pub().info("<###> "+bounds + "," + dps + "," + image + "," + cmapCombo);
+                NeptusLog.pub().error(e, e);
             }
 
             // Clip with CHull

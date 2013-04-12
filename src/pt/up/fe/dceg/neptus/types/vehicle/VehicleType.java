@@ -211,7 +211,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             doc = DocumentHelper.parseText(xml);
         }
         catch (DocumentException e) {
-            // e.printStackTrace();
+            NeptusLog.pub().error(e.getMessage());
             isLoadOk = false;
             return false;
         }
@@ -249,6 +249,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 }
             }
             catch (Exception e) {
+                NeptusLog.pub().debug(e.getMessage());
                 NeptusLog.pub().warn("No maneuvers found for system " + id + "!!");
             }
 
@@ -266,6 +267,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                     operationalActive = Boolean.parseBoolean(nd.getText());
                 }
                 catch (Exception e) {
+                    NeptusLog.pub().debug(e.getMessage());
                     operationalActive = true;
                 }
             }
@@ -920,6 +922,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             root.add(docX.getRootElement().detach());
         }
         catch (Exception e) {
+            NeptusLog.pub().debug(e.getMessage());
             NeptusLog.pub().warn("No maneuvers found for system " + id + "!!");
         }
 
