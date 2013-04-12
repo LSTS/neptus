@@ -37,16 +37,11 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.Vector;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
@@ -151,9 +146,9 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
             Spot.log.debug("Repaint asked for SpotOverlay");
             repaint();
         }
-        catch (ParserConfigurationException | SAXException | IOException e) {
-            Spot.log.debug("Ran into exception while getting messages from page: " + e.getStackTrace());
-            e.printStackTrace();
+        catch (Exception e) {
+            Spot.log.debug("Ran into exception while getting messages from page.", e);
+            // TODO handle e.printStackTrace();
         }
     }
 
