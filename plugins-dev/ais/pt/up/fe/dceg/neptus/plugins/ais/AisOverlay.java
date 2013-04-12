@@ -174,21 +174,27 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
         lastThread = new Thread() {
             public void run() {
                 updating = true;
-                if (renderer == null) {
+                try {
+                    
+                    if (renderer == null) {
+                        lastThread = null;
+                        return;
+                    }
+    
+                    LocationType topLeft = renderer.getTopLeftLocationType();
+                    LocationType bottomRight = renderer.getBottomRightLocationType();
+    
+                    shipsOnMap = getShips(bottomRight.getLatitudeAsDoubleValue(), topLeft.getLongitudeAsDoubleValue(),
+                            topLeft.getLatitudeAsDoubleValue(), bottomRight.getLongitudeAsDoubleValue(), showStoppedShips);
+    
                     lastThread = null;
-                    return;
+    
+                    
+                    renderer.repaint();
                 }
-
-                LocationType topLeft = renderer.getTopLeftLocationType();
-                LocationType bottomRight = renderer.getBottomRightLocationType();
-
-                shipsOnMap = getShips(bottomRight.getLatitudeAsDoubleValue(), topLeft.getLongitudeAsDoubleValue(),
-                        topLeft.getLatitudeAsDoubleValue(), bottomRight.getLongitudeAsDoubleValue(), showStoppedShips);
-
-                lastThread = null;
-
-                updating = false;
-                renderer.repaint();
+                finally {
+                    updating = false;
+                }
             };
         };
         lastThread.setName("AIS Fetcher thread");
