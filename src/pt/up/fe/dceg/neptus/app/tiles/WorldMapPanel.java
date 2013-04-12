@@ -116,7 +116,6 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.MathMiscUtils;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 import pt.up.fe.dceg.neptus.util.output.OutputMonitor;
-import sun.util.logging.resources.logging;
 
 /**
  * @author Paulo Dias
