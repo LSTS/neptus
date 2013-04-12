@@ -41,10 +41,8 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 /**
