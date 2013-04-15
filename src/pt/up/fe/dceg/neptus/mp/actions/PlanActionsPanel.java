@@ -277,7 +277,7 @@ public class PlanActionsPanel extends JPanel {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						String mName = (String) messagesComboBox.getSelectedItem();
-						IMCMessage sMsg = (IMCMessage) IMCDefinition.getInstance().create(mName);;
+						IMCMessage sMsg = (IMCMessage) IMCDefinition.getInstance().create(mName);
 						PlanActionElementConfig plActionCfg = new PlanActionElementConfig();
 						plActionCfg.message = sMsg;
 						try {

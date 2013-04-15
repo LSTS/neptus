@@ -112,7 +112,7 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
 //            catch (GeneralPreferencesException e) {
 //            }
             queueMaxSize = GeneralPreferences.commsQueueSize;
-            minDelay = GeneralPreferences.commsMsgSeparationMillis;;
+            minDelay = GeneralPreferences.commsMsgSeparationMillis;
             
             synchronized (listeners) {
                 for (MessageListener<Mi, M> ml : listeners) {

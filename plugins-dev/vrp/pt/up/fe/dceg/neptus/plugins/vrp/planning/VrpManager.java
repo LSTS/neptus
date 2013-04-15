@@ -112,7 +112,6 @@ public class VrpManager {
             e.printStackTrace();
         }
         ImproveI improve = new ImproveWithTSP(new drasys.or.graph.tsp.ThreeOpt());
-        ;
         vrp = new Composite(bestOf, improve);
         vrp.setCostConstraint(Double.MAX_VALUE/* rangeConstraint*1000 */);
 
@@ -442,7 +441,6 @@ public class VrpManager {
             e.printStackTrace();
         }
         ImproveI improve = new ImproveWithTSP(new drasys.or.graph.tsp.ThreeOpt());
-        ;
         vrp = new Composite(bestOf, improve);
         vrp.setCostConstraint(Double.MAX_VALUE/* rangeConstraint*1000 */);
 

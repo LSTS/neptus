@@ -2431,7 +2431,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      * @see pt.up.fe.dceg.neptus.util.conf.PreferencesListener#preferencesUpdated()
      */
     public void preferencesUpdated() {
-        int np = GeneralPreferences.numberOfShownPoints;;
+        int np = GeneralPreferences.numberOfShownPoints;
         for (VehicleTailElement vte : vehicleTails.values())
             vte.setNumberOfPoints(np);
         if (np < 0)

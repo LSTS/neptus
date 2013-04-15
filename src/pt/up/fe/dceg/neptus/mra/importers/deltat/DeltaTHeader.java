@@ -72,7 +72,7 @@ public class DeltaTHeader {
         numBeams = b.getShort(70);
         samplesPerBeam = b.getShort(72);
         sectorSize = b.getShort(74); 
-        startAngle = b.getShort(76) / 100f - 180;;
+        startAngle = b.getShort(76) / 100f - 180;
         angleIncrement = b.get(78) / 100f;
         range = b.getShort(79);
         rangeResolution = b.getShort(85);

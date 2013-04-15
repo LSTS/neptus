@@ -220,7 +220,7 @@ public class MultiEntityDisplayPanel extends SimpleSubPanel implements Configura
                 return;
             DisplayPanel dp;
             if (!displays.containsKey(entityName)) {
-                String prefixAdded = "", postfixAdded = "";;
+                String prefixAdded = "", postfixAdded = "";
                 if (showTitle && !"".equalsIgnoreCase(titleTxt) && showTitleInline) {
                     prefixAdded = titleTxt + " ";
                     if (showUnitInTitle)

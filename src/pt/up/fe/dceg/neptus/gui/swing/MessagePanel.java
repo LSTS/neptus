@@ -174,7 +174,7 @@ public class MessagePanel extends JPanel {
 					ClipboardOwner owner = new ClipboardOwner() {
 						public void lostOwnership(java.awt.datatransfer.Clipboard clipboard, java.awt.datatransfer.Transferable contents) {};						
 					};
-					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(msgTextPane.getText()), owner);;
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(msgTextPane.getText()), owner);
 					writeMessageTextln("Text was copied to the system clipboard", DEFAULT);
 					return;
 				}
