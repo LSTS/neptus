@@ -44,6 +44,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanPanel.InteractionMode;
 
 /**
@@ -56,18 +57,18 @@ public class SidescanToolbar extends JToolBar {
     SidescanPanel panel;
     
     ButtonGroup bgroup = new ButtonGroup();
-    JToggleButton btnMeasure = new JToggleButton("Measure");
-    JToggleButton btnInfo = new JToggleButton("Info");
-    JToggleButton btnZoom = new JToggleButton("Zoom");
-    JToggleButton btnMark = new JToggleButton("Mark");
+    JToggleButton btnMeasure = new JToggleButton(I18n.text("Measure"));
+    JToggleButton btnInfo = new JToggleButton(I18n.text("Info"));
+    JToggleButton btnZoom = new JToggleButton(I18n.text("Zoom"));
+    JToggleButton btnMark = new JToggleButton(I18n.text("Mark"));
 
-    JLabel lblNormalization = new JLabel("Normalization");
-    JLabel lblTVG = new JLabel("TVG");
+    JLabel lblNormalization = new JLabel(I18n.text("Normalization"));
+    JLabel lblTVG = new JLabel(I18n.textc("TVG", "Time Variable Gain"));
 
     JTextField txtNormalization = new JTextField();
     JTextField txtTVG = new JTextField();
     
-    JButton btnConfig = new JButton(new AbstractAction("Config") {
+    JButton btnConfig = new JButton(new AbstractAction(I18n.textc("Config", "Configuration")) {
         private static final long serialVersionUID = -878895322319699542L;
 
         @Override

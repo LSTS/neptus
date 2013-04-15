@@ -47,6 +47,7 @@ import javax.swing.JPanel;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.Distance;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SonarData;
@@ -189,7 +190,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
 
     public String getName() 
     {		
-        return PluginUtils.getPluginName(this.getClass());
+        return I18n.text(PluginUtils.getPluginName(this.getClass()));
     }
 
     public Type getType() {

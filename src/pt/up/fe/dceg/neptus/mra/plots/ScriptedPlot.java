@@ -73,7 +73,7 @@ public class ScriptedPlot extends MraTimeSeriesPlot {
 
     @Override
     public String getName() {
-        return title;
+        return I18n.text(title);
     }
 
     @Override
