@@ -142,10 +142,11 @@ public class ImcMsgManager extends
 
     // EventBus
     private final ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
-
+        private long counter = 0;
         @Override
         public Thread newThread(Runnable r) {
             Thread t = new Thread(r);
+            t.setName("Message Event Bus " + (counter++));
             t.setDaemon(true);
             return t;
         }
