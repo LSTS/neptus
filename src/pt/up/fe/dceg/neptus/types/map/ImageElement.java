@@ -54,44 +54,41 @@ import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 /**
  * Refactored in 06/11/2006.
+ * 
  * @author Paulo Dias
  * @author Ze Carlos
  * @author RJPG
  */
-public class ImageElement
-extends AbstractElement
-implements ScalableElement, RotatableElement
-{
+public class ImageElement extends AbstractElement implements ScalableElement, RotatableElement {
     protected static final String DEFAULT_ROOT_ELEMENT = "image";
 
-	public static final int DEFAULT_RESOLUTION = 100;
+    public static final int DEFAULT_RESOLUTION = 100;
 
     private String imageFileName = null;
-    private double imageScale = 1.0; // metros por pixel
-    
+    private double imageScale = 1.0; // meters per pixel
+
     private String bathymetricImageFileName = null;
 
     private boolean isBathymetric = false;
-    private double maxHeight = 0.0, maxDepth = 20.0; // valores maximos 
-    private int resolution = DEFAULT_RESOLUTION;  // partir a imagem em n pedaços 
+    private double maxHeight = 0.0, maxDepth = 20.0; // max values
+    private int resolution = DEFAULT_RESOLUTION;
 
     protected String originalFilePath = "";
 
     boolean selected = false;
     private Image image = null;
-    private Image heightImage = null; // imagem de profundidade 
-    	
+    private Image heightImage = null; // depth image
+
     private ImageObjectParameters params = new ImageObjectParameters();
     private boolean fastRendering = false;
-    
+
     /**
      * 
      */
-    public ImageElement()
-    {
+    public ImageElement() {
         super();
     }
-    
+
     public ImageElement(File imgFile, File worldFile) throws Exception {
         originalFilePath = imgFile.getAbsolutePath();
         setId(imgFile.getName());
@@ -99,90 +96,86 @@ implements ScalableElement, RotatableElement
         String[] lines = FileUtil.getFileAsString(worldFile).split("\n");
 
         image = ImageUtils.getImage(imgFile.getAbsolutePath());
-        
+
         if (lines.length != 6)
             throw new Exception("World file not understood");
-        
+
         double scaleX = Double.parseDouble(lines[0]);
-        double rotX =   Double.parseDouble(lines[1]);
-        double rotY =   Double.parseDouble(lines[2]);
+        double rotX = Double.parseDouble(lines[1]);
+        double rotY = Double.parseDouble(lines[2]);
         double scaleY = Double.parseDouble(lines[3]);
         double coordX = Double.parseDouble(lines[4]);
         double coordY = Double.parseDouble(lines[5]);
-        
+
         LocationType loc = new LocationType(coordY, coordX);
-        LocationType loc2 = new LocationType(coordY, coordX+scaleX);
-        
+        LocationType loc2 = new LocationType(coordY, coordX + scaleX);
+
         double scale = loc2.getHorizontalDistanceInMeters(loc);
-        
-        /*if (scaleX != scaleY) {
-            NeptusLog.pub().warn("loading an image file with different X and Y scales may lead to errors...");
-        }*/
-        
+
+        /*
+         * if (scaleX != scaleY) {
+         * NeptusLog.pub().warn("loading an image file with different X and Y scales may lead to errors..."); }
+         */
+
         if (rotX != rotY) {
             NeptusLog.pub().warn("loading an image file with different X and Y rotations may lead to errors...");
         }
         setImageFileName(imgFile.getAbsolutePath());
         setImageScale(scale);
         setYawDeg(rotX);
-        
+
         double width = image.getWidth(null) * scaleX;
         double height = image.getHeight(null) * scaleY;
-        setCenterLocation(new LocationType(coordY+height/2, coordX+width/2));
+        setCenterLocation(new LocationType(coordY + height / 2, coordX + width / 2));
     }
 
     /**
      * @param xml
      */
-    public ImageElement(String xml)
-    {
-        //super(xml);
+    public ImageElement(String xml) {
+        // super(xml);
         load(xml);
     }
 
-    public ImageElement(String xml, String originalFilePath)
-    {
-        //super(xml);
-        this.originalFilePath = originalFilePath; 
+    public ImageElement(String xml, String originalFilePath) {
+        // super(xml);
+        this.originalFilePath = originalFilePath;
         load(xml);
     }
-    
+
     public ImageElement(MapGroup mg, MapType map) {
         super(mg, map);
         if (mg != null)
             setCenterLocation(new LocationType(mg.getHomeRef().getCenterLocation()));
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.types.map.MapElement#getType()
      */
-    public String getType()
-    {
+    public String getType() {
         return "Image";
     }
 
-    
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.types.map.AbstractElement#load(org.dom4j.Element)
      */
     @Override
-    public boolean load(Element elem)
-    {
+    public boolean load(Element elem) {
         if (!super.load(elem))
             return false;
-            
 
-        try
-        {
-        	//doc = DocumentHelper.parseText(xml);
+        try {
+            // doc = DocumentHelper.parseText(xml);
             Node nd = doc.selectSingleNode("//href");
-            if (nd != null)
-            {
+            if (nd != null) {
                 if ("".equals(originalFilePath))
                     this.imageFileName = nd.getText();
                 else
-                    this.imageFileName = ConfigFetch.resolvePathWithParent(
-                            originalFilePath, nd.getText());
+                    this.imageFileName = ConfigFetch.resolvePathWithParent(originalFilePath, nd.getText());
 
                 this.image = ImageUtils.getImage(this.imageFileName);
             }
@@ -191,41 +184,35 @@ implements ScalableElement, RotatableElement
                 this.imageScale = 1.0;
             else
                 this.imageScale = Double.parseDouble(nd.getText());
-            
-            //Tests if it is a batimetric image
+
+            // Tests if it is a batimetric image
             nd = doc.selectSingleNode("//max-height");
             if (nd == null)
                 this.isBathymetric = false;
-            else
-            {
+            else {
                 this.isBathymetric = true;
-                
-            	this.maxHeight = Double.parseDouble(nd.getText());
-            	nd = doc.selectSingleNode("//max-depth");
+
+                this.maxHeight = Double.parseDouble(nd.getText());
+                nd = doc.selectSingleNode("//max-depth");
                 if (nd == null)
                     this.isBathymetric = false;
                 else
-                	this.maxDepth = Double.parseDouble(nd.getText());
-            	nd = doc.selectSingleNode("//resolution");
+                    this.maxDepth = Double.parseDouble(nd.getText());
+                nd = doc.selectSingleNode("//resolution");
                 if (nd == null)
                     this.resolution = DEFAULT_RESOLUTION;
                 else
-                	this.resolution = Integer.parseInt(nd.getText());
-                
-                nd = doc.selectSingleNode("//bathymetryImage"); //oldName, new is href-altitude
+                    this.resolution = Integer.parseInt(nd.getText());
+
+                nd = doc.selectSingleNode("//bathymetryImage"); // oldName, new is href-altitude
                 if (nd != null)
-                	setBathymetricImageFileName(
-                			ConfigFetch.resolvePathWithParent(originalFilePath, nd.getText())
-                	);
+                    setBathymetricImageFileName(ConfigFetch.resolvePathWithParent(originalFilePath, nd.getText()));
                 nd = doc.selectSingleNode("//href-altitude");
                 if (nd != null)
-                	setBathymetricImageFileName(
-                			ConfigFetch.resolvePathWithParent(originalFilePath, nd.getText())
-                	);
+                    setBathymetricImageFileName(ConfigFetch.resolvePathWithParent(originalFilePath, nd.getText()));
             }
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             NeptusLog.pub().error(this, e);
             isLoadOk = false;
             return false;
@@ -237,22 +224,20 @@ implements ScalableElement, RotatableElement
     /**
      * @return Returns the imageFileName.
      */
-    public String getImageFileName()
-    {
+    public String getImageFileName() {
         return imageFileName;
     }
+
     /**
      * @param imageFileName The imageFileName to set.
      */
-    public void setImageFileName(String imageFileName)
-    {
+    public void setImageFileName(String imageFileName) {
         this.imageFileName = imageFileName;
         this.image = ImageUtils.getImage(imageFileName);
         this.heightImage = ImageUtils.getImage(imageFileName);
     }
-    
-    public Image getImage()
-    {
+
+    public Image getImage() {
         return image;
     }
 
@@ -260,8 +245,7 @@ implements ScalableElement, RotatableElement
         this.image = image;
     }
 
-    public Image getHeightImage()
-    {
+    public Image getHeightImage() {
         return heightImage;
     }
 
@@ -272,33 +256,30 @@ implements ScalableElement, RotatableElement
     /**
      * @return Returns the imageScale.
      */
-    public double getImageScale()
-    {
+    public double getImageScale() {
         return imageScale;
     }
+
     /**
      * @param imageScale The imageScale to set.
      */
-    public void setImageScale(double imageScale)
-    {
+    public void setImageScale(double imageScale) {
         this.imageScale = imageScale;
     }
-    
-    /**
-	 * @return Returns the isBatimetric.
-	 */
-	public boolean isBathymetric()
-	{
-		return isBathymetric;
-	}
 
-	/**
-	 * @param isBatimetric The isBatimetric to set.
-	 */
-	public void setBathymetric(boolean isBatimetric)
-	{
-		this.isBathymetric = isBatimetric;
-	}
+    /**
+     * @return Returns the isBatimetric.
+     */
+    public boolean isBathymetric() {
+        return isBathymetric;
+    }
+
+    /**
+     * @param isBatimetric The isBatimetric to set.
+     */
+    public void setBathymetric(boolean isBatimetric) {
+        this.isBathymetric = isBatimetric;
+    }
 
     /**
      * @return Returns the fastRendering.
@@ -306,6 +287,7 @@ implements ScalableElement, RotatableElement
     public boolean isFastRendering() {
         return fastRendering;
     }
+
     /**
      * @param fastRendering The fastRendering to set.
      */
@@ -313,167 +295,156 @@ implements ScalableElement, RotatableElement
         this.fastRendering = fastRendering;
     }
 
-	/**
-	 * @return Returns the maxDepth.
-	 */
-	public double getMaxDepth()
-	{
-		return maxDepth;
-	}
+    /**
+     * @return Returns the maxDepth.
+     */
+    public double getMaxDepth() {
+        return maxDepth;
+    }
 
-	/**
-	 * @param maxDepth The maxDepth to set.
-	 */
-	public void setMaxDepth(double maxDepth)
-	{
-		this.maxDepth = maxDepth;
-	}
+    /**
+     * @param maxDepth The maxDepth to set.
+     */
+    public void setMaxDepth(double maxDepth) {
+        this.maxDepth = maxDepth;
+    }
 
-	/**
-	 * @return Returns the maxHeight.
-	 */
-	public double getMaxHeight()
-	{
-		return maxHeight;
-	}
+    /**
+     * @return Returns the maxHeight.
+     */
+    public double getMaxHeight() {
+        return maxHeight;
+    }
 
-	/**
-	 * @param maxHeight The maxHight to set.
-	 */
-	public void setMaxHeight(double maxHeight)
-	{
-		this.maxHeight = maxHeight;
-	}
+    /**
+     * @param maxHeight The maxHight to set.
+     */
+    public void setMaxHeight(double maxHeight) {
+        this.maxHeight = maxHeight;
+    }
 
-	/**
-	 * @return Returns the resolution.
-	 */
-	public int getResolution()
-	{
-		return resolution;
-	}
+    /**
+     * @return Returns the resolution.
+     */
+    public int getResolution() {
+        return resolution;
+    }
 
-	/**
-	 * @param resolution The resolution to set.
-	 */
-	public void setResolution(int resolution)
-	{
-		this.resolution = resolution;
-	}
+    /**
+     * @param resolution The resolution to set.
+     */
+    public void setResolution(int resolution) {
+        this.resolution = resolution;
+    }
 
-	/**
+    /**
      * @return Returns the originalFilePath.
      */
-    public String getOriginalFilePath()
-    {
+    public String getOriginalFilePath() {
         return originalFilePath;
     }
+
     /**
      * @param originalFilePath The originalFilePath to set.
      */
-    public void setOriginalFilePath(String originalFilePath)
-    {
+    public void setOriginalFilePath(String originalFilePath) {
         this.originalFilePath = originalFilePath;
     }
-    
-    
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML()
      */
-    public String asXML()
-    {
+    public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asXML(rootElementName);
     }
 
-    
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
-    public String asXML(String rootElementName)
-    {
-        String result = "";        
+    public String asXML(String rootElementName) {
+        String result = "";
         Document document = asDocument(rootElementName);
         result = document.asXML();
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement()
      */
-    public Element asElement()
-    {
+    public Element asElement() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asElement(rootElementName);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement(java.lang.String)
      */
-    public Element asElement(String rootElementName)
-    {
+    public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument()
      */
-    public Document asDocument()
-    {
+    public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
-    public Document asDocument(String rootElementName)
-    {
+    public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
-        //Element root = super.asElement(DEFAULT_ROOT_ELEMENT);
-        Element root = (Element) super.asDocument(DEFAULT_ROOT_ELEMENT)
-                .getRootElement().detach();
+        // Element root = super.asElement(DEFAULT_ROOT_ELEMENT);
+        Element root = (Element) super.asDocument(DEFAULT_ROOT_ELEMENT).getRootElement().detach();
         document.add(root);
-        
+
         if ("".equals(originalFilePath)) {
             root.addElement("href").addText(getImageFileName());
-            NeptusLog.pub().error(this+": Original file path is empty!");
+            NeptusLog.pub().error(this + ": Original file path is empty!");
         }
         else
-            root.addElement("href").addText(
-                    FileUtil.relativizeFilePathAsURI(getOriginalFilePath(),
-                            getImageFileName()));
-        root.addElement("scale").addText(
-                Double.toString(getImageScale()));
-        //root.addElement("yaw").addText(
-        //		Double.toString(getYaw()));
-        
-        if (isBathymetric())
-        {
-        	root.addElement("max-height").addText(
-                    Double.toString(getMaxHeight()));
-        	root.addElement("max-depth").addText(
-                    Double.toString(getMaxDepth()));
+            root.addElement("href")
+                    .addText(FileUtil.relativizeFilePathAsURI(getOriginalFilePath(), getImageFileName()));
+        root.addElement("scale").addText(Double.toString(getImageScale()));
+        // root.addElement("yaw").addText(
+        // Double.toString(getYaw()));
 
-        	// Old Schema
-//        	if (getBathymetricImageFileName() != null)
-//        		root.addElement("bathymetryImage").addText(
-//        				FileUtil.relativizeFilePathAsURI(getOriginalFilePath(),
-//                                getBathymetricImageFileName()));
-//        	if (getResolution() != DEFAULT_RESOLUTION)
-//        		root.addElement("resolution").addText(
-//        				Integer.toString(getResolution()));
-        	
-        	// for some reason this was not in sync with the schema, I've trace back at least to 2007 and it was like this and not like the previous
-        	if (getResolution() != DEFAULT_RESOLUTION)
-        		root.addElement("resolution").addText(
-        				Integer.toString(getResolution()));
-        	if (getBathymetricImageFileName() != null)
-        		root.addElement("href-altitude").addText(
-        				FileUtil.relativizeFilePathAsURI(getOriginalFilePath(),
-                                getBathymetricImageFileName()));
-        	
+        if (isBathymetric()) {
+            root.addElement("max-height").addText(Double.toString(getMaxHeight()));
+            root.addElement("max-depth").addText(Double.toString(getMaxDepth()));
+
+            // Old Schema
+            // if (getBathymetricImageFileName() != null)
+            // root.addElement("bathymetryImage").addText(
+            // FileUtil.relativizeFilePathAsURI(getOriginalFilePath(),
+            // getBathymetricImageFileName()));
+            // if (getResolution() != DEFAULT_RESOLUTION)
+            // root.addElement("resolution").addText(
+            // Integer.toString(getResolution()));
+
+            // for some reason this was not in sync with the schema, I've trace back at least to 2007 and it was like
+            // this and not like the previous
+            if (getResolution() != DEFAULT_RESOLUTION)
+                root.addElement("resolution").addText(Integer.toString(getResolution()));
+            if (getBathymetricImageFileName() != null)
+                root.addElement("href-altitude").addText(
+                        FileUtil.relativizeFilePathAsURI(getOriginalFilePath(), getBathymetricImageFileName()));
+
         }
 
         return document;
@@ -484,14 +455,14 @@ implements ScalableElement, RotatableElement
      * Verifies if this paralledpiped is intercepted by the given coordinates
      */
     public boolean containsPoint(LocationType lt, StateRenderer2D renderer) {
-        
+
         double diff[] = lt.getOffsetFrom(getCenterLocation());
         double width = image.getWidth(null) * imageScale;
         double length = image.getHeight(null) * imageScale;
-        
+
         double maxDiffX = width / 2;
         double maxDiffY = length / 2;
-        
+
         return Math.abs(diff[1]) <= maxDiffX && Math.abs(diff[0]) <= maxDiffY;
     }
 
@@ -519,7 +490,7 @@ implements ScalableElement, RotatableElement
 
     @Override
     public void initialize(ParametersPanel paramsPanel) {
-        
+
         setCenterLocation(params.getCenter());
         setImageFileName(params.getImageFileName());
         setImageScale(params.getImageScale());
@@ -527,71 +498,69 @@ implements ScalableElement, RotatableElement
         setMaxHeight(params.getMaxHeight());
         setMaxDepth(params.getMaxDepth());
         setResolution(params.getResolution());
-        
+
         if (isBathymetric() && params.getBathimFile() != null)
-        	setBathymetricImageFileName(params.getBathimFile().getAbsolutePath());        
+            setBathymetricImageFileName(params.getBathimFile().getAbsolutePath());
     }
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
 
         setFastRendering(renderer.isFastRendering());
-        
+
         if (getImage() == null) {
-            NeptusLog.pub().error(this+": Tried to draw a null image: "+getImageFileName());
+            NeptusLog.pub().error(this + ": Tried to draw a null image: " + getImageFileName());
             return;
         }
-        
+
         Point2D center = renderer.getScreenPosition(getCenterLocation());
-        
+
         g.translate(center.getX(), center.getY());
-        g.scale(getImageScale()*renderer.getZoom(), getImageScale()*renderer.getZoom());
-        g.rotate(getYawRad()-renderer.getRotation());
-        g.drawImage(getImage(), -getImage().getWidth(renderer)/2, -getImage().getHeight(renderer)/2, null);
+        g.scale(getImageScale() * renderer.getZoom(), getImageScale() * renderer.getZoom());
+        g.rotate(getYawRad() - renderer.getRotation());
+        g.drawImage(getImage(), -getImage().getWidth(renderer) / 2, -getImage().getHeight(renderer) / 2, null);
     }
-    
+
     public void grow(double ammount) {
         imageScale *= 1.01;
     }
-    
+
     public void shrink(double ammount) {
         imageScale /= 1.01;
     }
-    
+
     public void rotateLeft(double ammount) {
-        setYawDeg(getYawDeg()-ammount);        
+        setYawDeg(getYawDeg() - ammount);
     }
-    
+
     public void rotateRight(double ammount) {
-        setYawDeg(getYawDeg()+ammount);
+        setYawDeg(getYawDeg() + ammount);
     }
-    
+
     public double[] getDimension() {
-    	return new double[] {
-    			getImage().getWidth(null) * imageScale,
-    			getImage().getHeight(null) * imageScale,
-    			0
-    	};
+        return new double[] { getImage().getWidth(null) * imageScale, getImage().getHeight(null) * imageScale, 0 };
     }
-    
+
     public void setDimension(double[] newDimension) {
-    	if (newDimension.length != 3) {
-    		NeptusLog.pub().error(new Exception("Tried to set the dimension with an invalid array (size="+newDimension.length+")"));
-    		return;
-    	}
-    	this.imageScale = newDimension[0] / (double)getImage().getWidth(null);
+        if (newDimension.length != 3) {
+            NeptusLog.pub()
+                    .error(new Exception("Tried to set the dimension with an invalid array (size="
+                            + newDimension.length + ")"));
+            return;
+        }
+        this.imageScale = newDimension[0] / (double) getImage().getWidth(null);
     }
 
-	public String getBathymetricImageFileName() {
-		return bathymetricImageFileName;
-	}
+    public String getBathymetricImageFileName() {
+        return bathymetricImageFileName;
+    }
 
-	public void setBathymetricImageFileName(String bathymetricImageFileName) {
-		this.bathymetricImageFileName = bathymetricImageFileName;
-	}
-    
-	@Override
-	public ELEMENT_TYPE getElementType() {
-	    return ELEMENT_TYPE.TYPE_IMAGE;
-	}
+    public void setBathymetricImageFileName(String bathymetricImageFileName) {
+        this.bathymetricImageFileName = bathymetricImageFileName;
+    }
+
+    @Override
+    public ELEMENT_TYPE getElementType() {
+        return ELEMENT_TYPE.TYPE_IMAGE;
+    }
 }

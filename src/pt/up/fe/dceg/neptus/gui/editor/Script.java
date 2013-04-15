@@ -55,32 +55,29 @@ import pt.up.fe.dceg.neptus.util.GuiUtils;
  *
  */
 public class Script {
-	
-	public String source;
-	public static boolean flag_exit;	
-	
-	public Script()
-	{
-		
-	}
-	
-	public Script(String scr)
-	{
-		source=scr;
-	}
 
-	public String getSource() {
-		return source;
-	}
+    public String source;
+    public static boolean flag_exit;
 
-	public void setSource(String source) {
-		this.source = source;
-	}
-	
-	public static Script showScriptDialog(String title, Script previousScript, Component component) {
-	    return showLocationDialog(title, previousScript,true, component);
-	}
+    public Script() {
 
+    }
+
+    public Script(String scr) {
+        source = scr;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public static Script showScriptDialog(String title, Script previousScript, Component component) {
+        return showLocationDialog(title, previousScript, true, component);
+    }
 	
 	public static Script showLocationDialog(String title, Script previousScript, boolean editable, Component component) {
 		
@@ -202,20 +199,19 @@ public class Script {
 			return new Script(msgTextArea.getText());
 	}
 	
-	public String toString()
-	{
-		return source; 
-	}
+    public String toString() {
+        return source;
+    }
 
-	public static boolean isFlag_exit() {
-		return flag_exit;
-	}
+    public static boolean isFlag_exit() {
+        return flag_exit;
+    }
 
-	public static void setFlag_exit(boolean flag_exit2) {
-		flag_exit = flag_exit2;
-	}
-	
-	public static void main(String[] args) {
-		showScriptDialog("", new Script(), (Component)null);
-	}
+    public static void setFlag_exit(boolean flag_exit2) {
+        flag_exit = flag_exit2;
+    }
+
+    public static void main(String[] args) {
+        showScriptDialog("", new Script(), (Component) null);
+    }
 }
