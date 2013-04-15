@@ -208,7 +208,7 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
                 bathymetryToggle.setEnabled(true);
             };
         });
-
+        t.setName("Plot3D thread");
         t.setDaemon(true);
         t.start();
 

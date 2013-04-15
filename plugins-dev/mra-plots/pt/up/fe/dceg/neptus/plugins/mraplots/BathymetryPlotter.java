@@ -422,7 +422,7 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
                 t = null;
             }
         });
-        
+        t.setName("BathymetryPlotter thread");
         t.setDaemon(true);
         t.start();
     }

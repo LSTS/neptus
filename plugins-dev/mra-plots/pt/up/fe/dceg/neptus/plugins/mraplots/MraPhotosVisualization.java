@@ -433,6 +433,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                             GuiUtils.infoMessage(panel, "Production completed", "Video saved in "+new File(photosDir.getParentFile(), "Video.mp4").getAbsolutePath());
                         }
                     });
+                    videoMaker.setName("Video maker thread");
                     videoMaker.start();
                     
                 }
@@ -543,6 +544,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                 }
             }
         });
+        player.setName("MraPhoto player thread");
         player.setDaemon(true);
         running.add(0, player);
         player.start();
