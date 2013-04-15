@@ -76,12 +76,12 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     public ColorMap colormap = ColorMapFactory.createJetColorMap();
 
     private BufferedImage image = null;
-    int imageWidth;
-    int imageHeight;
+    private int imageWidth;
+    private int imageHeight;
 
-    int maxRange;
+    private int maxRange;
 
-    double yscale;
+    private double yscale;
 
     public EchoSounderMRA(MRAPanel panel) {
         mraPanel = panel;
@@ -101,7 +101,6 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     public boolean supportsVariableTimeSteps() {
         return true;
     }
-
 
     @Override
     public JComponent getComponent(IMraLogGroup source, double timestep) {
@@ -188,8 +187,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
         return ImageUtils.getScaledIcon(PluginUtils.getPluginIcon(this.getClass()), 16, 16);
     }
 
-    public String getName() 
-    {		
+    public String getName() {		
         return I18n.text(PluginUtils.getPluginName(this.getClass()));
     }
 
@@ -210,5 +208,4 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     public void onShow() {
         //nothing
     }
-
 }
