@@ -369,7 +369,7 @@ public class Model3DElement extends AbstractElement implements ScalableElement, 
             // doc = DocumentHelper.parseText(xml);
             Node nd = doc.selectSingleNode("//href");
             if (nd != null) {
-                if (originalFilePath == "")
+                if ("".equals(originalFilePath))
                     this.model3DFilename = nd.getText();
                 else
                     this.model3DFilename = ConfigFetch.resolvePathWithParent(originalFilePath, nd.getText());
@@ -383,7 +383,7 @@ public class Model3DElement extends AbstractElement implements ScalableElement, 
             // Tests if a 2D image is given
             nd = doc.selectSingleNode("//href-2d");
             if (nd != null && !(nd.equals(""))) {
-                if (originalFilePath == "")
+                if ("".equals(originalFilePath))
                     this.image2DFilename = nd.getText();
                 else
                     this.image2DFilename = ConfigFetch.resolvePathWithParent(originalFilePath, nd.getText());
@@ -481,7 +481,7 @@ public class Model3DElement extends AbstractElement implements ScalableElement, 
         Element root = (Element) super.asDocument(DEFAULT_ROOT_ELEMENT).getRootElement().detach();
         document.add(root);
 
-        if (originalFilePath == "") {
+        if ("".equals(originalFilePath)) {
             root.addElement("href").addText(getModel3DFilename());
             NeptusLog.pub().error(this + ": Original file path is empty!");
         }
@@ -491,7 +491,7 @@ public class Model3DElement extends AbstractElement implements ScalableElement, 
         root.addElement("scale").addText(Double.toString(getModel3DScale()));
 
         if (isHas2DImage()) {
-            if (originalFilePath == "") {
+            if ("".equals(originalFilePath)) {
                 if (getImage2DFilename() != null)
                     root.addElement("href-2d").addText(getImage2DFilename());
                 else

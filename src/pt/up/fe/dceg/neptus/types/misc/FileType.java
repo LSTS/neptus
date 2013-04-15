@@ -90,7 +90,7 @@ public class FileType implements XmlOutputMethods {
                 this.setType(nd.getText());
             else
                 this.setType("unknown");
-            if (originalFilePath == "")
+            if ("".equals(originalFilePath))
                 this.setHref(doc.selectSingleNode("/file/href").getText());
             else
                 this.setHref(ConfigFetch.resolvePathWithParent(originalFilePath, doc.selectSingleNode("/file/href")
@@ -255,7 +255,7 @@ public class FileType implements XmlOutputMethods {
         root.addElement("id").addText(getId());
         root.addElement("name").addText(getName());
         root.addElement("type").addText(getType());
-        if (originalFilePath == "")
+        if ("".equals(originalFilePath))
             root.addElement("href").addText(getHref());
         else
             root.addElement("href").addText(FileUtil.relativizeFilePathAsURI(originalFilePath, getHref()));

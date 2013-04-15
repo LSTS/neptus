@@ -2014,7 +2014,8 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 						public void actionPerformed(java.awt.event.ActionEvent e) {
 							// System.err.println("A fixar : "+chek.getName());
                             if (VehiclesHolder.getVehicleById(chek.getName()) == null
-                                    || lockedVehicle == VehiclesHolder.getVehicleById(chek.getName()).getId()) {
+                                    || (lockedVehicle != null && lockedVehicle.equals(VehiclesHolder.getVehicleById(
+                                            chek.getName()).getId()))) {
 								followVehicle(null);
                             }
 							else {

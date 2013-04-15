@@ -178,7 +178,7 @@ implements ScalableElement, RotatableElement
             Node nd = doc.selectSingleNode("//href");
             if (nd != null)
             {
-                if (originalFilePath == "")
+                if ("".equals(originalFilePath))
                     this.imageFileName = nd.getText();
                 else
                     this.imageFileName = ConfigFetch.resolvePathWithParent(
@@ -436,7 +436,7 @@ implements ScalableElement, RotatableElement
                 .getRootElement().detach();
         document.add(root);
         
-        if (originalFilePath == "") {
+        if ("".equals(originalFilePath)) {
             root.addElement("href").addText(getImageFileName());
             NeptusLog.pub().error(this+": Original file path is empty!");
         }

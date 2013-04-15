@@ -282,7 +282,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 MapMission mm = new MapMission();
                 mm.setId(velem.selectSingleNode("./id").getText());
                 mm.setName(velem.selectSingleNode("./name").getText());
-                if (originalFilePath == "")
+                if ("".equals(originalFilePath))
                     mm.setHref(velem.selectSingleNode("./href").getText());
                 else
                     mm.setHrefAndLoadMap(ConfigFetch.resolvePathWithParent(originalFilePath,
@@ -302,7 +302,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 ChecklistMission cm = new ChecklistMission();
                 cm.setId(velem.selectSingleNode("./id").getText());
                 cm.setName(velem.selectSingleNode("./name").getText());
-                if (originalFilePath == "")
+                if ("".equals(originalFilePath))
                     cm.setHref(velem.selectSingleNode("./href").getText());
                 else
                     cm.setHrefAndLoadChecklist(ConfigFetch.resolvePathWithParent(originalFilePath, velem
@@ -655,7 +655,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             ve.addElement("name").addText(vm.getName());
             CoordinateSystem vcs = vm.getCoordinateSystem();
             if (vcs != null)
-                if (!(vcs.getId() == "home"))
+                if (!"home".equals(vcs.getId()))
                     ve.add(vcs.asElement("vehicle-reference"));
         }
 
@@ -665,7 +665,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             Element ma = maps.addElement("map");
             ma.addElement("id").addText(mm.getId());
             ma.addElement("name").addText(mm.getName());
-            if (originalFilePath == "")
+            if ("".equals(originalFilePath))
                 ma.addElement("href").addText(mm.getHref());
             else
                 ma.addElement("href").addText(FileUtil.relativizeFilePathAsURI(originalFilePath, mm.getHref()));
@@ -677,7 +677,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             Element cl = checklists.addElement("checklist");
             cl.addElement("id").addText(cm.getId());
             cl.addElement("name").addText(cm.getName());
-            if (originalFilePath == "")
+            if ("".equals(originalFilePath))
                 cl.addElement("href").addText(cm.getHref());
             else
                 cl.addElement("href").addText(FileUtil.relativizeFilePathAsURI(originalFilePath, cm.getHref()));

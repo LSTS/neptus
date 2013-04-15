@@ -1104,7 +1104,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             Graphics2D copy = (Graphics2D) original.create();
             copy.setStroke(new BasicStroke(1f));
 
-            if (lockedVehicle == system)
+            if (lockedVehicle != null && system != null && lockedVehicle.equals(system))
                 copy.setColor(Color.green.brighter());
             else
                 copy.setColor(Color.red.darker());

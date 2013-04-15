@@ -706,8 +706,8 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                     if (editableInfo) {
                         EditorLauncher ed = new EditorLauncher();
                         short edType;
-                        if ((fxTypeValue.getText() == "xml") | (fxTypeValue.getText() == "xslt")
-                                | (fxTypeValue.getText() == "xsl"))
+                        if ("xml".equals(fxTypeValue.getText()) | "xslt".equals(fxTypeValue.getText())
+                                | "xsl".equals(fxTypeValue.getText()))
                             edType = ed.XML_EDITOR_TYPE;
                         else
                             edType = ed.TEXT_EDITOR_TYPE;

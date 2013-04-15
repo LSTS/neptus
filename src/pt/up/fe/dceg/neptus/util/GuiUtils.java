@@ -1070,7 +1070,7 @@ public class GuiUtils {
     public static boolean menuBarContainsMenu(JMenuBar bar, JMenu menu) {
         for(Component c : bar.getComponents()) {
             if(c instanceof JMenu) {
-                if(((JMenu) c ).getText() == menu.getText()) {
+                if(((JMenu) c ).getText().equals(menu.getText())) {
                     return true;
                 }
             }
@@ -1081,7 +1081,7 @@ public class GuiUtils {
     public static JMenu getJMenuByName(JMenuBar bar, String name) {
         for(Component c : bar.getComponents()) {
             if(c instanceof JMenu) {
-                if(((JMenu) c ).getText() == name) {
+                if(((JMenu) c ).getText().equals(name)) {
                     return (JMenu)c;
                 }
             }

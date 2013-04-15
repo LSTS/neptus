@@ -560,7 +560,7 @@ public class MiscSystems implements XmlOutputMethods, XmlInputMethods {
 	                Float.toString(getZSize()));
 
 	        if (getTopImageHref() != null || !"".equalsIgnoreCase(getTopImageHref())) {
-		        if (originalFilePath == "")
+		        if ("".equals(originalFilePath))
 		            appearence.addElement("top-image-2D").addText(getTopImageHref());
 		        else
 		            appearence.addElement("top-image-2D").addText(
@@ -568,7 +568,7 @@ public class MiscSystems implements XmlOutputMethods, XmlInputMethods {
 		                            getTopImageHref()));
 	        }
 	        if (getSideImageHref() != null || !"".equalsIgnoreCase(getSideImageHref())) {
-		        if (originalFilePath == "")
+		        if ("".equals(originalFilePath))
 		            appearence.addElement( "side-image-2D" ).addText(getSideImageHref());
 		        else
 		            appearence.addElement( "side-image-2D" ).addText(
@@ -576,7 +576,7 @@ public class MiscSystems implements XmlOutputMethods, XmlInputMethods {
 		                            getSideImageHref()));
 	        }
 	        if (getModel3DHref() != null || !"".equalsIgnoreCase(getModel3DHref())) {
-		        if (originalFilePath == "")
+		        if ("".equals(originalFilePath))
 		            appearence.addElement( "model-3D" ).addText(getModel3DHref());
 		        else
 		            appearence.addElement( "model-3D" ).addText(

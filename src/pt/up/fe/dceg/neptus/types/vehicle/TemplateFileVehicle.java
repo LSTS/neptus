@@ -192,7 +192,7 @@ public class TemplateFileVehicle extends FileType
         	}
         	
         }
-        if (originalFilePath == "")
+        if ("".equals(originalFilePath))
             root.addElement("output-file-name").addText(getOutputFileName());
         else
             root.addElement("output-file-name").addText(

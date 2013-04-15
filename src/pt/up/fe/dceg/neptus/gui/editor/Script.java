@@ -82,8 +82,7 @@ public class Script {
 	}
 
 	
-	public static Script showLocationDialog(String title, Script previousScript, boolean editable, Component component) 
-	{
+	public static Script showLocationDialog(String title, Script previousScript, boolean editable, Component component) {
 		
 		JEditorPane msgTextArea = null;
 		//JButton resetMsgsPanelButton=null; 
@@ -97,8 +96,7 @@ public class Script {
 	    jScrollPane.setViewportView(msgTextArea);
 	    jScrollPane.setVisible(true);
 	 
-	    if(previousScript.getSource()=="" || previousScript.getSource()==null)
-	    {
+	    if("".equals(previousScript.getSource()) || previousScript.getSource() == null) {
 	    	
 	    	msgTextArea.setText("/*********************************************************\n" +
 	    			            "  To use variables from the system state just reference them \n" +
