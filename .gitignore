@@ -187,3 +187,4 @@ Thumbs.db
 /release.json
 /git.branch
 TCL*.tmp
+*.mo
