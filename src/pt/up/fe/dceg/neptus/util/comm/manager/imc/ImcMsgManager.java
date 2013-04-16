@@ -236,66 +236,38 @@ public class ImcMsgManager extends
         gplistener.preferencesUpdated();
     }
 
-//    /**
-//     * This method shoud be called by entities interested in using the communications facilities (e.g. Workspace,
-//     * Consoles)
-//     * 
-//     * @param ref The reference to the Object requiring comms facilities
-//     * @return result of the init() call
-//     */
-//    public synchronized boolean register(Object ref) {
-//        if (!registeredObjects.contains(ref))
-//            registeredObjects.add(ref);
-//        return init();
-//    }
-//
-//    /**
-//     * This method shoud be called by entities that ceased to interested in comms
-//     * 
-//     * @param ref The reference to the Object that doesn't need comms anymore
-//     */
-//    public synchronized void unregister(Object ref) {
-//        registeredObjects.remove(ref);
-//        if (registeredObjects.isEmpty())
-//            shutdown();
-//    }
-
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.util.comm.manager.CommBaseManager#start()
+     */
     @Override
     public synchronized boolean start() {
         if (started)
             return true; // do nothing
 
+        NeptusLog.pub().info("Starting IMC comms");
+        
         boolean ret = super.start();
         if (!ret)
             return false;
 
         gplistener.preferencesUpdated();
-//        try {
-//            isFilterByPort = GeneralPreferences.getPropertyBoolean(GeneralPreferences.FILTER_UDP_ALSO_BY_PORT);
-//        }
-//        catch (GeneralPreferencesException e) {
-//            NeptusLog.pub().error("error setting isFilterByPort property", e);
-//            isFilterByPort = false;
-//        }
         isFilterByPort = GeneralPreferences.filterUdpAlsoByPort;
-                
-//        try {
-//            localId = (ImcId16) GeneralPreferences.getPropertyObject(GeneralPreferences.IMC_CCU_ID);
-//        }
-//        catch (GeneralPreferencesException e) {
-//            NeptusLog.pub().error("error setting CCU IMC ID property", e);
-//            localId = ImcId16.NULL_ID;
-//        }
         localId = GeneralPreferences.imcCcuId;
 
         updateUdpOnIpMapper();
 
         return ret;
     }
+    
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.util.comm.manager.CommBaseManager#stop()
+     */
+    @Override
+    public synchronized boolean stop() {
+        NeptusLog.pub().info("Stoping IMC comms");
+        return super.stop();
+    }
 
-    /**
-	 * 
-	 */
     private void updateUdpOnIpMapper() {
         for (SystemImcMsgCommInfo vsci : commInfo.values()) {
             if (isUdpOn())
@@ -578,14 +550,6 @@ public class ImcMsgManager extends
 
     @Override
     protected boolean stopManagerComms() {
-        // if (openNode == null) {
-        // ;//return false;
-        // }
-        // else {
-        // openNode.stop();
-        // //FIXME (pdias) see what to do with openNode, equal to null?
-        // }
-
         if (udpTransport != null) {
             udpTransport.removeListener(this);
             udpTransport.stop();
