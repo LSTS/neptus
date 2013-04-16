@@ -94,8 +94,8 @@ public class SidescanOverlay implements LogReplayLayer {
     @Override
     public void parse(final IMraLogGroup source) {
         if (source.getFile("mra/sss") == null) {
-            File f = source.getFile("mra/sss");
-            f.mkdirs();            
+            File f = new File(source.getFile("mra"), "sss");
+            f.mkdirs();
         }
 
         dir = source.getFile("mra/sss");
