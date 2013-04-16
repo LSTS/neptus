@@ -31,11 +31,13 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
+import vtk.vtkCommand;
 import vtk.vtkInteractorStyleTrackballCamera;
 import vtk.vtkLegendScaleActor;
 import vtk.vtkPNGWriter;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkScalarBarActor;
+import vtk.vtkTextProperty;
 import vtk.vtkWindowToImageFilter;
 import vtk.vtkXYPlotActor;
 
@@ -85,9 +87,12 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera{
     // Internal Window to image Filter. Needed by a snapshotWriter object
     vtkWindowToImageFilter wif;
     
-    // Current Window position x/y
+    // Current Window position width/height
     int winHeight, winWidth;
+    // Current window postion x/y
+    int winPosX, winPosY;
     
+    // Change default keyboard modified from ALT to a different special key
     public enum InteractorKeyboardModifier
     {
         INTERACTOR_KB_MOD_ALT,
@@ -95,14 +100,49 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera{
         INTERACTOR_KB_MOD_SHIFT
     }
     
+    private InteractorKeyboardModifier interactModifier;
+    
     public NeptusInteractorStyle() {
-        
+        super();
+        Initalize();
     }
     
     /**
      * Initialization routine. Must be called before anything else.
      */
     private void Initalize() {
+        interactModifier = InteractorKeyboardModifier.INTERACTOR_KB_MOD_ALT;
+        // Set window size (width, height) to unknow (-1)
+        winHeight = winWidth = -1;
+        winPosX = winPosY = 0;
         
+        // Grid is disabled by default
+        gridEnabled = false;
+        gridActor = new vtkLegendScaleActor();
+        
+        // LUT is disabled by default
+        lutEnabled = false;
+        lutActor = new vtkScalarBarActor();
+        //lutActor.SetTitle("");
+        lutActor.SetOrientationToHorizontal();
+        //lutActor.SetOrientationToVertical();
+        lutActor.SetPosition(0.05, 0.01);
+        lutActor.SetWidth(0.9);
+        lutActor.SetHeight(0.1);
+        lutActor.SetNumberOfLabels(lutActor.GetNumberOfLabels() * 2);
+        vtkTextProperty prop = lutActor.GetLabelTextProperty();
+        prop.SetFontSize(10);
+        lutActor.SetLabelTextProperty(prop);
+        lutActor.SetTitleTextProperty(prop);
+        
+        // Create the image filter and PNG wirter objects
+        wif = new vtkWindowToImageFilter();
+        snapshotWriter = new vtkPNGWriter();
+        snapshotWriter.SetInputConnection(wif.GetOutputPort());
+
+        
+        // add a observer (callback) for point picking
+        vtkCommand leftMouse = new vtkCommand();
+        AddObserver(null, leftMouse, "leftMouse");
     }
 }
