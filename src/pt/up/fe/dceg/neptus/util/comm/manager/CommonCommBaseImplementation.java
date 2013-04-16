@@ -633,7 +633,11 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
             if (msgQueue.size() >= queueMaxSize) {
                 long time = System.currentTimeMillis();
                 if (time - lastFullQueueWarning > 1000) {
-                    NeptusLog.pub().warn("Message queue is full [" + msgQueue.size() + "] :: " + this);
+                    String errorMsg = "Message queue is full [" + msgQueue.size() + "] :: " + this;
+                    if (messageProcessor.isRunning())
+                        NeptusLog.pub().warn(errorMsg);
+                    else
+                        NeptusLog.pub().fatal(errorMsg);
                     lastFullQueueWarning = time;
                 }
                 // TODO check if this is necessary 
@@ -777,6 +781,13 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
             synchronized (this) {
                 this.notify();
             }
+        }
+        
+        /**
+         * @return the running
+         */
+        public boolean isRunning() {
+            return running;
         }
 
         public void newMessage() {
