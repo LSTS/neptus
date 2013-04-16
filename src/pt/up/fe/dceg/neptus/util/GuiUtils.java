@@ -591,6 +591,7 @@ public class GuiUtils {
         // JOptionPane.ERROR_MESSAGE);
 
         ErrorMessageBox.showDialog(owner, e);
+        NeptusLog.pub().error("Exception shown to the user", e);
     }
 
     /**
