@@ -34,10 +34,12 @@ public class Timeline extends JPanel implements ChangeListener {
     private AbstractAction pauseAction;
     
     private List<TimelineChangeListener> listeners = new ArrayList<TimelineChangeListener>();
+    
     private ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {
             Thread t = new Thread(r);
+            t.setName("Timeline Thread");
             t.setDaemon(true);
             return t;
         }
