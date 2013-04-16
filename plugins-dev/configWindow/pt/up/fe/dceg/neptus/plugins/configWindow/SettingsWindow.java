@@ -37,13 +37,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Vector;
 
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
@@ -51,14 +50,10 @@ import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.Popup;
-import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-
 
 /**
  * Window to encapsulate settings panel.<br>
@@ -84,24 +79,7 @@ public class SettingsWindow extends SimpleSubPanel {
     public SettingsWindow(ConsoleLayout console, Vector<PropertiesProvider> subPanels) {
         super(console);
         this.subPanels = subPanels;
-    }
 
-    @Override
-    protected JMenuItem createMenuItem(final POSITION popupPosition, String name2, ImageIcon icon) {
-        JMenuItem menuItem = new JMenuItem(new AbstractAction(PluginUtils.i18nTranslate(name2),
-                ImageUtils.getScaledIcon(icon, 16, 16)) {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                checkLvl.setSelected(false);
-                settingsPanel.reset();
-                setPopupPosition(popupPosition);
-            }
-
-        });
-
-        return menuItem;
     }
 
     private void addButtons() {
@@ -155,6 +133,13 @@ public class SettingsWindow extends SimpleSubPanel {
         this.add(settingsPanel, "w 100%!, h 100%, wrap");
         addButtons();
         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
+        this.dialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowActivated(WindowEvent e) {
+                checkLvl.setSelected(false);
+                settingsPanel.reset();
+            }
+        });
     }
 
     @Override

@@ -43,14 +43,11 @@ import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
-import javax.swing.InputMap;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
 
@@ -93,14 +90,10 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
     private String mainVehicleId = null;
     private JMenuItem menuItem = null;
     protected JDialog dialog = null;
+    private boolean popupPositionFlag = false;
 
     public SimpleSubPanel(ConsoleLayout console) {
         super(console);
-        // this.setSize(32, 32);
-        // JLabel lbl = new JLabel(ImageUtils.getScaledIcon(PluginUtils.getPluginIcon(getClass()), 20, 20),
-        // JLabel.CENTER);
-        // lbl.setText(this.getName());
-        // add(lbl, BorderLayout.CENTER);
     }
 
     /**
@@ -424,60 +417,62 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
         int height = cAction.height();
         KeyStroke accelerator = null;
         if (cAction.accelerator() != KeyEvent.VK_UNDEFINED) {
-            accelerator = KeyStroke.getKeyStroke(cAction.accelerator(), KeyEvent.CTRL_DOWN_MASK);
+            int key = cAction.accelerator();
+            if (key == KeyEvent.VK_C || key == KeyEvent.VK_V || key == KeyEvent.VK_X) {
+                NeptusLog.pub().error("Cant assign CTRL-X, CTRL-C or CTRL-V to popups.");
+            }
+            else {
+                accelerator = KeyStroke.getKeyStroke(cAction.accelerator(), KeyEvent.CTRL_DOWN_MASK);
+            }
         }
-        // BUILD
+        // Build menu
         JMenu menu = console.getOrCreateJMenu(new String[] { I18n.text("View") });
         ImageIcon icon = ImageUtils.getIcon(iconPath);
         menuItem = createMenuItem(popupPosition, name2, icon);
         if (accelerator != null)
             menuItem.setAccelerator(accelerator);
         menu.add(menuItem);
-        // Dialog
+
+        // Build Dialog
         dialog = new JDialog(console);
         dialog.setTitle(name2);
         dialog.setIconImage(icon.getImage());
         dialog.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
         dialog.setSize(width, height);
-        dialog.setFocusable(true);
+        // dialog.setFocusable(true);
+
         if (accelerator != null) {
-            JRootPane rootPane = dialog.getRootPane();
-            InputMap globalInputMap = rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-            globalInputMap.put(accelerator, "pressed");
-            rootPane.getActionMap().put("pressed", new AbstractAction() {
+            console.registerGlobalKeyBinding(accelerator, new AbstractAction() {
                 private static final long serialVersionUID = 1L;
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    dialog.setVisible(false);
+                    dialog.setVisible(!dialog.isVisible());
+                    setPopupPosition(popupPosition);
                 }
             });
         }
         dialog.add(this);
     }
 
-    protected JMenuItem createMenuItem(final POSITION popupPosition, String name2, ImageIcon icon) {
+    private JMenuItem createMenuItem(final POSITION popupPosition, String name2, ImageIcon icon) {
         JMenuItem menuItem = new JMenuItem(new AbstractAction(PluginUtils.i18nTranslate(name2),
-                ImageUtils.getScaledIcon(
-                icon, 16, 16)) {
+                ImageUtils.getScaledIcon(icon, 16, 16)) {
             private static final long serialVersionUID = 1L;
 
-            
             @Override
             public void actionPerformed(ActionEvent e) {
+                dialog.setVisible(!dialog.isVisible());
                 setPopupPosition(popupPosition);
             }
-
 
         });
         return menuItem;
     }
 
     protected void setPopupPosition(final POSITION popupPosition) {
-        dialog.setVisible(!dialog.isVisible());
-        if (dialog.isVisible()) {
-            dialog.requestFocus();
+        if (dialog.isVisible() && popupPositionFlag == false) {
             Point p = console.getLocationOnScreen();
             switch (popupPosition) {
                 case TOP_LEFT:
@@ -513,6 +508,7 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
                     break;
             }
             dialog.setLocation(p);
+            this.popupPositionFlag = true;
         }
     }
 
@@ -556,7 +552,7 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
                 ImcMsgManager.getManager().removeListener(this, getConsole().getMainSystem());
             }
         }
-        
+
         ImcMsgManager.unregisterBusListener(this);
 
         for (String menuPath : addedMenus) {
@@ -571,12 +567,12 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
             for (MapPanel p : pp)
                 p.removePostRenderPainter((Renderer2DPainter) this);
         }
-        
+
         if (menuItem != null || dialog != null) {
             JMenu menu = console.getOrCreateJMenu(new String[] { I18n.text("View") });
             menu.remove(menuItem);
-            if (dialog.isVisible()){
-                NeptusLog.pub().info("<###> "+this.getName());
+            if (dialog.isVisible()) {
+                NeptusLog.pub().info("<###> " + this.getName());
                 dialog.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 dialog.dispose();
             }

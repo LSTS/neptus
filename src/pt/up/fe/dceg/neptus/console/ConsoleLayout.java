@@ -36,11 +36,13 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
@@ -56,17 +58,14 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.Box;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
 import org.dom4j.Document;
@@ -109,7 +108,6 @@ import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeEvent;
 import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
 import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeListener;
 import pt.up.fe.dceg.neptus.controllers.ControllerManager;
-import pt.up.fe.dceg.neptus.events.NeptusEventHiddenMenus;
 import pt.up.fe.dceg.neptus.events.NeptusEvents;
 import pt.up.fe.dceg.neptus.gui.ConsoleFileChooser;
 import pt.up.fe.dceg.neptus.gui.HideMenusListener;
@@ -179,6 +177,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      * UI stuff
      */
     protected Map<Class<? extends ConsoleAction>, ConsoleAction> actions = new HashMap<>();
+    protected Map<String, Action> globalKeybindings = new HashMap<>();
     private final List<Window> onRunningFrames = new ArrayList<Window>(); // frames to close on exit
 
     // base components
@@ -315,34 +314,35 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     private void setupKeyBindings() {
-        JRootPane rootPane = this.getRootPane();
-        InputMap globalInputMap = rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        // Hidden menus shift + S key binding
-        globalInputMap.put(KeyStroke.getKeyStroke("shift S"), "pressed");
-        rootPane.getActionMap().put("pressed", new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                post(new NeptusEventHiddenMenus());
+            public boolean dispatchKeyEvent(KeyEvent e) {
+                int eventType = e.getID(); // KeyEvent.KEY_PRESSED KeyEvent.KEY_RELEASED KEY_TYPED
+
+                Action action = globalKeybindings.get(KeyStroke.getKeyStroke(e.getKeyCode(), e.getModifiers())
+                        .toString());
+                if (action != null && eventType == KeyEvent.KEY_PRESSED) {
+                    action.actionPerformed(null);
+                    return true;
+                }
+
+                return false;
             }
         });
+    }
 
-        // KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
-        // @Override
-        // public boolean dispatchKeyEvent(KeyEvent e) {
-        // int eventType = e.getID(); //KeyEvent.KEY_PRESSED KeyEvent.KEY_RELEASED KEY_TYPED
-        //
-        // if(e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_S){
-        // NeptusEvents.manager().post(new NeptusEventHiddenMenus());
-        // if(eventType == KeyEvent.KEY_PRESSED)
-        // NeptusLog.pub().info("<###>pressed");
-        // else if(eventType == KeyEvent.KEY_RELEASED)
-        // NeptusLog.pub().info("<###>released");
-        // }
-        // return false;
-        // }
-        // });
+    /**
+     * Register a global key binding with the console
+     * @param name
+     * @param action
+     */
+    public void registerGlobalKeyBinding(KeyStroke name, Action action) {
+        if (this.globalKeybindings.containsKey(name.toString())) {
+            NeptusLog.pub().error("Global keybind " + name + " already registered by another component");
+        }
+        else {
+            this.globalKeybindings.put(name.toString(), action);
+        }
     }
 
     /**
@@ -775,13 +775,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     public void setMainSystem(String mainVehicle) {
-        if(this.getSystem(mainVehicle) == null){
+        if (this.getSystem(mainVehicle) == null) {
             NeptusLog.pub().error("trying to add main system without addin it");
             return;
         }
         String old = this.mainVehicle;
         this.mainVehicle = mainVehicle;
-        
+
         if (!(mainVehicle.equals(old))) {
             for (MainVehicleChangeListener mlistener : mainVehicleListeners) {
                 try {
@@ -803,22 +803,23 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public void addSystem(String systemName) {
         VehicleType vehicleType = VehiclesHolder.getVehicleById(systemName);
         ImcSystem imcSystem = ImcSystemsHolder.lookupSystemByName(systemName);
-        if(vehicleType != null && imcSystem == null){
+        if (vehicleType != null && imcSystem == null) {
             imcMsgManager.initVehicleCommInfo(vehicleType.getId(), "");
             return;
         }
-        
+
         ConsoleSystem vtl;
         if (imcSystem == null) {
             NeptusLog.pub().warn("tried to add a vehicle from imc with comms disabled");
             return;
         }
-        if (imcSystem.getType() != SystemTypeEnum.VEHICLE){
+        if (imcSystem.getType() != SystemTypeEnum.VEHICLE) {
             return;
         }
-        
-        if (consoleSystems.get(systemName) != null) {            
-            NeptusLog.pub().warn(ReflectionUtil.getCallerStamp() + " tried to add a vehicle that already exist in the console!!");
+
+        if (consoleSystems.get(systemName) != null) {
+            NeptusLog.pub().warn(
+                    ReflectionUtil.getCallerStamp() + " tried to add a vehicle that already exist in the console!!");
             return;
         }
         else {
@@ -831,7 +832,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
         for (ConsoleVehicleChangeListener cvl : consoleVehicleChangeListeners) {
             try {
-                cvl.consoleVehicleChange(VehiclesHolder.getVehicleById(systemName), ConsoleVehicleChangeListener.VEHICLE_ADDED);
+                cvl.consoleVehicleChange(VehiclesHolder.getVehicleById(systemName),
+                        ConsoleVehicleChangeListener.VEHICLE_ADDED);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
