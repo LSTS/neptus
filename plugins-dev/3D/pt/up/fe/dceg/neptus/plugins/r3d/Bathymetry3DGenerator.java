@@ -49,6 +49,7 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
+import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.plugins.mraplots.XYZUtils;
@@ -267,7 +268,7 @@ public class Bathymetry3DGenerator {
             yVec.add(offs[1]);
             alt = currEstStateMsg.getAlt();
             if (harbor != null && tideAdjust) {
-                if (alt < 0 || depth < 1) {
+                if (alt < 0 || depth < NeptusMRA.minDepthForBathymetry) {
                     vehicleDepthVec.add((double) 0);
                     continue;
                 }
@@ -286,7 +287,7 @@ public class Bathymetry3DGenerator {
                 addBathymetryData(terrainAltitude, offs);
             }
             else {
-                if (alt < 0 || depth < 1) {
+                if (alt < 0 || depth < NeptusMRA.minDepthForBathymetry) {
                     vehicleDepthVec.add(depth);
                     continue;
                 }

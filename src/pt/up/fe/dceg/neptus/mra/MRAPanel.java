@@ -40,8 +40,12 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXStatusBar;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.InfiniteProgressPanel;
+import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfGenericIterator;
@@ -52,6 +56,7 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
 import pt.up.fe.dceg.neptus.mra.replay.LogReplay;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -70,6 +75,8 @@ import pt.up.fe.dceg.neptus.util.llf.replay.LLFMsgReplay;
  */
 @SuppressWarnings("serial")
 public class MRAPanel extends JPanel {
+    
+    
     private LsfTree tree;
     private LogTree logTree;
 
@@ -417,7 +424,7 @@ public class MRAPanel extends JPanel {
             if (v instanceof LogMarkerListener)
                 ((LogMarkerListener) v).GotoMarker(marker);
         }
-    }
+    }    
 
     class LoadTask implements Runnable {
         MRAVisualization vis;

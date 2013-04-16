@@ -707,7 +707,7 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
             timestamp = System.currentTimeMillis();
             NeptusLog.pub().debug(timestamp + " processing points");
             for (EstimatedState currEstStateMsg : lsfIndex.getIterator(EstimatedState.class)) {
-                if (currEstStateMsg.getAlt() < 0 || currEstStateMsg.getDepth() < 1
+                if (currEstStateMsg.getAlt() < 0 || currEstStateMsg.getDepth() < NeptusMRA.minDepthForBathymetry
                     || Math.abs(currEstStateMsg.getTheta()) > Math.toDegrees(10)) {
                     continue;
                 }

@@ -130,7 +130,11 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
 
     @NeptusProperty(name = "Default time step (seconds)")
     public static double defaultTimestep = 1.0;
-
+    
+    @NeptusProperty(name = "Minimum depth for bathymetry", description="Filter all bathymetry data if vehicle's depth is less than this value (meters).")
+    public static double minDepthForBathymetry = 1.0;
+    
+    
     private AbstractAction genReport, setMission, preferences, openLsf, httpDuneDownload, httpVehicleDownload;
     
     private File tmpFile = null;

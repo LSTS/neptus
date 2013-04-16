@@ -63,6 +63,7 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
+import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
 import pt.up.fe.dceg.neptus.mra.visualizations.SimpleMRAVisualization;
@@ -173,18 +174,21 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
                     }
                 }
                 else {
+                    
                     for (IMCMessage state : source.getLsfIndex().getIterator("EstimatedState", 0, 100)) {
                         if (state.getTypeOf("alt") != null) {
                             double alt = state.getDouble("alt");
                             double depth = state.getDouble("depth");
                             double pitch = Math.toDegrees(state.getDouble("theta"));
 
-                            if (alt > 1 && depth > 1 && Math.abs(pitch) < 4) {
+                            if (alt != -1 && Math.abs(pitch) < 4 && depth > NeptusMRA.minDepthForBathymetry) {
                                 LocationType loc = IMCUtils.getLocation(state);
                                 double offsets[] = loc.getOffsetFrom(ref);
                                 dd.addPoint(-offsets[0], offsets[1], -alt - depth);
+                                
                             }
-                        }
+                            
+                        }                       
                     }
                 }
 
