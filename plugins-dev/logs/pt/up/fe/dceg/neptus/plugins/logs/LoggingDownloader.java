@@ -455,6 +455,11 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
     }
 
     public synchronized LogsDownloaderWorker getDownloadWorker(String id) {
+        if (id == null || id.length() == 0) {
+            NeptusLog.pub().warn("Trying to get a downloader worker for a null id!");
+            return null;
+        }
+        
         LogsDownloaderWorker downloadWorker = downloadWorkerList.get(id);
         if (downloadWorker == null) {
             downloadWorker = new LogsDownloaderWorker(logsFrame);
@@ -475,6 +480,10 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
      * @param id
      */
     private void resetDownloaderForVehicle(String id) {
+        LogsDownloaderWorker dw = getDownloadWorker(id);
+        if (dw == null)
+            return;
+        
         String oldId = getDownloadWorker(id).getLogLabel();
         if (!id.equalsIgnoreCase(oldId)) {
             try {
@@ -485,7 +494,7 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
                 scheduleDownloadListFromServer();
             }
             catch (Exception e) {
-                e.printStackTrace();
+                NeptusLog.pub().error("Bad log downloader settings for '" + id + "'", e);
                 getDownloadWorker(id).setHost("");
                 getDownloadWorker(id).setLogLabel(id.toLowerCase());
                 getDownloadWorker(id).doReset(false);
@@ -498,7 +507,7 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
             try {
                 LogsDownloaderWorker dw = getDownloadWorker(id);
                 ImcSystem sys3 = ImcSystemsHolder.lookupSystemByName(id);
-                if (sys3 == null) {
+                if (dw == null || sys3 == null) {
                     NeptusLog.pub().warn("Not able to get IMC System for '" + id + "'");
                     continue;
                 }
@@ -568,7 +577,7 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
             public void run() {
                 for (String id : downloadWorkerList.keySet().toArray(new String[0])) {
                     LogsDownloaderWorker dw = getDownloadWorker(id);
-                    if (dw.validateConfiguration()) {
+                    if (dw != null && dw.validateConfiguration()) {
                         dw.doUpdateListFromServer();
                     }
                 }
