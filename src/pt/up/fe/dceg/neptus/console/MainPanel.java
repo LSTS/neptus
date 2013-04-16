@@ -143,6 +143,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 e.printStackTrace();
             }
         }
+        NeptusLog.pub().info("All panels have been cleaned up.");
     }
 
     public void clean() {
