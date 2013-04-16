@@ -91,6 +91,35 @@ public class SidescanOverlay implements LogReplayLayer {
     boolean producing = false;
     Vector<SidescanTile> tiles = null;
 
+    protected void loadTiles() {
+        NeptusLog.pub().info("loading tiles...");
+        tiles = new Vector<>();
+        for (File f : dir.listFiles()) {
+            if (!f.getName().endsWith(".tile"))
+                continue;
+            try {
+                tiles.add(new SidescanTile(f));
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }                            
+        }        
+        NeptusLog.pub().info("loaded "+tiles.size()+" tiles");
+    }
+    
+    protected void generateTiles(final IMraLogGroup source) {
+        NeptusLog.pub().info("generating tiles...");
+        createTiles(source);
+        try {
+            FileWriter fw = new FileWriter(new File (source.getFile("mra"), "/sss/tiles.generated"));
+            fw.write("done!");
+            fw.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     @Override
     public void parse(final IMraLogGroup source) {
         if (source.getFile("mra/sss") == null) {
@@ -100,28 +129,21 @@ public class SidescanOverlay implements LogReplayLayer {
 
         dir = source.getFile("mra/sss");
 
-        if (source.getFile("mra/sss/tiles.generated") == null) {
+        Thread t = new Thread(new Runnable() {
 
-            Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                producing = true;
+                if (source.getFile("mra/sss/tiles.generated") == null)
+                    generateTiles(source);
+                loadTiles();                    
+                producing = false;
+            }
+        });
+        t.setName("Sidescan Overlay Tile loader");
+        t.setDaemon(true);
+        t.start();
 
-                @Override
-                public void run() {
-                    producing = true;
-                    createTiles(source);
-                    try {
-                        FileWriter fw = new FileWriter(source.getFile("mra/sss/tiles.generated"));
-                        fw.write("done!");
-                        fw.close();
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    producing = false;
-                }
-            });
-            t.setDaemon(true);
-            t.start();
-        }
     }
 
     protected boolean createTiles(IMraLogGroup source) {
@@ -203,24 +225,7 @@ public class SidescanOverlay implements LogReplayLayer {
         if (producing) {
             g.setColor(Color.red.darker());
             g.drawString("Sidescan layer is processing...", 60, 20);
-        }
-
-        else if (tiles == null) {
-            NeptusLog.pub().info("<###>loading tiles...");
-            tiles = new Vector<>();
-            for (File f : dir.listFiles()) {
-                if (!f.getName().endsWith(".tile"))
-                    continue;
-                try {
-                    tiles.add(new SidescanTile(f));
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }                
-            }
-
-            NeptusLog.pub().info("<###>loaded "+tiles.size()+" tiles");
-        }
+        }      
         else {
             for (SidescanTile t : tiles) {
                 Point2D p = renderer.getScreenPosition(t.getBottomCenter());
