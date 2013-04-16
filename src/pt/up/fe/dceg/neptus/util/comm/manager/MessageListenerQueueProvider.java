@@ -165,7 +165,7 @@ public class MessageListenerQueueProvider<Mi extends MessageInfo, M extends IMes
             if (messageList.size() > queueMaxSize) {
                 long time = System.currentTimeMillis();
                 if (time - lastFullQueueWarning > 1000) {
-                    NeptusLog.pub().warn("Message queue is full [" + messageList.size() + "] :: " + this + " for " + listener);
+                    NeptusLog.pub().warn("Message queue provider is full [" + messageList.size() + "] :: " + this + " for " + listener);
                     lastFullQueueWarning = time;
                 }
                 return false;
