@@ -66,6 +66,9 @@ import pt.up.fe.dceg.neptus.plugins.vtk.visualization.CubeAxes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
 import vtk.vtk3DWidget;
 import vtk.vtkActor;
+import vtk.vtkBoxRepresentation;
+import vtk.vtkBoxWidget;
+import vtk.vtkBoxWidget2;
 import vtk.vtkCellArray;
 import vtk.vtkCompassRepresentation;
 import vtk.vtkCompassWidget;
@@ -83,6 +86,7 @@ import vtk.vtkPolyDataMapper;
 import vtk.vtkRenderWindow;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
+import vtk.vtkSettings;
 import vtk.vtkVertexGlyphFilter;
 
 /**
@@ -232,6 +236,31 @@ public class Vtk extends JPanel implements MRAVisualization {
         Axes ax = new Axes();
         AxesActor axesActor = new AxesActor(vtkPanel.GetRenderer());
         axesActor.setAxesVisibility(true);
+        
+        vtkBoxWidget widget1 = new vtkBoxWidget();
+        vtkBoxWidget2 widget2 = new vtkBoxWidget2();
+        
+        vtkBoxRepresentation boxrep = new vtkBoxRepresentation();
+        widget1.SetCurrentRenderer(vtkPanel.GetRenderer());
+        widget1.SetPlaceFactor(1.25);
+        widget1.PlaceWidget();
+        //widget1.SetInput();
+        widget1.EnabledOn();
+        
+        //widget2.SetCurrentRenderer(vtkPanel.GetRenderer());
+        //widget2.SetRepresentation(boxrep);
+            // estoira completamente
+        //widget2.AddObserver("EndInteractionEvent", this, "selectPolygons");
+        
+
+        //boxWidget.SetPlaceFactor(1.25);
+        //boxWidget.SetInput(glyph.GetOutput());
+        //boxWidget.PlaceWidget();
+        //boxWidget.AddObserver("EndInteractionEvent", this, "selectPolygons");
+        
+        //widget2.SetInteractor(win.getRenWinInteractor());
+        //widget2.EnabledOn();
+        //widget1.ComputeDisplayToWorld(id0, id1, id2, id3, id4)
         
         //vtk3DWidget widget = new vtk3DWidget();
         //widget.SetCurrentRenderer(vtkPanel.GetRenderer());
