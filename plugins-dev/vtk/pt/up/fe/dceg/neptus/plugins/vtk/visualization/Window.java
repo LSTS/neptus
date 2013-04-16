@@ -31,8 +31,12 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
+import java.awt.Color;
+
 import vtk.vtkCommand;
 import vtk.vtkInteractorStyle;
+import vtk.vtkLight;
+import vtk.vtkLightActor;
 import vtk.vtkPNGWriter;
 import vtk.vtkPanel;
 import vtk.vtkRenderWindow;
@@ -56,6 +60,8 @@ public class Window {
     private vtkRenderWindow renWin;
     private vtkRenderWindowInteractor renWinInteractor;
     private String windowName;
+    private vtkLight light;
+    private vtkLightActor lightActor;
     
     /**
      * Ideia: include snapshots with the interactor
@@ -63,7 +69,8 @@ public class Window {
      * @param interactor
      * @param windowName
      */
-    public Window(vtkPanel panel) {     
+    public Window(vtkPanel panel) {
+        panel.setBackground(Color.blue);
         System.out.println("window 1"); 
         // a Render Window
         System.out.println("window 2"); 
@@ -192,8 +199,7 @@ public class Window {
      * 
      */
     public void setColorBackGround() {
-        
-        
+
     }
 
 }

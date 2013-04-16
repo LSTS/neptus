@@ -61,6 +61,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZI;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesActor;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.BoxWidget;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Compass;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.CubeAxes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
@@ -138,7 +139,8 @@ public class Vtk extends JPanel implements MRAVisualization {
     public Vtk(MRAPanel panel) {
         super(new BorderLayout());
    
-        vtkPanel = new vtkPanel();   
+        vtkPanel = new vtkPanel();
+        vtkPanel.setBackground(Color.blue);
         Window win = new Window(vtkPanel);
         //win.setColorBackGround();
 
@@ -233,19 +235,21 @@ public class Vtk extends JPanel implements MRAVisualization {
 //        
 //        //vtkPanel.GetRenderer().AddActor(actor2);
 // 
+        BoxWidget.addBoxWidget2Tovisualizer(vtkPanel.GetRenderer(), win.getRenWinInteractor());
+        
         Axes ax = new Axes();
         AxesActor axesActor = new AxesActor(vtkPanel.GetRenderer());
         axesActor.setAxesVisibility(true);
         
-        vtkBoxWidget widget1 = new vtkBoxWidget();
-        vtkBoxWidget2 widget2 = new vtkBoxWidget2();
-        
-        vtkBoxRepresentation boxrep = new vtkBoxRepresentation();
-        widget1.SetCurrentRenderer(vtkPanel.GetRenderer());
-        widget1.SetPlaceFactor(1.25);
-        widget1.PlaceWidget();
-        //widget1.SetInput();
-        widget1.EnabledOn();
+//        vtkBoxWidget widget1 = new vtkBoxWidget();
+//        vtkBoxWidget2 widget2 = new vtkBoxWidget2();
+//        
+//        vtkBoxRepresentation boxrep = new vtkBoxRepresentation();
+//        widget1.SetCurrentRenderer(vtkPanel.GetRenderer());
+//        widget1.SetPlaceFactor(1.25);
+//        widget1.PlaceWidget();
+//        //widget1.SetInput();
+//        widget1.EnabledOn();
         
         //widget2.SetCurrentRenderer(vtkPanel.GetRenderer());
         //widget2.SetRepresentation(boxrep);
@@ -288,14 +292,15 @@ public class Vtk extends JPanel implements MRAVisualization {
         //vtkPanel.GetRenderer().LightFollowCameraOn();
         //vtkPanel.GetRenderer().VisibleActorCount();
         //vtkPanel.GetRenderer().ViewToDisplay();
-        
+
         add(vtkPanel, BorderLayout.CENTER);
-        vtkPanel.setBackground(Color.blue);
+        //vtkPanel.setBackground(Color.blue);
         //vtkPanel.setForeground(Color.green);
         
         toolBar = new JPanel();
         toolBar = createToolbar();
         add(toolBar, BorderLayout.EAST);
+        vtkPanel.setBackground(Color.blue);
     }
     
     @Override

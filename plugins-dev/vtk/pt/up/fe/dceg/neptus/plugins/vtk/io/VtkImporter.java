@@ -27,121 +27,14 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * Apr 8, 2013
+ * Apr 16, 2013
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.io;
-
-import java.io.File;
-import java.nio.file.Path;
-
-import vtk.vtk3DSImporter;
-import vtk.vtkDataSetReader;
-import vtk.vtkOBJReader;
-import vtk.vtkPLYReader;
-import vtk.vtkSTLReader;
-import vtk.vtkSimplePointsReader;
 
 /**
  * @author hfq
  *
  */
 public class VtkImporter {
-    private static Path path = null;
-    
-    private static final String FILE_VTK_EXT = ".vtk";
-    private static final String FILE_OBJ_EXT = ".obj";
-    private static final String FILE_PLY_EXT = ".ply";
-    private static final String FILE_STL_EXT = ".stl";
-    private static final String FILE_XYZ_EXT = ".xyz";
-    
-    private static vtkDataSetReader readVTK;
-    private static vtkOBJReader readOBJ;
-    private static vtkPLYReader readPLY;
-    private static vtkSTLReader readSTL;
-    private static vtkSimplePointsReader importXYZ;
-    
-    public enum ImporterOps {
-        VTK, OBJ, PLY, STL, XYZ
-    }
-    
-    private ImporterOps impOp;
-    
-    public VtkImporter(File file) {
-        checkFileExtention(file);
-        
-        switch (impOp)
-        {
-            case VTK:
-                System.out.println("vtk data Set Reader chosen!");
-                break;
-            
-            case OBJ:
-                System.out.println("obj reader chosen");
-                break;
-                
-            case PLY:
-                System.out.println("ply reader chosen");
-                break;
-                
-            case STL:
-                System.out.println("stl reader chosen");
-                break;
-                
-            case XYZ:
-                System.out.println("xyz, simple points reader");
-                break;
-            
-            default:
-                System.out.println("error, nor supposed to be here");
-        }
-    }
-    
-    /**
-     * Checks file extention of the intended loading file
-     * @param file
-     */
-    private void checkFileExtention(File file) {
-        //File filetemp = file.getParentFile();
-        //File[] files = filetemp.listFiles();
-        File filetemp = file.getParentFile();
-        File[] files = (file.getParentFile()).listFiles();
-        
-        try {
-            if (file.isDirectory()) {
-                for(File temp : filetemp.listFiles()) {
-                    if (temp.toString().endsWith(FILE_OBJ_EXT)) {
-                        impOp = ImporterOps.OBJ;
-                        break;
-                    }
-                    else if (temp.toString().endsWith(FILE_PLY_EXT)) {
-                        impOp = ImporterOps.PLY;
-                        break;
-                    }
-                    else if (temp.toString().endsWith(FILE_STL_EXT)) {
-                        impOp = ImporterOps.STL;
-                        break;
-                    }
-                    else if (temp.toString().endsWith(FILE_VTK_EXT)) {
-                        impOp = ImporterOps.VTK;
-                        break;
-                    }
-                    else if (temp.toString().endsWith(FILE_XYZ_EXT)) {
-                        impOp = ImporterOps.XYZ;
-                        break;
-                    }
-                }
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
-    public static vtkOBJReader readOBJFile() {
-        readOBJ = new vtkOBJReader();
-        
-        
-        
-        return readOBJ;
-    }
 }

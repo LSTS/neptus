@@ -64,7 +64,7 @@ public class BoxWidget {
         widget.EnabledOn();
     }
     
-    public static void addBosWidget2Tovisualizer (vtkRenderer ren, vtkRenderWindowInteractor interactor) {
+    public static void addBoxWidget2Tovisualizer (vtkRenderer ren, vtkRenderWindowInteractor interactor) {
         vtkBoxWidget2 widget = new vtkBoxWidget2();
         vtkBoxRepresentation boxrep = new vtkBoxRepresentation();
         boxrep.SetPlaceFactor(1.25);
