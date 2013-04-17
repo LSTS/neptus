@@ -40,23 +40,19 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXStatusBar;
 
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.InfiniteProgressPanel;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfGenericIterator;
 import pt.up.fe.dceg.neptus.mra.exporters.ImcTo837;
+import pt.up.fe.dceg.neptus.mra.exporters.MatExporter;
 import pt.up.fe.dceg.neptus.mra.exporters.MraExporter;
 import pt.up.fe.dceg.neptus.mra.exporters.PCDExporter;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
 import pt.up.fe.dceg.neptus.mra.replay.LogReplay;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -215,7 +211,8 @@ public class MRAPanel extends JPanel {
         // Exporters list, this will be moved in the future
         MraExporter exporterList[] = new MraExporter[] { 
                 new ImcTo837(source),
-                new PCDExporter(source)
+                new PCDExporter(source),
+                new MatExporter(source)
         }; 
         
         // Check for existence of Exporters menu and remove on existence
