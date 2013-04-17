@@ -34,9 +34,6 @@ package pt.up.fe.dceg.neptus.plugins.vtk;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.ComponentOrientation;
-import java.awt.GridLayout;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -48,8 +45,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-import com.sun.java.swing.plaf.windows.resources.windows;
-
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
@@ -58,38 +53,15 @@ import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZI;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesActor;
-import pt.up.fe.dceg.neptus.plugins.vtk.visualization.BoxWidget;
-import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Compass;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.CubeAxes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
-import vtk.vtk3DWidget;
 import vtk.vtkActor;
-import vtk.vtkBoxRepresentation;
-import vtk.vtkBoxWidget;
-import vtk.vtkBoxWidget2;
-import vtk.vtkCellArray;
-import vtk.vtkCompassRepresentation;
-import vtk.vtkCompassWidget;
-import vtk.vtkDelaunay2D;
-import vtk.vtkDelaunay3D;
-import vtk.vtkGeoAssignCoordinates;
-import vtk.vtkIdList;
-import vtk.vtkIdTypeArray;
+import vtk.vtkCanvas;
 import vtk.vtkLODActor;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPanel;
-import vtk.vtkPointSource;
-import vtk.vtkPoints;
-import vtk.vtkPolyData;
-import vtk.vtkPolyDataMapper;
-import vtk.vtkRenderWindow;
-import vtk.vtkRenderWindowInteractor;
-import vtk.vtkRenderer;
-import vtk.vtkSettings;
-import vtk.vtkVertexGlyphFilter;
 
 /**
  * @author hfq
@@ -100,6 +72,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     private static final long serialVersionUID = 1L;
     
     public vtkPanel vtkPanel;
+    public vtkCanvas vtkCanvas;
     
     private JToggleButton zExaggerationToggle;
     private JToggleButton rawPointsToggle;
@@ -117,7 +90,13 @@ public class Vtk extends JPanel implements MRAVisualization {
         System.loadLibrary("jawt");
         
         // for simple visualizations
-        vtkNativeLibrary.COMMON.LoadLibrary();
+        try {
+            vtkNativeLibrary.COMMON.LoadLibrary();
+        }
+        catch (Throwable e) {
+            System.out.println("cannot load vtkCommon, skipping...");
+        }
+        
         vtkNativeLibrary.FILTERING.LoadLibrary();
         vtkNativeLibrary.IO.LoadLibrary();
         vtkNativeLibrary.IMAGING.LoadLibrary();
@@ -125,11 +104,48 @@ public class Vtk extends JPanel implements MRAVisualization {
         vtkNativeLibrary.RENDERING.LoadLibrary();
                 
         // Other
-        vtkNativeLibrary.INFOVIS.LoadLibrary();
-        vtkNativeLibrary.VIEWS.LoadLibrary();
-        vtkNativeLibrary.WIDGETS.LoadLibrary();
-        vtkNativeLibrary.GEOVIS.LoadLibrary();
-
+        try {
+            vtkNativeLibrary.INFOVIS.LoadLibrary();
+        }
+        catch (Throwable e) {
+            System.out.println("cannot load vtkInfoVis, skipping...");
+        }
+        try {
+            vtkNativeLibrary.VIEWS.LoadLibrary();
+        }
+        catch (Throwable e) {
+            System.out.println("cannot load vtkViews, skipping...");
+        }
+        try {
+            vtkNativeLibrary.WIDGETS.LoadLibrary();
+        }
+        catch (Throwable e) {
+            System.out.println("cannot load vtkWidgets skipping...");
+        }
+        try {
+            vtkNativeLibrary.GEOVIS.LoadLibrary();
+        }
+        catch (Throwable e) {
+            System.out.println("cannot load vtkGeoVis, skipping...");
+        }
+        try {
+            vtkNativeLibrary.CHARTS.LoadLibrary();
+        }
+        catch (Throwable e) {
+            System.out.println("cannot load vtkCharts, skipping...");
+        }
+        try {
+            vtkNativeLibrary.HYBRID.LoadLibrary();
+        }
+        catch (Throwable e) {
+            System.out.println("cannot load vtkHybrid, skipping...");
+        }
+        try {
+            vtkNativeLibrary.VOLUME_RENDERING.LoadLibrary();
+        }
+        catch (Throwable e) {
+            System.out.println("cannot load vtkVolumeRendering, skipping...");
+        }
     }
     
     /**
@@ -140,139 +156,17 @@ public class Vtk extends JPanel implements MRAVisualization {
     public Vtk(MRAPanel panel) {
         super(new BorderLayout());
    
-        vtkPanel = new vtkPanel();
+        //vtkPanel = new vtkPanel();       
+        //Window win = new Window(vtkPanel);
         
-        vtkPanel.setBackground(Color.blue);
-        Window win = new Window(vtkPanel);
-        //win.setColorBackGround();
+        vtkCanvas = new vtkCanvas();
+        Window winCanvas = new Window(vtkCanvas);
 
-        
-        // a Render Window
-//        vtkRenderWindow renWin = new vtkRenderWindow();
-//        renWin.AddRenderer(vtkPanel.GetRenderer());
-//        
-        // an interactor
-//        vtkRenderWindowInteractor renderWinInteractor = new vtkRenderWindowInteractor();
-//        renderWinInteractor.SetRenderWindow(renWin);
-//        
-//        Compass.addCompassToVisualization(renderWinInteractor);
-        
-//        vtkGeoAssignCoordinates geoAssignCoords = new vtkGeoAssignCoordinates();
-//        //geoAssignCoords.set
-//        
-//        vtkPoints points = new vtkPoints();     
-//        float x = (float) 5.0;
-//        float y = (float) 1.0;
-//        float z = (float) 10.0;
-//        PointXYZ p = new PointXYZ(x, y, z);
-//        int id = 1;
-//        //points.InsertPoint(id, 0.0, 0.0, 0.0);
-//        points.InsertNextPoint(p.getX(), p.getY(), p.getZ());
-//        
-//        //vtkCellArray verts = new vtkCellArray();
-//        //vtkIdTypeArray idTypes = new vtkIdTypeArray();
-//        
-//        
-//        vtkPolyData poly = new vtkPolyData();
-//        poly.SetPoints(points);
-//        
-//        // apply vtkVertexGlyphFilter to make cells around points, vtk only render cells
-//        vtkVertexGlyphFilter vertexGlyphFilter = new vtkVertexGlyphFilter();
-//        vertexGlyphFilter.SetInput(poly);
-//        
-//        vtkPolyDataMapper mapper = new vtkPolyDataMapper();
-//        //mapper.SetInput(poly);
-//        mapper.SetInputConnection(vertexGlyphFilter.GetOutputPort());
-//        
-//        vtkActor pointsActor = new vtkActor();
-//        pointsActor.SetMapper(mapper);
-//
-//        pointsActor.GetProperty().SetPointSize(5.0);
-//        vtkPanel.GetRenderer().AddActor(pointsActor);
-//        
-//        vtkPointSource pointSource = new vtkPointSource();
-//        pointSource.SetNumberOfPoints(150000);
-//        //pointSource.SetCenter(0.0, 0.0, 0.0);
-//        pointSource.SetDistributionToUniform();
-//        //pointSource.SetDistributionToShell();
-//        pointSource.SetRadius(10.0);
-//
-//        //polyData = pointSource.GetPolyDataInput(ALLBITS);
-//        
-//        vtkPolyDataMapper inputMapper = new vtkPolyDataMapper();
-//        inputMapper.SetInput(pointSource.GetOutput());
-//          
-//        vtkActor actor2 = new vtkActor();
-//        actor2.SetMapper(inputMapper);
-//        
-//        
-//        vtkPoints points2 = getPoints();
-//        vtkPolyData polyData = new vtkPolyData();
-//        
-//        polyData.SetPoints(points2);
-//        
-//        vtkCellArray verts = new vtkCellArray();
+//      vtkGeoAssignCoordinates geoAssignCoords = new vtkGeoAssignCoordinates();
+//      //geoAssignCoords.set
+
 //        vtkIdTypeArray idTypeArray = new vtkIdTypeArray();
-//        
-//        
-//        
-//        
-//        //vtkDelaunay2D delauny = new vtkDelaunay2D();
-//        //vtkDelaunay3D delauny = new vtkDelaunay3D(); -> dá erro
-//        //delauny.SetInputConnection(polyData.GetProducerPort());
-//        
-//        vtkPolyDataMapper mapper2 = new vtkPolyDataMapper();
-//        mapper2.SetInput(polyData);
-//        //mapper2.SetInputConnection(delauny.GetOutputPort());
-//        
-//        vtkActor actor_2 = new vtkActor();
-//        actor_2.SetMapper(mapper2);
-//        
-//        actor_2.GetProperty().SetPointSize(20);
-//        actor_2.GetProperty().SetColor(1.0, 0.0, 0.0);
-//        
-//        vtkPanel.GetRenderer().AddActor(CubeAxes.AddCubeAxesToVisualizer(vtkPanel.GetRenderer(), polyData));
-//        vtkPanel.GetRenderer().AddActor(actor_2);
-//        
-//        
-//        //vtkPanel.GetRenderer().AddActor(actor2);
-// 
-        BoxWidget.addBoxWidget2Tovisualizer(vtkPanel.GetRenderer(), win.getRenWinInteractor());
-        
-        Axes ax = new Axes();
-        AxesActor axesActor = new AxesActor(vtkPanel.GetRenderer());
-        axesActor.setAxesVisibility(true);
-        
-//        vtkBoxWidget widget1 = new vtkBoxWidget();
-//        vtkBoxWidget2 widget2 = new vtkBoxWidget2();
-//        
-//        vtkBoxRepresentation boxrep = new vtkBoxRepresentation();
-//        widget1.SetCurrentRenderer(vtkPanel.GetRenderer());
-//        widget1.SetPlaceFactor(1.25);
-//        widget1.PlaceWidget();
-//        //widget1.SetInput();
-//        widget1.EnabledOn();
-        
-        //widget2.SetCurrentRenderer(vtkPanel.GetRenderer());
-        //widget2.SetRepresentation(boxrep);
-            // estoira completamente
-        //widget2.AddObserver("EndInteractionEvent", this, "selectPolygons");
-        
 
-        //boxWidget.SetPlaceFactor(1.25);
-        //boxWidget.SetInput(glyph.GetOutput());
-        //boxWidget.PlaceWidget();
-        //boxWidget.AddObserver("EndInteractionEvent", this, "selectPolygons");
-        
-        //widget2.SetInteractor(win.getRenWinInteractor());
-        //widget2.EnabledOn();
-        //widget1.ComputeDisplayToWorld(id0, id1, id2, id3, id4)
-        
-        //vtk3DWidget widget = new vtk3DWidget();
-        //widget.SetCurrentRenderer(vtkPanel.GetRenderer());
-        //widget.EnabledOn();
-        //widget.SetInteractor(win.getRenWinInteractor());
-        //widget.ComputeDisplayToWorld(vtkPanel.GetRenderer(), 0.0, 0.0, 0.0);
 //        
 ///*        vtkConeSource cone = new vtkConeSource();
 //        cone.SetResolution(8);
@@ -285,14 +179,42 @@ public class Vtk extends JPanel implements MRAVisualization {
 //        
 //        
 //        
+        //BoxWidget.addBoxWidget2Tovisualizer(vtkPanel.GetRenderer(), win.getRenWinInteractor());
+     
+        // a Random points, PointCloud
+        PointCloud<PointXYZ> poi = new PointCloud<>();
+        vtkLODActor cloud = new vtkLODActor();
+        cloud = poi.getRandomPointCloud(10000);
+        cloud.GetProperty().SetColor(1.0, 0.0, 0.0);
+        vtkCanvas.GetRenderer().AddActor(cloud); 
+        
+        vtkCanvas.GetRenderer().ResetCamera();
+        add(vtkCanvas, BorderLayout.CENTER);
+        
+/*        Axes ax = new Axes();
+        AxesActor axesActor = new AxesActor(vtkPanel.GetRenderer());
+        axesActor.setAxesVisibility(true);
+        
+        
+        // A axes actor
         //vtkPanel.GetRenderer().AddActor(ax.getAxesActor());
         
-        PointCloud<PointXYZI> poi = new PointCloud<>();
+        // a Random points, PointCloud
+        PointCloud<PointXYZ> poi = new PointCloud<>();
         vtkLODActor cloud = new vtkLODActor();
-        cloud = poi.getRandomPointCloud(15000000);
-        
+        cloud = poi.getRandomPointCloud(100000);
+        cloud.GetProperty().SetColor(1.0, 0.0, 0.0);
         vtkPanel.GetRenderer().AddActor(cloud);
         
+        // a cube Axes actor
+        vtkActor cubeAxesActor = new vtkActor();
+        cubeAxesActor = CubeAxes.AddCubeAxesToVisualizer(vtkPanel.GetRenderer(), poi.poly);
+        vtkPanel.GetRenderer().AddActor(cubeAxesActor);
+        
+        vtkPanel.GetRenderer().SetBackground(0.1, 0.1, 0.1);
+        //Color color = new Color(255, 0, 0, 0);
+        //vtkPanel.GetRenderer().SetBackgroundTexture(null);
+        //vtkTexture texture = new vtkTexture();
         
         vtkPanel.GetRenderer().ResetCamera();
         //vtkPanel.GetRenderer().ResetCameraClippingRange();
@@ -304,10 +226,26 @@ public class Vtk extends JPanel implements MRAVisualization {
         //vtkPanel.setBackground(Color.blue);
         //vtkPanel.setForeground(Color.green);
         
+        double fbs = vtkPanel.GetRenderer().GetLastRenderTimeInSeconds();
+        System.out.println("fbs: " + fbs);
+        
+        //win.getRenWinInteractor().Initialize();
+        //win.getRenWinInteractor().Start();
+        
+        //vtkPanel.GetRenderWindow().GetInteractor().AddObserver("CharEvent", this, "toogleStyle");
+*/        
         toolBar = new JPanel();
         toolBar = createToolbar();
         add(toolBar, BorderLayout.EAST);
-        vtkPanel.setBackground(Color.blue);
+    }
+    
+    void toogleStyle() {
+        if (vtkPanel.GetRenderWindow().GetInteractor().GetKeyCode() == 'c' | vtkPanel.GetRenderWindow().GetInteractor().GetKeyCode() == 'C') {
+            System.out.println("1- setted interactor style C");
+        } else {
+            System.out.println("2- setted interactor style A");
+        }
+        
     }
     
     @Override

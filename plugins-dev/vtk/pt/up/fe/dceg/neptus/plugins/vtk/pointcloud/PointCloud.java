@@ -41,6 +41,7 @@ import vtk.vtkAlgorithm;
 import vtk.vtkCellArray;
 import vtk.vtkGlyph3D;
 import vtk.vtkLODActor;
+import vtk.vtkPointSource;
 import vtk.vtkPoints;
 import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
@@ -57,6 +58,7 @@ public class PointCloud<T extends PointXYZ> {
     
     public vtkPoints points;
     public vtkCellArray verts;
+    public vtkPolyData poly;
     public vtkLODActor cloud;
     private int numberOfPoints;
     
@@ -95,14 +97,15 @@ public class PointCloud<T extends PointXYZ> {
             verts.InsertCellPoint(points.InsertNextPoint(p.getX(), p.getY(), p.getZ()));            
         }
         
-        vtkPolyData pol = new vtkPolyData();
-        pol.SetPoints(points);
-        pol.SetVerts(verts);
+        //vtkPolyData pol = new vtkPolyData();
+        poly = new vtkPolyData();
+        poly.SetPoints(points);
+        poly.SetVerts(verts);
         
         //vtkGlyph3D glyph = new vtkGlyph3D();
         //glyph.SetInput(pol);
         vtkVertexGlyphFilter glyph = new vtkVertexGlyphFilter();
-        glyph.SetInput(pol);
+        glyph.SetInput(poly);
         
         
         
@@ -112,6 +115,25 @@ public class PointCloud<T extends PointXYZ> {
         
         cloud.SetMapper(map);
         cloud.GetProperty().SetPointSize(1.0);
+        
+        return cloud;
+    }
+    
+    public vtkLODActor getRamdonPointCloudFromVtkPointSource(int nPoints, double radius) {
+        cloud = new vtkLODActor();
+        setNumberOfPoints(nPoints);
+        
+        vtkPointSource pointSource = new vtkPointSource();
+        pointSource.SetNumberOfPoints(getNumberOfPoints());
+        pointSource.SetCenter(0.0, 0.0, 0.0);
+        pointSource.SetDistributionToUniform();
+        pointSource.SetRadius(radius);
+
+        vtkPolyDataMapper mapper = new vtkPolyDataMapper();
+        mapper.AddInputConnection(pointSource.GetOutputPort());
+        
+        cloud = new vtkLODActor();
+        cloud.SetMapper(mapper);
         
         return cloud;
     }

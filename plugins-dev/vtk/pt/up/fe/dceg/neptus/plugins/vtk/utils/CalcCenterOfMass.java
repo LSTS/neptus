@@ -47,6 +47,7 @@ public class CalcCenterOfMass {
     public static double[] calcCenterOfMass (vtkPolyData poly) {
         double[] center = new double[3];
         
+        
 //        vtkCenterOfMass centerOfMassFilter = new vtkCenterOfMass();
 //        centerOfMassFilter.SetInputData(poly);
 //        centerOfMassFilter.SetUseScalarAsWeights(false);

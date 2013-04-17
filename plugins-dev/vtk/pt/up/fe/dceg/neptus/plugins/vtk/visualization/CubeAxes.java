@@ -58,11 +58,17 @@ public class CubeAxes {
         cubeAxesActor.SetBounds(polyData.GetBounds());
         cubeAxesActor.SetXTitle("X Title");
         cubeAxesActor.SetXAxisMinorTickVisibility(0);
+        //cubeAxesActor.SetDrawXGridlines(0);
+        cubeAxesActor.DrawXGridlinesOn();
         //cubeAxesActor.SetAxisLabes(0, getXLabels()); nao tem o método, falta impletar o getXLabels
         cubeAxesActor.SetYTitle("Y Title");
-        cubeAxesActor.SetYAxisLabelVisibility(0);
+        //cubeAxesActor.SetYAxisLabelVisibility(0);
+        cubeAxesActor.SetYAxisMinorTickVisibility(0);
+        cubeAxesActor.DrawYGridlinesOn();
         //cubeAxesActor.SetAxisLabes(0, getYLabels()); nao tem o método, falta impletar o getYLabels
         cubeAxesActor.SetZTitle("Z Title");
+        cubeAxesActor.SetZAxisMinorTickVisibility(0);
+        cubeAxesActor.DrawZGridlinesOn();
         
         return cubeAxesActor;
     }
