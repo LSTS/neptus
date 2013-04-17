@@ -31,8 +31,21 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 
+import java.awt.Point;
+import java.util.Random;
+
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import ucar.nc2.dt.PointObsDatatype;
+import vtk.vtkActor;
+import vtk.vtkAlgorithm;
+import vtk.vtkCellArray;
+import vtk.vtkGlyph3D;
+import vtk.vtkLODActor;
 import vtk.vtkPoints;
+import vtk.vtkPolyData;
+import vtk.vtkPolyDataMapper;
+import vtk.vtkVTKJavaCommonDriver;
+import vtk.vtkVertexGlyphFilter;
 
 
 
@@ -43,6 +56,8 @@ import vtk.vtkPoints;
 public class PointCloud<T extends PointXYZ> {
     
     public vtkPoints points;
+    public vtkCellArray verts;
+    public vtkLODActor cloud;
     private int numberOfPoints;
     
     public PointCloud () {
@@ -63,4 +78,42 @@ public class PointCloud<T extends PointXYZ> {
     public void setNumberOfPoints(int numberOfPoints) {
         this.numberOfPoints = numberOfPoints;
     }
+    
+    public vtkLODActor getRandomPointCloud(int nPoints) {
+        cloud = new vtkLODActor();
+        setNumberOfPoints(nPoints);
+        points = new vtkPoints();
+        points.Allocate(getNumberOfPoints(), 0);
+        verts = new vtkCellArray();
+        verts.Allocate(verts.EstimateSize(1, getNumberOfPoints()), 0);
+        
+        Random pos = new Random();
+        
+        for (int i = 0; i < getNumberOfPoints(); i++) {
+            PointXYZ p = new PointXYZ(pos.nextFloat()*10, pos.nextFloat()*10, pos.nextFloat()*10);
+            //System.out.println("X: " + p.getX() + " Y: " + p.getY() + " Z: " + p.getZ());
+            verts.InsertCellPoint(points.InsertNextPoint(p.getX(), p.getY(), p.getZ()));            
+        }
+        
+        vtkPolyData pol = new vtkPolyData();
+        pol.SetPoints(points);
+        pol.SetVerts(verts);
+        
+        //vtkGlyph3D glyph = new vtkGlyph3D();
+        //glyph.SetInput(pol);
+        vtkVertexGlyphFilter glyph = new vtkVertexGlyphFilter();
+        glyph.SetInput(pol);
+        
+        
+        
+        vtkPolyDataMapper map = new vtkPolyDataMapper();
+        map.SetInputConnection(glyph.GetOutputPort());
+        //map.SetInput(pol);
+        
+        cloud.SetMapper(map);
+        cloud.GetProperty().SetPointSize(1.0);
+        
+        return cloud;
+    }
+    
 }

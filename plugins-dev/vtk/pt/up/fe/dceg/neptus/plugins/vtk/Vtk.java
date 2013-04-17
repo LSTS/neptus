@@ -78,6 +78,7 @@ import vtk.vtkDelaunay3D;
 import vtk.vtkGeoAssignCoordinates;
 import vtk.vtkIdList;
 import vtk.vtkIdTypeArray;
+import vtk.vtkLODActor;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPanel;
 import vtk.vtkPointSource;
@@ -140,6 +141,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         super(new BorderLayout());
    
         vtkPanel = new vtkPanel();
+        
         vtkPanel.setBackground(Color.blue);
         Window win = new Window(vtkPanel);
         //win.setColorBackGround();
@@ -286,6 +288,11 @@ public class Vtk extends JPanel implements MRAVisualization {
         //vtkPanel.GetRenderer().AddActor(ax.getAxesActor());
         
         PointCloud<PointXYZI> poi = new PointCloud<>();
+        vtkLODActor cloud = new vtkLODActor();
+        cloud = poi.getRandomPointCloud(15000000);
+        
+        vtkPanel.GetRenderer().AddActor(cloud);
+        
         
         vtkPanel.GetRenderer().ResetCamera();
         //vtkPanel.GetRenderer().ResetCameraClippingRange();
