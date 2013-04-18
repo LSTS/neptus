@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
 import java.awt.Color;
+import java.util.Hashtable;
 
 import visad.SetIface;
 import vtk.vtkCanvas;
@@ -39,6 +40,7 @@ import vtk.vtkCommand;
 import vtk.vtkInteractorStyle;
 import vtk.vtkInteractorStyleTrackballActor;
 import vtk.vtkInteractorStyleTrackballCamera;
+import vtk.vtkLODActor;
 import vtk.vtkLight;
 import vtk.vtkLightActor;
 import vtk.vtkPNGWriter;
@@ -51,18 +53,20 @@ import vtk.vtkWindowToImageFilter;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class Window {
-    
+
     private vtkCommand mouseCommmand;
     private vtkCommand keyboardCommand;
     private vtkInteractorStyle style;
-    
+
     private vtkWindowToImageFilter wif;
     private vtkPNGWriter pngWriter;
     private String wifName;
     
+    private Hashtable<String, vtkLODActor> hashCloud;
+
     private vtkPanel panel;
     private vtkCanvas canvas;
     private vtkRenderer renderer;
@@ -71,59 +75,55 @@ public class Window {
     private String windowName;
     private vtkLight light;
     private vtkLightActor lightActor;
-    
+
     vtkTextActor fpsActor = new vtkTextActor();
-    
+
     /*
      * TrackballCamera style interactor for addObserver callback reference
      */
     vtkInteractorStyleTrackballCamera cstyle = new vtkInteractorStyleTrackballCamera();
-    
+
     /**
      * Ideia: include snapshots with the interactor
+     * @param hashCloud 
+     * 
      * @param renWin
      * @param interactor
      * @param windowName
      */
-    public Window(vtkPanel panel) {
+    public Window(vtkPanel panel, Hashtable<String, vtkLODActor> hashCloud) {
         // a Renderer
         this.panel = panel;
-        
+        this.hashCloud = hashCloud;
+
         renderer = new vtkRenderer();
         setRenderer(this.panel.GetRenderer());
-        
+
         // a Render Window
         setRenWin(new vtkRenderWindow());
         // an Interactor
         setRenWinInteractor(new vtkRenderWindowInteractor());
         // a style interactor
         setStyle(new vtkInteractorStyle());
-        
         getRenWin().AddRenderer(this.panel.GetRenderer());
-        
-        //panel.GetRenderer().AddObserver("CharEvent", this, "CallbackFunctionFPS");
-        
+
         setUpRenWin();
         setUpInteractorStyle();
         setUpRenWinInteractor();
-        
-        //panel.GetRenderWindow().SetInteractor(renWinInteractor);
-
-        
-        //getRenWinInteractor().Start();
     }
- 
-/**
- * ideia include snapshots with the interactor
- * @param canvas
- */
-    public Window(vtkCanvas canvas) {
+
+    /**
+     * ideia include snapshots with the interactor
+     * 
+     * @param canvas
+     * @param hashCloud 
+     */
+    public Window(vtkCanvas canvas, Hashtable<String, vtkLODActor> hashCloud) {
         this.canvas = new vtkCanvas();
         this.canvas = canvas;
-        
+
         // a Renderer
         try {
-            //renderer = new vtkRenderer();
             setRenderer(this.canvas.GetRenderer());
         }
         catch (Exception e) {
@@ -131,29 +131,18 @@ public class Window {
             e.printStackTrace();
         }
         System.out.println("set renderer");
-        
+
         // a Render Window
-        //setRenWin(new vtkRenderWindow());
         try {
-            //renWin = new vtkRenderWindow();
             setRenWin(this.canvas.GetRenderWindow());
         }
         catch (Exception e) {
             System.out.println("exception set render window");
             e.printStackTrace();
         }
-        System.out.println("set render Window");
-        // an Interactor
-//        try {
-//            setRenWinInteractor(new vtkRenderWindowInteractor());
-//        }
-//        catch (Exception e) {
-//            System.out.println("exception set render window interactor");
-//            e.printStackTrace();
-//        }
-        
+
+        // a Render Window Interactor
         try {
-            //renWinInteractor = new vtkRenderWindowInteractor();
             setRenWinInteractor(this.canvas.getRenderWindowInteractor());
         }
         catch (Exception e) {
@@ -161,73 +150,51 @@ public class Window {
             e.printStackTrace();
         }
         // a style interactor
-        //setStyle(new vtkInteractorStyle());
-        style = new vtkInteractorStyle();
-        
-        //getRenWin().AddRenderer(canvas.GetRenderer());
-        //panel.GetRenderer().AddObserver("CharEvent", this, "CallbackFunctionFPS");
-        
+        // setStyle(new vtkInteractorStyle());
+        //style = new vtkInteractorStyle();
+
+        setUpRenderer();
         setUpRenWin();
-        //setUpRenWinInteractor();
+        setUpRenWinInteractor();
         setUpInteractorStyle();
-        //canvas.GetRenderWindow().SetInteractor(renWinInteractor);
-        
-        //getRenWinInteractor().Start();
     }
-    
+
+    /**
+     * Configures the Renderer
+     */
+    private void setUpRenderer() {
+        renderer.SetBackground(0.1, 0.1, 0.1);
+    }
+
     /**
      * Configures the Render Window
      */
     private void setUpRenWinInteractor() {
-        //setRenWinInteractor(interact);
-        //getRenWinInteractor().SetInteractorStyle(interact);
-                
-       try {
-        getRenWinInteractor().SetRenderWindow(getRenWin());
-    }
-    catch (Exception e) {
-        System.out.println("set render window interactor");
-        e.printStackTrace();
-    }
-//        //getRenWinInteractor().Initialize();
-//        //getRenWinInteractor().StartPickCallback();
-//        //getRenWinInteractor().AddObserver("FPSevent", this, "CallbackFunctionFPS");
-//        //win.getRenWinInteractor().AddObserver("FPSevent", vtkPanel, "CallbackFunctionFPS");
-//        // By default the vtkRenderWindowInteractor instantiates an instance
-//        // of vtkInteractorStyle. vtkInteractorStyle translates a set of events
-//        // it observes into operations on the camera, actors, and/or properties
-//        // in the vtkRenderWindow associated with the vtkRenderWinodwInteractor.
-//        // Here we specify a particular interactor style.
-//        //curIStyle = 'C';
-//        getRenWinInteractor().SetInteractorStyle(cstyle);
-//        //getRenWinInteractor().SetInteractorStyle(astyle);
-//        //getRenWinInteractor().AddObserver("CharEvent", this, "CallbackFunctionFPS");
-//        //getRenWinInteractor().Enable();
-//        //getRenWinInteractor().UserCallback();
+
+        try {
+            getRenWinInteractor().SetRenderWindow(getRenWin());
+        }
+        catch (Exception e) {
+            System.out.println("set render window interactor");
+            e.printStackTrace();
+        }
+ 
         double updateRate = getRenWinInteractor().GetDesiredUpdateRate();
         System.out.println("Desired update rate: " + updateRate);
-        
     }
 
-    
-    //void CallbackFunctionFPS (vtkObject caller, int eventId, Object clientData, Object callData) {
-    //void CallbackFunctionFPS () {
-    //}
-    
     /**
      * Configure the Interactor Style
      */
     private void setUpInteractorStyle() {
         try {
-            NeptusInteractorStyle interactStyle = new NeptusInteractorStyle(renderer, renWinInteractor);
+            NeptusInteractorStyle interactStyle = new NeptusInteractorStyle(renderer, renWinInteractor, hashCloud);
             getRenWinInteractor().SetInteractorStyle(interactStyle);
         }
         catch (Exception e) {
             System.out.println("set interact Style - Neptus");
             e.printStackTrace();
         }
-        getStyle().UseTimersOn();
-        //getStyle().SetInteractor(getRenWinInteractor());
     }
 
     /**
@@ -248,25 +215,26 @@ public class Window {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * still have to create a callback for this (keyboard event)
      */
     public void takeSnapShot() {
-        
+
         wifName = "snapshot";
-            
+
         wif = new vtkWindowToImageFilter();
         pngWriter = new vtkPNGWriter();
-        
-        getRenWinInteractor().FindPokedRenderer(getRenWinInteractor().GetEventPosition()[0], getRenWinInteractor().GetEventPosition()[1]);
+
+        getRenWinInteractor().FindPokedRenderer(getRenWinInteractor().GetEventPosition()[0],
+                getRenWinInteractor().GetEventPosition()[1]);
         wif.SetInput(getRenWinInteractor().GetRenderWindow());
         wif.Modified(); // Update the WindowToImageFilter
-        
+
         pngWriter.Modified();
         pngWriter.SetFileName(wifName);
         pngWriter.Write();
-        //wifName = new String();
+        // wifName = new String();
     }
 
     /**
@@ -312,16 +280,9 @@ public class Window {
     }
 
     /**
-     * 
-     */
-    public void setColorBackGround() {
-
-    }
-
-    /**
      * @return the renderer
      */
-    private vtkRenderer getRenderer() {
+    public vtkRenderer getRenderer() {
         return renderer;
     }
 
@@ -331,5 +292,4 @@ public class Window {
     private void setRenderer(vtkRenderer renderer) {
         this.renderer = renderer;
     }
-
 }

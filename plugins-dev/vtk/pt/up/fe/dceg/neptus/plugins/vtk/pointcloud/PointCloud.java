@@ -62,6 +62,8 @@ public class PointCloud<T extends PointXYZ> {
     public vtkLODActor cloud;
     private int numberOfPoints;
     
+    private String cloudName;
+    
     public PointCloud () {
         points = new vtkPoints();
         points.SetDataTypeToFloat();
@@ -136,6 +138,20 @@ public class PointCloud<T extends PointXYZ> {
         cloud.SetMapper(mapper);
         
         return cloud;
+    }
+
+    /**
+     * @return the cloudName
+     */
+    public String getCloudName() {
+        return cloudName;
+    }
+
+    /**
+     * @param cloudName the cloudName to set
+     */
+    public void setCloudName(String cloudName) {
+        this.cloudName = cloudName;
     }
     
 }
