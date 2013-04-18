@@ -39,7 +39,7 @@ import vtk.vtkStringArray;
 
 /**
  * @author hfq
- *
+ * Grid is enabled by default, check better solution
  */
 public class CubeAxes {
     
@@ -56,19 +56,34 @@ public class CubeAxes {
         
         cubeAxesActor.SetCamera(renderer.GetActiveCamera());
         cubeAxesActor.SetBounds(polyData.GetBounds());
-        cubeAxesActor.SetXTitle("X Title");
-        cubeAxesActor.SetXAxisMinorTickVisibility(0);
+        cubeAxesActor.SetXTitle("X axis");
+        //cubeAxesActor.SetXAxisMinorTickVisibility(0);
         //cubeAxesActor.SetDrawXGridlines(0);
         cubeAxesActor.DrawXGridlinesOn();
+        cubeAxesActor.SetXUnits("m");
+        
         //cubeAxesActor.SetAxisLabes(0, getXLabels()); nao tem o método, falta impletar o getXLabels
-        cubeAxesActor.SetYTitle("Y Title");
+        cubeAxesActor.SetYTitle("Y axis");
         //cubeAxesActor.SetYAxisLabelVisibility(0);
-        cubeAxesActor.SetYAxisMinorTickVisibility(0);
+        //cubeAxesActor.SetYAxisMinorTickVisibility(0);
         cubeAxesActor.DrawYGridlinesOn();
+        cubeAxesActor.SetYUnits("m");
+        
         //cubeAxesActor.SetAxisLabes(0, getYLabels()); nao tem o método, falta impletar o getYLabels
-        cubeAxesActor.SetZTitle("Z Title");
-        cubeAxesActor.SetZAxisMinorTickVisibility(0);
+        cubeAxesActor.SetZTitle("Z axis");
+        //cubeAxesActor.SetZAxisMinorTickVisibility(0);
         cubeAxesActor.DrawZGridlinesOn();
+        cubeAxesActor.SetZUnits("m");
+        
+        // não colocar
+        //cubeAxesActor.SetCornerOffset(1);
+        // não faz nada aparentemente
+        //cubeAxesActor.SetInertia(0);
+        
+        // propriedades do actor
+        //cubeAxesActor.GetProperty().SetDiffuseColor(0.0, 1.0, 0.0);
+        cubeAxesActor.GetProperty().SetColor(0.0, 1.0, 0.0);
+        //cubeAxesActor.GetProperty().SetInterpolationToPhong();
         
         return cubeAxesActor;
     }

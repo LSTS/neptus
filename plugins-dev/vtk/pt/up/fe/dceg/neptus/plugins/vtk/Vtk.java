@@ -184,32 +184,29 @@ public class Vtk extends JPanel implements MRAVisualization {
         // a Random points, PointCloud
         PointCloud<PointXYZ> poi = new PointCloud<>();
         vtkLODActor cloud = new vtkLODActor();
-        cloud = poi.getRandomPointCloud(10000);
+        cloud = poi.getRandomPointCloud(1000);
         cloud.GetProperty().SetColor(1.0, 0.0, 0.0);
         vtkCanvas.GetRenderer().AddActor(cloud); 
         
         vtkCanvas.GetRenderer().ResetCamera();
         add(vtkCanvas, BorderLayout.CENTER);
         
-/*        Axes ax = new Axes();
-        AxesActor axesActor = new AxesActor(vtkPanel.GetRenderer());
-        axesActor.setAxesVisibility(true);
-        
-        
-        // A axes actor
-        //vtkPanel.GetRenderer().AddActor(ax.getAxesActor());
-        
-        // a Random points, PointCloud
-        PointCloud<PointXYZ> poi = new PointCloud<>();
-        vtkLODActor cloud = new vtkLODActor();
-        cloud = poi.getRandomPointCloud(100000);
-        cloud.GetProperty().SetColor(1.0, 0.0, 0.0);
-        vtkPanel.GetRenderer().AddActor(cloud);
+        // axes 1
+        //Axes ax = new Axes();
+        //vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
+        // axes 2
+        //AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
+        //axesActor.setAxesVisibility(true);
         
         // a cube Axes actor
         vtkActor cubeAxesActor = new vtkActor();
-        cubeAxesActor = CubeAxes.AddCubeAxesToVisualizer(vtkPanel.GetRenderer(), poi.poly);
-        vtkPanel.GetRenderer().AddActor(cubeAxesActor);
+        cubeAxesActor = CubeAxes.AddCubeAxesToVisualizer(vtkCanvas.GetRenderer(), poi.poly);
+        vtkCanvas.GetRenderer().AddActor(cubeAxesActor);
+
+        
+/*      
+        
+
         
         vtkPanel.GetRenderer().SetBackground(0.1, 0.1, 0.1);
         //Color color = new Color(255, 0, 0, 0);
@@ -244,8 +241,7 @@ public class Vtk extends JPanel implements MRAVisualization {
             System.out.println("1- setted interactor style C");
         } else {
             System.out.println("2- setted interactor style A");
-        }
-        
+        }       
     }
     
     @Override

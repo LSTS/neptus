@@ -90,7 +90,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera{
     // Current Window position width/height
     int winHeight, winWidth;
     // Current window postion x/y
-    int winPosX, winPosY;
+    int winPosX, winPosY;  
     
     // Change default keyboard modified from ALT to a different special key
     public enum InteractorKeyboardModifier
