@@ -75,16 +75,9 @@ public class Window {
     vtkTextActor fpsActor = new vtkTextActor();
     
     /*
-     * TrackballActor style interactor for addObserver callback reference
-     */
-    vtkInteractorStyleTrackballActor astyle = new vtkInteractorStyleTrackballActor();
-    /*
      * TrackballCamera style interactor for addObserver callback reference
      */
     vtkInteractorStyleTrackballCamera cstyle = new vtkInteractorStyleTrackballCamera();
-    char curIStyle = 'A'; // interaction style A = Actor C = camera,
-    // toggled by 'C' key handler.
-    
     
     /**
      * Ideia: include snapshots with the interactor
@@ -129,32 +122,55 @@ public class Window {
         this.canvas = canvas;
         
         // a Renderer
-        renderer = new vtkRenderer();
-        setRenderer(this.canvas.GetRenderer());
+        try {
+            //renderer = new vtkRenderer();
+            setRenderer(this.canvas.GetRenderer());
+        }
+        catch (Exception e) {
+            System.out.println("exception set renderer");
+            e.printStackTrace();
+        }
+        System.out.println("set renderer");
         
         // a Render Window
         //setRenWin(new vtkRenderWindow());
-        renWin = new vtkRenderWindow();
-        setRenWin(this.canvas.GetRenderWindow());
+        try {
+            //renWin = new vtkRenderWindow();
+            setRenWin(this.canvas.GetRenderWindow());
+        }
+        catch (Exception e) {
+            System.out.println("exception set render window");
+            e.printStackTrace();
+        }
+        System.out.println("set render Window");
         // an Interactor
-        //setRenWinInteractor(new vtkRenderWindowInteractor());
-        renWinInteractor = new vtkRenderWindowInteractor();
-        setRenWinInteractor(this.canvas.getRenderWindowInteractor());
+//        try {
+//            setRenWinInteractor(new vtkRenderWindowInteractor());
+//        }
+//        catch (Exception e) {
+//            System.out.println("exception set render window interactor");
+//            e.printStackTrace();
+//        }
+        
+        try {
+            //renWinInteractor = new vtkRenderWindowInteractor();
+            setRenWinInteractor(this.canvas.getRenderWindowInteractor());
+        }
+        catch (Exception e) {
+            System.out.println("exception set render window interactor");
+            e.printStackTrace();
+        }
         // a style interactor
         //setStyle(new vtkInteractorStyle());
         style = new vtkInteractorStyle();
         
-        
         //getRenWin().AddRenderer(canvas.GetRenderer());
-        
         //panel.GetRenderer().AddObserver("CharEvent", this, "CallbackFunctionFPS");
         
         setUpRenWin();
+        //setUpRenWinInteractor();
         setUpInteractorStyle();
-        setUpRenWinInteractor();
-        
         //canvas.GetRenderWindow().SetInteractor(renWinInteractor);
-
         
         //getRenWinInteractor().Start();
     }
@@ -163,22 +179,31 @@ public class Window {
      * Configures the Render Window
      */
     private void setUpRenWinInteractor() {
+        //setRenWinInteractor(interact);
+        //getRenWinInteractor().SetInteractorStyle(interact);
+                
+       try {
         getRenWinInteractor().SetRenderWindow(getRenWin());
-        //getRenWinInteractor().Initialize();
-        //getRenWinInteractor().StartPickCallback();
-        //getRenWinInteractor().AddObserver("FPSevent", this, "CallbackFunctionFPS");
-        //win.getRenWinInteractor().AddObserver("FPSevent", vtkPanel, "CallbackFunctionFPS");
-        // By default the vtkRenderWindowInteractor instantiates an instance
-        // of vtkInteractorStyle. vtkInteractorStyle translates a set of events
-        // it observes into operations on the camera, actors, and/or properties
-        // in the vtkRenderWindow associated with the vtkRenderWinodwInteractor.
-        // Here we specify a particular interactor style.
-        //curIStyle = 'C';
-        getRenWinInteractor().SetInteractorStyle(cstyle);
-        //getRenWinInteractor().SetInteractorStyle(astyle);
-        getRenWinInteractor().AddObserver("CharEvent", this, "CallbackFunctionFPS");
-        //getRenWinInteractor().Enable();
-        //getRenWinInteractor().UserCallback();
+    }
+    catch (Exception e) {
+        System.out.println("set render window interactor");
+        e.printStackTrace();
+    }
+//        //getRenWinInteractor().Initialize();
+//        //getRenWinInteractor().StartPickCallback();
+//        //getRenWinInteractor().AddObserver("FPSevent", this, "CallbackFunctionFPS");
+//        //win.getRenWinInteractor().AddObserver("FPSevent", vtkPanel, "CallbackFunctionFPS");
+//        // By default the vtkRenderWindowInteractor instantiates an instance
+//        // of vtkInteractorStyle. vtkInteractorStyle translates a set of events
+//        // it observes into operations on the camera, actors, and/or properties
+//        // in the vtkRenderWindow associated with the vtkRenderWinodwInteractor.
+//        // Here we specify a particular interactor style.
+//        //curIStyle = 'C';
+//        getRenWinInteractor().SetInteractorStyle(cstyle);
+//        //getRenWinInteractor().SetInteractorStyle(astyle);
+//        //getRenWinInteractor().AddObserver("CharEvent", this, "CallbackFunctionFPS");
+//        //getRenWinInteractor().Enable();
+//        //getRenWinInteractor().UserCallback();
         double updateRate = getRenWinInteractor().GetDesiredUpdateRate();
         System.out.println("Desired update rate: " + updateRate);
         
@@ -186,31 +211,23 @@ public class Window {
 
     
     //void CallbackFunctionFPS (vtkObject caller, int eventId, Object clientData, Object callData) {
-    void CallbackFunctionFPS () {
-        
-        System.out.println("veio ao callbackfunction");
-        //vtkRenderer renderer = (vtkRenderer)caller;
-        
-        double timeInSeconds = renderer.GetLastRenderTimeInSeconds();
-        double fps = 1.0/timeInSeconds;   
-        
-        fpsActor.SetInput(Double.toString(fps));
-        //System.out.println("FPS: " + fps);
-        
-        fpsActor.GetPositionCoordinate().SetCoordinateSystemToNormalizedDisplay();
-        fpsActor.GetTextProperty().SetColor(0.0, 0.0, 0.0);
-        
-        if (getRenWinInteractor().GetKeyCode() == 'k') {
-            System.out.println("FPS2: " + fps);
-        }
-    }
+    //void CallbackFunctionFPS () {
+    //}
     
     /**
      * Configure the Interactor Style
      */
     private void setUpInteractorStyle() {
+        try {
+            NeptusInteractorStyle interactStyle = new NeptusInteractorStyle(renderer, renWinInteractor);
+            getRenWinInteractor().SetInteractorStyle(interactStyle);
+        }
+        catch (Exception e) {
+            System.out.println("set interact Style - Neptus");
+            e.printStackTrace();
+        }
         getStyle().UseTimersOn();
-        getStyle().SetInteractor(getRenWinInteractor());
+        //getStyle().SetInteractor(getRenWinInteractor());
     }
 
     /**

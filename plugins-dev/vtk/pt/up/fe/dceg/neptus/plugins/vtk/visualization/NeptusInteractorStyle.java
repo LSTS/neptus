@@ -31,12 +31,19 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import vtk.vtkCommand;
+import vtk.vtkImageAlgorithm;
+import vtk.vtkInteractorStyleTrackballActor;
 import vtk.vtkInteractorStyleTrackballCamera;
 import vtk.vtkLegendScaleActor;
 import vtk.vtkPNGWriter;
 import vtk.vtkRenderWindowInteractor;
+import vtk.vtkRenderer;
 import vtk.vtkScalarBarActor;
+import vtk.vtkTextActor;
 import vtk.vtkTextProperty;
 import vtk.vtkWindowToImageFilter;
 import vtk.vtkXYPlotActor;
@@ -64,33 +71,51 @@ import vtk.vtkXYPlotActor;
  */
 public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera{
     
-    // the XY plt actor holding the actual data.
-    vtkXYPlotActor xyActor;
+    // A renderer
+    private vtkRenderer renderer = new vtkRenderer();
     
     // The render Window Interactor
-    vtkRenderWindowInteractor interactor;
+    private vtkRenderWindowInteractor interactor = new vtkRenderWindowInteractor();
+    
+    // the XY plt actor holding the actual data.
+    vtkXYPlotActor xyActor = new vtkXYPlotActor();
+    
     // the render window interactor style;
-    vtkInteractorStyleTrackballCamera style;
+    private vtkInteractorStyleTrackballCamera style = new vtkInteractorStyleTrackballCamera();
     
     // Set true if the LUT actor is enabled
     boolean lutEnabled;
     // Actor for 2D loookup table on screen
-    protected vtkScalarBarActor lutActor;
+    protected vtkScalarBarActor lutActor = new vtkScalarBarActor();
 
     // Set true if the grid actor is enabled
     boolean gridEnabled;
     // Actor for 2D grid on screen
-    protected vtkLegendScaleActor gridActor;
+    protected vtkLegendScaleActor gridActor = new vtkLegendScaleActor();
     
     // A PNG Writer for screenshot captures
-    vtkPNGWriter snapshotWriter;
+    vtkPNGWriter snapshotWriter = new vtkPNGWriter();
     // Internal Window to image Filter. Needed by a snapshotWriter object
-    vtkWindowToImageFilter wif;
+    vtkWindowToImageFilter wif = new vtkWindowToImageFilter();
     
     // Current Window position width/height
     int winHeight, winWidth;
     // Current window postion x/y
-    int winPosX, winPosY;  
+    int winPosX, winPosY;
+    
+    /*
+     * TrackballActor style interactor for addObserver callback reference
+     */
+    vtkInteractorStyleTrackballActor astyle = new vtkInteractorStyleTrackballActor();
+    /*
+     * TrackballCamera style interactor for addObserver callback reference
+     */
+    vtkInteractorStyleTrackballCamera cstyle = new vtkInteractorStyleTrackballCamera();
+    char curIStyle = 'A'; // interaction style A = Actor C = camera,
+    // toggled by 'C' key handler.
+    
+    
+    vtkTextActor fpsActor = new vtkTextActor();
     
     // Change default keyboard modified from ALT to a different special key
     public enum InteractorKeyboardModifier
@@ -102,8 +127,10 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera{
     
     private InteractorKeyboardModifier interactModifier;
     
-    public NeptusInteractorStyle() {
+    public NeptusInteractorStyle(vtkRenderer renderer, vtkRenderWindowInteractor interact) {
         super();
+        this.renderer = renderer;
+        this.interactor = interact;
         Initalize();
     }
     
@@ -111,18 +138,19 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera{
      * Initialization routine. Must be called before anything else.
      */
     private void Initalize() {
-        interactModifier = InteractorKeyboardModifier.INTERACTOR_KB_MOD_ALT;
+        System.out.println("veio ao initialize do Neptus Style");
+        //interactModifier = InteractorKeyboardModifier.INTERACTOR_KB_MOD_ALT;
         // Set window size (width, height) to unknow (-1)
         winHeight = winWidth = -1;
         winPosX = winPosY = 0;
         
         // Grid is disabled by default
         gridEnabled = false;
-        gridActor = new vtkLegendScaleActor();
+        //gridActor = new vtkLegendScaleActor();
         
         // LUT is disabled by default
         lutEnabled = false;
-        lutActor = new vtkScalarBarActor();
+        //lutActor = new vtkScalarBarActor();
         //lutActor.SetTitle("");
         lutActor.SetOrientationToHorizontal();
         //lutActor.SetOrientationToVertical();
@@ -130,7 +158,8 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera{
         lutActor.SetWidth(0.9);
         lutActor.SetHeight(0.1);
         lutActor.SetNumberOfLabels(lutActor.GetNumberOfLabels() * 2);
-        vtkTextProperty prop = lutActor.GetLabelTextProperty();
+        vtkTextProperty prop = new vtkTextProperty();
+        prop = lutActor.GetLabelTextProperty();
         prop.SetFontSize(10);
         lutActor.SetLabelTextProperty(prop);
         lutActor.SetTitleTextProperty(prop);
@@ -142,7 +171,87 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera{
 
         
         // add a observer (callback) for point picking
-        vtkCommand leftMouse = new vtkCommand();
-        AddObserver(null, leftMouse, "leftMouse");
+        //vtkCommand leftMouse = new vtkCommand();
+        AddObserver("MouseEvent", this, "leftMouse");
+        ////interactor.AddObserver(null, leftMouse, id2)
+        getInteractor().AddObserver("CharEvent", this, "callbackFunctionFPS");
+        getInteractor().AddObserver("CharEvent", this, "saveScreenshot");
+
+    }
+    
+    void leftMouse() {
+        System.out.println("carregou no botão esquerdo do rato");
+    }
+    
+    /**
+     * for now saves on neptus directory
+     */
+    void saveScreenshot() {
+        if (getInteractor().GetKeyCode() == 'j') {
+            //System.out.println("save screenshot");
+            //int pos1 = getInteractor().GetEventPosition()[0];
+            //int pos2 = getInteractor().GetEventPosition()[1];
+            //System.out.println("Event Position - pos1: " + pos1 + " pos2: " + pos2);
+            
+            FindPokedRenderer(getInteractor().GetEventPosition()[0], getInteractor().GetEventPosition()[1]);
+            wif.SetInput(interactor.GetRenderWindow());
+            wif.Modified();           
+            snapshotWriter.Modified();
+            
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssmm").format(Calendar.getInstance().getTimeInMillis());
+            timeStamp = "snapshot_" + timeStamp;
+            //System.out.println("timeStamp: " + timeStamp);
+            
+            snapshotWriter.SetFileName(timeStamp);
+            snapshotWriter.Write();
+        }
+    }
+    
+    void callbackFunctionFPS() {
+        
+        //System.out.println("veio ao callbackfunction");
+        ////vtkRenderer renderer = (vtkRenderer)caller;
+        
+        double timeInSeconds = this.renderer.GetLastRenderTimeInSeconds();
+        double fps = 1.0/timeInSeconds;   
+
+        fpsActor.SetInput(Double.toString(fps));
+        //System.out.println("FPS: " + fps);
+        
+        fpsActor.GetPositionCoordinate().SetCoordinateSystemToNormalizedDisplay();
+        fpsActor.GetTextProperty().SetColor(0.0, 0.0, 0.0);
+        
+        if (getInteractor().GetKeyCode() == 'k') {
+            System.out.println("FPS2: " + fps);
+            
+        }       
+    }
+
+    /**
+     * @return the interactor
+     */
+    vtkRenderWindowInteractor getInteractor() {
+        return interactor;
+    }
+
+    /**
+     * @param interactor the interactor to set
+     */
+    void setInteractor(vtkRenderWindowInteractor interactor) {
+        this.interactor = interactor;
+    }
+
+    /**
+     * @return the style
+     */
+    vtkInteractorStyleTrackballCamera getStyle() {
+        return style;
+    }
+
+    /**
+     * @param style the style to set
+     */
+    void setStyle(vtkInteractorStyleTrackballCamera style) {
+        this.style = style;
     }
 }
