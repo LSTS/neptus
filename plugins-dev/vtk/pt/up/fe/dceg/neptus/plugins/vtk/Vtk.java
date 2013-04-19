@@ -41,6 +41,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -57,6 +58,7 @@ import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.CubeAxes;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.PointCloudHandlers;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
 import vtk.vtkActor;
 import vtk.vtkCanvas;
@@ -85,7 +87,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     private static Path path = null;
     private static final String FILE_83P_EXT = ".83P";
     
-    Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
+    public Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
     HashMap<String, vtkLODActor> hashMapCloud = new HashMap<>();
     LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
     
@@ -168,7 +170,6 @@ public class Vtk extends JPanel implements MRAVisualization {
         //HashTable<String, > hash = new Hashtable<>()
         
         vtkCanvas = new vtkCanvas();
-        Window winCanvas = new Window(vtkCanvas, hashCloud);
 
 //      vtkGeoAssignCoordinates geoAssignCoords = new vtkGeoAssignCoordinates();
 //      //geoAssignCoords.set
@@ -197,10 +198,14 @@ public class Vtk extends JPanel implements MRAVisualization {
         hashMapCloud.put("cloud", cloud);
         linkedHashMapCloud.put("cloud", cloud);
         
+        
+        
+
+        
         System.out.println("vai hashtable sempre em frente e mais alem");
         int hashCode = hashCloud.hashCode();
         System.out.println("Hash code: " + hashCode);
-        System.out.print("elements: " + hashCloud.keySet());
+        System.out.println("elements: " + hashCloud.keySet());
 
         vtkLODActor testActor = hashCloud.get("cloud");
         vtkLODActor testActor2 = hashMapCloud.get("cloud");
@@ -212,6 +217,14 @@ public class Vtk extends JPanel implements MRAVisualization {
         vtkActor cubeAxesActor = new vtkActor();
         cubeAxesActor = CubeAxes.AddCubeAxesToVisualizer(vtkCanvas.GetRenderer(), poi.poly);
         vtkCanvas.GetRenderer().AddActor(cubeAxesActor);
+        
+        // Setup Window do render
+        Window winCanvas = new Window(vtkCanvas, hashCloud);
+        
+        //PointCloudHandlers<PointXYZ> handler = new PointCloudHandlers<>();
+        
+        double[] temp = PointCloudHandlers.getRandomColor();
+        
         
         // reset the camera from the renderer
         vtkCanvas.GetRenderer().ResetCamera();

@@ -36,6 +36,7 @@ import java.awt.event.MouseWheelListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Hashtable;
+import java.util.Set;
 
 import org.lwjgl.Sys;
 
@@ -79,7 +80,7 @@ import vtk.vtkXYPlotActor;
  */
 public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera implements MouseWheelListener {
     
-    protected Hashtable<String, vtkLODActor> hashCloud;
+    protected Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
     
     // A vtkCanvas
     protected vtkCanvas canvas = new vtkCanvas();
@@ -97,7 +98,9 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
     // the XY plt actor holding the actual data.
     //vtkXYPlotActor xyActor = new vtkXYPlotActor();
 
-    KeyboardEvent keyboardEvent = new KeyboardEvent(this);
+
+    //KeyboardEvent keyboardEvent = new KeyboardEvent(this, hashCloud);
+    KeyboardEvent keyboardEvent;
     
     // the render window interactor style;
     private vtkInteractorStyleTrackballCamera style = new vtkInteractorStyleTrackballCamera();
@@ -148,17 +151,37 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
     
     private InteractorKeyboardModifier interactModifier;
     
+    /**
+     * 
+     * @param canvas
+     * @param renderer
+     * @param interact
+     * @param hashCloud
+     */
     public NeptusInteractorStyle(vtkCanvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor interact, Hashtable<String, vtkLODActor> hashCloud) {
         super();
         this.canvas = canvas;
         this.renderer = renderer;
         this.interactor = interact;
         this.camera = renderer.GetActiveCamera();
+        this.hashCloud = hashCloud;
+        keyboardEvent = new KeyboardEvent(this, this.hashCloud);
         Initalize();
     }
     
     /**
      * Initialization routine. Must be called before anything else.
+     * Possible Vtk Oberver Events (some don't work in Java) :
+     *
+        LeftButtonPressEvent 
+        StartInteractionEvent 
+        ModifiedEvent 
+        EndInteractionEvent 
+        RenderEvent 
+        MouseMoveEvent <- works
+        InteractorEvent
+        UserEvent
+        LeaveEvent
      */
     private void Initalize() {
         System.out.println("veio ao initialize do Neptus Style");
@@ -190,15 +213,11 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         lutActor.SetLabelTextProperty(prop);
         lutActor.SetTitleTextProperty(prop);
         
-        // Create the image filter and PNG wirter objects
+        // Create the image filter and PNG writer objects
         wif = new vtkWindowToImageFilter();
         snapshotWriter = new vtkPNGWriter();
         snapshotWriter.SetInputConnection(wif.GetOutputPort());
-    
-        // add a observer (callback) for point picking
-        //vtkCommand leftMouse = new vtkCommand();
-        //AddObserver("MouseEvent", this, "leftMouse");
-        ////interactor.AddObserver(null, leftMouse, id2)
+
         
         getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
 
@@ -224,18 +243,6 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         
         
         canvas.addMouseWheelListener(this);
-        
-        /*
-        LeftButtonPressEvent 
-        StartInteractionEvent 
-        ModifiedEvent 
-        EndInteractionEvent 
-        RenderEvent 
-        MouseMoveEvent <- works
-        InteractorEvent
-        UserEvent
-        LeaveEvent
-        */ 
     }
     
     void emitKeyboardEvents() {

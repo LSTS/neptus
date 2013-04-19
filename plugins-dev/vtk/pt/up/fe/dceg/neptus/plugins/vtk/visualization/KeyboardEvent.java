@@ -33,7 +33,15 @@ package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Set;
 
+import org.apache.batik.dom.util.HashTable;
+
+import com.lowagie.text.pdf.hyphenation.TernaryTree.Iterator;
+
+import vtk.vtkLODActor;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
 
@@ -47,6 +55,9 @@ public class KeyboardEvent {
     
     static vtkRenderer renderer;
     static vtkRenderWindowInteractor interactor;
+    private Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
+    
+    private Set<String> setOfClouds;
     //enum keyEvent {
     //    j, u, plus, minus
     //}
@@ -62,9 +73,10 @@ public class KeyboardEvent {
     /**
      * @param neptusInteractorStyle2
      */
-    public KeyboardEvent(NeptusInteractorStyle neptusInteractorStyle2) {
+    public KeyboardEvent(NeptusInteractorStyle neptusInteractorStyle2, Hashtable<String, vtkLODActor> hashCloud) {
         this.neptusInteractorStyle = neptusInteractorStyle2;
         this.interactor = neptusInteractorStyle2.getInteractor();
+        this.hashCloud = hashCloud;
     }
 
     public void handleEvents(char keyCode) {
@@ -74,31 +86,59 @@ public class KeyboardEvent {
                 takeSnapShot();
                 break;
             case 'u':
+                System.out.println("enter u");
+                Set<String> set = hashCloud.keySet();
+                for (String skey : set) {
+                    //System.out.println("String from set: " + skey);
+                    vtkLODActor tempActor = new vtkLODActor();
+                    tempActor = hashCloud.get(skey);
+                    tempActor.GetProperty().SetColor(0.0, 1.0, 1.0);
+                    tempActor.Modified();
+                }
+                break;
+                
+            case '+':
+                setOfClouds = hashCloud.keySet();
+                for (String sKey : setOfClouds) {
+                    vtkLODActor tempActor = new vtkLODActor();
+                    tempActor = hashCloud.get(sKey);
+                    double pointSize = tempActor.GetProperty().GetPointSize();
+                    if (pointSize <= 9) {
+                        tempActor.GetProperty().SetPointSize(pointSize + 1);
+                        neptusInteractorStyle.interactor.Render();
+                    }
+                }
+                break;
+            case '-':
+                setOfClouds = hashCloud.keySet();
+                for (String sKey : setOfClouds) {
+                    vtkLODActor tempActor = new vtkLODActor();
+                    tempActor = hashCloud.get(sKey);
+                    double pointSize = tempActor.GetProperty().GetPointSize();
+                    if (pointSize > 1) {
+                        tempActor.GetProperty().SetPointSize(pointSize - 1);
+                        neptusInteractorStyle.interactor.Render();
+                    }
+                    tempActor.GetPropertyKeys();
+                }
                 break;
             case '1':
-                int numberOfProps = neptusInteractorStyle.renderer.GetNumberOfPropsRendered();
-                System.out.println("numberOfProps: " + numberOfProps);
-                //int hashcode = neptusInteractorStyle.hashCloud.hashCode();
-                //System.out.println("HashCode: " + hashcode);
-                //String elementes = neptusInteractorStyle.hashCloud.elements().toString();
-                //System.out.println("hashtable elements: " + elementes);
+                //int numberOfProps = neptusInteractorStyle.renderer.GetNumberOfPropsRendered();
+                //System.out.println("numberOfProps: " + numberOfProps);
+                
+                setOfClouds = hashCloud.keySet();
+                for (String sKey : setOfClouds) {
+                    //System.out.println("String from set: " + setOfClouds);
+                    vtkLODActor tempActor = new vtkLODActor();
+                    tempActor = hashCloud.get(sKey);
+                    tempActor.GetProperty().SetColor(PointCloudHandlers.getRandomColor());
+                    neptusInteractorStyle.interactor.Render();
+                }
                 break;
             default:
                 System.out.println("not a keyEvent");
-                break;
-            
+                break; 
         }
-
-        
-        
-        if (keyCode == 'j') {
-            takeSnapShot();
-        }
-        //switch 
-        
-        //case 'j':
-        //    saveScreenshot();
-        //    break;       
     }
     
     /**

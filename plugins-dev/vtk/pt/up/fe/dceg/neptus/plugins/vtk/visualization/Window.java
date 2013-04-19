@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
 import java.awt.Color;
 import java.util.Hashtable;
+import java.util.Set;
 
 import visad.SetIface;
 import vtk.vtkCanvas;
@@ -65,7 +66,7 @@ public class Window {
     private vtkPNGWriter pngWriter;
     private String wifName;
     
-    private Hashtable<String, vtkLODActor> hashCloud;
+    private Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
 
     private vtkPanel panel;
     private vtkCanvas canvas;
@@ -114,6 +115,7 @@ public class Window {
     public Window(vtkCanvas canvas, Hashtable<String, vtkLODActor> hashCloud) {
         this.canvas = new vtkCanvas();
         this.canvas = canvas;
+        this.hashCloud = hashCloud;
 
         // a Renderer
         try {
@@ -153,6 +155,10 @@ public class Window {
      * Configures the Renderer
      */
     private void setUpRenderer() {
+        Set<String> set = hashCloud.keySet();
+        for (String s : set) {
+            System.out.println("Window class String from set: " + s);
+        }
         renderer.SetBackground(0.1, 0.1, 0.1);
     }
 
@@ -205,27 +211,6 @@ public class Window {
             e.printStackTrace();
         }
     }
-
-//    /**
-//     * still have to create a callback for this (keyboard event)
-//     */
-//    public void takeSnapShot() {
-//
-//        wifName = "snapshot";
-//
-//        wif = new vtkWindowToImageFilter();
-//        pngWriter = new vtkPNGWriter();
-//
-//        getRenWinInteractor().FindPokedRenderer(getRenWinInteractor().GetEventPosition()[0],
-//                getRenWinInteractor().GetEventPosition()[1]);
-//        wif.SetInput(getRenWinInteractor().GetRenderWindow());
-//        wif.Modified(); // Update the WindowToImageFilter
-//
-//        pngWriter.Modified();
-//        pngWriter.SetFileName(wifName);
-//        pngWriter.Write();
-//        // wifName = new String();
-//    }
 
     /**
      * @return the interactor style

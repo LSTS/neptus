@@ -59,7 +59,7 @@ public class PointCloud<T extends PointXYZ> {
     public vtkPoints points;
     public vtkCellArray verts;
     public vtkPolyData poly;
-    public vtkLODActor cloud;
+    public vtkLODActor cloud = new vtkLODActor();
     private int numberOfPoints;
     
     private String cloudName;
@@ -84,7 +84,6 @@ public class PointCloud<T extends PointXYZ> {
     }
     
     public vtkLODActor getRandomPointCloud(int nPoints) {
-        cloud = new vtkLODActor();
         setNumberOfPoints(nPoints);
         points = new vtkPoints();
         points.Allocate(getNumberOfPoints(), 0);
@@ -122,7 +121,6 @@ public class PointCloud<T extends PointXYZ> {
     }
     
     public vtkLODActor getRamdonPointCloudFromVtkPointSource(int nPoints, double radius) {
-        cloud = new vtkLODActor();
         setNumberOfPoints(nPoints);
         
         vtkPointSource pointSource = new vtkPointSource();
@@ -134,7 +132,6 @@ public class PointCloud<T extends PointXYZ> {
         vtkPolyDataMapper mapper = new vtkPolyDataMapper();
         mapper.AddInputConnection(pointSource.GetOutputPort());
         
-        cloud = new vtkLODActor();
         cloud.SetMapper(mapper);
         
         return cloud;
