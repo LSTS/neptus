@@ -40,6 +40,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -86,6 +87,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     
     Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
     HashMap<String, vtkLODActor> hashMapCloud = new HashMap<>();
+    LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
     
     protected Vector<Marker3d> markers = new Vector<>();
     protected IMraLogGroup mraVtkLogGroup;
@@ -171,8 +173,6 @@ public class Vtk extends JPanel implements MRAVisualization {
 //      vtkGeoAssignCoordinates geoAssignCoords = new vtkGeoAssignCoordinates();
 //      //geoAssignCoords.set
 
-//        vtkIdTypeArray idTypeArray = new vtkIdTypeArray();
-
 //        
 ///*        vtkConeSource cone = new vtkConeSource();
 //        cone.SetResolution(8);
@@ -190,17 +190,17 @@ public class Vtk extends JPanel implements MRAVisualization {
         // a Random points, PointCloud
         PointCloud<PointXYZ> poi = new PointCloud<>();
         vtkLODActor cloud = new vtkLODActor();
-        cloud = poi.getRandomPointCloud(10000);
+        cloud = poi.getRandomPointCloud(1000);
         cloud.GetProperty().SetColor(1.0, 0.0, 0.0);
         
         hashCloud.put("cloud", cloud);
         hashMapCloud.put("cloud", cloud);
+        linkedHashMapCloud.put("cloud", cloud);
         
         System.out.println("vai hashtable sempre em frente e mais alem");
         int hashCode = hashCloud.hashCode();
         System.out.println("Hash code: " + hashCode);
         System.out.print("elements: " + hashCloud.keySet());
-
 
         vtkLODActor testActor = hashCloud.get("cloud");
         vtkLODActor testActor2 = hashMapCloud.get("cloud");
@@ -208,15 +208,12 @@ public class Vtk extends JPanel implements MRAVisualization {
         
         vtkCanvas.GetRenderer().AddActor(testActor);
         
-        
         // a cube Axes actor
         vtkActor cubeAxesActor = new vtkActor();
         cubeAxesActor = CubeAxes.AddCubeAxesToVisualizer(vtkCanvas.GetRenderer(), poi.poly);
         vtkCanvas.GetRenderer().AddActor(cubeAxesActor);
         
-        // config vtkCanvas
-        //vtkCanvas.GetRenderer().SetBackground(0.1, 0.1, 0.1);
-        //vtk
+        // reset the camera from the renderer
         vtkCanvas.GetRenderer().ResetCamera();
         
         // add vtkCanvas to Layout

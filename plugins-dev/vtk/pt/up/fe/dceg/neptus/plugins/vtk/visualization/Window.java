@@ -178,7 +178,7 @@ public class Window {
      */
     private void setUpInteractorStyle() {
         try {
-            NeptusInteractorStyle interactStyle = new NeptusInteractorStyle(renderer, renWinInteractor, hashCloud);
+            NeptusInteractorStyle interactStyle = new NeptusInteractorStyle(canvas, renderer, renWinInteractor, hashCloud);
             getRenWinInteractor().SetInteractorStyle(interactStyle);
         }
         catch (Exception e) {
