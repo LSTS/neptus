@@ -67,17 +67,11 @@ public class KeyboardEvent {
         this.interactor = neptusInteractorStyle2.getInteractor();
     }
 
-    public void handleEvents() {
-        char keyCode = Character.toLowerCase(neptusInteractorStyle.interactor.GetKeyCode());
-        System.out.println("keycode is: " + keyCode);
-        String keySym = neptusInteractorStyle.interactor.GetKeySym();
-        System.out.println("Sym is: " + keySym);
-        int keyInt = Character.getNumericValue(keyCode);
-        System.out.println("keyInt is: " + keyInt);
-
+    public void handleEvents(char keyCode) {
+        
         switch (keyCode) {
             case 'j':
-                saveScreenshot();
+                takeSnapShot();
                 break;
             case 'u':
                 break;
@@ -98,7 +92,7 @@ public class KeyboardEvent {
         
         
         if (keyCode == 'j') {
-            saveScreenshot();
+            takeSnapShot();
         }
         //switch 
         
@@ -110,7 +104,7 @@ public class KeyboardEvent {
     /**
      * for now saves on neptus directory
      */
-    void saveScreenshot() {
+    void takeSnapShot() {
         neptusInteractorStyle.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
         neptusInteractorStyle.wif.SetInput(interactor.GetRenderWindow());
         neptusInteractorStyle.wif.Modified();           

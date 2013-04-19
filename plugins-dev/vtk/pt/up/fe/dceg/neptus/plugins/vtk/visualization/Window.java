@@ -76,13 +76,6 @@ public class Window {
     private vtkLight light;
     private vtkLightActor lightActor;
 
-    vtkTextActor fpsActor = new vtkTextActor();
-
-    /*
-     * TrackballCamera style interactor for addObserver callback reference
-     */
-    vtkInteractorStyleTrackballCamera cstyle = new vtkInteractorStyleTrackballCamera();
-
     /**
      * Ideia: include snapshots with the interactor
      * @param hashCloud 
@@ -149,9 +142,6 @@ public class Window {
             System.out.println("exception set render window interactor");
             e.printStackTrace();
         }
-        // a style interactor
-        // setStyle(new vtkInteractorStyle());
-        //style = new vtkInteractorStyle();
 
         setUpRenderer();
         setUpRenWin();
@@ -216,26 +206,26 @@ public class Window {
         }
     }
 
-    /**
-     * still have to create a callback for this (keyboard event)
-     */
-    public void takeSnapShot() {
-
-        wifName = "snapshot";
-
-        wif = new vtkWindowToImageFilter();
-        pngWriter = new vtkPNGWriter();
-
-        getRenWinInteractor().FindPokedRenderer(getRenWinInteractor().GetEventPosition()[0],
-                getRenWinInteractor().GetEventPosition()[1]);
-        wif.SetInput(getRenWinInteractor().GetRenderWindow());
-        wif.Modified(); // Update the WindowToImageFilter
-
-        pngWriter.Modified();
-        pngWriter.SetFileName(wifName);
-        pngWriter.Write();
-        // wifName = new String();
-    }
+//    /**
+//     * still have to create a callback for this (keyboard event)
+//     */
+//    public void takeSnapShot() {
+//
+//        wifName = "snapshot";
+//
+//        wif = new vtkWindowToImageFilter();
+//        pngWriter = new vtkPNGWriter();
+//
+//        getRenWinInteractor().FindPokedRenderer(getRenWinInteractor().GetEventPosition()[0],
+//                getRenWinInteractor().GetEventPosition()[1]);
+//        wif.SetInput(getRenWinInteractor().GetRenderWindow());
+//        wif.Modified(); // Update the WindowToImageFilter
+//
+//        pngWriter.Modified();
+//        pngWriter.SetFileName(wifName);
+//        pngWriter.Write();
+//        // wifName = new String();
+//    }
 
     /**
      * @return the interactor style

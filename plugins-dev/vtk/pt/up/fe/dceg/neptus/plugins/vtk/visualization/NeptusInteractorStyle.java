@@ -119,11 +119,11 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera{
      * TrackballCamera style interactor for addObserver callback reference
      */
     vtkInteractorStyleTrackballCamera cstyle = new vtkInteractorStyleTrackballCamera();
-    char curIStyle = 'A'; // interaction style A = Actor C = camera,
-    // toggled by 'C' key handler.
     
     
-    vtkTextActor fpsActor = new vtkTextActor();
+    // frame per seconds text actor - show frame rate refresh on visualizer
+    private boolean fpsActorEnable = false;
+    private vtkTextActor fpsActor = new vtkTextActor();
     
     // Change default keyboard modified from ALT to a different special key
     public enum InteractorKeyboardModifier
@@ -186,23 +186,54 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera{
         //AddObserver("MouseEvent", this, "leftMouse");
         ////interactor.AddObserver(null, leftMouse, id2)
         
-        getInteractor().AddObserver("MouseMoveEvent", this, "mouseMoveEvent");
+        getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
+
         getInteractor().AddObserver("LeftButtonPressEven", this, "leftMousePress");
         getInteractor().AddObserver("LeftButtonReleaseEvent", this, "leftMouseRelease");
         getInteractor().AddObserver("RightButtonPressEvent", this, "rightMousePress");
         getInteractor().AddObserver("RightButtonReleaseEvent", this, "rightMouseRelease");
+        getInteractor().AddObserver("MiddleButtonPressEvent", this, "middleButtonPress");
+        getInteractor().AddObserver("MiddleButtonReleaseEvent", this, "middleButtonRelease");
         getInteractor().AddObserver("MouseWheelForwardEvent", this, "mouseWheelForwardEvent");
-        getInteractor().AddObserver("MouseWhellBackwardEvent", this, "mouseWheelBackwardEvent");
+        getInteractor().AddObserver("MouseWheelBackwardEvent", this, "mouseWheelBackwardEvent");
         //getInteractor().AddObserver("InteractorEvent", this, "callbackFunctionFPS");
         //getInteractor().AddObserver("CharEvent", this, "saveScreenshot");
        
-        getInteractor().AddObserver("EndEvent", this, "callbackFunctionFPS");
+        //interactor.AddObserver("LeftButtonReleaseEvent", interactor.LeftButtonPressEvent(), "leftMousePress");
+        
+        //interactor.LeftButtonPressEvent()
+        
+        
+        
+        //getInteractor().AddObserver("EndEvent", this, "callbackFunctionFPS");
         
         getInteractor().AddObserver("CharEvent", this, "emitKeyboardEvents");
+        /*
+        MouseMoveEvent
+        LeftButtonPressEvent 
+        StartInteractionEvent 
+        ModifiedEvent 
+        EndInteractionEvent 
+        RenderEvent
+        */ 
     }
     
     void emitKeyboardEvents() {
-        this.keyboardEvent.handleEvents();
+        char keyCode = Character.toLowerCase(interactor.GetKeyCode());
+        System.out.println("keycode is: " + keyCode);
+        String keySym = interactor.GetKeySym();
+        System.out.println("Sym is: " + keySym);
+        int keyInt = Character.getNumericValue(keyCode);
+        System.out.println("keyInt is: " + keyInt);
+        this.keyboardEvent.handleEvents(keyCode);
+    }
+    
+    void middleButtonPress() {
+        System.out.println("middle button pressed");
+    }
+    
+    void middleButtonRelease() {
+        System.out.println("middle button released");
     }
     
     void leftMousePress() {
@@ -230,28 +261,20 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera{
         System.out.println("mouse wheel backward event");
     }
     
-    void mouseMoveEvent() {
-        //System.out.println("mouse movent");
-        //callbackFunctionFPS();
-    }
-    
     void callbackFunctionFPS() {    
-        //System.out.println("veio ao callbackfunction");
-        ////vtkRenderer renderer = (vtkRenderer)caller;
-        
         double timeInSeconds = this.renderer.GetLastRenderTimeInSeconds();
+        //System.out.println("timeInSeconds: " + timeInSeconds);
         double fps = 1.0/timeInSeconds;   
 
         fpsActor.SetInput(Double.toString(fps));
-        //System.out.println("FPS: " + fps);
-        
         fpsActor.GetPositionCoordinate().SetCoordinateSystemToNormalizedDisplay();
-        //fpsActor.GetTextProperty().SetColor(0.0, 0.0, 0.0);
+        fpsActor.GetTextProperty().SetColor(0.0, 1.0, 0.0);     
+        //fpsActor.SetDisplayPosition(10, 10);
         
-        fpsActor.SetDisplayPosition(10, 10);
-        
-        this.renderer.AddActor(fpsActor);
-        
+        if (fpsActorEnable == false)
+        {         
+            this.renderer.AddActor(fpsActor);
+        }
         
 //        if (getInteractor().GetKeyCode() == 'k') {
 //            System.out.println("FPS2: " + fps);         
