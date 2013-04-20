@@ -72,7 +72,7 @@ public class PCDExporter implements MraExporter{
     
     public PCDExporter(IMraLogGroup source) {
         this.source = source;
-        File baseFolder = source.getFile("Data.lsf").getParentFile();
+        File baseFolder = source.getFile(".").getParentFile();
         f = source.getFile("multibeam.83P");
         // @JQCorreia Why should we assume the file 83P exists??????? Result NullPointer and no MRA opening!!
         // output = new File(f.getParent()+"multibeam.pcd");

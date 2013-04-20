@@ -406,7 +406,7 @@ public class MRAPanel extends JPanel {
 
     public void saveMarkers() {
         try {
-            ObjectOutputStream dos = new ObjectOutputStream(new FileOutputStream(source.getFile("Data.lsf").getParent()
+            ObjectOutputStream dos = new ObjectOutputStream(new FileOutputStream(source.getFile(".").getParent()
                     + "/marks.dat"));
             dos.writeObject(logMarkers);
             dos.close();
