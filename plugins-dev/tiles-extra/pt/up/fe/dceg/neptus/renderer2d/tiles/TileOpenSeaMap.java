@@ -43,7 +43,7 @@ import pt.up.fe.dceg.neptus.plugins.MapTileProvider;
  * @author pdias
  *
  */
-@MapTileProvider(name = "Open Sea Map Overlay")
+@MapTileProvider(name = "Open Sea Map Overlay", isBaseMapOrLayer = false)
 public class TileOpenSeaMap extends TileHttpFetcher {
     
     //TODO put copyright text to show in renderer "© OpenStreetMap contributors"
