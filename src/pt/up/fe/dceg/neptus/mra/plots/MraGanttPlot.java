@@ -36,7 +36,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -75,7 +74,7 @@ public abstract class MraGanttPlot implements LLFChart, LogMarkerListener {
     protected LinkedHashMap<String, TaskSeries> series = new LinkedHashMap<>();
     protected LinkedHashMap<String, String> statePerTimeline = new LinkedHashMap<>();
 
-    protected JFreeChart chart;
+    protected JFreeChart chart = null;
     protected MRAPanel mraPanel;
 
     /**
@@ -197,6 +196,8 @@ public abstract class MraGanttPlot implements LLFChart, LogMarkerListener {
 
     @Override
     public JFreeChart getChart(IMraLogGroup source, double timestep) {
+        if (chart != null)
+            return chart;
         this.timestep = timestep;
         this.index = source.getLsfIndex();
         tsc = new TaskSeriesCollection();

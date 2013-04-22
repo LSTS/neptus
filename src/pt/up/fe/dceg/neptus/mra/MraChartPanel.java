@@ -48,6 +48,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -74,6 +75,7 @@ import pt.up.fe.dceg.neptus.mra.plots.Mra2DPlot;
 import pt.up.fe.dceg.neptus.mra.plots.MraTimeSeriesPlot;
 import pt.up.fe.dceg.neptus.mra.plots.TimedXYDataItem;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.up.fe.dceg.neptus.util.llf.LsfReport;
 import pt.up.fe.dceg.neptus.util.llf.chart.LLFChart;
 
 /**
@@ -294,6 +296,22 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
                 mraPanel.addMarker(new LogMarker(res, mouseValue, 0, 0, 0, 0, 0, 0));
             }
         });
+        
+        cpanel.getPopupMenu().add("Save as PDF").addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser chooser = new JFileChooser();
+                chooser.setFileFilter(GuiUtils.getCustomFileFilter("PDF files", new String[] {"pdf"}));
+                int op = chooser.showSaveDialog(MraChartPanel.this);
+                if (op == JFileChooser.APPROVE_OPTION)
+                    if(LsfReport.savePdf(source, chart, chooser.getSelectedFile()))
+                        GuiUtils.infoMessage(MraChartPanel.this, "Save as PDF", "File saved successfully to "+chooser.getSelectedFile().getAbsolutePath());
+                    else
+                        GuiUtils.errorMessage(MraChartPanel.this, "Save as PDF", "Error exporting to PDF");
+            }
+        });
+        
         cpanel.addChartMouseListener(new ChartMouseListener() {
             @Override
             public void chartMouseMoved(ChartMouseEvent e) {
