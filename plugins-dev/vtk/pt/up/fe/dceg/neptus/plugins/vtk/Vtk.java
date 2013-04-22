@@ -38,10 +38,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.LinkedHashMap;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -57,13 +54,11 @@ import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-import pt.up.fe.dceg.neptus.plugins.vtk.visualization.CubeAxes;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesActor;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.PointCloudHandlers;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
-import vtk.vtkActor;
 import vtk.vtkCanvas;
 import vtk.vtkLODActor;
-import vtk.vtkLocator;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPanel;
 
@@ -87,9 +82,9 @@ public class Vtk extends JPanel implements MRAVisualization {
     private static Path path = null;
     private static final String FILE_83P_EXT = ".83P";
     
-    public Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
-    HashMap<String, vtkLODActor> hashMapCloud = new HashMap<>();
-    LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
+    //public Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
+    //public HashMap<String, vtkLODActor> hashMapCloud = new HashMap<>();
+    public LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
     
     protected Vector<Marker3d> markers = new Vector<>();
     protected IMraLogGroup mraVtkLogGroup;
@@ -167,64 +162,39 @@ public class Vtk extends JPanel implements MRAVisualization {
         //vtkPanel = new vtkPanel();       
         //Window win = new Window(vtkPanel);
         
-        //HashTable<String, > hash = new Hashtable<>()
-        
         vtkCanvas = new vtkCanvas();
-
-//      vtkGeoAssignCoordinates geoAssignCoords = new vtkGeoAssignCoordinates();
-//      //geoAssignCoords.set
-
-//        
-///*        vtkConeSource cone = new vtkConeSource();
-//        cone.SetResolution(8);
-//
-//        vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
-//        coneMapper.SetInputConnection(cone.GetOutputPort());
-//
-//        vtkActor coneActor = new vtkActor();
-//        coneActor.SetMapper(coneMapper);*/
-//        
-//        
-//        
+  
         //BoxWidget.addBoxWidget2Tovisualizer(vtkPanel.GetRenderer(), win.getRenWinInteractor());
      
         // a Random points, PointCloud
         PointCloud<PointXYZ> poi = new PointCloud<>();
         vtkLODActor cloud = new vtkLODActor();
-        cloud = poi.getRandomPointCloud(1000);
-        cloud.GetProperty().SetColor(1.0, 0.0, 0.0);
+        cloud = poi.getRandomPointCloud(10000);
+        //cloud.GetProperty().SetColor(1.0, 0.0, 0.0);
         
-        hashCloud.put("cloud", cloud);
-        hashMapCloud.put("cloud", cloud);
         linkedHashMapCloud.put("cloud", cloud);
         
-        
-        
-
-        
         System.out.println("vai hashtable sempre em frente e mais alem");
-        int hashCode = hashCloud.hashCode();
+        int hashCode = linkedHashMapCloud.hashCode();
         System.out.println("Hash code: " + hashCode);
-        System.out.println("elements: " + hashCloud.keySet());
+        System.out.println("elements: " + linkedHashMapCloud.keySet());
 
-        vtkLODActor testActor = hashCloud.get("cloud");
-        vtkLODActor testActor2 = hashMapCloud.get("cloud");
+        vtkLODActor testActor = linkedHashMapCloud.get("cloud");
         //hashCloud.
         
+        // this will set the number of random cloud points as a lower level of detail when the full geomtery cannot be displayed.
+        //testActor.SetNumberOfCloudPoints(5); 
         vtkCanvas.GetRenderer().AddActor(testActor);
         
         // a cube Axes actor
-        vtkActor cubeAxesActor = new vtkActor();
-        cubeAxesActor = CubeAxes.AddCubeAxesToVisualizer(vtkCanvas.GetRenderer(), poi.poly);
-        vtkCanvas.GetRenderer().AddActor(cubeAxesActor);
+        //vtkActor cubeAxesActor = new vtkActor();
+        //cubeAxesActor = CubeAxes.AddCubeAxesToVisualizer(vtkCanvas.GetRenderer(), poi.poly);
+        //vtkCanvas.GetRenderer().AddActor(cubeAxesActor);
         
-        // Setup Window do render
-        Window winCanvas = new Window(vtkCanvas, hashCloud);
-        
-        //PointCloudHandlers<PointXYZ> handler = new PointCloudHandlers<>();
+        // Setup Window for the VTK render
+        Window winCanvas = new Window(vtkCanvas, linkedHashMapCloud);
         
         double[] temp = PointCloudHandlers.getRandomColor();
-        
         
         // reset the camera from the renderer
         vtkCanvas.GetRenderer().ResetCamera();
@@ -236,12 +206,8 @@ public class Vtk extends JPanel implements MRAVisualization {
         //Axes ax = new Axes();
         //vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
         // axes 2
-        //AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
-        //axesActor.setAxesVisibility(true);
-        
-
-      //vtkTexture texture = new vtkTexture();
-      //vtkPanel.GetRenderer().SetBackgroundTexture(null);
+        AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
+        axesActor.setAxesVisibility(true);
         
 /*              
         vtkPanel.GetRenderer().ResetCamera();
@@ -249,16 +215,8 @@ public class Vtk extends JPanel implements MRAVisualization {
         //vtkPanel.GetRenderer().LightFollowCameraOn();
         //vtkPanel.GetRenderer().VisibleActorCount();
         //vtkPanel.GetRenderer().ViewToDisplay();
-
-        add(vtkPanel, BorderLayout.CENTER);
-        //vtkPanel.setBackground(Color.blue);
-        //vtkPanel.setForeground(Color.green);
+*/      
         
-        //win.getRenWinInteractor().Initialize();
-        //win.getRenWinInteractor().Start();
-        
-        //vtkPanel.GetRenderWindow().GetInteractor().AddObserver("CharEvent", this, "toogleStyle");
-*/        
         toolBar = new JPanel();
         toolBar = createToolbar();
         add(toolBar, BorderLayout.EAST);
@@ -291,33 +249,24 @@ public class Vtk extends JPanel implements MRAVisualization {
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         boolean beApplied = false;        
-        //System.out.println("canBeApplied: " + mraVtkLogGroup.name());
         System.out.println("CanBeApplied: " + source.name());
 
         // Checks wether there is a *.83P file
         File file = source.getFile("Data.lsf").getParentFile();
         File[] files = file.listFiles();
-        //int i = 0;
         try {
             if (file.isDirectory()) {
                 for (File temp : file.listFiles()) {
-                    //System.out.println("count : " + i);
-                    //i++;
-                    //System.out.println("file name " + i + ":" + temp.getName());
-                    if ((temp.toString()).endsWith(FILE_83P_EXT))
-                    {
+                    if ((temp.toString()).endsWith(FILE_83P_EXT)) {
                         setLog(source);
-                        //System.out.println("file with 83p ext: " + temp.toString());
                         beApplied = true;
                     }  
                 }
             }
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
         return beApplied;
     }
 

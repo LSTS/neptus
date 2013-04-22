@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
 import java.awt.Color;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import visad.SetIface;
@@ -67,6 +68,7 @@ public class Window {
     private String wifName;
     
     private Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
+    private LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
 
     private vtkPanel panel;
     private vtkCanvas canvas;
@@ -79,16 +81,16 @@ public class Window {
 
     /**
      * Ideia: include snapshots with the interactor
-     * @param hashCloud 
+     * @param linkedHashMapCloud 
      * 
      * @param renWin
      * @param interactor
      * @param windowName
      */
-    public Window(vtkPanel panel, Hashtable<String, vtkLODActor> hashCloud) {
+    public Window(vtkPanel panel, LinkedHashMap<String, vtkLODActor> linkedHashMapCloud) {
         // a Renderer
         this.panel = panel;
-        this.hashCloud = hashCloud;
+        this.linkedHashMapCloud = linkedHashMapCloud;
 
         renderer = new vtkRenderer();
         setRenderer(this.panel.GetRenderer());
@@ -112,10 +114,10 @@ public class Window {
      * @param canvas
      * @param hashCloud 
      */
-    public Window(vtkCanvas canvas, Hashtable<String, vtkLODActor> hashCloud) {
+    public Window(vtkCanvas canvas, LinkedHashMap<String, vtkLODActor> linkedHashMapCloud) {
         this.canvas = new vtkCanvas();
         this.canvas = canvas;
-        this.hashCloud = hashCloud;
+        this.linkedHashMapCloud = linkedHashMapCloud;
 
         // a Renderer
         try {
@@ -152,7 +154,7 @@ public class Window {
     }
 
     /**
-     * Configures the Renderer
+     * Sets up the Renderer
      */
     private void setUpRenderer() {
         Set<String> set = hashCloud.keySet();
@@ -161,40 +163,9 @@ public class Window {
         }
         renderer.SetBackground(0.1, 0.1, 0.1);
     }
-
+    
     /**
-     * Configures the Render Window
-     */
-    private void setUpRenWinInteractor() {
-
-        try {
-            getRenWinInteractor().SetRenderWindow(getRenWin());
-        }
-        catch (Exception e) {
-            System.out.println("set render window interactor");
-            e.printStackTrace();
-        }
- 
-        double updateRate = getRenWinInteractor().GetDesiredUpdateRate();
-        System.out.println("Desired update rate: " + updateRate);
-    }
-
-    /**
-     * Configure the Interactor Style
-     */
-    private void setUpInteractorStyle() {
-        try {
-            NeptusInteractorStyle interactStyle = new NeptusInteractorStyle(canvas, renderer, renWinInteractor, hashCloud);
-            getRenWinInteractor().SetInteractorStyle(interactStyle);
-        }
-        catch (Exception e) {
-            System.out.println("set interact Style - Neptus");
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Configures the Render Window
+     * Sets up the Render Window
      */
     private void setUpRenWin() {
         try {
@@ -208,6 +179,38 @@ public class Window {
             getRenWin().SetStereoTypeToAnaglyph();
         }
         catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Sets up the Render Window Interactor
+     */
+    private void setUpRenWinInteractor() {
+        try {
+            getRenWinInteractor().SetRenderWindow(getRenWin());
+        }
+        catch (Exception e) {
+            System.out.println("set render window interactor");
+            e.printStackTrace();
+        }
+        
+        getRenWinInteractor().SetDesiredUpdateRate(30.0);
+        
+        double updateRate = getRenWinInteractor().GetDesiredUpdateRate();
+        System.out.println("Desired update rate: " + updateRate);
+    }
+
+    /**
+     * Sets up the Interactor Style
+     */
+    private void setUpInteractorStyle() {
+        try {
+            NeptusInteractorStyle interactStyle = new NeptusInteractorStyle(canvas, renderer, renWinInteractor, linkedHashMapCloud);
+            getRenWinInteractor().SetInteractorStyle(interactStyle);
+        }
+        catch (Exception e) {
+            System.out.println("set interact Style - Neptus");
             e.printStackTrace();
         }
     }

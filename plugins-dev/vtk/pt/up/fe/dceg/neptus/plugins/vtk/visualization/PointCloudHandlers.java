@@ -37,6 +37,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkLODActor;
 import vtk.vtkPoints;
+import vtk.vtkScalarsToColors;
 
 /**
  * @author hfq
@@ -81,5 +82,13 @@ public class PointCloudHandlers<T extends PointXYZ> {
         //rgbCloud[0] = min + Math.random() * ((min - max) + min); // [5,10];
         
         return rgbCloud;
+    }
+    
+    public static vtkScalarsToColors getRandomColor2() {
+        vtkScalarsToColors scalars = new vtkScalarsToColors();
+        
+      
+        
+        return scalars;
     }
 }

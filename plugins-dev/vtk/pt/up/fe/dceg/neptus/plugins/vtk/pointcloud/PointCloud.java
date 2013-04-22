@@ -41,6 +41,7 @@ import vtk.vtkAlgorithm;
 import vtk.vtkCellArray;
 import vtk.vtkGlyph3D;
 import vtk.vtkLODActor;
+import vtk.vtkLookupTable;
 import vtk.vtkPointSource;
 import vtk.vtkPoints;
 import vtk.vtkPolyData;
@@ -62,25 +63,13 @@ public class PointCloud<T extends PointXYZ> {
     public vtkLODActor cloud = new vtkLODActor();
     private int numberOfPoints;
     
+    public vtkActor contourActor;
+    
     private String cloudName;
     
     public PointCloud () {
         points = new vtkPoints();
         points.SetDataTypeToFloat();
-    }
-
-    /**
-     * @return the numberOfPoints
-     */
-    public int getNumberOfPoints() {
-        return numberOfPoints;
-    }
-
-    /**
-     * @param numberOfPoints the numberOfPoints to set
-     */
-    public void setNumberOfPoints(int numberOfPoints) {
-        this.numberOfPoints = numberOfPoints;
     }
     
     public vtkLODActor getRandomPointCloud(int nPoints) {
@@ -104,18 +93,23 @@ public class PointCloud<T extends PointXYZ> {
         poly.SetVerts(verts);
         
         //vtkGlyph3D glyph = new vtkGlyph3D();
-        //glyph.SetInput(pol);
+        //glyph.SetInput(poly);
         vtkVertexGlyphFilter glyph = new vtkVertexGlyphFilter();
         glyph.SetInput(poly);
-        
-        
+         
+        vtkLookupTable lut = new vtkLookupTable();
+        lut.SetNumberOfColors(256);
+        lut.SetHueRange(0.0, 0.667);
+        lut.SetRampToLinear();
         
         vtkPolyDataMapper map = new vtkPolyDataMapper();
         map.SetInputConnection(glyph.GetOutputPort());
+        map.SetLookupTable(lut);
+        map.SetScalarRange(0.0, 0.7);
         //map.SetInput(pol);
-        
+   
         cloud.SetMapper(map);
-        cloud.GetProperty().SetPointSize(1.0);
+        cloud.GetProperty().SetPointSize(2.0);
         
         return cloud;
     }
@@ -151,4 +145,17 @@ public class PointCloud<T extends PointXYZ> {
         this.cloudName = cloudName;
     }
     
+    /**
+     * @return the numberOfPoints
+     */
+    public int getNumberOfPoints() {
+        return numberOfPoints;
+    }
+
+    /**
+     * @param numberOfPoints the numberOfPoints to set
+     */
+    public void setNumberOfPoints(int numberOfPoints) {
+        this.numberOfPoints = numberOfPoints;
+    }
 }

@@ -41,6 +41,9 @@ import vtk.vtkRenderWindowInteractor;
  */
 public class Compass {
     
+    public vtkCompassRepresentation compassRep = new vtkCompassRepresentation();
+    public vtkCompassWidget compassWidget = new vtkCompassWidget();
+        
     public Compass() {
 
     }
@@ -49,11 +52,18 @@ public class Compass {
      * Adds a vtk compassWiget to render window
      * @param renderWinInteractor
      */
-    public static void addCompassToVisualization (vtkRenderWindowInteractor renderWinInteractor) {
-        vtkCompassRepresentation compassRep = new vtkCompassRepresentation();
-        vtkCompassWidget compassWidget = new vtkCompassWidget();
-        compassWidget.SetInteractor(renderWinInteractor);
-        compassWidget.SetRepresentation(compassRep);       
+    public void addCompassToVisualization (vtkRenderWindowInteractor interactor) {
+        compassWidget.SetInteractor(interactor);
+        compassWidget.SetRepresentation(compassRep);
+        compassWidget.KeyPressActivationOn();
+        compassWidget.On();
         compassWidget.EnabledOn();
+        compassWidget.Render();
+    }
+    
+    public void removeCompassFromVisualization (vtkRenderWindowInteractor interactor) {
+        compassWidget.EnabledOff();
+        compassWidget.Off();
+        compassWidget.Render();
     }
 }

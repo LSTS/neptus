@@ -36,6 +36,7 @@ import java.awt.event.MouseWheelListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.lwjgl.Sys;
@@ -67,20 +68,22 @@ import vtk.vtkXYPlotActor;
  * -    w, W        : switch to a wireframe-based representation, when available
  * -    s, S        : switch to a surface-based representation, when available
  * -    j, J        : take a .PNG snapshot of the current window view
- * -    c, C        : display current camera/window parameters
+ * -    c, C        : display compass (Compass class)
+ Change!!! * -    c, C        : display current camera/window parameters
  * -    f, F        : fly to point mode
- * -    e, E        : exit the interactor
- * -    q, Q        : stop and call VTK's TerminateApp
+ * -    e, E        : exit the interactor <- not implemented
+ * -    q, Q        : stop and call VTK's TerminateApp <-  not implemented
  * -    + / -       : increment/decrement overall point size
- * -    g / G       : display scale grid (on/off)
+ * -    g / G       : display scale grid (on/off) 
  * -    u / U       : display lookup table (on/off)
  * -    r / R       : reset camera [to viewpoint = {0, 0, 0] -> center {x, y, z}]
  * -    0..9        : switch between different color handlers, when available
- * - SHIFT + left click     : select a point
+ * - SHIFT + left click     : select a point <- point picker not implemented
  */
 public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera implements MouseWheelListener {
     
     protected Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
+    protected LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
     
     // A vtkCanvas
     protected vtkCanvas canvas = new vtkCanvas();
@@ -89,15 +92,13 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
     protected vtkRenderer renderer = new vtkRenderer();
     
     // The render Window Interactor
-    protected vtkRenderWindowInteractor interactor = new vtkRenderWindowInteractor();
-    
+    protected vtkRenderWindowInteractor interactor = new vtkRenderWindowInteractor(); 
     
     // A Camera
     vtkCamera camera = new vtkCamera();
     
     // the XY plt actor holding the actual data.
     //vtkXYPlotActor xyActor = new vtkXYPlotActor();
-
 
     //KeyboardEvent keyboardEvent = new KeyboardEvent(this, hashCloud);
     KeyboardEvent keyboardEvent;
@@ -114,6 +115,16 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
     protected boolean gridEnabled;
     // Actor for 2D grid on screen
     protected vtkLegendScaleActor gridActor = new vtkLegendScaleActor();
+    
+    // Set true if the Compass Widget is enabled
+    protected boolean compassEnabled;
+    // Actor for Compass Widget on screen
+    protected Compass compass = new Compass();
+    
+    
+    protected boolean wireframeRepEnabled;
+    protected boolean solidRepEnabled;
+    protected boolean pointRepEnabled;
     
     // A PNG Writer for screenshot captures
     protected vtkPNGWriter snapshotWriter = new vtkPNGWriter();
@@ -156,16 +167,16 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
      * @param canvas
      * @param renderer
      * @param interact
-     * @param hashCloud
+     * @param linkedHashMapCloud
      */
-    public NeptusInteractorStyle(vtkCanvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor interact, Hashtable<String, vtkLODActor> hashCloud) {
+    public NeptusInteractorStyle(vtkCanvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor interact, LinkedHashMap<String, vtkLODActor> linkedHashMapCloud) {
         super();
         this.canvas = canvas;
         this.renderer = renderer;
         this.interactor = interact;
         this.camera = renderer.GetActiveCamera();
-        this.hashCloud = hashCloud;
-        keyboardEvent = new KeyboardEvent(this, this.hashCloud);
+        this.linkedHashMapCloud = linkedHashMapCloud;
+        keyboardEvent = new KeyboardEvent(this, this.linkedHashMapCloud);
         Initalize();
     }
     
@@ -174,6 +185,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
      * Possible Vtk Oberver Events (some don't work in Java) :
      *
         LeftButtonPressEvent 
+        RightButtonPressEvent <- works
         StartInteractionEvent 
         ModifiedEvent 
         EndInteractionEvent 
@@ -181,7 +193,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         MouseMoveEvent <- works
         InteractorEvent
         UserEvent
-        LeaveEvent
+        LeaveEvent <- works (triggers even everytime mouse gets off render window)
      */
     private void Initalize() {
         System.out.println("veio ao initialize do Neptus Style");
@@ -218,19 +230,26 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         snapshotWriter = new vtkPNGWriter();
         snapshotWriter.SetInputConnection(wif.GetOutputPort());
 
+        compassEnabled = false;
+        
+        wireframeRepEnabled = false;
+        solidRepEnabled = false;
+        pointRepEnabled = false;
+        
         
         getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
 
-        getInteractor().AddObserver("LeftButtonPressEven", this, "leftMousePress");
-        getInteractor().AddObserver("LeftButtonReleaseEvent", this, "leftMouseRelease");
-        getInteractor().AddObserver("RightButtonPressEvent", this, "rightMousePress");
-        getInteractor().AddObserver("RightButtonReleaseEvent", this, "rightMouseRelease");
-        getInteractor().AddObserver("MiddleButtonPressEvent", this, "middleButtonPress");
-        getInteractor().AddObserver("MiddleButtonReleaseEvent", this, "middleButtonRelease");
-        getInteractor().AddObserver("MouseWheelForwardEvent", this, "mouseWheelForwardEvent");
-        getInteractor().AddObserver("MouseWheelBackwardEvent", this, "mouseWheelBackwardEvent");
-        getInteractor().AddObserver("EndInteractionEvent", this, "endInteractionEvent");
-        getInteractor().AddObserver("LeaveEvent", this, "leaveEvent");
+        //getInteractor().AddObserver("LeftButtonPressEven", this, "leftMousePress");
+        //getInteractor().AddObserver("LeftButtonReleaseEvent", this, "leftMouseRelease");
+        //getInteractor().AddObserver("RightButtonPressEvent", this, "rightMousePress");
+        //getInteractor().AddObserver("RightButtonReleaseEvent", this, "rightMouseRelease");
+        //getInteractor().AddObserver("MiddleButtonPressEvent", this, "middleButtonPress");
+        //getInteractor().AddObserver("MiddleButtonReleaseEvent", this, "middleButtonRelease");
+        //getInteractor().AddObserver("MouseWheelForwardEvent", this, "mouseWheelForwardEvent");
+        //getInteractor().AddObserver("MouseWheelBackwardEvent", this, "mouseWheelBackwardEvent");
+        //getInteractor().AddObserver("EndInteractionEvent", this, "endInteractionEvent");
+        //getInteractor().AddObserver("LeaveEvent", this, "leaveEvent");
+        
         //getInteractor().AddObserver("InteractorEvent", this, "callbackFunctionFPS");
         //getInteractor().AddObserver("CharEvent", this, "saveScreenshot");
        
@@ -243,8 +262,35 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         
         
         canvas.addMouseWheelListener(this);
+        
+        // não colocar o render logo, senão os eventos do java (mouseWheel estoira)
+        //canvas.Render();
     }
     
+    /**
+     * Render Event to show frame rate in render window
+     */
+    void callbackFunctionFPS() {    
+        double timeInSeconds = this.renderer.GetLastRenderTimeInSeconds();
+        double fps = 1.0/timeInSeconds;
+        
+        fps = Math.round(fps*100)/100.0d;
+        fpsActor.SetInput(String.valueOf(fps));
+        
+        //fpsActor.GetPositionCoordinate().SetCoordinateSystemToNormalizedDisplay();
+        fpsActor.GetTextProperty().SetColor(0.0, 1.0, 0.0);
+        fpsActor.UseBorderAlignOn();
+        fpsActor.SetDisplayPosition(2, 2);
+        
+        if (fpsActorEnable == false) {     
+            fpsActorEnable = true;
+            this.renderer.AddActor(fpsActor);
+        }     
+    }   
+    
+    /**
+     * 
+     */
     void emitKeyboardEvents() {
         char keyCode = Character.toLowerCase(interactor.GetKeyCode());
         System.out.println("keycode is: " + keyCode);
@@ -307,22 +353,6 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         double dolly = interactor.GetDolly();
         System.out.println("mouse wheel backward event, dolly: " + dolly);
     }
-    
-    void callbackFunctionFPS() {    
-        double timeInSeconds = this.renderer.GetLastRenderTimeInSeconds();
-        double fps = 1.0/timeInSeconds;   
-
-        fpsActor.SetInput(Double.toString(fps));
-        //fpsActor.GetPositionCoordinate().SetCoordinateSystemToNormalizedDisplay();
-        fpsActor.GetTextProperty().SetColor(0.0, 1.0, 0.0);
-        fpsActor.UseBorderAlignOn();
-        fpsActor.SetDisplayPosition(2, 2);
-        
-        if (fpsActorEnable == false) {     
-            fpsActorEnable = true;
-            this.renderer.AddActor(fpsActor);
-        }     
-    }
 
     /**
      * @return the interactor
@@ -362,12 +392,10 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         if (notches < 0) {
             System.out.println("Mouse wheel moved UP: " + -notches + " notches(es)");
             zoomIn();
-            //message = "Mouse wheel moved UP" + - notches + " notche(es)" + NEWLINE;
+            message = "Mouse wheel moved UP" + - notches + " notche(es)" + NEWLINE;
         } else {
-
-            
             System.out.println("Mouse wheel movel DOWN: " + notches + " notches(es)");
-            //message = "mouse whell moved DOWN" + notches + " notch(es)" + NEWLINE;
+            message = "mouse whell moved DOWN" + notches + " notch(es)" + NEWLINE;
             zoomOut();
         }      
     }

@@ -35,19 +35,22 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.apache.batik.dom.util.HashTable;
 
+import com.jme3.renderer.Camera;
 import com.lowagie.text.pdf.hyphenation.TernaryTree.Iterator;
 
 import vtk.vtkLODActor;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
+import vtk.vtkScalarsToColors;
 
 /**
  * @author hfq
- *
+ *  add keys to change mode (trackball, joystick..)
  */
 public class KeyboardEvent {
     
@@ -56,6 +59,7 @@ public class KeyboardEvent {
     static vtkRenderer renderer;
     static vtkRenderWindowInteractor interactor;
     private Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
+    private LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
     
     private Set<String> setOfClouds;
     //enum keyEvent {
@@ -73,10 +77,11 @@ public class KeyboardEvent {
     /**
      * @param neptusInteractorStyle2
      */
-    public KeyboardEvent(NeptusInteractorStyle neptusInteractorStyle2, Hashtable<String, vtkLODActor> hashCloud) {
+    public KeyboardEvent(NeptusInteractorStyle neptusInteractorStyle2, LinkedHashMap<String, vtkLODActor> linkedHashMapCloud) {
         this.neptusInteractorStyle = neptusInteractorStyle2;
         this.interactor = neptusInteractorStyle2.getInteractor();
-        this.hashCloud = hashCloud;
+        //this.hashCloud = hashCloud;
+        this.linkedHashMapCloud = linkedHashMapCloud;
     }
 
     public void handleEvents(char keyCode) {
@@ -86,22 +91,66 @@ public class KeyboardEvent {
                 takeSnapShot();
                 break;
             case 'u':
-                System.out.println("enter u");
-                Set<String> set = hashCloud.keySet();
+                //System.out.println("enter u");
+                Set<String> set = linkedHashMapCloud.keySet();
                 for (String skey : set) {
                     //System.out.println("String from set: " + skey);
                     vtkLODActor tempActor = new vtkLODActor();
-                    tempActor = hashCloud.get(skey);
-                    tempActor.GetProperty().SetColor(0.0, 1.0, 1.0);
-                    tempActor.Modified();
+                    tempActor = linkedHashMapCloud.get(skey);
+                   
+                    System.out.println("scalars to colors");
+                    vtkScalarsToColors lut = tempActor.GetMapper().GetLookupTable();
+                    System.out.println("set look up table 1");
+                    neptusInteractorStyle.lutActor.SetLookupTable(lut);
+                    neptusInteractorStyle.lutActor.Modified();
+
                 }
+                if (!neptusInteractorStyle.lutEnabled) {
+                    neptusInteractorStyle.renderer.AddActor(neptusInteractorStyle.lutActor);
+                    neptusInteractorStyle.lutEnabled = true;
+                }
+                else {
+                    neptusInteractorStyle.renderer.RemoveActor(neptusInteractorStyle.lutActor);
+                    neptusInteractorStyle.lutEnabled = false;
+                }         
+                neptusInteractorStyle.interactor.Render();
                 break;
                 
+            case 'g':
+                if (!neptusInteractorStyle.gridEnabled) {
+                    neptusInteractorStyle.gridActor.TopAxisVisibilityOn();
+                    neptusInteractorStyle.renderer.AddViewProp(neptusInteractorStyle.gridActor);
+                    neptusInteractorStyle.gridEnabled = true;
+                }
+                else {
+                    neptusInteractorStyle.renderer.RemoveViewProp(neptusInteractorStyle.gridActor);
+                    neptusInteractorStyle.gridEnabled = false;
+                }
+                neptusInteractorStyle.interactor.Render();
+                break;
+            case 'c':   
+                if (!neptusInteractorStyle.compassEnabled) {
+                    neptusInteractorStyle.compass.addCompassToVisualization(interactor);
+                    neptusInteractorStyle.compassEnabled = true;
+                }
+                else {  // better check this one for a better implementation
+                    neptusInteractorStyle.compass.removeCompassFromVisualization(interactor);
+                    neptusInteractorStyle.compassEnabled = false;
+                }
+                break;
+            case 'w':
+                if (!neptusInteractorStyle.wireframeRepEnabled) {
+                    neptusInteractorStyle.wireframeRepEnabled = true;
+                }
+                else {
+                    neptusInteractorStyle.wireframeRepEnabled = false;
+                }
+                break;
             case '+':
-                setOfClouds = hashCloud.keySet();
+                setOfClouds = linkedHashMapCloud.keySet();
                 for (String sKey : setOfClouds) {
                     vtkLODActor tempActor = new vtkLODActor();
-                    tempActor = hashCloud.get(sKey);
+                    tempActor = linkedHashMapCloud.get(sKey);
                     double pointSize = tempActor.GetProperty().GetPointSize();
                     if (pointSize <= 9) {
                         tempActor.GetProperty().SetPointSize(pointSize + 1);
@@ -110,10 +159,10 @@ public class KeyboardEvent {
                 }
                 break;
             case '-':
-                setOfClouds = hashCloud.keySet();
+                setOfClouds = linkedHashMapCloud.keySet();
                 for (String sKey : setOfClouds) {
                     vtkLODActor tempActor = new vtkLODActor();
-                    tempActor = hashCloud.get(sKey);
+                    tempActor = linkedHashMapCloud.get(sKey);
                     double pointSize = tempActor.GetProperty().GetPointSize();
                     if (pointSize > 1) {
                         tempActor.GetProperty().SetPointSize(pointSize - 1);
@@ -126,14 +175,16 @@ public class KeyboardEvent {
                 //int numberOfProps = neptusInteractorStyle.renderer.GetNumberOfPropsRendered();
                 //System.out.println("numberOfProps: " + numberOfProps);
                 
-                setOfClouds = hashCloud.keySet();
+                setOfClouds = linkedHashMapCloud.keySet();
                 for (String sKey : setOfClouds) {
                     //System.out.println("String from set: " + setOfClouds);
                     vtkLODActor tempActor = new vtkLODActor();
-                    tempActor = hashCloud.get(sKey);
+                    tempActor = linkedHashMapCloud.get(sKey);
                     tempActor.GetProperty().SetColor(PointCloudHandlers.getRandomColor());
-                    neptusInteractorStyle.interactor.Render();
                 }
+                break;
+            case 'r':
+                neptusInteractorStyle.renderer.ResetCamera();
                 break;
             default:
                 System.out.println("not a keyEvent");
