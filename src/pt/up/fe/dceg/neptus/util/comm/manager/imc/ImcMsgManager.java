@@ -1233,18 +1233,6 @@ public class ImcMsgManager extends
         else if (sendProperties != null && StringUtils.isTokenInList(sendProperties, "TCP"))
             transportPreferenceRequested = TransportPreference.TCP;
 
-//        // Test if we can use the preferred transport, that is if that transport is on locally
-//        if (transportPreference == TransportPreference.UDP && !isUdpOn()) {
-//            if (listener != null)
-//                listener.deliveryError(message, new Exception("UDP not connected!"));
-//            return false;
-//        }
-//        else if (transportPreference == TransportPreference.TCP && !isTcpOn()) {
-//            if (listener != null)
-//                listener.deliveryError(message, new Exception("TCP not connected!"));
-//            return false;
-//        }
-
         ImcId16 sysId = systemCommId;
         @SuppressWarnings("unused")
         SystemImcMsgCommInfo sysComm = commInfo.get(sysId);
@@ -1253,22 +1241,7 @@ public class ImcMsgManager extends
             initSystemCommInfo(sysId, "");
 
         // Let us check if the protocol we were asked to send the message to is active on the system
-//        TransportPreference transportAvailableOnDestination = TransportPreference.ANY;
         ImcSystem imcSystem = ImcSystemsHolder.lookupSystem(systemCommId);
-//        if (transportPreference == TransportPreference.UDP && !imcSystem.isUDPOn()) {
-//            markMessageToSent(systemCommId);
-//            if (listener != null)
-//                listener.deliveryError(message, new Exception("UDP not connected in the system " + imcSystem.getName()
-//                        + "!"));
-//            return false;
-//        }
-//        else if (transportPreference == TransportPreference.TCP && !imcSystem.isTCPOn()) {
-//            markMessageToSent(systemCommId);
-//            if (listener != null)
-//                listener.deliveryError(message, new Exception("TCP not connected in the system " + imcSystem.getName()
-//                        + "!"));
-//            return false;
-//        }
         if (!imcSystem.isUDPOn() && transportChoiceToSend.contains(TransportPreference.UDP))
             transportChoiceToSend.remove(TransportPreference.UDP);
         if (!imcSystem.isTCPOn() && transportChoiceToSend.contains(TransportPreference.TCP))
@@ -1286,34 +1259,6 @@ public class ImcMsgManager extends
         // Let us send the message by the preferred transport or the default one on the system by the order UDP, TCP
         // this depends on the transports available locally and on the system
         try {
-//            boolean alreadySent = false;
-//
-//            if (isUdpOn()
-//                    && !(isTcpOn() && msgListener != null)
-//                    && (transportPreference == TransportPreference.ANY || transportPreference == TransportPreference.UDP)) {
-//                ImcSystem imcSy = ImcSystemsHolder.lookupSystem(systemCommId);
-//                if (imcSy.isUDPOn()) {
-//                    markMessageToSent(systemCommId);
-//                    boolean ret = getUdpTransport().sendMessage(imcSy.getHostAddress(), imcSy.getRemoteUDPPort(),
-//                            message.cloneMessage(), listener);
-//                    alreadySent = ret;
-//                    sentResult = sentResult && ret;
-//                }
-//            }
-//
-//            if (isTcpOn()
-//                    && !alreadySent
-//                    && (transportPreference == TransportPreference.ANY || transportPreference == TransportPreference.TCP)) {
-//                ImcSystem imcSy = ImcSystemsHolder.lookupSystem(systemCommId);
-//                boolean ret = false;
-//                if (imcSy.isTCPOn()) {
-//                    markMessageToSent(systemCommId);
-//                    ret = getTcpTransport().sendMessage(imcSy.getHostAddress(), imcSy.getRemoteTCPPort(),
-//                            message.cloneMessage(), listener);
-//                }
-//                sentResult = sentResult && ret;
-//            }
-            
             if (transportChoiceToSend.isEmpty()) {
                 throw new IOException(I18n.textf("No transport available to send message %message to %system.", 
                         message.getAbbrev(), imcSystem.getName()));
@@ -1348,6 +1293,22 @@ public class ImcMsgManager extends
             logMessage(message);
 
         return sentResult;
+    }
+
+    public static void disseminate(XmlOutputMethods object, String rootElementName) {
+        IMCMessage msg = IMCDefinition.getInstance().create("mission_chunk", "xml_data", object.asXML(rootElementName));
+        disseminateToCCUs(msg);
+    }
+
+    private static void disseminateToCCUs(IMCMessage msg) {
+        if (msg == null)
+            return;
+
+        ImcSystem[] systems = ImcSystemsHolder.lookupActiveSystemCCUs();
+        for (ImcSystem s : systems) {
+            NeptusLog.pub().info("<###>sending msg '" + msg.getAbbrev() + "' to '" + s.getName() + "'...");
+            ImcMsgManager.getManager().sendMessage(msg, s.getId(), null);
+        }
     }
 
     /**
@@ -1714,22 +1675,6 @@ public class ImcMsgManager extends
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-        }
-    }
-
-    public static void disseminate(XmlOutputMethods object, String rootElementName) {
-        IMCMessage msg = IMCDefinition.getInstance().create("mission_chunk", "xml_data", object.asXML(rootElementName));
-        disseminateToCCUs(msg);
-    }
-
-    private static void disseminateToCCUs(IMCMessage msg) {
-        if (msg == null)
-            return;
-
-        ImcSystem[] systems = ImcSystemsHolder.lookupActiveSystemCCUs();
-        for (ImcSystem s : systems) {
-            NeptusLog.pub().info("<###>sending msg '" + msg.getAbbrev() + "' to '" + s.getName() + "'...");
-            ImcMsgManager.getManager().sendMessage(msg, s.getId(), null);
         }
     }
 }
