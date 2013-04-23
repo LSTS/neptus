@@ -153,7 +153,6 @@ public abstract class MraGanttPlot implements LLFChart, LogMarkerListener {
         if (t.getSubtaskCount() > 0)
             t = (Task) t.getSubtask(t.getSubtaskCount()-1);
         setEndTime(t, time);
-        System.out.println(t.getDuration().getEnd());
         statePerTimeline.put(trace, null);
     }        
 
