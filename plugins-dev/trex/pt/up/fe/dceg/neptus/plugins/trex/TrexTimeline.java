@@ -1,0 +1,72 @@
+/*
+ * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
+ * All rights reserved.
+ * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
+ *
+ * This file is part of Neptus, Command and Control Framework.
+ *
+ * Commercial Licence Usage
+ * Licencees holding valid commercial Neptus licences may use this file
+ * in accordance with the commercial licence agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in a
+ * written agreement between you and Universidade do Porto. For licensing
+ * terms, conditions, and further information contact lsts@fe.up.pt.
+ *
+ * European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the EUPL,
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
+ * included in the packaging of this file. You may not use this work
+ * except in compliance with the Licence. Unless required by applicable
+ * law or agreed to in writing, software distributed under the Licence is
+ * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ * ANY KIND, either express or implied. See the Licence for the specific
+ * language governing permissions and limitations at
+ * https://www.lsts.pt/neptus/licence.
+ *
+ * For more information please see <http://lsts.fe.up.pt/neptus>.
+ *
+ * Author: zp
+ * Apr 23, 2013
+ */
+package pt.up.fe.dceg.neptus.plugins.trex;
+
+import java.util.LinkedHashSet;
+
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.imc.lsf.LsfGenericIterator;
+import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
+import pt.up.fe.dceg.neptus.mra.MRAPanel;
+import pt.up.fe.dceg.neptus.mra.plots.MraGanttPlot;
+import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+
+/**
+ * @author zp
+ *
+ */
+@PluginDescription(name="TREX Timeline")
+public class TrexTimeline extends MraGanttPlot {
+
+    public TrexTimeline(MRAPanel panel) {
+        super(panel);
+    }
+    @Override
+    public boolean canBeApplied(LsfIndex index) {
+        return index.containsMessagesOfType("TrexObservation");
+    }
+
+    @Override
+    public void process(LsfIndex source) {
+        LsfGenericIterator it = source.getIterator("TrexObservation");
+        LinkedHashSet<String> timelines = new LinkedHashSet<>();
+        
+        for (IMCMessage s : it) {
+            startActivity(s.getTimestamp(), s.getString("timeline"), s.getString("predicate"));
+            timelines.add(s.getString("timeline"));
+        }
+        
+        for (String s : timelines)
+            endActivity(source.getEndTime(), s);
+    }
+
+}

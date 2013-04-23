@@ -6,3 +6,4 @@
 # SVN_PATH=@SVN_PATH@
 
 pt.up.fe.dceg.neptus.plugins.trex.TrexMapLayer
+pt.up.fe.dceg.neptus.plugins.trex.TrexTimeline
