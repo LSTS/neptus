@@ -300,15 +300,6 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                             new Thread() {
                                 public void run() {
                                     send(cmd);
-
-                                    //                                    if (sendAcked(cmd)) {
-                                    //                                        cmd.dump(System.err);
-                                    //                                    }
-                                    //                                    else {
-                                    //                                        GuiUtils.errorMessage("Not able to send command", "No message acknowledgment was received from the system");
-                                    //                                        sentGoals.remove(goalId);
-                                    //                                    }
-                                    //                                };
                                 }
                             }.start();
 

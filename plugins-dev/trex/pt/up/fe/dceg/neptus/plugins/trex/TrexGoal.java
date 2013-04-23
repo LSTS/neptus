@@ -151,16 +151,12 @@ public class TrexGoal implements PropertiesProvider {
             Node n = (Node)o;
             String varName = n.selectSingleNode("@name").getText();
             
-            if (varName.equals("lat_deg"))
-                lat_deg = Double.parseDouble(n.selectSingleNode("float/@min").getText());
-            else if (varName.equals("lon_deg"))
-                lon_deg = Double.parseDouble(n.selectSingleNode("float/@min").getText());
-            else if (varName.equals("depth"))
+            if (varName.equals("latitude"))
+                lat_deg = Math.toDegrees(Double.parseDouble(n.selectSingleNode("float/@min").getText()));
+            else if (varName.equals("longitude"))
+                lon_deg = Math.toDegrees(Double.parseDouble(n.selectSingleNode("float/@min").getText()));
+            else if (varName.equals("z"))
                 depth = Double.parseDouble(n.selectSingleNode("float/@min").getText());
-            else if (varName.equals("speed"))
-                speed = Double.parseDouble(n.selectSingleNode("float/@min").getText());
-            else if (varName.equals("tolerance"))
-                tolerance = Double.parseDouble(n.selectSingleNode("float/@min").getText());
             else if (varName.equals("start"))
                 start = sdf.parse(n.selectSingleNode("date/@min").getText()).getTime()/1000;
             else if (varName.equals("end"))
@@ -173,16 +169,14 @@ public class TrexGoal implements PropertiesProvider {
     public String asXml() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MMM-dd hh:mm:ss.SSS");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String xml = "<Goal on='estimator' pred='At' id='"+goalId+"'>\n";
-        xml += "<Variable name='depth'>\n\t<float min='"+depth+"' max='"+depth+"'/>\n</Variable>\n";
+        String xml = "<Goal on='navigator' pred='At' id='"+goalId+"'>\n";
+        xml += "<Variable name='z'>\n\t<float min='"+depth+"' max='"+depth+"'/>\n</Variable>\n";
         
-        xml += "<Variable name='speed'>\n\t<float min='"+speed+"' max='"+speed+"'/>\n</Variable>\n";
-        xml += "<Variable name='lat_deg'>\n\t<float min='" + lat_deg
-                + "' max='" + lat_deg + "'/>\n</Variable>\n";
-        xml += "<Variable name='lon_deg'>\n\t<float min='" + lon_deg
-                + "' max='" + lon_deg + "'/>\n</Variable>\n";
+        xml += "<Variable name='latitude'>\n\t<float min='" + Math.toRadians(lat_deg)
+                + "' max='" +  Math.toRadians(lat_deg) + "'/>\n</Variable>\n";
+        xml += "<Variable name='longitude'>\n\t<float min='" +  Math.toRadians(lon_deg)
+                + "' max='" +  Math.toRadians(lon_deg) + "'/>\n</Variable>\n";
         xml += "<Variable name='secs'>\n\t<int min='"+secs+"' max='"+secs+"'/>\n</Variable>\n";
-        xml += "<Variable name='tolerance'>\n\t<float min='"+tolerance+"' max='"+tolerance+"'/>\n</Variable>\n";
         
         if (setStartDate) {
             Date min = new Date(start*1000);
