@@ -52,6 +52,7 @@ import org.jfree.data.time.TimePeriod;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.imc.TrexObservation;
+import pt.up.fe.dceg.neptus.imc.TrexToken;
 import pt.up.fe.dceg.neptus.imc.VehicleState;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.Popup;
@@ -174,12 +175,13 @@ public class TrexTimelinePanel extends SimpleSubPanel {
     } 
     
     @Subscribe
-    public void on(TrexObservation observation) {
-        startActivity(observation.getTimestamp(), observation.getTimeline(), observation.getPredicate());
+    public void on(TrexToken token) {
+        token.dump(System.out);
+        startActivity(token.getTimestamp(), token.getTimeline(), token.getPredicate());
     }    
     
     @Subscribe
     public void on(VehicleState state) {
-        startActivity(state.getTimestamp(), "Vehicle State", state.getOpMode().toString());
+       // startActivity(state.getTimestamp(), "Vehicle State", state.getOpMode().toString());
     }
 }

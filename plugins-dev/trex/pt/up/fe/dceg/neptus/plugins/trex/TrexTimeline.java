@@ -52,12 +52,12 @@ public class TrexTimeline extends MraGanttPlot {
     }
     @Override
     public boolean canBeApplied(LsfIndex index) {
-        return index.containsMessagesOfType("TrexObservation");
+        return index.containsMessagesOfType("TrexToken");
     }
 
     @Override
     public void process(LsfIndex source) {
-        LsfGenericIterator it = source.getIterator("TrexObservation");
+        LsfGenericIterator it = source.getIterator("TrexToken");
         LinkedHashSet<String> timelines = new LinkedHashSet<>();
         
         for (IMCMessage s : it) {
