@@ -151,7 +151,6 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
                 selectEntities = new JButton(I18n.text("Series..."));
                 controlPanel.add(selectEntities);
                 selectEntities.addActionListener(new ActionListener() {
-
                     @Override
                     public void actionPerformed(ActionEvent arg0) {
                         selectEntities();
@@ -281,34 +280,33 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
         regeneratePanel();
     }
 
-
     public void regeneratePanel() {
         if (cpanel != null)
             remove(cpanel);
         JFreeChart c = chart.getChart(source, timestep);
 
         cpanel = new ChartPanel(c);
-        cpanel.getPopupMenu().add("Add Mark").addActionListener(new ActionListener() {
-
+        cpanel.getPopupMenu().add(I18n.text("Add Mark")).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String res = JOptionPane.showInputDialog("Marker name");
+                String res = JOptionPane.showInputDialog(I18n.text("Marker name"));
                 mraPanel.addMarker(new LogMarker(res, mouseValue, 0, 0, 0, 0, 0, 0));
             }
         });
         
-        cpanel.getPopupMenu().add("Save as PDF").addActionListener(new ActionListener() {
-            
+        cpanel.getPopupMenu().add(I18n.text("Save as PDF")).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
-                chooser.setFileFilter(GuiUtils.getCustomFileFilter("PDF files", new String[] {"pdf"}));
+                chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("PDF files"), new String[] {"pdf"}));
                 int op = chooser.showSaveDialog(MraChartPanel.this);
                 if (op == JFileChooser.APPROVE_OPTION)
                     if(LsfReport.savePdf(source, chart, chooser.getSelectedFile()))
-                        GuiUtils.infoMessage(MraChartPanel.this, "Save as PDF", "File saved successfully to "+chooser.getSelectedFile().getAbsolutePath());
+                        GuiUtils.infoMessage(MraChartPanel.this, I18n.text("Save as PDF"), I18n
+                                .textf("File saved successfully to %fileLocation", chooser.getSelectedFile()
+                                        .getAbsolutePath()));
                     else
-                        GuiUtils.errorMessage(MraChartPanel.this, "Save as PDF", "Error exporting to PDF");
+                        GuiUtils.errorMessage(MraChartPanel.this, I18n.text("Save as PDF"), I18n.text("Error exporting to PDF"));
             }
         });
         
@@ -333,7 +331,6 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
                     else {
                         if (e.getChart().getPlot() instanceof XYPlot)
                             mouseValue = e.getChart().getXYPlot().getDomainAxis().java2DToValue(x, cpanel.getScreenDataArea(), e.getChart().getXYPlot().getDomainAxisEdge());
-
                     }
                 }
             }
@@ -348,7 +345,6 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
 
     @Override
     public void chartMouseClicked(ChartMouseEvent arg0) {
-
     }
 
     @Override
