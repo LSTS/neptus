@@ -16,7 +16,9 @@ if %JAVA_MACHINE_TYPE%==x86 (
    set LIBRARYPATH=.;libJNI/x64;libJNI
 )
 
+set VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
+
 set OLDPATH=%PATH%
 set PATH=%LIBRARYPATH%;%PATH%
-start %JAVA_BIN_FOLDER%javaw.exe -Xms10m -Xmx912m -Dj3d.rend=d3d -Dsun.java2d.d3d=true -Djava.library.path="%LIBRARYPATH%" -cp %CLASSPATH% pt.up.fe.dceg.neptus.loader.NeptusMain %1 %2 %3 %4 %5 %6 %7 %8 %9
+start %JAVA_BIN_FOLDER%javaw.exe -Xms10m -Xmx912m -Dj3d.rend=d3d -Dsun.java2d.d3d=true %VMFLAGS% -Djava.library.path="%LIBRARYPATH%" -cp %CLASSPATH% pt.up.fe.dceg.neptus.loader.NeptusMain %1 %2 %3 %4 %5 %6 %7 %8 %9
 set PATH=%OLDPATH%

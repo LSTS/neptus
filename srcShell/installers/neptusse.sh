@@ -16,5 +16,7 @@ else
   LIBS=".:libJNI/x86:libJNI"
 fi
 
+export VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
+
 export LD_LIBRARY_PATH=$LIBS
-$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m -Djava.library.path=".:libJNI" -cp $CLASSPATH pt.up.fe.dceg.neptus.mc.lauvconsole.LAUVConsole "$@"
+$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m $VMFLAGS -Djava.library.path=".:libJNI" -cp $CLASSPATH pt.up.fe.dceg.neptus.mc.lauvconsole.LAUVConsole "$@"
