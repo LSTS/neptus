@@ -35,9 +35,11 @@ import java.util.Random;
 
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import vtk.vtkDataArray;
 import vtk.vtkLODActor;
 import vtk.vtkPoints;
 import vtk.vtkScalarsToColors;
+import vtk.vtkUnsignedCharArray;
 
 /**
  * @author hfq
@@ -45,7 +47,11 @@ import vtk.vtkScalarsToColors;
  */
 public class PointCloudHandlers<T extends PointXYZ> {
     
-    public PointCloudHandlers() {
+    int numberOfPoints;
+    
+    
+    public PointCloudHandlers(PointCloud<T> pointCloud) {
+        this.numberOfPoints = pointCloud.getNumberOfPoints();
         
     }
 
@@ -84,10 +90,28 @@ public class PointCloudHandlers<T extends PointXYZ> {
         return rgbCloud;
     }
     
-    public static vtkScalarsToColors getRandomColor2() {
+    public vtkScalarsToColors getRandomColor2() {
         vtkScalarsToColors scalars = new vtkScalarsToColors();
         
       
+        
+        return scalars;
+    }
+    
+    public vtkDataArray getColor() {
+        vtkDataArray scalars = new vtkUnsignedCharArray();
+        vtkUnsignedCharArray scalars2 = new vtkUnsignedCharArray();
+        vtkDataArray scalars3 = new vtkDataArray();
+        
+        
+        scalars.SetNumberOfComponents(3);
+        scalars.SetNumberOfTuples(numberOfPoints);
+        
+        double[] rgbColor = new double[3];
+        rgbColor = getRandomColor();
+        
+        //scalars.set
+        
         
         return scalars;
     }

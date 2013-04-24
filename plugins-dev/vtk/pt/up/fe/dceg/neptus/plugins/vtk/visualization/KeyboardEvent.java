@@ -62,6 +62,11 @@ public class KeyboardEvent {
     private LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
     
     private Set<String> setOfClouds;
+    
+    
+    private vtkLODActor marker = new vtkLODActor();
+    boolean markerEnabled = false;
+    
     //enum keyEvent {
     //    j, u, plus, minus
     //}
@@ -141,10 +146,57 @@ public class KeyboardEvent {
             case 'w':
                 if (!neptusInteractorStyle.wireframeRepEnabled) {
                     neptusInteractorStyle.wireframeRepEnabled = true;
+                    neptusInteractorStyle.solidRepEnabled = false;
+                    neptusInteractorStyle.pointRepEnabled = false;
+                    
+                    System.out.println("wireframe rep enabled");
+                    
+                    setOfClouds = linkedHashMapCloud.keySet();
+                    for (String sKey : setOfClouds) {
+                        vtkLODActor tempActor = new vtkLODActor();
+                        tempActor = linkedHashMapCloud.get(sKey);
+                        tempActor.GetProperty().SetRepresentationToWireframe();
+                    }
                 }
-                else {
+                //else {
+                //    neptusInteractorStyle.wireframeRepEnabled = false;                    
+                //}
+                break;
+            case 's':
+                if (!neptusInteractorStyle.solidRepEnabled) {
+                    neptusInteractorStyle.solidRepEnabled = true;
                     neptusInteractorStyle.wireframeRepEnabled = false;
+                    neptusInteractorStyle.pointRepEnabled = false;
+                    
+                    System.out.println("solid rep enabled");
+                    
+                    for (String sKey : setOfClouds) {
+                        vtkLODActor tempActor = new vtkLODActor();
+                        tempActor = linkedHashMapCloud.get(sKey);
+                        tempActor.GetProperty().SetRepresentationToSurface();
+                    }
                 }
+                break;
+            case 'p':
+                if (!neptusInteractorStyle.pointRepEnabled) {
+                    neptusInteractorStyle.pointRepEnabled = true;
+                    neptusInteractorStyle.solidRepEnabled = false;
+                    neptusInteractorStyle.wireframeRepEnabled = false;
+                    
+                    System.out.println("point rep enabled");
+                    
+                    for (String sKey : setOfClouds) {
+                        vtkLODActor tempActor = new vtkLODActor();
+                        tempActor = linkedHashMapCloud.get(sKey);
+                        tempActor.GetProperty().SetRepresentationToPoints();
+                    }
+                }
+                break;
+            case 'm':
+                if(!markerEnabled) {
+                    
+                }
+                
                 break;
             case '+':
                 setOfClouds = linkedHashMapCloud.keySet();
@@ -182,6 +234,7 @@ public class KeyboardEvent {
                     tempActor = linkedHashMapCloud.get(sKey);
                     tempActor.GetProperty().SetColor(PointCloudHandlers.getRandomColor());
                 }
+                neptusInteractorStyle.interactor.Render();
                 break;
             case 'r':
                 neptusInteractorStyle.renderer.ResetCamera();

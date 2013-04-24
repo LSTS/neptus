@@ -122,9 +122,9 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
     protected Compass compass = new Compass();
     
     
-    protected boolean wireframeRepEnabled;
-    protected boolean solidRepEnabled;
-    protected boolean pointRepEnabled;
+    protected boolean wireframeRepEnabled = false;;
+    protected boolean solidRepEnabled = false;;
+    protected boolean pointRepEnabled = true;
     
     // A PNG Writer for screenshot captures
     protected vtkPNGWriter snapshotWriter = new vtkPNGWriter();
@@ -232,9 +232,9 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
 
         compassEnabled = false;
         
-        wireframeRepEnabled = false;
-        solidRepEnabled = false;
-        pointRepEnabled = false;
+        //wireframeRepEnabled = false;
+        //solidRepEnabled = false;
+        //pointRepEnabled = false;
         
         
         getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
