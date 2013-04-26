@@ -107,6 +107,9 @@ public class LogBookHistory extends AbstractListModel<HistoryMessage> implements
             }
         }
         
+        if (notExisting.isEmpty())
+            return notExisting;
+        
         Collections.sort(messages);
         
         while (getSize() > maxSize) {
@@ -133,11 +136,14 @@ public class LogBookHistory extends AbstractListModel<HistoryMessage> implements
         return messages.size();
     }
 
+    JLabel l = new JLabel("", JLabel.LEFT);
     @Override
     public Component getListCellRendererComponent(JList<? extends HistoryMessage> list, HistoryMessage value,
             int index, boolean isSelected, boolean cellHasFocus) {
 
-        JLabel l = new JLabel(value.toString(), JLabel.LEFT);
+        l.setText(value.toString());
+        
+        //JLabel l = new JLabel(value.toString(), JLabel.LEFT);
         l.setToolTipText(I18n.textf("Received on %timeStamp (%context)", new Date(value.timestamp), value.context));
         l.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 3));
         l.setOpaque(true);

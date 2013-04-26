@@ -107,7 +107,7 @@ public class LogBookSubPanel extends SimpleSubPanel implements IPeriodicUpdates 
             lastMessagesUpdate.put(logControl.getSourceName(), logControl.getHtime());
             if (!newMessages.isEmpty()) {
 
-                String text = "";//Received "+newMessages.size()+" previous entries from "+logControl.getSourceName()+": <br/>";
+                String text = "";
                 boolean error = false;
                 int count = 0;
                 for (HistoryMessage m : msgsVec) {
