@@ -61,7 +61,7 @@ public class TrexTimeline extends MraGanttPlot {
         LinkedHashSet<String> timelines = new LinkedHashSet<>();
         
         for (IMCMessage s : it) {
-            startActivity(s.getTimestamp(), s.getString("timeline"), s.getString("predicate"));
+            startActivity(s.getTimestamp(), s.getString("timeline"), s.getString("timeline")+"."+s.getString("predicate"));
             timelines.add(s.getString("timeline"));
         }
         
