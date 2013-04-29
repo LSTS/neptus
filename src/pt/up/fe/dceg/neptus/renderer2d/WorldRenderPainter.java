@@ -74,6 +74,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JToggleButton;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
@@ -1150,7 +1151,11 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 }
             }
             
-            final JRadioButton rButton = new JRadioButton(ms.toString());
+            final JToggleButton rButton;
+            if (mapBaseOrLayerHolderList.containsKey(ms) && mapBaseOrLayerHolderList.get(ms))
+                rButton = new JRadioButton(ms.toString());
+            else
+                rButton = new JCheckBox(ms.toString());
             rButton.setActionCommand(ms);
             if (mapActiveHolderList.containsKey(ms) && mapActiveHolderList.get(ms))
                 rButton.setSelected(true);
