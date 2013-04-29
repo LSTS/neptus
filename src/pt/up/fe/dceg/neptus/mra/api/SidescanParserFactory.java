@@ -82,6 +82,9 @@ public class SidescanParserFactory {
             if(source != null) {
                 if(LogUtils.hasIMCSidescan(source))
                     return new ImcSidescanParser(source);
+                else if(source.getLog("SidescanPing") != null) { // Legacy IMC message. We still have a lot of data requests for this format, so be it...
+                    return new LegacyImcSidescanParser(source);
+                }
             }
         }
         return null;

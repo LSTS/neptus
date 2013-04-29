@@ -194,8 +194,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        
-        return LogUtils.hasIMCSidescan(source)|| source.getFile("Data.jsf") != null;
+        return LogUtils.hasIMCSidescan(source) || source.getFile("Data.jsf") != null || source.getLog("SidescanPing") != null;
     }
 
     @Override
