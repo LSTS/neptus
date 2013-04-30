@@ -98,10 +98,9 @@ public class LogMarkersReplay implements LogReplayLayer {
             if (!markers.contains(m)) {
                 markers.add(m);
                 locations.add(m.getLocation());
+                System.out.println(m.getLocation());
             }
-        }
-        
-        
+        }    
     }
 
 
@@ -114,8 +113,6 @@ public class LogMarkersReplay implements LogReplayLayer {
             }
         }        
     }
-
-
 
     @Override
     public void parse(IMraLogGroup source) {

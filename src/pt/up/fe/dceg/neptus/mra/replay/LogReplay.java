@@ -137,7 +137,7 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
     }
 
     
-    public void startLLFReplay() {
+    public void startLogReplay() {
         try {
             loader.setText("Loading mission replay");
 
@@ -480,7 +480,7 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
     // --- MRAVisualization ---
     @Override
     public JComponent getComponent(IMraLogGroup source, double timestep) {
-        startLLFReplay();
+        startLogReplay();
         return this;
     }
 
@@ -552,7 +552,6 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
     public void GotoMarker(LogMarker marker) {
         
     }
-
 }
 
 

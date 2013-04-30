@@ -90,4 +90,10 @@ public class LogMarker implements Serializable, Comparable<LogMarker> {
     public LocationType getLocation() {
         return new LocationType(Math.toDegrees(lat), Math.toDegrees(lon));
     }
+
+//    @Override
+//    public boolean equals(Object obj) {
+//        return (obj instanceof LogMarker ? ((LogMarker)obj).label.equals(label): false);
+//    }
+//    
 }
