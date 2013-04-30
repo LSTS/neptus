@@ -79,6 +79,12 @@ public class PointCloud<T extends PointXYZ> {
         points.SetDataTypeToFloat();
     }
     
+    
+    /**
+     * data information transformed to graphical information through cells
+     * @param nPoints
+     * @return
+     */
     public vtkLODActor getRandomPointCloud(int nPoints) {
         setNumberOfPoints(nPoints);
         points = new vtkPoints();
@@ -117,17 +123,17 @@ public class PointCloud<T extends PointXYZ> {
         //vtkVertexGlyphFilter glyph = new vtkVertexGlyphFilter();
         //glyph.SetInput(poly);
          
-        vtkLookupTable lut = new vtkLookupTable();
-        lut.SetNumberOfColors(256);
+        //vtkLookupTable lut = new vtkLookupTable();
+        //lut.SetNumberOfColors(256);
         //lut.SetHueRange(0.0, 0.667);
-        lut.SetRampToLinear();
+        //lut.SetRampToLinear();
         
         poly.SetPolys(cells);
         
         vtkPolyDataMapper map = new vtkPolyDataMapper();
         //map.SetInputConnection(glyph.GetOutputPort());
         map.SetInput(poly);
-        map.SetLookupTable(lut);
+        //map.SetLookupTable(lut);
         //map.SetScalarRange(0.0, 0.7);
         //map.SetInput(pol);
    
@@ -138,6 +144,61 @@ public class PointCloud<T extends PointXYZ> {
         return cloud;
     }
     
+    /**
+     * data information transformed to graphical information through Vertex Glyph
+     * @param nPoints
+     * @return
+     */ 
+    public vtkLODActor getRandomPointCloud2(int nPoints) {
+        setNumberOfPoints(nPoints);
+        points = new vtkPoints();
+        points.Allocate(getNumberOfPoints(), 0);
+        
+        Random pos = new Random();
+        
+        for (int i = 0; i < getNumberOfPoints(); i++) {
+            PointXYZ p = new PointXYZ(pos.nextFloat()*10, pos.nextFloat()*10, pos.nextFloat()*10);
+            //verts.InsertNextCell(1);
+            points.InsertPoint(i, p.getX(), p.getY(), p.getZ());
+            //points.InsertNextPoint(p.getX(), p.getY(), p.getZ());
+            //verts.InsertCellPoint(i);
+            //verts.InsertCellPoint(points.InsertNextPoint(p.getX(), p.getY(), p.getZ()));            
+        }        
+        poly = new vtkPolyData();
+        poly.SetPoints(points);
+        
+        poly.Modified();
+        
+        vtkDataArray scalars = new vtkDataArray();
+        
+        //vtkGlyph3D glyph = new vtkGlyph3D();
+        //glyph.SetInput(poly);
+        vtkVertexGlyphFilter glyph = new vtkVertexGlyphFilter();
+        glyph.SetInput(poly);
+         
+        vtkLookupTable lut = new vtkLookupTable();
+        lut.SetNumberOfColors(256);
+        lut.SetHueRange(0.0, 0.667);
+        lut.SetScaleToLinear();
+        //lut.SetRampToLinear();
+        
+        vtkPolyDataMapper map = new vtkPolyDataMapper();
+        map.SetInputConnection(glyph.GetOutputPort());
+        //map.SetInput(poly);
+        map.SetLookupTable(lut);
+        //map.SetScalarRange(0.0, 0.7);
+        //map.SetInput(pol);
+   
+        cloud.SetMapper(map);
+        cloud.GetProperty().SetPointSize(2.0);
+        cloud.GetProperty().SetRepresentationToPoints();
+        
+        
+        return cloud;
+    }
+    /**
+     * usuless
+     */
     public void convertPointCloudToVTKPolyData () {
         //vtkCellArray vertices = new vtkCellArray(); 
         //if (!poly) {

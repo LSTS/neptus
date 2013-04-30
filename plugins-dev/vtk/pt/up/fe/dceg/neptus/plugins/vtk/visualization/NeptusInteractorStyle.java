@@ -60,6 +60,12 @@ import vtk.vtkXYPlotActor;
 
 /**
  * @author hfq
+ * 
+ * Missing:
+ * point picking events: 
+ *      to add markers to cloud (or mesh)
+ *      to add             
+ * 
  * defines a unique, custom VTK based interactory style for Neptus 3D Visualizer apps.
  * Besides defining the rendering style, it also creates a list of custom actions that
  * are triggered on different keys being pressed:

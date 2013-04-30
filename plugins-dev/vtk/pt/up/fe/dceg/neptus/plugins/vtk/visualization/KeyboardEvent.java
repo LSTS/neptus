@@ -80,11 +80,13 @@ public class KeyboardEvent {
     //}
     
     /**
-     * @param neptusInteractorStyle2
+     * @param neptusInteractorStyle
+     * @param linkedHashMapCloud
+     *
      */
-    public KeyboardEvent(NeptusInteractorStyle neptusInteractorStyle2, LinkedHashMap<String, vtkLODActor> linkedHashMapCloud) {
-        this.neptusInteractorStyle = neptusInteractorStyle2;
-        this.interactor = neptusInteractorStyle2.getInteractor();
+    public KeyboardEvent(NeptusInteractorStyle neptusInteractorStyle, LinkedHashMap<String, vtkLODActor> linkedHashMapCloud) {
+        this.neptusInteractorStyle = neptusInteractorStyle;
+        this.interactor = neptusInteractorStyle.getInteractor();
         //this.hashCloud = hashCloud;
         this.linkedHashMapCloud = linkedHashMapCloud;
     }
@@ -194,7 +196,13 @@ public class KeyboardEvent {
                 break;
             case 'm':
                 if(!markerEnabled) {
+                    markerEnabled = true;
                     
+                    //neptusInteractorStyle.renderer.AddActor(marker);
+                    
+                }
+                else {
+                    markerEnabled = false;
                 }
                 
                 break;

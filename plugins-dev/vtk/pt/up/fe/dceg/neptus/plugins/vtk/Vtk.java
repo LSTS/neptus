@@ -52,11 +52,14 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
+import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.BathymetryToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesActor;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.CubeAxes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.PointCloudHandlers;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
+import vtk.vtkActor;
 import vtk.vtkCanvas;
 import vtk.vtkLODActor;
 import vtk.vtkNativeLibrary;
@@ -87,7 +90,10 @@ public class Vtk extends JPanel implements MRAVisualization {
     public LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
     
     protected Vector<Marker3d> markers = new Vector<>();
-    protected IMraLogGroup mraVtkLogGroup;
+    
+    public IMraLogGroup mraVtkLogGroup;
+    
+    public File file;
     
     static {
         System.loadLibrary("jawt");
@@ -162,6 +168,10 @@ public class Vtk extends JPanel implements MRAVisualization {
         //vtkPanel = new vtkPanel();       
         //Window win = new Window(vtkPanel);
         
+  
+        //System.out.println("test: " + mraVtkLogGroup);
+        
+        
         vtkCanvas = new vtkCanvas();
   
         //BoxWidget.addBoxWidget2Tovisualizer(vtkPanel.GetRenderer(), win.getRenWinInteractor());
@@ -169,7 +179,8 @@ public class Vtk extends JPanel implements MRAVisualization {
         // a Random points, PointCloud
         PointCloud<PointXYZ> poi = new PointCloud<>();
         vtkLODActor cloud = new vtkLODActor();
-        cloud = poi.getRandomPointCloud(10000);
+        cloud = poi.getRandomPointCloud(30000);
+        //cloud = poi.getRandomPointCloud2(10000);
         //cloud.GetProperty().SetColor(1.0, 0.0, 0.0);
         
         linkedHashMapCloud.put("cloud", cloud);
@@ -179,12 +190,12 @@ public class Vtk extends JPanel implements MRAVisualization {
         System.out.println("Hash code: " + hashCode);
         System.out.println("elements: " + linkedHashMapCloud.keySet());
 
-        vtkLODActor testActor = linkedHashMapCloud.get("cloud");
+
         //hashCloud.
         
         // this will set the number of random cloud points as a lower level of detail when the full geomtery cannot be displayed.
         //testActor.SetNumberOfCloudPoints(5); 
-        vtkCanvas.GetRenderer().AddActor(testActor);
+
         
         // a cube Axes actor
         //vtkActor cubeAxesActor = new vtkActor();
@@ -195,6 +206,9 @@ public class Vtk extends JPanel implements MRAVisualization {
         Window winCanvas = new Window(vtkCanvas, linkedHashMapCloud);
         
         double[] temp = PointCloudHandlers.getRandomColor();
+        
+        vtkLODActor testActor = linkedHashMapCloud.get("cloud");
+        vtkCanvas.GetRenderer().AddActor(testActor);
         
         // reset the camera from the renderer
         vtkCanvas.GetRenderer().ResetCamera();
@@ -240,7 +254,8 @@ public class Vtk extends JPanel implements MRAVisualization {
     public Component getComponent(IMraLogGroup source, double timestep) {
         //String name = source.name();
         //String[] listoflogs = source.listLogs();
-        
+        BathymetryToPointCloud bathToPointCloud = new BathymetryToPointCloud(getLog());
+        System.out.println("\nsource name: " + source.name() + "\n");
         
         System.out.println("getComponent: " + mraVtkLogGroup.name());
         return this;
@@ -252,7 +267,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         System.out.println("CanBeApplied: " + source.name());
 
         // Checks wether there is a *.83P file
-        File file = source.getFile("Data.lsf").getParentFile();
+        file = source.getFile("Data.lsf").getParentFile();
         File[] files = file.listFiles();
         try {
             if (file.isDirectory()) {
