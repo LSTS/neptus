@@ -139,7 +139,8 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 Vector<String> sent = new Vector<String>();
                 sent.addAll(sentGoals.keySet());
                 for (String s : sent) {
-                    if (manLoc.getDistanceInMeters(sentGoals.get(s).getLocation()) < 1) {
+                    if (manLoc.getDistanceInMeters(sentGoals.get(s).getLocation()) < 1) { // FIXME all goals have
+                                                                                          // location?
                         NeptusLog.pub().info("<###>Distance: "+manLoc.getDistanceInMeters(sentGoals.get(s).getLocation()));
                         completeGoals.put(s, sentGoals.get(s));
                         sentGoals.remove(s);
@@ -233,160 +234,180 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             final Point2D clicked = event.getPoint();
 
             if (surveyEdit) {
-                popup.add("Clear survey points").addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        surveyEdit = false;
-                        surveyPos = 0;
-                        surveyArea = new LocationType[4];
-                    }
-                });
+                addSurveyPointsMenu(popup);
             }
-
-            popup.add("Visit this point").addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    loc.convertToAbsoluteLatLonDepth();
-
-                    TrexGoal goal = new TrexGoal();
-                    goal.lat_deg = loc.getLatitudeAsDoubleValue();
-                    goal.lon_deg = loc.getLongitudeAsDoubleValue();
-                    goal.depth = defaultDepth;
-                    goal.speed = defaultSpeed;
-                    goal.tolerance = defaultTolerance;
-
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MMM-dd hh:mm:ss.SSS");
-                    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-                    goal.setStartDate = true;
-                    goal.setEndDate = true;
-
-                    goal.start = System.currentTimeMillis()/1000;                    
-                    goal.end = System.currentTimeMillis()/1000 + 1;
-
-                    // PropertiesEditor.editProperties(goal, true);
-
-                    final String goalId = goal.goalId;
-                    sentGoals.put(goalId, goal);
-
-                    String xml = goal.asXml();
-
-                    final JEditorPane editor = SyntaxDocument.getXmlEditorPane();
-                    editor.setText(xml);
-                    JFrame frame = new JFrame("Edit goal xml");
-                    frame.setContentPane(new JScrollPane(editor));
-                    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    frame.addWindowListener(new WindowAdapter() {
-
-                        @Override
-                        public void windowClosed(WindowEvent e) {
-                            super.windowClosed(e);                            
-                            final TrexCommand cmd = new TrexCommand();
-                            cmd.setCommand(TrexCommand.COMMAND.POST_GOAL);
-                            cmd.setGoalXml(editor.getText());
-                            cmd.setGoalId(goalId);     
-
-                            try {
-                                TrexGoal g = new TrexGoal();
-                                g.parseXml(editor.getText());
-                                sentGoals.put(goalId, g);                                
-                            }
-                            catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-
-                            new Thread() {
-                                public void run() {
-                                    send(cmd);
-                                }
-                            }.start();
-
-                        }
-                    });
-
-                    frame.setSize(500, 500);
-                    GuiUtils.centerParent(frame, getConsole());
-                    frame.setVisible(true);
-                }
-            });
-
-            popup.add("Survey an area").addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    surveyArea = new LocationType[4];
-                    surveyEdit = true;
-                    surveyPos = 0;
-                }
-            });
-
-            popup.add("Clear goals").addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    sentGoals.clear();
-                    completeGoals.clear();
-                    lastManeuver = null;
-                }
-            });
-
+            addVisitThisPointMenu(popup, loc);
+            addSurvveyAreaMenu(popup);
+            addClearGoalMenu(popup);
             popup.addSeparator();
-
-            popup.add("Disable TREX").addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    TrexCommand cmd = new TrexCommand();
-                    cmd.setCommand(TrexCommand.COMMAND.DISABLE);
-                    ImcMsgManager.getManager().sendMessageToSystem(cmd, getConsole().getMainSystem());                            
-                    cmd.dump(System.err);
-                }
-            });
-
-            popup.add("Enable TREX").addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    TrexCommand cmd = new TrexCommand();
-                    cmd.setCommand(TrexCommand.COMMAND.ENABLE);
-                    ImcMsgManager.getManager().sendMessageToSystem(cmd, getConsole().getMainSystem());                            
-                    cmd.dump(System.err);
-                }
-            });
-
+            addDisableTrexMenu(popup);
+            addEnableTrexMenu(popup);
 
             for (String gid : sentGoals.keySet()) {
-                Point2D screenPos = source.getScreenPosition(sentGoals.get(gid).getLocation());
-
+                Point2D screenPos = source.getScreenPosition(sentGoals.get(gid).getLocation()); // FIXME all goals have
+                                                                                                // location?
                 if (screenPos.distance(clicked) < 5) {
                     final String goal = gid;
-                    popup.add("Recall goal "+gid).addActionListener(new ActionListener() {
-
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            TrexCommand cmd = new TrexCommand();
-                            cmd.setCommand(TrexCommand.COMMAND.POST_GOAL);
-                            cmd.setGoalId(goal);
-                            cmd.setGoalXml("<Recall id='"+goal+"'/>");
-                            ImcMsgManager.getManager().sendMessageToSystem(cmd, getConsole().getMainSystem());                            
-                            cmd.dump(System.err);
-                            sentGoals.remove(goal);
-                        }
-                    });
+                    addRecallGoalMenu(popup, gid, goal);
                 }
             }
-
-            popup.add("Settings").addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    PropertiesEditor.editProperties(TrexMapLayer.this, getConsole(), true);
-                }
-            });
-
+            addSettingMenu(popup);
             popup.show(source, event.getPoint().x, event.getPoint().y);
         }
+    }
+
+    private void addSettingMenu(JPopupMenu popup) {
+        popup.add("Settings").addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PropertiesEditor.editProperties(TrexMapLayer.this, getConsole(), true);
+            }
+        });
+    }
+
+    private void addRecallGoalMenu(JPopupMenu popup, String gid, final String goal) {
+        popup.add("Recall goal "+gid).addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TrexCommand cmd = new TrexCommand();
+                cmd.setCommand(TrexCommand.COMMAND.POST_GOAL);
+                cmd.setGoalId(goal);
+                cmd.setGoalXml("<Recall id='"+goal+"'/>");
+                ImcMsgManager.getManager().sendMessageToSystem(cmd, getConsole().getMainSystem());                            
+                cmd.dump(System.err);
+                sentGoals.remove(goal);
+            }
+        });
+    }
+
+    private void addEnableTrexMenu(JPopupMenu popup) {
+        popup.add("Enable TREX").addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TrexCommand cmd = new TrexCommand();
+                cmd.setCommand(TrexCommand.COMMAND.ENABLE);
+                ImcMsgManager.getManager().sendMessageToSystem(cmd, getConsole().getMainSystem());                            
+                cmd.dump(System.err);
+            }
+        });
+    }
+
+    private void addDisableTrexMenu(JPopupMenu popup) {
+        popup.add("Disable TREX").addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TrexCommand cmd = new TrexCommand();
+                cmd.setCommand(TrexCommand.COMMAND.DISABLE);
+                ImcMsgManager.getManager().sendMessageToSystem(cmd, getConsole().getMainSystem());                            
+                cmd.dump(System.err);
+            }
+        });
+    }
+
+    private void addClearGoalMenu(JPopupMenu popup) {
+        popup.add("Clear goals").addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sentGoals.clear();
+                completeGoals.clear();
+                lastManeuver = null;
+            }
+        });
+    }
+
+    private void addSurvveyAreaMenu(JPopupMenu popup) {
+        popup.add("Survey an area").addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                surveyArea = new LocationType[4];
+                surveyEdit = true;
+                surveyPos = 0;
+            }
+        });
+    }
+
+    private void addVisitThisPointMenu(JPopupMenu popup, final LocationType loc) {
+        popup.add("Visit this point").addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                loc.convertToAbsoluteLatLonDepth();
+
+                VisitLocationGoal goal = new VisitLocationGoal(defaultSpeed, defaultDepth, loc
+                        .getLatitudeAsDoubleValue(), loc.getLongitudeAsDoubleValue(), defaultTolerance);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MMM-dd hh:mm:ss.SSS");
+                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+                goal.setStartDate = true;
+                goal.setEndDate = true;
+
+                goal.start = System.currentTimeMillis()/1000;                    
+                goal.end = System.currentTimeMillis()/1000 + 1;
+
+                // PropertiesEditor.editProperties(goal, true);
+
+                final String goalId = goal.goalId;
+                sentGoals.put(goalId, goal);
+
+                String xml = goal.asXml();
+
+                final JEditorPane editor = SyntaxDocument.getXmlEditorPane();
+                editor.setText(xml);
+                JFrame frame = new JFrame("Edit goal xml");
+                frame.setContentPane(new JScrollPane(editor));
+                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                frame.addWindowListener(new WindowAdapter() {
+
+                    @Override
+                    public void windowClosed(WindowEvent e) {
+                        super.windowClosed(e);                            
+                        final TrexCommand cmd = new TrexCommand();
+                        cmd.setCommand(TrexCommand.COMMAND.POST_GOAL);
+                        cmd.setGoalXml(editor.getText());
+                        cmd.setGoalId(goalId);     
+
+                        try {
+                            TrexGoal g = new TrexGoal();
+                            g.parseXml(editor.getText());
+                            sentGoals.put(goalId, g);                                
+                        }
+                        catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                send(cmd);
+                            }
+                        }.start();
+
+                    }
+                });
+
+                frame.setSize(500, 500);
+                GuiUtils.centerParent(frame, getConsole());
+                frame.setVisible(true);
+            }
+        });
+    }
+
+    private void addSurveyPointsMenu(JPopupMenu popup) {
+        popup.add("Clear survey points").addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                surveyEdit = false;
+                surveyPos = 0;
+                surveyArea = new LocationType[4];
+            }
+        });
     } 
 
     @Override
