@@ -37,6 +37,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -64,7 +65,9 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     private boolean active = false;
 
     private static final long serialVersionUID = -4807939956933128721L;
-    private final int updateMillis;
+
+    @NeptusProperty
+    public int updateMinutes = 2;
 
     @NeptusProperty
     public boolean showOnlyWhenInteractionIsActive = true;
@@ -73,7 +76,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     @NeptusProperty
     public boolean showSpeedValue = true;
     @NeptusProperty(userLevel = LEVEL.REGULAR, description = "Set the time window (in hours) for considered positions. Will only consider positions in the last x hours.", name = "Time window (hours)")
-    public int hours = 1;
+    public int hours = 70;
 
     protected GeneralPath gp = new GeneralPath();
     {
@@ -92,7 +95,6 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
      */
     public SpotOverlay(ConsoleLayout console) {
         super(console);
-        updateMillis = 2 * 60 * 1000;
         spotsOnMap = new Vector<Spot>();
     }
 
@@ -109,7 +111,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public long millisBetweenUpdates() {
-        return updateMillis;
+        return updateMinutes * 60 * 1000;
     }
 
     @Override
@@ -127,27 +129,29 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
             msgBySpot = SpotMsgFetcher.get(hours);
             // if no messages were found or could not reach page do nothing
             if (msgBySpot.size() == 0) {
-                Spot.log.debug("No messages in the last " + hours + " hours.");
+                // Spot.log.debug("No messages in the last " + hours + " hours.");
                 return;
             }
             Collection<TreeSet<SpotMessage>> spotIds = msgBySpot.values();
-            Spot.log.debug("Gonna run updates on SPOTS. There are " + spotIds.size() + " spots registered");
+            // Spot.log.debug("Gonna run updates on SPOTS. There are " + spotIds.size() + " spots registered");
             TreeSet<SpotMessage> msgTreeSet;
+            SpotMessage firstMsg;
+            Spot spot;
             // iterate over spots mentioned in messages
             for (Iterator<TreeSet<SpotMessage>> iterator = spotIds.iterator(); iterator.hasNext();) {
                 msgTreeSet = iterator.next();
                 // create spot
-                SpotMessage firstMsg = msgTreeSet.first();
-                Spot spot = new Spot(firstMsg.id);
+                firstMsg = msgTreeSet.first();
+                spot = new Spot(firstMsg.id);
                 spot.update(msgTreeSet);
                 nextSpotsOnMap.add(spot);
             }
             spotsOnMap = nextSpotsOnMap;
-            Spot.log.debug("Repaint asked for SpotOverlay");
+            // Spot.log.debug("Repaint asked for SpotOverlay");
             repaint();
         }
         catch (Exception e) {
-            Spot.log.debug("Ran into exception while getting messages from page.", e);
+            // Spot.log.debug("Ran into exception while getting messages from page.", e);
             // TODO handle e.printStackTrace();
         }
     }
@@ -173,8 +177,10 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
+        Graphics2D g2 = (Graphics2D) g.create();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         for (Spot spot : spotsOnMap) {
+
             LocationType spotLoc = spot.getLastLocation();
             if (spotLoc == null) {
                 continue;
@@ -195,16 +201,38 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
                     g.setColor(Color.black);
                     g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(speedMps) + " m/s", 12, 10);
                 }
-                g.rotate(spot.direction);
-                g.setColor(Color.black);
-                g.fill(gp);
-                g.setStroke(new BasicStroke(0.9f));
-                g.setColor(Color.white);
-                g.draw(gp);
+                // g.rotate(spot.direction);
+                // g.setColor(Color.black);
+                // g.fill(gp);
+                // g.setStroke(new BasicStroke(0.9f));
+                // g.setColor(Color.white);
+                // g.draw(gp);
+            }
+            g.translate(-xScreenPos, -yScreenPos);
+            ArrayList<LocationType> lastLocations = spot.getLastLocations();
+            LocationType location;
+            GeneralPath spotPath = new GeneralPath();
+            Iterator<LocationType> iterator = lastLocations.iterator();
+            if (iterator.hasNext()) {
+                location = iterator.next();
+                pt = renderer.getScreenPosition(location);
+                Spot.log.debug(location.toString() + " (" + pt.getX() + ", " + pt.getX() + ")");
+                spotPath.moveTo(pt.getX(), pt.getY());
+                while (iterator.hasNext()) {
+                    location = iterator.next();
+                    // Spot.log.debug(location.toString() + " (" + pt.getX() + ", " + pt.getX() + ")");
+                    pt = renderer.getScreenPosition(location);
+                    spotPath.lineTo(pt.getX(), pt.getY());
+                }
+                spotPath.closePath();
+                // g2.setColor(Color.black);
+                // g2.fill(spotPath);
+                g2.setStroke(new BasicStroke(2f));
+                g2.setColor(Color.black);
+                g2.draw(spotPath);
             }
 
         }
-        
     }
 
 

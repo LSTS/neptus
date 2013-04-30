@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.spot;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeSet;
 
@@ -56,6 +57,7 @@ public class Spot {
     protected Float speed;
     protected Double direction;
     protected LocationType lastLocation;
+    private final ArrayList<LocationType> lastLocations;
 
     /**
      * @param pageInfo
@@ -67,6 +69,7 @@ public class Spot {
         lastLocation = null;
         speed = null;
         direction = null;
+        lastLocations = new ArrayList<LocationType>();
     }
 
 
@@ -77,12 +80,12 @@ public class Spot {
      */
     public void update(TreeSet<SpotMessage> messages) {
         // ask for messages
-        Spot.log.debug(id + " has " + messages.size() + " messages");
+        // Spot.log.debug(id + " has " + messages.size() + " messages");
         // calculate direction and speed
         final LocationSpeedDirection speedLocationDirection = setSpeedMpsAndDirection(messages);
-        Spot.log.debug("Speed:" + speedLocationDirection.speed + ", direction:" + speedLocationDirection.direction
-                + " [" + speedLocationDirection.location.getLatitude() + ","
-                + speedLocationDirection.location.getLongitude() + "]");
+        // Spot.log.debug("Speed:" + speedLocationDirection.speed + ", direction:" + speedLocationDirection.direction
+        // + " [" + speedLocationDirection.location.getLatitude() + ","
+        // + speedLocationDirection.location.getLongitude() + "]");
         // update in EDT
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -90,8 +93,8 @@ public class Spot {
                 speed = speedLocationDirection.speed;
                 direction = speedLocationDirection.direction;
                 lastLocation = speedLocationDirection.location;
-                Spot.log.debug("Gonna update speed and directions variables in EDT "
-                        + SwingUtilities.isEventDispatchThread());
+                // Spot.log.debug("Gonna update speed and directions variables in EDT "
+                // + SwingUtilities.isEventDispatchThread());
             }
         });
     }
@@ -103,7 +106,7 @@ public class Spot {
      */
     private LocationSpeedDirection setSpeedMpsAndDirection(TreeSet<SpotMessage> messages) {
         if (messages.size() == 1) {
-            Spot.log.debug("Just one message");
+            // Spot.log.debug("Just one message");
             return new LocationSpeedDirection(LocationSpeedDirection.NO_VALUE_F, -LocationSpeedDirection.NO_VALUE_D,
                     new LocationType(messages.first().latitude, messages.first().longitude));
         }
@@ -122,6 +125,7 @@ public class Spot {
         for (Iterator<SpotMessage> it = messages.iterator(); it.hasNext();) {
             tmpMsg = it.next();
             tmpLocation = new LocationType(tmpMsg.latitude, tmpMsg.longitude);// tmpMsg.getLocation();
+            lastLocations.add(tmpLocation);
             numMeasurements++;
             if (prevMsg != null) {
                 distanceInMeters = tmpLocation.getDistanceInMeters(prevLocation);
@@ -135,11 +139,12 @@ public class Spot {
                         movementVectorArray[1]),
                         0f);
                 movementVector = movementVector.divide(movementVector.length());
-                Spot.log.debug("Direction: (" + movementVectorArray[0] + ", " + movementVectorArray[1] + ")  --> ("
-                        + movementVector.x + ", " + movementVector.y + ")");
+                // Spot.log.debug("Direction: (" + movementVectorArray[0] + ", " + movementVectorArray[1] + ")  --> ("
+                // + movementVector.x + ", " + movementVector.y + ")");
                 // weighted sum
                 sumDirVector.x = movementVector.x * numMeasurements;
                 sumDirVector.y = movementVector.y * numMeasurements;
+
 
                 // latDif = tmpLocation.getLatitudeAsDoubleValueRads() - prevLocation.getLatitudeAsDoubleValueRads();
                 // lonDif = tmpLocation.getLongitudeAsDoubleValueRads() - prevLocation.getLongitudeAsDoubleValueRads();
@@ -223,6 +228,10 @@ public class Spot {
             this.direction = direction;
             this.location = location;
         }
+    }
+
+    public ArrayList<LocationType> getLastLocations() {
+        return lastLocations;
     }
 }
 
