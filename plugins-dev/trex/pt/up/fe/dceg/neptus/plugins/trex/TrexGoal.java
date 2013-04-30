@@ -236,7 +236,7 @@ public abstract class TrexGoal implements PropertiesProvider {
         
         switch (token.getTimeline()+"."+token.getPredicate()) {
             case "estimator.At":
-                goal = new AtGoal();
+                goal = new VisitLocationGoal();
                 break;
             default:
                 goal = new GenericGoal(token.getTimeline(), token.getPredicate());
