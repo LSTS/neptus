@@ -31,178 +31,230 @@
  */
 package pt.up.fe.dceg.neptus.plugins.trex;
 
-import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.Vector;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Node;
-
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.gui.editor.UnixTimeEditor;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.imc.TrexAttribute;
+import pt.up.fe.dceg.neptus.imc.TrexAttribute.ATTR_TYPE;
+import pt.up.fe.dceg.neptus.imc.TrexOperation;
+import pt.up.fe.dceg.neptus.imc.TrexOperation.OP;
+import pt.up.fe.dceg.neptus.imc.TrexToken;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author zp
- *
+ * @author mfaria
+ * 
  */
-public class TrexGoal implements PropertiesProvider {
+public abstract class TrexGoal implements PropertiesProvider {
 
-    protected String timeline = "estimator", predicate = "At";
-    protected String goalId = "Neptus_"+System.currentTimeMillis();
-    protected double speed = 1.0, depth = 2, lat_deg = 41, lon_deg = -8, tolerance = 15;
-    protected long start = new Date().getTime()/1000, end = new Date().getTime()/1000, secs = 0;
-    protected boolean setStartDate = false;
-    protected boolean setEndDate = false;
-    @Override
-    public DefaultProperty[] getProperties() {
+    protected String goalId, timeline, predicate;
+    protected Date minStartTime = new Date(), maxStartTime = new Date(System.currentTimeMillis() + 3600 * 1000 * 24);
+    protected Date minEndTime = new Date(), maxEndTime = new Date(System.currentTimeMillis() + 3600 * 1000 * 24);
+    protected boolean specifyStartDate = false, specifyEndDate = false;
+    
+    /**
+     * This method could (and should) be override by subclasses to define additional attributes
+     * @return Attributes specific to this goal
+     */
+    public abstract Collection<TrexAttribute> getAttributes();
+    public abstract void parseAttributes(Collection<TrexAttribute> attributes);
+    public abstract void setSpecificProperties(Collection<Property> properties);
+    public abstract Collection<DefaultProperty> getSpecificProperties();
+    
+    /**
+     * @return the timeline
+     */
+    public String getTimeline() {
+        return timeline;
+    }
+
+    /**
+     * @param timeline the timeline to set
+     */
+    public void setTimeline(String timeline) {
+        this.timeline = timeline;
+    }
+
+    /**
+     * @return the predicate
+     */
+    public String getPredicate() {
+        return predicate;
+    }
+
+    /**
+     * @param predicate the predicate to set
+     */
+    public void setPredicate(String predicate) {
+        this.predicate = predicate;
+    }
+    
+    protected final Collection<TrexAttribute> getAggregatedAttributes() {
+        Vector<TrexAttribute> attrs = new Vector<>();
+        if (specifyStartDate)
+            attrs.add(new TrexAttribute("start", ATTR_TYPE.INT, "" + minStartTime.getTime(), "" + maxStartTime.getTime()));
+        if (specifyEndDate)
+            attrs.add(new TrexAttribute("end", ATTR_TYPE.INT, "" + minEndTime.getTime(), "" + maxEndTime.getTime()));
         
-        DefaultProperty startProp = PropertiesEditor.getPropertyInstance("Start date", Long.class, start, true);
-        DefaultProperty endProp = PropertiesEditor.getPropertyInstance("End date", Long.class, end, true);
+        attrs.addAll(getAttributes());
+        return attrs;
+    }
+    
+    protected final void parseAggregatedAttributes(Collection<TrexAttribute> attributes) {
         
-        PropertiesEditor.getPropertyEditorRegistry().registerEditor(startProp, UnixTimeEditor.class);
-        PropertiesEditor.getPropertyEditorRegistry().registerEditor(endProp, UnixTimeEditor.class);
-        return new DefaultProperty[] {
-                PropertiesEditor.getPropertyInstance("Timeline", String.class, timeline, false),
-                PropertiesEditor.getPropertyInstance("Predicate", String.class, predicate, false),
-                PropertiesEditor.getPropertyInstance("Goal ID", String.class, goalId, true),
-                PropertiesEditor.getPropertyInstance("Depth", Double.class, depth, true),
-                PropertiesEditor.getPropertyInstance("Speed", Double.class, speed, true),
-                PropertiesEditor.getPropertyInstance("Tolerance", Double.class, tolerance, true),
-                PropertiesEditor.getPropertyInstance("Latitude (degrees)", Double.class, lat_deg, true),
-                PropertiesEditor.getPropertyInstance("Longitude (degrees)", Double.class, lon_deg, true),
-                startProp, 
-                PropertiesEditor.getPropertyInstance("Specify start date", Boolean.class, setStartDate, true),
-                endProp,
-                PropertiesEditor.getPropertyInstance("Specify end date", Boolean.class, setEndDate, true)
-        };
+        Vector<TrexAttribute> unparsed = new Vector<>();
+        unparsed.addAll(attributes);
+        
+        for (TrexAttribute t : attributes) {
+            switch (t.getName()) {
+                case "start":
+                    unparsed.remove(t);
+                    minStartTime = new Date(Long.parseLong(t.getMin()));
+                    maxStartTime = new Date(Long.parseLong(t.getMax()));
+                    break;
+                    
+                case "end":
+                    unparsed.remove(t);
+                    minEndTime = new Date(Long.parseLong(t.getMin()));
+                    maxEndTime = new Date(Long.parseLong(t.getMax()));
+                    break;
+                    
+                default:
+                    break;
+            }
+        }
+        
+        parseAttributes(unparsed);        
+    }
+
+
+
+    public TrexGoal(String timeline, String predicate) {
+        goalId = "N_" + System.currentTimeMillis();// FIXME add counter
+        this.timeline = timeline;
+        this.predicate = predicate;
     }
 
     @Override
-    public void setProperties(Property[] properties) {
+    public final DefaultProperty[] getProperties() {
+
+        DefaultProperty minEndProp = PropertiesEditor
+                .getPropertyInstance("Minimum End time", Date.class, minEndTime, true);
+        DefaultProperty maxEndProp = PropertiesEditor
+                .getPropertyInstance("Maximum End time", Date.class, maxEndTime, true);
+        DefaultProperty minStartProp = PropertiesEditor
+                .getPropertyInstance("Minimum Start time", Date.class, minStartTime, true);
+        DefaultProperty maxStartProp = PropertiesEditor
+                .getPropertyInstance("Maximum Start time", Date.class, maxStartTime, true);
+
+        PropertiesEditor.getPropertyEditorRegistry().registerEditor(minStartProp, UnixTimeEditor.class);
+        PropertiesEditor.getPropertyEditorRegistry().registerEditor(maxStartProp, UnixTimeEditor.class);
+        PropertiesEditor.getPropertyEditorRegistry().registerEditor(minEndProp, UnixTimeEditor.class);
+        PropertiesEditor.getPropertyEditorRegistry().registerEditor(maxEndProp, UnixTimeEditor.class);
+
+        Vector<DefaultProperty> props = new Vector<>();
+        DefaultProperty[] properties = new DefaultProperty[] {
+                PropertiesEditor.getPropertyInstance("Timeline", String.class, timeline, true),
+                PropertiesEditor.getPropertyInstance("Predicate", String.class, predicate, true),
+                minStartProp, maxStartProp, minEndProp, maxEndProp,
+                PropertiesEditor.getPropertyInstance("Specify Start Date", Boolean.class, specifyStartDate, true),
+                PropertiesEditor.getPropertyInstance("Specify End Date", Boolean.class, specifyEndDate, true) };
+        props.addAll(Arrays.asList(properties));
+        
+        props.addAll(getSpecificProperties());
+        return props.toArray(new DefaultProperty[0]);
+    }
+
+    @Override
+    public final void setProperties(Property[] properties) {
+
+        Vector<Property> unprocessed = new Vector<>();
+        unprocessed.addAll(Arrays.asList(properties));
+        
         for (Property p : properties) {
-            if (p.getName().equals("Goal ID")) {
-                goalId = p.getValue().toString();
-            }
-            else if (p.getName().equals("Tolerance")) {
-                tolerance = (Double)p.getValue();
-            }
-            else if (p.getName().equals("Depth")) {
-                depth = (Double)p.getValue();
-            }
-            else if (p.getName().equals("Speed")) {
-                speed = (Double)p.getValue();
-            }
-            else if (p.getName().equals("Latitude (degrees)")) {
-                lat_deg = (Double)p.getValue();
-            }
-            else if (p.getName().equals("Longitude (degrees)")) {
-                lon_deg = (Double)p.getValue();
-            }
-            else if (p.getName().equals("Start date")) {
-                start = (Long)p.getValue();
-            }
-            else if (p.getName().equals("End date")) {
-                end = (Long)p.getValue();
-            }
-            else if (p.getName().equals("Specify start date")) {
-                setStartDate = ((Boolean)p.getValue()).booleanValue();
-            }
-            else if (p.getName().equals("Specify end date")) {
-                setEndDate = ((Boolean)p.getValue()).booleanValue();
+            switch (p.getName()) {
+                case "Timeline":
+                    timeline = p.getValue().toString();
+                    unprocessed.remove(p);
+                    break;
+                case "Predicate":
+                    predicate = p.getValue().toString();
+                    unprocessed.remove(p);
+                    break;
+                case "Specify Start Date":
+                    specifyStartDate = (Boolean)p.getValue();
+                    unprocessed.remove(p);
+                    break;
+                case "Specify End Date":
+                    specifyEndDate = (Boolean)p.getValue();
+                    unprocessed.remove(p);
+                    break;
+                case "Minimum End time":
+                    minEndTime = new Date((Long)p.getValue());
+                    unprocessed.remove(p);
+                    break;
+                case "Maximum End time":
+                    maxEndTime = new Date((Long)p.getValue());
+                    unprocessed.remove(p);
+                    break;
+                case "Minimum Start time":
+                    minStartTime = new Date((Long)p.getValue());
+                    unprocessed.remove(p);
+                    break;
+                case "Maximum Start time":
+                    maxStartTime = new Date((Long)p.getValue());
+                    unprocessed.remove(p);
+                    break;
+                default:
+                    break;
             }
         }
+        
+        setSpecificProperties(unprocessed);
     }
 
     @Override
     public String getPropertiesDialogTitle() {
-        return "Trex goal parameters";
+        return getClass().getSimpleName()+" parameters";
     }
 
     @Override
     public String[] getPropertiesErrors(Property[] properties) {
         return null;
-    }    
-    
-    public LocationType getLocation() {
-        LocationType loc = new LocationType(lat_deg, lon_deg);
-        loc.setAbsoluteDepth(depth);
-        return loc;        
     }
     
-    public void parseXml(String xml) throws Exception {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MMM-dd hh:mm:ss.SSS");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+    public static final TrexGoal parseImcMsg(TrexToken token) {
+        TrexGoal goal;
         
-        Document doc = DocumentHelper.parseText(xml);
-        timeline = doc.getRootElement().selectSingleNode("@on").getText();
-        predicate = doc.getRootElement().selectSingleNode("@pred").getText();
-        goalId = doc.getRootElement().selectSingleNode("@id").getText();
-        
-        List<?> l = doc.selectNodes("Goal/Variable");
-        for (Object o : l) {
-            Node n = (Node)o;
-            String varName = n.selectSingleNode("@name").getText();
-            
-            if (varName.equals("latitude"))
-                lat_deg = Math.toDegrees(Double.parseDouble(n.selectSingleNode("float/@min").getText()));
-            else if (varName.equals("longitude"))
-                lon_deg = Math.toDegrees(Double.parseDouble(n.selectSingleNode("float/@min").getText()));
-            else if (varName.equals("z"))
-                depth = Double.parseDouble(n.selectSingleNode("float/@min").getText());
-            else if (varName.equals("start"))
-                start = sdf.parse(n.selectSingleNode("date/@min").getText()).getTime()/1000;
-            else if (varName.equals("end"))
-                end = sdf.parse(n.selectSingleNode("date/@min").getText()).getTime()/1000;
-            else if (varName.equals("secs"))
-                secs = Integer.parseInt(n.selectSingleNode("int/@min").getText());            
+        switch (token.getTimeline()+"."+token.getPredicate()) {
+            case "estimator.At":
+                goal = new AtGoal();
+                break;
+            default:
+                goal = new GenericGoal(token.getTimeline(), token.getPredicate());
+                break;
         }
+        
+        goal.parseAggregatedAttributes(token.getAttributes());
+        return goal;
     }
-    
-    public String asXml() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MMM-dd hh:mm:ss.SSS");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String xml = "<Goal on='navigator' pred='At' id='"+goalId+"'>\n";
-        xml += "<Variable name='z'>\n\t<float min='"+depth+"' max='"+depth+"'/>\n</Variable>\n";
-        
-        xml += "<Variable name='latitude'>\n\t<float min='" + Math.toRadians(lat_deg)
-                + "' max='" +  Math.toRadians(lat_deg) + "'/>\n</Variable>\n";
-        xml += "<Variable name='longitude'>\n\t<float min='" +  Math.toRadians(lon_deg)
-                + "' max='" +  Math.toRadians(lon_deg) + "'/>\n</Variable>\n";
-        xml += "<Variable name='secs'>\n\t<int min='"+secs+"' max='"+secs+"'/>\n</Variable>\n";
-        
-        if (setStartDate) {
-            Date min = new Date(start*1000);
-            xml += "<Variable name='start'>\n\t<date min='"+sdf.format(min)+"'/>\n</Variable>\n";
-        }
-        if (setEndDate) {
-            Date min = new Date(end*1000);
-            xml += "<Variable name='end'>\n\t<date min='"+sdf.format(min)+"'/>\n</Variable>\n";            
-        }
-        xml +="</Goal>";
-        
-        return xml;
+
+    /**
+     * This should be called last by the child as it uses the attributes variable to add TrexAttribute
+     * 
+     * @return
+     */
+    public final TrexOperation asIMCMsg() {
+        TrexOperation trexOperation = new TrexOperation(OP.POST_GOAL, goalId, new TrexToken(timeline, predicate,
+                getAggregatedAttributes()));
+        return trexOperation;
     }
-    
-    public static void main(String[] args) throws Exception {
-        TrexGoal goal = new TrexGoal();
-        
-        
-        PropertiesEditor.editProperties(goal, true);
-        String xml = goal.asXml();
-        NeptusLog.pub().info("<###> "+xml);
-        PropertiesEditor.editProperties(goal, true);
-        goal.parseXml(xml);
-        
-        NeptusLog.pub().info("<###> "+goal.asXml());
-    }
-    
-    
 }
