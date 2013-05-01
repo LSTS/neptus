@@ -111,7 +111,7 @@ import java.util.Calendar;
  * 151-154  -   Transmit Scan Angle
  * 155-255  -   Reserved - always 0      
  */
-public class BathymetryDeltaTHeader {
+public class MultibeamDeltaTHeader {
     ByteBuffer buf;
 
     String fileType; // bytes 0-2 - ASCII '8' '3' 'P'
@@ -177,7 +177,7 @@ public class BathymetryDeltaTHeader {
     byte transmitScanFlag;
     float transmitScanAngle;
     
-    public BathymetryDeltaTHeader(ByteBuffer buf) {
+    public MultibeamDeltaTHeader(ByteBuffer buf) {
         this.buf = buf;
     }
 

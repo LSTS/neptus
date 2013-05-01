@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
@@ -45,16 +44,16 @@ import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
 import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTHeader;
 import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
-import pt.up.fe.dceg.neptus.plugins.vtk.utils.BathymetryDeltaTHeader;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.up.fe.dceg.neptus.plugins.vtk.utils.MultibeamDeltaTHeader;
+import pt.up.fe.dceg.neptus.plugins.vtk.utils.MultibeamDeltaTParser;
 
 /**
  * @author hfq
  *
  */
-public class BathymetryToPointCloud {
+public class MultibeamToPointCloud {
     
     public IMraLogGroup source;
     public IMraLog state;
@@ -82,18 +81,25 @@ public class BathymetryToPointCloud {
     
     byte fileContent[];
     
+    MultibeamDeltaTParser multibeamDeltaTParser;
     
-    public BathymetryToPointCloud(IMraLogGroup source) {
+    PointCloud<PointXYZ> poi;
+    
+    
+    public MultibeamToPointCloud(IMraLogGroup source) {
         
         this.source = source;
         
+        multibeamDeltaTParser = new MultibeamDeltaTParser(this.source);
+        
+        
         //getMyDeltaTHeader();
                 
-        DeltaTParser deltaTParser = new DeltaTParser(source);
-        batInfo = deltaTParser.getBathymetryInfo();
-        long firstTimeStamp = deltaTParser.getFirstTimestamp();
+        //DeltaTParser deltaTParser = new DeltaTParser(source);
+        //batInfo = deltaTParser.getBathymetryInfo();
+        //long firstTimeStamp = deltaTParser.getFirstTimestamp();
         
-        state = source.getLog("Estimated state");
+        //state = source.getLog("Estimated state");
     }
     
     /**
@@ -125,7 +131,7 @@ public class BathymetryToPointCloud {
             e.printStackTrace();
         } 
         
-        BathymetryDeltaTHeader deltaTHeader = new BathymetryDeltaTHeader(buf);
+        MultibeamDeltaTHeader deltaTHeader = new MultibeamDeltaTHeader(buf);
         deltaTHeader.parseHeader();
         
     }

@@ -52,14 +52,12 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
-import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.BathymetryToPointCloud;
+import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesActor;
-import pt.up.fe.dceg.neptus.plugins.vtk.visualization.CubeAxes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.PointCloudHandlers;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
-import vtk.vtkActor;
 import vtk.vtkCanvas;
 import vtk.vtkLODActor;
 import vtk.vtkNativeLibrary;
@@ -236,35 +234,24 @@ public class Vtk extends JPanel implements MRAVisualization {
         add(toolBar, BorderLayout.EAST);
     }
     
-    void toogleStyle() {
-        if (vtkPanel.GetRenderWindow().GetInteractor().GetKeyCode() == 'c' | vtkPanel.GetRenderWindow().GetInteractor().GetKeyCode() == 'C') {
-            System.out.println("1- setted interactor style C");
-        } else {
-            System.out.println("2- setted interactor style A");
-        }       
-    }
-    
     @Override
     public String getName() {
-        System.out.println("getName: " + mraVtkLogGroup.name());
+        //System.out.println("getName: " + mraVtkLogGroup.name());
         return "Vtk Visualization";
     }
 
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
-        //String name = source.name();
-        //String[] listoflogs = source.listLogs();
-        BathymetryToPointCloud bathToPointCloud = new BathymetryToPointCloud(getLog());
-        System.out.println("\nsource name: " + source.name() + "\n");
+        MultibeamToPointCloud bathToPointCloud = new MultibeamToPointCloud(getLog());
         
-        System.out.println("getComponent: " + mraVtkLogGroup.name());
+        //System.out.println("getComponent: " + mraVtkLogGroup.name());
         return this;
     }
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         boolean beApplied = false;        
-        System.out.println("CanBeApplied: " + source.name());
+        //System.out.println("CanBeApplied: " + source.name());
 
         // Checks wether there is a *.83P file
         file = source.getFile("Data.lsf").getParentFile();
@@ -288,36 +275,36 @@ public class Vtk extends JPanel implements MRAVisualization {
 
     @Override
     public ImageIcon getIcon() {
-        System.out.println("getIcon: " + mraVtkLogGroup.name());
+        //System.out.println("getIcon: " + mraVtkLogGroup.name());
         return null;
     }
 
     @Override
     public Double getDefaultTimeStep() {
-        System.out.println("get DefaultTimeStep: " + mraVtkLogGroup.name());
+        //System.out.println("get DefaultTimeStep: " + mraVtkLogGroup.name());
         return null;
     }
 
     @Override
     public boolean supportsVariableTimeSteps() {
-        System.out.println("supportsVariableTimeSteps: " + mraVtkLogGroup.name());
+        //System.out.println("supportsVariableTimeSteps: " + mraVtkLogGroup.name());
         return false;
     }
 
     @Override
     public Type getType() {
-        System.out.println("getType: " + mraVtkLogGroup.name());
+        //System.out.println("getType: " + mraVtkLogGroup.name());
         return Type.VISUALIZATION;
     }
 
     @Override
     public void onHide() {
-        System.out.println("onHide: " + mraVtkLogGroup.name());
+        //System.out.println("onHide: " + mraVtkLogGroup.name());
     }
 
     @Override
     public void onShow() {
-        System.out.println("onShow: " + mraVtkLogGroup.name());
+        //System.out.println("onShow: " + mraVtkLogGroup.name());
     }
 
     @Override
@@ -330,7 +317,7 @@ public class Vtk extends JPanel implements MRAVisualization {
 //            // TODO Auto-generated catch block
 //            e.printStackTrace();
 //        }
-        System.out.println("onCleanup: " + mraVtkLogGroup.name());
+        //System.out.println("onCleanup: " + mraVtkLogGroup.name());
     }
     
     /**
@@ -348,7 +335,6 @@ public class Vtk extends JPanel implements MRAVisualization {
     }
     
     private JPanel createToolbar() {
-        //JPanel toolbar = new JPanel();
         JPanel toolbar = new JPanel();
         
         toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.Y_AXIS));
