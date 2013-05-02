@@ -113,6 +113,8 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
     private Vector<LogReplayLayer> replayLayers = new Vector<LogReplayLayer>();
     private InfiniteProgressPanel loader;
     
+    int currentValue = 0; // This value will be used to know if we regressed in timeline
+    
     public LogReplay(MRAPanel panel) {
         this.source = panel.getSource();
         this.loader = panel.getLoader();
@@ -235,7 +237,13 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
             @Override
             public void timelineChanged(int value) {
                 IMCMessage entry;
-
+                
+                if(value < currentValue) {
+                    for(IMraLog l : replayParsers.values()) {
+                        l.firstLogEntry();
+                    }
+                }
+                
                 if ((entry = parser.getEntryAtOrAfter((long) ((minTime + value)))) != null) {
                     System.out.println(value + " " + (minTime + value) + " " + entry.getAbbrev());
                     setState(entry);
@@ -263,6 +271,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
                         }
                     }
                 }
+                currentValue = value;
             }
         });
         
