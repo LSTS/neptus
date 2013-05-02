@@ -31,8 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.mra.replay;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.Vector;
@@ -65,7 +63,6 @@ import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
 import pt.up.fe.dceg.neptus.util.llf.LogUtils;
@@ -88,8 +85,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
     private double minTime, maxTime;
     private IMraLog parser;
     private Timer timer = null;
-    
-    private SimpleDateFormat format = (SimpleDateFormat) DateTimeUtil.timeFormaterUTC.clone(); // new
+
     private LogMarkersReplay markersReplay = new LogMarkersReplay();
 
     private Timeline timeline;
@@ -278,8 +274,6 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
         
     }
 
-    
-
     private void setState(IMCMessage entry) {
 //        currentTime = entry.getTimestamp();
 
@@ -298,15 +292,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
         vehicle = VehiclesHolder.getVehicleWithImc(new ImcId16(entry.getSrc()));
         renderer.setVehicleState(vehicle, state);
     }
-
-    protected String getTime(long timeInMillis) {
-
-        if (parser.getCurrentEntry() == null)
-            return I18n.text("finished");
-
-        return format.format(new Date(timeInMillis));
-    }
-
+    
     public void setMission(MissionType mt) {
         this.mt = mt;
         LogUtils.generatePath(mt, source);
