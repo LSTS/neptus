@@ -106,8 +106,7 @@ public class UavHUDPanel extends SimpleSubPanel implements NeptusMessageListener
                 + Math.pow(message.getDouble("w"), 2));
 
         args.put("indicatedSpeed", indicatedSpeed);
-        // FIXME Now working with positive altitude; correct painter
-        args.put("altitude", -(message.getInteger("height")));
+        args.put("altitude", (message.getInteger("height")) - (message.getInteger("z")));
         args.put("roll", Math.toDegrees(message.getDouble("phi")));
         args.put("pitch", Math.toDegrees(message.getDouble("theta")));
 
