@@ -245,15 +245,12 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
                 }
                 
                 if ((entry = parser.getEntryAtOrAfter((long) ((minTime + value)))) != null) {
-                    System.out.println(value + " " + (minTime + value) + " " + entry.getAbbrev());
                     setState(entry);
                     
                     timeline.setTime((long) (minTime + value));
                     
                     for (LogReplayLayer layer : replayLayers) {
                         for (String msg : layer.getObservedMessages()) {
-
-                            System.out.println(replayParsers.get(msg) + " " + msg);
                             if(replayParsers.get(msg) == null) 
                                 continue;
                             
@@ -267,7 +264,6 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
                                     NeptusLog.pub().warn(e);
                                 }
                             }
-                                
                         }
                     }
                 }

@@ -133,7 +133,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
             add(p, "w 100%, h 100%, wrap");
         }
         
-        add(timeline, "w 100%, h 32!, split");
+        add(timeline, "w 100%, split");
     }
 
     @Override
