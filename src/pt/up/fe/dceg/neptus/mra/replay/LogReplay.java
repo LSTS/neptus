@@ -31,28 +31,22 @@
  */
 package pt.up.fe.dceg.neptus.mra.replay;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
 import javax.swing.JToolBar;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
+import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.InfiniteProgressPanel;
-import pt.up.fe.dceg.neptus.gui.ToolbarButton;
+import pt.up.fe.dceg.neptus.gui.Timeline;
+import pt.up.fe.dceg.neptus.gui.TimelineChangeListener;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
@@ -80,25 +74,25 @@ import pt.up.fe.dceg.neptus.util.llf.LogUtils;
  * @author ZP
  */
 @SuppressWarnings("serial")
-public class LogReplay extends JPanel implements MRAVisualization, ActionListener, LogMarkerListener {
+public class LogReplay extends JPanel implements MRAVisualization, LogMarkerListener {
+    private MissionRenderer renderer;
 
     private VehicleType vehicle = null;
+    private LocationType loc = null;
+    
     private IMraLogGroup source;
-    private MissionRenderer renderer;
+    
     private MissionType mt;
     private PlanType plan;
-    private double minTime, maxTime, speed = 1.0, currentTime = 0;
+    
+    private double minTime, maxTime;
     private IMraLog parser;
     private Timer timer = null;
+    
     private SimpleDateFormat format = (SimpleDateFormat) DateTimeUtil.timeFormaterUTC.clone(); // new
     private LogMarkersReplay markersReplay = new LogMarkersReplay();
 
-    private ToolbarButton play, restart, forward, rewind;
-    private JLabel curTimeLbl = new JLabel("");
-    private JSlider timeline;
-
-    private int jumpToTime = -1;
-    private double startTime = 0;
+    private Timeline timeline;
 
     private Vector<LogReplayLayer> layers = new Vector<LogReplayLayer>();
     {
@@ -117,23 +111,13 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
     protected LinkedHashMap<String, IMraLog> replayParsers = new LinkedHashMap<String, IMraLog>();
     private Vector<LogReplayLayer> renderedLayers = new Vector<LogReplayLayer>();
     private Vector<LogReplayLayer> replayLayers = new Vector<LogReplayLayer>();
-    InfiniteProgressPanel loader;
+    private InfiniteProgressPanel loader;
     
     public LogReplay(MRAPanel panel) {
         this.source = panel.getSource();
         this.loader = panel.getLoader();
         
-        setLayout(new BorderLayout());
-
-        for (LogReplayLayer layer : layers) {
-
-            if (layer.canBeApplied(source))
-                renderedLayers.add(layer);
-
-            if (layer.canBeApplied(source) && layer.getObservedMessages() != null
-                    && layer.getObservedMessages().length > 0)
-                replayLayers.add(layer);
-        }
+        setLayout(new MigLayout());
     }
 
     
@@ -153,8 +137,8 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
             // max and min time are calculated from the EstimatedState log
             parser = source.getLog("EstimatedState");
             loader.setText(I18n.text("Calculating total time"));
-            minTime = parser.firstLogEntry().getTimestamp();
-            maxTime = parser.getLastEntry().getTimestamp();
+            minTime = parser.firstLogEntry().getTimestampMillis();
+            maxTime = parser.getLastEntry().getTimestampMillis();
             parser.firstLogEntry();
 
             loader.setText(I18n.text("Starting renderers"));
@@ -193,6 +177,22 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
 //                toBeAdded.clear();
 //            }
 
+            for (LogReplayLayer layer : layers) {
+
+                if (layer.canBeApplied(source))
+                    renderedLayers.add(layer);
+
+                if (layer.canBeApplied(source) && layer.getObservedMessages() != null
+                        && layer.getObservedMessages().length > 0) {
+                    replayLayers.add(layer);
+
+                    for (String msg : layer.getObservedMessages()) {
+                        replayParsers.put(msg, source.getLog(msg));
+                    }
+                }
+            }
+
+            replayParsers.put("EstimatedState", parser);
             Thread t = new Thread() {
                 public void run() {
                     for (LogReplayLayer layer : renderedLayers) {
@@ -212,9 +212,8 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
             t.start();
             
             // add the map and controls to the interface
-            setLayout(new BorderLayout(3, 3));
-            add(renderer, BorderLayout.CENTER);
-            add(buildControls(), BorderLayout.NORTH);
+            add(buildControls(), "w 100%, wrap");
+            add(renderer, "w 100%, h 100%");
             
         }
         catch (Exception e) {
@@ -229,137 +228,32 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
 
         JToolBar controlsPanel = new JToolBar();
 
-        play = new ToolbarButton("images/buttons/play.png", I18n.text("Play"), "play");
-        play.addActionListener(this);
-        controlsPanel.add(play);
-
-        restart = new ToolbarButton("images/buttons/restart.png", I18n.text("Restart"), "restart");
-        restart.addActionListener(this);
-        controlsPanel.add(restart);
-
-        rewind = new ToolbarButton("images/buttons/rew.png", I18n.text("Slower"), "rew");
-        rewind.addActionListener(this);
-        controlsPanel.add(rewind);
-
-        forward = new ToolbarButton("images/buttons/fwd.png", I18n.text("Faster"), "ff");
-        forward.addActionListener(this);
-        controlsPanel.add(forward);
-
-        startTime = minTime;
-
-        // timeline values are from 0 to the total mission time
-        timeline = new JSlider(0, (int) (maxTime - startTime));
-
-        // we start at the beginning of the mission
-        timeline.setValue(0);
-
-        // whenever the timeline slider is moved by the user
-        timeline.addChangeListener(new ChangeListener() {
-
-            public void stateChanged(ChangeEvent e) {
-
-                if (timeline.getValue() != (int) (currentTime - startTime)) {
-                    if (timer == null) {
-                        currentTime = timeline.getValue() + startTime;
-                    }
-
-                    IMCMessage m = parser.getCurrentEntry();
-                    if (m == null || m.getTimestamp() > currentTime)
-                        parser.firstLogEntry();
-
-                    curTimeLbl.setText(getTime((long) (currentTime * 1000)) + " (" + speed + "x)");
-                    if (parser.currentTimeMillis() > currentTime) {
-                        parser = source.getLog("EstimatedState");
-                    }
-
-                    // if (timer != null)
-                    // jumpToTime = currentTime;
-                    // else
-                    // setState(parser.getEntryAtOrAfter((long)(currentTime*1000)));
-                }
-            }
-        });
-
-        controlsPanel.add(timeline);
-        controlsPanel.add(curTimeLbl);
-        curTimeLbl.setText("");
-
-        return controlsPanel;
-    }
-
-    LocationType tmp = null;
-
-    private void setState(IMCMessage entry) {
-        currentTime = entry.getTimestamp();
-
-        int sec = (int) (currentTime - startTime);
-        // NeptusLog.pub().info("<###>>"+sec);
-        if (sec != timeline.getValue()) {
-            timeline.setValue(sec);
-            curTimeLbl.setText(format.format(new Date((long) (currentTime * 1000))) + " (" + speed + "x)");
-        }
-
-        tmp = LogUtils.getLocation(entry);
-
-        SystemPositionAndAttitude state = new SystemPositionAndAttitude(tmp, entry.getDouble("phi"),
-                entry.getDouble("theta"), entry.getDouble("psi"));
-
-        vehicle = VehiclesHolder.getVehicleWithImc(new ImcId16(entry.getSrc()));
-        renderer.setVehicleState(vehicle, state);
-    }
-
-    
-
-    public TimerTask buildReplayTask() {
-
-        replayParsers.put("EstimatedState", parser);
-
-        for (LogReplayLayer layer : replayLayers) {
-            for (String msg : layer.getObservedMessages()) {
-                replayParsers.put(msg, source.getLog(msg));
-                replayParsers.get(msg).nextLogEntry();
-            }
-        }
-
-        TimerTask tt = new TimerTask() {
-            long elapsedTime = 0;
-            long lastRunMillis = System.currentTimeMillis();
-            IMCMessage entry = parser.getCurrentEntry();
-
+        timeline = new Timeline(0, (int)(maxTime - minTime), 32, 1000, false);
+        
+        timeline.addTimelineChangeListener(new TimelineChangeListener() {
+            
             @Override
-            public void run() {
+            public void timelineChanged(int value) {
+                IMCMessage entry;
 
-                elapsedTime += (System.currentTimeMillis() - lastRunMillis) * speed;
-                lastRunMillis = System.currentTimeMillis();
-
-                if (jumpToTime != -1) {
-                    elapsedTime = (long) (jumpToTime - minTime) * 1000;
-                    jumpToTime = -1;
-                }
-
-                double replayTime = elapsedTime / 1000.0;
-                double missionTime = startTime + replayTime;
-
-                if (timeline.getValue() != (int) replayTime) {
-                    timeline.setValue((int) replayTime);
-                }
-
-                if (parser.currentTimeMillis() > missionTime * 1000)
-                    parser.firstLogEntry();
-                
-                if ((entry = parser.getEntryAtOrAfter((long) (missionTime * 1000))) != null) {
-                    NeptusLog.pub().info("<###> "+entry.getSrc());
-                    currentTime = entry.getTimestamp();
+                if ((entry = parser.getEntryAtOrAfter((long) ((minTime + value)))) != null) {
+                    System.out.println(value + " " + (minTime + value) + " " + entry.getAbbrev());
                     setState(entry);
-
+                    
+                    timeline.setTime((long) (minTime + value));
+                    
                     for (LogReplayLayer layer : replayLayers) {
                         for (String msg : layer.getObservedMessages()) {
 
-                            IMCMessage entry = replayParsers.get(msg).getEntryAtOrAfter((long) (currentTime * 1000));
+                            System.out.println(replayParsers.get(msg) + " " + msg);
+                            if(replayParsers.get(msg) == null) 
+                                continue;
+                            
+                            IMCMessage m = replayParsers.get(msg).getEntryAtOrAfter((long) ((minTime + value)));
 
-                            if (entry != null) {
+                            if (m != null) {
                                 try {
-                                    layer.onMessage(entry);
+                                    layer.onMessage(m);
                                 }
                                 catch (Exception e) {
                                     NeptusLog.pub().warn(e);
@@ -369,63 +263,35 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
                         }
                     }
                 }
-                else {
-                    currentTime = minTime;
-                    timer.cancel();
-                    timer = null;
-                    play.setActionCommand("play");
-                    play.setToolTipText("play");
-                    play.setIcon(ImageUtils.getIcon("images/buttons/play.png"));
-                }
             }
-        };
+        });
+        
+        timeline.getSlider().setValue(0);
+        controlsPanel.add(timeline);
 
-        return tt;
+        return controlsPanel;
+        
     }
 
-    public void restart() {
-        if (timer != null)
-            timer.cancel();
-        parser = source.getLog("EstimatedState");
-        currentTime = minTime;
-        play();
+    
 
-    }
+    private void setState(IMCMessage entry) {
+//        currentTime = entry.getTimestamp();
 
-    public void pause() {
-        if (timer != null) {
-            timer.purge();
-            timer.cancel();
-        }
+//        int sec = (int) (currentTime - startTime);
+        // NeptusLog.pub().info("<###>>"+sec);
+//        if (sec != slider.getValue()) {
+//            slider.setValue(sec);
+//            curTimeLbl.setText(format.format(new Date((long) (currentTime * 1000))) + " (" + speed + "x)");
+//        }
 
-        timer = null;
+        loc = LogUtils.getLocation(entry);
 
-        play.setActionCommand("play");
-        play.setToolTipText("play");
-        play.setIcon(ImageUtils.getIcon("images/buttons/play.png"));
-    }
+        SystemPositionAndAttitude state = new SystemPositionAndAttitude(loc, entry.getDouble("phi"),
+                entry.getDouble("theta"), entry.getDouble("psi"));
 
-    public void play() {
-        NeptusLog.pub().info("<###>play");
-        if (timer != null) {
-            timer.purge();
-            timer.cancel();
-        }
-
-        // parser = source.getLog("EstimatedState");
-        parser.firstLogEntry();
-        parser.getEntryAtOrAfter((long) (currentTime * 1000));
-        currentTime = parser.getLastEntry().getTimestampMillis();
-        timer = new Timer("Replay Timer");
-        timer.scheduleAtFixedRate(buildReplayTask(), 0, 33);
-
-        play.setActionCommand("pause");
-        play.setToolTipText("pause");
-        play.setIcon(ImageUtils.getIcon("images/buttons/pause.png"));
-    }
-
-    public void setSpeed(double speed) {
-        this.speed = speed;
+        vehicle = VehiclesHolder.getVehicleWithImc(new ImcId16(entry.getSrc()));
+        renderer.setVehicleState(vehicle, state);
     }
 
     protected String getTime(long timeInMillis) {
@@ -436,45 +302,11 @@ public class LogReplay extends JPanel implements MRAVisualization, ActionListene
         return format.format(new Date(timeInMillis));
     }
 
-    public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("ff")) {
-            if (speed >= 16)
-                return;
-
-            speed *= 2;
-
-            curTimeLbl.setText(getTime((long) (currentTime * 1000)) + " (" + speed + "x)");
-        }
-
-        else if (e.getActionCommand().equals("rew")) {
-            if (speed <= 0.125)
-                return;
-
-            speed *= 0.5;
-
-            curTimeLbl.setText(getTime((long) (currentTime * 1000)) + " (" + speed + "x)");
-        }
-        else if (e.getActionCommand().equals("pause")) {
-            pause();
-        }
-        else if (e.getActionCommand().equals("play")) {
-            play();
-        }
-        else if (e.getActionCommand().equals("restart")) {
-            restart();
-        }
-    }
-
-
     public void setMission(MissionType mt) {
         this.mt = mt;
         LogUtils.generatePath(mt, source);
         renderer.setMission(mt);
         renderer.setPlan(plan);
-    }
-
-    public MissionType getMt() {
-        return mt;
     }
 
     // --- MRAVisualization ---
