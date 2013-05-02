@@ -158,13 +158,13 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public void initSubPanel() {
-        Spot.log.debug("Init SpotOverlay");
+        // Spot.log.debug("Init SpotOverlay");
     }
 
     @Override
     public void cleanSubPanel() {
         PeriodicUpdatesService.unregister(this);// TODO stop using this
-        Spot.log.debug("--------- end of session ------------");
+        // Spot.log.debug("--------- end of session ------------");
     }
 
     @Override
@@ -216,7 +216,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
             if (iterator.hasNext()) {
                 location = iterator.next();
                 pt = renderer.getScreenPosition(location);
-                Spot.log.debug(location.toString() + " (" + pt.getX() + ", " + pt.getX() + ")");
+                // Spot.log.debug(location.toString() + " (" + pt.getX() + ", " + pt.getX() + ")");
                 spotPath.moveTo(pt.getX(), pt.getY());
                 while (iterator.hasNext()) {
                     location = iterator.next();

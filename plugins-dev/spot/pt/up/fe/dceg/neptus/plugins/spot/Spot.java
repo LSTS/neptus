@@ -78,7 +78,7 @@ public class Spot {
      * the EDT.<br>
      * For each SPOT the messages: are fetched from the page and the location, speed and direction angle set.
      */
-    public void update(TreeSet<SpotMessage> messages) {
+    public void update(final TreeSet<SpotMessage> messages) {
         // ask for messages
         // Spot.log.debug(id + " has " + messages.size() + " messages");
         // calculate direction and speed
@@ -93,8 +93,8 @@ public class Spot {
                 speed = speedLocationDirection.speed;
                 direction = speedLocationDirection.direction;
                 lastLocation = speedLocationDirection.location;
-                // Spot.log.debug("Gonna update speed and directions variables in EDT "
-                // + SwingUtilities.isEventDispatchThread());
+                // Spot.log.debug("Gonna update " + messages.first().id + " with " + speed + " m/s, at "
+                // + lastLocation.toString());
             }
         });
     }
