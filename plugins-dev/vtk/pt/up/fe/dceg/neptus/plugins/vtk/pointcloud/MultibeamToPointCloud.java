@@ -44,7 +44,7 @@ import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
 import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
+//import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.MultibeamDeltaTHeader;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.MultibeamDeltaTParser;
@@ -74,25 +74,25 @@ public class MultibeamToPointCloud {
     BathymetrySwath batSwath;
     BathymetryInfo batInfo;
     
-    File file;                          // *.83P file
-    FileInputStream fileInputStream;    // 83P file input stream
-    FileChannel channel;                // SeekableByteChanel connected to the file (83P)
-    ByteBuffer buf;
+    private File file;                          // *.83P file
+    private FileInputStream fileInputStream;    // 83P file input stream
+    private FileChannel channel;                // SeekableByteChanel connected to the file (83P)
+    private ByteBuffer buf;
     
-    byte fileContent[];
+    private byte fileContent[];
     
-    MultibeamDeltaTParser multibeamDeltaTParser;
+    public MultibeamDeltaTParser multibeamDeltaTParser;
     
-    PointCloud<PointXYZ> poi;
+    public PointCloud<PointXYZ> pointCloud;
     
     
-    public MultibeamToPointCloud(IMraLogGroup source) {
+    public MultibeamToPointCloud(IMraLogGroup source, PointCloud<PointXYZ> pointCloud) {
         
         this.source = source;
+        this.pointCloud = pointCloud;
         
-        multibeamDeltaTParser = new MultibeamDeltaTParser(this.source);
-        
-        
+        multibeamDeltaTParser = new MultibeamDeltaTParser(this.source, pointCloud);
+              
         //getMyDeltaTHeader();
                 
         //DeltaTParser deltaTParser = new DeltaTParser(source);

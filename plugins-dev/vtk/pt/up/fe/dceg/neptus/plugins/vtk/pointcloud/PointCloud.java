@@ -53,6 +53,8 @@ import vtk.vtkPointSource;
 import vtk.vtkPoints;
 import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
+import vtk.vtkScalarsToColors;
+import vtk.vtkUnsignedCharArray;
 import vtk.vtkVTKJavaCommonDriver;
 import vtk.vtkVertexGlyphFilter;
 
@@ -64,19 +66,99 @@ import vtk.vtkVertexGlyphFilter;
  */
 public class PointCloud<T extends PointXYZ> {
     
-    public vtkPoints points;
-    public vtkCellArray verts;
-    public vtkPolyData poly;
-    public vtkLODActor cloud = new vtkLODActor();
+    private vtkPoints points;
+    private vtkCellArray verts;
+    private vtkPolyData poly;
+    private vtkLODActor cloudLODActor;
     private int numberOfPoints;
+    private double[] bounds;
     
     public vtkActor contourActor;
     
     private String cloudName;
     
     public PointCloud () {
-        points = new vtkPoints();
-        points.SetDataTypeToFloat();
+        setPoints(new vtkPoints());
+        getPoints().SetDataTypeToFloat();
+        setVerts(new vtkCellArray());
+        setPoly(new vtkPolyData());
+        setCloudLODActor(new vtkLODActor());
+        setBounds(new double[6]);
+    }
+    
+    /**
+     * 
+     */
+    public void createLODActorFromPoints() {
+        System.out.println("Total number of Points: " + numberOfPoints);
+        getPoly().SetPoints(getPoints());
+        getPoly().SetVerts(getVerts());
+        
+        getPoly().Modified();
+        
+        vtkDataArray scalars = new vtkDataArray();
+        
+        
+        vtkCellArray cells = new vtkCellArray();
+        cells.SetNumberOfCells(getNumberOfPoints());
+        
+        getPoly().SetPolys(cells);
+        
+
+        getPoly().GetBounds(getBounds());
+                
+        System.out.println("min X: " + getBounds()[0]);
+        System.out.println("max X: " + getBounds()[1]);
+        System.out.println("min Y: " + getBounds()[2]);
+        System.out.println("max Y: " + getBounds()[3]);
+        System.out.println("min Z: " + getBounds()[4]);
+        System.out.println("max Z: " + getBounds()[5]);
+        
+        vtkLookupTable colorLookupTable = new vtkLookupTable();
+        colorLookupTable.SetTableRange(getBounds()[4], getBounds()[5]);
+        colorLookupTable.Build();
+        //colorLookupTable.SetNumberOfColors(256);
+        //colorLookupTable.SetNumberOfColors(256);
+        //colorLookupTable.SetHueRange(0.0, 0.667);
+        //colorLookupTable.SetScaleToLinear();
+        
+        vtkUnsignedCharArray colors = new vtkUnsignedCharArray();
+        colors.SetNumberOfComponents(3);
+        colors.SetName("Colors");
+        
+        
+        for (int i = 0; i < getPoly().GetNumberOfPoints(); ++i) {
+            double[] p = new double[3];
+            getPoly().GetPoint(i, p);
+            
+            double[] dcolor = new double[3];    
+            colorLookupTable.GetColor(p[2], dcolor);
+            
+            //System.out.println("dcolor: " + dcolor[0] + " dcolor[1]: " + dcolor[1] + " dcolor[2]: " + dcolor[2]);
+            
+            char[] color = new char[3];
+            //vtkUnsignedCharArray[] color = new vtkUnsignedCharArray[3];
+            for (int j = 0; j < 3; ++j) {
+                color[j] = (char) (255.0 * dcolor[j]);
+            }
+            
+            //System.out.println("color: " + (int)color[0] + " " + (int)color[1] + " " + (int)color[2]);
+            
+            //colors.InsertNextValue(color);
+            //colors.In
+            colors.InsertNextTuple3(color[0], color[1], color[2]);
+        }
+        
+        getPoly().GetPointData().SetScalars(colors);
+        
+        vtkPolyDataMapper map = new vtkPolyDataMapper();
+        map.SetInput(getPoly());
+        map.SetLookupTable(colorLookupTable);
+        map.ScalarVisibilityOn();
+        
+        getCloudLODActor().SetMapper(map);
+        getCloudLODActor().GetProperty().SetPointSize(2.0);
+        getCloudLODActor().GetProperty().SetRepresentationToPoints();     
     }
     
     
@@ -87,26 +169,26 @@ public class PointCloud<T extends PointXYZ> {
      */
     public vtkLODActor getRandomPointCloud(int nPoints) {
         setNumberOfPoints(nPoints);
-        points = new vtkPoints();
-        points.Allocate(getNumberOfPoints(), 0);
-        verts = new vtkCellArray();
-        verts.Allocate(verts.EstimateSize(1, getNumberOfPoints()), 0);
+        setPoints(new vtkPoints());
+        getPoints().Allocate(getNumberOfPoints(), 0);
+        setVerts(new vtkCellArray());
+        getVerts().Allocate(getVerts().EstimateSize(1, getNumberOfPoints()), 0);
         
         Random pos = new Random();
         
         for (int i = 0; i < getNumberOfPoints(); i++) {
             PointXYZ p = new PointXYZ(pos.nextFloat()*10, pos.nextFloat()*10, pos.nextFloat()*10);
             //System.out.println("X: " + p.getX() + " Y: " + p.getY() + " Z: " + p.getZ());
-            verts.InsertNextCell(1);
-            verts.InsertCellPoint(points.InsertNextPoint(p.getX(), p.getY(), p.getZ()));            
+            getVerts().InsertNextCell(1);
+            getVerts().InsertCellPoint(getPoints().InsertNextPoint(p.getX(), p.getY(), p.getZ()));            
         }
         
         //vtkPolyData pol = new vtkPolyData();
-        poly = new vtkPolyData();
-        poly.SetPoints(points);
-        poly.SetVerts(verts);
+        setPoly(new vtkPolyData());
+        getPoly().SetPoints(getPoints());
+        getPoly().SetVerts(getVerts());
         
-        poly.Modified();
+        getPoly().Modified();
         
         vtkDataArray scalars = new vtkDataArray();
         //PointCloudHandlers<PointXYZ> colorHandler = new PointCloudHandlers<>();
@@ -128,20 +210,21 @@ public class PointCloud<T extends PointXYZ> {
         //lut.SetHueRange(0.0, 0.667);
         //lut.SetRampToLinear();
         
-        poly.SetPolys(cells);
+        getPoly().SetPolys(cells);
         
         vtkPolyDataMapper map = new vtkPolyDataMapper();
         //map.SetInputConnection(glyph.GetOutputPort());
-        map.SetInput(poly);
+        map.SetInput(getPoly());
         //map.SetLookupTable(lut);
         //map.SetScalarRange(0.0, 0.7);
         //map.SetInput(pol);
-   
-        cloud.SetMapper(map);
-        cloud.GetProperty().SetPointSize(2.0);
-        cloud.GetProperty().SetRepresentationToPoints();
+
         
-        return cloud;
+        getCloudLODActor().SetMapper(map);
+        getCloudLODActor().GetProperty().SetPointSize(2.0);
+        getCloudLODActor().GetProperty().SetRepresentationToPoints();
+        
+        return getCloudLODActor();
     }
     
     /**
@@ -151,30 +234,30 @@ public class PointCloud<T extends PointXYZ> {
      */ 
     public vtkLODActor getRandomPointCloud2(int nPoints) {
         setNumberOfPoints(nPoints);
-        points = new vtkPoints();
-        points.Allocate(getNumberOfPoints(), 0);
+        setPoints(new vtkPoints());
+        getPoints().Allocate(getNumberOfPoints(), 0);
         
         Random pos = new Random();
         
         for (int i = 0; i < getNumberOfPoints(); i++) {
             PointXYZ p = new PointXYZ(pos.nextFloat()*10, pos.nextFloat()*10, pos.nextFloat()*10);
             //verts.InsertNextCell(1);
-            points.InsertPoint(i, p.getX(), p.getY(), p.getZ());
+            getPoints().InsertPoint(i, p.getX(), p.getY(), p.getZ());
             //points.InsertNextPoint(p.getX(), p.getY(), p.getZ());
             //verts.InsertCellPoint(i);
             //verts.InsertCellPoint(points.InsertNextPoint(p.getX(), p.getY(), p.getZ()));            
         }        
-        poly = new vtkPolyData();
-        poly.SetPoints(points);
+        setPoly(new vtkPolyData());
+        getPoly().SetPoints(getPoints());
         
-        poly.Modified();
+        getPoly().Modified();
         
         vtkDataArray scalars = new vtkDataArray();
         
         //vtkGlyph3D glyph = new vtkGlyph3D();
         //glyph.SetInput(poly);
         vtkVertexGlyphFilter glyph = new vtkVertexGlyphFilter();
-        glyph.SetInput(poly);
+        glyph.SetInput(getPoly());
          
         vtkLookupTable lut = new vtkLookupTable();
         lut.SetNumberOfColors(256);
@@ -189,12 +272,12 @@ public class PointCloud<T extends PointXYZ> {
         //map.SetScalarRange(0.0, 0.7);
         //map.SetInput(pol);
    
-        cloud.SetMapper(map);
-        cloud.GetProperty().SetPointSize(2.0);
-        cloud.GetProperty().SetRepresentationToPoints();
+        getCloudLODActor().SetMapper(map);
+        getCloudLODActor().GetProperty().SetPointSize(2.0);
+        getCloudLODActor().GetProperty().SetRepresentationToPoints();
         
         
-        return cloud;
+        return getCloudLODActor();
     }
     /**
      * usuless
@@ -205,24 +288,24 @@ public class PointCloud<T extends PointXYZ> {
         //    poly.SetVerts(vertices);
         //}
         
-        verts = poly.GetVerts();
+        setVerts(getPoly().GetVerts());
         
-        points = poly.GetPoints();
-        points.SetNumberOfPoints(getNumberOfPoints());
+        setPoints(getPoly().GetPoints());
+        getPoints().SetNumberOfPoints(getNumberOfPoints());
         
-        vtkFloatArray data = (vtkFloatArray) points.GetData();
+        vtkFloatArray data = (vtkFloatArray) getPoints().GetData();
         
         for (int i = 0; i < getNumberOfPoints(); i++)
         {
             
         }
         
-        vtkIdTypeArray cells = verts.GetData();
+        vtkIdTypeArray cells = getVerts().GetData();
         
         vtkIdTypeArray initcells = new vtkIdTypeArray();
         //updateCells (cells, )
         
-        verts.SetCells(numberOfPoints, cells);
+        getVerts().SetCells(numberOfPoints, cells);
     }
     
     public vtkLODActor getRamdonPointCloudFromVtkPointSource(int nPoints, double radius) {
@@ -237,9 +320,9 @@ public class PointCloud<T extends PointXYZ> {
         vtkPolyDataMapper mapper = new vtkPolyDataMapper();
         mapper.AddInputConnection(pointSource.GetOutputPort());
         
-        cloud.SetMapper(mapper);
+        getCloudLODActor().SetMapper(mapper);
         
-        return cloud;
+        return getCloudLODActor();
     }
 
     /**
@@ -268,5 +351,83 @@ public class PointCloud<T extends PointXYZ> {
      */
     public void setNumberOfPoints(int numberOfPoints) {
         this.numberOfPoints = numberOfPoints;
+    }
+
+
+    /**
+     * @return the cloudLODActor
+     */
+    public vtkLODActor getCloudLODActor() {
+        return cloudLODActor;
+    }
+
+
+    /**
+     * @param cloudLODActor the cloudLODActor to set
+     */
+    public void setCloudLODActor(vtkLODActor cloudLODActor) {
+        this.cloudLODActor = cloudLODActor;
+    }
+
+
+    /**
+     * @return the points
+     */
+    public vtkPoints getPoints() {
+        return points;
+    }
+
+
+    /**
+     * @param points the points to set
+     */
+    public void setPoints(vtkPoints points) {
+        this.points = points;
+    }
+
+
+    /**
+     * @return the verts
+     */
+    public vtkCellArray getVerts() {
+        return verts;
+    }
+
+
+    /**
+     * @param verts the verts to set
+     */
+    public void setVerts(vtkCellArray verts) {
+        this.verts = verts;
+    }
+
+
+    /**
+     * @return the poly
+     */
+    public vtkPolyData getPoly() {
+        return poly;
+    }
+
+
+    /**
+     * @param poly the poly to set
+     */
+    public void setPoly(vtkPolyData poly) {
+        this.poly = poly;
+    }
+
+    /**
+     * @return the bounds
+     */
+    public double[] getBounds() {
+        return bounds;
+    }
+
+    /**
+     * @param bounds the bounds to set
+     */
+    public void setBounds(double[] bounds) {
+        this.bounds = bounds;
     }
 }

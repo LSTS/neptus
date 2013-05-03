@@ -46,6 +46,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
@@ -55,6 +56,7 @@ import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesActor;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.PointCloudHandlers;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
@@ -83,15 +85,21 @@ public class Vtk extends JPanel implements MRAVisualization {
     private static Path path = null;
     private static final String FILE_83P_EXT = ".83P";
     
-    //public Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
-    //public HashMap<String, vtkLODActor> hashMapCloud = new HashMap<>();
     public LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
     
-    protected Vector<Marker3d> markers = new Vector<>();
+    @SuppressWarnings("rawtypes")
+    public LinkedHashMap<String, PointCloud> linkedHashMapPointCloud = new LinkedHashMap<>();
+    
+    
+    public PointCloud<PointXYZ> pointCloud;
+    
+    private Vector<Marker3d> markers = new Vector<>();
     
     public IMraLogGroup mraVtkLogGroup;
     
     public File file;
+    
+    private Boolean componentEnabled = false;
     
     static {
         System.loadLibrary("jawt");
@@ -161,73 +169,87 @@ public class Vtk extends JPanel implements MRAVisualization {
      * @param panel
      */
     public Vtk(MRAPanel panel) {
-        super(new BorderLayout());
-   
-        //vtkPanel = new vtkPanel();       
-        //Window win = new Window(vtkPanel);
-        
-  
-        //System.out.println("test: " + mraVtkLogGroup);
-        
-        
+        super(new BorderLayout());   
+            //vtkPanel = new vtkPanel();       
+            //Window win = new Window(vtkPanel);
         vtkCanvas = new vtkCanvas();
   
-        //BoxWidget.addBoxWidget2Tovisualizer(vtkPanel.GetRenderer(), win.getRenWinInteractor());
+            //BoxWidget.addBoxWidget2Tovisualizer(vtkPanel.GetRenderer(), win.getRenWinInteractor());
      
-        // a Random points, PointCloud
-        PointCloud<PointXYZ> poi = new PointCloud<>();
-        vtkLODActor cloud = new vtkLODActor();
-        cloud = poi.getRandomPointCloud(30000);
-        //cloud = poi.getRandomPointCloud2(10000);
-        //cloud.GetProperty().SetColor(1.0, 0.0, 0.0);
+                // a Random points, PointCloud
+        //PointCloud<PointXYZ> pointCloud = new PointCloud<>();
+            //vtkLODActor cloud = new vtkLODActor();
+            //cloud = poi.getRandomPointCloud(30000);
+                //cloud = poi.getRandomPointCloud2(10000);
+                //cloud.GetProperty().SetColor(1.0, 0.0, 0.0);
         
-        linkedHashMapCloud.put("cloud", cloud);
+                //linkedHashMapCloud.put("cloud", cloud);
+        //linkedHashMapCloud.put("multibeam", pointCloud.getCloudLODActor());
         
-        System.out.println("vai hashtable sempre em frente e mais alem");
+        
+        //int hashCode = linkedHashMapCloud.hashCode();
+        //System.out.println("Hash code: " + hashCode);
+        //System.out.println("elements: " + linkedHashMapCloud.keySet());
+        
+                // this will set the number of random cloud points as a lower level of detail when the full geomtery cannot be displayed.
+                //testActor.SetNumberOfCloudPoints(5); 
+
+        
+                // a cube Axes actor
+            //vtkActor cubeAxesActor = new vtkActor();
+            //cubeAxesActor = CubeAxes.AddCubeAxesToVisualizer(vtkCanvas.GetRenderer(), poi.poly);
+            //vtkCanvas.GetRenderer().AddActor(cubeAxesActor);
+        
+                // Setup Window for the VTK render
+        //Window winCanvas = new Window(vtkCanvas, linkedHashMapCloud);
+        
+        //double[] temp = PointCloudHandlers.getRandomColor();
+        
+        //vtkLODActor testActor = linkedHashMapCloud.get("cloud");
+        //vtkCanvas.GetRenderer().AddActor(testActor);
+        
+            // reset the camera from the renderer
+        //vtkCanvas.GetRenderer().ResetCamera();
+        
+
+        
+            // axes 1
+            //Axes ax = new Axes();
+            //vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
+            // axes 2
+            //AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
+            //axesActor.setAxesVisibility(true);
+        
+        /*              
+            vtkPanel.GetRenderer().ResetCamera();
+            //vtkPanel.GetRenderer().ResetCameraClippingRange();
+            //vtkPanel.GetRenderer().LightFollowCameraOn();
+            //vtkPanel.GetRenderer().VisibleActorCount();
+            //vtkPanel.GetRenderer().ViewToDisplay();
+         */
+        
+        pointCloud = new PointCloud<>();
+        pointCloud.setCloudName("multibeam");
+        linkedHashMapCloud.put("multibeam", pointCloud.getCloudLODActor());
+        
+        System.out.println("veio aki 1");
         int hashCode = linkedHashMapCloud.hashCode();
         System.out.println("Hash code: " + hashCode);
         System.out.println("elements: " + linkedHashMapCloud.keySet());
-
-
-        //hashCloud.
         
-        // this will set the number of random cloud points as a lower level of detail when the full geomtery cannot be displayed.
-        //testActor.SetNumberOfCloudPoints(5); 
-
+        Window winCanvas = new Window(vtkCanvas, linkedHashMapCloud);     
+               
+        //AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
+        //axesActor.setAxesVisibility(true);
         
-        // a cube Axes actor
-        //vtkActor cubeAxesActor = new vtkActor();
-        //cubeAxesActor = CubeAxes.AddCubeAxesToVisualizer(vtkCanvas.GetRenderer(), poi.poly);
-        //vtkCanvas.GetRenderer().AddActor(cubeAxesActor);
+        Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
+        vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
+        //ax.getAxesActor().SetVisibility(true);
         
-        // Setup Window for the VTK render
-        Window winCanvas = new Window(vtkCanvas, linkedHashMapCloud);
-        
-        double[] temp = PointCloudHandlers.getRandomColor();
-        
-        vtkLODActor testActor = linkedHashMapCloud.get("cloud");
-        vtkCanvas.GetRenderer().AddActor(testActor);
-        
-        // reset the camera from the renderer
         vtkCanvas.GetRenderer().ResetCamera();
         
         // add vtkCanvas to Layout
         add(vtkCanvas, BorderLayout.CENTER);
-        
-        // axes 1
-        //Axes ax = new Axes();
-        //vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
-        // axes 2
-        AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
-        axesActor.setAxesVisibility(true);
-        
-/*              
-        vtkPanel.GetRenderer().ResetCamera();
-        //vtkPanel.GetRenderer().ResetCameraClippingRange();
-        //vtkPanel.GetRenderer().LightFollowCameraOn();
-        //vtkPanel.GetRenderer().VisibleActorCount();
-        //vtkPanel.GetRenderer().ViewToDisplay();
-*/      
         
         toolBar = new JPanel();
         toolBar = createToolbar();
@@ -236,22 +258,67 @@ public class Vtk extends JPanel implements MRAVisualization {
     
     @Override
     public String getName() {
-        //System.out.println("getName: " + mraVtkLogGroup.name());
+        System.out.println("getName: " + mraVtkLogGroup.name());
         return "Vtk Visualization";
     }
 
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
-        MultibeamToPointCloud bathToPointCloud = new MultibeamToPointCloud(getLog());
+        System.out.println("getComponent: " + mraVtkLogGroup.name());
         
-        //System.out.println("getComponent: " + mraVtkLogGroup.name());
+        if (!componentEnabled)
+        {
+            System.out.println("Entrou no component Enabled");
+            componentEnabled = true;
+                // Porque o canBeApplied n seta o LogGroup?
+            MultibeamToPointCloud multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
+            pointCloud.createLODActorFromPoints();
+            
+            
+            //vtkLODActor multibeamActor = linkedHashMapCloud.get("multibeam");
+            //vtkCanvas.GetRenderer().AddActor(multibeamActor);
+            
+            vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
+            
+            NeptusLog.pub().info("<###> ");
+            
+            vtkCanvas.GetRenderer().ResetCamera();
+        }
+//        PointCloud<PointXYZ> pointCloud = new PointCloud<>();
+//        linkedHashMapCloud.put("multibeam", pointCloud.getCloudLODActor());
+//        
+//        MultibeamToPointCloud bathToPointCloud = new MultibeamToPointCloud(getLog());
+//        System.out.println("veio aki 1");
+//        int hashCode = linkedHashMapCloud.hashCode();
+//        System.out.println("Hash code: " + hashCode);
+//        System.out.println("elements: " + linkedHashMapCloud.keySet());
+//        
+//        Window winCanvas = new Window(vtkCanvas, linkedHashMapCloud);     
+//        
+//        System.out.println("veio aki 2");
+//        double[] temp = PointCloudHandlers.getRandomColor();
+//        System.out.println("veio aki 3");
+//        
+//        vtkLODActor testActor = linkedHashMapCloud.get("cloud");
+//        vtkCanvas.GetRenderer().AddActor(testActor);
+//        System.out.println("veio aki 4");
+//        
+//        // axes 1
+//        //Axes ax = new Axes();
+//        //vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
+//        // axes 2
+//        AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
+//        axesActor.setAxesVisibility(true);
+        
+//        vtkCanvas.GetRenderer().ResetCamera();
+        
         return this;
     }
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         boolean beApplied = false;        
-        //System.out.println("CanBeApplied: " + source.name());
+        System.out.println("CanBeApplied: " + source.name());
 
         // Checks wether there is a *.83P file
         file = source.getFile("Data.lsf").getParentFile();
@@ -275,36 +342,36 @@ public class Vtk extends JPanel implements MRAVisualization {
 
     @Override
     public ImageIcon getIcon() {
-        //System.out.println("getIcon: " + mraVtkLogGroup.name());
+        System.out.println("getIcon: " + mraVtkLogGroup.name());
         return null;
     }
 
     @Override
     public Double getDefaultTimeStep() {
-        //System.out.println("get DefaultTimeStep: " + mraVtkLogGroup.name());
+        System.out.println("get DefaultTimeStep: " + mraVtkLogGroup.name());
         return null;
     }
 
     @Override
     public boolean supportsVariableTimeSteps() {
-        //System.out.println("supportsVariableTimeSteps: " + mraVtkLogGroup.name());
+        System.out.println("supportsVariableTimeSteps: " + mraVtkLogGroup.name());
         return false;
     }
 
     @Override
     public Type getType() {
-        //System.out.println("getType: " + mraVtkLogGroup.name());
+        System.out.println("getType: " + mraVtkLogGroup.name());
         return Type.VISUALIZATION;
     }
 
     @Override
     public void onHide() {
-        //System.out.println("onHide: " + mraVtkLogGroup.name());
+        System.out.println("onHide: " + mraVtkLogGroup.name());
     }
 
     @Override
     public void onShow() {
-        //System.out.println("onShow: " + mraVtkLogGroup.name());
+        System.out.println("onShow: " + mraVtkLogGroup.name());
     }
 
     @Override

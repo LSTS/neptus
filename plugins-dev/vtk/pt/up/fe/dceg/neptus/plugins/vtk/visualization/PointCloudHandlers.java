@@ -60,7 +60,7 @@ public class PointCloudHandlers<T extends PointXYZ> {
         
         for (int i = 0; i < cloud.getNumberOfPoints(); i++) {
             double[] point = new double[3];
-            point = cloud.points.GetPoint(i);
+            point = cloud.getPoints().GetPoint(i);
         }
         
         double[] rgbColor = new double[3];
