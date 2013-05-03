@@ -56,8 +56,9 @@ public class Spot {
     private final String id;
     protected Float speed;
     protected Double direction;
-    protected LocationType lastLocation;
-    private final ArrayList<LocationType> lastLocations;
+    protected ArrayList<LocationType> lastLocations;
+
+    // private final ArrayList<LocationType> lastLocations;
 
     /**
      * @param pageInfo
@@ -66,7 +67,6 @@ public class Spot {
         super();
         // this.pageInfo = pageInfo;
         this.id = id;
-        lastLocation = null;
         speed = null;
         direction = null;
         lastLocations = new ArrayList<LocationType>();
@@ -92,7 +92,7 @@ public class Spot {
             public void run() {
                 speed = speedLocationDirection.speed;
                 direction = speedLocationDirection.direction;
-                lastLocation = speedLocationDirection.location;
+                lastLocations = speedLocationDirection.locations;
                 // Spot.log.debug("Gonna update " + messages.first().id + " with " + speed + " m/s, at "
                 // + lastLocation.toString());
             }
@@ -107,8 +107,11 @@ public class Spot {
     private LocationSpeedDirection setSpeedMpsAndDirection(TreeSet<SpotMessage> messages) {
         if (messages.size() == 1) {
             // Spot.log.debug("Just one message");
+            LocationType location = new LocationType(messages.first().latitude, messages.first().longitude);
+            ArrayList<LocationType> locations = new ArrayList<LocationType>();
+            locations.add(location);
             return new LocationSpeedDirection(LocationSpeedDirection.NO_VALUE_F, -LocationSpeedDirection.NO_VALUE_D,
-                    new LocationType(messages.first().latitude, messages.first().longitude));
+                    locations);
         }
 
         long elapsedTime;
@@ -117,6 +120,7 @@ public class Spot {
         double distanceInMeters, speedMeterSecond;
         SpotMessage tmpMsg;
         LocationType tmpLocation, prevLocation;
+        ArrayList<LocationType> locations = new ArrayList<LocationType>();
         SpotMessage prevMsg = null;
         tmpLocation = prevLocation = null;
         Vector3f sumDirVector = new Vector3f(0f, 0f, 0f);
@@ -125,7 +129,7 @@ public class Spot {
         for (Iterator<SpotMessage> it = messages.iterator(); it.hasNext();) {
             tmpMsg = it.next();
             tmpLocation = new LocationType(tmpMsg.latitude, tmpMsg.longitude);// tmpMsg.getLocation();
-            lastLocations.add(tmpLocation);
+            locations.add(tmpLocation);
             numMeasurements++;
             if (prevMsg != null) {
                 distanceInMeters = tmpLocation.getDistanceInMeters(prevLocation);
@@ -163,7 +167,7 @@ public class Spot {
         double finalDirection = Math.atan(sumDirVector.y / sumDirVector.x);
         log.debug("finalSpeed " + finalSpeed + ", direction: (" + sumDirVector.x + ", " + sumDirVector.y + ")"
                 + finalDirection);
-        return new LocationSpeedDirection(finalSpeed, finalDirection, prevLocation);
+        return new LocationSpeedDirection(finalSpeed, finalDirection, locations);
     }
 
     static double gamma(double z) {
@@ -175,7 +179,17 @@ public class Spot {
 
 
     public LocationType getLastLocation() {
-        return lastLocation;
+        int size = lastLocations.size();
+        if (size > 0) {
+            return lastLocations.get(size - 1);
+        }
+        else {
+            return null;
+        }
+    }
+
+    public ArrayList<LocationType> getLastLocations() {
+        return lastLocations;
     }
 
     public String getName() {
@@ -216,22 +230,19 @@ public class Spot {
         public final static double NO_VALUE_D = -1;
         public final double direction;
         public final Float speed;
-        public final LocationType location;
+        public final ArrayList<LocationType> locations;
 
         /**
          * @param latitude
          * @param longitude
          */
-        public LocationSpeedDirection(float speed, double direction, LocationType location) {
+        public LocationSpeedDirection(float speed, double direction, ArrayList<LocationType> locations) {
             super();
             this.speed = speed;
             this.direction = direction;
-            this.location = location;
+            this.locations = locations;
         }
     }
 
-    public ArrayList<LocationType> getLastLocations() {
-        return lastLocations;
-    }
 }
 
