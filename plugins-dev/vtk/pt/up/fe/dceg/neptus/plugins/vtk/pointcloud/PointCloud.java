@@ -96,16 +96,27 @@ public class PointCloud<T extends PointXYZ> {
         
         getPoly().Modified();
         
-        vtkDataArray scalars = new vtkDataArray();
+        //vtkDataArray scalars = new vtkDataArray();
         
+                // coloca tudo a vermelho
+//        vtkFloatArray scalars2 = new vtkFloatArray();
+//        //scalars2.SetNumberOfValues(getPoly().GetNumberOfPoints());
+//        for (int i = 0; i < getPoly().GetNumberOfPoints(); ++i) {
+//            //System.out.println("i: " + i + "poly number of points: " + getPoly().GetNumberOfPoints());
+//            
+//                double[] p = new double[3];
+//                getPoly().GetPoint(i, p);
+//            //scalars2.SetValue(i, i/getPoly().GetNumberOfPoints());
+//                scalars2.SetValue(i, p[2]);
+//        }
         
         vtkCellArray cells = new vtkCellArray();
         cells.SetNumberOfCells(getNumberOfPoints());
         
         getPoly().SetPolys(cells);
+        //getPoly().GetPointData().SetScalars(points.GetData());
         
-
-        getPoly().GetBounds(getBounds());
+        bounds = getPoly().GetBounds();
                 
         System.out.println("min X: " + getBounds()[0]);
         System.out.println("max X: " + getBounds()[1]);
@@ -114,18 +125,30 @@ public class PointCloud<T extends PointXYZ> {
         System.out.println("min Z: " + getBounds()[4]);
         System.out.println("max Z: " + getBounds()[5]);
         
+        
         vtkLookupTable colorLookupTable = new vtkLookupTable();
-        colorLookupTable.SetTableRange(getBounds()[4], getBounds()[5]);
+
+        //colorLookupTable.SetNumberOfColors(3);
+        
+        colorLookupTable.SetRange(getBounds()[4], getBounds()[5]);
+        
+        //colorLookupTable.SetValueRange(getBounds()[5], getBounds()[5]);
+        
+        //colorLookupTable.SetHueRange(0, 1);
+        //colorLookupTable.SetSaturationRange(1, 1);
+        //colorLookupTable.SetValueRange(1, 1);
+        //colorLookupTable.set
+        colorLookupTable.SetScaleToLinear();
+        //colorLookupTable.SetTableRange(getBounds()[4], getBounds()[5]);
         colorLookupTable.Build();
         //colorLookupTable.SetNumberOfColors(256);
         //colorLookupTable.SetNumberOfColors(256);
         //colorLookupTable.SetHueRange(0.0, 0.667);
-        //colorLookupTable.SetScaleToLinear();
+
         
         vtkUnsignedCharArray colors = new vtkUnsignedCharArray();
         colors.SetNumberOfComponents(3);
         colors.SetName("Colors");
-        
         
         for (int i = 0; i < getPoly().GetNumberOfPoints(); ++i) {
             double[] p = new double[3];
@@ -141,23 +164,30 @@ public class PointCloud<T extends PointXYZ> {
             for (int j = 0; j < 3; ++j) {
                 color[j] = (char) (255.0 * dcolor[j]);
             }
-            
-            //System.out.println("color: " + (int)color[0] + " " + (int)color[1] + " " + (int)color[2]);
-            
+            //System.out.println("color: " + (int)color[0] + " " + (int)color[1] + " " + (int)color[2]);       
             //colors.InsertNextValue(color);
             //colors.In
             colors.InsertNextTuple3(color[0], color[1], color[2]);
         }
         
         getPoly().GetPointData().SetScalars(colors);
+
         
         vtkPolyDataMapper map = new vtkPolyDataMapper();
         map.SetInput(getPoly());
+            // into coloca os limites na lookuptable
+        map.SetScalarRange(getBounds()[4], getBounds()[5]);
         map.SetLookupTable(colorLookupTable);
-        map.ScalarVisibilityOn();
-        
+        //map.ScalarVisibilityOn();
+        //map.SetScalarModeToUsePointData();
+        //map.SetScalarModeToUseCellData();
+        //map.SetScalarVisibility_9(true);
+            // poor renderering?
+        //map.InterpolateScalarsBeforeMappingOn();
+        //map.SetColorModeToMapScalars();
+     
         getCloudLODActor().SetMapper(map);
-        getCloudLODActor().GetProperty().SetPointSize(2.0);
+        getCloudLODActor().GetProperty().SetPointSize(1.0);
         getCloudLODActor().GetProperty().SetRepresentationToPoints();     
     }
     

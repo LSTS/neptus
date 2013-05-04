@@ -155,12 +155,13 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                         //            data[i].east, data[i].north, data[i].depth));
                     //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(
                     //        p.north, p.east, p.depth));
-                pointCloud.getVerts().InsertNextCell(1);
+                //pointCloud.getVerts().InsertNextCell(1);
                 //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(
                 //        (pose.getPosition().getOffsetNorth() + ox),
                 //        (pose.getPosition().getOffsetEast() + oy),
                 //        height));
-                pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth));
+                //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth));
+                //System.out.println("north: " + p.north + " east: " + p.east + " depth: " + p.depth);
             }
             totalNumberPoints = totalNumberPoints + bs.numBeams;
         }
@@ -254,7 +255,13 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                 double oy = xBeamOffset * Math.cos(psi);
                 
                 data[i] = new BathymetryPoint((float) (pose.getPosition().getOffsetNorth() + ox),
-                        (float) (pose.getPosition().getOffsetEast() + oy), (float) height);             
+                        (float) (pose.getPosition().getOffsetEast() + oy), (float) height);  
+                
+                pointCloud.getVerts().InsertNextCell(1);
+                pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(
+                        (pose.getPosition().getOffsetNorth() + ox),
+                        (pose.getPosition().getOffsetEast() + oy),
+                        height));
             }
                     
             currPos += header.numBytes;     // advance to the next ping (position file pointer);

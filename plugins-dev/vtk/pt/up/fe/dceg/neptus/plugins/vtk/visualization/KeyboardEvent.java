@@ -107,8 +107,13 @@ public class KeyboardEvent {
                    
                     System.out.println("scalars to colors");
                     vtkScalarsToColors lut = tempActor.GetMapper().GetLookupTable();
+                    
+                    double[] bounds;
+                    bounds = tempActor.GetMapper().GetBounds();
                     System.out.println("set look up table 1");
                     neptusInteractorStyle.lutActor.SetLookupTable(lut);
+                    neptusInteractorStyle.lutActor.SetUseBounds(true);
+                    neptusInteractorStyle.lutActor.SetNumberOfLabels(9);
                     neptusInteractorStyle.lutActor.Modified();
 
                 }
@@ -233,14 +238,14 @@ public class KeyboardEvent {
                 break;
             case '1':
                 //int numberOfProps = neptusInteractorStyle.renderer.GetNumberOfPropsRendered();
-                //System.out.println("numberOfProps: " + numberOfProps);
-                
+                //System.out.println("numberOfProps: " + numberOfProps);           
                 setOfClouds = linkedHashMapCloud.keySet();
                 for (String sKey : setOfClouds) {
                     //System.out.println("String from set: " + setOfClouds);
                     vtkLODActor tempActor = new vtkLODActor();
                     tempActor = linkedHashMapCloud.get(sKey);
-                    tempActor.GetProperty().SetColor(PointCloudHandlers.getRandomColor());
+                    //tempActor.GetProperty().SetColor(PointCloudHandlers.getRandomColor());
+                    
                 }
                 neptusInteractorStyle.interactor.Render();
                 break;

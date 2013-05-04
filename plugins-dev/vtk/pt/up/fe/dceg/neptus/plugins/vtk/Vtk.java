@@ -43,8 +43,13 @@ import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+
+import net.miginfocom.swing.MigLayout;
+
+import com.l2fprod.common.swing.JButtonBar;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
@@ -79,7 +84,8 @@ public class Vtk extends JPanel implements MRAVisualization {
     private JToggleButton zExaggerationToggle;
     private JToggleButton rawPointsToggle;
     private JToggleButton downsampledPointsToggle;
-    private JToggleButton resetViewportToggle;  
+    private JToggleButton resetViewportToggle;
+    private JButton helpButton;
     private JPanel toolBar;
     
     private static Path path = null;
@@ -169,7 +175,9 @@ public class Vtk extends JPanel implements MRAVisualization {
      * @param panel
      */
     public Vtk(MRAPanel panel) {
-        super(new BorderLayout());   
+        super(new BorderLayout());
+        //MigLayout
+        
             //vtkPanel = new vtkPanel();       
             //Window win = new Window(vtkPanel);
         vtkCanvas = new vtkCanvas();
@@ -230,7 +238,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         
         pointCloud = new PointCloud<>();
         pointCloud.setCloudName("multibeam");
-        linkedHashMapCloud.put("multibeam", pointCloud.getCloudLODActor());
+        linkedHashMapCloud.put(pointCloud.getCloudName(), pointCloud.getCloudLODActor());
         
         System.out.println("veio aki 1");
         int hashCode = linkedHashMapCloud.hashCode();
@@ -242,8 +250,8 @@ public class Vtk extends JPanel implements MRAVisualization {
         //AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
         //axesActor.setAxesVisibility(true);
         
-        Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
-        vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
+        //Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
+        //vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
         //ax.getAxesActor().SetVisibility(true);
         
         vtkCanvas.GetRenderer().ResetCamera();
@@ -274,14 +282,15 @@ public class Vtk extends JPanel implements MRAVisualization {
             MultibeamToPointCloud multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
             pointCloud.createLODActorFromPoints();
             
+            //Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
+            //vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
+            //ax.getAxesActor().SetVisibility(true);
             
             //vtkLODActor multibeamActor = linkedHashMapCloud.get("multibeam");
             //vtkCanvas.GetRenderer().AddActor(multibeamActor);
             
-            vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
-            
+            vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());      
             NeptusLog.pub().info("<###> ");
-            
             vtkCanvas.GetRenderer().ResetCamera();
         }
 //        PointCloud<PointXYZ> pointCloud = new PointCloud<>();
@@ -405,7 +414,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         JPanel toolbar = new JPanel();
         
         toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.Y_AXIS));
-        toolbar.setBackground(Color.WHITE);
+        toolbar.setBackground(Color.DARK_GRAY);
         //toolbar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
         //toolbar.setAutoscrolls(true);
         //Rectangle rect = new Rectangle();
@@ -414,9 +423,13 @@ public class Vtk extends JPanel implements MRAVisualization {
         //toolbar.setBounds(rect);
         
         rawPointsToggle = new JToggleButton(I18n.text("Raw"));
+        rawPointsToggle.setBounds(toolbar.getX(), toolbar.getY(), toolbar.getWidth(), 10);
         downsampledPointsToggle = new JToggleButton(I18n.text("Downsampled"));
+        downsampledPointsToggle.setBounds(rawPointsToggle.getBounds());
+        
         zExaggerationToggle = new JToggleButton(I18n.text("Exaggerate Z"));
         resetViewportToggle = new JToggleButton(I18n.text("Reset View"));
+        helpButton = new JButton(I18n.text("Help"));
         
         rawPointsToggle.setSelected(true);
         downsampledPointsToggle.setSelected(false);
@@ -426,12 +439,10 @@ public class Vtk extends JPanel implements MRAVisualization {
         rawPointsToggle.addActionListener(new ActionListener() {       
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (rawPointsToggle.isSelected())
-                {
+                if (rawPointsToggle.isSelected()) {
                     
                 }
-                else
-                {
+                else {
                     
                 }
             }
@@ -440,12 +451,10 @@ public class Vtk extends JPanel implements MRAVisualization {
         downsampledPointsToggle.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (downsampledPointsToggle.isSelected())
-                {
+                if (downsampledPointsToggle.isSelected()) {
                     
                 }
-                else
-                {
+                else {
                     
                 }
             }
@@ -454,12 +463,10 @@ public class Vtk extends JPanel implements MRAVisualization {
         zExaggerationToggle.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (zExaggerationToggle.isSelected())
-                {
+                if (zExaggerationToggle.isSelected()) {
                     
                 }
-                else
-                {
+                else {
                     
                 }
             }
@@ -468,12 +475,10 @@ public class Vtk extends JPanel implements MRAVisualization {
         resetViewportToggle.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (resetViewportToggle.isSelected())
-                {
+                if (resetViewportToggle.isSelected()) {
                     
                 }
-                else
-                {
+                else {
                     
                 }
             }
@@ -483,6 +488,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         toolbar.add(downsampledPointsToggle);
         toolbar.add(zExaggerationToggle);
         toolbar.add(resetViewportToggle);
+        
         
         return toolbar;
     }

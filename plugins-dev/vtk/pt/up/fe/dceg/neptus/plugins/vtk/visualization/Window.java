@@ -161,7 +161,9 @@ public class Window {
         for (String s : set) {
             System.out.println("Window class String from set: " + s);
         }
-        renderer.SetBackground(0.1, 0.1, 0.1);
+        renderer.SetGradientBackground(true);
+        renderer.SetBackground(0.0, 0.0, 0.0);
+        renderer.SetBackground2(0.4, 0.4, 0.4);
     }
     
     /**

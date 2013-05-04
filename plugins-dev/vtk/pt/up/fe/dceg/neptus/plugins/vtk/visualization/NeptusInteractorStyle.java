@@ -43,6 +43,7 @@ import org.lwjgl.Sys;
 
 import vtk.vtkCamera;
 import vtk.vtkCanvas;
+import vtk.vtkCellPicker;
 import vtk.vtkCommand;
 import vtk.vtkImageAlgorithm;
 import vtk.vtkInteractorStyleTrackballActor;
@@ -50,6 +51,7 @@ import vtk.vtkInteractorStyleTrackballCamera;
 import vtk.vtkLODActor;
 import vtk.vtkLegendScaleActor;
 import vtk.vtkPNGWriter;
+import vtk.vtkProp3D;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
 import vtk.vtkScalarBarActor;
@@ -88,85 +90,83 @@ import vtk.vtkXYPlotActor;
  */
 public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera implements MouseWheelListener {
     
-    protected Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
+    //protected Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
     protected LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
     
-    // A vtkCanvas
-    protected vtkCanvas canvas = new vtkCanvas();
-    
-    // A renderer
-    protected vtkRenderer renderer = new vtkRenderer();
-    
-    // The render Window Interactor
+        // A vtkCanvas
+    protected vtkCanvas canvas = new vtkCanvas();    
+        // A renderer
+    protected vtkRenderer renderer = new vtkRenderer();  
+        // The render Window Interactor
     protected vtkRenderWindowInteractor interactor = new vtkRenderWindowInteractor(); 
     
-    // A Camera
-    vtkCamera camera = new vtkCamera();
+        // A Camera
+    public vtkCamera camera = new vtkCamera();
     
-    // the XY plt actor holding the actual data.
-    //vtkXYPlotActor xyActor = new vtkXYPlotActor();
+        // the XY plt actor holding the actual data.
+        //vtkXYPlotActor xyActor = new vtkXYPlotActor();
 
-    //KeyboardEvent keyboardEvent = new KeyboardEvent(this, hashCloud);
-    KeyboardEvent keyboardEvent;
+        //KeyboardEvent keyboardEvent = new KeyboardEvent(this, hashCloud);
     
-    // the render window interactor style;
+        // the render window interactor style;
     private vtkInteractorStyleTrackballCamera style = new vtkInteractorStyleTrackballCamera();
     
-    // Set true if the LUT actor is enabled
-    protected boolean lutEnabled;
-    // Actor for 2D loookup table on screen
-    protected vtkScalarBarActor lutActor = new vtkScalarBarActor();
+        // frame per seconds text actor - show frame rate refresh on visualizer
+    private boolean fpsActorEnable = false;
+    
+    // ########## Keyboard interaction ##########   
+    public KeyboardEvent keyboardEvent;
 
-    // Set true if the grid actor is enabled
-    protected boolean gridEnabled;
-    // Actor for 2D grid on screen
-    protected vtkLegendScaleActor gridActor = new vtkLegendScaleActor();
+        // Change default keyboard modified from ALT to a different special key
+    private enum InteractorKeyboardModifier
+    {
+        INTERACTOR_KB_MOD_ALT,
+        INTERACTOR_KB_MOD_CTRL,
+        INTERACTOR_KB_MOD_SHIFT
+    }
+    public InteractorKeyboardModifier interactModifier;
+    
+    protected boolean wireframeRepEnabled = false;
+    protected boolean solidRepEnabled = false;
+    protected boolean pointRepEnabled = true;
     
     // Set true if the Compass Widget is enabled
     protected boolean compassEnabled;
     // Actor for Compass Widget on screen
     protected Compass compass = new Compass();
     
-    
-    protected boolean wireframeRepEnabled = false;;
-    protected boolean solidRepEnabled = false;;
-    protected boolean pointRepEnabled = true;
-    
-    // A PNG Writer for screenshot captures
+    private vtkTextActor fpsActor = new vtkTextActor();
+   
+        // A PNG Writer for screenshot captures
     protected vtkPNGWriter snapshotWriter = new vtkPNGWriter();
-    // Internal Window to image Filter. Needed by a snapshotWriter object
+        // Internal Window to image Filter. Needed by a snapshotWriter object
     protected vtkWindowToImageFilter wif = new vtkWindowToImageFilter();
+    
+    // Set true if the grid actor is enabled
+    protected boolean gridEnabled;
+    // Actor for 2D grid on screen
+    protected vtkLegendScaleActor gridActor = new vtkLegendScaleActor();
+    
+    // Set true if the LUT actor is enabled
+    protected boolean lutEnabled;
+    // Actor for 2D loookup table on screen
+    protected vtkScalarBarActor lutActor = new vtkScalarBarActor();
+    
+    // ########## Mouse Interaction ##########
+    vtkProp3D InteractionProp;
+    vtkCellPicker InteractionPicker;
     
     // Current Window position width/height
     int winHeight, winWidth;
     // Current window postion x/y
     int winPosX, winPosY;
     
-    static final String NEWLINE = System.getProperty("line.separator");
-    
-    /*
-     * TrackballActor style interactor for addObserver callback reference
-     */
+    // TrackballActor style interactor for addObserver callback reference
     vtkInteractorStyleTrackballActor astyle = new vtkInteractorStyleTrackballActor();
-    /*
-     * TrackballCamera style interactor for addObserver callback reference
-     */
+    // TrackballCamera style interactor for addObserver callback reference
     vtkInteractorStyleTrackballCamera cstyle = new vtkInteractorStyleTrackballCamera();
     
-    
-    // frame per seconds text actor - show frame rate refresh on visualizer
-    private boolean fpsActorEnable = false;
-    private vtkTextActor fpsActor = new vtkTextActor();
-    
-    // Change default keyboard modified from ALT to a different special key
-    public enum InteractorKeyboardModifier
-    {
-        INTERACTOR_KB_MOD_ALT,
-        INTERACTOR_KB_MOD_CTRL,
-        INTERACTOR_KB_MOD_SHIFT
-    }
-    
-    private InteractorKeyboardModifier interactModifier;
+
     
     /**
      * 
@@ -299,11 +299,11 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
      */
     void emitKeyboardEvents() {
         char keyCode = Character.toLowerCase(interactor.GetKeyCode());
-        System.out.println("keycode is: " + keyCode);
-        String keySym = interactor.GetKeySym();
-        System.out.println("Sym is: " + keySym);
-        int keyInt = Character.getNumericValue(keyCode);
-        System.out.println("keyInt is: " + keyInt);
+        //System.out.println("keycode is: " + keyCode);
+        //String keySym = interactor.GetKeySym();
+        //System.out.println("Sym is: " + keySym);
+        //int keyInt = Character.getNumericValue(keyCode);
+        //System.out.println("keyInt is: " + keyInt);
         this.keyboardEvent.handleEvents(keyCode);      
     }
     
@@ -396,12 +396,10 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         String message;
         int notches = e.getWheelRotation();
         if (notches < 0) {
-            System.out.println("Mouse wheel moved UP: " + -notches + " notches(es)");
+            //System.out.println("Mouse wheel moved UP: " + -notches + " notches(es)");
             zoomIn();
-            message = "Mouse wheel moved UP" + - notches + " notche(es)" + NEWLINE;
         } else {
-            System.out.println("Mouse wheel movel DOWN: " + notches + " notches(es)");
-            message = "mouse whell moved DOWN" + notches + " notch(es)" + NEWLINE;
+            //System.out.println("Mouse wheel movel DOWN: " + notches + " notches(es)");
             zoomOut();
         }      
     }
@@ -411,6 +409,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
      */
     private void zoomIn() {
         FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
+        
         double[] posCam;
         posCam = camera.GetPosition();
         // Zoom in
