@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -44,6 +45,9 @@ import java.util.Vector;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
@@ -63,6 +67,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesActor;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Caption;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.PointCloudHandlers;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
 import vtk.vtkCanvas;
@@ -86,15 +91,17 @@ public class Vtk extends JPanel implements MRAVisualization {
     private JToggleButton downsampledPointsToggle;
     private JToggleButton resetViewportToggle;
     private JButton helpButton;
+    
     private JPanel toolBar;
     
     private static Path path = null;
     private static final String FILE_83P_EXT = ".83P";
     
-    public LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
-    
-    @SuppressWarnings("rawtypes")
-    public LinkedHashMap<String, PointCloud> linkedHashMapPointCloud = new LinkedHashMap<>();
+    //public LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
+    public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
+      
+    //@SuppressWarnings("rawtypes")
+    //public LinkedHashMap<String, PointCloud> linkedHashMapPointCloud = new LinkedHashMap<>();
     
     
     public PointCloud<PointXYZ> pointCloud;
@@ -238,7 +245,9 @@ public class Vtk extends JPanel implements MRAVisualization {
         
         pointCloud = new PointCloud<>();
         pointCloud.setCloudName("multibeam");
-        linkedHashMapCloud.put(pointCloud.getCloudName(), pointCloud.getCloudLODActor());
+        //linkedHashMapCloud.put(pointCloud.getCloudName(), pointCloud.getCloudLODActor());
+        linkedHashMapCloud.put(pointCloud.getCloudName(), pointCloud);
+        
         
         System.out.println("veio aki 1");
         int hashCode = linkedHashMapCloud.hashCode();
@@ -261,7 +270,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         
         toolBar = new JPanel();
         toolBar = createToolbar();
-        add(toolBar, BorderLayout.EAST);
+        add(toolBar, BorderLayout.SOUTH);
     }
     
     @Override
@@ -289,7 +298,12 @@ public class Vtk extends JPanel implements MRAVisualization {
             //vtkLODActor multibeamActor = linkedHashMapCloud.get("multibeam");
             //vtkCanvas.GetRenderer().AddActor(multibeamActor);
             
-            vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());      
+            vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
+            
+            Caption cap = new Caption(1, 1, true, true, true, false, pointCloud, vtkCanvas.GetRenderer());
+            vtkCanvas.GetRenderer().AddActor(cap.getCaptionActor());
+            
+            
             NeptusLog.pub().info("<###> ");
             vtkCanvas.GetRenderer().ResetCamera();
         }
@@ -413,7 +427,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     private JPanel createToolbar() {
         JPanel toolbar = new JPanel();
         
-        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.Y_AXIS));
+        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
         toolbar.setBackground(Color.DARK_GRAY);
         //toolbar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
         //toolbar.setAutoscrolls(true);
@@ -435,6 +449,43 @@ public class Vtk extends JPanel implements MRAVisualization {
         downsampledPointsToggle.setSelected(false);
         zExaggerationToggle.setSelected(false);
         resetViewportToggle.setSelected(false);
+        
+        helpButton.setSize(10, 10);
+        
+        
+        helpButton.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String msgHelp;
+                msgHelp = "\tHelp for the 3D visualization interaction:\n\n";
+                msgHelp = msgHelp + "Key    -   description\n";
+                msgHelp = msgHelp + "p, P   -   switch to a point-based representation\n";
+                msgHelp = msgHelp + "w, W   -   switch to a wireframe-based representation, when available\n";
+                msgHelp = msgHelp + "s, S   -   switch to a surface-based representation, when available\n";
+                msgHelp = msgHelp + "j, J   -   take a .PNG snapshot of the current window view\n";
+                msgHelp = msgHelp + "g, G   -   display scale grid (on/off)\n";
+                msgHelp = msgHelp + "u, U   -   display lookup table (on/off)\n";
+                msgHelp = msgHelp + "r, R   -   reset camera (to viewpoint = {0, 0, 0} -> center {x, y, z}\n";
+                msgHelp = msgHelp + "3      -   3D visualization (put the 3D glasses on)\n";
+                msgHelp = msgHelp + "7      -   color gradient in relation with X coords (north)\n";
+                msgHelp = msgHelp + "8      -   color gradient in relation with Y coords (west)\n";
+                msgHelp = msgHelp + "9      -   color gradient in relation with Z coords (depth)\n"; 
+ 
+                JOptionPane.showMessageDialog(null, msgHelp);
+                //JFrame frame = new JFrame();
+                //JPanel helpPanel = new JPanel(new GridLayout(2, 1));
+                    
+                //JLabel label1 = new JLabel("Help" , JLabel.WEST);
+                //JLabel label2 = new JLabel("labela", JLabel.WEST);
+                    
+                //label1.setToolTipText("Helpinho");
+                //label2.setToolTipText("Labelinha");
+                    
+                //frame.add(label1);
+                //frame.add(label2);
+            }
+        });
         
         rawPointsToggle.addActionListener(new ActionListener() {       
             @Override
@@ -484,10 +535,15 @@ public class Vtk extends JPanel implements MRAVisualization {
             }
         });
         
+        
+        
+        
         toolbar.add(rawPointsToggle);
         toolbar.add(downsampledPointsToggle);
         toolbar.add(zExaggerationToggle);
         toolbar.add(resetViewportToggle);
+        
+        toolbar.add(helpButton);
         
         
         return toolbar;

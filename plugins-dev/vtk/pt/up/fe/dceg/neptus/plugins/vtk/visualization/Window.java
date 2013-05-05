@@ -36,6 +36,9 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
+import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+
 import visad.SetIface;
 import vtk.vtkCanvas;
 import vtk.vtkCommand;
@@ -67,9 +70,9 @@ public class Window {
     private vtkPNGWriter pngWriter;
     private String wifName;
     
-    private Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
-    private LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
-
+    //private LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
+    public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
+      
     private vtkPanel panel;
     private vtkCanvas canvas;
     private vtkRenderer renderer;
@@ -87,7 +90,7 @@ public class Window {
      * @param interactor
      * @param windowName
      */
-    public Window(vtkPanel panel, LinkedHashMap<String, vtkLODActor> linkedHashMapCloud) {
+    public Window(vtkPanel panel, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
         // a Renderer
         this.panel = panel;
         this.linkedHashMapCloud = linkedHashMapCloud;
@@ -114,7 +117,7 @@ public class Window {
      * @param canvas
      * @param hashCloud 
      */
-    public Window(vtkCanvas canvas, LinkedHashMap<String, vtkLODActor> linkedHashMapCloud) {
+    public Window(vtkCanvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
         this.canvas = new vtkCanvas();
         this.canvas = canvas;
         this.linkedHashMapCloud = linkedHashMapCloud;
@@ -157,7 +160,7 @@ public class Window {
      * Sets up the Renderer
      */
     private void setUpRenderer() {
-        Set<String> set = hashCloud.keySet();
+        Set<String> set = linkedHashMapCloud.keySet();
         for (String s : set) {
             System.out.println("Window class String from set: " + s);
         }

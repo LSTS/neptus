@@ -41,6 +41,9 @@ import java.util.Set;
 
 import org.lwjgl.Sys;
 
+import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
+import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+
 import vtk.vtkCamera;
 import vtk.vtkCanvas;
 import vtk.vtkCellPicker;
@@ -91,7 +94,8 @@ import vtk.vtkXYPlotActor;
 public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera implements MouseWheelListener {
     
     //protected Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
-    protected LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
+    //protected LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
+    public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
     
         // A vtkCanvas
     protected vtkCanvas canvas = new vtkCanvas();    
@@ -175,7 +179,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
      * @param interact
      * @param linkedHashMapCloud
      */
-    public NeptusInteractorStyle(vtkCanvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor interact, LinkedHashMap<String, vtkLODActor> linkedHashMapCloud) {
+    public NeptusInteractorStyle(vtkCanvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor interact, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
         super();
         this.canvas = canvas;
         this.renderer = renderer;
@@ -183,6 +187,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         this.camera = renderer.GetActiveCamera();
         this.linkedHashMapCloud = linkedHashMapCloud;
         keyboardEvent = new KeyboardEvent(this, this.linkedHashMapCloud);
+        
         Initalize();
     }
     

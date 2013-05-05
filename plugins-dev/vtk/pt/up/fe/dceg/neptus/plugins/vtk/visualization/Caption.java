@@ -31,14 +31,81 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
+import java.util.LinkedHashMap;
+
+import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
+import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import vtk.vtkRenderer;
+import vtk.vtkTextActor;
+
 /**
  * @author hfq
  *
  */
 public class Caption {
-    public int posX;
-    public int posY;
     
+    private int xPosScreen;
+    private int YPosScreen;
     
+    private Boolean showNumberOfPoints = false;
+    private Boolean showCloudName = false;
+    private Boolean showCloudBounds = false;
+    private Boolean showLatAndLon = false;
+    
+    private PointCloud<PointXYZ> pointCloud;
+    private vtkRenderer renderer;
+    
+    private vtkTextActor captionActor;
+    
+    public Caption (int xPosScreen, int yPosScreen, Boolean showNumberOfPoints,
+            Boolean showCloudName, Boolean showCloudBounds, Boolean showLatAndLon,
+            PointCloud<PointXYZ> pointCloud, vtkRenderer renderer) {
+            
+        this.xPosScreen = xPosScreen;
+        this.YPosScreen = yPosScreen;
+        this.showNumberOfPoints = showNumberOfPoints;
+        this.showCloudName = showCloudName;
+        this.showCloudBounds = showCloudBounds;
+        this.showLatAndLon = showLatAndLon;
+        this.renderer = renderer;
+        captionActor = new vtkTextActor();
+        
+        buildCaptionActor();
+    }
+
+    /**
+     * 
+     */
+    private void buildCaptionActor() {
+        captionActor.GetTextProperty().SetJustificationToLeft();
+        captionActor.GetTextProperty().SetVerticalJustificationToTop();
+        captionActor.GetTextProperty().SetShadowOffset(1, 1);
+        captionActor.UseBorderAlignOn();
+        captionActor.GetTextProperty().SetColor(1.0, 0.0, 0.0);
+        captionActor.SetDisplayPosition(20, 2);
+        
+        System.out.println("entrou no build Caption");
+        
+        if(showNumberOfPoints) {
+            System.out.println("foi ao show number of points");
+            //int nPoints = pointCloud.getNumberOfPoints();
+            int nPoints = 434;
+            captionActor.SetInput("Number of Points: " + String.valueOf(nPoints));
+        }
+    }
+
+    /**
+     * @return the captionActor
+     */
+    public vtkTextActor getCaptionActor() {
+        return captionActor;
+    }
+
+    /**
+     * @param captionActor the captionActor to set
+     */
+    private void setCaptionActor(vtkTextActor captionActor) {
+        this.captionActor = captionActor;
+    }
     
 }

@@ -92,9 +92,6 @@ public class PointCloudHandlers<T extends PointXYZ> {
     
     public vtkScalarsToColors getRandomColor2() {
         vtkScalarsToColors scalars = new vtkScalarsToColors();
-        
-      
-        
         return scalars;
     }
     
@@ -109,9 +106,6 @@ public class PointCloudHandlers<T extends PointXYZ> {
         
         double[] rgbColor = new double[3];
         rgbColor = getRandomColor();
-        
-        //scalars.set
-        
         
         return scalars;
     }
