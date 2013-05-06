@@ -83,13 +83,15 @@ import vtk.vtkPanel;
 public class Vtk extends JPanel implements MRAVisualization {
     private static final long serialVersionUID = 1L;
     
+    private static Boolean vtkEnabled = true;
+    
     public vtkPanel vtkPanel;
     public vtkCanvas vtkCanvas;
     
     private JToggleButton zExaggerationToggle;
     private JToggleButton rawPointsToggle;
     private JToggleButton downsampledPointsToggle;
-    private JToggleButton resetViewportToggle;
+    private JButton resetViewportButton;
     private JButton helpButton;
     
     private JPanel toolBar;
@@ -97,144 +99,134 @@ public class Vtk extends JPanel implements MRAVisualization {
     private static Path path = null;
     private static final String FILE_83P_EXT = ".83P";
     
-    //public LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
     public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
-      
-    //@SuppressWarnings("rawtypes")
-    //public LinkedHashMap<String, PointCloud> linkedHashMapPointCloud = new LinkedHashMap<>();
-    
-    
+       
     public PointCloud<PointXYZ> pointCloud;
+
     
     private Vector<Marker3d> markers = new Vector<>();
     
     public IMraLogGroup mraVtkLogGroup;
-    
     public File file;
     
     private Boolean componentEnabled = false;
     
     static {
-        System.loadLibrary("jawt");
-        
-        // for simple visualizations
+        try {
+            System.loadLibrary("jawt");
+        }
+        catch (Throwable e) {       
+            System.out.println("cannot load jawt lib!");
+        }
+    
+            // for simple visualizations
         try {
             vtkNativeLibrary.COMMON.LoadLibrary();
+            if(!vtkNativeLibrary.COMMON.IsLoaded())
+                vtkEnabled = false;
         }
         catch (Throwable e) {
             System.out.println("cannot load vtkCommon, skipping...");
         }
-        
-        vtkNativeLibrary.FILTERING.LoadLibrary();
-        vtkNativeLibrary.IO.LoadLibrary();
-        vtkNativeLibrary.IMAGING.LoadLibrary();
-        vtkNativeLibrary.GRAPHICS.LoadLibrary();
-        vtkNativeLibrary.RENDERING.LoadLibrary();
+        try {
+            vtkNativeLibrary.FILTERING.LoadLibrary();
+            if(!vtkNativeLibrary.FILTERING.IsLoaded())
+                vtkEnabled = false;
+        }
+        catch (Throwable e) {
+            System.out.println("cannot load vtkFiltering, skipping...");
+        }
+        try {
+            vtkNativeLibrary.IO.LoadLibrary();
+            if(!vtkNativeLibrary.IO.IsLoaded())
+                vtkEnabled = false;
+        }
+        catch (Throwable e) {
+            System.out.println("cannot load vtkImaging, skipping...");
+        }
+        try {
+            vtkNativeLibrary.GRAPHICS.LoadLibrary();
+            if(!vtkNativeLibrary.GRAPHICS.IsLoaded())
+                vtkEnabled = false;
+        }
+        catch (Throwable e) {
+            System.out.println("cannot load vtkGrahics, skipping...");
+        }
+        try {
+            vtkNativeLibrary.RENDERING.LoadLibrary();
+            if(!vtkNativeLibrary.RENDERING.IsLoaded())
+                vtkEnabled = false;
+        }
+        catch (Throwable e) {
+            System.out.println("cannot load vtkRendering, skipping...");
+        }
                 
         // Other
         try {
             vtkNativeLibrary.INFOVIS.LoadLibrary();
+            if(!vtkNativeLibrary.INFOVIS.IsLoaded())
+                vtkEnabled = false;
         }
         catch (Throwable e) {
             System.out.println("cannot load vtkInfoVis, skipping...");
         }
         try {
             vtkNativeLibrary.VIEWS.LoadLibrary();
+            if(!vtkNativeLibrary.VIEWS.IsLoaded())
+                vtkEnabled = false;
         }
         catch (Throwable e) {
             System.out.println("cannot load vtkViews, skipping...");
         }
         try {
             vtkNativeLibrary.WIDGETS.LoadLibrary();
+            if(!vtkNativeLibrary.WIDGETS.IsLoaded())
+                vtkEnabled = false;
         }
         catch (Throwable e) {
             System.out.println("cannot load vtkWidgets skipping...");
         }
         try {
             vtkNativeLibrary.GEOVIS.LoadLibrary();
+            if(!vtkNativeLibrary.GEOVIS.IsLoaded())
+                vtkEnabled = false;
         }
         catch (Throwable e) {
             System.out.println("cannot load vtkGeoVis, skipping...");
         }
         try {
             vtkNativeLibrary.CHARTS.LoadLibrary();
+            if(!vtkNativeLibrary.CHARTS.IsLoaded())
+                vtkEnabled = false;
         }
         catch (Throwable e) {
             System.out.println("cannot load vtkCharts, skipping...");
         }
+        try {
+            vtkNativeLibrary.VOLUME_RENDERING.LoadLibrary();
+            if(!vtkNativeLibrary.VOLUME_RENDERING.IsLoaded())
+                vtkEnabled = false;
+        }
+        catch (Throwable e) {
+            System.out.println("cannot load vtkVolumeRendering, skipping...");
+        }
+        // FIXME nao load vtkHybrid
         try {
             vtkNativeLibrary.HYBRID.LoadLibrary();
         }
         catch (Throwable e) {
             System.out.println("cannot load vtkHybrid, skipping...");
         }
-        try {
-            vtkNativeLibrary.VOLUME_RENDERING.LoadLibrary();
-        }
-        catch (Throwable e) {
-            System.out.println("cannot load vtkVolumeRendering, skipping...");
-        }
     }
     
     /**
-     * Ideia: se for pretendido colocar vários actores no render fazer
-     * um HashMap<String, Actor>
      * @param panel
      */
     public Vtk(MRAPanel panel) {
-        super(new BorderLayout());
-        //MigLayout
-        
-            //vtkPanel = new vtkPanel();       
-            //Window win = new Window(vtkPanel);
+        super(new BorderLayout()); // change to MigLayout
+
         vtkCanvas = new vtkCanvas();
-  
-            //BoxWidget.addBoxWidget2Tovisualizer(vtkPanel.GetRenderer(), win.getRenWinInteractor());
-     
-                // a Random points, PointCloud
-        //PointCloud<PointXYZ> pointCloud = new PointCloud<>();
-            //vtkLODActor cloud = new vtkLODActor();
-            //cloud = poi.getRandomPointCloud(30000);
-                //cloud = poi.getRandomPointCloud2(10000);
-                //cloud.GetProperty().SetColor(1.0, 0.0, 0.0);
-        
-                //linkedHashMapCloud.put("cloud", cloud);
-        //linkedHashMapCloud.put("multibeam", pointCloud.getCloudLODActor());
-        
-        
-        //int hashCode = linkedHashMapCloud.hashCode();
-        //System.out.println("Hash code: " + hashCode);
-        //System.out.println("elements: " + linkedHashMapCloud.keySet());
-        
-                // this will set the number of random cloud points as a lower level of detail when the full geomtery cannot be displayed.
-                //testActor.SetNumberOfCloudPoints(5); 
 
-        
-                // a cube Axes actor
-            //vtkActor cubeAxesActor = new vtkActor();
-            //cubeAxesActor = CubeAxes.AddCubeAxesToVisualizer(vtkCanvas.GetRenderer(), poi.poly);
-            //vtkCanvas.GetRenderer().AddActor(cubeAxesActor);
-        
-                // Setup Window for the VTK render
-        //Window winCanvas = new Window(vtkCanvas, linkedHashMapCloud);
-        
-        //double[] temp = PointCloudHandlers.getRandomColor();
-        
-        //vtkLODActor testActor = linkedHashMapCloud.get("cloud");
-        //vtkCanvas.GetRenderer().AddActor(testActor);
-        
-            // reset the camera from the renderer
-        //vtkCanvas.GetRenderer().ResetCamera();
-        
-
-        
-            // axes 1
-            //Axes ax = new Axes();
-            //vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
-            // axes 2
-            //AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
-            //axesActor.setAxesVisibility(true);
-        
         /*              
             vtkPanel.GetRenderer().ResetCamera();
             //vtkPanel.GetRenderer().ResetCameraClippingRange();
@@ -242,26 +234,15 @@ public class Vtk extends JPanel implements MRAVisualization {
             //vtkPanel.GetRenderer().VisibleActorCount();
             //vtkPanel.GetRenderer().ViewToDisplay();
          */
+                       
+        //AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
+        //axesActor.setAxesVisibility(true);   
         
         pointCloud = new PointCloud<>();
         pointCloud.setCloudName("multibeam");
-        //linkedHashMapCloud.put(pointCloud.getCloudName(), pointCloud.getCloudLODActor());
         linkedHashMapCloud.put(pointCloud.getCloudName(), pointCloud);
         
-        
-        System.out.println("veio aki 1");
-        int hashCode = linkedHashMapCloud.hashCode();
-        System.out.println("Hash code: " + hashCode);
-        System.out.println("elements: " + linkedHashMapCloud.keySet());
-        
-        Window winCanvas = new Window(vtkCanvas, linkedHashMapCloud);     
-               
-        //AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
-        //axesActor.setAxesVisibility(true);
-        
-        //Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
-        //vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
-        //ax.getAxesActor().SetVisibility(true);
+        Window winCanvas = new Window(vtkCanvas, linkedHashMapCloud);
         
         vtkCanvas.GetRenderer().ResetCamera();
         
@@ -276,7 +257,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     @Override
     public String getName() {
         System.out.println("getName: " + mraVtkLogGroup.name());
-        return "Vtk Visualization";
+        return "Multibeam 3D";
     }
 
     @Override
@@ -286,55 +267,29 @@ public class Vtk extends JPanel implements MRAVisualization {
         if (!componentEnabled)
         {
             System.out.println("Entrou no component Enabled");
-            componentEnabled = true;
-                // Porque o canBeApplied n seta o LogGroup?
+            componentEnabled = true;    
+            
+                // Porque o canBeApplied n set o LogGroup?
             MultibeamToPointCloud multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
             pointCloud.createLODActorFromPoints();
             
-            //Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
-            //vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
+            Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
+            vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
             //ax.getAxesActor().SetVisibility(true);
-            
-            //vtkLODActor multibeamActor = linkedHashMapCloud.get("multibeam");
-            //vtkCanvas.GetRenderer().AddActor(multibeamActor);
             
             vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
             
-            Caption cap = new Caption(1, 1, true, true, true, false, pointCloud, vtkCanvas.GetRenderer());
-            vtkCanvas.GetRenderer().AddActor(cap.getCaptionActor());
-            
-            
+            //Caption cap = new Caption(20, 2, true, true, true, false, pointCloud, vtkCanvas.GetRenderer());
+            //vtkCanvas.GetRenderer().AddActor(cap.getCaptionActor());
+            Caption cap = new Caption(4, 150, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(), pointCloud.getBounds(), vtkCanvas.GetRenderer());
+            vtkCanvas.GetRenderer().AddActor(cap.getCaptionNumberOfPointsActor());
+            vtkCanvas.GetRenderer().AddActor(cap.getCaptionCloudNameActor());
+            vtkCanvas.GetRenderer().AddActor(cap.getCaptionCloudBoundsActor());
+                        
             NeptusLog.pub().info("<###> ");
             vtkCanvas.GetRenderer().ResetCamera();
         }
-//        PointCloud<PointXYZ> pointCloud = new PointCloud<>();
-//        linkedHashMapCloud.put("multibeam", pointCloud.getCloudLODActor());
-//        
-//        MultibeamToPointCloud bathToPointCloud = new MultibeamToPointCloud(getLog());
-//        System.out.println("veio aki 1");
-//        int hashCode = linkedHashMapCloud.hashCode();
-//        System.out.println("Hash code: " + hashCode);
-//        System.out.println("elements: " + linkedHashMapCloud.keySet());
-//        
-//        Window winCanvas = new Window(vtkCanvas, linkedHashMapCloud);     
-//        
-//        System.out.println("veio aki 2");
-//        double[] temp = PointCloudHandlers.getRandomColor();
-//        System.out.println("veio aki 3");
-//        
-//        vtkLODActor testActor = linkedHashMapCloud.get("cloud");
-//        vtkCanvas.GetRenderer().AddActor(testActor);
-//        System.out.println("veio aki 4");
-//        
-//        // axes 1
-//        //Axes ax = new Axes();
-//        //vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
-//        // axes 2
-//        AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
-//        axesActor.setAxesVisibility(true);
-        
-//        vtkCanvas.GetRenderer().ResetCamera();
-        
+
         return this;
     }
 
@@ -342,23 +297,50 @@ public class Vtk extends JPanel implements MRAVisualization {
     public boolean canBeApplied(IMraLogGroup source) {
         boolean beApplied = false;        
         System.out.println("CanBeApplied: " + source.name());
-
-        // Checks wether there is a *.83P file
-        file = source.getFile("Data.lsf").getParentFile();
-        File[] files = file.listFiles();
-        try {
-            if (file.isDirectory()) {
-                for (File temp : file.listFiles()) {
-                    if ((temp.toString()).endsWith(FILE_83P_EXT)) {
-                        setLog(source);
-                        beApplied = true;
-                    }  
+        System.out.println("vtkEnabled can be applied: " + vtkEnabled);
+        
+        if (vtkEnabled == true) {   // if it could load vtk libraries
+            // Checks wether there is a *.83P file
+            file = source.getFile("Data.lsf").getParentFile();
+            File[] files = file.listFiles();
+            try {
+                if (file.isDirectory()) {
+                    for (File temp : file.listFiles()) {
+                        if ((temp.toString()).endsWith(FILE_83P_EXT)) {
+                            setLog(source);
+                            beApplied = true;
+                        }  
+                    }
                 }
             }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        
+//        file = source.getFile("Data.lsf").getParentFile();
+//        File[] files = file.listFiles();
+//        try {
+//            System.out.println("veio ao try");
+//            if (vtkEnabled == true) {
+//                System.out.println("veio ao vtkEnabled true");
+//            }
+//            else
+//                System.out.println("veio ao vtkEnabled false");
+//            
+//            if (file.isDirectory()) {
+//                for (File temp : file.listFiles()) {
+//                    if ((temp.toString()).endsWith(FILE_83P_EXT)) {
+//                        setLog(source);
+//                        beApplied = true;
+//                    }  
+//                }
+//            }
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
         return beApplied;
     }
 
@@ -442,17 +424,16 @@ public class Vtk extends JPanel implements MRAVisualization {
         downsampledPointsToggle.setBounds(rawPointsToggle.getBounds());
         
         zExaggerationToggle = new JToggleButton(I18n.text("Exaggerate Z"));
-        resetViewportToggle = new JToggleButton(I18n.text("Reset View"));
+        
+        resetViewportButton = new JButton(I18n.text("Reset Viewport"));
         helpButton = new JButton(I18n.text("Help"));
         
         rawPointsToggle.setSelected(true);
         downsampledPointsToggle.setSelected(false);
         zExaggerationToggle.setSelected(false);
-        resetViewportToggle.setSelected(false);
+        //resetViewportToggle.setSelected(false);
         
         helpButton.setSize(10, 10);
-        
-        
         helpButton.addActionListener(new ActionListener() {
             
             @Override
@@ -473,17 +454,6 @@ public class Vtk extends JPanel implements MRAVisualization {
                 msgHelp = msgHelp + "9      -   color gradient in relation with Z coords (depth)\n"; 
  
                 JOptionPane.showMessageDialog(null, msgHelp);
-                //JFrame frame = new JFrame();
-                //JPanel helpPanel = new JPanel(new GridLayout(2, 1));
-                    
-                //JLabel label1 = new JLabel("Help" , JLabel.WEST);
-                //JLabel label2 = new JLabel("labela", JLabel.WEST);
-                    
-                //label1.setToolTipText("Helpinho");
-                //label2.setToolTipText("Labelinha");
-                    
-                //frame.add(label1);
-                //frame.add(label2);
             }
         });
         
@@ -523,28 +493,22 @@ public class Vtk extends JPanel implements MRAVisualization {
             }
         });
         
-        resetViewportToggle.addActionListener(new ActionListener() {
+        resetViewportButton.addActionListener(new ActionListener() {
+            
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (resetViewportToggle.isSelected()) {
-                    
-                }
-                else {
-                    
-                }
+                vtkCanvas.GetRenderer().ResetCamera();
+                vtkCanvas.getRenderWindowInteractor().Render();
             }
         });
-        
-        
-        
-        
+
+            // toogles
         toolbar.add(rawPointsToggle);
         toolbar.add(downsampledPointsToggle);
         toolbar.add(zExaggerationToggle);
-        toolbar.add(resetViewportToggle);
-        
+            // buttons
+        toolbar.add(resetViewportButton);
         toolbar.add(helpButton);
-        
         
         return toolbar;
     }

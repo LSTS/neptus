@@ -79,10 +79,15 @@ public class MultibeamDeltaTParser implements BathymetryParser{
     //private double maxLongitude = Math.PI;        // 180º East (+)
     //private double minLongitude = -Math.PI;       // 180º West (-)
     
-    private double maxLat = (Math.PI)/2;
-    private double minLat = -(Math.PI)/2;
-    private double maxLon = Math.PI;
-    private double minLon = -Math.PI;
+        // reversed var initialize
+    private double maxLat = 0;
+    private double minLat = 0;
+    private double maxLon = 0;
+    private double minLon = 0;
+    //private double maxLat = -(Math.PI)/2;   // 90º North (+)
+    //private double minLat = +(Math.PI)/2;   // 90º South (-)
+    //private double maxLon = -Math.PI;       // 180º East (+)
+    //private double minLon = +Math.PI;       // 180º West (-)
     
     //private double minX = 1000;
     //private double maxX = -1000;
@@ -131,47 +136,40 @@ public class MultibeamDeltaTParser implements BathymetryParser{
         int i = 0;
         
         while ((bs = nextSwath()) != null) {
+            
             double lat = bs.getPose().getPosition().getLatitudeAsDoubleValueRads();
+            //double lat = bs.getPose().getPosition().getLatitudeAsDoubleValue();
+            //double lon = bs.getPose().getPosition().getLongitudeAsDoubleValue();
             double lon = bs.getPose().getPosition().getLongitudeAsDoubleValueRads();
                 
             maxLat = Math.max(lat, maxLat);
             minLat = Math.min(lat, minLat);
             maxLon = Math.max(lon, maxLon);
             minLon = Math.min(lon, minLon);
-                         
-                //for(int c = 0; c < bs.numBeams; c++) {
-            for(int c = 0; c < realNumberOfBeams; ++c) {
+            
+//            System.out.println("latitude: " + lat);
+//            System.out.println("longitude: " + lon);
+//            System.out.println("minLat: " + minLat);
+//            System.out.println("maxLat: " + maxLat);
+//            System.out.println("minLon: " + minLon);
+//            System.out.println("maxLon: " + maxLon);
+
+            for(int c = 0; c < bs.numBeams; ++c) {
                 BathymetryPoint p = bs.getData()[c];
-                    
+
                 info.minDepth = Math.min(info.minDepth, p.depth);
-                info.maxDepth = Math.max(info.maxDepth, p.depth);               
+                info.maxDepth = Math.max(info.maxDepth, p.depth);
+                
                     //minX = Math.min(minX, p.north);
                     //maxX = Math.max(maxX, p.north);
                     //minY = Math.min(minY, p.east);
                     //maxX = Math.max(maxY, p.east);
-                    
-                    //pointCloud.getVerts().InsertNextCell(1);
-                        //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(
-                        //            data[i].east, data[i].north, data[i].depth));
-                    //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(
-                    //        p.north, p.east, p.depth));
-                //pointCloud.getVerts().InsertNextCell(1);
-                //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(
-                //        (pose.getPosition().getOffsetNorth() + ox),
-                //        (pose.getPosition().getOffsetEast() + oy),
-                //        height));
-                //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth));
-                //System.out.println("north: " + p.north + " east: " + p.east + " depth: " + p.depth);
+                pointCloud.getVerts().InsertNextCell(1);
+                pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth));
             }
             totalNumberPoints = totalNumberPoints + bs.numBeams;
+            realNumberOfBeams = 0;
         }
-        //System.out.println("Min X (north): " + minX);
-        //System.out.println("Max X (north: " + maxX);
-        //System.out.println("Min Y (east): " + minY);
-        //System.out.println("Max Y (east): " + maxY);
-        System.out.println("Min Depth: " + info.minDepth);
-        System.out.println("Max Depth: " + info.maxDepth);
-        
         pointCloud.setNumberOfPoints(totalNumberPoints);
     }
 
@@ -224,7 +222,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             maxLat = Math.max(maxLat, pose.getPosition().getLatitudeAsDoubleValueRads());         
             minLat = Math.min(minLat, pose.getPosition().getLatitudeAsDoubleValueRads());
             pose.getPosition().setLongitudeRads(stateIMCMsg.getDouble("lon"));
-            maxLon = Math.max(maxLat, pose.getPosition().getLongitudeAsDoubleValueRads());
+            maxLon = Math.max(maxLon, pose.getPosition().getLongitudeAsDoubleValueRads());
             minLon = Math.min(minLon, pose.getPosition().getLongitudeAsDoubleValueRads());
             
             pose.getPosition().setOffsetNorth(stateIMCMsg.getDouble("x"));
@@ -242,9 +240,9 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                 if(range == 0.0) {
                     continue;
                 }
-                else {
-                    realNumberOfBeams = realNumberOfBeams + 1; 
-                }
+                //else {
+                    //realNumberOfBeams++; 
+                //}
                 
                 double angle = header.startAngle + header.angleIncrement * i;
                 double height = range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth();                
@@ -254,23 +252,31 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                 double ox = xBeamOffset * Math.sin(psi);               
                 double oy = xBeamOffset * Math.cos(psi);
                 
-                data[i] = new BathymetryPoint((float) (pose.getPosition().getOffsetNorth() + ox),
-                        (float) (pose.getPosition().getOffsetEast() + oy), (float) height);  
                 
-                pointCloud.getVerts().InsertNextCell(1);
-                pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(
-                        (pose.getPosition().getOffsetNorth() + ox),
-                        (pose.getPosition().getOffsetEast() + oy),
-                        height));
+                data[realNumberOfBeams] = new BathymetryPoint((float) (pose.getPosition().getOffsetNorth() + ox),
+                        (float) (pose.getPosition().getOffsetEast() +oy), (float) height);
+                //data[i] = new BathymetryPoint((float) (pose.getPosition().getOffsetNorth() + ox),                
+                    //(float) (pose.getPosition().getOffsetEast() + oy), (float) height);
+                
+                
+                //System.out.println(" north: " + data[i].north + " east: " + data[i].east);
+                //pointCloud.getVerts().InsertNextCell(1);
+                //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(
+                //        (pose.getPosition().getOffsetNorth() + ox),
+                //        (pose.getPosition().getOffsetEast() + oy),
+                //        height));
+                realNumberOfBeams++;
             }
                     
             currPos += header.numBytes;     // advance to the next ping (position file pointer);
             
-            BathymetrySwath swath = new BathymetrySwath(header.timestamp, new SystemPositionAndAttitude(), data);
+            //BathymetrySwath swath = new BathymetrySwath(header.timestamp, new SystemPositionAndAttitude(), data);
+            BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, data);
             //swath.numBeams = header.numBeams; <- can't be this because of erros on range data available on the 83P file
             swath.numBeams = realNumberOfBeams;
-            realNumberOfBeams = 0;
-            
+            //System.out.println("Real Number Of Beams: " + realNumberOfBeams);
+            //System.out.println("Swath number beams: " + swath.numBeams);
+            //realNumberOfBeams = 0;
             return swath;
         }
         catch (IOException e) {

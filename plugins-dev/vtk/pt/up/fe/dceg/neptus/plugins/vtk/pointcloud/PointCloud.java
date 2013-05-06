@@ -112,40 +112,28 @@ public class PointCloud<T extends PointXYZ> {
         
         vtkCellArray cells = new vtkCellArray();
         cells.SetNumberOfCells(getNumberOfPoints());
-        
         getPoly().SetPolys(cells);
-        //getPoly().GetPointData().SetScalars(points.GetData());
         
         bounds = getPoly().GetBounds();
                 
-        System.out.println("min X: " + getBounds()[0]);
-        System.out.println("max X: " + getBounds()[1]);
-        System.out.println("min Y: " + getBounds()[2]);
-        System.out.println("max Y: " + getBounds()[3]);
-        System.out.println("min Z: " + getBounds()[4]);
-        System.out.println("max Z: " + getBounds()[5]);
-        
-        
+        //System.out.println("min X: " + getBounds()[0]);
+        //System.out.println("max X: " + getBounds()[1]);
+        //System.out.println("min Y: " + getBounds()[2]);
+        //System.out.println("max Y: " + getBounds()[3]);
+        //System.out.println("min Z: " + getBounds()[4]);
+        //System.out.println("max Z: " + getBounds()[5]);
+             
         vtkLookupTable colorLookupTable = new vtkLookupTable();
-
         //colorLookupTable.SetNumberOfColors(3);
-        
-        colorLookupTable.SetRange(getBounds()[4], getBounds()[5]);
-        
-        //colorLookupTable.SetValueRange(getBounds()[5], getBounds()[5]);
-        
+        colorLookupTable.SetRange(getBounds()[4], getBounds()[5]);     
+        //colorLookupTable.SetValueRange(getBounds()[5], getBounds()[5]);        
         //colorLookupTable.SetHueRange(0, 1);
         //colorLookupTable.SetSaturationRange(1, 1);
         //colorLookupTable.SetValueRange(1, 1);
-        //colorLookupTable.set
         colorLookupTable.SetScaleToLinear();
         //colorLookupTable.SetTableRange(getBounds()[4], getBounds()[5]);
         colorLookupTable.Build();
-        //colorLookupTable.SetNumberOfColors(256);
-        //colorLookupTable.SetNumberOfColors(256);
-        //colorLookupTable.SetHueRange(0.0, 0.667);
 
-        
         vtkUnsignedCharArray colors = new vtkUnsignedCharArray();
         colors.SetNumberOfComponents(3);
         colors.SetName("Colors");
@@ -195,7 +183,7 @@ public class PointCloud<T extends PointXYZ> {
     /**
      * data information transformed to graphical information through cells
      * @param nPoints
-     * @return
+     * @return vtkLODActor
      */
     public vtkLODActor getRandomPointCloud(int nPoints) {
         setNumberOfPoints(nPoints);
@@ -260,7 +248,7 @@ public class PointCloud<T extends PointXYZ> {
     /**
      * data information transformed to graphical information through Vertex Glyph
      * @param nPoints
-     * @return
+     * @return vtkLODActor
      */ 
     public vtkLODActor getRandomPointCloud2(int nPoints) {
         setNumberOfPoints(nPoints);
@@ -309,6 +297,7 @@ public class PointCloud<T extends PointXYZ> {
         
         return getCloudLODActor();
     }
+    
     /**
      * usuless
      */
@@ -383,14 +372,12 @@ public class PointCloud<T extends PointXYZ> {
         this.numberOfPoints = numberOfPoints;
     }
 
-
     /**
      * @return the cloudLODActor
      */
     public vtkLODActor getCloudLODActor() {
         return cloudLODActor;
     }
-
 
     /**
      * @param cloudLODActor the cloudLODActor to set
@@ -399,14 +386,12 @@ public class PointCloud<T extends PointXYZ> {
         this.cloudLODActor = cloudLODActor;
     }
 
-
     /**
      * @return the points
      */
     public vtkPoints getPoints() {
         return points;
     }
-
 
     /**
      * @param points the points to set
@@ -415,14 +400,12 @@ public class PointCloud<T extends PointXYZ> {
         this.points = points;
     }
 
-
     /**
      * @return the verts
      */
     public vtkCellArray getVerts() {
         return verts;
     }
-
 
     /**
      * @param verts the verts to set
@@ -431,14 +414,12 @@ public class PointCloud<T extends PointXYZ> {
         this.verts = verts;
     }
 
-
     /**
      * @return the poly
      */
     public vtkPolyData getPoly() {
         return poly;
     }
-
 
     /**
      * @param poly the poly to set

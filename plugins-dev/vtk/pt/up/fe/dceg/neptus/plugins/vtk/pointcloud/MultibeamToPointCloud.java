@@ -64,12 +64,6 @@ public class MultibeamToPointCloud {
     public double maxLon = 180;     // (E) 180º east   
     public double minLon = -180;    // (W) 180º west
     
-/*
- * no
-    //public LocationType topLeftLT;
-    //public LocationType bottomRightLT;
-*/    
-    
     BathymetryPoint batPoint;           // float north, float east, float depth
     BathymetrySwath batSwath;
     BathymetryInfo batInfo;
@@ -92,14 +86,11 @@ public class MultibeamToPointCloud {
         this.pointCloud = pointCloud;
         
         multibeamDeltaTParser = new MultibeamDeltaTParser(this.source, pointCloud);
-              
         //getMyDeltaTHeader();
                 
         //DeltaTParser deltaTParser = new DeltaTParser(source);
         //batInfo = deltaTParser.getBathymetryInfo();
         //long firstTimeStamp = deltaTParser.getFirstTimestamp();
-        
-        //state = source.getLog("Estimated state");
     }
     
     /**

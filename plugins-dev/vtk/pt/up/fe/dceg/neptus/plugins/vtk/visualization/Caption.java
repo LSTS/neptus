@@ -31,10 +31,13 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import vtk.vtkLODActor;
 import vtk.vtkRenderer;
 import vtk.vtkTextActor;
 
@@ -43,69 +46,146 @@ import vtk.vtkTextActor;
  *
  */
 public class Caption {
-    
+    public Boolean captionEnabled = false;
+
     private int xPosScreen;
     private int YPosScreen;
     
-    private Boolean showNumberOfPoints = false;
-    private Boolean showCloudName = false;
-    private Boolean showCloudBounds = false;
-    private Boolean showLatAndLon = false;
+    private int numberOfPoints;
+    private String cloudName;
+    private double[] bounds;
+    private double[] bounds2;
     
-    private PointCloud<PointXYZ> pointCloud;
+//    private Boolean showNumberOfPoints = false;
+//    private Boolean showCloudName = false;
+//    private Boolean showCloudBounds = false;
+//    private Boolean showLatAndLon = false;
+    
     private vtkRenderer renderer;
     
-    private vtkTextActor captionActor;
+    //private vtkTextActor captionActor;
+    private vtkTextActor captionNumberOfPointsActor;
+    private vtkTextActor captionCloudNameActor;
+    private vtkTextActor captionCloudBoundsActor;
+    private vtkTextActor captionLatLonActor;
     
-    public Caption (int xPosScreen, int yPosScreen, Boolean showNumberOfPoints,
-            Boolean showCloudName, Boolean showCloudBounds, Boolean showLatAndLon,
-            PointCloud<PointXYZ> pointCloud, vtkRenderer renderer) {
-            
+
+    /**
+     * @param xPosScreen
+     * @param yPosScreen
+     * @param numberOfPoints
+     * @param cloudName
+     * @param bounds
+     * @param renderer
+     */
+    public Caption(int xPosScreen, int yPosScreen, int numberOfPoints, String cloudName, double[] bounds, vtkRenderer renderer) {
         this.xPosScreen = xPosScreen;
         this.YPosScreen = yPosScreen;
-        this.showNumberOfPoints = showNumberOfPoints;
-        this.showCloudName = showCloudName;
-        this.showCloudBounds = showCloudBounds;
-        this.showLatAndLon = showLatAndLon;
+        this.numberOfPoints = numberOfPoints;
+        this.cloudName = cloudName;
+        this.bounds = bounds;
         this.renderer = renderer;
-        captionActor = new vtkTextActor();
+        
+        setCaptionNumberOfPointsActor(new vtkTextActor());
+        setCaptionCloudNameActor(new vtkTextActor());
+        setCaptionCloudBoundsActor(new vtkTextActor());
+        setCaptionLatLonActor(new vtkTextActor());
         
         buildCaptionActor();
+        captionEnabled = true;
     }
 
     /**
      * 
      */
-    private void buildCaptionActor() {
-        captionActor.GetTextProperty().SetJustificationToLeft();
-        captionActor.GetTextProperty().SetVerticalJustificationToTop();
-        captionActor.GetTextProperty().SetShadowOffset(1, 1);
-        captionActor.UseBorderAlignOn();
-        captionActor.GetTextProperty().SetColor(1.0, 0.0, 0.0);
-        captionActor.SetDisplayPosition(20, 2);
+    private void buildCaptionActor() {       
+        //captionNumberOfPointsActor.GetTextProperty().SetJustificationToLeft();
+        //captionNumberOfPointsActor.GetTextProperty().SetVerticalJustificationToTop();
+        captionNumberOfPointsActor.GetTextProperty().SetFontSize(9);
+        captionNumberOfPointsActor.GetTextProperty().SetBold(1);
+        captionNumberOfPointsActor.GetTextProperty().BoldOn();
+        captionNumberOfPointsActor.GetTextProperty().ItalicOn();
+        //captionNumberOfPointsActor.UseBorderAlignOn();
+        captionNumberOfPointsActor.GetTextProperty().SetColor(1.0, 0.0, 0.0);
+        captionNumberOfPointsActor.SetDisplayPosition(xPosScreen, YPosScreen);      
+        captionNumberOfPointsActor.SetInput("Number of Points: " + String.valueOf(numberOfPoints));
         
-        System.out.println("entrou no build Caption");
+        //captionCloudNameActor.GetTextProperty().SetJustificationToLeft();
+        //captionCloudNameActor.GetTextProperty().SetVerticalJustificationToTop();
+        captionCloudNameActor.GetTextProperty().SetBold(1);
+        captionCloudNameActor.GetTextProperty().BoldOn();
+        captionCloudNameActor.GetTextProperty().SetItalic(1);
+        captionCloudNameActor.GetTextProperty().ItalicOn();      
+        //captionCloudNameActor.UseBorderAlignOn();
+        captionCloudNameActor.GetTextProperty().SetFontSize(9);
+        captionCloudNameActor.GetTextProperty().SetColor(1.0, 0.0, 0.0);
+        captionCloudNameActor.SetDisplayPosition(xPosScreen, YPosScreen - 13);      
+        captionCloudNameActor.SetInput("Point Cloud Name: " + cloudName);
         
-        if(showNumberOfPoints) {
-            System.out.println("foi ao show number of points");
-            //int nPoints = pointCloud.getNumberOfPoints();
-            int nPoints = 434;
-            captionActor.SetInput("Number of Points: " + String.valueOf(nPoints));
-        }
+        captionCloudBoundsActor.GetTextProperty().SetShadowOffset(1, 1);
+        captionCloudBoundsActor.GetTextProperty().SetFontSize(9);
+        captionCloudBoundsActor.GetTextProperty().SetBold(1);
+        captionCloudBoundsActor.GetTextProperty().ItalicOn();
+        captionCloudBoundsActor.GetTextProperty().SetColor(1.0, 0.0, 0.0);
+        captionCloudBoundsActor.SetDisplayPosition(xPosScreen, YPosScreen - 56);
+        DecimalFormat f = new DecimalFormat("##.00");
+        captionCloudBoundsActor.SetInput("Bounds (meters): " + "\n" + "minX: " + f.format(bounds[0]) + "\t maxX: " + f.format(bounds[1]) + "\n" + "minY: " + f.format(bounds[2]) + "\t maxY: " + f.format(bounds[3]) + "\n" + "minZ: " + f.format(bounds[4]) + "\t maxZ: " + f.format(bounds[5]));     
     }
 
     /**
-     * @return the captionActor
+     * @return the captionNumberOfPointsActor
      */
-    public vtkTextActor getCaptionActor() {
-        return captionActor;
+    public vtkTextActor getCaptionNumberOfPointsActor() {
+        return captionNumberOfPointsActor;
     }
 
     /**
-     * @param captionActor the captionActor to set
+     * @param captionNumberOfPointsActor the captionNumberOfPointsActor to set
      */
-    private void setCaptionActor(vtkTextActor captionActor) {
-        this.captionActor = captionActor;
+    private void setCaptionNumberOfPointsActor(vtkTextActor captionNumberOfPointsActor) {
+        this.captionNumberOfPointsActor = captionNumberOfPointsActor;
+    }
+
+    /**
+     * @return the captionCloudNameActor
+     */
+    public vtkTextActor getCaptionCloudNameActor() {
+        return captionCloudNameActor;
+    }
+
+    /**
+     * @param captionCloudNameActor the captionCloudNameActor to set
+     */
+    private void setCaptionCloudNameActor(vtkTextActor captionCloudNameActor) {
+        this.captionCloudNameActor = captionCloudNameActor;
+    }
+
+    /**
+     * @return the captionCloudBoundsActor
+     */
+    public vtkTextActor getCaptionCloudBoundsActor() {
+        return captionCloudBoundsActor;
+    }
+
+    /**
+     * @param captionCloudBoundsActor the captionCloudBoundsActor to set
+     */
+    private void setCaptionCloudBoundsActor(vtkTextActor captionCloudBoundsActor) {
+        this.captionCloudBoundsActor = captionCloudBoundsActor;
+    }
+
+    /**
+     * @return the captionLatLonActor
+     */
+    public vtkTextActor getCaptionLatLonActor() {
+        return captionLatLonActor;
+    }
+
+    /**
+     * @param captionLatLonActor the captionLatLonActor to set
+     */
+    private void setCaptionLatLonActor(vtkTextActor captionLatLonActor) {
+        this.captionLatLonActor = captionLatLonActor;
     }
     
 }
