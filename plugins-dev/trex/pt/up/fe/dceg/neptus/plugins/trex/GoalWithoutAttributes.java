@@ -43,10 +43,10 @@ import com.l2fprod.common.propertysheet.Property;
  * @author zp
  *
  */
-public class GenericGoal extends TrexGoal {
+public class GoalWithoutAttributes extends TrexGoal {
 
     
-    public GenericGoal(String timeline, String predicate) {
+    public GoalWithoutAttributes(String timeline, String predicate) {
         super(timeline, predicate);
     }
     

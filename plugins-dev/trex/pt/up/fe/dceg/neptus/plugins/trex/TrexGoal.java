@@ -239,7 +239,7 @@ public abstract class TrexGoal implements PropertiesProvider {
                 goal = new VisitLocationGoal();
                 break;
             default:
-                goal = new GenericGoal(token.getTimeline(), token.getPredicate());
+                goal = new GoalWithoutAttributes(token.getTimeline(), token.getPredicate());
                 break;
         }
         
