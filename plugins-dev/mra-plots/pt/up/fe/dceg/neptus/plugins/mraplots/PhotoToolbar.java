@@ -58,7 +58,7 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
  * @author zp
  * 
  */
-public class PhotoTimeline extends JPanel {
+public class PhotoToolbar extends JPanel {
 
     private static final long serialVersionUID = 1L;
     protected MraPhotosVisualization display;
@@ -72,7 +72,7 @@ public class PhotoTimeline extends JPanel {
     protected JLabel timeLabel;
     protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
 
-    public PhotoTimeline(MraPhotosVisualization display) {
+    public PhotoToolbar(MraPhotosVisualization display) {
         this.display = display;
         allFiles = display.getPhotosDir().listFiles();
         Arrays.sort(allFiles);
@@ -98,44 +98,44 @@ public class PhotoTimeline extends JPanel {
 
     protected void initialize() {
 
-        slider = new JSlider(0, (int) ((endTime - startTime) * 1000));
-        slider.setMajorTickSpacing(240);
-        slider.setMinorTickSpacing(240);
-        slider.setValue(0);
-        slider.setPreferredSize(new Dimension(250, 20));
-        slider.addMouseMotionListener(new MouseAdapter() {
-
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                setTime(startTime + slider.getValue() / 1000.0);
-            }
-        });
-
-        slider.addMouseListener(new MouseAdapter() {
-
-            boolean wasPlaying = false;
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (playToggle.isSelected()) {
-                    playToggle.doClick();
-                    wasPlaying = true;
-                }
-                else {
-                    wasPlaying = false;
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (!wasPlaying)
-                    setTime(startTime + slider.getValue() / 1000.0);
-                else {
-                    playToggle.doClick();
-                }
-
-            }
-        });
+//        slider = new JSlider(0, (int) ((endTime - startTime) * 1000));
+//        slider.setMajorTickSpacing(240);
+//        slider.setMinorTickSpacing(240);
+//        slider.setValue(0);
+//        slider.setPreferredSize(new Dimension(250, 20));
+//        slider.addMouseMotionListener(new MouseAdapter() {
+//
+//            @Override
+//            public void mouseDragged(MouseEvent e) {
+//                setTime(startTime + slider.getValue() / 1000.0);
+//            }
+//        });
+//
+//        slider.addMouseListener(new MouseAdapter() {
+//
+//            boolean wasPlaying = false;
+//
+//            @Override
+//            public void mousePressed(MouseEvent e) {
+//                if (playToggle.isSelected()) {
+//                    playToggle.doClick();
+//                    wasPlaying = true;
+//                }
+//                else {
+//                    wasPlaying = false;
+//                }
+//            }
+//
+//            @Override
+//            public void mouseReleased(MouseEvent e) {
+//                if (!wasPlaying)
+//                    setTime(startTime + slider.getValue() / 1000.0);
+//                else {
+//                    playToggle.doClick();
+//                }
+//
+//            }
+//        });
         nextButton = new JButton(">");
         nextButton.addActionListener(new ActionListener() {
 
@@ -341,22 +341,22 @@ public class PhotoTimeline extends JPanel {
 
         timeLabel = new JLabel(fmt.format(new Date((long) (startTime * 1000))));
 
-        ButtonGroup bg = new ButtonGroup();
-        bg.add(oneToggle);
-        bg.add(twoToggle);
-        bg.add(fourToggle);
-        oneToggle.setSelected(true);
+//        ButtonGroup bg = new ButtonGroup();
+//        bg.add(oneToggle);
+//        bg.add(twoToggle);
+//        bg.add(fourToggle);
+//        oneToggle.setSelected(true);
 
         add(prevButton);
-        add(playToggle);
+//        add(playToggle);
         add(nextButton);
-        add(oneToggle);
-        add(twoToggle);
-        add(fourToggle);
-        add(slider);
+//        add(oneToggle);
+//        add(twoToggle);
+//        add(fourToggle);
+//        add(slider);
         add(timeLabel);
 
-        setTime(startTime);
+//        setTime(startTime);
     }
 
     protected Color brightestPixel(BufferedImage img) {

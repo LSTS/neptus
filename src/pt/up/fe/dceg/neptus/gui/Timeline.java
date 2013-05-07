@@ -69,8 +69,6 @@ public class Timeline extends JPanel implements ChangeListener {
     
     private Runnable updater;
     
-    private Dimension preferredButtonDimensions = new Dimension(80, 20);
-
     public Timeline(int min, int max, int frequency, int perSecond, boolean wait) {
         slider = new JSlider(min, max);
         slider.addChangeListener(this);
