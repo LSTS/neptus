@@ -31,7 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.plugins.mraplots;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -63,7 +62,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.ProgressMonitor;
-import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -131,26 +129,6 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     
     public MraPhotosVisualization(MRAPanel panel) {
         this.panel = panel;
-//        addComponentListener(new ComponentAdapter() {
-//
-//            @Override
-//            public void componentResized(ComponentEvent e) {
-//                super.componentResized(e);
-//                setCurFile(curFile);
-//            }
-//
-//            @Override
-//            public void componentHidden(ComponentEvent e) {
-//                super.componentHidden(e);
-//                stop();
-//            }
-//
-//            @Override
-//            public void componentShown(ComponentEvent e) {
-//                super.componentShown(e);
-//            }
-//        });
-        
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -207,7 +185,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
 
     @Override
     public void onCleanup() {
-        stop();
+
     }
     
     @Override
@@ -259,11 +237,8 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         this.curFile = curFile;
        
         try {
-            stop();
             imageToDisplay = loadImage(curFile);
             curTime = timestampOf(curFile);
-//            if (timeline != null)
-//                timeline.fileChanged(curFile);
             repaint();
         }
         catch (Exception e) {
@@ -300,8 +275,9 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         timeline.getSlider().setValue(0);
 
         toolbar = new PhotoToolbar(this);
-//        timeline.setVisible(false);
+
         loadStates();
+        
         JPanel panel = new JPanel(new MigLayout());
         panel.add(this, "w 100%, h 100%, wrap");
         panel.add(timeline, "split");
@@ -353,14 +329,13 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             }
         }
         
-        SwingUtilities.invokeLater(new Runnable() {
-            
-            @Override
-            public void run() {
-//                timeline.setVisible(true);
-                revalidate();
-            }
-        });
+//        SwingUtilities.invokeLater(new Runnable() {
+//            
+//            @Override
+//            public void run() {
+//                revalidate();
+//            }
+//        });
     }
 
     @Override
@@ -508,67 +483,55 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         return Double.parseDouble(f.getName().substring(0, f.getName().lastIndexOf('.')));
     }
 
-    protected void stop() {
-        while (!running.isEmpty()) {
-            Thread t = running.firstElement();
-            t.interrupt();
-            running.remove(t);
-        }
-    }
 
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-    }
-
-    protected void play(double startTime) {
-        imgs.clear();
-        files.clear();
-        files.addAll(Arrays.asList(photosDir.listFiles()));
-        while (!files.isEmpty() && timestampOf(files.peek()) < startTime) {
-            try {
-                files.take();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        for (int i = 0; i < loadingThreads; i++) {
-            Thread loader = loadingThread("loader#" + i);
-            loader.setDaemon(true);
-            loader.start();
-            running.add(loader);
-        }
-
-        Thread player = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                double lastTime = -1;
-                try {
-                    while (!files.isEmpty() || !imgs.isEmpty()) {
-                        LoadedImage next = imgs.take();
-                        lastTime = curTime;
-                        curTime = next.timestamp;
-                        curFile = next.file;
-                        imageToDisplay = next.image;
-                        repaint();
-//                        timeline.fileChanged(curFile);
-                        
-                        Thread.sleep((long)((curTime-lastTime)*1000.0 / speedMultiplier));
-                    }
-                }
-                catch (Exception e) {
-                   NeptusLog.pub().info("Player thread stopped");
-                }
-            }
-        });
-        player.setName("MraPhoto player thread");
-        player.setDaemon(true);
-        running.add(0, player);
-        player.start();
-    }
+//    protected void play(double startTime) {
+//        imgs.clear();
+//        files.clear();
+//        files.addAll(Arrays.asList(photosDir.listFiles()));
+//        while (!files.isEmpty() && timestampOf(files.peek()) < startTime) {
+//            try {
+//                files.take();
+//            }
+//            catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        for (int i = 0; i < loadingThreads; i++) {
+//            Thread loader = loadingThread("loader#" + i);
+//            loader.setDaemon(true);
+//            loader.start();
+//            running.add(loader);
+//        }
+//
+//        Thread player = new Thread(new Runnable() {
+//
+//            @Override
+//            public void run() {
+//                double lastTime = -1;
+//                try {
+//                    while (!files.isEmpty() || !imgs.isEmpty()) {
+//                        LoadedImage next = imgs.take();
+//                        lastTime = curTime;
+//                        curTime = next.timestamp;
+//                        curFile = next.file;
+//                        imageToDisplay = next.image;
+//                        repaint();
+////                        timeline.fileChanged(curFile);
+//                        
+//                        Thread.sleep((long)((curTime-lastTime)*1000.0 / speedMultiplier));
+//                    }
+//                }
+//                catch (Exception e) {
+//                   NeptusLog.pub().info("Player thread stopped");
+//                }
+//            }
+//        });
+//        player.setName("MraPhoto player thread");
+//        player.setDaemon(true);
+//        running.add(0, player);
+//        player.start();
+//    }
 
     protected Image loadImage(File f) throws IOException {
         Vector<BufferedImageOp> ops = new Vector<>();
