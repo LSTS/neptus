@@ -85,7 +85,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     
     private static Boolean vtkEnabled = true;
     
-    public vtkPanel vtkPanel;
+    //public vtkPanel vtkPanel;
     public vtkCanvas vtkCanvas;
     
     private JToggleButton zExaggerationToggle;
@@ -281,10 +281,10 @@ public class Vtk extends JPanel implements MRAVisualization {
             
             //Caption cap = new Caption(20, 2, true, true, true, false, pointCloud, vtkCanvas.GetRenderer());
             //vtkCanvas.GetRenderer().AddActor(cap.getCaptionActor());
-            Caption cap = new Caption(4, 150, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(), pointCloud.getBounds(), vtkCanvas.GetRenderer());
-            vtkCanvas.GetRenderer().AddActor(cap.getCaptionNumberOfPointsActor());
-            vtkCanvas.GetRenderer().AddActor(cap.getCaptionCloudNameActor());
-            vtkCanvas.GetRenderer().AddActor(cap.getCaptionCloudBoundsActor());
+            //Caption cap = new Caption(4, 150, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(), pointCloud.getBounds(), vtkCanvas.GetRenderer());
+            //vtkCanvas.GetRenderer().AddActor(cap.getCaptionNumberOfPointsActor());
+            //vtkCanvas.GetRenderer().AddActor(cap.getCaptionCloudNameActor());
+            //vtkCanvas.GetRenderer().AddActor(cap.getCaptionCloudBoundsActor());
                         
             NeptusLog.pub().info("<###> ");
             vtkCanvas.GetRenderer().ResetCamera();
@@ -317,30 +317,6 @@ public class Vtk extends JPanel implements MRAVisualization {
                 e.printStackTrace();
             }
         }
-        
-//        file = source.getFile("Data.lsf").getParentFile();
-//        File[] files = file.listFiles();
-//        try {
-//            System.out.println("veio ao try");
-//            if (vtkEnabled == true) {
-//                System.out.println("veio ao vtkEnabled true");
-//            }
-//            else
-//                System.out.println("veio ao vtkEnabled false");
-//            
-//            if (file.isDirectory()) {
-//                for (File temp : file.listFiles()) {
-//                    if ((temp.toString()).endsWith(FILE_83P_EXT)) {
-//                        setLog(source);
-//                        beApplied = true;
-//                    }  
-//                }
-//            }
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
         return beApplied;
     }
 
@@ -448,6 +424,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 msgHelp = msgHelp + "g, G   -   display scale grid (on/off)\n";
                 msgHelp = msgHelp + "u, U   -   display lookup table (on/off)\n";
                 msgHelp = msgHelp + "r, R   -   reset camera (to viewpoint = {0, 0, 0} -> center {x, y, z}\n";
+                msgHelp = msgHelp + "i, I   -   information about rendered cloud";
                 msgHelp = msgHelp + "3      -   3D visualization (put the 3D glasses on)\n";
                 msgHelp = msgHelp + "7      -   color gradient in relation with X coords (north)\n";
                 msgHelp = msgHelp + "8      -   color gradient in relation with Y coords (west)\n";

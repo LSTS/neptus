@@ -46,6 +46,8 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import com.jme3.renderer.Camera;
 import com.lowagie.text.pdf.hyphenation.TernaryTree.Iterator;
 
+import vtk.vtkActorCollection;
+import vtk.vtkCollectionIterator;
 import vtk.vtkLODActor;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
@@ -55,32 +57,30 @@ import vtk.vtkScalarsToColors;
  * @author hfq
  *  FIXME add keys to change mode (trackball, joystick..)
  */
-public class KeyboardEvent {
+public class KeyboardEvent {   
+    private NeptusInteractorStyle neptusInteractorStyle;
     
-    NeptusInteractorStyle neptusInteractorStyle;
-    
-    static vtkRenderer renderer;
-    static vtkRenderWindowInteractor interactor;
+    private static vtkRenderer renderer;
+    private static vtkRenderWindowInteractor interactor;
     //private Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
     //private LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
-    public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
-    
+    private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
     
     private Set<String> setOfClouds;
     
-    PointCloud<PointXYZ> pointCloud;
-    
-    
+    private PointCloud<PointXYZ> pointCloud;
+      
     private vtkLODActor marker = new vtkLODActor();
-    boolean markerEnabled = false;
+    private boolean markerEnabled = false;
     
-    enum colorMappingRelation {
+    private enum colorMappingRelation {
         xMap, yMap, zMap
-    }
+    }  
+    public colorMappingRelation colorMapRel;
     
-    public colorMappingRelation colorMapRel; 
-    
-    
+    private Caption captionInfo;
+    private Boolean captionEnabled = false;
+        
     /**
      * @param neptusInteractorStyle
      * @param linkedHashMapCloud
@@ -88,7 +88,6 @@ public class KeyboardEvent {
     public KeyboardEvent(NeptusInteractorStyle neptusInteractorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
         this.neptusInteractorStyle = neptusInteractorStyle;
         this.interactor = neptusInteractorStyle.getInteractor();
-        //this.hashCloud = hashCloud;
         this.linkedHashMapCloud = linkedHashMapCloud;
     }
 
@@ -211,6 +210,48 @@ public class KeyboardEvent {
                 }
                 else {
                     markerEnabled = false;
+                }
+                break;
+            case 'i':
+                if (!captionEnabled) {
+                    try {
+                        vtkActorCollection actorCollection = new vtkActorCollection();
+                        actorCollection = neptusInteractorStyle.renderer.GetActors();
+                        actorCollection.InitTraversal();
+                        for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
+                            vtkLODActor tempActor = new vtkLODActor();
+                            tempActor = (vtkLODActor) actorCollection.GetNextActor();
+                            setOfClouds = linkedHashMapCloud.keySet();
+                            for (String sKey : setOfClouds) {
+                                vtkLODActor tempActorFromHashMap = new vtkLODActor();
+                                pointCloud = linkedHashMapCloud.get(sKey);
+                                tempActorFromHashMap = pointCloud.getCloudLODActor();
+                                if (tempActor.equals(tempActorFromHashMap)) {
+                                    captionInfo = new Caption(4, 150, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(), pointCloud.getBounds(), neptusInteractorStyle.renderer);
+                                    neptusInteractorStyle.renderer.AddActor(captionInfo.getCaptionNumberOfPointsActor());
+                                    neptusInteractorStyle.renderer.AddActor(captionInfo.getCaptionCloudNameActor());
+                                    neptusInteractorStyle.renderer.AddActor(captionInfo.getCaptionCloudBoundsActor());
+                                    neptusInteractorStyle.interactor.Render();
+                                }
+                            }
+                        }
+                        captionEnabled = true;
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    try {
+                        neptusInteractorStyle.renderer.RemoveActor(captionInfo.getCaptionNumberOfPointsActor());
+                        neptusInteractorStyle.renderer.RemoveActor(captionInfo.getCaptionCloudNameActor());
+                        neptusInteractorStyle.renderer.RemoveActor(captionInfo.getCaptionCloudBoundsActor());
+                        captionEnabled = false;
+                        neptusInteractorStyle.interactor.Render();
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             case '+':   // increment size of rendered cell point
