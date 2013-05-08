@@ -41,6 +41,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.io.UnsupportedEncodingException;
 import java.util.LinkedHashMap;
 
 import javax.swing.JEditorPane;
@@ -48,6 +49,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
@@ -286,18 +290,40 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
                 loc.convertToAbsoluteLatLonDepth();
 
+                visitPointJson(loc);
+
+            }
+
+            /**
+             * @param loc
+             */
+            private void visitPointJson(final LocationType loc) {
+//                File file = new File("somefile.txt");
+//                FileEntity entity = new FileEntity(file, ContentType.create("text/plain", "UTF-8"));
+                StringEntity message;
+                try {
+                    message = new StringEntity(
+                            "{\"on\": \"lum\",\"pred\": \"test\","
+                                    + "\"Variable\": [ { \"float\": { \"value\": \"0.0300000000000000\" }, \"type\": \"float\", \"name\": \"speed\" }, "
+                                    + "{ \"date\": { \"min\": \"2013-May-13 09:59:00.785620\" }, \"type\": \"date\", \"name\": \"start\" }, "
+                                    + "{ \"date\": { \"min\": \"2013-May-13 10:00:01.188620\" }, \"type\": \"date\", \"name\": \"end\" }, "
+                                    + "{ \"duration\": { \"min\": \"00:01:00.403000\", \"max\": \"00:01:00.403000\" }, \"type\": \"duration\", \"name\": \"duration\" } ] }");
+                    HttpPost httppost = new HttpPost("http://localhost:8080/rest/goal ");
+                    httppost.setHeader("Content-Type", "application/json");
+                    httppost.setEntity(message);
+                }
+                catch (UnsupportedEncodingException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+            }
+            
+            @SuppressWarnings("unused")
+            private void visitPointImc(final LocationType loc) {
                 final VisitLocationGoal goal = new VisitLocationGoal(defaultSpeed, defaultDepth, loc
                         .getLatitudeAsDoubleValue(), loc.getLongitudeAsDoubleValue(), defaultTolerance);
 
-                // SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MMM-dd hh:mm:ss.SSS");
-                // sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-                //
-                // goal.setStartDate = true;
-                // goal.setEndDate = true;
-                //
-                // goal.start = System.currentTimeMillis()/1000;
-                // goal.end = System.currentTimeMillis()/1000 + 1;
-                //
                 PropertiesEditor.editProperties(goal, true);
 
                 final String goalId = goal.goalId;
@@ -316,7 +342,6 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                         send(goal.asIMCMsg());
                     }
                 }.start();
-
             }
         });
     }
