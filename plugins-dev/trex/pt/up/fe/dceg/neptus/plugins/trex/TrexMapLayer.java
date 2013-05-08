@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: José Pinto
+ * Author: José Pinto, Margarida Faria
  * May 28, 2012
  */
 package pt.up.fe.dceg.neptus.plugins.trex;
@@ -56,6 +56,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -307,13 +308,15 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 // File file = new File("somefile.txt");
                 // FileEntity entity = new FileEntity(file, ContentType.create("text/plain", "UTF-8"));
                 try {
+                	VisitLocationGoal visitLocationGoal = new VisitLocationGoal(loc.getLatitudeAsDoubleValueRads(), loc
+                            .getLongitudeAsDoubleValueRads());
                     StringEntity message;
-                    message = new StringEntity(
-                            "{\"on\": \"navigator\",\"pred\": \"At\","
-                                    + "\"Variable\": [ { \"float\": { \"value\": \"0.0300000000000000\" }, \"type\": \"float\", \"name\": \"speed\" }, "
-                                    + "{ \"date\": { \"min\": \"2013-May-13 09:59:00.785620\" }, \"type\": \"date\", \"name\": \"start\" }, "
-                                    + "{ \"date\": { \"min\": \"2013-May-13 10:00:01.188620\" }, \"type\": \"date\", \"name\": \"end\" }, "
-                                    + "{ \"duration\": { \"min\": \"00:01:00.403000\", \"max\": \"00:01:00.403000\" }, \"type\": \"duration\", \"name\": \"duration\" } ] }");
+                    message = new StringEntity(visitLocationGoal.toJson());
+//                            "{\"on\": \"navigator\",\"pred\": \"At\","
+//                                    + "\"Variable\": [ { \"float\": { \"value\": \"0.0300000000000000\" }, \"type\": \"float\", \"name\": \"speed\" }, "
+//                                    + "{ \"date\": { \"min\": \"2013-May-13 09:59:00.785620\" }, \"type\": \"date\", \"name\": \"start\" }, "
+//                                    + "{ \"date\": { \"min\": \"2013-May-13 10:00:01.188620\" }, \"type\": \"date\", \"name\": \"end\" }, "
+//                                    + "{ \"duration\": { \"min\": \"00:01:00.403000\", \"max\": \"00:01:00.403000\" }, \"type\": \"duration\", \"name\": \"duration\" } ] }");
                     HttpPost httppost = new HttpPost("http://localhost:8888/rest/goal");
                     httppost.setHeader("Content-Type", "application/json");
                     httppost.setEntity(message);
@@ -343,6 +346,10 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                         GuiUtils.errorMessage(TrexMapLayer.this, "POST Goal", textReceived);
                     }
                   
+                }
+                catch (HttpHostConnectException e) {
+                    GuiUtils.errorMessage(TrexMapLayer.this, "Unable to reach T-Rex",
+                            "Cannot reach T-Rex:" + e.getMessage() + ". Is it running and listening on this port?");
                 }
                 catch (IllegalStateException | IOException e) {
                     // TODO Auto-generated catch block

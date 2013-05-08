@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: meg
+ * Author: Margarida Faria
  * Apr 29, 2013
  */
 package pt.up.fe.dceg.neptus.plugins.trex;
@@ -37,7 +37,6 @@ import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.imc.TrexAttribute;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -50,26 +49,21 @@ import com.l2fprod.common.propertysheet.Property;
  *
  */
 public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
+	protected double speed = 1000;
+    protected double depth = 0;
+    protected double tolerance = 10;
+    // FIXME passar a location type
+    protected double lat_deg, lon_deg;
 
-    protected ManeuverLocation location;
-
+    public VisitLocationGoal(double lat_deg, double lon_deg) {
+        super("navigator", "At");
+        this.lat_deg = lat_deg;
+        this.lon_deg = lon_deg;
+    }	
+	
     public VisitLocationGoal() {
-        super("estimator", "At");
+        super("navigator", "At");
     }
-
-    @Override
-    public Collection<TrexAttribute> getAttributes() {
-        //TODO;
-        return new Vector<TrexAttribute>();
-    }
-
-    @Override
-    public void parseAttributes(Collection<TrexAttribute> attributes) {
-        //TODO
-    }
-
-    // protected double speed = 1.0, depth = 2, lat_deg = 41, lon_deg = -8, tolerance = 15;
-    protected double speed, depth, lat_deg, lon_deg;// FIXME passar a location type
 
     /**
      * @param speed
@@ -86,6 +80,18 @@ public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
         this.lon_deg = lon_deg;
     }
 
+
+    @Override
+    public Collection<TrexAttribute> getAttributes() {
+        //TODO;
+        return new Vector<TrexAttribute>();
+    }
+
+    @Override
+    public void parseAttributes(Collection<TrexAttribute> attributes) {
+        //TODO
+    }
+    
     @Override
     public Collection<DefaultProperty> getSpecificProperties() {
 
@@ -127,6 +133,18 @@ public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         
+    }
+
+    public String toJson() {
+        return "{"
+                + "\"on\": \""+super.timeline+"\",\"pred\": \""+super.predicate+"\","
+                + "\"Variable\":"
+                + "["
+                + "{\"float\":{\"value\": \""+speed+"\"}, \"name\": \"speed\"},"
+                + "{\"float\":{\"value\": \""+lat_deg+"\"}, \"name\": \"latitude\"},"
+                + "{\"float\":{\"value\": \""+lon_deg+"\"}, \"name\": \"longitude\"}"
+//                + "{\"duration\":{\"min\": \"00:01:00.403000\", \"max\": \"00:01:00.403000\"}, \"type\": \"duration\", \"name\": \"duration\"}"
+                + "]}";
     }
 
 }
