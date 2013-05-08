@@ -176,8 +176,7 @@ public class TrexTimelinePanel extends SimpleSubPanel {
     
     @Subscribe
     public void on(TrexToken token) {
-        token.dump(System.out);
-        startActivity(token.getTimestamp(), token.getTimeline(), token.getPredicate());
+        startActivity(token.getTimestamp(), token.getTimeline(), token.getTimeline()+"."+token.getPredicate());
     }    
     
     @Subscribe

@@ -135,8 +135,6 @@ public abstract class TrexGoal implements PropertiesProvider {
         parseAttributes(unparsed);        
     }
 
-
-
     public TrexGoal(String timeline, String predicate) {
         goalId = "N_" + System.currentTimeMillis();// FIXME add counter
         this.timeline = timeline;
@@ -198,19 +196,19 @@ public abstract class TrexGoal implements PropertiesProvider {
                     unprocessed.remove(p);
                     break;
                 case "Minimum End time":
-                    minEndTime = new Date((Long)p.getValue());
+                    minEndTime = (Date)p.getValue();
                     unprocessed.remove(p);
                     break;
                 case "Maximum End time":
-                    maxEndTime = new Date((Long)p.getValue());
+                    maxEndTime = (Date)p.getValue();
                     unprocessed.remove(p);
                     break;
                 case "Minimum Start time":
-                    minStartTime = new Date((Long)p.getValue());
+                    minStartTime = (Date)p.getValue();
                     unprocessed.remove(p);
                     break;
                 case "Maximum Start time":
-                    maxStartTime = new Date((Long)p.getValue());
+                    maxStartTime = (Date)p.getValue();
                     unprocessed.remove(p);
                     break;
                 default:
