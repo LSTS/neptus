@@ -209,10 +209,10 @@
 	<classpathentry kind="lib" path="lib/htmlUnit/nekohtml-1.9.17.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jmatio.jar"/>
+	<classpathentry kind="lib" path="lib/libimc.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>
-	<classpathentry kind="lib" path="lib/libimc.jar"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

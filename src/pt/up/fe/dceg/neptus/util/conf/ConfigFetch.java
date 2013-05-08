@@ -203,7 +203,7 @@ public class ConfigFetch {
         
         load();
         
-        loadIMCDefinitions();
+       // loadIMCDefinitions();
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override

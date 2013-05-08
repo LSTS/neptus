@@ -248,6 +248,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
     }
     
     public void openLogSource(IMraLogGroup source) {
+        System.out.println("openLogSource");
         abortPendingOpenLogActions();
         closeLogSource();
         getContentPane().removeAll();
@@ -389,6 +390,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
                     bgp.setText(messageToDisplay);
                 }
             });
+            
             updateMissionFilesOpened(f);
             
             bgp.setText(I18n.text("Starting interface"));
