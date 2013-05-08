@@ -41,8 +41,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.LinkedHashMap;
 
 import javax.swing.JEditorPane;
@@ -199,14 +200,14 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             addDisableTrexMenu(popup);
             addEnableTrexMenu(popup);
 
-//            for (String gid : sentGoals.keySet()) {
-//                Point2D screenPos = source.getScreenPosition(sentGoals.get(gid).getLocation()); // FIXME all goals have
-//                // location?
-//                if (screenPos.distance(clicked) < 5) {
-//                    final String goal = gid;
-//                    addRecallGoalMenu(popup, gid, goal);
-//                }
-//            }
+            //            for (String gid : sentGoals.keySet()) {
+            //                Point2D screenPos = source.getScreenPosition(sentGoals.get(gid).getLocation()); // FIXME all goals have
+            //                // location?
+            //                if (screenPos.distance(clicked) < 5) {
+            //                    final String goal = gid;
+            //                    addRecallGoalMenu(popup, gid, goal);
+            //                }
+            //            }
             addSettingMenu(popup);
             popup.show(source, event.getPoint().x, event.getPoint().y);
         }
@@ -308,12 +309,12 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 try {
                     StringEntity message;
                     message = new StringEntity(
-                            "{\"on\": \"lum\",\"pred\": \"test\","
+                            "{\"on\": \"navigator\",\"pred\": \"At\","
                                     + "\"Variable\": [ { \"float\": { \"value\": \"0.0300000000000000\" }, \"type\": \"float\", \"name\": \"speed\" }, "
                                     + "{ \"date\": { \"min\": \"2013-May-13 09:59:00.785620\" }, \"type\": \"date\", \"name\": \"start\" }, "
                                     + "{ \"date\": { \"min\": \"2013-May-13 10:00:01.188620\" }, \"type\": \"date\", \"name\": \"end\" }, "
                                     + "{ \"duration\": { \"min\": \"00:01:00.403000\", \"max\": \"00:01:00.403000\" }, \"type\": \"duration\", \"name\": \"duration\" } ] }");
-                    HttpPost httppost = new HttpPost("http://localhost:8080/rest/goal");
+                    HttpPost httppost = new HttpPost("http://localhost:8888/rest/goal");
                     httppost.setHeader("Content-Type", "application/json");
                     httppost.setEntity(message);
                     // Execute
@@ -322,29 +323,39 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
                     // Get the response
                     HttpEntity entity = response.getEntity();
-
+                    String textReceived = "";
+                    
+                   
                     if (entity != null) {
-                        InputStream instream = entity.getContent();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent()));
+                        String line;
                         try {
-                            System.out.println(instream.toString());
+                            while ((line = reader.readLine()) != null) {                        
+                                System.out.println(line);
+                                textReceived += line + "\n";                                
+                            }
                         }
                         finally {
-                            instream.close();
+                            reader.close();
                         }
                     }
+                    if (response.getStatusLine().getStatusCode() != 200) {
+                        GuiUtils.errorMessage(TrexMapLayer.this, "POST Goal", textReceived);
+                    }
+                  
                 }
                 catch (IllegalStateException | IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-                
+
 
             }
-            
+
             @SuppressWarnings("unused")
             private void visitPointImc(final LocationType loc) {
                 final VisitLocationGoal goal = new VisitLocationGoal(defaultSpeed, defaultDepth, loc
-                        .getLatitudeAsDoubleValue(), loc.getLongitudeAsDoubleValue(), defaultTolerance);
+                        .getLatitudeAsDoubleValue(), loc.getLongitudeAsDoubleValue());
 
                 PropertiesEditor.editProperties(goal, true);
 
@@ -423,25 +434,25 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 ((Renderer2DPainter)sentGoals.get(goal)).paint((Graphics2D)g.create(), renderer);
             }
         }
-//            LocationType loc = sentGoals.get(goal).getLocation();
-//            long secs = sentGoals.get(goal).secs;
-//            Point2D pt = renderer.getScreenPosition(loc);
-//            g.translate(pt.getX(), pt.getY());
-//            g.draw(new Ellipse2D.Double(-5, -5, 10, 10));
-//            g.drawString("(" + loc.getAllZ() + "m, " + secs + "s)", 8, 8);
-//            g.translate(-pt.getX(), -pt.getY());
-//            double radius = sentGoals.get(goal).tolerance * renderer.getZoom();
-//
-//            g.draw(new Ellipse2D.Double(pt.getX() - radius, pt.getY() - radius, radius * 2, radius * 2));
-//        }
-//
-//        g.setColor(Color.green);
-//        for (String goal : completeGoals.keySet()) {
-//            Point2D pt = renderer.getScreenPosition(completeGoals.get(goal).getLocation());
-//            g.translate(pt.getX(), pt.getY());
-//            g.draw(new Ellipse2D.Double(-5, -5, 10, 10));
-//            g.translate(-pt.getX(), -pt.getY());
-//        }
+        //            LocationType loc = sentGoals.get(goal).getLocation();
+        //            long secs = sentGoals.get(goal).secs;
+        //            Point2D pt = renderer.getScreenPosition(loc);
+        //            g.translate(pt.getX(), pt.getY());
+        //            g.draw(new Ellipse2D.Double(-5, -5, 10, 10));
+        //            g.drawString("(" + loc.getAllZ() + "m, " + secs + "s)", 8, 8);
+        //            g.translate(-pt.getX(), -pt.getY());
+        //            double radius = sentGoals.get(goal).tolerance * renderer.getZoom();
+        //
+        //            g.draw(new Ellipse2D.Double(pt.getX() - radius, pt.getY() - radius, radius * 2, radius * 2));
+        //        }
+        //
+        //        g.setColor(Color.green);
+        //        for (String goal : completeGoals.keySet()) {
+        //            Point2D pt = renderer.getScreenPosition(completeGoals.get(goal).getLocation());
+        //            g.translate(pt.getX(), pt.getY());
+        //            g.draw(new Ellipse2D.Double(-5, -5, 10, 10));
+        //            g.translate(-pt.getX(), -pt.getY());
+        //        }
 
         if (active)
             g.drawImage(trex, 5, 50, 32, 32, this);

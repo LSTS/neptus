@@ -69,7 +69,7 @@ public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
     }
 
     // protected double speed = 1.0, depth = 2, lat_deg = 41, lon_deg = -8, tolerance = 15;
-    protected double speed, depth, lat_deg, lon_deg, tolerance;// FIXME passar a location type
+    protected double speed, depth, lat_deg, lon_deg;// FIXME passar a location type
 
     /**
      * @param speed
@@ -78,13 +78,12 @@ public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
      * @param lon_deg
      * @param tolerance
      */
-    public VisitLocationGoal(double speed, double depth, double lat_deg, double lon_deg, double tolerance) {
+    public VisitLocationGoal(double speed, double depth, double lat_deg, double lon_deg) {
         super("navigator", "At");
         this.speed = speed;
         this.depth = depth;
         this.lat_deg = lat_deg;
         this.lon_deg = lon_deg;
-        this.tolerance = tolerance;
     }
 
     @Override
