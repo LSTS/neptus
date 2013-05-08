@@ -94,7 +94,7 @@ public class PointCloud<T extends PointXYZ> {
      * Create a Pointcloud Actor from vtkPoints
      */
     public void createLODActorFromPoints() {
-        System.out.println("Total number of Points: " + numberOfPoints);
+        //System.out.println("Total number of Points: " + numberOfPoints);
         getPoly().SetPoints(getPoints());
         getPoly().SetVerts(getVerts());
         
@@ -106,8 +106,9 @@ public class PointCloud<T extends PointXYZ> {
         
         setBounds(getPoly().GetBounds());
         setMemorySize(getPoly().GetActualMemorySize());
+        System.out.println("memory size: " + getMemorySize());
         
-        System.out.println("Memory size: " + getMemorySize());
+        System.out.println("bounds: zMin :" + bounds[4] + " zMax: " + bounds[5]);
              
         vtkLookupTable colorLookupTable = new vtkLookupTable();
         //colorLookupTable.SetNumberOfColors(3);
@@ -185,7 +186,7 @@ public class PointCloud<T extends PointXYZ> {
         
         getPoly().Modified();
         
-        vtkDataArray scalars = new vtkDataArray();
+        //vtkDataArray scalars = new vtkDataArray();
         //PointCloudHandlers<PointXYZ> colorHandler = new PointCloudHandlers<>();
         //scalars = colorHandler.getRandomColor2();
         

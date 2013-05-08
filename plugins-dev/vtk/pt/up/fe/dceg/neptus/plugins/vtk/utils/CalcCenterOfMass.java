@@ -31,6 +31,8 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.utils;
 
+import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
+import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkPolyData;
 //import vtk.
 
@@ -39,14 +41,17 @@ import vtk.vtkPolyData;
  *
  */
 public class CalcCenterOfMass {
+    private static double[] center;
+    
     
     public CalcCenterOfMass() {
         
     }
     
-    public static double[] calcCenterOfMass (vtkPolyData poly) {
-        double[] center = new double[3];
+    public static double[] calcCenterOfMass (PointCloud<PointXYZ> pointCloud) {
+        center = pointCloud.getPoly().GetCenter();
         
+        //center = poly.GetCenter(center);
         
 //        vtkCenterOfMass centerOfMassFilter = new vtkCenterOfMass();
 //        centerOfMassFilter.SetInputData(poly);

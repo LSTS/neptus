@@ -31,9 +31,13 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.filters;
 
+import java.util.Date;
+
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCleanPolyData;
+import vtk.vtkPoints;
+import vtk.vtkPolyDataMapper;
 
 /**
  * @author hfq
@@ -43,21 +47,74 @@ public class DownsamplePointCloud {
     private int numberOfPoints;
     public PointCloud<PointXYZ> pointCloud;
     private PointCloud<PointXYZ> outputDownsampledCloud;
-    double tolerance;
+    private double tolerance;
+    public Boolean isDownsampleDone = false;
+    private double progressMinValue;
+    private double progressMaxValue;
     
     public DownsamplePointCloud (PointCloud<PointXYZ> pointCloud, double tolerance) {
+        long lDateTime = new Date().getTime();
+        System.out.println("Init downsampling - Time in milliseconds: " + lDateTime);
+        
         this.pointCloud = pointCloud;
         this.numberOfPoints = pointCloud.getNumberOfPoints();
         this.tolerance = tolerance;
         outputDownsampledCloud = new PointCloud<>();
+        System.out.println("constructor class donwnsample");
+        downsample();
+        
+        long lDateTime2 = new Date().getTime();
+        System.out.println("Final downsampling - Time in milliseconds: " + lDateTime);
     }
     
     private void downsample() {
-        vtkCleanPolyData cleanPolyData = new vtkCleanPolyData();
-        //cleanPolyData.SetInput(pointCloud.getPoly());
-        cleanPolyData.SetInputConnection(pointCloud.getPoly().GetProducerPort());
-        cleanPolyData.SetTolerance(tolerance);
-        
+        try {
+            vtkCleanPolyData cleanPolyData = new vtkCleanPolyData();
+            //cleanPolyData.SetInput(pointCloud.getPoly());
+            cleanPolyData.SetInputConnection(pointCloud.getPoly().GetProducerPort());
+            cleanPolyData.SetTolerance(tolerance);
+            progressMinValue = cleanPolyData.GetProgressMinValue();
+            progressMaxValue = cleanPolyData.GetProgressMaxValue();
+            System.out.println("Progress min value: " + progressMinValue + " Progress max value: " + progressMaxValue);
+            //System.out.println("Revisions: " + cleanPolyData.PrintRevisions());
+            //cleanPolyData.BreakOnError();
+            cleanPolyData.Update();
+            
+            System.out.println("After update");
+            System.out.println("Number of Points from cleanPolyData: " + String.valueOf(cleanPolyData.GetOutput().GetPoints().GetNumberOfPoints()));
+            
+            //outputDownsampledCloud.setPoly(cleanPolyData.GetOutput());
+            //outputDownsampledCloud.setPoints(outputDownsampledCloud.getPoly().GetPoints());
+            
+            outputDownsampledCloud.setCloudName("downsampledCloud");
+            System.out.println("cloud name: " + outputDownsampledCloud.getCloudName());
+            outputDownsampledCloud.setPoints(cleanPolyData.GetOutput().GetPoints());
+            outputDownsampledCloud.setNumberOfPoints(outputDownsampledCloud.getPoints().GetNumberOfPoints());
+            System.out.println("Number of points: " + outputDownsampledCloud.getNumberOfPoints());
+            
+            vtkPoints points = outputDownsampledCloud.getPoints();
+            
+            for (int i = 0; i < outputDownsampledCloud.getNumberOfPoints(); ++i) {
+                outputDownsampledCloud.getVerts().InsertNextCell(1);
+                outputDownsampledCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(points.GetPoint(i)));
+            }
+            
+            //outputDownsampledCloud.setVerts()
+            
+            outputDownsampledCloud.createLODActorFromPoints();
+            
+            System.out.println("after setting point cLoud donwnsample actor");
+            
+            //vtkPolyDataMapper outputDataMapper = new vtkPolyDataMapper();
+            //outputDataMapper.SetInputConnection(cleanPolyData.GetOutputPort());        
+            //outputDownsampledCloud.setNumberOfPoints(cleanPolyData.
+            
+            isDownsampleDone = true;
+        }
+        catch (Exception e) {
+            System.out.println("Exception on cloud downsampling");
+            e.printStackTrace();
+        }
     }
 
     /**

@@ -34,7 +34,6 @@ package pt.up.fe.dceg.neptus.plugins.vtk;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -45,15 +44,9 @@ import java.util.Vector;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
-
-import net.miginfocom.swing.MigLayout;
-
-import com.l2fprod.common.swing.JButtonBar;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
@@ -62,18 +55,16 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
+import pt.up.fe.dceg.neptus.plugins.vtk.filters.DownsamplePointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
-import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesActor;
-import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Caption;
-import pt.up.fe.dceg.neptus.plugins.vtk.visualization.PointCloudHandlers;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
+import vtk.vtkActorCollection;
 import vtk.vtkCanvas;
 import vtk.vtkLODActor;
 import vtk.vtkNativeLibrary;
-import vtk.vtkPanel;
 
 /**
  * @author hfq
@@ -85,8 +76,11 @@ public class Vtk extends JPanel implements MRAVisualization {
     
     private static Boolean vtkEnabled = true;
     
+        // there are 2 types of rendering objects on VTK - vtkPanel and vtkCanvas. vtkCanvas seems to have a better behaviour and performance.
     //public vtkPanel vtkPanel;
     public vtkCanvas vtkCanvas;
+    
+    public Window winCanvas;
     
     private JToggleButton zExaggerationToggle;
     private JToggleButton rawPointsToggle;
@@ -111,7 +105,13 @@ public class Vtk extends JPanel implements MRAVisualization {
     
     private Boolean componentEnabled = false;
     
+    private DownsamplePointCloud performDownsample;
+    private Boolean isDownsampleDone = false;
+    
     static {
+        
+        
+        
         try {
             System.loadLibrary("jawt");
         }
@@ -242,7 +242,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         pointCloud.setCloudName("multibeam");
         linkedHashMapCloud.put(pointCloud.getCloudName(), pointCloud);
         
-        Window winCanvas = new Window(vtkCanvas, linkedHashMapCloud);
+        winCanvas = new Window(vtkCanvas, linkedHashMapCloud);
         
         vtkCanvas.GetRenderer().ResetCamera();
         
@@ -253,16 +253,16 @@ public class Vtk extends JPanel implements MRAVisualization {
         toolBar = createToolbar();
         add(toolBar, BorderLayout.SOUTH);
     }
-    
+
     @Override
     public String getName() {
-        System.out.println("getName: " + mraVtkLogGroup.name());
+        //System.out.println("getName: " + mraVtkLogGroup.name());
         return "Multibeam 3D";
     }
 
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
-        System.out.println("getComponent: " + mraVtkLogGroup.name());
+        //System.out.println("getComponent: " + mraVtkLogGroup.name());
         
         if (!componentEnabled)
         {
@@ -277,15 +277,25 @@ public class Vtk extends JPanel implements MRAVisualization {
             vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
             //ax.getAxesActor().SetVisibility(true);
             
-            vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
+            //vtkLODActor randomActor = new vtkLODActor();
+            //PointCloud<PointXYZ> randomCloud = new PointCloud<>();
+            //randomActor = randomCloud.getRandomPointCloud(1000);
+            //System.out.println("randomCloud number of points: " + randomCloud.getNumberOfPoints());
             
-            //Caption cap = new Caption(20, 2, true, true, true, false, pointCloud, vtkCanvas.GetRenderer());
-            //vtkCanvas.GetRenderer().AddActor(cap.getCaptionActor());
-            //Caption cap = new Caption(4, 150, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(), pointCloud.getBounds(), vtkCanvas.GetRenderer());
-            //vtkCanvas.GetRenderer().AddActor(cap.getCaptionNumberOfPointsActor());
-            //vtkCanvas.GetRenderer().AddActor(cap.getCaptionCloudNameActor());
-            //vtkCanvas.GetRenderer().AddActor(cap.getCaptionCloudBoundsActor());
-                        
+            
+            //performDownsample = new DownsamplePointCloud(randomCloud, 0.1);
+            //performDownsample = new DownsamplePointCloud(pointCloud, 0.1);
+
+            //PointCloud<PointXYZ> downsampledCloud = performDownsample.getOutputDownsampledCloud();
+            //linkedHashMapCloud.put(downsampledCloud.getCloudName(), downsampledCloud); 
+            
+            vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
+            //vtkCanvas.GetRenderer().AddActor(downsampledCloud.getCloudLODActor());
+            
+            //vtkLODActor tempActor = performDownsample.getOutputDownsampledCloud().getCloudLODActor();
+            //System.out.println("Number of Cloud Points: " + tempActor.GetNumberOfCloudPoints());
+            //vtkCanvas.GetRenderer().AddActor(tempActor);
+                       
             NeptusLog.pub().info("<###> ");
             vtkCanvas.GetRenderer().ResetCamera();
         }
@@ -323,36 +333,36 @@ public class Vtk extends JPanel implements MRAVisualization {
 
     @Override
     public ImageIcon getIcon() {
-        System.out.println("getIcon: " + mraVtkLogGroup.name());
+        //System.out.println("getIcon: " + mraVtkLogGroup.name());
         return null;
     }
 
     @Override
     public Double getDefaultTimeStep() {
-        System.out.println("get DefaultTimeStep: " + mraVtkLogGroup.name());
+        //System.out.println("get DefaultTimeStep: " + mraVtkLogGroup.name());
         return null;
     }
 
     @Override
     public boolean supportsVariableTimeSteps() {
-        System.out.println("supportsVariableTimeSteps: " + mraVtkLogGroup.name());
+        //System.out.println("supportsVariableTimeSteps: " + mraVtkLogGroup.name());
         return false;
     }
 
     @Override
     public Type getType() {
-        System.out.println("getType: " + mraVtkLogGroup.name());
+        //System.out.println("getType: " + mraVtkLogGroup.name());
         return Type.VISUALIZATION;
     }
 
     @Override
     public void onHide() {
-        System.out.println("onHide: " + mraVtkLogGroup.name());
+        //System.out.println("onHide: " + mraVtkLogGroup.name());
     }
 
     @Override
     public void onShow() {
-        System.out.println("onShow: " + mraVtkLogGroup.name());
+        //System.out.println("onShow: " + mraVtkLogGroup.name());
     }
 
     @Override
@@ -450,7 +460,34 @@ public class Vtk extends JPanel implements MRAVisualization {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (downsampledPointsToggle.isSelected()) {
-                    
+                    try {
+                        System.out.println("Before collection");
+                        vtkActorCollection actorCollection = new vtkActorCollection();
+                        actorCollection =  vtkCanvas.GetRenderer().GetActors();
+                        actorCollection.InitTraversal();                  
+                        for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
+                            vtkCanvas.GetRenderer().RemoveActor(actorCollection.GetNextActor());
+                        }
+                        System.out.println("After collection");
+                        
+                        vtkCanvas.GetRenderer().Render();
+                        
+                        PointCloud<PointXYZ> downsampledCloud = new PointCloud<>();
+                        
+                        if (!isDownsampleDone) {    
+                            PointCloud<PointXYZ> multibeamCloud = new PointCloud<>();
+                            multibeamCloud = linkedHashMapCloud.get("multibeam");
+                            
+                            performDownsample = new DownsamplePointCloud(multibeamCloud, 0.5);
+
+                            downsampledCloud = performDownsample.getOutputDownsampledCloud();
+                            linkedHashMapCloud.put(downsampledCloud.getCloudName(), downsampledCloud); 
+                        }
+                        vtkCanvas.GetRenderer().AddActor(downsampledCloud.getCloudLODActor());
+                    }
+                    catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
                 }
                 else {
                     

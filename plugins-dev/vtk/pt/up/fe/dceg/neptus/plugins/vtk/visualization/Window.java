@@ -62,16 +62,15 @@ import vtk.vtkWindowToImageFilter;
  */
 public class Window {
 
-    private vtkCommand mouseCommmand;
-    private vtkCommand keyboardCommand;
+    //private vtkCommand mouseCommmand;
+    //private vtkCommand keyboardCommand;
     private vtkInteractorStyle style;
 
-    private vtkWindowToImageFilter wif;
-    private vtkPNGWriter pngWriter;
-    private String wifName;
-    
-    //private LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
-    public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
+    //private vtkWindowToImageFilter wif;
+    //private vtkPNGWriter pngWriter;
+    //private String wifName;
+
+    public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
       
     private vtkPanel panel;
     private vtkCanvas canvas;
@@ -79,50 +78,67 @@ public class Window {
     private vtkRenderWindow renWin;
     private vtkRenderWindowInteractor renWinInteractor;
     private String windowName;
-    private vtkLight light;
-    private vtkLightActor lightActor;
+    //private vtkLight light;
+    //private vtkLightActor lightActor;
+    
+        // the Neptus interactor Style - mouse, and keyboard events
+    private NeptusInteractorStyle interactorStyle;
 
     /**
-     * Ideia: include snapshots with the interactor
-     * @param linkedHashMapCloud 
      * 
-     * @param renWin
-     * @param interactor
-     * @param windowName
+     * @param panel
+     * @param linkedHashMapCloud
+     * set all vtk render components of a vtkPanel
      */
     public Window(vtkPanel panel, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
-        // a Renderer
+        this.panel = new vtkPanel();
         this.panel = panel;
         this.linkedHashMapCloud = linkedHashMapCloud;
+        
+            // a Renderer
+        try {
+            setRenderer(this.panel.GetRenderer());
+        }
+        catch (Exception e) {
+            System.out.println("exception set renderer");
+            e.printStackTrace();
+        }
 
-        renderer = new vtkRenderer();
-        setRenderer(this.panel.GetRenderer());
+            // a Render Window
+        try {
+            setRenWin(this.panel.GetRenderWindow());
+        }
+        catch (Exception e) {
+            System.out.println("exception set render window");
+            e.printStackTrace();
+        }
 
-        // a Render Window
-        setRenWin(new vtkRenderWindow());
-        // an Interactor
-        setRenWinInteractor(new vtkRenderWindowInteractor());
-        // a style interactor
-        setStyle(new vtkInteractorStyle());
-        getRenWin().AddRenderer(this.panel.GetRenderer());
+            // a Render Window Interactor
+        try {
+            setRenWinInteractor(this.panel.GetRenderWindow().GetInteractor());
+        }
+        catch (Exception e) {
+            System.out.println("exception set render window interactor");
+            e.printStackTrace();
+        }
 
+        setUpRenderer();
         setUpRenWin();
-        setUpInteractorStyle();
         setUpRenWinInteractor();
+        setUpInteractorStyle();
     }
 
     /**
-     * ideia include snapshots with the interactor
-     * 
      * @param canvas
-     * @param hashCloud 
+     * @param hashCloud
+     * set all vtk render components of a vtkCanvas 
      */
     public Window(vtkCanvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
         this.canvas = new vtkCanvas();
         this.canvas = canvas;
         this.linkedHashMapCloud = linkedHashMapCloud;
 
-        // a Renderer
+            // a Renderer
         try {
             setRenderer(this.canvas.GetRenderer());
         }
@@ -130,9 +146,8 @@ public class Window {
             System.out.println("exception set renderer");
             e.printStackTrace();
         }
-        System.out.println("set renderer");
 
-        // a Render Window
+            // a Render Window
         try {
             setRenWin(this.canvas.GetRenderWindow());
         }
@@ -141,7 +156,7 @@ public class Window {
             e.printStackTrace();
         }
 
-        // a Render Window Interactor
+            // a Render Window Interactor
         try {
             setRenWinInteractor(this.canvas.getRenderWindowInteractor());
         }
@@ -160,13 +175,16 @@ public class Window {
      * Sets up the Renderer
      */
     private void setUpRenderer() {
-        Set<String> set = linkedHashMapCloud.keySet();
-        for (String s : set) {
-            System.out.println("Window class String from set: " + s);
+        try {
+            renderer.SetGradientBackground(true);
+            renderer.SetBackground(0.0, 0.0, 0.0);
+            //renderer.SetBackground2(0.4, 0.4, 0.4);
+            //renderer.SetBackground(0.2, 0.6, 1.0);
+            renderer.SetBackground2(0.3, 0.7, 1.0);
         }
-        renderer.SetGradientBackground(true);
-        renderer.SetBackground(0.0, 0.0, 0.0);
-        renderer.SetBackground2(0.4, 0.4, 0.4);
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     /**
@@ -211,8 +229,8 @@ public class Window {
      */
     private void setUpInteractorStyle() {
         try {
-            NeptusInteractorStyle interactStyle = new NeptusInteractorStyle(canvas, renderer, renWinInteractor, linkedHashMapCloud);
-            getRenWinInteractor().SetInteractorStyle(interactStyle);
+            interactorStyle = new NeptusInteractorStyle(canvas, renderer, renWinInteractor, linkedHashMapCloud);
+            getRenWinInteractor().SetInteractorStyle(interactorStyle);
         }
         catch (Exception e) {
             System.out.println("set interact Style - Neptus");
@@ -274,5 +292,19 @@ public class Window {
      */
     private void setRenderer(vtkRenderer renderer) {
         this.renderer = renderer;
+    }
+
+    /**
+     * @return the interactorStyle
+     */
+    public NeptusInteractorStyle getInteractorStyle() {
+        return interactorStyle;
+    }
+
+    /**
+     * @param interactorStyle the interactorStyle to set
+     */
+    private void setInteractorStyle(NeptusInteractorStyle interactorStyle) {
+        this.interactorStyle = interactorStyle;
     }
 }

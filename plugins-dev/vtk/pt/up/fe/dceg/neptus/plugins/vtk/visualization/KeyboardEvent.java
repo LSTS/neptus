@@ -98,109 +98,132 @@ public class KeyboardEvent {
                 takeSnapShot();
                 break;
             case 'u':
-                //System.out.println("enter u");
-                Set<String> set = linkedHashMapCloud.keySet();
-                for (String skey : set) {
-                    //System.out.println("String from set: " + skey);
-                    vtkLODActor tempActor = new vtkLODActor();
-                    pointCloud = linkedHashMapCloud.get(skey);
-                    tempActor = pointCloud.getCloudLODActor();
-                    
-                    System.out.println("scalars to colors");
-                    vtkScalarsToColors lut = tempActor.GetMapper().GetLookupTable();
-                    
-                    double[] bounds;
-                    bounds = tempActor.GetMapper().GetBounds();
-                    System.out.println("set look up table 1");
-                    neptusInteractorStyle.lutActor.SetLookupTable(lut);
-                    neptusInteractorStyle.lutActor.SetUseBounds(true);
-                    neptusInteractorStyle.lutActor.SetNumberOfLabels(9);
-                    neptusInteractorStyle.lutActor.Modified();
-
+                try {
+                    if(!neptusInteractorStyle.lutEnabled) {
+                        vtkActorCollection actorCollection = new vtkActorCollection();
+                        actorCollection = neptusInteractorStyle.renderer.GetActors();
+                        actorCollection.InitTraversal();
+                        
+                        for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
+                            vtkLODActor tempActor = new vtkLODActor();
+                            tempActor = (vtkLODActor) actorCollection.GetNextActor();
+                            setOfClouds = linkedHashMapCloud.keySet();
+                            for (String skey : setOfClouds) {
+                                pointCloud = linkedHashMapCloud.get(skey);
+                                vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
+                                neptusInteractorStyle.lutActor.SetLookupTable(lut);
+                                neptusInteractorStyle.lutActor.SetUseBounds(true);
+                                neptusInteractorStyle.lutActor.SetNumberOfLabels(9);
+                                neptusInteractorStyle.lutActor.Modified();
+                            }
+                        }
+                        neptusInteractorStyle.renderer.AddActor(neptusInteractorStyle.lutActor);
+                        neptusInteractorStyle.lutEnabled = true;
+                    }
+                    else {
+                        neptusInteractorStyle.renderer.RemoveActor(neptusInteractorStyle.lutActor);
+                        neptusInteractorStyle.lutEnabled = false;
+                    }
+                    neptusInteractorStyle.interactor.Render();
                 }
-                if (!neptusInteractorStyle.lutEnabled) {
-                    neptusInteractorStyle.renderer.AddActor(neptusInteractorStyle.lutActor);
-                    neptusInteractorStyle.lutEnabled = true;
+                catch (Exception e6) {
+                    e6.printStackTrace();
                 }
-                else {
-                    neptusInteractorStyle.renderer.RemoveActor(neptusInteractorStyle.lutActor);
-                    neptusInteractorStyle.lutEnabled = false;
-                }         
-                neptusInteractorStyle.interactor.Render();
-                break;
-                
+                break;             
             case 'g':
-                if (!neptusInteractorStyle.gridEnabled) {
-                    neptusInteractorStyle.gridActor.TopAxisVisibilityOn();
-                    neptusInteractorStyle.renderer.AddViewProp(neptusInteractorStyle.gridActor);
-                    neptusInteractorStyle.gridEnabled = true;
+                try {
+                    if (!neptusInteractorStyle.gridEnabled) {
+                        neptusInteractorStyle.gridActor.TopAxisVisibilityOn();
+                        neptusInteractorStyle.renderer.AddViewProp(neptusInteractorStyle.gridActor);
+                        neptusInteractorStyle.gridEnabled = true;
+                    }
+                    else {
+                        neptusInteractorStyle.renderer.RemoveViewProp(neptusInteractorStyle.gridActor);
+                        neptusInteractorStyle.gridEnabled = false;
+                    }
+                    neptusInteractorStyle.interactor.Render();
                 }
-                else {
-                    neptusInteractorStyle.renderer.RemoveViewProp(neptusInteractorStyle.gridActor);
-                    neptusInteractorStyle.gridEnabled = false;
+                catch (Exception e5) {
+                    e5.printStackTrace();
                 }
-                neptusInteractorStyle.interactor.Render();
                 break;
-            case 'c':   
-                if (!neptusInteractorStyle.compassEnabled) {
-                    neptusInteractorStyle.compass.addCompassToVisualization(interactor);
-                    neptusInteractorStyle.compassEnabled = true;
+            case 'c':     // FIXME - not good enough, better check this one for a better implementation. problems: seems to be disconected of the rendered actor
+                try {
+                    if (!neptusInteractorStyle.compassEnabled) {
+                        neptusInteractorStyle.compass.addCompassToVisualization(interactor);
+                        neptusInteractorStyle.compassEnabled = true;
+                    }
+                    else {
+                        neptusInteractorStyle.compass.removeCompassFromVisualization(interactor);
+                        neptusInteractorStyle.compassEnabled = false;
+                    }
                 }
-                else {  // better check this one for a better implementation
-                    neptusInteractorStyle.compass.removeCompassFromVisualization(interactor);
-                    neptusInteractorStyle.compassEnabled = false;
+                catch (Exception e4) {
+                    e4.printStackTrace();
                 }
                 break;
             case 'w':
-                if (!neptusInteractorStyle.wireframeRepEnabled) {
-                    neptusInteractorStyle.wireframeRepEnabled = true;
-                    neptusInteractorStyle.solidRepEnabled = false;
-                    neptusInteractorStyle.pointRepEnabled = false;
-                    
-                    System.out.println("wireframe rep enabled");
-                    
-                    setOfClouds = linkedHashMapCloud.keySet();
-                    for (String sKey : setOfClouds) {
-                        vtkLODActor tempActor = new vtkLODActor();
-                        pointCloud = linkedHashMapCloud.get(sKey);
-                        tempActor = pointCloud.getCloudLODActor();
-                        tempActor.GetProperty().SetRepresentationToWireframe();
+                try {
+                    if (!neptusInteractorStyle.wireframeRepEnabled) {
+                        neptusInteractorStyle.wireframeRepEnabled = true;
+                        neptusInteractorStyle.solidRepEnabled = false;
+                        neptusInteractorStyle.pointRepEnabled = false;
+                        
+                        System.out.println("wireframe rep enabled");
+                        
+                        setOfClouds = linkedHashMapCloud.keySet();
+                        for (String sKey : setOfClouds) {
+                            vtkLODActor tempActor = new vtkLODActor();
+                            pointCloud = linkedHashMapCloud.get(sKey);
+                            tempActor = pointCloud.getCloudLODActor();
+                            tempActor.GetProperty().SetRepresentationToWireframe();
+                        }
                     }
                 }
-                //else {
-                //    neptusInteractorStyle.wireframeRepEnabled = false;                    
-                //}
+                catch (Exception e3) {
+                    e3.printStackTrace();
+                }
                 break;
             case 's':
-                if (!neptusInteractorStyle.solidRepEnabled) {
-                    neptusInteractorStyle.solidRepEnabled = true;
-                    neptusInteractorStyle.wireframeRepEnabled = false;
-                    neptusInteractorStyle.pointRepEnabled = false;
-                    
-                    System.out.println("solid rep enabled");
-                    
-                    for (String sKey : setOfClouds) {
-                        vtkLODActor tempActor = new vtkLODActor();
-                        pointCloud = linkedHashMapCloud.get(sKey);
-                        tempActor = pointCloud.getCloudLODActor();
-                        tempActor.GetProperty().SetRepresentationToSurface();
+                try {
+                    if (!neptusInteractorStyle.solidRepEnabled) {
+                        neptusInteractorStyle.solidRepEnabled = true;
+                        neptusInteractorStyle.wireframeRepEnabled = false;
+                        neptusInteractorStyle.pointRepEnabled = false;
+                        
+                        System.out.println("solid rep enabled");
+                        
+                        for (String sKey : setOfClouds) {
+                            vtkLODActor tempActor = new vtkLODActor();
+                            pointCloud = linkedHashMapCloud.get(sKey);
+                            tempActor = pointCloud.getCloudLODActor();
+                            tempActor.GetProperty().SetRepresentationToSurface();
+                        }
                     }
+                }
+                catch (Exception e2) {
+                    e2.printStackTrace();
                 }
                 break;
             case 'p':
-                if (!neptusInteractorStyle.pointRepEnabled) {
-                    neptusInteractorStyle.pointRepEnabled = true;
-                    neptusInteractorStyle.solidRepEnabled = false;
-                    neptusInteractorStyle.wireframeRepEnabled = false;
-                    
-                    System.out.println("point rep enabled");
-                    
-                    for (String sKey : setOfClouds) {
-                        vtkLODActor tempActor = new vtkLODActor();
-                        pointCloud = linkedHashMapCloud.get(sKey);
-                        tempActor = pointCloud.getCloudLODActor();
-                        tempActor.GetProperty().SetRepresentationToPoints();
+                try {
+                    if (!neptusInteractorStyle.pointRepEnabled) {
+                        neptusInteractorStyle.pointRepEnabled = true;
+                        neptusInteractorStyle.solidRepEnabled = false;
+                        neptusInteractorStyle.wireframeRepEnabled = false;
+                        
+                        System.out.println("point rep enabled");
+                        
+                        for (String sKey : setOfClouds) {
+                            vtkLODActor tempActor = new vtkLODActor();
+                            pointCloud = linkedHashMapCloud.get(sKey);
+                            tempActor = pointCloud.getCloudLODActor();
+                            tempActor.GetProperty().SetRepresentationToPoints();
+                        }
                     }
+                }
+                catch (Exception e1) {
+                    e1.printStackTrace();
                 }
                 break;
             case 'm':
@@ -227,9 +250,11 @@ public class KeyboardEvent {
                                 pointCloud = linkedHashMapCloud.get(sKey);
                                 tempActorFromHashMap = pointCloud.getCloudLODActor();
                                 if (tempActor.equals(tempActorFromHashMap)) {
-                                    captionInfo = new Caption(4, 150, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(), pointCloud.getBounds(), neptusInteractorStyle.renderer);
+                                    captionInfo = new Caption(4, 150, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(), 
+                                            pointCloud.getBounds(), pointCloud.getMemorySize(), neptusInteractorStyle.renderer);
                                     neptusInteractorStyle.renderer.AddActor(captionInfo.getCaptionNumberOfPointsActor());
                                     neptusInteractorStyle.renderer.AddActor(captionInfo.getCaptionCloudNameActor());
+                                    neptusInteractorStyle.renderer.AddActor(captionInfo.getCaptionMemorySizeActor());
                                     neptusInteractorStyle.renderer.AddActor(captionInfo.getCaptionCloudBoundsActor());
                                     neptusInteractorStyle.interactor.Render();
                                 }
@@ -245,6 +270,7 @@ public class KeyboardEvent {
                     try {
                         neptusInteractorStyle.renderer.RemoveActor(captionInfo.getCaptionNumberOfPointsActor());
                         neptusInteractorStyle.renderer.RemoveActor(captionInfo.getCaptionCloudNameActor());
+                        neptusInteractorStyle.renderer.RemoveActor(captionInfo.getCaptionMemorySizeActor());
                         neptusInteractorStyle.renderer.RemoveActor(captionInfo.getCaptionCloudBoundsActor());
                         captionEnabled = false;
                         neptusInteractorStyle.interactor.Render();
@@ -255,30 +281,54 @@ public class KeyboardEvent {
                 }
                 break;
             case '+':   // increment size of rendered cell point
-                setOfClouds = linkedHashMapCloud.keySet();
-                for (String sKey : setOfClouds) {
-                    vtkLODActor tempActor = new vtkLODActor();
-                    pointCloud = linkedHashMapCloud.get(sKey);
-                    tempActor = pointCloud.getCloudLODActor();
-                    double pointSize = tempActor.GetProperty().GetPointSize();
-                    if (pointSize <= 9.0) {
-                        tempActor.GetProperty().SetPointSize(pointSize + 1);
-                        neptusInteractorStyle.interactor.Render();
-                    }
+                try {
+                    vtkActorCollection actorCollection = new vtkActorCollection();
+                    actorCollection = neptusInteractorStyle.renderer.GetActors();
+                    actorCollection.InitTraversal();
+                    
+                    for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
+                        vtkLODActor tempActor = new vtkLODActor();
+                        tempActor = (vtkLODActor) actorCollection.GetNextActor();
+                        setOfClouds = linkedHashMapCloud.keySet();
+                        for (String sKey : setOfClouds) {
+                            pointCloud = linkedHashMapCloud.get(sKey);
+                            if (tempActor.equals(pointCloud.getCloudLODActor())) {
+                               double pointSize = tempActor.GetProperty().GetPointSize();
+                               if (pointSize <= 9.0) {
+                                   tempActor.GetProperty().SetPointSize(pointSize + 1);
+                                   neptusInteractorStyle.interactor.Render();
+                               }
+                            }
+                        }
+                    }                  
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
                 }
                 break;
             case '-':   // decrement size of rendered cell point
-                setOfClouds = linkedHashMapCloud.keySet();
-                for (String sKey : setOfClouds) {
-                    vtkLODActor tempActor = new vtkLODActor();
-                    pointCloud = linkedHashMapCloud.get(sKey);
-                    tempActor = pointCloud.getCloudLODActor();
-                    double pointSize = tempActor.GetProperty().GetPointSize();
-                    if (pointSize > 1) {
-                        tempActor.GetProperty().SetPointSize(pointSize - 1);
-                        neptusInteractorStyle.interactor.Render();
+                try {
+                    vtkActorCollection actorCollection = new vtkActorCollection();
+                    actorCollection = neptusInteractorStyle.renderer.GetActors();
+                    actorCollection.InitTraversal();
+                    
+                    for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
+                        vtkLODActor tempActor = new vtkLODActor();
+                        tempActor = (vtkLODActor) actorCollection.GetNextActor();
+                        setOfClouds = linkedHashMapCloud.keySet();
+                        for (String sKey : setOfClouds) {
+                            if (tempActor.equals(pointCloud.getCloudLODActor())) {
+                                double pointSize = tempActor.GetProperty().GetPointSize();
+                                if (pointSize > 1.0) {
+                                    tempActor.GetProperty().SetPointSize(pointSize - 1);
+                                    neptusInteractorStyle.interactor.Render();
+                                }
+                            }
+                        }
                     }
-                    tempActor.GetPropertyKeys();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
                 }
                 break;
 //            case '1':
@@ -294,14 +344,19 @@ public class KeyboardEvent {
 //                neptusInteractorStyle.interactor.Render();
 //                break;
             case '7':
-                setOfClouds = linkedHashMapCloud.keySet();
-                for (String sKey : setOfClouds) {
-                    vtkLODActor tempActor = new vtkLODActor();
-                    pointCloud = linkedHashMapCloud.get(sKey);
-                    tempActor = pointCloud.getCloudLODActor();
+                try {
+                    setOfClouds = linkedHashMapCloud.keySet();
+                    for (String sKey : setOfClouds) {
+                        vtkLODActor tempActor = new vtkLODActor();
+                        pointCloud = linkedHashMapCloud.get(sKey);
+                        tempActor = pointCloud.getCloudLODActor();
+                    }
+                    
+                    neptusInteractorStyle.interactor.Render();
                 }
-                
-                neptusInteractorStyle.interactor.Render();
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
             case 'r':
                 neptusInteractorStyle.renderer.ResetCamera();
@@ -316,23 +371,21 @@ public class KeyboardEvent {
      * for now saves on neptus directory
      */
     void takeSnapShot() {
-        neptusInteractorStyle.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
-        neptusInteractorStyle.wif.SetInput(interactor.GetRenderWindow());
-        neptusInteractorStyle.wif.Modified();           
-        neptusInteractorStyle.snapshotWriter.Modified();
-               
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssmm").format(Calendar.getInstance().getTimeInMillis());
-        timeStamp = "snapshot_" + timeStamp;
-        System.out.println("timeStamp: " + timeStamp);
-        
-        neptusInteractorStyle.snapshotWriter.SetFileName(timeStamp);
-        neptusInteractorStyle.snapshotWriter.Write();
-        //if (getInteractor().GetKeyCode() == 'j' | getInteractor().GetKeyCode() == 'J') {
-            //System.out.println("save screenshot");
-            //int pos1 = getInteractor().GetEventPosition()[0];
-            //int pos2 = getInteractor().GetEventPosition()[1];
-            //System.out.println("Event Position - pos1: " + pos1 + " pos2: " + pos2);
+        try {
+            neptusInteractorStyle.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
+            neptusInteractorStyle.wif.SetInput(interactor.GetRenderWindow());
+            neptusInteractorStyle.wif.Modified();           
+            neptusInteractorStyle.snapshotWriter.Modified();
+                   
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssmm").format(Calendar.getInstance().getTimeInMillis());
+            timeStamp = "snapshot_" + timeStamp;
+            System.out.println("timeStamp: " + timeStamp);
             
-        //}
+            neptusInteractorStyle.snapshotWriter.SetFileName(timeStamp);
+            neptusInteractorStyle.snapshotWriter.Write();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

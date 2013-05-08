@@ -74,10 +74,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
     
     public BathymetryInfo info;
     
-    //private double maxLatitude = (Math.PI)/2;    // 90º North (+)
-    //private double minLatitude = -(Math.PI)/2;   // 90º South (-)
-    //private double maxLongitude = Math.PI;        // 180º East (+)
-    //private double minLongitude = -Math.PI;       // 180º West (-)
+    private int numberSwaths = 0;
     
         // reversed var initialize
     private double maxLat = 0;
@@ -101,8 +98,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
         this.pointCloud = pointCloud;
         
         file = source.getFile("multibeam.83P");
-        
-        System.out.println("MultiBeamDeltaTParser");
+        //file = source.getFile("data.83P");
         
         try {
             fis = new FileInputStream(file);
@@ -116,8 +112,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             ioe.printStackTrace();
         }
         
-        channel = fis.getChannel();
-        
+        channel = fis.getChannel();       
         stateParserLogMra = logGroup.getLog("EstimatedState");
         
         initialize();
@@ -138,8 +133,6 @@ public class MultibeamDeltaTParser implements BathymetryParser{
         while ((bs = nextSwath()) != null) {
             
             double lat = bs.getPose().getPosition().getLatitudeAsDoubleValueRads();
-            //double lat = bs.getPose().getPosition().getLatitudeAsDoubleValue();
-            //double lon = bs.getPose().getPosition().getLongitudeAsDoubleValue();
             double lon = bs.getPose().getPosition().getLongitudeAsDoubleValueRads();
                 
             maxLat = Math.max(lat, maxLat);
@@ -169,6 +162,8 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             }
             totalNumberPoints = totalNumberPoints + bs.numBeams;
             realNumberOfBeams = 0;
+            numberSwaths++;
+            System.out.println("total number of points: " + totalNumberPoints);
         }
         pointCloud.setNumberOfPoints(totalNumberPoints);
     }
@@ -199,7 +194,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
 
             if(currPos >= channel.size()) // got to the end of file
                 return null;
-            
+            System.out.println("Swath number: " + numberSwaths);
 
             BathymetryPoint data[];
                 
@@ -214,70 +209,74 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             buf = channel.map(MapMode.READ_ONLY, currPos + 256, header.numBeams * 2); // numberBeam * 2 -> number of bytes
             data = new BathymetryPoint[header.numBeams];
             
+            
+            System.out.println("header.timestamp: " + header.timestamp);
                 // get vehicle pos at the timestamp
             stateIMCMsg = stateParserLogMra.getEntryAtOrAfter(header.timestamp);
-            
+
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
-            pose.getPosition().setLatitudeRads(stateIMCMsg.getDouble("lat"));
-            maxLat = Math.max(maxLat, pose.getPosition().getLatitudeAsDoubleValueRads());         
-            minLat = Math.min(minLat, pose.getPosition().getLatitudeAsDoubleValueRads());
-            pose.getPosition().setLongitudeRads(stateIMCMsg.getDouble("lon"));
-            maxLon = Math.max(maxLon, pose.getPosition().getLongitudeAsDoubleValueRads());
-            minLon = Math.min(minLon, pose.getPosition().getLongitudeAsDoubleValueRads());
             
-            pose.getPosition().setOffsetNorth(stateIMCMsg.getDouble("x"));
-            pose.getPosition().setOffsetEast(stateIMCMsg.getDouble("y"));
-            pose.getPosition().setDepth(stateIMCMsg.getDouble("depth"));
-            //pose.setRoll(stateIMCMsg.getDouble("phi"));
-            //pose.setPitch(stateIMCMsg.getDouble("theta"));
-            pose.setYaw(stateIMCMsg.getDouble("psi"));         
-            //printPose(pose);
-            
-            for(int i = 0; i < header.numBeams; ++i) {
-                double range = buf.getShort(i*2) * (header.rangeResolution / 1000.0f);  // range resolution in mm -> 1000, range in meters -> short
-            
-                    // something wrong with the 83P data, when buf.getShort(i*2) -> range on 83P, is = 0, data is discarded
-                if(range == 0.0) {
-                    continue;
-                }
-                //else {
-                    //realNumberOfBeams++; 
-                //}
-                
-                double angle = header.startAngle + header.angleIncrement * i;
-                double height = range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth();                
-                double xBeamOffset = range * Math.sin(Math.toRadians(angle));                
-                    // heading
-                double psi = -pose.getYaw();               
-                double ox = xBeamOffset * Math.sin(psi);               
-                double oy = xBeamOffset * Math.cos(psi);
-                
-                
-                data[realNumberOfBeams] = new BathymetryPoint((float) (pose.getPosition().getOffsetNorth() + ox),
-                        (float) (pose.getPosition().getOffsetEast() +oy), (float) height);
-                //data[i] = new BathymetryPoint((float) (pose.getPosition().getOffsetNorth() + ox),                
-                    //(float) (pose.getPosition().getOffsetEast() + oy), (float) height);
-                
-                
-                //System.out.println(" north: " + data[i].north + " east: " + data[i].east);
-                //pointCloud.getVerts().InsertNextCell(1);
-                //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(
-                //        (pose.getPosition().getOffsetNorth() + ox),
-                //        (pose.getPosition().getOffsetEast() + oy),
-                //        height));
-                realNumberOfBeams++;
+            if (stateIMCMsg == null) {
+                return null;
             }
+            else {
+                pose.getPosition().setLatitudeRads(stateIMCMsg.getDouble("lat"));                    
+                maxLat = Math.max(maxLat, pose.getPosition().getLatitudeAsDoubleValueRads());
+                minLat = Math.min(minLat, pose.getPosition().getLatitudeAsDoubleValueRads());
+                pose.getPosition().setLongitudeRads(stateIMCMsg.getDouble("lon"));
+                maxLon = Math.max(maxLon, pose.getPosition().getLongitudeAsDoubleValueRads());
+                minLon = Math.min(minLon, pose.getPosition().getLongitudeAsDoubleValueRads());
+                pose.getPosition().setOffsetNorth(stateIMCMsg.getDouble("x"));
+                pose.getPosition().setOffsetEast(stateIMCMsg.getDouble("y"));
+                pose.getPosition().setDepth(stateIMCMsg.getDouble("depth"));
+                //pose.setRoll(stateIMCMsg.getDouble("phi"));
+                //pose.setPitch(stateIMCMsg.getDouble("theta"));
+                pose.setYaw(stateIMCMsg.getDouble("psi"));         
+                //printPose(pose);
+                         
+                for(int i = 0; i < header.numBeams; ++i) {
+                    double range = buf.getShort(i*2) * (header.rangeResolution / 1000.0f);  // range resolution in mm -> 1000, range in meters -> short
+                
+                        
+                    if(range == 0.0) { // when buf.getShort(i*2) -> range on 83P, is = 0, data is discarded
+                        continue;
+                    }
                     
-            currPos += header.numBytes;     // advance to the next ping (position file pointer);
-            
-            //BathymetrySwath swath = new BathymetrySwath(header.timestamp, new SystemPositionAndAttitude(), data);
-            BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, data);
-            //swath.numBeams = header.numBeams; <- can't be this because of erros on range data available on the 83P file
-            swath.numBeams = realNumberOfBeams;
-            //System.out.println("Real Number Of Beams: " + realNumberOfBeams);
-            //System.out.println("Swath number beams: " + swath.numBeams);
-            //realNumberOfBeams = 0;
-            return swath;
+                    double angle = header.startAngle + header.angleIncrement * i;
+                    double height = range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth();                
+                    double xBeamOffset = range * Math.sin(Math.toRadians(angle));                
+                        // heading
+                    double psi = -pose.getYaw();               
+                    double ox = xBeamOffset * Math.sin(psi);               
+                    double oy = xBeamOffset * Math.cos(psi);
+                    
+                    
+                    data[realNumberOfBeams] = new BathymetryPoint((float) (pose.getPosition().getOffsetNorth() + ox),
+                            (float) (pose.getPosition().getOffsetEast() +oy), (float) height);
+                    //data[i] = new BathymetryPoint((float) (pose.getPosition().getOffsetNorth() + ox),                
+                        //(float) (pose.getPosition().getOffsetEast() + oy), (float) height);
+                    
+                    
+                    //System.out.println(" north: " + data[i].north + " east: " + data[i].east);
+                    //pointCloud.getVerts().InsertNextCell(1);
+                    //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(
+                    //        (pose.getPosition().getOffsetNorth() + ox),
+                    //        (pose.getPosition().getOffsetEast() + oy),
+                    //        height));
+                    realNumberOfBeams++;
+                }
+                        
+                currPos += header.numBytes;     // advance to the next ping (position file pointer);
+                
+                //BathymetrySwath swath = new BathymetrySwath(header.timestamp, new SystemPositionAndAttitude(), data);
+                BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, data);
+                //swath.numBeams = header.numBeams; <- can't be this because of erros on range data available on the 83P file
+                swath.numBeams = realNumberOfBeams;
+                //System.out.println("Real Number Of Beams: " + realNumberOfBeams);
+                //System.out.println("Swath number beams: " + swath.numBeams);
+                //realNumberOfBeams = 0;
+                return swath;
+            }
         }
         catch (IOException e) {
             e.printStackTrace();
