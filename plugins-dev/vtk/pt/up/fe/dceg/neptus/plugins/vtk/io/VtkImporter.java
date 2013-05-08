@@ -33,7 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk.io;
 
 /**
  * @author hfq
- *
+ * FIXME - not yet implemented
  */
 public class VtkImporter {
 

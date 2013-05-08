@@ -33,28 +33,20 @@ package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import org.apache.batik.dom.util.HashTable;
-
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-
-import com.jme3.renderer.Camera;
-import com.jogamp.newt.event.KeyEvent;
-import com.lowagie.text.pdf.hyphenation.TernaryTree.Iterator;
-
 import vtk.vtkAbstractPropPicker;
 import vtk.vtkActorCollection;
 import vtk.vtkAssemblyPath;
-import vtk.vtkCollectionIterator;
 import vtk.vtkLODActor;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
 import vtk.vtkScalarsToColors;
+
+import com.jogamp.newt.event.KeyEvent;
 
 /**
  * @author hfq
@@ -63,10 +55,9 @@ import vtk.vtkScalarsToColors;
 public class KeyboardEvent {   
     private NeptusInteractorStyle neptusInteractorStyle;
     
-    private static vtkRenderer renderer;
-    private static vtkRenderWindowInteractor interactor;
-    //private Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
-    //private LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
+    private vtkRenderer renderer;
+    private vtkRenderWindowInteractor interactor;
+
     private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
     
     private Set<String> setOfClouds;
@@ -95,7 +86,8 @@ public class KeyboardEvent {
      */
     public KeyboardEvent(NeptusInteractorStyle neptusInteractorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
         this.neptusInteractorStyle = neptusInteractorStyle;
-        this.interactor = neptusInteractorStyle.getInteractor();
+        this.interactor = neptusInteractorStyle.interactor;
+        this.renderer = neptusInteractorStyle.renderer;
         this.linkedHashMapCloud = linkedHashMapCloud;
     }
 
@@ -105,11 +97,11 @@ public class KeyboardEvent {
             case KeyEvent.VK_J:     //case 'j':
                 takeSnapShot();
                 break;
-            case KeyEvent.VK_U: //case 'u':
+            case KeyEvent.VK_U:     //case 'u':
                 try {
                     if(!neptusInteractorStyle.lutEnabled) {
                         vtkActorCollection actorCollection = new vtkActorCollection();
-                        actorCollection = neptusInteractorStyle.renderer.GetActors();
+                        actorCollection = renderer.GetActors();
                         actorCollection.InitTraversal();
                         
                         for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
@@ -125,14 +117,14 @@ public class KeyboardEvent {
                                 neptusInteractorStyle.lutActor.Modified();
                             }
                         }
-                        neptusInteractorStyle.renderer.AddActor(neptusInteractorStyle.lutActor);
+                        renderer.AddActor(neptusInteractorStyle.lutActor);
                         neptusInteractorStyle.lutEnabled = true;
                     }
                     else {
-                        neptusInteractorStyle.renderer.RemoveActor(neptusInteractorStyle.lutActor);
+                        renderer.RemoveActor(neptusInteractorStyle.lutActor);
                         neptusInteractorStyle.lutEnabled = false;
                     }
-                    neptusInteractorStyle.interactor.Render();
+                    interactor.Render();
                 }
                 catch (Exception e6) {
                     e6.printStackTrace();
@@ -142,14 +134,14 @@ public class KeyboardEvent {
                 try {
                     if (!neptusInteractorStyle.gridEnabled) {
                         neptusInteractorStyle.gridActor.TopAxisVisibilityOn();
-                        neptusInteractorStyle.renderer.AddViewProp(neptusInteractorStyle.gridActor);
+                        renderer.AddViewProp(neptusInteractorStyle.gridActor);
                         neptusInteractorStyle.gridEnabled = true;
                     }
                     else {
-                        neptusInteractorStyle.renderer.RemoveViewProp(neptusInteractorStyle.gridActor);
+                        renderer.RemoveViewProp(neptusInteractorStyle.gridActor);
                         neptusInteractorStyle.gridEnabled = false;
                     }
-                    neptusInteractorStyle.interactor.Render();
+                    interactor.Render();
                 }
                 catch (Exception e5) {
                     e5.printStackTrace();
@@ -247,7 +239,7 @@ public class KeyboardEvent {
                 if (!captionEnabled) {
                     try {
                         vtkActorCollection actorCollection = new vtkActorCollection();
-                        actorCollection = neptusInteractorStyle.renderer.GetActors();
+                        actorCollection = renderer.GetActors();
                         actorCollection.InitTraversal();
                         for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
                             vtkLODActor tempActor = new vtkLODActor();
@@ -259,12 +251,12 @@ public class KeyboardEvent {
                                 tempActorFromHashMap = pointCloud.getCloudLODActor();
                                 if (tempActor.equals(tempActorFromHashMap)) {
                                     captionInfo = new Caption(4, 150, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(), 
-                                            pointCloud.getBounds(), pointCloud.getMemorySize(), neptusInteractorStyle.renderer);
-                                    neptusInteractorStyle.renderer.AddActor(captionInfo.getCaptionNumberOfPointsActor());
-                                    neptusInteractorStyle.renderer.AddActor(captionInfo.getCaptionCloudNameActor());
-                                    neptusInteractorStyle.renderer.AddActor(captionInfo.getCaptionMemorySizeActor());
-                                    neptusInteractorStyle.renderer.AddActor(captionInfo.getCaptionCloudBoundsActor());
-                                    neptusInteractorStyle.interactor.Render();
+                                            pointCloud.getBounds(), pointCloud.getMemorySize());
+                                    renderer.AddActor(captionInfo.getCaptionNumberOfPointsActor());
+                                    renderer.AddActor(captionInfo.getCaptionCloudNameActor());
+                                    renderer.AddActor(captionInfo.getCaptionMemorySizeActor());
+                                    renderer.AddActor(captionInfo.getCaptionCloudBoundsActor());
+                                    interactor.Render();
                                 }
                             }
                         }
@@ -276,12 +268,12 @@ public class KeyboardEvent {
                 }
                 else {
                     try {
-                        neptusInteractorStyle.renderer.RemoveActor(captionInfo.getCaptionNumberOfPointsActor());
-                        neptusInteractorStyle.renderer.RemoveActor(captionInfo.getCaptionCloudNameActor());
-                        neptusInteractorStyle.renderer.RemoveActor(captionInfo.getCaptionMemorySizeActor());
-                        neptusInteractorStyle.renderer.RemoveActor(captionInfo.getCaptionCloudBoundsActor());
+                        renderer.RemoveActor(captionInfo.getCaptionNumberOfPointsActor());
+                        renderer.RemoveActor(captionInfo.getCaptionCloudNameActor());
+                        renderer.RemoveActor(captionInfo.getCaptionMemorySizeActor());
+                        renderer.RemoveActor(captionInfo.getCaptionCloudBoundsActor());
                         captionEnabled = false;
-                        neptusInteractorStyle.interactor.Render();
+                        interactor.Render();
                     }
                     catch (Exception e) {
                         e.printStackTrace();
@@ -291,7 +283,7 @@ public class KeyboardEvent {
             case KeyEvent.VK_PLUS: // case '+':   // increment size of rendered cell point
                 try {
                     vtkActorCollection actorCollection = new vtkActorCollection();
-                    actorCollection = neptusInteractorStyle.renderer.GetActors();
+                    actorCollection = renderer.GetActors();
                     actorCollection.InitTraversal();
                     
                     for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
@@ -304,7 +296,7 @@ public class KeyboardEvent {
                                double pointSize = tempActor.GetProperty().GetPointSize();
                                if (pointSize <= 9.0) {
                                    tempActor.GetProperty().SetPointSize(pointSize + 1);
-                                   neptusInteractorStyle.interactor.Render();
+                                   interactor.Render();
                                }
                             }
                         }
@@ -317,7 +309,7 @@ public class KeyboardEvent {
             case KeyEvent.VK_MINUS: //  case '-':   // decrement size of rendered cell point
                 try {
                     vtkActorCollection actorCollection = new vtkActorCollection();
-                    actorCollection = neptusInteractorStyle.renderer.GetActors();
+                    actorCollection = renderer.GetActors();
                     actorCollection.InitTraversal();
                     
                     for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
@@ -329,7 +321,7 @@ public class KeyboardEvent {
                                 double pointSize = tempActor.GetProperty().GetPointSize();
                                 if (pointSize > 1.0) {
                                     tempActor.GetProperty().SetPointSize(pointSize - 1);
-                                    neptusInteractorStyle.interactor.Render();
+                                    interactor.Render();
                                 }
                             }
                         }
@@ -360,7 +352,7 @@ public class KeyboardEvent {
                         tempActor = pointCloud.getCloudLODActor();
                     }
                     
-                    neptusInteractorStyle.interactor.Render();
+                    interactor.Render();
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -373,22 +365,22 @@ public class KeyboardEvent {
             case KeyEvent.VK_R: //case 'r':
                 neptusInteractorStyle.renderer.ResetCamera();
                 break;
-            case KeyEvent.VK_H: //case KeyEvent.VK_F:
+            case KeyEvent.VK_F: //case KeyEvent.VK_F:
                 AnimeState = VTKIS_ANIMEON;
                 
                 vtkAssemblyPath path = null;
-                neptusInteractorStyle.FindPokedRenderer(neptusInteractorStyle.interactor.GetEventPosition()[0],
-                        neptusInteractorStyle.interactor.GetEventPosition()[1]);
-                neptusInteractorStyle.interactor.GetPicker().Pick(neptusInteractorStyle.interactor.GetEventPosition()[0],
-                        neptusInteractorStyle.interactor.GetEventPosition()[1],
-                        0.0, neptusInteractorStyle.renderer);
+                neptusInteractorStyle.FindPokedRenderer(interactor.GetEventPosition()[0],
+                        interactor.GetEventPosition()[1]);
+                interactor.GetPicker().Pick(interactor.GetEventPosition()[0],
+                        interactor.GetEventPosition()[1],
+                        0.0, renderer);
                 
                 vtkAbstractPropPicker picker;
-                if ((picker=(vtkAbstractPropPicker)neptusInteractorStyle.interactor.GetPicker()) != null) {
+                if ((picker=(vtkAbstractPropPicker)interactor.GetPicker()) != null) {
                     path = picker.GetPath();
                 }
-                if (path != null) {
-                    neptusInteractorStyle.interactor.FlyTo(neptusInteractorStyle.renderer, picker.GetPickPosition()[0], picker.GetPickPosition()[1], picker.GetPickPosition()[2]);
+                if (path != null) {                    
+                    interactor.FlyTo(renderer, picker.GetPickPosition()[0], picker.GetPickPosition()[1], picker.GetPickPosition()[2]);
                 }
                 AnimeState = VTKIS_ANIMEOFF;
                 

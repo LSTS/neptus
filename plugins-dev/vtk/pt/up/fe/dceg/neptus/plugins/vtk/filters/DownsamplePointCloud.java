@@ -41,7 +41,7 @@ import vtk.vtkPolyDataMapper;
 
 /**
  * @author hfq
- *
+ *  FIXME
  */
 public class DownsamplePointCloud {
     private int numberOfPoints;
@@ -73,9 +73,6 @@ public class DownsamplePointCloud {
             //cleanPolyData.SetInput(pointCloud.getPoly());
             cleanPolyData.SetInputConnection(pointCloud.getPoly().GetProducerPort());
             cleanPolyData.SetTolerance(tolerance);
-            progressMinValue = cleanPolyData.GetProgressMinValue();
-            progressMaxValue = cleanPolyData.GetProgressMaxValue();
-            System.out.println("Progress min value: " + progressMinValue + " Progress max value: " + progressMaxValue);
             //System.out.println("Revisions: " + cleanPolyData.PrintRevisions());
             //cleanPolyData.BreakOnError();
             cleanPolyData.Update();

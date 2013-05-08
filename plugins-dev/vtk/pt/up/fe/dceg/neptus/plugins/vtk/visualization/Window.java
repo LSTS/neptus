@@ -31,44 +31,23 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
-import java.awt.Color;
-import java.util.Hashtable;
 import java.util.LinkedHashMap;
-import java.util.Set;
 
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-
-import visad.SetIface;
 import vtk.vtkCanvas;
-import vtk.vtkCommand;
 import vtk.vtkInteractorStyle;
-import vtk.vtkInteractorStyleTrackballActor;
-import vtk.vtkInteractorStyleTrackballCamera;
-import vtk.vtkLODActor;
-import vtk.vtkLight;
-import vtk.vtkLightActor;
-import vtk.vtkPNGWriter;
 import vtk.vtkPanel;
 import vtk.vtkRenderWindow;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
-import vtk.vtkTextActor;
-import vtk.vtkWindowToImageFilter;
 
 /**
  * @author hfq
- * 
+ * config vtk window
  */
 public class Window {
-
-    //private vtkCommand mouseCommmand;
-    //private vtkCommand keyboardCommand;
     private vtkInteractorStyle style;
-
-    //private vtkWindowToImageFilter wif;
-    //private vtkPNGWriter pngWriter;
-    //private String wifName;
 
     public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
       
@@ -126,7 +105,8 @@ public class Window {
         setUpRenWin();
         setUpRenWinInteractor();
         setUpInteractorStyle();
-        
+            
+            // set up camera to +z viewpoint looking down
         getRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
         getRenderer().Render();
     }
@@ -181,8 +161,6 @@ public class Window {
         try {
             renderer.SetGradientBackground(true);
             renderer.SetBackground(0.0, 0.0, 0.0);
-            //renderer.SetBackground2(0.4, 0.4, 0.4);
-            //renderer.SetBackground(0.2, 0.6, 1.0);
             renderer.SetBackground2(0.3, 0.7, 1.0);
         }
         catch (Exception e) {

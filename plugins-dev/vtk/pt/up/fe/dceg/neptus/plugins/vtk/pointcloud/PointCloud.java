@@ -57,9 +57,8 @@ public class PointCloud<T extends PointXYZ> {
     private vtkLODActor cloudLODActor;
     private int numberOfPoints;
     private double[] bounds;
-    private int memorySize;
-    
-    //public vtkActor contourActor;
+    private int memorySize; 
+        //public vtkActor contourActor;
     
     private String cloudName;
     
@@ -79,7 +78,6 @@ public class PointCloud<T extends PointXYZ> {
      * Create a Pointcloud Actor from vtkPoints
      */
     public void createLODActorFromPoints() {
-        //System.out.println("Total number of Points: " + numberOfPoints);
         getPoly().SetPoints(getPoints());
         getPoly().SetVerts(getVerts());
         

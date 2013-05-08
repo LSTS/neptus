@@ -31,19 +31,14 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.util.LinkedHashMap;
 
-import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-import vtk.vtkLODActor;
 import vtk.vtkRenderer;
 import vtk.vtkTextActor;
 
 /**
  * @author hfq
- *
+ * Class sets up a information caption from the renderer pointcloud
  */
 public class Caption {
     public Boolean captionEnabled = false;
@@ -56,36 +51,29 @@ public class Caption {
     private double[] bounds;
     private int memorySize;
     
-//    private Boolean showNumberOfPoints = false;
-//    private Boolean showCloudName = false;
-//    private Boolean showCloudBounds = false;
-//    private Boolean showLatAndLon = false;
-    
-    private vtkRenderer renderer;
-    
     private vtkTextActor captionNumberOfPointsActor;
     private vtkTextActor captionCloudNameActor;
     private vtkTextActor captionCloudBoundsActor;
     private vtkTextActor captionMemorySizeActor;
     private vtkTextActor captionLatLonActor;
     
-
     /**
+     * 
      * @param xPosScreen
      * @param yPosScreen
      * @param numberOfPoints
      * @param cloudName
      * @param bounds
+     * @param memorySize
      * @param renderer
      */
-    public Caption(int xPosScreen, int yPosScreen, int numberOfPoints, String cloudName, double[] bounds, int memorySize, vtkRenderer renderer) {
+    public Caption(int xPosScreen, int yPosScreen, int numberOfPoints, String cloudName, double[] bounds, int memorySize) {
         this.xPosScreen = xPosScreen;
         this.YPosScreen = yPosScreen;
         this.numberOfPoints = numberOfPoints;
         this.cloudName = cloudName;
         this.bounds = bounds;
         this.memorySize = memorySize;
-        this.renderer = renderer;
         
         setCaptionNumberOfPointsActor(new vtkTextActor());
         setCaptionCloudNameActor(new vtkTextActor());

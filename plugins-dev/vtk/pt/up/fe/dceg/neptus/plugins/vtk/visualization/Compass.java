@@ -37,7 +37,8 @@ import vtk.vtkRenderWindowInteractor;
 
 /**
  * @author hfq
- *
+ *  Sets up a Compass Widget to the renderer
+ *  FIXME - not conneted to actors on renderer (?)
  */
 public class Compass {
     

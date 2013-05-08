@@ -33,7 +33,6 @@ package pt.up.fe.dceg.neptus.plugins.vtk.utils;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.util.BitSet;
 import java.util.Calendar;
 
 /**

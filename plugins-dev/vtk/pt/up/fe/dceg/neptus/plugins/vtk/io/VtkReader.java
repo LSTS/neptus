@@ -157,39 +157,7 @@ public class VtkReader {
                 }
                 else {
                     System.out.println("File extention not supported, or invalid file");
-                }           
-  
-/*//                for(File temp : filetemp.listFiles()) {
-//                    if (temp.toString().endsWith(FILE_OBJ_EXT)) {
-//                        impOp = ImporterOps.OBJ;
-//                        break;
-//                    }
-//                    else if (temp.toString().endsWith(FILE_PLY_EXT)) {
-//                        impOp = ImporterOps.PLY;
-//                        break;
-//                    }
-//                    else if (temp.toString().endsWith(FILE_STL_EXT)) {
-//                        impOp = ImporterOps.STL;
-//                        break;
-//                    }
-//                    else if (temp.toString().endsWith(FILE_VTK_EXT)) {
-//                        impOp = ImporterOps.VTK;
-//                        break;
-//                    }
-//                    else if (temp.toString().endsWith(FILE_XYZ_EXT)) {
-//                        impOp = ImporterOps.XYZ;
-//                        break;
-//                    }
-//                    else if (temp.toString().endsWith(FILE_3DS_EXT)) {
-//                        impOp = ImporterOps.ThreeDS;
-//                        break;
-//                    }
-//                    else if (temp.toString().endsWith(FILE_VRML_EXT)) {
-//                        impOp = ImporterOps.WRL;
-//                        break;
-//                    }
-//                }
-*/                
+                }                    
             }
         }
         catch (Exception e) {
@@ -227,7 +195,6 @@ public class VtkReader {
             actor.SetMapper(mapper);
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

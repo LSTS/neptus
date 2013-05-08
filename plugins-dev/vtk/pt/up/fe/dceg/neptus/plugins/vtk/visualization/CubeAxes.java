@@ -39,7 +39,7 @@ import vtk.vtkStringArray;
 
 /**
  * @author hfq
- * Grid is enabled by default, check better solution
+ * FIXME - Grid is enabled by default, check better solution
  */
 public class CubeAxes {
     

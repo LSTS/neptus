@@ -31,19 +31,15 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
-import java.util.Random;
-
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkDataArray;
-import vtk.vtkLODActor;
-import vtk.vtkPoints;
 import vtk.vtkScalarsToColors;
 import vtk.vtkUnsignedCharArray;
 
 /**
  * @author hfq
- *
+ *  FIXME - this will handle color mapping
  */
 public class PointCloudHandlers<T extends PointXYZ> {
     

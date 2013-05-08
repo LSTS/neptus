@@ -35,8 +35,6 @@ import vtk.vtkBoxRepresentation;
 import vtk.vtkBoxWidget;
 import vtk.vtkBoxWidget2;
 import vtk.vtkDataSet;
-import vtk.vtkPanel;
-import vtk.vtkPolyData;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
 
@@ -56,9 +54,6 @@ public class BoxWidget {
         widget.SetInteractor(interactor);
         widget.SetPlaceFactor(1.25);
         widget.PlaceWidget();
-        // vtkDataSet
-        //widget1.SetInput(poly.GetO);
-        //widget1.SetInput()
         widget.SetInput(dataSet.GetData(null)); // não está bem penso eu
         
         widget.EnabledOn();
@@ -66,13 +61,12 @@ public class BoxWidget {
     
     public static void addBoxWidget2Tovisualizer (vtkRenderer ren, vtkRenderWindowInteractor interactor) {
         vtkBoxWidget2 widget = new vtkBoxWidget2();
+        
         vtkBoxRepresentation boxrep = new vtkBoxRepresentation();
         boxrep.SetPlaceFactor(1.25);
         widget.SetRepresentation(boxrep);
         widget.SetCurrentRenderer(ren);
         widget.SetInteractor(interactor);
-        // estoira completamente
-    //widget.AddObserver("EndInteractionEvent", this, "selectPolygons");
         
         widget.EnabledOn();
     }

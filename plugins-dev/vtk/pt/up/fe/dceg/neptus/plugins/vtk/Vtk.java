@@ -63,7 +63,6 @@ import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
 import vtk.vtkActorCollection;
 import vtk.vtkCanvas;
-import vtk.vtkLODActor;
 import vtk.vtkNativeLibrary;
 
 /**
@@ -86,25 +85,21 @@ public class Vtk extends JPanel implements MRAVisualization {
     private JToggleButton rawPointsToggle;
     private JToggleButton downsampledPointsToggle;
     private JButton resetViewportButton;
-    private JButton helpButton;
-    
+    private JButton helpButton;    
     private JPanel toolBar;
-    
-    private static Path path = null;
+
     private static final String FILE_83P_EXT = ".83P";
     
-    public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
-       
+    public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();       
     public PointCloud<PointXYZ> pointCloud;
-
-    
+ 
     private Vector<Marker3d> markers = new Vector<>();
     
     public IMraLogGroup mraVtkLogGroup;
     public File file;
     
     private Boolean componentEnabled = false;
-    
+
     private DownsamplePointCloud performDownsample;
     private Boolean isDownsampleDone = false;
     
@@ -114,8 +109,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         catch (Throwable e) {       
             System.out.println("cannot load jawt lib!");
-        }
-    
+        } 
             // for simple visualizations
         try {
             vtkNativeLibrary.COMMON.LoadLibrary();
@@ -243,7 +237,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         
         vtkCanvas.GetRenderer().ResetCamera();
         
-        // add vtkCanvas to Layout
+            // add vtkCanvas to Layout
         add(vtkCanvas, BorderLayout.CENTER);
         
         toolBar = new JPanel();
@@ -253,20 +247,17 @@ public class Vtk extends JPanel implements MRAVisualization {
 
     @Override
     public String getName() {
-        //System.out.println("getName: " + mraVtkLogGroup.name());
+
         return "Multibeam 3D";
     }
 
     @Override
-    public Component getComponent(IMraLogGroup source, double timestep) {
-        //System.out.println("getComponent: " + mraVtkLogGroup.name());
-        
+    public Component getComponent(IMraLogGroup source, double timestep) {    
         if (!componentEnabled)
         {
             System.out.println("Entrou no component Enabled");
             componentEnabled = true;    
-            
-                // Porque o canBeApplied n set o LogGroup?
+
             MultibeamToPointCloud multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
             pointCloud.createLODActorFromPoints();
             
@@ -297,7 +288,6 @@ public class Vtk extends JPanel implements MRAVisualization {
             
             vtkCanvas.GetRenderer().ResetCamera();
         }
-
         return this;
     }
 
@@ -308,7 +298,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         System.out.println("vtkEnabled can be applied: " + vtkEnabled);
         
         if (vtkEnabled == true) {   // if it could load vtk libraries
-            // Checks wether there is a *.83P file
+                // Checks existance of a *.83P file
             file = source.getFile("Data.lsf").getParentFile();
             File[] files = file.listFiles();
             try {
@@ -331,36 +321,30 @@ public class Vtk extends JPanel implements MRAVisualization {
 
     @Override
     public ImageIcon getIcon() {
-        //System.out.println("getIcon: " + mraVtkLogGroup.name());
         return null;
     }
 
     @Override
     public Double getDefaultTimeStep() {
-        //System.out.println("get DefaultTimeStep: " + mraVtkLogGroup.name());
         return null;
     }
 
     @Override
     public boolean supportsVariableTimeSteps() {
-        //System.out.println("supportsVariableTimeSteps: " + mraVtkLogGroup.name());
         return false;
     }
 
     @Override
     public Type getType() {
-        //System.out.println("getType: " + mraVtkLogGroup.name());
         return Type.VISUALIZATION;
     }
 
     @Override
     public void onHide() {
-        //System.out.println("onHide: " + mraVtkLogGroup.name());
     }
 
     @Override
     public void onShow() {
-        //System.out.println("onShow: " + mraVtkLogGroup.name());
     }
 
     @Override
@@ -373,7 +357,6 @@ public class Vtk extends JPanel implements MRAVisualization {
 //            // TODO Auto-generated catch block
 //            e.printStackTrace();
 //        }
-        //System.out.println("onCleanup: " + mraVtkLogGroup.name());
     }
     
     /**
@@ -433,6 +416,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 msgHelp = msgHelp + "u, U   -   display lookup table (on/off)\n";
                 msgHelp = msgHelp + "r, R   -   reset camera (to viewpoint = {0, 0, 0} -> center {x, y, z}\n";
                 msgHelp = msgHelp + "i, I   -   information about rendered cloud";
+                msgHelp = msgHelp + "f, F   -   press right mouse and then f, to fly to point picked"; 
                 msgHelp = msgHelp + "3      -   3D visualization (put the 3D glasses on)\n";
                 msgHelp = msgHelp + "7      -   color gradient in relation with X coords (north)\n";
                 msgHelp = msgHelp + "8      -   color gradient in relation with Y coords (west)\n";
@@ -458,34 +442,34 @@ public class Vtk extends JPanel implements MRAVisualization {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (downsampledPointsToggle.isSelected()) {
-                    try {
-                        System.out.println("Before collection");
-                        vtkActorCollection actorCollection = new vtkActorCollection();
-                        actorCollection =  vtkCanvas.GetRenderer().GetActors();
-                        actorCollection.InitTraversal();                  
-                        for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
-                            vtkCanvas.GetRenderer().RemoveActor(actorCollection.GetNextActor());
-                        }
-                        System.out.println("After collection");
-                        
-                        vtkCanvas.GetRenderer().Render();
-                        
-                        PointCloud<PointXYZ> downsampledCloud = new PointCloud<>();
-                        
-                        if (!isDownsampleDone) {    
-                            PointCloud<PointXYZ> multibeamCloud = new PointCloud<>();
-                            multibeamCloud = linkedHashMapCloud.get("multibeam");
-                            
-                            performDownsample = new DownsamplePointCloud(multibeamCloud, 0.5);
-
-                            downsampledCloud = performDownsample.getOutputDownsampledCloud();
-                            linkedHashMapCloud.put(downsampledCloud.getCloudName(), downsampledCloud); 
-                        }
-                        vtkCanvas.GetRenderer().AddActor(downsampledCloud.getCloudLODActor());
-                    }
-                    catch (Exception e1) {
-                        e1.printStackTrace();
-                    }
+//                    try {
+//                        System.out.println("Before collection");
+//                        vtkActorCollection actorCollection = new vtkActorCollection();
+//                        actorCollection =  vtkCanvas.GetRenderer().GetActors();
+//                        actorCollection.InitTraversal();                  
+//                        for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
+//                            vtkCanvas.GetRenderer().RemoveActor(actorCollection.GetNextActor());
+//                        }
+//                        System.out.println("After collection");
+//                        
+//                        vtkCanvas.GetRenderer().Render();
+//                        
+//                        PointCloud<PointXYZ> downsampledCloud = new PointCloud<>();
+//                        
+//                        if (!isDownsampleDone) {    
+//                            PointCloud<PointXYZ> multibeamCloud = new PointCloud<>();
+//                            multibeamCloud = linkedHashMapCloud.get("multibeam");
+//                            
+//                            performDownsample = new DownsamplePointCloud(multibeamCloud, 0.5);
+//
+//                            downsampledCloud = performDownsample.getOutputDownsampledCloud();
+//                            linkedHashMapCloud.put(downsampledCloud.getCloudName(), downsampledCloud); 
+//                        }
+//                        vtkCanvas.GetRenderer().AddActor(downsampledCloud.getCloudLODActor());
+//                    }
+//                    catch (Exception e1) {
+//                        e1.printStackTrace();
+//                    }
                 }
                 else {
                     

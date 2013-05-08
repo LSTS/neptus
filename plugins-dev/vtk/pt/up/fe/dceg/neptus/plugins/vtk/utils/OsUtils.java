@@ -35,23 +35,6 @@ package pt.up.fe.dceg.neptus.plugins.vtk.utils;
  * @author hfq
  *
  */
-//public final class OsUtils { // static final class
-//    private static String OS = null;
-//    
-//    public static String getOsName() {
-//        if (OS == null) { 
-//            OS = System.getProperty("os.name");
-//        }
-//        return OS;
-//    }
-//    
-//    public static boolean isWindows() {
-//        return getOsName().startsWith("Windows");
-//    }
-    
-    //public static boolean isUnix() {
-        
-    //}
 
 public class OsUtils {
     

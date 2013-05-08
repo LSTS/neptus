@@ -38,7 +38,7 @@ import vtk.vtkPolyData;
 
 /**
  * @author hfq
- *
+ * FIXME - not yet implemented (only gets center)
  */
 public class CalcCenterOfMass {
     private static double[] center;

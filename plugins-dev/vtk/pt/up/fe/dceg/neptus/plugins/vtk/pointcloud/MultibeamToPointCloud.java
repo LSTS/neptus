@@ -44,7 +44,7 @@ import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
 import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-//import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
+import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.MultibeamDeltaTHeader;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.MultibeamDeltaTParser;
@@ -64,9 +64,9 @@ public class MultibeamToPointCloud {
     public double maxLon = 180;     // (E) 180º east   
     public double minLon = -180;    // (W) 180º west
     
-    BathymetryPoint batPoint;           // float north, float east, float depth
-    BathymetrySwath batSwath;
-    BathymetryInfo batInfo;
+    public BathymetryPoint batPoint;           // float north, float east, float depth
+    public BathymetrySwath batSwath;
+    public BathymetryInfo batInfo;
     
     private File file;                          // *.83P file
     private FileInputStream fileInputStream;    // 83P file input stream
