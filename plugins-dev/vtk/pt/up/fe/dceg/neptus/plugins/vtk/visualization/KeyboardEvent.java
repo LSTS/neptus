@@ -44,9 +44,12 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 
 import com.jme3.renderer.Camera;
+import com.jogamp.newt.event.KeyEvent;
 import com.lowagie.text.pdf.hyphenation.TernaryTree.Iterator;
 
+import vtk.vtkAbstractPropPicker;
 import vtk.vtkActorCollection;
+import vtk.vtkAssemblyPath;
 import vtk.vtkCollectionIterator;
 import vtk.vtkLODActor;
 import vtk.vtkRenderWindowInteractor;
@@ -80,6 +83,11 @@ public class KeyboardEvent {
     
     private Caption captionInfo;
     private Boolean captionEnabled = false;
+    
+    private static final boolean VTKIS_ANIMEOFF = false;
+    private static final boolean VTKIS_ANIMEON = true;
+    
+    private boolean AnimeState;
         
     /**
      * @param neptusInteractorStyle
@@ -91,13 +99,13 @@ public class KeyboardEvent {
         this.linkedHashMapCloud = linkedHashMapCloud;
     }
 
-    public void handleEvents(char keyCode) {
+    public void handleEvents(int keyCode) {
         
         switch (keyCode) {
-            case 'j':
+            case KeyEvent.VK_J:     //case 'j':
                 takeSnapShot();
                 break;
-            case 'u':
+            case KeyEvent.VK_U: //case 'u':
                 try {
                     if(!neptusInteractorStyle.lutEnabled) {
                         vtkActorCollection actorCollection = new vtkActorCollection();
@@ -130,7 +138,7 @@ public class KeyboardEvent {
                     e6.printStackTrace();
                 }
                 break;             
-            case 'g':
+            case KeyEvent.VK_G: // case 'g':
                 try {
                     if (!neptusInteractorStyle.gridEnabled) {
                         neptusInteractorStyle.gridActor.TopAxisVisibilityOn();
@@ -147,7 +155,7 @@ public class KeyboardEvent {
                     e5.printStackTrace();
                 }
                 break;
-            case 'c':     // FIXME - not good enough, better check this one for a better implementation. problems: seems to be disconected of the rendered actor
+            case KeyEvent.VK_C: // case 'c':     // FIXME - not good enough, better check this one for a better implementation. problems: seems to be disconected of the rendered actor
                 try {
                     if (!neptusInteractorStyle.compassEnabled) {
                         neptusInteractorStyle.compass.addCompassToVisualization(interactor);
@@ -162,7 +170,7 @@ public class KeyboardEvent {
                     e4.printStackTrace();
                 }
                 break;
-            case 'w':
+            case KeyEvent.VK_W: //case 'w':
                 try {
                     if (!neptusInteractorStyle.wireframeRepEnabled) {
                         neptusInteractorStyle.wireframeRepEnabled = true;
@@ -184,7 +192,7 @@ public class KeyboardEvent {
                     e3.printStackTrace();
                 }
                 break;
-            case 's':
+            case KeyEvent.VK_S: //case 's':
                 try {
                     if (!neptusInteractorStyle.solidRepEnabled) {
                         neptusInteractorStyle.solidRepEnabled = true;
@@ -205,7 +213,7 @@ public class KeyboardEvent {
                     e2.printStackTrace();
                 }
                 break;
-            case 'p':
+            case KeyEvent.VK_P: //case 'p':
                 try {
                     if (!neptusInteractorStyle.pointRepEnabled) {
                         neptusInteractorStyle.pointRepEnabled = true;
@@ -226,7 +234,7 @@ public class KeyboardEvent {
                     e1.printStackTrace();
                 }
                 break;
-            case 'm':
+            case KeyEvent.VK_M: //case 'm':
                 if(!markerEnabled) {
                     markerEnabled = true;
                     //neptusInteractorStyle.renderer.AddActor(marker);                 
@@ -235,7 +243,7 @@ public class KeyboardEvent {
                     markerEnabled = false;
                 }
                 break;
-            case 'i':
+            case KeyEvent.VK_I: //case 'i':
                 if (!captionEnabled) {
                     try {
                         vtkActorCollection actorCollection = new vtkActorCollection();
@@ -280,7 +288,7 @@ public class KeyboardEvent {
                     }
                 }
                 break;
-            case '+':   // increment size of rendered cell point
+            case KeyEvent.VK_PLUS: // case '+':   // increment size of rendered cell point
                 try {
                     vtkActorCollection actorCollection = new vtkActorCollection();
                     actorCollection = neptusInteractorStyle.renderer.GetActors();
@@ -306,7 +314,7 @@ public class KeyboardEvent {
                     e.printStackTrace();
                 }
                 break;
-            case '-':   // decrement size of rendered cell point
+            case KeyEvent.VK_MINUS: //  case '-':   // decrement size of rendered cell point
                 try {
                     vtkActorCollection actorCollection = new vtkActorCollection();
                     actorCollection = neptusInteractorStyle.renderer.GetActors();
@@ -343,7 +351,7 @@ public class KeyboardEvent {
 //                }
 //                neptusInteractorStyle.interactor.Render();
 //                break;
-            case '7':
+            case KeyEvent.VK_7: // case '7':
                 try {
                     setOfClouds = linkedHashMapCloud.keySet();
                     for (String sKey : setOfClouds) {
@@ -358,8 +366,33 @@ public class KeyboardEvent {
                     e.printStackTrace();
                 }
                 break;
-            case 'r':
+            case KeyEvent.VK_8:     // case '8' -> not yet implemented    
+                break;
+            case KeyEvent.VK_9:     // case '9' -> not yet implemented
+                break;
+            case KeyEvent.VK_R: //case 'r':
                 neptusInteractorStyle.renderer.ResetCamera();
+                break;
+            case KeyEvent.VK_H: //case KeyEvent.VK_F:
+                AnimeState = VTKIS_ANIMEON;
+                
+                vtkAssemblyPath path = null;
+                neptusInteractorStyle.FindPokedRenderer(neptusInteractorStyle.interactor.GetEventPosition()[0],
+                        neptusInteractorStyle.interactor.GetEventPosition()[1]);
+                neptusInteractorStyle.interactor.GetPicker().Pick(neptusInteractorStyle.interactor.GetEventPosition()[0],
+                        neptusInteractorStyle.interactor.GetEventPosition()[1],
+                        0.0, neptusInteractorStyle.renderer);
+                
+                vtkAbstractPropPicker picker;
+                if ((picker=(vtkAbstractPropPicker)neptusInteractorStyle.interactor.GetPicker()) != null) {
+                    path = picker.GetPath();
+                }
+                if (path != null) {
+                    neptusInteractorStyle.interactor.FlyTo(neptusInteractorStyle.renderer, picker.GetPickPosition()[0], picker.GetPickPosition()[1], picker.GetPickPosition()[2]);
+                }
+                AnimeState = VTKIS_ANIMEOFF;
+                
+                //neptusInteractorStyle.renderer
                 break;
             default:
                 System.out.println("not a keyEvent");

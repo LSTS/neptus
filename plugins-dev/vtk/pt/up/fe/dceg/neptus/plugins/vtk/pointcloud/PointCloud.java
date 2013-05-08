@@ -31,34 +31,19 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 
-import java.awt.Point;
 import java.util.Random;
 
-import com.jogamp.graph.curve.OutlineShape.VerticesState;
-import com.kitfox.svg.pathcmd.Vertical;
-
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-import pt.up.fe.dceg.neptus.plugins.vtk.visualization.PointCloudHandlers;
-import ucar.nc2.dt.PointObsDatatype;
-import vtk.vtkActor;
-import vtk.vtkAlgorithm;
 import vtk.vtkCellArray;
 import vtk.vtkDataArray;
-import vtk.vtkFloatArray;
-import vtk.vtkGlyph3D;
-import vtk.vtkIdTypeArray;
 import vtk.vtkLODActor;
 import vtk.vtkLookupTable;
 import vtk.vtkPointSource;
 import vtk.vtkPoints;
 import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
-import vtk.vtkScalarsToColors;
 import vtk.vtkUnsignedCharArray;
-import vtk.vtkVTKJavaCommonDriver;
 import vtk.vtkVertexGlyphFilter;
-
-
 
 /**
  * @author hfq

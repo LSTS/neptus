@@ -108,10 +108,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     private DownsamplePointCloud performDownsample;
     private Boolean isDownsampleDone = false;
     
-    static {
-        
-        
-        
+    static {  
         try {
             System.loadLibrary("jawt");
         }
@@ -297,6 +294,7 @@ public class Vtk extends JPanel implements MRAVisualization {
             //vtkCanvas.GetRenderer().AddActor(tempActor);
                        
             NeptusLog.pub().info("<###> ");
+            
             vtkCanvas.GetRenderer().ResetCamera();
         }
 

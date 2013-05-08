@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
+import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.text.SimpleDateFormat;
@@ -40,6 +41,8 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.lwjgl.Sys;
+
+import com.jogamp.newt.event.KeyEvent;
 
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
@@ -91,7 +94,7 @@ import vtk.vtkXYPlotActor;
  * -    0..9        : switch between different color handlers, when available
  * - SHIFT + left click     : select a point <- point picker not implemented
  */
-public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera implements MouseWheelListener {
+public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera implements MouseWheelListener, KeyListener {
     
     //protected Hashtable<String, vtkLODActor> hashCloud = new Hashtable<>();
     //protected LinkedHashMap<String, vtkLODActor> linkedHashMapCloud = new LinkedHashMap<>();
@@ -134,9 +137,9 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
     protected boolean solidRepEnabled = false;
     protected boolean pointRepEnabled = true;
     
-    // Set true if the Compass Widget is enabled
+        // Set true if the Compass Widget is enabled
     protected boolean compassEnabled;
-    // Actor for Compass Widget on screen
+        // Actor for Compass Widget on screen
     protected Compass compass = new Compass();
     
     private vtkTextActor fpsActor = new vtkTextActor();
@@ -146,32 +149,30 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         // Internal Window to image Filter. Needed by a snapshotWriter object
     protected vtkWindowToImageFilter wif = new vtkWindowToImageFilter();
     
-    // Set true if the grid actor is enabled
+        // Set true if the grid actor is enabled
     protected boolean gridEnabled;
-    // Actor for 2D grid on screen
+        // Actor for 2D grid on screen
     protected vtkLegendScaleActor gridActor = new vtkLegendScaleActor();
     
-    // Set true if the LUT actor is enabled
+        // Set true if the LUT actor is enabled
     protected boolean lutEnabled;
-    // Actor for 2D loookup table on screen
+        // Actor for 2D loookup table on screen
     protected vtkScalarBarActor lutActor = new vtkScalarBarActor();
     
-    // ########## Mouse Interaction ##########
+        // ########## Mouse Interaction ##########
     vtkProp3D InteractionProp;
     vtkCellPicker InteractionPicker;
     
-    // Current Window position width/height
+        // Current Window position width/height
     int winHeight, winWidth;
-    // Current window postion x/y
+        // Current window postion x/y
     int winPosX, winPosY;
     
-    // TrackballActor style interactor for addObserver callback reference
+        // TrackballActor style interactor for addObserver callback reference
     vtkInteractorStyleTrackballActor astyle = new vtkInteractorStyleTrackballActor();
-    // TrackballCamera style interactor for addObserver callback reference
+        // TrackballCamera style interactor for addObserver callback reference
     vtkInteractorStyleTrackballCamera cstyle = new vtkInteractorStyleTrackballCamera();
-    
 
-    
     /**
      * 
      * @param canvas
@@ -212,15 +213,16 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         HandleObserversOn();
         
         //interactModifier = InteractorKeyboardModifier.INTERACTOR_KB_MOD_ALT;
+        
         // Set window size (width, height) to unknow (-1)
         winHeight = winWidth = -1;
         winPosX = winPosY = 0;
         
-        // Grid is disabled by default
+            // Grid is disabled by default
         gridEnabled = false;
-        //gridActor = new vtkLegendScaleActor();
+            //gridActor = new vtkLegendScaleActor();
         
-        // LUT is disabled by default
+            // LUT is disabled by default
         lutEnabled = false;
         //lutActor = new vtkScalarBarActor();
         //lutActor.SetTitle("");
@@ -236,7 +238,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         lutActor.SetLabelTextProperty(prop);
         lutActor.SetTitleTextProperty(prop);
         
-        // Create the image filter and PNG writer objects
+            // Create the image filter and PNG writer objects
         wif = new vtkWindowToImageFilter();
         snapshotWriter = new vtkPNGWriter();
         snapshotWriter.SetInputConnection(wif.GetOutputPort());
@@ -246,36 +248,36 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         //wireframeRepEnabled = false;
         //solidRepEnabled = false;
         //pointRepEnabled = false;
-        
-        
+ 
         getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
 
-        //getInteractor().AddObserver("LeftButtonPressEven", this, "leftMousePress");
-        //getInteractor().AddObserver("LeftButtonReleaseEvent", this, "leftMouseRelease");
-        //getInteractor().AddObserver("RightButtonPressEvent", this, "rightMousePress");
-        //getInteractor().AddObserver("RightButtonReleaseEvent", this, "rightMouseRelease");
-        //getInteractor().AddObserver("MiddleButtonPressEvent", this, "middleButtonPress");
-        //getInteractor().AddObserver("MiddleButtonReleaseEvent", this, "middleButtonRelease");
-        //getInteractor().AddObserver("MouseWheelForwardEvent", this, "mouseWheelForwardEvent");
-        //getInteractor().AddObserver("MouseWheelBackwardEvent", this, "mouseWheelBackwardEvent");
-        //getInteractor().AddObserver("EndInteractionEvent", this, "endInteractionEvent");
-        //getInteractor().AddObserver("LeaveEvent", this, "leaveEvent");
+//        //getInteractor().AddObserver("LeftButtonPressEven", this, "leftMousePress");
+//        //getInteractor().AddObserver("LeftButtonReleaseEvent", this, "leftMouseRelease");
+//        //getInteractor().AddObserver("RightButtonPressEvent", this, "rightMousePress");
+//        //getInteractor().AddObserver("RightButtonReleaseEvent", this, "rightMouseRelease");
+//        //getInteractor().AddObserver("MiddleButtonPressEvent", this, "middleButtonPress");
+//        //getInteractor().AddObserver("MiddleButtonReleaseEvent", this, "middleButtonRelease");
+//        //getInteractor().AddObserver("MouseWheelForwardEvent", this, "mouseWheelForwardEvent");
+//        //getInteractor().AddObserver("MouseWheelBackwardEvent", this, "mouseWheelBackwardEvent");
+//        //getInteractor().AddObserver("EndInteractionEvent", this, "endInteractionEvent");
+//        //getInteractor().AddObserver("LeaveEvent", this, "leaveEvent");
+//        
+//        //getInteractor().AddObserver("InteractorEvent", this, "callbackFunctionFPS");
+//        //getInteractor().AddObserver("CharEvent", this, "saveScreenshot");
+//       
+//        //interactor.AddObserver("LeftButtonReleaseEvent", interactor.LeftButtonPressEvent(), "leftMousePress");
+//        //interactor.LeftButtonPressEvent()
+//        
+//        //getInteractor().AddObserver("EndEvent", this, "callbackFunctionFPS");
         
-        //getInteractor().AddObserver("InteractorEvent", this, "callbackFunctionFPS");
-        //getInteractor().AddObserver("CharEvent", this, "saveScreenshot");
-       
-        //interactor.AddObserver("LeftButtonReleaseEvent", interactor.LeftButtonPressEvent(), "leftMousePress");
-        //interactor.LeftButtonPressEvent()
-        
-        //getInteractor().AddObserver("EndEvent", this, "callbackFunctionFPS");
-        
-        getInteractor().AddObserver("CharEvent", this, "emitKeyboardEvents");
+        //getInteractor().AddObserver("CharEvent", this, "emitKeyboardEvents");
         
         
         canvas.addMouseWheelListener(this);
+        canvas.addKeyListener(this);
         
-        // não colocar o render logo, senão os eventos do java (mouseWheel estoira)
-        //canvas.Render();
+            // não colocar o render logo, senão os eventos do java (mouseWheel estoira)
+            //canvas.Render();
     }
     
     /**
@@ -287,8 +289,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         
         fps = Math.round(fps*100)/100.0d;
         fpsActor.SetInput(String.valueOf(fps));
-        
-        //fpsActor.GetPositionCoordinate().SetCoordinateSystemToNormalizedDisplay();
+
         fpsActor.GetTextProperty().SetColor(0.0, 1.0, 0.0);
         fpsActor.UseBorderAlignOn();
         fpsActor.SetDisplayPosition(2, 2);
@@ -298,19 +299,6 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
             this.renderer.AddActor(fpsActor);
         }     
     }   
-    
-    /**
-     * 
-     */
-    void emitKeyboardEvents() {
-        char keyCode = Character.toLowerCase(interactor.GetKeyCode());
-        //System.out.println("keycode is: " + keyCode);
-        //String keySym = interactor.GetKeySym();
-        //System.out.println("Sym is: " + keySym);
-        //int keyInt = Character.getNumericValue(keyCode);
-        //System.out.println("keyInt is: " + keyInt);
-        this.keyboardEvent.handleEvents(keyCode);      
-    }
     
     /**
      * works only when mouse leaves render window
@@ -422,8 +410,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         camera = renderer.GetActiveCamera();
         double factor = 10.0 * 0.2 * .5;
         camera.Dolly(Math.pow(1.1, factor));
-        EndDolly();
-        
+        EndDolly();        
         //camera.SetPosition(posCam);
     }
     
@@ -455,15 +442,46 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         
         //System.out.println("posX2: " + posCam2[0] + ", posY2: " + posCam2[1] + ", posZ2: " + posCam2[2]);
         //System.out.println("focalPointCamx2:" + focalPointCam2[0] + ", fy2: " + focalPointCam2[1] + ", fz2: " + focalPointCam2[2]);
-
-
         //newFocalPoint[0] = newFocalPoint[0] + (posCam[0] - posCam2[0]);
         //newFocalPoint[1] = newFocalPoint[1] + (posCam[1] - posCam2[1]);
         //newFocalPoint[2] = newFocalPoint[2] + (posCam2[2] - posCam[2]);
         
         //camera.SetFocalPoint(newFocalPoint);        
         EndDolly();
-        
         //camera.SetPosition(posCam);
+    }
+
+    @Override
+    public void keyTyped(java.awt.event.KeyEvent e) {
+
+    }
+    
+  /**
+  * keyboard events launched from vtk interactor
+  */
+ void emitKeyboardEvents() {
+     char keyCode = Character.toLowerCase(interactor.GetKeyCode());
+     System.out.println("keycode is: " + keyCode);
+     String keySym = interactor.GetKeySym();
+     System.out.println("Sym is: " + keySym);
+     int keyInt = Character.getNumericValue(keyCode);
+     System.out.println("keyInt is: " + keyInt);
+     
+     this.keyboardEvent.handleEvents(keyCode);      
+ }    
+    
+    @Override
+    public void keyPressed(java.awt.event.KeyEvent ke) {
+        System.out.println("key code: " + ke.getKeyCode());
+        //System.out.println("key char: " + ke.getKeyChar());
+        //System.out.println("key string: " + ke.toString());
+        
+        //this.keyboardEvent.handleEvents(ke.getKeyChar());
+        this.keyboardEvent.handleEvents(ke.getKeyCode());
+    }
+
+    @Override
+    public void keyReleased(java.awt.event.KeyEvent e) {  
+        
     }
 }

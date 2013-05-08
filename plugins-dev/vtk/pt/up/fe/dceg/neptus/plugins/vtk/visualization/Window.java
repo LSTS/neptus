@@ -126,6 +126,9 @@ public class Window {
         setUpRenWin();
         setUpRenWinInteractor();
         setUpInteractorStyle();
+        
+        getRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+        getRenderer().Render();
     }
 
     /**
