@@ -130,7 +130,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
 
     }
 
-    private final int MAX_ACCEPTABLE_ELAPSED_TIME = 120;
+    private final int MAX_ACCEPTABLE_ELAPSED_TIME = 300;
 
     private static final long serialVersionUID = -2666337254439313801L;
 
