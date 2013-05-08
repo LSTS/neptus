@@ -169,6 +169,7 @@ public class VehiclePath extends Element3D {
         return points;
     }
 
+    @SuppressWarnings("deprecation")
     private boolean createStripNewDataStruct() {
         int skiped = 0;
 

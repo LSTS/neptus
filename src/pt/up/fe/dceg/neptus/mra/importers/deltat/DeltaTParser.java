@@ -55,22 +55,28 @@ import pt.up.fe.dceg.neptus.util.llf.LsfLogSource;
 
 /**
  * @author jqcorreia
+ * @author hfq
  *
  */
 public class DeltaTParser implements BathymetryParser {
+    private IMraLogGroup source;
+    private IMraLog stateParser;
+    private IMCMessage state;
 
-    File file;
-    IMraLogGroup source;
-    FileInputStream fis;
-    FileChannel channel;
-    ByteBuffer buf;
-    long curPos = 0;
+    private File file;
+    private FileInputStream fis;
+    private FileChannel channel;
+    private ByteBuffer buf;
+    private long curPos = 0;
     
-    IMCMessage state;
-    IMraLog stateParser;
-
-    BathymetryInfo info;
+    public BathymetryInfo info;
     
+    private int realNumberOfBeams = 0;
+    private int totalNumberPoints = 0;
+    
+    // public PointCloud<PointXYZ> pointCloud;
+    
+        // will have a PointCloud as argument
     public DeltaTParser(IMraLogGroup source) {
         this.source = source;
         file = source.getFile("multibeam.83P");
@@ -80,6 +86,7 @@ public class DeltaTParser implements BathymetryParser {
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
         channel = fis.getChannel();
         stateParser = source.getLog("EstimatedState");
         
@@ -120,6 +127,8 @@ public class DeltaTParser implements BathymetryParser {
                     info.minDepth = Math.min(info.minDepth, p.depth);
                     info.maxDepth = Math.max(info.maxDepth, p.depth);
                 }
+                totalNumberPoints = totalNumberPoints + bs.numBeams;
+                realNumberOfBeams = 0;
             }
             
             try {
@@ -206,21 +215,28 @@ public class DeltaTParser implements BathymetryParser {
             
             for(int c = 0; c < header.numBeams; c++) { 
                 double range = buf.getShort(c*2) * (header.rangeResolution / 1000.0);
-                double angle = header.startAngle + header.angleIncrement * c;
                 
+                if(range == 0.0) {
+                    continue;
+                }
+                
+                double angle = header.startAngle + header.angleIncrement * c;         
                 float height = (float) (range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth());
 
                 double x = range * Math.sin(Math.toRadians(angle));
-                double theta = -pose.getYaw();
-                float ox = (float) (x * Math.cos(Math.toRadians(theta)));
-                float oy = (float) (x * Math.sin(Math.toRadians(theta)));
+                double yawAngle = -pose.getYaw();
+                float ox = (float) (x * Math.sin(yawAngle));
+                float oy = (float) (x * Math.cos(yawAngle));
                 
-                data[c] = new BathymetryPoint((float)pose.getPosition().getOffsetNorth() + ox, (float)pose.getPosition().getOffsetEast() + oy, height);
+                data[realNumberOfBeams] = new BathymetryPoint((float)pose.getPosition().getOffsetNorth() + ox, (float)pose.getPosition().getOffsetEast() + oy, height);
+            
+                realNumberOfBeams++;
             }
             curPos += header.numBytes; // Advance current position
             
             BathymetrySwath swath = new BathymetrySwath(header.timestamp,  new SystemPositionAndAttitude(), data);
-            swath.numBeams = header.numBeams;
+            //swath.numBeams = header.numBeams;
+            swath.numBeams = realNumberOfBeams;
             
             return swath;
         }

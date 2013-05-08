@@ -31,7 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.plugins.mraplots;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -40,8 +39,6 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -65,12 +62,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.ProgressMonitor;
-import javax.swing.SwingUtilities;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.imgscalr.Scalr;
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.gui.Timeline;
+import pt.up.fe.dceg.neptus.gui.TimelineChangeListener;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
@@ -105,7 +105,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     protected double curTime = 0;
     protected Vector<Thread> running = new Vector<>();
     protected File curFile = null;
-    protected PhotoTimeline timeline = null;
+    protected PhotoToolbar toolbar = null;
     protected double speedMultiplier = 1.0;
     protected boolean brighten = false;
     protected boolean grayscale = false;
@@ -123,6 +123,61 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     protected Point2D zoomPoint = null;
     protected boolean fullRes = false;
     protected Vector<LogMarker> markers = new Vector<>();
+    private File[] allFiles;
+    
+    long startTime, endTime;
+    
+    public MraPhotosVisualization(MRAPanel panel) {
+        this.panel = panel;
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                if (e.getButton() == MouseEvent.BUTTON3)
+                    showPopup(curFile, e);
+            }
+            
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+                if (e.getButton() == MouseEvent.BUTTON3)
+                    return;
+                
+                if (imageToDisplay == null)
+                    return;
+                zoomPoint = e.getPoint();    
+                repaint();
+            }
+            
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                if (e.getButton() == MouseEvent.BUTTON3)
+                    return;
+                
+                zoomPoint = null;
+                repaint();
+            }
+            
+        });
+        
+        addMouseMotionListener(new MouseAdapter() {
+            
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                super.mouseDragged(e);
+                if (e.getButton() == MouseEvent.BUTTON3)
+                    return;
+                
+                if (imageToDisplay == null)
+                    return;
+                zoomPoint = e.getPoint();
+                repaint();
+            }
+        });
+        
+    }
+    
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         return source.getFile("Photos") != null && source.getFile("Photos").isDirectory();
@@ -130,7 +185,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
 
     @Override
     public void onCleanup() {
-        stop();
+
     }
     
     @Override
@@ -182,11 +237,8 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         this.curFile = curFile;
        
         try {
-            stop();
             imageToDisplay = loadImage(curFile);
             curTime = timestampOf(curFile);
-            if (timeline != null)
-                timeline.fileChanged(curFile);
             repaint();
         }
         catch (Exception e) {
@@ -206,12 +258,30 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         this.photosDir = source.getFile("Photos");
         this.index = source.getLsfIndex();
         this.hud = new MraVehiclePosHud(index, 150, 150);
-        timeline = new PhotoTimeline(this);
-        timeline.setVisible(false);
+        this.startTime = source.getLog("EstimatedState").firstLogEntry().getTimestampMillis();
+        this.endTime = source.getLog("EstimatedState").getLastEntry().getTimestampMillis();
+        
+        Timeline timeline = new Timeline(0, (int)(endTime - startTime), 7, 1000, false);
+        timeline.addTimelineChangeListener(new TimelineChangeListener() {
+            
+            @Override
+            public void timelineChanged(int value) {
+                setTime((startTime + value) / 1000.0);
+            }
+        });
+        
+        allFiles = getPhotosDir().listFiles();
+        Arrays.sort(allFiles);
+        timeline.getSlider().setValue(0);
+
+        toolbar = new PhotoToolbar(this);
+
         loadStates();
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(this, BorderLayout.CENTER);
-        panel.add(timeline, BorderLayout.SOUTH);
+        
+        JPanel panel = new JPanel(new MigLayout());
+        panel.add(this, "w 100%, h 100%, wrap");
+        panel.add(timeline, "split");
+        panel.add(toolbar, "wrap");
         
         synchronized (markers) {
             markers.clear();
@@ -259,14 +329,13 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             }
         }
         
-        SwingUtilities.invokeLater(new Runnable() {
-            
-            @Override
-            public void run() {
-                timeline.setVisible(true);
-                revalidate();
-            }
-        });
+//        SwingUtilities.invokeLater(new Runnable() {
+//            
+//            @Override
+//            public void run() {
+//                revalidate();
+//            }
+//        });
     }
 
     @Override
@@ -293,80 +362,6 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     public boolean supportsVariableTimeSteps() {
         return false;
     }
-
-    
-    public MraPhotosVisualization(MRAPanel panel) {
-        this.panel = panel;
-        addComponentListener(new ComponentAdapter() {
-
-            @Override
-            public void componentResized(ComponentEvent e) {
-                super.componentResized(e);
-                setCurFile(curFile);
-            }
-
-            @Override
-            public void componentHidden(ComponentEvent e) {
-                super.componentHidden(e);
-                stop();
-            }
-
-            @Override
-            public void componentShown(ComponentEvent e) {
-                super.componentShown(e);
-            }
-        });
-        
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                if (e.getButton() == MouseEvent.BUTTON3)
-                    showPopup(curFile, e);
-            }
-            
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-                if (e.getButton() == MouseEvent.BUTTON3)
-                    return;
-                
-                if (imageToDisplay == null)
-                    return;
-                zoomPoint = e.getPoint();    
-                repaint();
-            }
-            
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                if (e.getButton() == MouseEvent.BUTTON3)
-                    return;
-                
-                zoomPoint = null;
-                repaint();
-            }
-            
-        });
-        
-        addMouseMotionListener(new MouseAdapter() {
-            
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                super.mouseDragged(e);
-                if (e.getButton() == MouseEvent.BUTTON3)
-                    return;
-                
-                if (imageToDisplay == null)
-                    return;
-                zoomPoint = e.getPoint();
-                repaint();
-            }
-        });
-        
-    }
-    
-    
     
     protected void showPopup(final File f, MouseEvent evt) {
         JPopupMenu popup = new JPopupMenu();
@@ -488,67 +483,55 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         return Double.parseDouble(f.getName().substring(0, f.getName().lastIndexOf('.')));
     }
 
-    protected void stop() {
-        while (!running.isEmpty()) {
-            Thread t = running.firstElement();
-            t.interrupt();
-            running.remove(t);
-        }
-    }
 
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-    }
-
-    protected void play(double startTime) {
-        imgs.clear();
-        files.clear();
-        files.addAll(Arrays.asList(photosDir.listFiles()));
-        while (!files.isEmpty() && timestampOf(files.peek()) < startTime) {
-            try {
-                files.take();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        for (int i = 0; i < loadingThreads; i++) {
-            Thread loader = loadingThread("loader#" + i);
-            loader.setDaemon(true);
-            loader.start();
-            running.add(loader);
-        }
-
-        Thread player = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                double lastTime = -1;
-                try {
-                    while (!files.isEmpty() || !imgs.isEmpty()) {
-                        LoadedImage next = imgs.take();
-                        lastTime = curTime;
-                        curTime = next.timestamp;
-                        curFile = next.file;
-                        imageToDisplay = next.image;
-                        repaint();
-                        timeline.fileChanged(curFile);
-                        
-                        Thread.sleep((long)((curTime-lastTime)*1000.0 / speedMultiplier));
-                    }
-                }
-                catch (Exception e) {
-                   NeptusLog.pub().info("Player thread stopped");
-                }
-            }
-        });
-        player.setName("MraPhoto player thread");
-        player.setDaemon(true);
-        running.add(0, player);
-        player.start();
-    }
+//    protected void play(double startTime) {
+//        imgs.clear();
+//        files.clear();
+//        files.addAll(Arrays.asList(photosDir.listFiles()));
+//        while (!files.isEmpty() && timestampOf(files.peek()) < startTime) {
+//            try {
+//                files.take();
+//            }
+//            catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        for (int i = 0; i < loadingThreads; i++) {
+//            Thread loader = loadingThread("loader#" + i);
+//            loader.setDaemon(true);
+//            loader.start();
+//            running.add(loader);
+//        }
+//
+//        Thread player = new Thread(new Runnable() {
+//
+//            @Override
+//            public void run() {
+//                double lastTime = -1;
+//                try {
+//                    while (!files.isEmpty() || !imgs.isEmpty()) {
+//                        LoadedImage next = imgs.take();
+//                        lastTime = curTime;
+//                        curTime = next.timestamp;
+//                        curFile = next.file;
+//                        imageToDisplay = next.image;
+//                        repaint();
+////                        timeline.fileChanged(curFile);
+//                        
+//                        Thread.sleep((long)((curTime-lastTime)*1000.0 / speedMultiplier));
+//                    }
+//                }
+//                catch (Exception e) {
+//                   NeptusLog.pub().info("Player thread stopped");
+//                }
+//            }
+//        });
+//        player.setName("MraPhoto player thread");
+//        player.setDaemon(true);
+//        running.add(0, player);
+//        player.start();
+//    }
 
     protected Image loadImage(File f) throws IOException {
         Vector<BufferedImageOp> ops = new Vector<>();
@@ -711,10 +694,19 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         return photosDir;
     }
     
+    protected synchronized void setTime(double time) {
+        for (int i = 0; i < allFiles.length; i++) {
+            if (timestampOf(allFiles[i]) >= time) {
+                setCurFile(allFiles[i]);
+                return;
+            }
+        }
+    }
+    
     @Override
     public void onHide() {
-        if (timeline.playToggle.isSelected())
-            timeline.playToggle.doClick();
+//        if (timeline.playToggle.isSelected())
+//            timeline.playToggle.doClick();
     }
     
     public void onShow() {
