@@ -38,6 +38,7 @@ import java.io.StringWriter;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlElement;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.FileUtil;
@@ -165,10 +166,18 @@ public class MyState {
 
     private static MyState loadFromXmlFile(String myStatePath) {
         File msfx = new File(myStatePath);
-        if (msfx.exists())
-            return loadXml(FileUtil.getFileAsString(msfx));
-        else
+        if (msfx.exists()) {
+            try {
+                return loadXml(FileUtil.getFileAsString(msfx));
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn("Problem loading MyState from file. Reverting to default.", e);
+                return new MyState();
+            }
+        }
+        else {
             return new MyState();
+        }
     }
 
 	private void saveXml() {
