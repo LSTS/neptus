@@ -26,47 +26,76 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
- * Apr 30, 2013
+ * Author: meg
+ * May 8, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.trex;
+package pt.up.fe.dceg.neptus.plugins.trex.goals;
 
+import java.awt.Graphics2D;
 import java.util.Collection;
-import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.imc.TrexAttribute;
+import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
+import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 /**
- * @author zp
+ * @author meg
  *
  */
-public class GoalWithoutAttributes extends TrexGoal {
+public class TagSimulation extends TrexGoal implements Renderer2DPainter {
+    protected double lat_deg, lon_deg;
 
-    
-    public GoalWithoutAttributes(String timeline, String predicate) {
-        super(timeline, predicate);
+    /**
+     * @param timeline
+     * @param predicate
+     */
+    public TagSimulation(double lat_deg, double lon_deg) {
+        super("navigator", "At");
+        this.lat_deg = lat_deg;
+        this.lon_deg = lon_deg;
     }
-    
-     @Override
+
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
     public Collection<TrexAttribute> getAttributes() {
-        return new Vector<TrexAttribute>();
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
     public void parseAttributes(Collection<TrexAttribute> attributes) {
+        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void setSpecificProperties(Collection<Property> properties) {
+        // TODO Auto-generated method stub
+
     }
 
     @Override
     public Collection<DefaultProperty> getSpecificProperties() {
-        return new Vector<DefaultProperty>();
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    public String toJson() {
+        return "{"
+                + "\"on\": \""+super.timeline+"\",\"pred\": \""+super.predicate+"\","
+                + "\"Variable\":"
+                + "["
+                + "{\"float\":{\"value\": \""+lat_deg+"\"}, \"name\": \"latitude\"},"
+                + "{\"float\":{\"value\": \""+lon_deg+"\"}, \"name\": \"longitude\"}"
+                + "]}";
     }
 
 }

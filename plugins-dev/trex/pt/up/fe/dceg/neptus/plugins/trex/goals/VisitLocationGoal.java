@@ -29,7 +29,7 @@
  * Author: Margarida Faria
  * Apr 29, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.trex;
+package pt.up.fe.dceg.neptus.plugins.trex.goals;
 
 import java.awt.Graphics2D;
 import java.util.Collection;

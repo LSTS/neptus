@@ -71,6 +71,9 @@ import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
+import pt.up.fe.dceg.neptus.plugins.trex.goals.TagSimulation;
+import pt.up.fe.dceg.neptus.plugins.trex.goals.TrexGoal;
+import pt.up.fe.dceg.neptus.plugins.trex.goals.VisitLocationGoal;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -189,12 +192,12 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
         else if (event.getButton() == MouseEvent.BUTTON3) {
             JPopupMenu popup = new JPopupMenu();
             final LocationType loc = source.getRealWorldLocation(event.getPoint());
-            final Point2D clicked = event.getPoint();
 
             if (surveyEdit) {
                 addSurveyPointsMenu(popup);
             }
             addVisitThisPointMenu(popup, loc);
+            addTagSimulation(popup, loc);
             addSurvveyAreaMenu(popup);
             addClearGoalMenu(popup);
             popup.addSeparator();
@@ -220,22 +223,6 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             @Override
             public void actionPerformed(ActionEvent e) {
                 PropertiesEditor.editProperties(TrexMapLayer.this, getConsole(), true);
-            }
-        });
-    }
-
-    private void addRecallGoalMenu(JPopupMenu popup, String gid, final String goal) {
-        popup.add("Recall goal " + gid).addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                TrexCommand cmd = new TrexCommand();
-                cmd.setCommand(TrexCommand.COMMAND.POST_GOAL);
-                cmd.setGoalId(goal);
-                cmd.setGoalXml("<Recall id='" + goal + "'/>");
-                ImcMsgManager.getManager().sendMessageToSystem(cmd, getConsole().getMainSystem());
-                cmd.dump(System.err);
-                sentGoals.remove(goal);
             }
         });
     }
@@ -294,96 +281,68 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 loc.convertToAbsoluteLatLonDepth();
-
-                visitPointJson(loc);
-
-            }
-
-            /**
-             * @param loc
-             */
-            private void visitPointJson(final LocationType loc) {
-                // File file = new File("somefile.txt");
-                // FileEntity entity = new FileEntity(file, ContentType.create("text/plain", "UTF-8"));
-                try {
-                	VisitLocationGoal visitLocationGoal = new VisitLocationGoal(loc.getLatitudeAsDoubleValueRads(), loc
-                            .getLongitudeAsDoubleValueRads());
-                    StringEntity message;
-                    message = new StringEntity(visitLocationGoal.toJson());
-//                            "{\"on\": \"navigator\",\"pred\": \"At\","
-//                                    + "\"Variable\": [ { \"float\": { \"value\": \"0.0300000000000000\" }, \"type\": \"float\", \"name\": \"speed\" }, "
-//                                    + "{ \"date\": { \"min\": \"2013-May-13 09:59:00.785620\" }, \"type\": \"date\", \"name\": \"start\" }, "
-//                                    + "{ \"date\": { \"min\": \"2013-May-13 10:00:01.188620\" }, \"type\": \"date\", \"name\": \"end\" }, "
-//                                    + "{ \"duration\": { \"min\": \"00:01:00.403000\", \"max\": \"00:01:00.403000\" }, \"type\": \"duration\", \"name\": \"duration\" } ] }");
-                    HttpPost httppost = new HttpPost("http://localhost:8888/rest/goal");
-                    httppost.setHeader("Content-Type", "application/json");
-                    httppost.setEntity(message);
-                    // Execute
-                    HttpClient httpclient = new DefaultHttpClient();
-                    HttpResponse response = httpclient.execute(httppost);
-
-                    // Get the response
-                    HttpEntity entity = response.getEntity();
-                    String textReceived = "";
-                    
-                   
-                    if (entity != null) {
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent()));
-                        String line;
-                        try {
-                            while ((line = reader.readLine()) != null) {                        
-                                System.out.println(line);
-                                textReceived += line + "\n";                                
-                            }
-                        }
-                        finally {
-                            reader.close();
-                        }
-                    }
-                    if (response.getStatusLine().getStatusCode() != 200) {
-                        GuiUtils.errorMessage(TrexMapLayer.this, "POST Goal", textReceived);
-                    }
-                  
-                }
-                catch (HttpHostConnectException e) {
-                    GuiUtils.errorMessage(TrexMapLayer.this, "Unable to reach T-Rex",
-                            "Cannot reach T-Rex:" + e.getMessage() + ". Is it running and listening on this port?");
-                }
-                catch (IllegalStateException | IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-
-            }
-
-            @SuppressWarnings("unused")
-            private void visitPointImc(final LocationType loc) {
-                final VisitLocationGoal goal = new VisitLocationGoal(defaultSpeed, defaultDepth, loc
-                        .getLatitudeAsDoubleValue(), loc.getLongitudeAsDoubleValue());
-
-                PropertiesEditor.editProperties(goal, true);
-
-                final String goalId = goal.goalId;
-                sentGoals.put(goalId, goal);
-
-                try {
-                    sentGoals.put(goalId, goal);
-                }
-                catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-                new Thread() {
-                    @Override
-                    public void run() {
-                        send(goal.asIMCMsg());
-                    }
-                }.start();
+                VisitLocationGoal visitLocationGoal = new VisitLocationGoal(loc.getLatitudeAsDoubleValueRads(), loc
+                        .getLongitudeAsDoubleValueRads());
+                httpPostTrex(visitLocationGoal);
             }
         });
+    }
+
+    private void addTagSimulation(JPopupMenu popup, final LocationType loc) {
+        popup.add("Simulate a tag here").addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loc.convertToAbsoluteLatLonDepth();
+                TagSimulation tagSimulation = new TagSimulation(loc.getLatitudeAsDoubleValueRads(), loc
+                        .getLongitudeAsDoubleValueRads());
+                httpPostTrex(tagSimulation);
+            }
+
+        });
+    }
+
+    private void httpPostTrex(TrexGoal goal) {
+        try {
+            StringEntity message;
+            message = new StringEntity(goal.toJson());
+            HttpPost httppost = new HttpPost("http://localhost:8888/rest/goal");
+            httppost.setHeader("Content-Type", "application/json");
+            httppost.setEntity(message);
+            // Execute
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpResponse response = httpclient.execute(httppost);
+
+            // Get the response
+            HttpEntity entity = response.getEntity();
+            String textReceived = "";
+
+            if (entity != null) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent()));
+                String line;
+                try {
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println(line);
+                        textReceived += line + "\n";
+                    }
+                }
+                finally {
+                    reader.close();
+                }
+            }
+            if (response.getStatusLine().getStatusCode() != 200) {
+                GuiUtils.errorMessage(TrexMapLayer.this, "POST Goal", textReceived);
+            }
+
+        }
+        catch (HttpHostConnectException e1) {
+            GuiUtils.errorMessage(TrexMapLayer.this, "Unable to reach T-Rex", "Cannot reach T-Rex:" + e1.getMessage()
+                    + ". Is it running and listening on this port?");
+        }
+        catch (IllegalStateException | IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
     }
 
     private void addSurveyPointsMenu(JPopupMenu popup) {

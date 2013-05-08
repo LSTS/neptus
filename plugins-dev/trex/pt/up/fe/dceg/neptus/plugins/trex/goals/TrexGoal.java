@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Jun 28, 2012
  */
-package pt.up.fe.dceg.neptus.plugins.trex;
+package pt.up.fe.dceg.neptus.plugins.trex.goals;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -68,6 +68,8 @@ public abstract class TrexGoal implements PropertiesProvider {
     public abstract void parseAttributes(Collection<TrexAttribute> attributes);
     public abstract void setSpecificProperties(Collection<Property> properties);
     public abstract Collection<DefaultProperty> getSpecificProperties();
+
+    public abstract String toJson();
     
     /**
      * @return the timeline
