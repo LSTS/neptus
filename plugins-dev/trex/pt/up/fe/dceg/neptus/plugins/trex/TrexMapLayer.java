@@ -41,7 +41,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedHashMap;
 
 import javax.swing.JEditorPane;
@@ -50,8 +51,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
@@ -298,24 +303,41 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
              * @param loc
              */
             private void visitPointJson(final LocationType loc) {
-//                File file = new File("somefile.txt");
-//                FileEntity entity = new FileEntity(file, ContentType.create("text/plain", "UTF-8"));
-                StringEntity message;
+                // File file = new File("somefile.txt");
+                // FileEntity entity = new FileEntity(file, ContentType.create("text/plain", "UTF-8"));
                 try {
+                    StringEntity message;
                     message = new StringEntity(
                             "{\"on\": \"lum\",\"pred\": \"test\","
                                     + "\"Variable\": [ { \"float\": { \"value\": \"0.0300000000000000\" }, \"type\": \"float\", \"name\": \"speed\" }, "
                                     + "{ \"date\": { \"min\": \"2013-May-13 09:59:00.785620\" }, \"type\": \"date\", \"name\": \"start\" }, "
                                     + "{ \"date\": { \"min\": \"2013-May-13 10:00:01.188620\" }, \"type\": \"date\", \"name\": \"end\" }, "
                                     + "{ \"duration\": { \"min\": \"00:01:00.403000\", \"max\": \"00:01:00.403000\" }, \"type\": \"duration\", \"name\": \"duration\" } ] }");
-                    HttpPost httppost = new HttpPost("http://localhost:8080/rest/goal ");
+                    HttpPost httppost = new HttpPost("http://localhost:8080/rest/goal");
                     httppost.setHeader("Content-Type", "application/json");
                     httppost.setEntity(message);
+                    // Execute
+                    HttpClient httpclient = new DefaultHttpClient();
+                    HttpResponse response = httpclient.execute(httppost);
+
+                    // Get the response
+                    HttpEntity entity = response.getEntity();
+
+                    if (entity != null) {
+                        InputStream instream = entity.getContent();
+                        try {
+                            System.out.println(instream.toString());
+                        }
+                        finally {
+                            instream.close();
+                        }
+                    }
                 }
-                catch (UnsupportedEncodingException e) {
+                catch (IllegalStateException | IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
+                
 
             }
             
