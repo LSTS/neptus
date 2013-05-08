@@ -748,7 +748,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                 }
                 int resp = GuiUtils.confirmDialog(SwingUtilities.windowForComponent(this),
                         I18n.text("LBL Beacons"),
-                        I18n.textf("Are you sure that you want to override the existing LBL configuration with solely %beaconsToSend?",
+                        I18n.textf("Are you sure that you want to override the existing LBL configuration only with %beaconsToSend?",
                         beaconsToSend));
                 if (resp == JOptionPane.YES_OPTION) {
                     transpondersList.clear();
