@@ -53,7 +53,7 @@ public class TagSimulation extends TrexGoal implements Renderer2DPainter {
      * @param predicate
      */
     public TagSimulation(double lat_deg, double lon_deg) {
-        super("navigator", "At");
+        super("spotSim", "At");
         this.lat_deg = lat_deg;
         this.lon_deg = lon_deg;
     }
@@ -88,6 +88,7 @@ public class TagSimulation extends TrexGoal implements Renderer2DPainter {
         return null;
     }
     
+    @Override
     public String toJson() {
         return "{"
                 + "\"on\": \""+super.timeline+"\",\"pred\": \""+super.predicate+"\","
