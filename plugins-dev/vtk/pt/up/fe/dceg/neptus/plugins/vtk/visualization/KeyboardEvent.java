@@ -148,19 +148,19 @@ public class KeyboardEvent {
                 }
                 break;
             case KeyEvent.VK_C: // case 'c':     // FIXME - not good enough, better check this one for a better implementation. problems: seems to be disconected of the rendered actor
-                try {
-                    if (!neptusInteractorStyle.compassEnabled) {
-                        neptusInteractorStyle.compass.addCompassToVisualization(interactor);
-                        neptusInteractorStyle.compassEnabled = true;
-                    }
-                    else {
-                        neptusInteractorStyle.compass.removeCompassFromVisualization(interactor);
-                        neptusInteractorStyle.compassEnabled = false;
-                    }
-                }
-                catch (Exception e4) {
-                    e4.printStackTrace();
-                }
+//                try {
+//                    if (!neptusInteractorStyle.compassEnabled) {
+//                        neptusInteractorStyle.compass.addCompassToVisualization(interactor);
+//                        neptusInteractorStyle.compassEnabled = true;
+//                    }
+//                    else {
+//                        neptusInteractorStyle.compass.removeCompassFromVisualization(interactor);
+//                        neptusInteractorStyle.compassEnabled = false;
+//                    }
+//                }
+//                catch (Exception e4) {
+//                    e4.printStackTrace();
+//                }
                 break;
             case KeyEvent.VK_W: //case 'w':
                 try {
@@ -383,11 +383,8 @@ public class KeyboardEvent {
                     interactor.FlyTo(renderer, picker.GetPickPosition()[0], picker.GetPickPosition()[1], picker.GetPickPosition()[2]);
                 }
                 AnimeState = VTKIS_ANIMEOFF;
-                
-                //neptusInteractorStyle.renderer
                 break;
             default:
-                System.out.println("not a keyEvent");
                 break; 
         }
     }

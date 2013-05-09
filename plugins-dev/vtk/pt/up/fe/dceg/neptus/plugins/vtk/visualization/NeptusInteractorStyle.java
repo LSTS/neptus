@@ -335,11 +335,11 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
      */
     void emitKeyboardEvents() {
         char keyCode = Character.toLowerCase(interactor.GetKeyCode());
-        System.out.println("keycode is: " + keyCode);
-        String keySym = interactor.GetKeySym();
-        System.out.println("Sym is: " + keySym);
+        //System.out.println("keycode is: " + keyCode);
+        //String keySym = interactor.GetKeySym();
+        //System.out.println("Sym is: " + keySym);
         int keyInt = Character.getNumericValue(keyCode);
-        System.out.println("keyInt is: " + keyInt);
+        //System.out.println("keyInt is: " + keyInt);
 
         this.keyboardEvent.handleEvents(keyCode);
     }
