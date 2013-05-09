@@ -107,6 +107,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
     };
 
+    private final MissionTreeCellRenderer cellRenderer;
     private final JTree elementTree;
     final private Model treeModel;
     private final Vector<ChangeListener> listeners = new Vector<ChangeListener>();
@@ -121,7 +122,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
         elementTree = new JTree();
         ConfigFetch.mark("MissionTreeCellRenderer");
-        elementTree.setCellRenderer(new MissionTreeCellRenderer());
+        cellRenderer = new MissionTreeCellRenderer();
+        elementTree.setCellRenderer(cellRenderer);
         elementTree.setRootVisible(false);
         elementTree.setShowsRootHandles(true);
         ConfigFetch.benchmark("MissionTreeCellRenderer");
@@ -132,12 +134,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
         treeModel = new Model(new DefaultMutableTreeNode("Mission Elements"));
         elementTree.setModel(treeModel);
-    }
-
-    public void setDebugOn(boolean value) {
-        TreeCellRenderer cr = elementTree.getCellRenderer();
-        if (cr instanceof MissionTreeCellRenderer)
-            ((MissionTreeCellRenderer) cr).debugOn = value;
     }
 
     /**
@@ -1258,6 +1254,16 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             homeR = new DefaultMutableTreeNode(href);
             insertNodeInto(homeR, (MutableTreeNode) root, 0);
         }
+    }
+
+    public void setDebugOn(boolean value) {
+        TreeCellRenderer cr = elementTree.getCellRenderer();
+        if (cr instanceof MissionTreeCellRenderer)
+            ((MissionTreeCellRenderer) cr).debugOn = value;
+    }
+
+    public void setMaxAcceptableElapsedTime(int maxAcceptableElapsedTime) {
+        cellRenderer.maxAcceptableElapsedTime = maxAcceptableElapsedTime;
     }
 }
 

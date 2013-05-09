@@ -126,18 +126,17 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @NeptusProperty(name = "Use Plan DB Sync. Features", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
     public boolean usePlanDBSyncFeatures = true;
-
     @NeptusProperty(name = "Use Plan DB Sync. Features Extended", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER,
             description = "Needs 'Use Plan DB Sync. Features' on")
     public boolean usePlanDBSyncFeaturesExt = false;
-
     @NeptusProperty(name = "Debug", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
     public boolean debugOn = false;
+    @NeptusProperty(name = "Acceptable Elapsed Time", description = "Maximum acceptable interval between beacon ranges, in seconds.")
+    public int maxAcceptableElapsedTime = 300;
 
+    boolean inited = false;
     protected MissionBrowser browser = new MissionBrowser();
-
     protected PlanDBControl pdbControl = new PlanDBControl();
-
     protected PlanDBAdapter planDBListener = new PlanDBAdapter() {
         @Override
         public void dbCleared() {
@@ -196,6 +195,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     public MissionTreePanel(ConsoleLayout console) {
         super(console);
+        browser.setMaxAcceptableElapsedTime(maxAcceptableElapsedTime);
         removeAll();
         setPreferredSize(new Dimension(150, 400));
         setMinimumSize(new Dimension(0, 0));
@@ -669,8 +669,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
     }
 
-    boolean inited = false;
-
     @Override
     public void initSubPanel() {
         if (inited)
@@ -965,13 +963,19 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         return imcSystemsArray;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.up.fe.dceg.neptus.plugins.ConfigurationListener#propertiesChanged()
+    /**
+     * Called every time a property is changed
      */
     @Override
     public void propertiesChanged() {
-        browser.setDebugOn(debugOn);
+        // FIXME propriedade para tempo que demora até delay dos beacons ficar a vermelho
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                browser.setDebugOn(debugOn);
+                browser.setMaxAcceptableElapsedTime(maxAcceptableElapsedTime);
+            }
+        });
     }
 }

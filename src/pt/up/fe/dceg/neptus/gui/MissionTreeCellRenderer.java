@@ -130,45 +130,11 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
 
     }
 
-    private final int MAX_ACCEPTABLE_ELAPSED_TIME = 300;
-
-    private static final long serialVersionUID = -2666337254439313801L;
-
-
-    private static HashMap<String, ImageIcon> VEHICLES_ICONS = new HashMap<String, ImageIcon>();
-    // private static HashMap<String, ImageIcon> PLAN_ICONS = new HashMap<String, ImageIcon>();
-
-    // static {
-    // for (VehicleType ve : VehiclesHolder.getVehiclesList().values()) {
-    // Image vehicleImage;
-    // if (!ve.getPresentationImageHref().equalsIgnoreCase(""))
-    // vehicleImage = ImageUtils.getImage(ve.getPresentationImageHref());
-    // else
-    // vehicleImage = ImageUtils.getImage(ve.getSideImageHref());
-    // if (vehicleImage == null) {
-    // VEHICLES_ICONS.put(ve.getId(), new ImageIcon(vehicleImage));
-    // break;
-    // }
-    // int desiredWidth = 16, desiredHeight = 16;
-    //
-    // int height = vehicleImage.getHeight(null);
-    // int width = vehicleImage.getWidth(null);
-    //
-    // if (height > width) {
-    // desiredWidth = (int) (16.0 * ((double) width / (double) height));
-    // }
-    // else {
-    // desiredHeight = (int) (16.0 * ((double) height / (double) width));
-    // }
-    //
-    // Image sVehicleImage = ImageUtils.getFasterScaledInstance(vehicleImage, desiredWidth, desiredHeight);
-    // VEHICLES_ICONS.put(ve.getId(), new ImageIcon(sVehicleImage));
-    //
-    // PLAN_ICONS.put(ve.getId(), new PlanIcon(sVehicleImage));
-    // }
-    // }
-
+    // Modifiable by properties interface
+    public int maxAcceptableElapsedTime;
     public boolean debugOn = false;
+    private static final long serialVersionUID = -2666337254439313801L;
+    private static HashMap<String, ImageIcon> VEHICLES_ICONS = new HashMap<String, ImageIcon>();
 
     @Override
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
@@ -338,7 +304,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
                     setText(nodeObj.getName());
                 }
                 else {
-                    if (time <= MAX_ACCEPTABLE_ELAPSED_TIME) {
+                    if (time <= maxAcceptableElapsedTime) {
                         color = "green";
                     }
                     else if (time <= LBLRangesTimer.maxTime) {
@@ -457,4 +423,5 @@ class ExtendedIcon extends ImageIcon {
             g2.dispose();
         }
     }
+
 }
