@@ -439,7 +439,13 @@ public class PluginUtils {
                     try {
                         if ("int".equalsIgnoreCase(f.getGenericType().toString())
                                 || "Integer".equalsIgnoreCase(f.getGenericType().toString())) {
-                            f.set(obj, Integer.valueOf(((Long) propertyValue).intValue()));
+                            String className = propertyValue.getClass().toString();
+                            if(className.equals("java.lang.String")){
+                                f.set(obj, Integer.parseInt((String) propertyValue));
+                            }
+                            else if (className.equals("java.lang.Long")) {
+                                f.set(obj, Integer.valueOf(((Long) propertyValue).intValue()));
+                            }
                         }
                         else if ("short".equalsIgnoreCase(f.getGenericType().toString())) {
                             f.set(obj, Short.valueOf(((Long) propertyValue).shortValue()));
@@ -542,38 +548,6 @@ public class PluginUtils {
         if (defaultValuesProperties.containsKey(clazz)) {
             defs= Collections.unmodifiableMap(defaultValuesProperties.get(clazz));
         }
-//        Object defaults = null;
-//        try {
-//            Class<? extends Object> clazz = (obj instanceof Class<?> ? (Class<?>) obj : obj.getClass());
-//            // If this is a Window component don't create a new instance
-//            try {
-//                if (clazz.asSubclass(Window.class) != null) {
-//                    defaults = null;
-//                }
-//            }
-//            catch (ClassCastException e) {
-//                try {
-//
-//                    defaults = clazz.newInstance();
-//                    for (Field f : (defaults == null ? clazz : defaults.getClass()).getFields()) {
-//                        NeptusProperty a = f.getAnnotation(NeptusProperty.class);
-//                        if (a == null)
-//                            continue;
-//
-//                        Object vl = f.get(defaults);
-//                        if (vl != null)
-//                            defs.put(f.getName(), vl);
-//                    }
-//                }
-//                catch (Exception e1) {
-//                }
-//            }
-//
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
         return defs;
     }
 

@@ -74,6 +74,7 @@ import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.TagSimulation;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.TrexGoal;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.VisitLocationGoal;
+import pt.up.fe.dceg.neptus.plugins.trex.gui.PortEditor;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -91,11 +92,16 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     @NeptusProperty(name = "Default depth (negative for altitude)")
     public double defaultDepth = 2;
 
-    @NeptusProperty(name = "Default speed (m/s)")
-    public double defaultSpeed = 1.25;
+    @NeptusProperty(name="T-Rex Shore IP", description="Ip of the machine where T-Rex is running whith shore configuration to follow a tag.")
+    public String ipShore = "localhost";
+    @NeptusProperty(name = "T-Rex Shore port", description = "Port of the machine where T-Rex is running whith shore configuration to follow a tag.", editorClass = PortEditor.class)
+    public int portShore = 8888;
 
-    @NeptusProperty(name = "Default tolerance (meters)")
-    public double defaultTolerance = 15;
+//    @NeptusProperty(name = "Default speed (m/s)")
+//    public double defaultSpeed = 1.25;
+//
+//    @NeptusProperty(name = "Default tolerance (meters)")
+//    public double defaultTolerance = 15;
 
     private static final long serialVersionUID = 1L;
     Maneuver lastManeuver = null;
@@ -306,7 +312,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
         try {
             StringEntity message;
             message = new StringEntity(goal.toJson());
-            HttpPost httppost = new HttpPost("http://localhost:8888/rest/goal");
+            HttpPost httppost = new HttpPost("http://" + ipShore + ":" + portShore + "/rest/goal");
             httppost.setHeader("Content-Type", "application/json");
             httppost.setEntity(message);
             // Execute

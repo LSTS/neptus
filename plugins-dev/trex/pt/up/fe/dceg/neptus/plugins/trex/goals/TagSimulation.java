@@ -49,6 +49,7 @@ public class TagSimulation extends TrexGoal implements Renderer2DPainter {
     protected double lat_deg, lon_deg;
 
     /**
+     * @param ipShore
      * @param timeline
      * @param predicate
      */
