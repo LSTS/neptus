@@ -36,6 +36,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.LinkedHashMap;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCamera;
@@ -355,7 +356,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
      * works only when mouse leaves render window
      */
     void leaveEvent() {
-        System.out.println("leaveEvent");
+        NeptusLog.pub().info("leaveEvent");
     }
 
     /**

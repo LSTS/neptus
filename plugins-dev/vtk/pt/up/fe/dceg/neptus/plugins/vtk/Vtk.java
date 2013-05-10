@@ -62,13 +62,17 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
+import vtk.vtkActor;
 import vtk.vtkActorCollection;
 import vtk.vtkCanvas;
 import vtk.vtkEarthSource;
 import vtk.vtkGeoSource;
 import vtk.vtkLODActor;
+import vtk.vtkLinearExtrusionFilter;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
+import vtk.vtkTextActor3D;
+import vtk.vtkVectorText;
 
 /**
  * @author hfq
@@ -276,35 +280,81 @@ public class Vtk extends JPanel implements MRAVisualization {
             MultibeamToPointCloud multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
             //BathymetryInfo batInfo = new BathymetryInfo();
             //batInfo = multibeamToPointCloud.batInfo;
-            pointCloud.createLODActorFromPoints();
             
+            if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!
+                pointCloud.createLODActorFromPoints();
+                
+                //vtkLODActor randomActor = new vtkLODActor();
+                //PointCloud<PointXYZ> randomCloud = new PointCloud<>();
+                //randomActor = randomCloud.getRandomPointCloud(1000);
+                //System.out.println("randomCloud number of points: " + randomCloud.getNumberOfPoints());
+     
+                //performDownsample = new DownsamplePointCloud(randomCloud, 0.1);
+                //performDownsample = new DownsamplePointCloud(pointCloud, 0.1);
+
+                //PointCloud<PointXYZ> downsampledCloud = performDownsample.getOutputDownsampledCloud();
+                //linkedHashMapCloud.put(downsampledCloud.getCloudName(), downsampledCloud); 
+                
+                vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
+                //vtkCanvas.GetRenderer().AddActor(downsampledCloud.getCloudLODActor());
+                
+                //vtkLODActor tempActor = performDownsample.getOutputDownsampledCloud().getCloudLODActor();
+                //NeptusLog.pub().info("Number of Cloud Points: " + pointCloud.getNumberOfPoints());
+                //vtkCanvas.GetRenderer().AddActor(tempActor);
+            }
+            else {
+                JOptionPane errorPane = new JOptionPane();
+                String msgErrorMultibeam;
+                msgErrorMultibeam = "No beams on Log file!";
+                errorPane.showMessageDialog(null, msgErrorMultibeam);
+                
+                vtkTextActor3D textActor3d = new vtkTextActor3D();
+                textActor3d.SetPosition(0.0, 0.0, 0.0);
+                textActor3d.SetInput(msgErrorMultibeam);
+                textActor3d.GetTextProperty().BoldOn();
+                textActor3d.GetTextProperty().ItalicOn();
+                textActor3d.GetTextProperty().ShadowOn();
+                textActor3d.GetTextProperty().SetFontFamilyToArial();
+                textActor3d.GetTextProperty().SetLineSpacing(1.0);
+                textActor3d.GetTextProperty().SetFontSize(48);
+                
+                textActor3d.SetScale(2.0);
+                
+                textActor3d.GetTextProperty().SetColor(1.0, 0.0, 0.0);
+                textActor3d.VisibilityOn();
+                textActor3d.GetTextProperty().SetShadowOffset(1, 1);
+                //textActor3d.GetTextProperty().ShadowOn();
+                textActor3d.GetTextProperty().SetVerticalJustificationToCentered();
+                
+                
+                vtkVectorText vectText = new vtkVectorText();
+                vectText.SetText("Really");
+                
+                vtkLinearExtrusionFilter extrude = new vtkLinearExtrusionFilter();
+                extrude.SetInputConnection(vectText.GetOutputPort());
+                extrude.SetExtrusionTypeToNormalExtrusion();
+                extrude.SetVector(0, 0, 1);
+                extrude.SetScaleFactor(1.0);
+                
+                
+                
+                vtkPolyDataMapper txtMapper = new vtkPolyDataMapper();
+                txtMapper.SetInputConnection(extrude.GetOutputPort());
+                vtkActor txtActor = new vtkActor();
+                txtActor.SetMapper(txtMapper);
+                txtActor.SetPosition(2.0, 2.0, 2.0);
+                txtActor.SetScale(10.0);
+                
+                //vtkCanvas.GetRenderer().AddActor(textActor3d);
+                vtkCanvas.GetRenderer().AddActor(txtActor);
+                
+            }
+                   
             Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
             vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
             //ax.getAxesActor().SetVisibility(true);
             
-            //vtkLODActor randomActor = new vtkLODActor();
-            //PointCloud<PointXYZ> randomCloud = new PointCloud<>();
-            //randomActor = randomCloud.getRandomPointCloud(1000);
-            //System.out.println("randomCloud number of points: " + randomCloud.getNumberOfPoints());
-            
-            
-            //performDownsample = new DownsamplePointCloud(randomCloud, 0.1);
-            //performDownsample = new DownsamplePointCloud(pointCloud, 0.1);
-
-            //PointCloud<PointXYZ> downsampledCloud = performDownsample.getOutputDownsampledCloud();
-            //linkedHashMapCloud.put(downsampledCloud.getCloudName(), downsampledCloud); 
-            
-            vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
-            //vtkCanvas.GetRenderer().AddActor(downsampledCloud.getCloudLODActor());
-            
-            //vtkLODActor tempActor = performDownsample.getOutputDownsampledCloud().getCloudLODActor();
-            //System.out.println("Number of Cloud Points: " + tempActor.GetNumberOfCloudPoints());
-            //vtkCanvas.GetRenderer().AddActor(tempActor);
-                       
-            //NeptusLog.pub().info("<###> VtkCanvas Graphics configuration: " + vtkCanvas.getGraphicsConfiguration().toString());
-            
             vtkCanvas.GetRenderer().ResetCamera();
-            //vtkCanvas.GetRenderer().ResetCameraClippingRange();
         }
         return this;
     }

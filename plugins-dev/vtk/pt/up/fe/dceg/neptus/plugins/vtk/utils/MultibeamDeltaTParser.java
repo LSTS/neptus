@@ -94,8 +94,10 @@ public class MultibeamDeltaTParser implements BathymetryParser{
         this.logGroup = source;
         this.pointCloud = pointCloud;
         
-        //file = source.getFile("multibeam.83P");
-        file = source.getFile("data.83P");
+        if(source.getFile("data.83P") != null)
+            file = source.getFile("data.83P");
+        else if (source.getFile("multibeam.83P") != null)
+            file = source.getFile("multibeam.83P");
         
         try {
             fis = new FileInputStream(file);
