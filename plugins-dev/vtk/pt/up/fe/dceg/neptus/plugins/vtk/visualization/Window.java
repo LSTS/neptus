@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
 import java.util.LinkedHashMap;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCanvas;
@@ -79,7 +80,7 @@ public class Window {
             setRenderer(this.panel.GetRenderer());
         }
         catch (Exception e) {
-            System.out.println("exception set renderer");
+            System.out.println("Exception set renderer");
             e.printStackTrace();
         }
 
@@ -88,7 +89,7 @@ public class Window {
             setRenWin(this.panel.GetRenderWindow());
         }
         catch (Exception e) {
-            System.out.println("exception set render window");
+            System.out.println("Exception set render window");
             e.printStackTrace();
         }
 
@@ -97,7 +98,7 @@ public class Window {
             setRenWinInteractor(this.panel.GetRenderWindow().GetInteractor());
         }
         catch (Exception e) {
-            System.out.println("exception set render window interactor");
+            System.out.println("Exception set render window interactor");
             e.printStackTrace();
         }
 
@@ -126,7 +127,7 @@ public class Window {
             setRenderer(this.canvas.GetRenderer());
         }
         catch (Exception e) {
-            System.out.println("exception set renderer");
+            System.out.println("Exception set renderer");
             e.printStackTrace();
         }
 
@@ -135,7 +136,7 @@ public class Window {
             setRenWin(this.canvas.GetRenderWindow());
         }
         catch (Exception e) {
-            System.out.println("exception set render window");
+            System.out.println("Exception set render window");
             e.printStackTrace();
         }
 
@@ -144,7 +145,7 @@ public class Window {
             setRenWinInteractor(this.canvas.getRenderWindowInteractor());
         }
         catch (Exception e) {
-            System.out.println("exception set render window interactor");
+            System.out.println("Exception set render window interactor");
             e.printStackTrace();
         }
 
@@ -195,14 +196,12 @@ public class Window {
             getRenWinInteractor().SetRenderWindow(getRenWin());
         }
         catch (Exception e) {
-            System.out.println("set render window interactor");
+            System.out.println("Exception set render window interactor");
             e.printStackTrace();
         }
         
         getRenWinInteractor().SetDesiredUpdateRate(30.0);
-        
-        double updateRate = getRenWinInteractor().GetDesiredUpdateRate();
-        System.out.println("Desired update rate: " + updateRate);
+        NeptusLog.pub().info("Desired update rate: " + getRenWinInteractor().GetDesiredUpdateRate());
     }
 
     /**
@@ -214,7 +213,7 @@ public class Window {
             getRenWinInteractor().SetInteractorStyle(interactorStyle);
         }
         catch (Exception e) {
-            System.out.println("set interact Style - Neptus");
+            System.out.println("Exception set interact Style - Neptus");
             e.printStackTrace();
         }
     }

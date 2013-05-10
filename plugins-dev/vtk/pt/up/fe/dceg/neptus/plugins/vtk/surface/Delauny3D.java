@@ -33,8 +33,11 @@ package pt.up.fe.dceg.neptus.plugins.vtk.surface;
 
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import vtk.vtkActor;
 import vtk.vtkCleanPolyData;
+import vtk.vtkDataSetMapper;
 import vtk.vtkDelaunay3D;
+import vtk.vtkLODActor;
 
 /**
  * @author hfq
@@ -43,6 +46,8 @@ import vtk.vtkDelaunay3D;
 public class Delauny3D {
 
     public PointCloud<PointXYZ> pointCloud;
+    
+    private vtkActor delaunyActor;
     
     public Delauny3D(PointCloud<PointXYZ> pointCloud) {
         this.pointCloud = pointCloud;
@@ -56,14 +61,39 @@ public class Delauny3D {
      */
     public void performDelauny() {
         
+
+            // clean the polydata. this will remove duplicate points that may be present in the input data  
+        System.out.println("cleaning point cloud...");
         vtkCleanPolyData cleaner = new vtkCleanPolyData();
         cleaner.SetInputConnection(pointCloud.getPoly().GetProducerPort());
         //cleaner.SetInput(pointCloud.getPoly());
         
+            // Generate a tetrahedral mesh from the input points. by default, the generated volume is the convex hull of the points       
+        System.out.println("Generate mesh...");
         vtkDelaunay3D delauny3D = new vtkDelaunay3D();
         delauny3D.SetInputConnection(cleaner.GetOutputPort());
+        //delauny3D.SetAlpha(0.1);
         
+        System.out.println("setting mapper...");
+        vtkDataSetMapper delaunyMapper = new vtkDataSetMapper();
+        delaunyMapper.SetInputConnection(delauny3D.GetOutputPort());
         
+        setDelaunyActor(new vtkActor());
+        getDelaunyActor().SetMapper(delaunyMapper);
+    }
+
+    /**
+     * @return the delaunyActor
+     */
+    public vtkActor getDelaunyActor() {
+        return delaunyActor;
+    }
+
+    /**
+     * @param delaunyActor the delaunyActor to set
+     */
+    public void setDelaunyActor(vtkActor delaunyActor) {
+        this.delaunyActor = delaunyActor;
     }
     
 }

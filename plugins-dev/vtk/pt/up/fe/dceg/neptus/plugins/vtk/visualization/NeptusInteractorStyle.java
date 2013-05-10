@@ -171,21 +171,20 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
      * gets off render window)
      */
     private void Initalize() {
-        System.out.println("veio ao initialize do Neptus Style");
         UseTimersOn();
         HandleObserversOn();
 
         // interactModifier = InteractorKeyboardModifier.INTERACTOR_KB_MOD_ALT;
 
-        // Set window size (width, height) to unknow (-1)
+            // Set window size (width, height) to unknow (-1)
         winHeight = winWidth = -1;
         winPosX = winPosY = 0;
 
-        // Grid is disabled by default
+            // Grid is disabled by default
         gridEnabled = false;
         // gridActor = new vtkLegendScaleActor();
 
-        // LUT is disabled by default
+            // LUT is disabled by default
         lutEnabled = false;
         // lutActor = new vtkScalarBarActor();
         // lutActor.SetTitle("");
@@ -201,7 +200,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         lutActor.SetLabelTextProperty(prop);
         lutActor.SetTitleTextProperty(prop);
 
-        // Create the image filter and PNG writer objects
+            // Create the image filter and PNG writer objects
         wif = new vtkWindowToImageFilter();
         snapshotWriter = new vtkPNGWriter();
         snapshotWriter.SetInputConnection(wif.GetOutputPort());
@@ -230,7 +229,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         canvas.addMouseWheelListener(this);
         canvas.addKeyListener(this);
 
-        // não colocar o render logo, senão os eventos do java (mouseWheel estoira)
+            // não colocar o render logo, senão os eventos do java (mouseWheel)
         // canvas.Render();
     }
 
@@ -264,11 +263,9 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         String message;
         int notches = e.getWheelRotation();
         if (notches < 0) {
-            // System.out.println("Mouse wheel moved UP: " + -notches + " notches(es)");
             zoomIn();
         }
         else {
-            // System.out.println("Mouse wheel movel DOWN: " + notches + " notches(es)");
             zoomOut();
         }
     }
@@ -278,7 +275,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
      */
     private void zoomIn() {
         FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
-        // Zoom in
+            // Zoom in
         StartDolly();
         camera = renderer.GetActiveCamera();
         double factor = 10.0 * 0.2 * .5;
@@ -291,7 +288,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
      */
     private void zoomOut() {
         FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
-        // zoomOut
+            // zoomOut
         // double[] posCam;
         // double[] posCam2;
         // double[] focalPointCam;
@@ -346,7 +343,6 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
 
     @Override
     public void keyPressed(java.awt.event.KeyEvent ke) {
-        // System.out.println("key code: " + ke.getKeyCode());
         this.keyboardEvent.handleEvents(ke.getKeyCode());
     }
 

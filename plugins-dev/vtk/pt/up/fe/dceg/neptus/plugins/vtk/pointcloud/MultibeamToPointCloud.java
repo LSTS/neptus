@@ -98,7 +98,7 @@ public class MultibeamToPointCloud {
      */
     private void getMyDeltaTHeader() {
         file = source.getFile("multibeam.83P");  
-        System.out.println("print parent: " + file.toString());
+        //System.out.println("print parent: " + file.toString());
         try {
             fileInputStream = new FileInputStream(file);
         }

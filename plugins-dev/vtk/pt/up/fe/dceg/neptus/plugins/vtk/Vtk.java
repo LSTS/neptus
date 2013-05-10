@@ -37,7 +37,6 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -51,11 +50,13 @@ import javax.swing.JToggleButton;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
+import pt.up.fe.dceg.neptus.mra.api.BathymetryInfo;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import pt.up.fe.dceg.neptus.plugins.vtk.filters.DownsamplePointCloud;
+import pt.up.fe.dceg.neptus.plugins.vtk.geo.EarthSource;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
@@ -63,7 +64,11 @@ import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
 import vtk.vtkActorCollection;
 import vtk.vtkCanvas;
+import vtk.vtkEarthSource;
+import vtk.vtkGeoSource;
+import vtk.vtkLODActor;
 import vtk.vtkNativeLibrary;
+import vtk.vtkPolyDataMapper;
 
 /**
  * @author hfq
@@ -84,6 +89,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     private JToggleButton zExaggerationToggle;
     private JToggleButton rawPointsToggle;
     private JToggleButton downsampledPointsToggle;
+    private JToggleButton meshToogle;
     private JButton resetViewportButton;
     private JButton helpButton;    
     private JPanel toolBar;
@@ -107,8 +113,8 @@ public class Vtk extends JPanel implements MRAVisualization {
         try {
             System.loadLibrary("jawt");
         }
-        catch (Throwable e) {       
-            System.out.println("cannot load jawt lib!");
+        catch (Throwable e) {
+            NeptusLog.pub().info("<###> cannot load jawt lib!");
         } 
             // for simple visualizations
         try {
@@ -117,7 +123,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 vtkEnabled = false;
         }
         catch (Throwable e) {
-            System.out.println("cannot load vtkCommon, skipping...");
+            NeptusLog.pub().info("<###> cannot load vtkCommon, skipping...");
         }
         try {
             vtkNativeLibrary.FILTERING.LoadLibrary();
@@ -125,7 +131,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 vtkEnabled = false;
         }
         catch (Throwable e) {
-            System.out.println("cannot load vtkFiltering, skipping...");
+            NeptusLog.pub().info("<###> cannot load vtkFiltering, skipping...");
         }
         try {
             vtkNativeLibrary.IO.LoadLibrary();
@@ -133,6 +139,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 vtkEnabled = false;
         }
         catch (Throwable e) {
+            NeptusLog.pub().info("<###> cannot load vtkImaging, skipping...");
             System.out.println("cannot load vtkImaging, skipping...");
         }
         try {
@@ -141,6 +148,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 vtkEnabled = false;
         }
         catch (Throwable e) {
+            NeptusLog.pub().info("<###> cannot load vtkGrahics, skipping...");
             System.out.println("cannot load vtkGrahics, skipping...");
         }
         try {
@@ -149,6 +157,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 vtkEnabled = false;
         }
         catch (Throwable e) {
+            NeptusLog.pub().info("<###> cannot load vtkRendering, skipping...");
             System.out.println("cannot load vtkRendering, skipping...");
         }
                 
@@ -159,7 +168,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 vtkEnabled = false;
         }
         catch (Throwable e) {
-            System.out.println("cannot load vtkInfoVis, skipping...");
+            NeptusLog.pub().info("<###> cannot load vtkInfoVis, skipping...");
         }
         try {
             vtkNativeLibrary.VIEWS.LoadLibrary();
@@ -167,7 +176,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 vtkEnabled = false;
         }
         catch (Throwable e) {
-            System.out.println("cannot load vtkViews, skipping...");
+            NeptusLog.pub().info("<###> cannot load vtkViews, skipping...");
         }
         try {
             vtkNativeLibrary.WIDGETS.LoadLibrary();
@@ -175,7 +184,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 vtkEnabled = false;
         }
         catch (Throwable e) {
-            System.out.println("cannot load vtkWidgets skipping...");
+            NeptusLog.pub().info("<###> cannot load vtkWidgets, skipping...");
         }
         try {
             vtkNativeLibrary.GEOVIS.LoadLibrary();
@@ -183,7 +192,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 vtkEnabled = false;
         }
         catch (Throwable e) {
-            System.out.println("cannot load vtkGeoVis, skipping...");
+            NeptusLog.pub().info("<###> cannot load vtkGeoVis, skipping...");
         }
         try {
             vtkNativeLibrary.CHARTS.LoadLibrary();
@@ -191,7 +200,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 vtkEnabled = false;
         }
         catch (Throwable e) {
-            System.out.println("cannot load vtkCharts, skipping...");
+            NeptusLog.pub().info("<###> cannot load vtkCharts, skipping...");
         }
         try {
             vtkNativeLibrary.VOLUME_RENDERING.LoadLibrary();
@@ -199,14 +208,16 @@ public class Vtk extends JPanel implements MRAVisualization {
                 vtkEnabled = false;
         }
         catch (Throwable e) {
-            System.out.println("cannot load vtkVolumeRendering, skipping...");
+            NeptusLog.pub().info("<###> cannot load vtkVolumeRendering, skipping...");
         }
         // FIXME nao load vtkHybrid
         try {
             vtkNativeLibrary.HYBRID.LoadLibrary();
+            if(!vtkNativeLibrary.HYBRID.IsLoaded())
+                vtkEnabled = false;
         }
         catch (Throwable e) {
-            System.out.println("cannot load vtkHybrid, skipping...");
+            NeptusLog.pub().info("<###> cannot load vtkHybrid, skipping...");
         }
     }
     
@@ -255,10 +266,16 @@ public class Vtk extends JPanel implements MRAVisualization {
     public Component getComponent(IMraLogGroup source, double timestep) {    
         if (!componentEnabled)
         {
-            System.out.println("Entrou no component Enabled");
+            vtkCanvas.LightFollowCameraOn();
+            vtkCanvas.BeginBoxInteraction();
+            vtkCanvas.setEnabled(true);
+            
+            //System.out.println("Entrou no component Enabled");
             componentEnabled = true;    
 
             MultibeamToPointCloud multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
+            //BathymetryInfo batInfo = new BathymetryInfo();
+            //batInfo = multibeamToPointCloud.batInfo;
             pointCloud.createLODActorFromPoints();
             
             Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
@@ -284,9 +301,10 @@ public class Vtk extends JPanel implements MRAVisualization {
             //System.out.println("Number of Cloud Points: " + tempActor.GetNumberOfCloudPoints());
             //vtkCanvas.GetRenderer().AddActor(tempActor);
                        
-            NeptusLog.pub().info("<###> ");
+            //NeptusLog.pub().info("<###> VtkCanvas Graphics configuration: " + vtkCanvas.getGraphicsConfiguration().toString());
             
             vtkCanvas.GetRenderer().ResetCamera();
+            //vtkCanvas.GetRenderer().ResetCameraClippingRange();
         }
         return this;
     }
@@ -294,8 +312,8 @@ public class Vtk extends JPanel implements MRAVisualization {
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         boolean beApplied = false;        
-        System.out.println("CanBeApplied: " + source.name());
-        System.out.println("vtkEnabled can be applied: " + vtkEnabled);
+        //System.out.println("CanBeApplied: " + source.name());
+        //System.out.println("vtkEnabled can be applied: " + vtkEnabled);
         
         if (vtkEnabled == true) {   // if it could load vtk libraries
                 // Checks existance of a *.83P file
@@ -392,12 +410,16 @@ public class Vtk extends JPanel implements MRAVisualization {
         
         zExaggerationToggle = new JToggleButton(I18n.text("Exaggerate Z"));
         
+        meshToogle = new JToggleButton(I18n.text("Show Mesh"));
+        
         resetViewportButton = new JButton(I18n.text("Reset Viewport"));
         helpButton = new JButton(I18n.text("Help"));
         
         rawPointsToggle.setSelected(true);
         downsampledPointsToggle.setSelected(false);
+        meshToogle.setSelected(false);
         zExaggerationToggle.setSelected(false);
+        
         //resetViewportToggle.setSelected(false);
         
         helpButton.setSize(10, 10);
@@ -415,8 +437,8 @@ public class Vtk extends JPanel implements MRAVisualization {
                 msgHelp = msgHelp + "g, G   -   display scale grid (on/off)\n";
                 msgHelp = msgHelp + "u, U   -   display lookup table (on/off)\n";
                 msgHelp = msgHelp + "r, R   -   reset camera (to viewpoint = {0, 0, 0} -> center {x, y, z}\n";
-                msgHelp = msgHelp + "i, I   -   information about rendered cloud";
-                msgHelp = msgHelp + "f, F   -   press right mouse and then f, to fly to point picked"; 
+                msgHelp = msgHelp + "i, I   -   information about rendered cloud\n";
+                msgHelp = msgHelp + "f, F   -   press right mouse and then f, to fly to point picked\n"; 
                 msgHelp = msgHelp + "3      -   3D visualization (put the 3D glasses on)\n";
                 msgHelp = msgHelp + "7      -   color gradient in relation with X coords (north)\n";
                 msgHelp = msgHelp + "8      -   color gradient in relation with Y coords (west)\n";
@@ -477,6 +499,50 @@ public class Vtk extends JPanel implements MRAVisualization {
             }
         });
         
+        meshToogle.addActionListener(new ActionListener() {        
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (meshToogle.isSelected()) {
+                    try {
+                        
+                        vtkActorCollection actorCollection = new vtkActorCollection();
+                        actorCollection =  vtkCanvas.GetRenderer().GetActors();
+                        actorCollection.InitTraversal(); 
+                        
+                        NeptusLog.pub().info("<###> Number of actors on render: " + actorCollection.GetNumberOfItems());
+                        
+                        
+                        vtkCanvas.GetRenderer().RemoveAllViewProps();
+                        vtkCanvas.GetRenderWindow().Render();
+
+                        //for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
+                        //    vtkActor actor = actorCollection.GetNextActor();
+                            //System.out.println("actor num: " + i + "actor.string: " + actor.toString());
+
+
+                            //vtkCanvas.GetRenderer().RemoveActor(actorCollection.GetNextActor());
+                        //}
+                        //System.out.println("After collection");
+                      
+
+                        EarthSource earth = new EarthSource();
+                        vtkCanvas.GetRenderer().AddActor(earth.getEarthActor());
+                        
+                        //vtkCanvas.GetRenderer().Render();
+                        vtkCanvas.GetRenderWindow().Render();
+                        vtkCanvas.getRenderWindowInteractor().Render();
+                        vtkCanvas.GetRenderer().ResetCamera();                     
+                    }
+                    catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                }
+                else {
+                    
+                }
+            }
+        });
+        
         zExaggerationToggle.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -501,6 +567,7 @@ public class Vtk extends JPanel implements MRAVisualization {
             // toogles
         toolbar.add(rawPointsToggle);
         toolbar.add(downsampledPointsToggle);
+        toolbar.add(meshToogle);
         toolbar.add(zExaggerationToggle);
             // buttons
         toolbar.add(resetViewportButton);

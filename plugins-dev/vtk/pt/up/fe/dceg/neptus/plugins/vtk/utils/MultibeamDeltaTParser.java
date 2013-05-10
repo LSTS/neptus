@@ -39,6 +39,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryInfo;
@@ -73,7 +74,6 @@ public class MultibeamDeltaTParser implements BathymetryParser{
     
     private int numberSwaths = 0;
     
-        // reversed var initialize
     private double maxLat = 0;
     private double minLat = 0;
     private double maxLon = 0;
@@ -94,8 +94,8 @@ public class MultibeamDeltaTParser implements BathymetryParser{
         this.logGroup = source;
         this.pointCloud = pointCloud;
         
-        file = source.getFile("multibeam.83P");
-        //file = source.getFile("data.83P");
+        //file = source.getFile("multibeam.83P");
+        file = source.getFile("data.83P");
         
         try {
             fis = new FileInputStream(file);
@@ -120,8 +120,6 @@ public class MultibeamDeltaTParser implements BathymetryParser{
      */
     private void initialize() {
         info = new BathymetryInfo();
-        
-        System.out.println("foi ao initialize");
 
         BathymetrySwath bs;
         
@@ -160,9 +158,14 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             totalNumberPoints = totalNumberPoints + bs.numBeams;
             realNumberOfBeams = 0;
             numberSwaths++;
-            System.out.println("total number of points: " + totalNumberPoints);
+            NeptusLog.pub().info("<###> total number of points: " + totalNumberPoints);
         }
         pointCloud.setNumberOfPoints(totalNumberPoints);
+        
+        NeptusLog.pub().info("<###> Max Lat: " + maxLat);
+        NeptusLog.pub().info("<###> Min Lat: " + minLat);
+        NeptusLog.pub().info("<###> Max Long: " + maxLon);
+        NeptusLog.pub().info("<###> Min Long: " + minLon);
     }
 
     @Override
@@ -191,7 +194,8 @@ public class MultibeamDeltaTParser implements BathymetryParser{
 
             if(currPos >= channel.size()) // got to the end of file
                 return null;
-            System.out.println("Swath number: " + numberSwaths);
+            
+            NeptusLog.pub().info("<###> Swath number: " + numberSwaths);
 
             BathymetryPoint data[];
                 
@@ -206,8 +210,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             buf = channel.map(MapMode.READ_ONLY, currPos + 256, header.numBeams * 2); // numberBeam * 2 -> number of bytes
             data = new BathymetryPoint[header.numBeams];
             
-            
-            System.out.println("header.timestamp: " + header.timestamp);
+            NeptusLog.pub().info("<###> header.timestamp: " + header.timestamp);
                 // get vehicle pos at the timestamp
             stateIMCMsg = stateParserLogMra.getEntryAtOrAfter(header.timestamp);
 
@@ -250,11 +253,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                     
                     data[realNumberOfBeams] = new BathymetryPoint((float) (pose.getPosition().getOffsetNorth() + ox),
                             (float) (pose.getPosition().getOffsetEast() +oy), (float) height);
-                    //data[i] = new BathymetryPoint((float) (pose.getPosition().getOffsetNorth() + ox),                
-                        //(float) (pose.getPosition().getOffsetEast() + oy), (float) height);
-                    
-                    
-                    //System.out.println(" north: " + data[i].north + " east: " + data[i].east);
+
                     //pointCloud.getVerts().InsertNextCell(1);
                     //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(
                     //        (pose.getPosition().getOffsetNorth() + ox),
@@ -267,11 +266,8 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                 
                 //BathymetrySwath swath = new BathymetrySwath(header.timestamp, new SystemPositionAndAttitude(), data);
                 BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, data);
-                //swath.numBeams = header.numBeams; <- can't be this because of erros on range data available on the 83P file
+                //swath.numBeams = header.numBeams; <- can't be this because of errors on range data available on the 83P file
                 swath.numBeams = realNumberOfBeams;
-                //System.out.println("Real Number Of Beams: " + realNumberOfBeams);
-                //System.out.println("Swath number beams: " + swath.numBeams);
-                //realNumberOfBeams = 0;
                 return swath;
             }
         }
