@@ -45,6 +45,10 @@ public class EarthSource {
     private vtkLODActor earthActor;
     
     public EarthSource() {
+        setEarthActor(new vtkLODActor());
+    }
+    
+    public void produceEarth() {        
         //vtkGlobeSource globe = new vtkGlobeSource();
         //globe.QuadrilateralTessellationOn();
         //globe.Update();

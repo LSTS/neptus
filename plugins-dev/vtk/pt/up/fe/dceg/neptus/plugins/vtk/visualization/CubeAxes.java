@@ -45,6 +45,9 @@ public class CubeAxes {
     
     private vtkStringArray xLabel;
     private vtkStringArray yLabel;
+    private vtkStringArray zLabel;
+    
+    private static vtkCubeAxesActor cubeAxesActor;
     
     public CubeAxes() {
      
@@ -52,7 +55,7 @@ public class CubeAxes {
     
     public static vtkActor AddCubeAxesToVisualizer(vtkRenderer renderer, vtkPolyData polyData) {
         
-        vtkCubeAxesActor cubeAxesActor = new vtkCubeAxesActor();
+        cubeAxesActor = new vtkCubeAxesActor();
         
         cubeAxesActor.SetCamera(renderer.GetActiveCamera());
         cubeAxesActor.SetBounds(polyData.GetBounds());

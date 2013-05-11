@@ -37,7 +37,6 @@ import vtk.vtkActor;
 import vtk.vtkCleanPolyData;
 import vtk.vtkDataSetMapper;
 import vtk.vtkDelaunay3D;
-import vtk.vtkLODActor;
 
 /**
  * @author hfq

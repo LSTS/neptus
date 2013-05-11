@@ -60,6 +60,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.geo.EarthSource;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.up.fe.dceg.neptus.plugins.vtk.surface.GaussianSplat;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
 import vtk.vtkActor;
@@ -112,6 +113,8 @@ public class Vtk extends JPanel implements MRAVisualization {
 
     private DownsamplePointCloud performDownsample;
     private Boolean isDownsampleDone = false;
+    
+    private boolean isLogMultibeam = false;
     
     static {  
         try {
@@ -206,15 +209,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         catch (Throwable e) {
             NeptusLog.pub().info("<###> cannot load vtkCharts, skipping...");
         }
-        try {
-            vtkNativeLibrary.VOLUME_RENDERING.LoadLibrary();
-            if(!vtkNativeLibrary.VOLUME_RENDERING.IsLoaded())
-                vtkEnabled = false;
-        }
-        catch (Throwable e) {
-            NeptusLog.pub().info("<###> cannot load vtkVolumeRendering, skipping...");
-        }
-        // FIXME nao load vtkHybrid
+        // FIXME not load vtkHybrid ?!
         try {
             vtkNativeLibrary.HYBRID.LoadLibrary();
             if(!vtkNativeLibrary.HYBRID.IsLoaded())
@@ -222,6 +217,14 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         catch (Throwable e) {
             NeptusLog.pub().info("<###> cannot load vtkHybrid, skipping...");
+        }
+        try {
+            vtkNativeLibrary.VOLUME_RENDERING.LoadLibrary();
+            if(!vtkNativeLibrary.VOLUME_RENDERING.IsLoaded())
+                vtkEnabled = false;
+        }
+        catch (Throwable e) {
+            NeptusLog.pub().info("<###> cannot load vtkVolumeRendering, skipping...");
         }
     }
     
@@ -282,6 +285,8 @@ public class Vtk extends JPanel implements MRAVisualization {
             //batInfo = multibeamToPointCloud.batInfo;
             
             if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!
+                isLogMultibeam = true;
+                
                 pointCloud.createLODActorFromPoints();
                 
                 //vtkLODActor randomActor = new vtkLODActor();
@@ -295,6 +300,11 @@ public class Vtk extends JPanel implements MRAVisualization {
                 //PointCloud<PointXYZ> downsampledCloud = performDownsample.getOutputDownsampledCloud();
                 //linkedHashMapCloud.put(downsampledCloud.getCloudName(), downsampledCloud); 
                 
+                
+                Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
+                vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
+                //ax.getAxesActor().SetVisibility(true);
+                
                 vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
                 //vtkCanvas.GetRenderer().AddActor(downsampledCloud.getCloudLODActor());
                 
@@ -303,38 +313,40 @@ public class Vtk extends JPanel implements MRAVisualization {
                 //vtkCanvas.GetRenderer().AddActor(tempActor);
             }
             else {
-                JOptionPane errorPane = new JOptionPane();
+                isLogMultibeam = false;
+                
+                //JOptionPane errorPane = new JOptionPane();
                 String msgErrorMultibeam;
                 msgErrorMultibeam = "No beams on Log file!";
-                errorPane.showMessageDialog(null, msgErrorMultibeam);
+                JOptionPane.showMessageDialog(null, msgErrorMultibeam);
                 
-                vtkTextActor3D textActor3d = new vtkTextActor3D();
-                textActor3d.SetPosition(0.0, 0.0, 0.0);
-                textActor3d.SetInput(msgErrorMultibeam);
-                textActor3d.GetTextProperty().BoldOn();
-                textActor3d.GetTextProperty().ItalicOn();
-                textActor3d.GetTextProperty().ShadowOn();
-                textActor3d.GetTextProperty().SetFontFamilyToArial();
-                textActor3d.GetTextProperty().SetLineSpacing(1.0);
-                textActor3d.GetTextProperty().SetFontSize(48);
-                
-                textActor3d.SetScale(2.0);
-                
-                textActor3d.GetTextProperty().SetColor(1.0, 0.0, 0.0);
-                textActor3d.VisibilityOn();
-                textActor3d.GetTextProperty().SetShadowOffset(1, 1);
-                //textActor3d.GetTextProperty().ShadowOn();
-                textActor3d.GetTextProperty().SetVerticalJustificationToCentered();
+//                vtkTextActor3D textActor3d = new vtkTextActor3D();
+//                textActor3d.SetPosition(0.0, 0.0, 0.0);
+//                textActor3d.SetInput(msgErrorMultibeam);
+//                textActor3d.GetTextProperty().BoldOn();
+//                textActor3d.GetTextProperty().ItalicOn();
+//                textActor3d.GetTextProperty().ShadowOn();
+//                textActor3d.GetTextProperty().SetFontFamilyToArial();
+//                textActor3d.GetTextProperty().SetLineSpacing(1.0);
+//                textActor3d.GetTextProperty().SetFontSize(48);
+//                
+//                textActor3d.SetScale(2.0);
+//                
+//                textActor3d.GetTextProperty().SetColor(1.0, 0.0, 0.0);
+//                textActor3d.VisibilityOn();
+//                textActor3d.GetTextProperty().SetShadowOffset(1, 1);
+//                //textActor3d.GetTextProperty().ShadowOn();
+//                textActor3d.GetTextProperty().SetVerticalJustificationToCentered();
                 
                 
                 vtkVectorText vectText = new vtkVectorText();
-                vectText.SetText("Really");
+                vectText.SetText("No beams on Log file!");
                 
                 vtkLinearExtrusionFilter extrude = new vtkLinearExtrusionFilter();
                 extrude.SetInputConnection(vectText.GetOutputPort());
                 extrude.SetExtrusionTypeToNormalExtrusion();
                 extrude.SetVector(0, 0, 1);
-                extrude.SetScaleFactor(1.0);
+                extrude.SetScaleFactor(0.5);
                 
                 
                 
@@ -348,12 +360,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 //vtkCanvas.GetRenderer().AddActor(textActor3d);
                 vtkCanvas.GetRenderer().AddActor(txtActor);
                 
-            }
-                   
-            Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
-            vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
-            //ax.getAxesActor().SetVisibility(true);
-            
+            }        
             vtkCanvas.GetRenderer().ResetCamera();
         }
         return this;
@@ -368,7 +375,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         if (vtkEnabled == true) {   // if it could load vtk libraries
                 // Checks existance of a *.83P file
             file = source.getFile("Data.lsf").getParentFile();
-            File[] files = file.listFiles();
+            //File[] files = file.listFiles();
             try {
                 if (file.isDirectory()) {
                     for (File temp : file.listFiles()) {
@@ -554,34 +561,33 @@ public class Vtk extends JPanel implements MRAVisualization {
             public void actionPerformed(ActionEvent e) {
                 if (meshToogle.isSelected()) {
                     try {
-                        
-                        vtkActorCollection actorCollection = new vtkActorCollection();
-                        actorCollection =  vtkCanvas.GetRenderer().GetActors();
-                        actorCollection.InitTraversal(); 
-                        
-                        NeptusLog.pub().info("<###> Number of actors on render: " + actorCollection.GetNumberOfItems());
-                        
-                        
-                        vtkCanvas.GetRenderer().RemoveAllViewProps();
-                        vtkCanvas.GetRenderWindow().Render();
+                        if (isLogMultibeam) {                          
+                            vtkActorCollection actorCollection = new vtkActorCollection();
+                            actorCollection =  vtkCanvas.GetRenderer().GetActors();
+                            actorCollection.InitTraversal(); 
+                            
+                            NeptusLog.pub().info("<###> Number of actors on render: " + actorCollection.GetNumberOfItems());
+                            
+                            vtkCanvas.GetRenderer().RemoveAllViewProps();
+                            vtkCanvas.GetRenderWindow().Render();
+                            
+                            GaussianSplat gaussSplat = new GaussianSplat(linkedHashMapCloud.get("multibeam"));
+                            gaussSplat.performGaussianSplat(20, 20, 20, 0.3);
+                            //for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
+                            //    vtkActor actor = actorCollection.GetNextActor();
+                                //System.out.println("actor num: " + i + "actor.string: " + actor.toString());
 
-                        //for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
-                        //    vtkActor actor = actorCollection.GetNextActor();
-                            //System.out.println("actor num: " + i + "actor.string: " + actor.toString());
 
-
-                            //vtkCanvas.GetRenderer().RemoveActor(actorCollection.GetNextActor());
-                        //}
-                        //System.out.println("After collection");
-                      
-
-                        EarthSource earth = new EarthSource();
-                        vtkCanvas.GetRenderer().AddActor(earth.getEarthActor());
-                        
-                        //vtkCanvas.GetRenderer().Render();
-                        vtkCanvas.GetRenderWindow().Render();
-                        vtkCanvas.getRenderWindowInteractor().Render();
-                        vtkCanvas.GetRenderer().ResetCamera();                     
+                                //vtkCanvas.GetRenderer().RemoveActor(actorCollection.GetNextActor());
+                            //}
+                            
+                            vtkCanvas.GetRenderer().AddActor(gaussSplat.getActorGaussianSplat());
+                            
+                            //vtkCanvas.GetRenderer().Render();
+                            vtkCanvas.GetRenderWindow().Render();
+                            vtkCanvas.getRenderWindowInteractor().Render();
+                            vtkCanvas.GetRenderer().ResetCamera();    
+                        }
                     }
                     catch (Exception e1) {
                         e1.printStackTrace();
