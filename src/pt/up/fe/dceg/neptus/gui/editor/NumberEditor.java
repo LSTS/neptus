@@ -152,11 +152,23 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor {
 //                else if ((classType == Long.class || classType == Integer.class || classType == Short.class) && !Character.isDigit(keyChar))
 //                        e.consume();
             }
-            
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                // System.out.println("keyPressed " + e);
+                if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_TAB)
+                    validateValue();
+            }
+
             @Override
             public void keyReleased(KeyEvent e) {
+                // System.out.println("keyReleased " + e);
+                validateValue();
+            }
+
+            private void validateValue() {
                 boolean checkOk = true;
-                String txt = ((JTextField) editor).getText();
+                String txt = ((JTextField) editor).getText().trim();
                 try {
                     convertFromString(txt);
                 }
@@ -176,7 +188,6 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor {
                     ((JTextField) editor).setBorder(defaultBorder);
                 }
             }
-
         });
         
         ((JTextField) editor).addFocusListener(new FocusAdapter() {
@@ -191,6 +202,7 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor {
             }
 
             public void focusLost(FocusEvent fe) {
+                // System.out.println("focusLost " + fe);
                 try {
                     T newVal = (T) convertFromString(((JTextField) editor).getText());
                     firePropertyChange(oldVal, newVal);
@@ -202,12 +214,24 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor {
         });
     }
     
+//    @Override
+//    public void setValue(Object value) {
+//        System.out.println("setValue Editor " + value);
+//        super.setValue(value);
+//    }
+    
+    @Override
+    public Object getValue() {
+//        System.out.println("getValue Editor " + super.getValue());
+        return convertFromString(convertToString(super.getValue()));
+    }
+    
     @SuppressWarnings("unchecked")
     private T convertFromString(String txt) {
         if (pattern == null) {
             pattern = Pattern.compile(elementPattern, Pattern.CASE_INSENSITIVE);
         }
-        Matcher m = pattern.matcher(((JTextField) editor).getText());
+        Matcher m = pattern.matcher(txt);
         boolean checkOk = m.matches();
         if (!checkOk)
             throw new NumberFormatException();

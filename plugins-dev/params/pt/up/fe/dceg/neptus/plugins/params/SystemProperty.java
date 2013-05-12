@@ -143,7 +143,7 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         boolean equals = false;
         if (getValue() != null && getValue().equals(value))
             equals = true;
-//        NeptusLog.pub().info("<###>##################################### " + getName() + " equals=" + equals);
+        // System.out.println("<###>##################################### " + getName() + " equals=" + equals + "   " +  getValue() + "   " + value);
         super.setValue(value);
         if (!equals)
             setTimeDirty(System.currentTimeMillis());
