@@ -132,8 +132,13 @@ public class AisDataFetcher {
     }
 
     public static void main(String[] args) throws Exception {
-        AisDataFetcher fetcher = new AisDataFetcher(41.1210, 41.2295, -8.8951, -8.5175, 10);
-        //AisDataFetcher fetcher = new AisDataFetcher(40.4302, 42.2976, -10.6238, -8.4485, 30);
+        
+        //APDL
+        //AisDataFetcher fetcher = new AisDataFetcher(41.1210, 41.2295, -8.8951, -8.5175, 10);
+        
+        //Cadiz
+        AisDataFetcher fetcher = new AisDataFetcher(36.4789, 36.5601, -6.3439, -6.1676, 10);
+        
         long millisBetweenUpdates = 60 * 1000;
         long count = 0;
         fetcher.fetchShips();
