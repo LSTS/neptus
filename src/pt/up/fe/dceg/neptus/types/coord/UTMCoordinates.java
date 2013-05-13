@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.types.coord;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.plugins.vtk.utils.AnglesUtils;
 
 /**
  * Code from http://www.gpsy.com/gpsinfo/geotoutm/gantz/LatLong-UTMconversion.cpp
@@ -50,6 +51,7 @@ public class UTMCoordinates {
 	private double longitudeDegrees = 0.0;
 	
 	private int zoneNumber = 0;
+	
 	private char zoneLetter = 'N';
 	
 	public UTMCoordinates(double easting, double northing, int zoneNumber, char zoneLetter) {
@@ -345,9 +347,19 @@ public class UTMCoordinates {
 	}	 
 	
 	public static void main(String[] args) {
+	    
+	    UTMCoordinates utmcadiz = new UTMCoordinates( 745370.0, 4042995.0, 29, 'N');
+	    utmcadiz.UTMtoLL();
+	    double lat = utmcadiz.getLatitudeDegrees();
+	    double lon = utmcadiz.getLongitudeDegrees();
+	    
+	    NeptusLog.pub().info("Latitude: " + lat + " Longitude: " + lon);
+	    
 	    UTMCoordinates utm = new UTMCoordinates(41, -8); 
 	    NeptusLog.pub().info("<###>\nUTM: northing:4539238.6   easthing:584102.1 zone:29 N");
 	    // NATO UTM (Military Grid Reference System (MGRS)): northing:39238.6     easthing:84102.1 long_zone:29 lat_zone:T digraph:NF
+	    
+	    
 	    
 	    NeptusLog.pub().info("<###>northing: " + utm.getNorthing() + "   easting: " + utm.getEasting() +
 	            "  zone number: " + utm.getZoneNumber() + 
@@ -375,4 +387,5 @@ public class UTMCoordinates {
                 "  zone number: " + utm.getZoneNumber() + 
                 "  zone letter: " + utm.getZoneLetter());
 	}
+	
 }

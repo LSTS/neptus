@@ -36,12 +36,16 @@ import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkAbstractPropPicker;
 import vtk.vtkActorCollection;
 import vtk.vtkAssemblyPath;
 import vtk.vtkLODActor;
+import vtk.vtkLookupTable;
+import vtk.vtkPolyData;
+import vtk.vtkPolyDataMapper;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
 import vtk.vtkScalarsToColors;
@@ -76,8 +80,7 @@ public class KeyboardEvent {
     private Boolean captionEnabled = false;
     
     private static final boolean VTKIS_ANIMEOFF = false;
-    private static final boolean VTKIS_ANIMEON = true;
-    
+    private static final boolean VTKIS_ANIMEON = true;  
     private boolean AnimeState;
         
     /**
@@ -89,6 +92,7 @@ public class KeyboardEvent {
         this.interactor = neptusInteractorStyle.interactor;
         this.renderer = neptusInteractorStyle.renderer;
         this.linkedHashMapCloud = linkedHashMapCloud;
+        colorMapRel = colorMappingRelation.zMap;        // on creation map color map is z related
     }
 
     public void handleEvents(int keyCode) {
@@ -345,22 +349,163 @@ public class KeyboardEvent {
 //                break;
             case KeyEvent.VK_7: // case '7':
                 try {
-                    setOfClouds = linkedHashMapCloud.keySet();
-                    for (String sKey : setOfClouds) {
-                        vtkLODActor tempActor = new vtkLODActor();
-                        pointCloud = linkedHashMapCloud.get(sKey);
-                        tempActor = pointCloud.getCloudLODActor();
-                    }
-                    
-                    interactor.Render();
+                    if (!(colorMapRel == colorMappingRelation.xMap)) {
+                        setOfClouds = linkedHashMapCloud.keySet();
+                        for (String sKey : setOfClouds) {
+                            //NeptusLog.pub().info("color mapping x");
+                            
+                            pointCloud = linkedHashMapCloud.get(sKey);
+                            
+                            renderer.RemoveActor(pointCloud.getCloudLODActor());    // remove Actor from renderer
+                            
+//                            vtkLookupTable colorLookupTable = new vtkLookupTable();
+//                            colorLookupTable.SetRange(pointCloud.getBounds()[0], pointCloud.getBounds()[1]);
+//                            colorLookupTable.SetScaleToLinear();
+//                            colorLookupTable.Build();
+                            
+                            //pointCloud.getColorHandler().setPointCloudColorHandlers(pointCloud.getNumberOfPoints(), pointCloud.getPoly(), colorLookupTable);                            
+                            //pointCloud.getPoly().GetPointData().GetScalars().Delete();
+                            pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getColorsX());
+                            
+                            vtkPolyDataMapper map = new vtkPolyDataMapper();
+                            map.SetInput(pointCloud.getPoly());
+                            map.SetScalarRange(pointCloud.getBounds()[0], pointCloud.getBounds()[1]);
+                                  
+                            //map.SetLookupTable(colorLookupTable);
+                            map.SetLookupTable(pointCloud.getColorHandler().getLutX());
+                            
+                            pointCloud.setCloudLODActor(new vtkLODActor());
+                            
+                            
+                            //pointCloud.getCloudLODActor().GetMapper().Delete();
+                            //pointCloud.getCloudLODActor().GetMapper().Modified();
+                            pointCloud.getCloudLODActor().SetMapper(map);
+                            //pointCloud.getCloudLODActor().GetMapper().Update();
+                            //pointCloud.getCloudLODActor().GetMapper().Modified();
+                            //pointCloud.getCloudLODActor().Modified();
+
+                            pointCloud.getCloudLODActor().GetProperty().SetPointSize(1.0);
+                            pointCloud.getCloudLODActor().GetProperty().SetRepresentationToPoints();
+                            
+                            if (neptusInteractorStyle.lutEnabled) {
+                                NeptusLog.pub().info("look up table is enabled");
+                                
+                                vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
+                                neptusInteractorStyle.lutActor.SetLookupTable(lut);
+                                neptusInteractorStyle.lutActor.SetUseBounds(true);
+                                neptusInteractorStyle.lutActor.SetNumberOfLabels(9);
+                                neptusInteractorStyle.lutActor.Modified();
+                            }
+                            renderer.AddActor(pointCloud.getCloudLODActor());
+                            colorMapRel = colorMappingRelation.xMap;
+                            
+                        }                     
+                        interactor.Render();
+                        renderer.GetRenderWindow().Render();
+                    }                   
                 }
                 catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
-            case KeyEvent.VK_8:     // case '8' -> not yet implemented    
+            case KeyEvent.VK_8:     // case '8' -> not yet implemented
+                try {
+                    if (!(colorMapRel == colorMappingRelation.yMap)) {
+                        setOfClouds = linkedHashMapCloud.keySet();
+                        for (String sKey : setOfClouds) {
+                            NeptusLog.pub().info("color mapping y");
+                            
+
+                            
+                            pointCloud = linkedHashMapCloud.get(sKey);
+                            NeptusLog.pub().info("point Cloud name: " + pointCloud.getCloudName());
+                            
+                            //renderer.RemoveActor(pointCloud.getCloudLODActor());
+                            
+                            vtkLookupTable colorLookupTable = new vtkLookupTable();
+                            colorLookupTable.SetRange(pointCloud.getBounds()[2], pointCloud.getBounds()[3]);
+                            colorLookupTable.SetScaleToLinear();
+                            colorLookupTable.Build();
+                            
+                            //pointCloud.getColorHandler().setPointCloudColorHandlers(pointCloud.getNumberOfPoints(), pointCloud.getPoly(), colorLookupTable);                            
+                            pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getColorsY());
+                            
+                            vtkPolyDataMapper map = new vtkPolyDataMapper();
+                            map.SetInput(pointCloud.getPoly());
+                            map.SetScalarRange(pointCloud.getBounds()[2], pointCloud.getBounds()[3]);
+                            map.SetLookupTable(colorLookupTable);
+                            
+                            pointCloud.getCloudLODActor().SetMapper(map);
+                            pointCloud.getCloudLODActor().GetProperty().SetPointSize(1.0);
+                            pointCloud.getCloudLODActor().GetProperty().SetRepresentationToPoints();
+                            
+                            if (neptusInteractorStyle.lutEnabled) {
+                                NeptusLog.pub().info("look up table is enabled");
+                                
+                                vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
+                                neptusInteractorStyle.lutActor.SetLookupTable(lut);
+                                neptusInteractorStyle.lutActor.SetUseBounds(true);
+                                neptusInteractorStyle.lutActor.SetNumberOfLabels(9);
+                                neptusInteractorStyle.lutActor.Modified();
+                            }
+                            
+                            //renderer.AddActor(pointCloud.getCloudLODActor());
+                            colorMapRel = colorMappingRelation.yMap;
+                        }                     
+                        interactor.Render();                 
+                        renderer.GetRenderWindow().Render();
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
             case KeyEvent.VK_9:     // case '9' -> not yet implemented
+                try {
+                    if (!(colorMapRel == colorMappingRelation.zMap)) {
+                        setOfClouds = linkedHashMapCloud.keySet();
+                        for (String sKey : setOfClouds) {
+                            pointCloud = linkedHashMapCloud.get(sKey);
+                            
+                            //renderer.RemoveActor(pointCloud.getCloudLODActor());    // remove Actor from renderer
+                                                   
+                            vtkLookupTable colorLookupTable = new vtkLookupTable();
+                            colorLookupTable.SetRange(pointCloud.getBounds()[4], pointCloud.getBounds()[5]);
+                            colorLookupTable.SetScaleToLinear();
+                            colorLookupTable.Build();
+                            
+                            //pointCloud.getColorHandler().setPointCloudColorHandlers(pointCloud.getNumberOfPoints(), pointCloud.getPoly(), colorLookupTable);                            
+                            pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getColorsZ());
+                            
+                            vtkPolyDataMapper map = new vtkPolyDataMapper();
+                            map.SetInput(pointCloud.getPoly());
+                            map.SetScalarRange(pointCloud.getBounds()[4], pointCloud.getBounds()[5]);
+                            map.SetLookupTable(colorLookupTable);
+                            
+                            pointCloud.getCloudLODActor().SetMapper(map);
+                            pointCloud.getCloudLODActor().GetProperty().SetPointSize(1.0);
+                            pointCloud.getCloudLODActor().GetProperty().SetRepresentationToPoints();
+                            
+                            if (neptusInteractorStyle.lutEnabled) {
+                                NeptusLog.pub().info("look up table is enabled");
+                                
+                                vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
+                                neptusInteractorStyle.lutActor.SetLookupTable(lut);
+                                neptusInteractorStyle.lutActor.SetUseBounds(true);
+                                neptusInteractorStyle.lutActor.SetNumberOfLabels(9);
+                                neptusInteractorStyle.lutActor.Modified();
+                            }
+                            
+                            colorMapRel = colorMappingRelation.zMap;
+                            //renderer.AddActor(pointCloud.getCloudLODActor());
+                        }                     
+                        interactor.Render();
+                        renderer.GetRenderWindow().Render();
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }          
                 break;
             case KeyEvent.VK_R: //case 'r':
                 neptusInteractorStyle.renderer.ResetCamera();

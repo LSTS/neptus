@@ -74,10 +74,10 @@ public class MultibeamDeltaTParser implements BathymetryParser{
     
     private int numberSwaths = 0;
     
-    private double maxLat = 0;
-    private double minLat = 0;
-    private double maxLon = 0;
-    private double minLon = 0;
+    private double maxLat = -Math.PI;
+    private double minLat = Math.PI;
+    private double maxLon = -Math.PI * 2;
+    private double minLon = Math.PI * 2;
     //private double maxLat = -(Math.PI)/2;   // 90º North (+)
     //private double minLat = +(Math.PI)/2;   // 90º South (-)
     //private double maxLon = -Math.PI;       // 180º East (+)
@@ -248,7 +248,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                     double height = range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth();                
                     double xBeamOffset = range * Math.sin(Math.toRadians(angle));                
                         // heading
-                    double psi = -pose.getYaw();               
+                    double psi = -pose.getYaw();
                     double ox = xBeamOffset * Math.sin(psi);               
                     double oy = xBeamOffset * Math.cos(psi);
                     

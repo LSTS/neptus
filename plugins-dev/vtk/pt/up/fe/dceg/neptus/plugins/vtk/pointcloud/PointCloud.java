@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 import java.util.Random;
 
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.PointCloudHandlers;
 import vtk.vtkCellArray;
 import vtk.vtkDataArray;
 import vtk.vtkLODActor;
@@ -51,16 +52,16 @@ import vtk.vtkVertexGlyphFilter;
  */
 public class PointCloud<T extends PointXYZ> {
     
+    private String cloudName;
     private vtkPoints points;
     private vtkCellArray verts;
     private vtkPolyData poly;
     private vtkLODActor cloudLODActor;
     private int numberOfPoints;
     private double[] bounds;
-    private int memorySize; 
+    private int memorySize;
+    private PointCloudHandlers<PointXYZ> colorHandler;
         //public vtkActor contourActor;
-    
-    private String cloudName;
     
     /**
      * 
@@ -72,6 +73,7 @@ public class PointCloud<T extends PointXYZ> {
         setPoly(new vtkPolyData());
         setCloudLODActor(new vtkLODActor());
         setBounds(new double[6]);
+        setColorHandler(new PointCloudHandlers<>());
     }
     
     /**
@@ -89,9 +91,6 @@ public class PointCloud<T extends PointXYZ> {
         
         setBounds(getPoly().GetBounds());
         setMemorySize(getPoly().GetActualMemorySize());
-        System.out.println("memory size: " + getMemorySize());
-        
-        System.out.println("bounds: zMin :" + bounds[4] + " zMax: " + bounds[5]);
              
         vtkLookupTable colorLookupTable = new vtkLookupTable();
         //colorLookupTable.SetNumberOfColors(3);
@@ -104,31 +103,35 @@ public class PointCloud<T extends PointXYZ> {
         colorLookupTable.SetScaleToLinear();
         colorLookupTable.Build();
 
-        vtkUnsignedCharArray colors = new vtkUnsignedCharArray();
-        colors.SetNumberOfComponents(3);
-        colors.SetName("Colors");
+        //setColorHandler(new PointCloudHandlers<>());
+        getColorHandler().setPointCloudColorHandlers(getNumberOfPoints(), getPoly(), colorLookupTable, bounds);
         
-        for (int i = 0; i < getPoly().GetNumberOfPoints(); ++i) {
-            double[] p = new double[3];
-            getPoly().GetPoint(i, p);
-            
-            double[] dcolor = new double[3];    
-            colorLookupTable.GetColor(p[2], dcolor);
-            
-            char[] color = new char[3];
-            for (int j = 0; j < 3; ++j) {
-                color[j] = (char) (255.0 * dcolor[j]);
-            }
-            colors.InsertNextTuple3(color[0], color[1], color[2]);
-        }    
-        getPoly().GetPointData().SetScalars(colors);
+//        vtkUnsignedCharArray colors = new vtkUnsignedCharArray();
+//        colors.SetNumberOfComponents(3);
+//        colors.SetName("Colors");
+        
+//        for (int i = 0; i < getPoly().GetNumberOfPoints(); ++i) {
+//            double[] p = new double[3];
+//            getPoly().GetPoint(i, p);
+//            
+//            double[] dcolor = new double[3];    
+//            colorLookupTable.GetColor(p[2], dcolor);
+//            
+//            char[] color = new char[3];
+//            for (int j = 0; j < 3; ++j) {
+//                color[j] = (char) (255.0 * dcolor[j]);
+//            }
+//            colors.InsertNextTuple3(color[0], color[1], color[2]);
+//        }    
+        
+        getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
 
         
         vtkPolyDataMapper map = new vtkPolyDataMapper();
         map.SetInput(getPoly());
             // into coloca os limites na lookuptable
         map.SetScalarRange(getBounds()[4], getBounds()[5]);
-        map.SetLookupTable(colorLookupTable);
+        map.SetLookupTable(getColorHandler().getLutZ());
         //map.ScalarVisibilityOn();
         //map.SetScalarModeToUsePointData();
         //map.SetScalarModeToUseCellData();
@@ -387,5 +390,19 @@ public class PointCloud<T extends PointXYZ> {
      */
     public void setMemorySize(int memorySize) {
         this.memorySize = memorySize;
+    }
+
+    /**
+     * @return the colorHandler
+     */
+    public PointCloudHandlers<PointXYZ> getColorHandler() {
+        return colorHandler;
+    }
+
+    /**
+     * @param colorHandler the colorHandler to set
+     */
+    public void setColorHandler(PointCloudHandlers<PointXYZ> colorHandler) {
+        this.colorHandler = colorHandler;
     }
 }
