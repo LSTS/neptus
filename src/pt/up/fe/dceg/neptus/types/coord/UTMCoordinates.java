@@ -32,7 +32,6 @@
 package pt.up.fe.dceg.neptus.types.coord;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.plugins.vtk.utils.AnglesUtils;
 
 /**
  * Code from http://www.gpsy.com/gpsinfo/geotoutm/gantz/LatLong-UTMconversion.cpp
