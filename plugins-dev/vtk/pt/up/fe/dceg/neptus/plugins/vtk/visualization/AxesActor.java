@@ -55,14 +55,13 @@ public class AxesActor extends vtkAssembly {
      */
     public AxesActor(vtkRenderer ren_) {
         super();
-        ren = ren_;
-        createAxes();    
+        ren = ren_;    
     }
 
     /**
      * 
      */
-    private void createAxes() {
+    public void createAxes() {
        vtkAxes axes = new vtkAxes();
        axes.SetOrigin(0, 0, 0);
        axes.SetScaleFactor(axisLength);

@@ -248,7 +248,7 @@ public class KeyboardEvent {
                                 pointCloud = linkedHashMapCloud.get(sKey);
                                 tempActorFromHashMap = pointCloud.getCloudLODActor();
                                 if (tempActor.equals(tempActorFromHashMap)) {
-                                    captionInfo = new Caption(4, 150, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(), 
+                                    captionInfo = new Caption(4, 250, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(), 
                                             pointCloud.getBounds(), pointCloud.getMemorySize());
                                     renderer.AddActor(captionInfo.getCaptionNumberOfPointsActor());
                                     renderer.AddActor(captionInfo.getCaptionCloudNameActor());

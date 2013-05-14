@@ -32,48 +32,33 @@
 package pt.up.fe.dceg.neptus.plugins.vtk;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JToggleButton;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.api.BathymetryInfo;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import pt.up.fe.dceg.neptus.plugins.vtk.filters.DownsamplePointCloud;
-import pt.up.fe.dceg.neptus.plugins.vtk.geo.EarthSource;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-import pt.up.fe.dceg.neptus.plugins.vtk.surface.GaussianSplat;
-import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.MultibeamToolBar;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
 import vtk.vtkActor;
-import vtk.vtkActorCollection;
 import vtk.vtkCanvas;
-import vtk.vtkEarthSource;
-import vtk.vtkGeoSource;
-import vtk.vtkLODActor;
 import vtk.vtkLinearExtrusionFilter;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
-import vtk.vtkTextActor3D;
 import vtk.vtkVectorText;
 
 /**
@@ -107,7 +92,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     private DownsamplePointCloud performDownsample;
     private Boolean isDownsampleDone = false;
     
-    private boolean isLogMultibeam = false; // for 
+    //public boolean isLogMultibeam; // for 
     
     static {  
         try {
@@ -250,10 +235,6 @@ public class Vtk extends JPanel implements MRAVisualization {
         
             // add vtkCanvas to Layout
         add(vtkCanvas, BorderLayout.CENTER);
-        
-        MultibeamToolBar toolbar = new MultibeamToolBar(vtkCanvas, linkedHashMapCloud, isLogMultibeam);
-        toolbar.createToolBar();
-        add(toolbar.getToolBar(), BorderLayout.SOUTH);
     }
 
     @Override
@@ -264,12 +245,11 @@ public class Vtk extends JPanel implements MRAVisualization {
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {    
         if (!componentEnabled)
-        {
+        {   
             vtkCanvas.LightFollowCameraOn();
             vtkCanvas.BeginBoxInteraction();
             vtkCanvas.setEnabled(true);
             
-            //System.out.println("Entrou no component Enabled");
             componentEnabled = true;    
 
             MultibeamToPointCloud multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
@@ -277,7 +257,11 @@ public class Vtk extends JPanel implements MRAVisualization {
             //batInfo = multibeamToPointCloud.batInfo;
             
             if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!
-                isLogMultibeam = true;
+                //isLogMultibeam = true;
+                
+                MultibeamToolBar toolbar = new MultibeamToolBar(vtkCanvas, linkedHashMapCloud);
+                toolbar.createToolBar();
+                add(toolbar.getToolBar(), BorderLayout.SOUTH);
                 
                 pointCloud.createLODActorFromPoints();
                 
@@ -292,10 +276,20 @@ public class Vtk extends JPanel implements MRAVisualization {
                 //PointCloud<PointXYZ> downsampledCloud = performDownsample.getOutputDownsampledCloud();
                 //linkedHashMapCloud.put(downsampledCloud.getCloudName(), downsampledCloud); 
                 
-                
-                Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
-                vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
+                //double[] center = pointCloud.getPoly().GetCenter();
+                //Axes ax = new Axes(30.0, center[0], center[1], center[2], 0);
+                //Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
+                //vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
                 //ax.getAxesActor().SetVisibility(true);
+                
+                //AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
+                //axesActor.createAxes();
+                //axesActor.setAxesVisibility(true);
+                
+                //AxesWidget axesWidget = new AxesWidget(vtkCanvas.getRenderWindowInteractor());
+                AxesWidget axesWidget = new AxesWidget(winCanvas.getInteractorStyle().GetInteractor());
+                
+                axesWidget.createAxesWidget();
                 
                 vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
                 //vtkCanvas.GetRenderer().AddActor(downsampledCloud.getCloudLODActor());
@@ -305,7 +299,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 //vtkCanvas.GetRenderer().AddActor(tempActor);
             }
             else {
-                isLogMultibeam = false;
+                //isLogMultibeam = false;
                 
                 //JOptionPane errorPane = new JOptionPane();
                 String msgErrorMultibeam;
@@ -355,6 +349,8 @@ public class Vtk extends JPanel implements MRAVisualization {
             }        
             vtkCanvas.GetRenderer().ResetCamera();
         }
+        //NeptusLog.pub().info("isLogMultibeam in vtk class: " + isLogMultibeam);
+        
         return this;
     }
 
