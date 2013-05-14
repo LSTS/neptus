@@ -62,6 +62,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.GaussianSplat;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Axes;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.MultibeamToolBar;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
 import vtk.vtkActor;
 import vtk.vtkActorCollection;
@@ -90,14 +91,6 @@ public class Vtk extends JPanel implements MRAVisualization {
     public vtkCanvas vtkCanvas;
     
     public Window winCanvas;
-    
-    private JToggleButton zExaggerationToggle;
-    private JToggleButton rawPointsToggle;
-    private JToggleButton downsampledPointsToggle;
-    private JToggleButton meshToogle;
-    private JButton resetViewportButton;
-    private JButton helpButton;    
-    private JPanel toolBar;
 
     private static final String FILE_83P_EXT = ".83P";
     
@@ -114,7 +107,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     private DownsamplePointCloud performDownsample;
     private Boolean isDownsampleDone = false;
     
-    private boolean isLogMultibeam = false;
+    private boolean isLogMultibeam = false; // for 
     
     static {  
         try {
@@ -258,14 +251,13 @@ public class Vtk extends JPanel implements MRAVisualization {
             // add vtkCanvas to Layout
         add(vtkCanvas, BorderLayout.CENTER);
         
-        toolBar = new JPanel();
-        toolBar = createToolbar();
-        add(toolBar, BorderLayout.SOUTH);
+        MultibeamToolBar toolbar = new MultibeamToolBar(vtkCanvas, linkedHashMapCloud, isLogMultibeam);
+        toolbar.createToolBar();
+        add(toolbar.getToolBar(), BorderLayout.SOUTH);
     }
 
     @Override
     public String getName() {
-
         return "Multibeam 3D";
     }
 
@@ -369,13 +361,10 @@ public class Vtk extends JPanel implements MRAVisualization {
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         boolean beApplied = false;        
-        //System.out.println("CanBeApplied: " + source.name());
-        //System.out.println("vtkEnabled can be applied: " + vtkEnabled);
         
         if (vtkEnabled == true) {   // if it could load vtk libraries
                 // Checks existance of a *.83P file
             file = source.getFile("Data.lsf").getParentFile();
-            //File[] files = file.listFiles();
             try {
                 if (file.isDirectory()) {
                     for (File temp : file.listFiles()) {
@@ -446,189 +435,5 @@ public class Vtk extends JPanel implements MRAVisualization {
      */
     private void setLog(IMraLogGroup log) {
         this.mraVtkLogGroup = log;
-    }
-    
-    private JPanel createToolbar() {
-        JPanel toolbar = new JPanel();
-        
-        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
-        toolbar.setBackground(Color.DARK_GRAY);
-        //toolbar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-        //toolbar.setAutoscrolls(true);
-        //Rectangle rect = new Rectangle();
-        //rect.height = 50;
-        //rect.height = 50;
-        //toolbar.setBounds(rect);
-        
-        rawPointsToggle = new JToggleButton(I18n.text("Raw"));
-        rawPointsToggle.setBounds(toolbar.getX(), toolbar.getY(), toolbar.getWidth(), 10);
-        downsampledPointsToggle = new JToggleButton(I18n.text("Downsampled"));
-        downsampledPointsToggle.setBounds(rawPointsToggle.getBounds());
-        
-        zExaggerationToggle = new JToggleButton(I18n.text("Exaggerate Z"));
-        
-        meshToogle = new JToggleButton(I18n.text("Show Mesh"));
-        
-        resetViewportButton = new JButton(I18n.text("Reset Viewport"));
-        helpButton = new JButton(I18n.text("Help"));
-        
-        rawPointsToggle.setSelected(true);
-        downsampledPointsToggle.setSelected(false);
-        meshToogle.setSelected(false);
-        zExaggerationToggle.setSelected(false);
-        
-        //resetViewportToggle.setSelected(false);
-        
-        helpButton.setSize(10, 10);
-        helpButton.addActionListener(new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String msgHelp;
-                msgHelp = "\tHelp for the 3D visualization interaction:\n\n";
-                msgHelp = msgHelp + "Key    -   description\n";
-                msgHelp = msgHelp + "p, P   -   switch to a point-based representation\n";
-                msgHelp = msgHelp + "w, W   -   switch to a wireframe-based representation, when available\n";
-                msgHelp = msgHelp + "s, S   -   switch to a surface-based representation, when available\n";
-                msgHelp = msgHelp + "j, J   -   take a .PNG snapshot of the current window view\n";
-                msgHelp = msgHelp + "g, G   -   display scale grid (on/off)\n";
-                msgHelp = msgHelp + "u, U   -   display lookup table (on/off)\n";
-                msgHelp = msgHelp + "r, R   -   reset camera (to viewpoint = {0, 0, 0} -> center {x, y, z}\n";
-                msgHelp = msgHelp + "i, I   -   information about rendered cloud\n";
-                msgHelp = msgHelp + "f, F   -   press right mouse and then f, to fly to point picked\n"; 
-                msgHelp = msgHelp + "3      -   3D visualization (put the 3D glasses on)\n";
-                msgHelp = msgHelp + "7      -   color gradient in relation with X coords (north)\n";
-                msgHelp = msgHelp + "8      -   color gradient in relation with Y coords (west)\n";
-                msgHelp = msgHelp + "9      -   color gradient in relation with Z coords (depth)\n"; 
- 
-                JOptionPane.showMessageDialog(null, msgHelp);
-            }
-        });
-        
-        rawPointsToggle.addActionListener(new ActionListener() {       
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (rawPointsToggle.isSelected()) {
-                    
-                }
-                else {
-                    
-                }
-            }
-        });
-        
-        downsampledPointsToggle.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (downsampledPointsToggle.isSelected()) {
-//                    try {
-//                        System.out.println("Before collection");
-//                        vtkActorCollection actorCollection = new vtkActorCollection();
-//                        actorCollection =  vtkCanvas.GetRenderer().GetActors();
-//                        actorCollection.InitTraversal();                  
-//                        for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
-//                            vtkCanvas.GetRenderer().RemoveActor(actorCollection.GetNextActor());
-//                        }
-//                        System.out.println("After collection");
-//                        
-//                        vtkCanvas.GetRenderer().Render();
-//                        
-//                        PointCloud<PointXYZ> downsampledCloud = new PointCloud<>();
-//                        
-//                        if (!isDownsampleDone) {    
-//                            PointCloud<PointXYZ> multibeamCloud = new PointCloud<>();
-//                            multibeamCloud = linkedHashMapCloud.get("multibeam");
-//                            
-//                            performDownsample = new DownsamplePointCloud(multibeamCloud, 0.5);
-//
-//                            downsampledCloud = performDownsample.getOutputDownsampledCloud();
-//                            linkedHashMapCloud.put(downsampledCloud.getCloudName(), downsampledCloud); 
-//                        }
-//                        vtkCanvas.GetRenderer().AddActor(downsampledCloud.getCloudLODActor());
-//                    }
-//                    catch (Exception e1) {
-//                        e1.printStackTrace();
-//                    }
-                }
-                else {
-                    
-                }
-            }
-        });
-        
-        meshToogle.addActionListener(new ActionListener() {        
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (meshToogle.isSelected()) {
-                    try {
-                        if (isLogMultibeam) {                          
-                            vtkActorCollection actorCollection = new vtkActorCollection();
-                            actorCollection =  vtkCanvas.GetRenderer().GetActors();
-                            actorCollection.InitTraversal(); 
-                            
-                            NeptusLog.pub().info("<###> Number of actors on render: " + actorCollection.GetNumberOfItems());
-                            
-                            vtkCanvas.GetRenderer().RemoveAllViewProps();
-                            vtkCanvas.GetRenderWindow().Render();
-                            
-                            GaussianSplat gaussSplat = new GaussianSplat(linkedHashMapCloud.get("multibeam"));
-                            gaussSplat.performGaussianSplat(20, 20, 20, 0.3);
-                            //for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
-                            //    vtkActor actor = actorCollection.GetNextActor();
-                                //System.out.println("actor num: " + i + "actor.string: " + actor.toString());
-
-
-                                //vtkCanvas.GetRenderer().RemoveActor(actorCollection.GetNextActor());
-                            //}
-                            
-                            vtkCanvas.GetRenderer().AddActor(gaussSplat.getActorGaussianSplat());
-                            
-                            //vtkCanvas.GetRenderer().Render();
-                            vtkCanvas.GetRenderWindow().Render();
-                            vtkCanvas.getRenderWindowInteractor().Render();
-                            vtkCanvas.GetRenderer().ResetCamera();    
-                        }
-                    }
-                    catch (Exception e1) {
-                        e1.printStackTrace();
-                    }
-                }
-                else {
-                    
-                }
-            }
-        });
-        
-        zExaggerationToggle.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (zExaggerationToggle.isSelected()) {
-                    
-                }
-                else {
-                    
-                }
-            }
-        });
-        
-        resetViewportButton.addActionListener(new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                vtkCanvas.GetRenderer().ResetCamera();
-                vtkCanvas.getRenderWindowInteractor().Render();
-            }
-        });
-
-            // toogles
-        toolbar.add(rawPointsToggle);
-        toolbar.add(downsampledPointsToggle);
-        toolbar.add(meshToogle);
-        toolbar.add(zExaggerationToggle);
-            // buttons
-        toolbar.add(resetViewportButton);
-        toolbar.add(helpButton);
-        
-        return toolbar;
     }
 }

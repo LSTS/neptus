@@ -212,8 +212,6 @@ public class KeyboardEvent {
                         neptusInteractorStyle.solidRepEnabled = false;
                         neptusInteractorStyle.wireframeRepEnabled = false;
                         
-                        System.out.println("point rep enabled");
-                        
                         for (String sKey : setOfClouds) {
                             vtkLODActor tempActor = new vtkLODActor();
                             pointCloud = linkedHashMapCloud.get(sKey);
@@ -238,7 +236,6 @@ public class KeyboardEvent {
             case KeyEvent.VK_I:
                 if (!captionEnabled) {
                     try {
-
                         vtkActorCollection actorCollection = new vtkActorCollection();
                         actorCollection = renderer.GetActors();
                         actorCollection.InitTraversal();

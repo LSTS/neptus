@@ -238,8 +238,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                          
                 for(int i = 0; i < header.numBeams; ++i) {
                     double range = buf.getShort(i*2) * (header.rangeResolution / 1000.0f);  // range resolution in mm -> 1000, range in meters -> short
-                
-                        
+                              
                     if(range == 0.0) { // when buf.getShort(i*2) -> range on 83P, is = 0, data is discarded
                         continue;
                     }
@@ -254,7 +253,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                     
                     
                     data[realNumberOfBeams] = new BathymetryPoint((float) (pose.getPosition().getOffsetNorth() + ox),
-                            (float) (pose.getPosition().getOffsetEast() +oy), (float) height);
+                            (float) (pose.getPosition().getOffsetEast() + oy), (float) height);
 
                     //pointCloud.getVerts().InsertNextCell(1);
                     //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(
