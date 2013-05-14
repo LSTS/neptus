@@ -381,52 +381,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         repaint();
     }
 
-    // @SuppressWarnings("serial")
-    // public void createMenuActions() {
-    //
-    // menuActions.put("About", new AbstractAction(I18n.text("About"), new ImageIcon(this.getClass().getClassLoader()
-    // .getResource("images/menus/info.png"))) {
-    // @Override
-    // public void actionPerformed(ActionEvent e) {
-    // final AboutPanel ap = new AboutPanel();
-    // ap.setVisible(true);
-    // addWindowToOppenedList(ap);
-    // ap.addWindowListener(new WindowAdapter() {
-    // @Override
-    // public void windowClosed(WindowEvent e) {
-    // removeWindowToOppenedList(ap);
-    // }
-    // });
-    // }
-    // });
-    // menuActions.get("About").putValue(
-    // AbstractAction.ACCELERATOR_KEY,
-    // javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_H, java.awt.Event.CTRL_MASK
-    // + java.awt.Event.ALT_MASK, true));
-    //
-    // menuActions.put("Manual", new AbstractAction(I18n.text("Manual"), new ImageIcon(this.getClass()
-    // .getClassLoader().getResource("images/menus/info.png"))) {
-    // @Override
-    // public void actionPerformed(ActionEvent e) {
-    // DocumentationPanel.showDocumentation("start.html");
-    // }
-    // });
-    //
-    // menuActions.put("Extended Manual", new AbstractAction(I18n.text("Extended Manual"), new ImageIcon(this
-    // .getClass().getClassLoader().getResource("images/menus/info.png"))) {
-    // @Override
-    // public void actionPerformed(ActionEvent e) {
-    // try {
-    // Desktop.getDesktop().browse(new File("doc/seacon/manual-seacon.html").toURI());
-    // }
-    // catch (IOException e1) {
-    // e1.printStackTrace();
-    // GuiUtils.errorMessage(I18n.text("Error opening Extended Manual"), e1.getMessage());
-    // }
-    // }
-    // });
-    // }
-
     /**
      * The Frame or Dialog will be added to the opened. On the {@link #cleanup()} these will get dispose of.
      * 
@@ -634,19 +588,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     protected void includeExtraMainMenus() {
         menuBar.add(Box.createHorizontalGlue());
-        // JButton teleoperationButton = new JButton(new AbstractAction("", ICON_TELEOP) {
-        // private static final long serialVersionUID = 1L;
-        //
-        // @Override
-        // public void actionPerformed(ActionEvent e) {
-        // if (controllerPanel == null) {
-        // controllerPanel = new ControllerPanel(getConsole());
-        // }
-        // controllerPanel.setVisible(true);
-        // }
-        // });
-        // teleoperationButton.setSize(25, 25);
-        // menuBar.add(teleoperationButton);
         mainSystemCombo = new MainSystemSelectionCombo(this);
         menuBar.add(mainSystemCombo);
     }
