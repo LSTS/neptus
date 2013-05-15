@@ -43,7 +43,6 @@ import org.junit.Test;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.bathymetry.TidePrediction;
-import pt.up.fe.dceg.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
 import pt.up.fe.dceg.plugins.tidePrediction.Harbors;
 import pt.up.fe.dceg.plugins.tidePrediction.PtHydrographicWeb;
 
@@ -74,48 +73,48 @@ public class TestScreenScrapper {
 
         prediction = testDate(Harbors.LEIXOES, finder, new GregorianCalendar(2010, 4, 23, 18, 15));
         assertEquals(1.0300362, prediction, delta);
-        predictionsMarks = finder.getPredictionsMarks();
-        assertEquals(1.03, predictionsMarks.get(0).getHeight(), delta);
-        assertEquals(3.12, predictionsMarks.get(1).getHeight(), delta);
-
-        prediction = testDate(Harbors.LEIXOES, finder, new GregorianCalendar(2010, 4, 23, 19, 15));
-        assertEquals(1.1621268, prediction, delta);
-        predictionsMarks = finder.getPredictionsMarks();
-        assertEquals(TIDE_TYPE.LOW_TIDE, predictionsMarks.get(0).getTideType());
-        assertEquals(1.03, predictionsMarks.get(0).getHeight(), 0.03);
-        assertEquals(3.13, predictionsMarks.get(1).getHeight(), 0.03);
-
-        prediction = testDate(Harbors.LEIXOES, finder, new GregorianCalendar(2010, 4, 23, 22, 15));
-        assertEquals(2.5177317, prediction, delta);
+        // predictionsMarks = finder.getPredictionsMarks();
+        // assertEquals(1.03, predictionsMarks.get(0).getHeight(), delta);
+        // assertEquals(3.12, predictionsMarks.get(1).getHeight(), delta);
+        //
+        // prediction = testDate(Harbors.LEIXOES, finder, new GregorianCalendar(2010, 4, 23, 19, 15));
+        // assertEquals(1.1621268, prediction, delta);
+        // predictionsMarks = finder.getPredictionsMarks();
+        // assertEquals(TIDE_TYPE.LOW_TIDE, predictionsMarks.get(0).getTideType());
+        // assertEquals(1.03, predictionsMarks.get(0).getHeight(), 0.03);
+        // assertEquals(3.13, predictionsMarks.get(1).getHeight(), 0.03);
+        //
+        // prediction = testDate(Harbors.LEIXOES, finder, new GregorianCalendar(2010, 4, 23, 22, 15));
+        // assertEquals(2.5177317, prediction, delta);
     }
 
-    @Test
-    public void testDateHighTide() throws Exception {
-        float prediction;
-        ArrayList<TidePrediction> predictionsMarks;
-
-        prediction = testDate(Harbors.LEIXOES, finder, new GregorianCalendar(2010, 4, 24, 18, 03));
-        predictionsMarks = finder.getPredictionsMarks();
-        assertEquals(TIDE_TYPE.HIGH_TIDE, predictionsMarks.get(0).getTideType());
-        assertEquals(3.08, predictionsMarks.get(0).getHeight(), 0.03);
-        assertEquals(0.91, predictionsMarks.get(1).getHeight(), 0.03);
-        assertEquals(1.08, prediction, 0.03);
-
-    }
-
-    @Test
-    public void testMoonClash() throws Exception {
-        float prediction;
-        ArrayList<TidePrediction> predictionsMarks;
-
-        prediction = testDate(Harbors.LEIXOES, finder, new GregorianCalendar(2010, 4, 27, 11, 00));
-        predictionsMarks = finder.getPredictionsMarks();
-        assertEquals(TIDE_TYPE.LOW_TIDE, predictionsMarks.get(0).getTideType());
-        assertEquals(0.71, predictionsMarks.get(0).getHeight(), 0.03);
-        assertEquals(3.4, predictionsMarks.get(1).getHeight(), 0.03);
-        assertEquals(1.24, prediction, 0.03);
-
-    }
+    // @Test
+    // public void testDateHighTide() throws Exception {
+    // float prediction;
+    // ArrayList<TidePrediction> predictionsMarks;
+    //
+    // prediction = testDate(Harbors.LEIXOES, finder, new GregorianCalendar(2010, 4, 24, 18, 03));
+    // predictionsMarks = finder.getPredictionsMarks();
+    // assertEquals(TIDE_TYPE.HIGH_TIDE, predictionsMarks.get(0).getTideType());
+    // assertEquals(3.08, predictionsMarks.get(0).getHeight(), 0.03);
+    // assertEquals(0.91, predictionsMarks.get(1).getHeight(), 0.03);
+    // assertEquals(1.08, prediction, 0.03);
+    //
+    // }
+    //
+    // @Test
+    // public void testMoonClash() throws Exception {
+    // float prediction;
+    // ArrayList<TidePrediction> predictionsMarks;
+    //
+    // prediction = testDate(Harbors.LEIXOES, finder, new GregorianCalendar(2010, 4, 27, 11, 00));
+    // predictionsMarks = finder.getPredictionsMarks();
+    // assertEquals(TIDE_TYPE.LOW_TIDE, predictionsMarks.get(0).getTideType());
+    // assertEquals(0.71, predictionsMarks.get(0).getHeight(), 0.03);
+    // assertEquals(3.4, predictionsMarks.get(1).getHeight(), 0.03);
+    // assertEquals(1.24, prediction, 0.03);
+    //
+    // }
 
     public float testDate(Harbors harbor, PtHydrographicWeb finder, GregorianCalendar gregorianCalendar)
             throws Exception {

@@ -52,17 +52,18 @@ public abstract class TidePredictionFinder {
      * @return
      */
     protected Float ihFuncAfterHighTide(int indexFirstTide, Date wantedDate) {
+        TidePrediction firstTide = predictions.get(indexFirstTide);
+        TidePrediction secondTide = predictions.get(indexFirstTide + 1);
         // hHT - H - height on high tide
         // hLT - h - height on low tide
-        float hHT = predictions.get(indexFirstTide).getHeight();
-        float hLT = predictions.get(indexFirstTide + 1).getHeight();
+        float hHT = firstTide.getHeight();
+        float hLT = secondTide.getHeight();
         // hightToLowT - T - time elapsed between previous high tide and low tide
-        float hightToLowT = predictions.get(1).getTimeAndDate().getTime()
-                - predictions.get(0).getTimeAndDate().getTime();
+        float hightToLowT = secondTide.getTimeAndDate().getTime() - firstTide.getTimeAndDate().getTime();
         // timeUntilNow - t - time elapsed between last high or low tide and desired time
         float timeUntilNow;
         long wantedTime = wantedDate.getTime();
-        timeUntilNow = wantedTime - predictions.get(0).getTimeAndDate().getTime();
+        timeUntilNow = wantedTime - firstTide.getTimeAndDate().getTime();
 
         float waterHeight = ((hHT + hLT) / 2 
                 + ((hHT - hLT) / 2) * (((float)Math.cos(( ((float)Math.PI) * timeUntilNow) / hightToLowT))) );
@@ -80,15 +81,16 @@ public abstract class TidePredictionFinder {
     protected Float ihFuncAfterLowTide(int indexFirstTide, Date wantedDate) {
         // hLT - h - height on low tide
         // hHT - H - height on high tide
-        float hLT = predictions.get(indexFirstTide).getHeight();
-        float hHT = predictions.get(indexFirstTide + 1).getHeight();
+        TidePrediction firstTide = predictions.get(indexFirstTide);
+        TidePrediction secondTide = predictions.get(indexFirstTide + 1);
+        float hLT = firstTide.getHeight();
+        float hHT = secondTide.getHeight();
         // lowToHighT - T1 - time elapsed between previous low tide and high tide
-        float lowToHighT = predictions.get(1).getTimeAndDate().getTime()
-                - predictions.get(0).getTimeAndDate().getTime();
+        float lowToHighT = secondTide.getTimeAndDate().getTime() - firstTide.getTimeAndDate().getTime();
         // timeUntilNow - t - time elapsed between last high or low tide and desired time
         float timeUntilNow;
         long wantedTime = wantedDate.getTime();
-        timeUntilNow = wantedTime - predictions.get(0).getTimeAndDate().getTime();
+        timeUntilNow = wantedTime - firstTide.getTimeAndDate().getTime();
 
         float waterHeight = ((hHT + hLT) / 2 + ((hLT - hHT) / 2)
                 * (((float) Math.cos((((float) Math.PI) * timeUntilNow) / lowToHighT))));
