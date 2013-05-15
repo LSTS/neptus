@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.plugins.mraplots;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -254,7 +255,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     }
 
     @Override
-    public JComponent getComponent(IMraLogGroup source, double timestep) {
+    public Component getComponent(IMraLogGroup source, double timestep) {
         this.photosDir = source.getFile("Photos");
         this.index = source.getLsfIndex();
         this.hud = new MraVehiclePosHud(index, 150, 150);

@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.mra;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -53,7 +54,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -475,7 +475,7 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
     }
 
     @Override
-    public JComponent getComponent(IMraLogGroup source, double timestep) {
+    public Component getComponent(IMraLogGroup source, double timestep) {
         redraw(true, curEntity); // At this time curEnity is "ALL" which means to accept all entities
         return this;
     }

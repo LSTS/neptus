@@ -41,20 +41,20 @@ import java.util.regex.Pattern;
  *
  */
 public class DeltaTHeader {
-    short numBytes;
-    short numBeams;
-    short samplesPerBeam;
-    short sectorSize;
-    float startAngle;
-    short rangeResolution;
+    public short numBytes;
+    public short numBeams;
+    public short samplesPerBeam;
+    public short sectorSize;
+    public float startAngle;
+    public short rangeResolution;
     
-    float angleIncrement;
-    short range;
+    public float angleIncrement;
+    public short range;
     
-    long timestamp;
+    public long timestamp;
     
-    static Calendar cal;
-    static Pattern pTimeStamp;
+    private static Calendar cal;
+    private static Pattern pTimeStamp;
     {
         pTimeStamp = Pattern.compile("([0-9]{2})-([A-Z]{3})-([0-9]{4})\0([0-9]{2}):([0-9]{2}):([0-9]{2})");
         cal = Calendar.getInstance();

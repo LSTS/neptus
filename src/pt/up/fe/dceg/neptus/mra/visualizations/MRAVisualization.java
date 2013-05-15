@@ -31,8 +31,9 @@
  */
 package pt.up.fe.dceg.neptus.mra.visualizations;
 
+import java.awt.Component;
+
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 
@@ -46,7 +47,7 @@ public interface MRAVisualization {
     }
     
     public String getName();
-	public JComponent getComponent(IMraLogGroup source, double timestep);
+	public Component getComponent(IMraLogGroup source, double timestep);
 	public boolean canBeApplied(IMraLogGroup source);
 	public ImageIcon getIcon();
 	public Double getDefaultTimeStep();

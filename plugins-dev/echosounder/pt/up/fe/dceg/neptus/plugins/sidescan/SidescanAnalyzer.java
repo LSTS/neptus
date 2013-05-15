@@ -31,11 +31,11 @@
  */
 package pt.up.fe.dceg.neptus.plugins.sidescan;
 
+import java.awt.Component;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.plaf.basic.BasicSliderUI;
 
@@ -137,7 +137,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     }
 
     @Override
-    public JComponent getComponent(IMraLogGroup source, double timestep) {
+    public Component getComponent(IMraLogGroup source, double timestep) {
         initialize(source);
         revalidate();
         repaint();
