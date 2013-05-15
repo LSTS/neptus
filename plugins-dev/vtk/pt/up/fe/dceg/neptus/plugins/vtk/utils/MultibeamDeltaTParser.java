@@ -42,6 +42,7 @@ import java.nio.channels.FileChannel.MapMode;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryInfo;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
@@ -69,6 +70,8 @@ public class MultibeamDeltaTParser implements BathymetryParser{
     
     private int realNumberOfBeams = 0;
     private int totalNumberPoints = 0;
+    
+    private int count = 0;
     
     public BathymetryInfo info;
     
@@ -144,26 +147,46 @@ public class MultibeamDeltaTParser implements BathymetryParser{
 //            System.out.println("minLon: " + minLon);
 //            System.out.println("maxLon: " + maxLon);
 
-            for(int c = 0; c < bs.numBeams; ++c) {
-                BathymetryPoint p = bs.getData()[c];
-
-                info.minDepth = Math.min(info.minDepth, p.depth);
-                info.maxDepth = Math.max(info.maxDepth, p.depth);
-                
-                    //minX = Math.min(minX, p.north);
-                    //maxX = Math.max(maxX, p.north);
-                    //minY = Math.min(minY, p.east);
-                    //maxX = Math.max(maxY, p.east);
-                pointCloud.getVerts().InsertNextCell(1);
-                pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth));
+            
+            if (!NeptusMRA.approachToIgnorePts) {              
+                for(int c = 0; c < bs.numBeams; c += NeptusMRA.ptsToIgnore) {
+                    BathymetryPoint p = bs.getData()[c];
+                    ++count;
+                    info.minDepth = Math.min(info.minDepth, p.depth);
+                    info.maxDepth = Math.max(info.maxDepth, p.depth);
+                    
+                        //minX = Math.min(minX, p.north);
+                        //maxX = Math.max(maxX, p.north);
+                        //minY = Math.min(minY, p.east);
+                        //maxX = Math.max(maxY, p.east);
+                      
+                    pointCloud.getVerts().InsertNextCell(1);
+                    pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth));
+                }  
             }
-            totalNumberPoints = totalNumberPoints + bs.numBeams;
+            else {
+                System.out.println("approach by probability: " + NeptusMRA.approachToIgnorePts);
+                for(int c = 0; c < bs.numBeams; c ++) {
+                    if (Math.random() > 1.0 / NeptusMRA.ptsToIgnore)
+                        continue;              
+                    BathymetryPoint p = bs.getData()[c];                
+                    
+                    ++count;
+                    info.minDepth = Math.min(info.minDepth, p.depth);
+                    info.maxDepth = Math.max(info.maxDepth, p.depth);
+            
+                    pointCloud.getVerts().InsertNextCell(1);
+                    pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth));
+                }
+            }
+            //totalNumberPoints = totalNumberPoints + bs.numBeams;
+            totalNumberPoints += count;
+            count = 0;
             realNumberOfBeams = 0;
             numberSwaths++;
             // NeptusLog.pub().info("<###> total number of points: " + totalNumberPoints);
         }
-        pointCloud.setNumberOfPoints(totalNumberPoints);
-        
+        pointCloud.setNumberOfPoints(totalNumberPoints);      
         // NeptusLog.pub().info("<###> Max Lat: " + maxLat);
         // NeptusLog.pub().info("<###> Min Lat: " + minLat);
         // NeptusLog.pub().info("<###> Max Long: " + maxLon);
