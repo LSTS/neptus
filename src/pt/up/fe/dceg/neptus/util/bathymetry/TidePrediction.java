@@ -29,7 +29,7 @@
  * Author: mfaria
  * ??/??/???
  */
-package pt.up.fe.dceg.plugins.tidePrediction;
+package pt.up.fe.dceg.neptus.util.bathymetry;
 import java.util.Date;
 
 /**

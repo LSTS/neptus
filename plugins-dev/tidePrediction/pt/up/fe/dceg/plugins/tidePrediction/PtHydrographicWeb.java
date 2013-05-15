@@ -45,7 +45,9 @@ import java.util.List;
 import org.apache.commons.logging.LogFactory;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.plugins.tidePrediction.TidePrediction.TIDE_TYPE;
+import pt.up.fe.dceg.neptus.util.bathymetry.TidePrediction;
+import pt.up.fe.dceg.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
+import pt.up.fe.dceg.neptus.util.bathymetry.TidePredictionFinder;
 import pt.up.fe.dceg.plugins.tidePrediction.util.DateUtils;
 
 import com.gargoylesoftware.htmlunit.AlertHandler;
@@ -182,13 +184,7 @@ public class PtHydrographicWeb extends TidePredictionFinder {
             downloadPredictions(date);
         }
 
-        Float prediction;
-        if (predictions.get(0).getTideType() == TIDE_TYPE.HIGH_TIDE) {
-            prediction = ihFuncAfterHighTide(predictions, date);
-        }
-        else {
-            prediction = ihFuncAfterLowTide(predictions, date);
-        }
+        Float prediction = findPrediction(date, 0);
         if (print) {
             NeptusLog.pub().info("<###>For " + date + " in " + harbor.toString());
             NeptusLog.pub().info("<###> " + predictions.get(0).toString());

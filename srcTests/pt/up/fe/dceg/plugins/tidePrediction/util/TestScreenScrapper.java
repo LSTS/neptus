@@ -42,10 +42,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.util.bathymetry.TidePrediction;
+import pt.up.fe.dceg.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
 import pt.up.fe.dceg.plugins.tidePrediction.Harbors;
 import pt.up.fe.dceg.plugins.tidePrediction.PtHydrographicWeb;
-import pt.up.fe.dceg.plugins.tidePrediction.TidePrediction;
-import pt.up.fe.dceg.plugins.tidePrediction.TidePrediction.TIDE_TYPE;
 
 /**
  * @author Margarida Faria
@@ -73,17 +73,20 @@ public class TestScreenScrapper {
         ArrayList<TidePrediction> predictionsMarks;
 
         prediction = testDate(Harbors.LEIXOES, finder, new GregorianCalendar(2010, 4, 23, 18, 15));
+        assertEquals(1.0300362, prediction, delta);
         predictionsMarks = finder.getPredictionsMarks();
         assertEquals(1.03, predictionsMarks.get(0).getHeight(), delta);
         assertEquals(3.12, predictionsMarks.get(1).getHeight(), delta);
-        assertEquals(1.0300362, prediction, delta);
 
         prediction = testDate(Harbors.LEIXOES, finder, new GregorianCalendar(2010, 4, 23, 19, 15));
+        assertEquals(1.1621268, prediction, delta);
         predictionsMarks = finder.getPredictionsMarks();
         assertEquals(TIDE_TYPE.LOW_TIDE, predictionsMarks.get(0).getTideType());
         assertEquals(1.03, predictionsMarks.get(0).getHeight(), 0.03);
         assertEquals(3.13, predictionsMarks.get(1).getHeight(), 0.03);
-        assertEquals(1.1851, prediction, 0.03);
+
+        prediction = testDate(Harbors.LEIXOES, finder, new GregorianCalendar(2010, 4, 23, 22, 15));
+        assertEquals(2.5177317, prediction, delta);
     }
 
     @Test
@@ -118,7 +121,7 @@ public class TestScreenScrapper {
             throws Exception {
         Date wantedDate;
         Float tidePredictions;
-        NeptusLog.pub().info("<###>---------------------------------------------");
+        NeptusLog.pub().info("<###>---------------------------------------------\n");
         wantedDate = gregorianCalendar.getTime();
         tidePredictions = finder.getTidePrediction(wantedDate, true);
         NeptusLog.pub().info("<###>For " + harbor.name() + " at " + wantedDate.toString() + " height:" + tidePredictions);

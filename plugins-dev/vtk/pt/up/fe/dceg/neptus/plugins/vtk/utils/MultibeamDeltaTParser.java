@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.util.Date;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
@@ -52,19 +53,20 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTHeader;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.up.fe.dceg.neptus.util.bathymetry.LocalData;
 
 /**
  * @author hfq
  *
  */
 public class MultibeamDeltaTParser implements BathymetryParser{
-    private IMraLogGroup logGroup;
-    private IMraLog stateParserLogMra;
+    private final IMraLogGroup logGroup;
+    private final IMraLog stateParserLogMra;
     private IMCMessage stateIMCMsg;
     
     private File file;
     private FileInputStream fis;
-    private FileChannel channel;
+    private final FileChannel channel;
     private ByteBuffer buf;
     private long currPos = 0;
     
@@ -93,9 +95,12 @@ public class MultibeamDeltaTParser implements BathymetryParser{
     
     public PointCloud<PointXYZ> pointCloud;
     
+    private final LocalData ld;
+
     public MultibeamDeltaTParser(IMraLogGroup source, PointCloud<PointXYZ> pointCloud) {
         this.logGroup = source;
         this.pointCloud = pointCloud;
+        ld = new LocalData(logGroup.getFile("tides.txt"));
         
         if(source.getFile("data.83P") != null)
             file = source.getFile("data.83P");
@@ -119,10 +124,23 @@ public class MultibeamDeltaTParser implements BathymetryParser{
         
         initialize();
     }
+
     
+
     private double getTideOffset(long timestampMillis) {
-        //TODO
-        return 0;
+        
+        File tidesF = logGroup.getFile("tides.txt");;
+        if (tidesF == null)
+            return 0;
+        else {
+            try {
+                return ld.getTidePrediction(new Date(timestampMillis), false);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                return 0;
+            }
+        }
     }
 
     /**
