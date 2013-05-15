@@ -92,7 +92,7 @@ public class LocalData extends TidePredictionFinder {
                 foundSecond = true;
             }
         }
-        if (!foundSecond)
+        if (!foundSecond || iTide == -1)
             return 0f;
 
         return findPrediction(date, first);

@@ -61,9 +61,9 @@ public class TidePlot extends MraTimeSeriesPlot {
     public void process(LsfIndex source) {
         LocalData ld = new LocalData(new File(index.getLsfFile().getParent(), "tides.txt"));
         try {
-        for (double i = 0; i < source.getStartTime(); i+= 60) {
+        for (double i = source.getStartTime(); i < source.getEndTime(); i+= 60) {
             long time = (long)(i * 1000);
-            
+                System.out.println(new Date(time));
                 addValue(time, "Tide height", ld.getTidePrediction(new Date(time), false));
             }
             
