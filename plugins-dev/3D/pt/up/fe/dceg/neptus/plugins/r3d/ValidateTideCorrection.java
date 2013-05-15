@@ -39,28 +39,34 @@ import pt.up.fe.dceg.neptus.imc.lsf.LsfIterator;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.plugins.tidePrediction.Harbors;
-import pt.up.fe.dceg.plugins.tidePrediction.TidePredictionFinder;
+import pt.up.fe.dceg.plugins.tidePrediction.PtHydrographicWeb;
 
 /**
  * @author Margarida Faria
  *
  */
 public class ValidateTideCorrection {
-    private final Harbors harbor;
+    private Harbors harbor;
     private final IMraLogGroup source;
 
-    public ValidateTideCorrection(IMraLogGroup source, Harbors harbor) {
+    public ValidateTideCorrection(IMraLogGroup source) {
         super();
         this.source = source;
-        this.harbor = harbor;
     }
+
+    // /**
+    // * @param harbor the harbor to set
+    // */
+    // public void setHarbor(Harbors harbor) {
+    // this.harbor = harbor;
+    // }
 
     public void printRelevantData() throws Exception {
         NeptusLog.pub().info("<###>");
         LsfIndex lsfIndex = source.getLsfIndex();
         LsfIterator<DesiredPath> desiredPathIt = lsfIndex.getIterator(DesiredPath.class);
         // -- Start tide prediction
-        TidePredictionFinder tidePrediction = new TidePredictionFinder();
+        PtHydrographicWeb tidePrediction = new PtHydrographicWeb(harbor);
 
         desiredPathIt.next();
         desiredPathIt.next();
@@ -75,7 +81,7 @@ public class ValidateTideCorrection {
     }
 
     private void checkGoto(LsfIterator<DesiredPath> desiredPathIt,
-            TidePredictionFinder tidePrediction) throws Exception {
+ PtHydrographicWeb tidePrediction) throws Exception {
         DesiredPath desiredPathMsg = desiredPathIt.next();
         double gotoTimestamp = desiredPathMsg.getTimestamp();
         NeptusLog.pub().info("<###>Desired path timestamp:   " + gotoTimestamp);
@@ -86,7 +92,7 @@ public class ValidateTideCorrection {
     }
 
     private void loopCode(EstimatedState currEstStateMsg,
-            TidePredictionFinder tidePrediction) throws Exception {
+ PtHydrographicWeb tidePrediction) throws Exception {
         double alt;
         double depth;
         // -- loop code
@@ -105,7 +111,7 @@ public class ValidateTideCorrection {
             NeptusLog.pub().info("<###>vehicleDepthVec 0, the end");
             return;
         }
-        currPrediction = tidePrediction.getTidePrediction(currEstStateMsg.getDate(), harbor, true);
+        currPrediction = tidePrediction.getTidePrediction(currEstStateMsg.getDate(), true);
 
         tideOff = currPrediction;// - tideOfFirstDepth;
         NeptusLog.pub().info("<###>Tide:" + currPrediction);

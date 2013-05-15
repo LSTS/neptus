@@ -58,7 +58,7 @@ import pt.up.fe.dceg.neptus.plugins.r3d.dto.VehicleInfoAtPointDTO;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.llf.LogUtils;
 import pt.up.fe.dceg.plugins.tidePrediction.Harbors;
-import pt.up.fe.dceg.plugins.tidePrediction.TidePredictionFinder;
+import pt.up.fe.dceg.plugins.tidePrediction.PtHydrographicWeb;
 
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
@@ -95,7 +95,7 @@ public class Bathymetry3DGenerator {
     private Vector<Double> xVec, yVec, waterColumnVec, vehicleDepthVec;
     private LocationType imageCornerRef;
     private int idSourceBottomDistance;
-    private final Harbors harbor;
+
 
     /**
      * Sets the source of the log and the timestamp. Initializes the object where to store the collected data.
@@ -105,11 +105,9 @@ public class Bathymetry3DGenerator {
      * @param timestamp
      * @throws IOException when the source entity of the bottom distance information is invalid
      */
-    public Bathymetry3DGenerator(IMraLogGroup source, Harbors harbor) {
-        super();
+    public Bathymetry3DGenerator(IMraLogGroup source) {
         this.source = source;
         data = new BathymetryLogInfo();
-        this.harbor = harbor;
     }
 
     /**
@@ -225,7 +223,7 @@ public class Bathymetry3DGenerator {
      * 
      * @throws Exception
      */
-    public BathymetryLogInfo extractBathymetryInfoIMC5(boolean tideAdjust) {
+    public BathymetryLogInfo extractBathymetryInfoIMC5(boolean tideAdjust, Harbors harbor) {
         if (data == null) {
             data = new BathymetryLogInfo();
         }
@@ -238,10 +236,13 @@ public class Bathymetry3DGenerator {
 
         LsfIndex lsfIndex = source.getLsfIndex();
         // find water height at start of log
-        TidePredictionFinder tidePrediction = null;
+        PtHydrographicWeb tidePrediction = null;
 
+        if (harbor == null) {
+
+        }
         if (harbor != null && tideAdjust) {
-            tidePrediction = new TidePredictionFinder();
+            tidePrediction = new PtHydrographicWeb(harbor);
         }
 
         // process whole log
@@ -273,7 +274,7 @@ public class Bathymetry3DGenerator {
                     continue;
                 }
                 try {
-                    currPrediction = tidePrediction.getTidePrediction(currEstStateMsg.getDate(), harbor, false);
+                    currPrediction = tidePrediction.getTidePrediction(currEstStateMsg.getDate(), false);
                 }
                 catch (Exception e) {
                     e.printStackTrace();

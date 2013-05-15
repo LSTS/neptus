@@ -46,6 +46,7 @@ import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.table.TableModel;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.i18n.I18n;
@@ -57,6 +58,8 @@ import pt.up.fe.dceg.neptus.mra.visualizations.SimpleMRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.r3d.jme3.JmeComponent;
 import pt.up.fe.dceg.plugins.tidePrediction.Harbors;
+import pt.up.fe.dceg.plugins.tidePrediction.gui.TideTable;
+import pt.up.fe.dceg.plugins.tidePrediction.gui.TideTableModel;
 
 import com.jme3.system.JmeCanvasContext;
 
@@ -94,6 +97,7 @@ public class Bathymetry3D extends SimpleMRAVisualization implements LogMarkerLis
         }
         // PerformanceTest.initMem();
         // PerformanceTest.printToLog(PrintType.START, "");
+
         started = true;
         markerObserver.setSource(source);
         // add bad drivers listener
@@ -135,7 +139,6 @@ public class Bathymetry3D extends SimpleMRAVisualization implements LogMarkerLis
             public void actionPerformed(ActionEvent e) {
                 final Harbors selectedHarbor = (Harbors) harborList.getSelectedItem();
                 if (selectedHarbor != null) {
-
                     startJme(badDrivers, selectedHarbor);
                 }
                 else {
@@ -157,8 +160,12 @@ public class Bathymetry3D extends SimpleMRAVisualization implements LogMarkerLis
 
         });
 
+        TableModel data = new TideTableModel();
+        TideTable table = new TideTable(data);
+
         this.add(harborList, "span, split 2, center");
         this.add(startButton, "wrap");
+        this.add(table, "span, center, wrap");
         this.add(startNoHarborButton, "span, center, wrap");
         this.add(errorMsg, "span, center");
 

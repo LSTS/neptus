@@ -139,11 +139,11 @@ public class JmeComponent extends SimpleApplication {
         // Extract bathymery data from log
         Bathymetry3DGenerator bathyGen;
         BathymetryLogInfo bathyInfo = null;
-        bathyGen = new Bathymetry3DGenerator(source, harbor);
+        bathyGen = new Bathymetry3DGenerator(source);
         if (source.getLsfIndex().getDefinitions().getVersion().compareTo("5.0.0") >= 0) {
-            bathyInfo = bathyGen.extractBathymetryInfoIMC5(true);
+            bathyInfo = bathyGen.extractBathymetryInfoIMC5(true, harbor);
             if(bathyInfo == null)
-                bathyInfo = bathyGen.extractBathymetryInfoIMC5(false);
+                bathyInfo = bathyGen.extractBathymetryInfoIMC5(false, harbor);
         }
         else {
             try {

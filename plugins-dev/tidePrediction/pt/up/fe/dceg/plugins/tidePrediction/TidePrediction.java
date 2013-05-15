@@ -30,14 +30,7 @@
  * ??/??/???
  */
 package pt.up.fe.dceg.plugins.tidePrediction;
-import java.text.ParseException;
 import java.util.Date;
-import java.util.Iterator;
-
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.plugins.tidePrediction.util.DateUtils;
-
-import com.gargoylesoftware.htmlunit.html.DomElement;
 
 /**
  * All the important info retrieved from the website and the way to retrieve it 
@@ -71,42 +64,18 @@ public class TidePrediction {
     private TIDE_TYPE tideType;
 
     /**
-     * Constructor that extracts height, time, date and tideType from the HtmlElements
-     * 
-     * @param tideInfo the elements inside the table 
-     * @throws ParseException (when attempting to read the height of the tide)
+     * @param height
+     * @param timeAndDate
+     * @param tideType
      */
-    public TidePrediction(Iterator<DomElement> tideInfo) throws ParseException {
-        // Date and hour
-        DomElement next = tideInfo.next();
-        String dateAndHour = next.getTextContent();
-        timeAndDate = DateUtils.getDate(dateAndHour);
-        // Moon or Tide?  
-        // Sometimes the table has the moon phase and sometimes it doesn't
-        // to accomodate for this we'll try to get the value for the tide
-        next = tideInfo.next();
-        String substring = next.getTextContent().substring(1);
-        try {
-            // if this works there was no moon prediciton
-            height =Float.parseFloat(substring);
-        }
-        catch (NumberFormatException e) {
-            // This means that there was a moon prediction so we'll just skip along 
-            // and get it from the next one
-            NeptusLog.pub().debug(e.getMessage());
-            next = tideInfo.next();
-            substring = next.getTextContent().substring(1);
-            height =Float.parseFloat(substring);
-        }
-        // kind of tide
-        next = tideInfo.next();
-        String tideTypeStr = next.getTextContent().substring(1); // the substring remove the initial space
-        if(tideTypeStr.equals(TIDE_TYPE.HIGH_TIDE.getPt()))
-            tideType = TIDE_TYPE.HIGH_TIDE;
-        else
-            tideType = TIDE_TYPE.LOW_TIDE;
+    public TidePrediction(float height, Date timeAndDate, TIDE_TYPE tideType) {
+        super();
+        this.height = height;
+        this.timeAndDate = timeAndDate;
+        this.tideType = tideType;
     }
-    
+
+
     public float getHeight() {
         return height;
     }
