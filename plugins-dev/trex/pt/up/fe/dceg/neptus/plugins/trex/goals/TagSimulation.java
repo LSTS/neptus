@@ -46,7 +46,7 @@ import com.l2fprod.common.propertysheet.Property;
  *
  */
 public class TagSimulation extends TrexGoal implements Renderer2DPainter {
-    protected double lat_deg, lon_deg;
+    protected double latitude, longitude;
 
     /**
      * @param ipShore
@@ -55,8 +55,8 @@ public class TagSimulation extends TrexGoal implements Renderer2DPainter {
      */
     public TagSimulation(double lat_deg, double lon_deg) {
         super("spotSim", "position");
-        this.lat_deg = lat_deg;
-        this.lon_deg = lon_deg;
+        this.latitude = lat_deg;
+        this.longitude = lon_deg;
     }
 
     @Override
@@ -95,8 +95,8 @@ public class TagSimulation extends TrexGoal implements Renderer2DPainter {
                 + "\"on\": \""+super.timeline+"\",\"pred\": \""+super.predicate+"\","
                 + "\"Variable\":"
                 + "["
-                + "{\"float\":{\"value\": \""+lat_deg+"\"}, \"name\": \"latitude\"},"
-                + "{\"float\":{\"value\": \""+lon_deg+"\"}, \"name\": \"longitude\"}"
+                + "{\"float\":{\"value\": \""+latitude+"\"}, \"name\": \"latitude\"},"
+                + "{\"float\":{\"value\": \""+longitude+"\"}, \"name\": \"longitude\"}"
                 + "]}";
     }
 

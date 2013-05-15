@@ -53,12 +53,12 @@ public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
     protected double depth = 0;
     protected double tolerance = 10;
     // FIXME passar a location type
-    protected double lat_deg, lon_deg;
+    protected double latitude, longitude;
 
     public VisitLocationGoal(double lat_deg, double lon_deg) {
         super("navigator", "At");
-        this.lat_deg = lat_deg;
-        this.lon_deg = lon_deg;
+        this.latitude = lat_deg;
+        this.longitude = lon_deg;
     }	
 	
     public VisitLocationGoal() {
@@ -76,8 +76,8 @@ public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
         super("navigator", "At");
         this.speed = speed;
         this.depth = depth;
-        this.lat_deg = lat_deg;
-        this.lon_deg = lon_deg;
+        this.latitude = lat_deg;
+        this.longitude = lon_deg;
     }
 
 
@@ -99,8 +99,8 @@ public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
 
         props.add(PropertiesEditor.getPropertyInstance("Depth", Double.class, depth, true));
         props.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, speed, true));
-        props.add(PropertiesEditor.getPropertyInstance("Latitude", Double.class, lat_deg, true));
-        props.add(PropertiesEditor.getPropertyInstance("Longitude", Double.class, lon_deg, true));
+        props.add(PropertiesEditor.getPropertyInstance("Latitude", Double.class, latitude, true));
+        props.add(PropertiesEditor.getPropertyInstance("Longitude", Double.class, longitude, true));
 
         return props;
     }
@@ -115,9 +115,9 @@ public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
                 case "Speed":
                     speed = (Double) p.getValue();
                 case "Latitude":
-                    lat_deg = (Double) p.getValue();
+                    latitude = (Double) p.getValue();
                 case "Longitude":
-                    lon_deg = (Double) p.getValue();
+                    longitude = (Double) p.getValue();
                 default:
                     break;
             }
@@ -125,7 +125,7 @@ public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
     }
 
     public LocationType getLocation() {
-        LocationType loc = new LocationType(lat_deg, lon_deg);
+        LocationType loc = new LocationType(latitude, longitude);
         loc.setAbsoluteDepth(depth);
         return loc;
     }
@@ -141,8 +141,8 @@ public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
                 + "\"Variable\":"
                 + "["
                 + "{\"float\":{\"value\": \""+speed+"\"}, \"name\": \"speed\"},"
-                + "{\"float\":{\"value\": \""+lat_deg+"\"}, \"name\": \"latitude\"},"
-                + "{\"float\":{\"value\": \""+lon_deg+"\"}, \"name\": \"longitude\"}"
+                + "{\"float\":{\"value\": \""+latitude+"\"}, \"name\": \"latitude\"},"
+                + "{\"float\":{\"value\": \""+longitude+"\"}, \"name\": \"longitude\"}"
 //                + "{\"duration\":{\"min\": \"00:01:00.403000\", \"max\": \"00:01:00.403000\"}, \"type\": \"duration\", \"name\": \"duration\"}"
                 + "]}";
     }
