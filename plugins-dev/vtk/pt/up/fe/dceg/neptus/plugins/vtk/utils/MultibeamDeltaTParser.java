@@ -119,6 +119,11 @@ public class MultibeamDeltaTParser implements BathymetryParser{
         
         initialize();
     }
+    
+    private double getTideOffset(long timestampMillis) {
+        //TODO
+        return 0;
+    }
 
     /**
      * 
@@ -128,13 +133,11 @@ public class MultibeamDeltaTParser implements BathymetryParser{
 
         BathymetrySwath bs;
         
-        int i = 0;
-        
         while ((bs = nextSwath()) != null) {
             
             double lat = bs.getPose().getPosition().getLatitudeAsDoubleValueRads();
             double lon = bs.getPose().getPosition().getLongitudeAsDoubleValueRads();
-                
+            double tideOffset = getTideOffset(bs.getTimestamp());
             maxLat = Math.max(lat, maxLat);
             minLat = Math.min(lat, minLat);
             maxLon = Math.max(lon, maxLon);
@@ -152,6 +155,8 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                 for(int c = 0; c < bs.numBeams; c += NeptusMRA.ptsToIgnore) {
                     BathymetryPoint p = bs.getData()[c];
                     ++count;
+                    
+                    
                     info.minDepth = Math.min(info.minDepth, p.depth);
                     info.maxDepth = Math.max(info.maxDepth, p.depth);
                     
@@ -161,7 +166,8 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                         //maxX = Math.max(maxY, p.east);
                       
                     pointCloud.getVerts().InsertNextCell(1);
-                    pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth));
+                    
+                    pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth+tideOffset));
                 }  
             }
             else {
@@ -175,7 +181,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                     info.maxDepth = Math.max(info.maxDepth, p.depth);
             
                     pointCloud.getVerts().InsertNextCell(1);
-                    pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth));
+                    pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(p.north, p.east,  p.depth+tideOffset));
                 }
             }
             //totalNumberPoints = totalNumberPoints + bs.numBeams;
@@ -233,7 +239,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             buf = channel.map(MapMode.READ_ONLY, currPos + 256, header.numBeams * 2); // numberBeam * 2 -> number of bytes
             data = new BathymetryPoint[header.numBeams];
             
-            // NeptusLog.pub().info("<###> header.timestamp: " + header.timestamp);
+             NeptusLog.pub().info("<###> header.timestamp: " + header.timestamp);
                 // get vehicle pos at the timestamp
             stateIMCMsg = stateParserLogMra.getEntryAtOrAfter(header.timestamp);
 
