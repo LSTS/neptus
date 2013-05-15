@@ -165,10 +165,9 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                 }  
             }
             else {
-                System.out.println("approach by probability: " + NeptusMRA.approachToIgnorePts);
                 for(int c = 0; c < bs.numBeams; c ++) {
                     if (Math.random() > 1.0 / NeptusMRA.ptsToIgnore)
-                        continue;              
+                        continue;        
                     BathymetryPoint p = bs.getData()[c];                
                     
                     ++count;

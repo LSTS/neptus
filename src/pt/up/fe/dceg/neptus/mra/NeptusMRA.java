@@ -138,7 +138,10 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
     public static int ptsToIgnore = 1;
     
     @NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description="Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).")
-    public static boolean approachToIgnorePts = false; 
+    public static boolean approachToIgnorePts = true; 
+    
+    @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration")
+    public static int zExaggeration = 10;
     
     private AbstractAction genReport, setMission, preferences, openLsf, httpDuneDownload, httpVehicleDownload;
     

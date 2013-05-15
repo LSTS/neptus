@@ -32,6 +32,8 @@
 package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.mra.MRAPanel;
+import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCellArray;
 import vtk.vtkPoints;
@@ -71,7 +73,7 @@ public class ExaggeratePointCloudZ {
                 for (int i = 0; i < cloudPoints.GetNumberOfPoints(); ++i) {
                     double[] p = new double[3];
                     cloudPoints.GetPoint(i, p);
-                    p[2] = p[2] * 10.0;
+                    p[2] = p[2] * NeptusMRA.zExaggeration;
                     verts.InsertNextCell(1);
                     verts.InsertCellPoint(newCloudPoints.InsertNextPoint(p));
                 }               
