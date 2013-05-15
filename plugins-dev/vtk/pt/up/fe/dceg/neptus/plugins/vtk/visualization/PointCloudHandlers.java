@@ -42,7 +42,7 @@ import vtk.vtkUnsignedCharArray;
 
 /**
  * @author hfq
- *  FIXME - this will handle color mapping
+ * Handles Pointcloud colors
  */
 public class PointCloudHandlers<T extends PointXYZ> {
     
@@ -67,6 +67,13 @@ public class PointCloudHandlers<T extends PointXYZ> {
         setLutZ(new vtkLookupTable());
     }
     
+    /**
+     * 
+     * @param numberPoints
+     * @param polyData
+     * @param colorLookupTable
+     * @param bounds
+     */
     public void setPointCloudColorHandlers(int numberPoints, vtkPolyData polyData, vtkLookupTable colorLookupTable, double[] bounds) {
         this.numberOfPoints = numberPoints;
         this.setPolyData(polyData);
@@ -83,8 +90,7 @@ public class PointCloudHandlers<T extends PointXYZ> {
         
         colorsX.SetNumberOfComponents(3);
         colorsY.SetNumberOfComponents(3);
-        colorsZ.SetNumberOfComponents(3);
-        
+        colorsZ.SetNumberOfComponents(3);      
         colorsX.SetName("colorsX");
         colorsY.SetName("colorsY");
         colorsZ.SetName("colorsZ");
@@ -96,17 +102,10 @@ public class PointCloudHandlers<T extends PointXYZ> {
             double[] xDColor = new double[3];
             double[] yDColor = new double[3];
             double[] zDColor = new double[3];
-                
-            //NeptusLog.pub().info("point: x = " + point[0] + " y = " + point[1] + " z = " + point[2]);
-            
-            //colorLookupTable.GetColor(point[0], xDColor);
+                           
             getLutX().GetColor(point[0], xDColor);
-            //NeptusLog.pub().info("point[0]: " + point[0]);
-            //colorLookupTable.GetColor(point[1], yDColor);
             getLutY().GetColor(point[1], yDColor);
-            //NeptusLog.pub().info("point[1]: " + point[1]);
             getLutZ().GetColor(point[2], zDColor);
-            //NeptusLog.pub().info("point[2]: " + point[3]);
             
             char[] colorx = new char[3];
             char[] colory = new char[3];
@@ -117,11 +116,7 @@ public class PointCloudHandlers<T extends PointXYZ> {
                 colory[j] = (char) (255.0 * yDColor[j]);
                 colorz[j] = (char) (255.0 * zDColor[j]);
             }
-            //NeptusLog.pub().info("xDcolor[]: x =" + xDColor[0] + " y= " + xDColor[1] + " z= " + xDColor[2]);
-            //NeptusLog.pub().info("yDcolor[]: x =" + yDColor[0] + " y= " + yDColor[1] + " z= " + yDColor[2]);
-            //NeptusLog.pub().info("zDcolor[]: x =" + zDColor[0] + " y= " + zDColor[1] + " z= " + zDColor[2]);
-            
-            
+                       
             colorsX.InsertNextTuple3(colorx[0], colorx[1], colorx[2]);
             colorsY.InsertNextTuple3(colory[0], colory[1], colory[2]);
             colorsZ.InsertNextTuple3(colorz[0], colorz[1], colorz[2]);
@@ -198,6 +193,49 @@ public class PointCloudHandlers<T extends PointXYZ> {
     public void setColorLookupTable(vtkLookupTable colorLookupTable) {
         this.colorLookupTable = colorLookupTable;
     }
+    
+
+    /**
+     * @return the lutX
+     */
+    public vtkLookupTable getLutX() {
+        return lutX;
+    }
+
+    /**
+     * @param lutX the lutX to set
+     */
+    public void setLutX(vtkLookupTable lutX) {
+        this.lutX = lutX;
+    }
+
+    /**
+     * @return the lutY
+     */
+    public vtkLookupTable getLutY() {
+        return lutY;
+    }
+
+    /**
+     * @param lutY the lutY to set
+     */
+    public void setLutY(vtkLookupTable lutY) {
+        this.lutY = lutY;
+    }
+
+    /**
+     * @return the lutZ
+     */
+    public vtkLookupTable getLutZ() {
+        return lutZ;
+    }
+
+    /**
+     * @param lutZ the lutZ to set
+     */
+    public void setLutZ(vtkLookupTable lutZ) {
+        this.lutZ = lutZ;
+    }
 
     public static double[] getRandomColor(PointCloud<PointXYZ> cloud) {
         cloud.getNumberOfPoints();
@@ -253,47 +291,4 @@ public class PointCloudHandlers<T extends PointXYZ> {
         
         return scalars;
     }
-
-    /**
-     * @return the lutX
-     */
-    public vtkLookupTable getLutX() {
-        return lutX;
-    }
-
-    /**
-     * @param lutX the lutX to set
-     */
-    public void setLutX(vtkLookupTable lutX) {
-        this.lutX = lutX;
-    }
-
-    /**
-     * @return the lutY
-     */
-    public vtkLookupTable getLutY() {
-        return lutY;
-    }
-
-    /**
-     * @param lutY the lutY to set
-     */
-    public void setLutY(vtkLookupTable lutY) {
-        this.lutY = lutY;
-    }
-
-    /**
-     * @return the lutZ
-     */
-    public vtkLookupTable getLutZ() {
-        return lutZ;
-    }
-
-    /**
-     * @param lutZ the lutZ to set
-     */
-    public void setLutZ(vtkLookupTable lutZ) {
-        this.lutZ = lutZ;
-    }
-
 }

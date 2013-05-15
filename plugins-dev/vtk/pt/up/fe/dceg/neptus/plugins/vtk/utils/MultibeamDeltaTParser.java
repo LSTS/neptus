@@ -160,14 +160,14 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             totalNumberPoints = totalNumberPoints + bs.numBeams;
             realNumberOfBeams = 0;
             numberSwaths++;
-            NeptusLog.pub().info("<###> total number of points: " + totalNumberPoints);
+            // NeptusLog.pub().info("<###> total number of points: " + totalNumberPoints);
         }
         pointCloud.setNumberOfPoints(totalNumberPoints);
         
-        NeptusLog.pub().info("<###> Max Lat: " + maxLat);
-        NeptusLog.pub().info("<###> Min Lat: " + minLat);
-        NeptusLog.pub().info("<###> Max Long: " + maxLon);
-        NeptusLog.pub().info("<###> Min Long: " + minLon);
+        // NeptusLog.pub().info("<###> Max Lat: " + maxLat);
+        // NeptusLog.pub().info("<###> Min Lat: " + minLat);
+        // NeptusLog.pub().info("<###> Max Long: " + maxLon);
+        // NeptusLog.pub().info("<###> Min Long: " + minLon);
     }
 
     @Override
@@ -196,8 +196,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
 
             if(currPos >= channel.size()) // got to the end of file
                 return null;
-            
-            NeptusLog.pub().info("<###> Swath number: " + numberSwaths);
+            //NeptusLog.pub().info("<###> Swath number: " + numberSwaths);
 
             BathymetryPoint data[];
                 
@@ -212,7 +211,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             buf = channel.map(MapMode.READ_ONLY, currPos + 256, header.numBeams * 2); // numberBeam * 2 -> number of bytes
             data = new BathymetryPoint[header.numBeams];
             
-            NeptusLog.pub().info("<###> header.timestamp: " + header.timestamp);
+            // NeptusLog.pub().info("<###> header.timestamp: " + header.timestamp);
                 // get vehicle pos at the timestamp
             stateIMCMsg = stateParserLogMra.getEntryAtOrAfter(header.timestamp);
 

@@ -484,7 +484,7 @@ public class KeyboardEvent {
                    
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssmm").format(Calendar.getInstance().getTimeInMillis());
             timeStamp = "snapshot_" + timeStamp;
-            System.out.println("timeStamp: " + timeStamp);
+            NeptusLog.pub().info("timeStamp: " + timeStamp);
             
             neptusInteractorStyle.snapshotWriter.SetFileName(timeStamp);
             neptusInteractorStyle.snapshotWriter.Write();

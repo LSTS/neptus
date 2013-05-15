@@ -45,11 +45,14 @@ import javax.swing.JToggleButton;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.ExaggeratePointCloudZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkActorCollection;
 import vtk.vtkCanvas;
 import vtk.vtkLODActor;
+import vtk.vtkTextActor;
+import vtk.vtkTextActor3D;
 
 /**
  * @author hfq
@@ -70,12 +73,33 @@ public class MultibeamToolBar {
     // private boolean isLogMultibeam;
 
     private PointCloud<PointXYZ> pointCloud;
+    private ExaggeratePointCloudZ exaggeZ;
+
+    private vtkTextActor textProcessingActor;
 
     public MultibeamToolBar(vtkCanvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
         this.canvas = canvas;
         this.linkedHashMapCloud = linkedHashMapCloud;
+
+        this.textProcessingActor = new vtkTextActor();
+        buildTextProcessingActor();
         // this.isLogMultibeam = isLogMultibeam;
         setToolBar(new JPanel());
+    }
+
+    /**
+     * 
+     */
+    private void buildTextProcessingActor() {
+       textProcessingActor.GetTextProperty().BoldOn();
+       textProcessingActor.GetTextProperty().ItalicOn();
+       textProcessingActor.GetTextProperty().SetColor(1.0, 0.0, 0.0);
+       textProcessingActor.GetTextProperty().SetFontSize(48);
+       textProcessingActor.GetTextProperty().SetFontFamilyToArial();
+       textProcessingActor.GetTextProperty().SetVerticalJustificationToCentered();
+       textProcessingActor.SetInput("Processing data...");
+       textProcessingActor.SetDisplayPosition(100, 150);
+       textProcessingActor.VisibilityOn();   
     }
 
     /**
@@ -127,7 +151,7 @@ public class MultibeamToolBar {
                 msgHelp = msgHelp + "u, U   -   display lookup table (on/off)\n";
                 msgHelp = msgHelp + "r, R   -   reset camera (to viewpoint = {0, 0, 0} -> center {x, y, z}\n";
                 msgHelp = msgHelp + "i, I   -   information about rendered cloud\n";
-                msgHelp = msgHelp + "f, F   -   press right mouse and then f, to fly to point picked\n";
+                msgHelp = msgHelp + "f, F   -   Fly Mode - press right mouse and then f, to fly to point picked\n";
                 msgHelp = msgHelp + "3      -   3D visualization (put the 3D glasses on)\n";
                 msgHelp = msgHelp + "7      -   color gradient in relation with X coords (north)\n";
                 msgHelp = msgHelp + "8      -   color gradient in relation with Y coords (west)\n";
@@ -236,35 +260,64 @@ public class MultibeamToolBar {
             public void actionPerformed(ActionEvent e) {
                 if (zExaggerationToggle.isSelected()) {
                     try {
-                        NeptusLog.pub().info("z exaggeration action 1");
-
-                        NeptusLog.pub().info("z exaggeration action 2");
                         vtkActorCollection actorCollection = new vtkActorCollection();
                         actorCollection = canvas.GetRenderer().GetActors();
                         actorCollection.InitTraversal();
 
+                        canvas.GetRenderer().AddActor(textProcessingActor);
+                        canvas.Render();
+                        
                         for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
-                            NeptusLog.pub().info("z exaggeration action 3");
                             vtkLODActor tempActor = new vtkLODActor();
                             tempActor = (vtkLODActor) actorCollection.GetNextActor();
                             Set<String> setOfClouds;
                             setOfClouds = linkedHashMapCloud.keySet();
                             for (String sKey : setOfClouds) {
-                                NeptusLog.pub().info("z exaggeration action 4");
                                 pointCloud = linkedHashMapCloud.get(sKey);
                                 if (tempActor.equals(pointCloud.getCloudLODActor())) {
-                                    NeptusLog.pub().info("z exaggeration action 5");
+                                    exaggeZ = new ExaggeratePointCloudZ(pointCloud);
+                                    exaggeZ.performZExaggeration();
                                 }
                             }
                         }
+                        
+                        canvas.GetRenderer().RemoveActor(textProcessingActor);
+                        canvas.Render();
+                        canvas.GetRenderer().ResetCamera();
                     }
                     catch (Exception e1) {
                         e1.printStackTrace();
                     }
                 }
                 else {
-                    NeptusLog.pub().info("toggle z exaggeration deselected");
+                    try {                
+                        vtkActorCollection actorCollection = new vtkActorCollection();
+                        actorCollection = canvas.GetRenderer().GetActors();
+                        actorCollection.InitTraversal();
 
+                        canvas.GetRenderer().AddActor(textProcessingActor);
+                        canvas.Render();
+                        
+                        for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
+                            vtkLODActor tempActor = new vtkLODActor();
+                            tempActor = (vtkLODActor) actorCollection.GetNextActor();
+                            Set<String> setOfClouds;
+                            setOfClouds = linkedHashMapCloud.keySet();
+                            for (String sKey : setOfClouds) {
+                                pointCloud = linkedHashMapCloud.get(sKey);
+                                if (tempActor.equals(pointCloud.getCloudLODActor())) {
+                                    exaggeZ.reverseZExaggeration();
+                                }
+                            }
+                        }
+                        
+                        canvas.GetRenderer().RemoveActor(textProcessingActor);
+                        canvas.Render();
+                        canvas.GetRenderer().ResetCamera();
+                    }
+                    catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
                 }
             }
         });

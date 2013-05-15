@@ -201,7 +201,7 @@ public class Window {
         }
         
         getRenWinInteractor().SetDesiredUpdateRate(30.0);
-        NeptusLog.pub().info("Desired update rate: " + getRenWinInteractor().GetDesiredUpdateRate());
+        //NeptusLog.pub().info("Desired update rate: " + getRenWinInteractor().GetDesiredUpdateRate());
     }
 
     /**

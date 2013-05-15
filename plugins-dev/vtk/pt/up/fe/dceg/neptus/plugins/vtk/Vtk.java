@@ -56,8 +56,10 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.MultibeamToolBar;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
+import pt.up.fe.dceg.neptus.util.ImageUtils;
 import vtk.vtkActor;
 import vtk.vtkCanvas;
+import vtk.vtkHardwareSelector;
 import vtk.vtkLinearExtrusionFilter;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
@@ -226,7 +228,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         if (!componentEnabled)
         {   
             vtkCanvas = new vtkCanvas();
-            
+           
             pointCloud = new PointCloud<>();
             pointCloud.setCloudName("multibeam");
             linkedHashMapCloud.put(pointCloud.getCloudName(), pointCloud);
@@ -268,8 +270,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 //axesActor.createAxes();
                 //axesActor.setAxesVisibility(true);
 
-                AxesWidget axesWidget = new AxesWidget(winCanvas.getInteractorStyle().GetInteractor());
-                
+                AxesWidget axesWidget = new AxesWidget(winCanvas.getInteractorStyle().GetInteractor());            
                 axesWidget.createAxesWidget();
                 
                 vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
@@ -313,9 +314,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 extrude.SetExtrusionTypeToNormalExtrusion();
                 extrude.SetVector(0, 0, 1);
                 extrude.SetScaleFactor(0.5);
-                
-                
-                
+           
                 vtkPolyDataMapper txtMapper = new vtkPolyDataMapper();
                 txtMapper.SetInputConnection(extrude.GetOutputPort());
                 vtkActor txtActor = new vtkActor();
@@ -361,7 +360,8 @@ public class Vtk extends JPanel implements MRAVisualization {
 
     @Override
     public ImageIcon getIcon() {
-        return null;
+        //return null;
+        return ImageUtils.getIcon("images/buttons/model3d.png");
     }
 
     @Override
