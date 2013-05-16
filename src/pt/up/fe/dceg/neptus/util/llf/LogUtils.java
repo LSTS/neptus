@@ -969,8 +969,7 @@ public class LogUtils {
         if(sd == null)
             return false;
         
-        long ts = sd.getTimestampMillis();
-        while((sd.getTimestampMillis() - ts) < 5000 && sd != null) {
+        while(sd != null) {
             if(sd.getType() == SonarData.TYPE.SIDESCAN)
                 return true;
             sd = it.next();
