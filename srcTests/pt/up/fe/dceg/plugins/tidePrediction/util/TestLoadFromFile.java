@@ -91,7 +91,7 @@ public class TestLoadFromFile {
     @Test
     public void testDateHighTide() throws Exception {
         float prediction = testDate(finder, new GregorianCalendar(2010, GregorianCalendar.APRIL, 24, 18, 03));
-        assertEquals(1.08, prediction, delta);
+        assertEquals(1.0678414, prediction, delta);
     }
 
     private float testDate(LocalData finder, GregorianCalendar gregorianCalendar) throws Exception {
