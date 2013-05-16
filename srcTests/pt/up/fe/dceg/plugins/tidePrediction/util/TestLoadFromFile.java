@@ -50,29 +50,37 @@ import pt.up.fe.dceg.neptus.util.bathymetry.LocalData;
  */
 public class TestLoadFromFile {
     static double delta;
+    static LocalData finder;
 
     @BeforeClass
     public static void testSetup() {
+        URL resource = TestLoadFromFile.class.getResource("tides.txt");
+        finder = new LocalData(new File(resource.getPath()));
         delta = 0.0001;
 
     }
 
     @Test
     public void testDateLowTide() throws Exception {
-        URL resource = getClass().getResource("tides.txt");
-        LocalData finder = new LocalData(new File(resource.getPath()));
         float prediction;
 
         prediction = testDate(finder, new GregorianCalendar(2010, 4, 23, 18, 15));
         assertEquals(1.2552545, prediction, delta);
-
-        // prediction = testDate(finder, new GregorianCalendar(2010, 4, 23, 19, 15));
-        // assertEquals(1.1621268, prediction, delta);
-        //
-        // prediction = testDate(finder, new GregorianCalendar(2010, 4, 23, 22, 15));
-        // assertEquals(2.5177317, prediction, delta);
     }
 
+    @Test
+    public void testDateBeforeTides() throws Exception {
+        float prediction;
+        prediction = testDate(finder, new GregorianCalendar(2008, 4, 23, 18, 15));
+        assertEquals(0, prediction, delta);
+    }
+
+    @Test
+    public void testDateAfterTides() throws Exception {
+        float prediction;
+        prediction = testDate(finder, new GregorianCalendar(2011, 4, 23, 18, 15));
+        assertEquals(0, prediction, delta);
+    }
 
     private float testDate(LocalData finder, GregorianCalendar gregorianCalendar) throws Exception {
         Date wantedDate;
