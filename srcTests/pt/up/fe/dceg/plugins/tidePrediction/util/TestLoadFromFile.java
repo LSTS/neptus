@@ -56,7 +56,7 @@ public class TestLoadFromFile {
     public static void testSetup() {
         URL resource = TestLoadFromFile.class.getResource("tides.txt");
         finder = new LocalData(new File(resource.getPath()));
-        delta = 0.0001;
+        delta = 0.00001;
 
     }
 
@@ -64,22 +64,34 @@ public class TestLoadFromFile {
     public void testDateLowTide() throws Exception {
         float prediction;
 
-        prediction = testDate(finder, new GregorianCalendar(2010, 4, 23, 18, 15));
-        assertEquals(1.2552545, prediction, delta);
+        prediction = testDate(finder, new GregorianCalendar(2010, GregorianCalendar.APRIL, 23, 18, 15));
+        assertEquals(1.0300362, prediction, delta);
+
+        prediction = testDate(finder, new GregorianCalendar(2010, GregorianCalendar.APRIL, 23, 19, 15));
+        assertEquals(1.1621268, prediction, delta);
+
+        prediction = testDate(finder, new GregorianCalendar(2010, GregorianCalendar.APRIL, 23, 22, 15));
+        assertEquals(2.5177317, prediction, delta);
     }
 
     @Test
     public void testDateBeforeTides() throws Exception {
         float prediction;
-        prediction = testDate(finder, new GregorianCalendar(2008, 4, 23, 18, 15));
+        prediction = testDate(finder, new GregorianCalendar(2008, GregorianCalendar.APRIL, 23, 18, 15));
         assertEquals(0, prediction, delta);
     }
 
     @Test
     public void testDateAfterTides() throws Exception {
         float prediction;
-        prediction = testDate(finder, new GregorianCalendar(2011, 4, 23, 18, 15));
+        prediction = testDate(finder, new GregorianCalendar(2011, GregorianCalendar.APRIL, 23, 18, 15));
         assertEquals(0, prediction, delta);
+    }
+
+    @Test
+    public void testDateHighTide() throws Exception {
+        float prediction = testDate(finder, new GregorianCalendar(2010, GregorianCalendar.APRIL, 24, 18, 03));
+        assertEquals(1.08, prediction, delta);
     }
 
     private float testDate(LocalData finder, GregorianCalendar gregorianCalendar) throws Exception {
