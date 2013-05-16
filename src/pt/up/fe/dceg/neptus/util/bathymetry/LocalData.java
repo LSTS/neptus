@@ -74,12 +74,11 @@ public class LocalData extends TidePredictionFinder {
         TidePrediction tide;
         int first = -1;
         boolean foundSecond = false;
-        int iTide, placeInTime;
+        int iTide;
         Date tideDate;
         for (iTide = 0; iTide < predictions.size() && !foundSecond; iTide++) {
             tide = predictions.get(iTide);
             tideDate = tide.getTimeAndDate();
-            placeInTime = tideDate.compareTo(date);
             if (tideDate.equals(date))
                 return tide.getHeight();
             else if (tideDate.before(date)) {
@@ -92,7 +91,7 @@ public class LocalData extends TidePredictionFinder {
                 foundSecond = true;
             }
         }
-        if (!foundSecond || iTide == -1)
+        if (!foundSecond || first == -1)
             return 0f;
 
         return findPrediction(date, first);
@@ -111,7 +110,7 @@ public class LocalData extends TidePredictionFinder {
             GregorianCalendar timeCal, dayCal;
             Float height, decimal;
             int i;
-            while (line != null && line.length() > minChars) {
+            while (line != null && line.length() >= minChars) {
                 lineTokens = line.split(" ");
                 dateTokens = lineTokens[0].split("-");
                 dayCal = new GregorianCalendar(new Integer(dateTokens[2]), new Integer(
@@ -149,42 +148,4 @@ public class LocalData extends TidePredictionFinder {
             br.close();
         }
     }
-
-    // public String[] split(CharSequence input, int limit) {
-    // int index = 0;
-    // boolean matchLimited = limit > 0;
-    // ArrayList<String> matchList = new ArrayList<>();
-    // Matcher m = matcher(input);
-    //
-    // // Add segments before each match found
-    // while(m.find()) {
-    // if (!matchLimited || matchList.size() < limit - 1) {
-    // String match = input.subSequence(index, m.start()).toString();
-    // matchList.add(match);
-    // index = m.end();
-    // } else if (matchList.size() == limit - 1) { // last one
-    // String match = input.subSequence(index,
-    // input.length()).toString();
-    // matchList.add(match);
-    // index = m.end();
-    // }
-    // }
-    //
-    // // If no match was found, return this
-    // if (index == 0)
-    // return new String[] {input.toString()};
-    //
-    // // Add remaining segment
-    // if (!matchLimited || matchList.size() < limit)
-    // matchList.add(input.subSequence(index, input.length()).toString());
-    //
-    // // Construct result
-    // int resultSize = matchList.size();
-    // if (limit == 0)
-    // while (resultSize > 0 && matchList.get(resultSize-1).equals(""))
-    // resultSize--;
-    // String[] result = new String[resultSize];
-    // return matchList.subList(0, resultSize).toArray(result);
-    // }
-
 }

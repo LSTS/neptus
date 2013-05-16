@@ -118,8 +118,6 @@ public abstract class TidePredictionFinder {
      */
     protected Float findPrediction(Date date, int iTide) {
         Float prediction;
-        if (iTide == -1)
-            return 0f;
         
         if (predictions.get(iTide).getTideType() == TIDE_TYPE.HIGH_TIDE) {
             prediction = ihFuncAfterHighTide(iTide, date);
