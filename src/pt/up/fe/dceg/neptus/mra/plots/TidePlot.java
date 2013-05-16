@@ -53,7 +53,7 @@ public class TidePlot extends MraTimeSeriesPlot {
     @Override
     public boolean canBeApplied(LsfIndex index) {
         File f = new File(index.getLsfFile().getParent(), "tides.txt");
-        System.out.println(f.getAbsolutePath());
+        // System.out.println(f.getAbsolutePath());
         return f.canRead();
     }
 
