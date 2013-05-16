@@ -31,7 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -42,12 +41,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
-
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
+import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import pt.up.fe.dceg.neptus.plugins.vtk.filters.DownsamplePointCloud;
@@ -60,7 +58,6 @@ import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import vtk.vtkActor;
 import vtk.vtkCanvas;
-import vtk.vtkHardwareSelector;
 import vtk.vtkLinearExtrusionFilter;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
@@ -73,8 +70,6 @@ import vtk.vtkVectorText;
 @PluginDescription(author = "hfq", name = "Vtk")
 public class Vtk extends JPanel implements MRAVisualization {
     private static final long serialVersionUID = 1L;
-    
-    private static Boolean vtkEnabled = true;
     
     // there are 2 types of rendering objects on VTK - vtkPanel and vtkCanvas. vtkCanvas seems to have a better behaviour and performance.
     //public vtkPanel vtkPanel;
@@ -97,9 +92,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     private DownsamplePointCloud performDownsample;
     private Boolean isDownsampleDone = false;
     
-    //public boolean isLogMultibeam; // for 
-    
-    static {  
+    static {
         try {
             System.loadLibrary("jawt");
         }
@@ -109,104 +102,101 @@ public class Vtk extends JPanel implements MRAVisualization {
             // for simple visualizations
         try {
             vtkNativeLibrary.COMMON.LoadLibrary();
-            if(!vtkNativeLibrary.COMMON.IsLoaded())
-                vtkEnabled = false;
+            //if(!vtkNativeLibrary.COMMON.IsLoaded())
         }
         catch (Throwable e) {
+            NeptusMRA.vtkEnabled = false;
             NeptusLog.pub().info("<###> cannot load vtkCommon, skipping...");
         }
         try {
             vtkNativeLibrary.FILTERING.LoadLibrary();
-            if(!vtkNativeLibrary.FILTERING.IsLoaded())
-                vtkEnabled = false;
+            //if(!vtkNativeLibrary.FILTERING.IsLoaded())
         }
         catch (Throwable e) {
+            NeptusMRA.vtkEnabled = false;
             NeptusLog.pub().info("<###> cannot load vtkFiltering, skipping...");
         }
         try {
             vtkNativeLibrary.IO.LoadLibrary();
-            if(!vtkNativeLibrary.IO.IsLoaded())
-                vtkEnabled = false;
+            //if(!vtkNativeLibrary.IO.IsLoaded())
         }
         catch (Throwable e) {
+            NeptusMRA.vtkEnabled = false;
             NeptusLog.pub().info("<###> cannot load vtkImaging, skipping...");
-            System.out.println("cannot load vtkImaging, skipping...");
         }
         try {
             vtkNativeLibrary.GRAPHICS.LoadLibrary();
-            if(!vtkNativeLibrary.GRAPHICS.IsLoaded())
-                vtkEnabled = false;
+            //if(!vtkNativeLibrary.GRAPHICS.IsLoaded())
         }
         catch (Throwable e) {
+            NeptusMRA.vtkEnabled = false;
             NeptusLog.pub().info("<###> cannot load vtkGrahics, skipping...");
-            System.out.println("cannot load vtkGrahics, skipping...");
         }
         try {
             vtkNativeLibrary.RENDERING.LoadLibrary();
-            if(!vtkNativeLibrary.RENDERING.IsLoaded())
-                vtkEnabled = false;
+            //if(!vtkNativeLibrary.RENDERING.IsLoaded())
         }
         catch (Throwable e) {
+            NeptusMRA.vtkEnabled = false;
             NeptusLog.pub().info("<###> cannot load vtkRendering, skipping...");
-            System.out.println("cannot load vtkRendering, skipping...");
         }
                 
         // Other
         try {
             vtkNativeLibrary.INFOVIS.LoadLibrary();
-            if(!vtkNativeLibrary.INFOVIS.IsLoaded())
-                vtkEnabled = false;
+            //if(!vtkNativeLibrary.INFOVIS.IsLoaded())
         }
         catch (Throwable e) {
+            NeptusMRA.vtkEnabled = false;
             NeptusLog.pub().info("<###> cannot load vtkInfoVis, skipping...");
         }
         try {
             vtkNativeLibrary.VIEWS.LoadLibrary();
-            if(!vtkNativeLibrary.VIEWS.IsLoaded())
-                vtkEnabled = false;
+            //if(!vtkNativeLibrary.VIEWS.IsLoaded())
         }
         catch (Throwable e) {
+            NeptusMRA.vtkEnabled = false;
             NeptusLog.pub().info("<###> cannot load vtkViews, skipping...");
         }
         try {
             vtkNativeLibrary.WIDGETS.LoadLibrary();
-            if(!vtkNativeLibrary.WIDGETS.IsLoaded())
-                vtkEnabled = false;
+            //if(!vtkNativeLibrary.WIDGETS.IsLoaded())
         }
         catch (Throwable e) {
+            NeptusMRA.vtkEnabled = false;
             NeptusLog.pub().info("<###> cannot load vtkWidgets, skipping...");
         }
         try {
             vtkNativeLibrary.GEOVIS.LoadLibrary();
-            if(!vtkNativeLibrary.GEOVIS.IsLoaded())
-                vtkEnabled = false;
+            //if(!vtkNativeLibrary.GEOVIS.IsLoaded())
         }
         catch (Throwable e) {
+            NeptusMRA.vtkEnabled = false;
             NeptusLog.pub().info("<###> cannot load vtkGeoVis, skipping...");
         }
         try {
             vtkNativeLibrary.CHARTS.LoadLibrary();
-            if(!vtkNativeLibrary.CHARTS.IsLoaded())
-                vtkEnabled = false;
+            //if(!vtkNativeLibrary.CHARTS.IsLoaded())
         }
         catch (Throwable e) {
+            NeptusMRA.vtkEnabled = false;
             NeptusLog.pub().info("<###> cannot load vtkCharts, skipping...");
         }
-        // FIXME not load vtkHybrid ?!
+        // FIXME not loading vtkHybrid ?!
         try {
             vtkNativeLibrary.HYBRID.LoadLibrary();
-            if(!vtkNativeLibrary.HYBRID.IsLoaded())
-                vtkEnabled = false;
+            //if(!vtkNativeLibrary.HYBRID.IsLoaded())
         }
         catch (Throwable e) {
+            //NeptusMRA.vtkEnabled = false;
             NeptusLog.pub().info("<###> cannot load vtkHybrid, skipping...");
         }
         try {
             vtkNativeLibrary.VOLUME_RENDERING.LoadLibrary();
-            if(!vtkNativeLibrary.VOLUME_RENDERING.IsLoaded())
-                vtkEnabled = false;
+            //if(!vtkNativeLibrary.VOLUME_RENDERING.IsLoaded())
         }
         catch (Throwable e) {
+            NeptusMRA.vtkEnabled = false;
             NeptusLog.pub().info("<###> cannot load vtkVolumeRendering, skipping...");
         }
     }
@@ -215,7 +205,6 @@ public class Vtk extends JPanel implements MRAVisualization {
      * @param panel
      */
     public Vtk(MRAPanel panel) {
-        //super(new BorderLayout()); // change to MigLayout
         super(new MigLayout());
     }
 
@@ -239,12 +228,11 @@ public class Vtk extends JPanel implements MRAVisualization {
             vtkCanvas.GetRenderer().ResetCamera();
             
                 // add vtkCanvas to Layout
-            //add(vtkCanvas, BorderLayout.CENTER);
             add(vtkCanvas, "W 100%, H 100%");
             //add(vtkCanvas);
             
             vtkCanvas.LightFollowCameraOn();
-            vtkCanvas.BeginBoxInteraction();
+            //vtkCanvas.BeginBoxInteraction(); // calls interaction and prints out the string Box widget begin interaction
             vtkCanvas.setEnabled(true);
             
             componentEnabled = true;
@@ -281,31 +269,10 @@ public class Vtk extends JPanel implements MRAVisualization {
                 //NeptusLog.pub().info("Number of Cloud Points: " + pointCloud.getNumberOfPoints());
                 //vtkCanvas.GetRenderer().AddActor(tempActor);
             }
-            else {
-                //isLogMultibeam = false;            
-                //JOptionPane errorPane = new JOptionPane();
+            else {           
                 String msgErrorMultibeam;
                 msgErrorMultibeam = "No beams on Log file!";
                 JOptionPane.showMessageDialog(null, msgErrorMultibeam);
-                
-//                vtkTextActor3D textActor3d = new vtkTextActor3D();
-//                textActor3d.SetPosition(0.0, 0.0, 0.0);
-//                textActor3d.SetInput(msgErrorMultibeam);
-//                textActor3d.GetTextProperty().BoldOn();
-//                textActor3d.GetTextProperty().ItalicOn();
-//                textActor3d.GetTextProperty().ShadowOn();
-//                textActor3d.GetTextProperty().SetFontFamilyToArial();
-//                textActor3d.GetTextProperty().SetLineSpacing(1.0);
-//                textActor3d.GetTextProperty().SetFontSize(48);
-//                
-//                textActor3d.SetScale(2.0);
-//                
-//                textActor3d.GetTextProperty().SetColor(1.0, 0.0, 0.0);
-//                textActor3d.VisibilityOn();
-//                textActor3d.GetTextProperty().SetShadowOffset(1, 1);
-//                //textActor3d.GetTextProperty().ShadowOn();
-//                textActor3d.GetTextProperty().SetVerticalJustificationToCentered();
-                
                 
                 vtkVectorText vectText = new vtkVectorText();
                 vectText.SetText("No beams on Log file!");
@@ -323,14 +290,11 @@ public class Vtk extends JPanel implements MRAVisualization {
                 txtActor.SetPosition(2.0, 2.0, 2.0);
                 txtActor.SetScale(10.0);
                 
-                //vtkCanvas.GetRenderer().AddActor(textActor3d);
                 vtkCanvas.GetRenderer().AddActor(txtActor);
                 
             }        
             vtkCanvas.GetRenderer().ResetCamera();
-        }
-        //NeptusLog.pub().info("isLogMultibeam in vtk class: " + isLogMultibeam);
-        
+        }      
         return this;
     }
 
@@ -338,7 +302,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     public boolean canBeApplied(IMraLogGroup source) {
         boolean beApplied = false;        
         
-        if (vtkEnabled == true) {   // if it could load vtk libraries
+        if (NeptusMRA.vtkEnabled) {   // if it could load vtk libraries
                 // Checks existance of a *.83P file
             file = source.getFile("Data.lsf").getParentFile();
             try {
@@ -361,7 +325,6 @@ public class Vtk extends JPanel implements MRAVisualization {
 
     @Override
     public ImageIcon getIcon() {
-        //return null;
         return ImageUtils.getIcon("images/buttons/model3d.png");
     }
 

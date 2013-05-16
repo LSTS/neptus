@@ -33,11 +33,11 @@ package pt.up.fe.dceg.neptus.plugins.vtk.filters;
 
 import java.util.Date;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCleanPolyData;
 import vtk.vtkPoints;
-import vtk.vtkPolyDataMapper;
 
 /**
  * @author hfq
@@ -54,17 +54,17 @@ public class DownsamplePointCloud {
     
     public DownsamplePointCloud (PointCloud<PointXYZ> pointCloud, double tolerance) {
         long lDateTime = new Date().getTime();
-        System.out.println("Init downsampling - Time in milliseconds: " + lDateTime);
+        NeptusLog.pub().info("Init downsampling - Time in milliseconds: " + lDateTime);
         
         this.pointCloud = pointCloud;
         this.numberOfPoints = pointCloud.getNumberOfPoints();
         this.tolerance = tolerance;
         outputDownsampledCloud = new PointCloud<>();
-        System.out.println("constructor class donwnsample");
+        NeptusLog.pub().info("constructor class donwnsample");
         downsample();
         
         long lDateTime2 = new Date().getTime();
-        System.out.println("Final downsampling - Time in milliseconds: " + lDateTime);
+        NeptusLog.pub().info("Final downsampling - Time in milliseconds: " + lDateTime);
     }
     
     private void downsample() {
@@ -73,21 +73,18 @@ public class DownsamplePointCloud {
             //cleanPolyData.SetInput(pointCloud.getPoly());
             cleanPolyData.SetInputConnection(pointCloud.getPoly().GetProducerPort());
             cleanPolyData.SetTolerance(tolerance);
-            //System.out.println("Revisions: " + cleanPolyData.PrintRevisions());
-            //cleanPolyData.BreakOnError();
             cleanPolyData.Update();
             
-            System.out.println("After update");
-            System.out.println("Number of Points from cleanPolyData: " + String.valueOf(cleanPolyData.GetOutput().GetPoints().GetNumberOfPoints()));
+            NeptusLog.pub().info("Number of Points from cleanPolyData: " + String.valueOf(cleanPolyData.GetOutput().GetPoints().GetNumberOfPoints()));
             
             //outputDownsampledCloud.setPoly(cleanPolyData.GetOutput());
             //outputDownsampledCloud.setPoints(outputDownsampledCloud.getPoly().GetPoints());
             
             outputDownsampledCloud.setCloudName("downsampledCloud");
-            System.out.println("cloud name: " + outputDownsampledCloud.getCloudName());
+            NeptusLog.pub().info("cloud name: " + outputDownsampledCloud.getCloudName());
             outputDownsampledCloud.setPoints(cleanPolyData.GetOutput().GetPoints());
             outputDownsampledCloud.setNumberOfPoints(outputDownsampledCloud.getPoints().GetNumberOfPoints());
-            System.out.println("Number of points: " + outputDownsampledCloud.getNumberOfPoints());
+            NeptusLog.pub().info("Number of points: " + outputDownsampledCloud.getNumberOfPoints());
             
             vtkPoints points = outputDownsampledCloud.getPoints();
             
@@ -100,16 +97,14 @@ public class DownsamplePointCloud {
             
             outputDownsampledCloud.createLODActorFromPoints();
             
-            System.out.println("after setting point cLoud donwnsample actor");
-            
             //vtkPolyDataMapper outputDataMapper = new vtkPolyDataMapper();
             //outputDataMapper.SetInputConnection(cleanPolyData.GetOutputPort());        
             //outputDownsampledCloud.setNumberOfPoints(cleanPolyData.
             
             isDownsampleDone = true;
         }
-        catch (Exception e) {
-            System.out.println("Exception on cloud downsampling");
+        catch (Exception e) {     
+            NeptusLog.pub().info("Exception on cloud downsampling");
             e.printStackTrace();
         }
     }

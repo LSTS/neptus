@@ -283,7 +283,7 @@ public class MultibeamToolBar {
                         
                         canvas.GetRenderer().RemoveActor(textProcessingActor);
                         canvas.Render();
-                        canvas.GetRenderer().ResetCamera();
+                        //canvas.GetRenderer().ResetCamera();
                     }
                     catch (Exception e1) {
                         e1.printStackTrace();
@@ -313,7 +313,7 @@ public class MultibeamToolBar {
                         
                         canvas.GetRenderer().RemoveActor(textProcessingActor);
                         canvas.Render();
-                        canvas.GetRenderer().ResetCamera();
+                        //canvas.GetRenderer().ResetCamera();
                     }
                     catch (Exception e1) {
                         e1.printStackTrace();

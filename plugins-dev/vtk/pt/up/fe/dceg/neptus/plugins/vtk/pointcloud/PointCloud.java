@@ -77,7 +77,7 @@ public class PointCloud<T extends PointXYZ> {
     }
     
     /**
-     * Create a Pointcloud Actor from vtkPoints
+     * Create a Pointcloud Actor from vtkPoints & vtkCellArray
      */
     public void createLODActorFromPoints() {
         getPoly().SetPoints(getPoints());
@@ -95,7 +95,7 @@ public class PointCloud<T extends PointXYZ> {
         vtkLookupTable colorLookupTable = new vtkLookupTable();
         //colorLookupTable.SetNumberOfColors(3);
         colorLookupTable.SetRange(getBounds()[4], getBounds()[5]);     
-        //colorLookupTable.SetValueRange(getBounds()[5], getBounds()[5]);        
+        //colorLookupTable.SetValueRange(getBounds()[4], getBounds()[5]);        
         //colorLookupTable.SetHueRange(0, 1);
         //colorLookupTable.SetSaturationRange(1, 1);
         //colorLookupTable.SetValueRange(1, 1);
@@ -103,26 +103,7 @@ public class PointCloud<T extends PointXYZ> {
         colorLookupTable.SetScaleToLinear();
         colorLookupTable.Build();
 
-        //setColorHandler(new PointCloudHandlers<>());
         getColorHandler().setPointCloudColorHandlers(getNumberOfPoints(), getPoly(), colorLookupTable, bounds);
-        
-//        vtkUnsignedCharArray colors = new vtkUnsignedCharArray();
-//        colors.SetNumberOfComponents(3);
-//        colors.SetName("Colors");
-        
-//        for (int i = 0; i < getPoly().GetNumberOfPoints(); ++i) {
-//            double[] p = new double[3];
-//            getPoly().GetPoint(i, p);
-//            
-//            double[] dcolor = new double[3];    
-//            colorLookupTable.GetColor(p[2], dcolor);
-//            
-//            char[] color = new char[3];
-//            for (int j = 0; j < 3; ++j) {
-//                color[j] = (char) (255.0 * dcolor[j]);
-//            }
-//            colors.InsertNextTuple3(color[0], color[1], color[2]);
-//        }    
         
         getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
 
@@ -143,6 +124,132 @@ public class PointCloud<T extends PointXYZ> {
         getCloudLODActor().SetMapper(map);
         getCloudLODActor().GetProperty().SetPointSize(1.0);
         getCloudLODActor().GetProperty().SetRepresentationToPoints();     
+    }
+    
+    /**
+     * @return the cloudName
+     */
+    public String getCloudName() {
+        return cloudName;
+    }
+
+    /**
+     * @param cloudName the cloudName to set
+     */
+    public void setCloudName(String cloudName) {
+        this.cloudName = cloudName;
+    }
+    
+    /**
+     * @return the numberOfPoints
+     */
+    public int getNumberOfPoints() {
+        return numberOfPoints;
+    }
+
+    /**
+     * @param numberOfPoints the numberOfPoints to set
+     */
+    public void setNumberOfPoints(int numberOfPoints) {
+        this.numberOfPoints = numberOfPoints;
+    }
+
+    /**
+     * @return the cloudLODActor
+     */
+    public vtkLODActor getCloudLODActor() {
+        return cloudLODActor;
+    }
+
+    /**
+     * @param cloudLODActor the cloudLODActor to set
+     */
+    public void setCloudLODActor(vtkLODActor cloudLODActor) {
+        this.cloudLODActor = cloudLODActor;
+    }
+
+    /**
+     * @return the points
+     */
+    public vtkPoints getPoints() {
+        return points;
+    }
+
+    /**
+     * @param points the points to set
+     */
+    public void setPoints(vtkPoints points) {
+        this.points = points;
+    }
+
+    /**
+     * @return the verts
+     */
+    public vtkCellArray getVerts() {
+        return verts;
+    }
+
+    /**
+     * @param verts the verts to set
+     */
+    public void setVerts(vtkCellArray verts) {
+        this.verts = verts;
+    }
+
+    /**
+     * @return the poly
+     */
+    public vtkPolyData getPoly() {
+        return poly;
+    }
+
+    /**
+     * @param poly the poly to set
+     */
+    public void setPoly(vtkPolyData poly) {
+        this.poly = poly;
+    }
+
+    /**
+     * @return the bounds
+     */
+    public double[] getBounds() {
+        return bounds;
+    }
+
+    /**
+     * @param bounds the bounds to set
+     */
+    public void setBounds(double[] bounds) {
+        this.bounds = bounds;
+    }
+
+    /**
+     * @return the memorySize
+     */
+    public int getMemorySize() {
+        return memorySize;
+    }
+
+    /**
+     * @param memorySize the memorySize to set
+     */
+    public void setMemorySize(int memorySize) {
+        this.memorySize = memorySize;
+    }
+
+    /**
+     * @return the colorHandler
+     */
+    public PointCloudHandlers<PointXYZ> getColorHandler() {
+        return colorHandler;
+    }
+
+    /**
+     * @param colorHandler the colorHandler to set
+     */
+    public void setColorHandler(PointCloudHandlers<PointXYZ> colorHandler) {
+        this.colorHandler = colorHandler;
     }
     
     
@@ -278,131 +385,5 @@ public class PointCloud<T extends PointXYZ> {
         getCloudLODActor().SetMapper(mapper);
         
         return getCloudLODActor();
-    }
-
-    /**
-     * @return the cloudName
-     */
-    public String getCloudName() {
-        return cloudName;
-    }
-
-    /**
-     * @param cloudName the cloudName to set
-     */
-    public void setCloudName(String cloudName) {
-        this.cloudName = cloudName;
-    }
-    
-    /**
-     * @return the numberOfPoints
-     */
-    public int getNumberOfPoints() {
-        return numberOfPoints;
-    }
-
-    /**
-     * @param numberOfPoints the numberOfPoints to set
-     */
-    public void setNumberOfPoints(int numberOfPoints) {
-        this.numberOfPoints = numberOfPoints;
-    }
-
-    /**
-     * @return the cloudLODActor
-     */
-    public vtkLODActor getCloudLODActor() {
-        return cloudLODActor;
-    }
-
-    /**
-     * @param cloudLODActor the cloudLODActor to set
-     */
-    public void setCloudLODActor(vtkLODActor cloudLODActor) {
-        this.cloudLODActor = cloudLODActor;
-    }
-
-    /**
-     * @return the points
-     */
-    public vtkPoints getPoints() {
-        return points;
-    }
-
-    /**
-     * @param points the points to set
-     */
-    public void setPoints(vtkPoints points) {
-        this.points = points;
-    }
-
-    /**
-     * @return the verts
-     */
-    public vtkCellArray getVerts() {
-        return verts;
-    }
-
-    /**
-     * @param verts the verts to set
-     */
-    public void setVerts(vtkCellArray verts) {
-        this.verts = verts;
-    }
-
-    /**
-     * @return the poly
-     */
-    public vtkPolyData getPoly() {
-        return poly;
-    }
-
-    /**
-     * @param poly the poly to set
-     */
-    public void setPoly(vtkPolyData poly) {
-        this.poly = poly;
-    }
-
-    /**
-     * @return the bounds
-     */
-    public double[] getBounds() {
-        return bounds;
-    }
-
-    /**
-     * @param bounds the bounds to set
-     */
-    public void setBounds(double[] bounds) {
-        this.bounds = bounds;
-    }
-
-    /**
-     * @return the memorySize
-     */
-    public int getMemorySize() {
-        return memorySize;
-    }
-
-    /**
-     * @param memorySize the memorySize to set
-     */
-    public void setMemorySize(int memorySize) {
-        this.memorySize = memorySize;
-    }
-
-    /**
-     * @return the colorHandler
-     */
-    public PointCloudHandlers<PointXYZ> getColorHandler() {
-        return colorHandler;
-    }
-
-    /**
-     * @param colorHandler the colorHandler to set
-     */
-    public void setColorHandler(PointCloudHandlers<PointXYZ> colorHandler) {
-        this.colorHandler = colorHandler;
     }
 }

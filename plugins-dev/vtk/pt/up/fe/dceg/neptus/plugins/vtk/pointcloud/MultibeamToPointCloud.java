@@ -39,6 +39,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryInfo;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
 import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
@@ -103,11 +104,11 @@ public class MultibeamToPointCloud {
             fileInputStream = new FileInputStream(file);
         }
         catch (FileNotFoundException e) {
-            System.out.println("File not found: " + e);            
+            NeptusLog.pub().info("File not found: " + e);        
             e.printStackTrace();
         }
         catch (IOException ioe) {
-            System.out.println("Exception while reading the file: " + ioe);
+            NeptusLog.pub().info("Exception while reading the file: " + ioe);
             ioe.printStackTrace();
         }
         
@@ -135,7 +136,7 @@ public class MultibeamToPointCloud {
         
         String strFileContent = new String(fileContent);
         
-        System.out.println("File content: ");
-        System.out.println(strFileContent);
+        NeptusLog.pub().info("File content: ");
+        NeptusLog.pub().info(strFileContent);
     }
 }

@@ -34,6 +34,8 @@ package pt.up.fe.dceg.neptus.plugins.vtk.io;
 import java.io.File;
 import java.nio.file.Path;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 import vtk.vtk3DSImporter;
 import vtk.vtkDataSetReader;
 import vtk.vtkLODActor;
@@ -88,32 +90,32 @@ public class VtkReader {
         switch (impOp)
         {
             case VTK:
-                System.out.println("vtk data Set Reader chosen!");
+                NeptusLog.pub().info("vtk data Set Reader chosen!");
                 readVTKFile();
                 break;
             
             case OBJ:
-                System.out.println("obj reader chosen");
+                NeptusLog.pub().info("obj reader chosen");
                 readOBJFile();
                 break;
                 
             case PLY:
-                System.out.println("ply reader chosen");
+                NeptusLog.pub().info("ply reader chosen");
                 readPLYFile();
                 break;
                 
             case STL:
-                System.out.println("stl reader chosen");
+                NeptusLog.pub().info("stl reader chosen");
                 readSTLFile();
                 break;
                 
             case XYZ:
-                System.out.println("xyz, simple points reader");
+                NeptusLog.pub().info("xyz, simple points reader");
                 readXYZfile();
                 break;
             
             default:
-                System.out.println("error file extention not found, not supposed to be here");
+                NeptusLog.pub().info("error file extention not found, not supposed to be here");
         }
     }
     
@@ -156,7 +158,7 @@ public class VtkReader {
                     impOp = ImporterOps.WRL;
                 }
                 else {
-                    System.out.println("File extention not supported, or invalid file");
+                    NeptusLog.pub().info("File extention not supported, or invalid file");
                 }                    
             }
         }

@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.surface;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkActor;
@@ -62,18 +63,19 @@ public class Delauny3D {
         
 
             // clean the polydata. this will remove duplicate points that may be present in the input data  
-        System.out.println("cleaning point cloud...");
+        
+        NeptusLog.pub().info("cleaning point cloud...");
         vtkCleanPolyData cleaner = new vtkCleanPolyData();
         cleaner.SetInputConnection(pointCloud.getPoly().GetProducerPort());
         //cleaner.SetInput(pointCloud.getPoly());
         
             // Generate a tetrahedral mesh from the input points. by default, the generated volume is the convex hull of the points       
-        System.out.println("Generate mesh...");
+        NeptusLog.pub().info("Generate mesh...");
         vtkDelaunay3D delauny3D = new vtkDelaunay3D();
         delauny3D.SetInputConnection(cleaner.GetOutputPort());
         //delauny3D.SetAlpha(0.1);
         
-        System.out.println("setting mapper...");
+        NeptusLog.pub().info("setting mapper...");
         vtkDataSetMapper delaunyMapper = new vtkDataSetMapper();
         delaunyMapper.SetInputConnection(delauny3D.GetOutputPort());
         

@@ -124,6 +124,8 @@ import foxtrot.AsyncWorker;
 @SuppressWarnings("serial")
 public class NeptusMRA extends JFrame implements PropertiesProvider {
     public final static String RECENTLY_OPENED_LOGS = "conf/mra_recent.xml";
+    
+    public static boolean vtkEnabled = true;
 
     @NeptusProperty(name = "Show 3D replay")
     public static boolean show3D = true;

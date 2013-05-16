@@ -40,9 +40,6 @@ public class PointXYZI extends PointXYZ {
     
     public PointXYZI() {
         PointXYZ p = new PointXYZ();
-        //x = 0.0f;
-        //y = 0.0f;
-        //z = 0.0f;
         setIntensity(0.0f);
     }
     

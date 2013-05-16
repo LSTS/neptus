@@ -238,7 +238,7 @@ public class MultibeamDeltaTHeader {
         userDefinedByte = buf.get(132);
         altitude = buf.getFloat(133);
         
-        printDeltaTHeaderInfo();
+        //printDeltaTHeaderInfo();
     }
 
     /**
@@ -271,7 +271,6 @@ public class MultibeamDeltaTHeader {
             return (float) (1500.0);
         else {
             vel = (float) ((((vel83 & 0x7F) << 8) | vel84)/10.0);
-            //System.out.println("velocity: " + vel);
             return vel;
         }
     }
@@ -284,9 +283,7 @@ public class MultibeamDeltaTHeader {
         //byte start76 = buf.get(76);
         //byte start77 = buf.get(77);
         float start = (buf.getShort(76) / 100f - 180f);        
-        //float start = ByteBuffer.wrap(array, offset, length)
-        System.out.println("start parse: " + start);
-        
+    
         return (float) start;
     }
 
@@ -294,8 +291,6 @@ public class MultibeamDeltaTHeader {
      * @return
      */
     private float parseHeadingAngle() {
-        //short heading;
-        //heading = buf.getShort(68);
         byte heading68 = buf.get(68);
         if (!isBitSet(heading68, 7)) {      // H = 0
             return 0;
@@ -411,9 +406,6 @@ public class MultibeamDeltaTHeader {
         return fileTypeStr;       
     }
     
-    //public byte getBit(int position) {
-    //    return 
-    //}
     private static Boolean isBitSet (short sh, int bit) {
         return (sh & (1 << bit)) != 0;
     }
@@ -422,6 +414,9 @@ public class MultibeamDeltaTHeader {
         return (b & (1 << bit)) != 0;
     }
     
+    /**
+     * FIXME - change all system out to Neptus Log
+     */
     private void printDeltaTHeaderInfo() {
         System.out.println("File Type: " + fileType);
         System.out.println("File Version: " + fileVersion);
