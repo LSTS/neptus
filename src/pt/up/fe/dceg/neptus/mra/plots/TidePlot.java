@@ -63,7 +63,7 @@ public class TidePlot extends MraTimeSeriesPlot {
         try {
         for (double i = source.getStartTime(); i < source.getEndTime(); i+= 60) {
             long time = (long)(i * 1000);
-                System.out.println(new Date(time));
+                // System.out.println(new Date(time));
                 addValue(time, "Tide height", ld.getTidePrediction(new Date(time), false));
             }
             

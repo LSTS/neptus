@@ -113,8 +113,8 @@ public class LocalData extends TidePredictionFinder {
             while (line != null && line.length() >= minChars) {
                 lineTokens = line.split(" ");
                 dateTokens = lineTokens[0].split("-");
-                dayCal = new GregorianCalendar(new Integer(dateTokens[2]), new Integer(
-                        dateTokens[1]), new Integer(dateTokens[0]));
+                dayCal = new GregorianCalendar(new Integer(dateTokens[2]), new Integer(dateTokens[1]) - 1, new Integer(
+                        dateTokens[0]));
                 i = 1;
                 while (i < lineTokens.length) {
                     timeTokens = lineTokens[i].split("h");
