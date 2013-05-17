@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.3.0-rc1 (a3b145a)" system="lauv-noptilus-1" i18n="en_US">
+<config format="1" version="2.3.0-rc1 (a2da9fe)" system="lauv-noptilus-1" i18n="en_US">
   <section name="Broom" name-i18n="Broom">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -4018,7 +4018,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>20.0</default>
+      <default>6.0</default>
       <units/>
       <desc>LBL Threshold value for the LBL level check rejection scheme</desc>
     </param>
@@ -4168,7 +4168,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1e-3, 1e-4, 1e-3, 1e-3, 10</default>
+      <default>1e-3, 1e-4, 1e-3, 1e-3, 200</default>
       <units/>
       <desc>Kalman Filter Measurement Noise Covariance values</desc>
       <size>5</size>
@@ -5728,7 +5728,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>global</default>
       <units/>
       <desc/>
     </param>
@@ -5745,7 +5745,7 @@
       <name-i18n>Active</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
-      <scope>maneuver</scope>
+      <scope>global</scope>
       <default>0</default>
       <units/>
       <desc/>
@@ -6606,6 +6606,15 @@
       <default>false</default>
       <units/>
       <desc>Set to true to enable raw data output</desc>
+    </param>
+    <param name="Calibration Maneuver - Entity Label">
+      <name-i18n>Calibration Maneuver - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Compass Calibration Maneuver</default>
+      <units/>
+      <desc>Entity label of maneuver responsible for compass calibration</desc>
     </param>
   </section>
   <section name="LBL" name-i18n="LBL">
