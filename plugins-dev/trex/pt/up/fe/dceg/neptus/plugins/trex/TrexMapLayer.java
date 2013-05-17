@@ -88,6 +88,10 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
  */
 @PluginDescription(name = "TrexMapLayer", icon = "pt/up/fe/dceg/neptus/plugins/trex/trex.png")
 public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2DPainter {
+    enum CommsChannel {
+        IMC,
+        REST;
+    }
 
     @NeptusProperty(name = "Default depth (negative for altitude)")
     public double defaultDepth = 2;
@@ -96,6 +100,8 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     public String ipShore = "localhost";
     @NeptusProperty(name = "T-Rex Shore port", description = "Port of the machine where T-Rex is running whith shore configuration to follow a tag.", editorClass = PortEditor.class)
     public int portShore = 8888;
+    @NeptusProperty(name = "Comms channel", description = "Choose if Dune communicates with T-Rex through a REST API or IP.")
+    public CommsChannel trexDuneComms = CommsChannel.IMC;
 
 //    @NeptusProperty(name = "Default speed (m/s)")
 //    public double defaultSpeed = 1.25;
@@ -179,7 +185,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                         cmd.setCommand(TrexCommand.COMMAND.POST_GOAL);
                         cmd.setGoalXml(editor.getText());
                         cmd.setGoalId(goalId);
-                        ImcMsgManager.getManager().sendMessageToSystem(cmd, getConsole().getMainSystem());
+                        // ImcMsgManager.getManager().sendMessageToSystem(cmd, getConsole().getMainSystem());
                         cmd.dump(System.err);
                     }
                 });
@@ -290,7 +296,15 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 loc.convertToAbsoluteLatLonDepth();
                 VisitLocationGoal visitLocationGoal = new VisitLocationGoal(loc.getLatitudeAsDoubleValueRads(), loc
                         .getLongitudeAsDoubleValueRads());
-                httpPostTrex(visitLocationGoal);
+                // FIXME add config to choose this
+                switch (trexDuneComms) {
+                    case IMC:
+                        send(visitLocationGoal.asIMCMsg());
+                        break;
+                    case REST:
+                        httpPostTrex(visitLocationGoal);
+                        break;
+                }
             }
         });
     }

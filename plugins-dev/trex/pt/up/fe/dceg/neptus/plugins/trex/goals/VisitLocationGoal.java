@@ -83,8 +83,18 @@ public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
 
     @Override
     public Collection<TrexAttribute> getAttributes() {
-        //TODO;
-        return new Vector<TrexAttribute>();
+        Vector<TrexAttribute> attributes = new Vector<TrexAttribute>();
+        TrexAttribute attrTemp = new TrexAttribute();
+        attrTemp.setName("speed");// TODO qual metodo?
+        attrTemp.setValue("speed", new Double(speed));
+        attributes.add(attrTemp);
+        attrTemp = new TrexAttribute();
+        attrTemp.setValue("latitude", new Double(latitude));
+        attributes.add(attrTemp);
+        attrTemp = new TrexAttribute();
+        attrTemp.setValue("longitude", new Double(longitude));
+        attributes.add(attrTemp);
+        return attributes;
     }
 
     @Override
@@ -135,6 +145,7 @@ public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
         
     }
 
+    @Override
     public String toJson() {
         return "{"
                 + "\"on\": \""+super.timeline+"\",\"pred\": \""+super.predicate+"\","
