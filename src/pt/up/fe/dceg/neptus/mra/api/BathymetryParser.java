@@ -44,5 +44,4 @@ public interface BathymetryParser {
     
     public BathymetrySwath getSwathAt(long timestamp);
     public BathymetrySwath nextSwath();
-    
 }

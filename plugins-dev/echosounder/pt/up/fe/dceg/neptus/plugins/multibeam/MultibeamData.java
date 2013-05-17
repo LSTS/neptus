@@ -230,7 +230,11 @@ public class MultibeamData implements Serializable {
                         Integer.valueOf(m.group(5)), Integer.valueOf(m.group(6)));
                 cal.set(Calendar.MILLISECOND, Integer.valueOf(millisStr.substring(1, 4)));
 
-                esMsg = esLog.getEntryAtOrAfter(cal.getTimeInMillis());
+                System.out.println(cal.getTimeInMillis());
+                esMsg = esLog.getEntryAtOrAfter(cal.getTimeInMillis() + 3600000);
+                
+                if(esMsg == null) break;
+                
                 heading = Math.toDegrees(esMsg.getDouble("psi"));
 
                 // Read LatLon information
@@ -311,7 +315,10 @@ public class MultibeamData implements Serializable {
                         Integer.valueOf(m.group(5)), Integer.valueOf(m.group(6)));
                 cal.set(Calendar.MILLISECOND, Integer.valueOf(millisStr.substring(1, 4)));
 
-                esMsg = esLog.getEntryAtOrAfter(cal.getTimeInMillis());
+                esMsg = esLog.getEntryAtOrAfter(cal.getTimeInMillis() + 3600000);
+                if(esMsg == null)
+                    break;
+                
                 heading = Math.toDegrees(esMsg.getDouble("psi"));
 
                 // Read LatLon information

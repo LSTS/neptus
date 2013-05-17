@@ -51,6 +51,7 @@ import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
 import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.llf.LsfLogSource;
 
 /**
@@ -106,27 +107,33 @@ public class DeltaTParser implements BathymetryParser {
         if(!f.exists()) {
             info = new BathymetryInfo();
             
-            double maxLat = -Math.PI;
-            double minLat = Math.PI;
-            double maxLon = -Math.PI * 2;
-            double minLon = Math.PI * 2;
+            double maxLat = -90;
+            double minLat = 90;
+            double maxLon = -180;
+            double minLon = 180;
             
             BathymetrySwath bs;
 
             while ((bs = nextSwath()) != null) {
-                double lat = bs.getPose().getPosition().getLatitudeAsDoubleValueRads();
-                double lon = bs.getPose().getPosition().getLongitudeAsDoubleValueRads();
+                LocationType loc = bs.getPose().getPosition().convertToAbsoluteLatLonDepth();
+                double lat = loc.getLatitudeAsDoubleValue();
+                double lon = loc.getLongitudeAsDoubleValue();
 
                 maxLat = Math.max(lat, maxLat);
                 maxLon = Math.max(lon, maxLon);
                 minLat = Math.min(lat, minLat);
                 minLon = Math.min(lon, minLon);
+                
                 for(int c = 0; c < bs.numBeams; c++) {
                     BathymetryPoint p = bs.getData()[c];
                     
                     info.minDepth = Math.min(info.minDepth, p.depth);
                     info.maxDepth = Math.max(info.maxDepth, p.depth);
                 }
+                
+                info.topLeft = new LocationType(maxLat, minLon);
+                info.bottomRight = new LocationType(minLat, maxLon);
+                
                 totalNumberPoints = totalNumberPoints + bs.numBeams;
                 realNumberOfBeams = 0;
             }
@@ -151,15 +158,7 @@ public class DeltaTParser implements BathymetryParser {
                 info = (BathymetryInfo) in.readObject();
                 in.close();
             }
-            catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            catch (ClassNotFoundException e) {
-                // TODO Auto-generated catch block
+            catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -189,15 +188,18 @@ public class DeltaTParser implements BathymetryParser {
 
     @Override
     public BathymetrySwath nextSwath() {
+
         try {
             if(curPos >= channel.size())
                 return null;
-            
+           
             BathymetryPoint data[];
+            realNumberOfBeams = 0;
             
             buf = channel.map(MapMode.READ_ONLY, curPos, 256);
             DeltaTHeader header = new DeltaTHeader();
             header.parse(buf);
+            
             
             // Parse and process data ( no need to create another structure for this )
             buf = channel.map(MapMode.READ_ONLY, curPos + 256, header.numBeams * 2);
@@ -212,7 +214,6 @@ public class DeltaTParser implements BathymetryParser {
             pose.getPosition().setOffsetEast(state.getDouble("y"));
             pose.getPosition().setDepth(state.getDouble("depth"));
             pose.setYaw(state.getDouble("psi"));
-            
             for(int c = 0; c < header.numBeams; c++) { 
                 double range = buf.getShort(c*2) * (header.rangeResolution / 1000.0);
                 
@@ -234,8 +235,7 @@ public class DeltaTParser implements BathymetryParser {
             }
             curPos += header.numBytes; // Advance current position
             
-            BathymetrySwath swath = new BathymetrySwath(header.timestamp,  new SystemPositionAndAttitude(), data);
-            //swath.numBeams = header.numBeams;
+            BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, data);
             swath.numBeams = realNumberOfBeams;
             
             return swath;
@@ -245,27 +245,126 @@ public class DeltaTParser implements BathymetryParser {
             return null;
         }
     }
+    
+    public BathymetrySwath nextSwath(double prob) {
 
+        try {
+            if(curPos >= channel.size())
+                return null;
+           
+            BathymetryPoint data[];
+            realNumberOfBeams = 0;
+            
+            buf = channel.map(MapMode.READ_ONLY, curPos, 256);
+            DeltaTHeader header = new DeltaTHeader();
+            header.parse(buf);
+            
+//            System.out.println(header.timestamp);
+            // Parse and process data ( no need to create another structure for this )
+            buf = channel.map(MapMode.READ_ONLY, curPos + 256, header.numBeams * 2);
+            data = new BathymetryPoint[header.numBeams];
+            state = stateParser.getEntryAtOrAfter(header.timestamp);
+            
+            // Use the navigation data from EstimatedState 
+            SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
+            pose.getPosition().setLatitudeRads(state.getDouble("lat"));
+            pose.getPosition().setLongitudeRads(state.getDouble("lon"));
+            pose.getPosition().setOffsetNorth(state.getDouble("x"));
+            pose.getPosition().setOffsetEast(state.getDouble("y"));
+            pose.getPosition().setDepth(state.getDouble("depth"));
+            pose.setYaw(state.getDouble("psi"));
+            for(int c = 0; c < header.numBeams; c++) { 
+                double range = buf.getShort(c*2) * (header.rangeResolution / 1000.0);
+                
+                if(range == 0.0 || Math.random() > prob) {
+                    continue;
+                }
+                
+                double angle = header.startAngle + header.angleIncrement * c;         
+                float height = (float) (range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth());
+
+                double x = range * Math.sin(Math.toRadians(angle));
+                double yawAngle = -pose.getYaw();
+                float ox = (float) (x * Math.sin(yawAngle));
+                float oy = (float) (x * Math.cos(yawAngle));
+                
+                
+                data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height);
+                
+                realNumberOfBeams++;
+            }
+            curPos += header.numBytes; // Advance current position
+            
+            BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, data);
+            swath.numBeams = realNumberOfBeams;
+            
+            return swath;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public BathymetrySwath nextSwathNoData() {
+        try {
+            if(curPos >= channel.size())
+                return null;
+           
+            realNumberOfBeams = 0;
+            
+            buf = channel.map(MapMode.READ_ONLY, curPos, 256);
+            DeltaTHeader header = new DeltaTHeader();
+            header.parse(buf);
+            
+            state = stateParser.getEntryAtOrAfter(header.timestamp);
+            
+            // Use the navigation data from EstimatedState 
+            SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
+            pose.getPosition().setLatitudeRads(state.getDouble("lat"));
+            pose.getPosition().setLongitudeRads(state.getDouble("lon"));
+            pose.getPosition().setOffsetNorth(state.getDouble("x"));
+            pose.getPosition().setOffsetEast(state.getDouble("y"));
+            pose.getPosition().setDepth(state.getDouble("depth"));
+            pose.setYaw(state.getDouble("psi"));
+            curPos += header.numBytes; // Advance current position
+            
+            BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, null);
+            swath.numBeams = realNumberOfBeams;
+            
+            return swath;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public void rewind() {
+        curPos = 0;
+        stateParser.firstLogEntry();
+    }
+    
     public static void main(String[] args) {
         try {
-            LsfLogSource source = new LsfLogSource(new File("/home/jqcorreia/lsts/logs/lauv-noptilus-1/20130208/124645_bathym_plan/Data.lsf"), null);
+            LsfLogSource source = new LsfLogSource(new File("/home/jqcorreia/lsts/logs/lauv-noptilus-1/20121220/160655_rows_btrack/Data.lsf"), null);
             DeltaTParser p = new DeltaTParser(source);
             //            Kryo kryo = new Kryo();
 //            Output output = new Output(new FileOutputStream("kryo.bin"));
+            
             int c = 0;
-            while((p.nextSwath()) != null) {
-//                for(BathymetryPoint bp : bs.getData()) {
-//                    double r[] = CoordinateUtil.latLonAddNE2(bp.lat, bp.lon, bp.north, bp.east);
-//                    float f[] = new float[2];
-//                    
-//                    f[0] = (float) (r[0] * 1000000f);
-//                    f[1] = new Double(r[1]).floatValue();
-//                    
-//                    NeptusLog.pub().info("<###> "+r[0]);
-//                    NeptusLog.pub().info("<###> " + f[0]);
-//                }
-                c++;
-//                kryo.writeObject(output, bs);
+            while((p.nextSwath(1.0)) != null) {
+////                for(BathymetryPoint bp : bs.getData()) {
+////                    double r[] = CoordinateUtil.latLonAddNE2(bp.lat, bp.lon, bp.north, bp.east);
+////                    float f[] = new float[2];
+////                    
+////                    f[0] = (float) (r[0] * 1000000f);
+////                    f[1] = new Double(r[1]).floatValue();
+////                    
+////                    NeptusLog.pub().info("<###> "+r[0]);
+////                    NeptusLog.pub().info("<###> " + f[0]);
+////                }
+//                c++;
+////                kryo.writeObject(output, bs);
             }
             NeptusLog.pub().info("<###> "+c);
         }

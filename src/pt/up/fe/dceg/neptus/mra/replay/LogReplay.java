@@ -54,9 +54,8 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.multibeam.MultibeamReplay;
+import pt.up.fe.dceg.neptus.plugins.multibeam.MultibeamReplay2;
 import pt.up.fe.dceg.neptus.plugins.oplimits.OperationLimits;
-import pt.up.fe.dceg.neptus.plugins.sss.SidescanOverlay;
 import pt.up.fe.dceg.neptus.renderer2d.MissionRenderer;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.mission.MissionType;
@@ -96,12 +95,13 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
         layers.add(new EstimatedStateReplay());
         layers.add(new SimulatedStateReplay());
         layers.add(new LBLRangesReplay());
-        layers.add(new SidescanOverlay());
+//        layers.add(new SidescanOverlay());
 //        layers.add(new SidescanReplay());
-        layers.add(new MultibeamReplay());
+        layers.add(new MultibeamReplay2());
         layers.add(new TrexReplay());
         layers.add(markersReplay);
         layers.add(new BathymetryReplay());
+//        layers.add(new DeltaTReplayLayer());
     }
     
     protected LinkedHashMap<String, IMraLog> replayParsers = new LinkedHashMap<String, IMraLog>();
