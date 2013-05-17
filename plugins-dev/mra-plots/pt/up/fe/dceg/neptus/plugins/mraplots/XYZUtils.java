@@ -60,6 +60,7 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.types.coord.UTMCoordinates;
 import pt.up.fe.dceg.neptus.types.map.ImageElement;
 import pt.up.fe.dceg.neptus.types.map.MapGroup;
 import pt.up.fe.dceg.neptus.types.map.MapType;
@@ -458,8 +459,101 @@ public class XYZUtils {
         }
 
     }
+    
+    public static void bathymCadiz() throws Exception {
+        FileInputStream fis = new FileInputStream("/home/zp/Desktop/grid_5_cadizsub_UTM-29N.xyz");
+        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+        Vector<Double> xvec = new Vector<Double>(), yvec = new Vector<Double>(), zvec = new Vector<Double>();
 
+        LocationType ref = null;
+
+        String line = br.readLine();
+        while (line != null) {
+            if (line.startsWith("#")) {}                
+            else {
+                String[] xt = line.split("[\t ,]");
+                if (xt.length == 3) {
+                    try {
+                        double xx = Double.parseDouble(xt[0]);
+                        double yy = Double.parseDouble(xt[1]);
+                        double zz = Double.parseDouble(xt[2]);
+                        
+                        if (ref == null) {
+                            UTMCoordinates utm = new UTMCoordinates(xx, yy, 29, 'N');
+                            utm.UTMtoLL();
+                            ref = new LocationType(utm.getLatitudeDegrees(), utm.getLongitudeDegrees());                            
+                        }
+                        
+                        UTMCoordinates utm = new UTMCoordinates(xx, yy, 29, 'N');
+                        utm.UTMtoLL();
+                        LocationType tmp = new LocationType(utm.getLatitudeDegrees(), utm.getLongitudeDegrees());
+                        
+                        System.out.println(tmp);
+                        double[] offsets = tmp.getOffsetFrom(ref);
+                                
+                        xvec.add(offsets[0]);
+                        yvec.add(offsets[1]);
+                        zvec.add(-zz);
+                        
+                    } catch (NumberFormatException e) {
+                        e.getMessage();
+                    }
+                }
+            }           
+            line = br.readLine();
+        }
+        br.close();
+        
+        int targetImageWidth = 800;
+        int targetImageHeight = 600;
+        int gridSize = 297;
+        XYZDataType xyzData = getInterpolatedData(ref, xvec, yvec, zvec, targetImageWidth,
+                targetImageHeight, gridSize);
+
+        BufferedImage destination = new BufferedImage(xyzData.width,
+                xyzData.height, BufferedImage.TYPE_INT_ARGB);
+
+        BufferedImage destination1 = new BufferedImage(xyzData.width,
+                xyzData.height, BufferedImage.TYPE_INT_ARGB);
+
+        BufferedImage destination2 = new BufferedImage(xyzData.width,
+                xyzData.height, BufferedImage.TYPE_INT_ARGB);
+
+
+        double[][] kdkdinv = invertDataSet(xyzData.dataSet);
+
+
+        getInterpolatedData(xyzData.dataSet, ColorMapFactory.createJetColorMap(), destination, 255);
+//        drawLegend((Graphics2D) destination.getGraphics(), ColorMapFactory.createJetColorMap(), 
+//                "bathymetry", xyzData.scale, "m", xyzData.minZ, xyzData.maxZ);
+        JLabel lblw = new JLabel(new ImageIcon(destination));
+        GuiUtils.testFrame(lblw, "", 800, 600);
+
+        getInterpolatedData(xyzData.dataSet, ColorMapFactory.createGrayScaleColorMap(), destination1, 255);
+        JLabel lblw1 = new JLabel(new ImageIcon(destination1));
+        GuiUtils.testFrame(lblw1, "", 800, 600);
+
+        getInterpolatedData(kdkdinv, ColorMapFactory.createGrayScaleColorMap(), destination2, 255);
+        JLabel lblw2 = new JLabel(new ImageIcon(destination2));
+        GuiUtils.testFrame(lblw2, "", 800, 600);
+
+
+        ImageIO.write(destination , "png", new File("cadiz-jet.png"));
+        ImageIO.write(destination1, "png", new File("cadiz-gray.png"));
+        ImageIO.write(destination2, "png", new File("cadiz-inv-gray.png"));
+
+        MapType mapT = getAsMapType(destination, destination2, "Cadiz-Bat", ".", xyzData.centerLoc,
+                xyzData.scale, xyzData.maxZ, xyzData.minZ);
+
+        NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(mapT.asXML()));
+    }
+    
     public static void main(String[] args) throws Exception {
+        
+        
+        bathymCadiz();
+        System.exit(0);
+        
         double[] vec = calcWidthHeightScale(417.4842522414401, 417.05859590325053, 800, 600);
         NeptusLog.pub().info("<###> "+vec[0]);
         NeptusLog.pub().info("<###> "+vec[1]);
@@ -481,6 +575,10 @@ public class XYZUtils {
                         double xx = Double.parseDouble(xt[1]);
                         double yy = Double.parseDouble(xt[0]);
                         double zz = Double.parseDouble(xt[2]);
+                        
+                        
+                        
+                        
                         xvec.add(xx);
                         yvec.add(yy);
                         zvec.add(-zz);

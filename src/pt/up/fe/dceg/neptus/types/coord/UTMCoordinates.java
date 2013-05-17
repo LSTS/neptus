@@ -69,7 +69,7 @@ public class UTMCoordinates {
 		//NeptusLog.pub().info("<###> "+longitude);
 	}
 	
-	private void UTMtoLL() {
+	public void UTMtoLL() {
         //check the ZoneNummber is valid
         if (zoneNumber < 0 || zoneNumber > 60) {
             return;
@@ -347,6 +347,9 @@ public class UTMCoordinates {
 	
 	public static void main(String[] args) {
 	    
+	    
+	    
+	    
 	    UTMCoordinates utmcadiz = new UTMCoordinates( 745370.0, 4042995.0, 29, 'N');
 	    utmcadiz.UTMtoLL();
 	    double lat = utmcadiz.getLatitudeDegrees();
@@ -365,6 +368,10 @@ public class UTMCoordinates {
 	            "  zone letter: " + utm.getZoneLetter());
 	    
         UTMCoordinates utm2 = new UTMCoordinates(584102.1, 4539238.6, 29, 'N'); 
+        
+        
+        
+        
         NeptusLog.pub().info("<###>lat: " + utm2.getLatitudeDegrees() + "   lon: " + utm2.getLongitudeDegrees());
         
         
