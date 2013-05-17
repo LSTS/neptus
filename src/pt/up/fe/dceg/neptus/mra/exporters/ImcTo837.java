@@ -134,7 +134,7 @@ public class ImcTo837 implements MraExporter {
                         heading = 900;
                     }
                     else {
-                        roll = -5; //(short) (Math.toDegrees(esMsg.getDouble("phi")));
+                        roll = (short) (Math.toDegrees(esMsg.getDouble("phi")));
                         pitch = (short) (Math.toDegrees(esMsg.getDouble("theta")));
                         heading = (short) (Math.toDegrees(esMsg.getDouble("psi")));
                         res = CoordinateUtil.latLonAddNE2(Math.toDegrees(esMsg.getDouble("lat")), Math.toDegrees(esMsg.getDouble("lon")), esMsg.getDouble("x"), esMsg.getDouble("y"));
