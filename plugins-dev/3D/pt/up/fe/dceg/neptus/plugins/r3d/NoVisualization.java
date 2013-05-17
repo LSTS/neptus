@@ -31,14 +31,29 @@
  */
 package pt.up.fe.dceg.neptus.plugins.r3d;
 
+import javax.swing.event.EventListenerList;
+
 /**
  * @author Margarida Faria
  *
  */
-public class NoBottomDistanceEntitiesException extends Exception {
-    private static final long serialVersionUID = -1342306115502379876L;
+public class NoVisualization {
+    protected EventListenerList listenerList = new EventListenerList();
 
-    public NoBottomDistanceEntitiesException(String message) {
-        super(message);
+    public void addNoVisualizationListener(JMEListener listener) {
+        listenerList.add(JMEListener.class, listener);
+    }
+
+    public void removeNoVisualizationListener(JMEListener listener) {
+        listenerList.remove(JMEListener.class, listener);
+    }
+
+    public void fireNoVisualization(NoVisualizationEvent evt) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = 0; i < listeners.length; i = i + 2) {
+            if (listeners[i] == JMEListener.class) {
+                ((JMEListener) listeners[i + 1]).noVisualizationOccurred(evt);
+            }
+        }
     }
 }

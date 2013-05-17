@@ -45,8 +45,8 @@ import java.util.Vector;
  */
 public class DataDiscretizer {
 
-	private LinkedHashMap<String, DataPoint> points = new LinkedHashMap<String, DataPoint>();
-	private GeneralPath cHullShape = new GeneralPath();
+	private final LinkedHashMap<String, DataPoint> points = new LinkedHashMap<String, DataPoint>();
+	private final GeneralPath cHullShape = new GeneralPath();
 	public double maxX = Double.NaN, maxY = Double.NaN, minX = Double.NaN, minY = Double.NaN;
 	public double minVal[] = null, maxVal[] = null;
 	private int cellWidth = 5;
@@ -102,6 +102,7 @@ public class DataDiscretizer {
             array.add(new Point(dp.x, dp.y));
         }
         Collections.sort(array, new Comparator<Point>() {
+            @Override
             public int compare(Point pt1, Point pt2) {
                 int r = pt1.x - pt2.x;
                 if (r != 0)
@@ -141,8 +142,13 @@ public class DataDiscretizer {
 		return points.values().toArray(new DataPoint[0]);
 	}
 	
+    public int getAmountDataPoints() {
+        return points.size();
+    }
+
 	public class DataPoint {
-		private int x, y, numValues;
+		private final int x, y;
+        private int numValues;
 		double sum[];
 		public DataPoint(int x, int y) {
 			this.x = x; this.y = y;
@@ -169,13 +175,13 @@ public class DataDiscretizer {
 		}
 		
 		public double getValue() {
-			return (numValues > 0)? sum[0]/(double)numValues : Double.NaN; 
+			return (numValues > 0)? sum[0]/numValues : Double.NaN; 
 		}
 		
 		public double[] getValues() {
 			double[] ret = new double[sum.length];
 			for (int i = 0; i < sum.length; i++)
-				ret[i] = (numValues > 0)? sum[i]/(double)numValues : Double.NaN;
+				ret[i] = (numValues > 0)? sum[i]/numValues : Double.NaN;
 				
 			return ret; 
 		}

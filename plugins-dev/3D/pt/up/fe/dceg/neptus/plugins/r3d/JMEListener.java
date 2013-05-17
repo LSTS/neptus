@@ -39,5 +39,5 @@ import java.util.EventListener;
  */
 
 public interface JMEListener extends EventListener {
-    public void badDriversOccurred(BadDriversEvent evt);
+    public void noVisualizationOccurred(NoVisualizationEvent evt);
 }

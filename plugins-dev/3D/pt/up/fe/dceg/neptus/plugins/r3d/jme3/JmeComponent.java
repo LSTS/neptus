@@ -5,16 +5,14 @@ import java.awt.Rectangle;
 import java.util.EnumSet;
 import java.util.logging.Level;
 
-import org.lwjgl.LWJGLException;
-
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.plugins.r3d.BadDrivers;
-import pt.up.fe.dceg.neptus.plugins.r3d.BadDriversEvent;
 import pt.up.fe.dceg.neptus.plugins.r3d.Bathymetry3DGenerator;
 import pt.up.fe.dceg.neptus.plugins.r3d.MarkerObserver;
-import pt.up.fe.dceg.neptus.plugins.r3d.NoBottomDistanceEntitiesException;
+import pt.up.fe.dceg.neptus.plugins.r3d.NoVisualization;
+import pt.up.fe.dceg.neptus.plugins.r3d.NoVisualizationEvent;
+import pt.up.fe.dceg.neptus.plugins.r3d.NotEnoughDataException;
 import pt.up.fe.dceg.neptus.plugins.r3d.dto.BathymetryLogInfo;
 import pt.up.fe.dceg.plugins.tidePrediction.Harbors;
 
@@ -33,36 +31,37 @@ public class JmeComponent extends SimpleApplication {
     public static final boolean TEST_CURVE = false;
     private JmeCanvasContext ctx;
     private final IMraLogGroup source;
-    private final BadDrivers badDrivers;
+    private final NoVisualization noVisualization;
     private final MarkerObserver markerObserver;
     private final Harbors harbor;
+    private boolean enoughData = true;
 
     /**
      * Setup the canvas object and adds it to the panel
      * 
      * @param source
-     * @param badDrivers
+     * @param noVisualization
      * @param markerObserver
      * @param harbor
      */
-    public JmeComponent(IMraLogGroup source, BadDrivers badDrivers, MarkerObserver markerObserver, Harbors harbor) {
+    public JmeComponent(IMraLogGroup source, NoVisualization noVisualization, MarkerObserver markerObserver,
+            Harbors harbor) {
         super();
         // createApplicationAndCanvas(SIZE_CANVAS_INSIDE_NEPTUS, SIZE_CANVAS_INSIDE_NEPTUS);
         this.source = source;
-        this.badDrivers = badDrivers;
+        this.noVisualization = noVisualization;
         this.markerObserver = markerObserver;
         this.harbor = harbor;
     }
 
     @Override
     public void handleError(String errMsg, Throwable t){
-        if (t instanceof LWJGLException) {
-            errMsg = I18n.text("Probably bad graphics drivers. ") + errMsg;
-            fireNoSupport(I18n.text("Graphic card is not enough for this plugin."));
-        }
+        // if (t instanceof LWJGLException) {
+        // errMsg = I18n.text("Probably bad graphics drivers. ") + errMsg;
+        // fireNoSupport(I18n.text("Graphic card is not enough for this plugin."));
+        // }
         NeptusLog.pub().error("----->" + errMsg, t);
-        fireNoSupport(errMsg);
-        stop();
+        // fireNoSupport(errMsg);
     }
 
     /**
@@ -71,34 +70,10 @@ public class JmeComponent extends SimpleApplication {
      * @return panel with jME inside
      */
     public Canvas getComponentAndStartIt() {
-        // java.awt.EventQueue.invokeLater(new Runnable() {
-        // @Override
-        // public void run() {
-                startCanvas();
-        // }
-        // });
+        startCanvas();
         return ctx.getCanvas();
     }
 
-    /**
-     * Setup the canvas object and adds it to the panel
-     * 
-     * @param rectangle
-     */
-    // private void createApplicationAndCanvas() {
-    // AppSettings settings = new AppSettings(true);
-    // settings.setWidth(SIZE_CANVAS_INSIDE_NEPTUS);
-    // settings.setHeight(SIZE_CANVAS_INSIDE_NEPTUS);
-    // settings.setAudioRenderer(null);
-    // java.util.logging.Logger.getLogger("").setLevel(Level.WARNING);
-    // setSettings(settings);
-    // setShowSettings(false);
-    // setDisplayStatView(false);
-    // setDisplayFps(false);
-    // createCanvas();
-    // ctx = (JmeCanvasContext) getContext();
-    // ctx.setSystemListener(this);
-    // }
     public void createApplicationAndCanvas(Rectangle rectangle) {
         AppSettings settings = new AppSettings(true);
         settings.setWidth(rectangle.width);
@@ -126,24 +101,21 @@ public class JmeComponent extends SimpleApplication {
         if (!caps.contains(Caps.GLSL100)) {
             fireNoSupport(I18n.text("Graphical card does not support GLSL100, usually introduced in openGL 2.0."));
         }
-        // // Validation of tide prediction correction
-        // ValidateTideCorrection validate = new ValidateTideCorrection(source, harbor);
-        // try {
-        // validate.printRelevantData();
-        // }
-        // catch (Exception e2) {
-        // // TODO Auto-generated catch block
-        // e2.printStackTrace();
-        // }
 
         // Extract bathymery data from log
         Bathymetry3DGenerator bathyGen;
         BathymetryLogInfo bathyInfo = null;
         bathyGen = new Bathymetry3DGenerator(source);
         if (source.getLsfIndex().getDefinitions().getVersion().compareTo("5.0.0") >= 0) {
-            bathyInfo = bathyGen.extractBathymetryInfoIMC5(true, harbor);
-            if(bathyInfo == null)
-                bathyInfo = bathyGen.extractBathymetryInfoIMC5(false, harbor);
+            try {
+                bathyInfo = bathyGen.extractBathymetryInfoIMC5(true, harbor);
+                if (bathyInfo == null)
+                    bathyInfo = bathyGen.extractBathymetryInfoIMC5(false, harbor);
+            }
+            catch (NotEnoughDataException e) {
+                enoughData = false;
+                return;
+            }
         }
         else {
             try {
@@ -152,28 +124,34 @@ public class JmeComponent extends SimpleApplication {
                 }
                 bathyInfo = bathyGen.extractBathymetryInfoIMC4();
             }
-            catch (NoBottomDistanceEntitiesException e1) {
-                fireNoSupport(e1.getMessage());
+            catch (NotEnoughDataException e1) {
+                enoughData = false;
                 return;
             }
         }
         // Check for enough data to generate graph
         if (bathyInfo.getDepthVec().size() < 2 || bathyInfo.getEastVec().size() < 2) {
-            fireNoSupport(I18n.text("There is not enough data to generate a graph."));
+            enoughData = false;
             return;
         }
-        flyCam.setDragToRotate(true);
-        // Don't pause even if focus is lost
-        setPauseOnLostFocus(false);
-        // load appState
-        ShowBathymetryState bathySate = new ShowBathymetryState(bathyInfo, markerObserver);
-        stateManager.attach(bathySate);
+        // flyCam.setDragToRotate(true);
+        // // Don't pause even if focus is lost
+        // setPauseOnLostFocus(false);
+        // // load appState
+        // ShowBathymetryState bathySate = new ShowBathymetryState(bathyInfo, markerObserver);
+        // stateManager.attach(bathySate);
     }
 
     private void fireNoSupport(String msg) {
         NeptusLog.pub().info(msg);
-        badDrivers.fireBadDrivers(new BadDriversEvent(msg));
-        stop();
+        noVisualization.fireNoVisualization(new NoVisualizationEvent(msg));
+        // stop();
+    }
+
+    private void fireNoData(String msg) {
+        NeptusLog.pub().info("There is not enough data to generate a graph. " + msg);
+        noVisualization.fireNoVisualization(new NoVisualizationEvent(msg));
+        // stop();
     }
 
     /**
@@ -181,7 +159,10 @@ public class JmeComponent extends SimpleApplication {
      */
     @Override
     public void simpleUpdate(float tpf) {
-
+        if (!enoughData) {
+            // stop();
+            fireNoData("");
+        }
     }
 
     /**

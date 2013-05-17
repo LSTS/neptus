@@ -31,29 +31,14 @@
  */
 package pt.up.fe.dceg.neptus.plugins.r3d;
 
-import javax.swing.event.EventListenerList;
-
 /**
  * @author Margarida Faria
  *
  */
-public class BadDrivers {
-    protected EventListenerList listenerList = new EventListenerList();
+public class NotEnoughDataException extends Exception {
+    private static final long serialVersionUID = -1342306115502379876L;
 
-    public void addBadDriversListener(JMEListener listener) {
-        listenerList.add(JMEListener.class, listener);
-    }
-
-    public void removeBadDriversListener(JMEListener listener) {
-        listenerList.remove(JMEListener.class, listener);
-    }
-
-    public void fireBadDrivers(BadDriversEvent evt) {
-        Object[] listeners = listenerList.getListenerList();
-        for (int i = 0; i < listeners.length; i = i + 2) {
-            if (listeners[i] == JMEListener.class) {
-                ((JMEListener) listeners[i + 1]).badDriversOccurred(evt);
-            }
-        }
+    public NotEnoughDataException(String message) {
+        super(message);
     }
 }

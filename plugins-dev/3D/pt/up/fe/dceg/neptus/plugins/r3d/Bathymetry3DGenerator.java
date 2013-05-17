@@ -146,12 +146,12 @@ public class Bathymetry3DGenerator {
      * 
      * @return an object that holds the collected information.
      */
-    public BathymetryLogInfo extractBathymetryInfoRawIMC4() throws NoBottomDistanceEntitiesException {
+    public BathymetryLogInfo extractBathymetryInfoRawIMC4() throws NotEnoughDataException {
         // rules out unreliable sensors
         idSourceBottomDistance = getIdOfBottomDistanceQuick();
         if (idSourceBottomDistance == INVALID_ENTITY_ID) {
             // TODO refactor so that when there is no bottom distance only the vehicle path is rendered
-            throw new NoBottomDistanceEntitiesException(I18n.text("No valid entity of bottom distance."));
+            throw new NotEnoughDataException(I18n.text("No valid entity of bottom distance."));
         }
         ArrayList<VehicleInfoAtPointDTO> vehicleInfo = new ArrayList<VehicleInfoAtPointDTO>();
         // get raw info from log and init associated vars
@@ -223,7 +223,8 @@ public class Bathymetry3DGenerator {
      * 
      * @throws Exception
      */
-    public BathymetryLogInfo extractBathymetryInfoIMC5(boolean tideAdjust, Harbors harbor) {
+    public BathymetryLogInfo extractBathymetryInfoIMC5(boolean tideAdjust, Harbors harbor)
+            throws NotEnoughDataException {
         if (data == null) {
             data = new BathymetryLogInfo();
         }
@@ -285,6 +286,7 @@ public class Bathymetry3DGenerator {
                 terrainAltitude = waterColumn - currPrediction;
                 vehAltitude = depth - currPrediction;
                 vehicleDepthVec.add(vehAltitude);
+                System.out.println("if addBathymetryData data");
                 addBathymetryData(terrainAltitude, offs);
             }
             else {
@@ -293,14 +295,21 @@ public class Bathymetry3DGenerator {
                     continue;
                 }
                 waterColumn = depth + alt;
+                System.out.println("else addBathymetryData data");
                 addBathymetryData(waterColumn, offs);
             }
         }
         data.setNorthVec(xVec);
         data.setEastVec(yVec);
         data.setDepthVec(vehicleDepthVec);
-        // prepare data for image
-        generateBufferedImage(ColorMapFactory.createStoreDataColormap());
+        int amountDataPoints = xyzNEDmeters.getAmountDataPoints();
+        if (amountDataPoints > 4) {
+            // prepare data for image
+            generateBufferedImage(ColorMapFactory.createStoreDataColormap());
+        }
+        else{
+            throw new NotEnoughDataException(amountDataPoints + " valid points.");
+        }
         // graphToFile(data.getBuffImageHeightMap(), "/home/meg/LSTS/heighMap/heightMapout.jpg");
 
         return data;
@@ -400,12 +409,12 @@ public class Bathymetry3DGenerator {
      * 
      * @return water height, minimum depth and the bufferedImage inside the BathymetryLogInfo object
      */
-    public BathymetryLogInfo extractBathymetryInfoIMC4() throws NoBottomDistanceEntitiesException {
+    public BathymetryLogInfo extractBathymetryInfoIMC4() throws NotEnoughDataException {
         // rules out unreliable sensors
         idSourceBottomDistance = getIdOfBottomDistanceQuick();
         if (idSourceBottomDistance == INVALID_ENTITY_ID) {
             // TODO refactor so that when there is no bottom distance only the vehicle path is rendered
-            throw new NoBottomDistanceEntitiesException(I18n.text("No valid entity of bottom distance."));
+            throw new NotEnoughDataException(I18n.text("No valid entity of bottom distance."));
         }
         if (data == null) {
             data = new BathymetryLogInfo();

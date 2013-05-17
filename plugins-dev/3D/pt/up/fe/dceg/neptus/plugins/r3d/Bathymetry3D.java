@@ -46,7 +46,6 @@ import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.table.TableModel;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.i18n.I18n;
@@ -58,8 +57,6 @@ import pt.up.fe.dceg.neptus.mra.visualizations.SimpleMRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.r3d.jme3.JmeComponent;
 import pt.up.fe.dceg.plugins.tidePrediction.Harbors;
-import pt.up.fe.dceg.plugins.tidePrediction.gui.TideTable;
-import pt.up.fe.dceg.plugins.tidePrediction.gui.TideTableModel;
 
 import com.jme3.system.JmeCanvasContext;
 
@@ -100,27 +97,28 @@ public class Bathymetry3D extends SimpleMRAVisualization implements LogMarkerLis
 
         started = true;
         markerObserver.setSource(source);
-        // add bad drivers listener
-        final BadDrivers badDrivers = new BadDrivers();
-        badDrivers.addBadDriversListener(new JMEListener() {
+        // add noVisualization listener
+        final NoVisualization noVisualization = new NoVisualization();
+        noVisualization.addNoVisualizationListener(new JMEListener() {
             @Override
-            public void badDriversOccurred(final BadDriversEvent evt) {
+            public void noVisualizationOccurred(final NoVisualizationEvent evt) {
                 SwingUtilities.invokeLater(new Runnable() {
 
                     @Override
                     public void run() {
+                        app.stop(true);
                         Bathymetry3D.this.removeAll();
                         showError(I18n.text("No support. ") + evt.getSource().toString());
                     }
                 });
             }
         });
-        setupInterface(badDrivers);
+        setupInterface(noVisualization);
         return this;
     }
 
 
-    private void setupInterface(final BadDrivers badDrivers) {
+    private void setupInterface(final NoVisualization noVisualization) {
         setLayout(new MigLayout("wrap 1", "[100%]"));
         // Set tide calibration settings
         final JComboBox<Harbors> harborList = new JComboBox<Harbors>(Harbors.values());
@@ -139,7 +137,7 @@ public class Bathymetry3D extends SimpleMRAVisualization implements LogMarkerLis
             public void actionPerformed(ActionEvent e) {
                 final Harbors selectedHarbor = (Harbors) harborList.getSelectedItem();
                 if (selectedHarbor != null) {
-                    startJme(badDrivers, selectedHarbor);
+                    startJme(noVisualization, selectedHarbor);
                 }
                 else {
                     errorMsg.setText(I18n.text("Please select a harbor first"));
@@ -155,27 +153,28 @@ public class Bathymetry3D extends SimpleMRAVisualization implements LogMarkerLis
         startNoHarborButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                startJme(badDrivers, null);
+                startJme(noVisualization, null);
             }
 
         });
 
-        TableModel data = new TideTableModel();
-        TideTable table = new TideTable(data);
+        // FIXME Interface to implement
+        // TableModel data = new TideTableModel();
+        // TideTable table = new TideTable(data);
 
         this.add(harborList, "span, split 2, center");
         this.add(startButton, "wrap");
-        this.add(table, "span, center, wrap");
+        // this.add(table, "span, center, wrap");
         this.add(startNoHarborButton, "span, center, wrap");
         this.add(errorMsg, "span, center");
 
     }
 
-    private void startJme(final BadDrivers badDrivers, final Harbors selectedHarbor) {
+    private void startJme(final NoVisualization noVisualization, final Harbors selectedHarbor) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                app = new JmeComponent(source, badDrivers, markerObserver, selectedHarbor);
+                app = new JmeComponent(source, noVisualization, markerObserver, selectedHarbor);
                 app.createApplicationAndCanvas(getBounds());
                 JPopupMenu.setDefaultLightWeightPopupEnabled(false);
                 JmeCanvasContext context = (JmeCanvasContext) app.getContext();

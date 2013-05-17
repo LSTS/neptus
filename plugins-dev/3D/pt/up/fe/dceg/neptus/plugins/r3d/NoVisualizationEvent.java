@@ -37,10 +37,10 @@ import java.util.EventObject;
  * @author Margarida Faria
  *
  */
-public class BadDriversEvent extends EventObject {
+public class NoVisualizationEvent extends EventObject {
     private static final long serialVersionUID = -4905792399600262841L;
 
-    public BadDriversEvent(Object source) {
+    public NoVisualizationEvent(Object source) {
         super(source);
     }
 
