@@ -109,7 +109,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             NeptusLog.pub().info("File not found: " + e);        
             e.printStackTrace();
         }
-        catch (IOException ioe) {
+        catch (Exception ioe) {
             NeptusLog.pub().info("Exception while reading the file: " + ioe);
             ioe.printStackTrace();
         }
