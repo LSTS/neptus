@@ -31,7 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.plugins.multibeam;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -39,8 +38,6 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-
-import org.apache.commons.collections.MapUtils;
 
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
@@ -53,7 +50,6 @@ import pt.up.fe.dceg.neptus.mra.replay.LogReplayLayer;
 import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.coord.MapTileUtil;
 
 /**
  * @author jqcorreia
