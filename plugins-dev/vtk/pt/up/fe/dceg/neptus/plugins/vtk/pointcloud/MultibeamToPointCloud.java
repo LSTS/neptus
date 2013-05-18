@@ -86,6 +86,7 @@ public class MultibeamToPointCloud {
         this.source = source;
         this.pointCloud = pointCloud;
         
+        //DeltaTParser deltat = new DeltaTParser(this.source);
         multibeamDeltaTParser = new MultibeamDeltaTParser(this.source, pointCloud);
         //getMyDeltaTHeader();
                 

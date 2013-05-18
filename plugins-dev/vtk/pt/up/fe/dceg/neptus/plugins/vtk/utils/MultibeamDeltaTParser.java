@@ -233,18 +233,19 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                 // Parse and process data
             buf = channel.map(MapMode.READ_ONLY, currPos + 256, header.numBeams * 2); // numberBeam * 2 -> number of bytes
             data = new BathymetryPoint[header.numBeams];
-            
-            //NeptusLog.pub().info("<###> header.timestamp: " + header.timestamp);
+
                 // get vehicle pos at the timestamp
-            stateIMCMsg = stateParserLogMra.getEntryAtOrAfter(header.timestamp);
+            stateIMCMsg = stateParserLogMra.getEntryAtOrAfter(header.timestamp + NeptusMRA.timestampIncrement);  // logs from 16-05-2013 need + 3600000
+            //NeptusLog.pub().info("header 83P timestamp: " + header.timestamp);    
 
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             
             if (stateIMCMsg == null) {
+                //NeptusLog.pub().info("IMC message is null");
                 return null;
             }
             else {
-                pose.getPosition().setLatitudeRads(stateIMCMsg.getDouble("lat"));                    
+                pose.getPosition().setLatitudeRads(stateIMCMsg.getDouble("lat"));         
                 maxLat = Math.max(maxLat, pose.getPosition().getLatitudeAsDoubleValueRads());
                 minLat = Math.min(minLat, pose.getPosition().getLatitudeAsDoubleValueRads());
                 pose.getPosition().setLongitudeRads(stateIMCMsg.getDouble("lon"));
@@ -253,11 +254,15 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                 pose.getPosition().setOffsetNorth(stateIMCMsg.getDouble("x"));
                 pose.getPosition().setOffsetEast(stateIMCMsg.getDouble("y"));
                 pose.getPosition().setDepth(stateIMCMsg.getDouble("depth"));
+                //NeptusLog.pub().info("get x (IMCMessage): " + stateIMCMsg.getDouble("x"));
+                //NeptusLog.pub().info("get y (IMCMessage): " + stateIMCMsg.getDouble("y"));
+                //NeptusLog.pub().info("get depth (IMCMessage): " + stateIMCMsg.getDouble("depth"));                
                 //pose.setRoll(stateIMCMsg.getDouble("phi"));
                 //pose.setPitch(stateIMCMsg.getDouble("theta"));
-                pose.setYaw(stateIMCMsg.getDouble("psi"));         
+                pose.setYaw(stateIMCMsg.getDouble("psi"));
+                //NeptusLog.pub().info("get psi (IMCMessage): " + stateIMCMsg.getDouble("psi"));  
                 //printPose(pose);
-                         
+
                 for(int i = 0; i < header.numBeams; ++i) {
                     double range = buf.getShort(i*2) * (header.rangeResolution / 1000.0f);  // range resolution in mm -> 1000, range in meters -> short
                               
@@ -305,7 +310,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
         NeptusLog.pub().info("Point in Swath: ");
         NeptusLog.pub().info("North (x): " + data[i].north);
         NeptusLog.pub().info("East (y): " + data[i].east);
-        NeptusLog.pub().info("Height (z): " + data[i].depth);  
+        NeptusLog.pub().info("Height (z): " + data[i].depth);
     }
 
 

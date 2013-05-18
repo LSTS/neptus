@@ -147,6 +147,9 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
     @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration")
     public static int zExaggeration = 10;
     
+    @NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser")
+    public static int timestampIncrement = 0; 
+    
     private AbstractAction genReport, setMission, preferences, openLsf, httpDuneDownload, httpVehicleDownload;
     
     private File tmpFile = null;
