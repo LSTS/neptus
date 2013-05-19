@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.multibeam;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -83,7 +84,7 @@ public class MultibeamReplay2 implements LogReplayLayer {
         if(lod != renderer.getLevelOfDetail())
         {
             lod = renderer.getLevelOfDetail();
-            String filePath = "mra/multibeam" + lod + ".jpg";
+            String filePath = "mra/multibeam" + lod + ".png";
             
             double res[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(parser.getBathymetryInfo().bottomRight, lod);
             
@@ -133,14 +134,14 @@ public class MultibeamReplay2 implements LogReplayLayer {
                         
                         if(x > 0 && y > 0 && x < img.getWidth() && y < img.getHeight()) {
 //                            System.out.println(t + " " + bp.north + " " + (bp.north * ratio) + " " + (dist[0] + bp.north * ratio) + " " + ratio);
-                            img.setRGB((int)x, (int)y, cm.getColor(bp.depth / parser.getBathymetryInfo().maxDepth).getRGB());
+                            img.setRGB((int)x, (int)y, cm.getColor(1-(bp.depth / parser.getBathymetryInfo().maxDepth)).getRGB());
                         }
                     }
                 }
                 
                 try {
                     System.out.println("Recording " + source.getFile("Data.lsf").getParent() + "/" + filePath);
-                    ImageIO.write(img, "JPG", new File(source.getFile("Data.lsf").getParent() + "/" + filePath));
+                    ImageIO.write(img, "PNG", new File(source.getFile("Data.lsf").getParent() + "/" + filePath));
                 }
                 catch (IOException e) {
                     e.printStackTrace();
@@ -157,15 +158,16 @@ public class MultibeamReplay2 implements LogReplayLayer {
         
         g.translate(-pos.getX(),-pos.getY());
         
-//        for(int i = 0; i < 200; i++) {
-//            g.setColor(cm.getColor(multibeamData.minHeight + diffHeight / 200 * i));
-//            g.drawRect(10, 100+i, 10, 1);
-//            if(i % 50 == 0 || i == 0 || i == 200-1) {
-//                g.setColor(Color.black);
-//                g.drawString(""+Math.round(multibeamData.minHeight + diffHeight / 200 * i)+"m", 30, 100+i);
-//            }
-//        }
-// 
+        
+        for(int i = 0; i < 200; i++) {
+            double val = parser.getBathymetryInfo().maxDepth * i / 200.0;
+            g.setColor(cm.getColor(1 - (val / parser.getBathymetryInfo().maxDepth)));
+            g.drawRect(10, 100+i, 10, 1);
+            if(i % 50 == 0 || i == 0 || i == 200-1) {
+                g.setColor(Color.black);
+                g.drawString(""+Math.round(val)+"m", 30, 100+i);
+            }
+        }
     }
 
     @Override
