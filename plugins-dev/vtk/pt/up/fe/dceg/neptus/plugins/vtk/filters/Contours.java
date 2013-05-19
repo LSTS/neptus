@@ -38,11 +38,8 @@ import vtk.vtkActor;
 import vtk.vtkAppendFilter;
 import vtk.vtkContourFilter;
 import vtk.vtkCutter;
-import vtk.vtkDoubleArray;
 import vtk.vtkMath;
 import vtk.vtkPlane;
-import vtk.vtkPlaneSource;
-import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
 import vtk.vtkStripper;
 
