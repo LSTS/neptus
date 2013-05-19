@@ -263,6 +263,10 @@ public class Vtk extends JPanel implements MRAVisualization {
                 axesWidget.createAxesWidget();
                 
                 vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
+                
+                // set up camera to +z viewpoint looking down
+                vtkCanvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, -1.0, 1.0);
+                vtkCanvas.GetRenderer().GetActiveCamera().SetPosition(0.0,0.0,-100);
                 //vtkCanvas.GetRenderer().AddActor(downsampledCloud.getCloudLODActor());
                 
                 //vtkLODActor tempActor = performDownsample.getOutputDownsampledCloud().getCloudLODActor();

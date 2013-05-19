@@ -294,6 +294,7 @@ public class MultibeamToolBar {
                                     canvas.Render();
                                     canvas.GetRenderer().ResetCamera();
                                     pointCloud.getCloudLODActor().VisibilityOn();
+                                    canvas.GetRenderer().ResetCamera();
                                     canvas.Render();
                                 }
                                 
@@ -327,6 +328,7 @@ public class MultibeamToolBar {
                                     canvas.Render();
                                     canvas.GetRenderer().ResetCamera();
                                     pointCloud.getCloudLODActor().VisibilityOn();
+                                    canvas.GetRenderer().ResetCamera();
                                     canvas.Render();
                                 }
                             }
@@ -391,7 +393,7 @@ public class MultibeamToolBar {
         //getToolBar().add(downsampledPointsToggle);
         //getToolBar().add(meshToogle);
         getToolBar().add(zExaggerationToggle);
-        getToolBar().add(contoursToogle);
+        //getToolBar().add(contoursToogle);
             // buttons
         getToolBar().add(resetViewportButton);
         getToolBar().add(helpButton);

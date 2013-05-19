@@ -107,7 +107,9 @@ public class Window {
         setUpInteractorStyle();
             
             // set up camera to +z viewpoint looking down
+        
         getRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+        getRenderer().GetActiveCamera().Render(getRenderer());
         getRenderer().Render();
     }
 
