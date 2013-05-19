@@ -43,7 +43,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.ExaggeratePointCloudZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
@@ -52,7 +51,6 @@ import vtk.vtkActorCollection;
 import vtk.vtkCanvas;
 import vtk.vtkLODActor;
 import vtk.vtkTextActor;
-import vtk.vtkTextActor3D;
 
 /**
  * @author hfq

@@ -51,7 +51,6 @@ import org.jfree.data.time.SimpleTimePeriod;
 import org.jfree.data.time.TimePeriod;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.imc.TrexObservation;
 import pt.up.fe.dceg.neptus.imc.TrexToken;
 import pt.up.fe.dceg.neptus.imc.VehicleState;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;

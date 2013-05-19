@@ -33,7 +33,6 @@ package pt.up.fe.dceg.neptus.plugins.vtk.utils;
 
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-import vtk.vtkPolyData;
 //import vtk.
 
 /**

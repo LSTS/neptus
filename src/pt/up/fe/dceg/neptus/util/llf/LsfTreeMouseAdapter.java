@@ -146,7 +146,7 @@ public class LsfTreeMouseAdapter extends MouseAdapter {
                 popup.add(I18n.text("Plot ColorMap")).addActionListener(new ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent e) {
                         NeptusLog.pub().info("<###> "+fieldsToPlot);
-                        panel.loadVisualization(new ColorMapVisualization(panel, fieldsToPlot.get(0)), true);
+                        panel.loadVisualization(new ColorMapVisualization(panel, "ALL", fieldsToPlot.get(0)), true);
                     }
                 });
             }

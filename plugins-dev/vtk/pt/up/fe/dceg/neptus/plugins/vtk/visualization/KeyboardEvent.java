@@ -43,8 +43,6 @@ import vtk.vtkAbstractPropPicker;
 import vtk.vtkActorCollection;
 import vtk.vtkAssemblyPath;
 import vtk.vtkLODActor;
-import vtk.vtkLookupTable;
-import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;

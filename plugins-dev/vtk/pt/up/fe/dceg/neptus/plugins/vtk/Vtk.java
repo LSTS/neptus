@@ -39,8 +39,6 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.ToolTipManager;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
@@ -191,7 +189,7 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         catch (Throwable e) {
             //NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkHybrid, skipping...");
+            NeptusLog.pub().warn("cannot load vtkHybrid, skipping...");
         }
         try {
             vtkNativeLibrary.VOLUME_RENDERING.LoadLibrary();

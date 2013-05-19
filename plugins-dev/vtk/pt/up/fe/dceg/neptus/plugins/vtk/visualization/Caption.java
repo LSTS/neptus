@@ -33,7 +33,6 @@ package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
 import java.text.DecimalFormat;
 
-import vtk.vtkRenderer;
 import vtk.vtkTextActor;
 
 /**

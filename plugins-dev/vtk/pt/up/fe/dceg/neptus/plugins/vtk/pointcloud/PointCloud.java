@@ -43,7 +43,6 @@ import vtk.vtkPointSource;
 import vtk.vtkPoints;
 import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
-import vtk.vtkUnsignedCharArray;
 import vtk.vtkVertexGlyphFilter;
 
 /**

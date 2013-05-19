@@ -31,7 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.util.bathymetry;
 
-import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.ArrayList;
 

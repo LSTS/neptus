@@ -1,6 +1,5 @@
 package pt.up.fe.dceg.neptus.gui;
 
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

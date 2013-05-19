@@ -45,7 +45,6 @@ import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
 import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.MultibeamDeltaTHeader;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.MultibeamDeltaTParser;
