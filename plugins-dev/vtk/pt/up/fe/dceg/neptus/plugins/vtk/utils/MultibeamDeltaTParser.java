@@ -235,8 +235,8 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             data = new BathymetryPoint[header.numBeams];
 
                 // get vehicle pos at the timestamp
-            stateIMCMsg = stateParserLogMra.getEntryAtOrAfter(header.timestamp + NeptusMRA.timestampIncrement);  // logs from 16-05-2013 need + 3600000
-            //NeptusLog.pub().info("header 83P timestamp: " + header.timestamp);    
+            stateIMCMsg = stateParserLogMra.getEntryAtOrAfter(header.timestamp + NeptusMRA.timestampMultibeamIncrement);  // NeptusMRA.timestampIncrement 3600000 logs from 16-05-2013 need + 3600000 
+            //NeptusLog.pub().info("header 83P timestamp: " + header.timestamp);
 
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             
@@ -274,7 +274,10 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                     double height = range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth();                
                     double xBeamOffset = range * Math.sin(Math.toRadians(angle));                
                         // heading
-                    double psi = -pose.getYaw();
+                    double psi = -pose.getYaw(); //+ Math.PI
+                    if (NeptusMRA.yawMultibeamIncrement) {
+                        psi += Math.PI;
+                    }
                     double ox = xBeamOffset * Math.sin(psi);               
                     double oy = xBeamOffset * Math.cos(psi);
                     

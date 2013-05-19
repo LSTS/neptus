@@ -144,11 +144,15 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
     @NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description="Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).")
     public static boolean approachToIgnorePts = true; 
     
-    @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration")
+    @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration.")
     public static int zExaggeration = 10;
     
-    @NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser")
-    public static int timestampIncrement = 0; 
+    @NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser (in miliseconds).")
+    public static long timestampMultibeamIncrement = 0;
+    
+    @NeptusProperty(name = "Yaw Increment", description="180 Yaw (psi) increment for the 83P parser, set true to increment + 180º.")
+    public static boolean yawMultibeamIncrement = false;;
+    
     
     private AbstractAction genReport, setMission, preferences, openLsf, httpDuneDownload, httpVehicleDownload;
     

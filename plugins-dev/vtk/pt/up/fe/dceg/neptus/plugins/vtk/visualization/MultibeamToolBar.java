@@ -44,6 +44,7 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
 import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.plugins.vtk.filters.Contours;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.ExaggeratePointCloudZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
@@ -275,8 +276,6 @@ public class MultibeamToolBar {
                         actorCollection = canvas.GetRenderer().GetActors();
                         actorCollection.InitTraversal();
 
-                        canvas.GetRenderer().AddActor(textProcessingActor);
-                        canvas.Render();
                         
                         for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
                             vtkLODActor tempActor = new vtkLODActor();
@@ -286,15 +285,21 @@ public class MultibeamToolBar {
                             for (String sKey : setOfClouds) {
                                 pointCloud = linkedHashMapCloud.get(sKey);
                                 if (tempActor.equals(pointCloud.getCloudLODActor())) {
+                                    pointCloud.getCloudLODActor().VisibilityOff();
+                                    canvas.GetRenderer().AddActor(textProcessingActor);
+                                    canvas.Render();
                                     exaggeZ = new ExaggeratePointCloudZ(pointCloud);
                                     exaggeZ.performZExaggeration();
+                                    canvas.GetRenderer().RemoveActor(textProcessingActor);
+                                    canvas.Render();
+                                    canvas.GetRenderer().ResetCamera();
+                                    pointCloud.getCloudLODActor().VisibilityOn();
+                                    canvas.GetRenderer().ResetCamera();
+                                    canvas.Render();
                                 }
+                                
                             }
                         }
-                        
-                        canvas.GetRenderer().RemoveActor(textProcessingActor);
-                        canvas.Render();
-                        canvas.GetRenderer().ResetCamera();
                     }
                     catch (Exception e1) {
                         e1.printStackTrace();
@@ -306,8 +311,6 @@ public class MultibeamToolBar {
                         actorCollection = canvas.GetRenderer().GetActors();
                         actorCollection.InitTraversal();
 
-                        canvas.GetRenderer().AddActor(textProcessingActor);
-                        canvas.Render();
                         
                         for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
                             vtkLODActor tempActor = new vtkLODActor();
@@ -317,14 +320,19 @@ public class MultibeamToolBar {
                             for (String sKey : setOfClouds) {
                                 pointCloud = linkedHashMapCloud.get(sKey);
                                 if (tempActor.equals(pointCloud.getCloudLODActor())) {
+                                    pointCloud.getCloudLODActor().VisibilityOff();
+                                    canvas.GetRenderer().AddActor(textProcessingActor);
+                                    canvas.Render();
                                     exaggeZ.reverseZExaggeration();
+                                    canvas.GetRenderer().RemoveActor(textProcessingActor);
+                                    canvas.Render();
+                                    canvas.GetRenderer().ResetCamera();
+                                    pointCloud.getCloudLODActor().VisibilityOn();
+                                    canvas.GetRenderer().ResetCamera();
+                                    canvas.Render();
                                 }
                             }
                         }
-                        
-                        canvas.GetRenderer().RemoveActor(textProcessingActor);
-                        canvas.Render();
-                        canvas.GetRenderer().ResetCamera();
                     }
                     catch (Exception e1) {
                         e1.printStackTrace();
@@ -337,8 +345,36 @@ public class MultibeamToolBar {
             
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
-                
+                if (contoursToogle.isSelected()) {
+                    try {
+                        vtkActorCollection actorCollection = new vtkActorCollection();
+                        actorCollection = canvas.GetRenderer().GetActors();
+                        actorCollection.InitTraversal();
+                        
+                        for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
+                            vtkLODActor tempActor = new vtkLODActor();
+                            tempActor = (vtkLODActor) actorCollection.GetNextActor();
+                            Set<String> setOfClouds;
+                            setOfClouds = linkedHashMapCloud.keySet();
+                            for (String sKey : setOfClouds) {
+                                pointCloud = linkedHashMapCloud.get(sKey);
+                                if (tempActor.equals(pointCloud.getCloudLODActor())) {
+                                    Contours contours = new Contours(pointCloud);
+                                    contours.generateTerrainContours2();
+                                    canvas.GetRenderer().AddActor(contours.planeActor);
+                                    canvas.Render();
+                                    canvas.GetRenderer().ResetCamera();
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception e1) {
+                        
+                    }
+                }
+                else {
+                    
+                }
             }
         });
         
@@ -357,7 +393,7 @@ public class MultibeamToolBar {
         //getToolBar().add(downsampledPointsToggle);
         //getToolBar().add(meshToogle);
         getToolBar().add(zExaggerationToggle);
-        getToolBar().add(contoursToogle);
+        //getToolBar().add(contoursToogle);
             // buttons
         getToolBar().add(resetViewportButton);
         getToolBar().add(helpButton);
