@@ -87,7 +87,7 @@ public class ImcTo837 implements MraExporter {
         return false;
     }
 
-    public void process() {
+    public String process() {
         try {
             File outFile = new File(log.getFile("Data.lsf").getParentFile() + "/multibeam.837");
             os = new DataOutputStream(new FileOutputStream(outFile));
@@ -96,6 +96,7 @@ public class ImcTo837 implements MraExporter {
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
+            return e.getClass().getSimpleName()+" while exporting to 837: "+e.getMessage();
         }
 
         IMCMessage pingMsg = pingLog.firstLogEntry();
@@ -256,8 +257,10 @@ public class ImcTo837 implements MraExporter {
         }
         catch (Exception e) {
             e.printStackTrace();
+            return e.getClass().getSimpleName()+" while exporting to 837: "+e.getMessage();
         }
         NeptusLog.pub().info("<###>end");
+        return "Export to 837 completed successfully";
     }
     
 //    public static void main(String args[]) throws Exception {

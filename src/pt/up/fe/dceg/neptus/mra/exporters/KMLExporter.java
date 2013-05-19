@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.mra.exporters;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Date;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -90,7 +91,9 @@ public class KMLExporter implements MraExporter {
         String ret = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<kml xmlns=\"http://earth.google.com/kml/2.1\">\n";
         ret += "\t<Document>\n";
         ret += "\t\t<name>" + title + "</name>\n";
-        ret += "\t\t<description>KML generated automatically from Neptus</description>";
+        
+        Date d = new Date((long)(1000*source.getLsfIndex().getStartTime()));
+        ret += "\t\t<description>Plan executed on "+d+"</description>";
 
         ret += "\t\t<Style id=\"estate\">\n";
         ret += "\t\t\t<LineStyle>\n";
@@ -132,6 +135,7 @@ public class KMLExporter implements MraExporter {
         catch (Exception e) {
             e.printStackTrace();
             return "";
+            
         }
         return ret;
     }
@@ -141,7 +145,7 @@ public class KMLExporter implements MraExporter {
         ret += "\t\t\t<name>" + name + "</name>\n";
         ret += "\t\t\t<styleUrl>#" + style + "</styleUrl>\n";
         ret += "\t\t\t<LineString>\n";
-        ret += "\t\t\t\t<altitudeMode>relativeToGround</altitudeMode>\n";
+        ret += "\t\t\t\t<altitudeMode>relative</altitudeMode>\n";
         ret += "\t\t\t\t<coordinates> ";
 
         for (LocationType l : coords) {
@@ -156,10 +160,11 @@ public class KMLExporter implements MraExporter {
     
     public String kmlFooter() {
         return "\t</Document>\n</kml>\n";
-    }
+    }        
 
-    public void process() {
-
+    public String process() {
+        
+        
         try {
             File out = new File(source.getFile("mra"),"kml");
             out.mkdirs();
@@ -173,7 +178,7 @@ public class KMLExporter implements MraExporter {
             Vector<LocationType> states = new Vector<>();
             
             // Path
-            LsfGenericIterator it = source.getLsfIndex().getIterator("EstimatedState", 0, 10000);
+            LsfGenericIterator it = source.getLsfIndex().getIterator("EstimatedState", 0, 3000);
             for (IMCMessage s : it) {
                 states.add(IMCUtils.parseState(s).getPosition());
             }
@@ -184,7 +189,11 @@ public class KMLExporter implements MraExporter {
             PlanType plan = LogUtils.generatePlan(mt, source);
             bw.write(path(plan.planPath(), "Planned waypoints", "plan"));
             
-            WorldImage img = new WorldImage(1, ColorMapFactory.createHotColorMap());
+            // DVL
+            
+            WorldImage imgDvl = new WorldImage(1, ColorMapFactory.createJetColorMap());
+            imgDvl.setMaxVal(20d);
+            imgDvl.setMinVal(3d);
             it = source.getLsfIndex().getIterator("EstimatedState", 0, 100);
             for (IMCMessage s : it) {                
                 LocationType loc = IMCUtils.parseState(s).getPosition();
@@ -193,18 +202,55 @@ public class KMLExporter implements MraExporter {
                 if (alt == -1 || depth < NeptusMRA.minDepthForBathymetry)
                     continue;
                 else
-                    img.addPoint(loc, s.getDouble("alt"));             
+                    imgDvl.addPoint(loc, s.getDouble("alt"));             
             }            
-            ImageIO.write(img.processData(), "PNG", new File(out.getParent(),"dvl_bath.png"));
-            bw.write(overlay(new File(out.getParent(),"dvl_bath.png"), "DVL Bathymetry", img.getSouthWest(), img.getNorthEast()));
-            bw.write(kmlFooter());
+            ImageIO.write(imgDvl.processData(), "PNG", new File(out.getParent(),"dvl_bath.png"));
+            bw.write(overlay(new File(out.getParent(),"dvl_bath.png"), "DVL Bathymetry", imgDvl.getSouthWest(), imgDvl.getNorthEast()));
+                       
+            // MULTIBEAM
+//            
+//            if (source.getFile("multibeam.83P") != null) {
+//                WorldImage imgMb = new WorldImage(1, ColorMapFactory.createHotColorMap());        
+//                DeltaTParser parser = new DeltaTParser(source);
+//                parser.rewind();
+//                BathymetrySwath swath;
+//                long first = (long)(1000 * source.getLsfIndex().getStartTime());
+//                
+//                //long first = parser.getFirstTimestamp();
+//                long time = (long)(1000 * source.getLsfIndex().getEndTime()) - first;
+//                long lastPercent = -1;
+//                
+//                while((swath = parser.nextSwath(0.1)) != null) {
+//                    LocationType loc = swath.getPose().getPosition();
+//                    for(BathymetryPoint bp : swath.getData()) {
+//                        if (Math.random() < 0.1)
+//                            continue;
+//                        LocationType loc2 = new LocationType(loc);
+//                        if(bp == null)
+//                            continue;
+//                        loc2.translatePosition(bp.north, bp.east, 0);
+//                        imgMb.addPoint(loc2, bp.depth);
+//                        long percent = ((swath.getTimestamp() - first) * 100) / time;
+//                        if (percent != lastPercent)
+//                            NeptusLog.pub().info("MULTIBEAM: "+percent+"% done...");
+//                        lastPercent = percent;
+//                    }
+//                }
+//                
+//                ImageIO.write(imgMb.processData(), "PNG", new File(out.getParent(),"mb_bath.png"));
+//                bw.write(overlay(new File(out.getParent(),"mb_bath.png"), "Multibeam Bathymetry", imgMb.getSouthWest(), imgMb.getNorthEast()));
+//            }
+            bw.write(kmlFooter());            
             
             bw.close();
+            
+            return "Log exported to "+out.getAbsolutePath();
         }
         catch (Exception e) {
             GuiUtils.errorMessage("Error while exporting to KML", "Exception of type " + e.getClass().getSimpleName()
                     + " occurred: " + e.getMessage());
             e.printStackTrace();
+            return e.getClass().getSimpleName()+" while exporting to KML: "+e.getMessage();
         }
     }
 

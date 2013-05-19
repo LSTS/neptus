@@ -15,6 +15,7 @@ package pt.up.fe.dceg.neptus.mra;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -58,6 +59,7 @@ import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.up.fe.dceg.neptus.util.FileUtil;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.llf.LogTree;
@@ -104,6 +106,11 @@ public class MRAPanel extends JPanel {
         this.source = source;
         MRAVisualization[] automaticCharts = MraChartFactory.getAutomaticCharts(this);
 
+        
+        if (new File("conf/tides.txt").canRead() && source.getFile("tides.txt") == null) {
+            FileUtil.copyFile("conf/tides.txt",new File(source.getFile("."), "tides.txt").getAbsolutePath());
+        }
+        
         // Setup interface
         tree = new LsfTree(source);
         logTree = new LogTree(source, this);
@@ -230,7 +237,15 @@ public class MRAPanel extends JPanel {
                 JMenuItem item = new JMenuItem(new AbstractAction(exp.getName()) {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        exp.process();
+                        Thread t = new Thread(exp.getName()+" processing") {
+                            public void run() {
+                                String res = exp.process();
+                                GuiUtils.infoMessage(MRAPanel.this, exp.getName(), res);
+                            };
+                        };
+                        t.setDaemon(true);
+                        t.start();
+                        
                     }
                 });
                 exporters.add(item);

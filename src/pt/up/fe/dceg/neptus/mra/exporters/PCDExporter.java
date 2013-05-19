@@ -80,7 +80,7 @@ public class PCDExporter implements MraExporter{
     }
     
     @SuppressWarnings("unused")
-    public void process() {
+    public String process() {
         RandomAccessFile buf;
         FileInputStream fis;
         FileChannel channel;
@@ -439,7 +439,10 @@ public class PCDExporter implements MraExporter{
         }
         catch (IOException e) {
             e.printStackTrace();
+            return e.getClass().getSimpleName()+" while exporting to PCD: "+e.getMessage();
         }
+        
+        return "Log exported sucessfully";
     }
     
     public static void main(String[] args) {

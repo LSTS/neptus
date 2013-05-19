@@ -65,7 +65,7 @@ public class MatExporter implements MraExporter {
     }
 
     @Override
-    public void process() {
+    public String process() {
         Collection<String> logList = source.getLsfIndex().getDefinitions().getMessageNames();
         IMraLog parser;
         
@@ -124,6 +124,7 @@ public class MatExporter implements MraExporter {
             }
             catch (IOException e) {
                 e.printStackTrace();
+                return e.getClass().getSimpleName()+" while exporting to MAT: "+e.getMessage();
             }
         }
 //        
@@ -148,6 +149,8 @@ public class MatExporter implements MraExporter {
 //        catch (IOException e) {
 //            e.printStackTrace();
 //        }
+        
+        return "Log exported to MAT successfully";
     }
 
     @Override

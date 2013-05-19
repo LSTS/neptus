@@ -47,8 +47,8 @@ public class XtfExporter implements MraExporter {
     }
 
     @Override
-    public void process() {
-        
+    public String process() {
+        return "Not yet implemented";
     }
 
     @Override

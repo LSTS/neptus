@@ -50,6 +50,16 @@ public class WorldImage {
     private LocationType sw = null, ne = null, ref = null;
     private int defaultWidth = 1024;
     private int defaultHeight = 768;
+    
+    private Double minVal = null, maxVal = null; 
+
+    public final void setMinVal(Double minVal) {
+        this.minVal = minVal;
+    }
+
+    public final void setMaxVal(Double maxVal) {
+        this.maxVal = maxVal;
+    }
 
     public WorldImage(int cellWidth, ColorMap cmap) {
         this.cmap = cmap;
@@ -100,7 +110,9 @@ public class WorldImage {
         BufferedImage img = new BufferedImage(defaultWidth,defaultHeight,BufferedImage.TYPE_INT_ARGB);
         
         try {
-            ColorMapUtils.generateInterpolatedColorMap(bounds, dd.getDataPoints(), 0, img.createGraphics(), img.getWidth(), img.getHeight(), 255, cmap, dd.minVal[0]*0.995, dd.maxVal[0]*1.005);
+            double max = maxVal == null ? dd.maxVal[0]*1.005 : maxVal;
+            double min = minVal == null ? dd.minVal[0]*0.995 : minVal;
+            ColorMapUtils.generateInterpolatedColorMap(bounds, dd.getDataPoints(), 0, img.createGraphics(), img.getWidth(), img.getHeight(), 255, cmap, min, max);
         }
         catch (NullPointerException e) {
             e.printStackTrace();

@@ -47,8 +47,9 @@ public interface MraExporter {
     
     /**
      * Process method to be called on Exporter selection
+     * @return The result of the process (to be shown to the user)
      */
-    public void process();
+    public String process();
     
     /**
      * Return the name that will be shown on Exporters menu 
