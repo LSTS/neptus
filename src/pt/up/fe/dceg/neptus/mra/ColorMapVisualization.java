@@ -139,8 +139,9 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
     
     boolean started = false;
     
-    public ColorMapVisualization(MRAPanel panel, String fieldToPlot)  {
+    public ColorMapVisualization(MRAPanel panel, String defaultEntity, String fieldToPlot)  {
         this.logSource = panel.getSource();
+        this.curEntity = defaultEntity;
         setLayout(new MigLayout());
 
         // Parse field to plot
@@ -163,7 +164,7 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
         toolbar.add(redrawButton);
         toolbar.add(savePng);
         toolbar.add(savePdf);
-        
+       
         add(toolbar, "w 100%, wrap");
         add(container, "w 100%, h 100%");
         
@@ -192,6 +193,7 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
             }           
             public void finish() {
                 try {
+                    getResultOrThrow();
                     image.setIcon(new ImageIcon(bufImage));
                 }
                 catch (Exception e) {
@@ -207,7 +209,7 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
     }
     
     private void savePDF() {
-        File f = new File(logSource.getFile("IMC.xml").getParent()+"/"+logSource.name()+ "-" + messageName +"." + varName + "." + curEntity + "-"+cmapCombo.getSelectedItem().toString()+".pdf");
+        File f = new File(logSource.getFile(".")+"/"+logSource.name()+ "-" + messageName +"." + varName + "." + curEntity + "-"+cmapCombo.getSelectedItem().toString()+".pdf");
 
         Rectangle pageSize = PageSize.A4.rotate();
         try {
@@ -270,7 +272,7 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
         defaultWidth = 1024;
         defaultHeight = 768;		
         BufferedImage img = bufImage;
-        File f = new File(logSource.getFile("IMC.xml").getParent()+"/"+logSource.name()+"-" + messageName +"." + varName + "." + curEntity + "-"+cmapCombo.getSelectedItem().toString()+".png");
+        File f = new File(logSource.getFile(".")+"/"+logSource.name()+"-" + messageName +"." + varName + "." + curEntity + "-"+cmapCombo.getSelectedItem().toString()+".png");
 
         try {
             ImageIO.write(img, "png", f);
@@ -419,7 +421,7 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
         return dd;
     }
 
-    private BufferedImage buildColorMap(int var) {
+    public BufferedImage buildColorMap(int var) {
         return buildColorMap(var, false);
     }
 
