@@ -128,6 +128,9 @@ public abstract class AbstractImcManeuver<T extends IMCMessage> extends DefaultM
         }
     }
     
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.mp.maneuvers.DefaultManeuver#loadFromXML(java.lang.String)
+     */
     @Override
     public void loadFromXML(String XML) {
         
