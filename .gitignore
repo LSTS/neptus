@@ -191,3 +191,7 @@ TCL*.tmp
 *.patch
 *.diff
 /to_upload_*
+
+NSIS_release/static_files/batch_files/
+dev-scripts/grow_pot.sh
+
