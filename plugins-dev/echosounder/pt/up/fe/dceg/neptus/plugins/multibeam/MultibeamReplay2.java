@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.multibeam;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -51,6 +52,7 @@ import pt.up.fe.dceg.neptus.mra.replay.LogReplayLayer;
 import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 /**
  * @author jqcorreia
@@ -62,6 +64,8 @@ public class MultibeamReplay2 implements LogReplayLayer {
     int lod = 0;
     
     BufferedImage img;
+    Image sImg;
+    
     Point2D pos;
     
     ColorMap cm = ColorMapFactory.createJetColorMap();
@@ -73,7 +77,8 @@ public class MultibeamReplay2 implements LogReplayLayer {
     @Override
     public void cleanup() {
         img = null;
-    
+        sImg = null;
+        
     }
     
     public MultibeamReplay2() {
@@ -81,18 +86,12 @@ public class MultibeamReplay2 implements LogReplayLayer {
     }
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        if(lod != renderer.getLevelOfDetail())
+        String filePath = "mra/multibeam.png";
+        int baseLod = 19;
+        
+        if(source.getFile(filePath) != null)
         {
-            lod = renderer.getLevelOfDetail();
-            String filePath = "mra/multibeam" + lod + ".png";
-            
-            double res[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(parser.getBathymetryInfo().bottomRight, lod);
-            
-            System.out.println(parser.getBathymetryInfo().topLeft);
-            System.out.println(parser.getBathymetryInfo().bottomRight);
-            img = null;
-            
-            if(source.getFile(filePath) != null) {
+            if(img == null) {
                 try {
                     System.out.println("Loading " + filePath);
                     img = ImageIO.read(source.getFile(filePath));
@@ -101,63 +100,58 @@ public class MultibeamReplay2 implements LogReplayLayer {
                     e.printStackTrace();
                 }
             }
-            
-            if(img == null) {
-                
-                // Create and paint image
-                img = new BufferedImage((int)res[0], (int)res[1], BufferedImage.TYPE_INT_ARGB);
-                parser.rewind();
-                BathymetrySwath swath;
-                
-                Point2D pt = renderer.getScreenPosition(parser.getBathymetryInfo().topLeft);
+        }
+        else {
+            double res[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(
+                    parser.getBathymetryInfo().bottomRight, baseLod);
 
-                while((swath = parser.nextSwath(1)) != null) {
-                    LocationType loc = swath.getPose().getPosition();
-//                    double dist[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(loc, lod);
-//                    gImg.setColor(Color.black);
-//                    gImg.drawLine((int)dist[0], (int)dist[1], (int)dist[0]+10, (int)dist[1]+10);
-                    for(BathymetryPoint bp : swath.getData()) {
-                        LocationType loc2 = new LocationType(loc);
-                        if(bp == null)
-                            continue;
-                        
-                        loc2.translatePosition(bp.north, bp.east, 0);
-                        
-                        Point2D pt2 = renderer.getScreenPosition(loc2);
-                        
-                        //double dist[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(loc, lod);
-                        double x = pt2.getX() - pt.getX();
-                        double y = pt2.getY() - pt.getY();
-                        
-//                        System.out.println(dist[0] + " " + dist[1]);
-//                        dist[1] *= -1;
-                        
-                        if(x > 0 && y > 0 && x < img.getWidth() && y < img.getHeight()) {
-//                            System.out.println(t + " " + bp.north + " " + (bp.north * ratio) + " " + (dist[0] + bp.north * ratio) + " " + ratio);
-                            img.setRGB((int)x, (int)y, cm.getColor(1-(bp.depth / parser.getBathymetryInfo().maxDepth)).getRGB());
-                        }
+            System.out.println(parser.getBathymetryInfo().topLeft);
+            System.out.println(parser.getBathymetryInfo().bottomRight);
+            img = null;
+
+            // Create and paint image
+            img = new BufferedImage((int) res[0], (int) res[1], BufferedImage.TYPE_INT_ARGB);
+            parser.rewind();
+
+            BathymetrySwath swath;
+
+            while ((swath = parser.nextSwath(1)) != null) {
+                LocationType loc = swath.getPose().getPosition();
+
+                for (BathymetryPoint bp : swath.getData()) {
+                    LocationType loc2 = new LocationType(loc);
+                    if (bp == null)
+                        continue;
+
+                    loc2.translatePosition(bp.north, bp.east, 0);
+
+                    double dist[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(loc2, baseLod);
+                    
+                    if (dist[0] > 0 && dist[1] > 0 && dist[0] < img.getWidth() && dist[1] < img.getHeight()) {
+                        img.setRGB((int) dist[0], (int) dist[1], cm.getColor(1 - (bp.depth / parser.getBathymetryInfo().maxDepth))
+                                .getRGB());
                     }
                 }
-                
-                try {
-                    System.out.println("Recording " + source.getFile("Data.lsf").getParent() + "/" + filePath);
-                    ImageIO.write(img, "PNG", new File(source.getFile("Data.lsf").getParent() + "/" + filePath));
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
+            }
+            
+            try {
+                System.out.println("Recording " + source.getFile("Data.lsf").getParent() + "/" + filePath);
+                ImageIO.write(img, "PNG", new File(source.getFile("Data.lsf").getParent() + "/" + filePath));
+            }
+            catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
-        
-        // Position and draw image
         pos = renderer.getScreenPosition(parser.getBathymetryInfo().topLeft);
-        g.translate(pos.getX(), pos.getY());
         
-        g.drawImage(img, 0, 0, null);
-        
-        g.translate(-pos.getX(),-pos.getY());
-        
+        int difLod = renderer.getLevelOfDetail() - baseLod;
+        Graphics2D g2d = (Graphics2D) g.create();
+
+        g2d.translate(pos.getX(), pos.getY());
+        g2d.rotate(-renderer.getRotation());
+        g2d.scale(Math.pow(2, difLod), Math.pow(2, difLod));
+        g2d.drawImage(img , 0, 0, null);
         
         for(int i = 0; i < 200; i++) {
             double val = parser.getBathymetryInfo().maxDepth * i / 200.0;
