@@ -63,6 +63,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.ProgressMonitor;
+import javax.swing.plaf.basic.BasicSliderUI;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -127,6 +128,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     private File[] allFiles;
     
     long startTime, endTime;
+    Timeline timeline;
     
     public MraPhotosVisualization(MRAPanel panel) {
         this.panel = panel;
@@ -262,7 +264,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         this.startTime = source.getLog("EstimatedState").firstLogEntry().getTimestampMillis();
         this.endTime = source.getLog("EstimatedState").getLastEntry().getTimestampMillis();
         
-        Timeline timeline = new Timeline(0, (int)(endTime - startTime), 7, 1000, false);
+        timeline = new Timeline(0, (int)(endTime - startTime), 7, 1000, false);
         timeline.addTimelineChangeListener(new TimelineChangeListener() {
             
             @Override
@@ -275,6 +277,18 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         Arrays.sort(allFiles);
         timeline.getSlider().setValue(0);
 
+        timeline.getSlider().setUI(new BasicSliderUI(timeline.getSlider()) {
+            @Override
+            public void paintTicks(Graphics g) {
+                super.paintTicks(g);
+                for(LogMarker m : markers) {
+                    long mtime = new Double(m.timestamp).longValue();
+                    g.drawLine(xPositionForValue((int)(mtime-startTime)), 0, xPositionForValue((int)(mtime-startTime)),timeline.getSlider().getHeight()/2);
+//                    g.drawString(m.label, xPositionForValue((int)(mtime-firstPingTime))-10, 22);
+                }
+            } 
+        });
+        
         toolbar = new PhotoToolbar(this);
 
         loadStates();

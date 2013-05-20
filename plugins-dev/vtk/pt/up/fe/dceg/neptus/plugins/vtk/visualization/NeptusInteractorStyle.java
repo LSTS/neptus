@@ -127,7 +127,8 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
     // Set true if the LUT actor is enabled
     protected boolean lutEnabled;
     // Actor for 2D loookup table on screen
-    protected vtkScalarBarActor lutActor = new vtkScalarBarActor();
+    private vtkScalarBarActor lutActor = new vtkScalarBarActor();
+    private ScalarBar scalarBar;
 
     // ########## Mouse Interaction ##########
     vtkProp3D InteractionProp;
@@ -158,6 +159,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         this.interactor = interact;
         this.camera = renderer.GetActiveCamera();
         this.linkedHashMapCloud = linkedHashMapCloud;
+        this.setScalarBar(new ScalarBar());
         keyboardEvent = new KeyboardEvent(this, this.linkedHashMapCloud);
 
         Initalize();
@@ -168,7 +170,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
      * Java) :
      * 
      * LeftButtonPressEvent RightButtonPressEvent <- works StartInteractionEvent ModifiedEvent EndInteractionEvent
-     * RenderEvent MouseMoveEvent <- works InteractorEvent UserEvent LeaveEvent <- works (triggers even everytime mouse
+     * RenderEvent MouseMoveEvent <- works InteractorEvent UserEvent LeaveEvent <- works (triggers event everytime mouse
      * gets off render window)
      */
     private void Initalize() {
@@ -185,21 +187,10 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         gridEnabled = false;
         // gridActor = new vtkLegendScaleActor();
 
-            // LUT is disabled by default
-        lutEnabled = false;
-        // lutActor = new vtkScalarBarActor();
-        // lutActor.SetTitle("");
-        lutActor.SetOrientationToHorizontal();
-        // lutActor.SetOrientationToVertical();
-        lutActor.SetPosition(0.05, 0.01);
-        lutActor.SetWidth(0.9);
-        lutActor.SetHeight(0.1);
-        lutActor.SetNumberOfLabels(lutActor.GetNumberOfLabels() * 2);
-        vtkTextProperty prop = new vtkTextProperty();
-        prop = lutActor.GetLabelTextProperty();
-        prop.SetFontSize(10);
-        lutActor.SetLabelTextProperty(prop);
-        lutActor.SetTitleTextProperty(prop);
+            // LUT is enabled by default
+        lutEnabled = true;
+        getScalarBar().setScalarBarHorizontalProperties();
+        //getScalarBar().setScalarBarVerticalProperties();
 
             // Create the image filter and PNG writer objects
         wif = new vtkWindowToImageFilter();
@@ -431,5 +422,33 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
      */
     void setStyle(vtkInteractorStyleTrackballCamera style) {
         this.style = style;
+    }
+
+    /**
+     * @return the lutActor
+     */
+    public vtkScalarBarActor getLutActor() {
+        return lutActor;
+    }
+
+    /**
+     * @param lutActor the lutActor to set
+     */
+    public void setLutActor(vtkScalarBarActor lutActor) {
+        this.lutActor = lutActor;
+    }
+
+    /**
+     * @return the scalarBar
+     */
+    public ScalarBar getScalarBar() {
+        return scalarBar;
+    }
+
+    /**
+     * @param scalarBar the scalarBar to set
+     */
+    public void setScalarBar(ScalarBar scalarBar) {
+        this.scalarBar = scalarBar;
     }
 }

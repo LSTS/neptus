@@ -19,7 +19,7 @@
 /jjstick.dll
 /libjinput-osx.jnilib
 /libmwjni.so
-/log
+/log*
 /mingwm10.dll
 /mwjni.dll
 /neptus.tgz
@@ -188,3 +188,11 @@ Thumbs.db
 /git.branch
 TCL*.tmp
 *.mo
+*.patch
+*.diff
+/to_upload_*
+*.hprof
+
+NSIS_release/static_files/batch_files/
+dev-scripts/grow_pot.sh
+

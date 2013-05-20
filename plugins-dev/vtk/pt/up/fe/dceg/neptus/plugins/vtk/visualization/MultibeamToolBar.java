@@ -44,6 +44,7 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
 import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.plugins.vtk.filters.Contours;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.ExaggeratePointCloudZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
@@ -76,6 +77,8 @@ public class MultibeamToolBar {
     private ExaggeratePointCloudZ exaggeZ;
 
     private vtkTextActor textProcessingActor;
+    private vtkTextActor textZExagInfoActor;
+    
 
     public MultibeamToolBar(vtkCanvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
         this.canvas = canvas;
@@ -83,8 +86,29 @@ public class MultibeamToolBar {
 
         this.textProcessingActor = new vtkTextActor();
         buildTextProcessingActor();
-        // this.isLogMultibeam = isLogMultibeam;
+        
+        this.textZExagInfoActor = new vtkTextActor();
+        buildTextZExagInfoActor();
+        
         setToolBar(new JPanel());
+    }
+
+    /**
+     * 
+     */
+    private void buildTextZExagInfoActor() {
+        textZExagInfoActor.GetTextProperty().BoldOn();
+        textZExagInfoActor.GetTextProperty().ItalicOn();
+        textZExagInfoActor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
+        textZExagInfoActor.GetTextProperty().SetFontFamilyToArial();
+        textZExagInfoActor.GetTextProperty().SetFontSize(12);
+        //textZExagInfoActor.GetTextProperty().SetJustificationToRight();
+        //textZExagInfoActor.GetTextProperty().SetJustificationToCentered();
+        //textZExagInfoActor.UseBoundsOn();
+        //textZExagInfoActor.SetDisplayPosition(10,  300);
+        textZExagInfoActor.SetPosition2(0.9, 0.8);
+        textZExagInfoActor.SetInput("Depth multiplied by:" + NeptusMRA.zExaggeration);   //  
+        textZExagInfoActor.VisibilityOn();
     }
 
     /**
@@ -96,9 +120,13 @@ public class MultibeamToolBar {
        textProcessingActor.GetTextProperty().SetColor(1.0, 0.0, 0.0);
        textProcessingActor.GetTextProperty().SetFontSize(48);
        textProcessingActor.GetTextProperty().SetFontFamilyToArial();
-       textProcessingActor.GetTextProperty().SetVerticalJustificationToCentered();
+       //textProcessingActor.GetTextProperty().SetVerticalJustificationToCentered();
+
        textProcessingActor.SetInput("Processing data...");
-       textProcessingActor.SetDisplayPosition(100, 150);
+       //textProcessingActor.UseBorderAlignOn();
+       textProcessingActor.SetPosition(0.4, 0.9);
+       
+       //textProcessingActor.SetDisplayPosition(100, 150);
        textProcessingActor.VisibilityOn();   
     }
 
@@ -275,7 +303,7 @@ public class MultibeamToolBar {
                         vtkActorCollection actorCollection = new vtkActorCollection();
                         actorCollection = canvas.GetRenderer().GetActors();
                         actorCollection.InitTraversal();
-
+                        canvas.GetRenderer().AddActor(textZExagInfoActor);
                         
                         for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
                             vtkLODActor tempActor = new vtkLODActor();
@@ -300,6 +328,8 @@ public class MultibeamToolBar {
                                 
                             }
                         }
+                        
+                        
                     }
                     catch (Exception e1) {
                         e1.printStackTrace();
@@ -310,7 +340,7 @@ public class MultibeamToolBar {
                         vtkActorCollection actorCollection = new vtkActorCollection();
                         actorCollection = canvas.GetRenderer().GetActors();
                         actorCollection.InitTraversal();
-
+                        canvas.GetRenderer().RemoveActor(textZExagInfoActor);
                         
                         for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
                             vtkLODActor tempActor = new vtkLODActor();

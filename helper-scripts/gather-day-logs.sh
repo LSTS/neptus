@@ -36,7 +36,6 @@
 PROGNAME=$0
 PROGDIRNAME=`dirname $PROGNAME`
 
-
 if [ -z "$BASH_VERSION" ]; then
     /bin/bash $0
     exit $?
@@ -55,6 +54,22 @@ if [ "$TEST_7Z" -ne 0 ]; then
     exit $TEST_7Z
 fi
 
+compressLSFFilesFromFolder()
+{
+  echo "# Compressing LSF files"
+  find "$1" -name *.lsf | while read fx; do gzip -n -9 -v "$fx"; done;
+  find "$1" -name *IMC.xml | while read fx; do gzip -n -9 -v "$fx"; done;
+}
+
+deleteMRAProcessLogLeftOvers()
+{
+  echo "# Deleting uncompressed LSF, LLF, and temporary MRA files from '$1'"
+  find $1 -name *.llf | while read fx; do rm -v "$fx"; done;
+  find $1 -name *.mra | while read fx; do rm -v "$fx"; done;
+  find $1 -name mra | while read fx; do rm -vRf "$fx"; done;
+  find $1 -name lsf.index | while read fx; do rm -v "$fx"; done;
+  find $1 -name *.lsf | while read fx; do rm -v "$fx"; done;
+}
 
 START_PWD=$(pwd)
 cd $PROGDIRNAME/..
@@ -101,32 +116,48 @@ fi
 echo 10
 
 echo "# Moving 'log/downloaded' to '"$to_upload"/'"
-echo "# Moving 'log/downloaded' to '"$to_upload"/'"
 mv -v $NEPTUS_HOME/log/downloaded $to_upload/
-echo "# Deleting LLF and temporary MRA files from 'log/downloaded'"
-find $to_upload/downloaded -name *.llf|while read fx; do rm -v "$fx"; done;
-find $to_upload/downloaded -name *.mra|while read fx; do rm -v "$fx"; done;
-find $to_upload/downloaded -name lsf.index|while read fx; do rm -v "$fx"; done;
 
-echo "# Compressing LSF files"
-find $to_upload/downloaded -name *.lsf|while read fx; do gzip -n -9 -v "$fx"; done;
-
+compressLSFFilesFromFolder "$to_upload/downloaded"
+deleteMRAProcessLogLeftOvers "$to_upload/downloaded"
 mv $to_upload/downloaded/* $to_upload/ && rmdir $to_upload/downloaded
 
 echo 25
 echo "# Preparing Neptus log dir"
 mkdir -p $to_upload/$NEPTUSDIR/$todayDirName
+
+echo 27
+echo "# Preparing SCM info file"
+# Lets test if this is a Git WC
+git status 1>&2 2>/dev/null
+if [ $? -ne 128 ]; then
+  git rev-parse HEAD > $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+  git describe --dirty >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+  git describe --all --long --dirty >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+  git log -1 --date=iso >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+  git status --untracked-files=no >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+  echo "" >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+  echo "" >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+  echo "------ Git Diff ------" >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+  git diff >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+fi
+
+echo 30
+echo "# Moving Neptus logs to upload folder"
 mv -v $NEPTUS_HOME/log/* $to_upload/$NEPTUSDIR/$todayDirName
-git rev-parse HEAD > $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
-git describe --dirty >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
-git describe --all --long --dirty >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
-git log -1 --date=iso >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
-git status --untracked-files=yes >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+
 echo 40
-echo "# Finding used  mission file..."
-find $NEPTUS_HOME/missions/ -type f -name '*.nmisz' -newer _start -exec cp -v {} $to_upload/$NEPTUSDIR/$todayDirName \;
+echo "# Finding used mission file..."
+find $NEPTUS_HOME/missions/ -type f -name '*.nmisz' -newer _start -exec cp -v "{}" $to_upload/$NEPTUSDIR/$todayDirName \;
+echo 43
+echo "# Finding modified conf files..."
+mkdir $to_upload/$NEPTUSDIR/$todayDirName/conf-files-modified
+find $NEPTUS_HOME/conf/ -type f -name '*.*' -newer _start -exec cp -vn "{}" $to_upload/$NEPTUSDIR/$todayDirName/conf-files-modified \;
+
 echo 50
 cd $to_upload/$NEPTUSDIR/$todayDirName/
+echo "# Zipping conf files modified*"
+zip -rv conf-files-modified.zip conf-files-modified && rm -vRf conf-files-modified
 echo "# Zipping debug.log*"
 zip -rv log-debug.zip *.log* && rm -v *.log*
 echo 60
@@ -136,13 +167,9 @@ echo 70
 
 # echo "# Zipping messages/*"
 # zip -rv messages.zip messages/* && rm -rvf messages/
-
-echo "# Deleting LLF and temporary MRA files from 'log/messages'"
-find messages -name *.llf|while read fx; do rm -v "$fx"; done;
-find messages -name *.mra|while read fx; do rm -v "$fx"; done;
-find messages -name lsf.index|while read fx; do rm -v "$fx"; done;
-echo "# Compressing LSF files"
-find messages -name *.lsf|while read fx; do gzip -n -9 -v "$fx"; done;
+echo "# processing messages/*"
+compressLSFFilesFromFolder "messages"
+deleteMRAProcessLogLeftOvers "messages"
 
 echo 80
 echo "# 7zipping mission_state/*"

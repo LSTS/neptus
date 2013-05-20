@@ -270,7 +270,6 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
     }
     
     public void openLogSource(IMraLogGroup source) {
-        System.out.println("openLogSource");
         abortPendingOpenLogActions();
         closeLogSource();
         getContentPane().removeAll();
