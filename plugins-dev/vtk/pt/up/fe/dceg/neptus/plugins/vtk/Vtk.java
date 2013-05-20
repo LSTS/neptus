@@ -250,25 +250,15 @@ public class Vtk extends JPanel implements MRAVisualization {
                 AxesWidget axesWidget = new AxesWidget(winCanvas.getInteractorStyle().GetInteractor());            
                 axesWidget.createAxesWidget();
                 
-                vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
+                vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor()); 
                 
+                    // set Up scalar Bar look up table
+                winCanvas.getInteractorStyle().getScalarBar().setUpScalarBarLookupTable(pointCloud.getCloudLODActor().GetMapper().GetLookupTable());        
+                vtkCanvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
                 
-                vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
-                winCanvas.getInteractorStyle().getLutActor().SetLookupTable(lut);
-                winCanvas.getInteractorStyle().getLutActor().SetUseBounds(true);
-                winCanvas.getInteractorStyle().getLutActor().SetNumberOfLabels(9);
-                winCanvas.getInteractorStyle().getLutActor().Modified();
-                
-                vtkCanvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getLutActor());
-                
-                // set up camera to +z viewpoint looking down
+                    // set up camera to +z viewpoint looking down
                 vtkCanvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, -1.0, 1.0);
                 vtkCanvas.GetRenderer().GetActiveCamera().SetPosition(0.0,0.0,-100);
-                //vtkCanvas.GetRenderer().AddActor(downsampledCloud.getCloudLODActor());
-                
-                //vtkLODActor tempActor = performDownsample.getOutputDownsampledCloud().getCloudLODActor();
-                //NeptusLog.pub().info("Number of Cloud Points: " + pointCloud.getNumberOfPoints());
-                //vtkCanvas.GetRenderer().AddActor(tempActor);
             }
             else {           
                 String msgErrorMultibeam;
@@ -293,7 +283,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 
                 vtkCanvas.GetRenderer().AddActor(txtActor);
                 
-            }        
+            }      
             vtkCanvas.GetRenderer().ResetCamera();
         }      
         return this;

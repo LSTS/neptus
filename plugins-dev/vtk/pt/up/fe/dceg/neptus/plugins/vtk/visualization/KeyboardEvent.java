@@ -113,17 +113,17 @@ public class KeyboardEvent {
                             for (String skey : setOfClouds) {
                                 pointCloud = linkedHashMapCloud.get(skey);
                                 vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
-                                neptusInteractorStyle.getLutActor().SetLookupTable(lut);
-                                neptusInteractorStyle.getLutActor().SetUseBounds(true);
-                                neptusInteractorStyle.getLutActor().SetNumberOfLabels(9);
-                                neptusInteractorStyle.getLutActor().Modified();
+                                neptusInteractorStyle.getScalarBar().getScalarBarActor().SetLookupTable(lut);
+                                neptusInteractorStyle.getScalarBar().getScalarBarActor().SetUseBounds(true);
+                                neptusInteractorStyle.getScalarBar().getScalarBarActor().SetNumberOfLabels(9);
+                                neptusInteractorStyle.getScalarBar().getScalarBarActor().Modified();
                             }
                         }
-                        renderer.AddActor(neptusInteractorStyle.getLutActor());
+                        renderer.AddActor(neptusInteractorStyle.getScalarBar().getScalarBarActor());
                         neptusInteractorStyle.lutEnabled = true;
                     }
                     else {
-                        renderer.RemoveActor(neptusInteractorStyle.getLutActor());
+                        renderer.RemoveActor(neptusInteractorStyle.getScalarBar().getScalarBarActor());
                         neptusInteractorStyle.lutEnabled = false;
                     }
                     interactor.Render();
@@ -354,15 +354,9 @@ public class KeyboardEvent {
                             map.SetLookupTable(pointCloud.getColorHandler().getLutX());
 
                             pointCloud.getCloudLODActor().SetMapper(map);
-                            pointCloud.getCloudLODActor().GetProperty().SetPointSize(1.0);
-                            pointCloud.getCloudLODActor().GetProperty().SetRepresentationToPoints();
                             
-                            if (neptusInteractorStyle.lutEnabled) {                    
-                                vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
-                                neptusInteractorStyle.getLutActor().SetLookupTable(lut);
-                                neptusInteractorStyle.getLutActor().SetUseBounds(true);
-                                neptusInteractorStyle.getLutActor().SetNumberOfLabels(9);
-                                neptusInteractorStyle.getLutActor().Modified();
+                            if (neptusInteractorStyle.lutEnabled) {
+                                neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getCloudLODActor().GetMapper().GetLookupTable());
                             }
                             colorMapRel = colorMappingRelation.xMap;
                             
@@ -389,15 +383,9 @@ public class KeyboardEvent {
                             map.SetLookupTable(pointCloud.getColorHandler().getLutY());
                             
                             pointCloud.getCloudLODActor().SetMapper(map);
-                            pointCloud.getCloudLODActor().GetProperty().SetPointSize(1.0);
-                            pointCloud.getCloudLODActor().GetProperty().SetRepresentationToPoints();
                             
-                            if (neptusInteractorStyle.lutEnabled) {                              
-                                vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
-                                neptusInteractorStyle.getLutActor().SetLookupTable(lut);
-                                neptusInteractorStyle.getLutActor().SetUseBounds(true);
-                                neptusInteractorStyle.getLutActor().SetNumberOfLabels(9);
-                                neptusInteractorStyle.getLutActor().Modified();
+                            if (neptusInteractorStyle.lutEnabled) {
+                                neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getCloudLODActor().GetMapper().GetLookupTable());
                             }
                             colorMapRel = colorMappingRelation.yMap;
                         }                     
@@ -423,15 +411,9 @@ public class KeyboardEvent {
                             map.SetLookupTable(pointCloud.getColorHandler().getLutZ());
                             
                             pointCloud.getCloudLODActor().SetMapper(map);
-                            pointCloud.getCloudLODActor().GetProperty().SetPointSize(1.0);
-                            pointCloud.getCloudLODActor().GetProperty().SetRepresentationToPoints();
                             
-                            if (neptusInteractorStyle.lutEnabled) {                             
-                                vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
-                                neptusInteractorStyle.getLutActor().SetLookupTable(lut);
-                                neptusInteractorStyle.getLutActor().SetUseBounds(true);
-                                neptusInteractorStyle.getLutActor().SetNumberOfLabels(9);
-                                neptusInteractorStyle.getLutActor().Modified();
+                            if (neptusInteractorStyle.lutEnabled) {
+                                neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getCloudLODActor().GetMapper().GetLookupTable());
                             }       
                             colorMapRel = colorMappingRelation.zMap;
                         }                     
