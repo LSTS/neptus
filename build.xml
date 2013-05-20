@@ -241,7 +241,7 @@ For simple use the main targets are:
 	</target>
 
 	<target name="generate-all-necessary-missing-files"
-			depends="jar, jar-bundle-checklist, jar-bundle-worldmap">
+			depends="jar, jar-bundle-checklist, jar-bundle-worldmap, generate-launchers">
 	</target>
 
 	<!-- =================================================================== -->
@@ -264,6 +264,16 @@ For simple use the main targets are:
 						</resourceexists>
 						<resourceexists>
 							<file file="${bundle.jar.worldmap.path}"/>
+						</resourceexists>
+						<resourceexists>
+							<file file="neptus.sh"/>
+						</resourceexists>
+						<resourceexists>
+							<file file="neptus.bat"/>
+						</resourceexists>
+						<resourcecount refid="NSIS_release/static_files/batch_files" when="ge" count="4" />
+						<resourceexists>
+							<file file="dev-scripts/grow_pot.sh"/>
 						</resourceexists>
 					</and>
 				</not>
@@ -1459,6 +1469,7 @@ For simple use the main targets are:
 		<chmod file="dev-scripts/grow_pot.sh" perm="a+x" />
 		
 		<!-- generate the installers bat and sh files -->
+		<mkdir dir="NSIS_release/static_files/batch_files"/>
 		<copy todir="./NSIS_release/static_files/batch_files" overwrite="true">
 			<fileset dir="${src.shell.dir}/installers">
 				<include name="*.bat" />
