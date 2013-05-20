@@ -61,6 +61,8 @@ import vtk.vtkCanvas;
 import vtk.vtkLinearExtrusionFilter;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
+import vtk.vtkScalarBarActor;
+import vtk.vtkScalarsToColors;
 import vtk.vtkVectorText;
 
 /**
@@ -102,7 +104,6 @@ public class Vtk extends JPanel implements MRAVisualization {
             // for simple visualizations
         try {
             vtkNativeLibrary.COMMON.LoadLibrary();
-            //if(!vtkNativeLibrary.COMMON.IsLoaded())
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
@@ -110,7 +111,6 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         try {
             vtkNativeLibrary.FILTERING.LoadLibrary();
-            //if(!vtkNativeLibrary.FILTERING.IsLoaded())
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
@@ -118,7 +118,6 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         try {
             vtkNativeLibrary.IO.LoadLibrary();
-            //if(!vtkNativeLibrary.IO.IsLoaded())
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
@@ -126,7 +125,6 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         try {
             vtkNativeLibrary.GRAPHICS.LoadLibrary();
-            //if(!vtkNativeLibrary.GRAPHICS.IsLoaded())
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
@@ -134,7 +132,6 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         try {
             vtkNativeLibrary.RENDERING.LoadLibrary();
-            //if(!vtkNativeLibrary.RENDERING.IsLoaded())
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
@@ -144,7 +141,6 @@ public class Vtk extends JPanel implements MRAVisualization {
         // Other
         try {
             vtkNativeLibrary.INFOVIS.LoadLibrary();
-            //if(!vtkNativeLibrary.INFOVIS.IsLoaded())
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
@@ -152,7 +148,6 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         try {
             vtkNativeLibrary.VIEWS.LoadLibrary();
-            //if(!vtkNativeLibrary.VIEWS.IsLoaded())
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
@@ -160,7 +155,6 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         try {
             vtkNativeLibrary.WIDGETS.LoadLibrary();
-            //if(!vtkNativeLibrary.WIDGETS.IsLoaded())
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
@@ -168,7 +162,6 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         try {
             vtkNativeLibrary.GEOVIS.LoadLibrary();
-            //if(!vtkNativeLibrary.GEOVIS.IsLoaded())
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
@@ -176,7 +169,6 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         try {
             vtkNativeLibrary.CHARTS.LoadLibrary();
-            //if(!vtkNativeLibrary.CHARTS.IsLoaded())
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
@@ -185,7 +177,6 @@ public class Vtk extends JPanel implements MRAVisualization {
         // FIXME not loading vtkHybrid ?!
         try {
             vtkNativeLibrary.HYBRID.LoadLibrary();
-            //if(!vtkNativeLibrary.HYBRID.IsLoaded())
         }
         catch (Throwable e) {
             //NeptusMRA.vtkEnabled = false;
@@ -193,7 +184,6 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         try {
             vtkNativeLibrary.VOLUME_RENDERING.LoadLibrary();
-            //if(!vtkNativeLibrary.VOLUME_RENDERING.IsLoaded())
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
@@ -216,7 +206,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {    
         if (!componentEnabled)
-        {   
+        {
             vtkCanvas = new vtkCanvas();
            
             pointCloud = new PointCloud<>();
@@ -229,7 +219,6 @@ public class Vtk extends JPanel implements MRAVisualization {
             
                 // add vtkCanvas to Layout
             add(vtkCanvas, "W 100%, H 100%");
-            //add(vtkCanvas);
             
             vtkCanvas.LightFollowCameraOn();
             //vtkCanvas.BeginBoxInteraction(); // calls interaction and prints out the string Box widget begin interaction
@@ -244,7 +233,6 @@ public class Vtk extends JPanel implements MRAVisualization {
             if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!            
                 MultibeamToolBar toolbar = new MultibeamToolBar(vtkCanvas, linkedHashMapCloud);
                 toolbar.createToolBar();
-                //add(toolbar.getToolBar(), BorderLayout.SOUTH);
                 add(toolbar.getToolBar(), "dock south");
                 
                 pointCloud.createLODActorFromPoints();
@@ -263,6 +251,15 @@ public class Vtk extends JPanel implements MRAVisualization {
                 axesWidget.createAxesWidget();
                 
                 vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
+                
+                
+                vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
+                winCanvas.getInteractorStyle().getLutActor().SetLookupTable(lut);
+                winCanvas.getInteractorStyle().getLutActor().SetUseBounds(true);
+                winCanvas.getInteractorStyle().getLutActor().SetNumberOfLabels(9);
+                winCanvas.getInteractorStyle().getLutActor().Modified();
+                
+                vtkCanvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getLutActor());
                 
                 // set up camera to +z viewpoint looking down
                 vtkCanvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, -1.0, 1.0);

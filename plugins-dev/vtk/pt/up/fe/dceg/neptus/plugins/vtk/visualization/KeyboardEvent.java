@@ -113,17 +113,17 @@ public class KeyboardEvent {
                             for (String skey : setOfClouds) {
                                 pointCloud = linkedHashMapCloud.get(skey);
                                 vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
-                                neptusInteractorStyle.lutActor.SetLookupTable(lut);
-                                neptusInteractorStyle.lutActor.SetUseBounds(true);
-                                neptusInteractorStyle.lutActor.SetNumberOfLabels(9);
-                                neptusInteractorStyle.lutActor.Modified();
+                                neptusInteractorStyle.getLutActor().SetLookupTable(lut);
+                                neptusInteractorStyle.getLutActor().SetUseBounds(true);
+                                neptusInteractorStyle.getLutActor().SetNumberOfLabels(9);
+                                neptusInteractorStyle.getLutActor().Modified();
                             }
                         }
-                        renderer.AddActor(neptusInteractorStyle.lutActor);
+                        renderer.AddActor(neptusInteractorStyle.getLutActor());
                         neptusInteractorStyle.lutEnabled = true;
                     }
                     else {
-                        renderer.RemoveActor(neptusInteractorStyle.lutActor);
+                        renderer.RemoveActor(neptusInteractorStyle.getLutActor());
                         neptusInteractorStyle.lutEnabled = false;
                     }
                     interactor.Render();
@@ -359,10 +359,10 @@ public class KeyboardEvent {
                             
                             if (neptusInteractorStyle.lutEnabled) {                    
                                 vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
-                                neptusInteractorStyle.lutActor.SetLookupTable(lut);
-                                neptusInteractorStyle.lutActor.SetUseBounds(true);
-                                neptusInteractorStyle.lutActor.SetNumberOfLabels(9);
-                                neptusInteractorStyle.lutActor.Modified();
+                                neptusInteractorStyle.getLutActor().SetLookupTable(lut);
+                                neptusInteractorStyle.getLutActor().SetUseBounds(true);
+                                neptusInteractorStyle.getLutActor().SetNumberOfLabels(9);
+                                neptusInteractorStyle.getLutActor().Modified();
                             }
                             colorMapRel = colorMappingRelation.xMap;
                             
@@ -394,10 +394,10 @@ public class KeyboardEvent {
                             
                             if (neptusInteractorStyle.lutEnabled) {                              
                                 vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
-                                neptusInteractorStyle.lutActor.SetLookupTable(lut);
-                                neptusInteractorStyle.lutActor.SetUseBounds(true);
-                                neptusInteractorStyle.lutActor.SetNumberOfLabels(9);
-                                neptusInteractorStyle.lutActor.Modified();
+                                neptusInteractorStyle.getLutActor().SetLookupTable(lut);
+                                neptusInteractorStyle.getLutActor().SetUseBounds(true);
+                                neptusInteractorStyle.getLutActor().SetNumberOfLabels(9);
+                                neptusInteractorStyle.getLutActor().Modified();
                             }
                             colorMapRel = colorMappingRelation.yMap;
                         }                     
@@ -428,10 +428,10 @@ public class KeyboardEvent {
                             
                             if (neptusInteractorStyle.lutEnabled) {                             
                                 vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
-                                neptusInteractorStyle.lutActor.SetLookupTable(lut);
-                                neptusInteractorStyle.lutActor.SetUseBounds(true);
-                                neptusInteractorStyle.lutActor.SetNumberOfLabels(9);
-                                neptusInteractorStyle.lutActor.Modified();
+                                neptusInteractorStyle.getLutActor().SetLookupTable(lut);
+                                neptusInteractorStyle.getLutActor().SetUseBounds(true);
+                                neptusInteractorStyle.getLutActor().SetNumberOfLabels(9);
+                                neptusInteractorStyle.getLutActor().Modified();
                             }       
                             colorMapRel = colorMappingRelation.zMap;
                         }                     
