@@ -31,7 +31,9 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import vtk.vtkScalarBarActor;
+import vtk.vtkScalarsToColors;
 import vtk.vtkTextProperty;
 
 /**
@@ -56,6 +58,7 @@ public class ScalarBar {
         getScalarBarActor().SetHeight(0.1);
         //getScalarBarActor().SetNumberOfLabels(getScalarBarActor().GetNumberOfLabels() * 2);
         getScalarBarActor().SetNumberOfLabels(9);
+        getScalarBarActor().SetTitle("Color map");
         
         vtkTextProperty textProp = new vtkTextProperty();
         textProp = getScalarBarActor().GetLabelTextProperty();
@@ -74,10 +77,11 @@ public class ScalarBar {
      */
     public void setScalarBarVerticalProperties() {
         getScalarBarActor().SetOrientationToVertical();
-        getScalarBarActor().SetPosition(0.05, 0.15);
+        getScalarBarActor().SetPosition(0.9, 0.1);
         getScalarBarActor().SetWidth(0.1);
-        getScalarBarActor().SetHeight(0.7);
+        getScalarBarActor().SetHeight(0.8);
         getScalarBarActor().SetNumberOfLabels(9);
+        getScalarBarActor().SetTitle("Color map");
         
         vtkTextProperty textProp = new vtkTextProperty();
         textProp = getScalarBarActor().GetLabelTextProperty();
@@ -86,9 +90,15 @@ public class ScalarBar {
         textProp.ItalicOn();
         textProp.SetOpacity(0.9);
         textProp.SetFontSize(8);
+        textProp.ShadowOn();
         
         getScalarBarActor().SetLabelTextProperty(textProp);
         getScalarBarActor().SetTitleTextProperty(textProp);
+    }
+    
+    public void setUpScalarBarLookupTable(vtkScalarsToColors lut) {
+        getScalarBarActor().SetLookupTable(lut);
+        getScalarBarActor().Modified();
     }
 
     /**
