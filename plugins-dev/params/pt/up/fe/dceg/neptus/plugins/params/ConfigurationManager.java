@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -54,6 +55,7 @@ import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.ValueTypeEnum;
 import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Visibility;
 import pt.up.fe.dceg.neptus.plugins.params.editor.ComboEditorWithDependancy;
 import pt.up.fe.dceg.neptus.plugins.params.editor.PropertyEditorChangeValuesIfDependancyAdapter;
+import pt.up.fe.dceg.neptus.plugins.params.editor.custom.CustomEditor;
 import pt.up.fe.dceg.neptus.plugins.params.renderer.BooleanPropertyRenderer;
 import pt.up.fe.dceg.neptus.plugins.params.renderer.PropertyRenderer;
 import pt.up.fe.dceg.neptus.util.FileUtil;
@@ -172,6 +174,26 @@ public class ConfigurationManager {
 
             sections.add(sectionName);
 
+            Node editorNode = section.selectSingleNode("@editor");
+            CustomEditor sectionCustomEditor = null;
+            if (editorNode != null) {
+                String editorStr = editorNode.getText();
+                try {
+                    String str = CustomEditor.class.getPackage().getName() + "." + editorStr + "CustomEditor";
+                    System.out.println("###########     " + str);
+                    Class<?> clazz = Class.forName(str);
+                    try {
+                        sectionCustomEditor = (CustomEditor) clazz.getConstructor(Map.class).newInstance(sectionParams);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            
             for(Object oparam : section.selectNodes("*")) {
                 SystemProperty property;
                 Element param = (Element) oparam;
@@ -549,12 +571,15 @@ public class ConfigurationManager {
                     property.setRenderer(new PropertyRenderer());
                 }
 
+                if (sectionCustomEditor != null) {
+                    property.setSectionCustomEditor(sectionCustomEditor);
+//                    sectionCustomEditor = null;
+                }
+                
                 params.put(sectionName + "." + paramName, property);
                 sectionParams.put(paramName, property);
-
             }
         }
-        //NeptusLog.pub().info("<###> "+params);        
         return params;
     }
 

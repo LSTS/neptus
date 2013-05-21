@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.plugins.params;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import pt.up.fe.dceg.neptus.plugins.params.editor.custom.CustomEditor;
 import pt.up.fe.dceg.neptus.plugins.params.renderer.PropertyRenderer;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
@@ -129,6 +130,8 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
 
     private AbstractPropertyEditor editor = null;
     private DefaultCellRenderer renderer = null;
+    
+    private CustomEditor sectionCustomEditor = null;
     
     private ValueTypeEnum valueType = ValueTypeEnum.STRING;
     
@@ -242,6 +245,20 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     }
     
     /**
+     * @return the sectionCustomEditor
+     */
+    public CustomEditor getSectionCustomEditor() {
+        return sectionCustomEditor;
+    }
+    
+    /**
+     * @param sectionCustomEditor the sectionCustomEditor to set
+     */
+    public void setSectionCustomEditor(CustomEditor sectionCustomEditor) {
+        this.sectionCustomEditor = sectionCustomEditor;
+    }
+    
+    /**
      * @return the valueType
      */
     public ValueTypeEnum getValueType() {
@@ -306,6 +323,11 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
+        if (sectionCustomEditor != null) {
+            sectionCustomEditor.propertyChange(evt);
+            return;
+        }
+        
         if(!(evt.getSource() instanceof SystemProperty))
             return;
         

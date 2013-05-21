@@ -31,34 +31,35 @@
  */
 package pt.up.fe.dceg.neptus.plugins.params.editor.custom;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Map;
+
+import pt.up.fe.dceg.neptus.plugins.params.SystemProperty;
+
 /**
  * @author pdias
  *
  */
-public class Edgetech2205EditorControl {
+public class CustomEditor implements PropertyChangeListener {
 
-    /*
-        The sidescan section will have an additional attribute called 'editor' telling Neptus 
-        to use a custom parameter editor (see attached file). This custom editor should behave 
-        like the generic editor with the following additional constraints:
-        
-        IF 'High-Frequency Channels' != 'None' AND 'Low-Frequency Channels' != 'None'
-        ENABLE 'Trigger Divisor'
-        DISABLE 'High-Frequency Range'
-        DISABLE VALIDATION OF 'High-Frequency Range'
-        COMPUTE 'High-Frequency Range' AS ('Low-Frequency Range' / 'Trigger Divisor')
-        ELSE
-        DISABLE 'Trigger Divisor'
-        ENABLE 'High-Frequency Range'
-        ENABLE VALIDATION OF 'High-Frequency Range'     
-     */
+    protected Map<String, SystemProperty> paramList = null;
     
-    /**
-     * @param args
+    public CustomEditor(Map<String, SystemProperty> paramList) {
+        this.paramList = paramList;
+    }
+    
+    /* (non-Javadoc)
+     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
      */
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
+    public void propertyChange(PropertyChangeEvent evt) {
     }
 
+    public Map<String, SystemProperty> getSystemPropertiesList() {
+        return this.paramList;
+    }
+
+    public void setSystemPropertiesList(Map<String, SystemProperty> paramList) {
+        this.paramList = paramList;
+    }
 }
