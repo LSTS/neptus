@@ -41,6 +41,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
@@ -52,7 +53,6 @@ import pt.up.fe.dceg.neptus.mra.replay.LogReplayLayer;
 import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 /**
  * @author jqcorreia
@@ -78,12 +78,12 @@ public class MultibeamReplay2 implements LogReplayLayer {
     public void cleanup() {
         img = null;
         sImg = null;
-        
     }
     
     public MultibeamReplay2() {
 
     }
+    
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         String filePath = "mra/multibeam.png";
@@ -93,7 +93,7 @@ public class MultibeamReplay2 implements LogReplayLayer {
         {
             if(img == null) {
                 try {
-                    System.out.println("Loading " + filePath);
+                    NeptusLog.pub().info("Loading " + filePath);
                     img = ImageIO.read(source.getFile(filePath));
                 }
                 catch (IOException e) {
@@ -105,9 +105,8 @@ public class MultibeamReplay2 implements LogReplayLayer {
             double res[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(
                     parser.getBathymetryInfo().bottomRight, baseLod);
 
-            System.out.println(parser.getBathymetryInfo().topLeft);
-            System.out.println(parser.getBathymetryInfo().bottomRight);
-            img = null;
+//            System.out.println(parser.getBathymetryInfo().topLeft);
+//            System.out.println(parser.getBathymetryInfo().bottomRight);
 
             // Create and paint image
             img = new BufferedImage((int) res[0], (int) res[1], BufferedImage.TYPE_INT_ARGB);
@@ -135,7 +134,7 @@ public class MultibeamReplay2 implements LogReplayLayer {
             }
             
             try {
-                System.out.println("Recording " + source.getFile("Data.lsf").getParent() + "/" + filePath);
+                NeptusLog.pub().info("Recording " + source.getFile("Data.lsf").getParent() + "/" + filePath);
                 ImageIO.write(img, "PNG", new File(source.getFile("Data.lsf").getParent() + "/" + filePath));
             }
             catch (IOException e) {
