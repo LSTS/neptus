@@ -71,7 +71,7 @@ public class MarkerObserver implements LogMarkerListener {
         EstimatedState estimatedState = (EstimatedState) state;
 
         LocationType location = Bathymetry3DGenerator.getLocationIMC5(estimatedState);
-        return location;
+        return location.convertToAbsoluteLatLonDepth();
     }
 
     /*
