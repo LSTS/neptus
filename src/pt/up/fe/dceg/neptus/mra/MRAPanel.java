@@ -386,6 +386,7 @@ public class MRAPanel extends JPanel {
     }
 
     public void cleanup() {
+        NeptusLog.pub().info("MRA Cleanup");
         tree.removeAll();
         tree = null;
 

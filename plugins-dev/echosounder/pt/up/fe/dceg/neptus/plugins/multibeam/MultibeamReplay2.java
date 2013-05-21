@@ -176,14 +176,6 @@ public class MultibeamReplay2 implements LogReplayLayer {
 
     @Override
     public void parse(IMraLogGroup source) {
-//        multibeamData = MultibeamData.build(source.getFile("multibeam.83P"), source);
-//        double heights[] = new double[colors.length];
-//        double diffHeight = multibeamData.maxHeight - multibeamData.minHeight; 
-//       
-//        NeptusLog.pub().info("<###>Min Height : " + multibeamData.minHeight + " Max Height : " + multibeamData.maxHeight);
-//        for(int i = 0; i < colors.length ; i++)
-//            heights[i] = multibeamData.minHeight + diffHeight/colors.length * i;
-//        cm = new InterpolationColorMap(heights, colors);
         
         parser = new DeltaTParser(source);
         this.source = source;
