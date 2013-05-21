@@ -163,6 +163,9 @@ public class ConfigurationManager {
                 NeptusLog.pub().error("Error loading unnamed section for " + file.getName());
                 continue;
             }
+
+            LinkedHashMap<String, SystemProperty> sectionParams = new LinkedHashMap<>();
+            
             String sectionI18nName = section.attributeValue("name-i18n");
             if (sectionI18nName == null)
                 sectionI18nName = sectionName;
@@ -547,6 +550,7 @@ public class ConfigurationManager {
                 }
 
                 params.put(sectionName + "." + paramName, property);
+                sectionParams.put(paramName, property);
 
             }
         }
