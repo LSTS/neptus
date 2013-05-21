@@ -100,7 +100,7 @@ public class MraVehiclePosHud {
                         estimatedState.getDouble("phi"), estimatedState.getDouble("theta"),
                         estimatedState.getDouble("psi"));
                 states.add(state);
-
+                lastIndex = i;
             }
             else
                 states.add(null);
