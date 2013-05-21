@@ -88,9 +88,9 @@ public class Edgetech2205CustomEditor extends CustomEditor {
                 AbstractPropertyEditor editor = paramList.get("High-Frequency Range").getEditor();
                 if (editor instanceof ValidationEnableInterface)
                     ((ValidationEnableInterface) editor).setEnableValidation(false);
-                paramList.get("High-Frequency Range").setValue(
+                paramList.get("High-Frequency Range").setValue(Double.valueOf(
                         ((Number) paramList.get("Low-Frequency Range").getValue()).doubleValue()
-                                / ((Number) paramList.get("Trigger Divisor").getValue()).doubleValue());
+                                / ((Number) paramList.get("Trigger Divisor").getValue()).doubleValue()).intValue());
             }
             else {
                 paramList.get("Trigger Divisor").setEditable(false);
