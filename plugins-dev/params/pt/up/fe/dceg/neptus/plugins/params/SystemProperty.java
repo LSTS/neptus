@@ -48,7 +48,7 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     private static final long serialVersionUID = 1L;
     
     public static enum Scope {
-        GLOBAL("global"), PLAN("plan"), MANEUVER("maneuver");
+        GLOBAL("global"), IDLE("idle"), PLAN("plan"), MANEUVER("maneuver");
 
         private String text;
 

@@ -33,7 +33,6 @@ package pt.up.fe.dceg.neptus.mra;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dialog.ModalityType;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -504,15 +503,15 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
         
         AbstractAction exit = new AbstractAction(I18n.text("Exit"), ImageUtils.getIcon("images/menus/exit.png")) {
             public void actionPerformed(ActionEvent e) {
-                NeptusMRA.this.setVisible(false);
-
-                NeptusMRA.this.dispose();
-                Container c = getContentPane();
-                if (c instanceof MRAPanel) {
-                    ((MRAPanel) c).cleanup();
+                if (mraPanel != null) {
+                    mraPanel.cleanup();
                 }
+
+                NeptusMRA.this.setVisible(false);
+                NeptusMRA.this.dispose();
             }
         };
+        
         file.addSeparator();
         file.add(exit);
 

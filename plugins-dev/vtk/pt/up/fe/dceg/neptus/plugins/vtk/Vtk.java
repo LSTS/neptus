@@ -221,7 +221,6 @@ public class Vtk extends JPanel implements MRAVisualization {
             add(vtkCanvas, "W 100%, H 100%");
             
             vtkCanvas.LightFollowCameraOn();
-            //vtkCanvas.BeginBoxInteraction(); // calls interaction and prints out the string Box widget begin interaction
             vtkCanvas.setEnabled(true);
             
             componentEnabled = true;
@@ -236,16 +235,6 @@ public class Vtk extends JPanel implements MRAVisualization {
                 add(toolbar.getToolBar(), "dock south");
                 
                 pointCloud.createLODActorFromPoints();
-                
-                //double[] center = pointCloud.getPoly().GetCenter();
-                //Axes ax = new Axes(30.0, center[0], center[1], center[2], 0);
-                //Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
-                //vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
-                //ax.getAxesActor().SetVisibility(true);
-                
-                //AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
-                //axesActor.createAxes();
-                //axesActor.setAxesVisibility(true);
 
                 AxesWidget axesWidget = new AxesWidget(winCanvas.getInteractorStyle().GetInteractor());            
                 axesWidget.createAxesWidget();
@@ -253,7 +242,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor()); 
                 
                     // set Up scalar Bar look up table
-                winCanvas.getInteractorStyle().getScalarBar().setUpScalarBarLookupTable(pointCloud.getCloudLODActor().GetMapper().GetLookupTable());        
+                winCanvas.getInteractorStyle().getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
                 vtkCanvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
                 
                     // set up camera to +z viewpoint looking down

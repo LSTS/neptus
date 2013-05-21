@@ -79,50 +79,33 @@ public class PointCloud<T extends PointXYZ> {
      * Create a Pointcloud Actor from vtkPoints & vtkCellArray
      */
     public void createLODActorFromPoints() {
-        getPoly().SetPoints(getPoints());
-        getPoly().SetVerts(getVerts());
-        
-        getPoly().Modified();
-               
-        vtkCellArray cells = new vtkCellArray();
-        cells.SetNumberOfCells(getNumberOfPoints());
-        getPoly().SetPolys(cells);
-        
-        setBounds(getPoly().GetBounds());
-        setMemorySize(getPoly().GetActualMemorySize());
-             
-        vtkLookupTable colorLookupTable = new vtkLookupTable();
-        //colorLookupTable.SetNumberOfColors(3);
-        colorLookupTable.SetRange(getBounds()[4], getBounds()[5]);     
-        //colorLookupTable.SetValueRange(getBounds()[4], getBounds()[5]);        
-        //colorLookupTable.SetHueRange(0, 1);
-        //colorLookupTable.SetSaturationRange(1, 1);
-        //colorLookupTable.SetValueRange(1, 1);
-        //colorLookupTable.SetTableRange(getBounds()[4], getBounds()[5]);
-        colorLookupTable.SetScaleToLinear();
-        colorLookupTable.Build();
+        try {
+            getPoly().SetPoints(getPoints());
+            getPoly().SetVerts(getVerts());
+            
+            getPoly().Modified();
+                   
+            vtkCellArray cells = new vtkCellArray();
+            cells.SetNumberOfCells(getNumberOfPoints());
+            getPoly().SetPolys(cells);
+            
+            setBounds(getPoly().GetBounds());
+            setMemorySize(getPoly().GetActualMemorySize());
 
-        getColorHandler().setPointCloudColorHandlers(getNumberOfPoints(), getPoly(), colorLookupTable, bounds);
-        
-        getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
-
-        
-        vtkPolyDataMapper map = new vtkPolyDataMapper();
-        map.SetInput(getPoly());
-            // into coloca os limites na lookuptable
-        map.SetScalarRange(getBounds()[4], getBounds()[5]);
-        map.SetLookupTable(getColorHandler().getLutZ());
-        //map.ScalarVisibilityOn();
-        //map.SetScalarModeToUsePointData();
-        //map.SetScalarModeToUseCellData();
-        //map.SetScalarVisibility_9(true);
-            // poor renderering?
-        //map.InterpolateScalarsBeforeMappingOn();
-        //map.SetColorModeToMapScalars();
-     
-        getCloudLODActor().SetMapper(map);
-        getCloudLODActor().GetProperty().SetPointSize(1.0);
-        getCloudLODActor().GetProperty().SetRepresentationToPoints();     
+            getColorHandler().generatePointCloudColorHandlers(getNumberOfPoints(), getPoly(), bounds);
+            
+            getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
+            
+            vtkPolyDataMapper map = new vtkPolyDataMapper();
+            map.SetInput(getPoly());
+    
+            getCloudLODActor().SetMapper(map);
+            getCloudLODActor().GetProperty().SetPointSize(1.0);
+            getCloudLODActor().GetProperty().SetRepresentationToPoints();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }     
     }
     
     /**

@@ -98,7 +98,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     
     public void initialize(IMraLogGroup source) {
         ssParser = SidescanParserFactory.build(source);
-        
+
         firstPingTime = ssParser.firstPingTimestamp();
         lastPingTime = ssParser.lastPingTimestamp();
         
@@ -132,7 +132,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         for(SidescanPanel p : sidescanPanels) {
             add(p, "w 100%, h 100%, wrap");
         }
-        
+
         add(timeline, "w 100%, split");
     }
 

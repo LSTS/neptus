@@ -224,7 +224,7 @@ public class MRAPanel extends JPanel {
                 new KMLExporter(this, source)
         }; 
         
-        // Check for existence of Exporters menu and remove on existence
+        // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
         JMenuBar bar = mra.getMRAMenuBar();
         JMenu previousMenu = GuiUtils.getJMenuByName(bar, "Exporters");
         if(previousMenu != null) {
@@ -386,6 +386,7 @@ public class MRAPanel extends JPanel {
     }
 
     public void cleanup() {
+        NeptusLog.pub().info("MRA Cleanup");
         tree.removeAll();
         tree = null;
 
