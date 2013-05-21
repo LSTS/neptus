@@ -226,9 +226,11 @@ public class MraVehiclePosHud {
      * @param pathColor the pathColor to set
      */
     public final void setPathColor(Color pathColor) {
-        this.pathColor = pathColor;
-        map = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        createMap();
+        if(this.pathColor.getRGB() != pathColor.getRGB()) {
+            this.pathColor = pathColor;
+            map = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            createMap();
+        }
     }
 
     public static void main(String[] args) throws Exception {

@@ -173,7 +173,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     ArrayList<SidescanLine> removeList = new ArrayList<SidescanLine>();
     
     NumberFormat altFormat = GuiUtils.getNeptusDecimalFormat(2);
-    //NumberFormat coordFormat = GuiUtils.getNeptusDecimalFormat(6);
     
     SidescanParser ssParser;
     

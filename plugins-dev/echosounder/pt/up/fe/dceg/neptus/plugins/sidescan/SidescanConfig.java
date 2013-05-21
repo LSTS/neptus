@@ -86,7 +86,6 @@ public class SidescanConfig implements PropertiesProvider {
     @Override
     public void setProperties(Property[] properties) {
         PluginUtils.setPluginProperties(this, properties);
-        NeptusLog.pub().info("<###>setProperties");
     }
 
     @Override
