@@ -73,7 +73,7 @@ public class Edgetech2205CustomEditor extends CustomEditor {
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        System.out.println("#############################################################");
+//        System.out.println("#############################################################");
         if(evt.getSource() instanceof SystemProperty) {
             SystemProperty sp = (SystemProperty) evt.getSource();
             String sectionId = sp.getCategoryId();

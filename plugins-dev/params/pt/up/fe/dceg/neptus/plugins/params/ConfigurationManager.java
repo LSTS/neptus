@@ -180,7 +180,7 @@ public class ConfigurationManager {
                 String editorStr = editorNode.getText();
                 try {
                     String str = CustomEditor.class.getPackage().getName() + "." + editorStr + "CustomEditor";
-                    System.out.println("###########     " + str);
+//                    System.out.println("###########     " + str);
                     Class<?> clazz = Class.forName(str);
                     try {
                         sectionCustomEditor = (CustomEditor) clazz.getConstructor(Map.class).newInstance(sectionParams);
