@@ -41,7 +41,7 @@ import pt.up.fe.dceg.neptus.plugins.params.SystemProperty;
  * @author pdias
  *
  */
-public class CustomEditor implements PropertyChangeListener {
+public class CustomEditor implements PropertyChangeListener, Cloneable {
 
     protected Map<String, SystemProperty> paramList = null;
     
@@ -61,5 +61,13 @@ public class CustomEditor implements PropertyChangeListener {
 
     public void setSystemPropertiesList(Map<String, SystemProperty> paramList) {
         this.paramList = paramList;
+    }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public CustomEditor clone() throws CloneNotSupportedException {
+        return (CustomEditor) super.clone();
     }
 }

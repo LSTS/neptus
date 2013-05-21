@@ -755,6 +755,19 @@ public class ConfigurationManager {
             sp.setDisplayName(p.getDisplayName());
             sp.setEditable(p.isEditable());
             sp.setEditor(p.getEditor());
+            try {
+                sp.setSectionCustomEditor(p.getSectionCustomEditor() != null ? p.getSectionCustomEditor().clone() : p
+                        .getSectionCustomEditor());
+            }
+            catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+            if (sp.getSectionCustomEditor() != null) {
+                CustomEditor ce = sp.getSectionCustomEditor();
+                SystemProperty kv = ce.getSystemPropertiesList().get(p.getName());
+                if (kv != null)
+                    ce.getSystemPropertiesList().put(sp.getName(), sp);
+            }
             sp.setName(p.getName());
             sp.setRenderer(p.getRenderer());
             sp.setScope(p.getScope());
