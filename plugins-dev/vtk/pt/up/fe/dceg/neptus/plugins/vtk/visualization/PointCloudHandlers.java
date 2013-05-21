@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkDataArray;
@@ -73,16 +74,23 @@ public class PointCloudHandlers<T extends PointXYZ> {
      * @param colorLookupTable
      * @param bounds
      */
-    public void setPointCloudColorHandlers(int numberPoints, vtkPolyData polyData, vtkLookupTable colorLookupTable, double[] bounds) {
+    public void generatePointCloudColorHandlers(int numberPoints, vtkPolyData polyData, double[] bounds) {
         this.numberOfPoints = numberPoints;
         this.setPolyData(polyData);
         
+        //colorLookupTable.SetValueRange(getBounds()[4], getBounds()[5]);        
+        //colorLookupTable.SetHueRange(0, 1);
+        //colorLookupTable.SetSaturationRange(1, 1);
+        //colorLookupTable.SetValueRange(1, 1);
+        //colorLookupTable.SetTableRange(getBounds()[4], getBounds()[5]);
+            
         getLutX().SetRange(bounds[0], bounds[1]);
         getLutX().SetScaleToLinear();
         getLutX().Build();
         getLutY().SetRange(bounds[2], bounds[3]);
         getLutY().SetScaleToLinear();
         getLutY().Build();
+        //getLutZ().SetValueRange(-bounds[5], -bounds[4]);
         getLutZ().SetRange(bounds[4], bounds[5]);
         getLutZ().SetScaleToLinear();
         getLutZ().Build();
@@ -119,7 +127,11 @@ public class PointCloudHandlers<T extends PointXYZ> {
             colorsX.InsertNextTuple3(colorx[0], colorx[1], colorx[2]);
             colorsY.InsertNextTuple3(colory[0], colory[1], colory[2]);
             colorsZ.InsertNextTuple3(colorz[0], colorz[1], colorz[2]);
-        }   
+        }
+//        double minRangeValue = getLutZ().GetValueRange()[0];
+//        double maxRangeValue = getLutZ().GetValueRange()[1];
+//        NeptusLog.pub().info("Min Range Value: " + minRangeValue);
+//        NeptusLog.pub().info("Max range value: " + maxRangeValue);
     }
     
 
