@@ -40,13 +40,19 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
 import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import pt.up.fe.dceg.neptus.plugins.vtk.filters.DownsamplePointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
@@ -61,8 +67,6 @@ import vtk.vtkCanvas;
 import vtk.vtkLinearExtrusionFilter;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
-import vtk.vtkScalarBarActor;
-import vtk.vtkScalarsToColors;
 import vtk.vtkVectorText;
 
 /**
@@ -70,8 +74,23 @@ import vtk.vtkVectorText;
  *
  */
 @PluginDescription(author = "hfq", name = "Vtk")
-public class Vtk extends JPanel implements MRAVisualization {
+public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider {
     private static final long serialVersionUID = 1L;
+    
+    @NeptusProperty(name = "Points to ignore on Multibeam 3D", description="Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.")
+    public int ptsToIgnore = 40;
+    
+    @NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description="Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).")
+    public boolean approachToIgnorePts = true; 
+    
+    @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration.")
+    public int zExaggeration = 10;
+    
+    @NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser (in miliseconds).")
+    public long timestampMultibeamIncrement = 0;
+    
+    @NeptusProperty(name = "Yaw Increment", description="180 Yaw (psi) increment for the 83P parser, set true to increment + 180º.")
+    public boolean yawMultibeamIncrement = false;
     
     // there are 2 types of rendering objects on VTK - vtkPanel and vtkCanvas. vtkCanvas seems to have a better behaviour and performance.
     //public vtkPanel vtkPanel;
@@ -225,12 +244,12 @@ public class Vtk extends JPanel implements MRAVisualization {
             
             componentEnabled = true;
 
-            MultibeamToPointCloud multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
+            MultibeamToPointCloud multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud, approachToIgnorePts, ptsToIgnore, timestampMultibeamIncrement, yawMultibeamIncrement);
             //BathymetryInfo batInfo = new BathymetryInfo();
             //batInfo = multibeamToPointCloud.batInfo;
             
             if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!            
-                MultibeamToolBar toolbar = new MultibeamToolBar(vtkCanvas, linkedHashMapCloud);
+                MultibeamToolBar toolbar = new MultibeamToolBar(this);
                 toolbar.createToolBar();
                 add(toolbar.getToolBar(), "dock south");
                 
@@ -346,7 +365,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     /**
      * @return the mraVtkLogGroup
      */
-    private IMraLogGroup getLog() {
+    public IMraLogGroup getLog() {
         return mraVtkLogGroup;
     }
 
@@ -355,5 +374,34 @@ public class Vtk extends JPanel implements MRAVisualization {
      */
     private void setLog(IMraLogGroup log) {
         this.mraVtkLogGroup = log;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.gui.PropertiesProvider#getProperties()
+     */
+    @Override
+    public DefaultProperty[] getProperties() {
+        return PluginUtils.getPluginProperties(this);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.gui.PropertiesProvider#setProperties(com.l2fprod.common.propertysheet.Property[])
+     */
+    @Override
+    public void setProperties(Property[] properties) {
+        PluginUtils.setPluginProperties(this, properties);
+    }
+
+    @Override
+    public String getPropertiesDialogTitle() {
+        return "Multibeam 3D properties";
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.gui.PropertiesProvider#getPropertiesErrors(com.l2fprod.common.propertysheet.Property[])
+     */
+    @Override
+    public String[] getPropertiesErrors(Property[] properties) {
+        return PluginUtils.validatePluginProperties(this, properties);
     }
 }

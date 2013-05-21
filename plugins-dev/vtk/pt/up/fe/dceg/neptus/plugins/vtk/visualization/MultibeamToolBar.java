@@ -32,28 +32,35 @@
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
 import java.awt.Color;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.NeptusMRA;
+import pt.up.fe.dceg.neptus.plugins.vtk.Vtk;
 import pt.up.fe.dceg.neptus.plugins.vtk.filters.Contours;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.ExaggeratePointCloudZ;
+import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkActorCollection;
 import vtk.vtkCanvas;
+import vtk.vtkCellArray;
 import vtk.vtkLODActor;
+import vtk.vtkPoints;
+import vtk.vtkPolyData;
 import vtk.vtkTextActor;
 
 /**
@@ -67,6 +74,8 @@ public class MultibeamToolBar {
     private JToggleButton downsampledPointsToggle;
     private JToggleButton meshToogle;
     private JToggleButton contoursToogle;
+    private JButton configButton;
+    
     private JButton resetViewportButton;
     private JButton helpButton;
     private JPanel toolBar;
@@ -79,12 +88,23 @@ public class MultibeamToolBar {
 
     private vtkTextActor textProcessingActor;
     private vtkTextActor textZExagInfoActor;
+    private Vtk vtk;
 
-    public MultibeamToolBar(vtkCanvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
-        this.canvas = canvas;
-        this.linkedHashMapCloud = linkedHashMapCloud;
+    private int currentPtsToIgnore;
+    private boolean currentApproachToIgnorePts;
+    private long currentTimestampMultibeamIncrement;
+    private boolean currentYawMultibeamIncrement;
+    
+    public MultibeamToolBar(Vtk vtk) {
+        this.canvas = vtk.vtkCanvas;
+        this.linkedHashMapCloud = vtk.linkedHashMapCloud;
         this.textProcessingActor = new vtkTextActor();
         this.textZExagInfoActor = new vtkTextActor();
+        this.vtk = vtk;
+        this.currentApproachToIgnorePts = vtk.approachToIgnorePts;
+        this.currentPtsToIgnore = vtk.ptsToIgnore;
+        this.currentTimestampMultibeamIncrement = vtk.timestampMultibeamIncrement;
+        this.currentYawMultibeamIncrement = vtk.yawMultibeamIncrement;
         
         buildTextProcessingActor();
         buildTextZExagInfoActor();
@@ -101,7 +121,7 @@ public class MultibeamToolBar {
         textZExagInfoActor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
         textZExagInfoActor.GetTextProperty().SetFontFamilyToArial();
         textZExagInfoActor.GetTextProperty().SetFontSize(12);
-        textZExagInfoActor.SetInput("Depth multiplied by:" + NeptusMRA.zExaggeration);   //  
+        textZExagInfoActor.SetInput("Depth multiplied by:" + vtk.zExaggeration);   //  
         textZExagInfoActor.VisibilityOn();
     }
 
@@ -310,7 +330,7 @@ public class MultibeamToolBar {
                                     textProcessingActor.SetDisplayPosition(canvas.getWidth() / 3, canvas.getHeight() / 2);
                                     canvas.GetRenderer().AddActor(textProcessingActor);
                                     canvas.Render();
-                                    exaggeZ = new ExaggeratePointCloudZ(pointCloud);
+                                    exaggeZ = new ExaggeratePointCloudZ(pointCloud, vtk.zExaggeration);
                                     exaggeZ.performZExaggeration();
                                     canvas.GetRenderer().RemoveActor(textProcessingActor);
                                     canvas.Render();
@@ -390,7 +410,7 @@ public class MultibeamToolBar {
                         }
                     }
                     catch (Exception e1) {
-                        
+                        e1.getStackTrace();
                     }
                 }
                 else {
@@ -409,6 +429,62 @@ public class MultibeamToolBar {
             }
         });
 
+        configButton= new JButton(new AbstractAction("Configure") {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PropertiesEditor.editProperties(vtk,
+                        SwingUtilities.getWindowAncestor(vtk), true);
+
+                if (vtk.ptsToIgnore != currentPtsToIgnore || vtk.approachToIgnorePts != currentApproachToIgnorePts || vtk.timestampMultibeamIncrement != currentTimestampMultibeamIncrement || vtk.yawMultibeamIncrement != currentYawMultibeamIncrement) {
+                    pointCloud = linkedHashMapCloud.get("multibeam");
+
+                    canvas.lock();
+                    canvas.GetRenderer().RemoveActor(pointCloud.getCloudLODActor());
+                    
+                    if (zExaggerationToggle.isSelected()) {
+                        exaggeZ.reverseZExaggeration();
+                        zExaggerationToggle.setSelected(false);
+                    }
+                    canvas.unlock();
+                    
+                    
+                    textProcessingActor.SetDisplayPosition(canvas.getWidth() / 3, canvas.getHeight() / 2);
+                    canvas.GetRenderer().AddActor(textProcessingActor);
+                    canvas.Render();
+                    
+                    canvas.lock();
+                    
+                        // clean up cloud color handlers
+                    pointCloud.setColorHandler(new PointCloudHandlers<>());
+                    
+                    MultibeamToPointCloud multibeamToPointCloud = new MultibeamToPointCloud(vtk.getLog(), pointCloud, vtk.approachToIgnorePts, vtk.ptsToIgnore, vtk.timestampMultibeamIncrement, vtk.yawMultibeamIncrement);
+                    pointCloud.createLODActorFromPoints();
+                    
+                    canvas.unlock();
+                    
+                    canvas.GetRenderer().RemoveActor(textProcessingActor);
+                    pointCloud.getCloudLODActor().VisibilityOn();
+                    
+                    pointCloud.getCloudLODActor().Modified();
+                    
+                    canvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
+                    vtk.winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor().Modified();
+                    
+                    canvas.GetRenderer().ResetCamera();
+                    canvas.Render();
+                    
+
+                    
+                    
+                    currentPtsToIgnore = vtk.ptsToIgnore;
+                    currentApproachToIgnorePts = vtk.approachToIgnorePts;
+                    currentTimestampMultibeamIncrement = vtk.timestampMultibeamIncrement;
+                    currentYawMultibeamIncrement = vtk.yawMultibeamIncrement;
+                }
+            }
+        });
+        
             // toogles
         getToolBar().add(rawPointsToggle);
         //getToolBar().add(downsampledPointsToggle);
@@ -418,6 +494,7 @@ public class MultibeamToolBar {
             // buttons
         getToolBar().add(resetViewportButton);
         getToolBar().add(helpButton);
+        getToolBar().add(configButton);
     }
 
     /**

@@ -88,13 +88,23 @@ public class MultibeamDeltaTParser implements BathymetryParser{
     //private double maxLon = -Math.PI;       // 180º East (+)
     //private double minLon = +Math.PI;       // 180º West (-)
     
+    boolean approachToIgnorePts;
+    int ptsToIgnore;
+    long timestampMultibeamIncrement;
+    boolean yawMultibeamIncrement;
+    
     public PointCloud<PointXYZ> pointCloud;
     
     private final LocalData ld;
 
-    public MultibeamDeltaTParser(IMraLogGroup source, PointCloud<PointXYZ> pointCloud) {
+    public MultibeamDeltaTParser(IMraLogGroup source, PointCloud<PointXYZ> pointCloud, boolean approachToIgnorePts, int ptsToIgnore, long timestampMultibeamIncrement, boolean yawMultibeamIncrement) {
         this.logGroup = source;
         this.pointCloud = pointCloud;
+        this.approachToIgnorePts = approachToIgnorePts;
+        this.ptsToIgnore = ptsToIgnore;
+        this.timestampMultibeamIncrement = timestampMultibeamIncrement;
+        this.yawMultibeamIncrement = yawMultibeamIncrement;
+        
         ld = new LocalData(logGroup.getFile("tides.txt"));
         
         if(source.getFile("data.83P") != null)
@@ -157,8 +167,8 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             maxLon = Math.max(lon, maxLon);
             minLon = Math.min(lon, minLon);
       
-            if (!NeptusMRA.approachToIgnorePts) {              
-                for(int c = 0; c < bs.numBeams; c += NeptusMRA.ptsToIgnore) {
+            if (!approachToIgnorePts) {
+                for(int c = 0; c < bs.numBeams; c += ptsToIgnore) {
                     BathymetryPoint p = bs.getData()[c];
                     ++count;
                                        
@@ -171,10 +181,10 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             }
             else {
                 for(int c = 0; c < bs.numBeams; c ++) {
-                    if (Math.random() > 1.0 / NeptusMRA.ptsToIgnore)
-                        continue;        
-                    BathymetryPoint p = bs.getData()[c];                
+                    if (Math.random() > 1.0 / ptsToIgnore)
+                        continue;
                     
+                    BathymetryPoint p = bs.getData()[c];
                     ++count;
                     info.minDepth = (float) Math.min(info.minDepth, p.depth + tideOffset);
                     info.maxDepth = (float) Math.max(info.maxDepth, p.depth + tideOffset);
@@ -235,7 +245,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             data = new BathymetryPoint[header.numBeams];
 
                 // get vehicle pos at the timestamp
-            stateIMCMsg = stateParserLogMra.getEntryAtOrAfter(header.timestamp + NeptusMRA.timestampMultibeamIncrement);  // NeptusMRA.timestampIncrement 3600000 logs from 16-05-2013 need + 3600000 
+            stateIMCMsg = stateParserLogMra.getEntryAtOrAfter(header.timestamp + timestampMultibeamIncrement);  // NeptusMRA.timestampIncrement 3600000 logs from 16-05-2013 need + 3600000 
             //NeptusLog.pub().info("header 83P timestamp: " + header.timestamp);
 
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
@@ -275,9 +285,9 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                     double xBeamOffset = range * Math.sin(Math.toRadians(angle));                
                         // heading
                     double psi = -pose.getYaw(); //+ Math.PI
-                    if (NeptusMRA.yawMultibeamIncrement) {
-                        psi += Math.PI;
-                    }
+                    //if (NeptusMRA.yawMultibeamIncrement) {
+                    //    psi += Math.PI;
+                    //}
                     double ox = xBeamOffset * Math.sin(psi);               
                     double oy = xBeamOffset * Math.cos(psi);
                     

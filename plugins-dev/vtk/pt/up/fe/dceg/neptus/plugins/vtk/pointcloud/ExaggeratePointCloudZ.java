@@ -50,13 +50,15 @@ public class ExaggeratePointCloudZ {
     private vtkPoints cloudPoints;
     private vtkPoints newCloudPoints;
     private vtkCellArray verts;
+    private int zExaggeration;
     private Boolean isExaggerationPerformed;
     
-    public ExaggeratePointCloudZ (PointCloud<PointXYZ> pointCloud) {
+    public ExaggeratePointCloudZ (PointCloud<PointXYZ> pointCloud, int zExaggeration) {
         this.pointCloud = pointCloud;
         this.polyData = pointCloud.getPoly();
         this.cloudPoints = pointCloud.getPoints();
         this.verts = new vtkCellArray();
+        this.zExaggeration = zExaggeration;
         this.newCloudPoints = new vtkPoints();
         this.newCloudPoints.Allocate(cloudPoints.GetNumberOfPoints(), 0);
         this.isExaggerationPerformed = false;
@@ -71,7 +73,7 @@ public class ExaggeratePointCloudZ {
                 for (int i = 0; i < cloudPoints.GetNumberOfPoints(); ++i) {
                     double[] p = new double[3];
                     cloudPoints.GetPoint(i, p);
-                    p[2] = p[2] * NeptusMRA.zExaggeration;
+                    p[2] = p[2] * zExaggeration;
                     verts.InsertNextCell(1);
                     verts.InsertCellPoint(newCloudPoints.InsertNextPoint(p));
                 }               

@@ -80,13 +80,13 @@ public class MultibeamToPointCloud {
     public PointCloud<PointXYZ> pointCloud;
     
     
-    public MultibeamToPointCloud(IMraLogGroup source, PointCloud<PointXYZ> pointCloud) {
+    public MultibeamToPointCloud(IMraLogGroup source, PointCloud<PointXYZ> pointCloud, boolean approachToIgnorePts, int ptsToIgnore, long timestampMultibeamIncrement, boolean yawMultibeamIncrement) {
         
         this.source = source;
         this.pointCloud = pointCloud;
         
         //DeltaTParser deltat = new DeltaTParser(this.source);
-        multibeamDeltaTParser = new MultibeamDeltaTParser(this.source, pointCloud);
+        multibeamDeltaTParser = new MultibeamDeltaTParser(this.source, pointCloud, approachToIgnorePts, ptsToIgnore, timestampMultibeamIncrement, yawMultibeamIncrement);
         //getMyDeltaTHeader();
                 
         //DeltaTParser deltaTParser = new DeltaTParser(source);

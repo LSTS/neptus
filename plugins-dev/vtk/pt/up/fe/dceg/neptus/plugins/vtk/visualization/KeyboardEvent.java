@@ -69,10 +69,10 @@ public class KeyboardEvent {
     private vtkLODActor marker = new vtkLODActor();
     private boolean markerEnabled = false;
     
-    private enum colorMappingRelation {
+    private enum ColorMappingRelation {
         xMap, yMap, zMap
     }  
-    public colorMappingRelation colorMapRel;
+    public ColorMappingRelation colorMapRel;
     
     private Caption captionInfo;
     private Boolean captionEnabled = false;
@@ -90,7 +90,7 @@ public class KeyboardEvent {
         this.interactor = neptusInteractorStyle.interactor;
         this.renderer = neptusInteractorStyle.renderer;
         this.linkedHashMapCloud = linkedHashMapCloud;
-        colorMapRel = colorMappingRelation.zMap;        // on creation map color map is z related
+        colorMapRel = ColorMappingRelation.zMap;        // on creation map color map is z related
     }
 
     public void handleEvents(int keyCode) {
@@ -114,11 +114,17 @@ public class KeyboardEvent {
                             setOfClouds = linkedHashMapCloud.keySet();
                             for (String skey : setOfClouds) {
                                 pointCloud = linkedHashMapCloud.get(skey);
-                                vtkScalarsToColors lut = pointCloud.getCloudLODActor().GetMapper().GetLookupTable();
-                                neptusInteractorStyle.getScalarBar().getScalarBarActor().SetLookupTable(lut);
-                                neptusInteractorStyle.getScalarBar().getScalarBarActor().SetUseBounds(true);
-                                neptusInteractorStyle.getScalarBar().getScalarBarActor().SetNumberOfLabels(9);
-                                neptusInteractorStyle.getScalarBar().getScalarBarActor().Modified();
+                                switch (colorMapRel) {
+                                    case xMap:
+                                        neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutX());
+                                        break;
+                                    case yMap:
+                                        neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutY());
+                                        break;
+                                    case zMap:
+                                        neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
+                                        break;
+                                }
                             }
                         }
                         renderer.AddActor(neptusInteractorStyle.getScalarBar().getScalarBarActor());
@@ -343,14 +349,14 @@ public class KeyboardEvent {
 //                break;
             case KeyEvent.VK_7: // color map X axis related
                 try {
-                    if (!(colorMapRel == colorMappingRelation.xMap)) {
+                    if (!(colorMapRel == ColorMappingRelation.xMap)) {
                         setOfClouds = linkedHashMapCloud.keySet();
                         for (String sKey : setOfClouds) {
                             pointCloud = linkedHashMapCloud.get(sKey);
                             pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getColorsX());                         
                             if (neptusInteractorStyle.lutEnabled)
                                 neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutX());
-                            colorMapRel = colorMappingRelation.xMap;
+                            colorMapRel = ColorMappingRelation.xMap;
                             
                         }                     
                         interactor.Render();
@@ -363,14 +369,14 @@ public class KeyboardEvent {
                 break;
             case KeyEvent.VK_8: // color map Y axis related
                 try {
-                    if (!(colorMapRel == colorMappingRelation.yMap)) {
+                    if (!(colorMapRel == ColorMappingRelation.yMap)) {
                         setOfClouds = linkedHashMapCloud.keySet();
                         for (String sKey : setOfClouds) {                                     
                             pointCloud = linkedHashMapCloud.get(sKey);                           
                             pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getColorsY());
                             if (neptusInteractorStyle.lutEnabled)
                                 neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutY());
-                            colorMapRel = colorMappingRelation.yMap;
+                            colorMapRel = ColorMappingRelation.yMap;
                         }                     
                         interactor.Render();                 
                         renderer.GetRenderWindow().Render();
@@ -382,15 +388,14 @@ public class KeyboardEvent {
                 break;
             case KeyEvent.VK_9: // color map Z axis related
                 try {
-                    if (!(colorMapRel == colorMappingRelation.zMap)) {
+                    if (!(colorMapRel == ColorMappingRelation.zMap)) {
                         setOfClouds = linkedHashMapCloud.keySet();
                         for (String sKey : setOfClouds) {
                             pointCloud = linkedHashMapCloud.get(sKey);                           
                             pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getColorsZ());
-                            if (neptusInteractorStyle.lutEnabled) {
-                                neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
-                            }       
-                            colorMapRel = colorMappingRelation.zMap;
+                            if (neptusInteractorStyle.lutEnabled)
+                                neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());      
+                            colorMapRel = ColorMappingRelation.zMap;
                         }                     
                         interactor.Render();
                         renderer.GetRenderWindow().Render();
