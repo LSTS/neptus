@@ -40,9 +40,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
@@ -69,13 +66,16 @@ import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
 import vtk.vtkVectorText;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 /**
  * @author hfq
  *
  */
 @PluginDescription(author = "hfq", name = "Vtk")
 public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 8057825167454469065L;
     
     @NeptusProperty(name = "Points to ignore on Multibeam 3D", description="Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.")
     public int ptsToIgnore = 40;
@@ -109,6 +109,9 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
     public File file;
     
     private Boolean componentEnabled = false;
+    
+    
+    public MultibeamToPointCloud multibeamToPointCloud;
 
     private DownsamplePointCloud performDownsample;
     private Boolean isDownsampleDone = false;
@@ -244,7 +247,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
             
             componentEnabled = true;
 
-            MultibeamToPointCloud multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud, approachToIgnorePts, ptsToIgnore, timestampMultibeamIncrement, yawMultibeamIncrement);
+            multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
+            multibeamToPointCloud.parseMultibeamPointCloud(approachToIgnorePts, ptsToIgnore, timestampMultibeamIncrement, yawMultibeamIncrement);
             //BathymetryInfo batInfo = new BathymetryInfo();
             //batInfo = multibeamToPointCloud.batInfo;
             
@@ -289,8 +293,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
                 txtActor.SetPosition(2.0, 2.0, 2.0);
                 txtActor.SetScale(10.0);
                 
-                vtkCanvas.GetRenderer().AddActor(txtActor);
-                
+                vtkCanvas.GetRenderer().AddActor(txtActor);          
             }      
             vtkCanvas.GetRenderer().ResetCamera();
         }      

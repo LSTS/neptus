@@ -43,7 +43,6 @@ import java.util.Date;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryInfo;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
@@ -77,7 +76,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
     
     public BathymetryInfo info;
     
-    private int numberSwaths = 0;
+    //private int numberSwaths = 0;
     
     private double maxLat = -Math.PI;
     private double minLat = Math.PI;
@@ -161,7 +160,6 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             double lat = bs.getPose().getPosition().getLatitudeAsDoubleValueRads();
             double lon = bs.getPose().getPosition().getLongitudeAsDoubleValueRads();
             double tideOffset = getTideOffset(bs.getTimestamp());
-            //NeptusLog.pub().info("tideoff: " + tideOffset);
             maxLat = Math.max(lat, maxLat);
             minLat = Math.min(lat, minLat);
             maxLon = Math.max(lon, maxLon);
@@ -193,12 +191,10 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                     pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(p.north, p.east,  p.depth - tideOffset));
                 }
             }
-            //totalNumberPoints = totalNumberPoints + bs.numBeams;
             totalNumberPoints += count;
             count = 0;
             realNumberOfBeams = 0;
-            numberSwaths++;
-            // NeptusLog.pub().info("<###> total number of points: " + totalNumberPoints);
+            //numberSwaths++;
         }
         pointCloud.setNumberOfPoints(totalNumberPoints);
     }
@@ -229,7 +225,6 @@ public class MultibeamDeltaTParser implements BathymetryParser{
 
             if(currPos >= channel.size()) // got to the end of file
                 return null;
-            //NeptusLog.pub().info("<###> Swath number: " + numberSwaths);
 
             BathymetryPoint data[];
                 
@@ -246,12 +241,10 @@ public class MultibeamDeltaTParser implements BathymetryParser{
 
                 // get vehicle pos at the timestamp
             stateIMCMsg = stateParserLogMra.getEntryAtOrAfter(header.timestamp + timestampMultibeamIncrement);  // NeptusMRA.timestampIncrement 3600000 logs from 16-05-2013 need + 3600000 
-            //NeptusLog.pub().info("header 83P timestamp: " + header.timestamp);
 
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             
             if (stateIMCMsg == null) {
-                //NeptusLog.pub().info("IMC message is null");
                 return null;
             }
             else {
@@ -263,14 +256,10 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                 minLon = Math.min(minLon, pose.getPosition().getLongitudeAsDoubleValueRads());
                 pose.getPosition().setOffsetNorth(stateIMCMsg.getDouble("x"));
                 pose.getPosition().setOffsetEast(stateIMCMsg.getDouble("y"));
-                pose.getPosition().setDepth(stateIMCMsg.getDouble("depth"));
-                //NeptusLog.pub().info("get x (IMCMessage): " + stateIMCMsg.getDouble("x"));
-                //NeptusLog.pub().info("get y (IMCMessage): " + stateIMCMsg.getDouble("y"));
-                //NeptusLog.pub().info("get depth (IMCMessage): " + stateIMCMsg.getDouble("depth"));                
+                pose.getPosition().setDepth(stateIMCMsg.getDouble("depth"));              
                 //pose.setRoll(stateIMCMsg.getDouble("phi"));
                 //pose.setPitch(stateIMCMsg.getDouble("theta"));
-                pose.setYaw(stateIMCMsg.getDouble("psi"));
-                //NeptusLog.pub().info("get psi (IMCMessage): " + stateIMCMsg.getDouble("psi"));  
+                pose.setYaw(stateIMCMsg.getDouble("psi")); 
                 //printPose(pose);
 
                 for(int i = 0; i < header.numBeams; ++i) {
@@ -285,27 +274,19 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                     double xBeamOffset = range * Math.sin(Math.toRadians(angle));                
                         // heading
                     double psi = -pose.getYaw(); //+ Math.PI
-                    //if (NeptusMRA.yawMultibeamIncrement) {
-                    //    psi += Math.PI;
-                    //}
+                    if (yawMultibeamIncrement) {
+                        psi += Math.PI;
+                    }
                     double ox = xBeamOffset * Math.sin(psi);               
                     double oy = xBeamOffset * Math.cos(psi);
-                    
-                    
+                                  
                     data[realNumberOfBeams] = new BathymetryPoint((float) (pose.getPosition().getOffsetNorth() + ox),
                             (float) (pose.getPosition().getOffsetEast() + oy), (float) height);
-
-                    //pointCloud.getVerts().InsertNextCell(1);
-                    //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(
-                    //        (pose.getPosition().getOffsetNorth() + ox),
-                    //        (pose.getPosition().getOffsetEast() + oy),
-                    //        height));
                     realNumberOfBeams++;
                 }                       
                 currPos += header.numBytes;     // advance to the next ping (position file pointer);
                 
                 BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, data);
-                //swath.numBeams = header.numBeams; <- can't be this because of errors on range data available on the 83P file
                 swath.numBeams = realNumberOfBeams;
                 return swath;
             }
