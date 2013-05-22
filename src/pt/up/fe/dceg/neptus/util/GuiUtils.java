@@ -604,6 +604,10 @@ public class GuiUtils {
     }
 
     public static JDialog htmlMessage(Component owner, String title, String subtitle, String htmlMessage) {
+        return htmlMessage(owner, title, subtitle, htmlMessage, ModalityType.DOCUMENT_MODAL);
+    }
+
+    public static JDialog htmlMessage(Component owner, String title, String subtitle, String htmlMessage, ModalityType modalityType) {
         BaseDialog myDialog;
         if (owner instanceof Frame)
             myDialog = new BaseDialog((Frame) owner);
@@ -627,7 +631,7 @@ public class GuiUtils {
         myDialog.getBanner().setIcon(UIManager.getIcon("OptionPane.informationIcon"));
         centerOnScreen(myDialog);
         // myDialog.setModal(true);
-        myDialog.setModalityType(ModalityType.DOCUMENT_MODAL);
+        myDialog.setModalityType(modalityType);
         myDialog.setVisible(true);
         return myDialog;
     }
