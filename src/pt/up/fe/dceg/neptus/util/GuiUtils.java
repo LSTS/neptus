@@ -73,10 +73,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Locale;
 
 import javax.imageio.ImageIO;
@@ -870,13 +870,14 @@ public class GuiUtils {
         NeptusLog.pub().info("<###> "+'}');
     }
 
-    public static void printList(List<?> list) {
+    public static void printList(Collection<?> list) {
         if (list == null)
             NeptusLog.pub().info("<###> "+list);
 
         NeptusLog.pub().info("<###> "+list.getClass().getSimpleName() + "[" + list.size() + "] {");
-        for (int i = 0; i < list.size(); i++) {
-            NeptusLog.pub().info("<###>\t(" + i + ") " + list.get(i).toString());
+        int i = 0;
+        for (Object litem : list) {
+            NeptusLog.pub().info("<###>\t(" + i++ + ") [hash: " + Integer.toHexString(litem.hashCode()) + "] " + litem.toString());
         }
         NeptusLog.pub().info("<###> "+'}');
     }
