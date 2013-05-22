@@ -312,7 +312,7 @@ public class MRAPanel extends JPanel {
     }
 
     public void removeMarker(LogMarker marker) {
-        removeTreeObject(marker);
+        logTree.removeMarker(marker);
         logMarkers.remove(marker);
         for (MRAVisualization vis : visualizationList.values()) {
             if (vis instanceof LogMarkerListener) {
