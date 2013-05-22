@@ -548,8 +548,8 @@ public class MultibeamToolBar {
         
             // buttons
         getToolBar().add(resetViewportButton);
-        getToolBar().add(helpButton);
         getToolBar().add(configButton);
+        getToolBar().add(helpButton);
     }
 
     /**

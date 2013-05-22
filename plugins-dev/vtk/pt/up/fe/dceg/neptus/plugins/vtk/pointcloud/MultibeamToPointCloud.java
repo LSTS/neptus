@@ -41,8 +41,6 @@ import java.nio.channels.FileChannel.MapMode;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryInfo;
-import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
-import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
@@ -57,15 +55,9 @@ public class MultibeamToPointCloud {
     
     public IMraLogGroup source;
     public IMraLog state;
- 
-    public double maxLat = 90;      // (N) 90º north
-    public double minLat = -90;     // (S) 90º south
-
-    public double maxLon = 180;     // (E) 180º east   
-    public double minLon = -180;    // (W) 180º west
     
-    public BathymetryPoint batPoint;           // float north, float east, float depth
-    public BathymetrySwath batSwath;
+    //public BathymetryPoint batPoint;           // float north, float east, float depth
+    //public BathymetrySwath batSwath;
     public BathymetryInfo batInfo;
     
     private File file;                          // *.83P file
@@ -73,27 +65,19 @@ public class MultibeamToPointCloud {
     private FileChannel channel;                // SeekableByteChanel connected to the file (83P)
     private ByteBuffer buf;
     
-    private byte fileContent[];
-    
     public MultibeamDeltaTParser multibeamDeltaTParser;
     
     public PointCloud<PointXYZ> pointCloud;
-    
-    
-    public MultibeamToPointCloud(IMraLogGroup source, PointCloud<PointXYZ> pointCloud) {
-        
+       
+    public MultibeamToPointCloud(IMraLogGroup source, PointCloud<PointXYZ> pointCloud) {       
         this.source = source;
         this.pointCloud = pointCloud;
-        
-        //DeltaTParser deltat = new DeltaTParser(this.source);
-                
-        //DeltaTParser deltaTParser = new DeltaTParser(source);
-        //batInfo = deltaTParser.getBathymetryInfo();
-        //long firstTimeStamp = deltaTParser.getFirstTimestamp();
     }
     
     public void parseMultibeamPointCloud (boolean approachToIgnorePts, int ptsToIgnore, long timestampMultibeamIncrement, boolean yawMultibeamIncrement) {
         multibeamDeltaTParser = new MultibeamDeltaTParser(this.source, pointCloud, approachToIgnorePts, ptsToIgnore, timestampMultibeamIncrement, yawMultibeamIncrement);
+        pointCloud.setNumberOfPoints(multibeamDeltaTParser.getTotalNumberPoints());
+        batInfo = multibeamDeltaTParser.info;
     }
     
     /**
@@ -126,19 +110,6 @@ public class MultibeamToPointCloud {
         } 
         
         MultibeamDeltaTHeader deltaTHeader = new MultibeamDeltaTHeader(buf);
-        deltaTHeader.parseHeader();
-        
-    }
-
-    /**
-     * do not use
-     */
-    public void printDeltaTFileContent() {
-        fileContent = new byte[(int)file.length()];
-        
-        String strFileContent = new String(fileContent);
-        
-        NeptusLog.pub().info("File content: ");
-        NeptusLog.pub().info(strFileContent);
+        deltaTHeader.parseHeader();     
     }
 }

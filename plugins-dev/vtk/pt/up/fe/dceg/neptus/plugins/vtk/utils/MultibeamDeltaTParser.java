@@ -34,7 +34,10 @@ package pt.up.fe.dceg.neptus.plugins.vtk.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
@@ -52,6 +55,7 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTHeader;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.bathymetry.LocalData;
 
 /**
@@ -75,27 +79,31 @@ public class MultibeamDeltaTParser implements BathymetryParser{
     private int count = 0;
     
     public BathymetryInfo info;
+    private final LocalData ld;
     
     //private int numberSwaths = 0;
     
-    private double maxLat = -Math.PI;
-    private double minLat = Math.PI;
-    private double maxLon = -Math.PI * 2;
-    private double minLon = Math.PI * 2;
-    //private double maxLat = -(Math.PI)/2;   // 90º North (+)
-    //private double minLat = +(Math.PI)/2;   // 90º South (-)
-    //private double maxLon = -Math.PI;       // 180º East (+)
-    //private double minLon = +Math.PI;       // 180º West (-)
+//    private double maxLat = -Math.PI;
+//    private double minLat = Math.PI;
+//    private double maxLon = -Math.PI * 2;
+//    private double minLon = Math.PI * 2;
     
-    boolean approachToIgnorePts;
-    int ptsToIgnore;
-    long timestampMultibeamIncrement;
-    boolean yawMultibeamIncrement;
+    private final boolean approachToIgnorePts;
+    private final int ptsToIgnore;
+    private final long timestampMultibeamIncrement;
+    private final boolean yawMultibeamIncrement;
     
     public PointCloud<PointXYZ> pointCloud;
-    
-    private final LocalData ld;
 
+    /**
+     * Parses multibeam data from a *.83P file
+     * @param source
+     * @param pointCloud
+     * @param approachToIgnorePts
+     * @param ptsToIgnore
+     * @param timestampMultibeamIncrement
+     * @param yawMultibeamIncrement
+     */
     public MultibeamDeltaTParser(IMraLogGroup source, PointCloud<PointXYZ> pointCloud, boolean approachToIgnorePts, int ptsToIgnore, long timestampMultibeamIncrement, boolean yawMultibeamIncrement) {
         this.logGroup = source;
         this.pointCloud = pointCloud;
@@ -118,7 +126,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             NeptusLog.pub().info("File not found: " + e);        
             e.printStackTrace();
         }
-        catch (Exception ioe) {
+        catch (IOException ioe) {
             NeptusLog.pub().info("Exception while reading the file: " + ioe);
             ioe.printStackTrace();
         }
@@ -148,55 +156,96 @@ public class MultibeamDeltaTParser implements BathymetryParser{
     }
 
     /**
-     * 
+     * Used to gather bathymetry info and generate BathymetryInfo object
      */
     private void initialize() {
-        info = new BathymetryInfo();
-
-        BathymetrySwath bs;
+        File f = new File(logGroup.getFile("Data.lsf").getParent() + "/mra/bathy.info");
+        File folder = new File(logGroup.getFile("Data.lsf").getParent() + "/mra");
         
+        if(!folder.exists())
+            folder.mkdirs();
+        
+        if (!f.exists()) {
+            info = new BathymetryInfo();
+        }
+        else {
+            try {
+                ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+                info = (BathymetryInfo) in.readObject();
+                in.close();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        double maxLat = -90;    // 90º North (+)
+        double minLat = 90;     // 90º South (-)
+        double maxLon = -180;   // 180º East (+)
+        double minLon = 180;    // 180º West (-)
+        
+        BathymetrySwath bs;
+
         while ((bs = nextSwath()) != null) {
+            LocationType loc = bs.getPose().getPosition().convertToAbsoluteLatLonDepth();
+            double lat = loc.getLatitudeAsDoubleValue();
+            double lon = loc.getLongitudeAsDoubleValue();            
+            //double lat = bs.getPose().getPosition().getLatitudeAsDoubleValueRads();
+            //double lon = bs.getPose().getPosition().getLongitudeAsDoubleValueRads();
             
-            double lat = bs.getPose().getPosition().getLatitudeAsDoubleValueRads();
-            double lon = bs.getPose().getPosition().getLongitudeAsDoubleValueRads();
             double tideOffset = getTideOffset(bs.getTimestamp());
             maxLat = Math.max(lat, maxLat);
             minLat = Math.min(lat, minLat);
             maxLon = Math.max(lon, maxLon);
             minLon = Math.min(lon, minLon);
-      
+
             if (!approachToIgnorePts) {
-                for(int c = 0; c < bs.numBeams; c += ptsToIgnore) {
+                for (int c = 0; c < bs.numBeams; c += ptsToIgnore) {
                     BathymetryPoint p = bs.getData()[c];
                     ++count;
-                                       
-                    info.minDepth = (float) Math.min(info.minDepth, p.depth + tideOffset);
-                    info.maxDepth = (float) Math.max(info.maxDepth, p.depth + tideOffset);
-                      
-                    pointCloud.getVerts().InsertNextCell(1);                
-                    pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth - tideOffset));
-                }  
-            }
-            else {
-                for(int c = 0; c < bs.numBeams; c ++) {
-                    if (Math.random() > 1.0 / ptsToIgnore)
-                        continue;
-                    
-                    BathymetryPoint p = bs.getData()[c];
-                    ++count;
-                    info.minDepth = (float) Math.min(info.minDepth, p.depth + tideOffset);
-                    info.maxDepth = (float) Math.max(info.maxDepth, p.depth + tideOffset);
-            
+
+                    info.minDepth = (float) Math.min(info.minDepth, p.depth - tideOffset);
+                    info.maxDepth = (float) Math.max(info.maxDepth, p.depth - tideOffset);
+
                     pointCloud.getVerts().InsertNextCell(1);
-                    pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(p.north, p.east,  p.depth - tideOffset));
+                    pointCloud.getVerts().InsertCellPoint(
+                            pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth - tideOffset));
                 }
             }
-            totalNumberPoints += count;
+            else {
+                for (int c = 0; c < bs.numBeams; c++) {
+                    if (Math.random() > 1.0 / ptsToIgnore)
+                        continue;
+
+                    BathymetryPoint p = bs.getData()[c];
+                    ++count;
+                    info.minDepth = (float) Math.min(info.minDepth, p.depth - tideOffset);
+                    info.maxDepth = (float) Math.max(info.maxDepth, p.depth - tideOffset);
+
+                    pointCloud.getVerts().InsertNextCell(1);
+                    pointCloud.getVerts().InsertCellPoint(
+                            pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth - tideOffset));
+                }
+            }
+            info.topLeft = new LocationType(maxLat, minLon);
+            info.bottomRight = new LocationType(minLat, maxLon);
+            
+            setTotalNumberPoints(getTotalNumberPoints() + count);
             count = 0;
             realNumberOfBeams = 0;
-            //numberSwaths++;
+            // numberSwaths++;
         }
-        pointCloud.setNumberOfPoints(totalNumberPoints);
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+            out.writeObject(info);
+            out.close();
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -249,11 +298,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             }
             else {
                 pose.getPosition().setLatitudeRads(stateIMCMsg.getDouble("lat"));         
-                maxLat = Math.max(maxLat, pose.getPosition().getLatitudeAsDoubleValueRads());
-                minLat = Math.min(minLat, pose.getPosition().getLatitudeAsDoubleValueRads());
                 pose.getPosition().setLongitudeRads(stateIMCMsg.getDouble("lon"));
-                maxLon = Math.max(maxLon, pose.getPosition().getLongitudeAsDoubleValueRads());
-                minLon = Math.min(minLon, pose.getPosition().getLongitudeAsDoubleValueRads());
                 pose.getPosition().setOffsetNorth(stateIMCMsg.getDouble("x"));
                 pose.getPosition().setOffsetEast(stateIMCMsg.getDouble("y"));
                 pose.getPosition().setDepth(stateIMCMsg.getDouble("depth"));              
@@ -288,6 +333,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                 
                 BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, data);
                 swath.numBeams = realNumberOfBeams;
+                
                 return swath;
             }
         }
@@ -295,6 +341,20 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             e.printStackTrace();
             return null;
         }
+    }
+    
+    /**
+     * @return the totalNumberPoints
+     */
+    public int getTotalNumberPoints() {
+        return totalNumberPoints;
+    }
+
+    /**
+     * @param totalNumberPoints the totalNumberPoints to set
+     */
+    public void setTotalNumberPoints(int totalNumberPoints) {
+        this.totalNumberPoints = totalNumberPoints;
     }
     
     /**
