@@ -43,10 +43,8 @@ import vtk.vtkAbstractPropPicker;
 import vtk.vtkActorCollection;
 import vtk.vtkAssemblyPath;
 import vtk.vtkLODActor;
-import vtk.vtkPolyDataMapper;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
-import vtk.vtkScalarsToColors;
 
 import com.jogamp.newt.event.KeyEvent;
 

@@ -51,7 +51,6 @@ import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
 import vtk.vtkScalarBarActor;
 import vtk.vtkTextActor;
-import vtk.vtkTextProperty;
 import vtk.vtkWindowToImageFilter;
 
 /**

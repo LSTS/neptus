@@ -31,7 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import vtk.vtkScalarBarActor;
 import vtk.vtkScalarsToColors;
 import vtk.vtkTextProperty;

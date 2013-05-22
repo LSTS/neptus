@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,10 +43,10 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.vtk.Vtk;
@@ -54,6 +55,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.ExaggeratePointCloudZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
 import vtk.vtkActor;
 import vtk.vtkActorCollection;
 import vtk.vtkCanvas;
@@ -77,10 +79,11 @@ public class MultibeamToolBar {
     private JToggleButton downsampledPointsToggle;
     private JToggleButton meshToogle;
     private JToggleButton contoursToogle;
-    private JButton configButton;
     
     private JButton resetViewportButton;
     private JButton helpButton;
+    private JButton configButton;
+    
     private JPanel toolBar;
 
     private vtkCanvas canvas;
@@ -97,6 +100,7 @@ public class MultibeamToolBar {
     private boolean currentApproachToIgnorePts;
     private long currentTimestampMultibeamIncrement;
     private boolean currentYawMultibeamIncrement;
+    private int currentZexagge;
     
     public MultibeamToolBar(Vtk vtk) {
         this.canvas = vtk.vtkCanvas;
@@ -108,6 +112,7 @@ public class MultibeamToolBar {
         this.currentPtsToIgnore = vtk.ptsToIgnore;
         this.currentTimestampMultibeamIncrement = vtk.timestampMultibeamIncrement;
         this.currentYawMultibeamIncrement = vtk.yawMultibeamIncrement;
+        this.currentZexagge = vtk.zExaggeration;
         
         buildTextProcessingActor();
         buildTextZExagInfoActor();
@@ -124,7 +129,7 @@ public class MultibeamToolBar {
         textZExagInfoActor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
         textZExagInfoActor.GetTextProperty().SetFontFamilyToArial();
         textZExagInfoActor.GetTextProperty().SetFontSize(12);
-        textZExagInfoActor.SetInput("Depth multiplied by:" + vtk.zExaggeration);   //  
+        textZExagInfoActor.SetInput(I18n.textf("Depth multipled by: %currentZexagge", currentZexagge));   //  
         textZExagInfoActor.VisibilityOn();
     }
 
@@ -137,7 +142,7 @@ public class MultibeamToolBar {
        textProcessingActor.GetTextProperty().SetFontSize(40);
        textProcessingActor.GetTextProperty().SetColor(1.0, 0.0, 0.0);
        textProcessingActor.GetTextProperty().SetFontFamilyToArial();
-       textProcessingActor.SetInput("Processing data...");
+       textProcessingActor.SetInput(I18n.text("Processing data..."));
        textProcessingActor.VisibilityOn();   
     }
 
@@ -146,7 +151,7 @@ public class MultibeamToolBar {
      */
     public void createToolBar() {
         getToolBar().setLayout(new BoxLayout(getToolBar(), BoxLayout.X_AXIS));
-        getToolBar().setBackground(Color.DARK_GRAY);
+        getToolBar().setBackground(Color.LIGHT_GRAY);
 
         // toolbar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
         // toolbar.setAutoscrolls(true);
@@ -156,9 +161,9 @@ public class MultibeamToolBar {
         // toolbar.setBounds(rect);
 
         rawPointsToggle = new JToggleButton(I18n.text("Raw"));
-        rawPointsToggle.setBounds(getToolBar().getX(), getToolBar().getY(), getToolBar().getWidth(), 10);
+        //rawPointsToggle.setBounds(getToolBar().getX(), getToolBar().getY(), getToolBar().getWidth(), 10);
         downsampledPointsToggle = new JToggleButton(I18n.text("Downsampled"));
-        downsampledPointsToggle.setBounds(rawPointsToggle.getBounds());
+        //downsampledPointsToggle.setBounds(rawPointsToggle.getBounds());
 
         zExaggerationToggle = new JToggleButton(I18n.text("Exaggerate Z"));
 
@@ -174,30 +179,37 @@ public class MultibeamToolBar {
         zExaggerationToggle.setSelected(false);
         contoursToogle.setSelected(false);
 
-        helpButton.setSize(10, 10);
+        //helpButton.setSize(10, 10);
         helpButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 String msgHelp;
-                msgHelp = "\tHelp for the 3D visualization interaction:\n\n";
-                msgHelp = msgHelp + "Key    -   description\n";
-                msgHelp = msgHelp + "p, P   -   switch to a point-based representation\n";
-                msgHelp = msgHelp + "w, W   -   switch to a wireframe-based representation, when available\n";
-                msgHelp = msgHelp + "s, S   -   switch to a surface-based representation, when available\n";
-                msgHelp = msgHelp + "j, J   -   take a .PNG snapshot of the current window view\n";
-                msgHelp = msgHelp + "g, G   -   display scale grid (on/off)\n";
-                msgHelp = msgHelp + "u, U   -   display lookup table (on/off)\n";
-                msgHelp = msgHelp + "r, R   -   reset camera (to viewpoint = {0, 0, 0} -> center {x, y, z}\n";
-                msgHelp = msgHelp + "i, I   -   information about rendered cloud\n";
-                msgHelp = msgHelp + "f, F   -   Fly Mode - point with mouse cursor the direction and press 'f' to fly\n";
-                msgHelp = msgHelp + "+/-    -   Increment / Decrement overall point size\n";
-                msgHelp = msgHelp + "3      -   3D visualization (put the 3D glasses on)\n";
-                msgHelp = msgHelp + "7      -   color gradient in relation with X coords (north)\n";
-                msgHelp = msgHelp + "8      -   color gradient in relation with Y coords (west)\n";
-                msgHelp = msgHelp + "9      -   color gradient in relation with Z coords (depth)\n";
+                msgHelp = I18n.text("Key      -   description\n");
+                msgHelp += I18n.text("p, P     -   Switch to a point-based representation\n");
+                msgHelp += I18n.text("w, W    -   Switch to a wireframe-based representation, when available\n");
+                msgHelp += I18n.text("s, S     -   Switch to a surface-based representation, when available\n");
+                msgHelp += I18n.text("j, J       -   Take a .PNG snapshot of the current window view\n");
+                msgHelp += I18n.text("g, G    -   Display scale grid (on/off)\n");                
+                msgHelp += I18n.text("u, U    -   Display lookup table (on/off)\n");
+                msgHelp += I18n.text("r, R     -   Reset camera view along the current view direction\n");    // (to viewpoint = {0, 0, 0} -> center {x, y, z}\n");
+                msgHelp += I18n.text("i, I       -   Information about rendered cloud\n");
+                msgHelp += I18n.text("f, F     -   Fly Mode - point with mouse cursor the direction and press 'f' to fly\n");
+                msgHelp += I18n.text("+/-     -   Increment / Decrement overall point size\n");
+                msgHelp += I18n.text("3        -   Toggle into an out of stereo mode\n");
+                msgHelp += I18n.text("7        -   Color gradient in relation with X coords (north)\n");
+                msgHelp += I18n.text("8        -   Color gradient in relation with Y coords (west)\n");
+                msgHelp += I18n.text("9        -   Color gradient in relation with Z coords (depth)\n\n");
+                msgHelp += "--------------------------------------------------------------------------------------------------------------------------------\n\n";
+                msgHelp += I18n.text("Mouse Interaction: \n");
+                // rotate the camera around its focal point. The rotation is in the direction defined from the center of the renderer's viewport towards the mouse position
+                msgHelp += I18n.text("Left mouse button       -   Rotate camera around its focal point\n");
+                msgHelp += I18n.text("Middle mouse button   -   Pan camera\n");
+                msgHelp += I18n.text("Right mouse button     -   Zoom (In/Out) the camera\n");
+                msgHelp += I18n.text("Mouse wheel                -   Zoom (In/Out) the camera - Static focal point\n\n");
 
-                JOptionPane.showMessageDialog(null, msgHelp);
+                GuiUtils.infoMessage(null, I18n.text("Help for the 3D visualization interaction"), msgHelp);               
+                //JOptionPane.showMessageDialog(null, msgHelp);
             }
         });
 
@@ -432,7 +444,7 @@ public class MultibeamToolBar {
             }
         });
 
-        configButton = new JButton(new AbstractAction("Configure") {    
+        configButton = new JButton(new AbstractAction(I18n.text("Configure")) {    
             private static final long serialVersionUID = -1404112253602290953L;
 
             @Override
@@ -485,11 +497,11 @@ public class MultibeamToolBar {
                         canvas.GetRenderer().RemoveActor(textProcessingActor);
                         
                         String msgErrorMultibeam;
-                        msgErrorMultibeam = "No beams on Log file!";
+                        msgErrorMultibeam = I18n.text("No beams on Log file!");
                         JOptionPane.showMessageDialog(null, msgErrorMultibeam);
                         
                         vtkVectorText vectText = new vtkVectorText();
-                        vectText.SetText("No beams on Log file!");
+                        vectText.SetText(I18n.text("No beams on Log file!"));
                         
                         vtkLinearExtrusionFilter extrude = new vtkLinearExtrusionFilter();
                         extrude.SetInputConnection(vectText.GetOutputPort());
@@ -521,6 +533,9 @@ public class MultibeamToolBar {
         //getToolBar().add(meshToogle);
         getToolBar().add(zExaggerationToggle);
         //getToolBar().add(contoursToogle);
+        
+        getToolBar().add(new JSeparator(JSeparator.VERTICAL), BorderLayout.LINE_START);
+        
             // buttons
         getToolBar().add(resetViewportButton);
         getToolBar().add(helpButton);

@@ -31,13 +31,9 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-import vtk.vtkDataArray;
 import vtk.vtkLookupTable;
 import vtk.vtkPolyData;
-import vtk.vtkScalarsToColors;
 import vtk.vtkUnsignedCharArray;
 
 /**
@@ -132,8 +128,7 @@ public class PointCloudHandlers<T extends PointXYZ> {
 //        double maxRangeValue = getLutZ().GetValueRange()[1];
 //        NeptusLog.pub().info("Min Range Value: " + minRangeValue);
 //        NeptusLog.pub().info("Max range value: " + maxRangeValue);
-    }
-    
+    }   
 
     /**
      * @return the colorsX
@@ -246,60 +241,5 @@ public class PointCloudHandlers<T extends PointXYZ> {
      */
     public void setLutZ(vtkLookupTable lutZ) {
         this.lutZ = lutZ;
-    }
-
-    public static double[] getRandomColor(PointCloud<PointXYZ> cloud) {
-        cloud.getNumberOfPoints();
-        
-        for (int i = 0; i < cloud.getNumberOfPoints(); i++) {
-            double[] point = new double[3];
-            point = cloud.getPoints().GetPoint(i);
-        }
-        
-        double[] rgbColor = new double[3];
-        
-        return rgbColor;
-    }
-    
-    public static double[] getRandomColor() {
-        double[] rgbCloud = new double[3];
-        double sum;
-        int step = 100;
-        
-        do {
-            sum = 0;
-            //rgbCloud[0] = (Math.random() % step) / (double)step;
-            rgbCloud[0] = Math.random();
-            //rgbCloud[1] = (Math.random() % step) / (double)step;
-            rgbCloud[1] = Math.random();
-            //rgbCloud[2] = (Math.random() % step) / (double)step;
-            rgbCloud[2] = Math.random();
-            sum = rgbCloud[0] + rgbCloud[1] + rgbCloud[2];
-            //System.out.println("r = " + rgbCloud[0] + ", g = " + rgbCloud[1] + ", b = " + rgbCloud[2]);
-        }while (sum <= 0.5 || sum >= 2.8);
-
-        //rgbCloud[0] = min + Math.random() * ((min - max) + min); // [5,10];
-        
-        return rgbCloud;
-    }
-    
-    public vtkScalarsToColors getRandomColor2() {
-        vtkScalarsToColors scalars = new vtkScalarsToColors();
-        return scalars;
-    }
-    
-    public vtkDataArray getColor() {
-        vtkDataArray scalars = new vtkUnsignedCharArray();
-        vtkUnsignedCharArray scalars2 = new vtkUnsignedCharArray();
-        vtkDataArray scalars3 = new vtkDataArray();
-        
-        
-        scalars.SetNumberOfComponents(3);
-        scalars.SetNumberOfTuples(numberOfPoints);
-        
-        double[] rgbColor = new double[3];
-        rgbColor = getRandomColor();
-        
-        return scalars;
     }
 }

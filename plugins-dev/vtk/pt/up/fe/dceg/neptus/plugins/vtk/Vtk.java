@@ -43,6 +43,7 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
 import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
@@ -89,7 +90,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
     @NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser (in miliseconds).")
     public long timestampMultibeamIncrement = 0;
     
-    @NeptusProperty(name = "Yaw Increment", description="180 Yaw (psi) increment for the 83P parser, set true to increment + 180º.")
+    @NeptusProperty(name = "Yaw Increment", description="Yaw (psi) increment for the 83P parser, set true to increment + 180º.")
     public boolean yawMultibeamIncrement = false;
     
     // there are 2 types of rendering objects on VTK - vtkPanel and vtkCanvas. vtkCanvas seems to have a better behaviour and performance.
@@ -121,7 +122,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
             System.loadLibrary("jawt");
         }
         catch (Throwable e) {
-            NeptusLog.pub().info("<###> cannot load jawt lib!");
+            NeptusLog.pub().info(I18n.text("<###> cannot load jawt lib!"));
         } 
             // for simple visualizations
         try {
@@ -129,35 +130,35 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkCommon, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkCommon, skipping..."));
         }
         try {
             vtkNativeLibrary.FILTERING.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkFiltering, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkFiltering, skipping..."));
         }
         try {
             vtkNativeLibrary.IO.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkImaging, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkImaging, skipping..."));
         }
         try {
             vtkNativeLibrary.GRAPHICS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkGrahics, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkGrahics, skipping..."));
         }
         try {
             vtkNativeLibrary.RENDERING.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkRendering, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkRendering, skipping..."));
         }
                 
         // Other
@@ -166,35 +167,35 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkInfoVis, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkInfoVis, skipping..."));
         }
         try {
             vtkNativeLibrary.VIEWS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkViews, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkViews, skipping..."));
         }
         try {
             vtkNativeLibrary.WIDGETS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkWidgets, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkWidgets, skipping..."));
         }
         try {
             vtkNativeLibrary.GEOVIS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkGeoVis, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkGeoVis, skipping..."));
         }
         try {
             vtkNativeLibrary.CHARTS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkCharts, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkCharts, skipping..."));
         }
         // FIXME not loading vtkHybrid ?!
         try {
@@ -202,14 +203,14 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
         }
         catch (Throwable e) {
             //NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().warn("cannot load vtkHybrid, skipping...");
+            NeptusLog.pub().warn(I18n.text("cannot load vtkHybrid, skipping..."));
         }
         try {
             vtkNativeLibrary.VOLUME_RENDERING.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkVolumeRendering, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkVolumeRendering, skipping..."));
         }
     }
     
@@ -222,7 +223,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
 
     @Override
     public String getName() {
-        return "Multibeam 3D";
+        return I18n.text("Multibeam 3D");
     }
 
     @Override
@@ -274,11 +275,11 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
             }
             else {           
                 String msgErrorMultibeam;
-                msgErrorMultibeam = "No beams on Log file!";
+                msgErrorMultibeam = I18n.text("No beams on Log file!");
                 JOptionPane.showMessageDialog(null, msgErrorMultibeam);
                 
                 vtkVectorText vectText = new vtkVectorText();
-                vectText.SetText("No beams on Log file!");
+                vectText.SetText(I18n.text("No beams on Log file!"));
                 
                 vtkLinearExtrusionFilter extrude = new vtkLinearExtrusionFilter();
                 extrude.SetInputConnection(vectText.GetOutputPort());
