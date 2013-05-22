@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.params.editor.custom;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import pt.up.fe.dceg.neptus.plugins.params.SystemProperty;
@@ -68,6 +69,15 @@ public class CustomEditor implements PropertyChangeListener, Cloneable {
      */
     @Override
     public CustomEditor clone() throws CloneNotSupportedException {
-        return (CustomEditor) super.clone();
+        CustomEditor clone = (CustomEditor) super.clone();
+        Map<String, SystemProperty> pl = clone.getSystemPropertiesList();
+        LinkedHashMap<String, SystemProperty> cl = new LinkedHashMap<>();
+        for (String key : pl.keySet()) {
+            if (key == null)
+                continue;
+            cl.put(key, pl.get(key));
+        }
+        clone.setSystemPropertiesList(cl);
+        return clone;
     }
 }

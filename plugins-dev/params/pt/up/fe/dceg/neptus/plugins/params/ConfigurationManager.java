@@ -744,6 +744,7 @@ public class ConfigurationManager {
 
     public ArrayList<SystemProperty> getClonedProperties(String system, Visibility vis, Scope scope) {
         ArrayList<SystemProperty> props = getPropertiesByEntity(system, null, vis, scope);
+        Map<String, CustomEditor> customEditors = new HashMap<>();
 
         ArrayList<SystemProperty> clones = new ArrayList<>();
 
@@ -755,9 +756,23 @@ public class ConfigurationManager {
             sp.setDisplayName(p.getDisplayName());
             sp.setEditable(p.isEditable());
             sp.setEditor(p.getEditor());
+            sp.setName(p.getName());
+            sp.setRenderer(p.getRenderer());
+            sp.setScope(p.getScope());
+            sp.setShortDescription(p.getShortDescription());
+            sp.setValue(p.getValue());
+            sp.setType(p.getType());
+            sp.setValueType(p.getValueType());
+            sp.setVisibility(p.getVisibility());
+
             try {
-                sp.setSectionCustomEditor(p.getSectionCustomEditor() != null ? p.getSectionCustomEditor().clone() : p
-                        .getSectionCustomEditor());
+                CustomEditor ce = customEditors.get(p.getCategoryId());
+                if (ce == null) {
+                    ce = p.getSectionCustomEditor() != null ? p.getSectionCustomEditor().clone() : p
+                            .getSectionCustomEditor();
+                    customEditors.put(p.getCategoryId(), ce);
+                }
+                sp.setSectionCustomEditor(ce);
             }
             catch (CloneNotSupportedException e) {
                 e.printStackTrace();
@@ -767,15 +782,13 @@ public class ConfigurationManager {
                 SystemProperty kv = ce.getSystemPropertiesList().get(p.getName());
                 if (kv != null)
                     ce.getSystemPropertiesList().put(sp.getName(), sp);
+                
+                // System.out.println("System Property (" + p.getName() + "): " + Integer.toHexString(p.hashCode()) + " --- " + Integer.toHexString(sp.hashCode()));
+                // System.out.println("Custom Section Editor: " + Integer.toHexString(p.getSectionCustomEditor().hashCode()) + " --- " + Integer.toHexString(sp.getSectionCustomEditor().hashCode()));
+                // GuiUtils.printList(p.getSectionCustomEditor().getSystemPropertiesList().values());
+                // GuiUtils.printList(sp.getSectionCustomEditor().getSystemPropertiesList().values());
             }
-            sp.setName(p.getName());
-            sp.setRenderer(p.getRenderer());
-            sp.setScope(p.getScope());
-            sp.setShortDescription(p.getShortDescription());
-            sp.setValue(p.getValue());
-            sp.setType(p.getType());
-            sp.setValueType(p.getValueType());
-            sp.setVisibility(p.getVisibility());
+
             clones.add(sp);
         }
         return clones;
