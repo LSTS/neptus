@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedHashMap;
@@ -47,6 +48,8 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
+import com.sun.media.renderer.video.MSHeavyComponent;
+
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.vtk.Vtk;
@@ -56,6 +59,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 import vtk.vtkActor;
 import vtk.vtkActorCollection;
 import vtk.vtkCanvas;
@@ -145,6 +149,36 @@ public class MultibeamToolBar {
        textProcessingActor.SetInput(I18n.text("Processing data..."));
        textProcessingActor.VisibilityOn();   
     }
+    
+    private String msgHelp() {
+        
+        String msgHelp;        
+        //<h1>3D Multibeam Interaction</h1>
+        msgHelp = "<html><font size='2'><br><div align='center'><table border='1' align='center'>" +
+        		"<tr><th>Keys</th><th>Description</th></tr>" +
+                "<tr><td>p, P</td><td>Switch to a point-based representation</td>" +
+        		"<tr><td>w, W </td><td>Switch to a wireframe-based representation, when available</td>" +
+                "<tr><td>s, S</td><td>Switch to a surface-based representation, when available</td>" +
+                "<tr><td>j, J</td><td>Take a .PNG snapshot of the current window view</td>" +
+                "<tr><td>g, G</td><td>Display scale grid (on/off)</td>" +
+                "<tr><td>u, U</td><td>Display lookup table (on/off)</td>" +
+                "<tr><td>r, R</td><td>Reset camera view along the current view direction</td>" +    // (to viewpoint = {0, 0, 0} -> center {x, y, z}\n");
+                "<tr><td>i, I</td><td>Information about rendered cloud</td>" +
+                "<tr><td>f, F</td><td>Fly Mode - point with mouse cursor the direction and press 'f' to fly</td>" +
+                "<tr><td>+/-</td><td>Increment / Decrement overall point size</td>" +
+                "<tr><td>3</td><td>Toggle into an out of stereo mode</td>" +
+                "<tr><td>7</td><td>Color gradient in relation with X coords (north)</td>" +
+                "<tr><td>8</td><td>Color gradient in relation with Y coords (west)</td>" +
+                "<tr><td>9</td><td>Color gradient in relation with Z coords (depth)</td>" +
+                "<tr><th>Mouse</th><th>Description</th></tr>" +
+                // rotate the camera around its focal point. The rotation is in the direction defined from the center of the renderer's viewport towards the mouse position
+                "<tr><td>Left mouse button</td><td>Rotate camera around its focal point</td>" +
+                "<tr><td>Middle mouse button</td><td>Pan camera</td>" +
+                "<tr><td>Right mouse button</td><td>Zoom (In/Out) the camera</td>" +
+                "<tr><td>Mouse wheel</td><td>Zoom (In/Out) the camera - Static focal point</td>";
+        
+        return msgHelp;
+    }
 
     /**
      * @return
@@ -183,33 +217,9 @@ public class MultibeamToolBar {
         helpButton.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent e) {
-                String msgHelp;
-                msgHelp = I18n.text("Key      -   description\n");
-                msgHelp += I18n.text("p, P     -   Switch to a point-based representation\n");
-                msgHelp += I18n.text("w, W    -   Switch to a wireframe-based representation, when available\n");
-                msgHelp += I18n.text("s, S     -   Switch to a surface-based representation, when available\n");
-                msgHelp += I18n.text("j, J       -   Take a .PNG snapshot of the current window view\n");
-                msgHelp += I18n.text("g, G    -   Display scale grid (on/off)\n");                
-                msgHelp += I18n.text("u, U    -   Display lookup table (on/off)\n");
-                msgHelp += I18n.text("r, R     -   Reset camera view along the current view direction\n");    // (to viewpoint = {0, 0, 0} -> center {x, y, z}\n");
-                msgHelp += I18n.text("i, I       -   Information about rendered cloud\n");
-                msgHelp += I18n.text("f, F     -   Fly Mode - point with mouse cursor the direction and press 'f' to fly\n");
-                msgHelp += I18n.text("+/-     -   Increment / Decrement overall point size\n");
-                msgHelp += I18n.text("3        -   Toggle into an out of stereo mode\n");
-                msgHelp += I18n.text("7        -   Color gradient in relation with X coords (north)\n");
-                msgHelp += I18n.text("8        -   Color gradient in relation with Y coords (west)\n");
-                msgHelp += I18n.text("9        -   Color gradient in relation with Z coords (depth)\n\n");
-                msgHelp += "--------------------------------------------------------------------------------------------------------------------------------\n\n";
-                msgHelp += I18n.text("Mouse Interaction: \n");
-                // rotate the camera around its focal point. The rotation is in the direction defined from the center of the renderer's viewport towards the mouse position
-                msgHelp += I18n.text("Left mouse button       -   Rotate camera around its focal point\n");
-                msgHelp += I18n.text("Middle mouse button   -   Pan camera\n");
-                msgHelp += I18n.text("Right mouse button     -   Zoom (In/Out) the camera\n");
-                msgHelp += I18n.text("Mouse wheel                -   Zoom (In/Out) the camera - Static focal point\n\n");
-
-                GuiUtils.infoMessage(null, I18n.text("Help for the 3D visualization interaction"), msgHelp);               
-                //JOptionPane.showMessageDialog(null, msgHelp);
+            public void actionPerformed(ActionEvent e) {              
+                GuiUtils.htmlMessage(ConfigFetch.getSuperParentFrame() == null ? vtk : ConfigFetch.getSuperParentAsFrame()
+                        , "Help for the 3D visualization interaction", "(3D Multibeam keyboard and mouse interaction)", msgHelp(), ModalityType.MODELESS);
             }
         });
 
