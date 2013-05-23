@@ -41,6 +41,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -62,6 +63,9 @@ public class MessageHtmlVisualization implements MRAVisualization {
 
     protected IMCMessage message;
     protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss");
+    {
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
     protected JScrollPane scroll;
     
     public MessageHtmlVisualization(final IMCMessage message) {
