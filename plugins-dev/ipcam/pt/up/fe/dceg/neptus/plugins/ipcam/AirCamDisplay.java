@@ -36,56 +36,33 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.params.ConnManagerParams;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.Popup;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
-import pt.up.fe.dceg.neptus.plugins.actions.SimpleMenuAction;
+import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
 
 /**
  * @author jfortuna
  *
  */
-@SuppressWarnings("deprecation")
 @Popup( pos = POSITION.RIGHT, width=400, height=400)
 @PluginDescription(name="AirCam Display", author="JFortuna", description="Video display for Ubiquiti IP Camera", icon="pt/up/fe/dceg/neptus/plugins/ipcam/camera.png")
 public class AirCamDisplay extends SimpleSubPanel implements ConfigurationListener {
@@ -232,6 +209,14 @@ public class AirCamDisplay extends SimpleSubPanel implements ConfigurationListen
             reconnect();
     }
     
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#initSubPanel()
+     */
+    @Override
+    public void initSubPanel() {
+        // TODO Auto-generated method stub
+    }
+
     /**
      * @param args
      */
@@ -239,14 +224,4 @@ public class AirCamDisplay extends SimpleSubPanel implements ConfigurationListen
         final AirCamDisplay display = new AirCamDisplay(null);
         GuiUtils.testFrame(display, "Camera Display");
     }
-
-    /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#initSubPanel()
-     */
-    @Override
-    public void initSubPanel() {
-        // TODO Auto-generated method stub
-        
-    }
-
 }
