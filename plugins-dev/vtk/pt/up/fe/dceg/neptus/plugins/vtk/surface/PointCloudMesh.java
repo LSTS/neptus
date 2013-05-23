@@ -31,10 +31,31 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.surface;
 
+import vtk.vtkLODActor;
+
 /**
  * @author hfq
  *
  */
-public class Mesh {
+public class PointCloudMesh {
+    
+    private vtkLODActor meshCloudLODActor;
+    
+    public PointCloudMesh() {
+        setMeshCloudLODActor(new vtkLODActor());
+    }
 
+    /**
+     * @return the meshCloudLODActor
+     */
+    public vtkLODActor getMeshCloudLODActor() {
+        return meshCloudLODActor;
+    }
+
+    /**
+     * @param meshCloudLODActor the meshCloudLODActor to set
+     */
+    public void setMeshCloudLODActor(vtkLODActor meshCloudLODActor) {
+        this.meshCloudLODActor = meshCloudLODActor;
+    }
 }

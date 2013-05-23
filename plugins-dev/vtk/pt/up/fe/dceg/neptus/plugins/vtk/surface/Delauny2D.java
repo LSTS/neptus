@@ -27,7 +27,7 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * May 9, 2013
+ * May 23, 2013
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.surface;
 
@@ -36,72 +36,59 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkActor;
 import vtk.vtkCleanPolyData;
-import vtk.vtkDataSetMapper;
-import vtk.vtkDelaunay3D;
+import vtk.vtkDelaunay2D;
+import vtk.vtkLODActor;
+import vtk.vtkPolyDataMapper;
+import vtk.vtkRenderer;
 
 /**
  * @author hfq
  *
  */
-public class Delauny3D {
-
+public class Delauny2D {
     public PointCloud<PointXYZ> pointCloud;
     
-    private vtkActor delaunyActor;
+    private vtkLODActor delaunyActor;
     
-    public Delauny3D(PointCloud<PointXYZ> pointCloud) {
+    public Delauny2D(PointCloud<PointXYZ> pointCloud) {
         this.pointCloud = pointCloud;
- 
+        setDelaunyActor(new vtkLODActor());
     }
-
-    /**
-     * Performs a Delauny Triangulation from unorganized points
-     * Uses the vtkDelauny3D filter ceates a tetrahedral mesh from unorganized points, that is a solid covex
-     * hull of the original points.
-     */
+    
     public void performDelauny() {
+        
         NeptusLog.pub().info("Delauny Triangulation time start: " + System.currentTimeMillis());
 
-            // clean the polydata. this will remove duplicate points that may be present in the input data  
-        
         NeptusLog.pub().info("cleaning point cloud...");
         vtkCleanPolyData cleaner = new vtkCleanPolyData();
         cleaner.SetInputConnection(pointCloud.getPoly().GetProducerPort());
         cleaner.Update();
-        //cleaner.SetInput(pointCloud.getPoly());
         
-            // Generate a tetrahedral mesh from the input points. by default, the generated volume is the convex hull of the points       
         NeptusLog.pub().info("Generate mesh...");
-        vtkDelaunay3D delauny3D = new vtkDelaunay3D();
-        delauny3D.SetInputConnection(cleaner.GetOutputPort());
-        //delauny3D.SetAlpha(0.5);
-        //delauny3D.SetOffset(2.0);
-        delauny3D.SetTolerance(0.5);
-        //delauny3D.Modified();
-        delauny3D.Update();
-
-        NeptusLog.pub().info("setting mapper...");
-        vtkDataSetMapper delaunyMapper = new vtkDataSetMapper();
-        delaunyMapper.SetInputConnection(delauny3D.GetOutputPort());
+        vtkDelaunay2D delauny = new vtkDelaunay2D();    
+        //delauny.SetInputConnection(pointCloud.getPoly().GetProducerPort());
+        delauny.SetInput(pointCloud.getPoly());
+        // delauny.Update();
         
-        setDelaunyActor(new vtkActor());
-        getDelaunyActor().SetMapper(delaunyMapper);
+        vtkPolyDataMapper triangulateMapper = new vtkPolyDataMapper();
+        triangulateMapper.SetInputConnection(delauny.GetOutputPort());
         
+        delaunyActor.SetMapper(triangulateMapper);
+        delaunyActor.Modified();
         NeptusLog.pub().info("Delauny Triangulation time end: " + System.currentTimeMillis());
     }
 
     /**
      * @return the delaunyActor
      */
-    public vtkActor getDelaunyActor() {
+    public vtkLODActor getDelaunyActor() {
         return delaunyActor;
     }
 
     /**
      * @param delaunyActor the delaunyActor to set
      */
-    public void setDelaunyActor(vtkActor delaunyActor) {
+    private void setDelaunyActor(vtkLODActor delaunyActor) {
         this.delaunyActor = delaunyActor;
     }
-    
 }

@@ -56,6 +56,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.filters.DownsamplePointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.up.fe.dceg.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.MultibeamToolBar;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
@@ -103,6 +104,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
     
     public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();       
     public PointCloud<PointXYZ> pointCloud;
+    
+    public LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh = new LinkedHashMap<>();
  
     private Vector<Marker3d> markers = new Vector<>();
     
