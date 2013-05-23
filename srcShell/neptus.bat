@@ -26,9 +26,9 @@ if exist jre\bin (
 
 for /f "delims=" %%a in ('%JAVA_BIN_FOLDER%java -cp bin/neptus.jar pt.up.fe.dceg.neptus.loader.helper.CheckJavaOSArch') do (@set JAVA_MACHINE_TYPE=%%a)
 if %JAVA_MACHINE_TYPE%==x86 (
-   set LIBRARYPATH=.;libJNI/x86;libJNI;C:\Program Files\VTK\vtk-5.8
+   set LIBRARYPATH=.;libJNI/x86;libJNI;C:\Program^ Files\VTK\bin
 ) else (
-   set LIBRARYPATH=.;libJNI/x64;libJNI;C:\Program Files (x86)\VTK\vtk-5.8
+   set LIBRARYPATH=.;libJNI/x64;libJNI;C:\Program^ Files^ ^(x86^)\VTK\bin
 )
 
 
