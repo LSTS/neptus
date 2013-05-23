@@ -121,7 +121,7 @@ public class ImcSidescanParser implements SidescanParser {
         if (fData == null) {
         }
 
-        while (ping.getTimestampMillis() <= timestamp2) {
+        while (ping == null || ping.getTimestampMillis() <= timestamp2) {
             // Null guards
             if (ping == null || state == null)
                 break;
@@ -172,7 +172,8 @@ public class ImcSidescanParser implements SidescanParser {
             list.add(new SidescanLine(ping.getTimestampMillis(), range, pose, fData));
 
             ping = getNextMessageWithFrequency(pingParser, 0); 
-            state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
+            if (ping != null)
+                state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
         }
         
         return list;

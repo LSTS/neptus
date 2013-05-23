@@ -45,6 +45,7 @@ import java.nio.channels.FileChannel.MapMode;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryInfo;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
@@ -204,8 +205,9 @@ public class DeltaTParser implements BathymetryParser {
             // Parse and process data ( no need to create another structure for this )
             buf = channel.map(MapMode.READ_ONLY, curPos + 256, header.numBeams * 2);
             data = new BathymetryPoint[header.numBeams];
-            state = stateParser.getEntryAtOrAfter(header.timestamp);
-            
+            state = stateParser.getEntryAtOrAfter(header.timestamp + NeptusMRA.timestampMultibeamIncrement);
+            if (state == null)
+                return null;
             // Use the navigation data from EstimatedState 
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             pose.getPosition().setLatitudeRads(state.getDouble("lat"));
@@ -235,7 +237,7 @@ public class DeltaTParser implements BathymetryParser {
             }
             curPos += header.numBytes; // Advance current position
             
-            BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, data);
+            BathymetrySwath swath = new BathymetrySwath(header.timestamp + NeptusMRA.timestampMultibeamIncrement, pose, data);
             swath.numBeams = realNumberOfBeams;
             
             return swath;
@@ -263,7 +265,9 @@ public class DeltaTParser implements BathymetryParser {
             // Parse and process data ( no need to create another structure for this )
             buf = channel.map(MapMode.READ_ONLY, curPos + 256, header.numBeams * 2);
             data = new BathymetryPoint[header.numBeams];
-            state = stateParser.getEntryAtOrAfter(header.timestamp);
+            state = stateParser.getEntryAtOrAfter(header.timestamp + NeptusMRA.timestampMultibeamIncrement);
+            if (state == null)
+                return null;
             
             // Use the navigation data from EstimatedState 
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
@@ -285,6 +289,10 @@ public class DeltaTParser implements BathymetryParser {
 
                 double x = range * Math.sin(Math.toRadians(angle));
                 double yawAngle = -pose.getYaw();
+                
+                if(NeptusMRA.yawMultibeamIncrement)
+                    yawAngle += Math.PI;
+                
                 float ox = (float) (x * Math.sin(yawAngle));
                 float oy = (float) (x * Math.cos(yawAngle));
                 

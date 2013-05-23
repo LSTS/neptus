@@ -240,11 +240,10 @@ public class KMLExporter implements MraExporter {
     }
     
     public String multibeamLegend(File dir) {
-        DeltaTParser parser = new DeltaTParser(source);
         BufferedImage img = new BufferedImage(100, 170, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) img.getGraphics();
         g.setColor(new Color(255,255,255,100));
-        g.fillRect(5, 30, 50, 110);
+        g.fillRect(5, 30, 70, 110);
 
         ColorMap cmap = ColorMapFactory.createJetColorMap();
         ColorBar cb = new ColorBar(ColorBar.VERTICAL_ORIENTATION, cmap);
@@ -258,9 +257,9 @@ public class KMLExporter implements MraExporter {
         g.translate(-10, -15);
         
         try {
-            g.drawString(GuiUtils.getNeptusDecimalFormat(0).format(0), 28, 20);
-            g.drawString(GuiUtils.getNeptusDecimalFormat(0).format(parser.getBathymetryInfo().maxDepth/2), 28, 60);
-            g.drawString(GuiUtils.getNeptusDecimalFormat(0).format(parser.getBathymetryInfo().maxDepth), 28, 100);
+            g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(0), 28, 20);
+            g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(NeptusMRA.maxBathymDepth/2), 28, 60);
+            g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(NeptusMRA.maxBathymDepth), 28, 100);
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -324,6 +323,7 @@ public class KMLExporter implements MraExporter {
         while ((swath = parser.nextSwath(0.3)) != null) {
 
             LocationType loc = swath.getPose().getPosition();
+            
             for (BathymetryPoint bp : swath.getData()) {
                 
                 if (Math.random() < 0.2)
@@ -334,7 +334,7 @@ public class KMLExporter implements MraExporter {
                 loc2.translatePosition(bp.north, bp.east, 0);
                 
                 double[] pos = loc2.getOffsetFrom(topLeft);
-                Color c = cmap.getColor(1-(bp.depth/parser.getBathymetryInfo().maxDepth));
+                Color c = cmap.getColor(1-(bp.depth/NeptusMRA.maxBathymDepth));
                 
                 g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 64));
                 g.draw(new Line2D.Double(pos[1] * mult, -pos[0] * mult, pos[1] * mult, -pos[0] * mult));
