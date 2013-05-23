@@ -85,14 +85,18 @@ public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
     public Collection<TrexAttribute> getAttributes() {
         Vector<TrexAttribute> attributes = new Vector<TrexAttribute>();
         TrexAttribute attrTemp = new TrexAttribute();
-        attrTemp.setName("speed");// TODO qual metodo?
-        attrTemp.setValue("speed", new Double(speed));
+        attrTemp.setName("speed");
+        attrTemp.setMin(speed + "");
         attributes.add(attrTemp);
         attrTemp = new TrexAttribute();
-        attrTemp.setValue("latitude", new Double(latitude));
+        attrTemp.setName("latitude");
+        attrTemp.setMin(latitude + "");
+        attrTemp.setMax(latitude + "");
         attributes.add(attrTemp);
         attrTemp = new TrexAttribute();
-        attrTemp.setValue("longitude", new Double(longitude));
+        attrTemp.setName("longitude");
+        attrTemp.setMin(longitude + "");
+        attrTemp.setMax(longitude + "");
         attributes.add(attrTemp);
         return attributes;
     }
