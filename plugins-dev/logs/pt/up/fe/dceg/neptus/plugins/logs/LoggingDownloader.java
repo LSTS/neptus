@@ -314,6 +314,21 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
         };
     }
 
+    @Override
+    public void initSubPanel() {
+        if (getConsole().getMainSystem() == null) {
+            button.setEnabled(false);
+            button.setToolTipText(I18n.text("Log: (communications not started)"));
+        }
+        else {
+            resetDownloaderForVehicle(getConsole().getMainSystem());
+
+            send(IMCDefinition.getInstance().create("LoggingControl", "op", Operation.REQUEST_CURRENT_NAME.type()));
+            button.setEnabled(changeLogNameEnabled);
+            button.setToolTipText(I18n.text("Log: (updating...)"));
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -689,22 +704,6 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
     @Override
     public long millisBetweenUpdates() {
         return updatePeriodSeconds * 1000;
-    }
-
-    @Override
-    public void initSubPanel() {
-
-        if (getConsole().getMainSystem() == null) {
-            button.setEnabled(false);
-            button.setToolTipText(I18n.text("Log: (communications not started)"));
-        }
-        else {
-            resetDownloaderForVehicle(getConsole().getMainSystem());
-
-            send(IMCDefinition.getInstance().create("LoggingControl", "op", Operation.REQUEST_CURRENT_NAME.type()));
-            button.setEnabled(false);
-            button.setToolTipText(I18n.text("Log: (updating...)"));
-        }
     }
 
     @Override
