@@ -66,9 +66,11 @@ public class Delauny2D {
         
         NeptusLog.pub().info("Generate mesh...");
         vtkDelaunay2D delauny = new vtkDelaunay2D();    
-        //delauny.SetInputConnection(pointCloud.getPoly().GetProducerPort());
-        delauny.SetInput(pointCloud.getPoly());
-        // delauny.Update();
+        delauny.SetInputConnection(pointCloud.getPoly().GetProducerPort());
+        //delauny.SetInput(pointCloud.getPoly());
+        //delauny.BoundingTriangulationOn();
+        
+        delauny.Update();
         
         vtkPolyDataMapper triangulateMapper = new vtkPolyDataMapper();
         triangulateMapper.SetInputConnection(delauny.GetOutputPort());

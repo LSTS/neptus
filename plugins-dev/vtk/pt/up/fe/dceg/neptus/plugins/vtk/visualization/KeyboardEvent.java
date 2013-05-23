@@ -404,7 +404,16 @@ public class KeyboardEvent {
                 }          
                 break;
             case KeyEvent.VK_R:
-                neptusInteractorStyle.renderer.ResetCamera();
+                try {
+                    //renderer.GetActiveCamera().SetPosition(0.0 ,0.0 ,100); 
+                    renderer.GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+
+                    neptusInteractorStyle.renderer.ResetCamera();
+                }
+                catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 break;
             case KeyEvent.VK_F: 
                 AnimeState = VTKIS_ANIMEON;

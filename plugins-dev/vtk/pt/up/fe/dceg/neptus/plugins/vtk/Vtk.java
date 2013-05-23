@@ -256,11 +256,11 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
             //BathymetryInfo batInfo = new BathymetryInfo();
             //batInfo = multibeamToPointCloud.batInfo;
             
-            if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!            
-                MultibeamToolBar toolbar = new MultibeamToolBar(this);
-                toolbar.createToolBar();
-                add(toolbar.getToolBar(), "dock south");
-                
+            MultibeamToolBar toolbar = new MultibeamToolBar(this);
+            toolbar.createToolBar();
+            add(toolbar.getToolBar(), "dock south");           
+            
+            if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!                         
                 pointCloud.createLODActorFromPoints();
 
                 AxesWidget axesWidget = new AxesWidget(winCanvas.getInteractorStyle().GetInteractor());            
@@ -273,10 +273,10 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
                 vtkCanvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
                 
                     // set up camera to +z viewpoint looking down
-                vtkCanvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, -1.0, 1.0);
-                vtkCanvas.GetRenderer().GetActiveCamera().SetPosition(0.0,0.0,-100);
+                vtkCanvas.GetRenderer().GetActiveCamera().SetPosition(pointCloud.getPoly().GetCenter()[0] ,pointCloud.getPoly().GetCenter()[1] , pointCloud.getPoly().GetCenter()[2] - 200);
+                vtkCanvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
             }
-            else {           
+            else {
                 String msgErrorMultibeam;
                 msgErrorMultibeam = I18n.text("No beams on Log file!");
                 JOptionPane.showMessageDialog(null, msgErrorMultibeam);

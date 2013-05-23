@@ -194,6 +194,8 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             //double lon = bs.getPose().getPosition().getLongitudeAsDoubleValueRads();
             
             double tideOffset = getTideOffset(bs.getTimestamp());
+            //NeptusLog.pub().info("tide offset: " + tideOffset);
+            
             maxLat = Math.max(lat, maxLat);
             minLat = Math.min(lat, minLat);
             maxLon = Math.max(lon, maxLon);
@@ -281,7 +283,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
             buf = channel.map(MapMode.READ_ONLY, currPos, 256);
             DeltaTHeader header = new DeltaTHeader();
             header.parse(buf);
-            //printHeaderArgs(header);         
+            // printHeaderArgs(header);         
             //MultibeamDeltaTHeader header = new MultibeamDeltaTHeader(buf);
     
                 // Parse and process data
@@ -290,7 +292,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
 
                 // get vehicle pos at the timestamp
             stateIMCMsg = stateParserLogMra.getEntryAtOrAfter(header.timestamp + timestampMultibeamIncrement);  // NeptusMRA.timestampIncrement 3600000 logs from 16-05-2013 need + 3600000 
-
+ 
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             
             if (stateIMCMsg == null) {

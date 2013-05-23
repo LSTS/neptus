@@ -48,7 +48,6 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.vtk.Vtk;
@@ -58,7 +57,6 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.Delauny2D;
-import pt.up.fe.dceg.neptus.plugins.vtk.surface.Delauny3D;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
@@ -488,13 +486,12 @@ public class MultibeamToolBar {
             }
         });
         
-
         resetViewportButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
                 canvas.GetRenderer().ResetCamera();
-                canvas.getRenderWindowInteractor().Render();
             }
         });
 
@@ -569,8 +566,7 @@ public class MultibeamToolBar {
                         txtActor.SetMapper(txtMapper);
                         txtActor.SetPosition(2.0, 2.0, 2.0);
                         txtActor.SetScale(10.0);
-                        
-                        
+                                              
                         vtk.vtkCanvas.GetRenderer().AddActor(txtActor);    
                     }
                     currentPtsToIgnore = vtk.ptsToIgnore;
