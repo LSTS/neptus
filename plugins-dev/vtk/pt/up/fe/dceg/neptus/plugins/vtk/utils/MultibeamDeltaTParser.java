@@ -112,7 +112,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
         this.timestampMultibeamIncrement = timestampMultibeamIncrement;
         this.yawMultibeamIncrement = yawMultibeamIncrement;
         
-        ld = new LocalData(logGroup.getFile("tides.txt"));
+        ld = new LocalData(logGroup.getFile("mra/tides.txt"));
         
         if(source.getFile("data.83P") != null)
             file = source.getFile("data.83P");
@@ -140,11 +140,11 @@ public class MultibeamDeltaTParser implements BathymetryParser{
     
 
     private double getTideOffset(long timestampMillis) {
-        
-        File tidesF = logGroup.getFile("tides.txt");;
-        if (tidesF == null)
-            return 0;
-        else {
+        //
+        // File tidesF = logGroup.getFile("tides.txt");;
+        // if (tidesF == null)
+        // return 0;
+        // else {
             try {
                 return ld.getTidePrediction(new Date(timestampMillis), false);
             }
@@ -152,7 +152,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
                 e.printStackTrace();
                 return 0;
             }
-        }
+        // }
     }
 
     /**
