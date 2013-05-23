@@ -286,7 +286,6 @@ public class Bathymetry3DGenerator {
                 terrainAltitude = waterColumn - currPrediction;
                 vehAltitude = depth - currPrediction;
                 vehicleDepthVec.add(vehAltitude);
-                System.out.println("if addBathymetryData data");
                 addBathymetryData(terrainAltitude, offs);
             }
             else {
