@@ -136,6 +136,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     long currentTime;
 
+    long prevPingTime;
+    
     float range = 0;
     
     // Misc
@@ -197,7 +199,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     
     public void initialize() {
         firstPingTime = ssParser.firstPingTimestamp();
-       
+        prevPingTime = firstPingTime;
+        
         // Deal with panel resize by recreating the image buffers
         view.addComponentListener(new ComponentAdapter() {
             @Override
@@ -244,10 +247,33 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             if(l.range != getRange()) {
                 setRange(l.range);
             }
-//            yref +=  l.ysize;
-            yref++;
-        }
+            
+            // Deal with speed correction here, because this would be repeated code in the various parsers
+            if(config.speedCorrection) {
+              double horizontalScale = image.getWidth() / (l.range * 2f);
+              double verticalScale = horizontalScale;
 
+              double secondsElapsed = (l.timestampMillis - prevPingTime) / 1000f;
+              double speed = l.state.getU();
+
+              // Finally the 'height' of the ping in pixels
+              int size = (int) (secondsElapsed * speed * verticalScale);
+              
+              if (size <= 0 || secondsElapsed > 0.5) {
+                  l.ysize = 1;
+              }
+              else {
+                  l.ysize = size;
+              }
+            }
+            else {
+                l.ysize = 1;
+            }
+            prevPingTime = l.timestampMillis;
+            yref+= l.ysize;
+        }
+        
+        
         // This check is to prevent negative array indexes (from dragging too much)
         if (yref <= image.getHeight()) {
             ImageUtils.copySrcIntoDst(image, bufferedCache, 0, 0, image.getWidth(), image.getHeight() - yref, 0, 0, image.getWidth(), image.getHeight());
@@ -259,7 +285,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         int d = 0;
         for (SidescanLine sidescanLine : drawList) {
-            sidescanLine.ypos = yref - d++;
+            sidescanLine.ypos = yref - d;
+            d += sidescanLine.ysize;
             sidescanLine.image = new BufferedImage(sidescanLine.data.length, 1, BufferedImage.TYPE_INT_RGB);
             
             // Apply colormap to data
@@ -267,7 +294,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 sidescanLine.image.setRGB(c, 0, config.colorMap.getColor(sidescanLine.data[c]).getRGB());
             }
             
-            g2d.drawImage(ImageUtils.getScaledImage(sidescanLine.image, image.getWidth(), 1, true), 0, sidescanLine.ypos, null);
+            g2d.drawImage(ImageUtils.getScaledImage(sidescanLine.image, image.getWidth(), sidescanLine.ysize, true), 0, sidescanLine.ypos, null);
 //            g2d.drawImage(sidescanLine.image, 0, sidescanLine.ypos, null);
         }
 

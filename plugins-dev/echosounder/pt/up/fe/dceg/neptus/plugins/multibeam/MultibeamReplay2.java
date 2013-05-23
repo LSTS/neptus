@@ -102,6 +102,8 @@ public class MultibeamReplay2 implements LogReplayLayer {
             }
         }
         else {
+            System.out.println(parser.getBathymetryInfo().topLeft);
+            System.out.println(parser.getBathymetryInfo().bottomRight);
             double res[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(
                     parser.getBathymetryInfo().bottomRight, baseLod);
 

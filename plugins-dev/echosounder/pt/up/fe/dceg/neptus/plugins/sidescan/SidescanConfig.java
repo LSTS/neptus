@@ -55,6 +55,9 @@ public class SidescanConfig implements PropertiesProvider {
 //    
 //    @NeptusProperty
 //    public boolean slantRangeCorrection = false;
+
+    @NeptusProperty
+    public boolean speedCorrection = true;
     
     @NeptusProperty
     public boolean timeVariableGain = false;
