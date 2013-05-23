@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.mra.importers.deltat;
 
 import java.nio.ByteBuffer;
 import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,6 +59,7 @@ public class DeltaTHeader {
     {
         pTimeStamp = Pattern.compile("([0-9]{2})-([A-Z]{3})-([0-9]{4})\0([0-9]{2}):([0-9]{2}):([0-9]{2})");
         cal = Calendar.getInstance();
+        cal.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
     
     Matcher m;

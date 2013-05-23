@@ -411,7 +411,7 @@ public class MRAPanel extends JPanel {
     public void loadMarkers() {
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(source.getFile("Data.lsf").getParent()
-                    + "/marks.dat"));
+                    + "/mra/marks.dat"));
             for (LogMarker marker : (ArrayList<LogMarker>) ois.readObject()) {
                 logMarkers.add(marker);
                 logTree.addMarker(marker);
@@ -426,7 +426,7 @@ public class MRAPanel extends JPanel {
     public void saveMarkers() {
         try {
             ObjectOutputStream dos = new ObjectOutputStream(new FileOutputStream(source.getFile(".").getParent()
-                    + "/marks.dat"));
+                    + "/mra/marks.dat"));
             dos.writeObject(logMarkers);
             dos.close();
         }
