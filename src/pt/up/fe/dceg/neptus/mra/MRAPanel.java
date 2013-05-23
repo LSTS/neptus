@@ -94,7 +94,8 @@ public class MRAPanel extends JPanel {
 
     private final LinkedHashMap<String, MRAVisualization> visualizationList = new LinkedHashMap<String, MRAVisualization>();
     private final LinkedHashMap<String, Component> openVisualizationList = new LinkedHashMap<String, Component>();
-
+    private final ArrayList<String> loadingVisualizations = new ArrayList<String>();
+    
     private final ArrayList<LogMarker> logMarkers = new ArrayList<LogMarker>();
     private MRAVisualization shownViz = null;
 
@@ -224,7 +225,7 @@ public class MRAPanel extends JPanel {
                 new KMLExporter(this, source)
         }; 
         
-        // Check for existence of Exporters menu and remove on existence
+        // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
         JMenuBar bar = mra.getMRAMenuBar();
         JMenu previousMenu = GuiUtils.getJMenuByName(bar, "Exporters");
         if(previousMenu != null) {
@@ -311,7 +312,7 @@ public class MRAPanel extends JPanel {
     }
 
     public void removeMarker(LogMarker marker) {
-        removeTreeObject(marker);
+        logTree.removeMarker(marker);
         logMarkers.remove(marker);
         for (MRAVisualization vis : visualizationList.values()) {
             if (vis instanceof LogMarkerListener) {
@@ -386,6 +387,7 @@ public class MRAPanel extends JPanel {
     }
 
     public void cleanup() {
+        NeptusLog.pub().info("MRA Cleanup");
         tree.removeAll();
         tree = null;
 
@@ -409,7 +411,7 @@ public class MRAPanel extends JPanel {
     public void loadMarkers() {
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(source.getFile("Data.lsf").getParent()
-                    + "/marks.dat"));
+                    + "/mra/marks.dat"));
             for (LogMarker marker : (ArrayList<LogMarker>) ois.readObject()) {
                 logMarkers.add(marker);
                 logTree.addMarker(marker);
@@ -424,7 +426,7 @@ public class MRAPanel extends JPanel {
     public void saveMarkers() {
         try {
             ObjectOutputStream dos = new ObjectOutputStream(new FileOutputStream(source.getFile(".").getParent()
-                    + "/marks.dat"));
+                    + "/mra/marks.dat"));
             dos.writeObject(logMarkers);
             dos.close();
         }
@@ -454,7 +456,14 @@ public class MRAPanel extends JPanel {
             if (openVisualizationList.containsKey(vis.getName())) {
                 c = openVisualizationList.get(vis.getName());
             }
+            else if(loadingVisualizations.contains(vis.getName())) {
+                loader.setText("Loading " + vis.getName());
+                loader.start();
+                c = loader;
+            }
             else {
+                loadingVisualizations.add(vis.getName());
+                
                 // Do the loading
                 mainPanel.removeAll();
                 mainPanel.repaint();
@@ -465,8 +474,17 @@ public class MRAPanel extends JPanel {
 
                 c = vis.getComponent(source, NeptusMRA.defaultTimestep);
                 openVisualizationList.put(vis.getName(), c);
-
+                
+                // Add markers
+                // For every LogMarker just call the handler of the new visualization
+                if (vis instanceof LogMarkerListener) {
+                    for (LogMarker marker : logMarkers) {
+                        ((LogMarkerListener) vis).addLogMarker(marker);
+                    }
+                }
+                
                 loader.stop();
+                loadingVisualizations.remove(vis.getName());
             }
 
             if (shownViz != null)
@@ -476,15 +494,7 @@ public class MRAPanel extends JPanel {
             vis.onShow();
             mainPanel.removeAll();
             mainPanel.add(c, "w 100%, h 100%");
-
-            // Add markers
-            // For every LogMarker just call the handler of the new visualization
-            if (vis instanceof LogMarkerListener) {
-                for (LogMarker marker : logMarkers) {
-                    ((LogMarkerListener) vis).addLogMarker(marker);
-                }
-            }
-
+                        
             mainPanel.revalidate();
             mainPanel.repaint();
         }

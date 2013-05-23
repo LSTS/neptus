@@ -42,16 +42,21 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
 import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import pt.up.fe.dceg.neptus.plugins.vtk.filters.DownsamplePointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.up.fe.dceg.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.MultibeamToolBar;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
@@ -61,17 +66,33 @@ import vtk.vtkCanvas;
 import vtk.vtkLinearExtrusionFilter;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
-import vtk.vtkScalarBarActor;
-import vtk.vtkScalarsToColors;
 import vtk.vtkVectorText;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author hfq
  *
  */
 @PluginDescription(author = "hfq", name = "Vtk")
-public class Vtk extends JPanel implements MRAVisualization {
-    private static final long serialVersionUID = 1L;
+public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider {
+    private static final long serialVersionUID = 8057825167454469065L;
+    
+    @NeptusProperty(name = "Points to ignore on Multibeam 3D", description="Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.")
+    public int ptsToIgnore = 40;
+    
+    @NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description="Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).")
+    public boolean approachToIgnorePts = true; 
+    
+    @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration.")
+    public int zExaggeration = 10;
+    
+    @NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser (in miliseconds).")
+    public long timestampMultibeamIncrement = 0;
+    
+    @NeptusProperty(name = "Yaw Increment", description="Yaw (psi) increment for the 83P parser, set true to increment + 180º.")
+    public boolean yawMultibeamIncrement = false;
     
     // there are 2 types of rendering objects on VTK - vtkPanel and vtkCanvas. vtkCanvas seems to have a better behaviour and performance.
     //public vtkPanel vtkPanel;
@@ -83,6 +104,8 @@ public class Vtk extends JPanel implements MRAVisualization {
     
     public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();       
     public PointCloud<PointXYZ> pointCloud;
+    
+    public LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh = new LinkedHashMap<>();
  
     private Vector<Marker3d> markers = new Vector<>();
     
@@ -90,6 +113,9 @@ public class Vtk extends JPanel implements MRAVisualization {
     public File file;
     
     private Boolean componentEnabled = false;
+    
+    
+    public MultibeamToPointCloud multibeamToPointCloud;
 
     private DownsamplePointCloud performDownsample;
     private Boolean isDownsampleDone = false;
@@ -99,7 +125,7 @@ public class Vtk extends JPanel implements MRAVisualization {
             System.loadLibrary("jawt");
         }
         catch (Throwable e) {
-            NeptusLog.pub().info("<###> cannot load jawt lib!");
+            NeptusLog.pub().info(I18n.text("<###> cannot load jawt lib!"));
         } 
             // for simple visualizations
         try {
@@ -107,35 +133,35 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkCommon, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkCommon, skipping..."));
         }
         try {
             vtkNativeLibrary.FILTERING.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkFiltering, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkFiltering, skipping..."));
         }
         try {
             vtkNativeLibrary.IO.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkImaging, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkImaging, skipping..."));
         }
         try {
             vtkNativeLibrary.GRAPHICS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkGrahics, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkGrahics, skipping..."));
         }
         try {
             vtkNativeLibrary.RENDERING.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkRendering, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkRendering, skipping..."));
         }
                 
         // Other
@@ -144,35 +170,35 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkInfoVis, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkInfoVis, skipping..."));
         }
         try {
             vtkNativeLibrary.VIEWS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkViews, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkViews, skipping..."));
         }
         try {
             vtkNativeLibrary.WIDGETS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkWidgets, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkWidgets, skipping..."));
         }
         try {
             vtkNativeLibrary.GEOVIS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkGeoVis, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkGeoVis, skipping..."));
         }
         try {
             vtkNativeLibrary.CHARTS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkCharts, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkCharts, skipping..."));
         }
         // FIXME not loading vtkHybrid ?!
         try {
@@ -180,14 +206,14 @@ public class Vtk extends JPanel implements MRAVisualization {
         }
         catch (Throwable e) {
             //NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().warn("cannot load vtkHybrid, skipping...");
+            NeptusLog.pub().warn(I18n.text("cannot load vtkHybrid, skipping..."));
         }
         try {
             vtkNativeLibrary.VOLUME_RENDERING.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().info("<###> cannot load vtkVolumeRendering, skipping...");
+            NeptusLog.pub().info(I18n.text("<###> cannot load vtkVolumeRendering, skipping..."));
         }
     }
     
@@ -200,7 +226,7 @@ public class Vtk extends JPanel implements MRAVisualization {
 
     @Override
     public String getName() {
-        return "Multibeam 3D";
+        return I18n.text("Multibeam 3D");
     }
 
     @Override
@@ -221,31 +247,21 @@ public class Vtk extends JPanel implements MRAVisualization {
             add(vtkCanvas, "W 100%, H 100%");
             
             vtkCanvas.LightFollowCameraOn();
-            //vtkCanvas.BeginBoxInteraction(); // calls interaction and prints out the string Box widget begin interaction
             vtkCanvas.setEnabled(true);
             
             componentEnabled = true;
 
-            MultibeamToPointCloud multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
+            multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
+            multibeamToPointCloud.parseMultibeamPointCloud(approachToIgnorePts, ptsToIgnore, timestampMultibeamIncrement, yawMultibeamIncrement);
             //BathymetryInfo batInfo = new BathymetryInfo();
             //batInfo = multibeamToPointCloud.batInfo;
             
             if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!            
-                MultibeamToolBar toolbar = new MultibeamToolBar(vtkCanvas, linkedHashMapCloud);
+                MultibeamToolBar toolbar = new MultibeamToolBar(this);
                 toolbar.createToolBar();
                 add(toolbar.getToolBar(), "dock south");
                 
                 pointCloud.createLODActorFromPoints();
-                
-                //double[] center = pointCloud.getPoly().GetCenter();
-                //Axes ax = new Axes(30.0, center[0], center[1], center[2], 0);
-                //Axes ax = new Axes(30.0, 0.0f, 0.0f, 0.0f, 0);
-                //vtkCanvas.GetRenderer().AddActor(ax.getAxesActor());
-                //ax.getAxesActor().SetVisibility(true);
-                
-                //AxesActor axesActor = new AxesActor(vtkCanvas.GetRenderer());
-                //axesActor.createAxes();
-                //axesActor.setAxesVisibility(true);
 
                 AxesWidget axesWidget = new AxesWidget(winCanvas.getInteractorStyle().GetInteractor());            
                 axesWidget.createAxesWidget();
@@ -253,7 +269,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor()); 
                 
                     // set Up scalar Bar look up table
-                winCanvas.getInteractorStyle().getScalarBar().setUpScalarBarLookupTable(pointCloud.getCloudLODActor().GetMapper().GetLookupTable());        
+                winCanvas.getInteractorStyle().getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
                 vtkCanvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
                 
                     // set up camera to +z viewpoint looking down
@@ -262,11 +278,11 @@ public class Vtk extends JPanel implements MRAVisualization {
             }
             else {           
                 String msgErrorMultibeam;
-                msgErrorMultibeam = "No beams on Log file!";
+                msgErrorMultibeam = I18n.text("No beams on Log file!");
                 JOptionPane.showMessageDialog(null, msgErrorMultibeam);
                 
                 vtkVectorText vectText = new vtkVectorText();
-                vectText.SetText("No beams on Log file!");
+                vectText.SetText(I18n.text("No beams on Log file!"));
                 
                 vtkLinearExtrusionFilter extrude = new vtkLinearExtrusionFilter();
                 extrude.SetInputConnection(vectText.GetOutputPort());
@@ -281,8 +297,7 @@ public class Vtk extends JPanel implements MRAVisualization {
                 txtActor.SetPosition(2.0, 2.0, 2.0);
                 txtActor.SetScale(10.0);
                 
-                vtkCanvas.GetRenderer().AddActor(txtActor);
-                
+                vtkCanvas.GetRenderer().AddActor(txtActor);          
             }      
             vtkCanvas.GetRenderer().ResetCamera();
         }      
@@ -357,7 +372,7 @@ public class Vtk extends JPanel implements MRAVisualization {
     /**
      * @return the mraVtkLogGroup
      */
-    private IMraLogGroup getLog() {
+    public IMraLogGroup getLog() {
         return mraVtkLogGroup;
     }
 
@@ -366,5 +381,34 @@ public class Vtk extends JPanel implements MRAVisualization {
      */
     private void setLog(IMraLogGroup log) {
         this.mraVtkLogGroup = log;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.gui.PropertiesProvider#getProperties()
+     */
+    @Override
+    public DefaultProperty[] getProperties() {
+        return PluginUtils.getPluginProperties(this);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.gui.PropertiesProvider#setProperties(com.l2fprod.common.propertysheet.Property[])
+     */
+    @Override
+    public void setProperties(Property[] properties) {
+        PluginUtils.setPluginProperties(this, properties);
+    }
+
+    @Override
+    public String getPropertiesDialogTitle() {
+        return "Multibeam 3D properties";
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.gui.PropertiesProvider#getPropertiesErrors(com.l2fprod.common.propertysheet.Property[])
+     */
+    @Override
+    public String[] getPropertiesErrors(Property[] properties) {
+        return PluginUtils.validatePluginProperties(this, properties);
     }
 }

@@ -134,12 +134,12 @@ public class JmeComponent extends SimpleApplication {
             enoughData = false;
             return;
         }
-        // flyCam.setDragToRotate(true);
-        // // Don't pause even if focus is lost
-        // setPauseOnLostFocus(false);
-        // // load appState
-        // ShowBathymetryState bathySate = new ShowBathymetryState(bathyInfo, markerObserver);
-        // stateManager.attach(bathySate);
+        flyCam.setDragToRotate(true);
+        // Don't pause even if focus is lost
+        setPauseOnLostFocus(false);
+        // load appState
+        ShowBathymetryState bathySate = new ShowBathymetryState(bathyInfo, markerObserver);
+        stateManager.attach(bathySate);
     }
 
     private void fireNoSupport(String msg) {

@@ -73,10 +73,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Locale;
 
 import javax.imageio.ImageIO;
@@ -526,20 +526,44 @@ public class GuiUtils {
             NeptusLog.pub().error(e);
         }
     }
+    
+    /**
+     * Use this instead of JOptionPane.showMessageDialog(..., JOptionPane.INFORMATION_MESSAGE)
+     * Default ModalityMode.DOCUMENT_MODAL
+     * @param owner
+     * @param title
+     * @param message
+     */
+    public static void infoMessage(Component owner, String title, String message) {
+        infoMessage(owner, title, message, ModalityType.DOCUMENT_MODAL);
+    }
 
     /**
      * Use this instead of JOptionPane.showMessageDialog(..., JOptionPane.INFORMATION_MESSAGE)
      * @param owner
      * @param title
      * @param message
+     * @param modalityType
      */
-    public static void infoMessage(Component owner, String title, String message) {
+    public static void infoMessage(Component owner, String title, String message, ModalityType modalityType) {
         // JOptionPane.showMessageDialog(owner, message, title,
         // JOptionPane.INFORMATION_MESSAGE);
         JOptionPane jop = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
         JDialog dialog = jop.createDialog(owner, title);
-        dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
+        dialog.setModalityType(modalityType);
         dialog.setVisible(true);
+    }
+    
+    /**
+     * Use this instead of JOptionPane.showMessageDialog(..., JOptionPane.QUESTION_MESSAGE)
+     * Default ModalityType.DOCUMENT_MODAL
+     * @param owner
+     * @param title
+     * @param message
+     * @return {@link JOptionPane#YES_OPTION}, {@link JOptionPane#NO_OPTION}, or {@link JOptionPane#CLOSED_OPTION}
+     */
+    public static int confirmDialog(Component owner, String title, String message) {
+        return confirmDialog(owner, title, message, ModalityType.DOCUMENT_MODAL);
     }
 
     /**
@@ -549,13 +573,13 @@ public class GuiUtils {
      * @param message
      * @return {@link JOptionPane#YES_OPTION}, {@link JOptionPane#NO_OPTION}, or {@link JOptionPane#CLOSED_OPTION}
      */
-    public static int confirmDialog(Component owner, String title, String message) {
+    public static int confirmDialog(Component owner, String title, String message, ModalityType modalityType) {
         // int response = JOptionPane.showConfirmDialog(owner, message, title, JOptionPane.YES_NO_OPTION);
         // return response; // == JOptionPane.YES_OPTION;
         
         JOptionPane jop = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
         JDialog dialog = jop.createDialog(owner, title);
-        dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
+        dialog.setModalityType(modalityType);
         dialog.setVisible(true);
         Object selectedValue = jop.getValue();
         if(selectedValue == null)
@@ -567,16 +591,27 @@ public class GuiUtils {
 
     /**
      * Use this instead of JOptionPane.showMessageDialog(..., JOptionPane.ERROR_MESSAGE)
+     * Default ModalityType.DOCUMENT_MODAL
      * @param owner
      * @param title
      * @param message
      */
     public static void errorMessage(Component owner, String title, String message) {
+        errorMessage(owner, title, message, ModalityType.DOCUMENT_MODAL);
+    }
+    
+    /**
+     * Use this instead of JOptionPane.showMessageDialog(..., JOptionPane.ERROR_MESSAGE)
+     * @param owner
+     * @param title
+     * @param message
+     */
+    public static void errorMessage(Component owner, String title, String message, ModalityType modalitytype) {
         // JOptionPane.showMessageDialog(owner, message, title,
         // JOptionPane.ERROR_MESSAGE);
         JOptionPane jop = new JOptionPane(message, JOptionPane.ERROR_MESSAGE);
         JDialog dialog = jop.createDialog(owner, title);
-        dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
+        dialog.setModalityType(modalitytype);
         dialog.setVisible(true);
         NeptusLog.pub().error("[ErrorMessage] " + message);
     }
@@ -603,7 +638,28 @@ public class GuiUtils {
         errorMessage(ConfigFetch.getSuperParentFrame(), title, message);
     }
 
+    /**
+     * Default htmlMessage with ModalityType.DOCUMENT_MODAL
+     * @param owner
+     * @param title
+     * @param subtitle
+     * @param htmlMessage
+     * @return
+     */
     public static JDialog htmlMessage(Component owner, String title, String subtitle, String htmlMessage) {
+        return htmlMessage(owner, title, subtitle, htmlMessage, ModalityType.DOCUMENT_MODAL);
+    }
+
+    /**
+     * 
+     * @param owner
+     * @param title
+     * @param subtitle
+     * @param htmlMessage
+     * @param modalityType
+     * @return
+     */
+    public static JDialog htmlMessage(Component owner, String title, String subtitle, String htmlMessage, ModalityType modalityType) {
         BaseDialog myDialog;
         if (owner instanceof Frame)
             myDialog = new BaseDialog((Frame) owner);
@@ -627,7 +683,7 @@ public class GuiUtils {
         myDialog.getBanner().setIcon(UIManager.getIcon("OptionPane.informationIcon"));
         centerOnScreen(myDialog);
         // myDialog.setModal(true);
-        myDialog.setModalityType(ModalityType.DOCUMENT_MODAL);
+        myDialog.setModalityType(modalityType);
         myDialog.setVisible(true);
         return myDialog;
     }
@@ -870,13 +926,14 @@ public class GuiUtils {
         NeptusLog.pub().info("<###> "+'}');
     }
 
-    public static void printList(List<?> list) {
+    public static void printList(Collection<?> list) {
         if (list == null)
             NeptusLog.pub().info("<###> "+list);
 
         NeptusLog.pub().info("<###> "+list.getClass().getSimpleName() + "[" + list.size() + "] {");
-        for (int i = 0; i < list.size(); i++) {
-            NeptusLog.pub().info("<###>\t(" + i + ") " + list.get(i).toString());
+        int i = 0;
+        for (Object litem : list) {
+            NeptusLog.pub().info("<###>\t(" + i++ + ") [hash: " + Integer.toHexString(litem.hashCode()) + "] " + litem.toString());
         }
         NeptusLog.pub().info("<###> "+'}');
     }

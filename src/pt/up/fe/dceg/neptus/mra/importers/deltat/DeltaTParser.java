@@ -53,7 +53,6 @@ import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.llf.LsfLogSource;
 
 /**
  * @author jqcorreia
@@ -132,12 +131,13 @@ public class DeltaTParser implements BathymetryParser {
                     info.maxDepth = Math.max(info.maxDepth, p.depth);
                 }
                 
-                info.topLeft = new LocationType(maxLat, minLon);
-                info.bottomRight = new LocationType(minLat, maxLon);
                 
                 totalNumberPoints = totalNumberPoints + bs.numBeams;
                 realNumberOfBeams = 0;
             }
+            
+            info.topLeft = new LocationType(maxLat, minLon).translatePosition(30, -30, 0).convertToAbsoluteLatLonDepth();
+            info.bottomRight = new LocationType(minLat, maxLon).translatePosition(-30, 30, 0).convertToAbsoluteLatLonDepth();
             
             try {
                 ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
@@ -269,6 +269,11 @@ public class DeltaTParser implements BathymetryParser {
             if (state == null)
                 return null;
             
+            if(state == null) {
+               NeptusLog.pub().info("State message = null");
+               return null;
+            }
+            
             // Use the navigation data from EstimatedState 
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             pose.getPosition().setLatitudeRads(state.getDouble("lat"));
@@ -276,7 +281,7 @@ public class DeltaTParser implements BathymetryParser {
             pose.getPosition().setOffsetNorth(state.getDouble("x"));
             pose.getPosition().setOffsetEast(state.getDouble("y"));
             pose.getPosition().setDepth(state.getDouble("depth"));
-            pose.setYaw(state.getDouble("psi"));
+            pose.setYaw(state.getDouble("psi") + Math.PI);
             for(int c = 0; c < header.numBeams; c++) { 
                 double range = buf.getShort(c*2) * (header.rangeResolution / 1000.0);
                 
@@ -352,32 +357,32 @@ public class DeltaTParser implements BathymetryParser {
         stateParser.firstLogEntry();
     }
     
-    public static void main(String[] args) {
-        try {
-            LsfLogSource source = new LsfLogSource(new File("/home/jqcorreia/lsts/logs/lauv-noptilus-1/20121220/160655_rows_btrack/Data.lsf"), null);
-            DeltaTParser p = new DeltaTParser(source);
-            //            Kryo kryo = new Kryo();
-//            Output output = new Output(new FileOutputStream("kryo.bin"));
-            
-            int c = 0;
-            while((p.nextSwath(1.0)) != null) {
-////                for(BathymetryPoint bp : bs.getData()) {
-////                    double r[] = CoordinateUtil.latLonAddNE2(bp.lat, bp.lon, bp.north, bp.east);
-////                    float f[] = new float[2];
-////                    
-////                    f[0] = (float) (r[0] * 1000000f);
-////                    f[1] = new Double(r[1]).floatValue();
-////                    
-////                    NeptusLog.pub().info("<###> "+r[0]);
-////                    NeptusLog.pub().info("<###> " + f[0]);
-////                }
-//                c++;
-////                kryo.writeObject(output, bs);
-            }
-            NeptusLog.pub().info("<###> "+c);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    public static void main(String[] args) {
+//        try {
+//            LsfLogSource source = new LsfLogSource(new File("/home/jqcorreia/lsts/logs/lauv-noptilus-1/20121220/160655_rows_btrack/Data.lsf"), null);
+//            DeltaTParser p = new DeltaTParser(source);
+//            //            Kryo kryo = new Kryo();
+////            Output output = new Output(new FileOutputStream("kryo.bin"));
+//            
+//            int c = 0;
+//            while((p.nextSwath(1.0)) != null) {
+//////                for(BathymetryPoint bp : bs.getData()) {
+//////                    double r[] = CoordinateUtil.latLonAddNE2(bp.lat, bp.lon, bp.north, bp.east);
+//////                    float f[] = new float[2];
+//////                    
+//////                    f[0] = (float) (r[0] * 1000000f);
+//////                    f[1] = new Double(r[1]).floatValue();
+//////                    
+//////                    NeptusLog.pub().info("<###> "+r[0]);
+//////                    NeptusLog.pub().info("<###> " + f[0]);
+//////                }
+////                c++;
+//////                kryo.writeObject(output, bs);
+//            }
+//            NeptusLog.pub().info("<###> "+c);
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

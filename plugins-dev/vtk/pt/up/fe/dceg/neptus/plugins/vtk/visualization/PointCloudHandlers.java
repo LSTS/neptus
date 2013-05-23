@@ -31,12 +31,9 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
-import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-import vtk.vtkDataArray;
 import vtk.vtkLookupTable;
 import vtk.vtkPolyData;
-import vtk.vtkScalarsToColors;
 import vtk.vtkUnsignedCharArray;
 
 /**
@@ -73,16 +70,23 @@ public class PointCloudHandlers<T extends PointXYZ> {
      * @param colorLookupTable
      * @param bounds
      */
-    public void setPointCloudColorHandlers(int numberPoints, vtkPolyData polyData, vtkLookupTable colorLookupTable, double[] bounds) {
+    public void generatePointCloudColorHandlers(int numberPoints, vtkPolyData polyData, double[] bounds) {
         this.numberOfPoints = numberPoints;
         this.setPolyData(polyData);
         
+        //colorLookupTable.SetValueRange(getBounds()[4], getBounds()[5]);        
+        //colorLookupTable.SetHueRange(0, 1);
+        //colorLookupTable.SetSaturationRange(1, 1);
+        //colorLookupTable.SetValueRange(1, 1);
+        //colorLookupTable.SetTableRange(getBounds()[4], getBounds()[5]);
+            
         getLutX().SetRange(bounds[0], bounds[1]);
         getLutX().SetScaleToLinear();
         getLutX().Build();
         getLutY().SetRange(bounds[2], bounds[3]);
         getLutY().SetScaleToLinear();
         getLutY().Build();
+        //getLutZ().SetValueRange(-bounds[5], -bounds[4]);
         getLutZ().SetRange(bounds[4], bounds[5]);
         getLutZ().SetScaleToLinear();
         getLutZ().Build();
@@ -119,9 +123,12 @@ public class PointCloudHandlers<T extends PointXYZ> {
             colorsX.InsertNextTuple3(colorx[0], colorx[1], colorx[2]);
             colorsY.InsertNextTuple3(colory[0], colory[1], colory[2]);
             colorsZ.InsertNextTuple3(colorz[0], colorz[1], colorz[2]);
-        }   
-    }
-    
+        }
+//        double minRangeValue = getLutZ().GetValueRange()[0];
+//        double maxRangeValue = getLutZ().GetValueRange()[1];
+//        NeptusLog.pub().info("Min Range Value: " + minRangeValue);
+//        NeptusLog.pub().info("Max range value: " + maxRangeValue);
+    }   
 
     /**
      * @return the colorsX
@@ -234,60 +241,5 @@ public class PointCloudHandlers<T extends PointXYZ> {
      */
     public void setLutZ(vtkLookupTable lutZ) {
         this.lutZ = lutZ;
-    }
-
-    public static double[] getRandomColor(PointCloud<PointXYZ> cloud) {
-        cloud.getNumberOfPoints();
-        
-        for (int i = 0; i < cloud.getNumberOfPoints(); i++) {
-            double[] point = new double[3];
-            point = cloud.getPoints().GetPoint(i);
-        }
-        
-        double[] rgbColor = new double[3];
-        
-        return rgbColor;
-    }
-    
-    public static double[] getRandomColor() {
-        double[] rgbCloud = new double[3];
-        double sum;
-        int step = 100;
-        
-        do {
-            sum = 0;
-            //rgbCloud[0] = (Math.random() % step) / (double)step;
-            rgbCloud[0] = Math.random();
-            //rgbCloud[1] = (Math.random() % step) / (double)step;
-            rgbCloud[1] = Math.random();
-            //rgbCloud[2] = (Math.random() % step) / (double)step;
-            rgbCloud[2] = Math.random();
-            sum = rgbCloud[0] + rgbCloud[1] + rgbCloud[2];
-            //System.out.println("r = " + rgbCloud[0] + ", g = " + rgbCloud[1] + ", b = " + rgbCloud[2]);
-        }while (sum <= 0.5 || sum >= 2.8);
-
-        //rgbCloud[0] = min + Math.random() * ((min - max) + min); // [5,10];
-        
-        return rgbCloud;
-    }
-    
-    public vtkScalarsToColors getRandomColor2() {
-        vtkScalarsToColors scalars = new vtkScalarsToColors();
-        return scalars;
-    }
-    
-    public vtkDataArray getColor() {
-        vtkDataArray scalars = new vtkUnsignedCharArray();
-        vtkUnsignedCharArray scalars2 = new vtkUnsignedCharArray();
-        vtkDataArray scalars3 = new vtkDataArray();
-        
-        
-        scalars.SetNumberOfComponents(3);
-        scalars.SetNumberOfTuples(numberOfPoints);
-        
-        double[] rgbColor = new double[3];
-        rgbColor = getRandomColor();
-        
-        return scalars;
     }
 }

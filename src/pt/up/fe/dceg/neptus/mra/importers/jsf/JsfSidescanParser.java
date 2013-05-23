@@ -153,6 +153,7 @@ public class JsfSidescanParser implements SidescanParser {
             pose.setRoll(Math.toRadians(pboard.getRoll() * (180 / 32768.0)));
             pose.setYaw(Math.toRadians(pboard.getHeading() / 100));
             pose.setAltitude(pboard.getAltMillis() / 1000);
+            pose.setU(pboard.getSpeed() * 0.51444); // Convert knot-to-ms
             
             list.add(new SidescanLine(ping.get(0).getTimestamp(), ping.get(0).getRange(), pose, fData));
 

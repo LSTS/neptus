@@ -26,15 +26,25 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: hfq
- * May 9, 2013
+ * Author: pdias
+ * May 21, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.vtk.surface;
+package pt.up.fe.dceg.neptus.gui.editor;
 
 /**
- * @author hfq
+ * @author pdias
  *
  */
-public class Mesh {
+public interface ValidationEnableInterface {
+
+    /**
+     * @return the enableValidation
+     */
+    public abstract boolean isEnableValidation();
+
+    /**
+     * @param enableValidation the enableValidation to set
+     */
+    public abstract void setEnableValidation(boolean enableValidation);
 
 }

@@ -51,9 +51,11 @@ import com.l2fprod.common.util.converter.ConverterRegistry;
  * @author pdias
  *
  */
-public class NumberEditor<T extends Number> extends NumberPropertyEditor {
+public class NumberEditor<T extends Number> extends NumberPropertyEditor implements ValidationEnableInterface {
     
     protected final Class<T> classType;
+    
+    protected boolean enableValidation = true;
     
     protected T minValue = null;
     protected T maxValue = null;
@@ -237,7 +239,7 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor {
             throw new NumberFormatException();
         
         T valueToReq = (T) ConverterRegistry.instance().convert(this.classType, txt);
-        if (minValue != null && maxValue != null) {
+        if (enableValidation && minValue != null && maxValue != null) {
             if (valueToReq.doubleValue() < minValue.doubleValue()) {
                 ((JTextField) editor).setText(convertToString(minValue));
                 valueToReq = minValue;
@@ -255,12 +257,19 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor {
         return (String) ConverterRegistry.instance().convert(String.class, value);
     }
 
-    /**
-     * @param args
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.gui.editor.ValidationEnableInterface#isEnableValidation()
      */
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
+    @Override
+    public boolean isEnableValidation() {
+        return enableValidation;
     }
-
+    
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.gui.editor.ValidationEnableInterface#setEnableValidation(boolean)
+     */
+    @Override
+    public void setEnableValidation(boolean enableValidation) {
+        this.enableValidation = enableValidation;
+    }
 }
