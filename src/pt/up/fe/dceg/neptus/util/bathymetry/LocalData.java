@@ -100,8 +100,6 @@ public class LocalData extends TidePredictionFinder {
 
 
     protected void buildKnowledge() throws IOException {
-        // URL tides = this.getClass().getClassLoader().getResource("tides.txt");
-
         BufferedReader br = new BufferedReader(new FileReader(tides.toString()));
         try {
             String line = br.readLine();

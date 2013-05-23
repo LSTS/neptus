@@ -43,30 +43,28 @@ import pt.up.fe.dceg.neptus.util.bathymetry.LocalData;
  *
  */
 public class TidePlot extends MraTimeSeriesPlot {
+    private final String tidesPath = "mra/tides.txt";
 
     public TidePlot(MRAPanel mp) {
         super(mp);
     }
     
-    
-    
     @Override
     public boolean canBeApplied(LsfIndex index) {
-        File f = new File(index.getLsfFile().getParent(), "tides.txt");
+        File f = new File(index.getLsfFile().getParent(), tidesPath);
         // System.out.println(f.getAbsolutePath());
         return f.canRead();
     }
 
     @Override
     public void process(LsfIndex source) {
-        LocalData ld = new LocalData(new File(index.getLsfFile().getParent(), "tides.txt"));
+        LocalData ld = new LocalData(new File(index.getLsfFile().getParent(), tidesPath));
         try {
         for (double i = source.getStartTime(); i < source.getEndTime(); i+= 60) {
             long time = (long)(i * 1000);
                 // System.out.println(new Date(time));
                 addValue(time, "Tide height", ld.getTidePrediction(new Date(time), false));
             }
-            
         }   
         catch (Exception e) {
             e.printStackTrace();
