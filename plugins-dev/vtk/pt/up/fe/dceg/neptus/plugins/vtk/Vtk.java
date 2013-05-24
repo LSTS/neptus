@@ -258,14 +258,14 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
             
             MultibeamToolBar toolbar = new MultibeamToolBar(this);
             toolbar.createToolBar();
-            add(toolbar.getToolBar(), "dock south");           
+            add(toolbar.getToolBar(), "dock south");
+
+            AxesWidget axesWidget = new AxesWidget(winCanvas.getInteractorStyle().GetInteractor());            
+            axesWidget.createAxesWidget();
             
             if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!                         
                 pointCloud.createLODActorFromPoints();
-
-                AxesWidget axesWidget = new AxesWidget(winCanvas.getInteractorStyle().GetInteractor());            
-                axesWidget.createAxesWidget();
-                
+             
                 vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor()); 
                 
                     // set Up scalar Bar look up table
