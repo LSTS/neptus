@@ -71,6 +71,7 @@ import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
+import pt.up.fe.dceg.neptus.plugins.trex.goals.Surveil;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.TagSimulation;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.TrexGoal;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.VisitLocationGoal;
@@ -215,6 +216,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             popup.addSeparator();
             addDisableTrexMenu(popup);
             addEnableTrexMenu(popup);
+            addUAVSurveillance(popup, loc);
 
             //            for (String gid : sentGoals.keySet()) {
             //                Point2D screenPos = source.getScreenPosition(sentGoals.get(gid).getLocation()); // FIXME all goals have
@@ -296,13 +298,32 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 loc.convertToAbsoluteLatLonDepth();
                 VisitLocationGoal visitLocationGoal = new VisitLocationGoal(loc.getLatitudeAsDoubleValueRads(), loc
                         .getLongitudeAsDoubleValueRads());
-                // FIXME add config to choose this
                 switch (trexDuneComms) {
                     case IMC:
                         send(visitLocationGoal.asIMCMsg());
                         break;
                     case REST:
                         httpPostTrex(visitLocationGoal);
+                        break;
+                }
+            }
+        });
+    }
+
+    private void addUAVSurveillance(JPopupMenu popup, final LocationType loc) {
+        popup.add("Surveil this point").addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loc.convertToAbsoluteLatLonDepth();
+                Surveil surveil = new Surveil(loc.getLatitudeAsDoubleValueRads(), loc
+                        .getLongitudeAsDoubleValueRads());
+                switch (trexDuneComms) {
+                    case IMC:
+                        send(surveil.asIMCMsg());
+                        break;
+                    case REST:
+                        httpPostTrex(surveil);
                         break;
                 }
             }
