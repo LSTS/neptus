@@ -32,6 +32,9 @@
 package pt.up.fe.dceg.neptus.plugins.vtk;
 
 import java.awt.Component;
+import java.awt.Rectangle;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Vector;
@@ -76,7 +79,7 @@ import com.l2fprod.common.propertysheet.Property;
  *
  */
 @PluginDescription(author = "hfq", name = "Vtk")
-public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider {
+public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider, ComponentListener {
     private static final long serialVersionUID = 8057825167454469065L;
     
     @NeptusProperty(name = "Points to ignore on Multibeam 3D", description="Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.")
@@ -247,6 +250,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
             add(vtkCanvas, "W 100%, H 100%");
             
             vtkCanvas.LightFollowCameraOn();
+            vtkCanvas.getParent().addComponentListener(this);
+            
             vtkCanvas.setEnabled(true);
             
             componentEnabled = true;
@@ -411,4 +416,44 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
     public String[] getPropertiesErrors(Property[] properties) {
         return PluginUtils.validatePluginProperties(this, properties);
     }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.ComponentListener#componentResized(java.awt.event.ComponentEvent)
+     */
+    @Override
+    public void componentResized(ComponentEvent e) {          
+        Rectangle parentBounds = new Rectangle();
+        parentBounds.setBounds(vtkCanvas.getParent().getX(), vtkCanvas.getParent().getY(), vtkCanvas.getParent().getParent().getWidth() - 12, vtkCanvas.getParent().getParent().getHeight() - 12);
+        vtkCanvas.getParent().setBounds(parentBounds);
+        
+        Rectangle canvasBounds = new Rectangle();
+        canvasBounds.setBounds(vtkCanvas.getX(), vtkCanvas.getY(), vtkCanvas.getParent().getWidth() - 12, vtkCanvas.getParent().getHeight());
+        vtkCanvas.setBounds(canvasBounds);      
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.ComponentListener#componentMoved(java.awt.event.ComponentEvent)
+     */
+    @Override
+    public void componentMoved(ComponentEvent e) {
+        
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.ComponentListener#componentShown(java.awt.event.ComponentEvent)
+     */
+    @Override
+    public void componentShown(ComponentEvent e) {
+        
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.ComponentListener#componentHidden(java.awt.event.ComponentEvent)
+     */
+    @Override
+    public void componentHidden(ComponentEvent e) {
+        
+    }
+    
+
 }
