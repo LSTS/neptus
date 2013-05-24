@@ -59,7 +59,7 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
  *
  */
 @LayerPriority(priority = 1)
-public class MultibeamReplay2 implements LogReplayLayer {
+public class MultibeamReplay implements LogReplayLayer {
 
     int lod = 0;
     
@@ -80,7 +80,7 @@ public class MultibeamReplay2 implements LogReplayLayer {
         sImg = null;
     }
     
-    public MultibeamReplay2() {
+    public MultibeamReplay() {
 
     }
     

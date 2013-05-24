@@ -124,8 +124,6 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
             } 
         });
         
-        //histogram = new Histogram();
-        
         // Layout building
         setLayout(new MigLayout());
         
