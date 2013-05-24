@@ -490,8 +490,11 @@ public class MultibeamToolBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                canvas.lock();
                 canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
                 canvas.GetRenderer().ResetCamera();
+                canvas.Render();
+                canvas.unlock();
             }
         });
 

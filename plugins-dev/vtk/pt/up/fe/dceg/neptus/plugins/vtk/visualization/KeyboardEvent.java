@@ -444,6 +444,7 @@ public class KeyboardEvent {
                     //renderer.GetActiveCamera().SetPosition(0.0 ,0.0 ,100); 
                     renderer.GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
                     renderer.ResetCamera();
+                    canvas.Render();
                     canvas.unlock();
                 }
                 catch (Exception e) {

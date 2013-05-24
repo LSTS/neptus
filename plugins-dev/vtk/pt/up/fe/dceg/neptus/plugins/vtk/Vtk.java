@@ -102,6 +102,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     public vtkCanvas vtkCanvas;
     
     public Window winCanvas;
+    
+    MultibeamToolBar toolbar;
 
     private static final String FILE_83P_EXT = ".83P";
     
@@ -116,7 +118,6 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     public File file;
     
     private Boolean componentEnabled = false;
-    
     
     public MultibeamToPointCloud multibeamToPointCloud;
 
@@ -237,7 +238,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
         if (!componentEnabled)
         {
             vtkCanvas = new vtkCanvas();
-           
+       
             pointCloud = new PointCloud<>();
             pointCloud.setCloudName("multibeam");
             linkedHashMapCloud.put(pointCloud.getCloudName(), pointCloud);
@@ -250,10 +251,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             add(vtkCanvas, "W 100%, H 100%");
             
             vtkCanvas.LightFollowCameraOn();
-            vtkCanvas.getParent().addComponentListener(this);
-            
-            vtkCanvas.setEnabled(true);
-            
+       
             componentEnabled = true;
 
             multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
@@ -261,9 +259,13 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             //BathymetryInfo batInfo = new BathymetryInfo();
             //batInfo = multibeamToPointCloud.batInfo;
             
-            MultibeamToolBar toolbar = new MultibeamToolBar(this);
+            toolbar = new MultibeamToolBar(this);
             toolbar.createToolBar();
             add(toolbar.getToolBar(), "dock south");
+            
+            vtkCanvas.getParent().addComponentListener(this);
+            //vtkCanvas.addComponentListener(this);
+            vtkCanvas.setEnabled(true);
 
             AxesWidget axesWidget = new AxesWidget(winCanvas.getInteractorStyle().GetInteractor());            
             axesWidget.createAxesWidget();
@@ -421,13 +423,16 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
      * @see java.awt.event.ComponentListener#componentResized(java.awt.event.ComponentEvent)
      */
     @Override
-    public void componentResized(ComponentEvent e) {          
-        Rectangle parentBounds = new Rectangle();
-        parentBounds.setBounds(vtkCanvas.getParent().getX(), vtkCanvas.getParent().getY(), vtkCanvas.getParent().getParent().getWidth() - 12, vtkCanvas.getParent().getParent().getHeight() - 12);
-        vtkCanvas.getParent().setBounds(parentBounds);
+    public void componentResized(ComponentEvent e) {
         
+        Rectangle toolBarBounds = toolbar.getToolBar().getBounds();
+        
+        Rectangle parentBounds = new Rectangle();
+        parentBounds.setBounds(vtkCanvas.getParent().getX(), vtkCanvas.getParent().getY(), vtkCanvas.getParent().getParent().getWidth() - 6, vtkCanvas.getParent().getParent().getHeight() - 14); //- toolBarBounds.getHeight()
+        vtkCanvas.getParent().setBounds(parentBounds);
+
         Rectangle canvasBounds = new Rectangle();
-        canvasBounds.setBounds(vtkCanvas.getX(), vtkCanvas.getY(), vtkCanvas.getParent().getWidth() - 12, vtkCanvas.getParent().getHeight());
+        canvasBounds.setBounds(vtkCanvas.getX(), vtkCanvas.getY(), vtkCanvas.getParent().getWidth() - 6, (int) (vtkCanvas.getParent().getHeight() - toolBarBounds.getHeight())); // 
         vtkCanvas.setBounds(canvasBounds);      
     }
 
