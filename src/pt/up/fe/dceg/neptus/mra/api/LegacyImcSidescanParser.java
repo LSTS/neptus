@@ -121,31 +121,11 @@ public class LegacyImcSidescanParser implements SidescanParser {
             pose.setYaw(state.getDouble("psi"));
             pose.getPosition().setOffsetNorth(state.getDouble("x"));
             pose.getPosition().setOffsetEast(state.getDouble("y"));
+            pose.setP(state.getDouble("p"));
+            pose.setQ(state.getDouble("q"));
+            pose.setR(state.getDouble("r"));
             pose.setU(state.getDouble("u"));
             
-//            float horizontalScale = (float) ping.getRawData("data").length / (range * 2f);
-//            float verticalScale = horizontalScale;
-
-//            // Time elapsed and speed calculation
-//            IMCMessage nextPing = getNextMessageWithFrequency(pingParser, 0); // WARNING: This advances the
-//                                                                                   // parser
-//            if (nextPing == null)
-//                break;
-//
-//            secondsUntilNextPing = (nextPing.getTimestampMillis() - ping.getTimestampMillis()) / 1000f;
-//            speed = state.getDouble("u");
-//
-//            // Finally the 'height' of the ping in pixels
-//            int size = (int) (secondsUntilNextPing * speed * verticalScale);
-//            if (size <= 0) {
-//                size = 1;
-//            }
-//            else if (secondsUntilNextPing > 0.5) {
-//                // TODO This is way too much time between shots. Maybe mark it on the plot?
-//                // For now put 1 as ysize
-//                size = 1;
-//            }
-
             // Image building. Calculate and draw a line, scale it and save it
             byte[] data = ping.getRawData("data");
 

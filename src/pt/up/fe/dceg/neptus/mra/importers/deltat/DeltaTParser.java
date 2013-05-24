@@ -189,63 +189,7 @@ public class DeltaTParser implements BathymetryParser {
 
     @Override
     public BathymetrySwath nextSwath() {
-
-        try {
-            if(curPos >= channel.size())
-                return null;
-           
-            BathymetryPoint data[];
-            realNumberOfBeams = 0;
-            
-            buf = channel.map(MapMode.READ_ONLY, curPos, 256);
-            DeltaTHeader header = new DeltaTHeader();
-            header.parse(buf);
-            
-            
-            // Parse and process data ( no need to create another structure for this )
-            buf = channel.map(MapMode.READ_ONLY, curPos + 256, header.numBeams * 2);
-            data = new BathymetryPoint[header.numBeams];
-            state = stateParser.getEntryAtOrAfter(header.timestamp + NeptusMRA.timestampMultibeamIncrement);
-            if (state == null)
-                return null;
-            // Use the navigation data from EstimatedState 
-            SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
-            pose.getPosition().setLatitudeRads(state.getDouble("lat"));
-            pose.getPosition().setLongitudeRads(state.getDouble("lon"));
-            pose.getPosition().setOffsetNorth(state.getDouble("x"));
-            pose.getPosition().setOffsetEast(state.getDouble("y"));
-            pose.getPosition().setDepth(state.getDouble("depth"));
-            pose.setYaw(state.getDouble("psi"));
-            for(int c = 0; c < header.numBeams; c++) { 
-                double range = buf.getShort(c*2) * (header.rangeResolution / 1000.0);
-                
-                if(range == 0.0) {
-                    continue;
-                }
-                
-                double angle = header.startAngle + header.angleIncrement * c;         
-                float height = (float) (range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth());
-
-                double x = range * Math.sin(Math.toRadians(angle));
-                double yawAngle = -pose.getYaw();
-                float ox = (float) (x * Math.sin(yawAngle));
-                float oy = (float) (x * Math.cos(yawAngle));
-                
-                data[realNumberOfBeams] = new BathymetryPoint((float)pose.getPosition().getOffsetNorth() + ox, (float)pose.getPosition().getOffsetEast() + oy, height);
-            
-                realNumberOfBeams++;
-            }
-            curPos += header.numBytes; // Advance current position
-            
-            BathymetrySwath swath = new BathymetrySwath(header.timestamp + NeptusMRA.timestampMultibeamIncrement, pose, data);
-            swath.numBeams = realNumberOfBeams;
-            
-            return swath;
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return nextSwath(1);
     }
     
     public BathymetrySwath nextSwath(double prob) {
@@ -281,7 +225,7 @@ public class DeltaTParser implements BathymetryParser {
             pose.getPosition().setOffsetNorth(state.getDouble("x"));
             pose.getPosition().setOffsetEast(state.getDouble("y"));
             pose.getPosition().setDepth(state.getDouble("depth"));
-            pose.setYaw(state.getDouble("psi") + Math.PI);
+            pose.setYaw(state.getDouble("psi") + (NeptusMRA.yawMultibeamIncrement ? Math.PI : 0));
             for(int c = 0; c < header.numBeams; c++) { 
                 double range = buf.getShort(c*2) * (header.rangeResolution / 1000.0);
                 
