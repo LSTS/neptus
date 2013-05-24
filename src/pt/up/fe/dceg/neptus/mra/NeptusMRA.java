@@ -296,19 +296,28 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
             FileOutputStream outstream = new FileOutputStream(outputFile, false);
             byte[] buf = new byte[2048];
             int len;
-            while ((len = ginstream.read(buf)) > 0) {
-                outstream.write(buf, 0, len);
+            try {
+                while ((len = ginstream.read(buf)) > 0) {
+                    outstream.write(buf, 0, len);
+                }
             }
-            ginstream.close();
-            outstream.close();
+            catch (Exception e) {
+                GuiUtils.errorMessage(NeptusMRA.this, e);
+                NeptusLog.pub().error(e);
+            }
+            finally {
+                ginstream.close();
+                outstream.close();
+            }
             res = new File(f.getParent(), "Data.lsf");
             
             return res;
         }
         catch (IOException ioe) {
-            System.err.println("Exception has been thrown" + ioe);
+            System.err.println("Exception has been thrown: " + ioe);
             bgp.setText(I18n.text("Decompressing LSF Data...") + "   "
                     + ioe.getMessage());
+            ioe.printStackTrace();
             return null;
         }
     }
