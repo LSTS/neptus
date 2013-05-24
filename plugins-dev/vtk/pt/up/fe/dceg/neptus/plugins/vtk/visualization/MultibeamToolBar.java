@@ -373,11 +373,6 @@ public class MultibeamToolBar {
             public void actionPerformed(ActionEvent e) {
                 if (zExaggerationToggle.isSelected()) {
                     try {
-//                        Rectangle rect = new Rectangle();
-//                        rect = canvas.getBounds();                            
-//                        NeptusLog.pub().info("Rectangle: height: " + rect.getHeight() + " width: " + rect.getWidth());                                 
-//                        NeptusLog.pub().info("Baseline: height: " + canvas.getHeight() + " width: " + canvas.getWidth());
-
                         vtkActorCollection actorCollection = new vtkActorCollection();
                         actorCollection = canvas.GetRenderer().GetActors();
                         actorCollection.InitTraversal();
@@ -507,6 +502,9 @@ public class MultibeamToolBar {
                         SwingUtilities.getWindowAncestor(vtk), true);
 
                 if (vtk.ptsToIgnore != currentPtsToIgnore || vtk.approachToIgnorePts != currentApproachToIgnorePts || vtk.timestampMultibeamIncrement != currentTimestampMultibeamIncrement || vtk.yawMultibeamIncrement != currentYawMultibeamIncrement) {
+                    if (vtk.noBeamsTxtActor != null)
+                        canvas.GetRenderer().RemoveActor(vtk.noBeamsTxtActor);
+                    
                     pointCloud = linkedHashMapCloud.get("multibeam");
 
                     canvas.lock();
@@ -523,7 +521,7 @@ public class MultibeamToolBar {
                     canvas.Render();
                     
                     canvas.lock();                 
-                        // clean up cloud color handlers
+                        // clean up point cloud
                     pointCloud.setPoints(new vtkPoints());
                     pointCloud.setVerts(new vtkCellArray());
                     pointCloud.setPoly(new vtkPolyData());
@@ -534,43 +532,33 @@ public class MultibeamToolBar {
                     vtk.multibeamToPointCloud.parseMultibeamPointCloud(vtk.approachToIgnorePts, vtk.ptsToIgnore, vtk.timestampMultibeamIncrement, vtk.yawMultibeamIncrement);
                     
                     if (pointCloud.getNumberOfPoints() != 0) {
-                        pointCloud.createLODActorFromPoints();               
-                        canvas.unlock();
+                        if (vtk.noBeamsText != null)
+                            canvas.GetRenderer().RemoveActor(vtk.noBeamsText.getText3dActor());
                         
+                        pointCloud.createLODActorFromPoints();               
                         canvas.GetRenderer().RemoveActor(textProcessingActor);
                         
                         canvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
-                        vtk.winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor().Modified();
+                        
+                        vtk.winCanvas.getInteractorStyle().getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
+                        canvas.GetRenderer().AddActor(vtk.winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
                         
                         canvas.GetRenderer().ResetCamera();
-                        canvas.Render();   
+                        canvas.Render();
+                        canvas.unlock();
                     }
                     else {
-                        canvas.unlock();
-                        
                         canvas.GetRenderer().RemoveActor(textProcessingActor);
                         
-                        String msgErrorMultibeam;
-                        msgErrorMultibeam = I18n.text("No beams on Log file!");
-                        JOptionPane.showMessageDialog(null, msgErrorMultibeam);
-                        
-                        vtkVectorText vectText = new vtkVectorText();
-                        vectText.SetText(I18n.text("No beams on Log file!"));
-                        
-                        vtkLinearExtrusionFilter extrude = new vtkLinearExtrusionFilter();
-                        extrude.SetInputConnection(vectText.GetOutputPort());
-                        extrude.SetExtrusionTypeToNormalExtrusion();
-                        extrude.SetVector(0, 0, 1);
-                        extrude.SetScaleFactor(0.5);
-                   
-                        vtkPolyDataMapper txtMapper = new vtkPolyDataMapper();
-                        txtMapper.SetInputConnection(extrude.GetOutputPort());
-                        vtkActor txtActor = new vtkActor();
-                        txtActor.SetMapper(txtMapper);
-                        txtActor.SetPosition(2.0, 2.0, 2.0);
-                        txtActor.SetScale(10.0);
-                                              
-                        vtk.vtkCanvas.GetRenderer().AddActor(txtActor);    
+                        if (vtk.noBeamsText != null) {
+                            canvas.GetRenderer().AddActor(vtk.noBeamsText.getText3dActor());
+                        }
+                        else {
+                            vtk.noBeamsText = new Text3D();
+                            vtk.noBeamsText.buildText3D("No beams on Log file!", 2.0, 2.0, 2.0, 10.0);
+                            canvas.GetRenderer().AddActor(vtk.noBeamsText.getText3dActor());
+                        }
+                        canvas.unlock();  
                     }
                     currentPtsToIgnore = vtk.ptsToIgnore;
                     currentApproachToIgnorePts = vtk.approachToIgnorePts;

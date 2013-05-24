@@ -62,10 +62,12 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.MultibeamToolBar;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Text3D;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import vtk.vtkActor;
 import vtk.vtkCanvas;
+import vtk.vtkLODActor;
 import vtk.vtkLinearExtrusionFilter;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
@@ -102,6 +104,10 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     public vtkCanvas vtkCanvas;
     
     public Window winCanvas;
+    
+    public vtkLODActor noBeamsTxtActor;
+    
+    public Text3D noBeamsText;
     
     MultibeamToolBar toolbar;
 
@@ -287,24 +293,10 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 String msgErrorMultibeam;
                 msgErrorMultibeam = I18n.text("No beams on Log file!");
                 JOptionPane.showMessageDialog(null, msgErrorMultibeam);
-                
-                vtkVectorText vectText = new vtkVectorText();
-                vectText.SetText(I18n.text("No beams on Log file!"));
-                
-                vtkLinearExtrusionFilter extrude = new vtkLinearExtrusionFilter();
-                extrude.SetInputConnection(vectText.GetOutputPort());
-                extrude.SetExtrusionTypeToNormalExtrusion();
-                extrude.SetVector(0, 0, 1);
-                extrude.SetScaleFactor(0.5);
-           
-                vtkPolyDataMapper txtMapper = new vtkPolyDataMapper();
-                txtMapper.SetInputConnection(extrude.GetOutputPort());
-                vtkActor txtActor = new vtkActor();
-                txtActor.SetMapper(txtMapper);
-                txtActor.SetPosition(2.0, 2.0, 2.0);
-                txtActor.SetScale(10.0);
-                
-                vtkCanvas.GetRenderer().AddActor(txtActor);          
+                               
+                noBeamsText = new Text3D();
+                noBeamsText.buildText3D("No beams on Log file!", 2.0, 2.0, 2.0, 10.0);
+                vtkCanvas.GetRenderer().AddActor(noBeamsText.getText3dActor());      
             }      
             vtkCanvas.GetRenderer().ResetCamera();
         }      
@@ -428,7 +420,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
         Rectangle toolBarBounds = toolbar.getToolBar().getBounds();
         
         Rectangle parentBounds = new Rectangle();
-        parentBounds.setBounds(vtkCanvas.getParent().getX(), vtkCanvas.getParent().getY(), vtkCanvas.getParent().getParent().getWidth() - 6, vtkCanvas.getParent().getParent().getHeight() - 14); //- toolBarBounds.getHeight()
+        parentBounds.setBounds(vtkCanvas.getParent().getX(), vtkCanvas.getParent().getY(), vtkCanvas.getParent().getParent().getWidth() - 6, vtkCanvas.getParent().getParent().getHeight() - 12); //- toolBarBounds.getHeight()
         vtkCanvas.getParent().setBounds(parentBounds);
 
         Rectangle canvasBounds = new Rectangle();
