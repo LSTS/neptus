@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.plugins.vtk.surface;
 
 import vtk.vtkLODActor;
+import vtk.vtkPolyData;
 
 /**
  * @author hfq
@@ -39,9 +40,11 @@ import vtk.vtkLODActor;
  */
 public class PointCloudMesh {
     
+    private vtkPolyData polyData;
     private vtkLODActor meshCloudLODActor;
-    
+        
     public PointCloudMesh() {
+        setPolyData(new vtkPolyData());
         setMeshCloudLODActor(new vtkLODActor());
     }
 
@@ -57,5 +60,19 @@ public class PointCloudMesh {
      */
     public void setMeshCloudLODActor(vtkLODActor meshCloudLODActor) {
         this.meshCloudLODActor = meshCloudLODActor;
+    }
+
+    /**
+     * @return the polyData
+     */
+    public vtkPolyData getPolyData() {
+        return polyData;
+    }
+
+    /**
+     * @param polyData the polyData to set
+     */
+    public void setPolyData(vtkPolyData polyData) {
+        this.polyData = polyData;
     }
 }

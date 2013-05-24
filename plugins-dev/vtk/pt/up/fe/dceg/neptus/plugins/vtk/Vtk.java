@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk;
 
 import java.awt.Component;
 import java.awt.Rectangle;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.File;
@@ -81,7 +82,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     private static final long serialVersionUID = 8057825167454469065L;
     
     @NeptusProperty(name = "Points to ignore on Multibeam 3D", description="Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.")
-    public int ptsToIgnore = 40;
+    public int ptsToIgnore = 100;
     
     @NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description="Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).")
     public boolean approachToIgnorePts = true; 
@@ -249,10 +250,10 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             
             winCanvas = new Window(vtkCanvas, linkedHashMapCloud);
             
-            vtkCanvas.lock();
+            //vtkCanvas.lock();
             vtkCanvas.GetRenderer().ResetCamera();
             vtkCanvas.LightFollowCameraOn();
-            vtkCanvas.unlock();
+            //vtkCanvas.unlock();
             
                 // add vtkCanvas to Layout
             add(vtkCanvas, "W 100%, H 100%");
@@ -268,6 +269,15 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             
                 // for resizing porpuses
             vtkCanvas.getParent().addComponentListener(this);
+//            addComponentListener(new ComponentAdapter() {
+//                public void componentResized(ComponentEvent event) {
+//                    // The canvas is being resized get the new size
+//                    int width = getWidth();
+//                    int height = getHeight();
+//                    setSize(width, height);
+//                }
+//            });
+            
             //vtkCanvas.addComponentListener(this);
             vtkCanvas.setEnabled(true);
 
@@ -279,7 +289,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                     // create an actor from parsed beams
                 pointCloud.createLODActorFromPoints();
              
-                vtkCanvas.lock();
+                //vtkCanvas.lock();
                     // add parsed beams stored on pointcloud to canvas
                 vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor()); 
                 
@@ -290,7 +300,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                     // set up camera to +z viewpoint looking down
                 vtkCanvas.GetRenderer().GetActiveCamera().SetPosition(pointCloud.getPoly().GetCenter()[0] ,pointCloud.getPoly().GetCenter()[1] , pointCloud.getPoly().GetCenter()[2] - 200);
                 vtkCanvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
-                vtkCanvas.unlock();
+                //vtkCanvas.unlock();
             }
             else {  // if no beams were parsed
                 String msgErrorMultibeam;
@@ -303,9 +313,9 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 vtkCanvas.GetRenderer().AddActor(noBeamsText.getText3dActor()); 
                 vtkCanvas.unlock();
             }
-            vtkCanvas.lock();
+            //vtkCanvas.lock();
             vtkCanvas.GetRenderer().ResetCamera();
-            vtkCanvas.unlock();
+            //vtkCanvas.unlock();
         }      
         return this;
     }
