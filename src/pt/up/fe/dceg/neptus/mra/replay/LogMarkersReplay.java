@@ -41,7 +41,6 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
@@ -116,11 +115,7 @@ public class LogMarkersReplay implements LogReplayLayer {
 
     @Override
     public void parse(IMraLogGroup source) {
-        synchronized (markers) {
-            markers = LogUtils.getMarkersFromSource(source);
-            for (LogMarker m : markers)
-                locations.add(m.getLocation());
-        }
+        
     }
 
     @Override
