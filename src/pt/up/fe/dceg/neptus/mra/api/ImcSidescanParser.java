@@ -60,20 +60,34 @@ public class ImcSidescanParser implements SidescanParser {
     public ImcSidescanParser(IMraLogGroup source) {
         pingParser = source.getLog("SonarData");
         stateParser = source.getLog("EstimatedState");
+        
+        calcFirstAndLastTimestamps();
     }
+
     
+    private void calcFirstAndLastTimestamps() {
+        IMCMessage msg;
+        boolean firstFound = false;
+        
+        while((msg = getNextMessage(pingParser)) != null) {
+            if(!firstFound) {
+                firstFound = true;
+                firstTimestamp = msg.getTimestampMillis();
+            }
+            lastTimestamp = msg.getTimestampMillis();
+        }
+        System.out.println(firstTimestamp + " " + lastTimestamp);
+        pingParser.firstLogEntry();
+    }
+
+
     @Override
     public long firstPingTimestamp() {
-        if(firstTimestamp != -1 ) return firstTimestamp;
-        firstTimestamp = pingParser.firstLogEntry().getTimestampMillis();
         return firstTimestamp;
     };
     
     @Override
     public long lastPingTimestamp() {
-        if(lastTimestamp != -1 ) return lastTimestamp;
-        lastTimestamp = pingParser.getLastEntry().getTimestampMillis();
-        pingParser.firstLogEntry();
         return lastTimestamp;
     }
     
@@ -100,13 +114,9 @@ public class ImcSidescanParser implements SidescanParser {
         IMCMessage ping = pingParser.getEntryAtOrAfter(timestamp1);
         if (ping == null)
             return list;
-//FIXME
-//        if (ping.getDouble("frequency") != freq || ping.getInteger("type") != SonarData.TYPE.SIDESCAN.value()) {
-//            ping = getNextMessageWithFrequency(pingParser, freq);
-//        }
        
         if (ping.getInteger("type") != SonarData.TYPE.SIDESCAN.value()) {
-            ping = getNextMessageWithFrequency(pingParser, 0); //FIXME
+            ping = getNextMessage(pingParser); //FIXME
         }
         IMCMessage state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
 
@@ -148,7 +158,7 @@ public class ImcSidescanParser implements SidescanParser {
             
             list.add(new SidescanLine(ping.getTimestampMillis(), range, pose, fData));
 
-            ping = getNextMessageWithFrequency(pingParser, 0); 
+            ping = getNextMessage(pingParser); 
             if (ping != null)
                 state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
         }
@@ -160,7 +170,12 @@ public class ImcSidescanParser implements SidescanParser {
         return pingParser.currentTimeMillis();
     }
     
-    public IMCMessage getNextMessageWithFrequency(IMraLog parser, double freq) {
+    /**
+     * Method used to get the next SonarData message of Sidescan Type
+     * @param parser
+     * @return
+     */
+    public IMCMessage getNextMessage(IMraLog parser) {
         IMCMessage msg;
         while((msg = parser.nextLogEntry()) != null) {
             if(msg.getInteger("type") == SonarData.TYPE.SIDESCAN.value()) {
