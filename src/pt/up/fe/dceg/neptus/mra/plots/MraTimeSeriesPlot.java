@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.TimeZone;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -118,7 +119,7 @@ public abstract class MraTimeSeriesPlot implements LLFChart, LogMarkerListener {
             addTrace(trace);
         }
         
-        series.get(trace).addOrUpdate(new Millisecond(new Date(timeMillis)), value);
+        series.get(trace).addOrUpdate(new Millisecond(new Date(timeMillis), TimeZone.getTimeZone("UTC")), value);
     }
 
     @Override

@@ -139,7 +139,7 @@ public class ImcSidescanParser implements SidescanParser {
             pose.setR(state.getDouble("r"));
             pose.setU(state.getDouble("u"));
 
-            // Image building. Calculate and draw a line, scale it and save it
+            // Image building. Calculate and draw a line, scale and save it
             byte[] data = ping.getRawData("data");
 
             for (int c = 0; c < data.length; c++) {
