@@ -951,7 +951,7 @@ public class LogUtils {
     
     public static ArrayList<LogMarker> getMarkersFromSource(IMraLogGroup source) {
         try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(source.getFile("Data.lsf").getParent()+"/marks.dat"));
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(source.getFile("Data.lsf").getParent()+"mra/marks.dat"));
             @SuppressWarnings("unchecked")
             ArrayList<LogMarker> markers = (ArrayList<LogMarker>)ois.readObject();
             ois.close();

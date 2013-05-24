@@ -33,8 +33,6 @@ package pt.up.fe.dceg.neptus.mra.api;
 
 import java.util.ArrayList;
 
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SonarData;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
@@ -50,8 +48,6 @@ public class ImcSidescanParser implements SidescanParser {
     IMraLog pingParser;
     IMraLog stateParser;
     
-    ColorMap colormap = ColorMapFactory.createBronzeColormap();
-
     long firstTimestamp = -1;
     long lastTimestamp = -1;
     
@@ -76,7 +72,7 @@ public class ImcSidescanParser implements SidescanParser {
             }
             lastTimestamp = msg.getTimestampMillis();
         }
-        System.out.println(firstTimestamp + " " + lastTimestamp);
+
         pingParser.firstLogEntry();
     }
 
