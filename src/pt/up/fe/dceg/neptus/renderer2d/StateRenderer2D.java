@@ -227,7 +227,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
 
     protected String lockedVehicle = null;
     protected TransponderSecurityArea securityArea = new TransponderSecurityArea();
-    protected PaintersBag painters = new PaintersBag();
+    protected PaintersBag painters = new PaintersBag(this);
     protected boolean ignoreRightClicks = false;
     protected boolean showProperties = true;
     protected int minDelay = 10;
