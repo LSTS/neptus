@@ -66,7 +66,7 @@ public class KeyboardEvent {
     
     private PointCloud<PointXYZ> pointCloud;
       
-    private vtkLODActor marker = new vtkLODActor();
+    //private vtkLODActor marker = new vtkLODActor();
     private boolean markerEnabled = false;
     
     private enum ColorMappingRelation {
@@ -94,10 +94,7 @@ public class KeyboardEvent {
         colorMapRel = ColorMappingRelation.zMap;        // on creation map color map is z related
     }
 
-    public void handleEvents(int keyCode) {
-        
-
-        
+    public void handleEvents(int keyCode) { 
         switch (keyCode) {
             case KeyEvent.VK_J:
                 canvas.lock();

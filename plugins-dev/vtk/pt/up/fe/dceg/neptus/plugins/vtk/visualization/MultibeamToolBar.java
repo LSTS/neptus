@@ -42,7 +42,6 @@ import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
@@ -60,17 +59,13 @@ import pt.up.fe.dceg.neptus.plugins.vtk.surface.Delauny2D;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import vtk.vtkActor;
 import vtk.vtkActorCollection;
 import vtk.vtkCanvas;
 import vtk.vtkCellArray;
 import vtk.vtkLODActor;
-import vtk.vtkLinearExtrusionFilter;
 import vtk.vtkPoints;
 import vtk.vtkPolyData;
-import vtk.vtkPolyDataMapper;
 import vtk.vtkTextActor;
-import vtk.vtkVectorText;
 
 /**
  * @author hfq
@@ -571,7 +566,7 @@ public class MultibeamToolBar {
             // toogles
         getToolBar().add(rawPointsToggle);
         //getToolBar().add(downsampledPointsToggle);
-        getToolBar().add(meshToogle);
+        //getToolBar().add(meshToogle);
         getToolBar().add(zExaggerationToggle);
         //getToolBar().add(contoursToogle);
         

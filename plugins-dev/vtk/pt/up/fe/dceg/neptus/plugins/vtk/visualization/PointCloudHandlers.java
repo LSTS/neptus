@@ -42,7 +42,7 @@ import vtk.vtkUnsignedCharArray;
  */
 public class PointCloudHandlers<T extends PointXYZ> {
     
-    private int numberOfPoints;
+    //private int numberOfPoints;
     private vtkPolyData polyData;
     private vtkLookupTable colorLookupTable;
     
@@ -70,8 +70,8 @@ public class PointCloudHandlers<T extends PointXYZ> {
      * @param colorLookupTable
      * @param bounds
      */
-    public void generatePointCloudColorHandlers(int numberPoints, vtkPolyData polyData, double[] bounds) {
-        this.numberOfPoints = numberPoints;
+    public void generatePointCloudColorHandlers(vtkPolyData polyData, double[] bounds) {
+        //this.numberOfPoints = numberPoints;
         this.setPolyData(polyData);
         
         //colorLookupTable.SetValueRange(getBounds()[4], getBounds()[5]);        

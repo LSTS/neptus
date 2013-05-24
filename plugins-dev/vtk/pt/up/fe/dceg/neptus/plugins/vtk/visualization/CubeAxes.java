@@ -71,7 +71,7 @@ public class CubeAxes {
         //cubeAxesActor.SetYAxisMinorTickVisibility(0);
         cubeAxesActor.DrawYGridlinesOn();
         cubeAxesActor.SetYUnits("m");
-        
+
         //cubeAxesActor.SetAxisLabes(0, getYLabels()); nao tem o método, falta impletar o getYLabels
         cubeAxesActor.SetZTitle("Z axis");
         //cubeAxesActor.SetZAxisMinorTickVisibility(0);

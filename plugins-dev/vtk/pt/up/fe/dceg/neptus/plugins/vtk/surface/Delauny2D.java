@@ -34,12 +34,10 @@ package pt.up.fe.dceg.neptus.plugins.vtk.surface;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-import vtk.vtkActor;
 import vtk.vtkCleanPolyData;
 import vtk.vtkDelaunay2D;
 import vtk.vtkLODActor;
 import vtk.vtkPolyDataMapper;
-import vtk.vtkRenderer;
 
 /**
  * @author hfq

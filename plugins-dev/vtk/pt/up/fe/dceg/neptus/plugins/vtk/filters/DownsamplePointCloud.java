@@ -44,13 +44,11 @@ import vtk.vtkPoints;
  *  FIXME
  */
 public class DownsamplePointCloud {
-    private int numberOfPoints;
+    private int numberOfPoints = 0;
     public PointCloud<PointXYZ> pointCloud;
     private PointCloud<PointXYZ> outputDownsampledCloud;
     private double tolerance;
     public Boolean isDownsampleDone = false;
-    private double progressMinValue;
-    private double progressMaxValue;
     
     public DownsamplePointCloud (PointCloud<PointXYZ> pointCloud, double tolerance) {
         long lDateTime = new Date().getTime();

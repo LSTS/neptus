@@ -65,13 +65,9 @@ import pt.up.fe.dceg.neptus.plugins.vtk.visualization.MultibeamToolBar;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Text3D;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
-import vtk.vtkActor;
 import vtk.vtkCanvas;
 import vtk.vtkLODActor;
-import vtk.vtkLinearExtrusionFilter;
 import vtk.vtkNativeLibrary;
-import vtk.vtkPolyDataMapper;
-import vtk.vtkVectorText;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -109,7 +105,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     
     public Text3D noBeamsText;
     
-    MultibeamToolBar toolbar;
+    private MultibeamToolBar toolbar;
 
     private static final String FILE_83P_EXT = ".83P";
     
@@ -118,7 +114,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     
     public LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh = new LinkedHashMap<>();
  
-    private Vector<Marker3d> markers = new Vector<>();
+    //private Vector<Marker3d> markers = new Vector<>();
     
     public IMraLogGroup mraVtkLogGroup;
     public File file;
@@ -127,8 +123,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     
     public MultibeamToPointCloud multibeamToPointCloud;
 
-    private DownsamplePointCloud performDownsample;
-    private Boolean isDownsampleDone = false;
+    //private DownsamplePointCloud performDownsample;
+    //private Boolean isDownsampleDone = false;
     
     static {
         try {
@@ -243,7 +239,9 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     public Component getComponent(IMraLogGroup source, double timestep) {    
         if (!componentEnabled)
         {
-            vtkCanvas = new vtkCanvas();
+            componentEnabled = true;
+            
+            vtkCanvas = new vtkCanvas();           
        
             pointCloud = new PointCloud<>();
             pointCloud.setCloudName("multibeam");
@@ -251,34 +249,38 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             
             winCanvas = new Window(vtkCanvas, linkedHashMapCloud);
             
+            vtkCanvas.lock();
             vtkCanvas.GetRenderer().ResetCamera();
+            vtkCanvas.LightFollowCameraOn();
+            vtkCanvas.unlock();
             
                 // add vtkCanvas to Layout
             add(vtkCanvas, "W 100%, H 100%");
-            
-            vtkCanvas.LightFollowCameraOn();
-       
-            componentEnabled = true;
 
+                // parse 83P data storing it on a pointcloud
             multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
             multibeamToPointCloud.parseMultibeamPointCloud(approachToIgnorePts, ptsToIgnore, timestampMultibeamIncrement, yawMultibeamIncrement);
-            //BathymetryInfo batInfo = new BathymetryInfo();
-            //batInfo = multibeamToPointCloud.batInfo;
             
+                // add toolbar to Layout
             toolbar = new MultibeamToolBar(this);
             toolbar.createToolBar();
             add(toolbar.getToolBar(), "dock south");
             
+                // for resizing porpuses
             vtkCanvas.getParent().addComponentListener(this);
             //vtkCanvas.addComponentListener(this);
             vtkCanvas.setEnabled(true);
 
+                // add axesWidget to vtk canvas fixed to a screen position
             AxesWidget axesWidget = new AxesWidget(winCanvas.getInteractorStyle().GetInteractor());            
             axesWidget.createAxesWidget();
             
             if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!                         
+                    // create an actor from parsed beams
                 pointCloud.createLODActorFromPoints();
              
+                vtkCanvas.lock();
+                    // add parsed beams stored on pointcloud to canvas
                 vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor()); 
                 
                     // set Up scalar Bar look up table
@@ -288,17 +290,22 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                     // set up camera to +z viewpoint looking down
                 vtkCanvas.GetRenderer().GetActiveCamera().SetPosition(pointCloud.getPoly().GetCenter()[0] ,pointCloud.getPoly().GetCenter()[1] , pointCloud.getPoly().GetCenter()[2] - 200);
                 vtkCanvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+                vtkCanvas.unlock();
             }
-            else {
+            else {  // if no beams were parsed
                 String msgErrorMultibeam;
                 msgErrorMultibeam = I18n.text("No beams on Log file!");
                 JOptionPane.showMessageDialog(null, msgErrorMultibeam);
-                               
+
                 noBeamsText = new Text3D();
                 noBeamsText.buildText3D("No beams on Log file!", 2.0, 2.0, 2.0, 10.0);
-                vtkCanvas.GetRenderer().AddActor(noBeamsText.getText3dActor());      
-            }      
+                vtkCanvas.lock();
+                vtkCanvas.GetRenderer().AddActor(noBeamsText.getText3dActor()); 
+                vtkCanvas.unlock();
+            }
+            vtkCanvas.lock();
             vtkCanvas.GetRenderer().ResetCamera();
+            vtkCanvas.unlock();
         }      
         return this;
     }

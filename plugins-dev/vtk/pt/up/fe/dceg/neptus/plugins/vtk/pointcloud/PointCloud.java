@@ -91,8 +91,8 @@ public class PointCloud<T extends PointXYZ> {
             
             setBounds(getPoly().GetBounds());
             setMemorySize(getPoly().GetActualMemorySize());
-
-            getColorHandler().generatePointCloudColorHandlers(getNumberOfPoints(), getPoly(), bounds);
+            
+            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds);
             
             getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
             
@@ -323,7 +323,7 @@ public class PointCloud<T extends PointXYZ> {
         
         getPoly().Modified();
         
-        vtkDataArray scalars = new vtkDataArray();
+        //vtkDataArray scalars = new vtkDataArray();
         
         //vtkGlyph3D glyph = new vtkGlyph3D();
         //glyph.SetInput(poly);
