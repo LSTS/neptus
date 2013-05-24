@@ -42,7 +42,6 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.r3d.dto.BathymetryLogInfo;
 import pt.up.fe.dceg.neptus.plugins.r3d.dto.VehicleInfoAtPointDTO;
-import pt.up.fe.dceg.neptus.plugins.r3d.jme3.JmeComponent;
 import pt.up.fe.dceg.neptus.plugins.r3d.jme3.WorldInformation;
 
 import com.jme3.asset.AssetManager;
@@ -92,14 +91,14 @@ public class VehiclePath extends Element3D {
         showPathOptm = false;
         // Line
         path = buildCurve(getPathPointsInJME(bathyData), Spline.SplineType.Linear, "vehiclePath");
-        if (JmeComponent.TEST_CURVE) {
-            // Strip
-            pathPoints = bathyData.getVehicleInfo();
-            createStripNewDataStruct();
-        }
-        else {
+        // if (JmeComponent.TEST_CURVE) {
+        // // Strip
+        // pathPoints = bathyData.getVehicleInfo();
+        // createStripNewDataStruct();
+        // }
+        // else {
             pathPoints = null;
-        }
+        // }
     }
 
     /**

@@ -28,7 +28,6 @@ import com.jme3.system.JmeCanvasContext;
  * 
  */
 public class JmeComponent extends SimpleApplication {
-    public static final boolean TEST_CURVE = false;
     private JmeCanvasContext ctx;
     private final IMraLogGroup source;
     private final NoVisualization noVisualization;
@@ -119,9 +118,6 @@ public class JmeComponent extends SimpleApplication {
         }
         else {
             try {
-                if (TEST_CURVE) {
-                    bathyGen.extractBathymetryInfoRawIMC4();
-                }
                 bathyInfo = bathyGen.extractBathymetryInfoIMC4();
             }
             catch (NotEnoughDataException e1) {

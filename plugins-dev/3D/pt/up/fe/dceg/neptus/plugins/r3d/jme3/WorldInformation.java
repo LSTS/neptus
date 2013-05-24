@@ -96,14 +96,14 @@ public class WorldInformation {
         terrainLvl = convertDepthMeter2Px_heightMapScale(bathyInfo.getMaxWaterColumn());
         geoidtLvl = convertHeightMeter2Px_heightMapScale(geoidHeightM);
 
-        if (JmeComponent.TEST_CURVE) {
-        // variables on scale with independent lat lon depth from log
-        origin_directFromLog = new LocationType(Math.toDegrees(bathyInfo.getVehicleInfo().get(0).getLatitude()),
-                Math.toDegrees(bathyInfo.getVehicleInfo().get(0).getLongitude()));
-        }
-        else {
+        // if (JmeComponent.TEST_CURVE) {
+        // // variables on scale with independent lat lon depth from log
+        // origin_directFromLog = new LocationType(Math.toDegrees(bathyInfo.getVehicleInfo().get(0).getLatitude()),
+        // Math.toDegrees(bathyInfo.getVehicleInfo().get(0).getLongitude()));
+        // }
+        // else {
             origin_directFromLog = null;
-        }
+        // }
         // NeptusLog.pub().debug(
         // "waterM:" + waterHeightM + "; geoidM:" + geoidHeightM + "; deltaDepthM: " + deltaDepthM
         // + "; deltaDepthJME: " + convertHeightMeter2Px_heightMapScale(deltaDepthM)
