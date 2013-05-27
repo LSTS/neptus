@@ -488,8 +488,10 @@ public class MultibeamToolBar {
                                 mesh = vtk.linkedHashMapMesh.get(sKey);
                                 if (tempActor.equals(mesh.getMeshCloudLODActor())) {
                                     Contours contours = new Contours(mesh);
-                                    contours.generateTerrainContours4();
-                                    canvas.GetRenderer().AddActor(contours.planeActor);
+                                    //contours.generateTerrainContours4();
+                                    //canvas.GetRenderer().AddActor(contours.planeActor);
+                                    contours.generateTerrainContours3();
+                                    canvas.GetRenderer().AddActor(contours.isolinesActor);
                                     canvas.lock();
                                     canvas.Render();
                                     canvas.unlock();

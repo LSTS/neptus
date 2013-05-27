@@ -309,12 +309,13 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
                 noBeamsText = new Text3D();
                 noBeamsText.buildText3D("No beams on Log file!", 2.0, 2.0, 2.0, 10.0);
-                vtkCanvas.lock();
+                //vtkCanvas.lock();
                 vtkCanvas.GetRenderer().AddActor(noBeamsText.getText3dActor()); 
-                vtkCanvas.unlock();
+                //vtkCanvas.unlock();
             }
             //vtkCanvas.lock();
             vtkCanvas.GetRenderer().ResetCamera();
+            //vtkCanvas.GetRenderer().ResetCameraClippingRange();      
             //vtkCanvas.unlock();
         }      
         return this;

@@ -41,6 +41,10 @@ import vtk.vtkCellArray;
 import vtk.vtkContourFilter;
 import vtk.vtkCutter;
 import vtk.vtkDataArray;
+import vtk.vtkDoubleArray;
+import vtk.vtkIdList;
+import vtk.vtkIdTypeArray;
+import vtk.vtkLODActor;
 import vtk.vtkMath;
 import vtk.vtkPlane;
 import vtk.vtkPoints;
@@ -61,6 +65,8 @@ public class Contours {
     private vtkContourFilter contours;
     
     public vtkActor planeActor;
+    
+    public vtkActor isolinesActor;
     
     
     private static int pointThreshold = 10;
@@ -123,6 +129,8 @@ public class Contours {
         vtkPolyDataMapper cutterMapper = new vtkPolyDataMapper();
         cutterMapper.SetInputConnection(cutter.GetOutputPort());
         cutterMapper.ScalarVisibilityOff();
+        NeptusLog.pub().info("number of pices on mapper: " + cutterMapper.GetNumberOfPieces());
+        NeptusLog.pub().info("Number of clipping planes: " + cutterMapper.GetClippingPlanes().GetNumberOfItems());
         //
         //NeptusLog.pub().info()
         
@@ -142,10 +150,11 @@ public class Contours {
         
         //contours.SetInputConnection(mesh.getPolyData());
         NeptusLog.pub().info("number of points: " + mesh.getPolyData().GetNumberOfPoints());
+        NeptusLog.pub().info("Bounds: minZ: " + mesh.getPolyData().GetBounds()[4] + " max Z: " + mesh.getPolyData().GetBounds()[5]);
         
         contours.SetInput(mesh.getPolyData());
         //contours.SetInputConnection(mesh.getMeshCloudLODActor().GetMapper().GetOutputPort());
-        contours.SetValue(0, (scalarRange[1] + scalarRange[0]) / 2);       
+        //contours.SetValue(0, (scalarRange[1] + scalarRange[0]) / 2);       
         contours.GenerateValues(10, mesh.getPolyData().GetBounds()[4], mesh.getPolyData().GetBounds()[5]);
         //contours.ComputeGradientsOn();
         //contours.ComputeNormalsOn();
@@ -175,11 +184,37 @@ public class Contours {
         cells = contourStripper.GetOutput().GetLines();
         vtkDataArray scalars = new vtkDataArray();
         scalars = contourStripper.GetOutput().GetPointData().GetScalars();
-        
-        
+                
         NeptusLog.pub().info("Number of cells: " + cells.GetNumberOfCells());
+           
+        vtkPolyData labelPolyData = new vtkPolyData();
+        vtkPoints labelPoints = new vtkPoints();
+        vtkDoubleArray labelScalars = new vtkDoubleArray();
         
-        int linecount = 0;  
+        labelScalars.SetNumberOfComponents(1);
+        labelScalars.SetName("Isovalues");
+        
+        //vtkIdTypeArray indices = new vtkIdTypeArray();
+        vtkIdList indices = new vtkIdList();
+        int numberOfPoints;
+        int lineCount = 0;
+
+//        for (cells.InitTraversal(); cells.GetCell(numberOfPoints ,indices); ++lineCount) {
+//            //cells.get
+//        }
+//        for (iterable_type iterable_element : iterable) {
+//            
+//        }
+        
+        vtkPolyDataMapper contourMapper = new vtkPolyDataMapper();
+        contourMapper.SetInputConnection(contourStripper.GetOutputPort());
+        contourMapper.ScalarVisibilityOff();
+        
+        isolinesActor = new vtkActor();
+        isolinesActor.SetMapper(contourMapper);
+        
+        
+        
     }
     
     public void generateTerrainContours2 () {
