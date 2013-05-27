@@ -63,7 +63,7 @@ public class PointCloud<T extends PointXYZ> {
         //public vtkActor contourActor;
     
     /**
-     * 
+     * Create a pointcloud object
      */
     public PointCloud () {
         setPoints(new vtkPoints());

@@ -37,6 +37,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCleanPolyData;
 import vtk.vtkDelaunay2D;
 import vtk.vtkLODActor;
+import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
 
 /**
@@ -44,26 +45,32 @@ import vtk.vtkPolyDataMapper;
  *
  */
 public class Delauny2D {
-    public PointCloud<PointXYZ> pointCloud;
-    private PointCloudMesh mesh;
+    private vtkPolyData polyData;
+       
+    //public PointCloud<PointXYZ> pointCloud;
+    //private PointCloudMesh mesh;
     
     private vtkLODActor delaunyActor;
     private vtkCleanPolyData cleanPolyData;
     
-    public Delauny2D(PointCloud<PointXYZ> intputCloud, PointCloudMesh outputMesh) {
-        this.pointCloud = intputCloud;
-        this.mesh = outputMesh;
+//    public Delauny2D(PointCloud<PointXYZ> intputCloud, PointCloudMesh outputMesh) {
+//        this.pointCloud = intputCloud;
+//        this.mesh = outputMesh;
+//        
+//        setDelaunyActor(new vtkLODActor());
+//    }
+    
+    public Delauny2D() {
         
-        setDelaunyActor(new vtkLODActor());
     }
     
-    public void performDelauny() {
+    public void performDelauny(PointCloud<PointXYZ> inputCloud) {
         
         NeptusLog.pub().info("Delauny Triangulation time start: " + System.currentTimeMillis());
 
         NeptusLog.pub().info("cleaning point cloud...");
         cleanPolyData = new vtkCleanPolyData();
-        cleanPolyData.SetInputConnection(pointCloud.getPoly().GetProducerPort());
+        cleanPolyData.SetInputConnection(inputCloud.getPoly().GetProducerPort());
         cleanPolyData.Update();
         
         //mesh.setPolyData(cleanPolyData.GetOutput());
@@ -76,15 +83,17 @@ public class Delauny2D {
         //delauny.BoundingTriangulationOn();
         delauny.Update();
         
-        mesh.setPolyData(delauny.GetOutput());
+        setPolyData(delauny.GetOutput());
         
-        vtkPolyDataMapper triangulateMapper = new vtkPolyDataMapper();
-        triangulateMapper.SetInputConnection(delauny.GetOutputPort());
-        
-        delaunyActor.SetMapper(triangulateMapper);
-        delaunyActor.Modified();
-        
-        mesh.setMeshCloudLODActor(getDelaunyActor());
+//        mesh.setPolyData(delauny.GetOutput());
+//        
+//        vtkPolyDataMapper triangulateMapper = new vtkPolyDataMapper();
+//        triangulateMapper.SetInputConnection(delauny.GetOutputPort());
+//        
+//        delaunyActor.SetMapper(triangulateMapper);
+//        delaunyActor.Modified();
+//        
+//        mesh.setMeshCloudLODActor(getDelaunyActor());
         
         NeptusLog.pub().info("Delauny Triangulation time end: " + System.currentTimeMillis());
     }
@@ -115,5 +124,19 @@ public class Delauny2D {
      */
     public void setCleanPolyData(vtkCleanPolyData cleanPolyData) {
         this.cleanPolyData = cleanPolyData;
+    }
+
+    /**
+     * @return the polyData
+     */
+    public vtkPolyData getPolyData() {
+        return polyData;
+    }
+
+    /**
+     * @param polyData the polyData to set
+     */
+    public void setPolyData(vtkPolyData polyData) {
+        this.polyData = polyData;
     }
 }

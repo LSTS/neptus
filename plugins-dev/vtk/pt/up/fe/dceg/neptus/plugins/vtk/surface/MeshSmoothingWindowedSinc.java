@@ -31,14 +31,16 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.surface;
 
-import vtk.vtkPolyData;
+import pt.up.fe.dceg.neptus.NeptusLog;
+import vtk.vtkLODActor;
+import vtk.vtkPolyDataMapper;
+import vtk.vtkWindowedSincPolyDataFilter;
 
 /**
  * @author hfq
  * Mesh Smoothing based on the vtkWindowedSincPolyDataFilter
  */
 public class MeshSmoothingWindowedSinc {
-    private vtkPolyData polygons;
     private int numIterations = 20;
     private float passBand = 0.1f;
     private boolean featureEdgeSmoothing = false;
@@ -48,10 +50,145 @@ public class MeshSmoothingWindowedSinc {
     private boolean normalizeCoordinates = false;
     
     public MeshSmoothingWindowedSinc() {
-        
+
     }
     
-    public void performProcessing() {
-        
+    public void performProcessing(PointCloudMesh mesh) {
+        try {
+            NeptusLog.pub().info("Smoothing Windowed Sinc time start: " + System.currentTimeMillis());
+            
+            vtkWindowedSincPolyDataFilter smoother = new vtkWindowedSincPolyDataFilter();
+            smoother.SetInput(mesh.getPolyData());
+            smoother.SetNumberOfIterations(numIterations);
+            smoother.SetPassBand(passBand);
+            if (!normalizeCoordinates)
+                smoother.NormalizeCoordinatesOff();
+            else
+                smoother.NormalizeCoordinatesOn();
+            if (!featureEdgeSmoothing)
+                smoother.FeatureEdgeSmoothingOff();
+            else
+                smoother.FeatureEdgeSmoothingOn();
+            smoother.SetFeatureAngle(featureAngle);
+            smoother.SetEdgeAngle(edgeAngle);
+            if (boundarySmoothing)
+                smoother.BoundarySmoothingOn();
+            else
+                smoother.BoundarySmoothingOff();
+            
+            mesh.setPolyData(smoother.GetOutput());
+            mesh.getPolyData().Update();
+            
+            vtkPolyDataMapper mapper = new vtkPolyDataMapper();
+            mapper.SetInputConnection(mesh.getPolyData().GetProducerPort());
+            mapper.Update();
+            
+            mesh.setMeshCloudLODActor(new vtkLODActor());
+            mesh.getMeshCloudLODActor().SetMapper(mapper);
+            mesh.getMeshCloudLODActor().Modified();
+            
+            NeptusLog.pub().info("Smoothing Windowed Sinc time end: " + System.currentTimeMillis());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * @return the numIterations
+     */
+    public int getNumIterations() {
+        return numIterations;
+    }
+
+    /**
+     * @param numIterations the numIterations to set
+     */
+    public void setNumIterations(int numIterations) {
+        this.numIterations = numIterations;
+    }
+
+    /**
+     * @return the passBand
+     */
+    public float getPassBand() {
+        return passBand;
+    }
+
+    /**
+     * @param passBand the passBand to set
+     */
+    public void setPassBand(float passBand) {
+        this.passBand = passBand;
+    }
+
+    /**
+     * @return the featureEdgeSmoothing
+     */
+    private boolean isFeatureEdgeSmoothing() {
+        return featureEdgeSmoothing;
+    }
+
+    /**
+     * @param featureEdgeSmoothing the featureEdgeSmoothing to set
+     */
+    private void setFeatureEdgeSmoothing(boolean featureEdgeSmoothing) {
+        this.featureEdgeSmoothing = featureEdgeSmoothing;
+    }
+
+    /**
+     * @return the featureAngle
+     */
+    private float getFeatureAngle() {
+        return featureAngle;
+    }
+
+    /**
+     * @param featureAngle the featureAngle to set
+     */
+    private void setFeatureAngle(float featureAngle) {
+        this.featureAngle = featureAngle;
+    }
+
+    /**
+     * @return the edgeAngle
+     */
+    private float getEdgeAngle() {
+        return edgeAngle;
+    }
+
+    /**
+     * @param edgeAngle the edgeAngle to set
+     */
+    private void setEdgeAngle(float edgeAngle) {
+        this.edgeAngle = edgeAngle;
+    }
+
+    /**
+     * @return the boundarySmoothing
+     */
+    private boolean isBoundarySmoothing() {
+        return boundarySmoothing;
+    }
+
+    /**
+     * @param boundarySmoothing the boundarySmoothing to set
+     */
+    private void setBoundarySmoothing(boolean boundarySmoothing) {
+        this.boundarySmoothing = boundarySmoothing;
+    }
+
+    /**
+     * @return the normalizeCoordinates
+     */
+    private boolean isNormalizeCoordinates() {
+        return normalizeCoordinates;
+    }
+
+    /**
+     * @param normalizeCoordinates the normalizeCoordinates to set
+     */
+    private void setNormalizeCoordinates(boolean normalizeCoordinates) {
+        this.normalizeCoordinates = normalizeCoordinates;
     }
 }

@@ -31,24 +31,183 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.surface;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+import vtk.vtkLODActor;
+import vtk.vtkPolyData;
+import vtk.vtkPolyDataMapper;
+import vtk.vtkSmoothPolyDataFilter;
+
 /**
  * @author hfq
  *  Mesh smoothing based on the vtkSmoothPolyDataFilter algorithm from the VTK library
  */
 public class MeshSmoothingLaplacian {
-    int numIterations = 20;
-    float convergence = 0.0f;
-    float relaxationFactor = 0.01f;
-    boolean featureEdgeSmooting = false;
-    float featureAngle = 45.f;
-    float edgeAngle = 15.f;
-    boolean boundarySmoothing = true;
+    private vtkPolyData polyData;
+    
+    private int numIterations = 20;
+    private float convergence = 0.0f;
+    private float relaxationFactor = 0.01f;
+    private boolean featureEdgeSmoothing = false;
+    private float featureAngle = 45.f;
+    private float edgeAngle = 15.f;
+    private boolean boundarySmoothing = true;
     
     public MeshSmoothingLaplacian() {
         
     }
     
-    public void performProcessing() {
-        
+    public void performProcessing(PointCloudMesh mesh) {
+        try {
+            NeptusLog.pub().info("Laplacian Smoothing time start: " + System.currentTimeMillis());
+            
+            vtkSmoothPolyDataFilter smoother = new vtkSmoothPolyDataFilter();
+            smoother.SetInput(mesh.getPolyData());
+            smoother.SetNumberOfIterations(numIterations);
+            if (convergence != 0.0f) {
+                smoother.SetConvergence(convergence);
+            }
+            smoother.SetRelaxationFactor(relaxationFactor);
+            if (!featureEdgeSmoothing)
+                smoother.FeatureEdgeSmoothingOff();
+            else
+                smoother.FeatureEdgeSmoothingOn();
+            smoother.SetFeatureAngle(featureAngle);
+            smoother.SetEdgeAngle(edgeAngle);
+            if (boundarySmoothing)
+                smoother.BoundarySmoothingOn();
+            else
+                smoother.BoundarySmoothingOff();
+            
+            setPolyData(smoother.GetOutput());
+            getPolyData().Update();
+            
+//            mesh.setPolyData(smoother.GetOutput());
+//            mesh.getPolyData().Update();
+//            
+//            vtkPolyDataMapper mapper = new vtkPolyDataMapper();
+//            mapper.SetInputConnection(mesh.getPolyData().GetProducerPort());
+//            mapper.Update();
+//            
+//            mesh.setMeshCloudLODActor(new vtkLODActor());
+//            mesh.getMeshCloudLODActor().SetMapper(mapper);
+//            mesh.getMeshCloudLODActor().Modified();
+            
+            NeptusLog.pub().info("Laplacian Smoothing time end: " + System.currentTimeMillis());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * @return the numIterations
+     */
+    int getNumIterations() {
+        return numIterations;
+    }
+
+    /**
+     * @param numIterations the numIterations to set
+     */
+    void setNumIterations(int numIterations) {
+        this.numIterations = numIterations;
+    }
+
+    /**
+     * @return the convergence
+     */
+    float getConvergence() {
+        return convergence;
+    }
+
+    /**
+     * @param convergence the convergence to set
+     */
+    void setConvergence(float convergence) {
+        this.convergence = convergence;
+    }
+
+    /**
+     * @return the relaxationFactor
+     */
+    float getRelaxationFactor() {
+        return relaxationFactor;
+    }
+
+    /**
+     * @param relaxationFactor the relaxationFactor to set
+     */
+    void setRelaxationFactor(float relaxationFactor) {
+        this.relaxationFactor = relaxationFactor;
+    }
+
+    /**
+     * @return the featureEdgeSmooting
+     */
+    boolean isFeatureEdgeSmooting() {
+        return featureEdgeSmoothing;
+    }
+
+    /**
+     * @param featureEdgeSmooting the featureEdgeSmooting to set
+     */
+    void setFeatureEdgeSmooting(boolean featureEdgeSmooting) {
+        this.featureEdgeSmoothing = featureEdgeSmooting;
+    }
+
+    /**
+     * @return the featureAngle
+     */
+    float getFeatureAngle() {
+        return featureAngle;
+    }
+
+    /**
+     * @param featureAngle the featureAngle to set
+     */
+    void setFeatureAngle(float featureAngle) {
+        this.featureAngle = featureAngle;
+    }
+
+    /**
+     * @return the edgeAngle
+     */
+    float getEdgeAngle() {
+        return edgeAngle;
+    }
+
+    /**
+     * @param edgeAngle the edgeAngle to set
+     */
+    void setEdgeAngle(float edgeAngle) {
+        this.edgeAngle = edgeAngle;
+    }
+
+    /**
+     * @return the boundarySmoothing
+     */
+    boolean isBoundarySmoothing() {
+        return boundarySmoothing;
+    }
+
+    /**
+     * @param boundarySmoothing the boundarySmoothing to set
+     */
+    void setBoundarySmoothing(boolean boundarySmoothing) {
+        this.boundarySmoothing = boundarySmoothing;
+    }
+
+    /**
+     * @return the polyData
+     */
+    public vtkPolyData getPolyData() {
+        return polyData;
+    }
+
+    /**
+     * @param polyData the polyData to set
+     */
+    public void setPolyData(vtkPolyData polyData) {
+        this.polyData = polyData;
     }
 }
