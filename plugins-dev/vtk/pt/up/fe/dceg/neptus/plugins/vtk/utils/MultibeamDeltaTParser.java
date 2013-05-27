@@ -129,8 +129,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
         catch (IOException ioe) {
             NeptusLog.pub().info("Exception while reading the file: " + ioe);
             ioe.printStackTrace();
-        }
-        
+        }       
         channel = fis.getChannel();       
         stateParserLogMra = logGroup.getLog("EstimatedState");
         

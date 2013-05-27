@@ -27,52 +27,28 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * May 9, 2013
+ * May 27, 2013
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.surface;
 
-import vtk.vtkLODActor;
-import vtk.vtkPolyData;
-
 /**
  * @author hfq
- *
+ *  Mesh smoothing based on the vtkSmoothPolyDataFilter algorithm from the VTK library
  */
-public class PointCloudMesh {
+public class MeshSmoothingLaplacian {
+    int numIterations = 20;
+    float convergence = 0.0f;
+    float relaxationFactor = 0.01f;
+    boolean featureEdgeSmooting = false;
+    float featureAngle = 45.f;
+    float edgeAngle = 15.f;
+    boolean boundarySmoothing = true;
     
-    private vtkPolyData polyData;
-    private vtkLODActor meshCloudLODActor;
+    public MeshSmoothingLaplacian() {
         
-    public PointCloudMesh() {
-        setPolyData(new vtkPolyData());
-        setMeshCloudLODActor(new vtkLODActor());
     }
-
-    /**
-     * @return the meshCloudLODActor
-     */
-    public vtkLODActor getMeshCloudLODActor() {
-        return meshCloudLODActor;
-    }
-
-    /**
-     * @param meshCloudLODActor the meshCloudLODActor to set
-     */
-    public void setMeshCloudLODActor(vtkLODActor meshCloudLODActor) {
-        this.meshCloudLODActor = meshCloudLODActor;
-    }
-
-    /**
-     * @return the polyData
-     */
-    public vtkPolyData getPolyData() {
-        return polyData;
-    }
-
-    /**
-     * @param polyData the polyData to set
-     */
-    public void setPolyData(vtkPolyData polyData) {
-        this.polyData = polyData;
+    
+    public void performProcessing() {
+        
     }
 }

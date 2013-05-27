@@ -27,52 +27,21 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * May 9, 2013
+ * May 27, 2013
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.surface;
-
-import vtk.vtkLODActor;
-import vtk.vtkPolyData;
 
 /**
  * @author hfq
  *
  */
-public class PointCloudMesh {
+public class MeshSubdivision {
+
+    public enum MeshSubdivisionFilterType {
+        LINEAD, LOOP, BUTTERFLY
+    }
     
-    private vtkPolyData polyData;
-    private vtkLODActor meshCloudLODActor;
+    public MeshSubdivision() {
         
-    public PointCloudMesh() {
-        setPolyData(new vtkPolyData());
-        setMeshCloudLODActor(new vtkLODActor());
-    }
-
-    /**
-     * @return the meshCloudLODActor
-     */
-    public vtkLODActor getMeshCloudLODActor() {
-        return meshCloudLODActor;
-    }
-
-    /**
-     * @param meshCloudLODActor the meshCloudLODActor to set
-     */
-    public void setMeshCloudLODActor(vtkLODActor meshCloudLODActor) {
-        this.meshCloudLODActor = meshCloudLODActor;
-    }
-
-    /**
-     * @return the polyData
-     */
-    public vtkPolyData getPolyData() {
-        return polyData;
-    }
-
-    /**
-     * @param polyData the polyData to set
-     */
-    public void setPolyData(vtkPolyData polyData) {
-        this.polyData = polyData;
     }
 }
