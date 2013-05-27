@@ -29,7 +29,7 @@
  * Author: hfq
  * Apr 19, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
+package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkLookupTable;
@@ -40,12 +40,7 @@ import vtk.vtkUnsignedCharArray;
  * @author hfq
  * Handles Pointcloud colors
  */
-public class PointCloudHandlers<T extends PointXYZ> {
-    
-    //private int numberOfPoints;
-    private vtkPolyData polyData;
-    private vtkLookupTable colorLookupTable;
-    
+public class PointCloudHandlers<T extends PointXYZ> {    
     private vtkUnsignedCharArray colorsX;
     private vtkUnsignedCharArray colorsY;
     private vtkUnsignedCharArray colorsZ;
@@ -64,16 +59,11 @@ public class PointCloudHandlers<T extends PointXYZ> {
     }
     
     /**
-     * 
-     * @param numberPoints
+     * Generates color scalars and Lookuptables
      * @param polyData
-     * @param colorLookupTable
      * @param bounds
      */
-    public void generatePointCloudColorHandlers(vtkPolyData polyData, double[] bounds) {
-        //this.numberOfPoints = numberPoints;
-        this.setPolyData(polyData);
-        
+    public void generatePointCloudColorHandlers(vtkPolyData polyData, double[] bounds) {      
         //colorLookupTable.SetValueRange(getBounds()[4], getBounds()[5]);        
         //colorLookupTable.SetHueRange(0, 1);
         //colorLookupTable.SetSaturationRange(1, 1);
@@ -172,35 +162,6 @@ public class PointCloudHandlers<T extends PointXYZ> {
         this.colorsZ = colorsZ;
     }    
     
-    /**
-     * @return the polyData
-     */
-    public vtkPolyData getPolyData() {
-        return polyData;
-    }
-
-    /**
-     * @param polyData the polyData to set
-     */
-    public void setPolyData(vtkPolyData polyData) {
-        this.polyData = polyData;
-    }
-
-    /**
-     * @return the colorLookupTable
-     */
-    public vtkLookupTable getColorLookupTable() {
-        return colorLookupTable;
-    }
-
-    /**
-     * @param colorLookupTable the colorLookupTable to set
-     */
-    public void setColorLookupTable(vtkLookupTable colorLookupTable) {
-        this.colorLookupTable = colorLookupTable;
-    }
-    
-
     /**
      * @return the lutX
      */

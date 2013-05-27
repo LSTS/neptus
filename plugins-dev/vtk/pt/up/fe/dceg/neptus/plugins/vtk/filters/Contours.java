@@ -32,19 +32,14 @@
 package pt.up.fe.dceg.neptus.plugins.vtk.filters;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.PointCloudMesh;
 import vtk.vtkActor;
-import vtk.vtkAppendFilter;
 import vtk.vtkCellArray;
 import vtk.vtkContourFilter;
 import vtk.vtkCutter;
 import vtk.vtkDataArray;
 import vtk.vtkDoubleArray;
 import vtk.vtkIdList;
-import vtk.vtkIdTypeArray;
-import vtk.vtkLODActor;
 import vtk.vtkMath;
 import vtk.vtkPlane;
 import vtk.vtkPoints;
@@ -95,7 +90,7 @@ public class Contours {
         
         //contours.SetInputConnection(mesh.getPolyData());
         NeptusLog.pub().info("number of points: " + mesh.getPolyData().GetNumberOfPoints());
-        NeptusLog.pub().info("Bounds: minZ: " + mesh.getPolyData().GetBounds()[4] + " max Z: " + mesh.getPolyData().GetBounds()[5]);
+        //NeptusLog.pub().info("Bounds: minZ: " + mesh.getPolyData().GetBounds()[4] + " max Z: " + mesh.getPolyData().GetBounds()[5]);
         
         contours.SetInput(mesh.getPolyData());
         //contours.SetInputConnection(mesh.getMeshCloudLODActor().GetMapper().GetOutputPort());

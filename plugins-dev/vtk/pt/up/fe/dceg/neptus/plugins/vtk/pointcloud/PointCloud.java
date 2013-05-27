@@ -34,9 +34,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 import java.util.Random;
 
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-import pt.up.fe.dceg.neptus.plugins.vtk.visualization.PointCloudHandlers;
 import vtk.vtkCellArray;
-import vtk.vtkDataArray;
 import vtk.vtkLODActor;
 import vtk.vtkLookupTable;
 import vtk.vtkPointSource;

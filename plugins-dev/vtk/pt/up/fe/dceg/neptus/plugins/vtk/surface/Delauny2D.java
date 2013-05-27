@@ -38,7 +38,6 @@ import vtk.vtkCleanPolyData;
 import vtk.vtkDelaunay2D;
 import vtk.vtkLODActor;
 import vtk.vtkPolyData;
-import vtk.vtkPolyDataMapper;
 
 /**
  * @author hfq

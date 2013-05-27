@@ -47,8 +47,6 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
-import com.jogamp.common.util.cache.TempCacheReg;
-
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.vtk.Vtk;
@@ -56,6 +54,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.filters.Contours;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.ExaggeratePointCloudZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
+import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloudHandlers;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.Delauny2D;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.MeshSmoothingLaplacian;
