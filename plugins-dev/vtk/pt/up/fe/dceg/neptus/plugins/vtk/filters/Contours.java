@@ -154,8 +154,10 @@ public class Contours {
         
         contours.SetInput(mesh.getPolyData());
         //contours.SetInputConnection(mesh.getMeshCloudLODActor().GetMapper().GetOutputPort());
-        //contours.SetValue(0, (scalarRange[1] + scalarRange[0]) / 2);       
-        contours.GenerateValues(10, mesh.getPolyData().GetBounds()[4], mesh.getPolyData().GetBounds()[5]);
+        //contours.SetValue(0, (scalarRange[1] + scalarRange[0]) / 2);
+        //contours.SetValue(0, (mesh.getPolyData().GetBounds()[4] + mesh.getPolyData().GetBounds()[5])/2);
+        //contours.GenerateValues(10, mesh.getPolyData().GetBounds()[4], mesh.getPolyData().GetBounds()[5]);
+        contours.GenerateValues(10, scalarRange[0], scalarRange[1]);
         //contours.ComputeGradientsOn();
         //contours.ComputeNormalsOn();
         //contours.ComputeScalarsOn();
