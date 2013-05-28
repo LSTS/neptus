@@ -71,11 +71,10 @@ public class JsfSidescanParser implements SidescanParser {
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         
         ArrayList<JsfSonarData> ping = parser.getPingAt(timestamp1, subsystem);
-        ArrayList<JsfSonarData> nextPing;
         
         if(ping.size() == 0) return list;
+
         while(ping.get(0).getTimestamp() < timestamp2) {
-            int size = 1;
             JsfSonarData sboard = null;
             JsfSonarData pboard = null;
 
@@ -90,16 +89,10 @@ public class JsfSidescanParser implements SidescanParser {
                 }
             }
             // From here portboard channel (pboard var) will be the reference
-//            BufferedImage line = new BufferedImage(pboard.getNumberOfSamples() + sboard.getNumberOfSamples(), 1, BufferedImage.TYPE_INT_RGB);
             double fData[] = new double[pboard.getNumberOfSamples() + sboard.getNumberOfSamples()];
             
             double avgSboard = 0, avgPboard = 0;
             
-//            for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
-//                double r = pboard.getData()[i];
-//                min = Math.min(r, min);
-//                max = Math.max(r, max);
-//            }
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
                 double r = pboard.getData()[i];
                 avgPboard += r;
@@ -113,21 +106,7 @@ public class JsfSidescanParser implements SidescanParser {
             avgPboard /= (double)pboard.getNumberOfSamples() * config.normalization;
             avgSboard /= (double)sboard.getNumberOfSamples() * config.normalization;
             
-            float horizontalScale = (float)fData.length / (pboard.getRange() * 2f);
-            float verticalScale = horizontalScale;
-        
-            nextPing = parser.nextPing(subsystem);
-            
-            float secondsUntilNextPing = (nextPing.get(0).getTimestamp() - ping.get(0).getTimestamp()) / 1000f;
-            float speed = ping.get(0).getSpeed();
-            
-            size = (int) (secondsUntilNextPing * speed * verticalScale);
-            if (size <= 0) {
-                size = 1;
-            }
-            size = 1;
-            
-            // Draw Portboard
+            // Calculate Portboard
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
                 double r =  i / (double)pboard.getNumberOfSamples();
                 double gain;
@@ -137,7 +116,7 @@ public class JsfSidescanParser implements SidescanParser {
                 fData[i] = pb / avgPboard;
             }
             
-            // Draw Starboard
+            // Calculate Starboard
             for (int i = 0; i < sboard.getNumberOfSamples(); i++) {
                 double r = 1 - (i / (double)sboard.getNumberOfSamples());
                 double gain;
@@ -157,7 +136,9 @@ public class JsfSidescanParser implements SidescanParser {
             
             list.add(new SidescanLine(ping.get(0).getTimestamp(), ping.get(0).getRange(), pose, fData));
 
-            ping = nextPing;
+            ping = parser.nextPing(subsystem);
+            if(ping.size() == 0) return list;
+            
         }
         return list;
     }
