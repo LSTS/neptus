@@ -27,23 +27,59 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: jqcorreia
- * Apr 2, 2013
+ * May 28, 2013
  */
 package pt.up.fe.dceg.neptus.mra.api;
 
+import java.io.File;
+
+import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
+import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
+import pt.up.fe.dceg.neptus.util.llf.LogUtils;
 
 /**
  * @author jqcorreia
  *
  */
-public interface BathymetryParser {
-    public long getFirstTimestamp();
-    public long getLastTimestamp();
+public class BathymetryParserFactory {
+    static File dir;
+    static File file;
+    static IMraLogGroup source;
     
-    public BathymetryInfo getBathymetryInfo();
+    public static BathymetryParser build(IMraLogGroup log) {
+        file = null;
+        dir = log.getFile("Data.lsf").getParentFile();
+        source = log;
+        
+        return getParser();
+    }
     
-    public BathymetrySwath getSwathAt(long timestamp);
-    public BathymetrySwath nextSwath();
-    public BathymetrySwath nextSwath(double prob);
-    public void rewind();
+    public static BathymetryParser build(File fileOrDir) {
+        source = null;
+        if(fileOrDir.isDirectory())
+            dir = file;
+        else {
+            file = fileOrDir;
+        }
+        return getParser();
+    }
+    
+    private static BathymetryParser getParser() {
+        if(file != null) {
+            return null; //FIXME for now only directories are supported 
+        }
+        else if(dir != null) {
+            file = new File(dir.getAbsolutePath()+"/multibeam.83P");
+            if(file.exists()) {
+                return new DeltaTParser(source);
+            }
+            
+            // Next cases should be file = new File(...) and check for existence
+            // TODO
+
+            // Defaults to using IMC (in case of sidescan data existence)
+        }
+        return null;
+    }
+
 }

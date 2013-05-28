@@ -53,7 +53,7 @@ import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import ucar.nc2.ft.swath.SwathDatasetFactory;
+import pt.up.fe.dceg.neptus.util.llf.LsfLogSource;
 
 /**
  * @author jqcorreia
@@ -312,7 +312,8 @@ public class DeltaTParser implements BathymetryParser {
 ////            Output output = new Output(new FileOutputStream("kryo.bin"));
 //            
 //            int c = 0;
-//            while((p.nextSwath(1.0)) != null) {
+//            BathymetrySwath s;
+//            while((s = p.nextSwath()) != null) {
 //////                for(BathymetryPoint bp : bs.getData()) {
 //////                    double r[] = CoordinateUtil.latLonAddNE2(bp.lat, bp.lon, bp.north, bp.east);
 //////                    float f[] = new float[2];
@@ -325,6 +326,8 @@ public class DeltaTParser implements BathymetryParser {
 //////                }
 ////                c++;
 //////                kryo.writeObject(output, bs);
+//                
+//                System.out.println(s.getPose().getU());
 //            }
 //            NeptusLog.pub().info("<###> "+c);
 //        }

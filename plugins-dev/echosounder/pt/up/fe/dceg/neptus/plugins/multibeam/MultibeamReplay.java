@@ -45,6 +45,8 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
+import pt.up.fe.dceg.neptus.mra.api.BathymetryParserFactory;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
 import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
@@ -70,7 +72,7 @@ public class MultibeamReplay implements LogReplayLayer {
     
     ColorMap cm = ColorMapFactory.createJetColorMap();
     
-    DeltaTParser parser;
+    BathymetryParser parser;
 
     private IMraLogGroup source;
     
@@ -167,7 +169,7 @@ public class MultibeamReplay implements LogReplayLayer {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getFile("multibeam.83P") != null;
+        return BathymetryParserFactory.build(source) != null;
     }
 
     @Override
