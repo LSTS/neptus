@@ -287,6 +287,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             
             if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!                         
                     // create an actor from parsed beams
+
+                
                 pointCloud.createLODActorFromPoints();
              
                 //vtkCanvas.lock();

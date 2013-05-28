@@ -136,8 +136,6 @@ public class MultibeamDeltaTParser implements BathymetryParser{
         initialize();
     }
 
-    
-
     private double getTideOffset(long timestampMillis) {
         //
         // File tidesF = logGroup.getFile("tides.txt");;
@@ -395,5 +393,19 @@ public class MultibeamDeltaTParser implements BathymetryParser{
         NeptusLog.pub().info("range Resolution: " + header.rangeResolution);
         NeptusLog.pub().info("samples per beam: " + header.samplesPerBeam);
         NeptusLog.pub().info("Sector size: " + header.sectorSize);
+    }
+
+
+
+    @Override
+    public BathymetrySwath nextSwath(double prob) {
+        return null;
+    }
+
+
+
+    @Override
+    public void rewind() {
+        
     }
 }

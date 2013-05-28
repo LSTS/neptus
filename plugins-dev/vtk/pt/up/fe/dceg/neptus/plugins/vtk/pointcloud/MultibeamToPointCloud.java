@@ -38,14 +38,20 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.util.Date;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryInfo;
+import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
+import pt.up.fe.dceg.neptus.mra.api.BathymetryParserFactory;
+import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
+import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.MultibeamDeltaTHeader;
-import pt.up.fe.dceg.neptus.plugins.vtk.utils.MultibeamDeltaTParser;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.util.bathymetry.LocalData;
 
 /**
  * @author hfq
@@ -65,19 +71,94 @@ public class MultibeamToPointCloud {
     private FileChannel channel;                // SeekableByteChanel connected to the file (83P)
     private ByteBuffer buf;
     
-    public MultibeamDeltaTParser multibeamDeltaTParser;
+    public BathymetryParser multibeamDeltaTParser;
     
     public PointCloud<PointXYZ> pointCloud;
-       
-    public MultibeamToPointCloud(IMraLogGroup source, PointCloud<PointXYZ> pointCloud) {       
-        this.source = source;
+    
+    private LocalData ld;
+
+    /**
+     * @param log
+     * @param pointCloud2
+     */
+    public MultibeamToPointCloud(IMraLogGroup log, PointCloud<PointXYZ> pointCloud) {
+        this.source = log;
         this.pointCloud = pointCloud;
+    }
+
+    private double getTideOffset(long timestampMillis) {
+        //
+        // File tidesF = logGroup.getFile("tides.txt");;
+        // if (tidesF == null)
+        // return 0;
+        // else {
+        try {
+            return ld.getTidePrediction(new Date(timestampMillis), false);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+        // }
     }
     
     public void parseMultibeamPointCloud (boolean approachToIgnorePts, int ptsToIgnore, long timestampMultibeamIncrement, boolean yawMultibeamIncrement) {
-        multibeamDeltaTParser = new MultibeamDeltaTParser(this.source, pointCloud, approachToIgnorePts, ptsToIgnore, timestampMultibeamIncrement, yawMultibeamIncrement);
-        pointCloud.setNumberOfPoints(multibeamDeltaTParser.getTotalNumberPoints());
-        batInfo = multibeamDeltaTParser.info;
+        multibeamDeltaTParser = BathymetryParserFactory.build(this.source);
+        ld = new LocalData(this.source.getFile("mra/tides.txt"));
+        
+        BathymetrySwath bs;
+        
+        int countPoints = 0;
+        
+        while ((bs = multibeamDeltaTParser.nextSwath()) != null) {
+            LocationType loc = bs.getPose().getPosition().convertToAbsoluteLatLonDepth();
+            double lat = loc.getLatitudeAsDoubleValue();
+            double lon = loc.getLongitudeAsDoubleValue();            
+            
+            double tideOffset = getTideOffset(bs.getTimestamp());
+            
+            if (!approachToIgnorePts) {
+                for (int c = 0; c < bs.numBeams; c += ptsToIgnore) {
+                    BathymetryPoint p = bs.getData()[c];
+                    
+                    pointCloud.getVerts().InsertNextCell(1);
+                    pointCloud.getVerts().InsertCellPoint(
+                            pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth - tideOffset)); //FIXME Tideoffset
+                
+                    ++countPoints;
+                }
+            }
+            else {
+                for (int c = 0; c < bs.numBeams; c++) {
+                    if (Math.random() > 1.0 / ptsToIgnore)
+                        continue;
+                    
+                    BathymetryPoint p = bs.getData()[c];
+                    
+                    //NeptusLog.pub().info("north: " + p.north + " east: " + p.east + " depth: " + p.depth);
+                    
+                    pointCloud.getVerts().InsertNextCell(1);
+                    pointCloud.getVerts().InsertCellPoint(
+                            pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth - tideOffset)); //FIXME Tideoffset
+                
+                    ++countPoints;
+                }
+            }
+        }
+        
+        multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints = countPoints;
+        batInfo = multibeamDeltaTParser.getBathymetryInfo();
+
+        pointCloud.setNumberOfPoints(multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
+        //pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());
+    }
+    
+    private void printBathymetryInfo()
+    {
+        NeptusLog.pub().info("Total Number of Points: " + multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
+        NeptusLog.pub().info("" + multibeamDeltaTParser.getBathymetryInfo().maxDepth);
+        NeptusLog.pub().info("" + multibeamDeltaTParser.getBathymetryInfo().minDepth);
+        
     }
     
     /**
