@@ -53,6 +53,7 @@ import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import ucar.nc2.ft.swath.SwathDatasetFactory;
 
 /**
  * @author jqcorreia
@@ -226,6 +227,8 @@ public class DeltaTParser implements BathymetryParser {
             pose.getPosition().setOffsetEast(state.getDouble("y"));
             pose.getPosition().setDepth(state.getDouble("depth"));
             pose.setYaw(state.getDouble("psi") + (NeptusMRA.yawMultibeamIncrement ? Math.PI : 0));
+            pose.setU(header.speed);
+            
             for(int c = 0; c < header.numBeams; c++) { 
                 double range = buf.getShort(c*2) * (header.rangeResolution / 1000.0);
                 

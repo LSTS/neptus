@@ -52,6 +52,8 @@ public class DeltaTHeader {
     public float angleIncrement;
     public short range;
     
+    double speed;
+    
     public long timestamp;
     
     private static Calendar cal;
@@ -78,6 +80,8 @@ public class DeltaTHeader {
         angleIncrement = b.get(78) / 100f;
         range = b.getShort(79);
         rangeResolution = b.getShort(85);
+        
+        speed = (b.get(61) / 10.0) * 0.51444;
         
         // Timestamp processing
         b.position(8);
