@@ -103,39 +103,53 @@ public class KeyboardEvent {
                 break;
             case KeyEvent.VK_U:
                 try {
-                    canvas.lock();
+                    //canvas.lock();
                     if(!neptusInteractorStyle.lutEnabled) {
                         vtkActorCollection actorCollection = new vtkActorCollection();
                         actorCollection = renderer.GetActors();
                         actorCollection.InitTraversal();
                         
+                        
                         for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
                             vtkLODActor tempActor = new vtkLODActor();
+                            
+                            if (actorCollection.GetNextActor().IsA("vtkActor2D") > 0)
+                                continue;
                             tempActor = (vtkLODActor) actorCollection.GetNextActor();
+
                             setOfClouds = linkedHashMapCloud.keySet();
                             for (String skey : setOfClouds) {
                                 pointCloud = linkedHashMapCloud.get(skey);
                                 switch (colorMapRel) {
                                     case xMap:
-                                        neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutX());
+                                        neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(
+                                                pointCloud.getColorHandler().getLutX());
                                         break;
                                     case yMap:
-                                        neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutY());
+                                        neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(
+                                                pointCloud.getColorHandler().getLutY());
                                         break;
                                     case zMap:
-                                        neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
+                                        neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(
+                                                pointCloud.getColorHandler().getLutZ());
                                         break;
                                 }
                             }
                         }
+                        canvas.lock();
                         renderer.AddActor(neptusInteractorStyle.getScalarBar().getScalarBarActor());
+                        canvas.unlock();
                         neptusInteractorStyle.lutEnabled = true;
                     }
                     else {
+                        canvas.lock();
                         renderer.RemoveActor(neptusInteractorStyle.getScalarBar().getScalarBarActor());
+                        canvas.unlock();
                         neptusInteractorStyle.lutEnabled = false;
                     }
-                    interactor.Render();
+                    canvas.lock();
+                    canvas.Render();
+                    //interactor.Render();
                     canvas.unlock();
                 }
                 catch (Exception e6) {
@@ -144,42 +158,52 @@ public class KeyboardEvent {
                 break;             
             case KeyEvent.VK_G:
                 try {
-                    canvas.lock();
+                    //canvas.lock();
                     if (!neptusInteractorStyle.gridEnabled) {
                         neptusInteractorStyle.gridActor.TopAxisVisibilityOn();
+                        canvas.lock();
                         renderer.AddViewProp(neptusInteractorStyle.gridActor);
+                        canvas.unlock();
                         neptusInteractorStyle.gridEnabled = true;
                     }
                     else {
+                        canvas.lock();
                         renderer.RemoveViewProp(neptusInteractorStyle.gridActor);
+                        canvas.unlock();
                         neptusInteractorStyle.gridEnabled = false;
                     }
-                    interactor.Render();
+                    canvas.lock();
+                    //interactor.Render();
+                    canvas.Render();
                     canvas.unlock();
                 }
                 catch (Exception e5) {
                     e5.printStackTrace();
                 }
                 break;
-            case KeyEvent.VK_C:   // FIXME - not good enough, better check this one for a better implementation. problems: seems to be disconected of the rendered actor
-                
+//            case KeyEvent.VK_C:   // FIXME - not good enough, better check this one for a better implementation. problems: seems to be disconected of the rendered actor              
 //                try {
-//                    canvas.lock();
+//
 //                    if (!neptusInteractorStyle.compassEnabled) {
+//                        canvas.lock();
 //                        neptusInteractorStyle.compass.addCompassToVisualization(interactor);
+//                        canvas.unlock();
 //                        neptusInteractorStyle.compassEnabled = true;
 //                    }
 //                    else {
+//                        canvas.lock();
 //                        neptusInteractorStyle.compass.removeCompassFromVisualization(interactor);
+//                        canvas.unlock();
 //                        neptusInteractorStyle.compassEnabled = false;
 //                    }
+//                canvas.lock();    
+//                canvas.Render();    
 //                canvas.unlock();
 //                }
 //                catch (Exception e4) {
 //                    e4.printStackTrace();
 //                }
-
-                break;
+//                break;
 //            case KeyEvent.VK_W:
 //                try {
 //                    if (!neptusInteractorStyle.wireframeRepEnabled) {

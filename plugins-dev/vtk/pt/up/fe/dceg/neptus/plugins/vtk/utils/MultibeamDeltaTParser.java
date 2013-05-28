@@ -205,7 +205,7 @@ public class MultibeamDeltaTParser implements BathymetryParser{
 
                     info.minDepth = (float) Math.min(info.minDepth, p.depth - tideOffset);
                     info.maxDepth = (float) Math.max(info.maxDepth, p.depth - tideOffset);
-
+                    
                     pointCloud.getVerts().InsertNextCell(1);
                     pointCloud.getVerts().InsertCellPoint(
                             pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth - tideOffset));

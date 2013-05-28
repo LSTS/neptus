@@ -492,6 +492,11 @@ public class MultibeamToolBar {
                                         MeshSmoothingLaplacian smoothing = new MeshSmoothingLaplacian();
                                         smoothing.performProcessing(mesh);
                                         
+                                        canvas.lock();
+                                        canvas.GetRenderer().RemoveActor(mesh.getMeshCloudLODActor());
+                                        canvas.unlock();
+                                        
+                                        mesh.setPolyData(new vtkPolyData());
                                         mesh.generateLODActorFromPolyData(smoothing.getPolyData());
                                         canvas.lock();
                                         canvas.GetRenderer().AddActor(mesh.getMeshCloudLODActor());

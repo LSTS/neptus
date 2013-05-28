@@ -38,15 +38,19 @@ import vtk.vtkSmoothPolyDataFilter;
 /**
  * @author hfq
  *  Mesh smoothing based on the vtkSmoothPolyDataFilter algorithm from the VTK library
+ *  It's a filter that adjusts point coordinates using Laplacian smoothing. The effect is to "relax" the mesh, making the
+ *  cells better shaped and the vertices more evenly distribuited. 
  */
 public class MeshSmoothingLaplacian {
     private vtkPolyData polyData;
     
-    private int numIterations = 20;
+        // number of of iteretaion over each vertex
+    private int numIterations = 30;
+        
     private float convergence = 0.0f;
-    private float relaxationFactor = 0.01f;
-    private boolean featureEdgeSmoothing = false;
-    private float featureAngle = 45.f;
+    private float relaxationFactor = 0.1f; // 0.01f
+    private boolean featureEdgeSmoothing = false;  // false
+    private float featureAngle = 80.f;  // 45.f
     private float edgeAngle = 15.f;
     private boolean boundarySmoothing = true;
     
