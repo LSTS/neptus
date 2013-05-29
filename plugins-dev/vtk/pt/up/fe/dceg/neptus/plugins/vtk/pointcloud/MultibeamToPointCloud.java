@@ -41,6 +41,7 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.Date;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryInfo;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryParserFactory;
@@ -61,25 +62,21 @@ public class MultibeamToPointCloud {
     
     public IMraLogGroup source;
     public IMraLog state;
-    
-    //public BathymetryPoint batPoint;           // float north, float east, float depth
-    //public BathymetrySwath batSwath;
+
     public BathymetryInfo batInfo;
     
-    private File file;                          // *.83P file
-    private FileInputStream fileInputStream;    // 83P file input stream
-    private FileChannel channel;                // SeekableByteChanel connected to the file (83P)
-    private ByteBuffer buf;
+//    private File file;                          // *.83P file
+//    private FileInputStream fileInputStream;    // 83P file input stream
+//    private FileChannel channel;                // SeekableByteChanel connected to the file (83P)
+//    private ByteBuffer buf;
     
     public BathymetryParser multibeamDeltaTParser;
-    
-    public PointCloud<PointXYZ> pointCloud;
-    
+    public PointCloud<PointXYZ> pointCloud;    
     private LocalData ld;
 
     /**
      * @param log
-     * @param pointCloud2
+     * @param pointCloud
      */
     public MultibeamToPointCloud(IMraLogGroup log, PointCloud<PointXYZ> pointCloud) {
         this.source = log;
@@ -87,11 +84,6 @@ public class MultibeamToPointCloud {
     }
 
     private double getTideOffset(long timestampMillis) {
-        //
-        // File tidesF = logGroup.getFile("tides.txt");;
-        // if (tidesF == null)
-        // return 0;
-        // else {
         try {
             return ld.getTidePrediction(new Date(timestampMillis), false);
         }
@@ -99,47 +91,63 @@ public class MultibeamToPointCloud {
             e.printStackTrace();
             return 0;
         }
-        // }
     }
     
     public void parseMultibeamPointCloud (boolean approachToIgnorePts, int ptsToIgnore, long timestampMultibeamIncrement, boolean yawMultibeamIncrement) {
         multibeamDeltaTParser = BathymetryParserFactory.build(this.source);
         ld = new LocalData(this.source.getFile("mra/tides.txt"));
         
+        multibeamDeltaTParser.rewind();
         BathymetrySwath bs;
         
         int countPoints = 0;
         
         while ((bs = multibeamDeltaTParser.nextSwath()) != null) {
-            LocationType loc = bs.getPose().getPosition().convertToAbsoluteLatLonDepth();
-            double lat = loc.getLatitudeAsDoubleValue();
-            double lon = loc.getLongitudeAsDoubleValue();            
-            
+//            LocationType loc = bs.getPose().getPosition().convertToAbsoluteLatLonDepth();
+//            double lat = loc.getLatitudeAsDoubleValue();
+//            double lon = loc.getLongitudeAsDoubleValue();                     
+            LocationType loc = bs.getPose().getPosition();
+
             double tideOffset = getTideOffset(bs.getTimestamp());
             
             if (!approachToIgnorePts) {
                 for (int c = 0; c < bs.numBeams; c += ptsToIgnore) {
                     BathymetryPoint p = bs.getData()[c];
-                    
+                    if (p == null)
+                        continue;
+
+                    // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
+                    LocationType tempLoc = new LocationType(loc);
+                    // add data to pointcloud
                     pointCloud.getVerts().InsertNextCell(1);
+                    tempLoc.translatePosition(p.north, p.east, 0);
                     pointCloud.getVerts().InsertCellPoint(
-                            pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth - tideOffset)); //FIXME Tideoffset
-                
+                            pointCloud.getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), tempLoc.getOffsetEast(),
+                                    p.depth - tideOffset));
+
                     ++countPoints;
                 }
             }
             else {
                 for (int c = 0; c < bs.numBeams; c++) {
-                    if (Math.random() > 1.0 / ptsToIgnore)
+                    //if (Math.random() > 1.0 / ptsToIgnore)
+                    if (Math.random() > 1.0 / NeptusMRA.ptsToIgnore)
                         continue;
-                    
+
                     BathymetryPoint p = bs.getData()[c];
-                    
-                    //NeptusLog.pub().info("north: " + p.north + " east: " + p.east + " depth: " + p.depth);
-                    
+                    if (p == null)
+                        continue;
+                        // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
+                    LocationType tempLoc = new LocationType(loc);                         
                     pointCloud.getVerts().InsertNextCell(1);
-                    pointCloud.getVerts().InsertCellPoint(
-                            pointCloud.getPoints().InsertNextPoint(p.north, p.east, p.depth - tideOffset)); //FIXME Tideoffset
+                    tempLoc.translatePosition(p.north, p.east, 0);
+                    pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
+                            tempLoc.getOffsetEast(), 
+                            p.depth - tideOffset));
+                    
+//                  pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(tempLoc.getAbsoluteNEDInMeters()[0],
+//                  tempLoc.getAbsoluteNEDInMeters()[1],
+//                  p.depth));
                 
                     ++countPoints;
                 }
@@ -150,47 +158,37 @@ public class MultibeamToPointCloud {
         batInfo = multibeamDeltaTParser.getBathymetryInfo();
 
         pointCloud.setNumberOfPoints(multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
-        //pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());
     }
     
-    private void printBathymetryInfo()
-    {
-        NeptusLog.pub().info("Total Number of Points: " + multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
-        NeptusLog.pub().info("" + multibeamDeltaTParser.getBathymetryInfo().maxDepth);
-        NeptusLog.pub().info("" + multibeamDeltaTParser.getBathymetryInfo().minDepth);
-        
-    }
-    
-    /**
-     * 
-     */
-    private void getMyDeltaTHeader() {
-        file = source.getFile("multibeam.83P");  
-        //System.out.println("print parent: " + file.toString());
-        try {
-            fileInputStream = new FileInputStream(file);
-        }
-        catch (FileNotFoundException e) {
-            NeptusLog.pub().info("File not found: " + e);        
-            e.printStackTrace();
-        }
-        catch (IOException ioe) {
-            NeptusLog.pub().info("Exception while reading the file: " + ioe);
-            ioe.printStackTrace();
-        }
-        
-        
-        channel = fileInputStream.getChannel();      
-        long posOnFile = 0;
-        long sizeOfRegionToMap = 256;   // 256 bytes currespondent to the header of each ping         
-        try {
-            buf = channel.map(MapMode.READ_ONLY, posOnFile, sizeOfRegionToMap);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        } 
-        
-        MultibeamDeltaTHeader deltaTHeader = new MultibeamDeltaTHeader(buf);
-        deltaTHeader.parseHeader();     
-    }
+//    /**
+//     * 
+//     */
+//    private void getMyDeltaTHeader() {
+//        file = source.getFile("multibeam.83P");  
+//        //System.out.println("print parent: " + file.toString());
+//        try {
+//            fileInputStream = new FileInputStream(file);
+//        }
+//        catch (FileNotFoundException e) {
+//            NeptusLog.pub().info("File not found: " + e);        
+//            e.printStackTrace();
+//        }
+//        catch (IOException ioe) {
+//            NeptusLog.pub().info("Exception while reading the file: " + ioe);
+//            ioe.printStackTrace();
+//        }
+//    
+//        channel = fileInputStream.getChannel();      
+//        long posOnFile = 0;
+//        long sizeOfRegionToMap = 256;   // 256 bytes currespondent to the header of each ping         
+//        try {
+//            buf = channel.map(MapMode.READ_ONLY, posOnFile, sizeOfRegionToMap);
+//        }
+//        catch (IOException e) {
+//            e.printStackTrace();
+//        } 
+//        
+//        MultibeamDeltaTHeader deltaTHeader = new MultibeamDeltaTHeader(buf);
+//        deltaTHeader.parseHeader();     
+//    }
 }

@@ -138,7 +138,6 @@ public class DeltaTParser implements BathymetryParser {
             info.topLeft = new LocationType(maxLat, minLon).translatePosition(30, -30, 0).convertToAbsoluteLatLonDepth();
             info.bottomRight = new LocationType(minLat, maxLon).translatePosition(-30, 30, 0).convertToAbsoluteLatLonDepth();
             info.totalNumberOfPoints = totalNumberPoints;
-            System.out.println(info.totalNumberOfPoints + " #");
             
             try {
                 ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
@@ -248,10 +247,7 @@ public class DeltaTParser implements BathymetryParser {
                 float ox = (float) (x * Math.sin(yawAngle));
                 float oy = (float) (x * Math.cos(yawAngle));
                                 
-                //data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height);
-                data[realNumberOfBeams] = new BathymetryPoint((float) pose.getPosition().getOffsetNorth() + ox,
-                        (float) pose.getPosition().getOffsetEast() + oy,
-                        height);
+                data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height);
                 
                 realNumberOfBeams++;
             }

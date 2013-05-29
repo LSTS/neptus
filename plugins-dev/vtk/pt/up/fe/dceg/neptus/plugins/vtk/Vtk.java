@@ -81,21 +81,26 @@ import com.l2fprod.common.propertysheet.Property;
 public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider, ComponentListener {
     private static final long serialVersionUID = 8057825167454469065L;
     
-    @NeptusProperty(name = "Points to ignore on Multibeam 3D", description="Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.")
-    public int ptsToIgnore = 100;
+    //@NeptusProperty(name = "Points to ignore on Multibeam 3D", description="Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.")
+    //public int ptsToIgnore = 100;
+    public int ptsToIgnore = NeptusMRA.ptsToIgnore;
     
-    @NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description="Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).")
-    public boolean approachToIgnorePts = true; 
+    //@NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description="Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).")
+    //public boolean approachToIgnorePts = true;
+    public boolean approachToIgnorePts = NeptusMRA.approachToIgnorePts;
+        
+    //@NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser (in miliseconds).")
+    //public long timestampMultibeamIncrement = 0;
+    public long timestampMultibeamIncrement = NeptusMRA.timestampMultibeamIncrement;
+    
+    //@NeptusProperty(name = "Yaw Increment", description="Yaw (psi) increment for the 83P parser, set true to increment + 180º.")
+    //public boolean yawMultibeamIncrement = false;
+    public boolean yawMultibeamIncrement = NeptusMRA.yawMultibeamIncrement;
     
     @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration.")
     public int zExaggeration = 10;
-    
-    @NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser (in miliseconds).")
-    public long timestampMultibeamIncrement = 0;
-    
-    @NeptusProperty(name = "Yaw Increment", description="Yaw (psi) increment for the 83P parser, set true to increment + 180º.")
-    public boolean yawMultibeamIncrement = false;
-    
+
+
     // there are 2 types of rendering objects on VTK - vtkPanel and vtkCanvas. vtkCanvas seems to have a better behaviour and performance.
     //public vtkPanel vtkPanel;
     public vtkCanvas vtkCanvas;
