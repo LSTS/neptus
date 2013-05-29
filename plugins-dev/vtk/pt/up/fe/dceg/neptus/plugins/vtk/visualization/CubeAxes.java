@@ -43,9 +43,9 @@ import vtk.vtkStringArray;
  */
 public class CubeAxes {
     
-    private vtkStringArray xLabel;
-    private vtkStringArray yLabel;
-    private vtkStringArray zLabel;
+//    private vtkStringArray xLabel;
+//    private vtkStringArray yLabel;
+//    private vtkStringArray zLabel;
     
     private static vtkCubeAxesActor cubeAxesActor;
     

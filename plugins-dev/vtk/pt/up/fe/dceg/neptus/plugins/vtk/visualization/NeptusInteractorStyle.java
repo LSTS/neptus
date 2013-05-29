@@ -188,8 +188,8 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
 
             // LUT is enabled by default
         lutEnabled = true;
-        //getScalarBar().setScalarBarHorizontalProperties();
-        getScalarBar().setScalarBarVerticalProperties();
+        getScalarBar().setScalarBarHorizontalProperties();
+        //getScalarBar().setScalarBarVerticalProperties();
 
             // Create the image filter and PNG writer objects
         wif = new vtkWindowToImageFilter();

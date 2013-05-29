@@ -33,12 +33,10 @@ package pt.up.fe.dceg.neptus.plugins.vtk;
 
 import java.awt.Component;
 import java.awt.Rectangle;
-import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.File;
 import java.util.LinkedHashMap;
-import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -55,8 +53,6 @@ import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
-import pt.up.fe.dceg.neptus.plugins.vtk.filters.DownsamplePointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
@@ -308,6 +304,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 vtkCanvas.GetRenderer().GetActiveCamera().SetPosition(pointCloud.getPoly().GetCenter()[0] ,pointCloud.getPoly().GetCenter()[1] , pointCloud.getPoly().GetCenter()[2] - 200);
                 vtkCanvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
                 //vtkCanvas.unlock();
+                
             }
             else {  // if no beams were parsed
                 String msgErrorMultibeam;

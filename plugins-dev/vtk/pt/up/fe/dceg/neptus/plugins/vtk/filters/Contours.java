@@ -32,19 +32,14 @@
 package pt.up.fe.dceg.neptus.plugins.vtk.filters;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.PointCloudMesh;
 import vtk.vtkActor;
-import vtk.vtkAppendFilter;
 import vtk.vtkCellArray;
 import vtk.vtkContourFilter;
 import vtk.vtkCutter;
 import vtk.vtkDataArray;
 import vtk.vtkDoubleArray;
 import vtk.vtkIdList;
-import vtk.vtkIdTypeArray;
-import vtk.vtkLODActor;
 import vtk.vtkMath;
 import vtk.vtkPlane;
 import vtk.vtkPoints;
@@ -58,8 +53,8 @@ import vtk.vtkStripper;
  */
 public class Contours {
     
-    private PointCloud<PointXYZ> pointCloud;
-    private PointCloudMesh mesh;
+    //private PointCloud<PointXYZ> pointCloud;
+    //private PointCloudMesh mesh;
     
     private double[] scalarRange;
     private vtkContourFilter contours;
@@ -71,77 +66,22 @@ public class Contours {
     
     private static int pointThreshold = 10;
     
-    public Contours(PointCloud<PointXYZ> pointCloud) {
-        this.pointCloud = pointCloud;
-        
-        scalarRange = new double[2];
-        contours = new vtkContourFilter();
-    }
+//    public Contours(PointCloud<PointXYZ> pointCloud) {
+//        this.pointCloud = pointCloud;
+//        
+//        scalarRange = new double[2];
+//        contours = new vtkContourFilter();
+//    }
     
     /**
      * @param mesh
      */
-    public Contours(PointCloudMesh mesh) {
-        this.mesh = mesh;
-        
+    public Contours() {      
         scalarRange = new double[2];
         contours = new vtkContourFilter();
     }
     
-    public void generateTerrainContours4() {
-        vtkPolyDataMapper inputMapper = new vtkPolyDataMapper();
-        inputMapper.SetInput(mesh.getPolyData());
-        
-        vtkPlane plane = new vtkPlane();
-        plane.SetOrigin(mesh.getPolyData().GetCenter());
-        //plane.SetNormal(1,1,1);
-        plane.SetNormal(0.0, 0.0, -1.0);
-        
-        double[] bounds = mesh.getPolyData().GetBounds();
-        
-        double[] minBound = new double[3];
-        minBound[0] = bounds[0];
-        minBound[1] = bounds[2];
-        minBound[2] = bounds[4];
-        
-        
-        double[] maxBound = new double[3];
-        maxBound[0] = bounds[1];
-        maxBound[1] = bounds[3];
-        maxBound[2] = bounds[5];
-        
-        double[] center = new double[3];
-        center[0] = mesh.getPolyData().GetCenter()[0];
-        center[0] = mesh.getPolyData().GetCenter()[1];
-        center[0] = mesh.getPolyData().GetCenter()[2];
-        
-        vtkMath math = new vtkMath();
-        double distanceMin = Math.sqrt(math.Distance2BetweenPoints(minBound, center));
-        double distanceMax = Math.sqrt(math.Distance2BetweenPoints(maxBound, center));
-        
-        vtkCutter cutter = new vtkCutter();
-        cutter.SetCutFunction(plane);
-        cutter.SetInput(mesh.getPolyData());
-        
-        cutter.GenerateValues(10, bounds[4], bounds[5]);
-        //cutter.GenerateValues(20, -distanceMin, distanceMax);
-        NeptusLog.pub().info("number of contours: " + cutter.GetNumberOfContours());
-        vtkPolyDataMapper cutterMapper = new vtkPolyDataMapper();
-        cutterMapper.SetInputConnection(cutter.GetOutputPort());
-        cutterMapper.ScalarVisibilityOff();
-        NeptusLog.pub().info("number of pices on mapper: " + cutterMapper.GetNumberOfPieces());
-        NeptusLog.pub().info("Number of clipping planes: " + cutterMapper.GetClippingPlanes().GetNumberOfItems());
-        //
-        //NeptusLog.pub().info()
-        
-        planeActor = new vtkActor();
-        planeActor.GetProperty().SetColor(1.0, 1,0);
-        planeActor.GetProperty().SetLineWidth(2);
-        planeActor.SetMapper(cutterMapper);
-    }
-    
-    
-    public void generateTerrainContours3() {
+    public void generateTerrainContours(PointCloudMesh mesh) {
         //vtkPolyDataMapper inputMapper = new vtkPolyDataMapper();
         //inputMapper.SetInput(mesh.getMeshCloudLODActor().GetM)
         
@@ -150,7 +90,7 @@ public class Contours {
         
         //contours.SetInputConnection(mesh.getPolyData());
         NeptusLog.pub().info("number of points: " + mesh.getPolyData().GetNumberOfPoints());
-        NeptusLog.pub().info("Bounds: minZ: " + mesh.getPolyData().GetBounds()[4] + " max Z: " + mesh.getPolyData().GetBounds()[5]);
+        //NeptusLog.pub().info("Bounds: minZ: " + mesh.getPolyData().GetBounds()[4] + " max Z: " + mesh.getPolyData().GetBounds()[5]);
         
         contours.SetInput(mesh.getPolyData());
         //contours.SetInputConnection(mesh.getMeshCloudLODActor().GetMapper().GetOutputPort());
@@ -213,21 +153,19 @@ public class Contours {
         contourMapper.ScalarVisibilityOff();
         
         isolinesActor = new vtkActor();
-        isolinesActor.SetMapper(contourMapper);
-        
-        
-        
-    }
+        isolinesActor.SetMapper(contourMapper);   
+    }   
     
-    public void generateTerrainContours2 () {
+    public void generateTerrainContoursThroughCutter(PointCloudMesh mesh) {
         vtkPolyDataMapper inputMapper = new vtkPolyDataMapper();
-        inputMapper.SetInput(pointCloud.getPoly());
+        inputMapper.SetInput(mesh.getPolyData());
         
         vtkPlane plane = new vtkPlane();
-        plane.SetOrigin(pointCloud.getPoly().GetCenter());
-        plane.SetNormal(1,1,1);
+        plane.SetOrigin(mesh.getPolyData().GetCenter());
+        //plane.SetNormal(1,1,1);
+        plane.SetNormal(0.0, 0.0, -1.0);
         
-        double[] bounds = pointCloud.getBounds();
+        double[] bounds = mesh.getPolyData().GetBounds();
         
         double[] minBound = new double[3];
         minBound[0] = bounds[0];
@@ -241,9 +179,9 @@ public class Contours {
         maxBound[2] = bounds[5];
         
         double[] center = new double[3];
-        center[0] = pointCloud.getPoly().GetCenter()[0];
-        center[0] = pointCloud.getPoly().GetCenter()[1];
-        center[0] = pointCloud.getPoly().GetCenter()[2];
+        center[0] = mesh.getPolyData().GetCenter()[0];
+        center[0] = mesh.getPolyData().GetCenter()[1];
+        center[0] = mesh.getPolyData().GetCenter()[2];
         
         vtkMath math = new vtkMath();
         double distanceMin = Math.sqrt(math.Distance2BetweenPoints(minBound, center));
@@ -251,58 +189,22 @@ public class Contours {
         
         vtkCutter cutter = new vtkCutter();
         cutter.SetCutFunction(plane);
-        cutter.SetInput(pointCloud.getPoly());
-        cutter.GenerateValues(20, -distanceMin, distanceMax);
-        NeptusLog.pub().info("number of cut scalars: " + cutter.GetGenerateCutScalars());
+        cutter.SetInput(mesh.getPolyData());
+        
+        cutter.GenerateValues(10, bounds[4], bounds[5]);
+        //cutter.GenerateValues(20, -distanceMin, distanceMax);
+        NeptusLog.pub().info("number of contours: " + cutter.GetNumberOfContours());
         vtkPolyDataMapper cutterMapper = new vtkPolyDataMapper();
         cutterMapper.SetInputConnection(cutter.GetOutputPort());
         cutterMapper.ScalarVisibilityOff();
+        NeptusLog.pub().info("number of pices on mapper: " + cutterMapper.GetNumberOfPieces());
+        NeptusLog.pub().info("Number of clipping planes: " + cutterMapper.GetClippingPlanes().GetNumberOfItems());
+        //
+        //NeptusLog.pub().info()
         
         planeActor = new vtkActor();
         planeActor.GetProperty().SetColor(1.0, 1,0);
-        planeActor.GetProperty().SetLineWidth(3);
+        planeActor.GetProperty().SetLineWidth(2);
         planeActor.SetMapper(cutterMapper);
-        
-        
-    }
-    
-    public void gerenerateTerrainContours () {
-        scalarRange = pointCloud.getPoly().GetScalarRange();
-             
-        vtkAppendFilter appendFlter = new vtkAppendFilter();
-        
-        NeptusLog.pub().info("Range: " + scalarRange[0] + "; " + scalarRange[1]);
-        double[] bounds = pointCloud.getBounds();
-        
-        contours.SetValue(0 , (bounds[4] + bounds[5]) / 2);        
-        //contours.SetValue(0, (scalarRange[1] + scalarRange[0]) / 2);
-        contours.SetNumberOfContours(10);
-
-        
-//        vtkPlaneSource plane = new vtkPlaneSource();
-
-//        plane.SetXResolution((int) ((bounds[1] + bounds[0]) / 2));
-//        plane.SetYResolution((int) ((bounds[3] + bounds[2]) / 2));
-//        plane.Update();
-        
-        //contours.SetInput(pointCloud.getPoly());
-
-        
-        //contours.SetInputConnection(pointCloud.getPoly().
-        
-        contours.SetInputConnection(pointCloud.getPoly().GetProducerPort());
-        
-        //contours.SetInput(pointCloud.getPoly().Get);
-        //contours.AddInput(pointCloud.getPoly().GetProducerPort());
-        
-        
-        // Connect the segments of the contours into polylines
-        vtkStripper contourStripper = new vtkStripper();
-        contourStripper.SetInputConnection(contours.GetOutputPort());
-        contourStripper.Update();
-        
-        int numberOfContourLines = contourStripper.GetOutput().GetNumberOfLines();
-        NeptusLog.pub().info("Number of Contour lines: " + numberOfContourLines);
-        
     }
 }
