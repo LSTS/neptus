@@ -31,16 +31,8 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileChannel.MapMode;
 import java.util.Date;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryInfo;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
@@ -50,7 +42,6 @@ import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-import pt.up.fe.dceg.neptus.plugins.vtk.utils.MultibeamDeltaTHeader;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.bathymetry.LocalData;
 

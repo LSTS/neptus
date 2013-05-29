@@ -125,70 +125,70 @@ public class MeshSmoothingWindowedSinc {
     /**
      * @return the featureEdgeSmoothing
      */
-    private boolean isFeatureEdgeSmoothing() {
+    public boolean isFeatureEdgeSmoothing() {
         return featureEdgeSmoothing;
     }
 
     /**
      * @param featureEdgeSmoothing the featureEdgeSmoothing to set
      */
-    private void setFeatureEdgeSmoothing(boolean featureEdgeSmoothing) {
+    public void setFeatureEdgeSmoothing(boolean featureEdgeSmoothing) {
         this.featureEdgeSmoothing = featureEdgeSmoothing;
     }
 
     /**
      * @return the featureAngle
      */
-    private float getFeatureAngle() {
+    public float getFeatureAngle() {
         return featureAngle;
     }
 
     /**
      * @param featureAngle the featureAngle to set
      */
-    private void setFeatureAngle(float featureAngle) {
+    public void setFeatureAngle(float featureAngle) {
         this.featureAngle = featureAngle;
     }
 
     /**
      * @return the edgeAngle
      */
-    private float getEdgeAngle() {
+    public float getEdgeAngle() {
         return edgeAngle;
     }
 
     /**
      * @param edgeAngle the edgeAngle to set
      */
-    private void setEdgeAngle(float edgeAngle) {
+    public void setEdgeAngle(float edgeAngle) {
         this.edgeAngle = edgeAngle;
     }
 
     /**
      * @return the boundarySmoothing
      */
-    private boolean isBoundarySmoothing() {
+    public boolean isBoundarySmoothing() {
         return boundarySmoothing;
     }
 
     /**
      * @param boundarySmoothing the boundarySmoothing to set
      */
-    private void setBoundarySmoothing(boolean boundarySmoothing) {
+    public void setBoundarySmoothing(boolean boundarySmoothing) {
         this.boundarySmoothing = boundarySmoothing;
     }
 
     /**
      * @return the normalizeCoordinates
      */
-    private boolean isNormalizeCoordinates() {
+    public boolean isNormalizeCoordinates() {
         return normalizeCoordinates;
     }
 
     /**
      * @param normalizeCoordinates the normalizeCoordinates to set
      */
-    private void setNormalizeCoordinates(boolean normalizeCoordinates) {
+    public void setNormalizeCoordinates(boolean normalizeCoordinates) {
         this.normalizeCoordinates = normalizeCoordinates;
     }
 }

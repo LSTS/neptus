@@ -48,9 +48,9 @@ public class MeshSmoothingLaplacian {
     private int numIterations = 30;
         
     private float convergence = 0.0f;
-    private float relaxationFactor = 0.1f; // 0.01f
+    private float relaxationFactor = 0.05f; // 0.01f
     private boolean featureEdgeSmoothing = false;  // false
-    private float featureAngle = 80.f;  // 45.f
+    private float featureAngle = 110.f;  // 45.f
     private float edgeAngle = 15.f;
     private boolean boundarySmoothing = true;
     
