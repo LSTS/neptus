@@ -100,8 +100,8 @@ public class Surveil extends TrexGoal implements Renderer2DPainter {
         attributes.add(attrTemp);
         attrTemp = new TrexAttribute();
         attrTemp.setName("z");
-        attrTemp.setMin(-height + "");
-        attrTemp.setMax(-height + "");
+        attrTemp.setMin(height + "");
+        attrTemp.setMax(height + "");
         attributes.add(attrTemp);
         return attributes;
     }
