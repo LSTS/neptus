@@ -222,7 +222,7 @@ public class MRAPanel extends JPanel {
                 new ImcTo837(source),
                 new PCDExporter(source),
                 new MatExporter(source),
-                new KMLExporter(this, source)
+                new KMLExporter(this, source),
         }; 
         
         // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
