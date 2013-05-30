@@ -96,7 +96,6 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration.")
     public int zExaggeration = 10;
 
-
     // there are 2 types of rendering objects on VTK - vtkPanel and vtkCanvas. vtkCanvas seems to have a better behaviour and performance.
     //public vtkPanel vtkPanel;
     public vtkCanvas vtkCanvas;

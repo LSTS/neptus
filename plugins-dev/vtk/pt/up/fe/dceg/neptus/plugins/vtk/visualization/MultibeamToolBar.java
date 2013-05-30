@@ -246,6 +246,7 @@ public class MultibeamToolBar {
                                 }
                             }
                         }
+                        
                         Set<String> setOfClouds = linkedHashMapCloud.keySet();
                         for (String sKey : setOfClouds) {
                             canvas.lock();
