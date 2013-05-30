@@ -70,7 +70,7 @@ public class ToolbarAddons {
        textProcessingActor.GetTextProperty().SetFontSize(40);
        textProcessingActor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
        textProcessingActor.GetTextProperty().SetFontFamilyToArial();
-       textProcessingActor.GetTextProperty().SetJustificationToCentered();
+       //textProcessingActor.GetTextProperty().SetJustificationToCentered();
        textProcessingActor.SetInput(I18n.text("Processing data..."));
        textProcessingActor.VisibilityOn();   
     }
