@@ -64,7 +64,7 @@ public class ExaggeratePointCloudZ {
     }
     
     /**
-     * Depth is multipled by 10
+     * Depth is multipled by zExaggeration (Default is 10)
      */
     public void performZExaggeration() {   
         try {
@@ -75,7 +75,7 @@ public class ExaggeratePointCloudZ {
                     p[2] = p[2] * zExaggeration;
                     verts.InsertNextCell(1);
                     verts.InsertCellPoint(newCloudPoints.InsertNextPoint(p));
-                }               
+                }              
                 pointCloud.setPoints(newCloudPoints);
                 polyData.SetPoints(newCloudPoints);
                 polyData.SetVerts(verts);
