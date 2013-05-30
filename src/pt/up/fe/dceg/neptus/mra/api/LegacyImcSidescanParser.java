@@ -118,9 +118,9 @@ public class LegacyImcSidescanParser implements SidescanParser {
             pose.setAltitude(state.getDouble("alt"));
             pose.getPosition().setLatitudeRads(state.getDouble("lat"));
             pose.getPosition().setLongitudeRads(state.getDouble("lon"));
-            pose.setYaw(state.getDouble("psi"));
             pose.getPosition().setOffsetNorth(state.getDouble("x"));
             pose.getPosition().setOffsetEast(state.getDouble("y"));
+            pose.setYaw(state.getDouble("psi"));
             pose.setP(state.getDouble("p"));
             pose.setQ(state.getDouble("q"));
             pose.setR(state.getDouble("r"));
@@ -133,7 +133,7 @@ public class LegacyImcSidescanParser implements SidescanParser {
                 fData[c] = (data[c] & 0xFF) / 255.0;
             }
             
-            list.add(new SidescanLine(ping.getTimestampMillis(), range, pose, fData));
+            list.add(new SidescanLine(ping.getTimestampMillis(), range, pose, ping.getFloat("frequency"), fData));
 
             ping = pingParser.nextLogEntry(); 
             state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
