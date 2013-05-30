@@ -50,7 +50,6 @@ public class ToolbarAddons {
      * 
      */
     public void buildTextZExagInfoActor(vtkTextActor textZExagInfoActor) {
-        textZExagInfoActor = new vtkTextActor();
         textZExagInfoActor.GetTextProperty().BoldOn();
         textZExagInfoActor.GetTextProperty().ItalicOn();
         textZExagInfoActor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
@@ -65,12 +64,13 @@ public class ToolbarAddons {
      * 
      */
     public void buildTextProcessingActor(vtkTextActor textProcessingActor) {
-       textProcessingActor = new vtkTextActor();
+
        textProcessingActor.GetTextProperty().BoldOn();
        textProcessingActor.GetTextProperty().ItalicOn();
        textProcessingActor.GetTextProperty().SetFontSize(40);
        textProcessingActor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
        textProcessingActor.GetTextProperty().SetFontFamilyToArial();
+       textProcessingActor.GetTextProperty().SetJustificationToCentered();
        textProcessingActor.SetInput(I18n.text("Processing data..."));
        textProcessingActor.VisibilityOn();   
     }
