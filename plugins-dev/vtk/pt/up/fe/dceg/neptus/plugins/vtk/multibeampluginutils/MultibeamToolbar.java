@@ -143,13 +143,13 @@ public class MultibeamToolbar {
 
         setupToolbarButtonsAndToogles();
 
-        // getToolbar().add(getToolbar(), BorderLayout.PAGE_START);
+        //getToolbar().add(getToolbar(), BorderLayout.PAGE_START);
 
         // add toogle buttons to toolbar
         getToolbar().add(rawPointsToggle);
         // getToolbar().add(downsamplePointsToogle);
         getToolbar().add(zExaggerationToogle);
-        // getToolbar().add(meshToogle);
+        getToolbar().add(meshToogle);
         // getToolbar().add(smoothingMeshToogle);
         // getToolbar().add(contoursToogle);
 
@@ -236,9 +236,8 @@ public class MultibeamToolbar {
                     lastDepthExaggeValue = currentDepthExaggeValue;
                     addons.setCurrentZexagge(lastDepthExaggeValue);
                     
-                    if (!rawPointsToggle.isSelected()) { //  || !meshToogle.isSelected()
-                        String msgErrorMultibeam;
-                        msgErrorMultibeam = I18n.text("No Pointcloud or Mesh on renderer\n Please load one or press raw or mesh toogle if you hava already loaded a log");
+                    if (!rawPointsToggle.isSelected() && !meshToogle.isSelected()) {
+                        String msgErrorMultibeam = I18n.text("No Pointcloud or Mesh on renderer\n Please load one or press raw or mesh toogle if you hava already loaded a log");
                         JOptionPane.showMessageDialog(null, msgErrorMultibeam);
                     }
                     else {
@@ -293,10 +292,7 @@ public class MultibeamToolbar {
                     }
                 }
             }
-            else if (meshToogle.isSelected()) {
-                
-                NeptusLog.pub().info("perform reverse,  mesh toogle selected");
-                
+            else if (meshToogle.isSelected()) {               
                 for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
                     vtkLODActor tempActor = new vtkLODActor();
                     tempActor = (vtkLODActor) actorCollection.GetNextActor();
