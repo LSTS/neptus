@@ -31,17 +31,12 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 
-import java.util.Random;
-
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCellArray;
 import vtk.vtkLODActor;
-import vtk.vtkLookupTable;
-import vtk.vtkPointSource;
 import vtk.vtkPoints;
 import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
-import vtk.vtkVertexGlyphFilter;
 
 /**
  * @author hfq
@@ -74,7 +69,7 @@ public class PointCloud<T extends PointXYZ> {
     }
     
     /**
-     * Create a Pointcloud Actor from vtkPoints & vtkCellArray
+     * Create a Pointcloud Actor from loaded points and verts
      */
     public void createLODActorFromPoints() {
         try {
@@ -230,140 +225,5 @@ public class PointCloud<T extends PointXYZ> {
      */
     public void setColorHandler(PointCloudHandlers<PointXYZ> colorHandler) {
         this.colorHandler = colorHandler;
-    }
-    
-    
-    /**
-     * data information transformed to graphical information through cells
-     * @param nPoints
-     * @return vtkLODActor
-     */
-    public vtkLODActor getRandomPointCloud(int nPoints) {
-        setNumberOfPoints(nPoints);
-        setPoints(new vtkPoints());
-        getPoints().Allocate(getNumberOfPoints(), 0);
-        setVerts(new vtkCellArray());
-        getVerts().Allocate(getVerts().EstimateSize(1, getNumberOfPoints()), 0);
-        
-        Random pos = new Random();
-        
-        for (int i = 0; i < getNumberOfPoints(); i++) {
-            PointXYZ p = new PointXYZ(pos.nextFloat()*10, pos.nextFloat()*10, pos.nextFloat()*10);
-            getVerts().InsertNextCell(1);
-            getVerts().InsertCellPoint(getPoints().InsertNextPoint(p.getX(), p.getY(), p.getZ()));            
-        }
-        
-        setPoly(new vtkPolyData());
-        getPoly().SetPoints(getPoints());
-        getPoly().SetVerts(getVerts());
-        
-        getPoly().Modified();
-        
-        //vtkDataArray scalars = new vtkDataArray();
-        //PointCloudHandlers<PointXYZ> colorHandler = new PointCloudHandlers<>();
-        //scalars = colorHandler.getRandomColor2();
-        
-        //poly.GetPointData().SetScalars(id0)
-        
-        vtkCellArray cells = new vtkCellArray();
-        cells.SetNumberOfCells(nPoints);
-        //cells.
-        
-        //vtkGlyph3D glyph = new vtkGlyph3D();
-        //glyph.SetInput(poly);
-        //vtkVertexGlyphFilter glyph = new vtkVertexGlyphFilter();
-        //glyph.SetInput(poly);
-         
-        //vtkLookupTable lut = new vtkLookupTable();
-        //lut.SetNumberOfColors(256);
-        //lut.SetHueRange(0.0, 0.667);
-        //lut.SetRampToLinear();
-        
-        getPoly().SetPolys(cells);
-        
-        vtkPolyDataMapper map = new vtkPolyDataMapper();
-        //map.SetInputConnection(glyph.GetOutputPort());
-        map.SetInput(getPoly());
-        //map.SetLookupTable(lut);
-        //map.SetScalarRange(0.0, 0.7);
-        //map.SetInput(pol);
-
-        
-        getCloudLODActor().SetMapper(map);
-        getCloudLODActor().GetProperty().SetPointSize(2.0);
-        getCloudLODActor().GetProperty().SetRepresentationToPoints();
-        
-        return getCloudLODActor();
-    }
-    
-    /**
-     * data information transformed to graphical information through Vertex Glyph
-     * @param nPoints
-     * @return vtkLODActor
-     */ 
-    public vtkLODActor getRandomPointCloud2(int nPoints) {
-        setNumberOfPoints(nPoints);
-        setPoints(new vtkPoints());
-        getPoints().Allocate(getNumberOfPoints(), 0);
-        
-        Random pos = new Random();
-        
-        for (int i = 0; i < getNumberOfPoints(); i++) {
-            PointXYZ p = new PointXYZ(pos.nextFloat()*10, pos.nextFloat()*10, pos.nextFloat()*10);
-            //verts.InsertNextCell(1);
-            getPoints().InsertPoint(i, p.getX(), p.getY(), p.getZ());
-            //points.InsertNextPoint(p.getX(), p.getY(), p.getZ());
-            //verts.InsertCellPoint(i);
-            //verts.InsertCellPoint(points.InsertNextPoint(p.getX(), p.getY(), p.getZ()));            
-        }        
-        setPoly(new vtkPolyData());
-        getPoly().SetPoints(getPoints());
-        
-        getPoly().Modified();
-        
-        //vtkDataArray scalars = new vtkDataArray();
-        
-        //vtkGlyph3D glyph = new vtkGlyph3D();
-        //glyph.SetInput(poly);
-        vtkVertexGlyphFilter glyph = new vtkVertexGlyphFilter();
-        glyph.SetInput(getPoly());
-         
-        vtkLookupTable lut = new vtkLookupTable();
-        lut.SetNumberOfColors(256);
-        lut.SetHueRange(0.0, 0.667);
-        lut.SetScaleToLinear();
-        //lut.SetRampToLinear();
-        
-        vtkPolyDataMapper map = new vtkPolyDataMapper();
-        map.SetInputConnection(glyph.GetOutputPort());
-        //map.SetInput(poly);
-        map.SetLookupTable(lut);
-        //map.SetScalarRange(0.0, 0.7);
-        //map.SetInput(pol);
-   
-        getCloudLODActor().SetMapper(map);
-        getCloudLODActor().GetProperty().SetPointSize(2.0);
-        getCloudLODActor().GetProperty().SetRepresentationToPoints();
-        
-        
-        return getCloudLODActor();
-    }
-    
-    
-    public vtkLODActor getRamdonPointCloudFromVtkPointSource(int nPoints, double radius) {
-        setNumberOfPoints(nPoints);
-        
-        vtkPointSource pointSource = new vtkPointSource();
-        pointSource.SetNumberOfPoints(getNumberOfPoints());
-        pointSource.SetCenter(0.0, 0.0, 0.0);
-        pointSource.SetDistributionToUniform();
-        pointSource.SetRadius(radius);
-
-        vtkPolyDataMapper mapper = new vtkPolyDataMapper();
-        mapper.AddInputConnection(pointSource.GetOutputPort());
-        
-        getCloudLODActor().SetMapper(mapper);
-        
-        return getCloudLODActor();
     }
 }

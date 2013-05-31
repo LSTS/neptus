@@ -53,6 +53,7 @@ import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
+import pt.up.fe.dceg.neptus.plugins.vtk.multibeampluginutils.MultibeamToolbar;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
@@ -65,6 +66,7 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
 import vtk.vtkCanvas;
 import vtk.vtkLODActor;
 import vtk.vtkNativeLibrary;
+import vtk.vtkObject;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -96,7 +98,6 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration.")
     public int zExaggeration = 10;
 
-
     // there are 2 types of rendering objects on VTK - vtkPanel and vtkCanvas. vtkCanvas seems to have a better behaviour and performance.
     //public vtkPanel vtkPanel;
     public vtkCanvas vtkCanvas;
@@ -108,6 +109,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     public Text3D noBeamsText;
     
     private MultibeamToolBar toolbar;
+    private MultibeamToolbar toolbar2;
 
     private static final String FILE_83P_EXT = ".83P";
     
@@ -264,9 +266,12 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             multibeamToPointCloud.parseMultibeamPointCloud(approachToIgnorePts, ptsToIgnore, timestampMultibeamIncrement, yawMultibeamIncrement);
             
                 // add toolbar to Layout
-            toolbar = new MultibeamToolBar(this);
-            toolbar.createToolBar();
-            add(toolbar.getToolBar(), "dock south");
+//            toolbar = new MultibeamToolBar(this);
+//            toolbar.createToolBar();
+//            add(toolbar.getToolBar(), "dock south");
+            toolbar2 = new MultibeamToolbar(this);
+            toolbar2.createToolbar();
+            add(toolbar2.getToolbar(), "dock south");
             
                 // for resizing porpuses
             vtkCanvas.getParent().addComponentListener(this);
@@ -313,14 +318,9 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
                 noBeamsText = new Text3D();
                 noBeamsText.buildText3D("No beams on Log file!", 2.0, 2.0, 2.0, 10.0);
-                //vtkCanvas.lock();
                 vtkCanvas.GetRenderer().AddActor(noBeamsText.getText3dActor()); 
-                //vtkCanvas.unlock();
             }
-            //vtkCanvas.lock();
             vtkCanvas.GetRenderer().ResetCamera();
-            //vtkCanvas.GetRenderer().ResetCameraClippingRange();      
-            //vtkCanvas.unlock();
         }      
         return this;
     }
@@ -381,6 +381,13 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     @Override
     public void onCleanup() {
 //        try {
+//            vtkObject.JAVA_OBJECT_MANAGER.getAutoGarbageCollector().Start();
+//        }
+//        catch (Throwable e) {
+//            e.printStackTrace();
+//        }
+        
+//        try {
 //            vtkPanel.disable();
 //            //vtkPanel.Delete();
 //        }
@@ -439,15 +446,21 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     @Override
     public void componentResized(ComponentEvent e) {
         
-        Rectangle toolBarBounds = toolbar.getToolBar().getBounds();
+        //Rectangle toolBarBounds = toolbar.getToolBar().getBounds();
+        Rectangle toolbarBounds = toolbar2.getToolbar().getBounds();
         
         Rectangle parentBounds = new Rectangle();
         parentBounds.setBounds(vtkCanvas.getParent().getX(), vtkCanvas.getParent().getY(), vtkCanvas.getParent().getParent().getWidth() - 6, vtkCanvas.getParent().getParent().getHeight() - 12); //- toolBarBounds.getHeight()
         vtkCanvas.getParent().setBounds(parentBounds);
 
         Rectangle canvasBounds = new Rectangle();
-        canvasBounds.setBounds(vtkCanvas.getX(), vtkCanvas.getY(), vtkCanvas.getParent().getWidth() - 6, (int) (vtkCanvas.getParent().getHeight() - toolBarBounds.getHeight())); // 
-        vtkCanvas.setBounds(canvasBounds);      
+        //canvasBounds.setBounds(vtkCanvas.getX(), vtkCanvas.getY(), vtkCanvas.getParent().getWidth() - 6, (int) (vtkCanvas.getParent().getHeight() - toolBarBounds.getHeight())); // 
+        canvasBounds.setBounds(vtkCanvas.getX(), vtkCanvas.getY(), vtkCanvas.getParent().getWidth() - 6, (int) (vtkCanvas.getParent().getHeight() - toolbarBounds.getHeight()));
+        vtkCanvas.setBounds(canvasBounds);   
+               
+        Rectangle newToolbarBounds = new Rectangle();
+        newToolbarBounds.setBounds(toolbarBounds.x, (vtkCanvas.getY() + vtkCanvas.getHeight()), toolbarBounds.width, toolbarBounds.height);
+        toolbar2.getToolbar().setBounds(newToolbarBounds);
     }
 
     /* (non-Javadoc)
