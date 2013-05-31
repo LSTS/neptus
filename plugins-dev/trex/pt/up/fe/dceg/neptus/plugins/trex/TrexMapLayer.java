@@ -71,6 +71,7 @@ import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
+import pt.up.fe.dceg.neptus.plugins.trex.goals.Going;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.Surveil;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.TagSimulation;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.TrexGoal;
@@ -210,13 +211,15 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 addSurveyPointsMenu(popup);
             }
             addVisitThisPointMenu(popup, loc);
-            addTagSimulation(popup, loc);
             addSurvveyAreaMenu(popup);
             addClearGoalMenu(popup);
             popup.addSeparator();
             addDisableTrexMenu(popup);
             addEnableTrexMenu(popup);
+            popup.addSeparator();
+            addTagSimulation(popup, loc);
             addUAVSurveillance(popup, loc);
+            addGoing(popup, loc);
 
             //            for (String gid : sentGoals.keySet()) {
             //                Point2D screenPos = source.getScreenPosition(sentGoals.get(gid).getLocation()); // FIXME all goals have
@@ -324,6 +327,25 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                         break;
                     case REST:
                         httpPostTrex(surveil);
+                        break;
+                }
+            }
+        });
+    }
+
+    private void addGoing(JPopupMenu popup, final LocationType loc) {
+        popup.add("Surveil this point").addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loc.convertToAbsoluteLatLonDepth();
+                Going going = new Going(loc.getLatitudeAsDoubleValueRads(), loc.getLongitudeAsDoubleValueRads());
+                switch (trexDuneComms) {
+                    case IMC:
+                        send(going.asIMCMsg());
+                        break;
+                    case REST:
+                        httpPostTrex(going);
                         break;
                 }
             }

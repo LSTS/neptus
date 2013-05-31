@@ -48,8 +48,8 @@ import com.l2fprod.common.propertysheet.Property;
  * @author meg
  *
  */
-public class Surveil extends TrexGoal implements Renderer2DPainter {
-    private static final String predicate = "At";
+public class Going extends TrexGoal implements Renderer2DPainter {
+    private static final String predicate = "Going";
     private static final String timeline = "reference";
     
     protected double speed = 1000;
@@ -58,13 +58,13 @@ public class Surveil extends TrexGoal implements Renderer2DPainter {
     // FIXME passar a location type
     protected double latitude, longitude;
 
-    public Surveil(double lat_deg, double lon_deg) {
+    public Going(double lat_deg, double lon_deg) {
         super(timeline, predicate);
         this.latitude = lat_deg;
         this.longitude = lon_deg;
     }	
 	
-    public Surveil() {
+    public Going() {
         super(timeline, predicate);
     }
 
@@ -75,7 +75,7 @@ public class Surveil extends TrexGoal implements Renderer2DPainter {
      * @param lon_deg
      * @param tolerance
      */
-    public Surveil(double speed, double height, double lat_deg, double lon_deg) {
+    public Going(double speed, double height, double lat_deg, double lon_deg) {
         super(timeline, predicate);
         this.speed = speed;
         this.height = height;
@@ -103,8 +103,8 @@ public class Surveil extends TrexGoal implements Renderer2DPainter {
         attributes.add(attrTemp);
         attrTemp = new TrexAttribute();
         attrTemp.setName("z");
-        attrTemp.setMin(height + "");
-        attrTemp.setMax(height + "");
+        attrTemp.setMin(-height + "");
+        attrTemp.setMax(-height + "");
         attributes.add(attrTemp);
         return attributes;
     }
