@@ -66,6 +66,7 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
 import vtk.vtkCanvas;
 import vtk.vtkLODActor;
 import vtk.vtkNativeLibrary;
+import vtk.vtkObject;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -317,14 +318,9 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
                 noBeamsText = new Text3D();
                 noBeamsText.buildText3D("No beams on Log file!", 2.0, 2.0, 2.0, 10.0);
-                //vtkCanvas.lock();
                 vtkCanvas.GetRenderer().AddActor(noBeamsText.getText3dActor()); 
-                //vtkCanvas.unlock();
             }
-            //vtkCanvas.lock();
             vtkCanvas.GetRenderer().ResetCamera();
-            //vtkCanvas.GetRenderer().ResetCameraClippingRange();      
-            //vtkCanvas.unlock();
         }      
         return this;
     }
@@ -384,6 +380,13 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
     @Override
     public void onCleanup() {
+//        try {
+//            vtkObject.JAVA_OBJECT_MANAGER.getAutoGarbageCollector().Start();
+//        }
+//        catch (Throwable e) {
+//            e.printStackTrace();
+//        }
+        
 //        try {
 //            vtkPanel.disable();
 //            //vtkPanel.Delete();
