@@ -53,7 +53,6 @@ public class PointCloud<T extends PointXYZ> {
     private double[] bounds;
     private int memorySize;
     private PointCloudHandlers<PointXYZ> colorHandler;
-    private boolean isDepthExaggerated = false;
         //public vtkActor contourActor;
     
     /**
@@ -226,19 +225,5 @@ public class PointCloud<T extends PointXYZ> {
      */
     public void setColorHandler(PointCloudHandlers<PointXYZ> colorHandler) {
         this.colorHandler = colorHandler;
-    }
-
-    /**
-     * @return the isDepthExaggerated
-     */
-    public boolean isDepthExaggerated() {
-        return isDepthExaggerated;
-    }
-
-    /**
-     * @param isDepthExaggerated the isDepthExaggerated to set
-     */
-    public void setDepthExaggerated(boolean isDepthExaggerated) {
-        this.isDepthExaggerated = isDepthExaggerated;
     }
 }
