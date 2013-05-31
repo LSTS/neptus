@@ -538,8 +538,10 @@ public class IMCUtils {
      * See {@link LogUtils#parseManeuver}
      */
     public static Maneuver parseManeuver(IMCMessage message) {
-        Maneuver m = new Goto();
+        Maneuver m = null;
 
+        if (message.getAbbrev().equalsIgnoreCase("goto"))
+            m = new Goto();
         if (message.getAbbrev().equalsIgnoreCase("loiter"))
             m = new Loiter();
         else if (message.getAbbrev().equalsIgnoreCase("teleoperation"))
@@ -565,7 +567,10 @@ public class IMCUtils {
         else if (message.getAbbrev().equalsIgnoreCase("elevator"))
             m = new Elevator();
 
-        ((IMCSerialization) m).parseIMCMessage(message);
+        if (m != null)
+            ((IMCSerialization) m).parseIMCMessage(message);
+        else
+            m = new Unconstrained();
         return m;
     }
 
@@ -604,7 +609,6 @@ public class IMCUtils {
         msgPlanCommand.setValue("argument", specs);
 
         return msgPlanCommand;
-
     }
 
     public static LocationType lookForStartPosition(MissionType mt) {
