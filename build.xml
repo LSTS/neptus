@@ -251,6 +251,10 @@ For simple use the main targets are:
 		<fileset id="plugins-jars-to-test-fileset" dir="${plugin.dir.dest}" casesensitive="no">
 			<include name="**/*.jar"/>
 		</fileset>
+		<fileset id="nsis-generated-launchers" dir="NSIS_release/static_files/batch_files" casesensitive="no">
+			<include name="*.bat"/>
+			<include name="*.sh"/>
+		</fileset>
 		<fail message="There are some missing files to be able to run Neptus. Please run 'ant' command (with no arguments) and try again.">
 			<condition>
 				<not>
@@ -271,7 +275,7 @@ For simple use the main targets are:
 						<resourceexists>
 							<file file="neptus.bat"/>
 						</resourceexists>
-						<resourcecount refid="NSIS_release/static_files/batch_files" when="ge" count="4" />
+						<resourcecount refid="nsis-generated-launchers" when="ge" count="4" />
 						<resourceexists>
 							<file file="dev-scripts/grow_pot.sh"/>
 						</resourceexists>
