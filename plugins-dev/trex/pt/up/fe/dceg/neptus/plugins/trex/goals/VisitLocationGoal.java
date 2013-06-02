@@ -49,7 +49,7 @@ import com.l2fprod.common.propertysheet.Property;
  *
  */
 public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
-	protected double speed = 1000;
+	protected double speed = 1.0;
     protected double depth = 0;
     protected double tolerance = 10;
     // FIXME passar a location type
@@ -85,19 +85,30 @@ public class VisitLocationGoal extends TrexGoal implements Renderer2DPainter {
     public Collection<TrexAttribute> getAttributes() {
         Vector<TrexAttribute> attributes = new Vector<TrexAttribute>();
         TrexAttribute attrTemp = new TrexAttribute();
+        attrTemp.setAttrType(TrexAttribute.ATTR_TYPE.FLOAT);
         attrTemp.setName("speed");
         attrTemp.setMin(speed + "");
+        attrTemp.setMax(speed + "");
         attributes.add(attrTemp);
         attrTemp = new TrexAttribute();
+        attrTemp.setAttrType(TrexAttribute.ATTR_TYPE.FLOAT);
         attrTemp.setName("latitude");
         attrTemp.setMin(latitude + "");
         attrTemp.setMax(latitude + "");
         attributes.add(attrTemp);
         attrTemp = new TrexAttribute();
+        attrTemp.setAttrType(TrexAttribute.ATTR_TYPE.FLOAT);
         attrTemp.setName("longitude");
         attrTemp.setMin(longitude + "");
         attrTemp.setMax(longitude + "");
         attributes.add(attrTemp);
+        attrTemp = new TrexAttribute();
+        attrTemp.setAttrType(TrexAttribute.ATTR_TYPE.FLOAT);
+        attrTemp.setName("z");
+        attrTemp.setMin(depth + "");
+        attrTemp.setMax(depth + "");
+        attributes.add(attrTemp);
+        
         return attributes;
     }
 
