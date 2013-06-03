@@ -334,7 +334,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     }
 
     private void addGoing(JPopupMenu popup, final LocationType loc) {
-        popup.add("Surveil this point").addActionListener(new ActionListener() {
+        popup.add("Test going").addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {

@@ -49,7 +49,7 @@ import com.l2fprod.common.propertysheet.Property;
  *
  */
 public class Surveil extends TrexGoal implements Renderer2DPainter {
-    private static final String predicate = "At";
+    private static final String predicate = "Surveil";
     private static final String timeline = "reference";
     
     protected double speed = 1000;
