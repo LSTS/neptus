@@ -59,7 +59,6 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesWidget;
-import pt.up.fe.dceg.neptus.plugins.vtk.visualization.MultibeamToolBar;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Text3D;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
@@ -107,8 +106,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     
     public Text3D noBeamsText;
     
-    private MultibeamToolBar toolbar;
-    private MultibeamToolbar toolbar2;
+    private MultibeamToolbar toolbar;
 
     private static final String FILE_83P_EXT = ".83P";
     
@@ -268,9 +266,9 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 //            toolbar = new MultibeamToolBar(this);
 //            toolbar.createToolBar();
 //            add(toolbar.getToolBar(), "dock south");
-            toolbar2 = new MultibeamToolbar(this);
-            toolbar2.createToolbar();
-            add(toolbar2.getToolbar(), "dock south");
+            toolbar = new MultibeamToolbar(this);
+            toolbar.createToolbar();
+            add(toolbar.getToolbar(), "dock south");
             
                 // for resizing porpuses
             vtkCanvas.getParent().addComponentListener(this);
@@ -445,7 +443,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     public void componentResized(ComponentEvent e) {
         
         //Rectangle toolBarBounds = toolbar.getToolBar().getBounds();
-        Rectangle toolbarBounds = toolbar2.getToolbar().getBounds();
+        Rectangle toolbarBounds = toolbar.getToolbar().getBounds();
         
         Rectangle parentBounds = new Rectangle();
         parentBounds.setBounds(vtkCanvas.getParent().getX(), vtkCanvas.getParent().getY(), vtkCanvas.getParent().getParent().getWidth() - 6, vtkCanvas.getParent().getParent().getHeight() - 12); //- toolBarBounds.getHeight()
@@ -458,7 +456,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                
         Rectangle newToolbarBounds = new Rectangle();
         newToolbarBounds.setBounds(toolbarBounds.x, (vtkCanvas.getY() + vtkCanvas.getHeight()), toolbarBounds.width, toolbarBounds.height);
-        toolbar2.getToolbar().setBounds(newToolbarBounds);
+        toolbar.getToolbar().setBounds(newToolbarBounds);
     }
 
     /* (non-Javadoc)

@@ -138,7 +138,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
     public static double minDepthForBathymetry = 1.0;
     
     @NeptusProperty(name = "Points to ignore on Multibeam 3D", description="Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.")
-    public static int ptsToIgnore = 100;
+    public static int ptsToIgnore = 50;
     
     @NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description="Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).")
     public static boolean approachToIgnorePts = true; 
