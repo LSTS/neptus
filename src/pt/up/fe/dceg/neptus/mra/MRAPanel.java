@@ -51,6 +51,7 @@ import pt.up.fe.dceg.neptus.mra.exporters.KMLExporter;
 import pt.up.fe.dceg.neptus.mra.exporters.MatExporter;
 import pt.up.fe.dceg.neptus.mra.exporters.MraExporter;
 import pt.up.fe.dceg.neptus.mra.exporters.PCDExporter;
+import pt.up.fe.dceg.neptus.mra.exporters.XtfExporter;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
 import pt.up.fe.dceg.neptus.mra.replay.LogReplay;
@@ -223,6 +224,7 @@ public class MRAPanel extends JPanel {
                 new PCDExporter(source),
                 new MatExporter(source),
                 new KMLExporter(this, source),
+                new XtfExporter(source)
         }; 
         
         // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
