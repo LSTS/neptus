@@ -66,7 +66,6 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
 import vtk.vtkCanvas;
 import vtk.vtkLODActor;
 import vtk.vtkNativeLibrary;
-import vtk.vtkObject;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -309,7 +308,6 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 vtkCanvas.GetRenderer().GetActiveCamera().SetPosition(pointCloud.getPoly().GetCenter()[0] ,pointCloud.getPoly().GetCenter()[1] , pointCloud.getPoly().GetCenter()[2] - 200);
                 vtkCanvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
                 //vtkCanvas.unlock();
-                
             }
             else {  // if no beams were parsed
                 String msgErrorMultibeam;

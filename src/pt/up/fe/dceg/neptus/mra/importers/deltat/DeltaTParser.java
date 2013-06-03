@@ -241,9 +241,6 @@ public class DeltaTParser implements BathymetryParser {
                 double x = range * Math.sin(Math.toRadians(angle));
                 double yawAngle = -pose.getYaw();
                 
-                if(NeptusMRA.yawMultibeamIncrement)
-                    yawAngle += Math.PI;
-                
                 float ox = (float) (x * Math.sin(yawAngle));
                 float oy = (float) (x * Math.cos(yawAngle));
                                 
