@@ -65,6 +65,7 @@ import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.fileeditor.SyntaxDocument;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.imc.TrexCommand;
+import pt.up.fe.dceg.neptus.imc.TrexOperation;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
@@ -323,7 +324,9 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                         .getLongitudeAsDoubleValueRads());
                 switch (trexDuneComms) {
                     case IMC:
-                        send(surveil.asIMCMsg());
+                        TrexOperation imcMsg = surveil.asIMCMsg();
+                        System.out.println(imcMsg.getToken().toString());
+                        send(imcMsg);
                         break;
                     case REST:
                         httpPostTrex(surveil);
