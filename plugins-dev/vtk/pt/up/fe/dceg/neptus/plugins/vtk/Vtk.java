@@ -79,19 +79,19 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     
     //@NeptusProperty(name = "Points to ignore on Multibeam 3D", description="Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.")
     //public int ptsToIgnore = 100;
-    public int ptsToIgnore = NeptusMRA.ptsToIgnore;
+    //public int ptsToIgnore = NeptusMRA.ptsToIgnore;
     
     //@NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description="Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).")
     //public boolean approachToIgnorePts = true;
-    public boolean approachToIgnorePts = NeptusMRA.approachToIgnorePts;
+    //public boolean approachToIgnorePts = NeptusMRA.approachToIgnorePts;
         
     //@NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser (in miliseconds).")
     //public long timestampMultibeamIncrement = 0;
-    public long timestampMultibeamIncrement = NeptusMRA.timestampMultibeamIncrement;
+    //public long timestampMultibeamIncrement = NeptusMRA.timestampMultibeamIncrement;
     
     //@NeptusProperty(name = "Yaw Increment", description="Yaw (psi) increment for the 83P parser, set true to increment + 180º.")
     //public boolean yawMultibeamIncrement = false;
-    public boolean yawMultibeamIncrement = NeptusMRA.yawMultibeamIncrement;
+    //public boolean yawMultibeamIncrement = NeptusMRA.yawMultibeamIncrement;
     
     @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration.")
     public int zExaggeration = 10;
@@ -260,7 +260,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
                 // parse 83P data storing it on a pointcloud
             multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
-            multibeamToPointCloud.parseMultibeamPointCloud(approachToIgnorePts, ptsToIgnore, timestampMultibeamIncrement, yawMultibeamIncrement);
+            //multibeamToPointCloud.parseMultibeamPointCloud(approachToIgnorePts, ptsToIgnore, timestampMultibeamIncrement, yawMultibeamIncrement);
+            multibeamToPointCloud.parseMultibeamPointCloud();
             
                 // add toolbar to Layout
 //            toolbar = new MultibeamToolBar(this);

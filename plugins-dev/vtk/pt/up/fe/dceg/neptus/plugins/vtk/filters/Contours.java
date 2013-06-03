@@ -53,25 +53,14 @@ import vtk.vtkStripper;
  */
 public class Contours {
     
-    //private PointCloud<PointXYZ> pointCloud;
-    //private PointCloudMesh mesh;
-    
     private double[] scalarRange;
     private vtkContourFilter contours;
     
     public vtkActor planeActor;
     
-    public vtkActor isolinesActor;
-    
-    
+    private vtkActor isolinesActor;
+     
     private static int pointThreshold = 10;
-    
-//    public Contours(PointCloud<PointXYZ> pointCloud) {
-//        this.pointCloud = pointCloud;
-//        
-//        scalarRange = new double[2];
-//        contours = new vtkContourFilter();
-//    }
     
     /**
      * @param mesh
@@ -152,8 +141,8 @@ public class Contours {
         contourMapper.SetInputConnection(contourStripper.GetOutputPort());
         contourMapper.ScalarVisibilityOff();
         
-        isolinesActor = new vtkActor();
-        isolinesActor.SetMapper(contourMapper);   
+        setIsolinesActor(new vtkActor());
+        getIsolinesActor().SetMapper(contourMapper);
     }   
     
     public void generateTerrainContoursThroughCutter(PointCloudMesh mesh) {
@@ -206,5 +195,19 @@ public class Contours {
         planeActor.GetProperty().SetColor(1.0, 1,0);
         planeActor.GetProperty().SetLineWidth(2);
         planeActor.SetMapper(cutterMapper);
+    }
+
+    /**
+     * @return the isolinesActor
+     */
+    public vtkActor getIsolinesActor() {
+        return isolinesActor;
+    }
+
+    /**
+     * @param isolinesActor the isolinesActor to set
+     */
+    public void setIsolinesActor(vtkActor isolinesActor) {
+        this.isolinesActor = isolinesActor;
     }
 }

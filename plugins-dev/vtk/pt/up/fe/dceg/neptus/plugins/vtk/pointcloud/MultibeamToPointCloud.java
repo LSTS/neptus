@@ -84,7 +84,7 @@ public class MultibeamToPointCloud {
         }
     }
     
-    public void parseMultibeamPointCloud (boolean approachToIgnorePts, int ptsToIgnore, long timestampMultibeamIncrement, boolean yawMultibeamIncrement) {
+    public void parseMultibeamPointCloud () {
         multibeamDeltaTParser = BathymetryParserFactory.build(this.source);
         ld = new LocalData(this.source.getFile("mra/tides.txt"));
         
@@ -93,16 +93,13 @@ public class MultibeamToPointCloud {
         
         int countPoints = 0;
         
-        while ((bs = multibeamDeltaTParser.nextSwath()) != null) {
-//            LocationType loc = bs.getPose().getPosition().convertToAbsoluteLatLonDepth();
-//            double lat = loc.getLatitudeAsDoubleValue();
-//            double lon = loc.getLongitudeAsDoubleValue();                     
+        while ((bs = multibeamDeltaTParser.nextSwath()) != null) {                   
             LocationType loc = bs.getPose().getPosition();
 
             double tideOffset = getTideOffset(bs.getTimestamp());
             
-            if (!approachToIgnorePts) {
-                for (int c = 0; c < bs.numBeams; c += ptsToIgnore) {
+            if (!NeptusMRA.approachToIgnorePts) {
+                for (int c = 0; c < bs.numBeams; c += NeptusMRA.ptsToIgnore) {
                     BathymetryPoint p = bs.getData()[c];
                     if (p == null)
                         continue;
@@ -121,7 +118,6 @@ public class MultibeamToPointCloud {
             }
             else {
                 for (int c = 0; c < bs.numBeams; c++) {
-                    //if (Math.random() > 1.0 / ptsToIgnore)
                     if (Math.random() > 1.0 / NeptusMRA.ptsToIgnore)
                         continue;
 

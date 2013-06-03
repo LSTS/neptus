@@ -52,6 +52,7 @@ import javax.swing.SwingUtilities;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.plugins.vtk.Vtk;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.DepthExaggeration;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
@@ -114,10 +115,14 @@ public class MultibeamToolbar {
         this.canvas = vtkInit.vtkCanvas;
         this.linkedHashMapCloud = vtkInit.linkedHashMapCloud;
         this.linkedHashMapMesh = vtkInit.linkedHashMapMesh;
-        this.currentApproachToIgnorePts = vtkInit.approachToIgnorePts;
-        this.currentPtsToIgnore = vtkInit.ptsToIgnore;
-        this.currentTimestampMultibeamIncrement = vtkInit.timestampMultibeamIncrement;
-        this.currentYawMultibeamIncrement = vtkInit.yawMultibeamIncrement;
+        //this.currentApproachToIgnorePts = vtkInit.approachToIgnorePts;
+        this.currentApproachToIgnorePts = NeptusMRA.approachToIgnorePts;
+        //this.currentPtsToIgnore = vtkInit.ptsToIgnore;
+        this.currentPtsToIgnore = NeptusMRA.ptsToIgnore;
+        //this.currentTimestampMultibeamIncrement = vtkInit.timestampMultibeamIncrement;
+        this.currentTimestampMultibeamIncrement = NeptusMRA.timestampMultibeamIncrement;
+        //this.currentYawMultibeamIncrement = vtkInit.yawMultibeamIncrement;
+        this.currentYawMultibeamIncrement = NeptusMRA.yawMultibeamIncrement;
         this.currentDepthExaggeValue = vtkInit.zExaggeration;
         
         this.lastDepthExaggeValue = currentDepthExaggeValue;
@@ -156,7 +161,7 @@ public class MultibeamToolbar {
         getToolbar().add(zExaggerationToogle);
         getToolbar().add(meshToogle);
         getToolbar().add(smoothingMeshToogle);
-        // getToolbar().add(contoursToogle);
+        getToolbar().add(contoursToogle);
 
         getToolbar().add(new JSeparator(JSeparator.VERTICAL), BorderLayout.LINE_START);
 
@@ -370,7 +375,66 @@ public class MultibeamToolbar {
                     smoothingMeshToogle.setSelected(true);
             }
         });
+        
+        contoursToogle.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (contoursToogle.isSelected()) {
+                    if (meshToogle.isSelected()) {
+                        canvas.lock();
+                        textProcessingActor.SetDisplayPosition(canvas.getWidth() / 3, canvas.getHeight() / 2);
+                        canvas.GetRenderer().AddActor(textProcessingActor);
+                        canvas.Render();
+                        canvas.unlock();
+                        
+                        performActionAddContours();
+                        
+                        canvas.lock();
+                        canvas.GetRenderer().RemoveActor(textProcessingActor);
+                        canvas.GetRenderer().ResetCamera();
+                        canvas.Render();
+                        canvas.unlock();
+                        
+                    }
+                    else {
+                        contoursToogle.setSelected(false);
+                        String msgErrorMultibeam = I18n.text("No Mesh on renderer\n Please load one or press raw or mesh toogle if you hava already loaded a log");
+                        JOptionPane.showMessageDialog(null, msgErrorMultibeam);
+                    }
+                }
+                else {
+                    
+                }
+            }
+        });
     }
+    
+    private void performActionAddContours() {
+        vtkActorCollection actorCollection = new vtkActorCollection();
+        actorCollection = canvas.GetRenderer().GetActors();
+        actorCollection.InitTraversal();
+        
+        Set<String> setOfMeshs = linkedHashMapMesh.keySet();
+        
+        for (String sKey : setOfMeshs) {
+            
+            for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
+                vtkLODActor tempActor = new vtkLODActor();
+                tempActor = (vtkLODActor) actorCollection.GetNextActor();
+                if (linkedHashMapMesh.get(sKey).getMeshCloudLODActor().equals(tempActor)) {
+                    linkedHashMapMesh.get(sKey).getContours().generateTerrainContours(linkedHashMapMesh.get(sKey));
+                    canvas.lock();
+                    canvas.GetRenderer().AddActor(linkedHashMapMesh.get(sKey).getContours().getIsolinesActor());
+                    canvas.Render();
+                    canvas.unlock();
+                }
+            }
+            
+
+        }
+    }
+    
     
     private void performActionMeshSmoothing() {
         if (meshToogle.isSelected()) {

@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.surface;
 
+import pt.up.fe.dceg.neptus.plugins.vtk.filters.Contours;
 import vtk.vtkLODActor;
 import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
@@ -43,10 +44,13 @@ public class PointCloudMesh {
     
     private vtkPolyData polyData;
     private vtkLODActor meshCloudLODActor;
+    
+    private Contours contours;
         
     public PointCloudMesh() {
         setPolyData(new vtkPolyData());
         setMeshCloudLODActor(new vtkLODActor());
+        setContours(new Contours());
     }
     
     public void generateLODActorFromPolyData(vtkPolyData polyData) {
@@ -89,5 +93,19 @@ public class PointCloudMesh {
      */
     public void setPolyData(vtkPolyData polyData) {
         this.polyData = polyData;
+    }
+
+    /**
+     * @return the contours
+     */
+    public Contours getContours() {
+        return contours;
+    }
+
+    /**
+     * @param contours the contours to set
+     */
+    public void setContours(Contours contours) {
+        this.contours = contours;
     }
 }
