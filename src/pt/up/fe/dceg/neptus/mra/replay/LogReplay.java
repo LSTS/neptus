@@ -318,7 +318,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
                     public void actionPerformed(ActionEvent e) {
                         fieldDialog.setVisible(false);
                     }
-                }));
+                }), "split");
                 
                 fieldDialog.add(new JButton(new AbstractAction("Cancel") {
 
