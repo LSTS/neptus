@@ -97,15 +97,9 @@ public class PathControlLayer extends SimpleSubPanel implements Renderer2DPainte
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         
-        g.drawString(I18n.text("Path Control Layer"), 10, 16);
-        g.setColor(new Color(0,0,0,128));
-        g.setStroke(new BasicStroke(1.5f));
-        
-       // NeptusLog.pub().info("<###> "+lastMsgs.values());
-        
         for (PathControlState pcs : lastMsgs.values()) {
             
-            //if (pcs.get_flags() != 0) {
+            
                 LocationType dest = new LocationType(Math.toDegrees(pcs.getEndLat()), Math.toDegrees(pcs.getEndLon()));
                 ImcSystem system = ImcSystemsHolder.lookupSystem(pcs.getSrc());
                 

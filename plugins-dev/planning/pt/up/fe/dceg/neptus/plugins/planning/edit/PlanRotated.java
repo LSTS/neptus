@@ -79,7 +79,7 @@ public class PlanRotated extends AbstractUndoableEdit {
         for (Maneuver m : plan.getGraph().getAllManeuvers()) {
             if (m != pivot && m instanceof LocatedManeuver) {
                 LocatedManeuver satellite = (LocatedManeuver) m;
-                double[] top = pivot.getManeuverLocation().getDistanceInPixelTo(satellite.getManeuverLocation(), MapTileUtil.LEVEL_OFFSET);
+                double[] top = pivot.getManeuverLocation().getOffsetInPixelsTo(satellite.getManeuverLocation(), MapTileUtil.LEVEL_OFFSET);
                 double[] topR = AngleCalc.rotate(2 * -angle, top[0], top[1], false); 
                 double deltaX = topR[0];
                 double deltaY = topR[1];
@@ -96,7 +96,7 @@ public class PlanRotated extends AbstractUndoableEdit {
         for (Maneuver m : plan.getGraph().getAllManeuvers()) {
             if (m != pivot && m instanceof LocatedManeuver) {
                 LocatedManeuver satellite = (LocatedManeuver) m;
-                double[] top = pivot.getManeuverLocation().getDistanceInPixelTo(satellite.getManeuverLocation(), MapTileUtil.LEVEL_OFFSET);
+                double[] top = pivot.getManeuverLocation().getOffsetInPixelsTo(satellite.getManeuverLocation(), MapTileUtil.LEVEL_OFFSET);
                 double[] topR = AngleCalc.rotate(2 * angle, top[0], top[1], false); 
                 double deltaX = topR[0];
                 double deltaY = topR[1];

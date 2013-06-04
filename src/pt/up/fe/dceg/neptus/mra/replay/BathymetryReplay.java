@@ -52,13 +52,13 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
 public class BathymetryReplay extends ColormapOverlay implements LogReplayLayer {
 
     @NeptusProperty(name="Cell width")
-    public int cellWidth = 5;
+    public int cellWidth = 8;
     
     private LsfIndex index;
     private boolean parsed = false, parsing = false; 
     
     public BathymetryReplay() {
-        super("Bathymetry", 20, true, 0);              
+        super("Bathymetry", 50, true, 0);              
     }
     
     @Override
@@ -113,7 +113,7 @@ public class BathymetryReplay extends ColormapOverlay implements LogReplayLayer 
                                 continue;
                             LocationType loc = new LocationType(Math.toDegrees(state.getLat()), Math.toDegrees(state.getLon()));
                             loc.translatePosition(state.getX(), state.getY(), 0);
-                            addSampleUseMax(loc, state.getAlt() + state.getDepth());
+                            addSample(loc, state.getAlt() + state.getDepth());
                         }
                     }
                     generated = generateImage(ColorMapFactory.createJetColorMap());

@@ -643,7 +643,7 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
         for (Maneuver m : plan.getGraph().getAllManeuvers()) {
             if (m != center && m instanceof LocatedManeuver) {
                 LocatedManeuver satellite = (LocatedManeuver) m;
-                double[] top = center.getManeuverLocation().getDistanceInPixelTo(satellite.getManeuverLocation(),
+                double[] top = center.getManeuverLocation().getOffsetInPixelsTo(satellite.getManeuverLocation(),
                         MapTileUtil.LEVEL_OFFSET);
                 double[] topR = AngleCalc.rotate(2 * ammount, top[0], top[1], false);
                 double deltaX = topR[0]; // distPx * Math.cos(anglePx);

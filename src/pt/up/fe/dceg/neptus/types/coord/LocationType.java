@@ -1201,11 +1201,23 @@ Comparable<LocationType> {
      * @param level
      * @return
      */
-    public double[] getDistanceInPixelTo(LocationType target, int levelOfDetail) {
+    public double[] getOffsetInPixelsTo(LocationType target, int levelOfDetail) {
         LocationType meWithOffset = this.getNewAbsoluteLatLonDepth();
         LocationType targetWithOffset = target.getNewAbsoluteLatLonDepth();
         return MapTileUtil.getOffsetInPixels(meWithOffset, targetWithOffset, levelOfDetail);
     }
+    
+    /**
+     * Get distance in pixels to the target point in the given level
+     * @param target
+     * @param level
+     * @return
+     */
+    public double getDistanceInPixelTo(LocationType target, int levelOfDetail) {
+        double[] offsets =  getOffsetInPixelsTo(target, levelOfDetail);        
+        return Math.sqrt(offsets[0] * offsets[0] + offsets[1] * offsets[1]);
+    }
+    
 
     /**
      * Translate a location by pixels
