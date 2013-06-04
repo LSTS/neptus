@@ -40,6 +40,7 @@ import java.util.Set;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.up.fe.dceg.neptus.plugins.vtk.utils.Utils;
 import vtk.vtkAbstractPropPicker;
 import vtk.vtkActorCollection;
 import vtk.vtkAssemblyPath;
@@ -97,9 +98,7 @@ public class KeyboardEvent {
     public void handleEvents(int keyCode) { 
         switch (keyCode) {
             case KeyEvent.VK_J:
-                canvas.lock();
                 takeSnapShot();
-                canvas.unlock();
                 break;
             case KeyEvent.VK_U:
                 try {
@@ -319,7 +318,6 @@ public class KeyboardEvent {
                         renderer.RemoveActor(captionInfo.getCaptionMemorySizeActor());
                         renderer.RemoveActor(captionInfo.getCaptionCloudBoundsActor());
                         captionEnabled = false;
-                        //interactor.Render();
                         canvas.Render();
                         canvas.unlock();
                     }
@@ -330,7 +328,7 @@ public class KeyboardEvent {
                 break;
             case KeyEvent.VK_PLUS:  // increment size of rendered cell point
                 try {
-                    canvas.lock();
+
                     vtkActorCollection actorCollection = new vtkActorCollection();
                     actorCollection = renderer.GetActors();
                     actorCollection.InitTraversal();
@@ -344,14 +342,15 @@ public class KeyboardEvent {
                             if (tempActor.equals(pointCloud.getCloudLODActor())) {
                                double pointSize = tempActor.GetProperty().GetPointSize();
                                if (pointSize <= 9.0) {
+                                   canvas.lock();
                                    tempActor.GetProperty().SetPointSize(pointSize + 1);
                                    canvas.Render();
-                                   //interactor.Render();
+                                   canvas.unlock();
                                }
                             }
                         }
                     }
-                    canvas.unlock();
+
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -359,7 +358,6 @@ public class KeyboardEvent {
                 break;
             case KeyEvent.VK_MINUS: // case '-':   // decrement size of rendered cell point
                 try {
-                    canvas.lock();
                     vtkActorCollection actorCollection = new vtkActorCollection();
                     actorCollection = renderer.GetActors();
                     actorCollection.InitTraversal();
@@ -372,14 +370,14 @@ public class KeyboardEvent {
                             if (tempActor.equals(pointCloud.getCloudLODActor())) {
                                 double pointSize = tempActor.GetProperty().GetPointSize();
                                 if (pointSize > 1.0) {
+                                    canvas.lock();
                                     tempActor.GetProperty().SetPointSize(pointSize - 1);
                                     canvas.Render();
-                                    //interactor.Render();
+                                    canvas.unlock();
                                 }
                             }
                         }
                     }
-                    canvas.unlock();
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -500,24 +498,65 @@ public class KeyboardEvent {
     }
     
     /**
-     * for now saves on neptus directory
+     * Syncronously take a snapshot of a 3D view
+     * Saves on neptus directory
      */
     void takeSnapShot() {
-        try {
-            neptusInteractorStyle.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
-            neptusInteractorStyle.wif.SetInput(interactor.GetRenderWindow());
-            neptusInteractorStyle.wif.Modified();           
-            neptusInteractorStyle.snapshotWriter.Modified();
-                   
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssmm").format(Calendar.getInstance().getTimeInMillis());
-            timeStamp = "snapshot_" + timeStamp;
-            NeptusLog.pub().info("timeStamp: " + timeStamp);
+        Utils.goToAWTThread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    neptusInteractorStyle.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
+                    neptusInteractorStyle.wif.SetInput(interactor.GetRenderWindow());
+                    neptusInteractorStyle.wif.Modified();
+                    neptusInteractorStyle.snapshotWriter.Modified();
+                    
+                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssmm").format(Calendar.getInstance().getTimeInMillis());
+                    timeStamp = "snapshot_" + timeStamp;
+                    NeptusLog.pub().info("timeStamp: " + timeStamp);
+                    
+                    neptusInteractorStyle.snapshotWriter.SetFileName(timeStamp);
+                    
+                    if (!canvas.isWindowSet()) {
+                        canvas.lock();
+                        canvas.Render();
+                        canvas.unlock();
+                    }
+                    
+                    canvas.lock();
+                    neptusInteractorStyle.wif.Update();
+                    canvas.unlock();
+                    
+                    neptusInteractorStyle.snapshotWriter.Write();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             
-            neptusInteractorStyle.snapshotWriter.SetFileName(timeStamp);
-            neptusInteractorStyle.snapshotWriter.Write();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
     }
+    
+//    /**
+//     * for now saves on neptus directory
+//     */
+//    void takeSnapShot() {
+//        try {
+//            neptusInteractorStyle.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
+//            neptusInteractorStyle.wif.SetInput(interactor.GetRenderWindow());
+//            neptusInteractorStyle.wif.Modified();           
+//            neptusInteractorStyle.snapshotWriter.Modified();
+//                   
+//            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssmm").format(Calendar.getInstance().getTimeInMillis());
+//            timeStamp = "snapshot_" + timeStamp;
+//            NeptusLog.pub().info("timeStamp: " + timeStamp);
+//            
+//            neptusInteractorStyle.snapshotWriter.SetFileName(timeStamp);
+//            neptusInteractorStyle.snapshotWriter.Write();
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

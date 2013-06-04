@@ -161,7 +161,7 @@ public class Utils {
         if (!SwingUtilities.isEventDispatchThread()) {
             // Thread.dumpStack();
             // NeptusLog.pub().info("you try to render on a different thread than the thread" +
-            // "that creates the renderView. Making an invokeLater to render ont the " +
+            // "that creates the renderView. Making an invokeLater to render on the " +
             // "thread that creates the renderView");
             try {
                 SwingUtilities.invokeAndWait(runnable);
@@ -178,8 +178,8 @@ public class Utils {
         else
             runnable.run();
     }
-
-    public static void deleter(vtkObjectBase o) {
+    
+    public static void delete(vtkObjectBase o) {
         VTKMemoryManager.delete(o);
     }
 

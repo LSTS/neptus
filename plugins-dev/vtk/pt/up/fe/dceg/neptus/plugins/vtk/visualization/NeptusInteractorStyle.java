@@ -200,23 +200,6 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
 
         getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
 
-        // //getInteractor().AddObserver("LeftButtonPressEven", this, "leftMousePress");
-        // //getInteractor().AddObserver("LeftButtonReleaseEvent", this, "leftMouseRelease");
-        // //getInteractor().AddObserver("RightButtonPressEvent", this, "rightMousePress");
-        // //getInteractor().AddObserver("RightButtonReleaseEvent", this, "rightMouseRelease");
-        // //getInteractor().AddObserver("MiddleButtonPressEvent", this, "middleButtonPress");
-        // //getInteractor().AddObserver("MiddleButtonReleaseEvent", this, "middleButtonRelease");
-        // //getInteractor().AddObserver("MouseWheelForwardEvent", this, "mouseWheelForwardEvent");
-        // //getInteractor().AddObserver("MouseWheelBackwardEvent", this, "mouseWheelBackwardEvent");
-        // //getInteractor().AddObserver("EndInteractionEvent", this, "endInteractionEvent");
-        // //getInteractor().AddObserver("LeaveEvent", this, "leaveEvent");
-        // //getInteractor().AddObserver("InteractorEvent", this, "callbackFunctionFPS");
-        // //getInteractor().AddObserver("CharEvent", this, "saveScreenshot");
-        // //interactor.AddObserver("LeftButtonReleaseEvent", interactor.LeftButtonPressEvent(), "leftMousePress");
-        // //interactor.LeftButtonPressEvent()
-        // //getInteractor().AddObserver("EndEvent", this, "callbackFunctionFPS");
-        // getInteractor().AddObserver("CharEvent", this, "emitKeyboardEvents");
-
         canvas.addMouseWheelListener(this);
         canvas.addKeyListener(this);
 
@@ -251,7 +234,6 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
      */
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
-        String message;
         int notches = e.getWheelRotation();
         if (notches < 0) {
             zoomIn();
@@ -267,11 +249,13 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
     private void zoomIn() {
         FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
             // Zoom in
+        canvas.lock();
         StartDolly();
         camera = renderer.GetActiveCamera();
         double factor = 10.0 * 0.2 * .5;
         camera.Dolly(Math.pow(1.1, factor));
         EndDolly();
+        canvas.unlock();
     }
 
     /**
@@ -280,56 +264,18 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
     private void zoomOut() {
         FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
             // zoomOut
-        // double[] posCam;
-        // double[] posCam2;
-        // double[] focalPointCam;
-        // double[] focalPointCam2;
-        // double[] newFocalPoint;
-        // double posX, posY, posZ;
-        // posCam = camera.GetPosition();
-        // focalPointCam = camera.GetFocalPoint();
-        // newFocalPoint = focalPointCam;
-        // System.out.println("posX: " + posCam[0] + ", posY: " + posCam[1] + ", posZ: " + posCam[2]);
-        // System.out.println("focalPointCam:" + focalPointCam[0] + ", fy: " + focalPointCam[1] + ", fz: " +
-        // focalPointCam[2]);
-
+        canvas.lock();
         StartDolly();
         camera = renderer.GetActiveCamera();
         double factor = 10.0 * -0.2 * .5;
         camera.Dolly(Math.pow(1.1, factor));
-
-        // posCam2 = camera.GetPosition();
-        // focalPointCam2 = camera.GetFocalPoint();
-
-        // System.out.println("posX2: " + posCam2[0] + ", posY2: " + posCam2[1] + ", posZ2: " + posCam2[2]);
-        // System.out.println("focalPointCamx2:" + focalPointCam2[0] + ", fy2: " + focalPointCam2[1] + ", fz2: " +
-        // focalPointCam2[2]);
-        // newFocalPoint[0] = newFocalPoint[0] + (posCam[0] - posCam2[0]);
-        // newFocalPoint[1] = newFocalPoint[1] + (posCam[1] - posCam2[1]);
-        // newFocalPoint[2] = newFocalPoint[2] + (posCam2[2] - posCam[2]);
-
-        // camera.SetFocalPoint(newFocalPoint);
         EndDolly();
-        // camera.SetPosition(posCam);
+        canvas.unlock();
     }
 
     @Override
     public void keyTyped(java.awt.event.KeyEvent e) {
 
-    }
-
-    /**
-     * keyboard events launched from vtk interactor
-     */
-    void emitKeyboardEvents() {
-        char keyCode = Character.toLowerCase(interactor.GetKeyCode());
-        //System.out.println("keycode is: " + keyCode);
-        //String keySym = interactor.GetKeySym();
-        //System.out.println("Sym is: " + keySym);
-        int keyInt = Character.getNumericValue(keyCode);
-        //System.out.println("keyInt is: " + keyInt);
-
-        this.keyboardEvent.handleEvents(keyCode);
     }
 
     @Override
@@ -340,59 +286,6 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
     @Override
     public void keyReleased(java.awt.event.KeyEvent e) {
 
-    }
-
-    /**
-     * works only when mouse leaves render window
-     */
-    void leaveEvent() {
-        NeptusLog.pub().info("leaveEvent");
-    }
-
-    /**
-     * works on release of every mouse button
-     */
-    void endInteractionEvent() {
-        System.out.println("end Interaction event");
-    }
-
-    /*
-     * works
-     */
-    void middleButtonPress() {
-        System.out.println("middle button pressed");
-    }
-
-    void middleButtonRelease() {
-        System.out.println("middle button released");
-    }
-
-    void leftMousePress() {
-        System.out.println("carregou no botão esquerdo do rato");
-    }
-
-    void leftMouseRelease() {
-        System.out.println("left mouse release");
-    }
-
-    /*
-     * works
-     */
-    void rightMousePress() {
-        System.out.println("right mouse press");
-    }
-
-    void rightMouseRelease() {
-        System.out.println("right mouse release");
-    }
-
-    void mouseWheelForwardEvent() {
-        System.out.println("mouse Wheel forward Event");
-    }
-
-    void mouseWheelBackwardEvent() {
-        double dolly = interactor.GetDolly();
-        System.out.println("mouse wheel backward event, dolly: " + dolly);
     }
 
     /**
