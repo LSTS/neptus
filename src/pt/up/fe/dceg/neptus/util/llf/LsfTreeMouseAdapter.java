@@ -49,7 +49,7 @@ import pt.up.fe.dceg.neptus.mra.MraChartPanel;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.plots.GenericPlot;
-import pt.up.fe.dceg.neptus.plugins.mraplots.TimelinePlot;
+import pt.up.fe.dceg.neptus.plugins.mraplots.ReplayPlot;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 import pt.up.fe.dceg.neptus.util.llf.chart.LLFChart;
@@ -132,7 +132,7 @@ public class LsfTreeMouseAdapter extends MouseAdapter {
             
             popup.add(I18n.text("Timeline Plot")).addActionListener(new ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    panel.loadVisualization(new TimelinePlot(panel, fieldsToPlot), true);
+                    panel.loadVisualization(new ReplayPlot(panel, fieldsToPlot.toArray(new String[0])), true);
                 }
             });
             

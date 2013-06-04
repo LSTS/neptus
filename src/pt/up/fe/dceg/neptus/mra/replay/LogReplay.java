@@ -32,13 +32,22 @@
 package pt.up.fe.dceg.neptus.mra.replay;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.Vector;
 
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
+import javax.swing.tree.TreePath;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
@@ -54,6 +63,7 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
+import pt.up.fe.dceg.neptus.plugins.mraplots.ReplayPlot;
 import pt.up.fe.dceg.neptus.plugins.multibeam.MultibeamReplay;
 import pt.up.fe.dceg.neptus.plugins.oplimits.OperationLimits;
 import pt.up.fe.dceg.neptus.renderer2d.MissionRenderer;
@@ -65,6 +75,7 @@ import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
 import pt.up.fe.dceg.neptus.util.llf.LogUtils;
+import pt.up.fe.dceg.neptus.util.llf.LsfTree;
 
 /**
  * @author ZP
@@ -89,6 +100,8 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
 
     private Timeline timeline;
 
+    private JButton plotButton;
+    
     private Vector<LogReplayLayer> layers = new Vector<LogReplayLayer>();
     {
         layers.add(new GPSFixReplay());
@@ -107,13 +120,23 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
     protected LinkedHashMap<String, IMraLog> replayParsers = new LinkedHashMap<String, IMraLog>();
     private Vector<LogReplayLayer> renderedLayers = new Vector<LogReplayLayer>();
     private Vector<LogReplayLayer> replayLayers = new Vector<LogReplayLayer>();
+    
+    private ArrayList<ReplayPlot> replayPlots = new ArrayList<ReplayPlot>();
+    
     private InfiniteProgressPanel loader;
     
+    
     int currentValue = 0; // This value will be used to know if we regressed in timeline
+    
+    MRAPanel panel;
+    LsfTree tree;
     
     public LogReplay(MRAPanel panel) {
         this.source = panel.getSource();
         this.loader = panel.getLoader();
+        this.panel = panel;
+        
+        this.tree = new LsfTree(this.source);
         
         setLayout(new MigLayout());
     }
@@ -263,12 +286,89 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
                         }
                     }
                 }
+                
+                for(ReplayPlot plot : replayPlots) {
+                    plot.timelineChanged(value);
+                }
+                
                 currentValue = value;
             }
         });
         
         timeline.getSlider().setValue(0);
         controlsPanel.add(timeline);
+        
+        plotButton = new JButton("Plots");
+        
+        plotButton.setAction(new AbstractAction("Plots") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final Vector<String> fields = new Vector<String>();
+
+                // Get fields to plot
+                final JDialog fieldDialog = new JDialog();
+                JScrollPane scroll = new JScrollPane(tree);
+                fieldDialog.setModal(true);
+                fieldDialog.setSize(300, 500);
+                fieldDialog.setLayout(new MigLayout());
+                fieldDialog.add(scroll, "w 100%, h 100%, wrap");
+                fieldDialog.add(new JButton(new AbstractAction("Ok") {
+                    
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        fieldDialog.setVisible(false);
+                    }
+                }));
+                
+                fieldDialog.add(new JButton(new AbstractAction("Cancel") {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        fields.clear();
+                        fieldDialog.setVisible(false);
+                    }
+                }));
+
+                tree.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        TreePath[] path = tree.getSelectionPaths();
+                        
+                        if(path == null)
+                            return;
+                        
+                        fields.clear();
+                        for (int i = 0; i < path.length; i++) {
+                            if (path[i].getPath().length == 3) {
+                                String message = path[i].getPath()[1].toString();
+                                String field = path[i].getPath()[2].toString();
+                                
+                                fields.add(message + "." + field);
+                            }
+                        }
+                    }
+                });
+                
+                // As this is modal execution stops here.
+                fieldDialog.setVisible(true);
+                
+                ReplayPlot plot = new ReplayPlot(panel, fields.toArray(new String[0]));
+                
+                if(fields.size() != 0 && plot.canBeApplied(source)) {
+                    replayPlots.add(plot);
+                    
+                    JDialog dialog = new JDialog();
+                    dialog.setLayout(new MigLayout());
+                    dialog.setSize(640, 480);
+                    dialog.add(plot.getComponent(source, 0), "w 100%, h 100%");
+
+                    plot.setTimelineVisible(false);
+                    dialog.setVisible(true);
+                }
+            }
+        });
+        
+        controlsPanel.add(plotButton);
 
         return controlsPanel;
         

@@ -52,18 +52,18 @@ import pt.up.fe.dceg.neptus.mra.plots.MraTimeSeriesPlot;
  * @author jqcorreia
  *
  */
-public class TimelinePlot extends MraTimeSeriesPlot implements TimelineChangeListener {
+public class ReplayPlot extends MraTimeSeriesPlot implements TimelineChangeListener {
     
     Timeline timeline;
     long firstTimestamp;
     private long lastTimestamp;
-    Vector<String> fieldsToPlot;
+    String[] fieldsToPlot;
     LinkedHashMap<String, IMraLog> parsers = new LinkedHashMap<String, IMraLog>();
     
     /**
      * @param panel
      */
-    public TimelinePlot(MRAPanel panel, Vector<String> fieldsToPlot) {
+    public ReplayPlot(MRAPanel panel, String[] fieldsToPlot) {
         super(panel);
         this.fieldsToPlot = fieldsToPlot;
     }
@@ -83,13 +83,6 @@ public class TimelinePlot extends MraTimeSeriesPlot implements TimelineChangeLis
     public void process(LsfIndex source) {
         firstTimestamp = (long) (source.timeOf(0) * 1000);
         lastTimestamp = (long) (source.timeOf(source.getNumberOfMessages()-2) * 1000);
-        
-        System.out.println((int)(lastTimestamp - firstTimestamp));
-//        System.out.println(firstTimestamp + " " + source.timeOf(0));
-//        System.out.println(lastTimestamp + " " + source.timeOf(source.getNumberOfMessages()-2) + " " + source.getNumberOfMessages());
-//        System.out.println(lastTimestamp - firstTimestamp);
-//        
-//        System.out.println(source.getMessage(source.getNumberOfMessages()-2));
         
         timeline = new Timeline(0, (int)(lastTimestamp - firstTimestamp), 24, 1000, false);
         timeline.getSlider().setValue(0);
@@ -115,7 +108,7 @@ public class TimelinePlot extends MraTimeSeriesPlot implements TimelineChangeLis
 
     @Override
     public String getName() {
-        return Arrays.toString(fieldsToPlot.toArray(new String[0]));
+        return Arrays.toString(fieldsToPlot);
     }    
     
     @Override
@@ -132,5 +125,9 @@ public class TimelinePlot extends MraTimeSeriesPlot implements TimelineChangeLis
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    public void setTimelineVisible(boolean visible) {
+        timeline.setVisible(visible);
     }
 }
