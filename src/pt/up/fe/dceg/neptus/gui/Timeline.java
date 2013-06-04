@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
@@ -107,11 +108,18 @@ public class Timeline extends JPanel implements ChangeListener {
         updater = new Runnable() {
             @Override
             public void run() {
-                if (running)
+                if (running) {
                     slider.setValue(slider.getValue() + (advancePerSecond / Timeline.this.frequency) * speed);
+                }
             }
         };
-        service.scheduleAtFixedRate(updater, 0, 1000 / Timeline.this.frequency, TimeUnit.MILLISECONDS);
+        ScheduledFuture<?> future = service.scheduleAtFixedRate(updater, 0, 1000 / Timeline.this.frequency, TimeUnit.MILLISECONDS);
+//        try {
+//            future.get();
+//        } catch(Exception e) {
+//            Throwable t = e.getCause();
+//            t.printStackTrace();
+//        }
     }
 
     public AbstractAction getPlayAction() {
