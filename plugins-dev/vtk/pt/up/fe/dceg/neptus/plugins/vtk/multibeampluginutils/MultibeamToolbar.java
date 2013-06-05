@@ -60,6 +60,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.Delauny2D;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.MeshSmoothingLaplacian;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.PointCloudMesh;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Canvas;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 import vtk.vtkActorCollection;
@@ -86,7 +87,8 @@ public class MultibeamToolbar {
     private JButton helpButton;
     private JButton configButton;
     
-    private vtkCanvas canvas;
+    //private vtkCanvas canvas;
+    private Canvas canvas;
     private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
     private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
     
@@ -112,7 +114,8 @@ public class MultibeamToolbar {
      */
     public MultibeamToolbar(Vtk vtkInit) {
         this.vtkInit = vtkInit;
-        this.canvas = vtkInit.vtkCanvas;
+        //this.canvas = vtkInit.vtkCanvas;
+        this.canvas = vtkInit.canvas;
         this.linkedHashMapCloud = vtkInit.linkedHashMapCloud;
         this.linkedHashMapMesh = vtkInit.linkedHashMapMesh;
         //this.currentApproachToIgnorePts = vtkInit.approachToIgnorePts;

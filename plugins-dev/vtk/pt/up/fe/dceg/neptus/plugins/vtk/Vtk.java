@@ -59,6 +59,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.Utils;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesWidget;
+import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Canvas;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Text3D;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.VTKMemoryManager;
@@ -99,7 +100,9 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
     // there are 2 types of rendering objects on VTK - vtkPanel and vtkCanvas. vtkCanvas seems to have a better behaviour and performance.
     //public vtkPanel vtkPanel;
-    public vtkCanvas vtkCanvas;
+    //public vtkCanvas vtkCanvas;
+    public Canvas canvas;
+    
     
     public Window winCanvas;
     
@@ -150,21 +153,24 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
         {
             componentEnabled = true;
             
-            vtkCanvas = new vtkCanvas();           
+            //vtkCanvas = new vtkCanvas();
+            canvas = new Canvas();
        
             pointCloud = new PointCloud<>();
             pointCloud.setCloudName("multibeam");
             linkedHashMapCloud.put(pointCloud.getCloudName(), pointCloud);
             
-            winCanvas = new Window(vtkCanvas, linkedHashMapCloud);
+            //winCanvas = new Window(vtkCanvas, linkedHashMapCloud);
+            winCanvas = new Window(canvas, linkedHashMapCloud);
             
-            //vtkCanvas.lock();
-            vtkCanvas.GetRenderer().ResetCamera();
-            vtkCanvas.LightFollowCameraOn();
-            //vtkCanvas.unlock();
+            //vtkCanvas.GetRenderer().ResetCamera();
+            //vtkCanvas.LightFollowCameraOn();
+            canvas.GetRenderer().ResetCamera();
+            canvas.LightFollowCameraOn();
             
                 // add vtkCanvas to Layout
-            add(vtkCanvas, "W 100%, H 100%");
+            //add(vtkCanvas, "W 100%, H 100%");
+            add(canvas,  "W 100%, H 100%");
 
                 // parse 83P data storing it on a pointcloud
             multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
@@ -172,49 +178,37 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             multibeamToPointCloud.parseMultibeamPointCloud();
             
                 // add toolbar to Layout
-//            toolbar = new MultibeamToolBar(this);
-//            toolbar.createToolBar();
-//            add(toolbar.getToolBar(), "dock south");
             toolbar = new MultibeamToolbar(this);
             toolbar.createToolbar();
             add(toolbar.getToolbar(), "dock south");
             
                 // for resizing porpuses
-            vtkCanvas.getParent().addComponentListener(this);
-//            addComponentListener(new ComponentAdapter() {
-//                public void componentResized(ComponentEvent event) {
-//                    // The canvas is being resized get the new size
-//                    int width = getWidth();
-//                    int height = getHeight();
-//                    setSize(width, height);
-//                }
-//            });
-            
-            //vtkCanvas.addComponentListener(this);
-            vtkCanvas.setEnabled(true);
+            canvas.getParent().addComponentListener(this);
+
+            //vtkCanvas.setEnabled(true);
+            canvas.setEnabled(true);
 
                 // add axesWidget to vtk canvas fixed to a screen position
             AxesWidget axesWidget = new AxesWidget(winCanvas.getInteractorStyle().GetInteractor());            
             axesWidget.createAxesWidget();
             
             if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!                         
-                    // create an actor from parsed beams
-
-                
+                    // create an actor from parsed beams              
                 pointCloud.createLODActorFromPoints();
              
-                //vtkCanvas.lock();
                     // add parsed beams stored on pointcloud to canvas
-                vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor()); 
-                
+                //vtkCanvas.GetRenderer().AddActor(pointCloud.getCloudLODActor()); 
+                canvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
                     // set Up scalar Bar look up table
                 winCanvas.getInteractorStyle().getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
-                vtkCanvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
+                //vtkCanvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
+                canvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
                 
                     // set up camera to +z viewpoint looking down
-                vtkCanvas.GetRenderer().GetActiveCamera().SetPosition(pointCloud.getPoly().GetCenter()[0] ,pointCloud.getPoly().GetCenter()[1] , pointCloud.getPoly().GetCenter()[2] - 200);
-                vtkCanvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
-                //vtkCanvas.unlock();
+                //vtkCanvas.GetRenderer().GetActiveCamera().SetPosition(pointCloud.getPoly().GetCenter()[0] ,pointCloud.getPoly().GetCenter()[1] , pointCloud.getPoly().GetCenter()[2] - 200);
+                //vtkCanvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+                canvas.GetRenderer().GetActiveCamera().SetPosition(pointCloud.getPoly().GetCenter()[0] ,pointCloud.getPoly().GetCenter()[1] , pointCloud.getPoly().GetCenter()[2] - 200);
+                canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
             }
             else {  // if no beams were parsed
                 String msgErrorMultibeam;
@@ -223,9 +217,11 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
                 noBeamsText = new Text3D();
                 noBeamsText.buildText3D("No beams on Log file!", 2.0, 2.0, 2.0, 10.0);
-                vtkCanvas.GetRenderer().AddActor(noBeamsText.getText3dActor()); 
+                //vtkCanvas.GetRenderer().AddActor(noBeamsText.getText3dActor()); 
+                canvas.GetRenderer().AddActor(noBeamsText.getText3dActor());
             }
-            vtkCanvas.GetRenderer().ResetCamera();
+            //vtkCanvas.GetRenderer().ResetCamera();
+            canvas.GetRenderer().ResetCamera();
         }      
         return this;
     }
@@ -285,17 +281,15 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
     @Override
     public void onCleanup() {
-        Utils.goToAWTThread(new Runnable() {
-            public void run() {
-                VTKMemoryManager.deleteAll();
-            }
-        });
-//        try {
-//            vtkObject.JAVA_OBJECT_MANAGER.getAutoGarbageCollector().Start();
-//        }
-//        catch (Throwable e) {
-//            e.printStackTrace();
-//        }
+        
+        
+        
+            // Do not use this while changing logs... core dumps error on java runtime
+        //Utils.goToAWTThread(new Runnable() {
+        //    public void run() {
+        //        VTKMemoryManager.deleteAll();
+        //    }
+        //});
     }
     
     /**
@@ -351,16 +345,22 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
         Rectangle toolbarBounds = toolbar.getToolbar().getBounds();
         
         Rectangle parentBounds = new Rectangle();
-        parentBounds.setBounds(vtkCanvas.getParent().getX(), vtkCanvas.getParent().getY(), vtkCanvas.getParent().getParent().getWidth() - 6, vtkCanvas.getParent().getParent().getHeight() - 12); //- toolBarBounds.getHeight()
-        vtkCanvas.getParent().setBounds(parentBounds);
+        //parentBounds.setBounds(vtkCanvas.getParent().getX(), vtkCanvas.getParent().getY(), vtkCanvas.getParent().getParent().getWidth() - 6, vtkCanvas.getParent().getParent().getHeight() - 12); //- toolBarBounds.getHeight()
+        //vtkCanvas.getParent().setBounds(parentBounds);
+        parentBounds.setBounds(canvas.getParent().getX(), canvas.getParent().getY(), canvas.getParent().getParent().getWidth() - 6, canvas.getParent().getParent().getHeight() - 12); //- toolBarBounds.getHeight()
+        canvas.getParent().setBounds(parentBounds);
 
         Rectangle canvasBounds = new Rectangle();
         //canvasBounds.setBounds(vtkCanvas.getX(), vtkCanvas.getY(), vtkCanvas.getParent().getWidth() - 6, (int) (vtkCanvas.getParent().getHeight() - toolBarBounds.getHeight())); // 
-        canvasBounds.setBounds(vtkCanvas.getX(), vtkCanvas.getY(), vtkCanvas.getParent().getWidth() - 6, (int) (vtkCanvas.getParent().getHeight() - toolbarBounds.getHeight()));
-        vtkCanvas.setBounds(canvasBounds);   
+//        canvasBounds.setBounds(vtkCanvas.getX(), vtkCanvas.getY(), vtkCanvas.getParent().getWidth() - 6, (int) (vtkCanvas.getParent().getHeight() - toolbarBounds.getHeight()));
+//        vtkCanvas.setBounds(canvasBounds);
+        canvasBounds.setBounds(canvas.getX(), canvas.getY(), canvas.getParent().getWidth() - 6, (int) (canvas.getParent().getHeight() - toolbarBounds.getHeight()));
+        canvas.setBounds(canvasBounds); 
                
         Rectangle newToolbarBounds = new Rectangle();
-        newToolbarBounds.setBounds(toolbarBounds.x, (vtkCanvas.getY() + vtkCanvas.getHeight()), toolbarBounds.width, toolbarBounds.height);
+//        newToolbarBounds.setBounds(toolbarBounds.x, (vtkCanvas.getY() + vtkCanvas.getHeight()), toolbarBounds.width, toolbarBounds.height);
+//        toolbar.getToolbar().setBounds(newToolbarBounds);
+        newToolbarBounds.setBounds(toolbarBounds.x, (canvas.getY() + canvas.getHeight()), toolbarBounds.width, toolbarBounds.height);
         toolbar.getToolbar().setBounds(newToolbarBounds);
     }
 

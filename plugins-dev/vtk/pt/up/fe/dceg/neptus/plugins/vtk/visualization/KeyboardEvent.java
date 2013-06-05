@@ -57,7 +57,9 @@ import vtk.vtkRenderer;
 public class KeyboardEvent {   
     private NeptusInteractorStyle neptusInteractorStyle;
     
-    private vtkCanvas canvas;
+    //private vtkCanvas canvas;
+    private Canvas canvas;
+    
     private vtkRenderer renderer;
     private vtkRenderWindowInteractor interactor;
 

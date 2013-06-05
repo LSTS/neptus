@@ -52,7 +52,8 @@ public class Window {
     public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
       
     private vtkPanel panel;
-    private vtkCanvas canvas;
+    //private vtkCanvas canvas;
+    private Canvas canvas;
     private vtkRenderer renderer;
     private vtkRenderWindow renWin;
     private vtkRenderWindowInteractor renWinInteractor;
@@ -118,8 +119,9 @@ public class Window {
      * @param hashCloud
      * set all vtk render components of a vtkCanvas 
      */
-    public Window(vtkCanvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
-        this.canvas = new vtkCanvas();
+    //public Window(vtkCanvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
+    public Window(Canvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
+        //this.canvas = new vtkCanvas();
         this.canvas = canvas;
         this.linkedHashMapCloud = linkedHashMapCloud;
 
