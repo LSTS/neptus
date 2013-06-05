@@ -76,11 +76,13 @@ public class VisitEuropa extends TrexGoal implements Renderer2DPainter {
         attrTemp.setName("latitude");
         attrTemp.setMin(latitude + "");
         attrTemp.setMax(latitude + "");
+        attrTemp.setAttrType(TrexAttribute.ATTR_TYPE.FLOAT);
         attributes.add(attrTemp);
         attrTemp = new TrexAttribute();
         attrTemp.setName("longitude");
         attrTemp.setMin(longitude + "");
         attrTemp.setMax(longitude + "");
+        attrTemp.setAttrType(TrexAttribute.ATTR_TYPE.FLOAT);
         attributes.add(attrTemp);
         return attributes;
     }
