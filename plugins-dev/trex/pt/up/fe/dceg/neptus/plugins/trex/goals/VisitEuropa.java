@@ -48,37 +48,22 @@ import com.l2fprod.common.propertysheet.Property;
  * @author meg
  *
  */
-public class Going extends TrexGoal implements Renderer2DPainter {
-    private static final String predicate = "Going";
-    private static final String timeline = "reference";
+public class VisitEuropa extends TrexGoal implements Renderer2DPainter {
+    private static final String predicate = "Visit";
+    private static final String timeline = "navigator";
     
-    protected double speed = 1000;
-    protected double height = 200;
-    protected double tolerance = 10;
-    // FIXME passar a location type
     protected double latitude, longitude;
 
-    public Going(double lat_deg, double lon_deg) {
-        super(timeline, predicate);
-        this.latitude = lat_deg;
-        this.longitude = lon_deg;
-    }	
-	
-    public Going() {
+    public VisitEuropa() {
         super(timeline, predicate);
     }
 
     /**
-     * @param speed
-     * @param depth
      * @param lat_deg
      * @param lon_deg
-     * @param tolerance
      */
-    public Going(double speed, double height, double lat_deg, double lon_deg) {
+    public VisitEuropa(double lat_deg, double lon_deg) {
         super(timeline, predicate);
-        this.speed = speed;
-        this.height = height;
         this.latitude = lat_deg;
         this.longitude = lon_deg;
     }
@@ -88,10 +73,6 @@ public class Going extends TrexGoal implements Renderer2DPainter {
     public Collection<TrexAttribute> getAttributes() {
         Vector<TrexAttribute> attributes = new Vector<TrexAttribute>();
         TrexAttribute attrTemp = new TrexAttribute();
-        attrTemp.setName("speed");
-        attrTemp.setMin(speed + "");
-        attributes.add(attrTemp);
-        attrTemp = new TrexAttribute();
         attrTemp.setName("latitude");
         attrTemp.setMin(latitude + "");
         attrTemp.setMax(latitude + "");
@@ -100,11 +81,6 @@ public class Going extends TrexGoal implements Renderer2DPainter {
         attrTemp.setName("longitude");
         attrTemp.setMin(longitude + "");
         attrTemp.setMax(longitude + "");
-        attributes.add(attrTemp);
-        attrTemp = new TrexAttribute();
-        attrTemp.setName("z");
-        attrTemp.setMin(-height + "");
-        attrTemp.setMax(-height + "");
         attributes.add(attrTemp);
         return attributes;
     }
@@ -119,8 +95,6 @@ public class Going extends TrexGoal implements Renderer2DPainter {
 
         Vector<DefaultProperty> props = new Vector<>();
 
-        props.add(PropertiesEditor.getPropertyInstance("Depth", Double.class, height, true));
-        props.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, speed, true));
         props.add(PropertiesEditor.getPropertyInstance("Latitude", Double.class, latitude, true));
         props.add(PropertiesEditor.getPropertyInstance("Longitude", Double.class, longitude, true));
 
@@ -131,11 +105,6 @@ public class Going extends TrexGoal implements Renderer2DPainter {
     public void setSpecificProperties(Collection<Property> properties) {
         for (Property p : properties) {
             switch (p.getName()) {
-                case "Height":
-                    height = (Double) p.getValue();
-                    break;
-                case "Speed":
-                    speed = (Double) p.getValue();
                 case "Latitude":
                     latitude = (Double) p.getValue();
                 case "Longitude":
@@ -148,7 +117,6 @@ public class Going extends TrexGoal implements Renderer2DPainter {
 
     public LocationType getLocation() {
         LocationType loc = new LocationType(latitude, longitude);
-        loc.setHeight(height);
         return loc;
     }
     
@@ -163,11 +131,8 @@ public class Going extends TrexGoal implements Renderer2DPainter {
                 + "\"on\": \""+super.timeline+"\",\"pred\": \""+super.predicate+"\","
                 + "\"Variable\":"
                 + "["
-                + "{\"float\":{\"value\": \""+speed+"\"}, \"name\": \"speed\"},"
                 + "{\"float\":{\"value\": \""+latitude+"\"}, \"name\": \"latitude\"},"
                 + "{\"float\":{\"value\": \""+longitude+"\"}, \"name\": \"longitude\"}"
-                + "{\"float\":{\"value\": \"" + -height + "\"}, \"name\": \"z\"},"
-//                + "{\"duration\":{\"min\": \"00:01:00.403000\", \"max\": \"00:01:00.403000\"}, \"type\": \"duration\", \"name\": \"duration\"}"
                 + "]}";
     }
 
