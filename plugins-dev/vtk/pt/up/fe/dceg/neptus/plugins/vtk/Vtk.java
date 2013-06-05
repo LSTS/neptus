@@ -221,6 +221,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 canvas.GetRenderer().AddActor(noBeamsText.getText3dActor());
             }
             //vtkCanvas.GetRenderer().ResetCamera();
+            canvas.RenderSecured();
             canvas.GetRenderer().ResetCamera();
         }      
         return this;

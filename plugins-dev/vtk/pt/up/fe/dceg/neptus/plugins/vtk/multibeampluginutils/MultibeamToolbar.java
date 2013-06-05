@@ -164,7 +164,7 @@ public class MultibeamToolbar {
         getToolbar().add(zExaggerationToogle);
         getToolbar().add(meshToogle);
         getToolbar().add(smoothingMeshToogle);
-        getToolbar().add(contoursToogle);
+        //getToolbar().add(contoursToogle);
 
         getToolbar().add(new JSeparator(JSeparator.VERTICAL), BorderLayout.LINE_START);
 

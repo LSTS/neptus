@@ -34,8 +34,9 @@ package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 import java.awt.Dimension;
 
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.Utils;
-
+import vtk.vtkActorCollection;
 import vtk.vtkCanvas;
+import vtk.vtkMapper;
 import vtk.vtkUnsignedCharArray;
 
 /**
@@ -88,10 +89,12 @@ public class Canvas extends vtkCanvas {
     }
     
     @Override
-    public void Render() {
+    //public void Render() {
+    public synchronized void Render() {
         if (!rendering)
         {
             rendering = true;
+                // if there's no visible actor to render
             if (ren.VisibleActorCount() == 0)
             {
                 rendering = false;
@@ -121,5 +124,66 @@ public class Canvas extends vtkCanvas {
             }
         }
     }
+    
+    @Override
+    public void lock() {
+        if (isWindowSet())
+            super.lock();
+    }
+    
+    @Override
+    public void unlock() {
+        if (isWindowSet())
+            super.unlock();
+    }
+    
+    /**
+     * Set the immediateRenderingMode on the current view
+     * @param mode
+     */
+    public void setImmediateRenderingMode(boolean mode) {
+        vtkMapper mapper;
+        vtkActorCollection listOfActors = GetRenderer().GetActors();
+        int nbActors = listOfActors.GetNumberOfItems();
+        
+        listOfActors.InitTraversal();
+        for (int i = 0; i < nbActors; ++i) {
+                // browing the list of actores and getting their associated mappers
+            mapper = listOfActors.GetNextActor().GetMapper();
+            mapper.SetImmediateModeRendering(Utils.booleanToInt(mode));
+        }
+    }
 
+    public int getCtrlPressed() {
+        return ctrlPressed;
+    }
+    
+    public void setCtrlPressed(int ctrlPressed) {
+        this.ctrlPressed = ctrlPressed;
+    }
+    
+    public int getShiftPressed() {
+        return shiftPressed;
+    }
+    
+    public void setShiftPressed(int shiftPressed) {
+        this.shiftPressed = shiftPressed;
+    }
+    
+    public int getLastX() {
+        return lastX;
+    }
+    
+    public void setLastX(int lastX) {
+        this.lastX = lastX;
+    }
+    
+    public int getLastY() {
+        return lastY;
+    }
+    
+    public void setLastY(int lastY) {
+        this.lastY = lastX;
+    }
+    
 }
