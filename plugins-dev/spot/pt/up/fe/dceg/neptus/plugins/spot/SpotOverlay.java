@@ -224,7 +224,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
                     pt = renderer.getScreenPosition(location);
                     spotPath.lineTo(pt.getX(), pt.getY());
                 }
-                spotPath.closePath();
+                // spotPath.closePath();
                 // g2.setColor(Color.black);
                 // g2.fill(spotPath);
                 g2.setStroke(new BasicStroke(2f));
