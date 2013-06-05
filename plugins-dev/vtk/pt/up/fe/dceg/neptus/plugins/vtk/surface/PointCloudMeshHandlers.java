@@ -36,19 +36,18 @@ import vtk.vtkPolyData;
 import vtk.vtkUnsignedCharArray;
 
 /**
- * @author hfq
- * Handles pointCloud generated mesh colors
- *
+ * @author hfq Handles pointCloud generated mesh colors
+ * 
  */
 public class PointCloudMeshHandlers {
     private vtkUnsignedCharArray colorsX;
     private vtkUnsignedCharArray colorsY;
     private vtkUnsignedCharArray colorsZ;
-    
+
     private vtkLookupTable lutX;
     private vtkLookupTable lutY;
     private vtkLookupTable lutZ;
-    
+
     public PointCloudMeshHandlers() {
         setColorsX(new vtkUnsignedCharArray());
         setColorsY(new vtkUnsignedCharArray());
@@ -57,57 +56,57 @@ public class PointCloudMeshHandlers {
         setLutY(new vtkLookupTable());
         setLutZ(new vtkLookupTable());
     }
-    
+
     public void generateMeshColorHandlers(vtkPolyData polyData, double[] bounds) {
         getLutX().SetRange(bounds[0], bounds[1]);
         getLutX().SetScaleToLinear();
         getLutX().Build();
-        
+
         getLutY().SetRange(bounds[2], bounds[3]);
         getLutY().SetScaleToLinear();
         getLutY().Build();
-        
+
         getLutZ().SetRange(bounds[4], bounds[5]);
         getLutZ().SetScaleToLinear();
         getLutZ().Build();
-        
+
         getColorsX().SetNumberOfComponents(3);
         getColorsX().SetName("colorsX");
-        
+
         getColorsY().SetNumberOfComponents(3);
         getColorsX().SetName("colorsY");
-        
+
         getColorsZ().SetNumberOfComponents(3);
         getColorsX().SetName("colorsZ");
-        
+
         for (int i = 0; i < polyData.GetNumberOfPoints(); ++i) {
             double[] point = new double[3];
             polyData.GetPoint(i, point);
-            
+
             double[] xDColor = new double[3];
             double[] yDColor = new double[3];
             double[] zDColor = new double[3];
-            
+
             getLutX().GetColor(point[0], xDColor);
             getLutY().GetColor(point[1], yDColor);
             getLutZ().GetColor(point[2], zDColor);
-            
+
             char[] colorx = new char[3];
             char[] colory = new char[3];
             char[] colorz = new char[3];
-            
-            for (int j = 0; j <3; ++j) {
+
+            for (int j = 0; j < 3; ++j) {
                 colorx[j] = (char) (255.0 * xDColor[j]);
                 colory[j] = (char) (255.0 * yDColor[j]);
                 colorz[j] = (char) (255.0 * zDColor[j]);
             }
-            
+
             getColorsX().InsertNextTuple3(colorx[0], colorx[1], colorx[2]);
             getColorsY().InsertNextTuple3(colory[0], colory[1], colory[2]);
             getColorsZ().InsertNextTuple3(colorz[0], colorz[1], colorz[2]);
         }
     }
-    
+
     /**
      * @return the colorsX
      */
@@ -191,6 +190,4 @@ public class PointCloudMeshHandlers {
     public void setLutZ(vtkLookupTable lutZ) {
         this.lutZ = lutZ;
     }
-
-    
 }

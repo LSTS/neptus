@@ -31,6 +31,13 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.surface;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+import vtk.vtkButterflySubdivisionFilter;
+import vtk.vtkLinearSubdivisionFilter;
+import vtk.vtkLoopSubdivisionFilter;
+import vtk.vtkPolyData;
+import vtk.vtkPolyDataAlgorithm;
+
 /**
  * @author hfq
  *
@@ -38,10 +45,71 @@ package pt.up.fe.dceg.neptus.plugins.vtk.surface;
 public class MeshSubdivision {
 
     public enum MeshSubdivisionFilterType {
-        LINEAD, LOOP, BUTTERFLY
+        LINEAR, LOOP, BUTTERFLY
     }
     
+    private MeshSubdivisionFilterType filterType = MeshSubdivisionFilterType.LINEAR;
+    
+    private vtkPolyData polyDataSubdivided;
+    
     public MeshSubdivision() {
-        
+        polyDataSubdivided = new vtkPolyData();
     }
+    
+    public void performProcessing(vtkPolyData polyData) {
+        
+        vtkPolyDataAlgorithm subdivisionFilter = null;
+        switch (filterType) {
+            case LINEAR:
+                subdivisionFilter = new vtkLinearSubdivisionFilter();
+                break;
+            case LOOP:
+                subdivisionFilter = new vtkLoopSubdivisionFilter();
+                break;
+            case BUTTERFLY:
+                subdivisionFilter = new vtkButterflySubdivisionFilter();
+                break;
+            default:
+                NeptusLog.pub().error("MeshSubdivion: Invalid filter selection");
+                break;
+        }
+        
+        subdivisionFilter.SetInput(polyData);
+        subdivisionFilter.Update();
+        
+        polyDataSubdivided = subdivisionFilter.GetOutput();
+    }
+    
+
+    /**
+     * Get the mesh subdivision filter type
+     * @return the filterType
+     */
+    public MeshSubdivisionFilterType getFilterType() {
+        return filterType;
+    }
+
+    /**
+     * Set the mehs subdivion filter type
+     * @param filterType the filterType to set
+     */
+    public void setFilterType(MeshSubdivisionFilterType filterType) {
+        this.filterType = filterType;
+    }
+
+    /**
+     * @return the polyDataSubdivided
+     */
+    public vtkPolyData getPolyDataSubdivided() {
+        return polyDataSubdivided;
+    }
+
+    /**
+     * @param polyDataSubdivided the polyDataSubdivided to set
+     */
+    private void setPolyDataSubdivided(vtkPolyData polyDataSubdivided) {
+        this.polyDataSubdivided = polyDataSubdivided;
+    }
+    
+    
 }
