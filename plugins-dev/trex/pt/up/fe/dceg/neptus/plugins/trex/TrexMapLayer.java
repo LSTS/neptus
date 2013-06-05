@@ -72,10 +72,10 @@ import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
-import pt.up.fe.dceg.neptus.plugins.trex.goals.Going;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.Surveil;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.TagSimulation;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.TrexGoal;
+import pt.up.fe.dceg.neptus.plugins.trex.goals.VisitEuropa;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.VisitLocationGoal;
 import pt.up.fe.dceg.neptus.plugins.trex.gui.PortEditor;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
@@ -337,12 +337,13 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     }
 
     private void addGoing(JPopupMenu popup, final LocationType loc) {
-        popup.add("Test going").addActionListener(new ActionListener() {
+        popup.add("Test visit europa").addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 loc.convertToAbsoluteLatLonDepth();
-                Going going = new Going(loc.getLatitudeAsDoubleValueRads(), loc.getLongitudeAsDoubleValueRads());
+                VisitEuropa going = new VisitEuropa(loc.getLatitudeAsDoubleValueRads(), loc
+                        .getLongitudeAsDoubleValueRads());
                 switch (trexDuneComms) {
                     case IMC:
                         send(going.asIMCMsg());
