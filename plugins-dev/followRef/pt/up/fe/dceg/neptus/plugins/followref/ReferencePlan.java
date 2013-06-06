@@ -34,9 +34,7 @@ package pt.up.fe.dceg.neptus.plugins.followref;
 import java.util.Collection;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.imc.DesiredSpeed;
-import pt.up.fe.dceg.neptus.imc.DesiredZ;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.imc.Reference;
 
 /**
  * @author zp
@@ -46,9 +44,7 @@ public class ReferencePlan {
 
     protected Vector<ReferenceWaypoint> waypoints = new Vector<>();    
     protected String system_id;
-    protected double defaultSpeed, defaultZ;
-    
-    public ReferencePlan(String systemId, double defaultSpeed, double defaultZ) {
+    public ReferencePlan(String systemId) {
         this.system_id = systemId;
     }
     
@@ -62,19 +58,32 @@ public class ReferencePlan {
         return waypoints;
     }
     
-    public void addWaypointAtEnd(LocationType loc) {
-        //TODO
+    public void addWaypointAtEnd(Reference ref) {
+        waypoints.add(new ReferenceWaypoint(ref));
     }
     
-    public void addWaypointAtEnd(LocationType loc, DesiredSpeed speed, DesiredZ z) {
-        //TODO
+    public void addWaypointAtEnd(ReferenceWaypoint wpt) {
+        waypoints.add(wpt);
     }
     
-    public void setWaypointLocation(ReferenceWaypoint wpt, LocationType newLoc) {
-        //TODO
+    public ReferenceWaypoint cloneWaypoint(ReferenceWaypoint wpt) {
+        if (!waypoints.contains(wpt))
+            return null;
+        int index = waypoints.indexOf(wpt);
+        ReferenceWaypoint clone = new ReferenceWaypoint(wpt.getReference());
+        waypoints.add(index+1, clone);
+        return clone;
+    }
+    
+    public ReferenceWaypoint popFirstWaypoint() {
+        if (waypoints.size() > 1)
+            return waypoints.remove(0);
+        else
+            return null;        
     }
     
     public void removeWaypoint(ReferenceWaypoint wpt) {
-        waypoints.remove(wpt);
+        if (waypoints.size() > 1)
+            waypoints.remove(wpt);
     }
 }

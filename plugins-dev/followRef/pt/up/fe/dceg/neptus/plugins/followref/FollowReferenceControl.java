@@ -134,8 +134,6 @@ public class FollowReferenceControl extends SimpleRendererInteraction implements
         ref.setSpeed(new DesiredSpeed(speed, DesiredSpeed.SPEED_UNITS.METERS_PS));
     }
 
-
-
     @Subscribe
     public void on(PlanControlState controlState) {
         if (!controlState.getSourceName().equals(getConsole().getMainSystem()))

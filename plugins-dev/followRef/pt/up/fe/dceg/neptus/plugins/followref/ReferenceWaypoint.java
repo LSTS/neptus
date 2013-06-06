@@ -60,7 +60,13 @@ public class ReferenceWaypoint {
     }
     
     public ReferenceWaypoint(Reference ref) {
-        this.reference = ref;
+        try {
+            this.reference = Reference.clone(ref);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        
         loc = new ManeuverLocation();
         loc.setLatitudeRads(ref.getLat());
         loc.setLongitudeRads(ref.getLon());
@@ -76,15 +82,42 @@ public class ReferenceWaypoint {
         reference.setLon(newLoc.getLongitudeAsDoubleValueRads());
     }
     
-    public void setZ(Z_UNITS units, double value) {
-        loc.setZ(value);
-        loc.setZUnits(pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(units.name()));        
-        reference.setZ(new DesiredZ((float)value, units));
+    public void setZ(DesiredZ desiredZ) {        
+        if (desiredZ == null) {
+            reference.setFlags((short)(reference.getFlags() ^ Reference.FLAG_Z));
+            reference.setZ(null);
+            loc.setZUnits(ManeuverLocation.Z_UNITS.NONE);
+        }
+        else {
+            reference.setZ(new DesiredZ((float)desiredZ.getValue(), desiredZ.getZUnits()));
+            reference.setFlags((short)(reference.getFlags() | Reference.FLAG_Z));
+            loc.setZ(desiredZ.getValue());
+            loc.setZUnits(pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(desiredZ.getZUnits().name()));
+        }
     }
     
-    public void setSpeed(double value) {
-        reference.setSpeed(new DesiredSpeed(value, SPEED_UNITS.METERS_PS));
+    public void setSpeed(DesiredSpeed speed) {
+        if (speed == null) {
+            reference.setFlags((short)(reference.getFlags() ^ Reference.FLAG_SPEED));
+            reference.setSpeed(null);            
+        }
+        else {
+            reference.setFlags((short)(reference.getFlags() | Reference.FLAG_SPEED));
+            reference.setSpeed(new DesiredSpeed(speed.getValue(), speed.getSpeedUnits()));
+        }
     }
+    
+    public void setLoiterRadius(double radius) {
+        if (radius <= 0) {
+            reference.setFlags((short)(reference.getFlags() ^ Reference.FLAG_RADIUS));
+            reference.setRadius(radius);
+        }
+        else {
+            reference.setFlags((short)(reference.getFlags() | Reference.FLAG_RADIUS));
+            reference.setRadius(radius);
+        }
+    }
+    
     
     public final Reference getReference() {
         return reference;
