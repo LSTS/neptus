@@ -37,6 +37,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCamera;
 import vtk.vtkCellPicker;
+import vtk.vtkCommand;
 import vtk.vtkInteractorStyleTrackballActor;
 import vtk.vtkInteractorStyleTrackballCamera;
 import vtk.vtkLegendScaleActor;
@@ -142,6 +143,9 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
     // TrackballCamera style interactor for addObserver callback reference
     vtkInteractorStyleTrackballCamera cstyle = new vtkInteractorStyleTrackballCamera();
 
+    // ########### Point Picking ##########
+    PointPickingEvent pointPickEvent;
+    
     /**
      * 
      * @param canvas
@@ -162,7 +166,9 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
         this.setScalarBar(new ScalarBar());
         keyboardEvent = new KeyboardEvent(this.canvas, this.linkedHashMapCloud, this);
         //mouseEvent = new MouseEvent(this.canvas, this);
-        mouseEvent = new MouseEvent(this.canvas);
+
+        pointPickEvent = new PointPickingEvent(this.canvas);
+        mouseEvent = new MouseEvent(this.canvas, this.pointPickEvent);
 
         Initalize();
     }

@@ -47,10 +47,13 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
 
     private Canvas canvas;
     private vtkCamera camera;
+    private PointPickingEvent pointPickingEvent;
 
-    public MouseEvent(Canvas canvas) {
+    public MouseEvent(Canvas canvas, PointPickingEvent pointPickingEvent) {
         this.canvas = canvas;
         this.camera = canvas.GetRenderer().GetActiveCamera();
+        this.pointPickingEvent = pointPickingEvent;
+        
 
         canvas.addMouseWheelListener(this);
         canvas.addMouseListener(this);
@@ -205,7 +208,11 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
                 canvas.getShiftPressed(), '0', 0, "0");
 
         if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK)
-            canvas.getRenderWindowInteractor().LeftButtonPressEvent();
+            if (canvas.getCtrlPressed() == 0)
+                canvas.getRenderWindowInteractor().LeftButtonPressEvent();
+            else{
+                pointPickingEvent.execute(e, e.getID());
+            }
         else if ((e.getModifiers() & InputEvent.BUTTON2_MASK) == InputEvent.BUTTON2_MASK)
             canvas.getRenderWindowInteractor().RightButtonPressEvent();
         else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK)
