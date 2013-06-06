@@ -47,7 +47,7 @@ import vtk.vtkObjectBase;
  * @author hfq
  * 
  */
-//@SuppressWarnings({ "static-access", "unchecked", "rawtypes" })
+@SuppressWarnings({ "static-access", "unchecked", "rawtypes" })
 public final class VTKMemoryManager {  // final
     private final static Logger LOGGER = Logger.getLogger(VTKMemoryManager.class.getName());
 

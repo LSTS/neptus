@@ -64,7 +64,6 @@ import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Canvas;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 import vtk.vtkActorCollection;
-import vtk.vtkCanvas;
 import vtk.vtkLODActor;
 import vtk.vtkPolyData;
 import vtk.vtkTextActor;

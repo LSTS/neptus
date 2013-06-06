@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
@@ -44,7 +45,6 @@ import pt.up.fe.dceg.neptus.plugins.vtk.utils.Utils;
 import vtk.vtkAbstractPropPicker;
 import vtk.vtkActorCollection;
 import vtk.vtkAssemblyPath;
-import vtk.vtkCanvas;
 import vtk.vtkLODActor;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
@@ -54,7 +54,7 @@ import vtk.vtkRenderer;
  * @author hfq
  *  FIXME add keys to change mode (trackball, joystick..)
  */
-public class KeyboardEvent {   
+public class KeyboardEvent  implements KeyListener{   
     private NeptusInteractorStyle neptusInteractorStyle;
     
     //private vtkCanvas canvas;
@@ -82,19 +82,23 @@ public class KeyboardEvent {
     
     private static final boolean VTKIS_ANIMEOFF = false;
     private static final boolean VTKIS_ANIMEON = true;  
-    private boolean AnimeState;
-        
+    private boolean AnimeState = VTKIS_ANIMEOFF;
+
     /**
-     * @param neptusInteractorStyle
+     * @param canvas
      * @param linkedHashMapCloud
+     * @param neptusInteractorStyle
      */
-    public KeyboardEvent(NeptusInteractorStyle neptusInteractorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
+    public KeyboardEvent(Canvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
+            NeptusInteractorStyle neptusInteractorStyle) {
         this.neptusInteractorStyle = neptusInteractorStyle;
-        this.canvas = neptusInteractorStyle.canvas;
+        this.canvas = canvas;
         this.interactor = neptusInteractorStyle.interactor;
         this.renderer = neptusInteractorStyle.renderer;
         this.linkedHashMapCloud = linkedHashMapCloud;
         colorMapRel = ColorMappingRelation.zMap;        // on creation map color map is z related
+        
+        canvas.addKeyListener(this);
     }
 
     public void handleEvents(int keyCode) { 
@@ -539,26 +543,30 @@ public class KeyboardEvent {
             
         });
     }
-    
-//    /**
-//     * for now saves on neptus directory
-//     */
-//    void takeSnapShot() {
-//        try {
-//            neptusInteractorStyle.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
-//            neptusInteractorStyle.wif.SetInput(interactor.GetRenderWindow());
-//            neptusInteractorStyle.wif.Modified();           
-//            neptusInteractorStyle.snapshotWriter.Modified();
-//                   
-//            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssmm").format(Calendar.getInstance().getTimeInMillis());
-//            timeStamp = "snapshot_" + timeStamp;
-//            NeptusLog.pub().info("timeStamp: " + timeStamp);
-//            
-//            neptusInteractorStyle.snapshotWriter.SetFileName(timeStamp);
-//            neptusInteractorStyle.snapshotWriter.Write();
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
+     */
+    @Override
+    public void keyTyped(KeyEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+     */
+    @Override
+    public void keyPressed(KeyEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+     */
+    @Override
+    public void keyReleased(KeyEvent e) {
+        handleEvents(e.getKeyCode());
+    }
 }

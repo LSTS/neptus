@@ -62,12 +62,9 @@ import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Canvas;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Text3D;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Window;
-import pt.up.fe.dceg.neptus.plugins.vtk.utils.VTKMemoryManager;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
-import vtk.vtkCanvas;
 import vtk.vtkLODActor;
 
-import com.gargoylesoftware.htmlunit.html.Util;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 

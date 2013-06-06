@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
 import java.awt.Dimension;
+import java.awt.Graphics;
 
 import javax.swing.SwingUtilities;
 
@@ -53,6 +54,7 @@ public class Canvas extends vtkCanvas {
      */
     private static final long serialVersionUID = 5165188310777500794L;
     
+    // for 2D Grapihics
     private vtkUnsignedCharArray buffer = new vtkUnsignedCharArray();
     private int bufferWidth, bufferHeight = 0;
 
@@ -60,20 +62,6 @@ public class Canvas extends vtkCanvas {
         setMinimumSize(new Dimension(0, 0));
         setPreferredSize(new Dimension(0, 0));
     }
-    
-    /**
-     * Correct a bug : update the reference of camera
-     * Changing the original camera the light stops following the camera
-     */
-    @Override
-    public void UpdateLight() {
-        if(LightFollowCamera == 0)
-            return;
-        
-        cam = GetRenderer().GetActiveCamera();
-        super.UpdateLight();
-    }
-    
     
     /**
      * Override to correct the bug of the UpdateLight (the light position is not updated if the
@@ -157,6 +145,18 @@ public class Canvas extends vtkCanvas {
         }
     }
     
+    /**
+     * Correct a bug : update the reference of camera
+     * Changing the original camera the light stops following the camera
+     */
+    @Override
+    public void UpdateLight() {
+        if(LightFollowCamera == 0)
+            return;
+        
+        cam = GetRenderer().GetActiveCamera();
+        super.UpdateLight();
+    }
 
     /**
      * must be performed on awt event thread
@@ -176,6 +176,18 @@ public class Canvas extends vtkCanvas {
         };
         
         SwingUtilities.invokeLater(updateAComponent);
+    }
+    
+    @Override
+    public void paint(Graphics g) {
+        if (windowset == 0 || bufferWidth != getWidth() || bufferHeight != getHeight()) {
+            Render();
+        }
+        else {
+            lock();
+            rw.SetPixelData(0, 0, getWidth()-1, getHeight()-1, buffer, 1);
+            unlock();
+        }
     }
 
     public int getCtrlPressed() {

@@ -36,7 +36,6 @@ import java.awt.event.ComponentEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -161,10 +160,9 @@ public class Utils {
         //NeptusLog.pub().info("vtkCommonJava Lib Path: " + System.mapLibraryName("vtkCommonJava"));
         NeptusLog.pub().info("VTK Library Dir (searches for vtk.jar): " + vtkSettings.GetVTKLibraryDir());
         //NeptusLog.pub().info("Kits: " + vtkSettings.GetKits());
-        //Properties p = System.getProperties();
         //NeptusLog.pub().info("Java Class path" + p.getProperty("java.class.path"));
+        //vtkJavaTesting.Initialize(null , true);   // <- crashs app
     }
-    
 
     public static void goToAWTThread(Runnable runnable) {
         if (!SwingUtilities.isEventDispatchThread()) {
@@ -200,6 +198,7 @@ public class Utils {
         else
             throw new NoSuchElementException("Found " + c.getClass() + " when " + vtkCanvas.class + " expected.");
     }
+    
 
     public static boolean isMeshCoherent(float[] points, int[] indices) {
         boolean[] flags = new boolean[points.length / 3];

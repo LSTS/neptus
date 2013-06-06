@@ -35,7 +35,6 @@ import java.util.LinkedHashMap;
 
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-import vtk.vtkCanvas;
 import vtk.vtkInteractorStyle;
 import vtk.vtkPanel;
 import vtk.vtkRenderWindow;

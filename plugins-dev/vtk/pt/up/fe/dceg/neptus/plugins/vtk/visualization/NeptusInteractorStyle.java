@@ -31,16 +31,11 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
-import java.awt.event.KeyListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.util.LinkedHashMap;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCamera;
-import vtk.vtkCanvas;
 import vtk.vtkCellPicker;
 import vtk.vtkInteractorStyleTrackballActor;
 import vtk.vtkInteractorStyleTrackballCamera;
@@ -70,7 +65,7 @@ import vtk.vtkWindowToImageFilter;
  *         {0, 0, 0] -> center {x, y, z}] - 0..9 : switch between different color handlers, when available - SHIFT +
  *         left click : select a point <- point picker not implemented
  */
-public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera implements KeyListener {
+public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
 
     public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
 
@@ -165,8 +160,9 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         this.camera = renderer.GetActiveCamera();
         this.linkedHashMapCloud = linkedHashMapCloud;
         this.setScalarBar(new ScalarBar());
-        keyboardEvent = new KeyboardEvent(this, this.linkedHashMapCloud);
-        mouseEvent = new MouseEvent(this.canvas, this);
+        keyboardEvent = new KeyboardEvent(this.canvas, this.linkedHashMapCloud, this);
+        //mouseEvent = new MouseEvent(this.canvas, this);
+        mouseEvent = new MouseEvent(this.canvas);
 
         Initalize();
     }
@@ -210,7 +206,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
         getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
 
         //canvas.addMouseWheelListener(this);     
-        canvas.addKeyListener(this);
+        //canvas.addKeyListener(this);
 
             // não colocar o render logo, senão os eventos do java (mouseWheel)
         // canvas.Render();
@@ -234,67 +230,6 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera imp
             fpsActorEnable = true;
             this.renderer.AddActor(fpsActor);
         }
-    }
-
-//    /*
-//     * (non-Javadoc)
-//     * 
-//     * @see java.awt.event.MouseWheelListener#mouseWheelMoved(java.awt.event.MouseWheelEvent)
-//     */
-//    @Override
-//    public void mouseWheelMoved(MouseWheelEvent e) {
-//        int notches = e.getWheelRotation();
-//        if (notches < 0) {
-//            zoomIn();
-//        }
-//        else {
-//            zoomOut();
-//        }
-//    }
-//
-//    /**
-//     * Operates like a magnifying lens
-//     */
-//    private void zoomIn() {
-//        FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
-//            // Zoom in
-//        canvas.lock();
-//        StartDolly();
-//        camera = renderer.GetActiveCamera();
-//        double factor = 10.0 * 0.2 * .5;
-//        camera.Dolly(Math.pow(1.1, factor));
-//        EndDolly();
-//        canvas.unlock();
-//    }
-//
-//    /**
-//     * Operates like a magnifying lens
-//     */
-//    private void zoomOut() {
-//        FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
-//            // zoomOut
-//        canvas.lock();
-//        StartDolly();
-//        camera = renderer.GetActiveCamera();
-//        double factor = 10.0 * -0.2 * .5;
-//        camera.Dolly(Math.pow(1.1, factor));
-//        EndDolly();
-//        canvas.unlock();
-//    }
-
-    @Override
-    public void keyTyped(java.awt.event.KeyEvent e) {
-
-    }
-
-    @Override
-    public void keyPressed(java.awt.event.KeyEvent ke) {
-        this.keyboardEvent.handleEvents(ke.getKeyCode());
-    }
-
-    @Override
-    public void keyReleased(java.awt.event.KeyEvent e) {
-
     }
 
     /**
