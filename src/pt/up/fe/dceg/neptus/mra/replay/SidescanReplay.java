@@ -153,7 +153,7 @@ public class SidescanReplay implements LogReplayLayer {
             generateImage(renderer);
             generate = false;
         }
-        double[] offset = center.getOffsetInPixelsTo(lastCenter, renderer.getLevelOfDetail());
+        double[] offset = center.getDistanceInPixelTo(lastCenter, renderer.getLevelOfDetail());
 
         left += offset[0];
         top += offset[1];

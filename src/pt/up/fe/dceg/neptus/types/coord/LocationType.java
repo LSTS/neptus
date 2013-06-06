@@ -1201,7 +1201,7 @@ Comparable<LocationType> {
      * @param level
      * @return
      */
-    public double[] getOffsetInPixelsTo(LocationType target, int levelOfDetail) {
+    public double[] getDistanceInPixelTo(LocationType target, int levelOfDetail) {
         LocationType meWithOffset = this.getNewAbsoluteLatLonDepth();
         LocationType targetWithOffset = target.getNewAbsoluteLatLonDepth();
         return MapTileUtil.getOffsetInPixels(meWithOffset, targetWithOffset, levelOfDetail);
@@ -1213,8 +1213,8 @@ Comparable<LocationType> {
      * @param level
      * @return
      */
-    public double getDistanceInPixelTo(LocationType target, int levelOfDetail) {
-        double[] offsets =  getOffsetInPixelsTo(target, levelOfDetail);        
+    public double getPixelDistanceTo(LocationType target, int levelOfDetail) {
+        double[] offsets =  getDistanceInPixelTo(target, levelOfDetail);        
         return Math.sqrt(offsets[0] * offsets[0] + offsets[1] * offsets[1]);
     }
     

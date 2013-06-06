@@ -106,7 +106,7 @@ public class MultibeamReplay implements LogReplayLayer {
         else {
             System.out.println(parser.getBathymetryInfo().topLeft);
             System.out.println(parser.getBathymetryInfo().bottomRight);
-            double res[] = parser.getBathymetryInfo().topLeft.getOffsetInPixelsTo(
+            double res[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(
                     parser.getBathymetryInfo().bottomRight, baseLod);
 
 //            System.out.println(parser.getBathymetryInfo().topLeft);
@@ -128,7 +128,7 @@ public class MultibeamReplay implements LogReplayLayer {
 
                     loc2.translatePosition(bp.north, bp.east, 0);
 
-                    double dist[] = parser.getBathymetryInfo().topLeft.getOffsetInPixelsTo(loc2, baseLod);
+                    double dist[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(loc2, baseLod);
                     
                     if (dist[0] > 0 && dist[1] > 0 && dist[0] < img.getWidth() && dist[1] < img.getHeight()) {
                         img.setRGB((int) dist[0], (int) dist[1], cm.getColor(1 - (bp.depth / parser.getBathymetryInfo().maxDepth))

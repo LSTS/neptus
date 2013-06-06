@@ -219,7 +219,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
         LocationType pressed = source.getRealWorldLocation(event.getPoint());
         pressed.convertToAbsoluteLatLonDepth();
         LocationType refLoc = new LocationType(Math.toDegrees(ref.getLat()), Math.toDegrees(ref.getLon()));
-        double dist = pressed.getDistanceInPixelTo(refLoc, source.getLevelOfDetail());
+        double dist = pressed.getPixelDistanceTo(refLoc, source.getLevelOfDetail());
         if (dist < radius) {
             movingReference = true;
             ref.setLat(pressed.getLatitudeAsDoubleValueRads());
