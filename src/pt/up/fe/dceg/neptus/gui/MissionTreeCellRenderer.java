@@ -93,7 +93,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
         CHECKLIST_ICON = ImageUtils.createImageIcon("images/buttons/checklist.png");
         DIR_ICON = ImageUtils.createImageIcon("images/menus/open.png");
         DIR_CLOSED_ICON = ImageUtils.createImageIcon("images/menus/folder_closed.png");
-        HOMEREF_ICON = ImageUtils.getScaledIcon("images/buttons/home.png", 16, 16);
+        HOMEREF_ICON = ImageUtils.getScaledIcon("images/buttons/homeRef.png", 16, 16);
         // TRANSPONDER_ICON = new ExtendedIcon(ImageUtils.getScaledImage("images/transponder.png", 16, 16));
         START_ICON = ImageUtils.getScaledIcon("images/flag2_green32.png", 16, 16);
         PLAN_LOCAL = ImageUtils.getScaledIcon("images/plans/planLocal.png", 16, 16);
