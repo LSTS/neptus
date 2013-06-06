@@ -47,9 +47,9 @@ import vtk.vtkRenderer;
 
 /**
  * @author hfq
- *
+ * 
  */
-public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotionListener  {
+public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotionListener {
 
     private Canvas canvas;
     private vtkRenderer renderer;
@@ -57,7 +57,7 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
     private vtkRenderWindowInteractor interactor;
     private NeptusInteractorStyle style;
     private vtkCamera camera;
-    
+
     public MouseEvent(Canvas canvas, NeptusInteractorStyle style) {
         this.canvas = canvas;
         this.renderer = canvas.GetRenderer();
@@ -65,19 +65,19 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
         this.interactor = canvas.getRenderWindowInteractor();
         this.style = style;
         this.camera = canvas.GetRenderer().GetActiveCamera();
-        
+
         canvas.addMouseWheelListener(this);
         canvas.addMouseListener(this);
         canvas.addMouseMotionListener(this);
     }
-    
+
     /*
      * (non-Javadoc)
      * 
      * @see java.awt.event.MouseWheelListener#mouseWheelMoved(java.awt.event.MouseWheelEvent)
      */
     @Override
-    public synchronized void mouseWheelMoved(MouseWheelEvent e) {
+    public void mouseWheelMoved(MouseWheelEvent e) {
         int notches = e.getWheelRotation();
         if (notches < 0) {
             zoomIn();
@@ -88,95 +88,126 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
     }
 
     /**
-     * Operates like a magnifying lens
+     * Zoom In Camera
      */
     private void zoomIn() {
-        style.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
-            // Zoom in
-        canvas.lock();
-        style.StartDolly();
+//        style.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
+//        // Zoom in
+//        canvas.lock();
+//        style.StartDolly();
+//        camera = renderer.GetActiveCamera();
+//        double zoomFactor = 10.0 * 0.2 * .5;
+//        camera.Dolly(Math.pow(1.1, zoomFactor));
+//        style.EndDolly();
+//        canvas.unlock();
+        canvas.lock();       
         camera = renderer.GetActiveCamera();
-        double factor = 10.0 * 0.2 * .5;
-        camera.Dolly(Math.pow(1.1, factor));
-        style.EndDolly();
+        double zoomFactor = 1.02;
+        if(camera.GetParallelProjection() == 1) {
+            camera.SetParallelScale(camera.GetParallelScale() / zoomFactor);
+        } else {
+            camera.Dolly(Math.pow(1.1, zoomFactor));
+            canvas.resetCameraClippingRange();
+        }
+        canvas.Render();
         canvas.unlock();
     }
 
     /**
-     * Operates like a magnifying lens
+     * Zoom out camera
      */
     private void zoomOut() {
-        style.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
-            // zoomOut
+//        style.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
+//        // zoomOut
+//        canvas.lock();
+//        style.StartDolly();
+//        camera = renderer.GetActiveCamera();
+//        double factor = 10.0 * -0.2 * .5;
+//        camera.Dolly(Math.pow(1.1, factor));
+//        style.EndDolly();
+//        canvas.unlock();     
         canvas.lock();
-        style.StartDolly();
         camera = renderer.GetActiveCamera();
-        double factor = 10.0 * -0.2 * .5;
-        camera.Dolly(Math.pow(1.1, factor));
-        style.EndDolly();
+        double zoomFactor = -1.02;
+        if(camera.GetParallelProjection() == 1) {
+            camera.SetParallelScale(camera.GetParallelScale() / zoomFactor);
+        } else {
+            camera.Dolly(Math.pow(1.1, zoomFactor));
+            canvas.resetCameraClippingRange();
+        }
+        canvas.Render();
         canvas.unlock();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
      */
     @Override
     public void mouseDragged(java.awt.event.MouseEvent e) {
         // TODO Auto-generated method stub
-        
+
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
      */
     @Override
-    public void mouseMoved(java.awt.event.MouseEvent e) {  // syncronized?!?!     
-        //NeptusLog.pub().info("mouse moved");
-        
+    public void mouseMoved(java.awt.event.MouseEvent e) { // syncronized?!?!
+        // NeptusLog.pub().info("mouse moved");
+
         canvas.setLastX(e.getX());
         canvas.setLastY(e.getY());
-        
+
         canvas.setCtrlPressed((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0);
         canvas.setShiftPressed((e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0);
-        
 
-        interactor.SetEventInformationFlipY(e.getX(), e.getY(), canvas.getCtrlPressed(), canvas.getShiftPressed(), '0', 0, "0");
+        interactor.SetEventInformationFlipY(e.getX(), e.getY(), canvas.getCtrlPressed(), canvas.getShiftPressed(), '0',
+                0, "0");
 
         canvas.lock();
         interactor.MouseMoveEvent();
         canvas.unlock();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
      */
     @Override
     public void mouseClicked(java.awt.event.MouseEvent e) {
         // TODO Auto-generated method stub
-        
+
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
      */
     @Override
-    public void mousePressed(java.awt.event.MouseEvent e) {     
-        
+    public void mousePressed(java.awt.event.MouseEvent e) {
+
         if (renderer.VisibleActorCount() == 0)
             return;
 
-        //NeptusLog.pub().info("mouse pressed");
-        
+        // NeptusLog.pub().info("mouse pressed");
+
         canvas.lock();
         renWin.SetDesiredUpdateRate(5.0);
         canvas.setLastX(e.getX());
         canvas.setLastY(e.getY());
-    
+
         canvas.setCtrlPressed((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0);
-        
+
         canvas.setShiftPressed((e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0);
 
-        interactor.SetEventInformationFlipY(e.getX(), e.getY(), canvas.getCtrlPressed(), canvas.getShiftPressed(), '0', 0, "0");
+        interactor.SetEventInformationFlipY(e.getX(), e.getY(), canvas.getCtrlPressed(), canvas.getShiftPressed(), '0',
+                0, "0");
 
         if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK)
             interactor.LeftButtonPressEvent();
@@ -186,102 +217,68 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
             interactor.MiddleButtonPressEvent();
 
         canvas.unlock();
-        //VTKMemoryManager.GC.SetAutoGarbageCollection(false);
+        // VTKMemoryManager.GC.SetAutoGarbageCollection(false);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
      */
     @Override
     public void mouseReleased(final java.awt.event.MouseEvent e) {
-//        Utils.goToAWTThread(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                //NeptusLog.pub().info("mouse released run");
-//                
-//                renWin.SetDesiredUpdateRate(0.01);
-//
-//                canvas.setCtrlPressed((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0);
-//                canvas.setShiftPressed((e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0);
-//
-//                interactor.SetEventInformationFlipY(e.getX(), e.getY(),
-//                    canvas.getCtrlPressed(), canvas.getShiftPressed(), '0', 0, "0");
-//
-//                if ((e.getModifiers() & InputEvent.BUTTON1_MASK) ==
-//                    InputEvent.BUTTON1_MASK) {
-//                    canvas.lock();
-//                    interactor.LeftButtonReleaseEvent();
-//                    canvas.unlock();
-//                }
-//
-//                if ((e.getModifiers() & InputEvent.BUTTON2_MASK) ==
-//                    InputEvent.BUTTON2_MASK) {
-//                    canvas.lock();
-//                    interactor.RightButtonReleaseEvent();
-//                    canvas.unlock();
-//                }
-//
-//                if ((e.getModifiers() & InputEvent.BUTTON3_MASK) ==
-//                    InputEvent.BUTTON3_MASK) {
-//                    canvas.lock();
-//                    interactor.MiddleButtonReleaseEvent();
-//                    canvas.unlock();
-//                }
-//                //VTKMemoryManager.GC.SetAutoGarbageCollection(true);
-//                
-//            }
-//            
-//        });
+        // NeptusLog.pub().info("mouse released");
+
+         renWin.SetDesiredUpdateRate(0.01);
         
-        //NeptusLog.pub().info("mouse released");
+         canvas.setCtrlPressed((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0);
+         canvas.setShiftPressed((e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0);
         
-        renWin.SetDesiredUpdateRate(0.01);
-
-        canvas.setCtrlPressed((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0);
-        canvas.setShiftPressed((e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0);
-
-        interactor.SetEventInformationFlipY(e.getX(), e.getY(),
-            canvas.getCtrlPressed(), canvas.getShiftPressed(), '0', 0, "0");
-
-        if ((e.getModifiers() & InputEvent.BUTTON1_MASK) ==
-            InputEvent.BUTTON1_MASK) {
-            canvas.lock();
-            interactor.LeftButtonReleaseEvent();
-            canvas.unlock();
-        }
-
-        if ((e.getModifiers() & InputEvent.BUTTON2_MASK) ==
-            InputEvent.BUTTON2_MASK) {
-            canvas.lock();
-            interactor.RightButtonReleaseEvent();
-            canvas.unlock();
-        }
-
-        if ((e.getModifiers() & InputEvent.BUTTON3_MASK) ==
-            InputEvent.BUTTON3_MASK) {
-            canvas.lock();
-            interactor.MiddleButtonReleaseEvent();
-            canvas.unlock();
-        }
-        //VTKMemoryManager.GC.SetAutoGarbageCollection(true);
+         interactor.SetEventInformationFlipY(e.getX(), e.getY(),
+         canvas.getCtrlPressed(), canvas.getShiftPressed(), '0', 0, "0");
+        
+         if ((e.getModifiers() & InputEvent.BUTTON1_MASK) ==
+         InputEvent.BUTTON1_MASK) {
+         canvas.lock();
+         interactor.LeftButtonReleaseEvent();
+         canvas.unlock();
+         }
+        
+         if ((e.getModifiers() & InputEvent.BUTTON2_MASK) ==
+         InputEvent.BUTTON2_MASK) {
+         canvas.lock();
+         interactor.RightButtonReleaseEvent();
+         canvas.unlock();
+         }
+        
+         if ((e.getModifiers() & InputEvent.BUTTON3_MASK) ==
+         InputEvent.BUTTON3_MASK) {
+         canvas.lock();
+         interactor.MiddleButtonReleaseEvent();
+         canvas.unlock();
+         }
+         // VTKMemoryManager.GC.SetAutoGarbageCollection(true);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
      */
     @Override
     public void mouseEntered(java.awt.event.MouseEvent e) {
         // TODO Auto-generated method stub
-        
+
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
      */
     @Override
     public void mouseExited(java.awt.event.MouseEvent e) {
         // TODO Auto-generated method stub
-        
+
     }
 }

@@ -33,6 +33,9 @@ package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
 import java.awt.Dimension;
 
+import javax.swing.SwingUtilities;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.Utils;
 import vtk.vtkActorCollection;
 import vtk.vtkCanvas;
@@ -152,6 +155,27 @@ public class Canvas extends vtkCanvas {
             mapper = listOfActors.GetNextActor().GetMapper();
             mapper.SetImmediateModeRendering(Utils.booleanToInt(mode));
         }
+    }
+    
+
+    /**
+     * must be performed on awt event thread
+     */
+    @Override
+    public void Report() {
+        Runnable updateAComponent = new Runnable() {
+            
+            @Override
+            public void run() {
+                lock();
+                NeptusLog.pub().info("direct rendering = " + (GetRenderWindow().IsDirect() == 1));
+                NeptusLog.pub().info("opengl supported = " + (GetRenderWindow().SupportsOpenGL() == 1));
+                NeptusLog.pub().info("report = " + GetRenderWindow().ReportCapabilities());
+                unlock();
+            }
+        };
+        
+        SwingUtilities.invokeLater(updateAComponent);
     }
 
     public int getCtrlPressed() {
