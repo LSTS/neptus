@@ -51,7 +51,7 @@ public class Main {
             factory.config()
                                     .loadSchemas()
                                     .setupLog();
-            NeptusLog.pub().warn("test");
+            NeptusLog.pub().warn ("test");
             SystemsManager systems = factory.systems();           
         }
         catch (Exception e1) {
