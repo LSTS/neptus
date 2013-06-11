@@ -52,7 +52,6 @@ import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.imc.DesiredSpeed;
 import pt.up.fe.dceg.neptus.imc.DesiredZ;
-import pt.up.fe.dceg.neptus.imc.DesiredZ.Z_UNITS;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.FollowRefState;
 import pt.up.fe.dceg.neptus.imc.FollowReference;
@@ -63,6 +62,7 @@ import pt.up.fe.dceg.neptus.imc.PlanControlState;
 import pt.up.fe.dceg.neptus.imc.PlanManeuver;
 import pt.up.fe.dceg.neptus.imc.PlanSpecification;
 import pt.up.fe.dceg.neptus.imc.Reference;
+import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
@@ -92,7 +92,10 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     protected double radius = 8;
 
     @NeptusProperty
-    public double depth = 3;
+    public ManeuverLocation.Z_UNITS z_units = ManeuverLocation.Z_UNITS.DEPTH;
+
+    @NeptusProperty
+    public double z = 0;
 
     @NeptusProperty
     public double speed = 1.3;
@@ -146,14 +149,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 loc.convertToAbsoluteLatLonDepth();
                 ref.setLat(loc.getLatitudeAsDoubleValueRads());
                 ref.setLon(loc.getLongitudeAsDoubleValueRads());
-                double z = depth;
-                Z_UNITS units = Z_UNITS.DEPTH;
-                if (z < 0) {
-                    units = Z_UNITS.ALTITUDE;
-                    z = -z;
-                }
-
-                ref.setZ(new DesiredZ((float)z, units));
+                ref.setZ(new DesiredZ((float) z, DesiredZ.Z_UNITS.valueOf(z_units.name())));
                 ref.setSpeed(new DesiredSpeed(speed, DesiredSpeed.SPEED_UNITS.METERS_PS));
                 ref.setFlags((short)(Reference.FLAG_LOCATION | Reference.FLAG_SPEED | Reference.FLAG_Z));
 
