@@ -49,7 +49,7 @@ import com.l2fprod.common.propertysheet.Property;
  *
  */
 public class VisitEuropa extends TrexGoal implements Renderer2DPainter {
-    private static final String predicate = "Visit";
+    private static final String predicate = "At";
     private static final String timeline = "navigator";
     
     protected double latitude, longitude;
