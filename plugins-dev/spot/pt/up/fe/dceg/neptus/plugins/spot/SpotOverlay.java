@@ -45,12 +45,14 @@ import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
@@ -66,7 +68,7 @@ import pt.up.fe.dceg.neptus.util.GuiUtils;
  *
  */
 @PluginDescription(author = "Margarida", name = "SPOT Overlay")
-public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicUpdates {
+public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicUpdates, ConfigurationListener {
     private Vector<Spot> spotsOnMap;
     private boolean active = false;
 
@@ -83,6 +85,8 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     public boolean showSpeedValue = true;
     @NeptusProperty(userLevel = LEVEL.REGULAR, description = "Set the time window (in hours) for considered positions. Will only consider positions in the last x hours.", name = "Time window (hours)")
     public int hours = 70;
+    @NeptusProperty(userLevel = LEVEL.REGULAR, name = "Export to csv")
+    public boolean printCvsFile = false;
 
     protected GeneralPath gp = new GeneralPath();
     {
@@ -131,6 +135,9 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
         catch (ParserConfigurationException | SAXException | IOException e) {
             NeptusLog.pub().error("Exception while loading data from Spot website.", e);
             return;
+        }
+        if (printCvsFile) {
+            DataExporter.exportToCsv(msgBySpot);
         }
         // if no messages were found do nothing
         if (msgBySpot.size() == 0) {
@@ -224,5 +231,16 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
                 g2.draw(spotPath);
             }
         }
+    }
+
+    @Override
+    public void propertiesChanged() {
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                updateFromPage();
+            }
+        });
     }
 }

@@ -968,7 +968,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
      */
     @Override
     public void propertiesChanged() {
-        // FIXME propriedade para tempo que demora até delay dos beacons ficar a vermelho
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override
