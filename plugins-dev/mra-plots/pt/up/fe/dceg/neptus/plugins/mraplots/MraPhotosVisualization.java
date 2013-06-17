@@ -248,6 +248,28 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             e.printStackTrace();
         }
     }
+    
+    public static File[] listPhotos(File photosDir) {
+        File[] allFiles = photosDir.listFiles();
+        Vector<File> allF = new Vector<>();
+        
+        for (File f: allFiles) {
+            if (!f.isDirectory())
+                allF.add(f);
+            else
+                allF.addAll(Arrays.asList(f.listFiles()));
+        }
+        
+        for (int i = 0; i < allF.size(); i++) {
+            if (!allF.get(i).getName().endsWith(".jpg"))
+                allF.remove(i--);
+        }
+        
+        allFiles = allF.toArray(new File[0]);        
+        Arrays.sort(allFiles);
+
+        return allFiles;
+    }
 
     /**
      * @return the curTime
@@ -273,8 +295,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             }
         });
         
-        allFiles = getPhotosDir().listFiles();
-        Arrays.sort(allFiles);
+        allFiles = listPhotos(getPhotosDir());
         timeline.getSlider().setValue(0);
 
         timeline.getSlider().setUI(new BasicSliderUI(timeline.getSlider()) {
@@ -308,8 +329,9 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     }
     
     protected void loadStates() {
-        File[] files = photosDir.listFiles();
-        Arrays.sort(files);
+        
+        File[] files = listPhotos(getPhotosDir());
+        
         int lastIndex = 0, stateId = index.getDefinitions().getMessageId("EstimatedState");
         int lastBDistanceIndex = 0, bdistId = index.getDefinitions().getMessageId("BottomDistance"), dvlId = index.getEntityId("DVL");
         
@@ -398,10 +420,10 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             
             @Override
             public void actionPerformed(ActionEvent e) {
-                final File[] allFiles = photosDir.listFiles();
-                Arrays.sort(allFiles);
+                final File[] allFiles = listPhotos(getPhotosDir());
                 final double startTime = timestampOf(allFiles[0]);
                 try {
+                    
                     final VideoCreator creator = new VideoCreator(new File(photosDir.getParentFile(), "Video.mp4"), 800, 600);
                     final ProgressMonitor monitor = new ProgressMonitor(panel, "Creating video", "Starting up", 0, allFiles.length);
                     
@@ -495,6 +517,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     }
 
     public double timestampOf(File f) {
+        System.out.println(f);
         return Double.parseDouble(f.getName().substring(0, f.getName().lastIndexOf('.')));
     }
 

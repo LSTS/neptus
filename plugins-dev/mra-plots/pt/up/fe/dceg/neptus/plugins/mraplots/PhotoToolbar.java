@@ -65,8 +65,7 @@ public class PhotoToolbar extends JPanel {
 
     public PhotoToolbar(MraPhotosVisualization display) {
         this.display = display;
-        allFiles = display.getPhotosDir().listFiles();
-        Arrays.sort(allFiles);
+        allFiles = MraPhotosVisualization.listPhotos(display.getPhotosDir()); 
         startTime = display.timestampOf(allFiles[0]);
         endTime = display.timestampOf(allFiles[allFiles.length - 1]);
         initialize();
