@@ -31,7 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.plugins.planning;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
@@ -42,7 +41,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.PathControlState;
@@ -96,23 +94,19 @@ public class PathControlLayer extends SimpleSubPanel implements Renderer2DPainte
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        
         for (PathControlState pcs : lastMsgs.values()) {
-            
-            
-                LocationType dest = new LocationType(Math.toDegrees(pcs.getEndLat()), Math.toDegrees(pcs.getEndLon()));
-                ImcSystem system = ImcSystemsHolder.lookupSystem(pcs.getSrc());
-                
-                Point2D pt = renderer.getScreenPosition(dest);
-                
-                g.draw(new Ellipse2D.Double(pt.getX()-5, pt.getY()-5, 10, 10));
-                
-                if (system != null) {
-                    LocationType src = system.getLocation();
-                    Point2D ptSrc = renderer.getScreenPosition(src);
-                    g.draw(new Line2D.Double(ptSrc, pt));
-                }
-           // }
+            LocationType dest = new LocationType(Math.toDegrees(pcs.getEndLat()), Math.toDegrees(pcs.getEndLon()));
+            ImcSystem system = ImcSystemsHolder.lookupSystem(pcs.getSrc());
+
+            Point2D pt = renderer.getScreenPosition(dest);
+            g.setColor(Color.black);
+            g.draw(new Ellipse2D.Double(pt.getX() - 5, pt.getY() - 5, 10, 10));
+
+            if (system != null) {
+                LocationType src = system.getLocation();
+                Point2D ptSrc = renderer.getScreenPosition(src);
+                g.draw(new Line2D.Double(ptSrc, pt));
+            }
         }
     }
 
