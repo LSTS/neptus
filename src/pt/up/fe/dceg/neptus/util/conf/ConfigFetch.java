@@ -448,6 +448,7 @@ public class ConfigFetch {
                 e1.printStackTrace();
                 hostadr = "127.0.0.1";
             }
+            NeptusLog.pub().debug("Using initial option for IMC ID is '" + hostadr + "'");
             String osName = System.getProperty("os.name");
             if (osName.toLowerCase().indexOf("linux") != -1) {
                 try {
@@ -459,7 +460,10 @@ public class ConfigFetch {
                             InetAddress ia = iAddress.nextElement();
                             if (!ia.isLoopbackAddress()) {
                                 if (ia instanceof Inet4Address) {
+                                    String msg = "Changing initial option for IMC ID from '" + hostadr + "' to '";
                                     hostadr = ia.getHostAddress();
+                                    msg += hostadr + "'";
+                                    NeptusLog.pub().debug(msg);
                                     break;
                                 }
                             }
@@ -479,6 +483,8 @@ public class ConfigFetch {
 
             GeneralPreferences.imcCcuName = "CCU " + System.getProperty("user.name")
                     + " " + sl2[2] + "_" + sl2[3];
+            
+            NeptusLog.pub().debug("Using IMC ID " + newCcuId.toPrettyString() + " with name '" + GeneralPreferences.imcCcuName + "'");
             
             GeneralPreferences.saveProperties();
         }
