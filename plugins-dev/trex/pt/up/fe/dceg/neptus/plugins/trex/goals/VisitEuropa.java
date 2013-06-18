@@ -49,8 +49,8 @@ import com.l2fprod.common.propertysheet.Property;
  *
  */
 public class VisitEuropa extends TrexGoal implements Renderer2DPainter {
-    private static final String predicate = "At";
-    private static final String timeline = "navigator";
+    private static final String predicate = "Survey";
+    private static final String timeline = "spotter";
     
     protected double latitude, longitude;
 
@@ -73,13 +73,13 @@ public class VisitEuropa extends TrexGoal implements Renderer2DPainter {
     public Collection<TrexAttribute> getAttributes() {
         Vector<TrexAttribute> attributes = new Vector<TrexAttribute>();
         TrexAttribute attrTemp = new TrexAttribute();
-        attrTemp.setName("latitude");
+        attrTemp.setName("center_lat");
         attrTemp.setMin(latitude + "");
         attrTemp.setMax(latitude + "");
         attrTemp.setAttrType(TrexAttribute.ATTR_TYPE.FLOAT);
         attributes.add(attrTemp);
         attrTemp = new TrexAttribute();
-        attrTemp.setName("longitude");
+        attrTemp.setName("center_lon");
         attrTemp.setMin(longitude + "");
         attrTemp.setMax(longitude + "");
         attrTemp.setAttrType(TrexAttribute.ATTR_TYPE.FLOAT);
