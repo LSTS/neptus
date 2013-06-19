@@ -47,6 +47,7 @@ import pt.up.fe.dceg.neptus.mra.plots.VehicleGanttPlot;
 import pt.up.fe.dceg.neptus.mra.plots.XYPlot;
 import pt.up.fe.dceg.neptus.mra.plots.ZPlot;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
+import pt.up.fe.dceg.neptus.plugins.actualstate.ActualPosition;
 
 /**
  * @author ZP
@@ -54,7 +55,7 @@ import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 public class MraChartFactory {
 
     private static Class<?>[] automaticCharts = new Class<?>[] { EstimatedStatePlot.class, XYPlot.class, ZPlot.class,
-            LblRangesPlot.class, EulerAnglesPlot.class, CtdPlot.class, VehicleGanttPlot.class, TidePlot.class, StatisticsPlot.class
+            LblRangesPlot.class, EulerAnglesPlot.class, CtdPlot.class, VehicleGanttPlot.class, TidePlot.class, ActualPosition.class, StatisticsPlot.class
     };
 
     /**

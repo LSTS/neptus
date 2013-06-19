@@ -1,0 +1,157 @@
+/*
+ * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
+ * All rights reserved.
+ * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
+ *
+ * This file is part of Neptus, Command and Control Framework.
+ *
+ * Commercial Licence Usage
+ * Licencees holding valid commercial Neptus licences may use this file
+ * in accordance with the commercial licence agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in a
+ * written agreement between you and Universidade do Porto. For licensing
+ * terms, conditions, and further information contact lsts@fe.up.pt.
+ *
+ * European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the EUPL,
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
+ * included in the packaging of this file. You may not use this work
+ * except in compliance with the Licence. Unless required by applicable
+ * law or agreed to in writing, software distributed under the Licence is
+ * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ * ANY KIND, either express or implied. See the Licence for the specific
+ * language governing permissions and limitations at
+ * https://www.lsts.pt/neptus/licence.
+ *
+ * For more information please see <http://lsts.fe.up.pt/neptus>.
+ *
+ * Author: zp
+ * Jun 18, 2013
+ */
+package pt.up.fe.dceg.neptus.plugins.actualstate;
+
+import java.util.Vector;
+
+import pt.up.fe.dceg.neptus.imc.EstimatedState;
+import pt.up.fe.dceg.neptus.imc.LblRange;
+import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
+import pt.up.fe.dceg.neptus.imc.lsf.LsfIterator;
+import pt.up.fe.dceg.neptus.mra.LogMarker;
+import pt.up.fe.dceg.neptus.mra.MRAPanel;
+import pt.up.fe.dceg.neptus.mra.plots.Mra2DPlot;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
+
+/**
+ * @author zp
+ * 
+ */
+
+public class ActualPosition extends Mra2DPlot {
+
+    public ActualPosition(MRAPanel panel) {
+        super(panel);
+    }
+
+    @Override
+    public void addLogMarker(LogMarker marker) {
+        // TODO
+
+    }
+
+    @Override
+    public void removeLogMarker(LogMarker marker) {
+        // TODO
+
+    }
+
+    @Override
+    public void GotoMarker(LogMarker marker) {
+        // TODO
+
+    }
+    
+    @Override
+    public String getName() {
+        return "Calculated position";
+    }
+
+    @Override
+    public boolean canBeApplied(LsfIndex index) {
+        return index.containsMessagesOfType("EstimatedState");
+    }
+
+    @Override
+    public void process(LsfIndex source) {
+        LsfIterator<EstimatedState> it = source.getIterator(EstimatedState.class , (long)(timestep*1000) );
+
+        Vector<EstimatedState> nonAdjusted = new Vector<>();
+        Vector<LocationType> nonAdjustedLocs = new Vector<>();
+
+        LocationType lastLoc = null;
+        double lastTime = 0;
+        for (EstimatedState es = it.next(); es != null; es = it.next()) {
+            LocationType thisLoc = new LocationType();
+            thisLoc.setLatitudeRads(es.getLat());
+            thisLoc.setLongitudeRads(es.getLon());
+            if (es.getDepth() > 0)
+                thisLoc.setDepth(es.getDepth());
+            if (es.getAlt() > 0)
+                thisLoc.setDepth(-es.getAlt());
+            thisLoc.translatePosition(es.getX(), es.getY(), 0);
+            double speed = Math.sqrt(es.getU() * es.getU() + es.getV() * es.getV() + es.getW() * es.getW());
+
+            thisLoc.convertToAbsoluteLatLonDepth();
+            
+            
+            if (lastLoc != null) {
+                double expectedDiff = speed * (es.getTimestamp() - lastTime);
+                double readjustmentFactor = Math
+                        .abs((lastLoc.getHorizontalDistanceInMeters(thisLoc) / expectedDiff) - 1.0);
+                if (readjustmentFactor < 0.5) {
+                    nonAdjusted.add(es);
+                    nonAdjustedLocs.add(thisLoc);
+                    addValue(es.getTimestampMillis(), thisLoc.getLatitudeAsDoubleValue(),
+                            thisLoc.getLongitudeAsDoubleValue(), es.getSourceName(), "Estimated Position");
+                }
+                else if (!nonAdjusted.isEmpty()) {
+                    if (es.getDepth() > 0.25)
+                        addValue(es.getTimestampMillis(), thisLoc.getLatitudeAsDoubleValue(),
+                                thisLoc.getLongitudeAsDoubleValue(), es.getSourceName(), "LBL Readjustments");
+                    else
+                        addValue(es.getTimestampMillis(), thisLoc.getLatitudeAsDoubleValue(),
+                                thisLoc.getLongitudeAsDoubleValue(), es.getSourceName(), "GPS Readjustments");
+                    
+                    double[] adjustment = thisLoc.getOffsetFrom(lastLoc);
+                    EstimatedState firstNonAdjusted = nonAdjusted.firstElement();
+                    double timeOfAdjustment = es.getTimestamp() - firstNonAdjusted.getTimestamp();
+                    double xIncPerSec = adjustment[0] / timeOfAdjustment;
+                    double yIncPerSec = adjustment[1] / timeOfAdjustment;
+
+                    for (int i = 0; i < nonAdjusted.size(); i++) {
+                        EstimatedState adj = nonAdjusted.get(i);
+                        LocationType loc = nonAdjustedLocs.get(i);
+                        loc.translatePosition(xIncPerSec * (adj.getTimestamp() - firstNonAdjusted.getTimestamp()),
+                                yIncPerSec * (adj.getTimestamp() - firstNonAdjusted.getTimestamp()), 0);
+
+                        loc.convertToAbsoluteLatLonDepth();
+                        addValue(adj.getTimestampMillis(), loc.getLatitudeAsDoubleValue(),
+                                loc.getLongitudeAsDoubleValue(), adj.getSourceName(), "Actual Position");
+                    }
+                    nonAdjusted.clear();
+                    nonAdjustedLocs.clear();
+                    nonAdjusted.add(es);
+                    nonAdjustedLocs.add(thisLoc);
+                }
+
+            }
+            lastLoc = thisLoc;
+            lastTime = es.getTimestamp();
+        }
+        
+        LsfIterator<LblRange> rangeIt = source.getIterator(LblRange.class);
+        
+        
+    }
+
+}
