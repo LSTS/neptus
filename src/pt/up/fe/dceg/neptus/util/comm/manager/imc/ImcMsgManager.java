@@ -65,12 +65,14 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
+import pt.up.fe.dceg.neptus.util.DateTimeUtil;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.NetworkInterfacesUtil;
 import pt.up.fe.dceg.neptus.util.NetworkInterfacesUtil.NInterface;
 import pt.up.fe.dceg.neptus.util.StringUtils;
 import pt.up.fe.dceg.neptus.util.comm.CommUtil;
 import pt.up.fe.dceg.neptus.util.comm.IMCSendMessageUtils;
+import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.CommBaseManager;
 import pt.up.fe.dceg.neptus.util.comm.manager.CommManagerStatusChangeListener;
 import pt.up.fe.dceg.neptus.util.comm.manager.MessageFrequencyCalculator;
@@ -100,6 +102,7 @@ public class ImcMsgManager extends
     private static ImcMsgManager commManager = null;
 
     private ImcId16 localId = ImcId16.NULL_ID;
+    private boolean sameIdErrorDetected = false;
     
     protected ImcSysState imcState = new ImcSysState();
     {
@@ -717,39 +720,53 @@ public class ImcMsgManager extends
             vci = getCommInfoById(id);
             // NeptusLog.pub().info("<###> "+localId + " " + id);
             if (!ImcId16.NULL_ID.equals(id) && !ImcId16.BROADCAST_ID.equals(id) && !ImcId16.ANNOUNCE.equals(id)
-                    && !localId.equals(id)) {
-                if (Announce.ID_STATIC == msg.getMgid()) {
-                    announceLastArriveTime = System.currentTimeMillis();
-
-                    vci = processAnnounceMessage(info, (Announce) msg, vci, id);
-                }
-                else if ("EntityList".equalsIgnoreCase(msg.getAbbrev())) {
-                    EntityList entityListMessage = EntityList.clone(msg);
-                    EntitiesResolver.setEntities(id.toString(), entityListMessage);
-                    ImcSystem sys = ImcSystemsHolder.lookupSystem(id);
-                    if (sys != null) {
-                        EntitiesResolver.setEntities(sys.getName(), entityListMessage);
+                    /* && !localId.equals(id) */) {
+                System.out.println(localId + " :: " + id + " :: " + localId.equals(id) + " :: " + (Announce.ID_STATIC == msg.getMgid()));
+                if (localId.equals(id) && Announce.ID_STATIC == msg.getMgid()) {
+                    //TODO
+                    String localUid = announceWorker.getNeptusInstanceUniqueID();
+                    String serv = announceWorker.getImcServicesFromMessage(msg);
+                    String uid = IMCUtils.getUidFromServices(serv);
+                    if (!localUid.equalsIgnoreCase(uid)) {
+                        NeptusLog.pub().warn("Another node on our network is advertising our node id '" + localId.toPrettyString() + "'");
                     }
+                    System.out.println(localUid + " :: " + uid + " :: " + serv);
                 }
-                else {
-                    // if not Announce try to start comms if system is known
-                    // (vehicles only for now)
-                    if (vci == null) {
-                        if (VehiclesHolder.getVehicleWithImc(id) != null) {
-                            vci = initSystemCommInfo(id, "");
-                        }else{
-                            return false;
+                if (!localId.equals(id)) {
+                    if (Announce.ID_STATIC == msg.getMgid()) {
+                        announceLastArriveTime = System.currentTimeMillis();
+                        
+                        vci = processAnnounceMessage(info, (Announce) msg, vci, id);
+                    }
+                    else if ("EntityList".equalsIgnoreCase(msg.getAbbrev())) {
+                        EntityList entityListMessage = EntityList.clone(msg);
+                        EntitiesResolver.setEntities(id.toString(), entityListMessage);
+                        ImcSystem sys = ImcSystemsHolder.lookupSystem(id);
+                        if (sys != null) {
+                            EntitiesResolver.setEntities(sys.getName(), entityListMessage);
                         }
                     }
-                }
-                if (vci != null) {
-                    NeptusLog.pub().trace(
-                            this.getClass().getSimpleName() + ": Message redirected for system comm. "
-                                    + vci.getSystemCommId() + ".");
-                    vci.onMessage(info, msg);
+                    else {
+                        // if not Announce try to start comms if system is known
+                        // (vehicles only for now)
+                        if (vci == null) {
+                            if (VehiclesHolder.getVehicleWithImc(id) != null) {
+                                vci = initSystemCommInfo(id, "");
+                            }
+                            else{
+                                return false;
+                            }
+                        }
+                    }
+                    if (vci != null) {
+                        NeptusLog.pub().trace(
+                                this.getClass().getSimpleName() + ": Message redirected for system comm. "
+                                        + vci.getSystemCommId() + ".");
+                        vci.onMessage(info, msg);
 //                    bus.post(msg);
-                    //NeptusLog.pub().info("<###> "+msg.hashCode());
-                    return true;
+                        //NeptusLog.pub().info("<###> "+msg.hashCode());
+                        return true;
+                    }
                 }
             }
         }

@@ -456,6 +456,7 @@ public class UDPTransport {
 //                        if (useMulticast) {
 //                            sock.setReuseAddress(true); // This may be a potential problem when opening two Neptus instances, we don't detect a bind error  
 //                        }
+                        sock.setReuseAddress(false);
                         if (bindPort != 0) {
                             sock.bind(new InetSocketAddress(bindPort));
                         }
