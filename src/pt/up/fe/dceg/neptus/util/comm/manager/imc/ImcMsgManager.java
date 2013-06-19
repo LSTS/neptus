@@ -102,6 +102,7 @@ public class ImcMsgManager extends
 
     private ImcId16 localId = ImcId16.NULL_ID;
     private boolean sameIdErrorDetected = false;
+    private long sameIdErrorDetectedTimeMillis = -1;
     
     protected ImcSysState imcState = new ImcSysState();
     {
@@ -704,68 +705,94 @@ public class ImcMsgManager extends
         }
     }
 
+    public boolean is2IdErrorMode() {
+        return sameIdErrorDetected;
+    }
+    
     @Override
     protected boolean processMsgLocally(MessageInfo info, IMCMessage msg) {
         // msg.dump(System.out);
-
         SystemImcMsgCommInfo vci = null;
         try {
             ImcId16 id = new ImcId16(msg.getHeader().getValue("src"));
-            if (!ImcId16.NULL_ID.equals(localId) && localId.equals(id))
-                return false;
+            // Lets clear the 2 IDs error
+            if (sameIdErrorDetectedTimeMillis < -1 || (System.currentTimeMillis() - sameIdErrorDetectedTimeMillis > 20000))
+                sameIdErrorDetected = false;
+            // Let's see if another node is advertising the same ID 
+            if (!ImcId16.NULL_ID.equals(localId) && localId.equals(id)) {
+                 // System.out.println(localId + " :: " + id + " :: " + localId.equals(id) + " :: " + (Announce.ID_STATIC == msg.getMgid()));
+                 if (Announce.ID_STATIC == msg.getMgid()) {
+                     String localUid = announceWorker.getNeptusInstanceUniqueID();
+                     String serv = announceWorker.getImcServicesFromMessage(msg);
+                     String uid = IMCUtils.getUidFromServices(serv);
+                     boolean sameHost = false;
+                     Vector<NInterface> iList = getNetworkInterfaces();
+                     for (NInterface nInterface : iList) {
+                         Inet4Address[] lad = nInterface.getAddress();
+                         for (Inet4Address inet4Address : lad) {
+                            if (info.getPublisherInetAddress().equalsIgnoreCase(inet4Address.getHostAddress())) {
+                                sameHost = true;
+                                break;
+                            }
+                         }
+                         if (sameHost)
+                             break;
+                     }
+                     if (!localUid.equalsIgnoreCase(uid)) {
+                        NeptusLog.pub().warn(
+                                "Another node on " + (sameHost ? "this computer" : "our network")
+                                        + " is advertising our node id '" + localId.toPrettyString() + "'");
+                         sameIdErrorDetected = true;
+                         sameIdErrorDetectedTimeMillis = System.currentTimeMillis();
+                     }
+                     // System.out.println(localId + " :: " + id + " :: " + localId.equals(id) + " :: " + (Announce.ID_STATIC == msg.getMgid()));
+                     // System.out.println(localUid + " :: " + uid + " :: " + !localUid.equalsIgnoreCase(uid));
+                 }
+                 return false;
+             }
             
             imcState.setMessage(msg);
             
+            if (localId.equals(id)) {
+                System.out.println(msg.getAbbrev());
+            }
             vci = getCommInfoById(id);
             // NeptusLog.pub().info("<###> "+localId + " " + id);
             if (!ImcId16.NULL_ID.equals(id) && !ImcId16.BROADCAST_ID.equals(id) && !ImcId16.ANNOUNCE.equals(id)
-                    /* && !localId.equals(id) */) {
-                if (localId.equals(id) && Announce.ID_STATIC == msg.getMgid()) {
-                    //TODO
-                    String localUid = announceWorker.getNeptusInstanceUniqueID();
-                    String serv = announceWorker.getImcServicesFromMessage(msg);
-                    String uid = IMCUtils.getUidFromServices(serv);
-                    if (!localUid.equalsIgnoreCase(uid)) {
-                        NeptusLog.pub().warn("Another node on our network is advertising our node id '" + localId.toPrettyString() + "'");
-                    }
-                    System.out.println(localId + " :: " + id + " :: " + localId.equals(id) + " :: " + (Announce.ID_STATIC == msg.getMgid()));
-                    System.out.println(localUid + " :: " + uid + " :: " + serv);
+                    && !localId.equals(id)) {
+                if (Announce.ID_STATIC == msg.getMgid()) {
+                    announceLastArriveTime = System.currentTimeMillis();
+                    
+                    vci = processAnnounceMessage(info, (Announce) msg, vci, id);
                 }
-                if (!localId.equals(id)) {
-                    if (Announce.ID_STATIC == msg.getMgid()) {
-                        announceLastArriveTime = System.currentTimeMillis();
-                        
-                        vci = processAnnounceMessage(info, (Announce) msg, vci, id);
+                else if ("EntityList".equalsIgnoreCase(msg.getAbbrev())) {
+                    EntityList entityListMessage = EntityList.clone(msg);
+                    EntitiesResolver.setEntities(id.toString(), entityListMessage);
+                    ImcSystem sys = ImcSystemsHolder.lookupSystem(id);
+                    if (sys != null) {
+                        EntitiesResolver.setEntities(sys.getName(), entityListMessage);
                     }
-                    else if ("EntityList".equalsIgnoreCase(msg.getAbbrev())) {
-                        EntityList entityListMessage = EntityList.clone(msg);
-                        EntitiesResolver.setEntities(id.toString(), entityListMessage);
-                        ImcSystem sys = ImcSystemsHolder.lookupSystem(id);
-                        if (sys != null) {
-                            EntitiesResolver.setEntities(sys.getName(), entityListMessage);
+                }
+                else {
+                    // if not Announce try to start comms if system is known
+                    // (vehicles only for now)
+                    if (vci == null) {
+                        if (VehiclesHolder.getVehicleWithImc(id) != null) {
+                            vci = initSystemCommInfo(id, "");
+                        }
+                        else{
+                            return false;
                         }
                     }
-                    else {
-                        // if not Announce try to start comms if system is known
-                        // (vehicles only for now)
-                        if (vci == null) {
-                            if (VehiclesHolder.getVehicleWithImc(id) != null) {
-                                vci = initSystemCommInfo(id, "");
-                            }
-                            else{
-                                return false;
-                            }
-                        }
-                    }
-                    if (vci != null) {
-                        NeptusLog.pub().trace(
-                                this.getClass().getSimpleName() + ": Message redirected for system comm. "
-                                        + vci.getSystemCommId() + ".");
-                        vci.onMessage(info, msg);
+                }
+                if (vci != null) {
+                    NeptusLog.pub().trace(
+                            this.getClass().getSimpleName() + ": Message redirected for system comm. "
+                                    + vci.getSystemCommId() + ".");
+                    vci.onMessage(info, msg);
 //                    bus.post(msg);
-                        //NeptusLog.pub().info("<###> "+msg.hashCode());
-                        return true;
-                    }
+                    //NeptusLog.pub().info("<###> "+msg.hashCode());
+                    return true;
                 }
             }
         }

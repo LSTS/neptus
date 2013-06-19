@@ -174,7 +174,7 @@ public class AnnounceWorker {
 	}
 
 	public String getAllServices() {
-		return getNeptusInstanceUniqueID()
+		return getNeptusInstanceUniqueID() + ";"
 				+ "neptus:///version/" + (ConfigFetch.getNeptusVersion() + "_" 
 				+ ConfigFetch.getCompilationDate()) + "_r" + ConfigFetch.getScmRev() + "/;"
 				+ "imc+info///version/" + imcDefinition.getVersion() + "/;"
@@ -182,7 +182,7 @@ public class AnnounceWorker {
 	}
 	
 	public String getNeptusInstanceUniqueID() {
-	    return "neptus:///uid/" + DateTimeUtil.getUID() + "/;";
+	    return "neptus:///uid/" + DateTimeUtil.getUID() + "/";
 	}
 	
 	/**
