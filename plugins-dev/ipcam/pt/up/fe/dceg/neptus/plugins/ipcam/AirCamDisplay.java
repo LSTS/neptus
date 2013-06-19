@@ -41,21 +41,45 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+
+import org.apache.commons.httpclient.HttpClient;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension;
+import pt.up.fe.dceg.neptus.planeditor.IMapPopup;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
+import pt.up.fe.dceg.neptus.plugins.uavs.UavLib;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
+import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
+import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.up.fe.dceg.neptus.util.VideoCreator;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 
@@ -63,19 +87,18 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
  * @author jfortuna
  *
  */
-@Popup( pos = POSITION.RIGHT, width=400, height=400)
-@PluginDescription(name="AirCam Display", author="JFortuna", description="Video display for Ubiquiti IP Camera", icon="pt/up/fe/dceg/neptus/plugins/ipcam/camera.png")
+@Popup( pos = POSITION.RIGHT, width=640/2, height=368/2)
+@LayerPriority(priority=0)
+@PluginDescription(name="AirCam Display", author="JFortuna", description="Video display for Ubiquiti Cameras", icon="pt/up/fe/dceg/neptus/plugins/ipcam/camera.png")
 public class AirCamDisplay extends SimpleSubPanel implements ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
 
-    public enum InterpolationStyle { Nearest_Neighbour, Bilinear, Bicubic }; 
-
     @NeptusProperty(name="Camera IP", description="The IP address of the camera you want to display")
     public String ip = "10.0.20.209";
-    
-    @NeptusProperty(name="Milliseconds between connection retries")
-    public long millisBetweenTries = 1000;
+
+    @NeptusProperty(name="Milliseconds between refresh")
+    public long millisBetweenRefresh = 500;
 
     protected BufferedImage imageToDisplay = null;
     protected boolean connected = true;
@@ -85,27 +108,27 @@ public class AirCamDisplay extends SimpleSubPanel implements ConfigurationListen
     public AirCamDisplay(ConsoleLayout console) {
         super(console);
         removeAll();
-        
+
         status = "initializing...";
         updater = updaterThread();
         updater.setPriority(Thread.MIN_PRIORITY);
         updater.start();
-        
+
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     JPopupMenu popup = new JPopupMenu();
                     popup.add("Reconnect").addActionListener(new ActionListener() {
-                        
+
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             reconnect();
                         }
                     });
-                    
+
                     popup.add("Camera settings").addActionListener(new ActionListener() {
-                        
+
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             PropertiesEditor.editProperties(AirCamDisplay.this, getConsole(), true);
@@ -113,45 +136,55 @@ public class AirCamDisplay extends SimpleSubPanel implements ConfigurationListen
                     });
                     popup.show((Component)e.getSource(), e.getX(), e.getY());
                 }
-                
+
             }
         });
     }
-
+    
     @Override
     public void paint(Graphics g) {
         if (imageToDisplay != null) {
-            double factor1 = (getWidth()-1.0) / imageToDisplay.getWidth();
-            double factor2 = (getHeight()-1.0) / imageToDisplay.getHeight();
-            ((Graphics2D)g).scale(factor1, factor2);
-            g.drawImage(imageToDisplay, 0, 0, null);
+            double factorw = (double) getWidth() / imageToDisplay.getWidth();
+            double factorh = (double) getHeight() / imageToDisplay.getHeight();
+            
+            double factor = (factorw < factorh ? factorw : factorh);
+            
+            double w = getWidth();
+            double h = getHeight();
+            
+            g.setColor(Color.black);
+            g.fillRect(0, 0, getWidth(), getHeight());
+            ((Graphics2D)g).scale(factor,factor);
+            g.drawImage(imageToDisplay,
+                    (int) ((w - factor *  imageToDisplay.getWidth())  / (factor * 2)),
+                    (int) ((h - factor * imageToDisplay.getHeight())  / (factor * 2)),
+                    null);
         }
         else {
             g.setColor(Color.black);
             g.fillRect(0, 0, getWidth(), getHeight());
-            g.setColor(Color.gray);
-            g.drawRect(0, 0, 320, 240);
-            g.drawRect(0, 0, 640, 480);
         }
     }
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(320, 240);
+        return new Dimension(640, 368);
     }
 
     public void reconnect() {
-        NeptusLog.pub().info("IPCameraDisplay: reconnecting to "+ip+"...");
+        NeptusLog.pub().info("AirCamDisplay: reconnecting to "+ip+"...");
         connected = false;        
     }
-
+    
     private Thread updaterThread() {
+    
         return new Thread() {
-            
+
             @Override
             public void run() {
 
                 while(true) {   
+                    
                     if (updater != this)
                         return;
 
@@ -159,8 +192,8 @@ public class AirCamDisplay extends SimpleSubPanel implements ConfigurationListen
                         break;
                     connected = true;
                     try {
-                        URL url = new URL("http://"+ip+"/images/logo.gif");
-                        imageToDisplay = ImageIO.read(url);     
+                        URL snap = new URL("http://"+ip+"/snapshot.cgi");
+                        imageToDisplay = ImageIO.read(snap);     
                         repaint();
                     }
                     catch (Exception e) {
@@ -171,12 +204,9 @@ public class AirCamDisplay extends SimpleSubPanel implements ConfigurationListen
                         connected = false;
                         status = "reconnecting";
                     }
-                    finally {
-
-                    }
 
                     try {
-                        Thread.sleep(millisBetweenTries);
+                        Thread.sleep(millisBetweenRefresh);
                     }
                     catch (Exception e) {
                         NeptusLog.pub().warn(e);
@@ -196,25 +226,21 @@ public class AirCamDisplay extends SimpleSubPanel implements ConfigurationListen
     }
 
     protected String previousURL = null;
-    
+
     @Override
     public DefaultProperty[] getProperties() {
         previousURL = ip;
         return super.getProperties();
     }
-    
+
     @Override
     public void propertiesChanged() {
         if (!ip.equals(previousURL))
             reconnect();
     }
-    
-    /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#initSubPanel()
-     */
+
     @Override
     public void initSubPanel() {
-        // TODO Auto-generated method stub
     }
 
     /**
