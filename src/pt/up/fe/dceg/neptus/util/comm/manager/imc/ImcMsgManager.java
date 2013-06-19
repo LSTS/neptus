@@ -65,7 +65,6 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.NetworkInterfacesUtil;
 import pt.up.fe.dceg.neptus.util.NetworkInterfacesUtil.NInterface;
@@ -721,7 +720,6 @@ public class ImcMsgManager extends
             // NeptusLog.pub().info("<###> "+localId + " " + id);
             if (!ImcId16.NULL_ID.equals(id) && !ImcId16.BROADCAST_ID.equals(id) && !ImcId16.ANNOUNCE.equals(id)
                     /* && !localId.equals(id) */) {
-                System.out.println(localId + " :: " + id + " :: " + localId.equals(id) + " :: " + (Announce.ID_STATIC == msg.getMgid()));
                 if (localId.equals(id) && Announce.ID_STATIC == msg.getMgid()) {
                     //TODO
                     String localUid = announceWorker.getNeptusInstanceUniqueID();
@@ -730,6 +728,7 @@ public class ImcMsgManager extends
                     if (!localUid.equalsIgnoreCase(uid)) {
                         NeptusLog.pub().warn("Another node on our network is advertising our node id '" + localId.toPrettyString() + "'");
                     }
+                    System.out.println(localId + " :: " + id + " :: " + localId.equals(id) + " :: " + (Announce.ID_STATIC == msg.getMgid()));
                     System.out.println(localUid + " :: " + uid + " :: " + serv);
                 }
                 if (!localId.equals(id)) {
