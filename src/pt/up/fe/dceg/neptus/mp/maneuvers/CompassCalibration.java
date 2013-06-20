@@ -41,7 +41,6 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.editor.AngleEditorDegs;
 import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.CompassCalibration.DIRECTION;
@@ -76,7 +75,7 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
     @NeptusProperty(name="Speed units", description="The speed units", editorClass=SpeedUnitsEditor.class)
     public String speedUnits = "RPM";
 
-    @NeptusProperty(name="Pitch", description="The Pitch angle used to perform the maneuver.", editorClass = AngleEditorDegs.class)
+    @NeptusProperty(name="Pitch", description="The Pitch angle used to perform the maneuver.")
     public double pitchDegs = 15;
 
     @NeptusProperty(name="Amplitude", description="Yoyo motion amplitude.")
