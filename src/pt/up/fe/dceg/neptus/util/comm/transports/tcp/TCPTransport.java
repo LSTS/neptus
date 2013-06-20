@@ -315,7 +315,7 @@ public class TCPTransport {
 			selector = Selector.open();
 			serverCh.configureBlocking(false);
 			serverCh.socket().setSoTimeout(timeoutMillis);
-			serverCh.socket().setReuseAddress(true);
+			// serverCh.socket().setReuseAddress(true); // Possible problem in reusing socket address!!!
 			serverCh.socket().bind(new InetSocketAddress(getBindPort()));
 			serverCh.register(selector, SelectionKey.OP_ACCEPT);
             isOnBindError = false;

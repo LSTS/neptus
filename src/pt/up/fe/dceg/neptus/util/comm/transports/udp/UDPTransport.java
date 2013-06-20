@@ -453,7 +453,10 @@ public class UDPTransport {
                     try {
                         boolean useMulticast = isMulticastEnable();
                         sock = (!useMulticast) ? new DatagramSocket(null) : new MulticastSocket(null);
-                        sock.setReuseAddress(true);
+//                        if (useMulticast) {
+//                            sock.setReuseAddress(true); // This may be a potential problem when opening two Neptus instances, we don't detect a bind error  
+//                        }
+                        sock.setReuseAddress(false);
                         if (bindPort != 0) {
                             sock.bind(new InetSocketAddress(bindPort));
                         }
