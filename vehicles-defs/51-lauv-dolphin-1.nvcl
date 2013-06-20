@@ -38,7 +38,7 @@
           </point>
           <radiusTolerance>5</radiusTolerance>
         </finalPoint>
-        <velocity tolerance="10" type="float" unit="RPM">1000</velocity>
+        <velocity tolerance="10" type="float" unit="m/s">1.3</velocity>
         <trajectoryTolerance>
           <radiusTolerance type="float">1</radiusTolerance>
         </trajectoryTolerance>
@@ -117,7 +117,7 @@
           <radiusTolerance>0.0</radiusTolerance>
         </basePoint>
         <path/>
-        <speed unit="RPM">1000.0</speed>
+        <speed unit="m/s">1.3</speed>
         <annotation>
           <documentation>No documentation available</documentation>
           <implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.FollowPath</implementation-class>
@@ -143,7 +143,7 @@
         <hstep>27.0</hstep>
         <vstep>0.0</vstep>
         <bearing>0.0</bearing>
-        <speed unit="RPM">1000.0</speed>
+        <speed unit="m/s">1.3</speed>
         <annotation>
           <documentation>No documentation available</documentation>
           <implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.RowsManeuver</implementation-class>
@@ -167,7 +167,7 @@
         <hstep>20.0</hstep>
         <bearing>0.0</bearing>
         <squareCurve>false</squareCurve>
-        <speed unit="RPM">1000.0</speed>
+        <speed unit="m/s">1.3</speed>
         <annotation>
           <documentation>No documentation available</documentation>
           <implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.RIPattern</implementation-class>
@@ -191,7 +191,7 @@
         <hstep>20.0</hstep>
         <bearing>0.0</bearing>
         <squareCurve>false</squareCurve>
-        <speed unit="RPM">1000.0</speed>
+        <speed unit="m/s">1.3</speed>
         <annotation>
           <documentation>No documentation available</documentation>
           <implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.CrossHatchPattern</implementation-class>
@@ -215,12 +215,33 @@
         <pitch>30</pitch>
         <radius>10</radius>
         <duration>0</duration>
-        <speed unit="RPM">1000.0</speed>
+        <speed unit="m/s">1.3</speed>
         <annotation>
           <documentation>No documentation available</documentation>
           <implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.Elevator</implementation-class>
         </annotation>
       </Elevator>
+    </maneuver>
+    <maneuver>
+      <CompassCalibration>
+        <timeout>0</timeout>
+        <lat>0</lat>
+        <lon>0</lon>
+        <z>2</z>
+        <z_units>DEPTH</z_units>
+        <pitch>15</pitch>
+        <amplitude>1</amplitude>
+        <duration>600</duration>
+        <speed>1.3</speed>
+        <speed_units>m/s</speed_units>
+        <radius>25</radius>
+        <direction>CLOCKW</direction>
+        <custom></custom>
+        <annotation>
+          <documentation>No documentation available</documentation>
+          <implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.CompassCalibration</implementation-class>
+        </annotation>
+      </CompassCalibration>
     </maneuver>
   </feasibleManeuvers>
   <protocols-supported>
