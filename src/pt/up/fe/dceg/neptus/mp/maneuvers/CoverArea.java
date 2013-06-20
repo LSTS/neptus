@@ -249,5 +249,13 @@ public class CoverArea extends AbstractImcManeuver<pt.up.fe.dceg.neptus.imc.Cove
         CoverArea area = new CoverArea();
 
         NeptusLog.pub().info("<###> "+area.asXML());
+        
+        CoverArea compc = new CoverArea();
+        String ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
+        System.out.println(ccmanXML);
+        CoverArea compc1 = new CoverArea();
+        compc1.loadFromXML(ccmanXML);
+        ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
+        System.out.println(ccmanXML);
     }
 }
