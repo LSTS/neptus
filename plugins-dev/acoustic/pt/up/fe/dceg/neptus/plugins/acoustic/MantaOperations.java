@@ -68,7 +68,6 @@ import pt.up.fe.dceg.neptus.imc.AcousticSystems;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.PlanControl;
-import pt.up.fe.dceg.neptus.imc.state.ImcSysState;
 import pt.up.fe.dceg.neptus.mystate.MyState;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
@@ -119,12 +118,6 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
 
     @NeptusProperty(name = "Display ranges in the map")
     public boolean showRanges = true;
-
-    @NeptusProperty(name = "Ranges source location")
-    public LocationType rangesSource = null;
-
-    @NeptusProperty(name = "Use console's GPS location for range source")
-    public boolean useMyLocation = true;
 
     /**
      * @param console
@@ -420,20 +413,20 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
         
     }
 
+    protected LinkedHashMap<String, LocationType> systemLocations = new LinkedHashMap<>();
+        
     @Subscribe
     public void on(AcousticOperation msg) {
-
+        
+        
         
         switch (msg.getOp()) {
             case RANGE_RECVED:
                 if (showRanges) {
                     LocationType loc = new LocationType(MyState.getLocation());
-
-                    ImcSysState state = ImcMsgManager.getManager().getState(msg.getSourceName());
-                    if (state != null && state.lastAnnounce() != null) {
-                        loc.setLongitude(state.lastAnnounce().getLon());
-                        loc.setLatitude(state.lastAnnounce().getLat());
-                    }
+                    if (ImcSystemsHolder.getSystemWithName(msg.getSourceName()) != null)
+                        loc = ImcSystemsHolder.getSystemWithName(msg.getSourceName()).getLocation();
+                    
                     rangeDistances.add(msg.getRange());
                     rangeSources.add(loc);
                     addText(I18n.textf("Distance to %systemName is %distance", msg.getSystem().toString(),
