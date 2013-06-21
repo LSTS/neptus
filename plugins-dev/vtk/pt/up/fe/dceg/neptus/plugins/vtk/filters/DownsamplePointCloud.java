@@ -62,7 +62,7 @@ public class DownsamplePointCloud {
         downsample();
         
         long lDateTime2 = new Date().getTime();
-        NeptusLog.pub().info("Final downsampling - Time in milliseconds: " + lDateTime);
+        NeptusLog.pub().info("Final downsampling - Time in milliseconds: " + lDateTime2);
     }
     
     private void downsample() {

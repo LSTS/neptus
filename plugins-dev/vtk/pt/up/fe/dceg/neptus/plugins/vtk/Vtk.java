@@ -52,6 +52,7 @@ import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
+import pt.up.fe.dceg.neptus.plugins.vtk.filters.RadiusOutlierRemoval;
 import pt.up.fe.dceg.neptus.plugins.vtk.multibeampluginutils.MultibeamToolbar;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
@@ -186,6 +187,9 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!                         
                     // create an actor from parsed beams              
                 pointCloud.createLODActorFromPoints();
+                
+                RadiusOutlierRemoval rad = new RadiusOutlierRemoval();
+                rad.applyFilter(pointCloud.getPoly());
              
                     // add parsed beams stored on pointcloud to canvas
                 canvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());

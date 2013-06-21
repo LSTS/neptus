@@ -41,6 +41,7 @@ import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
 import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
+import pt.up.fe.dceg.neptus.plugins.vtk.filters.RadiusOutlierRemoval;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.bathymetry.LocalData;

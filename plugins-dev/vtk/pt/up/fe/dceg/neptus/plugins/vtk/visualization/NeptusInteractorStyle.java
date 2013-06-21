@@ -237,6 +237,14 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
             this.renderer.AddActor(fpsActor);
         }
     }
+    
+    /**
+     * Render event to show point coords on mouse hover
+     */
+    void callbackPointCoords() {
+        
+        
+    }
 
     /**
      * @return the interactor
