@@ -74,8 +74,12 @@ public class PointCloud<T extends PointXYZ> {
     public void createLODActorFromPoints() {
         try {
             getPoly().SetPoints(getPoints());
-            getPoly().SetVerts(getVerts());
             
+            for (int i = 0; i < getPoints().GetNumberOfPoints(); ++i) {
+                getVerts().InsertCellPoint(i);
+            }
+            
+            getPoly().SetVerts(getVerts());           
             getPoly().Modified();
                    
             vtkCellArray cells = new vtkCellArray();

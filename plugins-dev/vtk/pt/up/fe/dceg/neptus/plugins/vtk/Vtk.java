@@ -43,6 +43,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
@@ -185,12 +186,16 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             axesWidget.createAxesWidget();
             
             if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!                         
-                    // create an actor from parsed beams              
+                
+                    // remove outliers
+                RadiusOutlierRemoval rad = new RadiusOutlierRemoval();
+                //rad.applyFilter(pointCloud.getPoly());
+                pointCloud.setPoints(rad.applyFilter(pointCloud.getPoints()));
+                pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());
+             
+                // create an actor from parsed beams 
                 pointCloud.createLODActorFromPoints();
                 
-                RadiusOutlierRemoval rad = new RadiusOutlierRemoval();
-                rad.applyFilter(pointCloud.getPoly());
-             
                     // add parsed beams stored on pointcloud to canvas
                 canvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
                     // set Up scalar Bar look up table

@@ -34,44 +34,86 @@ package pt.up.fe.dceg.neptus.plugins.vtk.filters;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.CalcUtils;
-import vtk.vtkKdTreePointLocator;
-import vtk.vtkMath;
+import vtk.vtkIdList;
+import vtk.vtkKdTree;
+import vtk.vtkPoints;
 import vtk.vtkPolyData;
 
 /**
  * @author hfq
+ * Removes point if it has less than a minimal number of points (defined by user) on its neighbourhood radius (search radius)
+ * Search is done with a kdTree
  *
  */
 public class RadiusOutlierRemoval {
-    private double searchRadius = 10.0;
-    private int minPtsNeighboursRadius = 2;
+        // if all multibeam points are parsed : searchradius = 1.0 , minPts = 30;
+    
+    private double searchRadius = 2.0;     // search radius on the same dimensional measurement as the coords (meters)
+    private int minPtsNeighboursRadius = 4; // minimal number of neighbors on the search neighbourhood
     
     public RadiusOutlierRemoval() {
         
     }
     
-    public void applyFilter2(vtkPolyData polyData) {
-        NeptusLog.pub().info("Radius outliers removal start: " + System.currentTimeMillis());
-        
-        vtkKdTreePointLocator kdTree = new vtkKdTreePointLocator();
-        kdTree.SetDataSet(polyData);
-        // kdTree.
-        
-        
-        NeptusLog.pub().info("Radius outliers removal end: " + System.currentTimeMillis());       
+    public vtkPoints applyFilter (vtkPoints points) {        
+        try {
+            NeptusLog.pub().info("Radius outliers removal start: " + System.currentTimeMillis());
+            
+            vtkKdTree kdTree = new vtkKdTree();
+            kdTree.BuildLocatorFromPoints(points);
+            
+            vtkPoints outputPoints = new vtkPoints();
+            
+            int outputId = 0;
+            
+            if (points.GetNumberOfPoints() != 0) {
+                for (int i = 0; i < points.GetNumberOfPoints(); ++i) {
+                    vtkIdList idsFoundPts = new vtkIdList();
+                    
+                    kdTree.FindPointsWithinRadius(searchRadius, points.GetPoint(i), idsFoundPts);
+                    
+                    if (idsFoundPts.GetNumberOfIds() < minPtsNeighboursRadius) {    // defined has an outlier
+                        // NeptusLog.pub().info("Number of points on neighbourhood: " + idsFoundPts.GetNumberOfIds() + " point id to remove: " + i + " point - x: " + points.GetPoint(i)[0] + " y: " + points.GetPoint(i)[1] + " z: " + points.GetPoint(i)[2]);
+                    }
+                    else {
+                        outputPoints.InsertPoint(outputId, points.GetPoint(i));
+                        ++outputId;
+                    }
+                }
+            }
+            else {
+                NeptusLog.pub().error("Pointcloud is empty, no points to process!");
+                return points;
+            }
+            
+            NeptusLog.pub().info("Radius outliers removal end: " + System.currentTimeMillis());
+            
+            NeptusLog.pub().info("Number of input points: " + points.GetNumberOfPoints());
+            NeptusLog.pub().info("Number of points on output: " + outputPoints.GetNumberOfPoints());
+            
+            float perc = (float) outputPoints.GetNumberOfPoints()/points.GetNumberOfPoints();
+            NeptusLog.pub().info("Percentage of points removed: " + perc);
+            
+            if (perc >= 0.80)
+                return outputPoints;
+            else {
+                NeptusLog.pub().info("Relax your parameters for radius outliers removal");
+                return points;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return points;
+        }
     }
     
-    public void applyFilter(vtkPolyData polyData) {
+    public void applyFilter3(vtkPolyData polyData) {
         
         NeptusLog.pub().info("Radius outliers removal start: " + System.currentTimeMillis());
         
-        //vtkMath math = new vtkMath();
-        
-        
+        //vtkMath math = new vtkMath();        
         List<Integer>  remIndPts = new ArrayList<Integer>();
         
         // NeptusLog.pub().info("Number of points: " + polyData.GetNumberOfPoints());
@@ -97,9 +139,7 @@ public class RadiusOutlierRemoval {
                         ++numNeighbourPts;
                     }
                 }
-            }
-            //NeptusLog.pub().info("Point indice: " + i + " number neighbours: " + numNeighbourPts);
-            
+            }         
             if (numNeighbourPts < minPtsNeighboursRadius)
             {
                 NeptusLog.pub().info("Point indice: " + i + " x: " + p[0] + " y: " + p[1] + " z: " + p[2] + " is to be removed");
@@ -117,34 +157,13 @@ public class RadiusOutlierRemoval {
 
         NeptusLog.pub().info("size of rem array: " + remIndPts.size());
         
-        for (int i = 0; i < remIndPts.size(); i++) {
-          System.out.println("1");
-          //polyData.RemoveCellReference(remIndPts.get(i));
-          System.out.println("2");
-          //polyData.RemoveDeletedCells();
-          System.out.println("3");
-          //polyData.Update();
-          System.out.println("4");
-          //polyData.UpdateData();
-          System.out.println("5");
-          //polyData.UpdateInformation();
-          System.out.println("6");
-        }
-        
         // remove no compliant points from point cloud
-//        for (Integer ind : remIndPts) {
-//            System.out.println("1");
-//            polyData.RemoveCellReference(ind);
-//            System.out.println("2");
-//            polyData.RemoveDeletedCells();
-//            System.out.println("3");
-//            polyData.Update();
-//            System.out.println("4");
-//            polyData.UpdateData();
-//            System.out.println("5");
-//            polyData.UpdateInformation();
-//            System.out.println("6");
-//        }
+        for (int i = 0; i < remIndPts.size(); i++) {
+          //polyData.RemoveCellReference(remIndPts.get(i));
+          //polyData.RemoveDeletedCells();
+          //polyData.Update();
+          //polyData.UpdateInformation();
+        }
         
         NeptusLog.pub().info("Number of points 2: " + polyData.GetNumberOfPoints());
         NeptusLog.pub().info("Number of cells 2: " + polyData.GetNumberOfCells());
@@ -169,14 +188,14 @@ public class RadiusOutlierRemoval {
     /**
      * @return the minPtsNeighboursRadius
      */
-    private int getMinPtsNeighboursRadius() {
+    public int getMinPtsNeighboursRadius() {
         return minPtsNeighboursRadius;
     }
 
     /**
      * @param minPtsNeighboursRadius the minPtsNeighboursRadius to set
      */
-    private void setMinPtsNeighboursRadius(int minPtsNeighboursRadius) {
+    public void setMinPtsNeighboursRadius(int minPtsNeighboursRadius) {
         this.minPtsNeighboursRadius = minPtsNeighboursRadius;
     }
 

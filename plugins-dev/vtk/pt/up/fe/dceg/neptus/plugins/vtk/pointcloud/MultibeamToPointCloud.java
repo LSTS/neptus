@@ -65,6 +65,7 @@ public class MultibeamToPointCloud {
     public BathymetryParser multibeamDeltaTParser;
     public PointCloud<PointXYZ> pointCloud;    
     private LocalData ld;
+    
 
     /**
      * @param log
@@ -110,9 +111,14 @@ public class MultibeamToPointCloud {
                     // add data to pointcloud
                     pointCloud.getVerts().InsertNextCell(1);
                     tempLoc.translatePosition(p.north, p.east, 0);
-                    pointCloud.getVerts().InsertCellPoint(
-                            pointCloud.getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), tempLoc.getOffsetEast(),
-                                    p.depth - tideOffset));
+                    
+                    pointCloud.getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
+                            tempLoc.getOffsetEast(), 
+                            p.depth - tideOffset);
+                    
+//                    pointCloud.getVerts().InsertCellPoint(
+//                            pointCloud.getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), tempLoc.getOffsetEast(),
+//                                    p.depth - tideOffset));
 
                     ++countPoints;
                 }
@@ -129,13 +135,14 @@ public class MultibeamToPointCloud {
                     LocationType tempLoc = new LocationType(loc);                         
                     pointCloud.getVerts().InsertNextCell(1);
                     tempLoc.translatePosition(p.north, p.east, 0);
-                    pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
-                            tempLoc.getOffsetEast(), 
-                            p.depth - tideOffset));
                     
-//                  pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(tempLoc.getAbsoluteNEDInMeters()[0],
-//                  tempLoc.getAbsoluteNEDInMeters()[1],
-//                  p.depth));
+                    pointCloud.getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
+                            tempLoc.getOffsetEast(), 
+                            p.depth - tideOffset);
+                    
+                    //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
+                    //        tempLoc.getOffsetEast(), 
+                    //        p.depth - tideOffset));
                 
                     ++countPoints;
                 }
