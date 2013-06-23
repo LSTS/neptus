@@ -43,18 +43,31 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.InterpolationColorMap;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
@@ -63,7 +76,11 @@ import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.util.ColorUtils;
+import pt.up.fe.dceg.neptus.util.DateTimeUtil;
 import pt.up.fe.dceg.neptus.util.FileUtil;
+import pt.up.fe.dceg.neptus.util.StreamUtil;
+import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
 import pt.up.fe.dceg.neptus.util.http.client.HttpClientConnectionHelper;
 
 /**
@@ -78,10 +95,15 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     @NeptusProperty(name = "Milliseconds between updates")
     public long updateMillis = 60000;
 
-
+    @NeptusProperty(name = "Data limit validity (hours")
+    public int dateLimitHours = 12;
     
+    @NeptusProperty(name = "Request data from Web")
     public boolean requestFromWeb = false;
-    
+
+    @NeptusProperty(name = "Load data from file (hfradar.txt)")
+    public boolean loadFromFile = false;
+
     public static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'SS");
     public static final SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd");
     public static final SimpleDateFormat timeFormaterUTC = new SimpleDateFormat("HH':'mm");
@@ -101,6 +123,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     }
     
     //  http://hfradar.ndbc.noaa.gov/tab.php?from=2013-06-22%2015:00:00&to=2013-06-22%2015:00:00&p=1&lat=38.324420427006515&lng=-119.94323730468749&lat2=35.69299463209881&lng2=-124.33776855468749
+    //  http://hfradar.ndbc.noaa.gov/tabdownload.php?from=2013-06-23%2009:34:00&to=2013-06-23%2021:34:00&lat=37.78799270017669&lng=-122.39269445535145&lat2=37.78781729434937&lng2=-122.39236722585163
     private String noaaURL = "http://hfradar.ndbc.noaa.gov/tabdownload.php?" +
     		"from=#FROM_DATE#%20#FROM_TIME#:00&to=#TO_DATE#%20#TO_TIME#:00&lat=#LAT1#&lng=#LNG1#&lat2=#LAT2#&lng2=#LNG2#";
     // lat lon speed (cm/s)    degree  acquired    resolution (km) origin
@@ -109,8 +132,8 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     
     private static final String sampleNoaaFile = "hfradar-noaa-sample1.txt";
     
-    private ColorMap colorMap = new InterpolationColorMap("RGB", new double[] { 0.0, 0.3, 1.0 }, new Color[] {
-            new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0) });
+    private ColorMap colorMap = new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
+            new Color(0, 0, 255), new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0), new Color(255, 0, 0) });
     private double minCmS = 0;
     private double maxCmS = 200;
     
@@ -120,6 +143,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     private LocationType lastCenter = null;
     
     private HttpClientConnectionHelper httpComm = new HttpClientConnectionHelper();
+    private HttpGet getHttpRequest;
     
     private HashMap<String, HFRadarDataPoint> dataPoints = new HashMap<>();
     
@@ -146,6 +170,12 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         httpComm.cleanUp();
     }
     
+    public String validateDataLimitHours(int value) {
+        if (value < 3 && value > 24)
+            return "Keep it between 3 and 24";
+        return null;
+    }
+    
     /* (non-Javadoc)
      * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
      */
@@ -159,8 +189,100 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      */
     @Override
     public boolean update() {
-        // TODO Auto-generated method stub
-        return false;
+        System.out.println("######");
+        if (false && requestFromWeb) {
+            HashMap<String, HFRadarDataPoint> dpLts = getNoaaHFRadarData();
+            if (dpLts != null) {
+                System.out.println(dpLts.size() + " ------------------------------");
+                
+            }
+        }
+        
+        return true;
+    }
+
+    public HashMap<String, HFRadarDataPoint> getNoaaHFRadarData() {
+        Date nowDate = new Date(System.currentTimeMillis());
+        Date tillDate = new Date(nowDate.getTime() - dateLimitHours * DateTimeUtil.HOUR);
+        if (lastCenter == null)
+            return null;
+        LocationType lc = lastCenter.getNewAbsoluteLatLonDepth();
+        Dimension boxDim = dim.getSize();
+        LocationType lTop = lc.getNewAbsoluteLatLonDepth();
+        lTop.translateInPixel(-boxDim.getWidth() / 2, -boxDim.getHeight() / 2, 22);
+        LocationType lBot = lc.getNewAbsoluteLatLonDepth();
+        lBot.translateInPixel(boxDim.getWidth() / 2, boxDim.getHeight() / 2, 22);
+        
+        lTop = new LocationType(noaaMaxLat, noaaMaxLng);
+        lBot = new LocationType(noaaMinLat, noaaMinLng);
+        return getNoaaHFRadarData(tillDate, nowDate, lTop, lBot);
+    }
+    
+    public HashMap<String, HFRadarDataPoint> getNoaaHFRadarData(Date tillDate, Date nowDate, LocationType lTop, LocationType lBot) {
+        if (getHttpRequest != null)
+            getHttpRequest.abort();
+        getHttpRequest = null;
+        try {
+            String uri = noaaURL;
+            uri = getNoaaURI(tillDate, nowDate, lTop, lBot);
+            //uri = uri.replace("hfradar.ndbc.noaa.gov", "whale.fe.up.pt");
+            
+            System.out.println(uri);
+            // http://hfradar.ndbc.noaa.gov/tabdownload.php?from=2013-06-23%2007:56:00&to=2013-06-23%2019:56:00&lat=37.84130100297351&lng=-122.53766785260639&lat2=37.84112572375683&lng2=-122.53734062310657
+
+            
+            getHttpRequest = new HttpGet(uri);
+            getHttpRequest.setHeader("Referer", "http://hfradar.ndbc.noaa.gov/tab.php");
+            @SuppressWarnings("unused")
+            long reqTime = System.currentTimeMillis();
+            HttpResponse iGetResultCode = httpComm.getClient().execute(getHttpRequest);
+            httpComm.autenticateProxyIfNeeded(iGetResultCode, null);
+            if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                NeptusLog.pub().info("<###>getRemoteImcData [" + iGetResultCode.getStatusLine().getStatusCode() + "] "
+                        + iGetResultCode.getStatusLine().getReasonPhrase() + " code was return from the server");
+                if (getHttpRequest != null) {
+                    getHttpRequest.abort();
+                }
+                return null;
+            }
+            InputStream streamGetResponseBody = iGetResultCode.getEntity().getContent();
+            @SuppressWarnings("unused")
+            long fullSize = iGetResultCode.getEntity().getContentLength();
+            InputStreamReader isr = new InputStreamReader(streamGetResponseBody);
+            HashMap<String, HFRadarDataPoint> lst = processNoaaHFRadar(isr);
+            return lst;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            if (getHttpRequest != null) {
+                getHttpRequest.abort();
+                getHttpRequest = null;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * @param tillDate
+     * @param nowDate
+     * @param lTop
+     * @param lBot
+     * @return
+     */
+    private String getNoaaURI(Date tillDate, Date nowDate, LocationType lTop, LocationType lBot) {
+        // from=#FROM_DATE#%20#FROM_TIME#:00&to=#TO_DATE#%20#TO_TIME#:00&lat=#LAT1#&lng=#LNG1#&lat2=#LAT2#&lng2=#LNG2#"
+        String uri = noaaURL;
+        uri = uri.replace("#FROM_DATE#", dateFormaterUTC.format(tillDate));
+        uri = uri.replace("#FROM_TIME#", timeFormaterUTC.format(tillDate));
+        uri = uri.replace("#TO_DATE#", dateFormaterUTC.format(nowDate));
+        uri = uri.replace("#TO_TIME#", timeFormaterUTC.format(nowDate));
+        uri = uri.replace("#LAT1#", "" + lTop.getLatitudeAsDoubleValue());
+        uri = uri.replace("#LNG1#", "" + lTop.getLongitudeAsDoubleValue());
+        uri = uri.replace("#LAT2#", "" + lBot.getLatitudeAsDoubleValue());
+        uri = uri.replace("#LNG2#", "" + lBot.getLongitudeAsDoubleValue());
+        return uri;
     }
 
     /* (non-Javadoc)
@@ -198,8 +320,13 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             
+            Date dateColorLimit = new Date(System.currentTimeMillis() - 3 * DateTimeUtil.HOUR);
+            Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
             LocationType loc = new LocationType();
             for (HFRadarDataPoint dp : dataPoints.values()) {
+                if (dp.getDateUTC().before(dateLimit))
+                    continue;
+                
                 Graphics2D gt = (Graphics2D) g2.create();
                 
                 loc.setLatitude(dp.getLat());
@@ -211,6 +338,8 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
                 gt.translate(pt.getX(), pt.getY());
                 Color color = Color.WHITE;
                 color = colorMap.getColor(dp.getSpeedCmS() / maxCmS);
+                if (dp.getDateUTC().before(dateColorLimit))
+                    color = ColorUtils.setTransparencyToColor(color, 128);
                 gt.setColor(color);
                 gt.rotate(-Math.toRadians(dp.getHeadingDegrees()));
                 gt.fill(arrow);
@@ -218,37 +347,8 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
                 gt.dispose();
             }
 
-            
             g2.dispose();
         }
-        
-        
-        Graphics2D g2 = (Graphics2D) go.create();
-        
-        
-        //renderer.getCenter();
-        //renderer.getTopLeftLocationType();
-        //renderer.getBottomRightLocationType();
-//        LocationType loc = new LocationType();
-//        for (HFRadarDataPoint dp : dataPoints) {
-//            g = (Graphics2D) g2.create();
-//            
-//            loc.setLatitude(dp.lat);
-//            loc.setLongitude(dp.lon);
-//            
-//            Point2D pt = renderer.getScreenPosition(loc);
-//            //if (pt.getX() < 0 || )
-//            
-//            g.translate(pt.getX(), pt.getY());
-//            Color color = Color.WHITE;
-//            color = colorMap.getColor(dp.speedCmS / maxCmS);
-//            g.setColor(color);
-//            g.rotate(-Math.toRadians(dp.headingDegrees));
-//            g.fill(arrow);
-//            
-//            g.dispose();
-//        }
-        
     }
     
     private HashMap<String, HFRadarDataPoint> processNoaaHFRadarTest() {
@@ -265,23 +365,33 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         return new HashMap<String, HFRadarDataPoint>(); 
     }
     
+    
     private HashMap<String, HFRadarDataPoint> processNoaaHFRadar(Reader readerInput) {
+        long deltaTimeToHFRadarHistoricalData = dateLimitHours * DateTimeUtil.HOUR;
+        
         HashMap<String, HFRadarDataPoint> hfdp = new HashMap<>();
         BufferedReader reader = null;
+        Date dateLimite = new Date(System.currentTimeMillis() - deltaTimeToHFRadarHistoricalData);
         try {
             reader = new BufferedReader(readerInput);
             String line = reader.readLine();
             for (int i = 0; line != null; i++) {
                 String[] tokens = line.split("[\t ,]");
                 try {
+                    String dateStr = tokens[4];
+                    String timeStr = tokens[5];
+                    Date date = dateTimeFormaterUTC.parse(dateStr + " " + timeStr);
+                    if (date.before(dateLimite)) {
+                        line = reader.readLine();
+                        continue;
+                    }
+                    
                     double lat = Double.parseDouble(tokens[0]);
                     double lon = Double.parseDouble(tokens[1]);
                     HFRadarDataPoint dp = new HFRadarDataPoint(lat, lon);
                     dp.setSpeedCmS(Double.parseDouble(tokens[2]));
                     dp.setHeadingDegrees(Double.parseDouble(tokens[3]));
-                    String dateStr = tokens[4];
-                    String timeStr = tokens[5];
-                    dp.setDateUTC(dateTimeFormaterUTC.parse(dateStr + " " + timeStr));
+                    dp.setDateUTC(date);
                     dp.setResolutionKm(Double.parseDouble(tokens[6]));
                     for (int j = 7; j < tokens.length; j++) {
                         dp.setInfo(dp.getInfo() + tokens[j]);
@@ -289,12 +399,20 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
 
                     HFRadarDataPoint dpo = hfdp.get(HFRadarDataPoint.getId(dp));
                     if (dpo == null) {
+                        dpo = dp.getACopyWithoutHistory();
                         hfdp.put(HFRadarDataPoint.getId(dp), dp);
                     }
-                    else {
-                        if (!dpo.getDateUTC().after(dp.getDateUTC())) {
-                            hfdp.put(HFRadarDataPoint.getId(dp), dp);
+
+                    ArrayList<HFRadarDataPoint> lst = dpo.getHistoricalData();
+                    boolean alreadyIn = false;
+                    for (HFRadarDataPoint tmpDp : lst) {
+                        if (tmpDp.getDateUTC().equals(dp.getDateUTC())) {
+                            alreadyIn = true;
+                            break;
                         }
+                    }
+                    if (!alreadyIn) {
+                        dpo.getHistoricalData().add(dp);
                     }
                     
 //                    System.out.println(dp);
@@ -318,6 +436,10 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
                     e.printStackTrace();
                 }
             }
+        }
+        
+        for (HFRadarDataPoint elm : hfdp.values()) {
+            elm.calculateMean();
         }
         
         return hfdp;

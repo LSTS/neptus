@@ -51,6 +51,16 @@ public class HFRadarDataPoint implements Comparable<HFRadarDataPoint> {
         this.lon = lon;
     }
 
+    public HFRadarDataPoint getACopyWithoutHistory() {
+        HFRadarDataPoint copy = new HFRadarDataPoint(getLat(), getLon());
+        copy.setSpeedCmS(getSpeedCmS());
+        copy.setHeadingDegrees(getHeadingDegrees());
+        copy.setDateUTC(getDateUTC());
+        copy.setResolutionKm(getResolutionKm());
+        copy.setInfo(getInfo());
+        return copy;
+    }
+    
     /**
      * @return the lat
      */
