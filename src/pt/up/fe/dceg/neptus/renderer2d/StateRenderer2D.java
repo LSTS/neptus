@@ -1804,7 +1804,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      * @return The center of the currently visible view
      */
     public LocationType getCenter() {
-        return center;
+        return center.getNewAbsoluteLatLonDepth();
     }
 
     private final void updateCenter() {

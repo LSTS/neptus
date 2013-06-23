@@ -779,6 +779,9 @@ public class FileUtil {
     private static Class<?> getCallerClass() {
         StackTraceElement[] stack = Thread.currentThread().getStackTrace();
         String className = stack[3].getClassName();
+        if (className.startsWith(FileUtil.class.getName())) {
+            className = stack[4].getClassName();
+        }
         try {
             Class<?> clazz = Class.forName(className);
             return clazz;
