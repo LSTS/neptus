@@ -190,7 +190,7 @@ public class HFRadarDataPoint implements Comparable<HFRadarDataPoint> {
     public void purgeAllBefore(Date date) {
         if (date == null || historicalData.size() == 0)
             return;
-        for (HFRadarDataPoint dp : historicalData) {
+        for (HFRadarDataPoint dp : historicalData.toArray(new HFRadarDataPoint[0])) {
             if (dp.getDateUTC().before(date))
                 historicalData.remove(dp);
         }
