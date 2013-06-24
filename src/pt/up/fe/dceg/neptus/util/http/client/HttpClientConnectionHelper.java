@@ -46,6 +46,12 @@ import org.apache.http.protocol.HttpContext;
 import pt.up.fe.dceg.neptus.comm.proxy.ProxyInfoProvider;
 
 /**
+ * This helper class encapsulates the use of Apache's HttpComponents.
+ * It uses a {@link DefaultHttpClient} and {@link PoolingClientConnectionManager}.
+ * Additionally it allows the use of proxy connection with the call of {@link ProxyInfoProvider}.
+ * 
+ * To start the comms. call {@link #initializeComm()} and at the end {@link #cleanUp()} to close the comms.
+ * 
  * @author pdias
  *
  */
