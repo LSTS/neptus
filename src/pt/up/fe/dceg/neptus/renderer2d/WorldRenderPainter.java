@@ -126,7 +126,7 @@ import com.l2fprod.common.propertysheet.Property;
  *
  */
 @NeptusDoc(ArticleFilename = "world-overlay/world-overlay.html", Section = "Renderer2D")
-@LayerPriority(priority = -100)
+@LayerPriority(priority = -500)
 public class WorldRenderPainter implements Renderer2DPainter, MouseListener, MouseMotionListener {
 
     private static final int ICON_SIZE = 20;
