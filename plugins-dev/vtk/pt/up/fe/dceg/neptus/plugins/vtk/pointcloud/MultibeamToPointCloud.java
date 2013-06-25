@@ -45,6 +45,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.filters.RadiusOutlierRemoval;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.bathymetry.LocalData;
+import vtk.vtkPoints;
 
 /**
  * @author hfq
@@ -65,6 +66,8 @@ public class MultibeamToPointCloud {
     public BathymetryParser multibeamDeltaTParser;
     public PointCloud<PointXYZ> pointCloud;    
     private LocalData ld;
+    
+    private vtkPoints points;
     
 
     /**
@@ -93,6 +96,8 @@ public class MultibeamToPointCloud {
         multibeamDeltaTParser.rewind();
         BathymetrySwath bs;
         
+        setPoints(new vtkPoints());
+        
         int countPoints = 0;
         
         while ((bs = multibeamDeltaTParser.nextSwath()) != null) {                   
@@ -108,11 +113,11 @@ public class MultibeamToPointCloud {
 
                     // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
                     LocationType tempLoc = new LocationType(loc);
-                    // add data to pointcloud
-                    pointCloud.getVerts().InsertNextCell(1);
+
                     tempLoc.translatePosition(p.north, p.east, 0);
                     
-                    pointCloud.getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
+                    // add data to pointcloud
+                    getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
                             tempLoc.getOffsetEast(), 
                             p.depth - tideOffset);
                     
@@ -133,10 +138,11 @@ public class MultibeamToPointCloud {
                         continue;
                         // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
                     LocationType tempLoc = new LocationType(loc);                         
-                    pointCloud.getVerts().InsertNextCell(1);
+
                     tempLoc.translatePosition(p.north, p.east, 0);
                     
-                    pointCloud.getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
+                    // add data to pointcloud
+                    getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
                             tempLoc.getOffsetEast(), 
                             p.depth - tideOffset);
                     
@@ -153,6 +159,20 @@ public class MultibeamToPointCloud {
         batInfo = multibeamDeltaTParser.getBathymetryInfo();
 
         pointCloud.setNumberOfPoints(multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
+    }
+
+    /**
+     * @return the points
+     */
+    public vtkPoints getPoints() {
+        return points;
+    }
+
+    /**
+     * @param points the points to set
+     */
+    public void setPoints(vtkPoints points) {
+        this.points = points;
     }
     
 //    /**

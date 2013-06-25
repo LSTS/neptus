@@ -187,14 +187,23 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             
             if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!                         
                 
+                //canvas.lock();
                     // remove outliers
                 RadiusOutlierRemoval rad = new RadiusOutlierRemoval();
-                //rad.applyFilter(pointCloud.getPoly());
-                pointCloud.setPoints(rad.applyFilter(pointCloud.getPoints()));
-                pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());
-             
+                rad.applyFilter(multibeamToPointCloud.getPoints());
+                pointCloud.setPoints(rad.getOutputPoints());
+                NeptusLog.pub().info("Get number of points: " + pointCloud.getPoints().GetNumberOfPoints());
+                
+                        //rad.applyFilter(pointCloud.getPoly());
+                        //pointCloud.setPoints(rad.applyFilter(pointCloud.getPoints()));
+                //pointCloud.setPoints(rad.applyFilter(multibeamToPointCloud.getPoints()));             
+                //pointCloud.setPoints(multibeamToPointCloud.getPoints());
+                
+                pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());               
                 // create an actor from parsed beams 
                 pointCloud.createLODActorFromPoints();
+                
+                //canvas.unlock();
                 
                     // add parsed beams stored on pointcloud to canvas
                 canvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());

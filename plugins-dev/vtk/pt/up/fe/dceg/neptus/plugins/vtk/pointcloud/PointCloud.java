@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCellArray;
 import vtk.vtkLODActor;
@@ -72,21 +73,26 @@ public class PointCloud<T extends PointXYZ> {
      * Create a Pointcloud Actor from loaded points and verts
      */
     public void createLODActorFromPoints() {
-        try {
+        try {                                   
             getPoly().SetPoints(getPoints());
             
-            for (int i = 0; i < getPoints().GetNumberOfPoints(); ++i) {
-                getVerts().InsertCellPoint(i);
+//            for (int i = 0; i < getNumberOfPoints(); ++i) {
+//                getVerts().InsertCellPoint(i);
+//            }
+            
+            for (int i = 0; i < getNumberOfPoints(); ++i) {
+                getVerts().InsertNextCell(i);
             }
             
-            getPoly().SetVerts(getVerts());           
+            getPoly().SetVerts(getVerts()); 
             getPoly().Modified();
                    
-            vtkCellArray cells = new vtkCellArray();
-            cells.SetNumberOfCells(getNumberOfPoints());
-            getPoly().SetPolys(cells);
-            
+            //vtkCellArray cells = new vtkCellArray();
+            //cells.SetNumberOfCells(getNumberOfPoints());
+            //getPoly().SetPolys(cells);
+            getPoly().Update();
             setBounds(getPoly().GetBounds());
+            
             setMemorySize(getPoly().GetActualMemorySize());
             
             getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds);
