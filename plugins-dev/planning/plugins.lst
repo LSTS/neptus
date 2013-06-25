@@ -18,3 +18,4 @@ pt.up.fe.dceg.neptus.plugins.planning.PlanExecutionPreview
 pt.up.fe.dceg.neptus.plugins.planning.PlanEditor
 pt.up.fe.dceg.neptus.plugins.planning.PathControlLayer
 pt.up.fe.dceg.neptus.plugins.planning.MultiVehiclePlanOverlay
+pt.up.fe.dceg.neptus.plugins.planning.DistancesLayer
