@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.3.0-rc1 (d821bf4)" system="lauv-noptilus-1" i18n="pt_PT">
+<config format="1" version="2.3.0-rc1 (7eb69c4)" system="lauv-noptilus-1" i18n="pt_PT">
   <section name="Broom" name-i18n="Broom">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -355,15 +355,6 @@ Content-Transfer-Encoding: 8bit
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
-    <param name="Execution Frequency">
-      <name-i18n>Frequência de Execução</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>25</default>
-      <units>Hz</units>
-      <desc>Frequência com que a tarefa é executada</desc>
-    </param>
     <param name="Serial Port - Device">
       <name-i18n>Serial Port - Device</name-i18n>
       <type>string</type>
@@ -373,478 +364,15 @@ Content-Transfer-Encoding: 8bit
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
     </param>
-    <param name="ADC Reference Voltage">
-      <name-i18n>ADC Reference Voltage</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.1</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="ADC Sampling Frequency">
-      <name-i18n>ADC Sampling Frequency</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units>Hz</units>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Servo Rotation - Minimum">
-      <name-i18n>Servo Rotation - Minimum</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-45.0</default>
-      <units>°</units>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Servo Rotation - Maximum">
-      <name-i18n>Servo Rotation - Maximum</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>45.0</default>
-      <units>°</units>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Servo Rotation Rate - Maximum">
-      <name-i18n>Servo Rotation Rate - Maximum</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>333.3</default>
-      <units>°/s</units>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Enable Rotation Rate Limit">
-      <name-i18n>Enable Rotation Rate Limit</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Enable limit of rotation rate according to manufacturer</desc>
-    </param>
-    <param name="Servo Renumbering">
-      <name-i18n>Servo Renumbering</name-i18n>
-      <type>list:integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0, 1, 2, 3</default>
-      <units/>
-      <desc>Servo renumbering hack</desc>
-      <size>4</size>
-    </param>
-    <param name="A/D Conversion Factors">
-      <name-i18n>A/D Conversion Factors</name-i18n>
+    <param name="Servo Directions">
+      <name-i18n>Servo Directions</name-i18n>
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.4184, 0, 1.4184, 0, 1.4184, 0, 1.4184, 0, 5.701254, 0, 100, 0</default>
+      <default>-1, 1, -1, 1</default>
       <units/>
-      <desc>A/D conversion factors</desc>
-      <size>12</size>
-    </param>
-    <param name="Servo 0 Middle">
-      <name-i18n>Servo 0 Middle</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-5</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Servo 0 Orientation">
-      <name-i18n>Servo 0 Orientation</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-1</default>
-      <units/>
-      <desc>Servo orientation</desc>
-    </param>
-    <param name="Entity Label - Current 0">
-      <name-i18n>Entity Label - Current 0</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>SCRT (0)</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Entity Label - Servo Position 0">
-      <name-i18n>Entity Label - Servo Position 0</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Feedback Servo (0)</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Servo 1 Middle">
-      <name-i18n>Servo 1 Middle</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-4</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Servo 1 Orientation">
-      <name-i18n>Servo 1 Orientation</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1</default>
-      <units/>
-      <desc>Servo orientation</desc>
-    </param>
-    <param name="Entity Label - Current 1">
-      <name-i18n>Entity Label - Current 1</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>SCRT (1)</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Entity Label - Servo Position 1">
-      <name-i18n>Entity Label - Servo Position 1</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Feedback Servo (1)</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Servo 2 Middle">
-      <name-i18n>Servo 2 Middle</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-4</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Servo 2 Orientation">
-      <name-i18n>Servo 2 Orientation</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-1</default>
-      <units/>
-      <desc>Servo orientation</desc>
-    </param>
-    <param name="Entity Label - Current 2">
-      <name-i18n>Entity Label - Current 2</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>SCRT (2)</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Entity Label - Servo Position 2">
-      <name-i18n>Entity Label - Servo Position 2</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Feedback Servo (2)</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Servo 3 Middle">
-      <name-i18n>Servo 3 Middle</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>4</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Servo 3 Orientation">
-      <name-i18n>Servo 3 Orientation</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1</default>
-      <units/>
-      <desc>Servo orientation</desc>
-    </param>
-    <param name="Entity Label - Current 3">
-      <name-i18n>Entity Label - Current 3</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>SCRT (3)</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Entity Label - Servo Position 3">
-      <name-i18n>Entity Label - Servo Position 3</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Feedback Servo (3)</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Entity Label - Voltage">
-      <name-i18n>Entity Label - Voltage</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>SCRT (+5V)</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Entity Label - Temperature">
-      <name-i18n>Entity Label - Temperature</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Servo Controller</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Enable Leak Sensors">
-      <name-i18n>Enable Leak Sensors</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc>Enable leak sensors</desc>
-    </param>
-    <param name="Entity Label - Leak 0">
-      <name-i18n>Entity Label - Leak 0</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Leak Sensor (N/C)</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Entity Label - Leak 1">
-      <name-i18n>Entity Label - Leak 1</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Leak Sensor (Tail)</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
+      <desc>Direction of the servos</desc>
+      <size>4</size>
     </param>
   </section>
   <section name="Allocator" name-i18n="Alocador">
@@ -940,7 +468,7 @@ Content-Transfer-Encoding: 8bit
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>45.0</default>
+      <default>25.0</default>
       <units>°</units>
       <desc>Maximum admissible fin rotation</desc>
     </param>
@@ -996,7 +524,7 @@ Content-Transfer-Encoding: 8bit
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>SCRT</default>
       <units/>
       <desc>Label of the servo position message to compute produced torque</desc>
     </param>
@@ -2117,7 +1645,7 @@ Content-Transfer-Encoding: 8bit
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>20.0</default>
+      <default>40.0</default>
       <units>°</units>
       <desc>Safe pitch angle to perform bottom tracking</desc>
     </param>
@@ -2144,7 +1672,7 @@ Content-Transfer-Encoding: 8bit
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>4.0</default>
+      <default>3.0</default>
       <units>m</units>
       <desc>Minimum admissible forward range for bottom tracking</desc>
     </param>
@@ -2162,7 +1690,7 @@ Content-Transfer-Encoding: 8bit
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0</default>
+      <default>2.5</default>
       <units>m</units>
       <desc>Depth tolerance below which altitude is ignored</desc>
     </param>
@@ -2580,6 +2108,167 @@ Content-Transfer-Encoding: 8bit
 </desc>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+  </section>
+  <section name="Follow Reference Maneuver" name-i18n="Follow Reference Maneuver">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Follow Reference Maneuver</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Project-Id-Version: DUNE 2.0.0
+Report-Msgid-Bugs-To: dune@lsts.pt
+POT-Creation-Date: 2013-03-20 17:31+0000
+PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
+Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
+Language-Team: LANGUAGE &lt;LL@li.org&gt;
+Language: pt_PT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Project-Id-Version: DUNE 2.0.0
+Report-Msgid-Bugs-To: dune@lsts.pt
+POT-Creation-Date: 2013-03-20 17:31+0000
+PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
+Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
+Language-Team: LANGUAGE &lt;LL@li.org&gt;
+Language: pt_PT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+</desc>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Project-Id-Version: DUNE 2.0.0
+Report-Msgid-Bugs-To: dune@lsts.pt
+POT-Creation-Date: 2013-03-20 17:31+0000
+PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
+Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
+Language-Team: LANGUAGE &lt;LL@li.org&gt;
+Language: pt_PT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+</desc>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc>Project-Id-Version: DUNE 2.0.0
+Report-Msgid-Bugs-To: dune@lsts.pt
+POT-Creation-Date: 2013-03-20 17:31+0000
+PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
+Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
+Language-Team: LANGUAGE &lt;LL@li.org&gt;
+Language: pt_PT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+</desc>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loitering Radius">
+      <name-i18n>Loitering Radius</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>7.5</default>
+      <units>m</units>
+      <desc>Radius of loitering circle after arriving at destination</desc>
+    </param>
+    <param name="Vehicle Type">
+      <name-i18n>Vehicle Type</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>AUV</default>
+      <units/>
+      <desc>Vehicle type (AUV or UAV), default AUV</desc>
+    </param>
+    <param name="Horizontal Tolerance">
+      <name-i18n>Horizontal Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15.0</default>
+      <units>m</units>
+      <desc>Minimum distance required to consider that the vehicle has arrived at the reference (XY)</desc>
+    </param>
+    <param name="Vertical Tolerance">
+      <name-i18n>Vertical Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m</units>
+      <desc>Minimum distance required to consider that the vehicle has arrived at the reference (Z)</desc>
+    </param>
+    <param name="Default Speed">
+      <name-i18n>Default Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.2</default>
+      <units/>
+      <desc>Speed to use in case no speed is given by reference source.</desc>
+    </param>
+    <param name="Default Speed Units">
+      <name-i18n>Default Speed Units</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>m/s</default>
+      <units/>
+      <desc>Units to use for default speed (one of 'm/s', 'rpm' or '%').</desc>
+    </param>
+    <param name="Default Z">
+      <name-i18n>Default Z</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>m</units>
+      <desc>Default z when no vertical reference is given.</desc>
+    </param>
+    <param name="Default Z Units">
+      <name-i18n>Default Z Units</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>DEPTH</default>
+      <units>m</units>
+      <desc>Units to use for default z reference (one of 'DEPTH', 'ALTITUDE' or 'HEIGHT')</desc>
     </param>
   </section>
   <section name="Follow System Maneuver" name-i18n="Follow System Maneuver">
@@ -4291,7 +3980,7 @@ Content-Transfer-Encoding: 8bit
       <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>+351925434025</default>
+      <default>+351966575686</default>
       <units/>
       <desc>Número de telefone do destinatário de mensagens SMS</desc>
     </param>
@@ -4408,7 +4097,7 @@ Content-Transfer-Encoding: 8bit
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AHRS, Attitude, CPU, Depth Sensor, GPS, LBL, Navigation, Operational Limits, Path Control</default>
+      <default>AHRS, Attitude, CPU, GPS, LBL, Navigation, Operational Limits, Path Control</default>
       <units/>
       <desc>Default entities to monitor</desc>
     </param>
@@ -4812,7 +4501,7 @@ Content-Transfer-Encoding: 8bit
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>75.0</default>
+      <default>60.0</default>
       <units>%</units>
       <desc>Value below which fuel estimation is unreliable</desc>
     </param>
@@ -4923,12 +4612,21 @@ Content-Transfer-Encoding: 8bit
       <units>Hz</units>
       <desc>Frequência com que a tarefa é executada</desc>
     </param>
+    <param name="Initialization Time">
+      <name-i18n>Initialization Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30.0</default>
+      <units>s</units>
+      <desc>Time to wait at beginning before assessing vehicle medium</desc>
+    </param>
     <param name="Wet Data Timeout">
       <name-i18n>Wet Data Timeout</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0</default>
+      <default>3.0</default>
       <units>s</units>
       <desc>No valid wet sensor data timeout</desc>
     </param>
@@ -5576,6 +5274,24 @@ Content-Transfer-Encoding: 8bit
       <units>s</units>
       <desc>No DVL readings timeout</desc>
     </param>
+    <param name="Depth timeout">
+      <name-i18n>Depth timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units>s</units>
+      <desc>No Depth readings timeout</desc>
+    </param>
+    <param name="Main Depth timeout">
+      <name-i18n>Main Depth timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>s</units>
+      <desc>No Depth readings from main provider timeout</desc>
+    </param>
     <param name="Distance Between DVL and CG">
       <name-i18n>Distance Between DVL and CG</name-i18n>
       <type>real</type>
@@ -5638,7 +5354,7 @@ Content-Transfer-Encoding: 8bit
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>20.0</default>
+      <default>6.0</default>
       <units/>
       <desc>LBL Threshold value for the LBL level check rejection scheme</desc>
     </param>
@@ -5663,15 +5379,6 @@ Content-Transfer-Encoding: 8bit
       <desc>Maximum Horizontal Accuracy Estimate value accepted for GPS fixes</desc>
       <min>3.0</min>
       <max>20.0</max>
-    </param>
-    <param name="Euler Angles Moving Average Samples">
-      <name-i18n>Euler Angles Moving Average Samples</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Number of moving average samples to smooth euler angles</desc>
     </param>
     <param name="Heave Moving Average Samples">
       <name-i18n>Heave Moving Average Samples</name-i18n>
@@ -5788,7 +5495,7 @@ Content-Transfer-Encoding: 8bit
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1e-3, 1e-4, 1e-3, 1e-3, 10</default>
+      <default>1e-3, 1e-4, 1e-3, 1e-3, 200</default>
       <units/>
       <desc>Kalman Filter Measurement Noise Covariance values</desc>
       <size>5</size>
@@ -5821,21 +5528,21 @@ Content-Transfer-Encoding: 8bit
       <units/>
       <desc>Kalman Filter initial RPM to Speed multiplicative factor state value</desc>
     </param>
-    <param name="Use RPM Data">
-      <name-i18n>Use RPM Data</name-i18n>
+    <param name="Update Heading with Euler Increments">
+      <name-i18n>Update Heading with Euler Increments</name-i18n>
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>false</default>
       <units/>
-      <desc>Use propeller's revolutions per minute information in the filter</desc>
+      <desc>Use 'EulerAnglesDelta' or 'AngularVelocity' to update heading</desc>
     </param>
     <param name="Heading Bias Alignment Index">
       <name-i18n>Heading Bias Alignment Index</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5e-4</default>
+      <default>5e-8</default>
       <units/>
       <desc>Heading bias uncertainty alignment threshold</desc>
     </param>
@@ -7117,7 +6824,7 @@ Content-Transfer-Encoding: 8bit
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>SVS</default>
+      <default>CTD</default>
       <units/>
       <desc>Project-Id-Version: DUNE 2.0.0
 Report-Msgid-Bugs-To: dune@lsts.pt
@@ -7155,7 +6862,7 @@ Content-Transfer-Encoding: 8bit
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C (+12V_5)</default>
+      <default>AHRS</default>
       <units/>
       <desc>Project-Id-Version: DUNE 2.0.0
 Report-Msgid-Bugs-To: dune@lsts.pt
@@ -7174,7 +6881,7 @@ Content-Transfer-Encoding: 8bit
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc>Project-Id-Version: DUNE 2.0.0
 Report-Msgid-Bugs-To: dune@lsts.pt
@@ -7535,7 +7242,7 @@ Content-Transfer-Encoding: 8bit
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AHRS</default>
+      <default>N/C (+5V_6)</default>
       <units/>
       <desc>Project-Id-Version: DUNE 2.0.0
 Report-Msgid-Bugs-To: dune@lsts.pt
@@ -8509,7 +8216,7 @@ Content-Transfer-Encoding: 8bit
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>maneuver</default>
+      <default>idle</default>
       <units/>
       <desc>Project-Id-Version: DUNE 2.0.0
 Report-Msgid-Bugs-To: dune@lsts.pt
@@ -8546,7 +8253,7 @@ Content-Transfer-Encoding: 8bit
       <name-i18n>Active</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
-      <scope>maneuver</scope>
+      <scope>idle</scope>
       <default>0</default>
       <units/>
       <desc>Project-Id-Version: DUNE 2.0.0
@@ -8871,7 +8578,7 @@ Content-Transfer-Encoding: 8bit
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Mounting position of the multibeam</desc>
     </param>
@@ -9603,6 +9310,161 @@ Content-Transfer-Encoding: 8bit
 </desc>
     </param>
   </section>
+  <section name="AHRS" name-i18n="AHRS">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>AHRS</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Project-Id-Version: DUNE 2.0.0
+Report-Msgid-Bugs-To: dune@lsts.pt
+POT-Creation-Date: 2013-03-20 17:31+0000
+PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
+Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
+Language-Team: LANGUAGE &lt;LL@li.org&gt;
+Language: pt_PT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Project-Id-Version: DUNE 2.0.0
+Report-Msgid-Bugs-To: dune@lsts.pt
+POT-Creation-Date: 2013-03-20 17:31+0000
+PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
+Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
+Language-Team: LANGUAGE &lt;LL@li.org&gt;
+Language: pt_PT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+</desc>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Project-Id-Version: DUNE 2.0.0
+Report-Msgid-Bugs-To: dune@lsts.pt
+POT-Creation-Date: 2013-03-20 17:31+0000
+PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
+Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
+Language-Team: LANGUAGE &lt;LL@li.org&gt;
+Language: pt_PT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+</desc>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Spew</default>
+      <units/>
+      <desc>Project-Id-Version: DUNE 2.0.0
+Report-Msgid-Bugs-To: dune@lsts.pt
+POT-Creation-Date: 2013-03-20 17:31+0000
+PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
+Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
+Language-Team: LANGUAGE &lt;LL@li.org&gt;
+Language: pt_PT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+</desc>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/uart/1</default>
+      <units/>
+      <desc>Serial port device used to communicate with the sensor</desc>
+    </param>
+    <param name="Power Channel - Name">
+      <name-i18n>Power Channel - Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>AHRS</default>
+      <units/>
+      <desc>Name of the power channel</desc>
+    </param>
+    <param name="Output Frequency">
+      <name-i18n>Output Frequency</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>100</default>
+      <units>Hz</units>
+      <desc>Output frequency</desc>
+    </param>
+    <param name="Hard-Iron Calibration">
+      <name-i18n>Hard-Iron Calibration</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0, 0.0, 0.0</default>
+      <units>G</units>
+      <desc>Hard-Iron calibration parameters</desc>
+      <size>3</size>
+    </param>
+    <param name="Output Frequency">
+      <name-i18n>Output Frequency</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>100</default>
+      <units>Hz</units>
+      <desc>Output frequency</desc>
+      <min>1</min>
+      <max>127</max>
+    </param>
+    <param name="Raw Data">
+      <name-i18n>Raw Data</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Set to true to enable raw data output</desc>
+    </param>
+    <param name="Calibration Maneuver - Entity Label">
+      <name-i18n>Calibration Maneuver - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Compass Calibration Maneuver</default>
+      <units/>
+      <desc>Entity label of maneuver responsible for compass calibration</desc>
+    </param>
+  </section>
   <section name="LBL" name-i18n="LBL">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -10042,277 +9904,6 @@ Content-Transfer-Encoding: 8bit
 </desc>
     </param>
   </section>
-  <section name="AHRS" name-i18n="AHRS">
-    <param name="Entity Label">
-      <name-i18n>Nome da Entidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>AHRS</default>
-      <units/>
-      <desc>Nome principal da entidade</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Prioridade de Execução</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Nível de Depuração</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Execution Frequency">
-      <name-i18n>Frequência de Execução</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>50</default>
-      <units>Hz</units>
-      <desc>Frequência com que a tarefa é executada</desc>
-    </param>
-    <param name="Serial Port - Device">
-      <name-i18n>Serial Port - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>/dev/uart/1</default>
-      <units/>
-      <desc>Serial port device used to communicate with the sensor</desc>
-    </param>
-    <param name="Serial Port - Baud Rate">
-      <name-i18n>Serial Port - Baud Rate</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>115200</default>
-      <units/>
-      <desc>Serial port baud rate</desc>
-    </param>
-    <param name="Data Timeout">
-      <name-i18n>Data Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2.0</default>
-      <units>s</units>
-      <desc>Number of seconds without data before reporting an error</desc>
-    </param>
-    <param name="Calibration Threshold">
-      <name-i18n>Calibration Threshold</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.1</default>
-      <units>G</units>
-      <desc>Minimum magnetic field calibration values to reset hard iron parameters</desc>
-      <min>0.0</min>
-    </param>
-    <param name="Hard-Iron Calibration">
-      <name-i18n>Hard-Iron Calibration</name-i18n>
-      <type>list:real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-0.018, -0.119, 0.0</default>
-      <units>G</units>
-      <desc>Hard-Iron calibration parameters</desc>
-      <size>3</size>
-    </param>
-    <param name="Calibration Maneuver - Entity Label">
-      <name-i18n>Calibration Maneuver - Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Compass Calibration Maneuver</default>
-      <units/>
-      <desc>Entity label of maneuver responsible for compass calibration</desc>
-    </param>
-    <param name="IMU Rotation Matrix">
-      <name-i18n>IMU Rotation Matrix</name-i18n>
-      <type>list:real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0</default>
-      <units/>
-      <desc>IMU rotation matrix which is dependent of the mounting position</desc>
-      <size>9</size>
-    </param>
-  </section>
-  <section name="SVS" name-i18n="SVS">
-    <param name="Entity Label">
-      <name-i18n>Nome da Entidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>SVS</default>
-      <units/>
-      <desc>Nome principal da entidade</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Prioridade de Execução</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Nível de Depuração</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc>Project-Id-Version: DUNE 2.0.0
-Report-Msgid-Bugs-To: dune@lsts.pt
-POT-Creation-Date: 2013-03-20 17:31+0000
-PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
-Language-Team: LANGUAGE &lt;LL@li.org&gt;
-Language: pt_PT
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-</desc>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Serial Port - Device">
-      <name-i18n>Serial Port - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>/dev/uart/7</default>
-      <units/>
-      <desc>Serial port device used to communicate with the sensor</desc>
-    </param>
-    <param name="Serial Port - Baud Rate">
-      <name-i18n>Serial Port - Baud Rate</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>19200</default>
-      <units/>
-      <desc>Serial port baud rate</desc>
-    </param>
-  </section>
   <section name="DVL" name-i18n="DVL">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -10347,7 +9938,7 @@ Content-Transfer-Encoding: 8bit
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>3.5</default>
       <units/>
       <desc>Project-Id-Version: DUNE 2.0.0
 Report-Msgid-Bugs-To: dune@lsts.pt
@@ -10524,6 +10115,60 @@ Content-Transfer-Encoding: 8bit
       <desc>Device orientation</desc>
       <size>3</size>
     </param>
+    <param name="Check Data Sanity">
+      <name-i18n>Check Data Sanity</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Perform sanity checks of DVL output data.</desc>
+    </param>
+    <param name="Power Off Time">
+      <name-i18n>Power Off Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units>s</units>
+      <desc>Duration of power off when the sensor is rebooted.</desc>
+    </param>
+    <param name="Watchdog Timeout">
+      <name-i18n>Watchdog Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.5</default>
+      <units>s</units>
+      <desc>Timeout for the incoming data watchdog.</desc>
+    </param>
+    <param name="Sane Working Depth">
+      <name-i18n>Sane Working Depth</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units>m</units>
+      <desc>Value of depth above which DVL's data is expected to be sane.</desc>
+    </param>
+    <param name="Sane Altitude Threshold">
+      <name-i18n>Sane Altitude Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.6</default>
+      <units>m</units>
+      <desc>Altitude threshold for detection of bad samples.</desc>
+    </param>
+    <param name="Maximum Bad Samples">
+      <name-i18n>Maximum Bad Samples</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>8</default>
+      <units/>
+      <desc>Maximum number of samples below threshold.</desc>
+    </param>
   </section>
   <section name="Mainboard" name-i18n="Placa Principal">
     <param name="Entity Label">
@@ -10657,6 +10302,132 @@ Content-Transfer-Encoding: 8bit
       <default>Mainboard (Board)</default>
       <units/>
       <desc>Entity label of temperature sensor number 2</desc>
+    </param>
+  </section>
+  <section name="CTD" name-i18n="CTD">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>CTD</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Project-Id-Version: DUNE 2.0.0
+Report-Msgid-Bugs-To: dune@lsts.pt
+POT-Creation-Date: 2013-03-20 17:31+0000
+PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
+Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
+Language-Team: LANGUAGE &lt;LL@li.org&gt;
+Language: pt_PT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Project-Id-Version: DUNE 2.0.0
+Report-Msgid-Bugs-To: dune@lsts.pt
+POT-Creation-Date: 2013-03-20 17:31+0000
+PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
+Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
+Language-Team: LANGUAGE &lt;LL@li.org&gt;
+Language: pt_PT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+</desc>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Project-Id-Version: DUNE 2.0.0
+Report-Msgid-Bugs-To: dune@lsts.pt
+POT-Creation-Date: 2013-03-20 17:31+0000
+PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
+Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
+Language-Team: LANGUAGE &lt;LL@li.org&gt;
+Language: pt_PT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+</desc>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc>Project-Id-Version: DUNE 2.0.0
+Report-Msgid-Bugs-To: dune@lsts.pt
+POT-Creation-Date: 2013-03-20 17:31+0000
+PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
+Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;
+Language-Team: LANGUAGE &lt;LL@li.org&gt;
+Language: pt_PT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+</desc>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/uart/7</default>
+      <units/>
+      <desc>Serial port device used to communicate with the sensor</desc>
+    </param>
+    <param name="Serial Port - Baud Rate">
+      <name-i18n>Serial Port - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>19200</default>
+      <units/>
+      <desc>Serial port baud rate</desc>
+    </param>
+    <param name="Sound Speed Moving Average Samples">
+      <name-i18n>Sound Speed Moving Average Samples</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Number of moving average samples to smooth sound speed</desc>
+    </param>
+    <param name="Sound Speed Output Frequency">
+      <name-i18n>Sound Speed Output Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>Hz</units>
+      <desc>Output frequency of sound speed estimations</desc>
+      <min>0.1</min>
     </param>
   </section>
   <section name="Power Supervisor" name-i18n="Supervisor de Energia">
@@ -11781,7 +11552,7 @@ Content-Transfer-Encoding: 8bit
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, AllocatedControlTorques, AngularVelocity, Announce, Brake, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, EmergencyControl, EmergencyControlState, EntityActivationState, EntityControl, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowRefState, FuelLevel, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, LblConfig, LblDetection, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, ManeuverControlState, MagneticField, NavigationData, NavigationUncertainty, OperationalLimits, Parameter, ParameterControl, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PopEntityParameters, PowerChannelControl, PowerChannelState, PushEntityParameters, Pressure, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, Rpm, Salinity, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SimulatedState, Sms, SoundSpeed, StopManeuver, TeleoperationDone, Temperature, TrexObservation, TransportBindings, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterDensity, WaterVelocity</default>
+      <default>Abort, Acceleration, AllocatedControlTorques, AngularVelocity, Announce, Brake, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, EmergencyControl, EmergencyControlState, EntityActivationState, EntityControl, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowRefState, FuelLevel, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, LblConfig, LblDetection, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, ManeuverControlState, MagneticField, NavigationData, NavigationUncertainty, OperationalLimits, Parameter, ParameterControl, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PopEntityParameters, PowerChannelControl, PowerChannelState, PushEntityParameters, Pressure, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, Rpm, Salinity, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SimulatedState, Sms, SoundSpeed, StopManeuver, TeleoperationDone, Temperature, TrexObservation, TrexOperation, TrexPlan, TrexToken, TransportBindings, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterDensity, WaterVelocity</default>
       <units/>
       <desc>Project-Id-Version: DUNE 2.0.0
 Report-Msgid-Bugs-To: dune@lsts.pt
@@ -11999,7 +11770,7 @@ Content-Transfer-Encoding: 8bit
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Distance, CpuUsage, Current, DevCalibrationControl, DevCalibrationState, EmergencyControlState, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, GpsFix, GpsFixRejection, Heartbeat, LblRange, LblRangeAcceptance, LblConfig, LblRange, LogBookEntry, LogBookControl, OperationalLimits, Parameter, ParameterControl, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, QueryEntityParameters, RemoteActions, RemoteActionsRequest, Rpm, SaveEntityParameters, SetEntityParameters, SimulatedState, StorageUsage, Temperature, TrexObservation, VehicleState, Voltage</default>
+      <default>Distance, CpuUsage, Current, DevCalibrationControl, DevCalibrationState, EmergencyControlState, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, GpsFix, GpsFixRejection, Heartbeat, LblRange, LblRangeAcceptance, LblConfig, LblRange, LogBookEntry, LogBookControl, OperationalLimits, Parameter, ParameterControl, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, QueryEntityParameters, RemoteActions, RemoteActionsRequest, Rpm, SaveEntityParameters, SetEntityParameters, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexToken, TrexPlan, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
