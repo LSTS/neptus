@@ -31,11 +31,32 @@
  */
 package pt.up.fe.dceg.neptus.plugins.alignment;
 
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.Vector;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JEditorPane;
+import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.imc.EntityParameter;
+import pt.up.fe.dceg.neptus.imc.EntityState;
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.imc.SetEntityParameters;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.EntitiesResolver;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * This panel will allow monitoring and alignment of some IMUs
@@ -45,21 +66,106 @@ import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 public class ImuAlignmentPanel extends SimpleSubPanel {
 
     private static final long serialVersionUID = -1330079540844029305L;
+    protected JToggleButton enableImu;
+    protected JButton doAlignment;
+    protected JEditorPane status;
+
+    @NeptusProperty(name="IMC Entity Label")
+    public String imuEntityLabel = "CPU";
+
+    @NeptusProperty(name="Square Side Length")
+    public double squareSideLength = 50;
+
+    protected ImageIcon greenLed = ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/alignment/led_green.png");
+    protected ImageIcon redLed = ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/alignment/led_red.png");
+    protected ImageIcon grayLed = ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/alignment/led_none.png");
+
 
     public ImuAlignmentPanel(ConsoleLayout console) {
-        super(console);
+        super(console);        
+        setLayout(new BorderLayout(3, 3));
+        removeAll();
+        JPanel top = new JPanel(new GridLayout(1, 0));
+        enableImu = new JToggleButton(I18n.text("Enable IMU"), grayLed, false);
+        enableImu.setEnabled(false);
+        top.add(enableImu);
+
+        enableImu.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                toggleImu(enableImu.isSelected());                
+            }
+        });
+
+        doAlignment = new JButton(I18n.text("Do Alignment"));
+        top.add(doAlignment);
+        status = new JEditorPane("text/html", "<html><b>waiting for vehicle connection</b></html>");
+        doAlignment.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                doAlignment();
+            }
+        });
+        add(top, BorderLayout.NORTH);
+        add(status, BorderLayout.CENTER);
     }
-    
+
+    public void doAlignment() {
+        System.out.println("Do Alignment");
+    }
+
+    public void toggleImu(boolean newState) {
+        System.out.println("Toggle IMU");
+        Vector<EntityParameter> params = new Vector<>();
+        params.add(new EntityParameter("Active", ""+newState));
+        SetEntityParameters m = new SetEntityParameters(imuEntityLabel, params);
+        send(m);
+        m.dump(System.out);
+    }
+
     @Override
     public void initSubPanel() {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
+    @Subscribe
+    public void on(EntityState entityState) {
+
+        if (getConsole().getMainSystem() == null)
+            return;
+
+        if (!entityState.getSourceName().equals(getConsole().getMainSystem()))
+            return;
+
+        String entityName = EntitiesResolver.resolveName(getConsole().getMainSystem(), (int)entityState.getSrcEnt());
+
+        if (entityName == null)
+            return;
+        
+        if (entityName.equals(imuEntityLabel)) {
+            switch (entityState.getState()) {
+                case NORMAL:
+                    
+                    enableImu.setIcon(greenLed);
+                    enableImu.setSelected(true);
+                    enableImu.setEnabled(true);
+                    break;
+                default:
+                    enableImu.setIcon(redLed);
+                    enableImu.setEnabled(true);
+                    enableImu.setSelected(false);
+                    break;
+            }
+        }
+    }
+
     @Override
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
 }
