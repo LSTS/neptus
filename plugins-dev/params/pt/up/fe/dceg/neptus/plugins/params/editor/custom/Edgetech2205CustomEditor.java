@@ -46,19 +46,19 @@ import pt.up.fe.dceg.neptus.plugins.params.SystemProperty;
 public class Edgetech2205CustomEditor extends CustomEditor {
 
     /*
-        The sidescan section will have an additional attribute called 'editor' telling Neptus 
-        to use a custom parameter editor (see attached file). This custom editor should behave 
+        The sidescan section will have an additional attribute called 'editor' telling Neptus
+        to use a custom parameter editor (see attached file). This custom editor should behave
         like the generic editor with the following additional constraints:
-        
+
         IF 'High-Frequency Channels' != 'None' AND 'Low-Frequency Channels' != 'None'
         ENABLE 'Trigger Divisor'
-        DISABLE 'High-Frequency Range'
-        DISABLE VALIDATION OF 'High-Frequency Range'
-        COMPUTE 'High-Frequency Range' AS ('Low-Frequency Range' / 'Trigger Divisor')
+        DISABLE 'Low-Frequency Range'
+        DISABLE VALIDATION OF 'Low-Frequency Range'
+        COMPUTE 'Low-Frequency Range' AS ('High-Frequency Range' * 'Range Multiplier')
         ELSE
-        DISABLE 'Trigger Divisor'
-        ENABLE 'High-Frequency Range'
-        ENABLE VALIDATION OF 'High-Frequency Range'     
+        DISABLE 'Range Multiplier'
+        ENABLE 'Low-Frequency Range'
+        ENABLE VALIDATION OF 'Low-Frequency Range'
      */
 
     /**
@@ -77,25 +77,25 @@ public class Edgetech2205CustomEditor extends CustomEditor {
         if(evt.getSource() instanceof SystemProperty) {
             SystemProperty sp = (SystemProperty) evt.getSource();
             String sectionId = sp.getCategoryId();
-            
+
             if (!paramList.values().iterator().next().getCategoryId().equalsIgnoreCase(sectionId))
                 return;
-            
+
             if (!"None".equalsIgnoreCase(paramList.get("High-Frequency Channels").getValue().toString()) &&
                     !"None".equalsIgnoreCase(paramList.get("Low-Frequency Channels").getValue().toString())) {
-                paramList.get("Trigger Divisor").setEditable(true);
-                paramList.get("High-Frequency Range").setEditable(false);
-                AbstractPropertyEditor editor = paramList.get("High-Frequency Range").getEditor();
+                paramList.get("Range Multiplier").setEditable(true);
+                paramList.get("Low-Frequency Range").setEditable(false);
+                AbstractPropertyEditor editor = paramList.get("Low-Frequency Range").getEditor();
                 if (editor instanceof ValidationEnableInterface)
                     ((ValidationEnableInterface) editor).setEnableValidation(false);
-                paramList.get("High-Frequency Range").setValue(Double.valueOf(
-                        ((Number) paramList.get("Low-Frequency Range").getValue()).doubleValue()
-                                / ((Number) paramList.get("Trigger Divisor").getValue()).doubleValue()).intValue());
+                paramList.get("Low-Frequency Range").setValue(Double.valueOf(
+                        ((Number) paramList.get("High-Frequency Range").getValue()).doubleValue()
+                                * ((Number) paramList.get("Range Multiplier").getValue()).doubleValue()).intValue());
             }
             else {
-                paramList.get("Trigger Divisor").setEditable(false);
-                paramList.get("High-Frequency Range").setEditable(true);
-                AbstractPropertyEditor editor = paramList.get("High-Frequency Range").getEditor();
+                paramList.get("Range Multiplier").setEditable(false);
+                paramList.get("Low-Frequency Range").setEditable(true);
+                AbstractPropertyEditor editor = paramList.get("Low-Frequency Range").getEditor();
                 if (editor instanceof ValidationEnableInterface)
                     ((ValidationEnableInterface) editor).setEnableValidation(true);
             }
