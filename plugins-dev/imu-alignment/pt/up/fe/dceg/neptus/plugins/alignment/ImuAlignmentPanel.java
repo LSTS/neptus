@@ -41,6 +41,7 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
@@ -49,14 +50,18 @@ import pt.up.fe.dceg.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.AlignmentState;
 import pt.up.fe.dceg.neptus.imc.EntityParameter;
-import pt.up.fe.dceg.neptus.imc.EntityState;
+import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.SetEntityParameters;
+import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
+import pt.up.fe.dceg.neptus.mp.templates.PlanCreator;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.EntitiesResolver;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -85,7 +90,7 @@ public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdate
     protected ImageIcon redLed = ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/alignment/led_red.png");
     protected ImageIcon grayLed = ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/alignment/led_none.png");
 
-    protected AlignmentState alignState;
+    protected AlignmentState alignState = null;
 
     public ImuAlignmentPanel(ConsoleLayout console) {
         super(console);        
@@ -93,6 +98,7 @@ public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdate
         removeAll();
         JPanel top = new JPanel(new GridLayout(1, 0));
         enableImu = new JToggleButton(I18n.text("Enable IMU"), grayLed, false);
+        enableImu.setToolTipText(I18n.text("Waiting for first IMU alignment state"));
         enableImu.setEnabled(false);
         top.add(enableImu);
 
@@ -106,7 +112,7 @@ public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdate
 
         doAlignment = new JButton(I18n.text("Do Alignment"));
         top.add(doAlignment);
-        status = new JEditorPane("text/html", "<html><b>waiting for vehicle connection</b></html>");
+        status = new JEditorPane("text/html", "<html><b>"+I18n.text("Waiting for first IMU alignment state")+"</b></html>");
         doAlignment.addActionListener(new ActionListener() {
 
             @Override
@@ -118,10 +124,6 @@ public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdate
         add(status, BorderLayout.CENTER);
     }
 
-
-    /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
-     */
     @Override
     public long millisBetweenUpdates() {
         // TODO Auto-generated method stub
@@ -139,7 +141,47 @@ public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdate
     }
 
     public void doAlignment() {
-        System.out.println("Do Alignment");
+
+        int opt = JOptionPane.showConfirmDialog(getConsole(), "<html><h2>Alignment Procedure</h2>"
+                +"To do IMU alignment, the vehicle must do straigth segments at the surface.<br>"
+                +"<b>Do you want me to create a plan at surface for you?</b>");
+        
+       
+        if (opt == JOptionPane.YES_OPTION) {
+            EstimatedState lastState = getState().lastEstimatedState();
+            
+            PlanCreator pc = new PlanCreator(getConsole().getMission());
+            if (lastState != null && lastState.getLat() != 0) {
+                LocationType loc = new LocationType(
+                        Math.toDegrees(lastState.getLat()), 
+                        Math.toDegrees(lastState.getLon()));
+                loc.translatePosition(lastState.getX(), lastState.getY(), 0);
+                pc.setLocation(loc);
+            }
+            else
+            {
+                pc.setLocation(new LocationType(getConsole().getMission().getHomeRef()));
+            }
+            
+            pc.setZ(0, ManeuverLocation.Z_UNITS.DEPTH);
+            pc.addGoto(null);
+            pc.move(squareSideLength, 0);
+            pc.addGoto(null);
+            pc.move(0, -squareSideLength);
+            pc.addGoto(null);
+            pc.move(-squareSideLength, 0);
+            pc.addGoto(null);
+            pc.move(0, squareSideLength);
+            pc.addGoto(null);
+            PlanType pt = pc.getPlan();
+            pt.setId("alignment_template");
+            pt.setVehicle(getConsole().getMainSystem());
+            getConsole().getMission().addPlan(pt);
+            getConsole().getMission().save(true);
+            getConsole().warnMissionListeners();
+            getConsole().setPlan(pt);
+            
+        }
     }
 
     public void toggleImu(boolean newState) {
@@ -164,7 +206,7 @@ public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdate
 
     @Subscribe
     public void on(AlignmentState alignmentState) {
-        
+
         if (getConsole().getMainSystem() == null)
             return;
 
@@ -172,7 +214,7 @@ public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdate
             return;
 
         this.alignState = alignmentState;
-        
+
         switch (alignmentState.getState()) {
             case ALIGNED:
                 enableImu.setIcon(greenLed);
@@ -180,22 +222,21 @@ public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdate
                 enableImu.setToolTipText(I18n.text("IMU aligned. Vehicle can be used in dead-reckoning mode."));
                 enableImu.setEnabled(true);
                 break;
-                
+
             case NOT_ALIGNED:                
                 enableImu.setIcon(redLed);
                 enableImu.setEnabled(true);
                 enableImu.setToolTipText(I18n.text("IMU is not aligned"));
                 enableImu.setSelected(false);
                 break;
-                
+
             default:
                 enableImu.setIcon(grayLed);
                 enableImu.setEnabled(false);
-                enableImu.setToolTipText(I18n.text("IMU cannot be aligned"));
+                enableImu.setToolTipText(I18n.text("IMU cannot be aligned. Is it available?"));
                 enableImu.setSelected(false);
                 break;
         }
-
     }
 
     @Override
