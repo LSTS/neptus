@@ -31,15 +31,10 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.filters;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.plugins.vtk.utils.CalcUtils;
 import vtk.vtkIdList;
 import vtk.vtkKdTree;
 import vtk.vtkPoints;
-import vtk.vtkPolyData;
 
 /**
  * @author hfq
@@ -50,9 +45,9 @@ import vtk.vtkPolyData;
 public class RadiusOutlierRemoval {
         // if all multibeam points are parsed : searchradius = 1.0 , minPts = 30;
     
-    // log fev 8 de Fev 1.0 - 4
-    private double searchRadius = 3.5;     // search radius on the same dimensional measurement as the coords (meters)
-    private int minPtsNeighboursRadius = 10; // minimal number of neighbors on the search neighbourhood
+    // log fev 8 de Fev 1.0 - 4   // 3.0 10
+    private double searchRadius = 1.0;     // search radius on the same dimensional measurement as the coords (meters)
+    private int minPtsNeighboursRadius = 4; // minimal number of neighbors on the search neighbourhood
     
     private vtkPoints outputPoints;
     

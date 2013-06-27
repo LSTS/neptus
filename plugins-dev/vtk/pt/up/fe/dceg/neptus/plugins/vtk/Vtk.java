@@ -43,7 +43,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
@@ -53,7 +52,7 @@ import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.vtk.filters.RadiusOutlierRemoval;
+import pt.up.fe.dceg.neptus.plugins.vtk.filters.StatisticalOutlierRemoval;
 import pt.up.fe.dceg.neptus.plugins.vtk.multibeampluginutils.MultibeamToolbar;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
@@ -72,6 +71,18 @@ import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author hfq
+ *
+ *#define VTK_CURSOR_DEFAULT   0
+   76 #define VTK_CURSOR_ARROW     1
+   77 #define VTK_CURSOR_SIZENE    2
+   78 #define VTK_CURSOR_SIZENW    3
+   79 #define VTK_CURSOR_SIZESW    4
+   80 #define VTK_CURSOR_SIZESE    5
+   81 #define VTK_CURSOR_SIZENS    6
+   82 #define VTK_CURSOR_SIZEWE    7
+   83 #define VTK_CURSOR_SIZEALL   8
+   84 #define VTK_CURSOR_HAND      9
+   85 #define VTK_CURSOR_CROSSHAIR 10
  *
  */
 @PluginDescription(author = "hfq", name = "Vtk")
@@ -189,20 +200,21 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 
                 //canvas.lock();
                     // remove outliers
-                RadiusOutlierRemoval rad = new RadiusOutlierRemoval();
-                rad.applyFilter(multibeamToPointCloud.getPoints());
-                pointCloud.setPoints(rad.getOutputPoints());
-                NeptusLog.pub().info("Get number of points: " + pointCloud.getPoints().GetNumberOfPoints());
+//                RadiusOutlierRemoval radOutRem = new RadiusOutlierRemoval();
+//                radOutRem.applyFilter(multibeamToPointCloud.getPoints());
+//                pointCloud.setPoints(radOutRem.getOutputPoints());
+                //NeptusLog.pub().info("Get number of points: " + pointCloud.getPoints().GetNumberOfPoints());
                 
-                        //rad.applyFilter(pointCloud.getPoly());
-                        //pointCloud.setPoints(rad.applyFilter(pointCloud.getPoints()));
-                //pointCloud.setPoints(rad.applyFilter(multibeamToPointCloud.getPoints()));             
-                //pointCloud.setPoints(multibeamToPointCloud.getPoints());
+                StatisticalOutlierRemoval statOutRem = new StatisticalOutlierRemoval();
+                //statOutRem.applyFilter(multibeamToPointCloud.getPoints());
+                statOutRem.applyFilter(multibeamToPointCloud.getPoints());
+                pointCloud.setPoints(statOutRem.getOutputPoints());
                 
                 pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());               
                 // create an actor from parsed beams 
                 pointCloud.createLODActorFromPoints();
                 
+                Utils.delete(multibeamToPointCloud.getPoints());             
                 //canvas.unlock();
                 
                     // add parsed beams stored on pointcloud to canvas
@@ -226,6 +238,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 canvas.GetRenderer().AddActor(noBeamsText.getText3dActor());
             }
             canvas.RenderSecured();
+            canvas.GetRenderWindow().SetCurrentCursor(9);
+            
             canvas.GetRenderer().ResetCamera();
         }      
         return this;

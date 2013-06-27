@@ -43,21 +43,35 @@ public class CalcUtils {
      * @return
      */
     public static float distanceBetween2Points (float p1[], float p2[]) {      
-        return ( ( p1[0] - p2[0] ) * ( p1[0] - p2[0] ) + 
+        return (float) (Math.sqrt(  ( p1[0] - p2[0] ) * ( p1[0] - p2[0] ) + 
                 ( p1[1] - p2[1] ) * ( p1[1] - p2[1] ) + 
-                ( p1[2] - p2[2] ) * ( p1[2] - p2[2] ));
+                ( p1[2] - p2[2] ) * ( p1[2] - p2[2] ) ) );
         
     }
 
     /**
-     * @param p
-     * @param pK
+     * @param p1
+     * @param p2
      * @return
      */
     public static double distanceBetween2Points(double[] p1, double[] p2) {
-        return ( ( p1[0] - p2[0] ) * ( p1[0] - p2[0] ) + 
+        return (Math.sqrt( ( p1[0] - p2[0] ) * ( p1[0] - p2[0] ) + 
                 ( p1[1] - p2[1] ) * ( p1[1] - p2[1] ) + 
-                ( p1[2] - p2[2] ) * ( p1[2] - p2[2] ));
+                ( p1[2] - p2[2] ) * ( p1[2] - p2[2] ) ) );
     }
     
+    /**
+     * 
+     * @param sum - sum of values
+     * @param sqSum - sum of the square values
+     * @param numberValues
+     * @return
+     */
+    public static double stddev(double sum, double sqSum, int numberValues) {
+        double stddev = 0.0;
+        
+        double variance = (sqSum - (sum * sum)/numberValues) / (numberValues - 1);
+        stddev = Math.sqrt(variance);
+        return stddev;
+    }
 }

@@ -287,28 +287,38 @@ public class KeyboardEvent  implements KeyListener{
                 if (!captionEnabled) {
                     try {
                         canvas.lock();
-                        vtkActorCollection actorCollection = new vtkActorCollection();
-                        actorCollection = renderer.GetActors();
-                        actorCollection.InitTraversal();
-                        for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
-                            vtkLODActor tempActor = new vtkLODActor();
-                            tempActor = (vtkLODActor) actorCollection.GetNextActor();
-                            setOfClouds = linkedHashMapCloud.keySet();
-                            for (String sKey : setOfClouds) {
-                                vtkLODActor tempActorFromHashMap = new vtkLODActor();
-                                pointCloud = linkedHashMapCloud.get(sKey);
-                                tempActorFromHashMap = pointCloud.getCloudLODActor();
-                                if (tempActor.equals(tempActorFromHashMap)) {
-                                    captionInfo = new Caption(4, 250, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(), 
-                                            pointCloud.getBounds(), pointCloud.getMemorySize());
-                                    renderer.AddActor(captionInfo.getCaptionNumberOfPointsActor());
-                                    renderer.AddActor(captionInfo.getCaptionCloudNameActor());
-                                    renderer.AddActor(captionInfo.getCaptionMemorySizeActor());
-                                    renderer.AddActor(captionInfo.getCaptionCloudBoundsActor());
-                                    interactor.Render();
-                                }
-                            }
-                        }
+                        // vtkActorCollection actorCollection = new vtkActorCollection();
+                        // actorCollection = renderer.GetActors();
+                        // actorCollection.InitTraversal();
+                        // for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
+                        // vtkLODActor tempActor = new vtkLODActor();
+                        // tempActor = (vtkLODActor) actorCollection.GetNextActor();
+                        // setOfClouds = linkedHashMapCloud.keySet();
+                        // for (String sKey : setOfClouds) {
+                        // vtkLODActor tempActorFromHashMap = new vtkLODActor();
+                        // pointCloud = linkedHashMapCloud.get(sKey);
+                        // tempActorFromHashMap = pointCloud.getCloudLODActor();
+                        // if (tempActor.equals(tempActorFromHashMap)) {
+                        // captionInfo = new Caption(4, 250, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(),
+                        // pointCloud.getBounds(), pointCloud.getMemorySize());
+                        // renderer.AddActor(captionInfo.getCaptionNumberOfPointsActor());
+                        // renderer.AddActor(captionInfo.getCaptionCloudNameActor());
+                        // renderer.AddActor(captionInfo.getCaptionMemorySizeActor());
+                        // renderer.AddActor(captionInfo.getCaptionCloudBoundsActor());
+                        // interactor.Render();
+                        // }
+                        // }
+                        // }
+                        // setOfClouds = linkedHashMapCloud.keySet();
+                        captionInfo = new Caption(4, 250, linkedHashMapCloud.get("multibeam").getNumberOfPoints(),
+                                linkedHashMapCloud.get("multibeam").getCloudName(), linkedHashMapCloud.get("multibeam")
+                                        .getBounds(), linkedHashMapCloud.get("multibeam").getMemorySize());
+
+                        renderer.AddActor(captionInfo.getCaptionNumberOfPointsActor());
+                        renderer.AddActor(captionInfo.getCaptionCloudNameActor());
+                        renderer.AddActor(captionInfo.getCaptionMemorySizeActor());
+                        renderer.AddActor(captionInfo.getCaptionCloudBoundsActor());
+
                         captionEnabled = true;
                         canvas.unlock();
                     }

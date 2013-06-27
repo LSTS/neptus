@@ -93,7 +93,8 @@ public class PointCloud<T extends PointXYZ> {
             getPoly().Update();
             setBounds(getPoly().GetBounds());
             
-            setMemorySize(getPoly().GetActualMemorySize());
+            //setMemorySize(getPoly().GetActualMemorySize());
+
             
             getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds);
             
@@ -105,6 +106,8 @@ public class PointCloud<T extends PointXYZ> {
             getCloudLODActor().SetMapper(map);
             getCloudLODActor().GetProperty().SetPointSize(1.0);
             getCloudLODActor().GetProperty().SetRepresentationToPoints();
+            
+            setMemorySize(map.GetInput().GetActualMemorySize());
         }
         catch (Exception e) {
             e.printStackTrace();
