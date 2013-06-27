@@ -45,14 +45,16 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.imc.AlignmentState;
 import pt.up.fe.dceg.neptus.imc.EntityParameter;
 import pt.up.fe.dceg.neptus.imc.EntityState;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SetEntityParameters;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.EntitiesResolver;
 
@@ -63,15 +65,18 @@ import com.google.common.eventbus.Subscribe;
  * @author zp
  */
 @Popup(accelerator=KeyEvent.VK_I)
-public class ImuAlignmentPanel extends SimpleSubPanel {
+public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdates {
 
     private static final long serialVersionUID = -1330079540844029305L;
     protected JToggleButton enableImu;
     protected JButton doAlignment;
     protected JEditorPane status;
 
-    @NeptusProperty(name="IMC Entity Label")
-    public String imuEntityLabel = "CPU";
+    @NeptusProperty(name="IMU Entity Label")
+    public String imuEntity = "LBL";
+
+    @NeptusProperty(name="Navigation Entity Label")
+    public String navEntity = "Navigation";
 
     @NeptusProperty(name="Square Side Length")
     public double squareSideLength = 50;
@@ -80,6 +85,7 @@ public class ImuAlignmentPanel extends SimpleSubPanel {
     protected ImageIcon redLed = ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/alignment/led_red.png");
     protected ImageIcon grayLed = ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/alignment/led_none.png");
 
+    protected AlignmentState alignState;
 
     public ImuAlignmentPanel(ConsoleLayout console) {
         super(console);        
@@ -112,6 +118,26 @@ public class ImuAlignmentPanel extends SimpleSubPanel {
         add(status, BorderLayout.CENTER);
     }
 
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
+     */
+    @Override
+    public long millisBetweenUpdates() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public boolean update() {
+        status.setText(statusText());
+        return true;
+    }
+
+    public String statusText() {
+        return "";
+    }
+
     public void doAlignment() {
         System.out.println("Do Alignment");
     }
@@ -120,7 +146,7 @@ public class ImuAlignmentPanel extends SimpleSubPanel {
         System.out.println("Toggle IMU");
         Vector<EntityParameter> params = new Vector<>();
         params.add(new EntityParameter("Active", ""+newState));
-        SetEntityParameters m = new SetEntityParameters(imuEntityLabel, params);
+        SetEntityParameters m = new SetEntityParameters(imuEntity, params);
         send(m);
         m.dump(System.out);
     }
@@ -132,34 +158,44 @@ public class ImuAlignmentPanel extends SimpleSubPanel {
     }
 
     @Subscribe
-    public void on(EntityState entityState) {
+    public void on(ConsoleEventMainSystemChange evt) {
 
+    }
+
+    @Subscribe
+    public void on(AlignmentState alignmentState) {
+        
         if (getConsole().getMainSystem() == null)
             return;
 
-        if (!entityState.getSourceName().equals(getConsole().getMainSystem()))
+        if (!alignmentState.getSourceName().equals(getConsole().getMainSystem()))
             return;
 
-        String entityName = EntitiesResolver.resolveName(getConsole().getMainSystem(), (int)entityState.getSrcEnt());
-
-        if (entityName == null)
-            return;
+        this.alignState = alignmentState;
         
-        if (entityName.equals(imuEntityLabel)) {
-            switch (entityState.getState()) {
-                case NORMAL:
-                    
-                    enableImu.setIcon(greenLed);
-                    enableImu.setSelected(true);
-                    enableImu.setEnabled(true);
-                    break;
-                default:
-                    enableImu.setIcon(redLed);
-                    enableImu.setEnabled(true);
-                    enableImu.setSelected(false);
-                    break;
-            }
+        switch (alignmentState.getState()) {
+            case ALIGNED:
+                enableImu.setIcon(greenLed);
+                enableImu.setSelected(true);
+                enableImu.setToolTipText(I18n.text("IMU aligned. Vehicle can be used in dead-reckoning mode."));
+                enableImu.setEnabled(true);
+                break;
+                
+            case NOT_ALIGNED:                
+                enableImu.setIcon(redLed);
+                enableImu.setEnabled(true);
+                enableImu.setToolTipText(I18n.text("IMU is not aligned"));
+                enableImu.setSelected(false);
+                break;
+                
+            default:
+                enableImu.setIcon(grayLed);
+                enableImu.setEnabled(false);
+                enableImu.setToolTipText(I18n.text("IMU cannot be aligned"));
+                enableImu.setSelected(false);
+                break;
         }
+
     }
 
     @Override
