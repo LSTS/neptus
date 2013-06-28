@@ -46,6 +46,7 @@ import pt.up.fe.dceg.neptus.gui.InfiniteProgressPanel;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfGenericIterator;
+import pt.up.fe.dceg.neptus.mra.exporters.CSVExporter;
 import pt.up.fe.dceg.neptus.mra.exporters.ImcTo837;
 import pt.up.fe.dceg.neptus.mra.exporters.KMLExporter;
 import pt.up.fe.dceg.neptus.mra.exporters.MatExporter;
@@ -224,6 +225,7 @@ public class MRAPanel extends JPanel {
                 new PCDExporter(source),
                 new MatExporter(source),
                 new KMLExporter(this, source),
+                new CSVExporter(source),
                 new XtfExporter(source)
         }; 
         
