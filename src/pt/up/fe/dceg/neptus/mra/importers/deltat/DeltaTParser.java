@@ -205,7 +205,6 @@ public class DeltaTParser implements BathymetryParser {
             DeltaTHeader header = new DeltaTHeader();
             header.parse(buf);
             
-//            System.out.println(header.timestamp);
             // Parse and process data ( no need to create another structure for this )
             buf = channel.map(MapMode.READ_ONLY, curPos + 256, header.numBeams * 2);
             data = new BathymetryPoint[header.numBeams];

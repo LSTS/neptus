@@ -57,11 +57,13 @@ public class SidescanToolbar extends JToolBar {
     SidescanPanel panel;
     
     ButtonGroup bgroup = new ButtonGroup();
+    
     JToggleButton btnMeasure = new JToggleButton(I18n.text("Measure"));
     JToggleButton btnInfo = new JToggleButton(I18n.text("Info"));
     JToggleButton btnZoom = new JToggleButton(I18n.text("Zoom"));
     JToggleButton btnMark = new JToggleButton(I18n.text("Mark"));
-
+    JToggleButton btnRecord = new JToggleButton(I18n.text("Record"));
+    
     JLabel lblNormalization = new JLabel(I18n.text("Normalization"));
     JLabel lblTVG = new JLabel(I18n.textc("TVG", "Time Variable Gain"));
 
@@ -100,8 +102,10 @@ public class SidescanToolbar extends JToolBar {
         public void actionPerformed(ActionEvent e) {
             panel.config.tvgGain = new Double(txtTVG.getText());
             panel.config.normalization = new Double(txtNormalization.getText());
+            panel.record(btnRecord.isSelected());
         };  
     };
+    
     
     
     public SidescanToolbar(SidescanPanel panel) {
@@ -129,11 +133,13 @@ public class SidescanToolbar extends JToolBar {
         
         addSeparator();
         add(btnConfig);
+        add(btnRecord);
         
         btnInfo.addActionListener(alMode);
         btnZoom.addActionListener(alMode);
         btnMeasure.addActionListener(alMode);
         btnMark.addActionListener(alMode);
+        btnRecord.addActionListener(alGains);
         
         txtNormalization.addActionListener(alGains);
         txtTVG.addActionListener(alGains);

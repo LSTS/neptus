@@ -33,7 +33,10 @@ package pt.up.fe.dceg.neptus.plugins.sidescan;
 
 import java.awt.Component;
 import java.awt.Graphics;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -96,6 +99,8 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         this.mraPanel = panel;
     }
     
+    protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
+    
     public void initialize(IMraLogGroup source) {
         ssParser = SidescanParserFactory.build(source);
 
@@ -105,8 +110,13 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         lastUpdateTime = firstPingTime;
         
         for(Integer subsys : ssParser.getSubsystemList()) {
+            System.out.println(subsys);
             sidescanPanels.add(new SidescanPanel(this, ssParser, subsys));
         }
+        
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+        
+        System.out.println(fmt.format(new Date(firstPingTime)) + " " + fmt.format(new Date(lastPingTime)) + " " + (lastPingTime - firstPingTime));
         
         timeline = new Timeline(0, (int) (lastPingTime - firstPingTime), 30, 1000, false);
         timeline.getSlider().setValue(0);
