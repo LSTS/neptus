@@ -88,8 +88,7 @@ import pt.up.fe.dceg.neptus.util.coord.MapTileUtil;
  * @author Paulo Dias
  * @author ZP
  */
-public class LocationType implements XmlOutputMethods, Serializable,
-Comparable<LocationType> {
+public class LocationType implements XmlOutputMethods, Serializable, Comparable<LocationType>, Cloneable {
 
     /**
      * 13/12/2010 - pdias - Added Serializable interface for S57Map plugin

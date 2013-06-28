@@ -58,6 +58,7 @@
 	<classpathentry excluding="pt/up/fe/dceg/neptus/plugins/vtk/utils/MultibeamDeltaTParser.java" kind="src" path="plugins-dev/vtk"/>
 	<classpathentry kind="src" path="plugins-dev/followRef"/>
 	<classpathentry kind="src" path="plugins-dev/imu-alignment"/>
+	<classpathentry kind="src" path="plugins-dev/envdisp"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
