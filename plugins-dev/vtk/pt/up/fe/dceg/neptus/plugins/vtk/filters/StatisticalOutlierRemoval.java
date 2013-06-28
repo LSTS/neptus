@@ -50,13 +50,14 @@ import vtk.vtkPoints;
  * During the next iteration the point will be classified as inlier or outlier if their average distance is below or
  * above this threshold respectively
  *
+ * meank = 10; stdMul = 0.5
  */
 public class StatisticalOutlierRemoval {
     
         // Number of points to use for the mean distance estimation
-    private int meanK = 10;
+    private int meanK = 30;
         // Standard deviations threshold multiplier
-    private double stdMul = 0.5;   
+    private double stdMul = 1.0;   
     private vtkPoints outputPoints;
     
     /**
@@ -76,6 +77,7 @@ public class StatisticalOutlierRemoval {
             
             vtkKdTree kdTree = new vtkKdTree();
             kdTree.BuildLocatorFromPoints(points);
+            //kdTree.PrintVerboseTree();   
             
             double[] meanDistances = new double[points.GetNumberOfPoints()];
             double meanDistancesSum = 0.0;
@@ -107,6 +109,7 @@ public class StatisticalOutlierRemoval {
             double stddev = CalcUtils.stddev(meanDistancesSum, sqSumDistances, points.GetNumberOfPoints());
             
             double distanceThreshold = mean + stdMul * stddev;
+//            double distanceThreshold2 = mean - stdMul * stddev; 
             
             NeptusLog.pub().info("Mean: " + mean);
             NeptusLog.pub().info("StdDev: " + stddev);
@@ -115,9 +118,14 @@ public class StatisticalOutlierRemoval {
                 // check wether it is inlier or outlier
             for (int c = 0; c < points.GetNumberOfPoints(); ++c) {
                 if (meanDistances[c] <= distanceThreshold) {
+//                    if (meanDistances[c] >= distanceThreshold2) {
                     getOutputPoints().InsertPoint(outputId, points.GetPoint(c));
                     ++outputId;
-                }
+//                    }
+//                    else {
+//                        NeptusLog.pub().info("meand distance less than the distanceThreshold");
+//                    }
+                } 
             }
             
             NeptusLog.pub().info("Statistical outliers removal end: " + System.currentTimeMillis());
@@ -126,108 +134,18 @@ public class StatisticalOutlierRemoval {
             float perc = (float) getOutputPoints().GetNumberOfPoints()/points.GetNumberOfPoints();
             NeptusLog.pub().info("Percentage of inlier points: " + perc);
             
-            if (perc >= 0.80) {
+            if (perc >= 0.90) {
                 setOutputPoints(outputPoints);
-                //return getOutputPoints();
             }
-
             else {
                 NeptusLog.pub().info("Relax your parameters for radius outliers removal");
                 setOutputPoints(points);
-                //return points;
             }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
-//    public void applyFilter (vtkPoints points) {
-//        try {
-//            NeptusLog.pub().info("Statistical outliers removal start: " + System.currentTimeMillis());
-//            
-//            vtkKdTree kdTree = new vtkKdTree();
-//            kdTree.BuildLocatorFromPoints(points);
-//            //kdTree.PrintVerboseTree();     
-//            
-//            setOutputPoints(new vtkPoints());
-//            
-//            int outputId = 0;
-//            
-//            double[] meanDistances = new double[points.GetNumberOfPoints()];
-//            double SumMeanDistances = 0.0;
-//                        
-//            meanK++; // because the indice 0 from N closests points is the query point
-//            
-//            if (points.GetNumberOfPoints() != 0) {
-//                for (int i = 0; i < points.GetNumberOfPoints(); ++i) {
-//                    vtkIdList idsFoundPts = new vtkIdList();
-//
-//                    kdTree.FindClosestNPoints(meanK , points.GetPoint(i), idsFoundPts);  // indice 0 is the query point
-//
-//                    if (i == 0)
-//                    {
-//                        double sum = 0.0;
-//                        double sqSum = 0.0;
-//                        
-//                        for (int k = 1; k < idsFoundPts.GetNumberOfIds(); ++k) {
-//                            double[] distances = new double[meanK];
-//                            
-//                            distances[k] = CalcUtils.distanceBetween2Points(points.GetPoint(i),
-//                                    points.GetPoint(idsFoundPts.GetId(k)));
-//                            // NeptusLog.pub().info("Neighbour " + k + ":" + points.GetPoint(idsFoundPts.GetId(k)));
-//
-////                            sumDistances += (float) CalcUtils.distanceBetween2Points(points.GetPoint(i),
-////                                    points.GetPoint(idsFoundPts.GetId(k)));
-//                            sum += distances[k];
-//                            sqSum += distances[k] * distances[k];
-//                            NeptusLog.pub().info("distance " + k + " :" + distances[k]);
-//                        }
-//                        //NeptusLog.pub().info("medium dist: " + sumDistances/meanK);
-//                        //float meanQueryPointDist = sumDistances/(meanK-1);
-//                        meanDistances[i] = sum/(meanK - 1);
-//                        //allSumMeanDistances += meanQueryPointDist;
-//                        SumMeanDistances += meanDistances[i];
-//                        //NeptusLog.pub().info("Mean Query point distance: " + meanQueryPointDist);
-//                        NeptusLog.pub().info("Mean Query point distance to neighbours: " + meanDistances[i]);
-//                        
-//                        double stddev = 0.0;
-//                        stddev = CalcUtils.stddev(sum, sqSum, (meanK - 1));
-//                        
-//                        NeptusLog.pub().info("Standard Dev: " + stddev);
-//                    }
-//                }
-//                double meanCloudDist = (SumMeanDistances/(points.GetNumberOfPoints()));
-//                NeptusLog.pub().info("meanCloudDist: " + meanCloudDist);
-//                
-//            }
-//            else {
-//                NeptusLog.pub().error("Pointcloud is empty, no points to process");
-//            }
-//            
-//            NeptusLog.pub().info("Statistical outliers removal end: " + System.currentTimeMillis());
-//                       
-//            NeptusLog.pub().info("Number of input points: " + points.GetNumberOfPoints());
-//            NeptusLog.pub().info("Number of points on output: " + getOutputPoints().GetNumberOfPoints());
-//            
-//            float perc = (float) getOutputPoints().GetNumberOfPoints()/points.GetNumberOfPoints();
-//            NeptusLog.pub().info("Percentage of inlier points: " + perc);
-//            
-//            if (perc >= 0.80) {
-//                setOutputPoints(outputPoints);
-//                //return getOutputPoints();
-//            }
-//
-//            else {
-//                NeptusLog.pub().info("Relax your parameters for Statistical outliers removal");
-//                setOutputPoints(points);
-//                //return points;
-//            }
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     /**
      * @return the outputPoints

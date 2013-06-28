@@ -248,8 +248,8 @@ public class KeyboardEvent  implements KeyListener{
 //                    e2.printStackTrace();
 //                }
 //                break;
-//            case KeyEvent.VK_P:
-//                try {
+            case KeyEvent.VK_P:         // FIXME the default vtk key handler creates a vtkOpenGL object that sends a exception on depth exaggeration (casting vtkLODActor to vtkOpenGL)
+                try {
 //                    if (!neptusInteractorStyle.pointRepEnabled) {
 //                        neptusInteractorStyle.pointRepEnabled = true;
 //                        neptusInteractorStyle.solidRepEnabled = false;
@@ -262,11 +262,11 @@ public class KeyboardEvent  implements KeyListener{
 //                            tempActor.GetProperty().SetRepresentationToPoints();
 //                        }
 //                    }
-//                }
-//                catch (Exception e1) {
-//                    e1.printStackTrace();
-//                }
-//                break;
+                }
+                catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+                break;
             case KeyEvent.VK_M:
                 try {
                     canvas.lock();
