@@ -31,6 +31,9 @@
  */
 package pt.up.fe.dceg.neptus.comm.iridium;
 
+import java.util.Collection;
+import java.util.Vector;
+
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCInputStream;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
@@ -71,6 +74,14 @@ public class ImcIridiumMessage extends IridiumMessage {
      */
     public final void setMsg(IMCMessage msg) {
         this.msg = msg;
+    }
+    
+    @Override
+    public Collection<IMCMessage> asImc() {
+       Vector<IMCMessage> vec = new Vector<>();
+       if (msg != null)
+           vec.add(msg);
+       return vec;
     }
 
 }

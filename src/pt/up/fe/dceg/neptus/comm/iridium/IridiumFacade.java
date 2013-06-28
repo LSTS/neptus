@@ -33,16 +33,60 @@ package pt.up.fe.dceg.neptus.comm.iridium;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 
 /**
  * @author zp
  *
  */
-public interface IridiumMessenger {
+public class IridiumFacade implements IridiumMessenger {
+    
+    Vector<IridiumMessenger> messengers = new Vector<>();
+    
+    @Override
+    public void sendMessage(IridiumMessage msg) throws Exception {
+        int sent = 0;
+        for (IridiumMessenger m : messengers) {
+            if (m.isAvailable()) {
+                try {
+                    m.sendMessage(msg);
+                    sent++;
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        if (sent == 0)
+            throw new Exception("Unable to send iridium message");
+        NeptusLog.pub().info("Iridium message sent through "+sent+" interfaces");
+    }
 
-    public void sendMessage(IridiumMessage msg) throws Exception;
-    public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception;
-    public boolean isAvailable();
+    public void sendMessage(IMCMessage msg) throws Exception {
+        ImcIridiumMessage imsg = new ImcIridiumMessage();
+        imsg.setMsg(msg);
+        imsg.setDestination(msg.getDst());
+        imsg.setSource(msg.getSrc());
+        imsg.setMessageType(msg.getMgid());
+        sendMessage(imsg);
+    }
+
+    @Override
+    public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean isAvailable() {
+        for (IridiumMessenger m : messengers) {
+            if (m.isAvailable())
+                return true;
+        }
+        return false;
+    }
+
 }

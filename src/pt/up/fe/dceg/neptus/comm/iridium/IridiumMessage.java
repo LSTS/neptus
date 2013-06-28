@@ -33,10 +33,12 @@ package pt.up.fe.dceg.neptus.comm.iridium;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCInputStream;
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
 
 /**
@@ -48,8 +50,9 @@ public abstract class IridiumMessage {
     public int source, destination, message_type;
     public abstract int serializeFields(IMCOutputStream out) throws Exception;
     public abstract int deserializeFields(IMCInputStream in) throws Exception;
+    public abstract Collection<IMCMessage> asImc();
     private static LinkedHashMap<Integer, Class<? extends IridiumMessage> > iridiumTypes = new LinkedHashMap<>();
-
+    
     static {
         iridiumTypes.put(2001, DeviceUpdate.class);
         iridiumTypes.put(2003, ActivateSubscription.class);

@@ -31,9 +31,9 @@
  */
 package pt.up.fe.dceg.neptus.comm.iridium;
 
+import java.util.Collection;
 import java.util.Date;
-
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import java.util.Vector;
 
 /**
  * @author zp
@@ -48,17 +48,11 @@ public class DuneIridiumMessenger implements IridiumMessenger {
         // TODO Auto-generated method stub
 
     }
-
+   
     @Override
-    public void sendMessage(IMCMessage msg) throws Exception {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void pollMessages(Date timeSince) throws Exception {
-        // TODO Auto-generated method stub
-
+    public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
+        // FIXME
+        return new Vector<>();
     }
     
     @Override

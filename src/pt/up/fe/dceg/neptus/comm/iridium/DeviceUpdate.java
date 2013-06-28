@@ -31,10 +31,15 @@
  */
 package pt.up.fe.dceg.neptus.comm.iridium;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.imc.IMCInputStream;
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
+import pt.up.fe.dceg.neptus.imc.RemoteSensorInfo;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp
@@ -77,6 +82,24 @@ public class DeviceUpdate extends IridiumMessage {
             positions.put(pos.id, pos);
         }
         return read;
+    }
+    
+    @Override
+    public Collection<IMCMessage> asImc() {
+        Vector<IMCMessage> msgs = new Vector<>();
+        
+        for (Position pos : positions.values()) {
+            RemoteSensorInfo sensorInfo = new RemoteSensorInfo();
+            sensorInfo.setLat(pos.latitude);
+            sensorInfo.setLon(pos.longitude);
+            sensorInfo.setAlt(0);
+            sensorInfo.setId(ImcSystemsHolder.translateImcIdToSystemName(pos.id));
+            sensorInfo.setSrc(getSource());
+            sensorInfo.setDst(getDestination());
+            msgs.add(sensorInfo);
+        }
+        
+        return msgs;
     }
 
     public class Position {
