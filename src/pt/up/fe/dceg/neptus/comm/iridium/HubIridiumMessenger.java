@@ -33,6 +33,9 @@ package pt.up.fe.dceg.neptus.comm.iridium;
 
 import java.util.Date;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 
 /**
@@ -46,13 +49,21 @@ public class HubIridiumMessenger implements IridiumMessenger {
     
     @Override
     public void sendMessage(IridiumMessage msg) throws Exception {
+        byte[] data = msg.serialize();
         
+        HttpClient client = new HttpClient();
+        PostMethod post = new PostMethod(serverUrl+"postMessage");
+        post.set
     }
 
     @Override
     public void sendMessage(IMCMessage msg) throws Exception {
-        // TODO Auto-generated method stub
-
+        ImcIridiumMessage imsg = new ImcIridiumMessage();
+        imsg.setMsg(msg);
+        imsg.setDestination(msg.getDst());
+        imsg.setSource(msg.getSrc());
+        imsg.setMessageType(msg.getMgid());
+        sendMessage(imsg);
     }
 
     @Override
