@@ -119,10 +119,6 @@ public class MultibeamToPointCloud {
                     getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
                             tempLoc.getOffsetEast(), 
                             p.depth - tideOffset);
-                    
-//                    pointCloud.getVerts().InsertCellPoint(
-//                            pointCloud.getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), tempLoc.getOffsetEast(),
-//                                    p.depth - tideOffset));
 
                     ++countPoints;
                 }
@@ -144,10 +140,6 @@ public class MultibeamToPointCloud {
                     getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
                             tempLoc.getOffsetEast(), 
                             p.depth - tideOffset);
-                    
-                    //pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
-                    //        tempLoc.getOffsetEast(), 
-                    //        p.depth - tideOffset));
                 
                     ++countPoints;
                 }

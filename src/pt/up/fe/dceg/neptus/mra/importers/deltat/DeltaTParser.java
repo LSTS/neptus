@@ -234,6 +234,9 @@ public class DeltaTParser implements BathymetryParser {
                     continue;
                 }
                 
+                // range corrected with soundVelocity
+                range = range * header.soundVelocity / 1500;
+                           
                 double angle = header.startAngle + header.angleIncrement * c;         
                 float height = (float) (range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth());
 

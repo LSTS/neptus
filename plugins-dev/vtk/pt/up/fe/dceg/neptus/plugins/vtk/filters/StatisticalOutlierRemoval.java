@@ -51,6 +51,8 @@ import vtk.vtkPoints;
  * above this threshold respectively
  *
  * meank = 10; stdMul = 0.5
+ * for cadiz meank = 20; stdMul = 0.2
+ * for aplds meank = 20; stdMul = 0.1
  */
 public class StatisticalOutlierRemoval {
     

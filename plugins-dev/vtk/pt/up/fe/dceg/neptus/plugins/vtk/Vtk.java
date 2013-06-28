@@ -208,7 +208,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 StatisticalOutlierRemoval statOutRem = new StatisticalOutlierRemoval();
                 //statOutRem.applyFilter(multibeamToPointCloud.getPoints());
                 statOutRem.setMeanK(20);
-                statOutRem.setStdMul(0.1);
+                statOutRem.setStdMul(0.2);
                 statOutRem.applyFilter(multibeamToPointCloud.getPoints());
                 pointCloud.setPoints(statOutRem.getOutputPoints());
                 

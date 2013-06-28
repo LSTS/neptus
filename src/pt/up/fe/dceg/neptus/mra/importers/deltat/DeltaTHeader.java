@@ -37,6 +37,8 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author jqcorreia
  *
@@ -52,9 +54,13 @@ public class DeltaTHeader {
     public float angleIncrement;
     public short range;
     
-    double speed;
+    public double speed;
     
     public long timestamp;
+    
+    public boolean hasIntensity;     // Intensity Bytes included 0 = No, 1 = Yes
+    
+    public float soundVelocity;
     
     private static Calendar cal;
     private static Pattern pTimeStamp;
@@ -79,9 +85,22 @@ public class DeltaTHeader {
         startAngle = b.getShort(76) / 100f - 180;
         angleIncrement = b.get(78) / 100f;
         range = b.getShort(79);
+        
+        byte vel83 = b.get(83);
+        if (!isBitSet(vel83, 7))
+            soundVelocity = 1500f;
+        else {
+            byte vel84 = b.get(84);
+            soundVelocity = (float) ((((vel83 & 0x7F) << 8) | vel84)/10.0);       
+        }      
+        //NeptusLog.pub().info("Sound Vel: " + soundVelocity);
+        
         rangeResolution = b.getShort(85);
         
         speed = (b.get(61) / 10.0) * 0.51444;
+        
+        byte hasInt = b.get(117);
+        hasIntensity = (hasInt == 1) ? true : false;
         
         // Timestamp processing
         b.position(8);
@@ -126,5 +145,9 @@ public class DeltaTHeader {
                 Integer.valueOf(m.group(5)), Integer.valueOf(m.group(6)));
         cal.set(Calendar.MILLISECOND, Integer.valueOf(millisStr.substring(1, 4)));
         timestamp = cal.getTimeInMillis();
+    }
+    
+    private static Boolean isBitSet (byte b, int bit) {
+        return (b & (1 << bit)) != 0;
     }
 }
