@@ -58,8 +58,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.console.events.ConsoleEventPlanChange;
 import pt.up.fe.dceg.neptus.console.plugins.IPlanSelection;
 import pt.up.fe.dceg.neptus.console.plugins.ISystemsSelection;
 import pt.up.fe.dceg.neptus.console.plugins.ITransponderSelection;
@@ -121,8 +124,8 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 @PluginDescription(name = "Mission Tree", author = "José Pinto, Paulo Dias", icon = "pt/up/fe/dceg/neptus/plugins/planning/mission_tree.png", 
 category = CATEGORY.PLANNING, version = "1.5.0")
 public class MissionTreePanel extends SimpleSubPanel implements MissionChangeListener, MainVehicleChangeListener,
-        DropTargetListener, NeptusMessageListener, IPlanSelection, IPeriodicUpdates, ConfigurationListener,
-        ITransponderSelection {
+DropTargetListener, NeptusMessageListener, IPlanSelection, IPeriodicUpdates, ConfigurationListener,
+ITransponderSelection {
 
     @NeptusProperty(name = "Use Plan DB Sync. Features", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
     public boolean usePlanDBSyncFeatures = true;
@@ -208,7 +211,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
         setupListeners(getConsole(), pdbControl);
     }
-    
+
     public void setupListeners(final ConsoleLayout console2, final PlanDBControl pdbControl) {
         browser.addTreeListener(console2);
 
@@ -291,22 +294,22 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                                 }
                             });
                             popupMenu.add("Test '" + selection + "' from " + console2.getMainSystem())
-                                    .addActionListener(new ActionListener() {
-                                        @Override
-                                        public void actionPerformed(ActionEvent e) {
-                                            if (selection != null) {
-                                                PlanType sel = (PlanType) selection;
-                                                IMCMessage pm1 = sel.asIMCPlan();
-                                                PlanType p2 = IMCUtils.parsePlanSpecification(new MissionType(), pm1);
-                                                IMCMessage pm2 = p2.asIMCPlan();
-                                                NeptusLog.pub().info("<###>.....");
-                                                NeptusLog.pub().info("<###> "+ByteUtil.encodeAsString(pm1.payloadMD5()));
-                                                NeptusLog.pub().info("<###> "+ByteUtil.encodeAsString(pm2.payloadMD5()));
-                                                NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(pm1));
-                                                NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(pm2));
-                                            }
-                                        }
-                                    });
+                            .addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    if (selection != null) {
+                                        PlanType sel = (PlanType) selection;
+                                        IMCMessage pm1 = sel.asIMCPlan();
+                                        PlanType p2 = IMCUtils.parsePlanSpecification(new MissionType(), pm1);
+                                        IMCMessage pm2 = p2.asIMCPlan();
+                                        NeptusLog.pub().info("<###>.....");
+                                        NeptusLog.pub().info("<###> "+ByteUtil.encodeAsString(pm1.payloadMD5()));
+                                        NeptusLog.pub().info("<###> "+ByteUtil.encodeAsString(pm2.payloadMD5()));
+                                        NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(pm1));
+                                        NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(pm2));
+                                    }
+                                }
+                            });
                         }
                         State syncState = (State) ((ExtendedTreeNode) selectionNode).getUserInfo().get("sync");
                         if (syncState == null)
@@ -362,27 +365,27 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 else if (selection instanceof PlanDBInfo) {
                     State syncState = selectionNode instanceof ExtendedTreeNode ? (State) ((ExtendedTreeNode) selectionNode)
                             .getUserInfo().get("sync") : null;
-                    if (syncState == null)
-                        syncState = State.LOCAL;
+                            if (syncState == null)
+                                syncState = State.LOCAL;
 
-                    else if (syncState == State.REMOTE) {
-                        addActionGetRemotePlan(console2, pdbControl, selection, popupMenu);
+                            else if (syncState == State.REMOTE) {
+                                addActionGetRemotePlan(console2, pdbControl, selection, popupMenu);
 
-                        addActionRemovePlanRemotely(console2, pdbControl, (Identifiable) selection, popupMenu);
+                                addActionRemovePlanRemotely(console2, pdbControl, (Identifiable) selection, popupMenu);
 
-                        // popupMenu.add(
-                        // I18n.textf("bug Remove '%planName' from %system", selection, console2.getMainSystem()))
-                        // .addActionListener(new ActionListener() {
-                        // @Override
-                        // public void actionPerformed(ActionEvent e) {
-                        // if (selection != null) {
-                        // pdbControl.setRemoteSystemId(console2.getMainSystem());
-                        // PlanDBInfo sel = (PlanDBInfo) selection;
-                        // pdbControl.deletePlan(sel.getPlanId());
-                        // }
-                        // }
-                        // });
-                    }
+                                // popupMenu.add(
+                                // I18n.textf("bug Remove '%planName' from %system", selection, console2.getMainSystem()))
+                                // .addActionListener(new ActionListener() {
+                                // @Override
+                                // public void actionPerformed(ActionEvent e) {
+                                // if (selection != null) {
+                                // pdbControl.setRemoteSystemId(console2.getMainSystem());
+                                // PlanDBInfo sel = (PlanDBInfo) selection;
+                                // pdbControl.deletePlan(sel.getPlanId());
+                                // }
+                                // }
+                                // });
+                            }
                 }
                 else if (selection instanceof TransponderElement) {
 
@@ -511,26 +514,26 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             private <T extends Identifiable> void addActionShare(final T selection, JMenu dissemination,
                     final String objectTypeName) {
                 dissemination.add(I18n.textf("Share '%transponderName'", selection.getIdentification()))
-                        .addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                ImcMsgManager.disseminate((XmlOutputMethods) selection, objectTypeName);
-                            }
-                        });
+                .addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ImcMsgManager.disseminate((XmlOutputMethods) selection, objectTypeName);
+                    }
+                });
             }
 
             private <T> void addActionGetRemotePlan(final ConsoleLayout console2, final PlanDBControl pdbControl,
                     final T selection, JPopupMenu popupMenu) {
                 popupMenu.add(I18n.textf("Get '%planName' from %system", selection, console2.getMainSystem()))
-                        .addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                if (selection != null) {
-                                    pdbControl.setRemoteSystemId(console2.getMainSystem());
-                                    pdbControl.requestPlan(((Identifiable) selection).getIdentification());
-                                }
-                            }
-                        });
+                .addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (selection != null) {
+                            pdbControl.setRemoteSystemId(console2.getMainSystem());
+                            pdbControl.requestPlan(((Identifiable) selection).getIdentification());
+                        }
+                    }
+                });
             }
 
             private <T extends Identifiable> void addActionRemovePlanRemotely(final ConsoleLayout console2,
@@ -540,7 +543,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     public void actionPerformed(ActionEvent e) {
                         if (selection != null) {
                             // PlanType sel = (PlanType) selection;
-                                    pdbControl.setRemoteSystemId(console2.getMainSystem());
+                            pdbControl.setRemoteSystemId(console2.getMainSystem());
                             pdbControl.deletePlan(((Identifiable) selection).getIdentification());
                         }
                     }
@@ -550,16 +553,16 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             private void addActionSendPlan(final ConsoleLayout console2, final PlanDBControl pdbControl,
                     final Object selection, JPopupMenu popupMenu) {
                 popupMenu.add(I18n.textf("Send '%planName' to %system", selection, console2.getMainSystem()))
-                        .addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                if (selection != null) {
-                                    PlanType sel = (PlanType) selection;
-                                    pdbControl.setRemoteSystemId(console2.getMainSystem());
-                                    pdbControl.sendPlan(sel);
-                                }
-                            }
-                        });
+                .addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (selection != null) {
+                            PlanType sel = (PlanType) selection;
+                            pdbControl.setRemoteSystemId(console2.getMainSystem());
+                            pdbControl.sendPlan(sel);
+                        }
+                    }
+                });
             }
 
             /**
@@ -771,7 +774,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
 
 
-    
+
 
     @Override
     public void dropActionChanged(DropTargetDragEvent dtde) {
@@ -811,7 +814,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         // pdbControl = sys.getPlanDBControl();
         if (sys == null) {
             pdbControl = new PlanDBControl();
-        pdbControl.setRemoteSystemId(id);
+            pdbControl.setRemoteSystemId(id);
         }
         else
             pdbControl = sys.getPlanDBControl();
@@ -947,6 +950,11 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             }
         });
         return true;
+    }
+
+    @Subscribe
+    public void on(ConsoleEventPlanChange event) {
+        browser.setSelectedPlan(event.getCurrent());
     }
 
     private ImcSystem[] convertToImcSystemsArray(Vector<ISystemsSelection> sys) {
