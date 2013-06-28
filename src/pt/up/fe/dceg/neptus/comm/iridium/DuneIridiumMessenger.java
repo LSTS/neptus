@@ -31,25 +31,39 @@
  */
 package pt.up.fe.dceg.neptus.comm.iridium;
 
-import pt.up.fe.dceg.neptus.imc.IMCInputStream;
-import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
+import java.util.Date;
+
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
 
 /**
  * @author zp
  *
  */
-public class ActivateSubscription extends IridiumMessage {
+public class DuneIridiumMessenger implements IridiumMessenger {
 
+    boolean available = false;
+    
     @Override
-    public int serializeFields(IMCOutputStream out) throws Exception {
-        // empty
-        return 0;
+    public void sendMessage(IridiumMessage msg) throws Exception {
+        // TODO Auto-generated method stub
+
     }
 
     @Override
-    public int deserializeFields(IMCInputStream in) throws Exception {
-        // empty
-        return 0;
+    public void sendMessage(IMCMessage msg) throws Exception {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void pollMessages(Date timeSince) throws Exception {
+        // TODO Auto-generated method stub
+
+    }
+    
+    @Override
+    public boolean isAvailable() {
+        return available;
     }
 
 }

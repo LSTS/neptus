@@ -45,27 +45,38 @@ public class DeviceUpdate extends IridiumMessage {
     protected LinkedHashMap<Integer, Position> positions = new LinkedHashMap<>();
 
     @Override
-    public void serializeFields(IMCOutputStream out) throws Exception {
+    public int serializeFields(IMCOutputStream out) throws Exception {
+        int read = 0;
         for (Position p : positions.values()) {
             out.writeUnsignedShort(p.id);
+            read+=2;
             out.writeUnsignedInt(Math.round(p.timestamp));
+            read+=4;
             out.writeUnsignedInt(Math.round(Math.toDegrees(p.latitude) * 1000000.0));
+            read+=4;
             out.writeUnsignedInt(Math.round(Math.toDegrees(p.longitude) * 1000000.0));
+            read+=4;            
         }
+        return read;
     }
 
     @Override
-    public void deserializeFields(IMCInputStream in) throws Exception {
+    public int deserializeFields(IMCInputStream in) throws Exception {
         positions.clear();
-
+        int read = 0;
         while (in.available() > 14) {
             Position pos = new Position();
             pos.id = in.readUnsignedShort();
+            read+=2;
             pos.timestamp = in.readUnsignedInt();
+            read+=4;
             pos.latitude = Math.toRadians(in.readUnsignedInt() / 1000000.0);
+            read+=4;
             pos.longitude = Math.toRadians(in.readUnsignedInt() / 1000000.0);
+            read+=4;
             positions.put(pos.id, pos);
         }
+        return read;
     }
 
     public class Position {

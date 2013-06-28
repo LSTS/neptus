@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.comm.iridium;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.LinkedHashMap;
 
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
@@ -45,8 +46,8 @@ import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
 public abstract class IridiumMessage {
 
     public int source, destination, message_type;
-    public abstract void serializeFields(IMCOutputStream out) throws Exception;
-    public abstract void deserializeFields(IMCInputStream in) throws Exception;
+    public abstract int serializeFields(IMCOutputStream out) throws Exception;
+    public abstract int deserializeFields(IMCInputStream in) throws Exception;
     private static LinkedHashMap<Integer, Class<? extends IridiumMessage> > iridiumTypes = new LinkedHashMap<>();
 
     static {
@@ -54,6 +55,17 @@ public abstract class IridiumMessage {
         iridiumTypes.put(2003, ActivateSubscription.class);
         iridiumTypes.put(2004, DeactivateSubscription.class);
         iridiumTypes.put(2005, IridiumCommand.class);        
+    }
+    
+    public byte[] serialize() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IMCOutputStream ios = new IMCOutputStream(baos);
+        ios.setBigEndian(false);
+        ios.writeUnsignedShort(source);
+        ios.writeUnsignedInt(destination);
+        ios.writeUnsignedInt(message_type);
+        serializeFields(ios);
+        return baos.toByteArray();
     }
     
     public static IridiumMessage deserialize(byte[] data) throws Exception {
@@ -80,9 +92,11 @@ public abstract class IridiumMessage {
         }
         iis.close();
         
-        return m;
-        
+        return m;        
     }
+    
+
+    
     /**
      * @return the source
      */
