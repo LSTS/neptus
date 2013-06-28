@@ -43,6 +43,7 @@ public class NameNormalizer {
 	
 	static int count = 0;
 	static Random rnd = new Random(System.currentTimeMillis()); 
+	static StringBuilder builder = new StringBuilder();
 	
     public static String asIdentifier(String text) {
 
@@ -119,7 +120,12 @@ public class NameNormalizer {
     }
     
     public static String getRandomID(String prefix) {
-        return prefix + "_" + rnd.nextInt(10000) + System.currentTimeMillis()%10000;
+        builder.setLength(0);
+        builder.append(prefix);
+        builder.append("_");
+        builder.append(rnd.nextInt(10000));
+        builder.append(builder.append(rnd.nextInt(10000)));
+        return builder.toString();
     }    
     
     public static void main(String args[]) {
