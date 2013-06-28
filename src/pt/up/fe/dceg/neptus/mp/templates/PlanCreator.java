@@ -37,6 +37,7 @@ import java.util.Map;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
+import pt.up.fe.dceg.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
 import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
@@ -55,6 +56,8 @@ import pt.up.fe.dceg.neptus.util.ReflectionUtil;
 public 	
 class PlanCreator {
 	protected PlanType plan;
+	protected double speed = 1000;
+	protected SPEED_UNITS speed_units = SPEED_UNITS.RPM;
 	protected ManeuverLocation loc = new ManeuverLocation();
 	protected int count = 1;
 	
@@ -74,6 +77,11 @@ class PlanCreator {
 	public void setDepth(double depth) {
 	    setZ(depth, ManeuverLocation.Z_UNITS.DEPTH);
 	}
+	
+	public void setSpeed(double speed, SPEED_UNITS units) {
+	    
+	}
+	
 	
 	public void setZ(double z, ManeuverLocation.Z_UNITS units) {
 	    loc.setZ(z);
@@ -145,6 +153,28 @@ class PlanCreator {
 		try {
 			Maneuver man = (Maneuver) manClass.newInstance();
 		
+			try {
+			    Method speedSetter = man.getClass().getMethod("setSpeed", double.class);
+			    Method speedUnitsSetter = man.getClass().getMethod("setSpeedUnits", String.class);
+			    
+			    speedSetter.invoke(man, speed);
+			    switch (speed_units) {
+			        case RPM:
+			            speedUnitsSetter.invoke(man, "RPM");
+			            break;
+			        case METERS_PS:
+			            speedUnitsSetter.invoke(man, "m/s");
+			            break;
+			        case PERCENTAGE:
+			            speedUnitsSetter.invoke(man, "%");
+			            break;
+			        default:
+			            break;
+                }
+			}
+			catch (Exception e) {
+			    e.printStackTrace();
+			}
 			
 			if (properties != null) {
 				for (String key : properties.keySet()) {
