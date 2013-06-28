@@ -491,7 +491,11 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
         for (int i = 0; i < rangeSources.size(); i++) {
             double radius = rangeDistances.get(i) * renderer.getZoom();
             Point2D pt = renderer.getScreenPosition(rangeSources.get(i));
-            g.setColor(Color.orange);
+            if (i < rangeSources.size()-1)
+                g.setColor(new Color(255,128,0,128));
+            else
+                g.setColor(new Color(255,128,0,0));
+            
             g.setStroke(new BasicStroke(2f));
             g.draw(new Ellipse2D.Double(pt.getX() - radius, pt.getY() - radius, radius * 2, radius * 2));
         }
