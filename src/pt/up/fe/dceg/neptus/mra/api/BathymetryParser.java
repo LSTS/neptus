@@ -46,4 +46,6 @@ public interface BathymetryParser {
     public BathymetrySwath nextSwath();
     public BathymetrySwath nextSwath(double prob);
     public void rewind();
+    
+    public boolean getHasIntensity();
 }

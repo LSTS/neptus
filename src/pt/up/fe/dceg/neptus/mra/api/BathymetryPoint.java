@@ -56,7 +56,6 @@ public class BathymetryPoint {
         this.depth = depth;
     }
     
-    
     /**
      * 
      * @param north offset north in meters

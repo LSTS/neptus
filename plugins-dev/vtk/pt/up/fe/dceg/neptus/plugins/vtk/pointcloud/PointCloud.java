@@ -38,6 +38,7 @@ import vtk.vtkLODActor;
 import vtk.vtkPoints;
 import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
+import vtk.vtkShortArray;
 
 /**
  * @author hfq
@@ -71,8 +72,9 @@ public class PointCloud<T extends PointXYZ> {
     
     /**
      * Create a Pointcloud Actor from loaded points and verts
+     * @param intensities 
      */
-    public void createLODActorFromPoints() {
+    public void createLODActorFromPoints(vtkShortArray intensities) {
         try {                                   
             getPoly().SetPoints(getPoints());
             
@@ -96,7 +98,9 @@ public class PointCloud<T extends PointXYZ> {
             //setMemorySize(getPoly().GetActualMemorySize());
 
             
-            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds);
+            
+            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds, intensities);
+            
             
             getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
             

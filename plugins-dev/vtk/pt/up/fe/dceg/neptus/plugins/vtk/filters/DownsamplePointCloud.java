@@ -93,7 +93,7 @@ public class DownsamplePointCloud {
             
             //outputDownsampledCloud.setVerts()
             
-            outputDownsampledCloud.createLODActorFromPoints();
+//            outputDownsampledCloud.createLODActorFromPoints();
             
             //vtkPolyDataMapper outputDataMapper = new vtkPolyDataMapper();
             //outputDataMapper.SetInputConnection(cleanPolyData.GetOutputPort());        

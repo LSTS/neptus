@@ -75,6 +75,8 @@ public class DeltaTParser implements BathymetryParser {
     private int realNumberOfBeams = 0;
     private int totalNumberPoints = 0;
     
+    private boolean hasIntensity = false;
+    
     // public PointCloud<PointXYZ> pointCloud;
     
         // will have a PointCloud as argument
@@ -205,6 +207,8 @@ public class DeltaTParser implements BathymetryParser {
             DeltaTHeader header = new DeltaTHeader();
             header.parse(buf);
             
+            hasIntensity = header.hasIntensity;
+            
             // Parse and process data ( no need to create another structure for this )
             if (header.hasIntensity)
                 buf = channel.map(MapMode.READ_ONLY, curPos + 256, header.numBeams * 4);
@@ -251,8 +255,7 @@ public class DeltaTParser implements BathymetryParser {
                 float oy = (float) (x * Math.cos(yawAngle));
                                
                 if (header.hasIntensity) {
-                    short intensity = buf.getShort(header.numBytes + (c*2) - 1);
-                    NeptusLog.pub().info("intensity: " + intensity);
+                    short intensity = buf.getShort(480 + (c*2) - 1);    // sometimes there's no return = 0
                     data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height, intensity);
                 }
                 else {
@@ -317,6 +320,10 @@ public class DeltaTParser implements BathymetryParser {
     public void rewind() {
         curPos = 0;
         stateParser.firstLogEntry();
+    }
+    
+    public boolean getHasIntensity() {
+        return hasIntensity;
     }
     
 //    public static void main(String[] args) {

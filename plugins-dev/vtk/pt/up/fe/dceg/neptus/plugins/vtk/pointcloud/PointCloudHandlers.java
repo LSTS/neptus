@@ -31,9 +31,11 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkLookupTable;
 import vtk.vtkPolyData;
+import vtk.vtkShortArray;
 import vtk.vtkUnsignedCharArray;
 
 /**
@@ -44,10 +46,12 @@ public class PointCloudHandlers<T extends PointXYZ> {
     private vtkUnsignedCharArray colorsX;
     private vtkUnsignedCharArray colorsY;
     private vtkUnsignedCharArray colorsZ;
+    private vtkShortArray intensities;
     
     private vtkLookupTable lutX;
     private vtkLookupTable lutY;
     private vtkLookupTable lutZ;
+    private vtkLookupTable lutIntensities;
     
     public PointCloudHandlers() {
         setColorsX(new vtkUnsignedCharArray());
@@ -56,14 +60,16 @@ public class PointCloudHandlers<T extends PointXYZ> {
         setLutX(new vtkLookupTable());
         setLutY(new vtkLookupTable());
         setLutZ(new vtkLookupTable());
+        setLutIntensities(new vtkLookupTable());
     }
     
     /**
      * Generates color scalars and Lookuptables
      * @param polyData
      * @param bounds
+     * @param intensities 
      */
-    public void generatePointCloudColorHandlers(vtkPolyData polyData, double[] bounds) {      
+    public void generatePointCloudColorHandlers(vtkPolyData polyData, double[] bounds, vtkShortArray intensities) {      
         //colorLookupTable.SetValueRange(getBounds()[4], getBounds()[5]);        
         //colorLookupTable.SetHueRange(0, 1);
         //colorLookupTable.SetSaturationRange(1, 1);
@@ -81,12 +87,26 @@ public class PointCloudHandlers<T extends PointXYZ> {
         getLutZ().SetScaleToLinear();
         getLutZ().Build();
         
+        
         colorsX.SetNumberOfComponents(3);
         colorsY.SetNumberOfComponents(3);
         colorsZ.SetNumberOfComponents(3);      
         colorsX.SetName("colorsX");
         colorsY.SetName("colorsY");
         colorsZ.SetName("colorsZ");
+        
+        if (intensities.GetDataSize() != 0) {
+            //NeptusLog.pub().info("Data max: " + intensities.GetValueRange()[0]);
+            //getLutIntensities().SetRange(0f, 32000f);
+            intensities.SetNumberOfComponents(1);
+            intensities.CreateDefaultLookupTable();
+            setLutIntensities(intensities.GetLookupTable());
+            //getLutIntensities().SetRange(0, 32000);
+            
+            //getLutIntensities().SetScaleToLinear();
+            //getLutIntensities().Build();
+        }
+        
         
         for (int i = 0; i < polyData.GetNumberOfPoints(); ++i) {
             double[] point = new double[3];
@@ -202,5 +222,33 @@ public class PointCloudHandlers<T extends PointXYZ> {
      */
     public void setLutZ(vtkLookupTable lutZ) {
         this.lutZ = lutZ;
+    }
+
+    /**
+     * @return the intensities
+     */
+    public vtkShortArray getIntensities() {
+        return intensities;
+    }
+
+    /**
+     * @param intensities the intensities to set
+     */
+    public void setIntensities(vtkShortArray intensities) {
+        this.intensities = intensities;
+    }
+
+    /**
+     * @return the lutIntensities
+     */
+    public vtkLookupTable getLutIntensities() {
+        return lutIntensities;
+    }
+
+    /**
+     * @param lutIntensities the lutIntensities to set
+     */
+    public void setLutIntensities(vtkLookupTable lutIntensities) {
+        this.lutIntensities = lutIntensities;
     }
 }
