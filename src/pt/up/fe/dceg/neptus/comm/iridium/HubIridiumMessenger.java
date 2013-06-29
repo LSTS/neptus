@@ -44,7 +44,7 @@ import pt.up.fe.dceg.neptus.util.ByteUtil;
  */
 public class HubIridiumMessenger implements IridiumMessenger {
 
-    protected boolean available = false;
+    protected boolean available = true;
     protected String serverUrl = "http://hub.lsts.pt/api/v1/";
     
     @Override

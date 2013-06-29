@@ -35,29 +35,76 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.imc.IridiumMsgRx;
+import pt.up.fe.dceg.neptus.imc.IridiumMsgTx;
+import pt.up.fe.dceg.neptus.imc.IridiumTxStatus;
+import pt.up.fe.dceg.neptus.messages.TypedMessageFilter;
+import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
+import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
+
 /**
  * @author zp
- *
+ * 
  */
-public class DuneIridiumMessenger implements IridiumMessenger {
+public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<MessageInfo, IMCMessage> {
 
     boolean available = false;
+    protected String messengerName;
+    protected int req_id = (int) (Math.random() * 65535);
+
+    protected Vector<IridiumMessage> messagesReceived = new Vector<>();
+
+    public DuneIridiumMessenger(String messengerName) {
+        this.messengerName = messengerName;
+        ImcMsgManager.getManager().addListener(this, messengerName,
+                new TypedMessageFilter(
+                        IridiumMsgRx.class.getSimpleName(), 
+                        IridiumTxStatus.class.getSimpleName()));
+    }
     
+    @Override
+    public void onMessage(MessageInfo info, IMCMessage msg) {
+        if (msg.getMgid() == IridiumMsgRx.ID_STATIC) {
+            try {
+                IridiumMessage m = IridiumMessage.deserialize(msg.getRawData("data"));
+                messagesReceived.add(m);
+                NeptusLog.pub().info("Received a "+m.getClass().getSimpleName()+" from "+msg.getSourceName());
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }            
+        }
+        else if (msg.getMgid() == IridiumTxStatus.ID_STATIC) {
+            //TODO
+        }
+    }
+
     @Override
     public void sendMessage(IridiumMessage msg) throws Exception {
-        // TODO Auto-generated method stub
-
+        IridiumMsgTx tx = new IridiumMsgTx();
+        tx.setReqId((++req_id % 65535));
+        tx.setTtl(3600);
+        tx.setData(msg.serialize());
+        if (!ImcMsgManager.getManager().sendMessageToSystem(tx, messengerName))
+            throw new Exception("Error while sending message to " + messengerName + " via IMC.");
     }
-   
+
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
-        // FIXME
         return new Vector<>();
     }
-    
+
     @Override
     public boolean isAvailable() {
-        return available;
+        ImcSystem sys = ImcSystemsHolder.lookupSystemByName(messengerName);
+        if (sys == null)
+            return false;
+        return (System.currentTimeMillis() - sys.getLastErrorStateReceived()) < 60000;
     }
 
 }

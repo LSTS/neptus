@@ -37,6 +37,9 @@ import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp
@@ -78,6 +81,16 @@ public class IridiumFacade implements IridiumMessenger {
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    public void lookupMessengers() {
+        
+        messengers.clear();
+        messengers.add(new HubIridiumMessenger());
+        ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("iridium",
+                SystemTypeEnum.ALL, true);
+        for (ImcSystem s : sysLst)
+            messengers.add(new DuneIridiumMessenger(s.getName()));        
     }
 
     @Override
