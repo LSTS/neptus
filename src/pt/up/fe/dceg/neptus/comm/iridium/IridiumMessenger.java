@@ -34,8 +34,6 @@ package pt.up.fe.dceg.neptus.comm.iridium;
 import java.util.Collection;
 import java.util.Date;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-
 /**
  * @author zp
  *

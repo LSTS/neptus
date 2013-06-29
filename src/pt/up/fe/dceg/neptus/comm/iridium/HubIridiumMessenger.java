@@ -55,7 +55,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
 
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
-        //FIXME
+
         return new Vector<>();     
         
         

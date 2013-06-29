@@ -45,9 +45,10 @@ import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
  * @author zp
  *
  */
-public abstract class IridiumMessage {
+public abstract class IridiumMessage implements Comparable<IridiumMessage> {
 
     public int source, destination, message_type;
+    public long timestampMillis = System.currentTimeMillis();
     public abstract int serializeFields(IMCOutputStream out) throws Exception;
     public abstract int deserializeFields(IMCInputStream in) throws Exception;
     public abstract Collection<IMCMessage> asImc();
@@ -136,6 +137,9 @@ public abstract class IridiumMessage {
     public final void setMessageType(int message_type) {
         this.message_type = message_type;
     }
-
-
+    
+    @Override
+    public int compareTo(IridiumMessage o) {
+        return (int)(timestampMillis - o.timestampMillis);
+    }
 }

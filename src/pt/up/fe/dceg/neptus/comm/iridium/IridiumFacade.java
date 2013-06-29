@@ -35,6 +35,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Vector;
 
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
@@ -79,8 +81,13 @@ public class IridiumFacade implements IridiumMessenger {
 
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        Vector<IridiumMessage> msgs = new Vector<>();
+        for (IridiumMessenger i : messengers)
+            msgs.addAll(i.pollMessages(timeSince));
+        
+        Collections.sort(msgs);
+        
+        return msgs;
     }
     
     public void lookupMessengers() {
@@ -101,5 +108,4 @@ public class IridiumFacade implements IridiumMessenger {
         }
         return false;
     }
-
 }
