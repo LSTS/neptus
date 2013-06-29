@@ -39,6 +39,7 @@ public class BathymetryPoint {
     public float north;
     public float east;
     public float depth;
+    public short intensity;
 
     /**
      * @param lat lat in radians
@@ -53,5 +54,20 @@ public class BathymetryPoint {
         this.north = north;
         this.east = east;
         this.depth = depth;
+    }
+    
+    
+    /**
+     * 
+     * @param north offset north in meters
+     * @param east offset north in meters
+     * @param depth depth in this point in meters (relative to water surface)
+     */
+    public BathymetryPoint(float north, float east, float depth, short intensity) {
+        super();
+        this.north = north;
+        this.east = east;
+        this.depth = depth;
+        this.intensity = intensity;  
     }
 }

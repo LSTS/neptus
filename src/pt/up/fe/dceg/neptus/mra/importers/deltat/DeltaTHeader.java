@@ -37,8 +37,6 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-
 /**
  * @author jqcorreia
  *
@@ -80,6 +78,7 @@ public class DeltaTHeader {
         
         numBytes = b.getShort(4);
         numBeams = b.getShort(70);
+        
         samplesPerBeam = b.getShort(72);
         sectorSize = b.getShort(74); 
         startAngle = b.getShort(76) / 100f - 180;
@@ -92,8 +91,7 @@ public class DeltaTHeader {
         else {
             byte vel84 = b.get(84);
             soundVelocity = (float) ((((vel83 & 0x7F) << 8) | vel84)/10.0);       
-        }      
-        //NeptusLog.pub().info("Sound Vel: " + soundVelocity);
+        }
         
         rangeResolution = b.getShort(85);
         
@@ -108,8 +106,7 @@ public class DeltaTHeader {
         
         b.position(112);
         b.get(millisBuf, 0, 5);
-        
-        
+          
         timestampStr = new String(timestampBuf);
         millisStr = new String(millisBuf);
         

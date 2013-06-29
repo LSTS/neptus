@@ -206,7 +206,11 @@ public class DeltaTParser implements BathymetryParser {
             header.parse(buf);
             
             // Parse and process data ( no need to create another structure for this )
-            buf = channel.map(MapMode.READ_ONLY, curPos + 256, header.numBeams * 2);
+            if (header.hasIntensity)
+                buf = channel.map(MapMode.READ_ONLY, curPos + 256, header.numBeams * 4);
+            else
+                buf = channel.map(MapMode.READ_ONLY, curPos + 256, header.numBeams * 2);
+            
             data = new BathymetryPoint[header.numBeams];
             state = stateParser.getEntryAtOrAfter(header.timestamp + NeptusMRA.timestampMultibeamIncrement);
             if (state == null)
@@ -233,8 +237,8 @@ public class DeltaTParser implements BathymetryParser {
                 if(range == 0.0 || Math.random() > prob) {
                     continue;
                 }
-                
-                // range corrected with soundVelocity
+                               
+                    // range corrected with soundVelocity 1516 !?
                 range = range * header.soundVelocity / 1500;
                            
                 double angle = header.startAngle + header.angleIncrement * c;         
@@ -245,11 +249,25 @@ public class DeltaTParser implements BathymetryParser {
                 
                 float ox = (float) (x * Math.sin(yawAngle));
                 float oy = (float) (x * Math.cos(yawAngle));
-                                
-                data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height);
-                
+                               
+                if (header.hasIntensity) {
+                    short intensity = buf.getShort(header.numBytes + (c*2) - 1);
+                    NeptusLog.pub().info("intensity: " + intensity);
+                    data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height, intensity);
+                }
+                else {
+                    data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height);
+                }
                 realNumberOfBeams++;
-            }
+            } 
+            
+//            for(int i = 0; i < header.numBeams; ++i) {
+//                
+//                double intensity = buf.getShort(i*2);
+//                //NeptusLog.pub().info("intensity: " + intensity);
+//                ++countNumberIntensities;
+//            }      
+            
             curPos += header.numBytes; // Advance current position
             
             BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, data);

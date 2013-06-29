@@ -43,7 +43,7 @@ import java.util.Calendar;
  * 0-2      -   ASCII '8' '3' 'P'
  * 3        -   File Version 10=v1.10
  * 4-5      -   Total bytes 'N' - number of bytes that are written to the disk for this ping
- *              N = 256 + (2*number_of_beams
+ *              N = 256 + (2*number_of_beams)
  * 6        -   reserved - always 0;
  * 7        -   reserved - always 0;
  * 8-19     -   Date - Sonar Ping Interrogation Timestamp - system date string (12 bytes) "DD-MMM-YYYY"
