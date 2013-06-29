@@ -55,10 +55,12 @@ public class HubIridiumMessenger implements IridiumMessenger {
 
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
-
         return new Vector<>();     
-        
-        
+    }
+    
+    @Override
+    public String getName() {
+        return "HUB Iridium Messenger";
     }
     
     @Override

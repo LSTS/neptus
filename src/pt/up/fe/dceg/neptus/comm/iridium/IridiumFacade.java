@@ -39,6 +39,7 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
@@ -47,10 +48,41 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
  * @author zp
  *
  */
-public class IridiumFacade implements IridiumMessenger {
-    
-    Vector<IridiumMessenger> messengers = new Vector<>();
-    
+public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates {
+
+    private static IridiumFacade instance = null;    
+    protected Vector<IridiumMessenger> messengers = new Vector<>();
+
+    private IridiumFacade() {
+        messengers.add(new HubIridiumMessenger());
+        
+        ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("iridium",
+                SystemTypeEnum.ALL, true);
+        for (ImcSystem s : sysLst) {
+            messengers.add(new DuneIridiumMessenger(s.getName()));        
+        }
+        
+        for (IridiumMessenger m : messengers)
+            NeptusLog.pub().info("Added "+m);
+    }
+
+    @Override
+    public long millisBetweenUpdates() {
+        return 60000;
+    }
+
+    @Override
+    public boolean update() {        
+        updateMessengers();        
+        return true;
+    }
+
+    public static IridiumFacade getInstance() {
+        if (instance == null)
+            instance = new IridiumFacade();
+        return instance;
+    }
+
     @Override
     public void sendMessage(IridiumMessage msg) throws Exception {
         int sent = 0;
@@ -84,20 +116,45 @@ public class IridiumFacade implements IridiumMessenger {
         Vector<IridiumMessage> msgs = new Vector<>();
         for (IridiumMessenger i : messengers)
             msgs.addAll(i.pollMessages(timeSince));
-        
+
         Collections.sort(msgs);
-        
+
         return msgs;
     }
-    
-    public void lookupMessengers() {
-        
-        messengers.clear();
-        messengers.add(new HubIridiumMessenger());
+
+
+    public void updateMessengers() {
         ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("iridium",
                 SystemTypeEnum.ALL, true);
-        for (ImcSystem s : sysLst)
-            messengers.add(new DuneIridiumMessenger(s.getName()));        
+        for (ImcSystem s : sysLst) {
+            boolean alreadyAdded = false;
+            for (IridiumMessenger m : messengers) {
+                if (m instanceof DuneIridiumMessenger) {
+                    if (((DuneIridiumMessenger)m).messengerName.equals(s.getName())) {
+                        alreadyAdded = true;
+                        break;
+                    }
+                }
+            }
+            if (!alreadyAdded) {
+                DuneIridiumMessenger m = new DuneIridiumMessenger(s.getName());
+                messengers.add(m);
+                NeptusLog.pub().info("Added "+m);
+            }
+        }
+
+        for (int i = 0; i < messengers.size(); i++)
+            if (!messengers.get(i).isAvailable()) {
+                IridiumMessenger m = messengers.get(i);
+                messengers.remove(i--);
+                NeptusLog.pub().info("Removed "+m);
+            }
+
+    }
+    
+    @Override
+    public String getName() {
+        return "Iridium Communications";
     }
 
     @Override

@@ -98,6 +98,11 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
         return new Vector<>();
     }
+    
+    @Override
+    public String getName() {
+        return "DUNE Iridium Messenger ("+messengerName+")";
+    }
 
     @Override
     public boolean isAvailable() {

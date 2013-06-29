@@ -43,4 +43,5 @@ public interface IridiumMessenger {
     public void sendMessage(IridiumMessage msg) throws Exception;
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception;
     public boolean isAvailable();
+    public String getName();
 }
