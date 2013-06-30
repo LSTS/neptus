@@ -122,8 +122,9 @@ public class NameNormalizer {
     public static String getRandomID(String prefix) {
         builder.setLength(0);
         builder.append(prefix);
-        builder.append("_");
-        builder.append(rnd.nextInt(10000));        
+        builder.append("_");        
+        int val = Math.abs(rnd.nextInt());        
+        builder.append(Integer.toString(val, 36));
         return builder.toString();
     }    
     
