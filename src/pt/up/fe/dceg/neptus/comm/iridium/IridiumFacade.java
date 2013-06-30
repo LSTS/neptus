@@ -37,12 +37,16 @@ import java.util.Vector;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
+import pt.up.fe.dceg.neptus.NeptusConfig;
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.imc.Abort;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp
@@ -54,6 +58,8 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates {
     protected Vector<IridiumMessenger> messengers = new Vector<>();
 
     private IridiumFacade() {
+        
+        NeptusLog.pub().info("Starting Iridium comms");
         messengers.add(new HubIridiumMessenger());
         
         ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("iridium",
@@ -164,5 +170,12 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates {
                 return true;
         }
         return false;
+    }
+    
+    public static void main(String[] args) throws Exception {
+        ConfigFetch.initialize();
+        ImcMsgManager.getManager().start();
+        Thread.sleep(30000);
+        IridiumFacade.getInstance().sendMessage(new Abort());
     }
 }

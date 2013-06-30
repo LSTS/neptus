@@ -37,6 +37,7 @@ import java.util.Vector;
 import pt.up.fe.dceg.neptus.imc.IMCInputStream;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 
 /**
  * @author zp
@@ -45,6 +46,19 @@ import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
 public class IridiumCommand extends IridiumMessage {
 
     String command;
+    
+    @NeptusProperty(name="Send device updates", description="may increase communications costs!")
+    public boolean sendDeviceUpdates;
+    
+    @NeptusProperty(name="Delay, in seconds, between device updates")
+    public long secondsBetweenUpdates;
+    
+    @NeptusProperty(name="Use Iridium hardware", description="may increase communications costs!")
+    public boolean useIridium;
+        
+    public IridiumCommand() {
+        setMessageType(message_type);
+    }
     
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
@@ -58,6 +72,14 @@ public class IridiumCommand extends IridiumMessage {
         return command.getBytes("ISO-8859-1").length + 2;
     }
     
+    public final String getCommand() {
+        return command;
+    }
+
+    public final void setCommand(String command) {
+        this.command = command;
+    }
+
     @Override
     public Collection<IMCMessage> asImc() {
        return new Vector<>();
