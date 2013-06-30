@@ -38,6 +38,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -214,7 +215,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
             }
 
             replayParsers.put("EstimatedState", parser);
-            Thread t = new Thread() {
+            Thread t = new Thread("Replay updater") {
                 public void run() {
                     for (LogReplayLayer layer : renderedLayers) {
                         try {
@@ -222,20 +223,32 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
                             layer.parse(source);
                             renderer.getRenderer2d().addPostRenderPainter(layer, layer.getName());
                             renderer.getRenderer2d().setPainterActive(layer.getName(), layer.getVisibleByDefault());
+                            renderer.getRenderer2d().repaint();                            
                         }
                         catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
+                    renderer.getRenderer2d().repaint();                                        
                 }
             };
             t.setDaemon(true);
             t.start();
+
+            TimerTask tt = new TimerTask() {
+                
+                @Override
+                public void run() {
+                    renderer.getRenderer2d().repaint();
+                }
+            };
+            
+            timer = new Timer("Log Replay renderer updater");
+            timer.scheduleAtFixedRate(tt, 1000, 1000);
             
             // add the map and controls to the interface
             add(buildControls(), "w 100%, wrap");
             add(renderer, "w 100%, h 100%");
-            
         }
         catch (Exception e) {
             e.printStackTrace();
