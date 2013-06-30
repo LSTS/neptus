@@ -43,6 +43,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author Margarida Faria
  *
@@ -71,45 +73,50 @@ public class SpotMsgFetcher {
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
-        Document doc = db.parse(pageUrl);
-        NodeList nlist = doc.getFirstChild().getChildNodes();
+        try {
+            Document doc = db.parse(pageUrl);
+            NodeList nlist = doc.getFirstChild().getChildNodes();
 
-        // go through messages
-        for (int i = 1; i < nlist.getLength(); i++) {
-            String tagName = nlist.item(i).getNodeName();
-            if (tagName.equals("message")) {
-                double lat = 0, lon = 0;
-                String id = "_";
-                long timestamp = System.currentTimeMillis();
+            // go through messages
+            for (int i = 1; i < nlist.getLength(); i++) {
+                String tagName = nlist.item(i).getNodeName();
+                if (tagName.equals("message")) {
+                    double lat = 0, lon = 0;
+                    String id = "_";
+                    long timestamp = System.currentTimeMillis();
 
-                // go through message elements
-                NodeList elems = nlist.item(i).getChildNodes();
-                for (int j = 0; j < elems.getLength(); j++) {
-                    String tag = elems.item(j).getNodeName();
+                    // go through message elements
+                    NodeList elems = nlist.item(i).getChildNodes();
+                    for (int j = 0; j < elems.getLength(); j++) {
+                        String tag = elems.item(j).getNodeName();
 
-                    if (tag.equals("latitude"))
-                        lat = Double.parseDouble(elems.item(j).getTextContent());
-                    else if (tag.equals("longitude"))
-                        lon = Double.parseDouble(elems.item(j).getTextContent());
-                    else if (tag.equals("esnName"))
-                        id = elems.item(j).getTextContent();
-                    else if (tag.equals("timeInGMTSecond")) {
-                        timestamp = Long.parseLong(elems.item(j).getTextContent()); // seconds
+                        if (tag.equals("latitude"))
+                            lat = Double.parseDouble(elems.item(j).getTextContent());
+                        else if (tag.equals("longitude"))
+                            lon = Double.parseDouble(elems.item(j).getTextContent());
+                        else if (tag.equals("esnName"))
+                            id = elems.item(j).getTextContent();
+                        else if (tag.equals("timeInGMTSecond")) {
+                            timestamp = Long.parseLong(elems.item(j).getTextContent()); // seconds
+                        }
                     }
-                }
 
-                // only add messages within time window
-                if (timestamp > startOfTimeWindowSecs) {
-                    spotMsgTree = msgBySpot.get(id);
-                    if (spotMsgTree == null) {
-                        spotMsgTree = new TreeSet<SpotMessage>();
-                        msgBySpot.put(id, spotMsgTree);
+                    // only add messages within time window
+                    if (timestamp > startOfTimeWindowSecs) {
+                        spotMsgTree = msgBySpot.get(id);
+                        if (spotMsgTree == null) {
+                            spotMsgTree = new TreeSet<SpotMessage>();
+                            msgBySpot.put(id, spotMsgTree);
+                        }
+                        // Spot.log.debug("Adding " + id + " " + timestamp + " @ (" + lat + ", " + lon + ")");
+                        spotMsgTree.add(new SpotMessage(lat, lon, timestamp, id));
+
                     }
-                    // Spot.log.debug("Adding " + id + " " + timestamp + " @ (" + lat + ", " + lon + ")");
-                    spotMsgTree.add(new SpotMessage(lat, lon, timestamp, id));
-
                 }
             }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn("Error getting SPOT info!");
         }
         return msgBySpot;
     }
