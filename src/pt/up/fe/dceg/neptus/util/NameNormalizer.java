@@ -123,8 +123,7 @@ public class NameNormalizer {
         builder.setLength(0);
         builder.append(prefix);
         builder.append("_");
-        builder.append(rnd.nextInt(10000));
-        builder.append(builder.append(rnd.nextInt(10000)));
+        builder.append(rnd.nextInt(10000));        
         return builder.toString();
     }    
     
