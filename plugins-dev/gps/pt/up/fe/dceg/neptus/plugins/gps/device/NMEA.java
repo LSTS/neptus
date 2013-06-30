@@ -212,7 +212,8 @@ public class NMEA {
      * Interpret a GPVTG sentence.
      */
     private void interpretGPVTG() {
-        fix.setCog(parseReal(chunks.get(1)));
+        if (chunks.get(1).length() > 0)
+            fix.setCog(parseReal(chunks.get(1)));
 
         double value = parseReal(chunks.get(7));
         fix.setSog(value * 1000.0 / 3600.0);
