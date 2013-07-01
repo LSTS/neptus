@@ -97,7 +97,7 @@ public class ByteUtil {
 		char[] chars = Hex.encodeHex(buffer);
 		int charCount = 0; StringBuffer lineChars = new StringBuffer(16);
 		int byteCount = 0, halfByteCount = 0, lineCount = 0;
-		String regex = "[\\s\\e\\a\\x1f]";
+		String regex = "[\\s\\e\\a\\x1f\0]";
 		String replacement = " ";
 		for (char ch : chars) {
 			if (byteCount == 0 && halfByteCount == 0) {
@@ -106,6 +106,7 @@ public class ByteUtil {
 			pStream.print(ch);
 			if (halfByteCount == 1) {
 				pStream.print(' ');
+				
 				lineChars.append(new String(new byte[]{buffer[charCount]}).charAt(0));
 				//lineChars.append(new String(".").charAt(0));
 				charCount++;
@@ -240,7 +241,7 @@ public class ByteUtil {
 	}
 	
 	public static void main(String[] args) {
-		dumpAsHex("Teste", "Isto é de facto um teste para ver se imprime bem Hex!".getBytes(), System.out);
+		dumpAsHex("Teste", "Isto é de facto \0 um teste para ver se imprime bem Hex!".getBytes(), System.out);
 		
 		dumpAsHex(FileUtil.getFileAsString("legal/Neptus-LICENSE.txt").getBytes(), System.out);
 
