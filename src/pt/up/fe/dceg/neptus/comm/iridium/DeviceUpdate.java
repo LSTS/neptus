@@ -49,6 +49,13 @@ public class DeviceUpdate extends IridiumMessage {
 
     protected LinkedHashMap<Integer, Position> positions = new LinkedHashMap<>();
 
+    /**
+     * @return the positions
+     */
+    public LinkedHashMap<Integer, Position> getPositions() {
+        return positions;
+    }
+
     public DeviceUpdate() {
         super(2001);
     }
@@ -106,7 +113,7 @@ public class DeviceUpdate extends IridiumMessage {
         return msgs;
     }
 
-    public class Position {
+    public static class Position {
         public int id;
         public double latitude, longitude, timestamp;
     }

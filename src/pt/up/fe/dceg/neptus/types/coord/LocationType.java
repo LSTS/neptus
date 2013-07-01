@@ -99,6 +99,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
 
     public static final LocationType ABSOLUTE_ZERO = new LocationType();
 
+    public static final LocationType FEUP = new LocationType(41.17785, -8.59796);
+    
     public static double ONE_LAT_DEGREE = 0;
     static {
         ABSOLUTE_ZERO.setId("ABSOLUTE_ZERO");

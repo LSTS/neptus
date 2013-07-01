@@ -33,11 +33,11 @@ package pt.up.fe.dceg.neptus.comm.iridium;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Vector;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
-import pt.up.fe.dceg.neptus.NeptusConfig;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.Abort;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
@@ -52,11 +52,25 @@ import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
  * @author zp
  *
  */
-public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates {
+public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, IridiumMessageListener {
 
     private static IridiumFacade instance = null;    
     protected Vector<IridiumMessenger> messengers = new Vector<>();
-
+    protected boolean sendThroughHttp = false;
+    protected String iridiumSystemProvider = null;
+    
+    protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
+    
+    @Override
+    public void addListener(IridiumMessageListener listener) {
+        listeners.add(listener);
+    }
+    
+    @Override
+    public void removeListener(IridiumMessageListener listener) {
+        listeners.remove(listener);       
+    }
+    
     private IridiumFacade() {
         
         NeptusLog.pub().info("Starting Iridium comms");
@@ -128,6 +142,11 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates {
         return msgs;
     }
 
+    @Override
+    public void messageReceived(IridiumMessage msg) {
+        for (IridiumMessageListener listener : listeners)
+            listener.messageReceived(msg);
+    }
 
     public void updateMessengers() {
         ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("iridium",
@@ -145,6 +164,7 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates {
             if (!alreadyAdded) {
                 DuneIridiumMessenger m = new DuneIridiumMessenger(s.getName());
                 messengers.add(m);
+                m.addListener(this);
                 NeptusLog.pub().info("Added "+m);
             }
         }
@@ -152,6 +172,7 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates {
         for (int i = 0; i < messengers.size(); i++)
             if (!messengers.get(i).isAvailable()) {
                 IridiumMessenger m = messengers.get(i);
+                m.removeListener(this);
                 messengers.remove(i--);
                 NeptusLog.pub().info("Removed "+m);
             }
@@ -172,6 +193,36 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates {
         return false;
     }
     
+    /**
+     * @return the sendThroughHttp
+     */
+    public boolean isSendThroughHttp() {
+        return sendThroughHttp;
+    }
+
+    /**
+     * @param sendThroughHttp the sendThroughHttp to set
+     */
+    public void setSendThroughHttp(boolean sendThroughHttp) {
+        this.sendThroughHttp = sendThroughHttp;        
+        updateMessengers();
+    }
+
+    /**
+     * @return the iridiumSystemProvider
+     */
+    public String getIridiumSystemProvider() {
+        return iridiumSystemProvider;
+    }
+
+    /**
+     * @param iridiumSystemProvider the iridiumSystemProvider to set
+     */
+    public void setIridiumSystemProvider(String iridiumSystemProvider) {
+        this.iridiumSystemProvider = iridiumSystemProvider;
+        updateMessengers();
+    }
+
     public static void main(String[] args) throws Exception {
         ConfigFetch.initialize();
         ImcMsgManager.getManager().start();

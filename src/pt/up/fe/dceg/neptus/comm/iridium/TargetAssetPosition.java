@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.comm.iridium;
 
 import java.util.Collection;
+import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.imc.IMCInputStream;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
@@ -87,7 +88,7 @@ public class TargetAssetPosition extends IridiumMessage {
 
     @Override
     public Collection<IMCMessage> asImc() {
-        return null;
+        return new Vector<>();
     }
 
 }

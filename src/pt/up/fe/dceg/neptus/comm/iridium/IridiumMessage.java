@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.comm.iridium;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
@@ -73,14 +74,10 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         ios.setBigEndian(false);
         int size = 6;
         ios.writeUnsignedShort(source);
-        ios.writeUnsignedInt(destination);
-        ios.writeUnsignedInt(message_type);
+        ios.writeUnsignedShort(destination);
+        ios.writeUnsignedShort(message_type);
         size += serializeFields(ios);
-        byte[] data = baos.toByteArray();
-        if (data.length != size) {
-            throw new Exception("generated buffer size doesn't match expected size");
-        }
-        return data;
+        return Arrays.copyOf(baos.toByteArray(), size);
     }
     
     public static IridiumMessage deserialize(byte[] data) throws Exception {

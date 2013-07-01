@@ -41,11 +41,19 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.comm.iridium.ActivateSubscription;
+import pt.up.fe.dceg.neptus.comm.iridium.DeactivateSubscription;
+import pt.up.fe.dceg.neptus.comm.iridium.DesiredAssetPosition;
+import pt.up.fe.dceg.neptus.comm.iridium.DeviceUpdate;
 import pt.up.fe.dceg.neptus.comm.iridium.IridiumCommand;
 import pt.up.fe.dceg.neptus.comm.iridium.IridiumFacade;
+import pt.up.fe.dceg.neptus.comm.iridium.IridiumMessage;
+import pt.up.fe.dceg.neptus.comm.iridium.IridiumMessageListener;
+import pt.up.fe.dceg.neptus.comm.iridium.TargetAssetPosition;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.RemoteSensorInfo;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
@@ -64,7 +72,7 @@ import com.google.common.eventbus.Subscribe;
  *
  */
 @PluginDescription(name="Iridium Communications Plug-in")
-public class IridiumComms extends SimpleRendererInteraction implements Renderer2DPainter {
+public class IridiumComms extends SimpleRendererInteraction implements Renderer2DPainter, IridiumMessageListener {
 
     private static final long serialVersionUID = -8535642303286049869L;
     protected long lastMessageReceivedTime = System.currentTimeMillis() - 3600000;
@@ -99,12 +107,84 @@ public class IridiumComms extends SimpleRendererInteraction implements Renderer2
     }
     
     private void setWaveGliderTargetPosition(LocationType loc) {
-        
+        TargetAssetPosition pos = new TargetAssetPosition();
+        pos.setLocation(loc);
+        pos.setDestination(0);
+        pos.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+        try {
+            IridiumFacade.getInstance().sendMessage(pos);    
+        }
+        catch (Exception e) {
+            GuiUtils.errorMessage(getConsole(), e);
+        }
     }
 
     private void setWaveGliderDesiredPosition(LocationType loc) {
+        DesiredAssetPosition pos = new DesiredAssetPosition();
+        pos.setLocation(loc);
+        pos.setDestination(0);
+        pos.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+        try {
+            IridiumFacade.getInstance().sendMessage(pos);    
+        }
+        catch (Exception e) {
+            GuiUtils.errorMessage(getConsole(), e);
+        }
+    }
+    
+    private void startIridiumSimulation() {
+        Thread t = new Thread("Iridium Simulation") {
+            public void run() {
+                while(true) {
+                    int rnd = (int) Math.round(Math.random() * 7) + 2001;
+                    switch (rnd) {
+                        case 2001:
+                            DeviceUpdate m = new DeviceUpdate();
+                            DeviceUpdate.Position pos = new DeviceUpdate.Position();
+                            pos.id = VehiclesHolder.getVehicleById("lauv-seacon-2").getImcId().intValue();
+                            pos.latitude = LocationType.FEUP.getLatitudeAsDoubleValue();
+                            pos.timestamp = System.currentTimeMillis() / 1000;
+                            pos.longitude = LocationType.FEUP.getLongitudeAsDoubleValue();
+                            m.getPositions().put(pos.id, pos);
+                            m.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+                            m.setDestination(0);
+                            messageReceived(m);
+                            break;
+                        case 2003:
+                            ActivateSubscription act = new ActivateSubscription();                            
+                            act.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+                            act.setDestination(0);
+                            messageReceived(act);
+                            break;
+                        case 2004:
+                            DeactivateSubscription deact = new DeactivateSubscription();                            
+                            deact.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+                            deact.setDestination(0);
+                            messageReceived(deact);
+                            break;
+                        case 2005:
+                            IridiumCommand cmd = new IridiumCommand();
+                            cmd.setCommand("This is a test command");
+                            cmd.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+                            cmd.setDestination(0);
+                            messageReceived(cmd);
+                            break;
+                        default:
+                            
+                            break;
+                    }
+                    try {
+                        Thread.sleep(10000);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        t.start();
         
-    }    
+    }
     
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
@@ -130,6 +210,12 @@ public class IridiumComms extends SimpleRendererInteraction implements Renderer2
         popup.add("Set this as desired wave glider target").addActionListener(new ActionListener() {            
             public void actionPerformed(ActionEvent e) {
                 setWaveGliderDesiredPosition(loc);
+            }
+        });
+        
+        popup.add("Start iridium simulation").addActionListener(new ActionListener() {            
+            public void actionPerformed(ActionEvent e) {
+                startIridiumSimulation();
             }
         });
         
@@ -169,15 +255,40 @@ public class IridiumComms extends SimpleRendererInteraction implements Renderer2
             }
         }
     }
+    
+    @Subscribe
+    public void on(DesiredAssetPosition desiredPos) {
+        System.out.println(desiredPos);
+    }
+    
+    @Subscribe
+    public void on(TargetAssetPosition targetPos) {
+        System.out.println(targetPos);
+    }
+    
+    @Subscribe
+    public void on(DeviceUpdate devUpdate) {
+        System.out.println(devUpdate);
+    }
+    
+    
+    
+    
+    @Override
+    public void messageReceived(IridiumMessage msg) {
+        NeptusLog.pub().info("Iridium message received asynchronously: "+msg);
+        getConsole().post(msg);
+        for (IMCMessage m : msg.asImc())
+            getConsole().post(m);
+    }
 
     @Override
     public void initSubPanel() {
-        IridiumFacade.getInstance();          
+        IridiumFacade.getInstance().addListener(this);     
     }
 
     @Override
     public void cleanSubPanel() {
 
     }
-
 }

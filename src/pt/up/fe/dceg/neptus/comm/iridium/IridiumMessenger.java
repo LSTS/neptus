@@ -44,4 +44,6 @@ public interface IridiumMessenger {
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception;
     public boolean isAvailable();
     public String getName();
+    public void addListener(IridiumMessageListener listener);
+    public void removeListener(IridiumMessageListener listener);
 }

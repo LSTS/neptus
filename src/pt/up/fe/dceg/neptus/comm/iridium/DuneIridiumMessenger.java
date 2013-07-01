@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.comm.iridium;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
@@ -59,6 +60,18 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
 
     protected Vector<IridiumMessage> messagesReceived = new Vector<>();
 
+    protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
+    
+    @Override
+    public void addListener(IridiumMessageListener listener) {
+        listeners.add(listener);
+    }
+    
+    @Override
+    public void removeListener(IridiumMessageListener listener) {
+        listeners.remove(listener);       
+    }
+    
     public DuneIridiumMessenger(String messengerName) {
         this.messengerName = messengerName;
         ImcMsgManager.getManager().addListener(this, messengerName,
@@ -74,6 +87,8 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
                 IridiumMessage m = IridiumMessage.deserialize(msg.getRawData("data"));
                 messagesReceived.add(m);
                 NeptusLog.pub().info("Received a "+m.getClass().getSimpleName()+" from "+msg.getSourceName());
+                for (IridiumMessageListener listener : listeners)
+                    listener.messageReceived(m);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);

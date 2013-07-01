@@ -27,58 +27,16 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: zp
- * Jun 28, 2013
+ * Jul 1, 2013
  */
 package pt.up.fe.dceg.neptus.comm.iridium;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Vector;
-
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.ByteUtil;
 
 /**
  * @author zp
  *
  */
-public class HubIridiumMessenger implements IridiumMessenger {
+public interface IridiumMessageListener {
 
-    protected boolean available = true;
-    protected String serverUrl = "http://hub.lsts.pt/api/v1/";
+    public void messageReceived(IridiumMessage msg);
     
-    protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
-    
-    @Override
-    public void addListener(IridiumMessageListener listener) {
-        listeners.add(listener);
-    }
-    
-    @Override
-    public void removeListener(IridiumMessageListener listener) {
-        listeners.remove(listener);       
-    }
-    
-    @Override
-    public void sendMessage(IridiumMessage msg) throws Exception {
-        byte[] data = msg.serialize();
-        NeptusLog.pub().info("Sending to iridium (through HTTP): "+ByteUtil.dumpAsHexToString(data));        
-    }
-
-    @Override
-    public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
-        return new Vector<>();
-    }
-    
-    @Override
-    public String getName() {
-        return "HUB Iridium Messenger";
-    }
-    
-    @Override
-    public boolean isAvailable() {
-        return available;
-    }
-
 }

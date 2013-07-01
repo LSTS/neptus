@@ -55,7 +55,6 @@ public class ImcSystemsHolder {
 		lookupTable.put(system.getId(), system);
 		namesTable.put(system.getName(), system);
 		
-		//NeptusLog.pub().info("<###>$$$$$$$$$$$$$$ register " + system.getId());
 		return true;
 	}
 	
