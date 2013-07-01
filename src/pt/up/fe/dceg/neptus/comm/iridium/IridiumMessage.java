@@ -58,7 +58,9 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         iridiumTypes.put(2001, DeviceUpdate.class);
         iridiumTypes.put(2003, ActivateSubscription.class);
         iridiumTypes.put(2004, DeactivateSubscription.class);
-        iridiumTypes.put(2005, IridiumCommand.class);        
+        iridiumTypes.put(2005, IridiumCommand.class);
+        iridiumTypes.put(2006, DesiredAssetPosition.class);
+        iridiumTypes.put(2007, TargetAssetPosition.class);        
     }
     
     public byte[] serialize() throws Exception {
@@ -99,38 +101,41 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         return m;        
     }
     
-
-    
     /**
      * @return the source
      */
     public final int getSource() {
         return source;
     }
+    
     /**
      * @param source the source to set
      */
     public final void setSource(int source) {
         this.source = source;
     }
+    
     /**
      * @return the destination
      */
     public final int getDestination() {
         return destination;
     }
+    
     /**
      * @param destination the destination to set
      */
     public final void setDestination(int destination) {
         this.destination = destination;
     }
+    
     /**
      * @return the message_type
      */
     public final int getMessageType() {
         return message_type;
     }
+    
     /**
      * @param message_type the message_type to set
      */
