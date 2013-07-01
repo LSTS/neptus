@@ -49,6 +49,10 @@ public class DeviceUpdate extends IridiumMessage {
 
     protected LinkedHashMap<Integer, Position> positions = new LinkedHashMap<>();
 
+    public DeviceUpdate() {
+        super(2001);
+    }
+    
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
         int read = 0;

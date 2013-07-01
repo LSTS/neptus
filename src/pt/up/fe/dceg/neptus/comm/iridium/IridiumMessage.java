@@ -54,6 +54,10 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
     public abstract Collection<IMCMessage> asImc();
     private static LinkedHashMap<Integer, Class<? extends IridiumMessage> > iridiumTypes = new LinkedHashMap<>();
     
+    public IridiumMessage(int msgType) {
+        this.message_type = msgType;        
+    }
+    
     static {
         iridiumTypes.put(2001, DeviceUpdate.class);
         iridiumTypes.put(2003, ActivateSubscription.class);
@@ -67,11 +71,16 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         IMCOutputStream ios = new IMCOutputStream(baos);
         ios.setBigEndian(false);
+        int size = 6;
         ios.writeUnsignedShort(source);
         ios.writeUnsignedInt(destination);
         ios.writeUnsignedInt(message_type);
-        serializeFields(ios);
-        return baos.toByteArray();
+        size += serializeFields(ios);
+        byte[] data = baos.toByteArray();
+        if (data.length != size) {
+            throw new Exception("generated buffer size doesn't match expected size");
+        }
+        return data;
     }
     
     public static IridiumMessage deserialize(byte[] data) throws Exception {

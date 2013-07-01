@@ -57,7 +57,7 @@ public class IridiumCommand extends IridiumMessage {
     public boolean useIridium;
         
     public IridiumCommand() {
-        setMessageType(message_type);
+        super(2005);
     }
     
     @Override

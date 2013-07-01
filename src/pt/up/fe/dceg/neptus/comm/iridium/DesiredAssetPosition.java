@@ -47,6 +47,10 @@ public class DesiredAssetPosition extends IridiumMessage {
     LocationType loc = new LocationType();
     public int asset_imc_id;
     
+    public DesiredAssetPosition() {
+        super(2006);
+    }
+    
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
         out.writeUnsignedShort(asset_imc_id);

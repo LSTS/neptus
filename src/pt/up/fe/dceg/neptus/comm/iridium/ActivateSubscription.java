@@ -44,6 +44,10 @@ import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
  */
 public class ActivateSubscription extends IridiumMessage {
 
+    public ActivateSubscription() {
+        super(2003);
+    }
+    
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
         // empty

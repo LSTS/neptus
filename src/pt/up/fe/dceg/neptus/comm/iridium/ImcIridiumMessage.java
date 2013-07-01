@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.comm.iridium;
 import java.util.Collection;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.imc.Abort;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCInputStream;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
@@ -46,6 +47,12 @@ import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
 public class ImcIridiumMessage extends IridiumMessage {
 
     protected IMCMessage msg;
+    
+    public ImcIridiumMessage() {
+        super(Abort.ID_STATIC);
+        msg = new Abort();        
+    }
+    
     
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
