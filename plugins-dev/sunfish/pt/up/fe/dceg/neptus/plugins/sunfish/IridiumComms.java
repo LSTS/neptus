@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.plugins.sunfish;
 
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -77,10 +78,15 @@ public class IridiumComms extends SimpleRendererInteraction implements Renderer2
     private static final long serialVersionUID = -8535642303286049869L;
     protected long lastMessageReceivedTime = System.currentTimeMillis() - 3600000;
     protected LinkedHashMap<String, RemoteSensorInfo> sensorData = new LinkedHashMap<>();
+    protected Image spot, desired, target;
     
     @Override
     public boolean isExclusive() {
         return true;
+    }
+    
+    public void loadImages() {
+        //TODO
     }
     
     private void sendIridiumCommand() {
@@ -243,17 +249,14 @@ public class IridiumComms extends SimpleRendererInteraction implements Renderer2
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         for (RemoteSensorInfo sinfo : sensorData.values()) {
-            switch (sinfo.getId()) {
-                case "wg-desired-pos":
-                case "wg-target-pos":
-                case "lauv-desired-pos":
-                case "lauv-target-pos":
-                case "ship-desired-pos":
-                case "ship-target-pos":                    
-                    break;
-                default:
-                    
-                    break;
+            if (sinfo.getId().startsWith("DP_")) {
+                
+            }
+            else if (sinfo.getId().startsWith("TP_")) {
+                
+            }
+            else if (sinfo.getId().startsWith("spot") || sinfo.getId().startsWith("SPOT")) {
+                
             }
         }
     }
