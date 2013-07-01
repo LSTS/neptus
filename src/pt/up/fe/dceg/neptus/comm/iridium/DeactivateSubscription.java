@@ -64,6 +64,4 @@ public class DeactivateSubscription extends IridiumMessage {
     public Collection<IMCMessage> asImc() {
        return new Vector<>();
     }
-
-
 }

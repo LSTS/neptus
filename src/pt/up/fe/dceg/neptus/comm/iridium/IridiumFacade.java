@@ -223,6 +223,13 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
         updateMessengers();
     }
 
+    /**
+     * @return the messengers
+     */
+    public Vector<IridiumMessenger> getMessengers() {
+        return messengers;
+    }
+
     public static void main(String[] args) throws Exception {
         ConfigFetch.initialize();
         ImcMsgManager.getManager().start();

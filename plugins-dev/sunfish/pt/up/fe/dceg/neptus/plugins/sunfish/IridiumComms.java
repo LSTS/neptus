@@ -248,6 +248,8 @@ public class IridiumComms extends SimpleRendererInteraction implements Renderer2
                 case "wg-target-pos":
                 case "lauv-desired-pos":
                 case "lauv-target-pos":
+                case "ship-desired-pos":
+                case "ship-target-pos":                    
                     break;
                 default:
                     
@@ -271,9 +273,6 @@ public class IridiumComms extends SimpleRendererInteraction implements Renderer2
         System.out.println(devUpdate);
     }
     
-    
-    
-    
     @Override
     public void messageReceived(IridiumMessage msg) {
         NeptusLog.pub().info("Iridium message received asynchronously: "+msg);
@@ -289,6 +288,6 @@ public class IridiumComms extends SimpleRendererInteraction implements Renderer2
 
     @Override
     public void cleanSubPanel() {
-
+        IridiumFacade.getInstance().removeListener(this);
     }
 }

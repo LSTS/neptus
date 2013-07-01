@@ -190,8 +190,8 @@ public class ImcSystemsHolder {
 	 * @return The name of the system or the IMC Id in pretty format if system not yet known.
 	 */
 	public static String translateImcIdToSystemName(ImcId16 id) {
-	    String ret = id.toPrettyString();
 	    ImcSystem sys = lookupSystem(id);
+	    String ret = id.toPrettyString();
 	    if (sys != null)
 	        ret = sys.getName();
 	    return ret;

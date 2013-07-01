@@ -119,6 +119,13 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
         return "DUNE Iridium Messenger ("+messengerName+")";
     }
 
+    /**
+     * @return the messengerName
+     */
+    public String getMessengerName() {
+        return messengerName;
+    }
+
     @Override
     public boolean isAvailable() {
         ImcSystem sys = ImcSystemsHolder.lookupSystemByName(messengerName);

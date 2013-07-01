@@ -34,10 +34,13 @@ package pt.up.fe.dceg.neptus.comm.iridium;
 import java.util.Collection;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.comm.iridium.DeviceUpdate.Position;
 import pt.up.fe.dceg.neptus.imc.IMCInputStream;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
+import pt.up.fe.dceg.neptus.imc.RemoteSensorInfo;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp
@@ -88,7 +91,18 @@ public class DesiredAssetPosition extends IridiumMessage {
 
     @Override
     public Collection<IMCMessage> asImc() {
-        return new Vector<>();
+        Vector<IMCMessage> msgs = new Vector<>();
+
+        RemoteSensorInfo sensorInfo = new RemoteSensorInfo();
+        sensorInfo.setLat(getLocation().getLatitudeAsDoubleValueRads());
+        sensorInfo.setLon(getLocation().getLongitudeAsDoubleValueRads());
+        sensorInfo.setAlt(0);
+        sensorInfo.setId("DP_"+ImcSystemsHolder.translateImcIdToSystemName(asset_imc_id));
+        sensorInfo.setSrc(getSource());
+        sensorInfo.setDst(getDestination());
+        msgs.add(sensorInfo);        
+        
+        return msgs;
     }
 
 }
