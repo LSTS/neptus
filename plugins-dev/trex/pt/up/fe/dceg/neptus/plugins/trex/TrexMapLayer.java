@@ -44,6 +44,7 @@ import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import javax.swing.JEditorPane;
@@ -64,18 +65,18 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.fileeditor.SyntaxDocument;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.up.fe.dceg.neptus.imc.EntityParameter;
+import pt.up.fe.dceg.neptus.imc.SetEntityParameters;
 import pt.up.fe.dceg.neptus.imc.TrexCommand;
-import pt.up.fe.dceg.neptus.imc.TrexOperation;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
-import pt.up.fe.dceg.neptus.plugins.trex.goals.Surveil;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.TagSimulation;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.TrexGoal;
-import pt.up.fe.dceg.neptus.plugins.trex.goals.VisitEuropa;
+import pt.up.fe.dceg.neptus.plugins.trex.goals.UavSpotterSurvey;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.VisitLocationGoal;
 import pt.up.fe.dceg.neptus.plugins.trex.gui.PortEditor;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
@@ -105,6 +106,10 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     public int portShore = 8888;
     @NeptusProperty(name = "Comms channel", description = "Choose if Dune communicates with T-Rex through a REST API or IP.")
     public CommsChannel trexDuneComms = CommsChannel.IMC;
+    @NeptusProperty(name = "Name of Dune task")
+    public String taskName = "TREX";
+    @NeptusProperty(name = "Spotter height", description = "Height of waypoint for uav spotter plan.")
+    public int spotterHeight = 100;
 
 //    @NeptusProperty(name = "Default speed (m/s)")
 //    public double defaultSpeed = 1.25;
@@ -219,8 +224,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             addEnableTrexMenu(popup);
             popup.addSeparator();
             addTagSimulation(popup, loc);
-            addUAVSurveillance(popup, loc);
-            addGoing(popup, loc);
+            addUAVSpotter(popup, loc);
 
             //            for (String gid : sentGoals.keySet()) {
             //                Point2D screenPos = source.getScreenPosition(sentGoals.get(gid).getLocation()); // FIXME all goals have
@@ -314,38 +318,27 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
         });
     }
 
-    private void addUAVSurveillance(JPopupMenu popup, final LocationType loc) {
-        popup.add("Surveil this point").addActionListener(new ActionListener() {
+    private void addUAVSpotter(JPopupMenu popup, final LocationType loc) {
+        popup.add("UAV spotter").addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 loc.convertToAbsoluteLatLonDepth();
-                Surveil surveil = new Surveil(loc.getLatitudeAsDoubleValueRads(), loc
-                        .getLongitudeAsDoubleValueRads());
+                UavSpotterSurvey going = new UavSpotterSurvey(loc.getLatitudeAsDoubleValueRads(), loc
+                        .getLongitudeAsDoubleValueRads(), spotterHeight);
                 switch (trexDuneComms) {
                     case IMC:
-                        TrexOperation imcMsg = surveil.asIMCMsg();
-                        System.out.println(imcMsg.getToken().toString());
-                        send(imcMsg);
-                        break;
-                    case REST:
-                        httpPostTrex(surveil);
-                        break;
-                }
-            }
-        });
-    }
-
-    private void addGoing(JPopupMenu popup, final LocationType loc) {
-        popup.add("Test visit europa").addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                loc.convertToAbsoluteLatLonDepth();
-                VisitEuropa going = new VisitEuropa(loc.getLatitudeAsDoubleValueRads(), loc
-                        .getLongitudeAsDoubleValueRads());
-                switch (trexDuneComms) {
-                    case IMC:
+                        // Activate T-Rex
+                        SetEntityParameters message = new SetEntityParameters();
+                        message.setName(taskName);
+                        EntityParameter entityParameter = new EntityParameter();
+                        entityParameter.setName("Active");
+                        entityParameter.setValue("true");
+                        ArrayList<EntityParameter> params = new ArrayList<EntityParameter>();
+                        params.add(entityParameter);
+                        message.setParams(params);
+                        send(message);
+                        // Send goal
                         send(going.asIMCMsg());
                         break;
                     case REST:

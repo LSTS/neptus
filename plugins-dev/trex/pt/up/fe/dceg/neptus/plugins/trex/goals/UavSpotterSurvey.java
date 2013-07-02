@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.trex.goals;
 
 import java.awt.Graphics2D;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
@@ -48,24 +49,35 @@ import com.l2fprod.common.propertysheet.Property;
  * @author meg
  *
  */
-public class VisitEuropa extends TrexGoal implements Renderer2DPainter {
+public class UavSpotterSurvey extends TrexGoal implements Renderer2DPainter {
     private static final String predicate = "Survey";
     private static final String timeline = "spotter";
     
-    protected double latitude, longitude;
 
-    public VisitEuropa() {
-        super(timeline, predicate);
+    public enum Attributes {
+        LATITUDE("center_lat"),
+        LONGITUDE("center_lon"),
+        HEIGHT("z");
+
+        public String name;
+
+        private Attributes(String name) {
+            this.name = name;
+        }
     }
+
+    private final HashMap<Attributes, Double> attributes;
 
     /**
      * @param lat_deg
      * @param lon_deg
      */
-    public VisitEuropa(double lat_deg, double lon_deg) {
+    public UavSpotterSurvey(double lat_deg, double lon_deg, int spotterHeight) {
         super(timeline, predicate);
-        this.latitude = lat_deg;
-        this.longitude = lon_deg;
+        attributes = new HashMap<UavSpotterSurvey.Attributes, Double>();
+        attributes.put(Attributes.LATITUDE, lat_deg);
+        attributes.put(Attributes.LONGITUDE, lon_deg);
+        attributes.put(Attributes.HEIGHT, (double) spotterHeight);
     }
 
 
@@ -73,15 +85,21 @@ public class VisitEuropa extends TrexGoal implements Renderer2DPainter {
     public Collection<TrexAttribute> getAttributes() {
         Vector<TrexAttribute> attributes = new Vector<TrexAttribute>();
         TrexAttribute attrTemp = new TrexAttribute();
-        attrTemp.setName("center_lat");
-        attrTemp.setMin(latitude + "");
-        attrTemp.setMax(latitude + "");
+        attrTemp.setName(Attributes.LATITUDE.name);
+        attrTemp.setMin(this.attributes.get(Attributes.LATITUDE) + "");
+        attrTemp.setMax(this.attributes.get(Attributes.LATITUDE) + "");
         attrTemp.setAttrType(TrexAttribute.ATTR_TYPE.FLOAT);
         attributes.add(attrTemp);
         attrTemp = new TrexAttribute();
-        attrTemp.setName("center_lon");
-        attrTemp.setMin(longitude + "");
-        attrTemp.setMax(longitude + "");
+        attrTemp.setName(Attributes.LONGITUDE.name);
+        attrTemp.setMin(this.attributes.get(Attributes.LONGITUDE) + "");
+        attrTemp.setMax(this.attributes.get(Attributes.LONGITUDE) + "");
+        attrTemp.setAttrType(TrexAttribute.ATTR_TYPE.FLOAT);
+        attributes.add(attrTemp);
+        attrTemp = new TrexAttribute();
+        attrTemp.setName(Attributes.HEIGHT.name);
+        attrTemp.setMin(this.attributes.get(Attributes.HEIGHT) + "");
+        attrTemp.setMax(this.attributes.get(Attributes.HEIGHT) + "");
         attrTemp.setAttrType(TrexAttribute.ATTR_TYPE.FLOAT);
         attributes.add(attrTemp);
         return attributes;
@@ -97,8 +115,10 @@ public class VisitEuropa extends TrexGoal implements Renderer2DPainter {
 
         Vector<DefaultProperty> props = new Vector<>();
 
-        props.add(PropertiesEditor.getPropertyInstance("Latitude", Double.class, latitude, true));
-        props.add(PropertiesEditor.getPropertyInstance("Longitude", Double.class, longitude, true));
+        props.add(PropertiesEditor.getPropertyInstance("Latitude", Double.class,
+                this.attributes.get(Attributes.LATITUDE), true));
+        props.add(PropertiesEditor.getPropertyInstance("Longitude", Double.class,
+                this.attributes.get(Attributes.LONGITUDE), true));
 
         return props;
     }
@@ -108,9 +128,9 @@ public class VisitEuropa extends TrexGoal implements Renderer2DPainter {
         for (Property p : properties) {
             switch (p.getName()) {
                 case "Latitude":
-                    latitude = (Double) p.getValue();
+                    this.attributes.put(Attributes.LATITUDE, (Double) p.getValue());
                 case "Longitude":
-                    longitude = (Double) p.getValue();
+                    this.attributes.put(Attributes.LONGITUDE, (Double) p.getValue());
                 default:
                     break;
             }
@@ -118,7 +138,8 @@ public class VisitEuropa extends TrexGoal implements Renderer2DPainter {
     }
 
     public LocationType getLocation() {
-        LocationType loc = new LocationType(latitude, longitude);
+        LocationType loc = new LocationType(this.attributes.get(Attributes.LATITUDE),
+                this.attributes.get(Attributes.LONGITUDE));
         return loc;
     }
     
@@ -133,8 +154,9 @@ public class VisitEuropa extends TrexGoal implements Renderer2DPainter {
                 + "\"on\": \""+super.timeline+"\",\"pred\": \""+super.predicate+"\","
                 + "\"Variable\":"
                 + "["
-                + "{\"float\":{\"value\": \""+latitude+"\"}, \"name\": \"latitude\"},"
-                + "{\"float\":{\"value\": \""+longitude+"\"}, \"name\": \"longitude\"}"
+                + "{\"float\":{\"value\": \""+this.attributes.get(Attributes.LATITUDE)+"\"}, \"name\": \""+Attributes.LATITUDE.name+"\"},"
+                + "{\"float\":{\"value\": \""+this.attributes.get(Attributes.LONGITUDE)+"\"}, \"name\": \""+Attributes.LONGITUDE.name+"\"}"
+                + "{\"float\":{\"value\": \"" + this.attributes.get(Attributes.HEIGHT) + "\"}, \"name\": \""+Attributes.HEIGHT.name+"\"}"
                 + "]}";
     }
 
