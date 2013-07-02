@@ -70,19 +70,19 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
     public ManeuverLocation location = new ManeuverLocation();
 
     @NeptusProperty(name="Speed", description="The speed to be used")
-    public double speed = 1000; 
+    public double speed = 1.3; 
 
     @NeptusProperty(name="Speed units", description="The speed units", editorClass=SpeedUnitsEditor.class)
-    public String speedUnits = "RPM";
+    public String speedUnits = "m/s";
 
     @NeptusProperty(name="Pitch", description="The Pitch angle used to perform the maneuver.")
     public double pitchDegs = 15;
 
     @NeptusProperty(name="Amplitude", description="Yoyo motion amplitude.")
-    public double amplitude = 10;
+    public double amplitude = 1;
 
     @NeptusProperty(name="Duration (s)", description="The duration in seconds of this maneuver. Use '0' for unlimited duration time.")
-    public int duration = 180;
+    public int duration = 300;
 
     @NeptusProperty(name="Radius (m)", description="Radius of the maneuver.")
     public float radius = 5;
