@@ -31,13 +31,21 @@
  */
 package pt.up.fe.dceg.neptus.comm.iridium;
 
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Vector;
 
+import org.apache.commons.codec.binary.Hex;
+
 import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.ByteUtil;
+
+import com.google.gson.Gson;
 
 /**
  * @author zp
@@ -47,8 +55,13 @@ public class HubIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;
     protected String serverUrl = "http://hub.lsts.pt/api/v1/";
-    
+    protected String systemsUrl = serverUrl+"systems";
+    protected String messagesUrl = serverUrl+"iridium";
+    protected int timeoutMillis = 10000;
     protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    
+    
     
     @Override
     public void addListener(IridiumMessageListener listener) {
@@ -62,13 +75,51 @@ public class HubIridiumMessenger implements IridiumMessenger {
     
     @Override
     public void sendMessage(IridiumMessage msg) throws Exception {
+     
         byte[] data = msg.serialize();
-        NeptusLog.pub().info("Sending to iridium (through HTTP): "+ByteUtil.dumpAsHexToString(data));        
+        
+        data = Hex.encodeHexString(data).getBytes();
+        
+        URL u = new URL(messagesUrl);
+        HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+        conn.setDoOutput(true);
+        conn.setRequestMethod( "POST" );
+        conn.setRequestProperty( "Content-Type", "application/hub" );
+        conn.setRequestProperty( "Content-Length", String.valueOf(data.length * 2) );
+        conn.setConnectTimeout(timeoutMillis);
+        OutputStream os = conn.getOutputStream();
+        os.write(data);
+        NeptusLog.pub().info("Sent "+msg.getClass().getSimpleName()+" through HTTP: "+conn.getResponseCode()+" "+conn.getResponseMessage());        
+        if (conn.getResponseCode() != 201) {
+            throw new Exception("Server returned "+conn.getResponseCode()+": "+conn.getResponseMessage());
+        }
     }
 
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
-        return new Vector<>();
+        String since = null;
+        if (timeSince != null)
+            since = dateToString(timeSince);
+        URL u = new URL(messagesUrl+"?since="+since);
+        if (since == null)
+            u = new URL(messagesUrl);
+        HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+        conn.setDoOutput(true);
+        conn.setRequestMethod( "GET" );
+        conn.setConnectTimeout(timeoutMillis);
+        Gson gson = new Gson();  
+        
+        if (conn.getResponseCode() != 200)
+            throw new Exception("Hub iridium server returned "+conn.getResponseCode()+": "+conn.getResponseMessage());
+        HubMessage[] msgs = gson.fromJson(new InputStreamReader(conn.getInputStream()), HubMessage[].class);
+        
+        Vector<IridiumMessage> ret = new Vector<>();
+        
+        
+        for (HubMessage m : msgs)
+            ret.add(m.message());
+        
+        return ret;
     }
     
     @Override
@@ -80,5 +131,59 @@ public class HubIridiumMessenger implements IridiumMessenger {
     public boolean isAvailable() {
         return available;
     }
-
+    
+    public HubSystemMsg[] retrieveSystems() throws Exception {
+        Gson gson = new Gson();
+        URL url = new URL(systemsUrl);        
+        return gson.fromJson(new InputStreamReader(url.openStream()), HubSystemMsg[].class);        
+    }
+    
+    
+    public static String dateToString(Date d) {
+        return dateFormat.format(d);
+    }
+    
+    public static Date stringToDate(String d) {
+        try {
+            return dateFormat.parse(d);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static class HubMessage {
+        int type;
+        String msg;
+        String updated_at;
+        
+        public IridiumMessage message() throws Exception {
+            char[] chars = new char[msg.length()];
+            msg.getChars(0, msg.length(), chars, 0);
+            byte[] data = Hex.decodeHex(chars);
+            return IridiumMessage.deserialize(data);
+        }
+        
+        public Date updatedAt() {
+            return stringToDate(updated_at);
+        }
+    }
+    
+    public static class HubSystemMsg {
+        
+        int imcid;
+        String name;
+        String type;
+        String updated_at;
+        Double[] coordinates;
+        
+        public Date updatedAt() {
+            return stringToDate(updated_at);
+        }
+    }
+    
+    public static void main(String[] args) throws Exception {
+        System.out.println(new HubIridiumMessenger().pollMessages(null));
+    }
 }

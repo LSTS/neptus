@@ -32,17 +32,19 @@
 package pt.up.fe.dceg.neptus.comm.iridium;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Vector;
 
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+import javax.swing.SwingWorker;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.Abort;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
@@ -104,22 +106,41 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
     }
 
     @Override
-    public void sendMessage(IridiumMessage msg) throws Exception {
-        int sent = 0;
-        for (IridiumMessenger m : messengers) {
-            if (m.isAvailable()) {
+    public void sendMessage(final IridiumMessage msg) throws Exception {
+        
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                int sent = 0;
+                for (IridiumMessenger m : messengers) {
+                    if (m.isAvailable()) {
+                        try {
+                            m.sendMessage(msg);
+                            sent++;
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
+                    }
+                }
+                if (sent == 0)
+                    throw new Exception("Unable to send iridium message");
+                NeptusLog.pub().info("Iridium message sent through "+sent+" interfaces");
+                return null;
+            }
+
+            @Override
+            protected void done() {
                 try {
-                    m.sendMessage(msg);
-                    sent++;
+                    get();
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(), e);
+                    NeptusLog.pub().error(e);
                 }
             }
-        }
-        if (sent == 0)
-            throw new Exception("Unable to send iridium message");
-        NeptusLog.pub().info("Iridium message sent through "+sent+" interfaces");
+        };
+        worker.execute();
     }
 
     public void sendMessage(IMCMessage msg) throws Exception {

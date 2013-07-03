@@ -68,8 +68,11 @@ public class IridiumCommand extends IridiumMessage {
 
     @Override
     public int deserializeFields(IMCInputStream in) throws Exception {
-        command = in.readPlaintext();
-        return command.getBytes("ISO-8859-1").length + 2;
+        int len = in.readUnsignedShort();
+        byte[] data = new byte[len];
+        in.readFully(data);
+        command = new String(data, "ISO-8859-1");
+        return data.length + 2;
     }
     
     public final String getCommand() {
