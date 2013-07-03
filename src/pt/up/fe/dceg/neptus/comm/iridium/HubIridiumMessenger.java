@@ -44,6 +44,8 @@ import java.util.Vector;
 import org.apache.commons.codec.binary.Hex;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.imc.TrexAttribute;
+import pt.up.fe.dceg.neptus.imc.TrexToken;
 
 import com.google.gson.Gson;
 
@@ -184,6 +186,8 @@ public class HubIridiumMessenger implements IridiumMessenger {
     }
     
     public static void main(String[] args) throws Exception {
-        System.out.println(new HubIridiumMessenger().pollMessages(null));
+        TrexToken tok = new TrexToken("drifter", "Inactive", new Vector<TrexAttribute>());
+        IridiumFacade.getInstance().sendMessage(tok);
+        System.out.println(IridiumFacade.getInstance().pollMessages(null));        
     }
 }

@@ -65,7 +65,9 @@ public class ImcIridiumMessage extends IridiumMessage {
     @Override
     public int deserializeFields(IMCInputStream in) throws Exception {
         msg = IMCDefinition.getInstance().create(IMCDefinition.getInstance().getMessageName(message_type));
-        IMCDefinition.getInstance().deserializeFields(msg, in);
+        IMCDefinition.getInstance().deserializeFields(msg, in);        
+        msg.setSrc(source);
+        msg.setDst(destination);
         return msg.getPayloadSize();
     }
 
@@ -80,6 +82,11 @@ public class ImcIridiumMessage extends IridiumMessage {
      * @param msg the msg to set
      */
     public final void setMsg(IMCMessage msg) {
+        if (msg != null) {
+            this.message_type = msg.getMgid();
+            this.source = msg.getSrc();
+            this.destination = msg.getDst();
+        }
         this.msg = msg;
     }
     

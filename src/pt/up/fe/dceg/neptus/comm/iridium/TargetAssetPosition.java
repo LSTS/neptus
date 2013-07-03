@@ -51,7 +51,7 @@ public class TargetAssetPosition extends IridiumMessage {
     public int asset_imc_id;
 
     public TargetAssetPosition() {
-        super(2006);
+        super(2007);
     }
 
     @Override

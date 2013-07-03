@@ -34,7 +34,6 @@ package pt.up.fe.dceg.neptus.comm.iridium;
 import java.util.Collection;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.comm.iridium.DeviceUpdate.Position;
 import pt.up.fe.dceg.neptus.imc.IMCInputStream;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
