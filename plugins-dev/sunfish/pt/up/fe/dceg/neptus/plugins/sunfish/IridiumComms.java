@@ -54,6 +54,8 @@ import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.RemoteSensorInfo;
+import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
@@ -72,12 +74,26 @@ import com.google.common.eventbus.Subscribe;
  *
  */
 @PluginDescription(name="Iridium Communications Plug-in")
-public class IridiumComms extends SimpleRendererInteraction implements Renderer2DPainter, IridiumMessageListener {
+public class IridiumComms extends SimpleRendererInteraction implements ConfigurationListener, Renderer2DPainter, IridiumMessageListener {
 
     private static final long serialVersionUID = -8535642303286049869L;
     protected long lastMessageReceivedTime = System.currentTimeMillis() - 3600000;
     protected LinkedHashMap<String, RemoteSensorInfo> sensorData = new LinkedHashMap<>();
     protected Image spot, desired, target;
+    
+    @NeptusProperty(name="Iridium communications device", description="The name of Iridium comms provider. Examples: lauv-xtreme-2, manta-1, hub, ...")
+    public String messengerName = null;
+    
+    @Override
+    public void propertiesChanged() {
+        IridiumFacade.getInstance().setIridiumSystemProvider(messengerName);
+    }
+    
+    @Override
+    public String getName() {
+        return "Iridium Communications plug-in";
+    }
+    
     
     @Override
     public boolean isExclusive() {

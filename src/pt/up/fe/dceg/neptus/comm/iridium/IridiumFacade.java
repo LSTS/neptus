@@ -58,8 +58,7 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
 
     private static IridiumFacade instance = null;    
     protected Vector<IridiumMessenger> messengers = new Vector<>();
-    protected boolean sendThroughHttp = false;
-    protected String iridiumSystemProvider = null;
+    protected String iridiumSystemProvider = "any";
     
     protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
     
@@ -76,16 +75,7 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
     private IridiumFacade() {
         
         NeptusLog.pub().info("Starting Iridium comms");
-        messengers.add(new HubIridiumMessenger());
-        
-        ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("iridium",
-                SystemTypeEnum.ALL, true);
-        for (ImcSystem s : sysLst) {
-            messengers.add(new DuneIridiumMessenger(s.getName()));        
-        }
-        
-        for (IridiumMessenger m : messengers)
-            NeptusLog.pub().info("Added "+m);
+        updateMessengers();        
     }
 
     @Override
@@ -111,21 +101,22 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() throws Exception {
-                int sent = 0;
+                String provider = null;
                 for (IridiumMessenger m : messengers) {
                     if (m.isAvailable()) {
                         try {
                             m.sendMessage(msg);
-                            sent++;
+                            provider = m.getName();
+                            break;
                         }
                         catch (Exception e) {
                             NeptusLog.pub().error(e);
                         }
                     }
                 }
-                if (sent == 0)
+                if (provider == null)
                     throw new Exception("Unable to send iridium message");
-                NeptusLog.pub().info("Iridium message sent through "+sent+" interfaces");
+                NeptusLog.pub().info("Iridium message sent through "+provider);
                 return null;
             }
 
@@ -172,6 +163,51 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
     public void updateMessengers() {
         ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("iridium",
                 SystemTypeEnum.ALL, true);
+        if (iridiumSystemProvider == null)
+            iridiumSystemProvider = "any";
+        
+        if (!iridiumSystemProvider.equals("any")) {
+            Vector<IridiumMessenger> toDelete = new Vector<>();
+            
+            for (IridiumMessenger m : messengers) {
+                if (!m.getName().contains(iridiumSystemProvider)) {
+                    toDelete.add(m);
+                    NeptusLog.pub().info("Removed "+m);
+                }
+            }            
+            messengers.removeAll(toDelete);
+        }
+        
+        if (iridiumSystemProvider.equals("any") || (""+iridiumSystemProvider).equalsIgnoreCase("hub")) {
+            boolean alreadyAdded = false;
+            for (IridiumMessenger m : messengers) {
+                if (m instanceof HubIridiumMessenger) {                    
+                    alreadyAdded = true;
+                    break;
+                }
+            }
+            if (!alreadyAdded) {
+                HubIridiumMessenger m = new HubIridiumMessenger();
+                messengers.add(m);
+                NeptusLog.pub().info("Added "+m);
+            }
+        }    
+        
+        if (iridiumSystemProvider.equals("any") || (""+iridiumSystemProvider).equalsIgnoreCase("sim")) {
+            boolean alreadyAdded = false;
+            for (IridiumMessenger m : messengers) {
+                if (m instanceof SimulatedMessenger) {                    
+                    alreadyAdded = true;
+                    break;
+                }
+            }
+            if (!alreadyAdded) {
+                SimulatedMessenger m = new SimulatedMessenger();
+                messengers.add(m);
+                NeptusLog.pub().info("Added "+m);
+            }
+        }     
+        
         for (ImcSystem s : sysLst) {
             boolean alreadyAdded = false;
             for (IridiumMessenger m : messengers) {
@@ -183,21 +219,14 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
                 }
             }
             if (!alreadyAdded) {
-                DuneIridiumMessenger m = new DuneIridiumMessenger(s.getName());
-                messengers.add(m);
-                m.addListener(this);
-                NeptusLog.pub().info("Added "+m);
+                if (iridiumSystemProvider.equals("any") || iridiumSystemProvider.equals(s.getName())) {
+                    DuneIridiumMessenger m = new DuneIridiumMessenger(s.getName());
+                    messengers.add(m);
+                    m.addListener(this);
+                    NeptusLog.pub().info("Added "+m);
+                }
             }
         }
-
-        for (int i = 0; i < messengers.size(); i++)
-            if (!messengers.get(i).isAvailable()) {
-                IridiumMessenger m = messengers.get(i);
-                m.removeListener(this);
-                messengers.remove(i--);
-                NeptusLog.pub().info("Removed "+m);
-            }
-
     }
     
     @Override
@@ -214,21 +243,6 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
         return false;
     }
     
-    /**
-     * @return the sendThroughHttp
-     */
-    public boolean isSendThroughHttp() {
-        return sendThroughHttp;
-    }
-
-    /**
-     * @param sendThroughHttp the sendThroughHttp to set
-     */
-    public void setSendThroughHttp(boolean sendThroughHttp) {
-        this.sendThroughHttp = sendThroughHttp;        
-        updateMessengers();
-    }
-
     /**
      * @return the iridiumSystemProvider
      */
