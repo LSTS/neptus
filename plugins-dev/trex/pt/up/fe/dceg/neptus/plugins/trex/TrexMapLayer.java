@@ -108,14 +108,9 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     public CommsChannel trexDuneComms = CommsChannel.IMC;
     @NeptusProperty(name = "Name of Dune task")
     public String taskName = "TREX";
-    @NeptusProperty(name = "Spotter height", description = "Height of waypoint for uav spotter plan.")
+    @NeptusProperty(name = "Loiter height", description = "Height of waypoint for uav spotter plan.", category = "UAV Spotter")
     public int spotterHeight = 100;
 
-//    @NeptusProperty(name = "Default speed (m/s)")
-//    public double defaultSpeed = 1.25;
-//
-//    @NeptusProperty(name = "Default tolerance (meters)")
-//    public double defaultTolerance = 15;
 
     private static final long serialVersionUID = 1L;
     Maneuver lastManeuver = null;
@@ -328,16 +323,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                         .getLongitudeAsDoubleValueRads(), spotterHeight);
                 switch (trexDuneComms) {
                     case IMC:
-                        // Activate T-Rex
-                        SetEntityParameters message = new SetEntityParameters();
-                        message.setName(taskName);
-                        EntityParameter entityParameter = new EntityParameter();
-                        entityParameter.setName("Active");
-                        entityParameter.setValue("true");
-                        ArrayList<EntityParameter> params = new ArrayList<EntityParameter>();
-                        params.add(entityParameter);
-                        message.setParams(params);
-                        send(message);
+                        activateTrex();
                         // Send goal
                         send(going.asIMCMsg());
                         break;
@@ -345,6 +331,18 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                         httpPostTrex(going);
                         break;
                 }
+            }
+
+            private void activateTrex() {
+                SetEntityParameters message = new SetEntityParameters();
+                message.setName(taskName);
+                EntityParameter entityParameter = new EntityParameter();
+                entityParameter.setName("Active");
+                entityParameter.setValue("true");
+                ArrayList<EntityParameter> params = new ArrayList<EntityParameter>();
+                params.add(entityParameter);
+                message.setParams(params);
+                send(message);
             }
         });
     }
