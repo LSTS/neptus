@@ -347,7 +347,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                 IMCMessage m = index.getMessage(msgIndex);
                 LocationType loc = new LocationType(Math.toDegrees(m.getDouble("lat")), Math.toDegrees(m.getDouble("lon")));
                 loc.setDepth(m.getDouble("depth"));
-                loc.translatePosition(m.getDouble("x"), m.getDouble("y"), m.getDouble("z"));
+                loc.translatePosition(m.getDouble("x"), m.getDouble("y"), 0);
                 loc.convertToAbsoluteLatLonDepth();
                 SystemPositionAndAttitude state = new SystemPositionAndAttitude(loc, m.getDouble("phi"), m.getDouble("theta"), m.getDouble("psi"));
                 if (m.getTypeOf("alt") == null) {
