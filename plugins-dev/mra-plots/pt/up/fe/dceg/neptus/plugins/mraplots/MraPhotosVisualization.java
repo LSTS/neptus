@@ -351,16 +351,18 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                 loc.convertToAbsoluteLatLonDepth();
                 SystemPositionAndAttitude state = new SystemPositionAndAttitude(loc, m.getDouble("phi"), m.getDouble("theta"), m.getDouble("psi"));
                 if (m.getTypeOf("alt") == null) {
-                    state.setU(Double.NaN);
+                    state.setW(Double.NaN);
                     int bdIndex = index.getMessageAtOrAfer(bdistId, dvlId, lastBDistanceIndex, timestampOf(files[i]));
                     
                     if (bdIndex != -1) {
-                        state.setU(index.getMessage(bdIndex).getDouble("value"));
+                        state.setW(index.getMessage(bdIndex).getDouble("value"));
                         lastBDistanceIndex = bdIndex;
                     }
                 }
                 else
-                    state.setU(m.getDouble("alt"));
+                    state.setW(m.getDouble("alt"));
+                
+                state.setU(m.getDouble("u"));
                 states.put(files[i], state);
                 
             }
@@ -606,7 +608,8 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             return;
         
         String depth = GuiUtils.getNeptusDecimalFormat(1).format(state.getPosition().getDepth());
-        String alt = Double.isNaN(state.getU())? "N/A" : GuiUtils.getNeptusDecimalFormat(1).format(state.getU());
+        String alt = Double.isNaN(state.getW())? "N/A" : GuiUtils.getNeptusDecimalFormat(1).format(state.getW());
+        String speed = GuiUtils.getNeptusDecimalFormat(1).format(state.getU());
         int roll = (int)Math.toDegrees(state.getRoll());
         int pitch = (int)Math.toDegrees(state.getPitch());
         int yaw = (int)Math.toDegrees(state.getYaw());
@@ -615,16 +618,16 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         
         Rectangle2D r = g.getFontMetrics().getStringBounds(lat, g);
         g.setColor(new Color(0,0,0,128));
-        g.fill(new RoundRectangle2D.Double(10, 10, r.getWidth()+20, 125, 20, 20));
+        g.fill(new RoundRectangle2D.Double(10, 10, r.getWidth()+20, 140, 20, 20));
         g.setColor(Color.white);
         g.drawString(lat, 20, 30);
         g.drawString(lon, 20, 45);
         g.drawString("Depth: "+depth, 20, 60);
-        
         g.drawString("Altitude: "+alt, 20, 75);
-        g.drawString("Roll: "+roll, 20, 90);
-        g.drawString("Pitch: "+pitch, 20, 105);
-        g.drawString("Yaw: "+yaw, 20, 120);
+        g.drawString("Speed: "+speed, 20, 90);
+        g.drawString("Roll: "+roll, 20, 105);
+        g.drawString("Pitch: "+pitch, 20, 120);
+        g.drawString("Yaw: "+yaw, 20, 135);
     }
 
     protected Thread loadingThread(final String name) {
