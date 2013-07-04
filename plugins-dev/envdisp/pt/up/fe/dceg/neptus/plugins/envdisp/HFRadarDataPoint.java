@@ -38,9 +38,10 @@ public class HFRadarDataPoint implements Comparable<HFRadarDataPoint> {
     //lat lon speed (cm/s)    degree  acquired (Date+Time)    resolution (km) origin
     private double lat;
     private double lon;
+    private Date dateUTC;
+
     private double speedCmS;
     private double headingDegrees;
-    private Date dateUTC;
     private double resolutionKm = -1;
     private String info = "";
     
@@ -164,19 +165,31 @@ public class HFRadarDataPoint implements Comparable<HFRadarDataPoint> {
         return historicalData;
     }
     
-    public boolean calculateMean() {
+    public boolean calculateMean(Date currentDate) {
         if (historicalData.size() == 0)
             return false;
         Date mostRecentDate = null;
         double meanSpeed = 0;
         double meanHeading = 0;
-        double size = historicalData.size();
+        int size = historicalData.size();
         for (HFRadarDataPoint dp : historicalData) {
+            if (currentDate.before(dp.dateUTC)) {
+                size--;
+                continue;
+            }
             if (mostRecentDate == null || !mostRecentDate.after(dp.dateUTC))
                 mostRecentDate = dp.dateUTC;
             meanSpeed += dp.speedCmS;
             meanHeading += dp.headingDegrees;
         }
+        
+        if (size < 1) {
+            setSpeedCmS(Double.NaN);
+            setHeadingDegrees(Double.NaN);
+            setDateUTC(new Date(0));
+            return false;
+        }
+        
         meanSpeed = meanSpeed / size;
         meanHeading = meanHeading / size;
         
@@ -186,7 +199,44 @@ public class HFRadarDataPoint implements Comparable<HFRadarDataPoint> {
         
         return true;
     }
-    
+
+    public boolean useMostRecent(Date currentDate) {
+        if (historicalData.size() == 0)
+            return false;
+        Date mostRecentDate = null;
+        double mRecentSpeed = 0;
+        double mRecentHeading = 0;
+        int size = historicalData.size();
+        for (HFRadarDataPoint dp : historicalData) {
+            if (currentDate.before(dp.dateUTC)) {
+                size--;
+                continue;
+            }
+            if (!dp.dateUTC.after(currentDate) && (mostRecentDate == null || dp.dateUTC.after(mostRecentDate))) {
+                mostRecentDate = dp.dateUTC;
+            }
+            else {
+                size--;
+                continue;
+            }
+            mRecentSpeed = dp.speedCmS;
+            mRecentHeading = dp.headingDegrees;
+        }
+        
+        if (size < 1) {
+            setSpeedCmS(Double.NaN);
+            setHeadingDegrees(Double.NaN);
+            setDateUTC(new Date(0));
+            return false;
+        }
+        
+        setSpeedCmS(mRecentSpeed);
+        setHeadingDegrees(mRecentHeading);
+        setDateUTC(mostRecentDate);
+        
+        return true;
+    }
+
     public void purgeAllBefore(Date date) {
         if (date == null || historicalData.size() == 0)
             return;

@@ -33,7 +33,6 @@ package pt.up.fe.dceg.neptus.plugins.envdisp;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -65,6 +64,7 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.InterpolationColorMap;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
@@ -86,22 +86,34 @@ import pt.up.fe.dceg.neptus.util.http.client.HttpClientConnectionHelper;
 @SuppressWarnings("serial")
 @PluginDescription(name="HF Radar Visualization", author="Paulo Dias", version="0.1")
 @LayerPriority(priority = -50)
-public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPainter, IPeriodicUpdates {
+public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPainter, IPeriodicUpdates, ConfigurationListener {
+
+    /*
+     * Currents, wind, waves, SST, bathy 
+     */
+    
+    @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR)
+    public boolean visible = true;
 
     @NeptusProperty(name = "Seconds between updates")
     public long updateSeconds = 60;
 
-    @NeptusProperty(name = "Data limit validity (hours)")
+    @NeptusProperty(name = "Data limit validity (hours)", userLevel = LEVEL.REGULAR)
     public int dateLimitHours = 12;
     
     @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.ADVANCED)
     public boolean ignoreDateLimitToLoad = true;
     
-    @NeptusProperty(name = "Request data from Web")
+    @NeptusProperty(name = "Request data from Web", hidden=true)
     public boolean requestFromWeb = false;
 
     @NeptusProperty(name = "Load data from file (hfradar.txt)")
     public boolean loadFromFile = false;
+    
+    @NeptusProperty(name = "HF-Radar most recent (true) or mean (false)", userLevel = LEVEL.REGULAR)
+    public boolean hfradarUseMostRecentOrMean = true;
+    
+    private boolean clearImgCachRqst = false;
 
     public static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'SS");
     public static final SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd");
@@ -159,6 +171,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     public void initSubPanel() {
         HashMap<String, HFRadarDataPoint> tdp = processNoaaHFRadarTest();
         mergeDataToInternalDataList(tdp);
+        update();
     }
 
     /* (non-Javadoc)
@@ -187,19 +200,51 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#update()
      */
     @Override
-    public boolean update() {
-        System.out.println("######");
-        if (false && requestFromWeb) {
-            HashMap<String, HFRadarDataPoint> dpLts = getNoaaHFRadarData();
-            if (dpLts != null) {
-                System.out.println(dpLts.size() + " ------------------------------");
-                
-            }
-        }
+    public synchronized boolean update() {
+//        System.out.println("######");
+//        if (false && requestFromWeb) {
+//            HashMap<String, HFRadarDataPoint> dpLts = getNoaaHFRadarData();
+//            if (dpLts != null) {
+//                System.out.println(dpLts.size() + " ------------------------------");
+//                
+//            }
+//        }
         
         cleanDataPointsBeforeDate();
+        updateValues();
+        clearImgCachRqst = true;
         
         return true;
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.plugins.ConfigurationListener#propertiesChanged()
+     */
+    public void propertiesChanged() {
+        updateValues();
+        clearImgCachRqst = true;
+    }
+
+    private void updateValues() {
+        for (String dpID : dataPoints.keySet().toArray(new String[0])) {
+            HFRadarDataPoint dp = dataPoints.get(dpID);
+            if (dp == null)
+                continue;
+            
+            updateHFRadarToUseMostRecentOrMean(dp);
+        }
+    }
+
+    /**
+     * @param dp
+     * @return
+     */
+    private void updateHFRadarToUseMostRecentOrMean(HFRadarDataPoint dp) {
+        Date nowDate = new Date();
+        if (hfradarUseMostRecentOrMean)
+            dp.useMostRecent(nowDate);
+        else
+            dp.calculateMean(nowDate);
     }
 
     private void cleanDataPointsBeforeDate() {
@@ -217,7 +262,6 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             else {
                 // Cleanup historicalData
                 dp.purgeAllBefore(dateLimit);
-                dp.calculateMean();
             }
         }
     }
@@ -249,7 +293,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
                 if (toAddDP.size() > 0)
                     histOrigData.addAll(toAddDP);
             }
-            dpo.calculateMean();
+//            dpo.calculateMean();
         }
     }
 
@@ -343,14 +387,22 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      */
     @Override
     public void paint(Graphics2D go, StateRenderer2D renderer) {
-        if (dim == null || lastLod < 0 || lastCenter == null || Double.isNaN(lastRotation)) {
-            Dimension dimN = renderer.getSize(new Dimension());
-            if (dimN.height != 0 && dimN.width != 0)
-                dim = dimN;
-            cacheImg = null;
+        if (!visible)
+            return;
+        
+        if (!clearImgCachRqst) {
+            if (dim == null || lastLod < 0 || lastCenter == null || Double.isNaN(lastRotation)) {
+                Dimension dimN = renderer.getSize(new Dimension());
+                if (dimN.height != 0 && dimN.width != 0)
+                    dim = dimN;
+                cacheImg = null;
+            }
+            else if (!dim.equals(renderer.getSize()) || lastLod != renderer.getLevelOfDetail()
+                    || !lastCenter.equals(renderer.getCenter()) || Double.compare(lastRotation, renderer.getRotation()) != 0) {
+                cacheImg = null;
+            }
         }
-        else if (!dim.equals(renderer.getSize()) || lastLod != renderer.getLevelOfDetail()
-                || !lastCenter.equals(renderer.getCenter()) || Double.compare(lastRotation, renderer.getRotation()) != 0) {
+        else {
             cacheImg = null;
         }
         
@@ -377,8 +429,15 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
                 if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
                     continue;
                 
-                loc.setLatitude(dp.getLat());
-                loc.setLongitude(dp.getLon());
+                double latV = dp.getLat();
+                double lonV = dp.getLon();
+                double headingV = dp.getHeadingDegrees();
+                
+                if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(headingV))
+                    continue;
+                
+                loc.setLatitude(latV);
+                loc.setLongitude(lonV);
                 
                 Point2D pt = renderer.getScreenPosition(loc);
 
@@ -393,7 +452,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
                 if (dp.getDateUTC().before(dateColorLimit))
                     color = ColorUtils.setTransparencyToColor(color, 128);
                 gt.setColor(color);
-                gt.rotate(-Math.toRadians(dp.getHeadingDegrees()) - renderer.getRotation());
+                gt.rotate(-Math.toRadians(headingV) - renderer.getRotation());
                 gt.fill(arrow);
                 
                 gt.dispose();
@@ -525,7 +584,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         }
         
         for (HFRadarDataPoint elm : hfdp.values()) {
-            elm.calculateMean();
+            updateHFRadarToUseMostRecentOrMean(elm);
         }
         
         return hfdp;
