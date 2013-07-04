@@ -34,13 +34,13 @@ package pt.up.fe.dceg.neptus.plugins.envdisp;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class BaseDataPoint implements Comparable<BaseDataPoint> {
+public class BaseDataPoint<T extends BaseDataPoint> implements Comparable<BaseDataPoint> {
     //lat lon speed (cm/s)    degree  acquired (Date+Time)    resolution (km) origin
     protected double lat;
     protected double lon;
     protected Date dateUTC;
 
-    private ArrayList<BaseDataPoint> historicalData = new ArrayList<>();
+    protected ArrayList<T> historicalData = new ArrayList<>();
     
     public BaseDataPoint(double lat, double lon) {
         this.lat = lat;
@@ -93,20 +93,22 @@ public class BaseDataPoint implements Comparable<BaseDataPoint> {
     /**
      * @return the historicalData
      */
-    public ArrayList<BaseDataPoint> getHistoricalData() {
+    public ArrayList<T> getHistoricalData() {
         return historicalData;
     }
     
 
+    @SuppressWarnings("unchecked")
     public void purgeAllBefore(Date date) {
         if (date == null || historicalData.size() == 0)
             return;
-        for (BaseDataPoint dp : historicalData.toArray(new BaseDataPoint[0])) {
+        for (BaseDataPoint<T> dp : historicalData.toArray(new BaseDataPoint[0])) {
             if (dp.getDateUTC().before(date))
                 historicalData.remove(dp);
         }
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public int compareTo(BaseDataPoint o) {
         if (Double.compare(lat, o.lat) == 0 && Double.compare(lon, o.lon) == 0)
@@ -115,6 +117,7 @@ public class BaseDataPoint implements Comparable<BaseDataPoint> {
             return 1; 
     }
     
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean equals(Object obj) {
         if (obj == null)
@@ -125,6 +128,7 @@ public class BaseDataPoint implements Comparable<BaseDataPoint> {
         return compareTo((BaseDataPoint) obj) == 0 ? true : false;
     }
     
+    @SuppressWarnings("rawtypes")
     public static String getId(BaseDataPoint hfrdp) {
         return hfrdp.lat + ":" + hfrdp.lon;
     }

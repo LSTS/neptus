@@ -34,22 +34,17 @@ package pt.up.fe.dceg.neptus.plugins.envdisp;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class HFRadarDataPoint implements Comparable<HFRadarDataPoint> {
-    //lat lon speed (cm/s)    degree  acquired (Date+Time)    resolution (km) origin
-    private double lat;
-    private double lon;
-    private Date dateUTC;
+public class HFRadarDataPoint extends BaseDataPoint<HFRadarDataPoint> {
 
     private double speedCmS;
     private double headingDegrees;
     private double resolutionKm = -1;
     private String info = "";
     
-    private ArrayList<HFRadarDataPoint> historicalData = new ArrayList<>();
+//    private ArrayList<HFRadarDataPoint> historicalData = new ArrayList<>();
     
     public HFRadarDataPoint(double lat, double lon) {
-        this.lat = lat;
-        this.lon = lon;
+        super(lat, lon);
     }
 
     public HFRadarDataPoint getACopyWithoutHistory() {
@@ -60,20 +55,6 @@ public class HFRadarDataPoint implements Comparable<HFRadarDataPoint> {
         copy.setResolutionKm(getResolutionKm());
         copy.setInfo(getInfo());
         return copy;
-    }
-    
-    /**
-     * @return the lat
-     */
-    public double getLat() {
-        return lat;
-    }
-
-    /**
-     * @return the lon
-     */
-    public double getLon() {
-        return lon;
     }
 
     /**
@@ -102,20 +83,6 @@ public class HFRadarDataPoint implements Comparable<HFRadarDataPoint> {
      */
     public void setHeadingDegrees(double headingDegrees) {
         this.headingDegrees = headingDegrees;
-    }
-
-    /**
-     * @return the dateUTC
-     */
-    public Date getDateUTC() {
-        return dateUTC;
-    }
-
-    /**
-     * @param dateUTC the dateUTC to set
-     */
-    public void setDateUTC(Date dateUTC) {
-        this.dateUTC = dateUTC;
     }
 
     /**
@@ -237,34 +204,34 @@ public class HFRadarDataPoint implements Comparable<HFRadarDataPoint> {
         return true;
     }
 
-    public void purgeAllBefore(Date date) {
-        if (date == null || historicalData.size() == 0)
-            return;
-        for (HFRadarDataPoint dp : historicalData.toArray(new HFRadarDataPoint[0])) {
-            if (dp.getDateUTC().before(date))
-                historicalData.remove(dp);
-        }
-    }
+//    public void purgeAllBefore(Date date) {
+//        if (date == null || historicalData.size() == 0)
+//            return;
+//        for (HFRadarDataPoint dp : historicalData.toArray(new HFRadarDataPoint[0])) {
+//            if (dp.getDateUTC().before(date))
+//                historicalData.remove(dp);
+//        }
+//    }
 
-    @Override
-    public int compareTo(HFRadarDataPoint o) {
-        if (Double.compare(lat, o.lat) == 0 && Double.compare(lon, o.lon) == 0)
-            return 0;
-        else
-            return 1; 
-    }
+//    @Override
+//    public int compareTo(HFRadarDataPoint o) {
+//        if (Double.compare(lat, o.lat) == 0 && Double.compare(lon, o.lon) == 0)
+//            return 0;
+//        else
+//            return 1; 
+//    }
     
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null)
-            return false;
-
-        if (!(obj instanceof HFRadarDataPoint))
-            return false;
-        return compareTo((HFRadarDataPoint) obj) == 0 ? true : false;
-    }
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (obj == null)
+//            return false;
+//
+//        if (!(obj instanceof HFRadarDataPoint))
+//            return false;
+//        return compareTo((HFRadarDataPoint) obj) == 0 ? true : false;
+//    }
     
-    public static String getId(HFRadarDataPoint hfrdp) {
-        return hfrdp.lat + ":" + hfrdp.lon;
-    }
+//    public static String getId(HFRadarDataPoint hfrdp) {
+//        return hfrdp.lat + ":" + hfrdp.lon;
+//    }
 }
