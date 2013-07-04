@@ -157,6 +157,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     private HttpClientConnectionHelper httpComm = new HttpClientConnectionHelper();
     private HttpGet getHttpRequest;
     
+    // ID is lat/lon
     private HashMap<String, HFRadarDataPoint> dataPoints = new HashMap<>();
     
     public HFRadarVisualization(ConsoleLayout console) {

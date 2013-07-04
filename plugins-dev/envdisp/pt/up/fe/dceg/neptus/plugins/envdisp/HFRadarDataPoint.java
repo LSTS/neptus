@@ -57,6 +57,19 @@ public class HFRadarDataPoint extends BaseDataPoint<HFRadarDataPoint> {
         return copy;
     }
 
+    public HFRadarDataPoint copyToWithoutHistory(HFRadarDataPoint copy) {
+        // no Lat/Lon copy
+        
+        copy.setDateUTC(getDateUTC());
+        
+        copy.setSpeedCmS(getSpeedCmS());
+        copy.setHeadingDegrees(getHeadingDegrees());
+        copy.setDateUTC(getDateUTC());
+        copy.setResolutionKm(getResolutionKm());
+        copy.setInfo(getInfo());
+        return copy;
+    }
+
     /**
      * @return the speedCmS
      */
@@ -116,11 +129,9 @@ public class HFRadarDataPoint extends BaseDataPoint<HFRadarDataPoint> {
 
     @Override
     public String toString() {
-        return "Lat:\t" + lat +
-        		"\tLon:\t" + lon +
+        return super.toString() +
         		"\tSpeed:\t" + speedCmS + 
         		"\tHeading:\t" + headingDegrees + 
-        		"\tDate:\t" + dateUTC +
         		"\tResolution:\t" + resolutionKm +
         		"\tInfo:\t" + info;
     }
