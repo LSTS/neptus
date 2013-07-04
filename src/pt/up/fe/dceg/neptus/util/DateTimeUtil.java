@@ -46,10 +46,12 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 @SuppressWarnings("serial")
 public class DateTimeUtil {
 
-	public static final long DAY    = 1000*60*60*24;
-    public static final long HOUR   = 1000*60*60;
-    public static final long MINUTE = 1000*60;
+    public static final long DAY = 1000 * 60 * 60 * 24;
+    public static final long HOUR = 1000 * 60 * 60;
+    public static final long MINUTE = 1000 * 60;
     public static final long SECOND = 1000;
+    
+    public static final int DAYS_SINCE_YEAR_0_TILL_1970 = 719530;
     
     public static final SimpleDateFormat dateFormaterXMLUTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'.0Z'") {{setTimeZone(TimeZone.getTimeZone("UTC"));}}; // This one should be UTC (Zulu)
 //    public static final SimpleDateFormat dateFormaterXMLNoMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");  // This one should be UTC (Zulu)
