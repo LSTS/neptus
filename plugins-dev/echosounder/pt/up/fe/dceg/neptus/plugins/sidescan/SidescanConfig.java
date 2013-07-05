@@ -33,7 +33,6 @@ package pt.up.fe.dceg.neptus.plugins.sidescan;
 
 import java.awt.Color;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;

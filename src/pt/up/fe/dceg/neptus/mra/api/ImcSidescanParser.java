@@ -139,6 +139,7 @@ public class ImcSidescanParser implements SidescanParser {
             pose.getPosition().setLongitudeRads(state.getDouble("lon"));
             pose.getPosition().setOffsetNorth(state.getDouble("x"));
             pose.getPosition().setOffsetEast(state.getDouble("y"));
+            pose.setRoll(state.getDouble("phi"));
             pose.setYaw(state.getDouble("psi"));
             pose.setP(state.getDouble("p"));
             pose.setQ(state.getDouble("q"));
