@@ -58,6 +58,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     protected boolean available = true;
     protected String serverUrl = "http://hub.lsts.pt/api/v1/";
     protected String systemsUrl = serverUrl+"systems";
+    protected String activeSystemsUrl = systemsUrl+"/active";
     protected String messagesUrl = serverUrl+"iridium";
     protected int timeoutMillis = 10000;
     protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
@@ -69,6 +70,24 @@ public class HubIridiumMessenger implements IridiumMessenger {
     protected Thread t = null;
     public HubIridiumMessenger() {
        startPolling();
+    }
+    
+    public DeviceUpdate pollActiveDevices() throws Exception {
+        Gson gson = new Gson();
+        URL url = new URL(activeSystemsUrl);        
+        HubSystemMsg[] sys = gson.fromJson(new InputStreamReader(url.openStream()), HubSystemMsg[].class);
+        
+        DeviceUpdate up = new DeviceUpdate();
+        for (HubSystemMsg s : sys) {
+            DeviceUpdate.Position pos = new DeviceUpdate.Position();
+            pos.id = s.imcid;
+            pos.latitude = s.coordinates[0];
+            pos.longitude = s.coordinates[1];
+            pos.timestamp = stringToDate(s.updated_at).getTime() / 1000.0;
+            up.getPositions().put(pos.id, pos);
+        }
+        
+        return up;
     }
     
     public void startPolling() {
@@ -193,7 +212,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
         URL url = new URL(systemsUrl);        
         return gson.fromJson(new InputStreamReader(url.openStream()), HubSystemMsg[].class);        
     }
-    
+      
     
     public static String dateToString(Date d) {
         return dateFormat.format(d);
@@ -230,7 +249,6 @@ public class HubIridiumMessenger implements IridiumMessenger {
         
         int imcid;
         String name;
-        String type;
         String updated_at;
         Double[] coordinates;
         

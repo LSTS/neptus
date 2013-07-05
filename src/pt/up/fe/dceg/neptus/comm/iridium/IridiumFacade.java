@@ -67,6 +67,16 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
         listeners.add(listener);
     }
     
+    @SuppressWarnings("unchecked")
+    public <T> T getFirstMessengerOfType(Class<T> type) {
+        for (IridiumMessenger im : messengers) {
+            if (im.getClass().equals(type)) {
+                return (T)im;
+            }
+        }
+        return null;
+    }
+    
     @Override
     public void removeListener(IridiumMessageListener listener) {
         listeners.remove(listener);       

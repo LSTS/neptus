@@ -44,6 +44,7 @@ import javax.swing.JPopupMenu;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.comm.iridium.DesiredAssetPosition;
 import pt.up.fe.dceg.neptus.comm.iridium.DeviceUpdate;
+import pt.up.fe.dceg.neptus.comm.iridium.HubIridiumMessenger;
 import pt.up.fe.dceg.neptus.comm.iridium.IridiumCommand;
 import pt.up.fe.dceg.neptus.comm.iridium.IridiumFacade;
 import pt.up.fe.dceg.neptus.comm.iridium.IridiumMessage;
@@ -58,6 +59,7 @@ import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
+import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -74,7 +76,7 @@ import com.google.common.eventbus.Subscribe;
  *
  */
 @PluginDescription(name="Iridium Communications Plug-in")
-public class IridiumComms extends SimpleRendererInteraction implements ConfigurationListener, Renderer2DPainter, IridiumMessageListener {
+public class IridiumComms extends SimpleRendererInteraction implements IPeriodicUpdates, ConfigurationListener, Renderer2DPainter, IridiumMessageListener {
 
     private static final long serialVersionUID = -8535642303286049869L;
     protected long lastMessageReceivedTime = System.currentTimeMillis() - 3600000;
@@ -93,6 +95,30 @@ public class IridiumComms extends SimpleRendererInteraction implements Configura
     @Override
     public String getName() {
         return "Iridium Communications plug-in";
+    }
+    
+    @Override
+    public long millisBetweenUpdates() {
+        return 60000;
+    }
+    
+    @Override
+    public boolean update() {
+        
+        HubIridiumMessenger m = IridiumFacade.getInstance().getFirstMessengerOfType(HubIridiumMessenger.class);
+        if (m != null && m.isAvailable()) {
+            try {
+                DeviceUpdate update = m.pollActiveDevices();
+                post(update);
+                for (IMCMessage msg : update.asImc()) {
+                    post(msg);
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return true;
     }
     
     
@@ -226,19 +252,18 @@ public class IridiumComms extends SimpleRendererInteraction implements Configura
     
     @Subscribe
     public void on(DesiredAssetPosition desiredPos) {
-        System.out.println(desiredPos);
+        NeptusLog.pub().info("Received desired position");
+        RemoteSensorInfo rsi = new RemoteSensorInfo("DP_hermes", "Wave Glider", desiredPos.getLocation().getLatitudeAsDoubleValue(), desiredPos.getLocation().getLongitudeAsDoubleValue(), 0, 0, "");
+        post(rsi);
     }
     
     @Subscribe
     public void on(TargetAssetPosition targetPos) {
-        System.out.println(targetPos);
+        NeptusLog.pub().info("Received target position");
+        RemoteSensorInfo rsi = new RemoteSensorInfo("TP_hermes", "Wave Glider", targetPos.getLocation().getLatitudeAsDoubleValue(), targetPos.getLocation().getLongitudeAsDoubleValue(), 0, 0, "");
+        post(rsi);
     }
-    
-    @Subscribe
-    public void on(DeviceUpdate devUpdate) {
-        System.out.println(devUpdate);
-    }
-    
+        
     @Override
     public void messageReceived(IridiumMessage msg) {
         NeptusLog.pub().info("Iridium message received asynchronously: "+msg);
