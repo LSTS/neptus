@@ -43,6 +43,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
@@ -218,7 +219,9 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 // create an actor from parsed beams 
                 pointCloud.createLODActorFromPoints(multibeamToPointCloud.getIntensities());
                 
-                Utils.delete(multibeamToPointCloud.getPoints());             
+                NeptusLog.pub().info("antes delete");
+                Utils.delete(multibeamToPointCloud.getPoints());
+                NeptusLog.pub().info("depois delete");
                 //canvas.unlock();
                 
                     // add parsed beams stored on pointcloud to canvas

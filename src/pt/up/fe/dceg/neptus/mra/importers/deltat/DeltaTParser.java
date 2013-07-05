@@ -207,7 +207,7 @@ public class DeltaTParser implements BathymetryParser {
             DeltaTHeader header = new DeltaTHeader();
             header.parse(buf);
             
-            hasIntensity = header.hasIntensity;
+            //hasIntensity = header.hasIntensity;
             
             // Parse and process data ( no need to create another structure for this )
             if (header.hasIntensity)
@@ -243,7 +243,8 @@ public class DeltaTParser implements BathymetryParser {
                 }
                                
                     // range corrected with soundVelocity 1516 !?
-                range = range * header.soundVelocity / 1500;
+                    // FIXME está a dar galhada - nos de cadiz dão direito
+                //range = range * header.soundVelocity / 1500;
                            
                 double angle = header.startAngle + header.angleIncrement * c;         
                 float height = (float) (range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth());

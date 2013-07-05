@@ -95,17 +95,17 @@ public class PointCloudHandlers<T extends PointXYZ> {
         colorsY.SetName("colorsY");
         colorsZ.SetName("colorsZ");
         
-        if (intensities.GetDataSize() != 0) {
-            //NeptusLog.pub().info("Data max: " + intensities.GetValueRange()[0]);
-            //getLutIntensities().SetRange(0f, 32000f);
-            intensities.SetNumberOfComponents(1);
-            intensities.CreateDefaultLookupTable();
-            setLutIntensities(intensities.GetLookupTable());
-            //getLutIntensities().SetRange(0, 32000);
-            
-            //getLutIntensities().SetScaleToLinear();
-            //getLutIntensities().Build();
-        }
+//        if (intensities.GetDataSize() != 0) {
+//            //NeptusLog.pub().info("Data max: " + intensities.GetValueRange()[0]);
+//            //getLutIntensities().SetRange(0f, 32000f);
+//            intensities.SetNumberOfComponents(1);
+//            intensities.CreateDefaultLookupTable();
+//            setLutIntensities(intensities.GetLookupTable());
+//            //getLutIntensities().SetRange(0, 32000);
+//            
+//            //getLutIntensities().SetScaleToLinear();
+//            //getLutIntensities().Build();
+//        }
         
         
         for (int i = 0; i < polyData.GetNumberOfPoints(); ++i) {
