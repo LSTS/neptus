@@ -69,6 +69,10 @@ public class StatisticalOutlierRemoval {
         
     }
     
+    /**
+     * FIXME - Check stddev calc with medium (easier)
+     * @param points
+     */
     public void applyFilter (vtkPoints points) {
         try {
             NeptusLog.pub().info("Number of input points: " + points.GetNumberOfPoints());
@@ -107,26 +111,18 @@ public class StatisticalOutlierRemoval {
                 meanDistancesSum += meanDistances[i];
             }          
             double mean = meanDistancesSum/points.GetNumberOfPoints();
-            //double stddev = 0.0;
             double stddev = CalcUtils.stddev(meanDistancesSum, sqSumDistances, points.GetNumberOfPoints());
             
-            double distanceThreshold = mean + stdMul * stddev;
-//            double distanceThreshold2 = mean - stdMul * stddev; 
-            
-            NeptusLog.pub().info("Mean: " + mean);
-            NeptusLog.pub().info("StdDev: " + stddev);
-            NeptusLog.pub().info("Distance Threshold: " + distanceThreshold);
+            double distanceThreshold = mean + stdMul * stddev;           
+//            NeptusLog.pub().info("Mean: " + mean);
+//            NeptusLog.pub().info("StdDev: " + stddev);
+//            NeptusLog.pub().info("Distance Threshold: " + distanceThreshold);
             
                 // check wether it is inlier or outlier
             for (int c = 0; c < points.GetNumberOfPoints(); ++c) {
                 if (meanDistances[c] <= distanceThreshold) {
-//                    if (meanDistances[c] >= distanceThreshold2) {
                     getOutputPoints().InsertPoint(outputId, points.GetPoint(c));
                     ++outputId;
-//                    }
-//                    else {
-//                        NeptusLog.pub().info("meand distance less than the distanceThreshold");
-//                    }
                 } 
             }
             

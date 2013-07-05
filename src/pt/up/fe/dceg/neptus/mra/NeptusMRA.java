@@ -152,6 +152,9 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
     @NeptusProperty(name = "Yaw Increment", description="180 Yaw (psi) increment for the 83P parser, set true to increment + 180º.")
     public static boolean yawMultibeamIncrement = false;
     
+    @NeptusProperty(name = "Remove Outliers", description="Remove Outliers from Pointcloud redered on multibeam 3D")
+    public static boolean outliersRemoval = false; 
+    
     @NeptusProperty(name = "Maximum depth for bathymetry plots", description="Maximum depth to be used in bathymetry plots.")
     public static double maxBathymDepth = 15;
     

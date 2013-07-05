@@ -168,8 +168,8 @@ public class MultibeamToPointCloud {
             }
         }
         
-        NeptusLog.pub().info("Number of intensity values: " + countIntens);
-        NeptusLog.pub().info("Number of intensity zero: " + countIntensZero);
+        // NeptusLog.pub().info("Number of intensity values: " + countIntens);
+        // NeptusLog.pub().info("Number of intensity zero: " + countIntensZero);
         
         multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints = countPoints;
         batInfo = multibeamDeltaTParser.getBathymetryInfo();

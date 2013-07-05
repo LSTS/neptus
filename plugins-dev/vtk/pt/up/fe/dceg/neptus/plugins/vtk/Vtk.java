@@ -200,21 +200,25 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             if (pointCloud.getNumberOfPoints() != 0) {  // checks wether there are any points to render!                         
                 
                 //canvas.lock();
+                
+                if (NeptusMRA.outliersRemoval) {
                     // remove outliers
 //                RadiusOutlierRemoval radOutRem = new RadiusOutlierRemoval();
 //                radOutRem.applyFilter(multibeamToPointCloud.getPoints());
 //                pointCloud.setPoints(radOutRem.getOutputPoints());
                 //NeptusLog.pub().info("Get number of points: " + pointCloud.getPoints().GetNumberOfPoints());
                 
-//                StatisticalOutlierRemoval statOutRem = new StatisticalOutlierRemoval();
-//                //statOutRem.applyFilter(multibeamToPointCloud.getPoints());
-//                statOutRem.setMeanK(20);
-//                statOutRem.setStdMul(0.2);
-//                statOutRem.applyFilter(multibeamToPointCloud.getPoints());
-//                pointCloud.setPoints(statOutRem.getOutputPoints());
-                
-                pointCloud.setPoints(multibeamToPointCloud.getPoints());
-                
+                    StatisticalOutlierRemoval statOutRem = new StatisticalOutlierRemoval();
+                    // statOutRem.applyFilter(multibeamToPointCloud.getPoints());
+                    statOutRem.setMeanK(20);
+                    statOutRem.setStdMul(0.2);
+                    statOutRem.applyFilter(multibeamToPointCloud.getPoints());
+                    pointCloud.setPoints(statOutRem.getOutputPoints());
+
+                }
+                else 
+                    pointCloud.setPoints(multibeamToPointCloud.getPoints());
+      
                 pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());               
                 // create an actor from parsed beams
                 //pointCloud.createLODActorFromPoints(multibeamToPointCloud.getIntensities());
