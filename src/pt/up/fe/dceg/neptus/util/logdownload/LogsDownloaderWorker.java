@@ -192,6 +192,7 @@ public class LogsDownloaderWorker {
 	private AbstractAction helpAction = null;
 	private AbstractAction resetAction = null;
 	private AbstractAction stopAllAction = null;
+	private AbstractAction downloadPhotos = null;
 	
 	// UI
 	private JFrame frame = null;
@@ -229,6 +230,9 @@ public class LogsDownloaderWorker {
 	private MiniButton helpButton = null;
 	private MiniButton resetButton = null;
 	private MiniButton stopAllButton = null;
+	
+	private MiniButton downloadPhotosButton = null;
+	
 	private DownloaderHelp downHelpDialog = null;
 
 	private JXPanel configHolder = null;
@@ -340,6 +344,9 @@ public class LogsDownloaderWorker {
 		stopAllButton.setIcon(ICON_STOP);
 		stopAllButton.addActionListener(stopAllAction);
 
+		downloadPhotosButton = new MiniButton();
+		downloadPhotosButton.setIcon(ICON_STOP);
+		downloadPhotosButton.addActionListener(downloadPhotos);
 		
 		downloadWorkersHolder = new JPanel();
 		downloadWorkersHolder.setLayout(new BoxLayout(downloadWorkersHolder, BoxLayout.Y_AXIS));
@@ -604,6 +611,7 @@ public class LogsDownloaderWorker {
 	    						.addGap(10)
 	    						.addComponent(resetButton, 34, 34, 34)
 	    						.addComponent(helpButton, 34, 34, 34)
+	    						.addComponent(downloadPhotosButton, 34, 34, 34)
 	    						.addComponent(diskFreeLabel, 60, 80, 120)
 	    					)
 	    				)
@@ -635,6 +643,7 @@ public class LogsDownloaderWorker {
 //		    						.addComponent(toggleExtraInfoPanelButton, 25, 25, 25)
 		    						.addComponent(resetButton, 34, 34, 34)
 		    						.addComponent(helpButton, 34, 34, 34)
+		    						.addComponent(downloadPhotosButton, 34, 34, 34)
 	    	    					.addComponent(diskFreeLabel, 34, 34, 34)
 	        					)
         					)
@@ -1212,6 +1221,39 @@ public class LogsDownloaderWorker {
 		    }
 		};
 
+		downloadPhotos = new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                try {
+                    System.out.println(getLogLabel());
+                    System.out.println(getHost());
+                    
+                    String system = getLogLabel() + "-doam";
+                    String host = getHost();
+                    
+                    if(host.equals("10.0.10.80"))
+                        host = "10.0.10.83";
+                    
+                    if(host.equals("10.0.10.50"))
+                        host = "10.0.10.52";
+                 
+                    Object[] objArray = logFolderList.getSelectedValues();
+                    
+                    if (objArray.length == 0)
+                        return;
+                    
+                    for(Object o : objArray) System.out.println(o);
+                    
+                    Runtime.getRuntime().exec("xterm -hold -e rsync -avz " +
+                    		"root@" + host + ":/opt/lsts/dune/log/" + system + "/" + objArray[0] + "/Photos " +
+                    				"log/downloaded/" + getLogLabel() + "/" + objArray[0]);
+                }
+                catch (Exception e1) {
+                    e1.printStackTrace();
+                }            }
+		};
 	}
 
 	/**
