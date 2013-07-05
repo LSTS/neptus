@@ -31,12 +31,14 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCellArray;
 import vtk.vtkLODActor;
 import vtk.vtkPoints;
 import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
+import vtk.vtkShortArray;
 
 /**
  * @author hfq
@@ -70,22 +72,86 @@ public class PointCloud<T extends PointXYZ> {
     
     /**
      * Create a Pointcloud Actor from loaded points and verts
+     * FIXME poly.GetBounds() dá fatal error
+     * Stack: [0x00007f895586f000,0x00007f8955970000],  sp=0x00007f895596e578,  free space=1021k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [libvtkCommon.so.5.8+0xf91c0]  vtkDataArrayTemplate<float>::GetTuple(long long, double*)+0x20
+
+Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
+j  vtk.vtkDataSet.GetBounds_23()[D+0
+J  pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud.createLODActorFromPoints()V
+j  pt.up.fe.dceg.neptus.plugins.vtk.Vtk.getComponent(Lpt/up/fe/dceg/neptus/mra/importers/IMraLogGroup;D)Ljava/awt/Component;+260
+j  pt.up.fe.dceg.neptus.mra.MRAPanel$LoadTask.run()V+242
+j  java.lang.Thread.run()V+11
+v  ~StubRoutines::call_stub
+     * 
      */
     public void createLODActorFromPoints() {
         try {
+           getPoly().SetPoints(getPoints());
+           
+           for (int i = 0; i < getNumberOfPoints(); ++i) {
+               getVerts().InsertNextCell(i);
+           }
+           
+           getPoly().SetVerts(getVerts()); 
+           getPoly().Modified();
+           
+           //getPoly().Update();
+           setBounds(getPoly().GetBounds());
+           
+           getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds);
+                      
+           getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
+           
+           getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
+           
+           vtkPolyDataMapper map = new vtkPolyDataMapper();
+           map.SetInput(getPoly());
+   
+           getCloudLODActor().SetMapper(map);
+           getCloudLODActor().GetProperty().SetPointSize(1.0);
+           getCloudLODActor().GetProperty().SetRepresentationToPoints();
+           
+           setMemorySize(map.GetInput().GetActualMemorySize());
+           
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }    
+    }
+    
+    /**
+     * Create a Pointcloud Actor from loaded points and verts
+     * @param intensities 
+     */
+    public void createLODActorFromPoints(vtkShortArray intensities) {
+        try {                                   
             getPoly().SetPoints(getPoints());
-            getPoly().SetVerts(getVerts());
             
+//            for (int i = 0; i < getNumberOfPoints(); ++i) {
+//                getVerts().InsertCellPoint(i);
+//            }
+            
+            for (int i = 0; i < getNumberOfPoints(); ++i) {
+                getVerts().InsertNextCell(i);
+            }
+            
+            getPoly().SetVerts(getVerts()); 
             getPoly().Modified();
                    
-            vtkCellArray cells = new vtkCellArray();
-            cells.SetNumberOfCells(getNumberOfPoints());
-            getPoly().SetPolys(cells);
-            
+            //vtkCellArray cells = new vtkCellArray();
+            //cells.SetNumberOfCells(getNumberOfPoints());
+            //getPoly().SetPolys(cells);
+            getPoly().Update();
             setBounds(getPoly().GetBounds());
-            setMemorySize(getPoly().GetActualMemorySize());
             
-            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds);
+            //setMemorySize(getPoly().GetActualMemorySize());
+
+            
+            
+            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds, intensities);
+            
             
             getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
             
@@ -95,6 +161,8 @@ public class PointCloud<T extends PointXYZ> {
             getCloudLODActor().SetMapper(map);
             getCloudLODActor().GetProperty().SetPointSize(1.0);
             getCloudLODActor().GetProperty().SetRepresentationToPoints();
+            
+            setMemorySize(map.GetInput().GetActualMemorySize());
         }
         catch (Exception e) {
             e.printStackTrace();

@@ -52,7 +52,7 @@ public class MeshSmoothingLaplacian {
     private boolean featureEdgeSmoothing = false;  // false
     private float featureAngle = 90.f;  // 45.f ou 110
     private float edgeAngle = 5.f; // 15
-    private boolean boundarySmoothing = true;
+    private boolean boundarySmoothing = false;
     
     public MeshSmoothingLaplacian() {
         

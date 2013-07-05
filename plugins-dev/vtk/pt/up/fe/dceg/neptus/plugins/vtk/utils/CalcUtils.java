@@ -26,26 +26,51 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: jqcorreia
- * Apr 2, 2013
+ * Author: hfq
+ * Jun 21, 2013
  */
-package pt.up.fe.dceg.neptus.mra.api;
-
+package pt.up.fe.dceg.neptus.plugins.vtk.utils;
 
 /**
- * @author jqcorreia
+ * @author hfq
  *
  */
-public interface BathymetryParser {
-    public long getFirstTimestamp();
-    public long getLastTimestamp();
+public class CalcUtils {
     
-    public BathymetryInfo getBathymetryInfo();
+    /**
+     * @param p1
+     * @param p2
+     * @return
+     */
+    public static float distanceBetween2Points (float p1[], float p2[]) {      
+        return (float) (Math.sqrt(  ( p1[0] - p2[0] ) * ( p1[0] - p2[0] ) + 
+                ( p1[1] - p2[1] ) * ( p1[1] - p2[1] ) + 
+                ( p1[2] - p2[2] ) * ( p1[2] - p2[2] ) ) );
+        
+    }
+
+    /**
+     * @param p1
+     * @param p2
+     * @return
+     */
+    public static double distanceBetween2Points(double[] p1, double[] p2) {
+        return (Math.sqrt( ( p1[0] - p2[0] ) * ( p1[0] - p2[0] ) + 
+                ( p1[1] - p2[1] ) * ( p1[1] - p2[1] ) + 
+                ( p1[2] - p2[2] ) * ( p1[2] - p2[2] ) ) );
+    }
     
-    public BathymetrySwath getSwathAt(long timestamp);
-    public BathymetrySwath nextSwath();
-    public BathymetrySwath nextSwath(double prob);
-    public void rewind();
-    
-    public boolean getHasIntensity();
+    /**
+     * 
+     * @param sum - sum of values
+     * @param sqSum - sum of the square values
+     * @param numberValues
+     * @return
+     */
+    public static double stddev(double sum, double sqSum, int numberValues) {
+        double stddev = 0.0;      
+        double variance = (sqSum - (sum * sum)/numberValues) / (numberValues - 1);
+        stddev = Math.sqrt(variance);
+        return stddev;
+    }
 }

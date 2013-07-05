@@ -252,14 +252,14 @@ public class MultibeamToolbar {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (zExaggerationToogle.isSelected()) {
-                    NeptusLog.pub().info("current depth exagge: " + currentDepthExaggeValue);
-                    NeptusLog.pub().info("lastDepthExaggeVue: " + lastDepthExaggeValue);
+                    //NeptusLog.pub().info("current depth exagge: " + currentDepthExaggeValue);
+                    //NeptusLog.pub().info("lastDepthExaggeVue: " + lastDepthExaggeValue);
                     
                     lastDepthExaggeValue = currentDepthExaggeValue;
                     //addons.setCurrentZexagge(lastDepthExaggeValue);
                     addons.setCurrentZexagge(vtkInit.zExaggeration);
                     
-                    NeptusLog.pub().info("lastDepthExaggeVue 2: " + lastDepthExaggeValue);
+                    //NeptusLog.pub().info("lastDepthExaggeVue 2: " + lastDepthExaggeValue);
                     
                     if (!rawPointsToggle.isSelected() && !meshToogle.isSelected()) {
                         String msgErrorMultibeam = I18n.text("No Pointcloud or Mesh on renderer\n Please load one or press raw or mesh toogle if you hava already loaded a log");

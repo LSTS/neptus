@@ -26,26 +26,15 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: jqcorreia
- * Apr 2, 2013
+ * Author: hfq
+ * Jun 21, 2013
  */
-package pt.up.fe.dceg.neptus.mra.api;
-
+package pt.up.fe.dceg.neptus.plugins.vtk.filters;
 
 /**
- * @author jqcorreia
+ * @author hfq
  *
  */
-public interface BathymetryParser {
-    public long getFirstTimestamp();
-    public long getLastTimestamp();
-    
-    public BathymetryInfo getBathymetryInfo();
-    
-    public BathymetrySwath getSwathAt(long timestamp);
-    public BathymetrySwath nextSwath();
-    public BathymetrySwath nextSwath(double prob);
-    public void rewind();
-    
-    public boolean getHasIntensity();
+public class VoxelGrid {
+
 }

@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 
 import java.util.Date;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryInfo;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
@@ -44,6 +45,8 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.bathymetry.LocalData;
+import vtk.vtkPoints;
+import vtk.vtkShortArray;
 
 /**
  * @author hfq
@@ -64,6 +67,14 @@ public class MultibeamToPointCloud {
     public BathymetryParser multibeamDeltaTParser;
     public PointCloud<PointXYZ> pointCloud;    
     private LocalData ld;
+    
+    private vtkPoints points;
+    private vtkShortArray intensities;
+    
+    
+    private int countIntens = 0;
+    private int countIntensZero = 0;
+    
 
     /**
      * @param log
@@ -89,7 +100,11 @@ public class MultibeamToPointCloud {
         ld = new LocalData(this.source.getFile("mra/tides.txt"));
         
         multibeamDeltaTParser.rewind();
+        
         BathymetrySwath bs;
+        
+        setPoints(new vtkPoints());
+        setIntensities(new vtkShortArray());
         
         int countPoints = 0;
         
@@ -106,12 +121,17 @@ public class MultibeamToPointCloud {
 
                     // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
                     LocationType tempLoc = new LocationType(loc);
-                    // add data to pointcloud
-                    pointCloud.getVerts().InsertNextCell(1);
+
                     tempLoc.translatePosition(p.north, p.east, 0);
-                    pointCloud.getVerts().InsertCellPoint(
-                            pointCloud.getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), tempLoc.getOffsetEast(),
-                                    p.depth - tideOffset));
+                    
+                    // add data to pointcloud
+                    getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
+                            tempLoc.getOffsetEast(), 
+                            p.depth - tideOffset);
+                    
+                    if (multibeamDeltaTParser.getHasIntensity()) {
+                        getIntensities().InsertValue(c, p.intensity);
+                    }
 
                     ++countPoints;
                 }
@@ -126,25 +146,63 @@ public class MultibeamToPointCloud {
                         continue;
                         // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
                     LocationType tempLoc = new LocationType(loc);                         
-                    pointCloud.getVerts().InsertNextCell(1);
+
                     tempLoc.translatePosition(p.north, p.east, 0);
-                    pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
-                            tempLoc.getOffsetEast(), 
-                            p.depth - tideOffset));
                     
-//                  pointCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(tempLoc.getAbsoluteNEDInMeters()[0],
-//                  tempLoc.getAbsoluteNEDInMeters()[1],
-//                  p.depth));
+                    // add data to pointcloud
+                    getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
+                            tempLoc.getOffsetEast(), 
+                            p.depth - tideOffset);
+                    
+                    if (multibeamDeltaTParser.getHasIntensity()) {
+                        ++countIntens;
+                        getIntensities().InsertValue(c, p.intensity);
+                        
+                        if (p.intensity == 0)
+                            ++countIntensZero;
+                        //NeptusLog.pub().info("intensity: " + p.intensity);
+                    }
                 
                     ++countPoints;
                 }
             }
         }
         
+        NeptusLog.pub().info("Number of intensity values: " + countIntens);
+        NeptusLog.pub().info("Number of intensity zero: " + countIntensZero);
+        
         multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints = countPoints;
         batInfo = multibeamDeltaTParser.getBathymetryInfo();
 
         pointCloud.setNumberOfPoints(multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
+    }
+
+    /**
+     * @return the points
+     */
+    public vtkPoints getPoints() {
+        return points;
+    }
+
+    /**
+     * @param points the points to set
+     */
+    public void setPoints(vtkPoints points) {
+        this.points = points;
+    }
+
+    /**
+     * @return the intensities
+     */
+    public vtkShortArray getIntensities() {
+        return intensities;
+    }
+
+    /**
+     * @param intensities the intensities to set
+     */
+    public void setIntensities(vtkShortArray intensities) {
+        this.intensities = intensities;
     }
     
 //    /**

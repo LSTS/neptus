@@ -73,7 +73,7 @@ public class KeyboardEvent  implements KeyListener{
     private boolean markerEnabled = false;
     
     private enum ColorMappingRelation {
-        xMap, yMap, zMap
+        xMap, yMap, zMap, iMap
     }  
     public ColorMappingRelation colorMapRel;
     
@@ -248,8 +248,8 @@ public class KeyboardEvent  implements KeyListener{
 //                    e2.printStackTrace();
 //                }
 //                break;
-//            case KeyEvent.VK_P:
-//                try {
+            case KeyEvent.VK_P:         // FIXME the default vtk key handler creates a vtkOpenGL object that sends a exception on depth exaggeration (casting vtkLODActor to vtkOpenGL)
+                try {
 //                    if (!neptusInteractorStyle.pointRepEnabled) {
 //                        neptusInteractorStyle.pointRepEnabled = true;
 //                        neptusInteractorStyle.solidRepEnabled = false;
@@ -262,11 +262,11 @@ public class KeyboardEvent  implements KeyListener{
 //                            tempActor.GetProperty().SetRepresentationToPoints();
 //                        }
 //                    }
-//                }
-//                catch (Exception e1) {
-//                    e1.printStackTrace();
-//                }
-//                break;
+                }
+                catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+                break;
             case KeyEvent.VK_M:
                 try {
                     canvas.lock();
@@ -287,28 +287,38 @@ public class KeyboardEvent  implements KeyListener{
                 if (!captionEnabled) {
                     try {
                         canvas.lock();
-                        vtkActorCollection actorCollection = new vtkActorCollection();
-                        actorCollection = renderer.GetActors();
-                        actorCollection.InitTraversal();
-                        for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
-                            vtkLODActor tempActor = new vtkLODActor();
-                            tempActor = (vtkLODActor) actorCollection.GetNextActor();
-                            setOfClouds = linkedHashMapCloud.keySet();
-                            for (String sKey : setOfClouds) {
-                                vtkLODActor tempActorFromHashMap = new vtkLODActor();
-                                pointCloud = linkedHashMapCloud.get(sKey);
-                                tempActorFromHashMap = pointCloud.getCloudLODActor();
-                                if (tempActor.equals(tempActorFromHashMap)) {
-                                    captionInfo = new Caption(4, 250, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(), 
-                                            pointCloud.getBounds(), pointCloud.getMemorySize());
-                                    renderer.AddActor(captionInfo.getCaptionNumberOfPointsActor());
-                                    renderer.AddActor(captionInfo.getCaptionCloudNameActor());
-                                    renderer.AddActor(captionInfo.getCaptionMemorySizeActor());
-                                    renderer.AddActor(captionInfo.getCaptionCloudBoundsActor());
-                                    interactor.Render();
-                                }
-                            }
-                        }
+                        // vtkActorCollection actorCollection = new vtkActorCollection();
+                        // actorCollection = renderer.GetActors();
+                        // actorCollection.InitTraversal();
+                        // for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
+                        // vtkLODActor tempActor = new vtkLODActor();
+                        // tempActor = (vtkLODActor) actorCollection.GetNextActor();
+                        // setOfClouds = linkedHashMapCloud.keySet();
+                        // for (String sKey : setOfClouds) {
+                        // vtkLODActor tempActorFromHashMap = new vtkLODActor();
+                        // pointCloud = linkedHashMapCloud.get(sKey);
+                        // tempActorFromHashMap = pointCloud.getCloudLODActor();
+                        // if (tempActor.equals(tempActorFromHashMap)) {
+                        // captionInfo = new Caption(4, 250, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(),
+                        // pointCloud.getBounds(), pointCloud.getMemorySize());
+                        // renderer.AddActor(captionInfo.getCaptionNumberOfPointsActor());
+                        // renderer.AddActor(captionInfo.getCaptionCloudNameActor());
+                        // renderer.AddActor(captionInfo.getCaptionMemorySizeActor());
+                        // renderer.AddActor(captionInfo.getCaptionCloudBoundsActor());
+                        // interactor.Render();
+                        // }
+                        // }
+                        // }
+                        // setOfClouds = linkedHashMapCloud.keySet();
+                        captionInfo = new Caption(4, 250, linkedHashMapCloud.get("multibeam").getNumberOfPoints(),
+                                linkedHashMapCloud.get("multibeam").getCloudName(), linkedHashMapCloud.get("multibeam")
+                                        .getBounds(), linkedHashMapCloud.get("multibeam").getMemorySize());
+
+                        renderer.AddActor(captionInfo.getCaptionNumberOfPointsActor());
+                        renderer.AddActor(captionInfo.getCaptionCloudNameActor());
+                        renderer.AddActor(captionInfo.getCaptionMemorySizeActor());
+                        renderer.AddActor(captionInfo.getCaptionCloudBoundsActor());
+
                         captionEnabled = true;
                         canvas.unlock();
                     }
@@ -401,6 +411,28 @@ public class KeyboardEvent  implements KeyListener{
 //                }
 //                neptusInteractorStyle.interactor.Render();
 //                break;
+//            case KeyEvent.VK_6:
+//                try {
+//                    if (!(colorMapRel == ColorMappingRelation.iMap)) {
+//                        setOfClouds = linkedHashMapCloud.keySet();
+//                        for (String sKey : setOfClouds) {
+//                            pointCloud = linkedHashMapCloud.get(sKey);
+//                            pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getIntensities());                         
+//                            if (neptusInteractorStyle.lutEnabled)
+//                                neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutIntensities());
+//                            colorMapRel = ColorMappingRelation.iMap;
+//                            
+//                        }
+//                        canvas.lock();
+//                        canvas.Render();
+//                        canvas.unlock();
+//                    }
+//                }
+//                catch (Exception e1) {
+//                    e1.printStackTrace();
+//                }           
+//                break;
+            
             case KeyEvent.VK_7: // color map X axis related
                 try {
 
