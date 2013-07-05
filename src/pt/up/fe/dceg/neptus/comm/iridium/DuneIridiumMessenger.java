@@ -133,5 +133,11 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
             return false;
         return (System.currentTimeMillis() - sys.getLastErrorStateReceived()) < 60000;
     }
+    
+    @Override
+    public void cleanup() {
+        listeners.clear();
+        messagesReceived.clear();
+    }
 
 }

@@ -40,10 +40,38 @@ import java.util.Date;
  */
 public interface IridiumMessenger {
 
+    /**
+     * Send this message across
+     */
     public void sendMessage(IridiumMessage msg) throws Exception;
+    
+    /**
+     * Retrieve any messages that were received since given time
+     */
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception;
+    
+    /**
+     * Is this messenger able to receive / send messages 
+     */
     public boolean isAvailable();
+    
+    /**
+     * Retrieve messenger's name
+     */
     public String getName();
+    
+    /**
+     * Add listener that will be notified when new messages are received
+     */
     public void addListener(IridiumMessageListener listener);
+    
+    /** 
+     * Remove existing message listener
+     */
     public void removeListener(IridiumMessageListener listener);
+    
+    /**
+     * Method that is called when messengers are removed
+     */
+    public void cleanup();    
 }

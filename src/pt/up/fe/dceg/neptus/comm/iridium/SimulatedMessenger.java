@@ -99,4 +99,10 @@ public class SimulatedMessenger implements IridiumMessenger {
     public String getName() {
         return "Simulated (IMC) messenger";     
     }
+    
+    @Override
+    public void cleanup() {
+        listeners.clear();
+        messagesReceived.clear();
+    }
 }

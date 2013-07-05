@@ -172,6 +172,7 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
             for (IridiumMessenger m : messengers) {
                 if (!m.getName().contains(iridiumSystemProvider)) {
                     toDelete.add(m);
+                    m.cleanup();
                     NeptusLog.pub().info("Removed "+m);
                 }
             }            
@@ -263,6 +264,12 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
      */
     public Vector<IridiumMessenger> getMessengers() {
         return messengers;
+    }
+    
+    @Override
+    public void cleanup() {
+        for (IridiumMessenger m : messengers)
+            m.cleanup();
     }
 
     public static void main(String[] args) throws Exception {
