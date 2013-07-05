@@ -256,7 +256,7 @@ public class DeltaTParser implements BathymetryParser {
                 float oy = (float) (x * Math.cos(yawAngle));
                                
                 if (header.hasIntensity) {
-                    short intensity = buf.getShort(480 + (c*2) - 1);    // sometimes there's no return = 0
+                    short intensity = buf.getShort(480 + (c*2) - 1);    // sometimes there's a return = 0
                     data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height, intensity);
                 }
                 else {

@@ -216,12 +216,13 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 pointCloud.setPoints(multibeamToPointCloud.getPoints());
                 
                 pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());               
-                // create an actor from parsed beams 
-                pointCloud.createLODActorFromPoints(multibeamToPointCloud.getIntensities());
+                // create an actor from parsed beams
+                //pointCloud.createLODActorFromPoints(multibeamToPointCloud.getIntensities());
+                pointCloud.createLODActorFromPoints();
                 
-                NeptusLog.pub().info("antes delete");
+                //NeptusLog.pub().info("antes delete");
                 Utils.delete(multibeamToPointCloud.getPoints());
-                NeptusLog.pub().info("depois delete");
+                //NeptusLog.pub().info("depois delete");
                 //canvas.unlock();
                 
                     // add parsed beams stored on pointcloud to canvas

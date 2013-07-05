@@ -46,12 +46,12 @@ public class PointCloudHandlers<T extends PointXYZ> {
     private vtkUnsignedCharArray colorsX;
     private vtkUnsignedCharArray colorsY;
     private vtkUnsignedCharArray colorsZ;
-    private vtkShortArray intensities;
+    //private vtkShortArray intensities;
     
     private vtkLookupTable lutX;
     private vtkLookupTable lutY;
     private vtkLookupTable lutZ;
-    private vtkLookupTable lutIntensities;
+    //private vtkLookupTable lutIntensities;
     
     public PointCloudHandlers() {
         setColorsX(new vtkUnsignedCharArray());
@@ -60,7 +60,60 @@ public class PointCloudHandlers<T extends PointXYZ> {
         setLutX(new vtkLookupTable());
         setLutY(new vtkLookupTable());
         setLutZ(new vtkLookupTable());
-        setLutIntensities(new vtkLookupTable());
+        //setLutIntensities(new vtkLookupTable());
+    }
+    
+    /**
+     * Generates color scalars and Lookuptables
+     * @param polyData
+     * @param bounds
+     */
+    public void generatePointCloudColorHandlers(vtkPolyData polyData, double[] bounds) {
+        getLutX().SetRange(bounds[0], bounds[1]);
+        getLutX().SetScaleToLinear();
+        getLutX().Build();
+        getLutY().SetRange(bounds[2], bounds[3]);
+        getLutY().SetScaleToLinear();
+        getLutY().Build();
+        //getLutZ().SetValueRange(-bounds[5], -bounds[4]);
+        getLutZ().SetRange(bounds[4], bounds[5]);
+        getLutZ().SetScaleToLinear();
+        getLutZ().Build();
+        
+        
+        colorsX.SetNumberOfComponents(3);
+        colorsY.SetNumberOfComponents(3);
+        colorsZ.SetNumberOfComponents(3);      
+        colorsX.SetName("colorsX");
+        colorsY.SetName("colorsY");
+        colorsZ.SetName("colorsZ");
+        
+        for (int i = 0; i < polyData.GetNumberOfPoints(); ++i) {
+            double[] point = new double[3];
+            polyData.GetPoint(i, point);
+            
+            double[] xDColor = new double[3];
+            double[] yDColor = new double[3];
+            double[] zDColor = new double[3];
+                           
+            getLutX().GetColor(point[0], xDColor);
+            getLutY().GetColor(point[1], yDColor);
+            getLutZ().GetColor(point[2], zDColor);
+            
+            char[] colorx = new char[3];
+            char[] colory = new char[3];
+            char[] colorz = new char[3];
+            
+            for (int j = 0; j < 3; ++j) {
+                colorx[j] = (char) (255.0 * xDColor[j]);
+                colory[j] = (char) (255.0 * yDColor[j]);
+                colorz[j] = (char) (255.0 * zDColor[j]);
+            }
+                       
+            colorsX.InsertNextTuple3(colorx[0], colorx[1], colorx[2]);
+            colorsY.InsertNextTuple3(colory[0], colory[1], colory[2]);
+            colorsZ.InsertNextTuple3(colorz[0], colorz[1], colorz[2]);
+        }
     }
     
     /**
@@ -94,6 +147,8 @@ public class PointCloudHandlers<T extends PointXYZ> {
         colorsX.SetName("colorsX");
         colorsY.SetName("colorsY");
         colorsZ.SetName("colorsZ");
+        
+        
         
 //        if (intensities.GetDataSize() != 0) {
 //            //NeptusLog.pub().info("Data max: " + intensities.GetValueRange()[0]);
@@ -224,31 +279,31 @@ public class PointCloudHandlers<T extends PointXYZ> {
         this.lutZ = lutZ;
     }
 
-    /**
-     * @return the intensities
-     */
-    public vtkShortArray getIntensities() {
-        return intensities;
-    }
-
-    /**
-     * @param intensities the intensities to set
-     */
-    public void setIntensities(vtkShortArray intensities) {
-        this.intensities = intensities;
-    }
-
-    /**
-     * @return the lutIntensities
-     */
-    public vtkLookupTable getLutIntensities() {
-        return lutIntensities;
-    }
-
-    /**
-     * @param lutIntensities the lutIntensities to set
-     */
-    public void setLutIntensities(vtkLookupTable lutIntensities) {
-        this.lutIntensities = lutIntensities;
-    }
+//    /**
+//     * @return the intensities
+//     */
+//    public vtkShortArray getIntensities() {
+//        return intensities;
+//    }
+//
+//    /**
+//     * @param intensities the intensities to set
+//     */
+//    public void setIntensities(vtkShortArray intensities) {
+//        this.intensities = intensities;
+//    }
+//
+//    /**
+//     * @return the lutIntensities
+//     */
+//    public vtkLookupTable getLutIntensities() {
+//        return lutIntensities;
+//    }
+//
+//    /**
+//     * @param lutIntensities the lutIntensities to set
+//     */
+//    public void setLutIntensities(vtkLookupTable lutIntensities) {
+//        this.lutIntensities = lutIntensities;
+//    }
 }
