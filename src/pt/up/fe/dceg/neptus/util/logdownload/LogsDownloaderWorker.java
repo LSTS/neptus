@@ -153,7 +153,8 @@ public class LogsDownloaderWorker {
 	public static final ImageIcon ICON_HELP = ImageUtils.getScaledIcon("images/downloader/help.png", 32, 32);
     public static final ImageIcon ICON_RESET = ImageUtils.getScaledIcon("images/buttons/redo.png", 32, 32);
     public static final ImageIcon ICON_STOP = ImageUtils.getScaledIcon("images/downloader/stop.png", 32, 32);
-	
+    public static final ImageIcon ICON_DOWNLOAD_PHOTO = ImageUtils.getScaledIcon("pt/up/fe/dceg/neptus/plugins/mraplots/camera.png", 32, 32);
+    
 	private static final ColorMap diskFreeColorMap = ColorMapFactory.createInvertedColorMap((InterpolationColorMap) 
 			ColorMapFactory.createRedYellowGreenColorMap());
 
@@ -345,7 +346,7 @@ public class LogsDownloaderWorker {
 		stopAllButton.addActionListener(stopAllAction);
 
 		downloadPhotosButton = new MiniButton();
-		downloadPhotosButton.setIcon(ICON_STOP);
+		downloadPhotosButton.setIcon(ICON_DOWNLOAD_PHOTO);
 		downloadPhotosButton.addActionListener(downloadPhotos);
 		
 		downloadWorkersHolder = new JPanel();
