@@ -80,6 +80,7 @@ public class IridiumComms extends SimpleRendererInteraction implements Configura
     protected long lastMessageReceivedTime = System.currentTimeMillis() - 3600000;
     protected LinkedHashMap<String, RemoteSensorInfo> sensorData = new LinkedHashMap<>();
     protected Image spot, desired, target;
+    protected final int HERMES_ID = 0x08c1;
     
     @NeptusProperty(name="Iridium communications device", description="The name of Iridium comms provider. Examples: lauv-xtreme-2, manta-1, hub, ...")
     public String messengerName = null;
@@ -133,6 +134,7 @@ public class IridiumComms extends SimpleRendererInteraction implements Configura
         TargetAssetPosition pos = new TargetAssetPosition();
         pos.setLocation(loc);
         pos.setDestination(0);
+        pos.setAssetImcId(HERMES_ID);
         pos.setSource(ImcMsgManager.getManager().getLocalId().intValue());
         try {
             IridiumFacade.getInstance().sendMessage(pos);    
@@ -144,6 +146,7 @@ public class IridiumComms extends SimpleRendererInteraction implements Configura
 
     private void setWaveGliderDesiredPosition(LocationType loc) {
         DesiredAssetPosition pos = new DesiredAssetPosition();
+        pos.setAssetImcId(HERMES_ID);
         pos.setLocation(loc);
         pos.setDestination(0);
         pos.setSource(ImcMsgManager.getManager().getLocalId().intValue());
