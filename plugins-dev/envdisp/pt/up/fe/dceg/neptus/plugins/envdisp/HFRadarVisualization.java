@@ -89,11 +89,23 @@ import pt.up.fe.dceg.neptus.util.http.client.HttpClientConnectionHelper;
 public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPainter, IPeriodicUpdates, ConfigurationListener {
 
     /*
-     * Currents, wind, waves, SST, bathy 
+     * Currents, wind, waves, SST 
      */
     
     @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR)
     public boolean visible = true;
+
+    @NeptusProperty(name = "Show currents", userLevel = LEVEL.REGULAR)
+    public boolean showCurrents = true;
+
+    @NeptusProperty(name = "Show SST", userLevel = LEVEL.REGULAR)
+    public boolean showSST = true;
+
+    @NeptusProperty(name = "Show wind", userLevel = LEVEL.REGULAR)
+    public boolean showWind = true;
+
+    @NeptusProperty(name = "Show waves", userLevel = LEVEL.REGULAR)
+    public boolean showWhaves = true;
 
     @NeptusProperty(name = "Seconds between updates")
     public long updateSeconds = 60;
@@ -110,16 +122,18 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     @NeptusProperty(name = "Load data from file (hfradar.txt)")
     public boolean loadFromFile = false;
     
-    @NeptusProperty(name = "HF-Radar most recent (true) or mean (false)", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Show currents as most recent (true) or mean (false) value", userLevel = LEVEL.REGULAR)
     public boolean hfradarUseMostRecentOrMean = true;
     
     private boolean clearImgCachRqst = false;
 
     public static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'SS");
+    public static final SimpleDateFormat dateTimeFormaterSpacesUTC = new SimpleDateFormat("yyyy MM dd  HH mm SS");
     public static final SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd");
     public static final SimpleDateFormat timeFormaterUTC = new SimpleDateFormat("HH':'mm");
     {
         dateTimeFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+        dateTimeFormaterSpacesUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
         dateFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
         timeFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
@@ -142,6 +156,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     private double noaaMaxLat=55.47885346331034, noaaMaxLng=-61.87500000000001, noaaMinLat=14.093957177836236, noaaMinLng=-132.1875;
     
     private static final String sampleNoaaFile = "hfradar-noaa-sample1.txt";
+    private static final String sampleTuvFile = "TOTL_TRAD_2013_07_04_1100.tuv";
     
     private ColorMap colorMap = new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
             new Color(0, 0, 255), new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0), new Color(255, 0, 0) });
@@ -158,7 +173,10 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     private HttpGet getHttpRequest;
     
     // ID is lat/lon
-    private HashMap<String, HFRadarDataPoint> dataPoints = new HashMap<>();
+    private HashMap<String, HFRadarDataPoint> dataPointsCurrents = new HashMap<>();
+    private HashMap<String, SSTDataPoint> dataPointsSST = new HashMap<>();
+    private HashMap<String, WindDataPoint> dataPointsWind = new HashMap<>();
+    private HashMap<String, WavesDataPoint> dataPointsWaves = new HashMap<>();
     
     public HFRadarVisualization(ConsoleLayout console) {
         super(console);
@@ -171,7 +189,11 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     @Override
     public void initSubPanel() {
         HashMap<String, HFRadarDataPoint> tdp = processNoaaHFRadarTest();
-        mergeDataToInternalDataList(tdp);
+        mergeCurrentsDataToInternalDataList(tdp);
+        
+        tdp = processTuvHFRadarTest(sampleTuvFile);
+        mergeCurrentsDataToInternalDataList(tdp);
+        
         update();
     }
 
@@ -226,13 +248,43 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         clearImgCachRqst = true;
     }
 
+    /**
+     * 
+     */
+    private Date createDateToMostRecent() {
+        Date nowDate = new Date();
+        return nowDate;
+    }
+    
     private void updateValues() {
-        for (String dpID : dataPoints.keySet().toArray(new String[0])) {
-            HFRadarDataPoint dp = dataPoints.get(dpID);
+        Date nowDate = createDateToMostRecent();
+
+        for (String dpID : dataPointsCurrents.keySet().toArray(new String[0])) {
+            HFRadarDataPoint dp = dataPointsCurrents.get(dpID);
             if (dp == null)
                 continue;
-            
-            updateHFRadarToUseMostRecentOrMean(dp);
+            updateHFRadarToUseMostRecentOrMean(nowDate, dp);
+        }
+
+        for (String dpID : dataPointsSST.keySet().toArray(new String[0])) {
+            SSTDataPoint dp = dataPointsSST.get(dpID);
+            if (dp == null)
+                continue;
+            dp.useMostRecent(nowDate);
+        }
+
+        for (String dpID : dataPointsWind.keySet().toArray(new String[0])) {
+            WindDataPoint dp = dataPointsWind.get(dpID);
+            if (dp == null)
+                continue;
+            dp.useMostRecent(nowDate);
+        }
+
+        for (String dpID : dataPointsWaves.keySet().toArray(new String[0])) {
+            WavesDataPoint dp = dataPointsWaves.get(dpID);
+            if (dp == null)
+                continue;
+            dp.useMostRecent(nowDate);
         }
     }
 
@@ -240,8 +292,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      * @param dp
      * @return
      */
-    private void updateHFRadarToUseMostRecentOrMean(HFRadarDataPoint dp) {
-        Date nowDate = new Date();
+    private void updateHFRadarToUseMostRecentOrMean(Date nowDate, HFRadarDataPoint dp) {
         if (hfradarUseMostRecentOrMean)
             dp.useMostRecent(nowDate);
         else
@@ -253,13 +304,13 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             return;
         
         Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
-        for (String dpID : dataPoints.keySet().toArray(new String[0])) {
-            HFRadarDataPoint dp = dataPoints.get(dpID);
+        for (String dpID : dataPointsCurrents.keySet().toArray(new String[0])) {
+            HFRadarDataPoint dp = dataPointsCurrents.get(dpID);
             if (dp == null)
                 continue;
             
             if (dp.getDateUTC().before(dateLimit))
-                dataPoints.remove(dpID);
+                dataPointsCurrents.remove(dpID);
             else {
                 // Cleanup historicalData
                 dp.purgeAllBefore(dateLimit);
@@ -267,35 +318,104 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         }
     }
 
-    public void mergeDataToInternalDataList(HashMap<String, HFRadarDataPoint> toMergeData) {
+    public void mergeCurrentsDataToInternalDataList(HashMap<String, HFRadarDataPoint> toMergeData) {
         for (String dpId : toMergeData.keySet()) {
             HFRadarDataPoint dp = toMergeData.get(dpId);
-            HFRadarDataPoint dpo = dataPoints.get(dpId);
+            HFRadarDataPoint dpo = dataPointsCurrents.get(dpId);
             if (dpo == null) {
-                dataPoints.put(dpId, dp);
+                dataPointsCurrents.put(dpId, dp);
                 dpo = dp;
             }
             else {
-                ArrayList<HFRadarDataPoint> histToMergeData = dp.getHistoricalData();
-                ArrayList<HFRadarDataPoint> histOrigData = dpo.getHistoricalData();
-                ArrayList<HFRadarDataPoint> toAddDP = new ArrayList<>();
-                for (HFRadarDataPoint hdp : histToMergeData) {
-                    boolean foundMatch = false;
-                    for (HFRadarDataPoint hodp : histOrigData) {
-                        if (hdp.getDateUTC().equals(hodp.getDateUTC())) {
-                            foundMatch = true;
-                            break;
-                        }
-                    }
-                    if (foundMatch)
-                        continue;
-                    toAddDP.add(hdp);
-                }
-                if (toAddDP.size() > 0)
-                    histOrigData.addAll(toAddDP);
+                mergeDataPointsWorker(dp, dpo);
+//                ArrayList<HFRadarDataPoint> histToMergeData = dp.getHistoricalData();
+//                ArrayList<HFRadarDataPoint> histOrigData = dpo.getHistoricalData();
+//                ArrayList<HFRadarDataPoint> toAddDP = new ArrayList<>();
+//                for (HFRadarDataPoint hdp : histToMergeData) {
+//                    boolean foundMatch = false;
+//                    for (HFRadarDataPoint hodp : histOrigData) {
+//                        if (hdp.getDateUTC().equals(hodp.getDateUTC())) {
+//                            foundMatch = true;
+//                            break;
+//                        }
+//                    }
+//                    if (foundMatch)
+//                        continue;
+//                    toAddDP.add(hdp);
+//                }
+//                if (toAddDP.size() > 0)
+//                    histOrigData.addAll(toAddDP);
             }
 //            dpo.calculateMean();
         }
+    }
+
+    public void mergeSSTDataToInternalDataList(HashMap<String, SSTDataPoint> toMergeData) {
+        for (String dpId : toMergeData.keySet()) {
+            SSTDataPoint dp = toMergeData.get(dpId);
+            SSTDataPoint dpo = dataPointsSST.get(dpId);
+            if (dpo == null) {
+                dataPointsSST.put(dpId, dp);
+                dpo = dp;
+            }
+            else {
+                mergeDataPointsWorker(dp, dpo);
+            }
+        }
+    }
+
+    public void mergeWindDataToInternalDataList(HashMap<String, WindDataPoint> toMergeData) {
+        for (String dpId : toMergeData.keySet()) {
+            WindDataPoint dp = toMergeData.get(dpId);
+            WindDataPoint dpo = dataPointsWind.get(dpId);
+            if (dpo == null) {
+                dataPointsWind.put(dpId, dp);
+                dpo = dp;
+            }
+            else {
+                mergeDataPointsWorker(dp, dpo);
+            }
+        }
+    }
+
+    public void mergeWavesDataToInternalDataList(HashMap<String, WavesDataPoint> toMergeData) {
+        for (String dpId : toMergeData.keySet()) {
+            WavesDataPoint dp = toMergeData.get(dpId);
+            WavesDataPoint dpo = dataPointsWaves.get(dpId);
+            if (dpo == null) {
+                dataPointsWaves.put(dpId, dp);
+                dpo = dp;
+            }
+            else {
+                mergeDataPointsWorker(dp, dpo);
+            }
+        }
+    }
+
+    /**
+     * @param dpToMerge
+     * @param dpOriginal
+     */
+    private void mergeDataPointsWorker(BaseDataPoint<?> dpToMerge, BaseDataPoint<?> dpOriginal) {
+        @SuppressWarnings("unchecked")
+        ArrayList<BaseDataPoint<?>> histToMergeData = (ArrayList<BaseDataPoint<?>>) dpToMerge.getHistoricalData();
+        @SuppressWarnings("unchecked")
+        ArrayList<BaseDataPoint<?>> histOrigData = (ArrayList<BaseDataPoint<?>>) dpOriginal.getHistoricalData();
+        ArrayList<BaseDataPoint<?>> toAddDP = new ArrayList<>();
+        for (BaseDataPoint<?> hdp : histToMergeData) {
+            boolean foundMatch = false;
+            for (BaseDataPoint<?> hodp : histOrigData) {
+                if (hdp.getDateUTC().equals(hodp.getDateUTC())) {
+                    foundMatch = true;
+                    break;
+                }
+            }
+            if (foundMatch)
+                continue;
+            toAddDP.add(hdp);
+        }
+        if (toAddDP.size() > 0)
+            histOrigData.addAll(toAddDP);
     }
 
     
@@ -426,7 +546,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             Date dateColorLimit = new Date(System.currentTimeMillis() - 3 * DateTimeUtil.HOUR);
             Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
             LocationType loc = new LocationType();
-            for (HFRadarDataPoint dp : dataPoints.values()) {
+            for (HFRadarDataPoint dp : dataPointsCurrents.values()) {
                 if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
                     continue;
                 
@@ -503,7 +623,33 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         }
         return new HashMap<String, HFRadarDataPoint>(); 
     }
-    
+
+    private FileReader getFileReaderForFile(String fileName) {
+        // InputStreamReader
+        String fxName = FileUtil.getResourceAsFileKeepName(fileName);
+        if (fxName == null)
+            fxName = fileName;
+        File fx = new File(fxName);
+        try {
+            FileReader freader = new FileReader(fx);
+            return freader;
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private HashMap<String, HFRadarDataPoint> processTuvHFRadarTest(String fileName) {
+        // InputStreamReader
+        HashMap<String, HFRadarDataPoint> hfdp = new HashMap<>();
+        FileReader freader = getFileReaderForFile(fileName);
+        if (freader == null)
+            return hfdp;
+        
+        return LoaderHelper.processTUGHFRadar(freader, ignoreDateLimitToLoad ? null : createDateToMostRecent());
+    }
+
     
     private HashMap<String, HFRadarDataPoint> processNoaaHFRadar(Reader readerInput) {
         long deltaTimeToHFRadarHistoricalData = dateLimitHours * DateTimeUtil.HOUR;
@@ -584,8 +730,9 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             }
         }
         
+        Date nowDate = createDateToMostRecent();
         for (HFRadarDataPoint elm : hfdp.values()) {
-            updateHFRadarToUseMostRecentOrMean(elm);
+            updateHFRadarToUseMostRecentOrMean(nowDate, elm);
         }
         
         return hfdp;
