@@ -18,10 +18,6 @@ conf/neptus-coordinateSystems.xml
 conf/neptus-misc-systems.xml
 conf/gsm_aliases.tsv
 maps/*.conf
-doc/manual/
-doc/seacon/
-doc/*.html
-doc/*.css
 helper-scripts/
 neptus.exe
 neptus.bat
