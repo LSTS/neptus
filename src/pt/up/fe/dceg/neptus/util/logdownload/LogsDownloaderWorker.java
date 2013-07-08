@@ -117,6 +117,7 @@ import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.colormap.InterpolationColorMap;
 import pt.up.fe.dceg.neptus.doc.NeptusDoc;
+import pt.up.fe.dceg.neptus.ftp.FtpDownloader;
 import pt.up.fe.dceg.neptus.gui.MiniButton;
 import pt.up.fe.dceg.neptus.gui.NudgeGlassPane;
 import pt.up.fe.dceg.neptus.gui.swing.MessagePanel;
@@ -1247,9 +1248,12 @@ public class LogsDownloaderWorker {
                     
                     for(Object o : objArray) System.out.println(o);
                     
-                    Runtime.getRuntime().exec("xterm -hold -e rsync -avz " +
-                    		"root@" + host + ":/opt/lsts/dune/log/" + system + "/" + objArray[0] + "/Photos " +
-                    				"log/downloaded/" + getLogLabel() + "/" + objArray[0]);
+                    FtpDownloader downloader = new FtpDownloader(host, 30021);
+                    String src = "/" + objArray[0] + "/Photos";
+                    String dest =  "log/downloaded/" + getLogLabel() + "/" + objArray[0] + "/Photos/";
+                    
+                    downloader.downloadDirectory(src, dest);
+                    
                 }
                 catch (Exception e1) {
                     e1.printStackTrace();

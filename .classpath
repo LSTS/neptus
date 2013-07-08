@@ -215,6 +215,8 @@
 	<classpathentry kind="lib" path="lib/commons-configuration-1.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jmatio.jar"/>
 	<classpathentry kind="lib" path="lib/libimc.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-oro-core-2.1-dev-1.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-oro-perl5-2.1-dev-1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>
