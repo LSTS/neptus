@@ -79,7 +79,9 @@ public class MraChartFactory {
             }
         }
         
-        charts.addAll(getScriptedPlots(panel));
+        Vector<ScriptedPlot> scrptPlots = getScriptedPlots(panel);
+        if (scrptPlots != null && scrptPlots.size() > 0)
+            charts.addAll(scrptPlots);
         
         return charts.toArray(new MRAVisualization[charts.size()]);
     }
@@ -87,7 +89,11 @@ public class MraChartFactory {
     public static Vector<ScriptedPlot> getScriptedPlots(MRAPanel panel) {
         Vector<ScriptedPlot> plots = new Vector<ScriptedPlot>();
 
-        File[] scripts = new File("conf/mraplots").listFiles();
+        File sFx = new File("conf/mraplots");
+        File[] scripts = sFx.exists() ? sFx.listFiles() : null;
+        if (scripts == null || scripts.length == 0)
+            return plots;
+            
         for (File f : scripts) {
             if (f.isDirectory() || !f.canRead())
                 continue;
