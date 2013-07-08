@@ -94,6 +94,16 @@ public class WindDataPoint extends BaseDataPoint<WindDataPoint> {
                 "\tv:\t" + v;
     }
 
+    public double getSpeed() {
+        double speed = Math.sqrt(u * u +  v * v);
+        return speed;
+    }
+
+    public double getHeading() {
+        double heading = Math.atan2(v, u);
+        return heading;
+    }
+
     public boolean useMostRecent(Date currentDate) {
         if (historicalData.size() == 0)
             return false;

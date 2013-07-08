@@ -39,7 +39,7 @@ import java.util.Date;
  */
 public class SSTDataPoint extends BaseDataPoint<SSTDataPoint> {
 
-    public final double KELVIN_TO_CELSIUS = -272.15;
+    public final static double KELVIN_TO_CELSIUS = -272.15;
     
     private double sst = 0;
     

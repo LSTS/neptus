@@ -157,6 +157,8 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     
     private static final String sampleNoaaFile = "hfradar-noaa-sample1.txt";
     private static final String sampleTuvFile = "TOTL_TRAD_2013_07_04_1100.tuv";
+    private static final String sampleMeteoFile = "meteo_20130705.nc";
+    private static final String sampleWavesFile = "waves_S_20130704.nc";
     
     private ColorMap colorMap = new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
             new Color(0, 0, 255), new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0), new Color(255, 0, 0) });
@@ -186,13 +188,27 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     /* (non-Javadoc)
      * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#initSubPanel()
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void initSubPanel() {
         HashMap<String, HFRadarDataPoint> tdp = processNoaaHFRadarTest();
         mergeCurrentsDataToInternalDataList(tdp);
         
         tdp = processTuvHFRadarTest(sampleTuvFile);
-        mergeCurrentsDataToInternalDataList(tdp);
+        if (tdp != null && tdp.size() > 0)
+            mergeCurrentsDataToInternalDataList(tdp);
+
+        HashMap<?, ?>[] meteodp = processMeteoFile(sampleMeteoFile);
+        HashMap<String, SSTDataPoint> sstdp = (HashMap<String, SSTDataPoint>) meteodp[0];
+        if (sstdp != null && sstdp.size() > 0)
+            mergeSSTDataToInternalDataList(sstdp);
+        HashMap<String, WindDataPoint> winddp = (HashMap<String, WindDataPoint>) meteodp[1];
+        if (winddp != null && winddp.size() > 0)
+            mergeWindDataToInternalDataList(winddp);
+
+        HashMap<String, WavesDataPoint> wavesdp = processWavesFile(sampleWavesFile);
+        if (wavesdp != null && wavesdp.size() > 0)
+            mergeWavesDataToInternalDataList(wavesdp);
         
         update();
     }
@@ -651,6 +667,35 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     }
 
     
+    private HashMap<?,?>[] processMeteoFile(String fileName) {
+        // InputStreamReader
+        HashMap<String, SSTDataPoint> sstdp = new HashMap<>();
+        HashMap<String, WindDataPoint> winddp = new HashMap<>();
+
+        FileReader freader = getFileReaderForFile(fileName);
+        if (freader == null)
+            return new HashMap[] { sstdp, winddp };
+        
+        String fxName = FileUtil.getResourceAsFileKeepName(fileName);
+        if (fxName == null)
+            fxName = fileName;
+        return LoaderHelper.processMeteo(fxName, ignoreDateLimitToLoad ? null : createDateToMostRecent());
+    }
+
+    private HashMap<String, WavesDataPoint> processWavesFile(String fileName) {
+        // InputStreamReader
+        HashMap<String, WavesDataPoint> wavesddp = new HashMap<>();
+
+        FileReader freader = getFileReaderForFile(fileName);
+        if (freader == null)
+            return wavesddp;
+        
+        String fxName = FileUtil.getResourceAsFileKeepName(fileName);
+        if (fxName == null)
+            fxName = fileName;
+        return LoaderHelper.processWavesFile(fxName, ignoreDateLimitToLoad ? null : createDateToMostRecent());
+    }
+
     private HashMap<String, HFRadarDataPoint> processNoaaHFRadar(Reader readerInput) {
         long deltaTimeToHFRadarHistoricalData = dateLimitHours * DateTimeUtil.HOUR;
         
