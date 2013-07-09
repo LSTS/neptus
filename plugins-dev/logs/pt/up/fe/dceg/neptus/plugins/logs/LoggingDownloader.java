@@ -368,7 +368,14 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
 	 */
     private void updateLogsState() {
         LogsDownloaderWorker dw = getDownloadWorker();
-        String[] listFolders = dw.doGiveListOfLogFolders();
+        String[] listFolders;
+        try {
+            listFolders = dw.doGiveListOfLogFolders();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
         long nTotal = 0, nDownloading = 0, nError = 0, nNew = 0, nIncomplete = 0, nSync = 0, nUnknown = 0;
         // NeptusLog.pub().info("<###>listFolders  filter: "+listFolders.length);
         for (String strLFd : listFolders) {
