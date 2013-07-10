@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCInputStream;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
@@ -101,10 +102,10 @@ public class DeviceUpdate extends IridiumMessage {
         
         for (Position pos : positions.values()) {
             RemoteSensorInfo sensorInfo = new RemoteSensorInfo();
-            sensorInfo.setLat(pos.latitude);
-            sensorInfo.setLon(pos.longitude);
+            sensorInfo.setLat(Math.toRadians(pos.latitude));
+            sensorInfo.setLon(Math.toRadians(pos.longitude));
             sensorInfo.setAlt(0);
-            sensorInfo.setId(ImcSystemsHolder.translateImcIdToSystemName(pos.id));
+            sensorInfo.setId(IMCDefinition.getInstance().getResolver().resolve(pos.id));
             sensorInfo.setSrc(getSource());
             sensorInfo.setDst(getDestination());
             msgs.add(sensorInfo);

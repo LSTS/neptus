@@ -31,13 +31,17 @@
  */
 package pt.up.fe.dceg.neptus.plugins.sunfish;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
+import java.io.File;
 import java.util.LinkedHashMap;
 
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
@@ -68,6 +72,7 @@ import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -75,13 +80,13 @@ import com.google.common.eventbus.Subscribe;
  * @author zp
  *
  */
-@PluginDescription(name="Iridium Communications Plug-in")
+@PluginDescription(name="Iridium Communications Plug-in", icon="pt/up/fe/dceg/neptus/plugins/sunfish/iridium.png")
 public class IridiumComms extends SimpleRendererInteraction implements IPeriodicUpdates, ConfigurationListener, Renderer2DPainter, IridiumMessageListener {
 
     private static final long serialVersionUID = -8535642303286049869L;
     protected long lastMessageReceivedTime = System.currentTimeMillis() - 3600000;
     protected LinkedHashMap<String, RemoteSensorInfo> sensorData = new LinkedHashMap<>();
-    protected Image spot, desired, target;
+    protected Image spot, desired, target, unknown;
     protected final int HERMES_ID = 0x08c1;
     
     @NeptusProperty(name="Iridium communications device", description="The name of Iridium comms provider. Examples: lauv-xtreme-2, manta-1, hub, ...")
@@ -131,6 +136,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         spot = ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/sunfish/spot.png");
         desired = ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/sunfish/desired.png");
         target = ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/sunfish/target.png");
+        unknown = ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/sunfish/unknown.png");
     }
     
     private void sendIridiumCommand() {
@@ -235,18 +241,41 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         for (RemoteSensorInfo sinfo : sensorData.values()) {
+            LocationType loc = new LocationType();
+            loc.setLatitudeRads(sinfo.getLat());
+            loc.setLongitudeRads(sinfo.getLon());
+            Point2D pt = renderer.getScreenPosition(loc);
+            Image img = null;
             if (sinfo.getId().startsWith("DP_")) {
-                
+                img = desired;
             }
             else if (sinfo.getId().startsWith("TP_")) {
-                
+                img = target;
             }
             else if (sinfo.getId().startsWith("spot") || sinfo.getId().startsWith("SPOT")) {
-                
+                img = spot;
+              g.drawImage(spot, (int)(pt.getX()-spot.getWidth(this)/2), (int) (pt.getY()-spot.getHeight(this)/2), this);    
             }
             else {
-                
+                if (ImcSystemsHolder.getSystemWithName(sinfo.getId()) != null) {
+                    VehicleType vt = ImcSystemsHolder.getSystemWithName(sinfo.getId()).getVehicle();
+                    if (vt != null) {
+                        try {
+                            img = ImageUtils.getScaledImage(ImageIO.read(new File(vt.getTopImageHref())), 16, 16, false);
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
+            if (img == null)
+                img = unknown;
+            g.drawImage(img, (int) (pt.getX()-img.getWidth(this)/2), (int) (pt.getY()-img.getHeight(this)/2), this);
+            
+            g.setColor(Color.black);
+            g.drawString(sinfo.getId(), (int)(pt.getX()+img.getWidth(this)/2 + 3),  (int)(pt.getY() + 5));
+         
         }
     }
     
@@ -274,7 +303,8 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
 
     @Override
     public void initSubPanel() {
-        IridiumFacade.getInstance().addListener(this);     
+        IridiumFacade.getInstance().addListener(this);
+        loadImages();
     }
 
     @Override
