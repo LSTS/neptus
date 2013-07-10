@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Vector;
 
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
@@ -60,6 +61,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
@@ -110,7 +112,6 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     public String taskName = "TREX";
     @NeptusProperty(name = "Loiter height", description = "Height of waypoint for uav spotter plan.", category = "UAV Spotter")
     public int spotterHeight = 100;
-
 
     private static final long serialVersionUID = 1L;
     Maneuver lastManeuver = null;
@@ -249,10 +250,20 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                TrexCommand cmd = new TrexCommand();
+                
+                SetEntityParameters setParams = new SetEntityParameters();
+                setParams.setName("TREX");
+                EntityParameter param = new EntityParameter("Active", "true");
+                Vector<EntityParameter> p = new Vector<>();
+                p.add(param);
+                setParams.setParams(p);
+                ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
+                setParams.dump(System.err);
+                
+                /*TrexCommand cmd = new TrexCommand();
                 cmd.setCommand(TrexCommand.COMMAND.ENABLE);
                 ImcMsgManager.getManager().sendMessageToSystem(cmd, getConsole().getMainSystem());
-                cmd.dump(System.err);
+                cmd.dump(System.err);*/
             }
         });
     }
@@ -262,10 +273,20 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                TrexCommand cmd = new TrexCommand();
-                cmd.setCommand(TrexCommand.COMMAND.DISABLE);
-                ImcMsgManager.getManager().sendMessageToSystem(cmd, getConsole().getMainSystem());
-                cmd.dump(System.err);
+                
+                SetEntityParameters setParams = new SetEntityParameters();
+                setParams.setName("TREX");
+                EntityParameter param = new EntityParameter("Active", "false");
+                Vector<EntityParameter> p = new Vector<>();
+                p.add(param);
+                setParams.setParams(p);
+                ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
+                setParams.dump(System.err);
+                
+//                TrexCommand cmd = new TrexCommand();
+//                cmd.setCommand(TrexCommand.COMMAND.DISABLE);
+//                ImcMsgManager.getManager().sendMessageToSystem(cmd, getConsole().getMainSystem());
+//                cmd.dump(System.err);
             }
         });
     }
