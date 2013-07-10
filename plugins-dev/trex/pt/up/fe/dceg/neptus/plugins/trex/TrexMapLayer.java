@@ -61,7 +61,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
@@ -258,12 +257,6 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 p.add(param);
                 setParams.setParams(p);
                 ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
-                setParams.dump(System.err);
-                
-                /*TrexCommand cmd = new TrexCommand();
-                cmd.setCommand(TrexCommand.COMMAND.ENABLE);
-                ImcMsgManager.getManager().sendMessageToSystem(cmd, getConsole().getMainSystem());
-                cmd.dump(System.err);*/
             }
         });
     }
@@ -281,12 +274,6 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 p.add(param);
                 setParams.setParams(p);
                 ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
-                setParams.dump(System.err);
-                
-//                TrexCommand cmd = new TrexCommand();
-//                cmd.setCommand(TrexCommand.COMMAND.DISABLE);
-//                ImcMsgManager.getManager().sendMessageToSystem(cmd, getConsole().getMainSystem());
-//                cmd.dump(System.err);
             }
         });
     }
