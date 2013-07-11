@@ -59,6 +59,7 @@ import pt.up.fe.dceg.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
 import pt.up.fe.dceg.neptus.mp.templates.PlanCreator;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
@@ -82,19 +83,19 @@ public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdate
     protected JEditorPane status;
 
     // used to activate and deactivate payload
-    @NeptusProperty(name="IMU Entity Label")
+    @NeptusProperty(name="IMU Entity Label", userLevel=LEVEL.ADVANCED)
     public String imuEntity = "IMU";
 
-    @NeptusProperty(name="Navigation Entity Label")
+    @NeptusProperty(name="Navigation Entity Label", userLevel=LEVEL.ADVANCED)
     public String navEntity = "Navigation";
 
-    @NeptusProperty(name="Square Side Length")
-    public double squareSideLength = 50;
+    @NeptusProperty(name="Square Side Length", userLevel=LEVEL.REGULAR)
+    public double squareSideLength = 80;
 
-    @NeptusProperty(name="Alignment Speed")
+    @NeptusProperty(name="Alignment Speed", userLevel=LEVEL.REGULAR)
     public double alignSpeed = 1.25;
 
-    @NeptusProperty(name="Alignment Speed Units")
+    @NeptusProperty(name="Alignment Speed Units", userLevel=LEVEL.REGULAR)
     public SPEED_UNITS alignSpeedUnits = SPEED_UNITS.METERS_PS;
 
     protected ImageIcon greenLed = ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/alignment/led_green.png");

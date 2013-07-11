@@ -223,6 +223,8 @@ class PlanCreator {
 			}
 			
 			man.setId(id);
+			if (plan.getGraph().getAllManeuvers().length == 0)
+			    man.setInitialManeuver(true);
 			plan.getGraph().addManeuver(man);
 			if (plan.getGraph().getManeuver(before) != null) {
 			    addTransition(before, id, "true");	
