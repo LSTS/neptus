@@ -373,7 +373,7 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
             listFolders = dw.doGiveListOfLogFolders();
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().warn(e);
             return;
         }
         long nTotal = 0, nDownloading = 0, nError = 0, nNew = 0, nIncomplete = 0, nSync = 0, nUnknown = 0;

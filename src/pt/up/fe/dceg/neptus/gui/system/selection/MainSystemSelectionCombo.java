@@ -46,6 +46,7 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventNewSystem;
@@ -93,26 +94,30 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
 
     @Subscribe
     public void onVehicleStateChanged(ConsoleEventVehicleStateChanged e) {
-        systemState.put(e.getVehicle(), e.getState());
-        if(console.getMainSystem().equals(e.getVehicle())){
-            switch (e.getState()) {
-                case SERVICE:
-                    setBackground(new Color(0x57B768));
-                    break;
-                case ERROR:
-                    setBackground(new Color(0xB94A48));
-                    break;
-                case CALIBRATION:
-                    setBackground(new Color(0x3A87AD));
-                    break;
-                default:
-                    setBackground(new Color(0xC8BF5F));
-                    break;
+        try {
+            systemState.put(e.getVehicle(), e.getState());
+            if(console.getMainSystem().equals(e.getVehicle())){
+                switch (e.getState()) {
+                    case SERVICE:
+                        setBackground(new Color(0x57B768));
+                        break;
+                    case ERROR:
+                        setBackground(new Color(0xB94A48));
+                        break;
+                    case CALIBRATION:
+                        setBackground(new Color(0x3A87AD));
+                        break;
+                    default:
+                        setBackground(new Color(0xC8BF5F));
+                        break;
+                }
             }
+            
+            this.repaint();
         }
-      
-        
-        this.repaint();
+        catch (Exception e1) {
+            NeptusLog.pub().warn(e);
+        }
     }
 
     @Subscribe
