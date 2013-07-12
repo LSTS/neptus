@@ -64,7 +64,7 @@ public class LAUVConsole extends ConsoleLayout {
     public static final int CLOSE_ACTION = JFrame.EXIT_ON_CLOSE;
     private static String consoleURL = "conf/consoles/lauv.ncon";
     // "conf/consoles/seacon-light.ncon" "conf/consoles/seacon-console.ncon";
-    public static String lauvVehicle = "lauv-seacon-1";
+    public static String lauvVehicle = "lauv-dolphin-1";
     private static Loader loader = null;
     private static boolean editEnabled = false;
 
