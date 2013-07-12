@@ -158,6 +158,9 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
     @NeptusProperty(name = "Maximum depth for bathymetry plots", description="Maximum depth to be used in bathymetry plots.")
     public static double maxBathymDepth = 15;
     
+    @NeptusProperty(name = "Print page number in generated reports")
+    public static boolean printPageNumbers = true;
+    
     private AbstractAction genReport, setMission, preferences, openLsf, httpDuneDownload, httpVehicleDownload;
     
     private File tmpFile = null;
