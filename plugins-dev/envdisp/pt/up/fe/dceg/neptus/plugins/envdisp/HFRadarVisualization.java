@@ -62,6 +62,8 @@ import org.apache.http.client.methods.HttpGet;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
+import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
+import pt.up.fe.dceg.neptus.colormap.ColorMapUtils;
 import pt.up.fe.dceg.neptus.colormap.InterpolationColorMap;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
@@ -105,13 +107,16 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     public boolean showWind = true;
 
     @NeptusProperty(name = "Show waves", userLevel = LEVEL.REGULAR)
-    public boolean showWhaves = true;
+    public boolean showWaves = true;
 
     @NeptusProperty(name = "Seconds between updates")
     public long updateSeconds = 60;
 
     @NeptusProperty(name = "Data limit validity (hours)", userLevel = LEVEL.REGULAR)
     public int dateLimitHours = 12;
+    
+    @NeptusProperty(name = "Use data x hour in the future (hours)", userLevel = LEVEL.REGULAR)
+    public int dateHoursToUseForData = 1;
     
     @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.ADVANCED)
     public boolean ignoreDateLimitToLoad = true;
@@ -160,11 +165,25 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     private static final String sampleMeteoFile = "meteo_20130705.nc";
     private static final String sampleWavesFile = "waves_S_20130704.nc";
     
-    private ColorMap colorMap = new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
-            new Color(0, 0, 255), new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0), new Color(255, 0, 0) });
-    private double minCmS = 0;
-    private double maxCmS = 200;
+    protected final double m_sToKnotConv = 1.94384449244;
     
+    private ColorMap colorMapCurrents = new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
+            new Color(0, 0, 255), new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0), new Color(255, 0, 0) });
+    private double minCurrentCmS = 0;
+    private double maxCurrentCmS = 200;
+
+    private ColorMap colorMapSST = ColorMapFactory.createJetColorMap();
+    private double minSST = -50;
+    private double maxSST = 40;
+
+    private ColorMap colorMapWind = colorMapCurrents;
+    private double minWind = 0;
+    private double maxWind = 65 / m_sToKnotConv;
+
+    private ColorMap colorMapWaves = ColorMapFactory.createJetColorMap();
+    private double minWaves = 0;
+    private double maxWaves = 7;
+
     private BufferedImage cacheImg = null;
     private Dimension dim = null;
     private int lastLod = -1;
@@ -264,16 +283,14 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         clearImgCachRqst = true;
     }
 
-    /**
-     * 
-     */
     private Date createDateToMostRecent() {
-        Date nowDate = new Date();
+        Date nowDate = new Date(System.currentTimeMillis() + dateHoursToUseForData * DateTimeUtil.HOUR);
         return nowDate;
     }
     
     private void updateValues() {
         Date nowDate = createDateToMostRecent();
+        
 
         for (String dpID : dataPointsCurrents.keySet().toArray(new String[0])) {
             HFRadarDataPoint dp = dataPointsCurrents.get(dpID);
@@ -561,39 +578,15 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             
             Date dateColorLimit = new Date(System.currentTimeMillis() - 3 * DateTimeUtil.HOUR);
             Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
-            LocationType loc = new LocationType();
-            for (HFRadarDataPoint dp : dataPointsCurrents.values()) {
-                if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
-                    continue;
-                
-                double latV = dp.getLat();
-                double lonV = dp.getLon();
-                double headingV = dp.getHeadingDegrees();
-                
-                if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(headingV))
-                    continue;
-                
-                loc.setLatitude(latV);
-                loc.setLongitude(lonV);
-                
-                Point2D pt = renderer.getScreenPosition(loc);
-
-                if (!isVisibleInRender(pt, renderer))
-                    continue;
-                
-                Graphics2D gt = (Graphics2D) g2.create();
-                
-                gt.translate(pt.getX(), pt.getY());
-                Color color = Color.WHITE;
-                color = colorMap.getColor(dp.getSpeedCmS() / maxCmS);
-                if (dp.getDateUTC().before(dateColorLimit))
-                    color = ColorUtils.setTransparencyToColor(color, 128);
-                gt.setColor(color);
-                gt.rotate(-Math.toRadians(headingV) - renderer.getRotation());
-                gt.fill(arrow);
-                
-                gt.dispose();
-            }
+            
+            if (showCurrents)
+                paintHFRadarInGraphics(renderer, g2, dateColorLimit, dateLimit);
+            if (showSST)
+                paintSSTInGraphics(renderer, g2, dateColorLimit, dateLimit);
+            if (showWind)
+                paintWindInGraphics(renderer, g2, dateColorLimit, dateLimit);
+            if (showWaves)
+                paintWavesInGraphics(renderer, g2, dateColorLimit, dateLimit);
 
             g2.dispose();
         }
@@ -610,7 +603,176 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             g3.dispose();
         }
     }
-    
+
+
+    /**
+     * @param renderer
+     * @param g2
+     * @param dateColorLimit
+     * @param dateLimit
+     */
+    private void paintHFRadarInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
+        LocationType loc = new LocationType();
+        for (HFRadarDataPoint dp : dataPointsCurrents.values()) {
+            if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
+                continue;
+            
+            double latV = dp.getLat();
+            double lonV = dp.getLon();
+            double headingV = dp.getHeadingDegrees();
+            
+            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(headingV))
+                continue;
+            
+            loc.setLatitude(latV);
+            loc.setLongitude(lonV);
+            
+            Point2D pt = renderer.getScreenPosition(loc);
+
+            if (!isVisibleInRender(pt, renderer))
+                continue;
+            
+            Graphics2D gt = (Graphics2D) g2.create();
+            
+            gt.translate(pt.getX(), pt.getY());
+            Color color = Color.WHITE;
+            color = colorMapCurrents.getColor(dp.getSpeedCmS() / maxCurrentCmS);
+            if (dp.getDateUTC().before(dateColorLimit))
+                color = ColorUtils.setTransparencyToColor(color, 128);
+            gt.setColor(color);
+            gt.rotate(-Math.toRadians(headingV) - renderer.getRotation());
+            gt.fill(arrow);
+            
+            gt.dispose();
+        }
+    }
+
+    /**
+     * @param renderer
+     * @param g2
+     * @param dateColorLimit
+     * @param dateLimit
+     */
+    private void paintSSTInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
+        LocationType loc = new LocationType();
+        for (SSTDataPoint dp : dataPointsSST.values()) {
+            if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
+                continue;
+            
+            double latV = dp.getLat();
+            double lonV = dp.getLon();
+            double sstV = dp.getSst();
+            
+            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sstV))
+                continue;
+            
+            loc.setLatitude(latV);
+            loc.setLongitude(lonV);
+            
+            Point2D pt = renderer.getScreenPosition(loc);
+
+            if (!isVisibleInRender(pt, renderer))
+                continue;
+            
+            Graphics2D gt = (Graphics2D) g2.create();
+            gt.translate(pt.getX(), pt.getY());
+            Color color = Color.WHITE;
+            color = colorMapSST.getColor((dp.getSst() + minSST) / (maxSST - minSST));
+            if (dp.getDateUTC().before(dateColorLimit))
+                color = ColorUtils.setTransparencyToColor(color, 128);
+            gt.setColor(color);
+            gt.fill(arrow);
+            
+            gt.dispose();
+        }
+    }
+
+    /**
+     * @param renderer
+     * @param g2
+     * @param dateColorLimit
+     * @param dateLimit
+     */
+    private void paintWindInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
+        LocationType loc = new LocationType();
+        for (WindDataPoint dp : dataPointsWind.values()) {
+            if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
+                continue;
+            
+            double latV = dp.getLat();
+            double lonV = dp.getLon();
+            double speedV = dp.getSpeed();
+            double headingV = dp.getHeading();
+            
+            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(speedV)|| Double.isNaN(headingV))
+                continue;
+            
+            loc.setLatitude(latV);
+            loc.setLongitude(lonV);
+            
+            Point2D pt = renderer.getScreenPosition(loc);
+
+            if (!isVisibleInRender(pt, renderer))
+                continue;
+            
+            Graphics2D gt = (Graphics2D) g2.create();
+            gt.translate(pt.getX(), pt.getY());
+            Color color = Color.WHITE;
+            color = colorMapWind.getColor(dp.getSpeed() / maxWind);
+            if (dp.getDateUTC().before(dateColorLimit))
+                color = ColorUtils.setTransparencyToColor(color, 128);
+            gt.setColor(color);
+            gt.rotate(-Math.toRadians(headingV) - renderer.getRotation());
+            gt.fill(arrow);
+            
+            gt.dispose();
+        }
+    }
+
+    /**
+     * @param renderer
+     * @param g2
+     * @param dateColorLimit
+     * @param dateLimit
+     */
+    private void paintWavesInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
+        LocationType loc = new LocationType();
+        for (WavesDataPoint dp : dataPointsWaves.values()) {
+            if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
+                continue;
+            
+            double latV = dp.getLat();
+            double lonV = dp.getLon();
+            double sigHeightV = dp.getSignificantHeight();
+            double headingV = dp.getPeakDirection();
+            double periodV = dp.getPeakPeriod();
+            
+            if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sigHeightV) || Double.isNaN(headingV)
+                    || Double.isNaN(periodV))
+                continue;
+            
+            loc.setLatitude(latV);
+            loc.setLongitude(lonV);
+            
+            Point2D pt = renderer.getScreenPosition(loc);
+
+            if (!isVisibleInRender(pt, renderer))
+                continue;
+            
+            Graphics2D gt = (Graphics2D) g2.create();
+            gt.translate(pt.getX(), pt.getY());
+            Color color = Color.WHITE;
+            color = colorMapWaves.getColor(dp.getSignificantHeight() / maxWaves);
+            if (dp.getDateUTC().before(dateColorLimit))
+                color = ColorUtils.setTransparencyToColor(color, 128);
+            gt.setColor(color);
+            gt.rotate(-Math.toRadians(headingV) - renderer.getRotation());
+            gt.fill(arrow);
+            
+            gt.dispose();
+        }
+    }
+
     /**
      * @param sPos
      * @param renderer
