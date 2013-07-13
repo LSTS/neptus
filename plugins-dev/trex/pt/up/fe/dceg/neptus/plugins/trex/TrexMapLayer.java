@@ -75,6 +75,7 @@ import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
+import pt.up.fe.dceg.neptus.plugins.trex.goals.AUVDrifterSurvey;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.TagSimulation;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.TrexGoal;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.UavSpotterSurvey;
@@ -109,8 +110,18 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     public CommsChannel trexDuneComms = CommsChannel.IMC;
     @NeptusProperty(name = "Name of Dune task")
     public String taskName = "TREX";
+    
     @NeptusProperty(name = "Loiter height", description = "Height of waypoint for uav spotter plan.", category = "UAV Spotter")
     public int spotterHeight = 100;
+    
+    @NeptusProperty(name = "Path type", category = "AUV drifter")
+    public AUVDrifterSurvey.PathType path = AUVDrifterSurvey.PathType.SQUARE;
+    @NeptusProperty(name = "Size", category = "AUV drifter")
+    public float size = 800;
+    @NeptusProperty(name = "Lagrangian", category = "AUV drifter", description="True if you want to apply Lagragian distortion.")
+    public boolean lagrangin = true;
+    @NeptusProperty(name = "Heading", category = "AUV drifter", description="In radian, an offset to north in clockwise.")
+    public float heading= 0;
 
     private static final long serialVersionUID = 1L;
     Maneuver lastManeuver = null;
@@ -219,6 +230,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             addEnableTrexMenu(popup);
             popup.addSeparator();
             addTagSimulation(popup, loc);
+            addAUVDrifter(popup, loc);
             addUAVSpotter(popup, loc);
 
             //            for (String gid : sentGoals.keySet()) {
@@ -352,6 +364,28 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 message.setParams(params);
                 send(message);
             }
+        });
+    }
+    
+    private void addAUVDrifter(JPopupMenu popup, final LocationType loc) {
+        popup.add("AUV drifter").addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loc.convertToAbsoluteLatLonDepth();
+                AUVDrifterSurvey going = new AUVDrifterSurvey(loc.getLatitudeAsDoubleValueRads(), loc
+                        .getLongitudeAsDoubleValueRads(), size, lagrangin, path, heading);
+                switch (trexDuneComms) {
+                    case IMC:
+                        // Send goal
+                        send(going.asIMCMsg());
+                        break;
+                    case REST:
+                        httpPostTrex(going);
+                        break;
+                }
+            }
+
         });
     }
 
