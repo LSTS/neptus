@@ -79,9 +79,9 @@ class PlanCreator {
 	}
 	
 	public void setSpeed(double speed, SPEED_UNITS units) {
-	    
+	    this.speed = speed;
+	    this.speed_units = units;
 	}
-	
 	
 	public void setZ(double z, ManeuverLocation.Z_UNITS units) {
 	    loc.setZ(z);
@@ -106,7 +106,6 @@ class PlanCreator {
 	}
 	
 	public String addManeuver(String name, Map<Object, Object> obj) {
-
 		LinkedHashMap<String, Object> props = new LinkedHashMap<String, Object>();
 		
 		for (Object o : obj.keySet())
