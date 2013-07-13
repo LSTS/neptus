@@ -1818,6 +1818,7 @@ For simple use the main targets are:
 			<filterset refid="dist.filters" />
 			<filterset refid="common.filters" />
 		</copy>
+		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="sfx_header.sh"/>
 
 		<echo message="Creating Neptus_bin.sh...">
 		</echo>
