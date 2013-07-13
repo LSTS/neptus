@@ -603,7 +603,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     public void missionReplaced(MissionType mission) {
         // editor.setMission(mission);
         setMission(mission);
-        addPlan.setEnabled(mission != null);
+        if (addPlan != null)
+            addPlan.setEnabled(mission != null);
     }
 
     /* (non-Javadoc)

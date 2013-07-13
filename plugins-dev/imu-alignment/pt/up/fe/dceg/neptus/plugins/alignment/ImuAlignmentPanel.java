@@ -236,14 +236,16 @@ public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdate
             pc.addGoto(null);
             pc.move(0, squareSideLength);
             pc.addGoto(null);
+            
             PlanType pt = pc.getPlan();
             pt.setId("alignment_template");
+            pt.setMissionType(getConsole().getMission());
+            
             pt.setVehicle(getConsole().getMainSystem());
             getConsole().getMission().addPlan(pt);
             getConsole().setPlan(pt);
             getConsole().warnMissionListeners();
             getConsole().getMission().save(true);                        
-
         }
     }
 
