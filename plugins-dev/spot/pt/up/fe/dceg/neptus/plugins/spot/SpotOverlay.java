@@ -76,6 +76,9 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @NeptusProperty
     public int updateMinutes = 2;
+    
+    @NeptusProperty(name="Visible", userLevel=LEVEL.REGULAR)
+    public boolean visible = true;
 
     @NeptusProperty
     public boolean showOnlyWhenInteractionIsActive = true;
@@ -179,6 +182,9 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
+        if (!visible)
+            return;
+        
         Graphics2D g2 = (Graphics2D) g.create();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         // For each spot paint all the known positions with dots in each position and a path connecting them
