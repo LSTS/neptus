@@ -65,6 +65,7 @@ import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.EntitiesResolver;
 
@@ -204,9 +205,9 @@ public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdate
 
     public void doAlignment() {
 
-        int opt = JOptionPane.showConfirmDialog(getConsole(), "<html><h2>Alignment Procedure</h2>"
-                +"To do IMU alignment, the vehicle must do straigth segments at the surface.<br>"
-                +"<b>Do you want me to create a plan at surface for you?</b>");
+        int opt = GuiUtils.confirmDialog(getConsole(), I18n.text("Alignment Procedure"), "<html><h2>" + I18n.text("Alignment Procedure") + "</h2>"
+                +I18n.text("To do IMU alignment, the vehicle must do straigth segments at the surface.") + "<br>"
+                +"<b>" + I18n.text("Do you want me to create a plan at surface for you?") + "</b>");
 
 
         if (opt == JOptionPane.YES_OPTION) {
