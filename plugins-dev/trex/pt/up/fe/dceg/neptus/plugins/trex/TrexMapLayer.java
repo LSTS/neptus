@@ -116,10 +116,13 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     
     @NeptusProperty(name = "Path type", category = "AUV drifter")
     public AUVDrifterSurvey.PathType path = AUVDrifterSurvey.PathType.SQUARE;
+    
     @NeptusProperty(name = "Size", category = "AUV drifter")
     public float size = 800;
+    
     @NeptusProperty(name = "Lagrangian", category = "AUV drifter", description="True if you want to apply Lagragian distortion.")
     public boolean lagrangin = true;
+    
     @NeptusProperty(name = "Heading", category = "AUV drifter", description="In radian, an offset to north in clockwise.")
     public float heading= 0;
 

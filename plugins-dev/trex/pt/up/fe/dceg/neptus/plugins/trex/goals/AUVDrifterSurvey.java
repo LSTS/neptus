@@ -81,7 +81,7 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
     
     public enum PathType {
         SQUARE("square"),
-        BACK_FORTH("back_and_forth"),
+        BACK_FORTH("forth_and_back"),
         GO_TO("go_to"),
         UPWARD("upward_transect");
 
