@@ -102,6 +102,12 @@ cd $NEPTUS_HOME
 
 echo "Exporting from $NEPTUS_HOME/log to $to_upload"
 
+ls "$to_upload"
+if [ $? != 0 ]; then
+  echo "Destination folder '$to_upload' already exists!!"
+  exit 1
+fi
+
 (
 touch -t $todayFind _start
 
