@@ -1090,7 +1090,7 @@ MissionChangeListener {
                         new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                 popup.add(pTransitions);
 
-                AbstractAction paTransitions = new AbstractAction(I18n.text("Plan Actions")) {
+                AbstractAction paActions = new AbstractAction(I18n.text("Plan Actions")) {
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -1102,9 +1102,9 @@ MissionChangeListener {
                         refreshPropertiesManeuver();
                     }
                 };
-                paTransitions.putValue(AbstractAction.SMALL_ICON,
-                        new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
-                popup.add(paTransitions);
+                // For now take this out
+                //paActions.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+                //popup.add(paActions);
 
                 popup.addSeparator();
 

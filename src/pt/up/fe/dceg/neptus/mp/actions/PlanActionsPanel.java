@@ -120,7 +120,7 @@ public class PlanActionsPanel extends JPanel {
 		removeAll();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
-		add(new JLabel("<html><b>Payload Configurations"));
+//		add(new JLabel("<html><b>Payload Configurations"));
 		
 		holderPayload = new JPanel(true);
 		holderPayload.setLayout(new BoxLayout(holderPayload, BoxLayout.Y_AXIS));
@@ -131,7 +131,7 @@ public class PlanActionsPanel extends JPanel {
 		scrollPanePayload.setBorder(BorderFactory.createEmptyBorder(3,3,3,3));
 		scrollPanePayload.setPreferredSize(new Dimension(600,200));
 		scrollPanePayload.setViewportView(holderPayload);
-		add(scrollPanePayload);
+//		add(scrollPanePayload);
 		
 		controlsPayload = new JPanel();
 		controlsPayload.setLayout(new BoxLayout(controlsPayload, BoxLayout.X_AXIS));
@@ -142,8 +142,8 @@ public class PlanActionsPanel extends JPanel {
 		controlsPayload.add(addPayload);
 		controlsPayload.add(removePayload);
 
-		add(controlsPayload);
-		add(new JSeparator(JSeparator.HORIZONTAL));
+//		add(controlsPayload);
+//		add(new JSeparator(JSeparator.HORIZONTAL));
 
 		add(new JLabel("<html><b>Messages"));
 
