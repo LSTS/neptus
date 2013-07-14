@@ -300,27 +300,41 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
 
         preferencesUpdated();
         GeneralPreferences.addPreferencesListener(this);
-
-        Thread t = new Thread("World Map Painter Initialization") {
-            public void run() {
-                try {
-                    worldMapPainter = new WorldRenderPainter(StateRenderer2D.this, isWorldBondariesShown(), isWorldMapShown(),
-                            getWorldMapStyle());
-                    worldMapPainter.setShowOnScreenControls(worldMapShowScreenControls);
-                    addPreRenderPainter(worldMapPainter);
-                    addPostRenderPainter(worldMapPainter.getPostRenderPainter(), "World Map Painter Control");
-                    addMouseListener(worldMapPainter);
-                    addMouseMotionListener(worldMapPainter);
-                }
-                catch (NoClassDefFoundError e) {
-                    NeptusLog.pub().warn("Probably running inside a reduced api jar!!", e);
-                    e.printStackTrace();
-                }
-
-            };
-        };
-        t.setDaemon(true);
-        t.start();
+        
+        // pdias@20130714 - Have to see why this was put in a thread because this makes some components that 
+        // initialize this component and call methods to configure worldMapPainter makes a throw of null pointer.
+//        Thread t = new Thread("World Map Painter Initialization") {
+//            public void run() {
+//                try {
+//                    worldMapPainter = new WorldRenderPainter(StateRenderer2D.this, isWorldBondariesShown(), isWorldMapShown(),
+//                            getWorldMapStyle());
+//                    worldMapPainter.setShowOnScreenControls(worldMapShowScreenControls);
+//                    addPreRenderPainter(worldMapPainter);
+//                    addPostRenderPainter(worldMapPainter.getPostRenderPainter(), "World Map Painter Control");
+//                    addMouseListener(worldMapPainter);
+//                    addMouseMotionListener(worldMapPainter);
+//                }
+//                catch (NoClassDefFoundError e) {
+//                    NeptusLog.pub().warn("Probably running inside a reduced api jar!!", e);
+//                    e.printStackTrace();
+//                }
+//            };
+//        };
+//        t.setDaemon(true);
+//        t.start();
+        try {
+            worldMapPainter = new WorldRenderPainter(StateRenderer2D.this, isWorldBondariesShown(), isWorldMapShown(),
+                    getWorldMapStyle());
+            worldMapPainter.setShowOnScreenControls(worldMapShowScreenControls);
+            addPreRenderPainter(worldMapPainter);
+            addPostRenderPainter(worldMapPainter.getPostRenderPainter(), "World Map Painter Control");
+            addMouseListener(worldMapPainter);
+            addMouseMotionListener(worldMapPainter);
+        }
+        catch (NoClassDefFoundError e) {
+            NeptusLog.pub().warn("Probably running inside a reduced api jar!!", e);
+            e.printStackTrace();
+        }
         
         addComponentListener(new ComponentListener() {
             

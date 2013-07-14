@@ -362,54 +362,11 @@ public class ImageObjectParameters extends ParametersPanel {
 							getScale().setText(String.valueOf(tmp.getImageScale()));
 							center = tmp.getCenterLocation();
 						}
-						
-						/*
-						ImageLocatorPanel imgLocator = new ImageLocatorPanel(GuiUtils.getImage(getImageFileName()));
-						if (imgLocator.showDialog()) {
-							getScale().setText(String.valueOf(imgLocator.getScale()));
-							center = imgLocator.getCenter();
-						}
-						*/
 					}
 					catch (Exception exception) {
+					    NeptusLog.pub().warn(exception.getMessage());
 						GuiUtils.errorMessage(SwingUtilities.getRoot((Component)e.getSource()), "Select an image first", "You have to select an image fisrt.");
 					}
-					
-					
-					/*
-					int imgWidth = 0;
-					int imgHeight = 0;
-					
-					try {
-						ImageIcon img = (ImageIcon) getImgLabel().getIcon();
-						imgWidth = img.getImage().getWidth(null);
-						imgHeight = img.getImage().getHeight(null);
-						if ((imgWidth*imgHeight) == 0) 
-							throw new Exception("Invalid image size");
-					}
-					catch (Exception exception) {
-						
-						return;
-					}
-					
-					LocationType bottomLeft = LocationPanel.showLocationDialog("Location of the bottom-left corner of the image", getCenter(), null);
-					if (bottomLeft == null)
-						return;
-					
-					LocationType topRight = LocationPanel.showLocationDialog("Location of the top-right corner of the image", getCenter(), null);
-					if (topRight == null)
-						return;
-					
-					LocationType centerPos = new LocationType();
-					centerPos.setLocation(bottomLeft);
-					double[] offsets = topRight.getOffsetFrom(bottomLeft);
-					if (offsets[0]==0 || offsets[1] ==0)
-						return;
-					centerPos.translatePosition(offsets[0]/2, offsets[1]/2, 0);					
-					getCenter().setLocation(centerPos);
-					double calcScale = offsets[1] / (double)imgWidth;
-					
-					getScale().setText(String.valueOf(calcScale));*/
 				}
 			});
 		}
@@ -652,22 +609,15 @@ public class ImageObjectParameters extends ParametersPanel {
 		return bathImageSelect;
 	}
 
-
-	/**
-	 * @param args
-	 */
-	public static void main(String args[]) {
-		GuiUtils.testFrame(new ImageObjectParameters(), "test");
-	}
-
-
 	public File getSelectedBathymetricImage() {
 		return selectedBathymetricImage;
 	}
-
 
 	public void setSelectedBathymetricImage(File selectedBathymetricImage) {
 		this.selectedBathymetricImage = selectedBathymetricImage;
 	}
 
+    public static void main(String args[]) {
+        GuiUtils.testFrame(new ImageObjectParameters(), "test");
+    }
 }
