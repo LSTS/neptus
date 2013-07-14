@@ -67,7 +67,6 @@ import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.colormap.ColormapOverlay;
 import pt.up.fe.dceg.neptus.colormap.InterpolationColorMap;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
@@ -131,7 +130,11 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     
     @NeptusProperty(name = "Show currents as most recent (true) or mean (false) value", userLevel = LEVEL.REGULAR)
     public boolean hfradarUseMostRecentOrMean = true;
-    
+
+    @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR)
+    public boolean useColorMapForWind = true;
+
+
     private boolean clearImgCachRqst = false;
 
     public static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'SS");
@@ -792,7 +795,8 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             Graphics2D gt = (Graphics2D) g2.create();
             gt.translate(pt.getX(), pt.getY());
             Color color = Color.WHITE;
-            color = colorMapWind.getColor(dp.getSpeed() / maxWind);
+            if (useColorMapForWind)
+                color = colorMapWind.getColor(dp.getSpeed() / maxWind);
             if (dp.getDateUTC().before(dateColorLimit))
                 color = ColorUtils.setTransparencyToColor(color, 128);
             gt.setColor(color);
