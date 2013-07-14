@@ -39,7 +39,8 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
-import java.awt.geom.GeneralPath;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -63,9 +64,10 @@ import org.apache.http.client.methods.HttpGet;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.colormap.ColorMapUtils;
+import pt.up.fe.dceg.neptus.colormap.ColormapOverlay;
 import pt.up.fe.dceg.neptus.colormap.InterpolationColorMap;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
@@ -143,7 +145,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         timeFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
     
-    private final static GeneralPath arrow = new GeneralPath();
+    private final static Path2D.Double arrow = new Path2D.Double();
     static {
         arrow.moveTo(-5, 6);
         arrow.lineTo(0, -6);
@@ -151,7 +153,71 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         arrow.lineTo(0, 6 * 1 / 20);
         arrow.closePath();
     }
+
+    private final static Ellipse2D circle = new Ellipse2D.Double(-4, -4, 8, 8);
     
+    private final static Path2D.Double windPoleKnots = new Path2D.Double();
+    static {
+        windPoleKnots.moveTo(0, 0);
+        windPoleKnots.lineTo(0, 14);
+        windPoleKnots.closePath();
+    }
+    private final static Path2D.Double wind50Knots1 = new Path2D.Double();
+    static {
+        wind50Knots1.moveTo(0, 14);
+        wind50Knots1.lineTo(-8, 14);
+        wind50Knots1.lineTo(0, 12);
+        wind50Knots1.closePath();
+    }
+    private final static Path2D.Double wind10Knots1 = new Path2D.Double();
+    static {
+        wind10Knots1.moveTo(0, 14);
+        wind10Knots1.lineTo(-8, 14);
+        wind10Knots1.closePath();
+    }
+    private final static Path2D.Double wind5Knots2 = new Path2D.Double();
+    static {
+        wind5Knots2.moveTo(0, 12);
+        wind5Knots2.lineTo(-4, 12);
+        wind5Knots2.closePath();
+    }
+    private final static Path2D.Double wind10Knots2 = new Path2D.Double();
+    static {
+        wind10Knots2.moveTo(0, 12);
+        wind10Knots2.lineTo(-8, 12);
+        wind10Knots2.closePath();
+    }
+    private final static Path2D.Double wind5Knots3 = new Path2D.Double();
+    static {
+        wind5Knots3.moveTo(0, 10);
+        wind5Knots3.lineTo(-4, 10);
+        wind5Knots3.closePath();
+    }
+    private final static Path2D.Double wind10Knots3 = new Path2D.Double();
+    static {
+        wind10Knots3.moveTo(0, 10);
+        wind10Knots3.lineTo(-8, 10);
+        wind10Knots3.closePath();
+    }
+    private final static Path2D.Double wind5Knots4 = new Path2D.Double();
+    static {
+        wind5Knots4.moveTo(0, 8);
+        wind5Knots4.lineTo(-4, 8);
+        wind5Knots4.closePath();
+    }
+    private final static Path2D.Double wind10Knots4 = new Path2D.Double();
+    static {
+        wind10Knots4.moveTo(0, 8);
+        wind10Knots4.lineTo(-8, 8);
+        wind10Knots4.closePath();
+    }
+    private final static Path2D.Double wind5Knots5 = new Path2D.Double();
+    static {
+        wind5Knots5.moveTo(0, 6);
+        wind5Knots5.lineTo(-4, 6);
+        wind5Knots5.closePath();
+    }
+
     //  http://hfradar.ndbc.noaa.gov/tab.php?from=2013-06-22%2015:00:00&to=2013-06-22%2015:00:00&p=1&lat=38.324420427006515&lng=-119.94323730468749&lat2=35.69299463209881&lng2=-124.33776855468749
     //  http://hfradar.ndbc.noaa.gov/tabdownload.php?from=2013-06-23%2009:34:00&to=2013-06-23%2021:34:00&lat=37.78799270017669&lng=-122.39269445535145&lat2=37.78781729434937&lng2=-122.39236722585163
     private String noaaURL = "http://hfradar.ndbc.noaa.gov/tabdownload.php?" +
@@ -655,6 +721,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      */
     private void paintSSTInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
         LocationType loc = new LocationType();
+        ColormapOverlay overlay = new ColormapOverlay("SST", 20, false, 0);
         for (SSTDataPoint dp : dataPointsSST.values()) {
             if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
                 continue;
@@ -677,14 +744,21 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             Graphics2D gt = (Graphics2D) g2.create();
             gt.translate(pt.getX(), pt.getY());
             Color color = Color.WHITE;
-            color = colorMapSST.getColor((dp.getSst() + minSST) / (maxSST - minSST));
+            color = colorMapSST.getColor((dp.getSst() - minSST) / (maxSST - minSST));
             if (dp.getDateUTC().before(dateColorLimit))
                 color = ColorUtils.setTransparencyToColor(color, 128);
             gt.setColor(color);
-            gt.fill(arrow);
+            gt.draw(circle);
+            gt.fill(circle);
+            
+//            overlay.addSample(loc.getNewAbsoluteLatLonDepth(), dp.getSst());
             
             gt.dispose();
         }
+
+//        Graphics2D gt = (Graphics2D) g2.create();
+//        overlay.paint(gt, renderer);
+//        gt.dispose();
     }
 
     /**
@@ -723,7 +797,60 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
                 color = ColorUtils.setTransparencyToColor(color, 128);
             gt.setColor(color);
             gt.rotate(-Math.toRadians(headingV) - renderer.getRotation());
-            gt.fill(arrow);
+            // gt.fill(arrow);
+            
+            double speedKnots = speedV * m_sToKnotConv;
+            if (speedKnots >= 2) {
+                gt.draw(windPoleKnots);
+            }
+            
+            if (speedKnots >= 5 && speedKnots < 10) {
+                gt.draw(wind5Knots2);
+            }
+            else if (speedKnots >= 10 && speedKnots < 15) {
+                gt.draw(wind10Knots1);
+            }
+            else if (speedKnots >= 15 && speedKnots < 20) {
+                gt.draw(wind10Knots1);
+                gt.draw(wind5Knots2);
+            }
+            else if (speedKnots >= 20 && speedKnots < 25) {
+                gt.draw(wind10Knots1);
+                gt.draw(wind10Knots2);
+            }
+            else if (speedKnots >= 25 && speedKnots < 30) {
+                gt.draw(wind10Knots1);
+                gt.draw(wind10Knots2);
+                gt.draw(wind5Knots3);
+            }
+            else if (speedKnots >= 30 && speedKnots < 35) {
+                gt.draw(wind10Knots1);
+                gt.draw(wind10Knots2);
+                gt.draw(wind10Knots3);
+            }
+            else if (speedKnots >= 35 && speedKnots < 40) {
+                gt.draw(wind10Knots1);
+                gt.draw(wind10Knots2);
+                gt.draw(wind10Knots3);
+                gt.draw(wind5Knots4);
+            }
+            else if (speedKnots >= 40 && speedKnots < 45) {
+                gt.draw(wind10Knots1);
+                gt.draw(wind10Knots2);
+                gt.draw(wind10Knots3);
+                gt.draw(wind10Knots4);
+            }
+            else if (speedKnots >= 45 && speedKnots < 50) {
+                gt.draw(wind10Knots1);
+                gt.draw(wind10Knots2);
+                gt.draw(wind10Knots3);
+                gt.draw(wind10Knots4);
+                gt.draw(wind5Knots5);
+            }
+            else if (speedKnots >= 50) {
+                gt.draw(wind50Knots1);
+                gt.fill(wind50Knots1);
+            }
             
             gt.dispose();
         }

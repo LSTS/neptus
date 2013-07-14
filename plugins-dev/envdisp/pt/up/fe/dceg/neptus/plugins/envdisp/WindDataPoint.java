@@ -101,7 +101,7 @@ public class WindDataPoint extends BaseDataPoint<WindDataPoint> {
 
     public double getHeading() {
         double heading = Math.atan2(v, u);
-        return heading;
+        return Math.toDegrees(heading);
     }
 
     public boolean useMostRecent(Date currentDate) {
