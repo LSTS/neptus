@@ -472,7 +472,6 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
             default:
                 addText(I18n.textf("[%manta]: %status", msg.getSourceName(), msg.getOp().toString()));
                 break;
-
         }
     }
 

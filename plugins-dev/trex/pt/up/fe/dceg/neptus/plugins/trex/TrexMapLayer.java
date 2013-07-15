@@ -114,16 +114,16 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     @NeptusProperty(name = "Loiter height", description = "Height of waypoint for uav spotter plan.", category = "UAV Spotter")
     public int spotterHeight = 100;
     
-    @NeptusProperty(name = "Path type", category = "AUV drifter")
+    @NeptusProperty(name = "Type", category = "YoYo Survey")
     public AUVDrifterSurvey.PathType path = AUVDrifterSurvey.PathType.SQUARE;
     
-    @NeptusProperty(name = "Size", category = "AUV drifter")
+    @NeptusProperty(name = "Survey Size", category = "YoYo Survey")
     public float size = 800;
     
-    @NeptusProperty(name = "Lagrangian", category = "AUV drifter", description="True if you want to apply Lagragian distortion.")
+    @NeptusProperty(name = "Lagrangian distortion", category = "YoYo Survey", description="True if you want to apply Lagrangian distortion.")
     public boolean lagrangin = true;
     
-    @NeptusProperty(name = "Heading", category = "AUV drifter", description="In radian, an offset to north in clockwise.")
+    @NeptusProperty(name = "Rotation", category = "YoYo Survey", description="In degrees, an offset to north in clockwise.")
     public float heading= 0;
 
     private static final long serialVersionUID = 1L;
@@ -225,15 +225,15 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             if (surveyEdit) {
                 addSurveyPointsMenu(popup);
             }
-            addVisitThisPointMenu(popup, loc);
-            addSurvveyAreaMenu(popup);
-            addClearGoalMenu(popup);
-            popup.addSeparator();
             addDisableTrexMenu(popup);
             addEnableTrexMenu(popup);
+            
             popup.addSeparator();
-            addTagSimulation(popup, loc);
+            addVisitThisPointMenu(popup, loc);
             addAUVDrifter(popup, loc);
+            addClearGoalMenu(popup);
+            popup.addSeparator();
+            //addTagSimulation(popup, loc);
             addUAVSpotter(popup, loc);
 
             //            for (String gid : sentGoals.keySet()) {
@@ -371,13 +371,13 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     }
     
     private void addAUVDrifter(JPopupMenu popup, final LocationType loc) {
-        popup.add("AUV drifter").addActionListener(new ActionListener() {
+        popup.add("YoYo Survey").addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 loc.convertToAbsoluteLatLonDepth();
                 AUVDrifterSurvey going = new AUVDrifterSurvey(loc.getLatitudeAsDoubleValueRads(), loc
-                        .getLongitudeAsDoubleValueRads(), size, lagrangin, path, heading);
+                        .getLongitudeAsDoubleValueRads(), size, lagrangin, path, (float)Math.toDegrees(heading));
                 switch (trexDuneComms) {
                     case IMC:
                         // Send goal
@@ -387,12 +387,13 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                         httpPostTrex(going);
                         break;
                 }
+                sentGoals.put(""+going.hashCode(), going);
             }
 
         });
     }
 
-    private void addTagSimulation(JPopupMenu popup, final LocationType loc) {
+    /*private void addTagSimulation(JPopupMenu popup, final LocationType loc) {
         popup.add("Simulate a tag here").addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -403,7 +404,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             }
 
         });
-    }
+    }*/
 
     private void httpPostTrex(TrexGoal goal) {
         try {

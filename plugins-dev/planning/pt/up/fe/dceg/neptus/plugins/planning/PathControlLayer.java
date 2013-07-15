@@ -49,6 +49,7 @@ import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
 import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -61,6 +62,7 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
  *
  */
 @PluginDescription(name="PathControlLayer")
+@LayerPriority(priority=-5)
 public class PathControlLayer extends SimpleSubPanel implements Renderer2DPainter, MessageListener<MessageInfo, IMCMessage> {
 
 
@@ -95,6 +97,7 @@ public class PathControlLayer extends SimpleSubPanel implements Renderer2DPainte
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         for (PathControlState pcs : lastMsgs.values()) {
+            System.out.println(pcs.getFlags());
             LocationType dest = new LocationType(Math.toDegrees(pcs.getEndLat()), Math.toDegrees(pcs.getEndLon()));
             ImcSystem system = ImcSystemsHolder.lookupSystem(pcs.getSrc());
 

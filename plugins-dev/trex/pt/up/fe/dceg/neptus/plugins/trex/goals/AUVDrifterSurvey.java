@@ -31,10 +31,15 @@
  */
 package pt.up.fe.dceg.neptus.plugins.trex.goals;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
@@ -47,21 +52,17 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 /**
- * @author meg
+ * @author meg, zp
  *
  */
 public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
     private static final String predicate = "Survey";
     private static final String timeline = "drifter";
+    private Shape survey;
+    private LocationType center;
+    private Point2D firstPoint;
+    private double rotationRads;
     
-//    <Goal on="drifter" pred="Survey">
-//    <Variable name="center_lat"><float value="0.7123423"/></Variable>
-//    <Variable name="center_lon"><float value="0.7123423"/></Variable>
-//    <!-- TODO speed... -->
-//    <Variable name="path"><enum><elem value="square"/></enum></Variable>
-//    <Variable name="size"><float value="800.0"/></Variable>
-//    <Variable name="lagrangian"><bool value="0"/></Variable>
-// </Goal>
     public enum Attributes {
         LATITUDE("center_lat", TrexAttribute.ATTR_TYPE.FLOAT),
         LONGITUDE("center_lon", TrexAttribute.ATTR_TYPE.FLOAT),
@@ -95,21 +96,48 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
     private final HashMap<Attributes, Object> attributes;
 
     /**
-     * @param lat_deg
-     * @param lon_deg
+     * @param latrad
+     * @param lonrad
      */
-    public AUVDrifterSurvey(double lat_deg, double lon_deg, float squareSize, 
+    public AUVDrifterSurvey(double latrad, double lonrad, float size, 
             boolean lagrangian, PathType path, float heading) {
         super(timeline, predicate);
         attributes = new HashMap<AUVDrifterSurvey.Attributes, Object>();
-        attributes.put(Attributes.LATITUDE, lat_deg);
-        attributes.put(Attributes.LONGITUDE, lon_deg);
-        attributes.put(Attributes.SIZE, squareSize);
+        attributes.put(Attributes.LATITUDE, latrad);
+        attributes.put(Attributes.LONGITUDE, lonrad);
+        attributes.put(Attributes.SIZE, size);
         attributes.put(Attributes.LAGRANGIAN, lagrangian);
         attributes.put(Attributes.PATH, path);
         attributes.put(Attributes.HEADING, heading);
+        
+        buildShape(path, new LocationType(Math.toDegrees(latrad),Math.toDegrees(lonrad)), size, heading);
     }
+    
+    private void buildShape(PathType type, LocationType center, double size, double rotation) {
 
+        double halfSize = size/2;
+        this.center = center;
+        this.rotationRads = rotation;
+        switch (type) {
+            case GO_TO:
+                survey = new Line2D.Double(0,0, 0,0);
+                firstPoint = new Point2D.Double(0,0);
+                break;
+            case BACK_FORTH:
+                firstPoint = new Point2D.Double(0,halfSize);
+                survey = new Line2D.Double(0, -halfSize, 0, halfSize);
+                break;
+            case UPWARD:
+                firstPoint = new Point2D.Double(0,halfSize);                                
+                survey = new Line2D.Double(0, -halfSize, 0, halfSize);
+                break;
+            case SQUARE:
+                firstPoint = new Point2D.Double(-halfSize,-halfSize);                
+                survey = new Rectangle2D.Double(-halfSize, -halfSize, size, size);                
+            default:
+                break;
+        }        
+    }
 
     @Override
     public Collection<TrexAttribute> getAttributes() {
@@ -194,7 +222,18 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
     
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        
+        g.setColor(Color.orange);
+        if (survey != null) {            
+            Point2D centerPt = renderer.getScreenPosition(center);
+            g.translate(centerPt.getX(), centerPt.getY());
+            g.rotate(rotationRads);
+            g.scale(renderer.getZoom(), renderer.getZoom());
+            g.fill(new Ellipse2D.Double(firstPoint.getX()-5, firstPoint.getY()-5, 10, 10));
+            g.draw(survey);
+        }   
+        else {
+            System.err.println("survey is null!");
+        }
     }
 
     @Override
