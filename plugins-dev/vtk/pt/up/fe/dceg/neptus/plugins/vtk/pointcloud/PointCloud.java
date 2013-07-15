@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.up.fe.dceg.neptus.plugins.vtk.utils.PointCloudUtils;
 import vtk.vtkCellArray;
 import vtk.vtkLODActor;
 import vtk.vtkPoints;
@@ -86,6 +87,7 @@ j  java.lang.Thread.run()V+11
 v  ~StubRoutines::call_stub
      * 
      */
+    @SuppressWarnings("unchecked")
     public void createLODActorFromPoints() {
         try {
            getPoly().SetPoints(getPoints());
@@ -98,7 +100,9 @@ v  ~StubRoutines::call_stub
            getPoly().Modified();
            
            //getPoly().Update();
-           setBounds(getPoly().GetBounds());
+           //setBounds(getPoly().GetBounds()); <- subs by core dump crash
+           //setBounds(PointCloudUtils.computeBounds((PointCloud<PointXYZ>) this));
+           setBounds(PointCloudUtils.computeBounds(getPoints()));
            
            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds);
                       
@@ -125,6 +129,7 @@ v  ~StubRoutines::call_stub
      * Create a Pointcloud Actor from loaded points and verts
      * @param intensities 
      */
+    @SuppressWarnings("unchecked")
     public void createLODActorFromPoints(vtkShortArray intensities) {
         try {                                   
             getPoly().SetPoints(getPoints());
@@ -144,11 +149,17 @@ v  ~StubRoutines::call_stub
             //cells.SetNumberOfCells(getNumberOfPoints());
             //getPoly().SetPolys(cells);
             getPoly().Update();
-            setBounds(getPoly().GetBounds());
+            //setBounds(getPoly().GetBounds());
+            setBounds(PointCloudUtils.computeBounds((PointCloud<PointXYZ>) this));
+            
+            NeptusLog.pub().info("Min x: " + bounds[0]);
+            NeptusLog.pub().info("Max x: " + bounds[1]);
+            NeptusLog.pub().info("Min y: " + bounds[2]);
+            NeptusLog.pub().info("Max y: " + bounds[3]);
+            NeptusLog.pub().info("Min z: " + bounds[4]);
+            NeptusLog.pub().info("Max z: " + bounds[5]);
             
             //setMemorySize(getPoly().GetActualMemorySize());
-
-            
             
             getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds, intensities);
             
