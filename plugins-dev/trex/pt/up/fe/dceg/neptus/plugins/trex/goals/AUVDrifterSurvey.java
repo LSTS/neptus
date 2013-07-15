@@ -62,6 +62,7 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
     private LocationType center;
     private Point2D firstPoint;
     private double rotationRads;
+    private static final double pitch = Math.toRadians(15); 
     
     public enum Attributes {
         LATITUDE("center_lat", TrexAttribute.ATTR_TYPE.FLOAT),
@@ -69,7 +70,9 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
         PATH("path", TrexAttribute.ATTR_TYPE.ENUM),
         SIZE("size", TrexAttribute.ATTR_TYPE.FLOAT),
         LAGRANGIAN("lagrangian", TrexAttribute.ATTR_TYPE.BOOL),
-        HEADING("heading", TrexAttribute.ATTR_TYPE.FLOAT);
+        HEADING("heading", TrexAttribute.ATTR_TYPE.FLOAT),
+        SPEED_EAST("speed_east", TrexAttribute.ATTR_TYPE.FLOAT),
+        SPEED_NORTH("speed_north", TrexAttribute.ATTR_TYPE.FLOAT);
 
         public String name;
         public TrexAttribute.ATTR_TYPE type;
@@ -99,7 +102,7 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
      * @param latrad
      * @param lonrad
      */
-    public AUVDrifterSurvey(double latrad, double lonrad, float size, 
+    public AUVDrifterSurvey(double latrad, double lonrad, float size, float speed,
             boolean lagrangian, PathType path, float heading) {
         super(timeline, predicate);
         attributes = new HashMap<AUVDrifterSurvey.Attributes, Object>();
@@ -110,10 +113,17 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
         attributes.put(Attributes.PATH, path);
         attributes.put(Attributes.HEADING, heading);
         
-        buildShape(path, new LocationType(Math.toDegrees(latrad),Math.toDegrees(lonrad)), size, heading);
+        if (speed != 0 && lagrangian) {
+            double speed_e = Math.sin(heading) * speed;
+            double speed_n = Math.cos(heading) * speed;
+            attributes.put(Attributes.SPEED_EAST, speed_e);
+            attributes.put(Attributes.SPEED_NORTH, speed_n);
+        }
+        
+        buildShape(path, new LocationType(Math.toDegrees(latrad),Math.toDegrees(lonrad)), size, heading, speed);
     }
     
-    private void buildShape(PathType type, LocationType center, double size, double rotation) {
+    private void buildShape(PathType type, LocationType center, double size, double rotation, double speed) {
 
         double halfSize = size/2;
         this.center = center;
@@ -132,8 +142,17 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
                 survey = new Line2D.Double(0, -halfSize, 0, halfSize);
                 break;
             case SQUARE:
-                firstPoint = new Point2D.Double(-halfSize,-halfSize);                
-                survey = new Rectangle2D.Double(-halfSize, -halfSize, size, size);                
+                if (speed == 0) {
+                    firstPoint = new Point2D.Double(-halfSize,-halfSize);                
+                    survey = new Rectangle2D.Double(-halfSize, -halfSize, size, size);
+                }
+                else {
+                    firstPoint = new Point2D.Double(-halfSize,-halfSize);
+                    //GeneralPath gp = new GeneralPath();
+                    //gp.moveTo(-halfSize, -halfSize);
+                    
+                    survey = new Rectangle2D.Double(-halfSize, -halfSize, size, size);
+                }
             default:
                 break;
         }        
@@ -173,11 +192,29 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
         attrTemp.setAttrType(Attributes.PATH.type);
         attributes.add(attrTemp);
         attrTemp = new TrexAttribute();
-        attrTemp.setName(Attributes.HEADING.name);
-        attrTemp.setMin(this.attributes.get(Attributes.HEADING) + "");
-        attrTemp.setMax(this.attributes.get(Attributes.HEADING) + "");
-        attrTemp.setAttrType(Attributes.HEADING.type);
-        attributes.add(attrTemp);
+        
+        if (this.attributes.get(Attributes.SPEED_EAST) != null && this.attributes.get(Attributes.SPEED_NORTH) != null) {
+            attrTemp = new TrexAttribute();
+            attrTemp.setName(Attributes.SPEED_EAST.name);
+            attrTemp.setMin(this.attributes.get(Attributes.SPEED_EAST) + "");
+            attrTemp.setMax(this.attributes.get(Attributes.SPEED_EAST) + "");
+            attrTemp.setAttrType(Attributes.SPEED_EAST.type);
+            attributes.add(attrTemp);                
+            
+            attrTemp = new TrexAttribute();
+            attrTemp.setName(Attributes.SPEED_NORTH.name);
+            attrTemp.setMin(this.attributes.get(Attributes.SPEED_NORTH) + "");
+            attrTemp.setMax(this.attributes.get(Attributes.SPEED_NORTH) + "");
+            attrTemp.setAttrType(Attributes.SPEED_NORTH.type);
+            attributes.add(attrTemp);                            
+        }
+        else {
+            attrTemp.setName(Attributes.HEADING.name);
+            attrTemp.setMin(this.attributes.get(Attributes.HEADING) + "");
+            attrTemp.setMax(this.attributes.get(Attributes.HEADING) + "");
+            attrTemp.setAttrType(Attributes.HEADING.type);
+            attributes.add(attrTemp);
+        }
         
         return attributes;
     }

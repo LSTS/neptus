@@ -124,7 +124,11 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     public boolean lagrangin = true;
     
     @NeptusProperty(name = "Rotation", category = "YoYo Survey", description="In degrees, an offset to north in clockwise.")
-    public float heading= 0;
+    public float heading = 0;
+    
+    @NeptusProperty(name = "Water current Speed", category = "YoYo Survey", description="Speed, in mps of the surface current.")
+    public float speed = 0;
+    
 
     private static final long serialVersionUID = 1L;
     Maneuver lastManeuver = null;
@@ -377,7 +381,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             public void actionPerformed(ActionEvent e) {
                 loc.convertToAbsoluteLatLonDepth();
                 AUVDrifterSurvey going = new AUVDrifterSurvey(loc.getLatitudeAsDoubleValueRads(), loc
-                        .getLongitudeAsDoubleValueRads(), size, lagrangin, path, (float)Math.toDegrees(heading));
+                        .getLongitudeAsDoubleValueRads(), size, speed, lagrangin, path, (float)Math.toRadians(heading));
                 switch (trexDuneComms) {
                     case IMC:
                         // Send goal

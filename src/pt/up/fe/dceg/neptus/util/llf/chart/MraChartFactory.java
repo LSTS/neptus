@@ -40,8 +40,10 @@ import pt.up.fe.dceg.neptus.mra.plots.CtdPlot;
 import pt.up.fe.dceg.neptus.mra.plots.EstimatedStatePlot;
 import pt.up.fe.dceg.neptus.mra.plots.EulerAnglesPlot;
 import pt.up.fe.dceg.neptus.mra.plots.LblRangesPlot;
+import pt.up.fe.dceg.neptus.mra.plots.SalinityVsDepthPlot;
 import pt.up.fe.dceg.neptus.mra.plots.ScriptedPlot;
 import pt.up.fe.dceg.neptus.mra.plots.StatisticsPlot;
+import pt.up.fe.dceg.neptus.mra.plots.TemperatureVsDepthPlot;
 import pt.up.fe.dceg.neptus.mra.plots.TidePlot;
 import pt.up.fe.dceg.neptus.mra.plots.VehicleGanttPlot;
 import pt.up.fe.dceg.neptus.mra.plots.XYPlot;
@@ -55,7 +57,7 @@ import pt.up.fe.dceg.neptus.plugins.actualstate.ActualPosition;
 public class MraChartFactory {
 
     private static Class<?>[] automaticCharts = new Class<?>[] { EstimatedStatePlot.class, XYPlot.class, ZPlot.class,
-            LblRangesPlot.class, EulerAnglesPlot.class, CtdPlot.class, VehicleGanttPlot.class, TidePlot.class, ActualPosition.class, StatisticsPlot.class
+            LblRangesPlot.class, EulerAnglesPlot.class, CtdPlot.class, TemperatureVsDepthPlot.class, SalinityVsDepthPlot.class, VehicleGanttPlot.class, TidePlot.class, ActualPosition.class, StatisticsPlot.class
     };
 
     /**
