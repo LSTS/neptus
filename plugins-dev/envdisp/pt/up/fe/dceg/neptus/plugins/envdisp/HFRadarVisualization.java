@@ -47,6 +47,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -56,6 +57,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -134,6 +137,18 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR)
     public boolean useColorMapForWind = true;
 
+    @NeptusProperty(name = "Base Folder For Currents TUV Files", userLevel = LEVEL.REGULAR)
+    public File baseFolderForCurrentsTUVFiles = new File("IHData/CODAR");
+
+    @NeptusProperty(name = "Base Folder For Meteo NetCDF Files", userLevel = LEVEL.REGULAR)
+    public File baseFolderForMeteoNetCDFFiles = new File("IHData/METEO");
+
+    @NeptusProperty(name = "Base Folder For Waves NetCDF Files", userLevel = LEVEL.REGULAR)
+    public File baseFolderForWavesNetCDFFiles = new File("IHData/WAVES");
+    
+    private String currentsFilePattern = "TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv";
+    private String meteoFilePattern = "meteo_\\d{8}\\.nc";
+    private String wavesFilePattern = "waves_[a-zA-Z]{1,2}_\\d{8}\\.nc";
 
     private boolean clearImgCachRqst = false;
 
@@ -279,26 +294,27 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     @SuppressWarnings("unchecked")
     @Override
     public void initSubPanel() {
-        HashMap<String, HFRadarDataPoint> tdp = processNoaaHFRadarTest();
-        mergeCurrentsDataToInternalDataList(tdp);
         
-        tdp = processTuvHFRadarTest(sampleTuvFile);
-        if (tdp != null && tdp.size() > 0)
-            mergeCurrentsDataToInternalDataList(tdp);
-
-        HashMap<?, ?>[] meteodp = processMeteoFile(sampleMeteoFile);
-        HashMap<String, SSTDataPoint> sstdp = (HashMap<String, SSTDataPoint>) meteodp[0];
-        if (sstdp != null && sstdp.size() > 0)
-            mergeSSTDataToInternalDataList(sstdp);
-        HashMap<String, WindDataPoint> winddp = (HashMap<String, WindDataPoint>) meteodp[1];
-        if (winddp != null && winddp.size() > 0)
-            mergeWindDataToInternalDataList(winddp);
-
-        HashMap<String, WavesDataPoint> wavesdp = processWavesFile(sampleWavesFile);
-        if (wavesdp != null && wavesdp.size() > 0)
-            mergeWavesDataToInternalDataList(wavesdp);
-        
-        update();
+//        HashMap<String, HFRadarDataPoint> tdp = processNoaaHFRadarTest();
+//        mergeCurrentsDataToInternalDataList(tdp);
+//        
+//        tdp = processTuvHFRadarTest(sampleTuvFile);
+//        if (tdp != null && tdp.size() > 0)
+//            mergeCurrentsDataToInternalDataList(tdp);
+//
+//        HashMap<?, ?>[] meteodp = processMeteoFile(sampleMeteoFile);
+//        HashMap<String, SSTDataPoint> sstdp = (HashMap<String, SSTDataPoint>) meteodp[0];
+//        if (sstdp != null && sstdp.size() > 0)
+//            mergeSSTDataToInternalDataList(sstdp);
+//        HashMap<String, WindDataPoint> winddp = (HashMap<String, WindDataPoint>) meteodp[1];
+//        if (winddp != null && winddp.size() > 0)
+//            mergeWindDataToInternalDataList(winddp);
+//
+//        HashMap<String, WavesDataPoint> wavesdp = processWavesFile(sampleWavesFile);
+//        if (wavesdp != null && wavesdp.size() > 0)
+//            mergeWavesDataToInternalDataList(wavesdp);
+//        
+//        update();
     }
 
     /* (non-Javadoc)
@@ -336,6 +352,10 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
 //                
 //            }
 //        }
+        
+        loadCurrentsFromFiles();
+        loadMeteoFromFiles();
+        loadWavesFromFiles();
         
         cleanDataPointsBeforeDate();
         updateValues();
@@ -520,7 +540,68 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             histOrigData.addAll(toAddDP);
     }
 
+    private File[] getFilesToLoadFromDisk(File folderToLoad, final String filePattern) {
+        if (folderToLoad != null && folderToLoad.exists()) {
+            File folder = folderToLoad.isDirectory() ? folderToLoad : 
+                folderToLoad.getParentFile();
+            
+            FilenameFilter fileFilter = new FilenameFilter() {
+                Pattern pat = Pattern.compile(filePattern);
+
+                @Override
+                public boolean accept(File dir, String name) {
+                    Matcher m = pat.matcher(name);
+                    return m.find();
+                }
+            };
+            
+            return folder.listFiles(fileFilter);
+        }
+        return null;
+    }
     
+    private void loadCurrentsFromFiles() {
+        File[] fileList = getFilesToLoadFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePattern);
+        if (fileList == null)
+            return;
+
+        for (File fx : fileList) {
+            HashMap<String, HFRadarDataPoint> tdp = processTuvHFRadarTest(fx.getAbsolutePath());
+            if (tdp != null && tdp.size() > 0)
+                mergeCurrentsDataToInternalDataList(tdp);
+        }
+    }
+
+    private void loadMeteoFromFiles() {
+        File[] fileList = getFilesToLoadFromDisk(baseFolderForMeteoNetCDFFiles, meteoFilePattern);
+        if (fileList == null)
+            return;
+
+        for (File fx : fileList) {
+            HashMap<?, ?>[] meteodp = processMeteoFile(fx.getAbsolutePath());
+            @SuppressWarnings("unchecked")
+            HashMap<String, SSTDataPoint> sstdp = (HashMap<String, SSTDataPoint>) meteodp[0];
+            if (sstdp != null && sstdp.size() > 0)
+                mergeSSTDataToInternalDataList(sstdp);
+            @SuppressWarnings("unchecked")
+            HashMap<String, WindDataPoint> winddp = (HashMap<String, WindDataPoint>) meteodp[1];
+            if (winddp != null && winddp.size() > 0)
+                mergeWindDataToInternalDataList(winddp);
+        }
+    }
+
+    private void loadWavesFromFiles() {
+        File[] fileList = getFilesToLoadFromDisk(baseFolderForMeteoNetCDFFiles, meteoFilePattern);
+        if (fileList == null)
+            return;
+
+        for (File fx : fileList) {
+            HashMap<String, WavesDataPoint> wavesdp = processWavesFile(fx.getAbsolutePath());
+            if (wavesdp != null && wavesdp.size() > 0)
+                mergeWavesDataToInternalDataList(wavesdp);
+        }
+    }
+
     public HashMap<String, HFRadarDataPoint> getNoaaHFRadarData() {
         Date nowDate = new Date(System.currentTimeMillis());
         Date tillDate = new Date(nowDate.getTime() - dateLimitHours * DateTimeUtil.HOUR);
@@ -1077,7 +1158,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     }
     
     @SuppressWarnings("unused")
-    public static void main(String[] args) {
+    public static void main1(String[] args) {
         //InputStream is = HFRadarVisualization.class.getResourceAsStream(sampleNoaaFile);
         String fxName = FileUtil.getResourceAsFileKeepName(sampleNoaaFile);
         File fx = new File(fxName);
@@ -1129,5 +1210,16 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
                 }
             }
         }
+    }
+    
+    public static void main(String[] args) {
+        String currentsFilePattern = "TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv";
+        String meteoFilePattern = "meteo_\\d{8}\\.nc";
+        String wavesFilePattern = "waves_[a-zA-Z]{1,2}_\\d{8}\\.nc";
+
+        Pattern pat = Pattern.compile(currentsFilePattern);
+        Matcher m = pat.matcher("TOTL_TRAD_2013_07_11_0800.tuv");
+        System.out.println(m.find());
+
     }
 }
