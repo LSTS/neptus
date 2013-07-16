@@ -196,3 +196,4 @@ TCL*.tmp
 NSIS_release/static_files/batch_files/
 dev-scripts/grow_pot.sh
 
+/IHData/

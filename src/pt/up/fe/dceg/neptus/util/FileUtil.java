@@ -798,6 +798,8 @@ public class FileUtil {
             if (clazz == null)
                 return null;
             inStream = clazz.getResourceAsStream(name.replace('\\', '/'));
+            if (inStream == null)
+                return null;
         }
         try {
             return StreamUtil.copyStreamToTempFile(inStream).getPath();
@@ -814,6 +816,8 @@ public class FileUtil {
             if (clazz == null)
                 return null;
             inStream = clazz.getResourceAsStream(name.replace('\\', '/'));
+            if (inStream == null)
+                return null;
         }
         try {
             File fx;
