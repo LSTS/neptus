@@ -98,52 +98,52 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      * Currents, wind, waves, SST 
      */
     
-    @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean visible = true;
 
-    @NeptusProperty(name = "Show currents", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Show currents", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean showCurrents = true;
 
-    @NeptusProperty(name = "Show SST", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Show SST", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean showSST = true;
 
-    @NeptusProperty(name = "Show wind", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Show wind", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean showWind = true;
 
-    @NeptusProperty(name = "Show waves", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Show waves", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean showWaves = false;
 
-    @NeptusProperty(name = "Seconds between updates")
+    @NeptusProperty(name = "Seconds between updates", category="Data Update")
     public long updateSeconds = 60;
 
-    @NeptusProperty(name = "Data limit validity (hours)", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Data limit validity (hours)", userLevel = LEVEL.REGULAR, category="Data Update")
     public int dateLimitHours = 12;
     
-    @NeptusProperty(name = "Use data x hour in the future (hours)", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Use data x hour in the future (hours)", userLevel = LEVEL.REGULAR, category="Data Update")
     public int dateHoursToUseForData = 1;
     
-    @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.ADVANCED)
+    @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.ADVANCED, category="Data Update")
     public boolean ignoreDateLimitToLoad = false;
     
     @NeptusProperty(name = "Request data from Web", hidden=true)
     public boolean requestFromWeb = false;
 
-    @NeptusProperty(name = "Load data from file (hfradar.txt)")
+    @NeptusProperty(name = "Load data from file (hfradar.txt)", hidden=true)
     public boolean loadFromFile = false;
     
-    @NeptusProperty(name = "Show currents as most recent (true) or mean (false) value", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Show currents as most recent (true) or mean (false) value", userLevel = LEVEL.REGULAR, category="Data Update")
     public boolean hfradarUseMostRecentOrMean = true;
 
-    @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean useColorMapForWind = true;
 
-    @NeptusProperty(name = "Base Folder For Currents TUV Files", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Base Folder For Currents TUV Files", userLevel = LEVEL.REGULAR, category="Data Update")
     public File baseFolderForCurrentsTUVFiles = new File("IHData/CODAR");
 
-    @NeptusProperty(name = "Base Folder For Meteo NetCDF Files", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Base Folder For Meteo NetCDF Files", userLevel = LEVEL.REGULAR, category="Data Update")
     public File baseFolderForMeteoNetCDFFiles = new File("IHData/METEO");
 
-    @NeptusProperty(name = "Base Folder For Waves NetCDF Files", userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Base Folder For Waves NetCDF Files", userLevel = LEVEL.REGULAR, category="Data Update")
     public File baseFolderForWavesNetCDFFiles = new File("IHData/WAVES");
     
     private String currentsFilePattern = "TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv";
