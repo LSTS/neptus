@@ -37,6 +37,8 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author jqcorreia
  *
@@ -86,11 +88,13 @@ public class DeltaTHeader {
         range = b.getShort(79);
         
         byte vel83 = b.get(83);
+            
         if (!isBitSet(vel83, 7))
             soundVelocity = 1500f;
+
         else {
             byte vel84 = b.get(84);
-            soundVelocity = (float) ((((vel83 & 0x7F) << 8) | vel84)/10.0);       
+            soundVelocity = (float) ((((vel83 & 0x7F) << 8) | vel84)/10.0);
         }
         
         rangeResolution = b.getShort(85);

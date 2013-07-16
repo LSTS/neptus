@@ -56,6 +56,7 @@ public class PointCloud<T extends PointXYZ> {
     private double[] bounds;
     private int memorySize;
     private PointCloudHandlers<PointXYZ> colorHandler;
+    private boolean hasIntensities = false;
         //public vtkActor contourActor;
     
     /**
@@ -87,7 +88,6 @@ j  java.lang.Thread.run()V+11
 v  ~StubRoutines::call_stub
      * 
      */
-    @SuppressWarnings("unchecked")
     public void createLODActorFromPoints() {
         try {
            getPoly().SetPoints(getPoints());
@@ -98,17 +98,15 @@ v  ~StubRoutines::call_stub
            
            getPoly().SetVerts(getVerts()); 
            getPoly().Modified();
-           
-           //getPoly().Update();
+
            //setBounds(getPoly().GetBounds()); <- subs by core dump crash
-           //setBounds(PointCloudUtils.computeBounds((PointCloud<PointXYZ>) this));
            setBounds(PointCloudUtils.computeBounds(getPoints()));
            
            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds);
                       
            getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
            
-           getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
+           //getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
            
            vtkPolyDataMapper map = new vtkPolyDataMapper();
            map.SetInput(getPoly());
@@ -129,14 +127,9 @@ v  ~StubRoutines::call_stub
      * Create a Pointcloud Actor from loaded points and verts
      * @param intensities 
      */
-    @SuppressWarnings("unchecked")
     public void createLODActorFromPoints(vtkShortArray intensities) {
         try {                                   
             getPoly().SetPoints(getPoints());
-            
-//            for (int i = 0; i < getNumberOfPoints(); ++i) {
-//                getVerts().InsertCellPoint(i);
-//            }
             
             for (int i = 0; i < getNumberOfPoints(); ++i) {
                 getVerts().InsertNextCell(i);
@@ -144,26 +137,14 @@ v  ~StubRoutines::call_stub
             
             getPoly().SetVerts(getVerts()); 
             getPoly().Modified();
-                   
-            //vtkCellArray cells = new vtkCellArray();
-            //cells.SetNumberOfCells(getNumberOfPoints());
-            //getPoly().SetPolys(cells);
-            getPoly().Update();
+            
+            //getPoly().Update();
             //setBounds(getPoly().GetBounds());
-            setBounds(PointCloudUtils.computeBounds((PointCloud<PointXYZ>) this));
-            
-            NeptusLog.pub().info("Min x: " + bounds[0]);
-            NeptusLog.pub().info("Max x: " + bounds[1]);
-            NeptusLog.pub().info("Min y: " + bounds[2]);
-            NeptusLog.pub().info("Max y: " + bounds[3]);
-            NeptusLog.pub().info("Min z: " + bounds[4]);
-            NeptusLog.pub().info("Max z: " + bounds[5]);
-            
-            //setMemorySize(getPoly().GetActualMemorySize());
+            //setBounds(PointCloudUtils.computeBounds((PointCloud<PointXYZ>) this));
+            setBounds(PointCloudUtils.computeBounds(getPoints()));
             
             getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds, intensities);
-            
-            
+                      
             getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
             
             vtkPolyDataMapper map = new vtkPolyDataMapper();
@@ -304,5 +285,19 @@ v  ~StubRoutines::call_stub
      */
     public void setColorHandler(PointCloudHandlers<PointXYZ> colorHandler) {
         this.colorHandler = colorHandler;
+    }
+
+    /**
+     * @return the hasIntensities
+     */
+    public boolean isHasIntensities() {
+        return hasIntensities;
+    }
+
+    /**
+     * @param hasIntensities the hasIntensities to set
+     */
+    public void setHasIntensities(boolean hasIntensities) {
+        this.hasIntensities = hasIntensities;
     }
 }

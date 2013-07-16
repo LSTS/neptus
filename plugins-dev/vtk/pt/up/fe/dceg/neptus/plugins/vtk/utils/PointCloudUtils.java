@@ -45,9 +45,8 @@ public class PointCloudUtils {
     private static double[] center;
     
     public static double[] computeCenterOfMass(PointCloud<PointXYZ> pointCloud) {
-        center = pointCloud.getPoly().GetCenter();
+        double[] center = computeCenter(pointCloud);
         
-        //center = poly.GetCenter(center);
         
 //        vtkCenterOfMass centerOfMassFilter = new vtkCenterOfMass();
 //        centerOfMassFilter.SetInputData(poly);

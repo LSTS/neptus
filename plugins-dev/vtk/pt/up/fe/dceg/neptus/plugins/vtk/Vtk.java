@@ -209,7 +209,6 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 //NeptusLog.pub().info("Get number of points: " + pointCloud.getPoints().GetNumberOfPoints());
                 
                     StatisticalOutlierRemoval statOutRem = new StatisticalOutlierRemoval();
-                    // statOutRem.applyFilter(multibeamToPointCloud.getPoints());
                     statOutRem.setMeanK(20);
                     statOutRem.setStdMul(0.2);
                     statOutRem.applyFilter(multibeamToPointCloud.getPoints());
@@ -221,12 +220,18 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
       
                 pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());               
                 // create an actor from parsed beams
-                //pointCloud.createLODActorFromPoints(multibeamToPointCloud.getIntensities());
-                pointCloud.createLODActorFromPoints();
+                if (pointCloud.isHasIntensities()) {
+                    pointCloud.createLODActorFromPoints(multibeamToPointCloud.getIntensities());
+                    NeptusLog.pub().info("create LOD actor with intensities");
+                }
+
+                else {
+                    pointCloud.createLODActorFromPoints();
+                    NeptusLog.pub().info("create LOD actor without intensities");
+                }
+
                 
-                //NeptusLog.pub().info("antes delete");
                 Utils.delete(multibeamToPointCloud.getPoints());
-                //NeptusLog.pub().info("depois delete");
                 //canvas.unlock();
                 
                     // add parsed beams stored on pointcloud to canvas

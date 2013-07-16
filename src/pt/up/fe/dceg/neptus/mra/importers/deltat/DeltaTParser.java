@@ -78,9 +78,6 @@ public class DeltaTParser implements BathymetryParser {
     
     private boolean hasIntensity = false;
     
-    // public PointCloud<PointXYZ> pointCloud;
-    
-        // will have a PointCloud as argument
     public DeltaTParser(IMraLogGroup source) {
         this.source = source;
         file = source.getFile("multibeam.83P");
@@ -208,7 +205,11 @@ public class DeltaTParser implements BathymetryParser {
             DeltaTHeader header = new DeltaTHeader();
             header.parse(buf);
             
-            //hasIntensity = header.hasIntensity;
+            hasIntensity = header.hasIntensity;
+//            if (hasIntensity)
+//                NeptusLog.pub().info("LOG has intensity");
+//            else
+//                NeptusLog.pub().info("Log doesn't have intensity");
             
             // Parse and process data ( no need to create another structure for this )
             if (header.hasIntensity)
@@ -244,6 +245,7 @@ public class DeltaTParser implements BathymetryParser {
                                
                     // range corrected with soundVelocity 1516 !?
                     // FIXME está a dar galhada - nos de cadiz dão direito
+                //NeptusLog.pub().info("header soundVelocity: " + header.soundVelocity);
                 //range = range * header.soundVelocity / 1500;
                            
                 double angle = header.startAngle + header.angleIncrement * c;         

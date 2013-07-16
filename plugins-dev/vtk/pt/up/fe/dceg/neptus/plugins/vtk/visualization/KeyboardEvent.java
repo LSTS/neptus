@@ -411,27 +411,28 @@ public class KeyboardEvent  implements KeyListener{
 //                }
 //                neptusInteractorStyle.interactor.Render();
 //                break;
-//            case KeyEvent.VK_6:
-//                try {
-//                    if (!(colorMapRel == ColorMappingRelation.iMap)) {
-//                        setOfClouds = linkedHashMapCloud.keySet();
-//                        for (String sKey : setOfClouds) {
-//                            pointCloud = linkedHashMapCloud.get(sKey);
-//                            pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getIntensities());                         
-//                            if (neptusInteractorStyle.lutEnabled)
-//                                neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutIntensities());
-//                            colorMapRel = ColorMappingRelation.iMap;
-//                            
-//                        }
-//                        canvas.lock();
-//                        canvas.Render();
-//                        canvas.unlock();
-//                    }
-//                }
-//                catch (Exception e1) {
-//                    e1.printStackTrace();
-//                }           
-//                break;
+            case KeyEvent.VK_6:
+                try {
+                    if (!(colorMapRel == ColorMappingRelation.iMap)) {
+                        setOfClouds = linkedHashMapCloud.keySet();
+                        for (String sKey : setOfClouds) {
+                            pointCloud = linkedHashMapCloud.get(sKey);
+                            if(pointCloud.isHasIntensities()) {
+                                pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getIntensities());                         
+                                if (neptusInteractorStyle.lutEnabled)
+                                    neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutIntensities());
+                                colorMapRel = ColorMappingRelation.iMap;
+                            }
+                        }
+                        canvas.lock();
+                        canvas.Render();
+                        canvas.unlock();
+                    }
+                }
+                catch (Exception e1) {
+                    e1.printStackTrace();
+                }           
+                break;
             
             case KeyEvent.VK_7: // color map X axis related
                 try {
