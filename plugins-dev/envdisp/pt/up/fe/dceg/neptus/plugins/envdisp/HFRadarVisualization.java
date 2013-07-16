@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.envdisp;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -84,6 +85,7 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.ColorUtils;
 import pt.up.fe.dceg.neptus.util.DateTimeUtil;
 import pt.up.fe.dceg.neptus.util.FileUtil;
+import pt.up.fe.dceg.neptus.util.MathMiscUtils;
 import pt.up.fe.dceg.neptus.util.http.client.HttpClientConnectionHelper;
 
 /**
@@ -113,6 +115,24 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
 
     @NeptusProperty(name = "Show waves", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean showWaves = false;
+
+    @NeptusProperty(name = "Show currents legend", userLevel = LEVEL.REGULAR, category="Visibility")
+    public boolean showCurrentsLegend = true;
+
+    @NeptusProperty(name = "Show currents legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category="Visibility")
+    public int showCurrentsLegendFromZoomLevel = 13;
+
+    @NeptusProperty(name = "Show SST legend", userLevel = LEVEL.REGULAR, category="Visibility")
+    public boolean showSSTLegend = true;
+
+    @NeptusProperty(name = "Show SST legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category="Visibility")
+    public int showSSTLegendFromZoomLevel = 11;
+
+    @NeptusProperty(name = "Show waves legend", userLevel = LEVEL.REGULAR, category="Visibility")
+    public boolean showWavesLegend = true;
+
+    @NeptusProperty(name = "Show waves legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category="Visibility")
+    public int showWavesLegendFromZoomLevel = 13;
 
     @NeptusProperty(name = "Seconds between updates", category="Data Update")
     public long updateSeconds = 60;
@@ -258,7 +278,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     private double maxCurrentCmS = 200;
 
     private ColorMap colorMapSST = ColorMapFactory.createJetColorMap();
-    private double minSST = -50;
+    private double minSST = -10;
     private double maxSST = 40;
 
     private ColorMap colorMapWind = colorMapCurrents;
@@ -800,8 +820,17 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             if (dp.getDateUTC().before(dateColorLimit))
                 color = ColorUtils.setTransparencyToColor(color, 128);
             gt.setColor(color);
-            gt.rotate(-Math.toRadians(headingV) - renderer.getRotation());
+            double rot = -Math.toRadians(headingV) - renderer.getRotation();
+            gt.rotate(rot);
             gt.fill(arrow);
+
+            gt.rotate(-rot);
+            
+            if (showCurrentsLegend && renderer.getLevelOfDetail() >= showCurrentsLegendFromZoomLevel) {
+                gt.setFont(new Font("Helvetica", Font.PLAIN, 8));
+                gt.setColor(Color.WHITE);
+                gt.drawString(MathMiscUtils.round(dp.getSpeedCmS(), 1) + "cm/s", 10, 2);
+            }
             
             gt.dispose();
         }
@@ -844,6 +873,12 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             gt.setColor(color);
             gt.draw(circle);
             gt.fill(circle);
+            
+            if (showSSTLegend && renderer.getLevelOfDetail() >= showSSTLegendFromZoomLevel) {
+                gt.setFont(new Font("Helvetica", Font.PLAIN, 8));
+                gt.setColor(Color.WHITE);
+                gt.drawString(MathMiscUtils.round(dp.getSst(), 1) + "\u00B0C", -15, 15);
+            }
             
 //            overlay.addSample(loc.getNewAbsoluteLatLonDepth(), dp.getSst());
             
@@ -988,8 +1023,17 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             if (dp.getDateUTC().before(dateColorLimit))
                 color = ColorUtils.setTransparencyToColor(color, 128);
             gt.setColor(color);
-            gt.rotate(-Math.toRadians(headingV) - renderer.getRotation());
+            double rot = -Math.toRadians(headingV) - renderer.getRotation();
+            gt.rotate(rot);
             gt.fill(arrow);
+
+            gt.rotate(-rot);
+            
+            if (showWavesLegend && renderer.getLevelOfDetail() >= showWavesLegendFromZoomLevel) {
+                gt.setFont(new Font("Helvetica", Font.PLAIN, 8));
+                gt.setColor(Color.WHITE);
+                gt.drawString(MathMiscUtils.round(dp.getSignificantHeight(), 1) + "m", 10, -8);
+            }
             
             gt.dispose();
         }
