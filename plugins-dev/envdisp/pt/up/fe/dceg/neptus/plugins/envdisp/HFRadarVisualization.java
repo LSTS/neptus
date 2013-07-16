@@ -111,7 +111,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     public boolean showWind = true;
 
     @NeptusProperty(name = "Show waves", userLevel = LEVEL.REGULAR)
-    public boolean showWaves = true;
+    public boolean showWaves = false;
 
     @NeptusProperty(name = "Seconds between updates")
     public long updateSeconds = 60;
@@ -123,7 +123,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     public int dateHoursToUseForData = 1;
     
     @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.ADVANCED)
-    public boolean ignoreDateLimitToLoad = true;
+    public boolean ignoreDateLimitToLoad = false;
     
     @NeptusProperty(name = "Request data from Web", hidden=true)
     public boolean requestFromWeb = false;
