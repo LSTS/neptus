@@ -591,7 +591,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     }
 
     private void loadWavesFromFiles() {
-        File[] fileList = getFilesToLoadFromDisk(baseFolderForMeteoNetCDFFiles, meteoFilePattern);
+        File[] fileList = getFilesToLoadFromDisk(baseFolderForWavesNetCDFFiles, wavesFilePattern);
         if (fileList == null)
             return;
 
