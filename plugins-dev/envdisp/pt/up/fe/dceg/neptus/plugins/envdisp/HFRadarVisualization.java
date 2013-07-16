@@ -54,6 +54,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
@@ -344,7 +345,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      */
     @Override
     public synchronized boolean update() {
-//        System.out.println("######");
+        System.out.println("###### Update");
 //        if (false && requestFromWeb) {
 //            HashMap<String, HFRadarDataPoint> dpLts = getNoaaHFRadarData();
 //            if (dpLts != null) {
@@ -524,16 +525,23 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         @SuppressWarnings("unchecked")
         ArrayList<BaseDataPoint<?>> histOrigData = (ArrayList<BaseDataPoint<?>>) dpOriginal.getHistoricalData();
         ArrayList<BaseDataPoint<?>> toAddDP = new ArrayList<>();
+        BaseDataPoint<?> toRemove = null;
         for (BaseDataPoint<?> hdp : histToMergeData) {
             boolean foundMatch = false;
             for (BaseDataPoint<?> hodp : histOrigData) {
                 if (hdp.getDateUTC().equals(hodp.getDateUTC())) {
                     foundMatch = true;
+                    toRemove = hodp;
                     break;
                 }
             }
-            if (foundMatch)
-                continue;
+            if (foundMatch) {
+//                continue;
+                if (!histOrigData.remove(toRemove)) {
+                    NeptusLog.pub().warn("Not able to remove from historical data element:" + toRemove.toString());
+                    continue;
+                }
+            }
             toAddDP.add(hdp);
         }
         if (toAddDP.size() > 0)
@@ -555,7 +563,9 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
                 }
             };
             
-            return folder.listFiles(fileFilter);
+            File[] lst = folder.listFiles(fileFilter);
+            Arrays.sort(lst);
+            return lst;
         }
         return null;
     }
@@ -763,7 +773,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      */
     private void paintHFRadarInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
         LocationType loc = new LocationType();
-        for (HFRadarDataPoint dp : dataPointsCurrents.values()) {
+        for (HFRadarDataPoint dp : dataPointsCurrents.values().toArray(new HFRadarDataPoint[0])) {
             if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
                 continue;
             
@@ -806,7 +816,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     private void paintSSTInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
         LocationType loc = new LocationType();
         ColormapOverlay overlay = new ColormapOverlay("SST", 20, false, 0);
-        for (SSTDataPoint dp : dataPointsSST.values()) {
+        for (SSTDataPoint dp : dataPointsSST.values().toArray(new SSTDataPoint[0])) {
             if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
                 continue;
             
@@ -853,7 +863,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      */
     private void paintWindInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
         LocationType loc = new LocationType();
-        for (WindDataPoint dp : dataPointsWind.values()) {
+        for (WindDataPoint dp : dataPointsWind.values().toArray(new WindDataPoint[0])) {
             if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
                 continue;
             
@@ -949,7 +959,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      */
     private void paintWavesInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
         LocationType loc = new LocationType();
-        for (WavesDataPoint dp : dataPointsWaves.values()) {
+        for (WavesDataPoint dp : dataPointsWaves.values().toArray(new WavesDataPoint[0])) {
             if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
                 continue;
             
@@ -1037,7 +1047,9 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         if (freader == null)
             return hfdp;
         
-        return LoaderHelper.processTUGHFRadar(freader, ignoreDateLimitToLoad ? null : createDateToMostRecent());
+        HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processTUGHFRadar(freader, ignoreDateLimitToLoad ? null : createDateToMostRecent());
+        System.out.println("*** SUCCESS reading file "+fileName);
+        return ret;
     }
 
     

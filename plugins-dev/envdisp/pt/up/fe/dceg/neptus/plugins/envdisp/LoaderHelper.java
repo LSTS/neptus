@@ -384,9 +384,8 @@ public class LoaderHelper {
               ioe.printStackTrace();
             }
         }
-        System.out.println("*** SUCCESS reading example file "+fileName);
+        System.out.println("*** SUCCESS reading file "+fileName);
 
-        
         return new HashMap[] { sstdp, winddp };
     }
 
@@ -579,9 +578,8 @@ public class LoaderHelper {
               ioe.printStackTrace();
             }
         }
-        System.out.println("*** SUCCESS reading example file "+fileName);
+        System.out.println("*** SUCCESS reading file "+fileName);
 
-        
         return wavesdp;
     }
 
