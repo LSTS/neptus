@@ -55,9 +55,9 @@ import ucar.nc2.Variable;
  */
 public class LoaderHelper {
 
-    public static final HashMap<String, HFRadarDataPoint> processTUGHFRadar(Reader readerInput, Date dateLimite) {
+    public static final HashMap<String, HFRadarDataPoint> processTUGHFRadar(Reader readerInput, Date dateLimit) {
         boolean ignoreDateLimitToLoad = false;
-        if (dateLimite == null)
+        if (dateLimit == null)
             ignoreDateLimitToLoad = true;
         
         HashMap<String, HFRadarDataPoint> hfdp = new HashMap<>();
@@ -86,7 +86,7 @@ public class LoaderHelper {
                     return hfdp;
                 }
 
-                if (!ignoreDateLimitToLoad && dateStart.before(dateLimite)) {
+                if (!ignoreDateLimitToLoad && dateStart.before(dateLimit)) {
                     return hfdp;
                 }
 
@@ -156,9 +156,9 @@ public class LoaderHelper {
         return hfdp;
     }
 
-    public static final HashMap<?, ?>[] processMeteo(String fileName, Date dateLimite) {
+    public static final HashMap<?, ?>[] processMeteo(String fileName, Date dateLimit) {
         boolean ignoreDateLimitToLoad = false;
-        if (dateLimite == null)
+        if (dateLimit == null)
             ignoreDateLimitToLoad = true;
         
         HashMap<String, SSTDataPoint> sstdp = new HashMap<>();
@@ -307,7 +307,7 @@ public class LoaderHelper {
               float timeVal = timeArray.get(timeIdx);
               Date dateValue = new Date((long) (timeVal * timeMultiplier + timeOffset));
               
-              if (!ignoreDateLimitToLoad && dateValue.before(dateLimite)) {
+              if (!ignoreDateLimitToLoad && dateValue.before(dateLimit)) {
                   continue;
               }
               
@@ -389,9 +389,9 @@ public class LoaderHelper {
         return new HashMap[] { sstdp, winddp };
     }
 
-    public static final HashMap<String, WavesDataPoint> processWavesFile(String fileName, Date dateLimite) {
+    public static final HashMap<String, WavesDataPoint> processWavesFile(String fileName, Date dateLimit) {
         boolean ignoreDateLimitToLoad = false;
-        if (dateLimite == null)
+        if (dateLimit == null)
             ignoreDateLimitToLoad = true;
         
         HashMap<String, WavesDataPoint> wavesdp = new HashMap<>();
@@ -523,7 +523,7 @@ public class LoaderHelper {
               float timeVal = timeArray.get(timeIdx);
               Date dateValue = new Date((long) (timeVal * timeMultiplier + timeOffset));
               
-              if (!ignoreDateLimitToLoad && dateValue.before(dateLimite)) {
+              if (!ignoreDateLimitToLoad && dateValue.before(dateLimit)) {
                   continue;
               }
               
