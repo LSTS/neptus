@@ -56,6 +56,12 @@ public class MyState {
     @XmlElement
 	private CoordinateSystem location = new CoordinateSystem();	
     
+    @XmlElement
+    private double lenght = 0; 
+    
+    @XmlElement
+    private double width = 0; 
+    
     private long lastLocationUpdateTimeMillis = -1;
 	
 	/**
@@ -153,6 +159,36 @@ public class MyState {
 	    instance.saveXml();
 	}
 
+	/**
+     * @return the lenght
+     */
+    public static double getLenght() {
+        return instance.lenght;
+    }
+    
+    /**
+     * @param lenght the lenght to set
+     */
+    public static void setLenght(double lenght) {
+        instance.lenght = lenght < 0 ? 0 : lenght;
+        instance.saveXml();
+    }
+
+    /**
+     * @return the width
+     */
+    public static double getWidth() {
+        return instance.width;
+    }
+    
+    /**
+     * @param width the width to set
+     */
+    public static void setWidth(double width) {
+        instance.width = width < 0 ? 0 : width;
+        instance.saveXml();
+    }
+    
 	private String asXml() {
 	    StringWriter writer = new StringWriter();
 	    JAXB.marshal(this, writer);
@@ -184,7 +220,6 @@ public class MyState {
 	    String ms = asXml();
 	    FileUtil.saveToFile(myStatePath, ms);
 	}
-
 
 	/**
 	 * @param args

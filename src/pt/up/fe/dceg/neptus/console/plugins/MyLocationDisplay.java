@@ -69,6 +69,7 @@ import pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension;
 import pt.up.fe.dceg.neptus.planeditor.IMapPopup;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
@@ -98,7 +99,7 @@ import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
  * 
  */
 @SuppressWarnings("serial")
-@PluginDescription(author = "Paulo Dias", name = "MyLocationDisplay", version = "1.2.0", icon = "images/myloc.png", description = "My location display.", documentation = "my-location/my-location.html")
+@PluginDescription(author = "Paulo Dias", name = "MyLocationDisplay", version = "1.2.1", icon = "images/myloc.png", description = "My location display.", documentation = "my-location/my-location.html")
 @LayerPriority(priority = 182)
 public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdates, Renderer2DPainter,
         IEditorMenuExtension, ConfigurationListener, SubPanelChangeListener, MissionChangeListener {
@@ -109,24 +110,30 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
 
     private final Color orangeNINFO = new Color(230, 121, 56);
 
-    @NeptusProperty
+    @NeptusProperty(userLevel = LEVEL.ADVANCED)
     public LocationType location = MyState.getLocation();
 
-    @NeptusProperty
+    @NeptusProperty(name = "My Heading", userLevel = LEVEL.REGULAR)
     public double headingDegrees = 0;
 
-    @NeptusProperty(hidden = true, category = "Follow System")
+    @NeptusProperty(hidden = true, category = "Follow System", userLevel = LEVEL.ADVANCED)
     private String followingPositionOf = "";
 
-    @NeptusProperty(hidden = true, category = "Follow System")
+    @NeptusProperty(hidden = true, category = "Follow System", userLevel = LEVEL.ADVANCED)
     private String useSystemToDeriveHeadingOf = "";
 
-    @NeptusProperty(category = "Follow System")
+    @NeptusProperty(hidden = true, category = "Follow System", userLevel = LEVEL.ADVANCED)
     private short useHeadingAngleToDerivedHeading = 0;
 
-    @NeptusProperty(category = "Follow System")
+    @NeptusProperty(hidden = true, category = "Follow System", userLevel = LEVEL.ADVANCED)
     private short useHeadingOffsetFromDerivedHeading = 0;
 
+    @NeptusProperty(name = "Lenght", category = "Dimension", userLevel = LEVEL.REGULAR)
+    public double lenght = 0;
+
+    @NeptusProperty(name = "Width", category = "Dimension", userLevel = LEVEL.REGULAR)
+    public double width = 0;
+    
     private long lastCalcPosTimeMillis = -1;
 
     private static GeneralPath arrowShape;
@@ -142,6 +149,8 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
         setVisibility(false);
         location = MyState.getLocation();
         headingDegrees = MyState.getAxisAnglesDegrees()[2];
+        lenght = MyState.getLenght();
+        width = MyState.getWidth();
     }
 
     @Override
@@ -179,6 +188,8 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
         location = MyState.getLocation();
         headingDegrees = MyState.getAxisAnglesDegrees()[2];
         lastCalcPosTimeMillis = MyState.getLastLocationUpdateTimeMillis();
+        lenght = MyState.getLenght();
+        width = MyState.getWidth();
 
         // update pos if following system
         if (followingPositionOf != null && followingPositionOf.length() != 0) {
@@ -270,6 +281,18 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
         // Paint system loc
         Graphics2D g = (Graphics2D) g2.create();
         g.setStroke(new BasicStroke(2));
+        
+        {
+            double diameter = Math.max(lenght, width);
+            if (diameter > 0) {
+                Graphics2D gt = (Graphics2D) g.create();
+                diameter = diameter * renderer.getZoom();
+                Color colorCircle = new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (255 * alfaPercentage));
+                gt.setColor(colorCircle);
+                gt.draw(new Ellipse2D.Double(centerPos.getX() - diameter / 2, centerPos.getY() - diameter / 2, diameter, diameter));
+                gt.dispose();
+            }
+        }
 
         if (dt > 0) {
             g.setColor(new Color(0, 0, 0, (int) (255 * alfaPercentage)));
@@ -342,6 +365,8 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
                                 + I18n.textc("Heading external",
                                         "indication that the heading comes from external source") : ""), 18, 14);
         g.translate(-centerPos.getX(), -centerPos.getY());
+        
+        g.dispose();
     }
 
     /**
@@ -637,6 +662,10 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
     @Override
     public void propertiesChanged() {
         MyState.setHeadingInDegrees(headingDegrees);
+        MyState.setLenght(lenght);
+        lenght = MyState.getLenght();
+        MyState.setWidth(width);
+        width = MyState.getWidth();
     }
 
     /*
@@ -703,8 +732,6 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
     }
 
     /*
@@ -728,7 +755,5 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
      */
     @Override
     public void missionUpdated(MissionType mission) {
-        // TODO Auto-generated method stub
-
     }
 }
