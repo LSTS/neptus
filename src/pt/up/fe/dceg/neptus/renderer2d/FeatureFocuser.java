@@ -66,7 +66,7 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 public class FeatureFocuser implements IEditorMenuExtension {
     
     protected static final ImageIcon markIcon = ImageUtils.getIcon("images/buttons/addpoint.png");
-    protected static final ImageIcon homeIcon = ImageUtils.getIcon("images/buttons/home.png");
+    protected static final ImageIcon homeIcon = ImageUtils.getIcon("images/buttons/homeRef.png");
     protected static final ImageIcon transpIcon = ImageUtils.getIcon("images/transponder.png");
     protected static final ImageIcon myLocIcon = ImageUtils.getScaledIcon("images/myloc.png", 24, 24);
     
