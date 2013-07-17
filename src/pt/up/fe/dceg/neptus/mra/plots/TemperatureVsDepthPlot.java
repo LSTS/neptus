@@ -32,7 +32,6 @@
 package pt.up.fe.dceg.neptus.mra.plots;
 
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.Salinity;
 import pt.up.fe.dceg.neptus.imc.Temperature;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIterator;
@@ -40,7 +39,7 @@ import pt.up.fe.dceg.neptus.mra.MRAPanel;
 
 /**
  * @author zp
- *
+ * 
  */
 public class TemperatureVsDepthPlot extends XYPlot {
 
@@ -53,8 +52,6 @@ public class TemperatureVsDepthPlot extends XYPlot {
         return "Temperature VS Depth";
     }
 
-
-
     @Override
     public void process(LsfIndex source) {
         int ctdId = source.getEntityId("CTD");
@@ -63,16 +60,18 @@ public class TemperatureVsDepthPlot extends XYPlot {
             if (temp.getSrcEnt() != ctdId)
                 continue;
 
-            IMCMessage msg = source.getMessageAt("EstimatedState", temp.getTimestamp());            
+            IMCMessage msg = source.getMessageAt("EstimatedState", temp.getTimestamp());
             if (msg != null) {
-                addValue(temp.getTimestampMillis(), temp.getValue(), msg.getDouble("depth"), temp.getSourceName(), "Temperature");
+                addValue(temp.getTimestampMillis(), - msg.getDouble("depth"), temp.getValue(), temp.getSourceName(),
+                        "Temperature");
             }
         }
     }
 
-    public void addLogMarker(pt.up.fe.dceg.neptus.mra.LogMarker marker) {};
+    public void addLogMarker(pt.up.fe.dceg.neptus.mra.LogMarker marker) {
+    };
 
-    public boolean canBeApplied(pt.up.fe.dceg.neptus.imc.lsf.LsfIndex index) {        
+    public boolean canBeApplied(pt.up.fe.dceg.neptus.imc.lsf.LsfIndex index) {
         return true;
     };
 }

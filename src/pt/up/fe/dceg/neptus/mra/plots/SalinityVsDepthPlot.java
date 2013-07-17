@@ -63,8 +63,8 @@ public class SalinityVsDepthPlot extends XYPlot {
                 continue;
 
             IMCMessage msg = source.getMessageAt("EstimatedState", temp.getTimestamp());            
-            if (msg != null) {
-                addValue(temp.getTimestampMillis(), temp.getValue(), msg.getDouble("depth"), temp.getSourceName(), "Salinity");
+            if (msg != null && msg.getDouble("depth") > 0.5) {
+                addValue(temp.getTimestampMillis(), -msg.getDouble("depth"), temp.getValue(),temp.getSourceName(), "Salinity");
             }
         }
     }
