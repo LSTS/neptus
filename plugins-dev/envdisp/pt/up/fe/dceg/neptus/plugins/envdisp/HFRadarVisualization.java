@@ -378,9 +378,10 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         loadMeteoFromFiles();
         loadWavesFromFiles();
         
-        cleanDataPointsBeforeDate();
-        updateValues();
-        clearImgCachRqst = true;
+//        updateValues();
+//        cleanDataPointsBeforeDate();
+//        clearImgCachRqst = true;
+        propertiesChanged();
         
         return true;
     }
@@ -389,6 +390,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      * @see pt.up.fe.dceg.neptus.plugins.ConfigurationListener#propertiesChanged()
      */
     public void propertiesChanged() {
+        cleanDataPointsBeforeDate();
         updateValues();
         clearImgCachRqst = true;
     }
@@ -396,6 +398,11 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     private Date createDateToMostRecent() {
         Date nowDate = new Date(System.currentTimeMillis() + dateHoursToUseForData * DateTimeUtil.HOUR);
         return nowDate;
+    }
+    
+    private Date createDateLimitToRemove() {
+        Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
+        return dateLimit;
     }
     
     private void updateValues() {
@@ -443,10 +450,18 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     }
 
     private void cleanDataPointsBeforeDate() {
-        if (ignoreDateLimitToLoad)
+        Date dateLimit = ignoreDateLimitToLoad ? null : createDateLimitToRemove();
+        
+        cleanCurrentsDataPointsBeforeDate(dateLimit);
+        cleanSSTDataPointsBeforeDate(dateLimit);
+        cleanWindDataPointsBeforeDate(dateLimit);
+        cleanWavesDataPointsBeforeDate(dateLimit);
+    }
+
+    private void cleanCurrentsDataPointsBeforeDate(Date dateLimit) {
+        if (dateLimit == null)
             return;
         
-        Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
         for (String dpID : dataPointsCurrents.keySet().toArray(new String[0])) {
             HFRadarDataPoint dp = dataPointsCurrents.get(dpID);
             if (dp == null)
@@ -454,6 +469,60 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             
             if (dp.getDateUTC().before(dateLimit))
                 dataPointsCurrents.remove(dpID);
+            else {
+                // Cleanup historicalData
+                dp.purgeAllBefore(dateLimit);
+            }
+        }
+    }
+
+    private void cleanSSTDataPointsBeforeDate(Date dateLimit) {
+        if (dateLimit == null)
+            return;
+        
+        for (String dpID : dataPointsSST.keySet().toArray(new String[0])) {
+            BaseDataPoint<?> dp = dataPointsSST.get(dpID);
+            if (dp == null)
+                continue;
+            
+            if (dp.getDateUTC().before(dateLimit))
+                dataPointsSST.remove(dpID);
+            else {
+                // Cleanup historicalData
+                dp.purgeAllBefore(dateLimit);
+            }
+        }
+    }
+
+    private void cleanWindDataPointsBeforeDate(Date dateLimit) {
+        if (dateLimit == null)
+            return;
+        
+        for (String dpID : dataPointsWind.keySet().toArray(new String[0])) {
+            BaseDataPoint<?> dp = dataPointsWind.get(dpID);
+            if (dp == null)
+                continue;
+            
+            if (dp.getDateUTC().before(dateLimit))
+                dataPointsWind.remove(dpID);
+            else {
+                // Cleanup historicalData
+                dp.purgeAllBefore(dateLimit);
+            }
+        }
+    }
+
+    private void cleanWavesDataPointsBeforeDate(Date dateLimit) {
+        if (dateLimit == null)
+            return;
+        
+        for (String dpID : dataPointsWaves.keySet().toArray(new String[0])) {
+            BaseDataPoint<?> dp = dataPointsWaves.get(dpID);
+            if (dp == null)
+                continue;
+            
+            if (dp.getDateUTC().before(dateLimit))
+                dataPointsWaves.remove(dpID);
             else {
                 // Cleanup historicalData
                 dp.purgeAllBefore(dateLimit);
@@ -920,7 +989,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             
             Graphics2D gt = (Graphics2D) g2.create();
             gt.translate(pt.getX(), pt.getY());
-            Color color = Color.WHITE;
+            Color color = Color.BLACK;
             if (useColorMapForWind)
                 color = colorMapWind.getColor(dp.getSpeed() / maxWind);
             if (dp.getDateUTC().before(dateColorLimit))
@@ -1091,7 +1160,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         if (freader == null)
             return hfdp;
         
-        HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processTUGHFRadar(freader, ignoreDateLimitToLoad ? null : createDateToMostRecent());
+        HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processTUGHFRadar(freader, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
         System.out.println("*** SUCCESS reading file "+fileName);
         return ret;
     }
@@ -1109,7 +1178,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         String fxName = FileUtil.getResourceAsFileKeepName(fileName);
         if (fxName == null)
             fxName = fileName;
-        return LoaderHelper.processMeteo(fxName, ignoreDateLimitToLoad ? null : createDateToMostRecent());
+        return LoaderHelper.processMeteo(fxName, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
     }
 
     private HashMap<String, WavesDataPoint> processWavesFile(String fileName) {
@@ -1123,7 +1192,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         String fxName = FileUtil.getResourceAsFileKeepName(fileName);
         if (fxName == null)
             fxName = fileName;
-        return LoaderHelper.processWavesFile(fxName, ignoreDateLimitToLoad ? null : createDateToMostRecent());
+        return LoaderHelper.processWavesFile(fxName, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
     }
 
     private HashMap<String, HFRadarDataPoint> processNoaaHFRadar(Reader readerInput) {
