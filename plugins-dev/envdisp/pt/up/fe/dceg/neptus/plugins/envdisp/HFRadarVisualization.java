@@ -198,62 +198,62 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     private final static Path2D.Double windPoleKnots = new Path2D.Double();
     static {
         windPoleKnots.moveTo(0, 0);
-        windPoleKnots.lineTo(0, 14);
+        windPoleKnots.lineTo(0, 14*2);
         windPoleKnots.closePath();
     }
     private final static Path2D.Double wind50Knots1 = new Path2D.Double();
     static {
-        wind50Knots1.moveTo(0, 14);
-        wind50Knots1.lineTo(-8, 14);
-        wind50Knots1.lineTo(0, 12);
+        wind50Knots1.moveTo(0, 14*2);
+        wind50Knots1.lineTo(-8*2, 14*2);
+        wind50Knots1.lineTo(0, 12*2);
         wind50Knots1.closePath();
     }
     private final static Path2D.Double wind10Knots1 = new Path2D.Double();
     static {
-        wind10Knots1.moveTo(0, 14);
-        wind10Knots1.lineTo(-8, 14);
+        wind10Knots1.moveTo(0, 14*2);
+        wind10Knots1.lineTo(-8*2, 14*2);
         wind10Knots1.closePath();
     }
     private final static Path2D.Double wind5Knots2 = new Path2D.Double();
     static {
-        wind5Knots2.moveTo(0, 12);
-        wind5Knots2.lineTo(-4, 12);
+        wind5Knots2.moveTo(0, 12*2);
+        wind5Knots2.lineTo(-4*2, 12*2);
         wind5Knots2.closePath();
     }
     private final static Path2D.Double wind10Knots2 = new Path2D.Double();
     static {
-        wind10Knots2.moveTo(0, 12);
-        wind10Knots2.lineTo(-8, 12);
+        wind10Knots2.moveTo(0, 12*2);
+        wind10Knots2.lineTo(-8*2, 12*2);
         wind10Knots2.closePath();
     }
     private final static Path2D.Double wind5Knots3 = new Path2D.Double();
     static {
-        wind5Knots3.moveTo(0, 10);
-        wind5Knots3.lineTo(-4, 10);
+        wind5Knots3.moveTo(0, 10*2);
+        wind5Knots3.lineTo(-4*2, 10*2);
         wind5Knots3.closePath();
     }
     private final static Path2D.Double wind10Knots3 = new Path2D.Double();
     static {
-        wind10Knots3.moveTo(0, 10);
-        wind10Knots3.lineTo(-8, 10);
+        wind10Knots3.moveTo(0, 10*2);
+        wind10Knots3.lineTo(-8*2, 10*2);
         wind10Knots3.closePath();
     }
     private final static Path2D.Double wind5Knots4 = new Path2D.Double();
     static {
-        wind5Knots4.moveTo(0, 8);
-        wind5Knots4.lineTo(-4, 8);
+        wind5Knots4.moveTo(0, 8*2);
+        wind5Knots4.lineTo(-4*2, 8*2);
         wind5Knots4.closePath();
     }
     private final static Path2D.Double wind10Knots4 = new Path2D.Double();
     static {
-        wind10Knots4.moveTo(0, 8);
-        wind10Knots4.lineTo(-8, 8);
+        wind10Knots4.moveTo(0, 8*2);
+        wind10Knots4.lineTo(-8*2, 8*2);
         wind10Knots4.closePath();
     }
     private final static Path2D.Double wind5Knots5 = new Path2D.Double();
     static {
-        wind5Knots5.moveTo(0, 6);
-        wind5Knots5.lineTo(-4, 6);
+        wind5Knots5.moveTo(0, 6*2);
+        wind5Knots5.lineTo(-4*2, 6*2);
         wind5Knots5.closePath();
     }
 
