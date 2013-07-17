@@ -35,6 +35,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -63,6 +64,9 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
     private Point2D firstPoint;
     private double rotationRads;
     private static final double pitch = Math.toRadians(15); 
+    private static final double hspeed = 1.3 * Math.cos(pitch); 
+            
+            
     
     public enum Attributes {
         LATITUDE("center_lat", TrexAttribute.ATTR_TYPE.FLOAT),
@@ -148,10 +152,20 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
                 }
                 else {
                     firstPoint = new Point2D.Double(-halfSize,-halfSize);
-                    //GeneralPath gp = new GeneralPath();
-                    //gp.moveTo(-halfSize, -halfSize);
+                    GeneralPath gp = new GeneralPath();
+                    Point2D.Double[] pts = new Point2D.Double[5];
+                    pts[0] = new Point2D.Double(-halfSize, -halfSize);
+                    pts[1] = new Point2D.Double(halfSize, -halfSize - (size / hspeed)*speed);
+                    pts[2] = new Point2D.Double(halfSize, halfSize - 2 *(size / hspeed)*speed);
+                    pts[3] = new Point2D.Double(-halfSize, halfSize - 3 * (size / hspeed)*speed);
+                    pts[4] = new Point2D.Double(-halfSize, -halfSize - 4 * (size / hspeed)*speed);                    
                     
-                    survey = new Rectangle2D.Double(-halfSize, -halfSize, size, size);
+                    gp.moveTo(-halfSize, -halfSize);
+                    for (int i = 1; i < 5; i++) {
+                        gp.lineTo(pts[i].getX(), pts[i].getY());
+                        System.out.println(pts[i]);
+                    }
+                    survey = gp;
                 }
             default:
                 break;

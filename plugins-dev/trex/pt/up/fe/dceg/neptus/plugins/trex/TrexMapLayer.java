@@ -69,6 +69,8 @@ import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.imc.EntityParameter;
 import pt.up.fe.dceg.neptus.imc.SetEntityParameters;
 import pt.up.fe.dceg.neptus.imc.TrexCommand;
+import pt.up.fe.dceg.neptus.imc.TrexOperation;
+import pt.up.fe.dceg.neptus.imc.TrexOperation.OP;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
@@ -231,7 +233,6 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             }
             addDisableTrexMenu(popup);
             addEnableTrexMenu(popup);
-            
             popup.addSeparator();
             addVisitThisPointMenu(popup, loc);
             addAUVDrifter(popup, loc);
@@ -269,6 +270,11 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             @Override
             public void actionPerformed(ActionEvent e) {
                 
+                if((e.getModifiers() & ActionEvent.CTRL_MASK) != 0) {
+                    startTrex();
+                    return;
+                }
+                
                 SetEntityParameters setParams = new SetEntityParameters();
                 setParams.setName("TREX");
                 EntityParameter param = new EntityParameter("Active", "true");
@@ -285,7 +291,10 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+                if((e.getModifiers() & ActionEvent.CTRL_MASK) != 0) {
+                    stopTrex();
+                    return;
+                }
                 SetEntityParameters setParams = new SetEntityParameters();
                 setParams.setName("TREX");
                 EntityParameter param = new EntityParameter("Active", "false");
@@ -395,6 +404,16 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             }
 
         });
+    }
+    
+    private void startTrex() {
+        TrexOperation op = new TrexOperation(OP.REQUEST_PLAN, "", null);
+        send(op);
+    }
+    
+    private void stopTrex() {
+        TrexOperation op = new TrexOperation(OP.REPORT_PLAN, "", null);
+        send(op);
     }
 
     /*private void addTagSimulation(JPopupMenu popup, final LocationType loc) {
