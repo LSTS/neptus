@@ -65,6 +65,15 @@ import com.sun.java.swing.plaf.windows.WindowsComboBoxUI;
 @SuppressWarnings("serial")
 public class MainSystemSelectionCombo extends JComboBox<String> implements ItemListener {
 
+    private static final Color DEFAULT_COLOR = new Color(0xC8BF5F);
+    private static final Color DEFAULT_SEL_COLOR = new Color(0xB9AF3F);
+    private static final Color CALIBRATION_COLOR = new Color(0x3A87AD);
+    private static final Color CALIBRATION_SEL_COLOR = new Color(0x307191);
+    private static final Color ERROR_COLOR = new Color(0xB94A48);
+    private static final Color ERROR_SEL_COLOR = new Color(0xA23F3E);
+    private static final Color SERVICE_COLOR = new Color(0x57B768);
+    private static final Color SERVICE_SEL_COLOR = new Color(0x4AAE5C);
+
     private ConsoleLayout console;
     private Map<String, STATE> systemState = new ConcurrentHashMap<>();
 
@@ -99,16 +108,16 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
             if(console.getMainSystem().equals(e.getVehicle())){
                 switch (e.getState()) {
                     case SERVICE:
-                        setBackground(new Color(0x57B768));
+                        setBackground(SERVICE_COLOR);
                         break;
                     case ERROR:
-                        setBackground(new Color(0xB94A48));
+                        setBackground(ERROR_COLOR);
                         break;
                     case CALIBRATION:
-                        setBackground(new Color(0x3A87AD));
+                        setBackground(CALIBRATION_COLOR);
                         break;
                     default:
-                        setBackground(new Color(0xC8BF5F));
+                        setBackground(DEFAULT_COLOR);
                         break;
                 }
             }
@@ -122,22 +131,26 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
 
     @Subscribe
     public void onMainSystemChange(ConsoleEventMainSystemChange e) {
-       
-        this.setSelectedItem(e.getCurrent());
-        
-        switch (console.getSystem(e.getCurrent()).getVehicleState()) {
-            case SERVICE:
-                setBackground(new Color(0x57B768));
-                break;
-            case ERROR:
-                setBackground(new Color(0xB94A48));
-                break;
-            case CALIBRATION:
-                setBackground(new Color(0x3A87AD));
-                break;
-            default:
-                setBackground(new Color(0xC8BF5F));
-                break;
+        try {
+            this.setSelectedItem(e.getCurrent());
+
+            switch (console.getSystem(e.getCurrent()).getVehicleState()) {
+                case SERVICE:
+                    setBackground(SERVICE_COLOR);
+                    break;
+                case ERROR:
+                    setBackground(ERROR_COLOR);
+                    break;
+                case CALIBRATION:
+                    setBackground(CALIBRATION_COLOR);
+                    break;
+                default:
+                    setBackground(DEFAULT_COLOR);
+                    break;
+            }
+        }
+        catch (Exception e1) {
+            NeptusLog.pub().warn(e);
         }
     }
 
@@ -149,8 +162,6 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
             setPreferredSize(new Dimension(270, 25));
         }
         
-      
-        
         @Override
         public Component getListCellRendererComponent(JList<? extends String> list, String value, int index,
                 boolean isSelected, boolean cellHasFocus) {
@@ -160,16 +171,16 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
             if (isSelected) {
                 switch (systemState.get(value)) {
                     case SERVICE:
-                        setBackground(new Color(0x4AAE5C));
+                        setBackground(SERVICE_SEL_COLOR);
                         break;
                     case ERROR:
-                        setBackground(new Color(0xA23F3E));
+                        setBackground(ERROR_SEL_COLOR);
                         break;
                     case CALIBRATION:
-                        setBackground(new Color(0x307191));
+                        setBackground(CALIBRATION_SEL_COLOR);
                         break;
                     default:
-                        setBackground(new Color(0xB9AF3F));
+                        setBackground(DEFAULT_SEL_COLOR);
                         break;
                 }
                 setForeground(list.getSelectionForeground());
@@ -177,16 +188,16 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
             else {
                 switch (systemState.get(value)) {
                     case SERVICE:
-                        setBackground(new Color(0x57B768));
+                        setBackground(SERVICE_COLOR);
                         break;
                     case ERROR:
-                        setBackground(new Color(0xB94A48));
+                        setBackground(ERROR_COLOR);
                         break;
                     case CALIBRATION:
-                        setBackground(new Color(0x3A87AD));
+                        setBackground(CALIBRATION_COLOR);
                         break;
                     default:
-                        setBackground(new Color(0xC8BF5F));
+                        setBackground(DEFAULT_COLOR);
                         break;
                 }
                 setForeground(list.getForeground());
@@ -195,7 +206,7 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
             if (value != null)
                 this.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
             
-                setText(" "+ value.toUpperCase() + "  " + I18n.text("Status") + ": " + systemState.get(value).toString());
+            setText(" "+ value.toUpperCase() + "  " + I18n.text("Status") + ": " + systemState.get(value).toString());
             
             return this;
         }
@@ -203,7 +214,6 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
 
     @Override
     public void itemStateChanged(ItemEvent e) {
-        
         if (e.getStateChange() == ItemEvent.SELECTED) {
             console.setMainSystem(this.getSelectedItem().toString());
         }
