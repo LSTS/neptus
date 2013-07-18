@@ -116,6 +116,8 @@ public class LAUVConsole extends ConsoleLayout {
         // }
         loader.setText(I18n.text("Loading console..."));
 
+        NeptusLog.pub().info("Loading " + LAUVConsole.class.getSimpleName() + ".");
+        
         final LAUVConsole cls = new LAUVConsole();
 
         // ConsoleParse.loadConsole(cls, ConfigFetch.resolvePath(consoleURL));
