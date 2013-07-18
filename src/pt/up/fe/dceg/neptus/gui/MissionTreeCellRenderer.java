@@ -101,7 +101,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
         PLAN_REMOTE = ImageUtils.getScaledIcon("images/plans/planRemote.png", 16, 16);
         PLAN_REMOTE_ACOUSTIC = ImageUtils.getScaledIcon("images/plans/planRemoteAcoustic.png", 16, 16);
         PLAN_UNSYNC = ImageUtils.getScaledIcon("images/plans/planUnsync.png", 16, 16);
-        PLAN_UNSYNC_ACOUSTIC = ImageUtils.getScaledIcon("images/plans/planSyncAcoustic.png", 16, 16);
+        PLAN_UNSYNC_ACOUSTIC = ImageUtils.getScaledIcon("images/plans/planUnsyncAcoustic.png", 16, 16);
         PLAN_SYNC = ImageUtils.getScaledIcon("images/plans/planSync.png", 16, 16);
         PLAN_SYNC_ACOUSTIC = ImageUtils.getScaledIcon("images/plans/planSyncAcoustic.png", 16, 16);
     }
