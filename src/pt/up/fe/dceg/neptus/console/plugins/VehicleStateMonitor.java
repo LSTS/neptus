@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.console.ConsoleSystem;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.up.fe.dceg.neptus.i18n.I18n;
@@ -93,34 +94,41 @@ public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpda
 
     @Subscribe
     public void consume(VehicleState msg) {
-        String src = msg.getSourceName();
-        if (src == null)
-            return;
-        String text = "";
-        if (!msg.getLastError().isEmpty())
-            text += msg.getLastError() + "\n";
-        text += msg.getErrorEnts();
-        VehicleState oldState = systemStates.get(src);
-        if (oldState == null) {// first time
-            post(new ConsoleEventVehicleStateChanged(src, text, STATE.valueOf(msg.getOpMode().toString())));
-            console.getSystem(src).setVehicleState(STATE.valueOf(msg.getOpMode().toString()));
-            systemStates.put(src, msg);
-        }
-        else {
-            OP_MODE last = oldState.getOpMode();
-            OP_MODE current = msg.getOpMode();
-            if (last != current) {
+        try {
+            String src = msg.getSourceName();
+            if (src == null)
+                return;
+            String text = "";
+            if (!msg.getLastError().isEmpty())
+                text += msg.getLastError() + "\n";
+            text += msg.getErrorEnts();
+            VehicleState oldState = systemStates.get(src);
+            if (oldState == null) {// first time
+                post(new ConsoleEventVehicleStateChanged(src, text, STATE.valueOf(msg.getOpMode().toString())));
+                ConsoleSystem cSys = console.getSystem(src);
+                if (cSys != null)
+                    cSys.setVehicleState(STATE.valueOf(msg.getOpMode().toString()));
                 systemStates.put(src, msg);
-                if (msg.getManeuverType() == Teleoperation.ID_STATIC) {
-                    post(new ConsoleEventVehicleStateChanged(src, text, STATE.TELEOPERATION));
-                    console.getSystem(src).setVehicleState(STATE.TELEOPERATION);
-                }
-               
-                else {
-                    post(new ConsoleEventVehicleStateChanged(src, text, STATE.valueOf(msg.getOpMode().toString())));
-                    console.getSystem(src).setVehicleState(STATE.valueOf(msg.getOpMode().toString()));
+            }
+            else {
+                OP_MODE last = oldState.getOpMode();
+                OP_MODE current = msg.getOpMode();
+                if (last != current) {
+                    systemStates.put(src, msg);
+                    if (msg.getManeuverType() == Teleoperation.ID_STATIC) {
+                        post(new ConsoleEventVehicleStateChanged(src, text, STATE.TELEOPERATION));
+                        console.getSystem(src).setVehicleState(STATE.TELEOPERATION);
+                    }
+                   
+                    else {
+                        post(new ConsoleEventVehicleStateChanged(src, text, STATE.valueOf(msg.getOpMode().toString())));
+                        console.getSystem(src).setVehicleState(STATE.valueOf(msg.getOpMode().toString()));
+                    }
                 }
             }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

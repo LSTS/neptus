@@ -174,7 +174,12 @@ public class LogBookSubPanel extends SimpleSubPanel implements IPeriodicUpdates 
 
     @Subscribe
     public void consume(ConsoleEventVehicleStateChanged stateChanged) {
-        if (ImcSystemsHolder.getSystemWithName(stateChanged.getVehicle()).getAuthorityState().ordinal() < IMCAuthorityState.NONE
+        String vName = stateChanged.getVehicle();
+        if (vName == null || vName.length() == 0)
+            return;
+        
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(vName);
+        if (sys == null || sys.getAuthorityState().ordinal() < IMCAuthorityState.NONE
                 .ordinal()) {
             return;
         }
