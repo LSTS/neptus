@@ -319,7 +319,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             double scaleX = (renderer.getZoom() / 10) * ship.getLength() / 9;
             double scaleY = (renderer.getZoom() / 10) * ship.getLength();
 
-            clone.rotate(Math.PI + ship.getHeadingRads());
+            clone.rotate(Math.PI + ship.getHeadingRads() - renderer.getRotation());
             clone.setColor(c.brighter());//new Color(c.getRed(), c.getGreen(), c.getBlue(), 128));
             clone.setStroke(new BasicStroke(1.0f,
                     BasicStroke.CAP_BUTT,
