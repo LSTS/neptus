@@ -302,7 +302,7 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
                 double scaleY = (renderer.getZoom() / 10) * lenght;
 
                 diameter = diameter * renderer.getZoom();
-                Color colorCircle = new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (255 * alfaPercentage));
+                Color colorCircle = new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (150 * alfaPercentage));
                 gt.setColor(colorCircle);
                 gt.draw(new Ellipse2D.Double(centerPos.getX() - diameter / 2, centerPos.getY() - diameter / 2, diameter, diameter));
 
