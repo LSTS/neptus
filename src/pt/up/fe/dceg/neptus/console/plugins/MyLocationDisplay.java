@@ -307,7 +307,7 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
                 gt.draw(new Ellipse2D.Double(centerPos.getX() - diameter / 2, centerPos.getY() - diameter / 2, diameter, diameter));
 
                 gt.translate(centerPos.getX(), centerPos.getY());
-                gt.rotate(Math.PI - renderer.getRotation());
+                gt.rotate(Math.PI + Math.toRadians(headingDegrees) - renderer.getRotation());
                 gt.scale(scaleX, scaleY);
                 gt.fill(myShape);
                 
