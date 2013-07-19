@@ -140,6 +140,17 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
     private Vector<ILayerPainter> renderers = new Vector<ILayerPainter>();
     private Vector<IMapPopup> renderersPopups = new Vector<IMapPopup>();
 
+    protected GeneralPath myShape = new GeneralPath();
+    {
+        myShape.moveTo(0, 5);
+        myShape.lineTo(-5, 3.5);
+        myShape.lineTo(-5, -5);
+        myShape.lineTo(5, -5);
+        myShape.lineTo(5, 3.5);
+        myShape.lineTo(0, 5);
+        myShape.closePath();
+    }
+
     public MyLocationDisplay(ConsoleLayout console) {
         super(console);
         initialize();
@@ -286,10 +297,20 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
             double diameter = Math.max(lenght, width);
             if (diameter > 0) {
                 Graphics2D gt = (Graphics2D) g.create();
+
+                double scaleX = (renderer.getZoom() / 10) * width;
+                double scaleY = (renderer.getZoom() / 10) * lenght;
+
                 diameter = diameter * renderer.getZoom();
                 Color colorCircle = new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (255 * alfaPercentage));
                 gt.setColor(colorCircle);
                 gt.draw(new Ellipse2D.Double(centerPos.getX() - diameter / 2, centerPos.getY() - diameter / 2, diameter, diameter));
+
+                gt.translate(centerPos.getX(), centerPos.getY());
+                gt.rotate(Math.PI - renderer.getRotation());
+                gt.scale(scaleX, scaleY);
+                gt.fill(myShape);
+                
                 gt.dispose();
             }
         }
