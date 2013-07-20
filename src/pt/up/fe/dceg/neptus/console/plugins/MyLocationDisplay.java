@@ -308,6 +308,10 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
 
                 gt.translate(centerPos.getX(), centerPos.getY());
                 gt.rotate(Math.PI + Math.toRadians(headingDegrees) - renderer.getRotation());
+                if (useSystemToDeriveHeadingOf != null && useSystemToDeriveHeadingOf.length() != 0) {
+                    gt.rotate(Math.toRadians(-(-useHeadingAngleToDerivedHeading * 0 + useHeadingOffsetFromDerivedHeading)));
+                }
+
                 gt.scale(scaleX, scaleY);
                 gt.fill(myShape);
                 
