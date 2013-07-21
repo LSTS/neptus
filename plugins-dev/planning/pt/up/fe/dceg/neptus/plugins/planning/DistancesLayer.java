@@ -39,7 +39,9 @@ import java.util.Map;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.ConsoleSystem;
 import pt.up.fe.dceg.neptus.mystate.MyState;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
@@ -54,8 +56,11 @@ import pt.up.fe.dceg.neptus.util.MathMiscUtils;
 public class DistancesLayer extends SimpleSubPanel implements Renderer2DPainter  {
     private static final long serialVersionUID = 1L;
 
-    ConsoleLayout console;
-    Map<String, ConsoleSystem> systems;
+    @NeptusProperty(name = "Visible", category = "Visibility", userLevel = LEVEL.REGULAR)
+    public boolean visible = true;
+    
+    private ConsoleLayout console;
+    private Map<String, ConsoleSystem> systems;
     
     /**
      * @param console
@@ -64,7 +69,6 @@ public class DistancesLayer extends SimpleSubPanel implements Renderer2DPainter 
         super(console);
         this.console = console;
     }
-
 
     @Override
     public void initSubPanel() {    
@@ -78,6 +82,9 @@ public class DistancesLayer extends SimpleSubPanel implements Renderer2DPainter 
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
+        if (!visible)
+            return;
+        
         Point2D point;
         Point2D me = renderer.getScreenPosition(MyState.getLocation());
         
@@ -88,7 +95,6 @@ public class DistancesLayer extends SimpleSubPanel implements Renderer2DPainter 
 
             g.setColor(Color.RED.darker());
             
-            g.drawRect(10, 10, 5, 5);
             g.drawRect((int)point.getX()-10, (int)point.getY()-10, 20, 20);
             g.drawLine((int)me.getX(), (int)me.getY(), (int)point.getX(), (int)point.getY());
             
