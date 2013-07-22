@@ -181,20 +181,26 @@ public class PointCloudHandlers<T extends PointXYZ> {
             getLutZ().GetColor(point[2], zDColor);
             //NeptusLog.pub().info("intensity value: " + intensities.GetValue(i));
             getLutIntensities().GetColor(intensities.GetValue(i), iDColor);
+            //NeptusLog.pub().info("intens value: " + intensities.GetValue(i));
             
             char[] colorx = new char[3];
             char[] colory = new char[3];
             char[] colorz = new char[3];
+            char[] colori = new char[3];
             
             for (int j = 0; j < 3; ++j) {
                 colorx[j] = (char) (255.0 * xDColor[j]);
                 colory[j] = (char) (255.0 * yDColor[j]);
                 colorz[j] = (char) (255.0 * zDColor[j]);
+                colori[j] = (char) (255.0 * iDColor[j]);
             }
                        
+            //NeptusLog.pub().info("colors int: " + colori[0] + " " + colori[1] + " " + colori[2]);
+            
             colorsX.InsertNextTuple3(colorx[0], colorx[1], colorx[2]);
             colorsY.InsertNextTuple3(colory[0], colory[1], colory[2]);
             colorsZ.InsertNextTuple3(colorz[0], colorz[1], colorz[2]);
+            colorsI.InsertNextTuple3(colori[0], colori[1], colori[2]);
         }
 //        double minRangeValue = getLutZ().GetValueRange()[0];
 //        double maxRangeValue = getLutZ().GetValueRange()[1];

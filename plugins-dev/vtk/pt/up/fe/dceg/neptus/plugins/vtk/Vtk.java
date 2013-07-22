@@ -59,6 +59,7 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.surface.PointCloudMesh;
+import pt.up.fe.dceg.neptus.plugins.vtk.utils.PointCloudUtils;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.Utils;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.up.fe.dceg.neptus.plugins.vtk.visualization.Canvas;
@@ -221,6 +222,9 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());               
                 // create an actor from parsed beams
                 if (pointCloud.isHasIntensities()) {
+                    multibeamToPointCloud.showIntensities();
+                    pointCloud.setIntensities(multibeamToPointCloud.getIntensities());
+                    
                     pointCloud.createLODActorFromPoints(multibeamToPointCloud.getIntensities());
                     NeptusLog.pub().info("create LOD actor with intensities");
                 }
@@ -241,7 +245,12 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 canvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
                 
                     // set up camera to +z viewpoint looking down
-                canvas.GetRenderer().GetActiveCamera().SetPosition(pointCloud.getPoly().GetCenter()[0] ,pointCloud.getPoly().GetCenter()[1] , pointCloud.getPoly().GetCenter()[2] - 200);
+                double[] center = new double[3]; 
+                center = PointCloudUtils.computeCenter(pointCloud);
+                
+                //canvas.GetRenderer().GetActiveCamera().SetPosition(pointCloud.getPoly().GetCenter()[0] ,pointCloud.getPoly().GetCenter()[1] , pointCloud.getPoly().GetCenter()[2] - 200);
+                canvas.GetRenderer().GetActiveCamera().SetPosition(center[0], center[1], center[2] - 200);
+                
                 canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
                 //canvas.Report();
             }

@@ -58,6 +58,8 @@ public class PointCloud<T extends PointXYZ> {
     private PointCloudHandlers<PointXYZ> colorHandler;
     private boolean hasIntensities = false;
         //public vtkActor contourActor;
+    private vtkShortArray intensities;
+    
     
     /**
      * Create a pointcloud object
@@ -69,6 +71,8 @@ public class PointCloud<T extends PointXYZ> {
         setPoly(new vtkPolyData());
         setCloudLODActor(new vtkLODActor());
         setBounds(new double[6]);
+        setIntensities(new vtkShortArray());
+        
         setColorHandler(new PointCloudHandlers<>());
     }
     
@@ -130,6 +134,7 @@ v  ~StubRoutines::call_stub
     public void createLODActorFromPoints(vtkShortArray intensities) {
         try {                                   
             getPoly().SetPoints(getPoints());
+            //setIntensities(intensities);
             
             for (int i = 0; i < getNumberOfPoints(); ++i) {
                 getVerts().InsertNextCell(i);
@@ -143,7 +148,7 @@ v  ~StubRoutines::call_stub
             //setBounds(PointCloudUtils.computeBounds((PointCloud<PointXYZ>) this));
             setBounds(PointCloudUtils.computeBounds(getPoints()));
             
-            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds, intensities);
+            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds, getIntensities());
                       
             getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
             
@@ -299,5 +304,19 @@ v  ~StubRoutines::call_stub
      */
     public void setHasIntensities(boolean hasIntensities) {
         this.hasIntensities = hasIntensities;
+    }
+
+    /**
+     * @return the intensities
+     */
+    public vtkShortArray getIntensities() {
+        return intensities;
+    }
+
+    /**
+     * @param intensities the intensities to set
+     */
+    public void setIntensities(vtkShortArray intensities) {
+        this.intensities = intensities;
     }
 }
