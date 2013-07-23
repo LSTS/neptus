@@ -46,6 +46,7 @@ import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 /**
@@ -58,7 +59,10 @@ public class ClockCounter extends JPanel {
 	public static final Color COLOR_BACK = new Color(190, 220, 240); //new Color(130, 160, 130);
 	public static final Color COLOR_FORE = new Color(30, 30, 30);;
 
-	
+    public static final String HOURS_SEPARATOR = I18n.textc("h", "Chronometer hour seperator");
+    public static final String MINUTES_SEPARATOR = I18n.textc("m", "Chronometer minutes seperator");;
+    public static final String SECONDS_SEPARATOR = I18n.textc("s", "Chronometer seconds seperator");;
+
 	protected static final Polygon SHAPE_PLAY = new Polygon(new int[] {-4,-4,-1}, new int[] {1,3,2}, 3);
 	protected static final Polygon SHAPE_STOP = new Polygon(new int[] {-4,-4,-1,-1}, new int[] {1,3,3,1}, 4);
 	protected static final Polygon SHAPE_PAUSE1 = new Polygon(new int[] {-4,-4,-3,-3}, new int[] {1,3,3,1}, 4);
@@ -111,7 +115,7 @@ public class ClockCounter extends JPanel {
 
 		g2d.setFont(new Font("Arial", Font.BOLD, 10));
 		
-		String tt = "00h00m00s";
+		String tt = "00" + HOURS_SEPARATOR +"00" + MINUTES_SEPARATOR +"00" + SECONDS_SEPARATOR;
 		Rectangle2D sB1 = g2d.getFontMetrics().getStringBounds(tt, g2d);
 
 		long hr = (long) (getSecs()/60.0/60.0);
@@ -126,7 +130,7 @@ public class ClockCounter extends JPanel {
 			miS = "0" + miS;
 		if (secS.length() == 1)
 			secS = "0" + secS;
-		String time = " " +hrS + "h" + miS + "m" + secS + "s";
+		String time = " " +hrS + HOURS_SEPARATOR + miS + MINUTES_SEPARATOR + secS + SECONDS_SEPARATOR;
 
 		Rectangle2D sB2 = g2d.getFontMetrics().getStringBounds(time, g2d);
 

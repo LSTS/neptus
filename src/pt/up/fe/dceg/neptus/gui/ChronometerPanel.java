@@ -531,7 +531,8 @@ public class ChronometerPanel extends JPanel implements ActionListener {
 
     public class HMSFormatter extends DefaultFormatter {
         private static final long serialVersionUID = 1L;
-        Pattern regex = Pattern.compile("^(((((\\d?\\dh)?\\d)?\\dm)?)?\\d)?\\ds?$");
+        Pattern regex = Pattern.compile("^(((((\\d?\\d" + ClockCounter.HOURS_SEPARATOR + ")?\\d)?\\d"
+                + ClockCounter.MINUTES_SEPARATOR + ")?)?\\d)?\\d" + ClockCounter.SECONDS_SEPARATOR + "?$");
         Matcher matcher;
 
         public HMSFormatter() {
@@ -552,7 +553,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             // If we get this far, then it did match.
             // return super.stringToValue(string); // will honor the 'valueClass' property
 
-            String[] sv = string.split("[hms]");
+            String[] sv = string.split("[" + ClockCounter.HOURS_SEPARATOR + ClockCounter.MINUTES_SEPARATOR + ClockCounter.SECONDS_SEPARATOR + "]");
             Long[] lv = new Long[] { 0L, 0L, 0L }; // sec, min, hour
             for (int i = 0; i < sv.length; i++) {
                 int k = sv.length - i - 1;
@@ -589,7 +590,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
                 miS = "0" + miS;
             if (secS.length() == 1)
                 secS = "0" + secS;
-            String time = "" + hrS + "h" + miS + "m" + secS + "s";
+            String time = "" + hrS + ClockCounter.HOURS_SEPARATOR + miS + ClockCounter.MINUTES_SEPARATOR + secS + ClockCounter.SECONDS_SEPARATOR;
 
             return time;
         }
@@ -610,7 +611,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             miS = "0" + miS;
         if (Long.toString((long) sec).length() == 1)
             secS = "0" + secS;
-        String time = "" + hrS + "h" + miS + "m" + secS + "s";
+        String time = "" + hrS + ClockCounter.HOURS_SEPARATOR + miS + ClockCounter.MINUTES_SEPARATOR + secS + ClockCounter.SECONDS_SEPARATOR;
 
         return time;
     }
