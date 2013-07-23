@@ -170,6 +170,7 @@ public class I18n {
         UIManager.put("OptionPane.cancelButtonText", I18n.text("Cancel"));
         UIManager.put("OptionPane.titleText", I18n.text("Select an Option"));
         UIManager.put("OptionPane.inputDialogTitle", I18n.text("Input"));
+        UIManager.put("ProgressMonitor.progressText", I18n.text("Progress..."));
         
         UIManager.put("FileChooser.acceptAllFileFilterText", I18n.text("All Files"));
         UIManager.put("FileChooser.lookInLabelText", I18n.text("Look In:"));
