@@ -145,7 +145,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
     
     public void startLogReplay() {
         try {
-            loader.setText("Loading mission replay");
+            loader.setText(I18n.text("Loading mission replay"));
 
             // parse all mission features
             loader.setText(I18n.text("Generating mission"));
