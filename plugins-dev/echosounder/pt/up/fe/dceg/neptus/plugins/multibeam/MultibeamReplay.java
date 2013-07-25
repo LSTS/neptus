@@ -89,7 +89,7 @@ public class MultibeamReplay implements LogReplayLayer {
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         String filePath = "mra/multibeam.png";
-        int baseLod = 19;
+        int baseLod = 18;
         
         if(source.getFile(filePath) != null)
         {
@@ -109,9 +109,7 @@ public class MultibeamReplay implements LogReplayLayer {
             double res[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(
                     parser.getBathymetryInfo().bottomRight, baseLod);
 
-//            System.out.println(parser.getBathymetryInfo().topLeft);
-//            System.out.println(parser.getBathymetryInfo().bottomRight);
-
+            System.out.println(res[0] + " " + res[1]);
             // Create and paint image
             img = new BufferedImage((int) res[0], (int) res[1], BufferedImage.TYPE_INT_ARGB);
             parser.rewind();
@@ -120,7 +118,7 @@ public class MultibeamReplay implements LogReplayLayer {
 
             while ((swath = parser.nextSwath(1)) != null) {
                 LocationType loc = swath.getPose().getPosition();
-
+                
                 for (BathymetryPoint bp : swath.getData()) {
                     LocationType loc2 = new LocationType(loc);
                     if (bp == null)
