@@ -559,14 +559,19 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             
             // Check for a valid response 
             if(res != null) {
+                
+                // Calc the center of the rectangle
                 int x = (int) (((mouseX + initialX) / 2) * (mouseSidescanLine.xsize / (float)image.getWidth()));
                 int y = (mouseY + initialY) / 2;
+                
+                // Find the corresponding SidescanLine object
                 SidescanLine l = null;
                 for (SidescanLine line : lineList) {
                     if (y >= line.ypos && y <= (line.ypos + line.ysize)) {
                         l = line;
                     }
                 }
+                
                 SidescanPoint point = l.calcPointForCoord(x);
                 parent.mraPanel.addMarker(new LogMarker(res, l.timestampMillis, point.location
                         .getLatitudeAsDoubleValueRads(), point.location.getLongitudeAsDoubleValueRads(), x, y, Math
