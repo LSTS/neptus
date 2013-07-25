@@ -78,6 +78,11 @@ public class JsfSidescanParser implements SidescanParser {
             JsfSonarData sboard = null;
             JsfSonarData pboard = null;
 
+            if(ping.size() < 2) {
+                ping = parser.nextPing(subsystem);
+                continue;
+            }
+            
             for (JsfSonarData temp : ping) {
                 if(temp != null) {
                     if (temp.getHeader().getChannel() == 0) {
