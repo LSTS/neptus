@@ -65,10 +65,10 @@ public class SidescanConfig implements PropertiesProvider {
     public ColorMap colorMap = ColorMapFactory.createBronzeColormap();
     
     @NeptusProperty
-    public double normalization = 0.05;
+    public double normalization = 0.2;
     
     @NeptusProperty
-    public double tvgGain = 100;
+    public double tvgGain = 75;
     
     @NeptusProperty
     public boolean showPositionHud = true;
