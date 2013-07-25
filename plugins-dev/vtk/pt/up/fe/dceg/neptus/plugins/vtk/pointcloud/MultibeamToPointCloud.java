@@ -107,10 +107,14 @@ public class MultibeamToPointCloud {
         setIntensities(new vtkShortArray());
         
         int countPoints = 0;
+        LocationType initLoc = null;
         
         while ((bs = multibeamDeltaTParser.nextSwath()) != null) {                   
             LocationType loc = bs.getPose().getPosition();
-
+            
+            if(initLoc == null)
+                initLoc = new LocationType(loc);
+            
             double tideOffset = getTideOffset(bs.getTimestamp());
             
             if (!NeptusMRA.approachToIgnorePts) {
@@ -125,8 +129,10 @@ public class MultibeamToPointCloud {
                     tempLoc.translatePosition(p.north, p.east, 0);
                     
                     // add data to pointcloud
-                    getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
-                            tempLoc.getOffsetEast(), 
+                    double offset[] = tempLoc.getOffsetFrom(initLoc);
+                    System.out.println(offset[0] + " " + offset[1]);
+                    getPoints().InsertNextPoint(offset[0], 
+                            offset[1], 
                             p.depth - tideOffset);
                     
                     if (multibeamDeltaTParser.getHasIntensity()) {
@@ -150,9 +156,12 @@ public class MultibeamToPointCloud {
                     tempLoc.translatePosition(p.north, p.east, 0);
                     
                     // add data to pointcloud
-                    getPoints().InsertNextPoint(tempLoc.getOffsetNorth(), 
-                            tempLoc.getOffsetEast(), 
+                    double offset[] = tempLoc.getOffsetFrom(initLoc);
+                    System.out.println(offset[0] + " " + offset[1]);
+                    getPoints().InsertNextPoint(offset[0], 
+                            offset[1], 
                             p.depth - tideOffset);
+
                     
                     if (multibeamDeltaTParser.getHasIntensity()) {
                         ++countIntens;
