@@ -41,7 +41,6 @@
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/map"/>
 	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/messages"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/trex"/>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/3D"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/matlab-planning"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/ais"/>
 	<classpathentry kind="src" output="build/tests" path="srcTests"/>
@@ -159,26 +158,6 @@
 	<classpathentry kind="lib" path="lib/httpclient-4.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/httpcore-4.2.2.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/messages/lib/jchart2d-3.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/eventbus.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/j-ogg-oggd.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/j-ogg-vorbisd.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jbullet.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-core.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-desktop.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-effects.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-jbullet.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-jogg.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-lwjgl-natives.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-lwjgl.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-niftygui.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-plugins.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-terrain.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/lwjgl.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/nifty-default-controls.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/nifty-style-black.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/nifty.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/stack-alloc.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/xmlpull-xpp3.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/odss/lib/protobuf.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/odss/lib/rabbitmq-client.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.2.2.jar"/>
