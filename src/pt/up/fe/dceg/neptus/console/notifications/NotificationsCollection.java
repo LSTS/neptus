@@ -48,7 +48,7 @@ import com.google.common.eventbus.Subscribe;
  * 
  */
 public class NotificationsCollection {
-    private static final int MAX_SIZE = 100;
+    public static final int MAX_SIZE = 20;
     private List<Notification> list = new LinkedList<Notification>();
     private ConsoleLayout console;
 
@@ -58,14 +58,12 @@ public class NotificationsCollection {
     }
 
     private synchronized void add(Notification noty) {
-        list.add(noty);
-        console.post(new ConsoleEventNewNotification(noty));
         // auto clean
         if (list.size() > MAX_SIZE) {
-            int removeCount = list.size() - MAX_SIZE;
-            for (int i = 0; i < removeCount; i++)
-                list.remove(i);
+           list.clear();
         }
+        list.add(noty);
+        console.post(new ConsoleEventNewNotification(noty));
     }
 
     /**

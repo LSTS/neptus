@@ -49,19 +49,17 @@ public class PluginsRepository {
     private static LinkedHashMap<String, Class<? extends NeptusMessageListener>> msgListenerClasses = new LinkedHashMap<String, Class<? extends NeptusMessageListener>>();
     private static LinkedHashMap<String, Class<? extends MRAVisualization>> visualizations = new LinkedHashMap<String, Class<? extends MRAVisualization>>();
     private static LinkedHashMap<String, Class<? extends MapTileProvider>> tileProviders = new LinkedHashMap<String, Class<? extends MapTileProvider>>();
-
     private static LinkedHashMap<Class<?>, LinkedHashMap<String, Class<?>>> otherPlugins = new LinkedHashMap<Class<?>, LinkedHashMap<String, Class<?>>>();
-
-    public static void addOtherPlugin(Class<?> service, Class<?> implementation) {
-        if (!otherPlugins.containsKey(service)) {
-            otherPlugins.put(service, new LinkedHashMap<String, Class<?>>());
+    
+    static {
+        Class<?>[] subpanels = ReflectionUtil.listSubPanels();
+        for (Class<?> sp : subpanels) {
+            if (sp.getAnnotation(PluginDescription.class) != null){
+                PluginsRepository.addPlugin(sp.getCanonicalName());
+            }
         }
-        otherPlugins.get(service).put(PluginUtils.getPluginName(implementation), implementation);
     }
-
-    public static LinkedHashMap<String, Class<?>> getImplementers(Class<?> service) {
-        return otherPlugins.get(service);
-    }
+    
 
     @SuppressWarnings("unchecked")
     public static void addPlugin(String className) {
@@ -110,6 +108,17 @@ public class PluginsRepository {
             e.printStackTrace();
         }
 
+    }
+    
+    public static void addOtherPlugin(Class<?> service, Class<?> implementation) {
+        if (!otherPlugins.containsKey(service)) {
+            otherPlugins.put(service, new LinkedHashMap<String, Class<?>>());
+        }
+        otherPlugins.get(service).put(PluginUtils.getPluginName(implementation), implementation);
+    }
+
+    public static LinkedHashMap<String, Class<?>> getImplementers(Class<?> service) {
+        return otherPlugins.get(service);
     }
     
     /**

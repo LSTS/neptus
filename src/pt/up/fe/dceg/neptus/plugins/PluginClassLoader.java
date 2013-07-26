@@ -114,7 +114,6 @@ public class PluginClassLoader extends URLClassLoader {
         }
 
         parsePlugins(urls);
-
     }
 
     private static String getFileExtension(File fx) {
