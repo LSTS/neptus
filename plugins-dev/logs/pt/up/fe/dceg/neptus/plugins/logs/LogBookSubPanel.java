@@ -43,6 +43,7 @@ import pt.up.fe.dceg.neptus.console.events.ConsoleEventSystemAuthorityStateChang
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.up.fe.dceg.neptus.console.notifications.Notification;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.LogBookControl;
 import pt.up.fe.dceg.neptus.imc.LogBookControl.COMMAND;
 import pt.up.fe.dceg.neptus.imc.LogBookEntry;
@@ -131,12 +132,12 @@ public class LogBookSubPanel extends SimpleSubPanel implements IPeriodicUpdates 
                 if (count < newMessages.size())
                     text = "..."+"<br/>"+text;
                 
-                text = "Received "+newMessages.size()+" previous entries from "+logControl.getSourceName()+" including: <br/>"+text;
-                
+               // text = "Received "+newMessages.size()+" previous entries from "+logControl.getSourceName()+" including: <br/>"+text;
+                text = I18n.textf("Received %nMessages previous entries from %systemName including: ",newMessages.size(), logControl.getSourceName() ) + " <br/>"+text;
                 if (error)
-                    post(Notification.error("LogBook", text));
+                    post(Notification.error(I18n.text("Log Book"), text));
                 else
-                    post(Notification.info("LogBook", text));
+                    post(Notification.info(I18n.text("Log Book"), text));
             }
         }
     }

@@ -140,15 +140,17 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
 
         profilesMenu = console.getOrCreateJMenu(new String[] { I18n.text("Profiles") });
         for (String name : profileList) {
-            JCheckBoxMenuItem item = new JCheckBoxMenuItem(new AbstractAction(name) {
+            JCheckBoxMenuItem item = new JCheckBoxMenuItem(I18n.text(name));
+            item.setAction(new AbstractAction(name) {
                 private static final long serialVersionUID = 1L;
-
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    
                     changeProfile(e.getActionCommand());
                     applyLayout();
                 }
             });
+           
             profilesMenu.add(item);
         }
     }

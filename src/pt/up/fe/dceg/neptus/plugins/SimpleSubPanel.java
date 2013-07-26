@@ -412,6 +412,7 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
         final POSITION popupPosition = cAction.pos();
         // String name2 = cAction.name().isEmpty() ? PluginUtils.i18nTranslate(getName()) : I18n.text(cAction.name());
         String name2 = cAction.name().isEmpty() ? getName() : cAction.name();
+        name2 = I18n.text(name2);
         String iconPath = cAction.icon().isEmpty() ? PluginUtils.getPluginIcon(this.getClass()) : cAction.icon();
         int width = cAction.width();
         int height = cAction.height();
@@ -457,7 +458,7 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
     }
 
     private JMenuItem createMenuItem(final POSITION popupPosition, String name2, ImageIcon icon) {
-        JMenuItem menuItem = new JMenuItem(new AbstractAction(PluginUtils.i18nTranslate(name2),
+        JMenuItem menuItem = new JMenuItem(new AbstractAction(name2,
                 ImageUtils.getScaledIcon(icon, 16, 16)) {
             private static final long serialVersionUID = 1L;
 

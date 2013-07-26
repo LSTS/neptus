@@ -123,7 +123,7 @@ public class WebServerPlugin extends SimpleSubPanel implements ConfigurationList
                         for (ConsoleMenuItem cmi : ((IConsoleMenuItemServlet) s)
                                 .getConsoleMenuItems()) {
                             JMenuItem jmi = addMenuItem(
-                                    menuPrefixStr + pathName + ">" + cmi.getItemSubPath(),
+                                    menuPrefixStr + I18n.text(pathName) + ">" + cmi.getItemSubPath(),
                                     cmi.getIcon(), cmi.getActionListener());
                             if (jmi != null)
                                 mht.put(cmi.getItemSubPath(), jmi);
@@ -181,12 +181,12 @@ public class WebServerPlugin extends SimpleSubPanel implements ConfigurationList
                     WebServer.start(port);
             
             if (enabledMenuItem != null)
-                enabledMenuItem.setText("Disable");
+                enabledMenuItem.setText(I18n.text("Disable"));
         }
         else {
         	WebServer.stop();
             if (enabledMenuItem != null)
-                enabledMenuItem.setText("Enable");
+                enabledMenuItem.setText(I18n.text("Enable"));
         }
     }
 }

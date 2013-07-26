@@ -206,7 +206,7 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
             if (value != null)
                 this.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
             
-            setText(" "+ value.toUpperCase() + "  " + I18n.text("Status") + ": " + systemState.get(value).toString());
+            setText(" "+ value.toUpperCase() + "  " + I18n.text("Status") + ": " + I18n.text(systemState.get(value).toString()));
             
             return this;
         }
