@@ -61,7 +61,6 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.EntitiesResolver;
 
 import com.google.common.eventbus.Subscribe;
-import com.jme3.math.FastMath;
 
 
 /**
@@ -219,20 +218,20 @@ public class EntitySubPanel extends SimpleSubPanel {
 
             // Checkbox for visibility
             TableColumn column = columnModel.getColumn(0);
-            column.setPreferredWidth((int) FastMath.floor(PANEL_WIDTH * 0.1f));
+            column.setPreferredWidth((int) Math.floor(PANEL_WIDTH * 0.1f));
             // Entity
             column = columnModel.getColumn(DataIndex.ENTITY_NAME.getIndex());
-            column.setPreferredWidth((int) FastMath.floor(PANEL_WIDTH * 0.35f));
+            column.setPreferredWidth((int) Math.floor(PANEL_WIDTH * 0.35f));
             // State
             column = columnModel.getColumn(DataIndex.ICON.getIndex());
-            column.setPreferredWidth((int) FastMath.floor(PANEL_WIDTH * 0.1f));
+            column.setPreferredWidth((int) Math.floor(PANEL_WIDTH * 0.1f));
             column.setResizable(false);
             // Description
             column = columnModel.getColumn(DataIndex.DESCRIPTION.getIndex());
-            column.setPreferredWidth((int) FastMath.floor(PANEL_WIDTH * 0.3f));
+            column.setPreferredWidth((int) Math.floor(PANEL_WIDTH * 0.3f));
             // delta t
             column = columnModel.getColumn(DataIndex.TIME_ELAPSED.getIndex());
-            column.setPreferredWidth((int) FastMath.floor(PANEL_WIDTH * 0.15f));
+            column.setPreferredWidth((int) Math.floor(PANEL_WIDTH * 0.15f));
             column.setResizable(false);
             // ElapsedTimeCellRenderer elapsedTime = new ElapsedTimeCellRenderer();
             // column.setCellRenderer(elapsedTime);
