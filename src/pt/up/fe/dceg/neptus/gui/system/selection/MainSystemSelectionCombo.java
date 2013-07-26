@@ -169,38 +169,43 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
                 return this;
             }
             if (isSelected) {
-                switch (systemState.get(value)) {
-                    case SERVICE:
-                        setBackground(SERVICE_SEL_COLOR);
-                        break;
-                    case ERROR:
-                        setBackground(ERROR_SEL_COLOR);
-                        break;
-                    case CALIBRATION:
-                        setBackground(CALIBRATION_SEL_COLOR);
-                        break;
-                    default:
-                        setBackground(DEFAULT_SEL_COLOR);
-                        break;
+                if(systemState.get(value) != null)  {
+                    switch (systemState.get(value)) {
+                        case SERVICE:
+                            setBackground(SERVICE_SEL_COLOR);
+                            break;
+                        case ERROR:
+                            setBackground(ERROR_SEL_COLOR);
+                            break;
+                        case CALIBRATION:
+                            setBackground(CALIBRATION_SEL_COLOR);
+                            break;
+                        default:
+                            setBackground(DEFAULT_SEL_COLOR);
+                            break;
+                    }
+                    setForeground(list.getSelectionForeground());                 
                 }
-                setForeground(list.getSelectionForeground());
             }
             else {
-                switch (systemState.get(value)) {
-                    case SERVICE:
-                        setBackground(SERVICE_COLOR);
-                        break;
-                    case ERROR:
-                        setBackground(ERROR_COLOR);
-                        break;
-                    case CALIBRATION:
-                        setBackground(CALIBRATION_COLOR);
-                        break;
-                    default:
-                        setBackground(DEFAULT_COLOR);
-                        break;
+                if (systemState.get(value) != null) {
+
+                    switch (systemState.get(value)) {
+                        case SERVICE:
+                            setBackground(SERVICE_COLOR);
+                            break;
+                        case ERROR:
+                            setBackground(ERROR_COLOR);
+                            break;
+                        case CALIBRATION:
+                            setBackground(CALIBRATION_COLOR);
+                            break;
+                        default:
+                            setBackground(DEFAULT_COLOR);
+                            break;
+                    }
+                    setForeground(list.getForeground());
                 }
-                setForeground(list.getForeground());
             }
 
             if (value != null)
