@@ -32,7 +32,7 @@
 package pt.up.fe.dceg.neptus.util.logdownload;
 
 /**
- * @author lsts
+ * @author jqcorreia
  *
  */
 public interface FtpFileChangeListener {

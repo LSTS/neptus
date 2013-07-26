@@ -34,11 +34,18 @@ package pt.up.fe.dceg.neptus.ftp;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.io.CopyStreamEvent;
+import org.apache.commons.net.io.CopyStreamListener;
+import org.apache.commons.net.io.Util;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 
@@ -48,6 +55,7 @@ import pt.up.fe.dceg.neptus.NeptusLog;
  */
 public class FtpDownloader {
     FTPClient client;
+
     FTPClientConfig conf;
 
     public FtpDownloader(String host, int port) throws Exception {
@@ -60,6 +68,8 @@ public class FtpDownloader {
         client.enterLocalPassiveMode();
         client.login("anonymous", "");
 
+        client.setFileType(FTP.BINARY_FILE_TYPE);
+        
         NeptusLog.pub().info("<###> " + client.printWorkingDirectory());
     }
 
@@ -81,13 +91,27 @@ public class FtpDownloader {
                 downloadFile(filePath, destPath);
             }
         }
-        
         for(FTPFile f : toDoList) {
 //            System.out.println(path + f.getName());
             downloadDirectory(path + "/" + f.getName(), destPath);
         }
     }
 
+    public LinkedHashMap<FTPFile, String> listLogs() throws IOException {
+        LinkedHashMap<FTPFile, String> list = new LinkedHashMap<FTPFile, String>();
+        
+        client.changeWorkingDirectory("/");
+        
+        for (FTPFile f : client.listFiles()) {
+            if(f.isDirectory()) {
+                client.changeWorkingDirectory("/" + f.getName());
+                for (FTPFile f2 : client.listFiles()) {
+                    list.put(f2, f.getName() + "/" + f2.getName());
+                }
+            }
+        }
+        return list;
+    }
     /**
      * @param filePath
      */
@@ -99,7 +123,7 @@ public class FtpDownloader {
         
         try {
             String dest = destPath + fileName;
-            boolean b = client.retrieveFile(filePath, new FileOutputStream(new File(dest)));
+            boolean b = retrieveFile(client.retrieveFileStream(filePath), new FileOutputStream(new File(dest)));
             System.out.println(dest);
         }
         catch (Exception e) {
@@ -107,13 +131,46 @@ public class FtpDownloader {
         }
     }
 
+    
+    private boolean retrieveFile(InputStream is, OutputStream os) {
+                try
+                {
+                    System.out.println(is);
+                    
+                    Util.copyStream(is, os, 1024,
+                                    CopyStreamEvent.UNKNOWN_STREAM_SIZE, new CopyStreamListener() {
+                                        
+                                        @Override
+                                        public void bytesTransferred(long arg0, int arg1, long arg2) {
+                                            System.out.println("1 " + " " + arg0 + " " + arg1 + " " + arg2);
+                                        }
+                                        
+                                        @Override
+                                        public void bytesTransferred(CopyStreamEvent arg0) {
+                                            System.out.println("2 " + arg0);
+                                            
+                                        }
+                                    },
+                                    false);
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+        return true;
+    }
+
+    public FTPClient getClient() {
+        return client;
+    }
+    
     public void close() throws IOException {
         client.disconnect();
     }
 
     public static void main(String[] args) throws Exception {
-        FtpDownloader test = new FtpDownloader("10.0.10.83", 30021);
+        FtpDownloader test = new FtpDownloader("10.0.10.60", 30021);
         
-        test.downloadDirectory("/20130703/135247_rows1-alt5_doam_ss/Photos", "/home/jqcorreia/Photos/");
+        test.downloadFile("/20130722/165455_teleoperation-mode/Data.lsf.gz", "/home/jqcorreia/");
     }
 }

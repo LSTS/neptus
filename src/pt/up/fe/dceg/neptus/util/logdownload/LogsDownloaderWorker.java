@@ -50,8 +50,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -82,6 +80,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.commons.net.ftp.FTPFile;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -98,8 +97,6 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.jdesktop.swingx.JXCollapsiblePane;
 import org.jdesktop.swingx.JXLabel;
@@ -168,6 +165,8 @@ public class LogsDownloaderWorker {
     private int connectionTimeout4List = 5000;
 	
 	private HttpClient client, client4List;
+	private FtpDownloader clientFtp;
+	
 	private PoolingClientConnectionManager httpConnectionManager, httpConnectionManager4List;
 	private HashSet<HttpRequestBase> listActiveGetMethods = new HashSet<HttpRequestBase>();
 
@@ -722,7 +721,16 @@ public class LogsDownloaderWorker {
 						listHandlingProgressBar.setIndeterminate(true);
 						listHandlingProgressBar.setString(I18n.text("Connecting to remote system for log list update..."));
 //						long timeD1 = System.currentTimeMillis();
-						LinkedHashSet<String> retList = getLogsListFromServer();
+						
+				        try {
+				            clientFtp = new FtpDownloader(host, 30021);
+				        }
+				        catch (Exception e) {
+				            e.printStackTrace();
+				        }
+				        
+						LinkedHashMap<FTPFile, String> retList = clientFtp.listLogs();
+						
 						//NeptusLog.pub().info("<###>.......get list from server " + (System.currentTimeMillis()-timeD1));
 						if (retList == null) {
 						    msgPanel.writeMessageTextln(I18n.text("Done"));
@@ -744,8 +752,9 @@ public class LogsDownloaderWorker {
 						logFolderList.myModel.copyInto(objArray);
 						for (Object comp : objArray) {
 							try {
+                                //NeptusLog.pub().info("<###>... upda
 								LogFolderInfo log = (LogFolderInfo) comp;
-								if (!retList.contains(log.getName())) {
+								if (!retList.containsValue(log.getName())) {
 									//retList.remove(log.getName());
 									for (LogFileInfo lfx : log.logFiles) {
 										lfx.setState(LogFolderInfo.State.LOCAL);
@@ -762,7 +771,7 @@ public class LogsDownloaderWorker {
 						//->Adding new LogFolders
 						LinkedList<LogFolderInfo> existenteLogFoldersFromServer = new LinkedList<LogFolderInfo>();
 						LinkedList<LogFolderInfo> newLogFoldersFromServer = new LinkedList<LogFolderInfo>();
-						for (String newLogName : retList) {
+						for (String newLogName : retList.values()) {
 							final LogFolderInfo newLogDir = new LogFolderInfo(newLogName);
 							if (logFolderList.containsFolder(newLogDir)) {
 								existenteLogFoldersFromServer.add(logFolderList.getFolder((newLogDir.getName())));
@@ -784,26 +793,20 @@ public class LogsDownloaderWorker {
 						listHandlingProgressBar.setValue(30);
 						listHandlingProgressBar.setIndeterminate(true);
 						listHandlingProgressBar.setString(I18n.text("Contacting remote system for complete log file list..."));
-//						long timeD2 = System.currentTimeMillis();
-						String listXhtml = getLogsFileListFromServer();
-						//NeptusLog.pub().info("<###>.......get list.xml from server " + (System.currentTimeMillis()-timeD2));
+
 						listHandlingProgressBar.setValue(40);
 						listHandlingProgressBar.setIndeterminate(false);
 						listHandlingProgressBar.setString(I18n.text("Processing log list..."));
-						if (listXhtml == null)
-							return null;
-						//msgPanel.writeMessageTextln("listXhtml: " + (listXhtml.charAt(2)));
-						Document docList = loadXhtmlToDocument(listXhtml);
-						//msgPanel.writeMessageTextln("docList: " + (docList==null));
+
 						objArray = new Object[logFolderList.myModel.size()];
 						logFolderList.myModel.copyInto(objArray);
-						//msgPanel.writeMessageTextln("objArray: " + objArray.length);
-						LinkedList<LogFolderInfo> tmpLogFolderList = getLogListAsTemporaryStructureFromDOM(docList, retList);
+
+						LinkedList<LogFolderInfo> tmpLogFolderList = getLogListAsTemporaryStructureFromDOM(new LinkedHashSet<String>(retList.values()));
 						listHandlingProgressBar.setValue(70);
 						listHandlingProgressBar.setIndeterminate(false);
 						listHandlingProgressBar.setString(I18n.text("Updating logs info..."));
+
 						//Testing for log files from each log folder 
-						//long timeF1 = System.currentTimeMillis();
 						for (Object comp : objArray) {
 							try {
 								LogFolderInfo logFolder = (LogFolderInfo) comp;
@@ -813,22 +816,9 @@ public class LogsDownloaderWorker {
 								LinkedHashSet<LogFileInfo> logFilesTmp = (indexLFolder != -1) ? tmpLogFolderList
 										.get(indexLFolder).logFiles
 										: new LinkedHashSet<LogFileInfo>();
-								//for (String fxStr : res.keySet()) {
 								for (LogFileInfo logFx : logFilesTmp) {
-									//LogFileInfo logFx = new LogFileInfo(fxStr);
-									//long size = filterHrefLogFileSize(docList, logFx.getName());
 									if (!logFolder.getLogFiles().contains(logFx)) {
-										//logFx.setUriPartial(res.get(fxStr));
-										//logFx.setSize(size);
 										logFolder.addFile(logFx);
-//										long sizeD = getDiskSizeFromLocal(logFx);
-//										NeptusLog.pub().info("<###>Size: " + size + "  "+sizeD);
-//										if (size == sizeD) {
-//											logFx.setState(LogFolderInfo.State.SYNC);
-//										}
-//										else {
-//											logFx.setState(LogFolderInfo.State.INCOMPLETE);
-//										}
 									}
 									else {
 										LogFileInfo lfx = logFolder.getLogFile(logFx.getName()/*fxStr*/);
@@ -1875,18 +1865,22 @@ public class LogsDownloaderWorker {
 				|| lfx.getState() == LogFolderInfo.State.LOCAL) {
 			return;
 		}
-		DownloaderPanel workerD = new DownloaderPanel(client, 
-				lfx.getName(), 
-				createURI(host, port, getFullPartialPath(lfx.getUriPartial())),
-				getFileTarget(lfx.getName()));
-		
+		DownloaderPanel workerD = null;
+        try {
+            workerD = new DownloaderPanel(new FtpDownloader(host, 30021), 
+            		lfx.getFile(), 
+            		lfx.getName(),
+            		getFileTarget(lfx.getName()));
+        }
+        catch (Exception e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
 		Component[] components = downloadWorkersHolder.getComponents();
 		for (Component cp : components) {
 			try {
 				DownloaderPanel dpp = (DownloaderPanel) cp;
-				//NeptusLog.pub().info("<###>........... "+dpp.getName());
-				if (workerD.getName().equals(dpp.getName())) {
-					//NeptusLog.pub().info("<###>...........");
+				if (workerD.equals(dpp)) {
 					workerD = dpp;
 					if (workerD.getState() == DownloaderPanel.State.ERROR ||
 							workerD.getState() == DownloaderPanel.State.IDLE ||
@@ -1900,7 +1894,6 @@ public class LogsDownloaderWorker {
 				e.printStackTrace();
 			}
 		}
-		
 		final LogFolderInfo lfdfinal = logFd;
 		final LogFileInfo lfxfinal = lfx;
 		final DownloaderPanel workerDFinal = workerD;
@@ -2063,37 +2056,13 @@ public class LogsDownloaderWorker {
 	 * @return
 	 */
 	private boolean deleteLogFolderFromServer(String path) {
-		path = getFullPartialPath(deleteUriCommand+path);
-		String uri = createURI(host, port, path);
-		//NeptusLog.pub().info("<###> "+uri);
-		HttpGet get = new HttpGet(uri);
-//		get.setFollowRedirects(true);
-
-		synchronized (listActiveGetMethods) {
-			listActiveGetMethods.add(get);
-		}
-
 		try {
-//			int iGetResultCode = client.executeMethod(get);
-			HttpResponse iGetResultCode = client.execute(get);
-			if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
-				return false;
-//			String strGetResponseBody = get.getResponseBodyAsString();
-			String strGetResponseBody = EntityUtils.toString(iGetResultCode.getEntity());
-			if ("OK".equalsIgnoreCase(strGetResponseBody))
-				return true;
-			return false;
-
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return false;
-		} finally {
-//			get.releaseConnection();
-			get.abort();
-			synchronized (listActiveGetMethods) {
-				listActiveGetMethods.remove(get);
-			}
-		}
+            return clientFtp.getClient().deleteFile("/" + path);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
 	}
 
 	/**
@@ -2136,64 +2105,35 @@ public class LogsDownloaderWorker {
 	 * @param logsDirList
 	 * @return
 	 */
-	private LinkedList<LogFolderInfo> getLogListAsTemporaryStructureFromDOM(Document docList, LinkedHashSet<String> logsDirList) {
+	private LinkedList<LogFolderInfo> getLogListAsTemporaryStructureFromDOM(LinkedHashSet<String> logsDirList) {
 		//long time = System.currentTimeMillis();
 		//NeptusLog.pub().info("<###>.......getLogListAsTemporaryStructureFromDOM");
 		
-	    if (docList == null || logsDirList.size() == 0)
+	    if (logsDirList.size() == 0)
 	        return new LinkedList<LogFolderInfo>();
 	    
 		LinkedList<LogFolderInfo> tmpLogFolders = new LinkedList<LogFolderInfo>();
-		for (String ldir : logsDirList) {
-			LogFolderInfo lFolder = new LogFolderInfo(ldir);
-			tmpLogFolders.add(lFolder);
+		try {
+            for (String logDir : logsDirList) {
+                clientFtp.getClient().changeWorkingDirectory("/" + logDir + "/");
+                LogFolderInfo lFolder = new LogFolderInfo(logDir);
+                for (FTPFile file : clientFtp.getClient().listFiles()) {
+                    String name = logDir + "/" + file.getName();
+                    String uriPartial = logDir + "/" + file.getName();
+                    LogFileInfo logFileTmp = new LogFileInfo(name);
+                    logFileTmp.setUriPartial(uriPartial);
+                    logFileTmp.setSize(file.getSize());
+                    logFileTmp.setFile(file);
+                    lFolder.addFile(logFileTmp);
+                    tmpLogFolders.add(lFolder);
+                }
+            }
+		} catch(Exception e) {
+		    e.printStackTrace();
 		}
-        LinkedList<LogFolderInfo> retLogFolders = new LinkedList<LogFolderInfo>();
-
-		List<?> logNodeList = docList.selectNodes("//log");
-    	ListIterator<?> lstIt = logNodeList.listIterator();
-    	msgPanel.writeMessageTextln(I18n.textf("%numberoflogs found", logNodeList.size()), MessagePanel.INFO);
-		while (lstIt.hasNext()) {
-			Element elem = (Element) lstIt.next();
-			Node nodeLink = elem.selectSingleNode("./@link");
-			Node nodeName = elem.selectSingleNode("./@name");
-			if (nodeLink != null && nodeName != null) {
-				String name = nodeName.getText();
-				String uriPartial = nodeLink.getText();
-				LogFolderInfo lfolder = null;
-				for (LogFolderInfo lf : tmpLogFolders) {
-					if (name.startsWith(lf.getName())) {
-						lfolder = lf;
-						break;
-					}
-				}
-				if (lfolder == null) {
-					continue;
-				}
-				long size = -1;
-				Node sel = elem.selectSingleNode("./@size");
-				if (sel == null)
-					size = -1;
-				else {
-					String tsize = sel.getText();
-					// \D Nondigit, [^0-9].
-					tsize = tsize.replaceAll("\\D", "");
-					try {
-						size = Long.parseLong(tsize);
-					} catch (NumberFormatException e) {
-					    NeptusLog.pub().debug(e.getMessage());
-						size = -1;
-					}
-				}
-				LogFileInfo logFileTmp = new LogFileInfo(name);
-				logFileTmp.setUriPartial(uriPartial);
-				logFileTmp.setSize(size);
-				lfolder.addFile(logFileTmp);
-				retLogFolders.add(lfolder);
-			}
-		}
+		
 		//NeptusLog.pub().info("<###>.......getLogListAsTemporaryStructureFromDOM " + (System.currentTimeMillis()-time));
-		return retLogFolders;
+		return tmpLogFolders;
 	}
 
 	/**
@@ -2542,9 +2482,9 @@ public class LogsDownloaderWorker {
         LinkedHashSet<LogFileInfo> toDelFL = new LinkedHashSet<LogFileInfo>(); 
         for (LogFileInfo lfx : logFiles) {
         	lfx.setState(LogFolderInfo.State.LOCAL);
-        	DownloaderPanel workerD = new DownloaderPanel(client, 
-        			lfx.getName(), 
-        			createURI(host, port, getFullPartialPath(lfx.getUriPartial())),
+        	DownloaderPanel workerD = new DownloaderPanel(clientFtp, 
+        			lfx.getFile(), 
+        			lfx.getName(),
         			getFileTarget(lfx.getName()));
         	
         	Component[] components = downloadWorkersHolder.getComponents();

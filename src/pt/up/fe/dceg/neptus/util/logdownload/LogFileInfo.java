@@ -31,6 +31,8 @@
  */
 package pt.up.fe.dceg.neptus.util.logdownload;
 
+import org.apache.commons.net.ftp.FTPFile;
+
 import pt.up.fe.dceg.neptus.util.logdownload.LogFolderInfo.State;
 
 /**
@@ -45,6 +47,8 @@ public class LogFileInfo {
 	
 	State state = State.NEW;
 
+	FTPFile file = null;
+	
 	private long size = -1;
 	
 	/**
@@ -62,6 +66,13 @@ public class LogFileInfo {
 		return name;
 	}
 	
+	public FTPFile getFile() {
+	    return file;
+	}
+
+	public void setFile(FTPFile file) {
+	    this.file = file;
+	}
 	
 	/**
 	 * @return the uriPartial
