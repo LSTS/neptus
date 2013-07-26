@@ -41,7 +41,6 @@ import org.apache.log4j.Logger;
 
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
-import com.jme3.math.Vector3f;
 
 /**
  * Has information of one SPOT device.
