@@ -838,7 +838,6 @@ implements ActionListener, Comparable<AbstractElement>, XmlOutputMethods, XmlInp
         Dimension pSize = paramsPanel.getPreferredSize();
         dialog.setSize(Math.max(pSize.width, 480), pSize.height + 12*2);
         GuiUtils.centerOnScreen(dialog);
-        dialog.setVisible(true);
         dialog.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 userCancel = true;
@@ -846,6 +845,7 @@ implements ActionListener, Comparable<AbstractElement>, XmlOutputMethods, XmlInp
                 dialog.dispose();
             }
         });
+        dialog.setVisible(true);
     }
     
     /**
