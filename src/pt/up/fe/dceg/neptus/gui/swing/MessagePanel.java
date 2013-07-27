@@ -246,7 +246,7 @@ public class MessagePanel extends JPanel {
             int docLength = doc.getLength();
             if (docLength > MAX_TEXT_MSG_LENGHT)
                 doc.remove(0, docLength - MAX_TEXT_MSG_LENGHT);
-            //System.err.println("Doc. lenght " + doc.getLength());
+            //System.err.println("Doc. length " + doc.getLength());
             getMsgTextPane().setCaretPosition(doc.getLength());
         }
         catch (Exception e) {}

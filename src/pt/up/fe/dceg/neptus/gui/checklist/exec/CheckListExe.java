@@ -577,7 +577,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
         else {
             if (currentGroup > 0) {
                 currentGroup--;
-                currentItem = getCurrentItemLenght() - 1;
+                currentItem = getCurrentItemLength() - 1;
             }
         }
         // for (CheckAutoSubItem casi : getCurrentItem().getAutoSubItems()) {
@@ -596,7 +596,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
 
         while (!flagMissCheck) {
             currentItem++;
-            if (currentItem < getCurrentItemLenght()) {
+            if (currentItem < getCurrentItemLength()) {
                 if (!getCurrentItem().isChecked())
                     flagMissCheck = true;
 
@@ -605,7 +605,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
                 currentItem = 0;
                 currentGroup++;
 
-                if (currentGroup >= getGroupLenght()) {
+                if (currentGroup >= getGroupLength()) {
                     flagMissCheck = true;
                     flagEnd = true;
                 }
@@ -834,7 +834,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
         for (CheckItem ci : list) {
             ci.setChecked(true);
         }
-        currentItem = getCurrentItemLenght();
+        currentItem = getCurrentItemLength();
         advance();
     }
 
@@ -873,7 +873,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
         }
     }
 
-    public int getGroupLenght() {
+    public int getGroupLength() {
         if (checklist.isFlat()) {
             return 1;
         }
@@ -899,7 +899,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
         return ci;
     }
 
-    public int getCurrentItemLenght() {
+    public int getCurrentItemLength() {
         String currGroup = getCurrentGroup();
 
         return checklist.getGroupList().get(currGroup).toArray().length;

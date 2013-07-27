@@ -237,7 +237,7 @@ public class ProjectionObj {
 
 	private void setPointArray(int i,int j,Vector3d p)
 	{
-		//NeptusLog.pub().info("<###>Lenght:"+pointArray.length+" index:"+i*(gridResolutionH+1)+j);
+		//NeptusLog.pub().info("<###>Length:"+pointArray.length+" index:"+i*(gridResolutionH+1)+j);
 		//NeptusLog.pub().info("<###>i:"+i+" j:"+j);
 		//NeptusLog.pub().info("<###>gridH:"+gridResolutionH);
 		

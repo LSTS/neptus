@@ -196,7 +196,7 @@ public class ImcTo837 implements MraExporter {
                     os.writeByte(1); // Start gain
                     os.write(new byte[] { 0, 0 }); // Tilt Angle
                     os.write(new byte[] { 0, 0, 7 } ); // Reserved, Reserved, Pings Averaged
-                    os.writeByte(18); // Pulse lenght in us/10
+                    os.writeByte(18); // Pulse length in us/10
                     os.writeByte(0); // User defined byte
                     os.writeShort(0); // sound speed short ( 0 = 1500ms )
                     os.write(lat.getBytes()); // Lat and Lon NMEA style

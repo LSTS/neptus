@@ -878,7 +878,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         props.add(speedUnits);
 
         DefaultProperty curvOffset = PropertiesEditor.getPropertyInstance("Curve Offset", Double.class, curvOff, true);
-        curvOffset.setShortDescription("The extra lenght to use for the curve");       
+        curvOffset.setShortDescription("The extra length to use for the curve");       
         props.add(curvOffset);
 
         DefaultProperty squareCurveP = PropertiesEditor.getPropertyInstance("Square Curve", Boolean.class, squareCurve, unblockNewRows);

@@ -325,13 +325,13 @@ public class ShellPanel extends JPanel {
             // é pq está na prompt o cmd original
             Document doc = getShellTextPane().getDocument();
             try {
-                int docLenght = doc.getLength();
-                int offset = docLenght - cmd.length();
-                doc.remove(offset, cmd.length());
                 int docLength = doc.getLength();
+                int offset = docLength - cmd.length();
+                doc.remove(offset, cmd.length());
+                // int docLength = doc.getLength();
                 if (docLength > MAX_TEXT_MSG_LENGHT)
                     doc.remove(0, docLength - MAX_TEXT_MSG_LENGHT);
-                // System.err.println("Doc. lenght " + doc.getLength());
+                // System.err.println("Doc. length " + doc.getLength());
                 getShellTextPane().setCaretPosition(doc.getLength());
                 writeIn(hCmd);
                 cmd = hCmd;
@@ -401,7 +401,7 @@ public class ShellPanel extends JPanel {
             int docLength = doc.getLength();
             if (docLength > MAX_TEXT_MSG_LENGHT)
                 doc.remove(0, docLength - MAX_TEXT_MSG_LENGHT);
-            // System.err.println("Doc. lenght " + doc.getLength());
+            // System.err.println("Doc. length " + doc.getLength());
             getShellTextPane().setCaretPosition(doc.getLength());
         }
         catch (Exception e) {

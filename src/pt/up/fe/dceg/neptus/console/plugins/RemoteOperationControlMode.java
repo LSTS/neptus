@@ -144,7 +144,7 @@ public class RemoteOperationControlMode extends SimpleSubPanel implements MainVe
 
     // UI
     protected StatusLed state = new StatusLed();
-    // / Maintain lenght
+    // / Maintain length
     protected JButton setControlMode = new JButton(I18n.text("remote operation"));
     protected JXLabel modeLabel = new JXLabel("", SwingConstants.CENTER);
 

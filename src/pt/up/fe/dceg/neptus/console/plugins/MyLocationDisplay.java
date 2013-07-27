@@ -128,8 +128,8 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
     @NeptusProperty(hidden = true, category = "Follow System", userLevel = LEVEL.ADVANCED)
     private short useHeadingOffsetFromDerivedHeading = 0;
 
-    @NeptusProperty(name = "Lenght", category = "Dimension", userLevel = LEVEL.REGULAR)
-    public double lenght = 0;
+    @NeptusProperty(name = "Length", category = "Dimension", userLevel = LEVEL.REGULAR)
+    public double length = 0;
 
     @NeptusProperty(name = "Width", category = "Dimension", userLevel = LEVEL.REGULAR)
     public double width = 0;
@@ -160,7 +160,7 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
         setVisibility(false);
         location = MyState.getLocation();
         headingDegrees = MyState.getAxisAnglesDegrees()[2];
-        lenght = MyState.getLenght();
+        length = MyState.getLength();
         width = MyState.getWidth();
     }
 
@@ -199,7 +199,7 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
         location = MyState.getLocation();
         headingDegrees = MyState.getAxisAnglesDegrees()[2];
         lastCalcPosTimeMillis = MyState.getLastLocationUpdateTimeMillis();
-        lenght = MyState.getLenght();
+        length = MyState.getLength();
         width = MyState.getWidth();
 
         // update pos if following system
@@ -294,12 +294,12 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
         g.setStroke(new BasicStroke(2));
         
         {
-            double diameter = Math.max(lenght, width);
+            double diameter = Math.max(length, width);
             if (diameter > 0) {
                 Graphics2D gt = (Graphics2D) g.create();
 
                 double scaleX = (renderer.getZoom() / 10) * width;
-                double scaleY = (renderer.getZoom() / 10) * lenght;
+                double scaleY = (renderer.getZoom() / 10) * length;
 
                 diameter = diameter * renderer.getZoom();
                 Color colorCircle = new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (150 * alfaPercentage));
@@ -687,8 +687,8 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
     @Override
     public void propertiesChanged() {
         MyState.setHeadingInDegrees(headingDegrees);
-        MyState.setLenght(lenght);
-        lenght = MyState.getLenght();
+        MyState.setLength(length);
+        length = MyState.getLength();
         MyState.setWidth(width);
         width = MyState.getWidth();
     }

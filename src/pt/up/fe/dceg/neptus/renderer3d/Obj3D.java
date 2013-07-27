@@ -361,7 +361,7 @@ public class Obj3D {
         }
     }
 
-    public int getObj3DChildsLenght() {
+    public int getObj3DChildsLength() {
         return obj3dChilds.size();
     }
 

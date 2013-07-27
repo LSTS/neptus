@@ -57,7 +57,7 @@ public class MyState {
 	private CoordinateSystem location = new CoordinateSystem();	
     
     @XmlElement
-    private double lenght = 0; 
+    private double length = 0; 
     
     @XmlElement
     private double width = 0; 
@@ -160,17 +160,17 @@ public class MyState {
 	}
 
 	/**
-     * @return the lenght
+     * @return the length
      */
-    public static double getLenght() {
-        return instance.lenght;
+    public static double getLength() {
+        return instance.length;
     }
     
     /**
-     * @param lenght the lenght to set
+     * @param length the length to set
      */
-    public static void setLenght(double lenght) {
-        instance.lenght = lenght < 0 ? 0 : lenght;
+    public static void setLength(double length) {
+        instance.length = length < 0 ? 0 : length;
         instance.saveXml();
     }
 
