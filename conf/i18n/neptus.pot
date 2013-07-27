@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-07-27 11:58+0100\n"
+"POT-Creation-Date: 2013-07-27 18:18+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3542,10 +3542,7 @@ msgid "Left"
 msgstr ""
 
 #: Property from pt.up.fe.dceg.neptus.console.plugins.MyLocationDisplay
-msgid "Lenght"
-msgstr ""
-
-#: Property from pt.up.fe.dceg.neptus.mp.templates.RowsTemplate
+#: pt.up.fe.dceg.neptus.mp.templates.RowsTemplate
 #: src/pt/up/fe/dceg/neptus/types/map/PlanUtil.java:200
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:847
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:261
@@ -9084,7 +9081,7 @@ msgstr ""
 msgid "range"
 msgstr ""
 
-#. / Maintain lenght
+#. / Maintain length
 #: src/pt/up/fe/dceg/neptus/console/plugins/RemoteOperationControlMode.java:148
 msgid "remote operation"
 msgstr ""
