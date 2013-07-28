@@ -36,6 +36,8 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,6 +70,9 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
     private Border defaultBorder = null;
     private Border errorBorder = null;
 
+    private Timer timer = null;
+    private TimerTask validatorTask = null;
+    
     @SuppressWarnings("unchecked")
     public NumberEditor(Class<T> type, T minValue, T maxValue) {
         this(type);
@@ -165,7 +170,9 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
             @Override
             public void keyReleased(KeyEvent e) {
                 // System.out.println("keyReleased " + e);
-                validateValue();
+                // validateValue();
+                revokeScheduleValidatorTask();
+                scheduleValidatorTask();
             }
 
             private void validateValue() {
@@ -226,6 +233,67 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
     public Object getValue() {
 //        System.out.println("getValue Editor " + super.getValue());
         return convertFromString(convertToString(super.getValue()));
+    }
+    
+    private void scheduleValidatorTask() {
+        if (validatorTask == null) {
+            if (timer == null)
+                timer = new Timer(NumberEditor.this.getClass().getSimpleName() + " keyboard entry value validator for "
+                        + classType.getSimpleName() + " [" + minValue + ", " + maxValue + "]", true);
+            validatorTask = createValidatorTimerTask();
+            timer.schedule(validatorTask, 700);
+        }
+    }
+
+    private void revokeScheduleValidatorTask() {
+        if (validatorTask != null) {
+            validatorTask.cancel();
+            try {
+                if (validatorTask != null)
+                    validatorTask.wait();
+            }
+            catch (Exception e) {
+                // Don't need to catch it
+            }
+            validatorTask = null;
+        }
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+    }
+
+    private TimerTask createValidatorTimerTask() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                boolean checkOk = true;
+                String txt = ((JTextField) editor).getText();
+                try {
+                    convertFromString(txt);
+                }
+                catch (Exception e1) {
+                    checkOk = false;
+                }
+                if (!checkOk) {
+                    if (errorBorder == null) {
+                        errorBorder = BorderFactory.createLineBorder(errorColor, 2);
+                        defaultBorder = ((JTextField) editor).getBorder();
+                    }
+
+                    ((JTextField) editor).setBorder(errorBorder);
+                    UIManager.getLookAndFeel().provideErrorFeedback(editor);
+                }
+                else {
+                    ((JTextField) editor).setBorder(defaultBorder);
+                }
+
+                if (timer != null) {
+                    timer.cancel();
+                    timer = null;
+                }
+            }
+        };
     }
     
     @SuppressWarnings("unchecked")
