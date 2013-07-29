@@ -299,7 +299,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
         }
         else {
             //String strVisShips = I18n.text(" visible ships");
-            g.drawString(shipsOnMap.size() + I18n.text(" visible ships"), 10, 15);
+            g.drawString(I18n.textf("%numberOfShips visible ships", shipsOnMap.size()), 10, 15);
         }
 
         for (AisShip ship : shipsOnMap) {
