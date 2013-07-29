@@ -120,7 +120,7 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
     protected OperationLimits limits = null;
     protected ToolbarSwitch sw;
     protected InteractionAdapter adapter = new InteractionAdapter(null);
-    protected AbstractAction updateAction, editLimits, sendAction, showOpArea, clearRect, help;
+    protected AbstractAction updateAction, editLimits, sendAction, showOpArea, clearRect;
     protected boolean editing = false;
     // rectangle editing variables
     protected PathElement rectangle = null;
@@ -234,16 +234,6 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
                 rectangle = null;
                 setLimitsFromSelection(pp);
                 clickCount = 0;
-            }
-        };
-
-        help = new AbstractAction(I18n.text("Help")) {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DocumentationPanel.showDocumentation(OperationLimitsSubPanel.class);
             }
         };
     }
@@ -522,7 +512,6 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
             popup.addSeparator();
             popup.add(sendAction);
             popup.add(updateAction);
-            popup.add(help);
             popup.show(source, event.getX(), event.getY());
         }
         else {
