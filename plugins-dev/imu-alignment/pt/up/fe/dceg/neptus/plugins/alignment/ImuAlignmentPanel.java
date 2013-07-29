@@ -60,6 +60,7 @@ import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
 import pt.up.fe.dceg.neptus.mp.templates.PlanCreator;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
+import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
@@ -75,7 +76,8 @@ import com.google.common.eventbus.Subscribe;
  * This panel will allow monitoring and alignment of some IMUs
  * @author zp
  */
-@Popup(accelerator=KeyEvent.VK_I, pos=Popup.POSITION.CENTER, height=300, width=300, name="Dead reckoning alignment")
+@PluginDescription(author = "ZP", name = "IMU Alignment")
+@Popup(accelerator=KeyEvent.VK_I, pos=Popup.POSITION.CENTER, height=300, width=300, name="IMU Alignment")
 public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdates {
 
     private static final long serialVersionUID = -1330079540844029305L;
