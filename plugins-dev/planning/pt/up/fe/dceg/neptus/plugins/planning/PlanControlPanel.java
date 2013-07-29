@@ -143,7 +143,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
     @NeptusProperty(name = "Verify plans for island nodes", userLevel = LEVEL.ADVANCED,
             description = "Always runs a verification "
             + "on the plan for maneuvers that have no input edges. If you choose to switch off here "
-            + "you can allways click Alt whan sending the plan that this verification will run.")
+            + "you can allways click Alt when sending the plan that this verification will run.")
     public boolean allwaysVerifyAllManeuversUsed = true;
 
 //    @NeptusProperty(name = "Use Acoustic To Send Msg If System Not In WiFi Range", userLevel = LEVEL.ADVANCED, 
