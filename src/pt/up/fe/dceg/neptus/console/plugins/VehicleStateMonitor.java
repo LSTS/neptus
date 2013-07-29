@@ -79,7 +79,8 @@ public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpda
             try {
                 if (!ImcSystemsHolder.getSystemWithName(system).isActive()) {
                     systemStates.remove(system);
-                    post(new ConsoleEventVehicleStateChanged(system, I18n.text("No communication received for more than 10 seconds"), STATE.DISCONNECTED));
+                    post(new ConsoleEventVehicleStateChanged(system,
+                            I18n.text("No communication received for more than 10 seconds"), STATE.DISCONNECTED));
                     console.getSystem(system).setVehicleState(STATE.DISCONNECTED);
                 }
             }
@@ -96,18 +97,19 @@ public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpda
     public void consume(VehicleState msg) {
         try {
             String src = msg.getSourceName();
-            if (src == null)
+            ConsoleSystem consoleSystem = console.getSystem(src);
+            if (src == null || consoleSystem == null)
                 return;
+            STATE systemState = STATE.valueOf(msg.getOpMode().toString());
             String text = "";
-            if (!msg.getLastError().isEmpty())
+            if (!msg.getLastError().isEmpty() && systemState != STATE.SERVICE)
                 text += msg.getLastError() + "\n";
             text += msg.getErrorEnts();
+            
             VehicleState oldState = systemStates.get(src);
             if (oldState == null) {// first time
-                post(new ConsoleEventVehicleStateChanged(src, text, STATE.valueOf(msg.getOpMode().toString())));
-                ConsoleSystem cSys = console.getSystem(src);
-                if (cSys != null)
-                    cSys.setVehicleState(STATE.valueOf(msg.getOpMode().toString()));
+                post(new ConsoleEventVehicleStateChanged(src, text, systemState));
+                consoleSystem.setVehicleState(systemState);
                 systemStates.put(src, msg);
             }
             else {
@@ -117,16 +119,10 @@ public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpda
                     systemStates.put(src, msg);
                     if (msg.getManeuverType() == Teleoperation.ID_STATIC) {
                         post(new ConsoleEventVehicleStateChanged(src, text, STATE.TELEOPERATION));
-                        ConsoleSystem cSys = console.getSystem(src);
-                        if (cSys != null)
-                            cSys.setVehicleState(STATE.TELEOPERATION);
-                    }
-                   
-                    else {
-                        post(new ConsoleEventVehicleStateChanged(src, text, STATE.valueOf(msg.getOpMode().toString())));
-                        ConsoleSystem cSys = console.getSystem(src);
-                        if (cSys != null)
-                            cSys.setVehicleState(STATE.valueOf(msg.getOpMode().toString()));
+                        consoleSystem.setVehicleState(STATE.TELEOPERATION);
+                    } else {
+                        post(new ConsoleEventVehicleStateChanged(src, text, systemState));
+                        consoleSystem.setVehicleState(systemState);
                     }
                 }
             }
