@@ -673,7 +673,7 @@ public class FunctionalitiesSettings extends JPanel {
             }
             else {
                 Object defaultPropValue = pluginProperty.getValue();
-                defaultValue = (defaultPropValue == null ? I18n.text("Absense of value") : ((f.getType()
+                defaultValue = (defaultPropValue == null ? I18n.text("Absence of value") : ((f.getType()
                         .getEnumConstants() != null ? I18n.text(defaultPropValue.toString()) : defaultPropValue
                         .toString())));
             }
