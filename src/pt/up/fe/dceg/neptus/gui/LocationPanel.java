@@ -596,7 +596,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	        return I18n.textf("<html>Error in the <b>polar offset</b> parameters:<br>%errors</html>", polarOffsetPanel.getErrors());
 
 	    if (pointSelector.getErrors() != null)
-	        return I18n.textf("<html>The entered <b>location</b> is invallid:<br>%errors</html>", pointSelector.getErrors());
+	        return I18n.textf("<html>The entered <b>location</b> is invalid:<br>%errors</html>", pointSelector.getErrors());
 
 	    return null;
 	}
