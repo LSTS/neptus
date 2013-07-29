@@ -333,6 +333,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     /**
      * Register a global key binding with the console
+     * 
      * @param name
      * @param action
      */
@@ -749,9 +750,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return;
         }
 
-        ConsoleSystem vtl;
+        ConsoleSystem system;
         if (imcSystem == null) {
-            NeptusLog.pub().warn("tried to add a vehicle from imc with comms disabled");
+            NeptusLog.pub().warn("tried to add a vehicle from imc with comms disabled: " + systemName);
             return;
         }
         if (imcSystem.getType() != SystemTypeEnum.VEHICLE) {
@@ -760,28 +761,28 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         if (consoleSystems.get(systemName) != null) {
             NeptusLog.pub().warn(
-                    ReflectionUtil.getCallerStamp() + " tried to add a vehicle that already exist in the console!!");
+                    ReflectionUtil.getCallerStamp() + " tried to add a vehicle that already exist in the console: "
+                            + systemName);
             return;
         }
         else {
-            vtl = new ConsoleSystem(systemName, this, imcSystem, imcMsgManager);
-            consoleSystems.put(systemName, vtl);
+            system = new ConsoleSystem(systemName, this, imcSystem, imcMsgManager);
+            consoleSystems.put(systemName, system);
             if (this.mainVehicle == null) {
                 this.setMainSystem(systemName);
             }
-
         }
+
         for (ConsoleVehicleChangeListener cvl : consoleVehicleChangeListeners) {
             try {
-                cvl.consoleVehicleChange(VehiclesHolder.getVehicleById(systemName),
-                        ConsoleVehicleChangeListener.VEHICLE_ADDED);
+                cvl.consoleVehicleChange(vehicleType, ConsoleVehicleChangeListener.VEHICLE_ADDED);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
             }
         }
-        this.post(new ConsoleEventNewSystem(vtl));
-        vtl.enableIMC();
+        this.post(new ConsoleEventNewSystem(system));
+        system.enableIMC();
     }
 
     /**
@@ -1629,20 +1630,22 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     /**
-     * @return the vehicleTreeListeners
+     * Get Console Systems
+     * 
+     * @return {@link Map}
      */
-    public Map<String, ConsoleSystem> getConsoleSystems() {
+    public Map<String, ConsoleSystem> getSystems() {
         return consoleSystems;
     }
 
     /**
-     * Get ConsoleSystem by ID
+     * Get ConsoleSystem by name
      * 
-     * @param id
-     * @return
+     * @param name
+     * @return {@link ConsoleSystem}
      */
-    public ConsoleSystem getSystem(String id) {
-        return this.consoleSystems.get(id);
+    public ConsoleSystem getSystem(String name) {
+        return this.consoleSystems.get(name);
     }
 
     /**
@@ -1686,7 +1689,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         loader.setText(I18n.text("Loading console..."));
 
-        ConsoleLayout console = ConsoleLayout.forge("conf/consoles/lauv.ncon", loader);
+        ConsoleLayout console = ConsoleLayout.forge("conf/consoles/lauv-test.ncon", loader);
         NeptusMain.wrapMainApplicationWindowWithCloseActionWindowAdapter(console);
         NeptusLog.pub().info("<###>BENCHMARK " + ((System.currentTimeMillis() - ConfigFetch.STARTTIME) / 1E3) + "s");
     }

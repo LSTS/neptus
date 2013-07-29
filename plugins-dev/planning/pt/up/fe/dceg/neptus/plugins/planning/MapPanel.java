@@ -509,7 +509,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
         getConsole().addConsoleVehicleListener(this);
         
-        for (ConsoleSystem v : getConsole().getConsoleSystems().values()) {   
+        for (ConsoleSystem v : getConsole().getSystems().values()) {   
             v.addRenderFeed(this);
         }
         if (getConsole() != null) {

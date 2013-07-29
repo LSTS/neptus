@@ -96,7 +96,7 @@ public class IncomingDataAction extends ConsoleAction {
         JComboBox<String> combovt = new JComboBox<String>();
         dialog.add(combovt, BorderLayout.NORTH);
 
-        final Map<String, ConsoleSystem> vehicles = console.getConsoleSystems();
+        final Map<String, ConsoleSystem> vehicles = console.getSystems();
         for (Entry<String, ConsoleSystem> entry : vehicles.entrySet()) {
             combovt.addItem(entry.getValue().getVehicleId());
         }

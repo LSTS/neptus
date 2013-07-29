@@ -72,7 +72,7 @@ public class DistancesLayer extends SimpleSubPanel implements Renderer2DPainter 
 
     @Override
     public void initSubPanel() {    
-        systems = console.getConsoleSystems();
+        systems = console.getSystems();
     }
 
     @Override

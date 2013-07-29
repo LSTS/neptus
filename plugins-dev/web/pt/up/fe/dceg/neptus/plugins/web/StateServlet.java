@@ -70,7 +70,7 @@ public class StateServlet extends HttpServlet implements IConsoleServlet {
             resp.setContentType("text/html");
             PrintWriter page = resp.getWriter();
             page.write("<html><head><title>Current Neptus State</title></head><body><h1>Current Neptus State</h1><blockquote>");
-            for (ConsoleSystem v : console.getConsoleSystems().values()) {
+            for (ConsoleSystem v : console.getSystems().values()) {
                 page.write("<h2><a href='/state/"+v.getVehicleId()+"'>"+v.getVehicleId()+"</a></h2>");
             }
             page.write("</blockquote></body></html>");
