@@ -669,7 +669,7 @@ public class FunctionalitiesSettings extends JPanel {
             PluginProperty pluginProperty = hashMap.get(f.getName());
             if (pluginProperty == null) {
                 // no value!
-                defaultValue = I18n.text("No default found for field ") + f.getName();
+                defaultValue = I18n.textf("No default found for field %fieldName", f.getName());
             }
             else {
                 Object defaultPropValue = pluginProperty.getValue();
