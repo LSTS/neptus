@@ -146,7 +146,7 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
                 dialog.getContentPane().setLayout(new BorderLayout());
                 dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
                 dialog.add(panel);
-                JButton okButton = new JButton(new AbstractAction("Ok") {
+                JButton okButton = new JButton(new AbstractAction(I18n.text("Ok")) {
 
                     private static final long serialVersionUID = 1L;
 

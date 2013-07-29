@@ -82,6 +82,7 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.MenuScroller;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
 import pt.up.fe.dceg.neptus.mp.MapChangeListener;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
@@ -1377,7 +1378,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
 
             final LocationType lt = getRealWorldLocation(e.getPoint());
 
-            JMenuItem item = new JMenuItem("Choose Visible Layers");
+            JMenuItem item = new JMenuItem(I18n.text("Choose Visible Layers"));
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent arg0) {
                     painterSelection();
@@ -1385,7 +1386,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             });
             popup.add(item);
 
-            item = new JMenuItem("Copy Location");
+            item = new JMenuItem(I18n.text("Copy Location"));
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent arg0) {
                     CoordinateUtil.copyToClipboard(lt);
@@ -1394,7 +1395,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             item.setIcon(ImageUtils.getIcon("images/menus/editcopy.png"));
             popup.add(item);
 
-            item = new JMenuItem("Center");
+            item = new JMenuItem(I18n.text("Center"));
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent arg0) {
                     setCenter(lt);
@@ -1402,29 +1403,36 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
                 }
             });
 
-            item = new JMenuItem("R2D Shortcuts");
+            item = new JMenuItem(I18n.text("R2D Shortcuts"));
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent arg0) {
                     GuiUtils.htmlMessage(
                             ConfigFetch.getSuperParentFrame() == null ? StateRenderer2D.this : ConfigFetch
                                     .getSuperParentFrame(),
-                            "2D Renderer Shortcuts",
-                            "(Keys pressed while the Renderer component is focused)",
-                            "<html><h1>2D Renderer Shortcuts</h1><br><div align='center'><table border='1' align='center'><tr><th>Key Combination</th><th>Action</th></tr>"
-                                    + "<tr><td>plus (+)</td><td>Double the current zoom value</td></tr>"
-                                    + "<tr><td>minus (-)</td><td>Half the current zoom value</td></tr>"
-                                    + "<tr><td>left</td><td>Move the map to the west</td></tr>"
-                                    + "<tr><td>right</td><td>Move the map to the east</td></tr>"
-                                    + "<tr><td>up</td><td>Move the map towards north</td></tr>"
-                                    + "<tr><td>down</td><td>Move the map south</td></tr>"
-                                    + "<tr><td>N</td><td>Reset the current rotation (up facing north)</td></tr>"
-                                    + "<tr><td>F1</td><td>Reset the current view to defaults</td></tr></table></div>");
+                            I18n.text("2D Renderer Shortcuts"),
+                            I18n.text("(Keys pressed while the Renderer component is focused)"),
+                            "<html><h1>" + I18n.text("2D Renderer Shortcuts")
+                                    + "</h1><br><div align='center'><table border='1' align='center'><tr><th>"
+                                    + I18n.text("Key Combination") + "</th><th>" + I18n.text("Action") + "</th></tr>"
+                                    + "<tr><td>" + I18n.text("plus (+)") + "</td><td>"
+                                    + I18n.text("Double the current zoom value") + "</td></tr>" + "<tr><td>"
+                                    + I18n.text("minus (-)") + "</td><td>" + I18n.text("Half the current zoom value")
+                                    + "</td></tr>" + "<tr><td>" + I18n.text("left") + "</td><td>"
+                                    + I18n.text("Move the map to the west") + "</td></tr>" + "<tr><td>"
+                                    + I18n.text("right") + "</td><td>" + I18n.text("Move the map to the east")
+                                    + "</td></tr>" + "<tr><td>" + I18n.text("up") + "</td><td>"
+                                    + I18n.text("Move the map towards north") + "</td></tr>" + "<tr><td>"
+                                    + I18n.text("down") + "</td><td>" + I18n.text("Move the map south") + "</td></tr>"
+                                    + "<tr><td>" + I18n.text("N") + "</td><td>"
+                                    + I18n.text("Reset the current rotation (up facing north)") + "</td></tr>"
+                                    + "<tr><td>" + I18n.text("F1") + "</td><td>"
+                                    + I18n.text("Reset the current view to defaults") + "</td></tr></table></div>");
                 }
             });
             item.setIcon(ImageUtils.getIcon("images/menus/info.png"));
             popup.add(item);
 
-            item = new JMenuItem("Settings...");
+            item = new JMenuItem(I18n.text("Settings..."));
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent arg0) {
                     PropertiesEditor.editProperties(StateRenderer2D.this, true);
@@ -2244,9 +2252,9 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         synchronized (painters) {
             LayerPriority lp = painter.getClass().getAnnotation(LayerPriority.class);
             if (lp != null)
-                painters.addPainter(name, painter, lp.priority(), 0);
+                painters.addPainter(I18n.text(name), painter, lp.priority(), 0);
             else
-                painters.addPainter(name, painter, 1, 0);
+                painters.addPainter(I18n.text(name), painter, 1, 0);
         }
         return true;
     }

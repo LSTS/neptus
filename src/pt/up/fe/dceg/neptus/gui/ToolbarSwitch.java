@@ -49,6 +49,7 @@ public class ToolbarSwitch extends JToggleButton {
 	
 	public ToolbarSwitch(String text, String actionCommand) {
 		super(text);
+		setToolTipText(text);
 		setActionCommand(actionCommand);
 		setBorderPainted(false);
 		setMargin(new Insets(1,1,1,1));
@@ -138,6 +139,28 @@ public class ToolbarSwitch extends JToggleButton {
 		});
 		setSelected(true);
 	}
+
+    public ToolbarSwitch(String text, AbstractAction action) {
+        super(action);
+        setText("");
+        setToolTipText(text);
+        setBorderPainted(false);
+        setMargin(new Insets(1, 1, 1, 1));
+        addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent arg0) {
+                if (isEnabled()) {
+                    setBorderPainted(true);
+                    repaint();
+                }
+            }
+
+            public void mouseExited(MouseEvent arg0) {
+                setBorderPainted(false);
+                repaint();
+            }
+        });
+        setSelected(true);
+    }
 	
 	public void setState(boolean value) {
 	    this.setSelected(value);

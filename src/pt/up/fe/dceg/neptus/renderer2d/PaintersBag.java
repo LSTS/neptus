@@ -47,6 +47,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ReflectionUtil;
 
@@ -244,7 +245,7 @@ public class PaintersBag {
         
         JDialog dialog = new JDialog(owner);
         dialog.getContentPane().setLayout(new BorderLayout());
-        dialog.setTitle("Active layers selection");
+        dialog.setTitle(I18n.text("Active layers selection"));
         JScrollPane scrollPane = new JScrollPane(inner);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         

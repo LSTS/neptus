@@ -311,7 +311,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
         timeline.getSlider().setValue(0);
         controlsPanel.add(timeline);
         
-        plotButton = new JButton("Plots");
+        plotButton = new JButton(I18n.text("Plots"));
         
         plotButton.setAction(new AbstractAction("Plots") {
             @Override
@@ -325,7 +325,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
                 fieldDialog.setSize(300, 500);
                 fieldDialog.setLayout(new MigLayout());
                 fieldDialog.add(scroll, "w 100%, h 100%, wrap");
-                fieldDialog.add(new JButton(new AbstractAction("Ok") {
+                fieldDialog.add(new JButton(new AbstractAction(I18n.text("Ok")) {
                     
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -333,7 +333,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
                     }
                 }), "split");
                 
-                fieldDialog.add(new JButton(new AbstractAction("Cancel") {
+                fieldDialog.add(new JButton(new AbstractAction(I18n.text("Cancel")) {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {

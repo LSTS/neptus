@@ -750,7 +750,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                     }
                 }
             };
-            ToolbarSwitch tswitch = new ToolbarSwitch(custom);
+            ToolbarSwitch tswitch = new ToolbarSwitch(I18n.text(name), custom);
             if (tswitch.isEnabled())
                 bg.add(tswitch);
             bottom.add(tswitch, 4);
