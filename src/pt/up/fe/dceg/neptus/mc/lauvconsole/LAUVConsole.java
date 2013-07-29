@@ -119,7 +119,7 @@ public class LAUVConsole extends ConsoleLayout {
         NeptusLog.pub().info("Loading " + LAUVConsole.class.getSimpleName() + ".");
         
         final LAUVConsole cls = new LAUVConsole();
-
+        cls.imcOn();
         // ConsoleParse.loadConsole(cls, ConfigFetch.resolvePath(consoleURL));
         ConsoleParse.parseFile(ConfigFetch.resolvePath(consoleURL), cls);
         cls.setConsoleChanged(false);
@@ -191,7 +191,7 @@ public class LAUVConsole extends ConsoleLayout {
             }
         }
         
-        cls.imcOn();
+        
         cls.setVisible(true);
         return cls;
     }
