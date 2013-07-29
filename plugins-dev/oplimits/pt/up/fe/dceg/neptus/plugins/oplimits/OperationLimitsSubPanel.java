@@ -67,7 +67,6 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.notifications.Notification;
 import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
-import pt.up.fe.dceg.neptus.doc.DocumentationPanel;
 import pt.up.fe.dceg.neptus.gui.ToolbarButton;
 import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
 import pt.up.fe.dceg.neptus.i18n.I18n;
