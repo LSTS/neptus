@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-07-27 18:18+0100\n"
+"POT-Creation-Date: 2013-07-29 23:30+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -94,6 +94,10 @@ msgstr ""
 msgid "%number messages"
 msgstr ""
 
+#: plugins-dev/ais/pt/up/fe/dceg/neptus/plugins/ais/AisOverlay.java:302
+msgid "%numberOfShips visible ships"
+msgstr ""
+
 #: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:2155
 msgid "%numberoflogs found"
 msgstr ""
@@ -156,6 +160,10 @@ msgstr ""
 msgid "%vehiclename - Vehicle Info"
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1413
+msgid "(Keys pressed while the Renderer component is focused)"
+msgstr ""
+
 #: Description of property 'Renderer 3D Priority' from
 #: pt.up.fe.dceg.neptus.util.conf.GeneralPreferences
 msgid "1- Minimum Priority <br>10- Maximum Priority<br>5- Normal Priority"
@@ -174,6 +182,11 @@ msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/types/map/Model3DElement.java:589
 msgid "2D Image scale"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1412
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1414
+msgid "2D Renderer Shortcuts"
 msgstr ""
 
 #: Name of plugin pt.up.fe.dceg.neptus.console.plugins.SideState2DPanelConsole
@@ -275,7 +288,7 @@ msgid ""
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:599
-msgid "<html>The entered <b>location</b> is invallid:<br>%errors</html>"
+msgid "<html>The entered <b>location</b> is invalid:<br>%errors</html>"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/util/comm/manager/BaseAbstractCommsMonitorPanel.java:1463
@@ -427,7 +440,7 @@ msgid "Abs"
 msgstr ""
 
 #: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:676
-msgid "Absense of value"
+msgid "Absence of value"
 msgstr ""
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.position.AbsLatLonDepth
@@ -457,6 +470,7 @@ msgstr ""
 
 #: plugins-dev/teleoperation/pt/up/fe/dceg/neptus/plugins/teleoperation/ControllerPanel.java:482
 #: src/pt/up/fe/dceg/neptus/planeditor/ManeuverTransition.java:74
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1416
 msgid "Action"
 msgstr ""
 
@@ -470,6 +484,10 @@ msgstr ""
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanStatistics.java:109
 msgid "Active Plan Statistics"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/PaintersBag.java:248
+msgid "Active layers selection"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/util/comm/manager/BaseAbstractCommsMonitorPanel.java:950
@@ -609,7 +627,7 @@ msgstr ""
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/MissionTreePanel.java:685
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:220
 #: plugins-dev/messages/pt/up/fe/dceg/neptus/plugins/messages/IMCInspector.java:229
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:468
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:469
 msgid "Advanced"
 msgstr ""
 
@@ -625,7 +643,7 @@ msgstr ""
 msgid "Alarm condition"
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:208
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:210
 msgid "Alignment Procedure"
 msgstr ""
 
@@ -691,11 +709,18 @@ msgid "Altitude"
 msgstr ""
 
 #: Description of property 'Verify plans for island nodes' from
-#: pt.up.fe.dceg.neptus.plugins.planning.PlanControlPanel
 #: pt.up.fe.dceg.neptus.plugins.webupdate.RemotePlanControl
 msgid ""
 "Always runs a verification on the plan for maneuvers that have no input "
 "edges. If you choose to switch off here you can allways click Alt whan "
+"sending the plan that this verification will run."
+msgstr ""
+
+#: Description of property 'Verify plans for island nodes' from
+#: pt.up.fe.dceg.neptus.plugins.planning.PlanControlPanel
+msgid ""
+"Always runs a verification on the plan for maneuvers that have no input "
+"edges. If you choose to switch off here you can allways click Alt when "
 "sending the plan that this verification will run."
 msgstr ""
 
@@ -752,6 +777,10 @@ msgstr ""
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanControlPanel.java:751
 msgid "Are you sure you want to send only %beaconsToSend?"
+msgstr ""
+
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsPanel.java:77
+msgid "Area Limits"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:206
@@ -989,6 +1018,7 @@ msgstr ""
 #: plugins-dev/gps/pt/up/fe/dceg/neptus/plugins/gps/ConfigDialog.java:123
 #: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/SettingsWindow.java:106
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/BathymetryPlotter.java:316
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/RectangleEditor.java:105
 #: plugins-dev/dev-calibration/pt/up/fe/dceg/neptus/plugins/calib/CalibrationSubPanel.java:75
 #: src/pt/up/fe/dceg/neptus/planeditor/PlanTransitionsSimpleEditor.java:204
 #: src/pt/up/fe/dceg/neptus/gui/VehicleChooser.java:193
@@ -999,6 +1029,7 @@ msgstr ""
 #: src/pt/up/fe/dceg/neptus/gui/HeightDepthSelector.java:180
 #: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:182
 #: src/pt/up/fe/dceg/neptus/gui/VehicleSelectionDialog.java:169
+#: src/pt/up/fe/dceg/neptus/mra/replay/LogReplay.java:336
 #: src/pt/up/fe/dceg/neptus/types/map/AbstractElement.java:820
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:170
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:177
@@ -1031,6 +1062,10 @@ msgstr ""
 #: Property from pt.up.fe.dceg.neptus.mra.replay.ValueColorMap
 #: pt.up.fe.dceg.neptus.mra.replay.BathymetryReplay
 msgid "Cell width"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1398
+msgid "Center"
 msgstr ""
 
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:542
@@ -1087,6 +1122,10 @@ msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/loader/NeptusMain.java:133
 msgid "Choose Application..."
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1381
+msgid "Choose Visible Layers"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/console/plugins/MyLocationDisplay.java:564
@@ -1151,6 +1190,7 @@ msgstr ""
 
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/rtplot/RealTimePlot.java:118
 #: plugins-dev/logs/pt/up/fe/dceg/neptus/plugins/logs/MultiSystemHistory.java:116
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/RectangleEditor.java:106
 msgid "Clear"
 msgstr ""
 
@@ -1167,7 +1207,7 @@ msgstr ""
 msgid "Clear cache"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:228
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:227
 msgid "Clear operational area"
 msgstr ""
 
@@ -1544,6 +1584,10 @@ msgstr ""
 msgid "Copy HTML to clipboard"
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1389
+msgid "Copy Location"
+msgstr ""
+
 #: plugins-dev/logs/pt/up/fe/dceg/neptus/plugins/logs/MultiSystemHistory.java:136
 msgid "Copy entry to clipboard"
 msgstr ""
@@ -1912,11 +1956,11 @@ msgstr ""
 msgid "Distances Layer"
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:126
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:128
 msgid "Do Alignment"
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:210
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:212
 msgid "Do you want me to create a plan at surface for you?"
 msgstr ""
 
@@ -1926,7 +1970,7 @@ msgstr ""
 msgid "Do you want to overwrite the existing file?"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:164
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:163
 msgid "Do you want to save changes?"
 msgstr ""
 
@@ -1967,6 +2011,10 @@ msgstr ""
 msgid "Done!"
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1418
+msgid "Double the current zoom value"
+msgstr ""
+
 #: src/pt/up/fe/dceg/neptus/gui/RegularOffset.java:54
 msgid "Down"
 msgstr ""
@@ -1988,8 +2036,8 @@ msgstr ""
 msgid "Download Log Files"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:203
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:395
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:202
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:384
 msgid "Download limits from vehicle"
 msgstr ""
 
@@ -2069,6 +2117,7 @@ msgid "Echo Sounder Panel"
 msgstr ""
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/edit/ManeuverPropertiesPanel.java:70
+#: plugins-dev/teleoperation/pt/up/fe/dceg/neptus/plugins/teleoperation/ControllerPanel.java:454
 #: src/pt/up/fe/dceg/neptus/mc/Workspace.java:840
 msgid "Edit"
 msgstr ""
@@ -2079,6 +2128,10 @@ msgstr ""
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1077
 msgid "Edit '%planName' plan transitions"
+msgstr ""
+
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:134
+msgid "Edit Operational Limits"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/console/plugins/SystemsList.java:485
@@ -2142,7 +2195,7 @@ msgstr ""
 msgid "Enable Alarm"
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:111
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:113
 msgid "Enable IMU"
 msgstr ""
 
@@ -2279,7 +2332,7 @@ msgstr ""
 #: plugins-dev/state/pt/up/fe/dceg/neptus/plugins/state/EntitySubPanel.java:93
 #: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:287
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:575
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:875
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:876
 msgid "Error"
 msgstr ""
 
@@ -2287,7 +2340,7 @@ msgstr ""
 msgid "Error Initializing Tele-Operation"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:876
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:877
 msgid "Error Loading Mission File.\n"
 msgstr ""
 
@@ -2543,6 +2596,10 @@ msgstr ""
 msgid "Extract Schema"
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1428
+msgid "F1"
+msgstr ""
+
 #: Field from LBLRangeDisplay.HideOrFadeRangeEnum enumeration
 msgid "FADE"
 msgstr ""
@@ -2560,7 +2617,7 @@ msgstr ""
 msgid "Failure"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:2175
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:2183
 msgid "Fast Rendering"
 msgstr ""
 
@@ -2583,7 +2640,7 @@ msgid "Fetch visible area tiles to up to 2 more zoom levels."
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:452
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:415
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:416
 #: src/pt/up/fe/dceg/neptus/mc/Workspace.java:823
 msgid "File"
 msgstr ""
@@ -2895,6 +2952,10 @@ msgid ""
 "Hability to only add marks by inputing the location or using an active system"
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1419
+msgid "Half the current zoom value"
+msgstr ""
+
 #: src/pt/up/fe/dceg/neptus/console/plugins/SystemsList.java:1254
 #: src/pt/up/fe/dceg/neptus/console/plugins/MyLocationDisplay.java:472
 #: src/pt/up/fe/dceg/neptus/types/map/DynamicElement.java:165
@@ -2943,9 +3004,8 @@ msgstr ""
 
 #: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/multibeampluginutils/MultibeamToolbar.java:196
 #: plugins-dev/help/pt/up/fe/dceg/neptus/plugins/help/ContextHelperPlugin.java:70
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:240
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:568
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:1468
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:569
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:1469
 #: src/pt/up/fe/dceg/neptus/mc/Workspace.java:854
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:185
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:186
@@ -3123,31 +3183,35 @@ msgstr ""
 msgid "IMC transports to use"
 msgstr ""
 
+#: Name of plugin pt.up.fe.dceg.neptus.plugins.alignment.ImuAlignmentPanel
+msgid "IMU Alignment"
+msgstr ""
+
 #: Property from pt.up.fe.dceg.neptus.plugins.alignment.ImuAlignmentPanel
 msgid "IMU Entity Label"
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:185
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:187
 msgid "IMU aligned"
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:183
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:185
 msgid "IMU aligned. Vehicle can be used in dead-reckoning mode."
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:200
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:202
 msgid "IMU cannot be aligned"
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:198
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:200
 msgid "IMU cannot be aligned on "
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:191
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:193
 msgid "IMU is not aligned"
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:192
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:194
 msgid "IMU not aligned"
 msgstr ""
 
@@ -3280,7 +3344,7 @@ msgstr ""
 msgid "In degrees, an offset to north in clockwise."
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:193
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:195
 msgid "In order to execute dead reckoning missions, IMU must first be aligned."
 msgstr ""
 
@@ -3426,6 +3490,10 @@ msgstr ""
 
 #: Property from pt.up.fe.dceg.neptus.mp.templates.InfiniteRectTemplate
 msgid "Is infinite"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1416
+msgid "Key Combination"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/loader/NeptusMain.java:89
@@ -3626,7 +3694,7 @@ msgstr ""
 msgid "Loading automatic charts"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:1687
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:1690
 #: src/pt/up/fe/dceg/neptus/mc/lauvconsole/LAUVConsole.java:117
 msgid "Loading console..."
 msgstr ""
@@ -3680,8 +3748,8 @@ msgstr ""
 msgid "Local free disk space %usedspace of %totalspace"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:172
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:745
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:171
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:733
 msgid "Local operational limits have changes"
 msgstr ""
 
@@ -4030,15 +4098,15 @@ msgstr ""
 msgid "Marks"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:689
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:677
 msgid "Max Altitude"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:687
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:675
 msgid "Max Depth"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:695
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:683
 msgid "Max Speed"
 msgstr ""
 
@@ -4062,6 +4130,14 @@ msgstr ""
 msgid "Maximize Panel"
 msgstr ""
 
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsPanel.java:74
+msgid "Maximum Altitude (m)"
+msgstr ""
+
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsPanel.java:72
+msgid "Maximum Depth (m)"
+msgstr ""
+
 #: plugins-dev/trex/pt/up/fe/dceg/neptus/plugins/trex/goals/TrexGoal.java:152
 msgid "Maximum End time"
 msgstr ""
@@ -4074,6 +4150,10 @@ msgstr ""
 msgid "Maximum Number of points"
 msgstr ""
 
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsPanel.java:76
+msgid "Maximum Speed (m/s))"
+msgstr ""
+
 #: plugins-dev/trex/pt/up/fe/dceg/neptus/plugins/trex/goals/TrexGoal.java:156
 msgid "Maximum Start time"
 msgstr ""
@@ -4084,6 +4164,10 @@ msgstr ""
 
 #: Property from pt.up.fe.dceg.neptus.plugins.teleoperation.ServoControlPanel
 msgid "Maximum Value (degrees)"
+msgstr ""
+
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsPanel.java:78
+msgid "Maximum Vertical Rate (m/s)"
 msgstr ""
 
 #: Description of property 'Acceptable Elapsed Time' from
@@ -4182,11 +4266,11 @@ msgstr ""
 msgid "Milliseconds to wait before simulation"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:691
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:679
 msgid "Min Altitude"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:693
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:681
 msgid "Min Speed"
 msgstr ""
 
@@ -4210,8 +4294,16 @@ msgstr ""
 msgid "Minimum Altitude"
 msgstr ""
 
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsPanel.java:73
+msgid "Minimum Altitude (m)"
+msgstr ""
+
 #: plugins-dev/trex/pt/up/fe/dceg/neptus/plugins/trex/goals/TrexGoal.java:150
 msgid "Minimum End time"
+msgstr ""
+
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsPanel.java:75
+msgid "Minimum Speed (m/s)"
 msgstr ""
 
 #: Property from pt.up.fe.dceg.neptus.console.plugins.SystemsList
@@ -4272,6 +4364,10 @@ msgstr ""
 msgid "Mission Files"
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/console/actions/SaveMissionAsConsoleAction.java:69
+msgid "Mission Files "
+msgstr ""
+
 #: src/pt/up/fe/dceg/neptus/console/actions/CreateMissionConsoleAction.java:87
 msgid "Mission Files ('nmisz')"
 msgstr ""
@@ -4323,6 +4419,22 @@ msgstr ""
 
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/edit/MoveObjectEdit.java:104
 msgid "Move '%element'"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1425
+msgid "Move the map south"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1422
+msgid "Move the map to the east"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1421
+msgid "Move the map to the west"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1424
+msgid "Move the map towards north"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:232
@@ -4402,6 +4514,10 @@ msgstr ""
 
 #: Name of plugin pt.up.fe.dceg.neptus.console.plugins.MyLocationDisplay
 msgid "MyLocationDisplay"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1426
+msgid "N"
 msgstr ""
 
 #. / N/A Not Available
@@ -4569,7 +4685,7 @@ msgstr ""
 msgid "No beams on Log file!"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/console/plugins/VehicleStateMonitor.java:82
+#: src/pt/up/fe/dceg/neptus/console/plugins/VehicleStateMonitor.java:83
 msgid "No communication received for more than 10 seconds"
 msgstr ""
 
@@ -4588,6 +4704,10 @@ msgstr ""
 #: src/pt/up/fe/dceg/neptus/gui/system/SystemDisplay.java:151
 #: src/pt/up/fe/dceg/neptus/console/plugins/SystemsList.java:1056
 msgid "No extra info"
+msgstr ""
+
+#: plugins-dev/teleoperation/pt/up/fe/dceg/neptus/plugins/teleoperation/ControllerPanel.java:276
+msgid "No main vehicle selected in the console"
 msgstr ""
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/edit/ManeuverPropertiesPanel.java:81
@@ -4762,6 +4882,7 @@ msgid "OFF"
 msgstr ""
 
 #: plugins-dev/gps/pt/up/fe/dceg/neptus/plugins/gps/ConfigDialog.java:96
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/RectangleEditor.java:104
 #: src/pt/up/fe/dceg/neptus/gui/VehicleChooser.java:176
 #: src/pt/up/fe/dceg/neptus/gui/editor/XMLPropertyEditor.java:167
 #: src/pt/up/fe/dceg/neptus/gui/LatLonConv.java:279
@@ -4816,7 +4937,10 @@ msgstr ""
 msgid "OffsetN"
 msgstr ""
 
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:149
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsPanel.java:112
 #: src/pt/up/fe/dceg/neptus/gui/ChronometerPanel.java:414
+#: src/pt/up/fe/dceg/neptus/mra/replay/LogReplay.java:328
 msgid "Ok"
 msgstr ""
 
@@ -4910,8 +5034,8 @@ msgstr ""
 msgid "Opening mission: %missionfile..."
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:165
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:337
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:164
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:326
 msgid "Operation Limits"
 msgstr ""
 
@@ -4924,9 +5048,9 @@ msgstr ""
 msgid "Operation Limits Plugin"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:299
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:411
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:683
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:288
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:400
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:671
 #: src/pt/up/fe/dceg/neptus/mra/replay/LogReplay.java:187
 msgid "Operational Limits"
 msgstr ""
@@ -5242,6 +5366,10 @@ msgstr ""
 msgid "Plot data on new window"
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/mra/replay/LogReplay.java:314
+msgid "Plots"
+msgstr ""
+
 #: Name of plugin pt.up.fe.dceg.neptus.console.plugins.PluginManager
 msgid "Plugin Manager"
 msgstr ""
@@ -5404,6 +5532,10 @@ msgstr ""
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.logs.QuickLogger
 msgid "Quick Logbook Panel"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1406
+msgid "R2D Shortcuts"
 msgstr ""
 
 #: Field from Loiter.TYPE enumeration
@@ -5718,7 +5850,7 @@ msgstr ""
 msgid "Renderer Update Periode For Vehicle State (ms)"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:332
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:321
 msgid "Replace current operational limits with received ones?"
 msgstr ""
 
@@ -5738,7 +5870,7 @@ msgstr ""
 msgid "Request data from Web"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:212
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:211
 msgid "Request sent but limits not yet received"
 msgstr ""
 
@@ -5758,6 +5890,14 @@ msgstr ""
 
 #: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/multibeampluginutils/MultibeamToolbar.java:195
 msgid "Reset Viewport"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1427
+msgid "Reset the current rotation (up facing north)"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1429
+msgid "Reset the current view to defaults"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:340
@@ -5878,6 +6018,7 @@ msgstr ""
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:559
 #: src/pt/up/fe/dceg/neptus/planeditor/PlanTransitionsSimpleEditor.java:191
 #: src/pt/up/fe/dceg/neptus/console/actions/CreateMissionConsoleAction.java:89
+#: src/pt/up/fe/dceg/neptus/console/actions/SaveMissionAsConsoleAction.java:70
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:181
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:182
 msgid "Save"
@@ -6069,6 +6210,10 @@ msgstr ""
 msgid "Select this if you want the speech on or off."
 msgstr ""
 
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsPanel.java:108
+msgid "Select..."
+msgstr ""
+
 #: src/pt/up/fe/dceg/neptus/console/actions/SetMainVehicleConsoleAction.java:68
 msgid "Selecting Main Vehicle: no Vehicles configured/loaded in Neptus"
 msgstr ""
@@ -6139,7 +6284,7 @@ msgstr ""
 msgid "Send device updates"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:187
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:186
 msgid "Send to Vehicle"
 msgstr ""
 
@@ -6217,7 +6362,7 @@ msgstr ""
 msgid "Set Main Vehicle..."
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:146
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:145
 msgid "Set Operation Limits"
 msgstr ""
 
@@ -6307,6 +6452,10 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1435
+msgid "Settings..."
+msgstr ""
+
 #: src/pt/up/fe/dceg/neptus/util/comm/manager/imc/MonitorIMCComms.java:695
 msgid "Setup new system comms."
 msgstr ""
@@ -6380,7 +6529,7 @@ msgstr ""
 msgid "Show Only Declared Profiles to User"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:217
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:216
 msgid "Show Operational Area on map"
 msgstr ""
 
@@ -6990,7 +7139,7 @@ msgstr ""
 msgid "Synchronize Selected Log Folders"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:337
+#: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:326
 msgid "Syncronized"
 msgstr ""
 
@@ -7574,7 +7723,7 @@ msgid ""
 "This sets the layer priority. The higher the value more on top will appear."
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:201
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:203
 msgid "This vehicle does not support IMU alignment."
 msgstr ""
 
@@ -7677,7 +7826,7 @@ msgid ""
 "To change the initial maneuver, please set another maneuver as the initial"
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:209
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:211
 msgid ""
 "To do IMU alignment, the vehicle must do straigth segments at the surface."
 msgstr ""
@@ -7734,7 +7883,7 @@ msgstr ""
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:150
 #: plugins-dev/simulation/pt/up/fe/dceg/neptus/plugins/sim/SimulationActionsPlugin.java:55
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:689
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:455
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:456
 #: src/pt/up/fe/dceg/neptus/mc/Workspace.java:407
 msgid "Tools"
 msgstr ""
@@ -8023,6 +8172,10 @@ msgstr ""
 msgid "Update period (ms)"
 msgstr ""
 
+#: plugins-dev/ais/pt/up/fe/dceg/neptus/plugins/ais/AisOverlay.java:298
+msgid "Updating AIS layer..."
+msgstr ""
+
 #: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:895
 msgid "Updating GUI..."
 msgstr ""
@@ -8285,7 +8438,7 @@ msgstr ""
 msgid "Vehicle State Monitor"
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:186
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:188
 msgid "Vehicle can now be used to execute dead reckoning missions."
 msgstr ""
 
@@ -8368,7 +8521,7 @@ msgstr ""
 #: plugins-dev/logs/pt/up/fe/dceg/neptus/plugins/logs/RemoteHistory.java:151
 #: src/pt/up/fe/dceg/neptus/plugins/SimpleSubPanel.java:430
 #: src/pt/up/fe/dceg/neptus/plugins/SimpleSubPanel.java:573
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:449
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:450
 msgid "View"
 msgstr ""
 
@@ -8419,12 +8572,16 @@ msgstr ""
 msgid "Waiting for Data..."
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:179
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:181
 msgid "Waiting for IMU alignment state"
 msgstr ""
 
-#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:112
+#: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:114
 msgid "Waiting for first IMU alignment state"
+msgstr ""
+
+#: plugins-dev/teleoperation/pt/up/fe/dceg/neptus/plugins/teleoperation/ControllerPanel.java:274
+msgid "Waiting for vehicle action list"
 msgstr ""
 
 #: plugins-dev/dev-calibration/pt/up/fe/dceg/neptus/plugins/calib/CalibrationSubPanel.java:157
@@ -8519,7 +8676,7 @@ msgstr ""
 msgid "Workspace"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:2177
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:2185
 msgid "World Bondaries Shown"
 msgstr ""
 
@@ -8527,7 +8684,7 @@ msgstr ""
 msgid "World Map Layer"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:2179
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:2187
 msgid "WorldMap Shown"
 msgstr ""
 
@@ -8758,6 +8915,10 @@ msgstr ""
 msgid "disconnect"
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1425
+msgid "down"
+msgstr ""
+
 #: src/pt/up/fe/dceg/neptus/gui/editor/ArrayListEditor.java:536
 msgid "dump"
 msgstr ""
@@ -8907,6 +9068,10 @@ msgstr ""
 msgid "latitude"
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1420
+msgid "left"
+msgstr ""
+
 #: Property from pt.up.fe.dceg.neptus.app.tiles.WorldMapPanel
 msgid "levelOfDetail"
 msgstr ""
@@ -8955,6 +9120,10 @@ msgstr ""
 msgid "min"
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1419
+msgid "minus (-)"
+msgstr ""
+
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.TabContainer
 msgid "name"
 msgstr ""
@@ -8995,6 +9164,10 @@ msgstr ""
 #: src/pt/up/fe/dceg/neptus/util/llf/replay/LLFMsgReplay.java:479
 #: src/pt/up/fe/dceg/neptus/util/llf/replay/LLFMsgReplay.java:506
 msgid "play"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1417
+msgid "plus (+)"
 msgstr ""
 
 #: Property from pt.up.fe.dceg.neptus.mp.maneuvers.CoverArea
@@ -9092,6 +9265,10 @@ msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/console/plugins/RemoteOperationControlMode.java:110
 msgid "request exit remote operation"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1422
+msgid "right"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/gui/ClockCounter.java:64
@@ -9221,6 +9398,10 @@ msgstr ""
 
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/FindVehicle.java:154
 msgid "unknown vehicle position"
+msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1423
+msgid "up"
 msgstr ""
 
 #: Property from pt.up.fe.dceg.neptus.plugins.planning.MapPanel
