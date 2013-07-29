@@ -60,6 +60,7 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension;
 import pt.up.fe.dceg.neptus.planeditor.IMapPopup;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
@@ -293,10 +294,12 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             return;
 
         if (lastThread != null) {
-            g.drawString("Updating AIS layer...", 10, 15);
+            //String strUpdateAIS = I18n.text("Updating AIS layer...");
+            g.drawString(I18n.text("Updating AIS layer..."), 10, 15);
         }
         else {
-            g.drawString(shipsOnMap.size() + " visible ships", 10, 15);
+            //String strVisShips = I18n.text(" visible ships");
+            g.drawString(shipsOnMap.size() + I18n.text(" visible ships"), 10, 15);
         }
 
         for (AisShip ship : shipsOnMap) {

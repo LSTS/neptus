@@ -131,7 +131,7 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
     protected boolean dragging = false;
 
     protected void createActions() {
-        editLimits = new AbstractAction("Edit Operational Limits",
+        editLimits = new AbstractAction(I18n.text("Edit Operational Limits"),
                 ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/oplimits/edit.png")) {
             private static final long serialVersionUID = 1L;
 

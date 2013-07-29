@@ -44,6 +44,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.map.MapGroup;
 import pt.up.fe.dceg.neptus.types.map.ParallelepipedElement;
@@ -68,23 +69,20 @@ public class OperationLimitsPanel extends JPanel {
 		this.mt = mt;
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		maxDepthCheck = new JCheckBox("Maximum Depth (m)");
-		minAltitudeCheck = new JCheckBox("Minimum Altitude (m)");
-		maxAltitudeCheck = new JCheckBox("Maximum Altitude (m)");
-		minSpeedCheck = new JCheckBox("Minimum Speed (m/s)");
-		maxSpeedCheck = new JCheckBox("Maximum Speed (m/s)");
-		areaCheck = new JCheckBox("Area Limits");
-		maxVRateCheck = new JCheckBox("Maximum Vertical Rate (m/s)");
-		
-		
+		maxDepthCheck = new JCheckBox(I18n.text("Maximum Depth (m)"));
+		minAltitudeCheck = new JCheckBox(I18n.text("Minimum Altitude (m)"));
+		maxAltitudeCheck = new JCheckBox(I18n.text("Maximum Altitude (m)"));
+		minSpeedCheck = new JCheckBox(I18n.text("Minimum Speed (m/s)"));
+		maxSpeedCheck = new JCheckBox(I18n.text("Maximum Speed (m/s))"));
+		areaCheck = new JCheckBox(I18n.text("Area Limits"));
+		maxVRateCheck = new JCheckBox(I18n.text("Maximum Vertical Rate (m/s)"));
+			
 		maxDepthField = new JFormattedTextField(NumberFormat.getInstance());
 		maxAltitudeField = new JFormattedTextField(NumberFormat.getInstance());
 		minAltitudeField = new JFormattedTextField(NumberFormat.getInstance());
 		maxSpeedField = new JFormattedTextField(NumberFormat.getInstance());
 		minSpeedField = new JFormattedTextField(NumberFormat.getInstance());
 		maxVRateField = new JFormattedTextField(NumberFormat.getInstance());
-		
-		
 		
 		JPanel tmp = new JPanel(new GridLayout(0, 2,2,10));
 		tmp.add(maxDepthCheck);
@@ -106,11 +104,12 @@ public class OperationLimitsPanel extends JPanel {
 		tmp.add(maxVRateField);
 		
 		tmp.add(areaCheck);
-		JButton b = new JButton("Select...");
+		
+		JButton b = new JButton(I18n.text("Select..."));
 		b.addActionListener(new ActionListener() {			
-			public void actionPerformed(ActionEvent e) {
-				
+			public void actionPerformed(ActionEvent e) {				
 				RectangleEditor editor = new RectangleEditor(OperationLimitsPanel.this.mt);
+				editor.btnOk.setText(I18n.text("Ok"));
 				if (limits.opAreaLat != null) {
 					editor.pp = new ParallelepipedElement(MapGroup.getMapGroupInstance(OperationLimitsPanel.this.mt), null);
 					editor.pp.setWidth(limits.opAreaWidth);
@@ -123,7 +122,6 @@ public class OperationLimitsPanel extends JPanel {
 					editor.pp.setMyColor(Color.red);
 					editor.btnOk.setEnabled(true);
 				}
-				
 				ParallelepipedElement rectangle = editor.showDialog(OperationLimitsPanel.this);
 				if (rectangle != null) {
 					double lld[] = rectangle.getCenterLocation().getAbsoluteLatLonDepth();
@@ -138,8 +136,7 @@ public class OperationLimitsPanel extends JPanel {
 		tmp.add(b);
 		if (!editArea)
 		    b.setEnabled(false);
-		add(tmp);
-		
+		add(tmp);		
 	}
 	
 	public void setLimits(OperationLimits limits) {
