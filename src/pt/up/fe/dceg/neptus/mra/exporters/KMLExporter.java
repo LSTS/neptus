@@ -52,6 +52,7 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorBar;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfGenericIterator;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
@@ -212,8 +213,9 @@ public class KMLExporter implements MraExporter {
         long end = ssParser.lastPingTimestamp();
         int sys = ssParser.getSubsystemList().get(0);
         SidescanConfig cfg = new SidescanConfig();
+        cfg.normalization = 0.4;
         BufferedImage swath = null;
-        ColorMap cmap = ColorMapFactory.createCopperColorMap();
+        ColorMap cmap = ColorMapFactory.createBronzeColormap();
         for (long time = start; time < end - 1000; time += 1000) {
             ArrayList<SidescanLine> lines;
             try {
@@ -325,7 +327,7 @@ public class KMLExporter implements MraExporter {
 
     public String multibeamOverlay(File dir) {
         if (source.getFile("multibeam.83P") == null) {
-            NeptusLog.pub().info("no multibeam data hasn been found.");
+            NeptusLog.pub().info(I18n.text("no multibeam data has been found."));
             return "";
         }
         
