@@ -1693,7 +1693,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         loader.setText(I18n.text("Loading console..."));
 
-        ConsoleLayout console = ConsoleLayout.forge("conf/consoles/lauv-test.ncon", loader);
+        ConsoleLayout console = ConsoleLayout.forge("conf/consoles/lauv.ncon", loader);
         NeptusMain.wrapMainApplicationWindowWithCloseActionWindowAdapter(console);
         NeptusLog.pub().info("<###>BENCHMARK " + ((System.currentTimeMillis() - ConfigFetch.STARTTIME) / 1E3) + "s");
     }
