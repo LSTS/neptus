@@ -224,10 +224,13 @@ public class RevisionOverlays extends SimpleRendererInteraction {
             parent = parent.getParent();
         if (mode)
             parent.add(sidePanel, BorderLayout.EAST);
-        else
-            parent.remove(sidePanel);
-        parent.revalidate();
-
+        else {
+            parent = sidePanel.getParent();
+            sidePanel.getParent().remove(sidePanel);
+        }
+        parent.invalidate();
+        parent.validate();
+        parent.repaint();
     }
 
     @Override

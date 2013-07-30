@@ -933,6 +933,12 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
 
         }
         else {
+            Container parent = toolbar.getParent();
+            
+            parent.remove(toolbar);
+            parent.invalidate();
+            parent.validate();
+            
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                 @Override
                 protected Void doInBackground() throws Exception {
