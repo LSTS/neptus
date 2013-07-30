@@ -59,7 +59,6 @@ public class Utils {
     private final static Logger LOGGER = Logger.getLogger(Utils.class.getName());
 
     public static void loadVTKLibraries() {
-
         try {
             System.loadLibrary("jawt");
         }
@@ -154,14 +153,16 @@ public class Utils {
             NeptusMRA.vtkEnabled = false;
             NeptusLog.pub().warn(I18n.text("<###> cannot load vtkVolumeRendering, skipping..."));
         }
-
-        NeptusLog.pub().info("Vtk source version: " + new vtkVersion().GetVTKSourceVersion());
-        //NeptusLog.pub().info("VTK Java Library Path: " + System.getProperty("vtk.lib.dir"));
-        //NeptusLog.pub().info("vtkCommonJava Lib Path: " + System.mapLibraryName("vtkCommonJava"));
-        NeptusLog.pub().info("VTK Library Dir (searches for vtk.jar): " + vtkSettings.GetVTKLibraryDir());
-        //NeptusLog.pub().info("Kits: " + vtkSettings.GetKits());
-        //NeptusLog.pub().info("Java Class path" + p.getProperty("java.class.path"));
-        //vtkJavaTesting.Initialize(null , true);   // <- crashs app
+        
+        if (NeptusMRA.vtkEnabled) {
+            NeptusLog.pub().info("Vtk source version: " + new vtkVersion().GetVTKSourceVersion());
+            //NeptusLog.pub().info("VTK Java Library Path: " + System.getProperty("vtk.lib.dir"));
+            //NeptusLog.pub().info("vtkCommonJava Lib Path: " + System.mapLibraryName("vtkCommonJava"));
+            NeptusLog.pub().info("VTK Library Dir (searches for vtk.jar): " + vtkSettings.GetVTKLibraryDir());
+            //NeptusLog.pub().info("Kits: " + vtkSettings.GetKits());
+            //NeptusLog.pub().info("Java Class path" + p.getProperty("java.class.path"));
+            //vtkJavaTesting.Initialize(null , true);   // <- crashs app
+        }
     }
 
     public static void goToAWTThread(Runnable runnable) {
