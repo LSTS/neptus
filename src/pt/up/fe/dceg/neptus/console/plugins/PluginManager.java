@@ -69,7 +69,6 @@ import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
-import pt.up.fe.dceg.neptus.plugins.containers.MigLayoutContainer;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 
 import com.l2fprod.common.swing.StatusBar;
@@ -79,8 +78,8 @@ import com.sun.java.swing.plaf.windows.WindowsButtonUI;
  * @author Hugo
  * 
  */
-@Popup(pos = POSITION.CENTER, width = 500, height = 500, accelerator = 'P')
-@PluginDescription(name = "Plugin Manager", icon = "images/buttons/events.png")
+@Popup(name = "Plugin Manager", icon = "images/buttons/events.png",  pos = POSITION.CENTER, width = 500, height = 500, accelerator = 'P')
+//@PluginDescription(name = "Plugin Manager", icon = "images/buttons/events.png")
 public class PluginManager extends SimpleSubPanel {
 
     private static final long serialVersionUID = 1L;
@@ -115,7 +114,7 @@ public class PluginManager extends SimpleSubPanel {
         this.add(statusBar, BorderLayout.SOUTH);
         // Add components to the content panel
         this.createComponents();
-        this.refreshActivePlugins();
+        ///this.refreshActivePlugins();
         this.createActions();
         this.createListeners();
     }
@@ -285,29 +284,33 @@ public class PluginManager extends SimpleSubPanel {
     }
 
     private void refreshActivePlugins() {
+        System.out.println("refresh");
         pluginsMap.clear();
         List<String> names = new ArrayList<>();
         for (SubPanel panel : console.getSubPanels()) {
+            System.out.println("console panel : "+ panel.getName());
             names.add(panel.getName());
             pluginsMap.put(panel.getName(), panel);
             if (panel instanceof ContainerSubPanel) {
                 container = (ContainerSubPanel) panel;
                 List<SubPanel> panels = ((ContainerSubPanel) panel).getSubPanels();
+                
                 Collections.sort(panels, new Comparator<SubPanel>() {
                     @Override
                     public int compare(SubPanel o1, SubPanel o2) {
-                        Collator collator = Collator.getInstance(Locale.US);
+                        final Collator collator = Collator.getInstance(Locale.US);
                         return collator.compare(PluginUtils.i18nTranslate(o1.getName()),
                                 PluginUtils.i18nTranslate(o2.getName()));
                     }
                 });
-
+               
                 for (SubPanel panel2 : panels) {
                     names.add(panel2.getName());
                     pluginsMap.put(panel2.getName(), panel2);
                 }
             }
         }
+       
         activePluginsList.setListData(names.toArray(new String[0]));
     }
 

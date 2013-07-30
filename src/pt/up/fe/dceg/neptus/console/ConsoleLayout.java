@@ -104,6 +104,7 @@ import pt.up.fe.dceg.neptus.console.plugins.ConsoleVehicleChangeListener;
 import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
 import pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener;
 import pt.up.fe.dceg.neptus.console.plugins.PlanChangeListener;
+import pt.up.fe.dceg.neptus.console.plugins.PluginManager;
 import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeEvent;
 import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
 import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeListener;
@@ -215,9 +216,12 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         instance.imcOn();
         ConsoleParse.parseFile(consoleURL, instance);
+        // load core plugins 
+        PluginManager manager = new PluginManager(instance);
+        manager.init();
+        
         instance.setConsoleChanged(false);
-        // Rectangle screen = MouseInfo.getPointerInfo().getDevice().getDefaultConfiguration().getBounds();
-        // instance.setLocation(screen.x, screen.y);
+        
         if (loader != null)
             loader.end();
         instance.setVisible(true);
