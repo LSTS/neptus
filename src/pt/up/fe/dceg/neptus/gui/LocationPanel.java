@@ -572,7 +572,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 		dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
 		dialog.setAlwaysOnTop(false);
 		GuiUtils.centerOnScreen(dialog);
-		dialog.setVisible(true);
+		
 		dialog.setResizable(false);
 		//dialog.setAlwaysOnTop(true);
 		
@@ -584,7 +584,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 				dialog.dispose();
 			}
 		});
-		
+		dialog.setVisible(true);
 		return dialog;
 	}
 
