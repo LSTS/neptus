@@ -52,6 +52,7 @@ import org.dom4j.io.SAXReader;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.SubPanel;
+import pt.up.fe.dceg.neptus.console.plugins.PluginManager;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.loader.FileHandler;
 import pt.up.fe.dceg.neptus.plugins.configWindow.SettingsWindow;
@@ -164,28 +165,11 @@ public class ConsoleParse implements FileHandler {
         console.initSubPanels();
         ConfigFetch.benchmark("reinit");
         
-        // TODO CORE Settings plugin
-        List<SubPanel> pluginSubPanel = console.getSubPanels();
-        SubPanel migLayout = pluginSubPanel.get(0);
-        if (migLayout != null && migLayout instanceof MigLayoutContainer) {
-            List<SubPanel> subPanels = ((MigLayoutContainer) migLayout).getSubPanels();
-            pluginSubPanel.addAll(subPanels);
-        }
-        Vector<PropertiesProvider> pluginPropProvider = subPanelToPropertiesProvider(pluginSubPanel);
-        SettingsWindow settingsPopUpWindow = new SettingsWindow(console, pluginPropProvider);
-        settingsPopUpWindow.init();
-        pluginSubPanel.add(settingsPopUpWindow);
+       
+        SettingsWindow settings = new SettingsWindow(console);
+        settings.init();
+        
     }
-
-    private static Vector<PropertiesProvider> subPanelToPropertiesProvider(List<SubPanel> pluginSubPanel) {
-        // java does not convert for interfaces so a new Vector is created
-        Vector<PropertiesProvider> pluginPropProvider = new Vector<PropertiesProvider>();
-        for (SubPanel subPanel : pluginSubPanel) {
-            pluginPropProvider.add(subPanel);
-        }
-        return pluginPropProvider;
-    }
-
 
     public static void parseDocument(Document doc, ConsoleLayout console, String consoleURL) {
         parseElement((Element) doc.selectSingleNode("//" + ConsoleLayout.DEFAULT_ROOT_ELEMENT), console, consoleURL);

@@ -39,6 +39,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -47,9 +48,11 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.console.SubPanel;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.up.fe.dceg.neptus.plugins.containers.MigLayoutContainer;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
@@ -67,7 +70,7 @@ public class SettingsWindow extends SimpleSubPanel {
 
     private static final long serialVersionUID = 1L;
     private FunctionalitiesSettings settingsPanel;
-    private final Vector<PropertiesProvider> subPanels;
+    private final Vector<PropertiesProvider> subPanels = new Vector<>();
     private JCheckBox checkLvl;
 
     /**
@@ -76,10 +79,19 @@ public class SettingsWindow extends SimpleSubPanel {
      * @param console
      * @param subPanels
      */
-    public SettingsWindow(ConsoleLayout console, Vector<PropertiesProvider> subPanels) {
+    public SettingsWindow(ConsoleLayout console) {
         super(console);
-        this.subPanels = subPanels;
-
+        
+        List<SubPanel> consolePlugins = console.getSubPanels();
+        for (SubPanel plugin : consolePlugins) {
+            if (plugin != null && plugin instanceof MigLayoutContainer) {
+                List<SubPanel> containerPlugins = ((MigLayoutContainer) plugin).getSubPanels();
+                for (SubPanel containerPlugin : containerPlugins) {
+                    subPanels.add(containerPlugin);
+                }
+                
+            }
+        }
     }
 
     private void addButtons() {
