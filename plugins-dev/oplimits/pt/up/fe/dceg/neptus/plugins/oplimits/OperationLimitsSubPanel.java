@@ -100,7 +100,7 @@ import pt.up.fe.dceg.neptus.util.MathMiscUtils;
  * @author zp
  * 
  */
-@PluginDescription(name = "Operation Limits Plugin", category = CATEGORY.PLANNING, icon = "pt/up/fe/dceg/neptus/plugins/oplimits/limits.png", documentation = "oplimits/oplimits.html")
+@PluginDescription(name = "Operation Limits", category = CATEGORY.PLANNING, icon = "pt/up/fe/dceg/neptus/plugins/oplimits/limits.png", documentation = "oplimits/oplimits.html")
 public class OperationLimitsSubPanel extends SimpleSubPanel implements ConfigurationListener,
         MainVehicleChangeListener, NeptusMessageListener, Renderer2DPainter, StateRendererInteraction {
 
@@ -131,7 +131,7 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
     protected boolean dragging = false;
 
     protected void createActions() {
-        editLimits = new AbstractAction(I18n.text("Edit Operational Limits"),
+        editLimits = new AbstractAction(I18n.text("Operation Limits"),
                 ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/oplimits/edit.png")) {
             private static final long serialVersionUID = 1L;
 

@@ -109,7 +109,6 @@ public class OperationLimitsPanel extends JPanel {
 		b.addActionListener(new ActionListener() {			
 			public void actionPerformed(ActionEvent e) {				
 				RectangleEditor editor = new RectangleEditor(OperationLimitsPanel.this.mt);
-				editor.btnOk.setText(I18n.text("Ok"));
 				if (limits.opAreaLat != null) {
 					editor.pp = new ParallelepipedElement(MapGroup.getMapGroupInstance(OperationLimitsPanel.this.mt), null);
 					editor.pp.setWidth(limits.opAreaWidth);
