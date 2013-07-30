@@ -94,6 +94,7 @@ import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.ManeuverFactory;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.up.fe.dceg.neptus.mp.actions.PlanActions;
 import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulation3D;
@@ -1574,10 +1575,10 @@ MissionChangeListener {
             if (man.getType().equals(lastMan.getType())) {
                 String id = man.getId();
                 man = (Maneuver) lastMan.clone();
-                man.getStartActions().getPayloadConfigs().clear();
-                man.getStartActions().getActionMsgs().clear();
-                man.getEndActions().getPayloadConfigs().clear();
-                man.getEndActions().getActionMsgs().clear();
+                //man.getStartActions().getPayloadConfigs().clear();
+                //man.getStartActions().getActionMsgs().clear();
+                //man.getEndActions().getPayloadConfigs().clear();
+                //man.getEndActions().getActionMsgs().clear();
                 man.setId(id);
             }
 
@@ -1589,6 +1590,8 @@ MissionChangeListener {
                 lt.setLocation(worldLoc);
                 ((LocatedManeuver) man).setManeuverLocation(lt);
             }
+            
+            man.cloneActions(lastMan);
 
             addedTransitions.add(plan.getGraph().addTransition(lastMan.getId(), man.getId(), defaultCondition));
 

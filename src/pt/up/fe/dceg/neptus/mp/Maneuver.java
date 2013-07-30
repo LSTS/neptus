@@ -1016,6 +1016,13 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     public String getPropertiesDialogTitle() {
         return I18n.textf("%s properties", getId());
     }
+    
+    public void cloneActions(Maneuver otherMan) {
+        startActions = new PlanActions();
+        startActions.load(otherMan.getStartActions().asElement("start-actions"));
+        endActions = new PlanActions();
+        endActions.load(otherMan.getEndActions().asElement("end-actions"));
+    }
 
     public String getTooltipText() {
         String tt = "";
