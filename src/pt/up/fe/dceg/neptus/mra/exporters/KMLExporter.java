@@ -45,6 +45,8 @@ import java.util.Date;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorBar;
@@ -184,18 +186,27 @@ public class KMLExporter implements MraExporter {
         if (ssParser == null || ssParser.getSubsystemList().isEmpty())
             return "";
         
-        System.out.println(ssParser);
-        System.out.println(ssParser.getSubsystemList().isEmpty());
-        
         double[] offsets = topLeft.getOffsetFrom(bottomRight);
         int width = (int) Math.abs(offsets[1]* resolution) ;
         int height = (int) Math.abs(offsets[0] * resolution);
 
-        System.out.println("size: "+width+", "+height);
+        System.out.println("Sidescan image overlay size: "+width+", "+height);
         if (width <= 0 || height <= 0)
             return "";
         
-        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        final BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        
+        JLabel lbl = new JLabel() {
+            private static final long serialVersionUID = 1L;
+
+            public void paint(java.awt.Graphics g) {
+                g.drawImage(img, 0, 0, getWidth(), getHeight(), 0, 0, img.getWidth(), img.getHeight(), null);                
+            };
+        };
+        
+        JFrame frm = GuiUtils.testFrame(lbl, "Creating sidescan mosaic...");
+        frm.setSize(800, 600);
+        GuiUtils.centerOnScreen(frm);
         Graphics2D g = (Graphics2D) img.getGraphics();
         long start = ssParser.firstPingTimestamp();
         long end = ssParser.lastPingTimestamp();
@@ -204,17 +215,39 @@ public class KMLExporter implements MraExporter {
         BufferedImage swath = null;
         ColorMap cmap = ColorMapFactory.createCopperColorMap();
         for (long time = start; time < end - 1000; time += 1000) {
+            ArrayList<SidescanLine> lines;
+            try {
+                lines = ssParser.getLinesBetween(time, time + 1000, sys, cfg);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                continue;
+            }
             
-            ArrayList<SidescanLine> lines = ssParser.getLinesBetween(time, time + 1000, sys, cfg);            
             for (SidescanLine sl : lines) {
                 if (Math.abs(Math.toDegrees(sl.state.getR())) > 7)
                     continue;
-                if (swath == null || swath.getWidth() != sl.data.length)
-                    swath = new BufferedImage(sl.data.length, 1, BufferedImage.TYPE_INT_ARGB);
-                                
+                int widthPixels = (int)(sl.range * resolution * 2);
+                if (swath == null || swath.getWidth() != widthPixels)
+                    swath = new BufferedImage(widthPixels, 1, BufferedImage.TYPE_INT_ARGB);
+                
+                int samplesPerPixel = sl.data.length / widthPixels;
+                if (samplesPerPixel == 0)
+                    continue;
+                double sum = 0;
+                int count = 0;
                 for (int i = 0; i < sl.data.length; i++) {
-                    swath.setRGB(i, 0, cmap.getColor(sl.data[i]).getRGB() + (224 << 24));
-                }
+                    if (i != 0 && i % samplesPerPixel == 0) {
+                        double val = sum / count;
+                        if ((i/samplesPerPixel-1)<widthPixels)
+                            swath.setRGB(i/samplesPerPixel-1, 0, cmap.getColor(val).getRGB() /*+ (128 << 24)*/);
+                        sum = count = 0;
+                    }
+                    else {
+                        count ++;
+                        sum += sl.data[i];
+                    }                 
+                }                
                 Graphics2D g2 = (Graphics2D)g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
@@ -222,11 +255,15 @@ public class KMLExporter implements MraExporter {
                 g2.translate(pos[1] * resolution, -pos[0] * resolution);
                 g2.rotate(sl.state.getYaw());
                 g2.setColor(Color.black);
-                g2.scale(sl.range*2*resolution / swath.getWidth(), sl.range*8*resolution / swath.getWidth());
+                g2.scale(1, 5*resolution);
                 g2.drawImage(swath, (int)-swath.getWidth()/2, 0, null);
+                lbl.repaint();
             }
         }
-        
+
+        frm.setVisible(false);
+        frm.dispose();
+
         try {
             ImageIO.write(img, "PNG", new File(dir, "sidescan.png"));
             return overlay(new File(dir, "sidescan.png"), "Sidescan mosaic", 
@@ -455,7 +492,7 @@ public class KMLExporter implements MraExporter {
             topLeft.convertToAbsoluteLatLonDepth();
             bottomRight.convertToAbsoluteLatLonDepth();
             
-            bw.write(sidescanOverlay(out.getParentFile(), 5, topLeft, bottomRight));
+            bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight));
             
             String mb = multibeamOverlay(out.getParentFile()); 
             if (!mb.isEmpty())
