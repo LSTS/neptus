@@ -42,6 +42,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.plaf.ColorUIResource;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
@@ -209,6 +210,44 @@ public class I18n {
         
         UIManager.put("PropertySheetPanel.okButtonText", I18n.text("OK"));
         UIManager.put("PropertySheetPanel.cancelButtonText", I18n.text("Cancel"));
+        
+        UIManager.put("ColorChooser.okText", I18n.text("OK"));
+        UIManager.put("ColorChooser.cancelText", I18n.text("Cancel"));
+        UIManager.put("ColorChooser.resetText", I18n.text("Reset"));
+        UIManager.put("ColorChooser.sampleText", I18n.text("Sample Text"));
+        UIManager.put("ColorChooser.previewText", I18n.text("Preview"));
+        
+        UIManager.put("ColorChooser.background", ColorUIResource.darkGray);
+
+        UIManager.put("ColorChooser.swatchesNameText", I18n.text("Swatches"));
+        UIManager.put("ColorChooser.hsvNameText", I18n.text("HSV"));
+        UIManager.put("ColorChooser.hslNameText", I18n.text("HSL"));
+        UIManager.put("ColorChooser.rgbNameText", I18n.text("RGB"));
+        UIManager.put("ColorChooser.cmykNameText", I18n.text("CMYK"));
+        
+        UIManager.put("ColorChooser.swatchesRecentText", I18n.text("Recent:"));
+
+        UIManager.put("ColorChooser.hsvHueText", I18n.text("Hue"));
+        UIManager.put("ColorChooser.hsvSaturationText", I18n.text("Saturation"));
+        UIManager.put("ColorChooser.hsvValueText", I18n.text("Value"));
+        UIManager.put("ColorChooser.hsvTransparencyText", I18n.text("Transparency"));
+        
+        UIManager.put("ColorChooser.hslHueText", I18n.text("Hue"));
+        UIManager.put("ColorChooser.hslSaturationText", I18n.text("Saturation"));
+        UIManager.put("ColorChooser.hslLightnessText", I18n.text("Lightness"));
+        UIManager.put("ColorChooser.hslTransparencyText", I18n.text("Transparency"));
+        
+        UIManager.put("ColorChooser.rgbRedText", I18n.text("Red"));
+        UIManager.put("ColorChooser.rgbGreenText", I18n.text("Green"));
+        UIManager.put("ColorChooser.rgbBlueText", I18n.text("Blue"));
+        UIManager.put("ColorChooser.rgbAlphaText", I18n.text("Alpha"));
+        UIManager.put("ColorChooser.colorCodeText", I18n.text("COCO"));
+        
+        UIManager.put("ColorChooser.cmykCyanText", I18n.text("Cyan"));
+        UIManager.put("ColorChooser.cmykMagentaText", I18n.text("Magenta"));
+        UIManager.put("ColorChooser.cmykYellowText", I18n.text("Yellow"));
+        UIManager.put("ColorChooser.cmykBlackText", I18n.text("Black"));
+        UIManager.put("ColorChooser.cmykAlphaText", I18n.text("Alpha"));
     }
 
     public static String normalize(String text) {

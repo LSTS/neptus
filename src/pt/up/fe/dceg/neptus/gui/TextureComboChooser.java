@@ -43,6 +43,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.types.texture.TextureType;
 import pt.up.fe.dceg.neptus.types.texture.TexturesHolder;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
@@ -127,13 +128,13 @@ extends JComboBox<Object>
             setIcon(icon);
             if (icon != null)
             {
-                setText(pet);
+                setText(I18n.text(pet));
                 setFont(list.getFont());
             }
             else
             {
                 //setUhOhText(pet + " (no image available)", list.getFont());
-                setUhOhText(pet, list.getFont());
+                setUhOhText(I18n.text(pet), list.getFont());
             }
 
             return this;

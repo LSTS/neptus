@@ -51,6 +51,7 @@ import javax.swing.JTextField;
 import pt.up.fe.dceg.neptus.gui.LocationPanel;
 import pt.up.fe.dceg.neptus.gui.SelectAllFocusListener;
 import pt.up.fe.dceg.neptus.gui.TextureComboChooser;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.map.ParallelepipedElement;
 import pt.up.fe.dceg.neptus.types.texture.TextureType;
@@ -88,7 +89,7 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	private JPanel jPanel2 = null;
 	private JLabel jLabel4 = null;
 	private JLabel jLabel11 = null;
-	private JLabel jLabel12 = new JLabel("Texture:");
+	private JLabel jLabel12 = new JLabel(I18n.text("Texture:"));
 	private TextureComboChooser textureCombo;
 	private JPanel jPanel3 = null;
 	/**
@@ -182,7 +183,7 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	private JButton getChoose() {
 		if (choose == null) {
 			choose = new JButton();
-			choose.setText("Choose...");
+			choose.setText(I18n.text("Choose..."));
 			choose.setPreferredSize(new java.awt.Dimension(90,25));
 		}
 		return choose;
@@ -217,14 +218,14 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 		this.setLayout(gridLayout1);
 		this.setSize(428, 197);
 		this.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
-		jLabel5.setText("Width:");
+		jLabel5.setText(I18n.text("Width:"));
 		jLabel5.setPreferredSize(new java.awt.Dimension(60,20));
-		jLabel6.setText("Length:");
+		jLabel6.setText(I18n.text("Length:"));
 		jLabel6.setPreferredSize(new java.awt.Dimension(60,20));
-		jLabel7.setText("Height:");
+		jLabel7.setText(I18n.text("Height:"));
 		jLabel7.setPreferredSize(new java.awt.Dimension(60,20));
-		jLabel8.setText("Color:");
-		jLabel.setText("Center Location:");
+		jLabel8.setText(I18n.text("Color:"));
+		jLabel.setText(I18n.text("Center Location:"));
 		
 		gridLayout1.setRows(4);
 		this.add(getJPanel3(), null);
@@ -237,9 +238,6 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 				showColorDialog();
 			}
 		});
-
-		
-		
 	}
 	
 	
@@ -265,13 +263,13 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	}
 	*/
 	public void actionPerformed(ActionEvent e) {
-	    LocationType tmp = LocationPanel.showLocationDialog("Set the object center location", location, getMissionType(), isEditable());
+	    LocationType tmp = LocationPanel.showLocationDialog(I18n.text("Set the object center location"), location, getMissionType(), isEditable());
 	    if (tmp != null)
 	        setLocationType(tmp);
 	}
 	
 	public void showColorDialog() {
-		Color newColor = JColorChooser.showDialog(this, "Choose the parallel piped color", getColorField().getBackground());
+		Color newColor = JColorChooser.showDialog(this, I18n.text("Choose the parallel piped color"), getColorField().getBackground());
 		getColorField().setBackground(newColor);
 	}
 	
@@ -283,7 +281,7 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	private JButton getChangeCenterLoc() {
 		if (changeCenterLoc == null) {
 			changeCenterLoc = new JButton();
-			changeCenterLoc.setText("Change...");
+			changeCenterLoc.setText(I18n.text("Change..."));
 			changeCenterLoc.addActionListener(this);
 		}
 		return changeCenterLoc;
@@ -301,12 +299,12 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 			jLabel3 = new JLabel();
 			jLabel9 = new JLabel();
 			jLabel10 = new JLabel();
-			jLabel1.setText("Roll:");
+			jLabel1.setText(I18n.text("Roll:"));
 			jLabel2.setText("   ");
-			jLabel3.setText("Pitch:");
+			jLabel3.setText(I18n.text("Pitch:"));
 			jLabel9.setText("   ");
-			jLabel10.setText("Yaw:");
-			jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Rotation", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null));
+			jLabel10.setText(I18n.text("Yaw:"));
+			jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, I18n.text("Rotation"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null));
 			jPanel.add(jLabel1, null);
 			jPanel.add(getRollField(), null);
 			jPanel.add(jLabel2, null);
@@ -394,7 +392,7 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 			jPanel2 = new JPanel();
 			jLabel4 = new JLabel();
 			jLabel11 = new JLabel();
-			jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Dimension", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null));
+			jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, I18n.text("Dimension"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null));
 			jLabel4.setText("   ");
 			jLabel11.setText("   ");
 			jPanel2.add(jLabel5, null);
@@ -445,11 +443,11 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 			obj.setColor(getColorField().getBackground());
 		}
 		catch (NumberFormatException e) {
-			return "The parameters entered are not valid numbers";
+			return I18n.text("The parameters entered are not valid numbers.");
 		}
 		
 		if (obj.getWidth() < 0 || obj.getLength() < 0 || obj.getHeight() < 0)
-			return "The object dimensions have to be positive";
+			return I18n.text("The object dimensions have to be positive.");
 		
 		return null;
 	}
@@ -478,7 +476,7 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 		super.setEditable(editable);
 		if (!isEditable()) {
 			getChoose().setEnabled(false);
-			getChangeCenterLoc().setText("View...");
+			getChangeCenterLoc().setText(I18n.text("View..."));
 			getXDim().setEditable(false);
 			getYDim().setEditable(false);
 			getZDim().setEditable(false);
@@ -489,7 +487,7 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 		}
 		else {
 			getChoose().setEnabled(true);
-			getChangeCenterLoc().setText("Change...");
+			getChangeCenterLoc().setText(I18n.text("Change..."));
 			getXDim().setEditable(true);
 			getYDim().setEditable(true);
 			getZDim().setEditable(true);
