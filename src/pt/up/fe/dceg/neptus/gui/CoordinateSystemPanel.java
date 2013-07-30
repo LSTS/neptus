@@ -56,6 +56,7 @@ import javax.swing.border.TitledBorder;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
@@ -148,7 +149,7 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 			Double.parseDouble(getYawField().getText());
 		}
 		catch (Exception e) {
-			return "The angle offset is invalid!";
+			return I18n.text("The angle offset is invalid!");
 		}
 		return null;
 	}
@@ -212,10 +213,10 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 			jPanel1 = new JPanel();
 			jPanel1.setEnabled(true);
 			jPanel1.setBorder(titledBorder1);
-			jLabel1.setText("Rotation over the vertical axis:");
-			jLabel4.setText(" (degrees)");
+			jLabel1.setText(I18n.text("Rotation over the vertical axis:"));
+			jLabel4.setText(I18n.text(" (degrees)"));
 			//jLabel4.setFont(new java.awt.Font("Dialog", java.awt.Font.BOLD, 14));
-			titledBorder1.setTitle("Offset Angle North");
+			titledBorder1.setTitle(I18n.text("Offset Angle North"));
 			jPanel1.add(jLabel1, null);
 			jPanel1.add(getYawField(), null);
 			jPanel1.add(jLabel4, null);
@@ -231,7 +232,7 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 	private JButton getChangeCenter() {
 		if (changeCenter == null) {
 			changeCenter = new JButton();
-			changeCenter.setText("Change...");
+			changeCenter.setText(I18n.text("Change..."));
 			changeCenter.setActionCommand("changecenter");
 			changeCenter.addActionListener(this);
 		}
@@ -391,7 +392,7 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 	private JButton getCancelBtn() {
 		if (cancelBtn == null) {
 			cancelBtn = new JButton();
-			cancelBtn.setText("Cancel");
+			cancelBtn.setText(I18n.text("Cancel"));
 			cancelBtn.setActionCommand("cancel");
 			cancelBtn.addActionListener(this);
 		}
@@ -405,7 +406,7 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 	private JButton getOkBtn() {
 		if (okBtn == null) {
 			okBtn = new JButton();
-			okBtn.setText("OK");
+			okBtn.setText(I18n.text("OK"));
 			okBtn.setActionCommand("ok");
 			okBtn.addActionListener(this);
 		}
@@ -429,9 +430,9 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 
 	private JCheckBox getApplyToMisson() {
 	    if (applyToMisson == null) {
-	        applyToMisson = new JCheckBox("Propagate");
+	        applyToMisson = new JCheckBox(I18n.text("Propagate"));
 	        applyToMisson.setSelected(false);
-	        applyToMisson.setToolTipText("Translate all mission accordingly to changes");				
+	        applyToMisson.setToolTipText(I18n.text("Translate all mission accordingly to changes"));				
 	    }
 
 	    return applyToMisson;

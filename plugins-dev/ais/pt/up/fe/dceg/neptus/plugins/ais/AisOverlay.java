@@ -264,7 +264,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
         super.mouseClicked(event, source);
 
         JPopupMenu popup = new JPopupMenu();
-        popup.add("AIS settings").addActionListener(new ActionListener() {
+        popup.add(I18n.text("AIS settings")).addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -272,7 +272,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             }
         });
 
-        popup.add("Update ships").addActionListener(new ActionListener() {
+        popup.add(I18n.text("Update ships")).addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -356,7 +356,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
     
     protected JMenu getShipInfoMenu() {
         Vector<AisShip> ships = new Vector<>();
-        JMenu menu = new JMenu("Ship Info");
+        JMenu menu = new JMenu(I18n.text("Ship Info"));
         ships.addAll(shipsOnMap);
         Collections.sort(ships);
 
