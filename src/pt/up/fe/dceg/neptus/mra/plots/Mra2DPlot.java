@@ -78,7 +78,8 @@ public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {
     }
     
     public String getTitle() {
-        return I18n.textf("%plotname plot", getName());
+        //return I18n.textf("%plotname plot", getName());
+        return (getName() + " plot");
     }
     
     private LsfIndex index;
@@ -220,7 +221,7 @@ public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {
 
     public XYSeries getMarkerSeries() {
         if(markerSeries == null && chart != null) {
-            markerSeries = new XYSeries("Marks");
+            markerSeries = new XYSeries(I18n.text("Marks"));
             XYSeriesCollection dataset = (XYSeriesCollection) chart.getXYPlot().getDataset();
             dataset.addSeries(markerSeries);
             // Special case for marks    

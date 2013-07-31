@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.mra.plots;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.Temperature;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
@@ -49,7 +50,7 @@ public class TemperatureVsDepthPlot extends XYPlot {
 
     @Override
     public String getName() {
-        return "Temperature VS Depth";
+        return I18n.text("Temperature VS Depth");
     }
 
     @Override

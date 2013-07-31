@@ -124,7 +124,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
     }
 
     public void startLLFReplay() {
-        loader.setText("Loading mission messages replay");
+        loader.setText(I18n.text("Loading mission messages replay"));
         if (cleanCalled)
             return;
         try {

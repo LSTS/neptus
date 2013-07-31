@@ -48,7 +48,7 @@ public class ZPlot extends MraTimeSeriesPlot {
     
     @Override
     public String getTitle() {
-        return I18n.text("Z Plot");
+        return "Z plot";
     }
 
     @Override
@@ -65,25 +65,25 @@ public class ZPlot extends MraTimeSeriesPlot {
                 double alt = es.getDouble("alt");
                 
                 if (depth != -1)
-                    addValue(es.getTimestampMillis(), es.getSourceName()+".Depth", depth);
+                    addValue(es.getTimestampMillis(), es.getSourceName()+I18n.text(".Depth"), depth);
                 
                 if (alt != -1) {
-                    addValue(es.getTimestampMillis(), es.getSourceName()+".Altitude", alt);
+                    addValue(es.getTimestampMillis(), es.getSourceName()+I18n.text(".Altitude"), alt);
                 }
                 if(depth != -1 && alt != -1) {
-                    addValue(es.getTimestampMillis(), es.getSourceName()+".Bathymetry", Math.max(0, depth) + Math.max(0,alt));
+                    addValue(es.getTimestampMillis(), es.getSourceName()+I18n.text(".Bathymetry"), Math.max(0, depth) + Math.max(0,alt));
                 }
             }    
         }
         else {
             for (IMCMessage es : source.getIterator("depth")) {
-                addValue(es.getTimestampMillis(), es.getSourceName()+".Depth", es.getDouble("value"));
+                addValue(es.getTimestampMillis(), es.getSourceName()+I18n.text(".Depth"), es.getDouble("value"));
             }
             for (int i = source.getFirstMessageOfType("BottomDistance"); i != -1; i = source.getNextMessageOfType("BottomDistance", i)) {
                 IMCMessage m = source.getMessage(i);
                 String entity = source.getEntityName(m.getSrc(), m.getSrcEnt());
                 if (entity.equals("DVL")) {
-                    addValue(m.getTimestampMillis(), m.getSourceName()+".Altitude", m.getDouble("value"));
+                    addValue(m.getTimestampMillis(), m.getSourceName()+I18n.text(".Altitude"), m.getDouble("value"));
                 }
             }
         }

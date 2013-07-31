@@ -50,18 +50,18 @@ import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp
- *
+ * 
  */
 public class CSVExporter implements MraExporter {
 
     IMraLogGroup source;
     ProgressMonitor pmonitor;
     LinkedHashMap<Short, String> entityNames = new LinkedHashMap<>();
-    
+
     public CSVExporter(IMraLogGroup source) {
         this.source = source;
     }
-    
+
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         return true;
@@ -72,47 +72,45 @@ public class CSVExporter implements MraExporter {
         String ret = "timestamp (seconds since 01/01/1970), system, entity ";
         for (String field : type.getFieldNames()) {
             if (type.getFieldUnits(field) != null)
-                ret += ", "+field+" ("+type.getFieldUnits(field)+")";
+                ret += ", " + field + " (" + type.getFieldUnits(field) + ")";
             else
-                ret += ", "+field;
-        }        
-        return ret + "\n";        
+                ret += ", " + field;
+        }
+        return ret + "\n";
     }
 
     public String getLine(IMCMessage m) {
         NumberFormat doubles = GuiUtils.getNeptusDecimalFormat(8);
         NumberFormat floats = GuiUtils.getNeptusDecimalFormat(3);
         String entity = entityNames.get(m.getSrcEnt());
-        
+
         if (entity == null)
-            entity = ""+m.getSrcEnt();
-        
-        String ret = floats.format(m.getTimestamp())+", "+m.getSourceName()+", "+entity;
+            entity = "" + m.getSrcEnt();
+
+        String ret = floats.format(m.getTimestamp()) + ", " + m.getSourceName() + ", " + entity;
 
         for (String field : m.getFieldNames()) {
-            switch(m.getTypeOf(field)) {
+            switch (m.getTypeOf(field)) {
                 case "fp32_t":
-                    ret += ", "+floats.format(m.getDouble(field));
+                    ret += ", " + floats.format(m.getDouble(field));
                     break;
                 case "fp64_t":
-                    ret += ", "+doubles.format(m.getDouble(field));
+                    ret += ", " + doubles.format(m.getDouble(field));
                     break;
                 default:
-                    ret += ", "+m.getAsString(field);
+                    ret += ", " + m.getAsString(field);
                     break;
             }
         }
-        return ret+"\n";
+        return ret + "\n";
     }
 
-    
-    
-            
     @Override
     public String process() {
-        pmonitor = new ProgressMonitor(ConfigFetch.getSuperParentFrame(), I18n.text("Exporting to CSV"), I18n.text("Starting up"), 0, source.listLogs().length);
+        pmonitor = new ProgressMonitor(ConfigFetch.getSuperParentFrame(), I18n.text("Exporting to CSV"),
+                I18n.text("Starting up"), 0, source.listLogs().length);
         File dir = new File(source.getFile("mra"), "csv");
-        
+
         dir.mkdirs();
 
         entityNames.clear();
@@ -120,16 +118,16 @@ public class CSVExporter implements MraExporter {
         if (it != null)
             for (EntityInfo ei : it)
                 entityNames.put(ei.getId(), ei.getLabel());
-        
+
         int i = 0;
         for (String message : source.listLogs()) {
             try {
-                File out = new File(dir, message+".csv");
+                File out = new File(dir, message + ".csv");
                 BufferedWriter bw = new BufferedWriter(new FileWriter(out));
                 pmonitor.setNote(I18n.textf("Exporting %message data to %csvfile...", message, out.getAbsolutePath()));
                 pmonitor.setProgress(++i);
                 bw.write(getHeader(message));
-                
+
                 for (IMCMessage m : source.getLsfIndex().getIterator(message)) {
                     bw.write(getLine(m));
                 }
@@ -138,16 +136,15 @@ public class CSVExporter implements MraExporter {
             catch (Exception e) {
                 e.printStackTrace();
                 pmonitor.close();
-                return e.getClass().getSimpleName()+": "+e.getMessage();
+                return e.getClass().getSimpleName() + ": " + e.getMessage();
             }
         }
-        
-        return "Process complete";
+
+        return I18n.text("Process complete");
     }
 
     @Override
     public String getName() {
-        return "Export to CSV";
+        return I18n.text("Export to CSV");
     }
-
 }

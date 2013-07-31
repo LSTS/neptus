@@ -51,7 +51,7 @@ import pt.up.fe.dceg.neptus.mra.MRAPanel;
 
 /**
  * @author zp
- *
+ * 
  */
 public class LblRangesPlot extends MraTimeSeriesPlot {
 
@@ -60,27 +60,27 @@ public class LblRangesPlot extends MraTimeSeriesPlot {
     protected Vector<Color> acceptedColors = new Vector<>();
     protected Vector<Color> rejectedColors = new Vector<>();
     protected Vector<Shape> possibleShapes = new Vector<>();
-    
+
     {
         acceptedColors.add(Color.blue);
         acceptedColors.add(Color.green.darker());
         acceptedColors.add(Color.cyan);
-        acceptedColors.add(new Color(128,0,255));
+        acceptedColors.add(new Color(128, 0, 255));
         rejectedColors.add(Color.red);
         rejectedColors.add(new Color(255, 160, 0));
         rejectedColors.add(Color.magenta);
         rejectedColors.add(Color.black);
-        
+
         possibleShapes.add(new Ellipse2D.Double(0, 0, 5, 5));
         possibleShapes.add(new Rectangle2D.Double(0, 0, 5, 5));
-        
+
         GeneralPath gp = new GeneralPath();
         gp.moveTo(0, 2.5);
         gp.lineTo(2.5, -2.5);
         gp.lineTo(-2.5, -2.5);
         gp.closePath();
         possibleShapes.add(gp);
-        
+
         gp = new GeneralPath();
         gp.moveTo(0, 2.5);
         gp.lineTo(2.5, 0);
@@ -88,24 +88,23 @@ public class LblRangesPlot extends MraTimeSeriesPlot {
         gp.lineTo(-2.5, 0);
         gp.closePath();
         possibleShapes.add(gp);
-        
+
     }
-    
+
     public LblRangesPlot(MRAPanel panel) {
         super(panel);
     }
-    
+
     @Override
     public boolean canBeApplied(LsfIndex index) {
         return index.containsMessagesOfType("LblRangeAcceptance");
     }
-    
-    
+
     @Override
     public String getName() {
         return I18n.text("LBL ranges");
     }
-    
+
     @Override
     public String getTitle() {
         return getName();
@@ -122,44 +121,42 @@ public class LblRangesPlot extends MraTimeSeriesPlot {
         int i = 0;
         for (LblBeacon b : adapter.getBeacons()) {
             if (!acceptedColors.isEmpty()) {
-                beaconColors.put(i*2, acceptedColors.remove(0));
-                beaconColors.put(i*2+1, rejectedColors.remove(0));
-                beaconShapes.put(i*2, possibleShapes.get(0));
-                beaconShapes.put(i*2+1, possibleShapes.remove(0));
+                beaconColors.put(i * 2, acceptedColors.remove(0));
+                beaconColors.put(i * 2 + 1, rejectedColors.remove(0));
+                beaconShapes.put(i * 2, possibleShapes.get(0));
+                beaconShapes.put(i * 2 + 1, possibleShapes.remove(0));
             }
-            beaconNames.put(i++, b.getBeacon());            
-            addTrace("Accepted."+b.getBeacon());
-            addTrace("Rejected."+b.getBeacon());
+            beaconNames.put(i++, b.getBeacon());
+            addTrace(I18n.text("Accepted.") + b.getBeacon());
+            addTrace(I18n.text("Rejected.") + b.getBeacon());
         }
-        
-        
+
         for (IMCMessage msg : source.getIterator("LblRangeAcceptance")) {
             String beaconName = msg.getString("id");
             if (beaconNames.containsKey(msg.getInteger("id")))
                 beaconName = beaconNames.get(msg.getInteger("id"));
-        
+
             if (msg.getString("acceptance").equals("ACCEPTED"))
-                addValue(msg.getTimestampMillis(), "Accepted."+beaconName, msg.getDouble("range"));
+                addValue(msg.getTimestampMillis(), I18n.text("Accepted.") + beaconName, msg.getDouble("range"));
             else
-                addValue(msg.getTimestampMillis(), "Rejected."+beaconName, msg.getDouble("range"));                
+                addValue(msg.getTimestampMillis(), I18n.text("Rejected.") + beaconName, msg.getDouble("range"));
         }
     }
-    
-    
+
     @Override
     public JFreeChart createChart() {
-          JFreeChart chart = super.createChart();
+        JFreeChart chart = super.createChart();
 
-          ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setShapesVisible(true);
-          ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setLinesVisible(false);
+        ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setShapesVisible(true);
+        ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setLinesVisible(false);
 
-          for (int i : beaconColors.keySet())
-              ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setSeriesPaint(i, beaconColors.get(i));
-          
-          for (int i : beaconShapes.keySet())
-              ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setSeriesShape(i, beaconShapes.get(i));
-          
-          return chart;
+        for (int i : beaconColors.keySet())
+            ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setSeriesPaint(i, beaconColors.get(i));
+
+        for (int i : beaconShapes.keySet())
+            ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setSeriesShape(i, beaconShapes.get(i));
+
+        return chart;
     }
 
     @Override

@@ -39,6 +39,7 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
 import pt.up.fe.dceg.neptus.mra.api.BathymetryParserFactory;
 import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
@@ -123,7 +124,7 @@ public class XtfExporter implements MraExporter {
         catch (IOException e) {
             e.printStackTrace();
         }
-        return "XTF conversion done.";
+        return I18n.text("XTF conversion done.");
     }
 
     public void writeString(String s) 
@@ -135,6 +136,6 @@ public class XtfExporter implements MraExporter {
     
     @Override
     public String getName() {
-        return "XTF Exporter";
+        return I18n.text("XTF Exporter");
     }   
 }

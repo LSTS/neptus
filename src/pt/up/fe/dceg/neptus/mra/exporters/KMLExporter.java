@@ -99,7 +99,7 @@ public class KMLExporter implements MraExporter {
 
     @Override
     public String getName() {
-        return "Export to KML";
+        return I18n.text("Export to KML");
     }
 
     @Override

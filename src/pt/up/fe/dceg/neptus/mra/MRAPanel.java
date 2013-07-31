@@ -231,12 +231,12 @@ public class MRAPanel extends JPanel {
         
         // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
         JMenuBar bar = mra.getMRAMenuBar();
-        JMenu previousMenu = GuiUtils.getJMenuByName(bar, "Exporters");
+        JMenu previousMenu = GuiUtils.getJMenuByName(bar, I18n.text("Exporters"));
         if(previousMenu != null) {
             bar.remove(previousMenu);
         }
         
-        exporters = new JMenu("Exporters");
+        exporters = new JMenu(I18n.text("Exporters"));
         for(final MraExporter exp : exporterList) {
             if(exp.canBeApplied(source)) {
                 JMenuItem item = new JMenuItem(new AbstractAction(exp.getName()) {
@@ -461,7 +461,7 @@ public class MRAPanel extends JPanel {
                 c = openVisualizationList.get(vis.getName());
             }
             else if(loadingVisualizations.contains(vis.getName())) {
-                loader.setText("Loading " + vis.getName());
+                loader.setText(I18n.textf("Loading %visName", vis.getName()));
                 loader.start();
                 c = loader;
             }
@@ -473,7 +473,7 @@ public class MRAPanel extends JPanel {
                 mainPanel.repaint();
                 mainPanel.add(loader, "w 100%, h 100%");
 
-                loader.setText("Loading " + vis.getName());
+                loader.setText(I18n.textf("Loading %visName", vis.getName()));
                 loader.start();
 
                 c = vis.getComponent(source, NeptusMRA.defaultTimestep);

@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
@@ -155,7 +156,7 @@ public class MatExporter implements MraExporter {
 
     @Override
     public String getName() {
-        return "MatLab format .MAT";
+        return I18n.text("MatLab format .MAT");
     }
 
     public static void main(String[] args) throws Exception {

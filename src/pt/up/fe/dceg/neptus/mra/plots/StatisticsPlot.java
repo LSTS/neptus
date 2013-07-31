@@ -41,6 +41,7 @@ import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 import net.miginfocom.swing.MigLayout;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
@@ -61,7 +62,7 @@ public class StatisticsPlot extends JPanel implements MRAVisualization {
     
     @Override
     public String getName() {
-        return "Statistics";
+        return I18n.text("Statistics");
     }
 
     @Override

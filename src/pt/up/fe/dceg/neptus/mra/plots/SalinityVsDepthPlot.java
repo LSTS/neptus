@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.mra.plots;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.Salinity;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
@@ -49,7 +50,7 @@ public class SalinityVsDepthPlot extends XYPlot {
 
     @Override
     public String getName() {
-        return "Salinity VS Depth";
+        return I18n.text("Salinity VS Depth");
     }
 
 

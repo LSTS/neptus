@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.mra.plots;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCFieldType;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfGenericIterator;
@@ -45,7 +46,7 @@ public class VehicleGanttPlot extends MraGanttPlot {
 
     @Override
     public String getName() {
-        return "Vehicle Timeline";
+        return I18n.text("Vehicle Timeline");
     }
     
     public VehicleGanttPlot(MRAPanel panel) {
@@ -62,9 +63,9 @@ public class VehicleGanttPlot extends MraGanttPlot {
         LsfGenericIterator it = source.getIterator("VehicleState");
         
         for (IMCMessage s : it)
-            startActivity(s.getTimestamp(), "Vehicle State", s.getString("op_mode"));
+            startActivity(s.getTimestamp(), I18n.text("Vehicle State"), s.getString("op_mode"));
         
-        endActivity(source.getEndTime(), "Vehicle State");
+        endActivity(source.getEndTime(), I18n.text("Vehicle State"));
         
         it = source.getIterator("PlanControlState");
         IMCFieldType type = source.getDefinitions().getType("PlanControlState").getFieldType("man_id");
@@ -74,16 +75,16 @@ public class VehicleGanttPlot extends MraGanttPlot {
         for (IMCMessage s : it) {
             if(s.getString(field) == null || s.getString(field).isEmpty())
                 continue;
-            startActivity(s.getTimestamp(), "Maneuver", s.getString(field));
+            startActivity(s.getTimestamp(), I18n.text("Maneuver"), s.getString(field));
         }
         
-        endActivity(source.getEndTime(), "Maneuver");
+        endActivity(source.getEndTime(), I18n.text("Maneuver"));
         
-        it = source.getIterator("VehicleMedium");
+        it = source.getIterator(I18n.text("VehicleMedium"));
         
         for (IMCMessage medium : it)
-            startActivity(medium.getTimestamp(), "Vehicle Medium", medium.getString("medium"));
+            startActivity(medium.getTimestamp(), I18n.text("Vehicle Medium"), medium.getString("medium"));
         
-        endActivity(source.getEndTime(), "Vehicle Medium");
+        endActivity(source.getEndTime(), I18n.text("Vehicle Medium"));
     }
 }

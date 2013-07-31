@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.actualstate;
 
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.LblRange;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
@@ -73,7 +74,7 @@ public class ActualPosition extends Mra2DPlot {
     
     @Override
     public String getName() {
-        return "Calculated position";
+        return I18n.text("Calculated position");
     }
 
     @Override

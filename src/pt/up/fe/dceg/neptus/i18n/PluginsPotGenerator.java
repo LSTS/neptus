@@ -111,6 +111,8 @@ public class PluginsPotGenerator {
         List<String> strs = new ArrayList<>();
         strs.add("Normal");
         strs.add("Map");
+        strs.add("Infinite Rectangle");
+        strs.add("Rows Plan");
         return strs;
     }
 

@@ -94,7 +94,8 @@ public abstract class MraGanttPlot implements LLFChart, LogMarkerListener {
     }
 
     public String getTitle() {
-        return I18n.textf("%plotname plot", getName());
+        //return I18n.textf("%plotname plot", getName());
+        return (getName() + " plot");
     }
 
     public final Collection<String> getSeriesNames() {

@@ -219,7 +219,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
                 public void run() {
                     for (LogReplayLayer layer : renderedLayers) {
                         try {
-                            loader.setText("Loading " + layer.getName());
+                            loader.setText(I18n.textf("Loading %layerName", layer.getName()));
                             layer.parse(source);
                             renderer.getRenderer2d().addPostRenderPainter(layer, layer.getName());
                             renderer.getRenderer2d().setPainterActive(layer.getName(), layer.getVisibleByDefault());

@@ -67,7 +67,7 @@ public class EstimatedStatePlot extends Mra2DPlot implements LogMarkerListener {
             loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"));
             loc.convertToAbsoluteLatLonDepth();
             addValue(state.getTimestampMillis(), loc.getLatitudeAsDoubleValue(), loc.getLongitudeAsDoubleValue(),
-                    state.getSourceName(), "position");
+                    state.getSourceName(), I18n.text("position"));
         }
         
         

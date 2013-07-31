@@ -823,11 +823,11 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
 
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();
 
-        DefaultProperty id = PropertiesEditor.getPropertyInstance(I18n.text("ID"), I18n.text("Generic properties"),
+        DefaultProperty id = PropertiesEditor.getPropertyInstance("ID", I18n.text("Generic properties"),
                 String.class, getId(), false);
         id.setShortDescription(I18n.text("The identifier for this object"));
         props.add(id);
-        DefaultProperty initialMan = PropertiesEditor.getPropertyInstance(I18n.text("Initial Maneuver"),
+        DefaultProperty initialMan = PropertiesEditor.getPropertyInstance("Initial Maneuver",
                 I18n.text("Generic properties"), Boolean.class, isInitialManeuver(), true);
         initialMan.setShortDescription(I18n.text("Whether this will be the first maneuver to be executed"));
         props.add(initialMan);
