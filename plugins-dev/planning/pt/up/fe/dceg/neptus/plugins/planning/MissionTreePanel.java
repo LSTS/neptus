@@ -390,16 +390,17 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 else if (selection instanceof TransponderElement) {
 
                     popupMenu.addSeparator();
-                    popupMenu
-                            .add((I18n.text("View") + "/" + I18n.text("Edit") + I18n.textf("'%transponderName'",
-                                    selection))).addActionListener(new ActionListener() {
+
+                    popupMenu.add(I18n.textf("View/Edit '%transponderName'", selection)).addActionListener(
+                            new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
                                     browser.editTransponder((TransponderElement) selection, console2.getMission());
                                 }
                             });
-                    popupMenu.add(I18n.text("Remove ") + I18n.textf("'%transponderName'", selection))
-                            .addActionListener(new ActionListener() {
+
+                    popupMenu.add(I18n.textf("Remove '%transponderName'", selection)).addActionListener(
+                            new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
                                     browser.removeTransponder((TransponderElement) selection, console2);
@@ -411,8 +412,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     for (final AbstractElement tel : allTransponderElements) {
                         if ((TransponderElement) selection != (TransponderElement) tel) {
                             popupMenu.add(
-                                    I18n.text("Switch ") + I18n.textf("'%transponderName1'", selection)
-                                            + I18n.text(" with ") + I18n.textf("'%transponderName2'", tel))
+                                    I18n.textf("Switch '%transponderName1' with '%transponderName2'", selection, tel))
                                     .addActionListener(new ActionListener() {
                                         @Override
                                         public void actionPerformed(ActionEvent e) {
@@ -524,10 +524,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
             private <T> void addActionGetRemotePlan(final ConsoleLayout console2, final PlanDBControl pdbControl,
                     final T selection, JPopupMenu popupMenu) {
-                popupMenu.add(
-                        I18n.text("Get ") + I18n.textf("'%planName'", selection) + I18n.text(" from ")
-                                + I18n.textf("%system", console2.getMainSystem())).addActionListener(
-                        new ActionListener() {
+                popupMenu.add(I18n.textf("Get '%planName' from %system", selection, console2.getMainSystem()))
+                        .addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 if (selection != null) {
@@ -540,10 +538,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
             private <T extends Identifiable> void addActionRemovePlanRemotely(final ConsoleLayout console2,
                     final PlanDBControl pdbControl, final T selection, JPopupMenu popupMenu) {
-                popupMenu.add(
-                        I18n.text("Remove ") + I18n.textf("'%planName'", selection) + I18n.text(" from ")
-                                + I18n.textf("%system", console2.getMainSystem())).addActionListener(
-                        new ActionListener() {
+                popupMenu.add(I18n.textf("Remove '%planName' from %system", selection, console2.getMainSystem()))
+                        .addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 if (selection != null) {
@@ -557,9 +553,9 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
             private void addActionSendPlan(final ConsoleLayout console2, final PlanDBControl pdbControl,
                     final Object selection, JPopupMenu popupMenu) {
-                popupMenu.add(
-                        I18n.text("Send ") + I18n.textf("'%planName'", selection) + I18n.text(" to ")
-                                + I18n.textf("%system", console2.getMainSystem())).addActionListener(
+                popupMenu.add(I18n.textf("Send '%planName' to %system", selection, console2.getMainSystem()))
+                        .addActionListener(
+
                         new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
@@ -579,26 +575,23 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
              */
             private <T extends Identifiable> void addActionRemovePlanLocally(final ConsoleLayout console2,
                     final T selection, JPopupMenu popupMenu) {
-                popupMenu.add((I18n.text("Remove ") + I18n.textf("'%planName'", selection))).addActionListener(
-                        new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                if (selection != null) {
-                                    int resp = JOptionPane.showConfirmDialog(console2, I18n.text("Remove the plan ")
-                                            + I18n.textf("'%planName'", selection.toString()) + "?");
+                popupMenu.add(I18n.textf("Remove '%planName'", selection)).addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (selection != null) {
+                            int resp = JOptionPane.showConfirmDialog(console2,
+                                    I18n.textf("Remove the plan '%planName'?", selection.toString()));
+                            if (resp == JOptionPane.YES_OPTION) {
+                                console2.getMission().getIndividualPlansList().remove(selection.getIdentification());
+                                console2.getMission().save(false);
 
-                                    if (resp == JOptionPane.YES_OPTION) {
-                                        console2.getMission().getIndividualPlansList()
-                                                .remove(selection.getIdentification());
-                                        console2.getMission().save(false);
-
-                                        if (console2 != null)
-                                            console2.setPlan(null);
-                                        browser.refreshBrowser(console2.getPlan(), console2.getMission());
-                                    }
-                                }
+                                if (console2 != null)
+                                    console2.setPlan(null);
+                                browser.refreshBrowser(console2.getPlan(), console2.getMission());
                             }
-                        });
+                        }
+                    }
+                });
             }
 
         };
