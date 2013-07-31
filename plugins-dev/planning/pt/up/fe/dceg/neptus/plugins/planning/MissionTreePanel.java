@@ -121,16 +121,14 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
  * @author pdias
  */
 @SuppressWarnings("serial")
-@PluginDescription(name = "Mission Tree", author = "José Pinto, Paulo Dias", icon = "pt/up/fe/dceg/neptus/plugins/planning/mission_tree.png", 
-category = CATEGORY.PLANNING, version = "1.5.0")
+@PluginDescription(name = "Mission Tree", author = "José Pinto, Paulo Dias", icon = "pt/up/fe/dceg/neptus/plugins/planning/mission_tree.png", category = CATEGORY.PLANNING, version = "1.5.0")
 public class MissionTreePanel extends SimpleSubPanel implements MissionChangeListener, MainVehicleChangeListener,
-DropTargetListener, NeptusMessageListener, IPlanSelection, IPeriodicUpdates, ConfigurationListener,
-ITransponderSelection {
+        DropTargetListener, NeptusMessageListener, IPlanSelection, IPeriodicUpdates, ConfigurationListener,
+        ITransponderSelection {
 
     @NeptusProperty(name = "Use Plan DB Sync. Features", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
     public boolean usePlanDBSyncFeatures = true;
-    @NeptusProperty(name = "Use Plan DB Sync. Features Extended", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER,
-            description = "Needs 'Use Plan DB Sync. Features' on")
+    @NeptusProperty(name = "Use Plan DB Sync. Features Extended", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER, description = "Needs 'Use Plan DB Sync. Features' on")
     public boolean usePlanDBSyncFeaturesExt = false;
     @NeptusProperty(name = "Debug", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
     public boolean debugOn = false;
@@ -289,27 +287,29 @@ ITransponderSelection {
                                         catch (Exception e1) {
                                             e1.printStackTrace();
                                         }
-                                        NeptusLog.pub().info("<###> "+str);
+                                        NeptusLog.pub().info("<###> " + str);
                                     }
                                 }
                             });
                             popupMenu.add("Test '" + selection + "' from " + console2.getMainSystem())
-                            .addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    if (selection != null) {
-                                        PlanType sel = (PlanType) selection;
-                                        IMCMessage pm1 = sel.asIMCPlan();
-                                        PlanType p2 = IMCUtils.parsePlanSpecification(new MissionType(), pm1);
-                                        IMCMessage pm2 = p2.asIMCPlan();
-                                        NeptusLog.pub().info("<###>.....");
-                                        NeptusLog.pub().info("<###> "+ByteUtil.encodeAsString(pm1.payloadMD5()));
-                                        NeptusLog.pub().info("<###> "+ByteUtil.encodeAsString(pm2.payloadMD5()));
-                                        NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(pm1));
-                                        NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(pm2));
-                                    }
-                                }
-                            });
+                                    .addActionListener(new ActionListener() {
+                                        @Override
+                                        public void actionPerformed(ActionEvent e) {
+                                            if (selection != null) {
+                                                PlanType sel = (PlanType) selection;
+                                                IMCMessage pm1 = sel.asIMCPlan();
+                                                PlanType p2 = IMCUtils.parsePlanSpecification(new MissionType(), pm1);
+                                                IMCMessage pm2 = p2.asIMCPlan();
+                                                NeptusLog.pub().info("<###>.....");
+                                                NeptusLog.pub().info(
+                                                        "<###> " + ByteUtil.encodeAsString(pm1.payloadMD5()));
+                                                NeptusLog.pub().info(
+                                                        "<###> " + ByteUtil.encodeAsString(pm2.payloadMD5()));
+                                                NeptusLog.pub().info("<###> " + IMCUtil.getAsHtml(pm1));
+                                                NeptusLog.pub().info("<###> " + IMCUtil.getAsHtml(pm2));
+                                            }
+                                        }
+                                    });
                         }
                         State syncState = (State) ((ExtendedTreeNode) selectionNode).getUserInfo().get("sync");
                         if (syncState == null)
@@ -365,42 +365,41 @@ ITransponderSelection {
                 else if (selection instanceof PlanDBInfo) {
                     State syncState = selectionNode instanceof ExtendedTreeNode ? (State) ((ExtendedTreeNode) selectionNode)
                             .getUserInfo().get("sync") : null;
-                            if (syncState == null)
-                                syncState = State.LOCAL;
+                    if (syncState == null)
+                        syncState = State.LOCAL;
 
-                            else if (syncState == State.REMOTE) {
-                                addActionGetRemotePlan(console2, pdbControl, selection, popupMenu);
+                    else if (syncState == State.REMOTE) {
+                        addActionGetRemotePlan(console2, pdbControl, selection, popupMenu);
 
-                                addActionRemovePlanRemotely(console2, pdbControl, (Identifiable) selection, popupMenu);
+                        addActionRemovePlanRemotely(console2, pdbControl, (Identifiable) selection, popupMenu);
 
-                                // popupMenu.add(
-                                // I18n.textf("bug Remove '%planName' from %system", selection, console2.getMainSystem()))
-                                // .addActionListener(new ActionListener() {
-                                // @Override
-                                // public void actionPerformed(ActionEvent e) {
-                                // if (selection != null) {
-                                // pdbControl.setRemoteSystemId(console2.getMainSystem());
-                                // PlanDBInfo sel = (PlanDBInfo) selection;
-                                // pdbControl.deletePlan(sel.getPlanId());
-                                // }
-                                // }
-                                // });
-                            }
+                        // popupMenu.add(
+                        // I18n.textf("bug Remove '%planName' from %system", selection, console2.getMainSystem()))
+                        // .addActionListener(new ActionListener() {
+                        // @Override
+                        // public void actionPerformed(ActionEvent e) {
+                        // if (selection != null) {
+                        // pdbControl.setRemoteSystemId(console2.getMainSystem());
+                        // PlanDBInfo sel = (PlanDBInfo) selection;
+                        // pdbControl.deletePlan(sel.getPlanId());
+                        // }
+                        // }
+                        // });
+                    }
                 }
                 else if (selection instanceof TransponderElement) {
 
                     popupMenu.addSeparator();
-
-                    popupMenu.add(I18n.textf("View/Edit '%transponderName'", selection)).addActionListener(
-                            new ActionListener() {
+                    popupMenu
+                            .add((I18n.text("View") + "/" + I18n.text("Edit") + I18n.textf("'%transponderName'",
+                                    selection))).addActionListener(new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
                                     browser.editTransponder((TransponderElement) selection, console2.getMission());
                                 }
                             });
-
-                    popupMenu.add(I18n.textf("Remove '%transponderName'", selection)).addActionListener(
-                            new ActionListener() {
+                    popupMenu.add(I18n.text("Remove ") + I18n.textf("'%transponderName'", selection))
+                            .addActionListener(new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
                                     browser.removeTransponder((TransponderElement) selection, console2);
@@ -412,7 +411,8 @@ ITransponderSelection {
                     for (final AbstractElement tel : allTransponderElements) {
                         if ((TransponderElement) selection != (TransponderElement) tel) {
                             popupMenu.add(
-                                    I18n.textf("Switch '%transponderName1' with '%transponderName2'", selection, tel))
+                                    I18n.text("Switch ") + I18n.textf("'%transponderName1'", selection)
+                                            + I18n.text(" with ") + I18n.textf("'%transponderName2'", tel))
                                     .addActionListener(new ActionListener() {
                                         @Override
                                         public void actionPerformed(ActionEvent e) {
@@ -514,55 +514,62 @@ ITransponderSelection {
             private <T extends Identifiable> void addActionShare(final T selection, JMenu dissemination,
                     final String objectTypeName) {
                 dissemination.add(I18n.textf("Share '%transponderName'", selection.getIdentification()))
-                .addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        ImcMsgManager.disseminate((XmlOutputMethods) selection, objectTypeName);
-                    }
-                });
+                        .addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                ImcMsgManager.disseminate((XmlOutputMethods) selection, objectTypeName);
+                            }
+                        });
             }
 
             private <T> void addActionGetRemotePlan(final ConsoleLayout console2, final PlanDBControl pdbControl,
                     final T selection, JPopupMenu popupMenu) {
-                popupMenu.add(I18n.textf("Get '%planName' from %system", selection, console2.getMainSystem()))
-                .addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (selection != null) {
-                            pdbControl.setRemoteSystemId(console2.getMainSystem());
-                            pdbControl.requestPlan(((Identifiable) selection).getIdentification());
-                        }
-                    }
-                });
+                popupMenu.add(
+                        I18n.text("Get ") + I18n.textf("'%planName'", selection) + I18n.text(" from ")
+                                + I18n.textf("%system", console2.getMainSystem())).addActionListener(
+                        new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                if (selection != null) {
+                                    pdbControl.setRemoteSystemId(console2.getMainSystem());
+                                    pdbControl.requestPlan(((Identifiable) selection).getIdentification());
+                                }
+                            }
+                        });
             }
 
             private <T extends Identifiable> void addActionRemovePlanRemotely(final ConsoleLayout console2,
                     final PlanDBControl pdbControl, final T selection, JPopupMenu popupMenu) {
-                popupMenu.add(I18n.textf("Remove '%planName' from %system", selection, console2.getMainSystem())).addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (selection != null) {
-                            // PlanType sel = (PlanType) selection;
-                            pdbControl.setRemoteSystemId(console2.getMainSystem());
-                            pdbControl.deletePlan(((Identifiable) selection).getIdentification());
-                        }
-                    }
-                });
+                popupMenu.add(
+                        I18n.text("Remove ") + I18n.textf("'%planName'", selection) + I18n.text(" from ")
+                                + I18n.textf("%system", console2.getMainSystem())).addActionListener(
+                        new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                if (selection != null) {
+                                    // PlanType sel = (PlanType) selection;
+                                    pdbControl.setRemoteSystemId(console2.getMainSystem());
+                                    pdbControl.deletePlan(((Identifiable) selection).getIdentification());
+                                }
+                            }
+                        });
             }
 
             private void addActionSendPlan(final ConsoleLayout console2, final PlanDBControl pdbControl,
                     final Object selection, JPopupMenu popupMenu) {
-                popupMenu.add(I18n.textf("Send '%planName' to %system", selection, console2.getMainSystem()))
-                .addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (selection != null) {
-                            PlanType sel = (PlanType) selection;
-                            pdbControl.setRemoteSystemId(console2.getMainSystem());
-                            pdbControl.sendPlan(sel);
-                        }
-                    }
-                });
+                popupMenu.add(
+                        I18n.text("Send ") + I18n.textf("'%planName'", selection) + I18n.text(" to ")
+                                + I18n.textf("%system", console2.getMainSystem())).addActionListener(
+                        new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                if (selection != null) {
+                                    PlanType sel = (PlanType) selection;
+                                    pdbControl.setRemoteSystemId(console2.getMainSystem());
+                                    pdbControl.sendPlan(sel);
+                                }
+                            }
+                        });
             }
 
             /**
@@ -571,27 +578,28 @@ ITransponderSelection {
              * @param popupMenu
              */
             private <T extends Identifiable> void addActionRemovePlanLocally(final ConsoleLayout console2,
-                    final T selection,
-                    JPopupMenu popupMenu) {
-                popupMenu.add(I18n.textf("Remove '%planName'", selection)).addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (selection != null) {
-                            int resp = JOptionPane.showConfirmDialog(console2,
-                                    I18n.textf("Remove the plan '%planName'?", selection.toString()));
-                            if (resp == JOptionPane.YES_OPTION) {
-                                console2.getMission().getIndividualPlansList().remove(selection.getIdentification());
-                                console2.getMission().save(false);
+                    final T selection, JPopupMenu popupMenu) {
+                popupMenu.add((I18n.text("Remove ") + I18n.textf("'%planName'", selection))).addActionListener(
+                        new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                if (selection != null) {
+                                    int resp = JOptionPane.showConfirmDialog(console2, I18n.text("Remove the plan ")
+                                            + I18n.textf("'%planName'", selection.toString()) + "?");
 
-                                if (console2 != null)
-                                    console2.setPlan(null);
-                                browser.refreshBrowser(console2.getPlan(), console2.getMission());
+                                    if (resp == JOptionPane.YES_OPTION) {
+                                        console2.getMission().getIndividualPlansList()
+                                                .remove(selection.getIdentification());
+                                        console2.getMission().save(false);
+
+                                        if (console2 != null)
+                                            console2.setPlan(null);
+                                        browser.refreshBrowser(console2.getPlan(), console2.getMission());
+                                    }
+                                }
                             }
-                        }
-                    }
-                });
+                        });
             }
-
 
         };
 
@@ -599,14 +607,10 @@ ITransponderSelection {
         // browser.addMouseListener(mouseAdapter);
     }
 
-
-
     @Override
     public void cleanSubPanel() {
         removePlanDBListener();
     }
-
-
 
     protected void setStartupPos() {
         // MarkElement startEl = getStartPos();
@@ -661,7 +665,6 @@ ITransponderSelection {
         // browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
     }
 
-
     @Override
     public void missionReplaced(MissionType mission) {
         browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
@@ -682,8 +685,8 @@ ITransponderSelection {
 
         browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
 
-        addMenuItem(I18n.text("Advanced") + ">" + I18n.text("Clear remote PlanDB for main system"),
-                new ImageIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
+        addMenuItem(I18n.text("Advanced") + ">" + I18n.text("Clear remote PlanDB for main system"), new ImageIcon(
+                PluginUtils.getPluginIcon(getClass())), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (pdbControl != null)
@@ -708,13 +711,6 @@ ITransponderSelection {
         return null;
     }
 
-
-
-
-
-
-
-
     @Override
     public void dragEnter(DropTargetDragEvent dtde) {
 
@@ -729,8 +725,6 @@ ITransponderSelection {
     public void dragOver(DropTargetDragEvent dtde) {
 
     }
-
-
 
     @Override
     public void drop(DropTargetDropEvent dtde) {
@@ -771,10 +765,6 @@ ITransponderSelection {
         // }
         // dtde.rejectDrop();
     }
-
-
-
-
 
     @Override
     public void dropActionChanged(DropTargetDragEvent dtde) {
@@ -846,7 +836,9 @@ ITransponderSelection {
         return plans;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.console.plugins.ITransponderSelection#getSelectedTransponders()
      */
     @Override
@@ -901,7 +893,6 @@ ITransponderSelection {
             }
         }
     }
-
 
     @Override
     public long millisBetweenUpdates() {

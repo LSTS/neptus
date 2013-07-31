@@ -66,6 +66,7 @@ import javax.swing.event.ListSelectionListener;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventNewNotification;
 import pt.up.fe.dceg.neptus.events.NeptusEvents;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -134,14 +135,14 @@ public class NotificationsDialog extends JDialog implements WindowFocusListener,
         options = new JPanel();
         options.setName("options");
         options.setLayout(new BoxLayout(options, BoxLayout.X_AXIS));
-        check = new JCheckBox(new AbstractAction("Disable popups") {
+        check = new JCheckBox(new AbstractAction(I18n.text("Disable popups")) {
             private static final long serialVersionUID = 1L;
             @Override
             public void actionPerformed(ActionEvent e) {
                 popupsEnabled = !popupsEnabled;
             }
         });
-        clear = new JButton(new AbstractAction("Clear") {
+        clear = new JButton(new AbstractAction(I18n.text("Clear")) {
             private static final long serialVersionUID = 1L;
             @Override
             public void actionPerformed(ActionEvent e) {

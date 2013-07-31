@@ -547,7 +547,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
                         });
                     }
 
-                    menu.add("Remove").addActionListener(new ActionListener() {
+                    menu.add(I18n.text("Remove")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             removeElement(elemId);

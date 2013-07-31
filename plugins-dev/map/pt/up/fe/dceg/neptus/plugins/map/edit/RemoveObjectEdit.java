@@ -84,7 +84,7 @@ public class RemoveObjectEdit extends AbstractUndoableEdit {
     
     @Override
     public String getPresentationName() {
-        return I18n.textf("Remove '%element' (%element_type)",element.getId(), element.getType());
+        return (I18n.text("Remove ") +  I18n.textf("'%element' (%element_type)",element.getId(), element.getType()));
     }
     
     

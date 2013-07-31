@@ -934,7 +934,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
     }
 
-    private enum ParentNodes {
+    public enum ParentNodes {
         MAP("Maps"),
         TRANSPONDERS("Transponders"),
         PLANS("Plans"),

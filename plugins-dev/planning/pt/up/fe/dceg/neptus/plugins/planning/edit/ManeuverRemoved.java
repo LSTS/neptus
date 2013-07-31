@@ -38,6 +38,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.types.mission.TransitionType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
@@ -75,7 +76,7 @@ public class ManeuverRemoved extends AbstractUndoableEdit {
     
     @Override
     public String getPresentationName() {
-        return "Remove the maneuver "+maneuver.getId();
+        return I18n.text("Remove the maneuver ") + maneuver.getId();
     }
     
     @Override

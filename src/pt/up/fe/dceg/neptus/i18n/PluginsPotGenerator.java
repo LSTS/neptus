@@ -45,6 +45,7 @@ import java.util.Vector;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.up.fe.dceg.neptus.console.plugins.SystemsList;
+import pt.up.fe.dceg.neptus.gui.MissionBrowser;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.system.SystemDisplayComparator;
 import pt.up.fe.dceg.neptus.imc.Announce;
@@ -88,12 +89,12 @@ public class PluginsPotGenerator {
     public static Vector<Class<?>> enums() {
         Vector<Class<?>> enums = new Vector<>();
         enums.add(Announce.SYS_TYPE.class);
-        enums.add(ConsoleEventVehicleStateChanged.STATE.class);
+        //enums.add(ConsoleEventVehicleStateChanged.STATE.class);
         enums.add(ImcSystem.IMCAuthorityState.class);
         enums.add(Goto.SPEED_UNITS.class);
         enums.add(Loiter.TYPE.class);
         enums.add(MapPanel.PlacementEnum.class);
-        enums.add(STATE.class);
+        //enums.add(STATE.class);
         enums.add(SystemDisplayComparator.OrderOptionEnum.class);
         enums.add(SystemsList.SortOrderEnum.class);
         enums.add(SystemsList.MilStd2525SymbolsFilledEnum.class);
@@ -102,6 +103,7 @@ public class PluginsPotGenerator {
         enums.add(Z_UNITS.class);
         enums.add(HideOrFadeRangeEnum.class);
         enums.add(ConsoleEventVehicleStateChanged.STATE.class);
+        enums.add(MissionBrowser.ParentNodes.class);
         return enums;
     }
 

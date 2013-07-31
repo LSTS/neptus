@@ -25,6 +25,7 @@ import javax.swing.JProgressBar;
 import javax.swing.Timer;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
@@ -71,7 +72,7 @@ public class Loader extends JFrame implements ActionListener {
     private JLabel getJLabel() {
         if (jLabel == null) {
             jLabel = new JLabel();
-            jLabel.setText(" Loading...");
+            jLabel.setText(I18n.text(" Loading..."));
             jLabel.setForeground(frontColor);
             jLabel.setBackground(backColor);
             jLabel.setAutoscrolls(true);

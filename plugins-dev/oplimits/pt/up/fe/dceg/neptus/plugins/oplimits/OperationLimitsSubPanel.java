@@ -479,7 +479,7 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
 
     @Override
     public String getName() {
-        return "Edit operational limits";
+        return "Edit Operational Limits";
     }
 
     @Override
