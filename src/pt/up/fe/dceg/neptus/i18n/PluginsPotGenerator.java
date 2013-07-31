@@ -103,7 +103,6 @@ public class PluginsPotGenerator {
         enums.add(Z_UNITS.class);
         enums.add(HideOrFadeRangeEnum.class);
         enums.add(ConsoleEventVehicleStateChanged.STATE.class);
-        enums.add(MissionBrowser.ParentNodes.class);
         return enums;
     }
 

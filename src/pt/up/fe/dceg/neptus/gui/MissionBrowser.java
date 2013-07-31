@@ -106,6 +106,22 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             return fileName;
         }
     };
+    
+
+    private enum ParentNodes {
+        MAP(I18n.text("Maps")),
+        TRANSPONDERS(I18n.text("Transponders")),
+        PLANS(I18n.text("Plans")),
+        // REMOTE_PLANS("Remote Plans"),
+        MARKS(I18n.text("Marks")),
+        CHECKLISTS(I18n.text("Checklists"));
+
+        public final String nodeName;
+
+        private ParentNodes(String nodeName) {
+            this.nodeName = nodeName;
+        }
+    }
 
     private final MissionTreeCellRenderer cellRenderer;
     private final JTree elementTree;
@@ -931,21 +947,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 revalidate();
                 break;
             }
-        }
-    }
-
-    public enum ParentNodes {
-        MAP("Maps"),
-        TRANSPONDERS("Transponders"),
-        PLANS("Plans"),
-        // REMOTE_PLANS("Remote Plans"),
-        MARKS("Marks"),
-        CHECKLISTS("Checklists");
-
-        public final String nodeName;
-
-        private ParentNodes(String nodeName) {
-            this.nodeName = nodeName;
         }
     }
 

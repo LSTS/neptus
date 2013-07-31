@@ -241,7 +241,8 @@ public class I18n {
         UIManager.put("ColorChooser.rgbGreenText", I18n.text("Green"));
         UIManager.put("ColorChooser.rgbBlueText", I18n.text("Blue"));
         UIManager.put("ColorChooser.rgbAlphaText", I18n.text("Alpha"));
-        UIManager.put("ColorChooser.colorCodeText", I18n.text("COCO"));
+            // Not working
+        UIManager.put("ColorChooser.colorCodeText", I18n.text("Color Code"));
         
         UIManager.put("ColorChooser.cmykCyanText", I18n.text("Cyan"));
         UIManager.put("ColorChooser.cmykMagentaText", I18n.text("Magenta"));
