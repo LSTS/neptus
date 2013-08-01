@@ -153,15 +153,15 @@ public class Utils {
             NeptusMRA.vtkEnabled = false;
             NeptusLog.pub().warn(I18n.text("<###> cannot load vtkVolumeRendering, skipping..."));
         }
-        
+
         if (NeptusMRA.vtkEnabled) {
             NeptusLog.pub().info("Vtk source version: " + new vtkVersion().GetVTKSourceVersion());
-            //NeptusLog.pub().info("VTK Java Library Path: " + System.getProperty("vtk.lib.dir"));
-            //NeptusLog.pub().info("vtkCommonJava Lib Path: " + System.mapLibraryName("vtkCommonJava"));
+            // NeptusLog.pub().info("VTK Java Library Path: " + System.getProperty("vtk.lib.dir"));
+            // NeptusLog.pub().info("vtkCommonJava Lib Path: " + System.mapLibraryName("vtkCommonJava"));
             NeptusLog.pub().info("VTK Library Dir (searches for vtk.jar): " + vtkSettings.GetVTKLibraryDir());
-            //NeptusLog.pub().info("Kits: " + vtkSettings.GetKits());
-            //NeptusLog.pub().info("Java Class path" + p.getProperty("java.class.path"));
-            //vtkJavaTesting.Initialize(null , true);   // <- crashs app
+            // NeptusLog.pub().info("Kits: " + vtkSettings.GetKits());
+            // NeptusLog.pub().info("Java Class path" + p.getProperty("java.class.path"));
+            // vtkJavaTesting.Initialize(null , true); // <- crashs app
         }
     }
 
@@ -183,11 +183,11 @@ public class Utils {
                 LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
-        else{
+        else {
             runnable.run();
         }
     }
-    
+
     public static void delete(vtkObjectBase o) {
         VTKMemoryManager.delete(o);
     }
@@ -199,7 +199,6 @@ public class Utils {
         else
             throw new NoSuchElementException("Found " + c.getClass() + " when " + vtkCanvas.class + " expected.");
     }
-    
 
     public static boolean isMeshCoherent(float[] points, int[] indices) {
         boolean[] flags = new boolean[points.length / 3];

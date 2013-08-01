@@ -116,50 +116,50 @@ public class MultibeamDeltaTHeader {
     String fileType; // bytes 0-2 - ASCII '8' '3' 'P'
     byte fileVersion; // byte 3 - 0 = v1.xx
     short numberBytesPing; // 'N' - number of bytes that are written to the disk for this ping
-                        // N = 256 + (2*number_of_beams)
-    byte intensity;     // Intensity Bytes included 0 = No, 1 = Yes
-    
+                           // N = 256 + (2*number_of_beams)
+    byte intensity; // Intensity Bytes included 0 = No, 1 = Yes
+
     String systemDate;
     String systemTime;
     String systemTimeHundredsSeconds;
     long timeStamp;
     Calendar cal;
-    
+
     String gnssShipPosLat;
-    String gnssShipPosLong;    
-    //byte gnssShipSpeed;
+    String gnssShipPosLong;
+    // byte gnssShipSpeed;
     float gnssShipSpeedKnots;
     float gnssShipSpeedMS;
     float gnssShipHeading;
-    
+
     float pitchAngle;
     float rollAngle;
     float headingAngle;
-    
+
     short numberBeams;
     short numberSamplesPerBeam;
-    short sectorSize;           // whole swath angle in degrees, from beam 0 to n
-    float startAngle;           // start -60 degrees on beam 0, end at +60 on beam n
-    
-    //byte angleIncrement;        // angle spacing per beam = (BYTE 78)/100 in degrees  <- tem de ser float
+    short sectorSize; // whole swath angle in degrees, from beam 0 to n
+    float startAngle; // start -60 degrees on beam 0, end at +60 on beam n
+
+    // byte angleIncrement; // angle spacing per beam = (BYTE 78)/100 in degrees <- tem de ser float
     float angleIncrement;
-    short acousticRange;        // in meters
-    short acousticFrequency;    // in kHz
-    //short soundVelocity;        // (m/s)
+    short acousticRange; // in meters
+    short acousticFrequency; // in kHz
+    // short soundVelocity; // (m/s)
     float soundVelocity;
-    short rangeResolution;      // milimeters
-    short pulseLength;          // microseconds
-    //int profileTiltangle;     // mounting offset - Profile tilt Angle (in degrees) + 180
+    short rangeResolution; // milimeters
+    short pulseLength; // microseconds
+    // int profileTiltangle; // mounting offset - Profile tilt Angle (in degrees) + 180
     float profileTiltAngle;
-    short repetitionRate;       // in miliseconds - time between pings
-    int pingNumber;             // increment for every ping (4 bytes)
-    
+    short repetitionRate; // in miliseconds - time between pings
+    int pingNumber; // increment for every ping (4 bytes)
+
     float sonarXOffset;
     float sonarYOffset;
     float sonarZOffset;
-    
+
     String miliseconds;
-    
+
     short pingLatency;
     short dataLatency;
     byte sampleRate;
@@ -175,7 +175,7 @@ public class MultibeamDeltaTHeader {
     float externalHeadingAngle;
     byte transmitScanFlag;
     float transmitScanAngle;
-    
+
     public MultibeamDeltaTHeader(ByteBuffer buf) {
         this.buf = buf;
     }
@@ -192,15 +192,15 @@ public class MultibeamDeltaTHeader {
         systemDate = parseSystemDate();
         systemTime = parseSystemTime();
         systemTimeHundredsSeconds = parseTimeHundredsSeconds();
-        
+
         gnssShipPosLat = parsePositionLatitude();
         gnssShipPosLong = parsePositionLongitude();
 
         gnssShipSpeedKnots = (buf.get(61) / 10f);
         gnssShipSpeedMS = convertKnotsToMetersPerSecond(gnssShipSpeedKnots);
-        
+
         gnssShipHeading = buf.getShort(62) * 10f;
-        
+
         pitchAngle = parsePitchAngle();
         rollAngle = parseRollAngle();
         headingAngle = parseHeadingAngle();
@@ -209,25 +209,25 @@ public class MultibeamDeltaTHeader {
         numberSamplesPerBeam = buf.getShort(72);
         sectorSize = buf.getShort(74);
         startAngle = buf.getShort(76) / 100f - 180f;
-        angleIncrement = buf.get(78)/100f;
+        angleIncrement = buf.get(78) / 100f;
         acousticRange = buf.getShort(79);
         acousticFrequency = buf.getShort(81);
-        
+
         soundVelocity = parseSoundVelocity();
 
         rangeResolution = buf.getShort(85);
         pulseLength = buf.getShort(87);
         profileTiltAngle = buf.getShort(89) + 180f;
-        
+
         repetitionRate = buf.getShort(91);
         pingNumber = buf.getInt(93);
-        
+
         sonarXOffset = buf.getFloat(100);
         sonarYOffset = buf.getFloat(104);
         sonarZOffset = buf.getFloat(108);
-        
+
         miliseconds = parseMiliseconds();
-        
+
         pingLatency = buf.getShort(118);
         dataLatency = buf.getShort(120);
         sampleRate = buf.get(122);
@@ -237,8 +237,8 @@ public class MultibeamDeltaTHeader {
         heave = buf.getFloat(128);
         userDefinedByte = buf.get(132);
         altitude = buf.getFloat(133);
-        
-        //printDeltaTHeaderInfo();
+
+        // printDeltaTHeaderInfo();
     }
 
     /**
@@ -266,24 +266,23 @@ public class MultibeamDeltaTHeader {
         float vel;
         byte vel83 = buf.get(83);
         byte vel84 = buf.get(84);
-        
+
         if (!isBitSet(vel83, 7))
             return (float) (1500.0);
         else {
-            vel = (float) ((((vel83 & 0x7F) << 8) | vel84)/10.0);
+            vel = (float) ((((vel83 & 0x7F) << 8) | vel84) / 10.0);
             return vel;
         }
     }
 
     /**
-     * @return
-     * FIX ME
+     * @return FIX ME
      */
     private float parseStartAngle() {
-        //byte start76 = buf.get(76);
-        //byte start77 = buf.get(77);
-        float start = (buf.getShort(76) / 100f - 180f);        
-    
+        // byte start76 = buf.get(76);
+        // byte start77 = buf.get(77);
+        float start = (buf.getShort(76) / 100f - 180f);
+
         return (float) start;
     }
 
@@ -292,19 +291,18 @@ public class MultibeamDeltaTHeader {
      */
     private float parseHeadingAngle() {
         byte heading68 = buf.get(68);
-        if (!isBitSet(heading68, 7)) {      // H = 0
+        if (!isBitSet(heading68, 7)) { // H = 0
             return 0;
         }
         else {
-            byte heading69 = buf.get(69);   // H = 1
-            float heading = (((heading68 & 0x7F) << 8) | heading69)/10f;
+            byte heading69 = buf.get(69); // H = 1
+            float heading = (((heading68 & 0x7F) << 8) | heading69) / 10f;
             return heading;
-        }      
+        }
     }
 
     /**
-     * @return
-     * FIX ME!!!
+     * @return FIX ME!!!
      */
     private float parseRollAngle() {
         byte roll66 = buf.get(66);
@@ -313,14 +311,13 @@ public class MultibeamDeltaTHeader {
         }
         else {
             byte roll67 = buf.get(67);
-            float roll = (((roll66 & 0x7F << 8) | roll67) - 900f)/10f;
+            float roll = (((roll66 & 0x7F << 8) | roll67) - 900f) / 10f;
             return roll;
         }
     }
 
     /**
-     * @return
-     *  // FIXME - não retorna o valor certo
+     * @return // FIXME - não retorna o valor certo
      */
     private float parsePitchAngle() {
         byte pitch64 = buf.get(64);
@@ -328,9 +325,9 @@ public class MultibeamDeltaTHeader {
             return 0;
         else {
             byte pitch65 = buf.get(65);
-            float pitchf = ((((pitch64 & 0x7F) << 8) | pitch65)/10.0f);
+            float pitchf = ((((pitch64 & 0x7F) << 8) | pitch65) / 10.0f);
             return pitchf;
-        }       
+        }
     }
 
     /**
@@ -402,18 +399,19 @@ public class MultibeamDeltaTHeader {
         }
         catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-        };
-        return fileTypeStr;       
+        }
+        ;
+        return fileTypeStr;
     }
-    
-    private static Boolean isBitSet (short sh, int bit) {
+
+    private static Boolean isBitSet(short sh, int bit) {
         return (sh & (1 << bit)) != 0;
     }
-    
-    private static Boolean isBitSet (byte b, int bit) {
+
+    private static Boolean isBitSet(byte b, int bit) {
         return (b & (1 << bit)) != 0;
     }
-    
+
     /**
      * FIXME - change all system out to Neptus Log
      */
@@ -425,16 +423,16 @@ public class MultibeamDeltaTHeader {
         System.out.println("System Date: " + systemDate);
         System.out.println("System Time: " + systemTime);
         System.out.println("System Time Hundreds seconds: " + systemTimeHundredsSeconds);
-        System.out.println("GNSS AUV Position Latitude: " + gnssShipPosLat);    
+        System.out.println("GNSS AUV Position Latitude: " + gnssShipPosLat);
         System.out.println("GNSS AUV Position Longitude: " + gnssShipPosLong);
         System.out.println("GNSS AUV Speed: " + gnssShipSpeedKnots + " knots");
-        System.out.println("GNSS AUV Speed: " + gnssShipSpeedMS + " m/s");    
-        System.out.println("GNSS AUV Course/Heading: " + gnssShipHeading);    
+        System.out.println("GNSS AUV Speed: " + gnssShipSpeedMS + " m/s");
+        System.out.println("GNSS AUV Course/Heading: " + gnssShipHeading);
         System.out.println("Pitch Angle: " + pitchAngle);
         System.out.println("Roll Angle: " + rollAngle);
         System.out.println("Heading Angle: " + headingAngle);
         System.out.println("Number of beams: " + numberBeams);
-        System.out.println("Number Samples Per Beam: " + numberSamplesPerBeam);  
+        System.out.println("Number Samples Per Beam: " + numberSamplesPerBeam);
         System.out.println("Sector Size: " + sectorSize);
         System.out.println("Start angle: " + startAngle);
         System.out.println("Angle Increment: " + angleIncrement);

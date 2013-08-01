@@ -40,15 +40,12 @@ import vtk.vtkPolyData;
  *
  */
 public class DepthExaggeration {
-//    private vtkPolyData polyData;
-//    private int zExaggeration;
-//    
-//    
-//    public DepthExaggeration (vtkPolyData polyData, int zExaggeratiion) {
-//        this.polyData = polyData;
-//        this.zExaggeration = zExaggeratiion;
-//    }
     
+    /**
+     * Perform z coords exaggeration on polydata
+     * @param polyData
+     * @param zExaggeration
+     */
     public static void performDepthExaggeration(vtkPolyData polyData, int zExaggeration) {
         try {
             int numberOfPoints = polyData.GetNumberOfPoints();
@@ -75,6 +72,11 @@ public class DepthExaggeration {
         }
     }
     
+    /**
+     * Reverse z coords exaggeration on polydata
+     * @param polyData
+     * @param zExaggeration
+     */
     public static void reverseDepthExaggeration(vtkPolyData polyData, int zExaggeration) {
         try {
             int numberOfPoints = polyData.GetNumberOfPoints();

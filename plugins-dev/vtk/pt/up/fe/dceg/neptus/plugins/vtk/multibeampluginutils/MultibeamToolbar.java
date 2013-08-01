@@ -70,75 +70,75 @@ import vtk.vtkTextActor;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class MultibeamToolbar {
     private JPanel toolbar;
-    
+
     private JToggleButton rawPointsToggle;
     private JToggleButton zExaggerationToogle;
     private JToggleButton downsamplePointsToogle;
     private JToggleButton meshToogle;
     private JToggleButton smoothingMeshToogle;
     private JToggleButton contoursToogle;
-    
+
     private JButton resetViewportButton;
     private JButton helpButton;
     private JButton configButton;
-    
-    //private vtkCanvas canvas;
+
+    // private vtkCanvas canvas;
     private Canvas canvas;
     private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
     private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
-    
-    //private ExaggeratePointCloudZ exaggeZ;
-    //private DepthExaggeration exaggeDepth;
-    
+
+    // private ExaggeratePointCloudZ exaggeZ;
+    // private DepthExaggeration exaggeDepth;
+
     private vtkTextActor textProcessingActor;
     private vtkTextActor textZExagInfoActor;
-    
+
     private int currentPtsToIgnore = 0;
     private boolean currentApproachToIgnorePts = false;
     private long currentTimestampMultibeamIncrement = 0;
     private boolean currentYawMultibeamIncrement = false;
     private int currentDepthExaggeValue = 0;
     private int lastDepthExaggeValue = 0;
-    
+
     ToolbarAddons addons;
 
     private Vtk vtkInit;
-    
+
     /**
      * @param vtkInit
      */
     public MultibeamToolbar(Vtk vtkInit) {
         this.vtkInit = vtkInit;
-        //this.canvas = vtkInit.vtkCanvas;
+        // this.canvas = vtkInit.vtkCanvas;
         this.canvas = vtkInit.canvas;
         this.linkedHashMapCloud = vtkInit.linkedHashMapCloud;
         this.linkedHashMapMesh = vtkInit.linkedHashMapMesh;
-        //this.currentApproachToIgnorePts = vtkInit.approachToIgnorePts;
+        // this.currentApproachToIgnorePts = vtkInit.approachToIgnorePts;
         this.currentApproachToIgnorePts = NeptusMRA.approachToIgnorePts;
-        //this.currentPtsToIgnore = vtkInit.ptsToIgnore;
+        // this.currentPtsToIgnore = vtkInit.ptsToIgnore;
         this.currentPtsToIgnore = NeptusMRA.ptsToIgnore;
-        //this.currentTimestampMultibeamIncrement = vtkInit.timestampMultibeamIncrement;
+        // this.currentTimestampMultibeamIncrement = vtkInit.timestampMultibeamIncrement;
         this.currentTimestampMultibeamIncrement = NeptusMRA.timestampMultibeamIncrement;
-        //this.currentYawMultibeamIncrement = vtkInit.yawMultibeamIncrement;
+        // this.currentYawMultibeamIncrement = vtkInit.yawMultibeamIncrement;
         this.currentYawMultibeamIncrement = NeptusMRA.yawMultibeamIncrement;
         this.currentDepthExaggeValue = vtkInit.zExaggeration;
-        
+
         this.lastDepthExaggeValue = currentDepthExaggeValue;
-        
+
         addons = new ToolbarAddons();
         textZExagInfoActor = new vtkTextActor();
         addons.setCurrentZexagge(currentDepthExaggeValue);
         addons.buildTextZExagInfoActor(textZExagInfoActor);
         textProcessingActor = new vtkTextActor();
         addons.buildTextProcessingActor(textProcessingActor);
-        
+
         setToolbar(new JPanel());
     }
-    
+
     /**
      * Set up toolbar and internal buttons, toogles and actions
      */
@@ -155,7 +155,7 @@ public class MultibeamToolbar {
 
         setupToolbarButtonsAndToogles();
 
-        //getToolbar().add(getToolbar(), BorderLayout.PAGE_START);
+        // getToolbar().add(getToolbar(), BorderLayout.PAGE_START);
 
         // add toogle buttons to toolbar
         getToolbar().add(rawPointsToggle);
@@ -163,7 +163,7 @@ public class MultibeamToolbar {
         getToolbar().add(zExaggerationToogle);
         getToolbar().add(meshToogle);
         getToolbar().add(smoothingMeshToogle);
-        //getToolbar().add(contoursToogle);
+        // getToolbar().add(contoursToogle);
 
         getToolbar().add(new JSeparator(JSeparator.VERTICAL), BorderLayout.LINE_START);
 
@@ -191,25 +191,25 @@ public class MultibeamToolbar {
             meshToogle.setSelected(false);
             smoothingMeshToogle.setSelected(false);
             contoursToogle.setSelected(false);
-            
+
             resetViewportButton = new JButton(I18n.text("Reset Viewport"));
             helpButton = new JButton(I18n.text("Help"));
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         addActionsToToogles();
         addActionsToButtons();
     }
-    
+
     /**
      * 
      */
     private void addActionsToToogles() {
-        
+
         rawPointsToggle.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 Set<String> setOfClouds = linkedHashMapCloud.keySet();
@@ -244,25 +244,24 @@ public class MultibeamToolbar {
                 }
             }
         });
-        
-        
-        
+
         zExaggerationToogle.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (zExaggerationToogle.isSelected()) {
-                    //NeptusLog.pub().info("current depth exagge: " + currentDepthExaggeValue);
-                    //NeptusLog.pub().info("lastDepthExaggeVue: " + lastDepthExaggeValue);
-                    
+                    // NeptusLog.pub().info("current depth exagge: " + currentDepthExaggeValue);
+                    // NeptusLog.pub().info("lastDepthExaggeVue: " + lastDepthExaggeValue);
+
                     lastDepthExaggeValue = currentDepthExaggeValue;
-                    //addons.setCurrentZexagge(lastDepthExaggeValue);
+                    // addons.setCurrentZexagge(lastDepthExaggeValue);
                     addons.setCurrentZexagge(vtkInit.zExaggeration);
-                    
-                    //NeptusLog.pub().info("lastDepthExaggeVue 2: " + lastDepthExaggeValue);
-                    
+
+                    // NeptusLog.pub().info("lastDepthExaggeVue 2: " + lastDepthExaggeValue);
+
                     if (!rawPointsToggle.isSelected() && !meshToogle.isSelected()) {
-                        String msgErrorMultibeam = I18n.text("No Pointcloud or Mesh on renderer\n Please load one or press raw or mesh toogle if you hava already loaded a log");
+                        String msgErrorMultibeam = I18n
+                                .text("No Pointcloud or Mesh on renderer\n Please load one or press raw or mesh toogle if you hava already loaded a log");
                         JOptionPane.showMessageDialog(null, msgErrorMultibeam);
                         zExaggerationToogle.setSelected(false);
                     }
@@ -279,9 +278,9 @@ public class MultibeamToolbar {
                         catch (Exception e1) {
                             e1.printStackTrace();
                         }
-                        
+
                         performActionDepthExaggeration();
-                        
+
                         try {
                             canvas.lock();
                             canvas.GetRenderer().RemoveActor(textProcessingActor);
@@ -305,9 +304,9 @@ public class MultibeamToolbar {
                     catch (Exception e2) {
                         e2.printStackTrace();
                     }
-                              
+
                     performActionReverseDepthexaggeration();
-                    
+
                     try {
                         canvas.lock();
                         canvas.GetRenderer().RemoveActor(textProcessingActor);
@@ -319,12 +318,12 @@ public class MultibeamToolbar {
                     catch (Exception e1) {
                         e1.printStackTrace();
                     }
-                }                
+                }
             }
         });
-        
+
         meshToogle.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (meshToogle.isSelected()) {
@@ -333,9 +332,9 @@ public class MultibeamToolbar {
                     textProcessingActor.SetDisplayPosition(canvas.getWidth() / 3, canvas.getHeight() / 2);
                     canvas.Render();
                     canvas.unlock();
-                    
+
                     performActionMeshing();
-                    
+
                     canvas.lock();
                     canvas.GetRenderer().ResetCamera();
                     canvas.GetRenderer().RemoveActor(textProcessingActor);
@@ -353,7 +352,7 @@ public class MultibeamToolbar {
                 }
             }
         });
-        
+
         smoothingMeshToogle.addActionListener(new ActionListener() {
 
             @Override
@@ -364,9 +363,9 @@ public class MultibeamToolbar {
                     canvas.GetRenderer().AddActor(textProcessingActor);
                     canvas.Render();
                     canvas.unlock();
-                    
+
                     performActionMeshSmoothing();
-                    
+
                     canvas.lock();
                     canvas.GetRenderer().RemoveActor(textProcessingActor);
                     canvas.GetRenderer().ResetCamera();
@@ -377,9 +376,9 @@ public class MultibeamToolbar {
                     smoothingMeshToogle.setSelected(true);
             }
         });
-        
+
         contoursToogle.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (contoursToogle.isSelected()) {
@@ -389,38 +388,39 @@ public class MultibeamToolbar {
                         canvas.GetRenderer().AddActor(textProcessingActor);
                         canvas.Render();
                         canvas.unlock();
-                        
+
                         performActionAddContours();
-                        
+
                         canvas.lock();
                         canvas.GetRenderer().RemoveActor(textProcessingActor);
                         canvas.GetRenderer().ResetCamera();
                         canvas.Render();
                         canvas.unlock();
-                        
+
                     }
                     else {
                         contoursToogle.setSelected(false);
-                        String msgErrorMultibeam = I18n.text("No Mesh on renderer\n Please load one or press raw or mesh toogle if you hava already loaded a log");
+                        String msgErrorMultibeam = I18n
+                                .text("No Mesh on renderer\n Please load one or press raw or mesh toogle if you hava already loaded a log");
                         JOptionPane.showMessageDialog(null, msgErrorMultibeam);
                     }
                 }
                 else {
-                    
+
                 }
             }
         });
     }
-    
+
     private void performActionAddContours() {
         vtkActorCollection actorCollection = new vtkActorCollection();
         actorCollection = canvas.GetRenderer().GetActors();
         actorCollection.InitTraversal();
-        
+
         Set<String> setOfMeshs = linkedHashMapMesh.keySet();
-        
+
         for (String sKey : setOfMeshs) {
-            
+
             for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
                 vtkLODActor tempActor = new vtkLODActor();
                 tempActor = (vtkLODActor) actorCollection.GetNextActor();
@@ -432,15 +432,13 @@ public class MultibeamToolbar {
                     canvas.unlock();
                 }
             }
-            
 
         }
     }
-    
-    
+
     private void performActionMeshSmoothing() {
         if (meshToogle.isSelected()) {
-            
+
             vtkActorCollection actorCollection = new vtkActorCollection();
             actorCollection = canvas.GetRenderer().GetActors();
             actorCollection.InitTraversal();
@@ -474,12 +472,11 @@ public class MultibeamToolbar {
             smoothingMeshToogle.setSelected(false);
         }
     }
-    
-    
+
     private void performActionMeshing() {
         try {
             boolean hasFound = false;
-            
+
             if (smoothingMeshToogle.isSelected()) {
                 Set<String> setOfMeshs = linkedHashMapMesh.keySet();
                 for (String sKey : setOfMeshs) {
@@ -512,10 +509,10 @@ public class MultibeamToolbar {
                         else {
                             if (tempActor.equals(linkedHashMapCloud.get(sKey).getCloudLODActor())) {
                                 NeptusLog.pub().info("Create Mesh from pointcloud");
-                                
+
                                 Delauny2D delauny = new Delauny2D();
                                 delauny.performDelauny(linkedHashMapCloud.get(sKey));
-                                
+
                                 PointCloudMesh mesh = new PointCloudMesh();
                                 mesh.generateLODActorFromPolyData(delauny.getPolyData());
 
@@ -536,7 +533,7 @@ public class MultibeamToolbar {
                 JOptionPane.showMessageDialog(null, msgErrorMultibeam);
                 meshToogle.setSelected(false);
             }
-            if(!hasFound) {
+            if (!hasFound) {
                 String msgErrorMultibeam = I18n.text("No Pointclouds to perform meshing");
                 JOptionPane.showMessageDialog(null, msgErrorMultibeam);
                 meshToogle.setSelected(false);
@@ -549,17 +546,17 @@ public class MultibeamToolbar {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Performs DepthExaggeration on rendered pointcloud or mesh (when available on renderer)
      */
     private void performActionDepthExaggeration() {
-        try {           
+        try {
             // search for rendered pointclouds or meshes
             vtkActorCollection actorCollection = new vtkActorCollection();
             actorCollection = canvas.GetRenderer().GetActors();
             actorCollection.InitTraversal();
-            
+
             boolean hasFound = false;
 
             if (rawPointsToggle.isSelected()) {
@@ -572,7 +569,7 @@ public class MultibeamToolbar {
                             canvas.lock();
                             NeptusLog.pub().info("current Depth on perform action: " + currentDepthExaggeValue);
                             NeptusLog.pub().info("last Depth on perform action: " + lastDepthExaggeValue);
-                            
+
                             DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get(sKey).getPoly(),
                                     lastDepthExaggeValue);
                             canvas.unlock();
@@ -589,10 +586,11 @@ public class MultibeamToolbar {
                     for (String skey : setOfMeshs) {
                         if (tempActor.equals(linkedHashMapMesh.get(skey).getMeshCloudLODActor())) {
                             canvas.lock();
-//                            DepthExaggeration.performDepthExaggeration(linkedHashMapMesh.get(skey).getPolyData(),
-//                                    lastDepthExaggeValue);
-                            DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get(skey).getPoly(), lastDepthExaggeValue);
-                            canvas.unlock(); 
+                            // DepthExaggeration.performDepthExaggeration(linkedHashMapMesh.get(skey).getPolyData(),
+                            // lastDepthExaggeValue);
+                            DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get(skey).getPoly(),
+                                    lastDepthExaggeValue);
+                            canvas.unlock();
                             hasFound = true;
                         }
                     }
@@ -605,8 +603,7 @@ public class MultibeamToolbar {
             e1.printStackTrace();
         }
     }
-     
-    
+
     /**
      * Reverts DepthExaggeration on rendered pointcloud or mesh (when available on renderer)
      */
@@ -616,11 +613,11 @@ public class MultibeamToolbar {
             vtkActorCollection actorCollection = new vtkActorCollection();
             actorCollection = canvas.GetRenderer().GetActors();
             actorCollection.InitTraversal();
-            
+
             boolean hasFound = false;
 
-            if (rawPointsToggle.isSelected()) {      
-                for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {                   
+            if (rawPointsToggle.isSelected()) {
+                for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
                     vtkLODActor tempActor = new vtkLODActor();
                     tempActor = (vtkLODActor) actorCollection.GetNextActor();
                     Set<String> setOfClouds = linkedHashMapCloud.keySet();
@@ -629,7 +626,7 @@ public class MultibeamToolbar {
                             canvas.lock();
                             NeptusLog.pub().info("current Depth on perform reverse action: " + currentDepthExaggeValue);
                             NeptusLog.pub().info("last Depth on perform reverse action: " + lastDepthExaggeValue);
-                            
+
                             DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get(sKey).getPoly(),
                                     lastDepthExaggeValue);
                             canvas.unlock();
@@ -638,7 +635,7 @@ public class MultibeamToolbar {
                     }
                 }
             }
-            else if (meshToogle.isSelected()) {               
+            else if (meshToogle.isSelected()) {
                 for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
                     vtkLODActor tempActor = new vtkLODActor();
                     tempActor = (vtkLODActor) actorCollection.GetNextActor();
@@ -646,8 +643,8 @@ public class MultibeamToolbar {
                     for (String sKey : setOfMeshs) {
                         if (tempActor.equals(linkedHashMapMesh.get(sKey).getMeshCloudLODActor())) {
                             canvas.lock();
-//                            DepthExaggeration.reverseDepthExaggeration(linkedHashMapMesh.get(sKey).getPolyData(),
-//                                    lastDepthExaggeValue);                         
+                            // DepthExaggeration.reverseDepthExaggeration(linkedHashMapMesh.get(sKey).getPolyData(),
+                            // lastDepthExaggeValue);
                             DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get(sKey).getPoly(),
                                     lastDepthExaggeValue);
                             canvas.unlock();
@@ -656,7 +653,7 @@ public class MultibeamToolbar {
                     }
                 }
             }
-            
+
             if (!hasFound)
                 zExaggerationToogle.setSelected(true);
         }
@@ -669,16 +666,18 @@ public class MultibeamToolbar {
      * Adds actions to toolbar buttons
      */
     private void addActionsToButtons() {
-        
+
         helpButton.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent e) {              
-                GuiUtils.htmlMessage(ConfigFetch.getSuperParentFrame() == null ? vtkInit : ConfigFetch.getSuperParentAsFrame()
-                        , "Help for the 3D visualization interaction", "(3D Multibeam keyboard and mouse interaction)", addons.msgHelp(), ModalityType.MODELESS);
+            public void actionPerformed(ActionEvent e) {
+                GuiUtils.htmlMessage(
+                        ConfigFetch.getSuperParentFrame() == null ? vtkInit : ConfigFetch.getSuperParentAsFrame(),
+                        "Help for the 3D visualization interaction", "(3D Multibeam keyboard and mouse interaction)",
+                        addons.msgHelp(), ModalityType.MODELESS);
             }
         });
-        
+
         resetViewportButton.addActionListener(new ActionListener() {
 
             @Override
@@ -695,105 +694,105 @@ public class MultibeamToolbar {
                 }
             }
         });
-        
-        configButton = new JButton(new AbstractAction(I18n.text("Configure")) {    
+
+        configButton = new JButton(new AbstractAction(I18n.text("Configure")) {
             private static final long serialVersionUID = -1404112253602290953L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                PropertiesEditor.editProperties(vtkInit,
-                        SwingUtilities.getWindowAncestor(vtkInit), true);
+                PropertiesEditor.editProperties(vtkInit, SwingUtilities.getWindowAncestor(vtkInit), true);
                 if (vtkInit.zExaggeration != currentDepthExaggeValue) {
                     currentDepthExaggeValue = vtkInit.zExaggeration;
                 }
-                
+
             }
         });
-              
-//        configButton = new JButton(new AbstractAction(I18n.text("Configure")) {    
-//            private static final long serialVersionUID = -1404112253602290953L;
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                PropertiesEditor.editProperties(vtk,
-//                        SwingUtilities.getWindowAncestor(vtk), true);
-//
-//                if (ptsToIgnore != currentPtsToIgnore || approachToIgnorePts != currentApproachToIgnorePts || timestampMultibeamIncrement != currentTimestampMultibeamIncrement || yawMultibeamIncrement != currentYawMultibeamIncrement) {
-//                    if (vtk.noBeamsTxtActor != null)
-//                        canvas.GetRenderer().RemoveActor(vtk.noBeamsTxtActor);
-//                    
-//                    pointCloud = linkedHashMapCloud.get("multibeam");
-//
-//                    canvas.lock();
-//                    canvas.GetRenderer().RemoveActor(pointCloud.getCloudLODActor());
-//                    if (zExaggerationToggle.isSelected()) {
-//                        exaggeZ.reverseZExaggeration();
-//                        canvas.GetRenderer().RemoveActor(textProcessingActor);
-//                        zExaggerationToggle.setSelected(false);
-//                    }
-//                    canvas.unlock();
-//                            
-//                    textProcessingActor.SetDisplayPosition(canvas.getWidth() / 3, canvas.getHeight() / 2);
-//                    canvas.GetRenderer().AddActor(textProcessingActor);
-//                    canvas.Render();
-//                    
-//                
-//                        // clean up point cloud
-//                    pointCloud.setPoints(new vtkPoints());
-//                    pointCloud.setVerts(new vtkCellArray());
-//                    pointCloud.setPoly(new vtkPolyData());
-//                    pointCloud.setCloudLODActor(new vtkLODActor());
-//                    pointCloud.setColorHandler(new PointCloudHandlers<>());
-//                    
-//                    vtk.multibeamToPointCloud = new MultibeamToPointCloud(vtk.getLog(), pointCloud);
-//                    vtk.multibeamToPointCloud.parseMultibeamPointCloud(vtk.approachToIgnorePts, vtk.ptsToIgnore, vtk.timestampMultibeamIncrement, vtk.yawMultibeamIncrement);
-//                    
-//                    if (pointCloud.getNumberOfPoints() != 0) {
-//                        if (vtk.noBeamsText != null) {
-//                            canvas.lock();
-//                            canvas.GetRenderer().RemoveActor(vtk.noBeamsText.getText3dActor());
-//                            canvas.unlock();
-//                        }
-//                        pointCloud.createLODActorFromPoints();    
-//                        canvas.lock(); 
-//                        canvas.GetRenderer().RemoveActor(textProcessingActor);
-//                        
-//                        canvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
-//                        
-//                        vtk.winCanvas.getInteractorStyle().getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
-//                        canvas.GetRenderer().AddActor(vtk.winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
-//                        
-//                        canvas.GetRenderer().ResetCamera();
-//                        canvas.Render();
-//                        canvas.unlock();
-//                    }
-//                    else {
-//                        canvas.lock();
-//                        canvas.GetRenderer().RemoveActor(textProcessingActor);
-//                        canvas.unlock();
-//                        
-//                        if (vtk.noBeamsText != null) {
-//                            canvas.GetRenderer().AddActor(vtk.noBeamsText.getText3dActor());
-//                        }
-//                        else {
-//                            vtk.noBeamsText = new Text3D();
-//                            vtk.noBeamsText.buildText3D("No beams on Log file!", 2.0, 2.0, 2.0, 10.0);
-//                            canvas.lock();
-//                            canvas.GetRenderer().AddActor(vtk.noBeamsText.getText3dActor());
-//                            canvas.unlock();
-//                        }
-//                    }
-//                    currentPtsToIgnore = vtk.ptsToIgnore;
-//                    currentApproachToIgnorePts = vtk.approachToIgnorePts;
-//                    currentTimestampMultibeamIncrement = vtk.timestampMultibeamIncrement;
-//                    currentYawMultibeamIncrement = vtk.yawMultibeamIncrement;
-//                }
-//            }
-//    });
-        
+
+        // configButton = new JButton(new AbstractAction(I18n.text("Configure")) {
+        // private static final long serialVersionUID = -1404112253602290953L;
+        //
+        // @Override
+        // public void actionPerformed(ActionEvent e) {
+        // PropertiesEditor.editProperties(vtk,
+        // SwingUtilities.getWindowAncestor(vtk), true);
+        //
+        // if (ptsToIgnore != currentPtsToIgnore || approachToIgnorePts != currentApproachToIgnorePts ||
+        // timestampMultibeamIncrement != currentTimestampMultibeamIncrement || yawMultibeamIncrement !=
+        // currentYawMultibeamIncrement) {
+        // if (vtk.noBeamsTxtActor != null)
+        // canvas.GetRenderer().RemoveActor(vtk.noBeamsTxtActor);
+        //
+        // pointCloud = linkedHashMapCloud.get("multibeam");
+        //
+        // canvas.lock();
+        // canvas.GetRenderer().RemoveActor(pointCloud.getCloudLODActor());
+        // if (zExaggerationToggle.isSelected()) {
+        // exaggeZ.reverseZExaggeration();
+        // canvas.GetRenderer().RemoveActor(textProcessingActor);
+        // zExaggerationToggle.setSelected(false);
+        // }
+        // canvas.unlock();
+        //
+        // textProcessingActor.SetDisplayPosition(canvas.getWidth() / 3, canvas.getHeight() / 2);
+        // canvas.GetRenderer().AddActor(textProcessingActor);
+        // canvas.Render();
+        //
+        //
+        // // clean up point cloud
+        // pointCloud.setPoints(new vtkPoints());
+        // pointCloud.setVerts(new vtkCellArray());
+        // pointCloud.setPoly(new vtkPolyData());
+        // pointCloud.setCloudLODActor(new vtkLODActor());
+        // pointCloud.setColorHandler(new PointCloudHandlers<>());
+        //
+        // vtk.multibeamToPointCloud = new MultibeamToPointCloud(vtk.getLog(), pointCloud);
+        // vtk.multibeamToPointCloud.parseMultibeamPointCloud(vtk.approachToIgnorePts, vtk.ptsToIgnore,
+        // vtk.timestampMultibeamIncrement, vtk.yawMultibeamIncrement);
+        //
+        // if (pointCloud.getNumberOfPoints() != 0) {
+        // if (vtk.noBeamsText != null) {
+        // canvas.lock();
+        // canvas.GetRenderer().RemoveActor(vtk.noBeamsText.getText3dActor());
+        // canvas.unlock();
+        // }
+        // pointCloud.createLODActorFromPoints();
+        // canvas.lock();
+        // canvas.GetRenderer().RemoveActor(textProcessingActor);
+        //
+        // canvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
+        //
+        // vtk.winCanvas.getInteractorStyle().getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
+        // canvas.GetRenderer().AddActor(vtk.winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
+        //
+        // canvas.GetRenderer().ResetCamera();
+        // canvas.Render();
+        // canvas.unlock();
+        // }
+        // else {
+        // canvas.lock();
+        // canvas.GetRenderer().RemoveActor(textProcessingActor);
+        // canvas.unlock();
+        //
+        // if (vtk.noBeamsText != null) {
+        // canvas.GetRenderer().AddActor(vtk.noBeamsText.getText3dActor());
+        // }
+        // else {
+        // vtk.noBeamsText = new Text3D();
+        // vtk.noBeamsText.buildText3D("No beams on Log file!", 2.0, 2.0, 2.0, 10.0);
+        // canvas.lock();
+        // canvas.GetRenderer().AddActor(vtk.noBeamsText.getText3dActor());
+        // canvas.unlock();
+        // }
+        // }
+        // currentPtsToIgnore = vtk.ptsToIgnore;
+        // currentApproachToIgnorePts = vtk.approachToIgnorePts;
+        // currentTimestampMultibeamIncrement = vtk.timestampMultibeamIncrement;
+        // currentYawMultibeamIncrement = vtk.yawMultibeamIncrement;
+        // }
+        // }
+        // });
+
     }
-
-
 
     /**
      * @return the toolbar
@@ -808,5 +807,5 @@ public class MultibeamToolbar {
     public void setToolbar(JPanel toolbar) {
         this.toolbar = toolbar;
     }
-    
+
 }

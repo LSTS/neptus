@@ -36,26 +36,25 @@ import java.text.DecimalFormat;
 import vtk.vtkTextActor;
 
 /**
- * @author hfq
- * Class sets up a information caption from the renderer pointcloud
+ * @author hfq Class sets up a information caption from the renderer pointcloud
  */
 public class Caption {
     public Boolean captionEnabled = false;
 
     private int xPosScreen;
     private int YPosScreen;
-    
+
     private int numberOfPoints;
     private String cloudName;
     private double[] bounds;
     private int memorySize;
-    
+
     private vtkTextActor captionNumberOfPointsActor;
     private vtkTextActor captionCloudNameActor;
     private vtkTextActor captionCloudBoundsActor;
     private vtkTextActor captionMemorySizeActor;
     private vtkTextActor captionLatLonActor;
-    
+
     /**
      * 
      * @param xPosScreen
@@ -73,13 +72,13 @@ public class Caption {
         this.cloudName = cloudName;
         this.bounds = bounds;
         this.memorySize = memorySize;
-        
+
         setCaptionNumberOfPointsActor(new vtkTextActor());
         setCaptionCloudNameActor(new vtkTextActor());
         setCaptionCloudBoundsActor(new vtkTextActor());
         setCaptionLatLonActor(new vtkTextActor());
         setCaptionMemorySizeActor(new vtkTextActor());
-        
+
         buildCaptionActor();
         captionEnabled = true;
     }
@@ -87,44 +86,48 @@ public class Caption {
     /**
      * 
      */
-    private void buildCaptionActor() {       
+    private void buildCaptionActor() {
         try {
-            //captionNumberOfPointsActor.GetTextProperty().SetJustificationToLeft();
-            //captionNumberOfPointsActor.GetTextProperty().SetVerticalJustificationToTop();
+            // captionNumberOfPointsActor.GetTextProperty().SetJustificationToLeft();
+            // captionNumberOfPointsActor.GetTextProperty().SetVerticalJustificationToTop();
             captionNumberOfPointsActor.GetTextProperty().BoldOn();
             captionNumberOfPointsActor.GetTextProperty().ItalicOn();
             captionNumberOfPointsActor.GetTextProperty().SetFontSize(9);
             captionNumberOfPointsActor.GetTextProperty().SetColor(1.0, 0.0, 0.0);
-            captionNumberOfPointsActor.SetDisplayPosition(xPosScreen, YPosScreen);      
+            captionNumberOfPointsActor.SetDisplayPosition(xPosScreen, YPosScreen);
             captionNumberOfPointsActor.SetInput("Number of Points: " + String.valueOf(numberOfPoints));
-            
-            //captionCloudNameActor.GetTextProperty().SetJustificationToLeft();
-            //captionCloudNameActor.GetTextProperty().SetVerticalJustificationToTop();
+
+            // captionCloudNameActor.GetTextProperty().SetJustificationToLeft();
+            // captionCloudNameActor.GetTextProperty().SetVerticalJustificationToTop();
             captionCloudNameActor.GetTextProperty().BoldOn();
-            captionCloudNameActor.GetTextProperty().ItalicOn();      
+            captionCloudNameActor.GetTextProperty().ItalicOn();
             captionCloudNameActor.GetTextProperty().SetFontSize(9);
             captionCloudNameActor.GetTextProperty().SetColor(1.0, 0.0, 0.0);
-            captionCloudNameActor.SetDisplayPosition(xPosScreen, YPosScreen - 14);      
+            captionCloudNameActor.SetDisplayPosition(xPosScreen, YPosScreen - 14);
             captionCloudNameActor.SetInput("Point Cloud Name: " + cloudName);
-            
+
             captionMemorySizeActor.GetTextProperty().BoldOn();
             captionMemorySizeActor.GetTextProperty().ItalicOn();
             captionMemorySizeActor.GetTextProperty().SetFontSize(9);
             captionMemorySizeActor.GetTextProperty().SetColor(1.0, 0.0, 0.0);
             captionMemorySizeActor.SetDisplayPosition(xPosScreen, YPosScreen - 30);
             captionMemorySizeActor.SetInput("Memory Size (kB): " + String.valueOf(memorySize));
-            
+
             captionCloudBoundsActor.GetTextProperty().ItalicOn();
             captionCloudBoundsActor.GetTextProperty().BoldOn();
             captionCloudBoundsActor.GetTextProperty().SetFontSize(9);
             captionCloudBoundsActor.GetTextProperty().SetColor(1.0, 0.0, 0.0);
             captionCloudBoundsActor.SetDisplayPosition(xPosScreen, YPosScreen - 72);
             DecimalFormat f = new DecimalFormat("##.00");
-            captionCloudBoundsActor.SetInput("Bounds (meters): " + "\n" + "minX: " + f.format(bounds[0]) + "     maxX: " + f.format(bounds[1]) + "\n" + "minY: " + f.format(bounds[2]) + "     maxY: " + f.format(bounds[3]) + "\n" + "minZ: " + f.format(bounds[4]) + "     maxZ: " + f.format(bounds[5]));     
+            captionCloudBoundsActor
+                    .SetInput("Bounds (meters): " + "\n" + "minX: " + f.format(bounds[0]) + "     maxX: "
+                            + f.format(bounds[1]) + "\n" + "minY: " + f.format(bounds[2]) + "     maxY: "
+                            + f.format(bounds[3]) + "\n" + "minZ: " + f.format(bounds[4]) + "     maxZ: "
+                            + f.format(bounds[5]));
         }
         catch (Exception e) {
             e.printStackTrace();
-        }   
+        }
     }
 
     /**
@@ -196,5 +199,5 @@ public class Caption {
     private void setCaptionMemorySizeActor(vtkTextActor captionMemorySizeActor) {
         this.captionMemorySizeActor = captionMemorySizeActor;
     }
-    
+
 }

@@ -40,14 +40,14 @@ import vtk.vtkTubeFilter;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class Axes {
     private static final double axesScale = 1.0;
     private static final int viewport = 0;
     private vtkAxes axes;
     private vtkLODActor axesActor;
-    
+
     /**
      * Coordinate System is placed by default on (0,0,0), and scale factor is 1.0;
      * 
@@ -55,7 +55,7 @@ public class Axes {
     public Axes() {
         addCoordinateSystem();
     }
-    
+
     /**
      * Can be given a specific scale factor to the axes
      * 
@@ -65,7 +65,7 @@ public class Axes {
     public Axes(double scale, int viewport) {
         addCoordinateSystem(scale, viewport);
     }
-    
+
     /**
      * Coordinate System Axes origin can be placed in a specific position in the 3D world, and given a scale factor
      * 
@@ -102,28 +102,28 @@ public class Axes {
         axes = new vtkAxes();
         axes.SetOrigin(x, y, z);
         axes.SetScaleFactor(scale);
-        
-        vtkFloatArray axesColors = new vtkFloatArray();   
+
+        vtkFloatArray axesColors = new vtkFloatArray();
         axesColors.InsertNextValue(0.0);
         axesColors.InsertNextValue(0.0);
         axesColors.InsertNextValue(0.5);
         axesColors.InsertNextValue(0.5);
         axesColors.InsertNextValue(1.0);
         axesColors.InsertNextValue(1.0);
-        
+
         vtkPolyData axesPolyData = axes.GetOutput();
         axesPolyData.Update();
         axesPolyData.GetPointData().SetScalars(axesColors);
-        
+
         vtkTubeFilter axesTubes = new vtkTubeFilter();
         axesTubes.SetInput(axesPolyData);
         axesTubes.SetRadius(axes.GetScaleFactor() / 50.0);
         axesTubes.SetNumberOfSides(8);
-        
+
         vtkPolyDataMapper axesMapper = new vtkPolyDataMapper();
         axesMapper.SetScalarModeToUsePointData();
         axesMapper.SetInputConnection(axesTubes.GetOutputPort());
-        
+
         setAxesActor(new vtkLODActor());
         getAxesActor().SetMapper(axesMapper);
     }
@@ -136,33 +136,32 @@ public class Axes {
         axes = new vtkAxes();
         axes.SetOrigin(0, 0, 0);
         axes.SetScaleFactor(axesScale);
-        
+
         vtkFloatArray axesColors = new vtkFloatArray();
-        
+
         axesColors.InsertNextValue(0.0);
         axesColors.InsertNextValue(0.0);
         axesColors.InsertNextValue(0.5);
         axesColors.InsertNextValue(0.5);
         axesColors.InsertNextValue(1.0);
         axesColors.InsertNextValue(1.0);
-        
+
         vtkPolyData axesPolyData = axes.GetOutput();
         axesPolyData.Update();
         axesPolyData.GetPointData().SetScalars(axesColors);
-        
+
         vtkTubeFilter axesTubes = new vtkTubeFilter();
         axesTubes.SetInput(axesPolyData);
         axesTubes.SetRadius(axes.GetScaleFactor() / 50.0);
         axesTubes.SetNumberOfSides(8);
-        
+
         vtkPolyDataMapper axesMapper = new vtkPolyDataMapper();
         axesMapper.SetScalarModeToUsePointData();
         axesMapper.SetInput(axesTubes.GetOutput());
-        
+
         setAxesActor(new vtkLODActor());
         getAxesActor().SetMapper(axesMapper);
     }
-    
 
     /**
      * @param scale
@@ -172,34 +171,33 @@ public class Axes {
         axes = new vtkAxes();
         axes.SetOrigin(0, 0, 0);
         axes.SetScaleFactor(scale);
-        
+
         vtkFloatArray axesColors = new vtkFloatArray();
-        
+
         axesColors.InsertNextValue(0.0);
         axesColors.InsertNextValue(0.0);
         axesColors.InsertNextValue(0.5);
         axesColors.InsertNextValue(0.5);
         axesColors.InsertNextValue(1.0);
         axesColors.InsertNextValue(1.0);
-        
+
         vtkPolyData axesPolyData = axes.GetOutput();
         axesPolyData.Update();
         axesPolyData.GetPointData().SetScalars(axesColors);
-        
+
         vtkTubeFilter axesTubes = new vtkTubeFilter();
         axesTubes.SetInput(axesPolyData);
         axesTubes.SetRadius(axes.GetScaleFactor() / 50.0);
         axesTubes.SetNumberOfSides(6);
-        
+
         vtkPolyDataMapper axesMapper = new vtkPolyDataMapper();
         axesMapper.SetScalarModeToUsePointData();
         axesMapper.SetInput(axesTubes.GetOutput());
-        
+
         setAxesActor(new vtkLODActor());
-        getAxesActor().SetMapper(axesMapper);   
+        getAxesActor().SetMapper(axesMapper);
     }
 
-    
     /**
      * @param scale
      * @param x
@@ -211,32 +209,32 @@ public class Axes {
         axes = new vtkAxes();
         axes.SetOrigin(x, y, z);
         axes.SetScaleFactor(scale);
-        
+
         vtkFloatArray axesColors = new vtkFloatArray();
-        
+
         axesColors.InsertNextValue(0.0);
         axesColors.InsertNextValue(0.0);
         axesColors.InsertNextValue(0.5);
         axesColors.InsertNextValue(0.5);
         axesColors.InsertNextValue(1.0);
         axesColors.InsertNextValue(1.0);
-        
+
         vtkPolyData axesPolyData = axes.GetOutput();
         axesPolyData.Update();
         axesPolyData.GetPointData().SetScalars(axesColors);
-        
+
         vtkTubeFilter axesTubes = new vtkTubeFilter();
         axesTubes.SetInput(axesPolyData);
         axesTubes.SetRadius(axes.GetScaleFactor() / 50.0);
         axesTubes.SetNumberOfSides(6);
-        
+
         vtkPolyDataMapper axesMapper = new vtkPolyDataMapper();
         axesMapper.SetScalarModeToUsePointData();
         axesMapper.SetInput(axesTubes.GetOutput());
-        
+
         setAxesActor(new vtkLODActor());
-        getAxesActor().SetMapper(axesMapper);  
-        
+        getAxesActor().SetMapper(axesMapper);
+
     }
 
     /**
@@ -253,6 +251,4 @@ public class Axes {
         this.axesActor = axesActor;
     }
 
-
-    
 }

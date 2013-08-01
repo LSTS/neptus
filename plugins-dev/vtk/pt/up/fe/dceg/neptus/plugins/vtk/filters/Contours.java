@@ -63,13 +63,18 @@ public class Contours {
     private static int pointThreshold = 10;
     
     /**
-     * @param mesh
+     * FIXME
+     * Doesn't work properly
      */
     public Contours() {      
         scalarRange = new double[2];
         contours = new vtkContourFilter();
     }
     
+    /**
+     * 
+     * @param mesh
+     */
     public void generateTerrainContours(PointCloudMesh mesh) {
         //vtkPolyDataMapper inputMapper = new vtkPolyDataMapper();
         //inputMapper.SetInput(mesh.getMeshCloudLODActor().GetM)

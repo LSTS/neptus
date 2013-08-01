@@ -37,86 +37,88 @@ import vtk.vtkKdTree;
 import vtk.vtkPoints;
 
 /**
- * @author hfq
- * Removes point if it has less than a minimal number of points (defined by user) on its neighbourhood radius (search radius)
- * Search is done with a kdTree
- *
+ * @author hfq Removes point if it has less than a minimal number of points (defined by user) on its neighbourhood
+ *         radius (search radius) Search is done with a kdTree
+ * 
  */
 public class RadiusOutlierRemoval {
-        // if all multibeam points are parsed : searchradius = 1.0 , minPts = 30;
-    
-    // log fev 8 de Fev 1.0 - 4   // 3.0 10
-    private double searchRadius = 1.0;     // search radius on the same dimensional measurement as the coords (meters)
+    // if all multibeam points are parsed : searchradius = 1.0 , minPts = 30;
+
+    // log fev 8 de Fev 1.0 - 4 // 3.0 10
+    private double searchRadius = 1.0; // search radius on the same dimensional measurement as the coords (meters)
     private int minPtsNeighboursRadius = 4; // minimal number of neighbors on the search neighbourhood
-    
+
     private vtkPoints outputPoints;
-    
+
     public RadiusOutlierRemoval() {
-        
+
     }
-    
-    public void applyFilter (vtkPoints points) {        
+
+    public void applyFilter(vtkPoints points) {
         try {
             NeptusLog.pub().info("Radius outliers removal start: " + System.currentTimeMillis());
-            
+
             vtkKdTree kdTree = new vtkKdTree();
             kdTree.BuildLocatorFromPoints(points);
-            
+
             setOutputPoints(new vtkPoints());
-            
+
             int outputId = 0;
-            
-            //outputPoints.Allocate(id0, id1)
-            
+
+            // outputPoints.Allocate(id0, id1)
+
             if (points.GetNumberOfPoints() != 0) {
                 for (int i = 0; i < points.GetNumberOfPoints(); ++i) {
                     vtkIdList idsFoundPts = new vtkIdList();
-                    
+
                     kdTree.FindPointsWithinRadius(searchRadius, points.GetPoint(i), idsFoundPts);
-                                     
-                    if (idsFoundPts.GetNumberOfIds() > minPtsNeighboursRadius) {    // inlier
+
+                    if (idsFoundPts.GetNumberOfIds() > minPtsNeighboursRadius) { // inlier
                         getOutputPoints().InsertPoint(outputId, points.GetPoint(i));
                         ++outputId;
                     }
-                    //else // outlier
-                     // NeptusLog.pub().info("Number of points on neighbourhood: " + idsFoundPts.GetNumberOfIds() + " point id to remove: " + i + " point - x: " + points.GetPoint(i)[0] + " y: " + points.GetPoint(i)[1] + " z: " + points.GetPoint(i)[2]);
+                    // else // outlier
+                    // NeptusLog.pub().info("Number of points on neighbourhood: " + idsFoundPts.GetNumberOfIds() +
+                    // " point id to remove: " + i + " point - x: " + points.GetPoint(i)[0] + " y: " +
+                    // points.GetPoint(i)[1] + " z: " + points.GetPoint(i)[2]);
                 }
             }
             else {
                 NeptusLog.pub().error("Pointcloud is empty, no points to process!");
-                
+
             }
-            
+
             NeptusLog.pub().info("Radius outliers removal end: " + System.currentTimeMillis());
-            
+
             NeptusLog.pub().info("Number of input points: " + points.GetNumberOfPoints());
             NeptusLog.pub().info("Number of points on output: " + getOutputPoints().GetNumberOfPoints());
-            
-            float perc = (float) getOutputPoints().GetNumberOfPoints()/points.GetNumberOfPoints();
+
+            float perc = (float) getOutputPoints().GetNumberOfPoints() / points.GetNumberOfPoints();
             NeptusLog.pub().info("Percentage of inlier points: " + perc);
-            
+
             if (perc >= 0.80) {
                 setOutputPoints(outputPoints);
-                //return getOutputPoints();
+                // return getOutputPoints();
             }
 
             else {
                 NeptusLog.pub().info("Relax your parameters for radius outliers removal");
                 setOutputPoints(points);
-                //return points;
+                // return points;
             }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-    }  
-    
+    }
+
     /**
      * @return the searchRadius
      */
     public double getSearchRadius() {
         return searchRadius;
     }
+
     /**
      * @param searchRadius the searchRadius to set
      */
@@ -152,5 +154,4 @@ public class RadiusOutlierRemoval {
         this.outputPoints = outputPoints;
     }
 
-    
 }

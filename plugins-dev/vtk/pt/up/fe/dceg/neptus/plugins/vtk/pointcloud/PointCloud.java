@@ -31,8 +31,8 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.up.fe.dceg.neptus.plugins.vtk.utils.PointCloudUtils;
 import vtk.vtkCellArray;
 import vtk.vtkLODActor;
 import vtk.vtkPoints;
@@ -55,7 +55,10 @@ public class PointCloud<T extends PointXYZ> {
     private double[] bounds;
     private int memorySize;
     private PointCloudHandlers<PointXYZ> colorHandler;
+    private boolean hasIntensities = false;
         //public vtkActor contourActor;
+    private vtkShortArray intensities;
+    
     
     /**
      * Create a pointcloud object
@@ -67,23 +70,13 @@ public class PointCloud<T extends PointXYZ> {
         setPoly(new vtkPolyData());
         setCloudLODActor(new vtkLODActor());
         setBounds(new double[6]);
+        setIntensities(new vtkShortArray());
+        
         setColorHandler(new PointCloudHandlers<>());
     }
     
     /**
      * Create a Pointcloud Actor from loaded points and verts
-     * FIXME poly.GetBounds() dá fatal error
-     * Stack: [0x00007f895586f000,0x00007f8955970000],  sp=0x00007f895596e578,  free space=1021k
-Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
-C  [libvtkCommon.so.5.8+0xf91c0]  vtkDataArrayTemplate<float>::GetTuple(long long, double*)+0x20
-
-Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
-j  vtk.vtkDataSet.GetBounds_23()[D+0
-J  pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud.createLODActorFromPoints()V
-j  pt.up.fe.dceg.neptus.plugins.vtk.Vtk.getComponent(Lpt/up/fe/dceg/neptus/mra/importers/IMraLogGroup;D)Ljava/awt/Component;+260
-j  pt.up.fe.dceg.neptus.mra.MRAPanel$LoadTask.run()V+242
-j  java.lang.Thread.run()V+11
-v  ~StubRoutines::call_stub
      * 
      */
     public void createLODActorFromPoints() {
@@ -96,15 +89,15 @@ v  ~StubRoutines::call_stub
            
            getPoly().SetVerts(getVerts()); 
            getPoly().Modified();
-           
-           //getPoly().Update();
-           setBounds(getPoly().GetBounds());
+
+           //setBounds(getPoly().GetBounds()); <- subs by core dump crash
+           setBounds(PointCloudUtils.computeBounds(getPoints()));
            
            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds);
                       
            getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
            
-           getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
+           //getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
            
            vtkPolyDataMapper map = new vtkPolyDataMapper();
            map.SetInput(getPoly());
@@ -128,10 +121,7 @@ v  ~StubRoutines::call_stub
     public void createLODActorFromPoints(vtkShortArray intensities) {
         try {                                   
             getPoly().SetPoints(getPoints());
-            
-//            for (int i = 0; i < getNumberOfPoints(); ++i) {
-//                getVerts().InsertCellPoint(i);
-//            }
+            //setIntensities(intensities);
             
             for (int i = 0; i < getNumberOfPoints(); ++i) {
                 getVerts().InsertNextCell(i);
@@ -139,20 +129,14 @@ v  ~StubRoutines::call_stub
             
             getPoly().SetVerts(getVerts()); 
             getPoly().Modified();
-                   
-            //vtkCellArray cells = new vtkCellArray();
-            //cells.SetNumberOfCells(getNumberOfPoints());
-            //getPoly().SetPolys(cells);
-            getPoly().Update();
-            setBounds(getPoly().GetBounds());
             
-            //setMemorySize(getPoly().GetActualMemorySize());
-
+            //getPoly().Update();
+            //setBounds(getPoly().GetBounds());
+            //setBounds(PointCloudUtils.computeBounds((PointCloud<PointXYZ>) this));
+            setBounds(PointCloudUtils.computeBounds(getPoints()));
             
-            
-            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds, intensities);
-            
-            
+            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds, getIntensities());
+                      
             getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
             
             vtkPolyDataMapper map = new vtkPolyDataMapper();
@@ -293,5 +277,33 @@ v  ~StubRoutines::call_stub
      */
     public void setColorHandler(PointCloudHandlers<PointXYZ> colorHandler) {
         this.colorHandler = colorHandler;
+    }
+
+    /**
+     * @return the hasIntensities
+     */
+    public boolean isHasIntensities() {
+        return hasIntensities;
+    }
+
+    /**
+     * @param hasIntensities the hasIntensities to set
+     */
+    public void setHasIntensities(boolean hasIntensities) {
+        this.hasIntensities = hasIntensities;
+    }
+
+    /**
+     * @return the intensities
+     */
+    public vtkShortArray getIntensities() {
+        return intensities;
+    }
+
+    /**
+     * @param intensities the intensities to set
+     */
+    public void setIntensities(vtkShortArray intensities) {
+        this.intensities = intensities;
     }
 }

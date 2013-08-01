@@ -146,7 +146,7 @@ public class Canvas extends vtkCanvas {
     }
     
     /**
-     * Correct a bug : update the reference of camera
+     * Corrects a bug : update the reference of camera
      * Changing the original camera the light stops following the camera
      */
     @Override

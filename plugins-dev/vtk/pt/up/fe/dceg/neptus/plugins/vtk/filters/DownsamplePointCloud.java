@@ -40,8 +40,8 @@ import vtk.vtkCleanPolyData;
 import vtk.vtkPoints;
 
 /**
- * @author hfq
- *  FIXME
+ * @author hfq FIXME
+ * this method isn't the best one to downsample... it simply cleans data within a tolerance
  */
 public class DownsamplePointCloud {
     private int numberOfPoints = 0;
@@ -49,59 +49,62 @@ public class DownsamplePointCloud {
     private PointCloud<PointXYZ> outputDownsampledCloud;
     private double tolerance;
     public Boolean isDownsampleDone = false;
-    
-    public DownsamplePointCloud (PointCloud<PointXYZ> pointCloud, double tolerance) {
+
+    public DownsamplePointCloud(PointCloud<PointXYZ> pointCloud, double tolerance) {
         long lDateTime = new Date().getTime();
         NeptusLog.pub().info("Init downsampling - Time in milliseconds: " + lDateTime);
-        
+
         this.pointCloud = pointCloud;
         this.numberOfPoints = pointCloud.getNumberOfPoints();
         this.tolerance = tolerance;
         outputDownsampledCloud = new PointCloud<>();
         NeptusLog.pub().info("constructor class donwnsample");
         downsample();
-        
+
         long lDateTime2 = new Date().getTime();
         NeptusLog.pub().info("Final downsampling - Time in milliseconds: " + lDateTime2);
     }
-    
+
     private void downsample() {
         try {
             vtkCleanPolyData cleanPolyData = new vtkCleanPolyData();
-            //cleanPolyData.SetInput(pointCloud.getPoly());
+            // cleanPolyData.SetInput(pointCloud.getPoly());
             cleanPolyData.SetInputConnection(pointCloud.getPoly().GetProducerPort());
             cleanPolyData.SetTolerance(tolerance);
             cleanPolyData.Update();
-            
-            NeptusLog.pub().info("Number of Points from cleanPolyData: " + String.valueOf(cleanPolyData.GetOutput().GetPoints().GetNumberOfPoints()));
-            
-            //outputDownsampledCloud.setPoly(cleanPolyData.GetOutput());
-            //outputDownsampledCloud.setPoints(outputDownsampledCloud.getPoly().GetPoints());
-            
+
+            NeptusLog.pub().info(
+                    "Number of Points from cleanPolyData: "
+                            + String.valueOf(cleanPolyData.GetOutput().GetPoints().GetNumberOfPoints()));
+
+            // outputDownsampledCloud.setPoly(cleanPolyData.GetOutput());
+            // outputDownsampledCloud.setPoints(outputDownsampledCloud.getPoly().GetPoints());
+
             outputDownsampledCloud.setCloudName("downsampledCloud");
             NeptusLog.pub().info("cloud name: " + outputDownsampledCloud.getCloudName());
             outputDownsampledCloud.setPoints(cleanPolyData.GetOutput().GetPoints());
             outputDownsampledCloud.setNumberOfPoints(outputDownsampledCloud.getPoints().GetNumberOfPoints());
             NeptusLog.pub().info("Number of points: " + outputDownsampledCloud.getNumberOfPoints());
-            
+
             vtkPoints points = outputDownsampledCloud.getPoints();
-            
+
             for (int i = 0; i < outputDownsampledCloud.getNumberOfPoints(); ++i) {
                 outputDownsampledCloud.getVerts().InsertNextCell(1);
-                outputDownsampledCloud.getVerts().InsertCellPoint(pointCloud.getPoints().InsertNextPoint(points.GetPoint(i)));
+                outputDownsampledCloud.getVerts().InsertCellPoint(
+                        pointCloud.getPoints().InsertNextPoint(points.GetPoint(i)));
             }
-            
-            //outputDownsampledCloud.setVerts()
-            
-//            outputDownsampledCloud.createLODActorFromPoints();
-            
-            //vtkPolyDataMapper outputDataMapper = new vtkPolyDataMapper();
-            //outputDataMapper.SetInputConnection(cleanPolyData.GetOutputPort());        
-            //outputDownsampledCloud.setNumberOfPoints(cleanPolyData.
-            
+
+            // outputDownsampledCloud.setVerts()
+
+            // outputDownsampledCloud.createLODActorFromPoints();
+
+            // vtkPolyDataMapper outputDataMapper = new vtkPolyDataMapper();
+            // outputDataMapper.SetInputConnection(cleanPolyData.GetOutputPort());
+            // outputDownsampledCloud.setNumberOfPoints(cleanPolyData.
+
             isDownsampleDone = true;
         }
-        catch (Exception e) {     
+        catch (Exception e) {
             NeptusLog.pub().info("Exception on cloud downsampling");
             e.printStackTrace();
         }

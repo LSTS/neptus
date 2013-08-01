@@ -39,31 +39,30 @@ import vtk.vtkVectorText;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class Text3D {
     private vtkLODActor text3dActor;
-    
-    
+
     public Text3D() {
         setText3dActor(new vtkLODActor());
     }
-    
+
     public void buildText3D(String msgInput, double posX, double posY, double posZ, double scale) {
         String msg = I18n.text(msgInput);
-        
+
         vtkVectorText vectText = new vtkVectorText();
         vectText.SetText(I18n.text(msg));
-        
+
         vtkLinearExtrusionFilter extrude = new vtkLinearExtrusionFilter();
         extrude.SetInputConnection(vectText.GetOutputPort());
         extrude.SetExtrusionTypeToNormalExtrusion();
         extrude.SetVector(0.0, 0.0, 1.0);
         extrude.SetScaleFactor(0.5);
-        
+
         vtkPolyDataMapper txtMapper = new vtkPolyDataMapper();
         txtMapper.SetInputConnection(extrude.GetOutputPort());
-        
+
         text3dActor.SetMapper(txtMapper);
         text3dActor.SetPosition(posX, posY, posZ);
         text3dActor.SetScale(scale);
@@ -82,5 +81,5 @@ public class Text3D {
     public void setText3dActor(vtkLODActor text3dActor) {
         this.text3dActor = text3dActor;
     }
-    
+
 }

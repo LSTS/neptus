@@ -33,33 +33,33 @@ package pt.up.fe.dceg.neptus.plugins.vtk.utils;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class CalcUtils {
-    
+
     /**
+     * Calc distance between 2 points in space
      * @param p1
      * @param p2
      * @return
      */
-    public static float distanceBetween2Points (float p1[], float p2[]) {      
-        return (float) (Math.sqrt(  ( p1[0] - p2[0] ) * ( p1[0] - p2[0] ) + 
-                ( p1[1] - p2[1] ) * ( p1[1] - p2[1] ) + 
-                ( p1[2] - p2[2] ) * ( p1[2] - p2[2] ) ) );
-        
+    public static float distanceBetween2Points(float p1[], float p2[]) {
+        return (float) (Math.sqrt((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1])
+                + (p1[2] - p2[2]) * (p1[2] - p2[2])));
+
     }
 
     /**
+     * Calc distance between 2 points in space
      * @param p1
      * @param p2
      * @return
      */
     public static double distanceBetween2Points(double[] p1, double[] p2) {
-        return (Math.sqrt( ( p1[0] - p2[0] ) * ( p1[0] - p2[0] ) + 
-                ( p1[1] - p2[1] ) * ( p1[1] - p2[1] ) + 
-                ( p1[2] - p2[2] ) * ( p1[2] - p2[2] ) ) );
+        return (Math.sqrt((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1]) + (p1[2] - p2[2])
+                * (p1[2] - p2[2])));
     }
-    
+
     /**
      * 
      * @param sum - sum of values
@@ -68,8 +68,8 @@ public class CalcUtils {
      * @return
      */
     public static double stddev(double sum, double sqSum, int numberValues) {
-        double stddev = 0.0;      
-        double variance = (sqSum - (sum * sum)/numberValues) / (numberValues - 1);
+        double stddev = 0.0;
+        double variance = (sqSum - (sum * sum) / numberValues) / (numberValues - 1);
         stddev = Math.sqrt(variance);
         return stddev;
     }

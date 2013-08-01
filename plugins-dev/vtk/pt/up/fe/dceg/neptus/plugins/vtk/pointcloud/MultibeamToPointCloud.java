@@ -130,13 +130,14 @@ public class MultibeamToPointCloud {
                     
                     // add data to pointcloud
                     double offset[] = tempLoc.getOffsetFrom(initLoc);
-                    System.out.println(offset[0] + " " + offset[1]);
+                    //System.out.println(offset[0] + " " + offset[1]);
                     getPoints().InsertNextPoint(offset[0], 
                             offset[1], 
                             p.depth - tideOffset);
                     
                     if (multibeamDeltaTParser.getHasIntensity()) {
                         getIntensities().InsertValue(c, p.intensity);
+                        pointCloud.setHasIntensities(true);
                     }
 
                     ++countPoints;
@@ -157,7 +158,7 @@ public class MultibeamToPointCloud {
                     
                     // add data to pointcloud
                     double offset[] = tempLoc.getOffsetFrom(initLoc);
-                    System.out.println(offset[0] + " " + offset[1]);
+                    //System.out.println(offset[0] + " " + offset[1]);
                     getPoints().InsertNextPoint(offset[0], 
                             offset[1], 
                             p.depth - tideOffset);
@@ -166,10 +167,12 @@ public class MultibeamToPointCloud {
                     if (multibeamDeltaTParser.getHasIntensity()) {
                         ++countIntens;
                         getIntensities().InsertValue(c, p.intensity);
+                        pointCloud.setHasIntensities(true);
                         
                         if (p.intensity == 0)
                             ++countIntensZero;
                         //NeptusLog.pub().info("intensity: " + p.intensity);
+                        //NeptusLog.pub().info("intensity from array: " + getIntensities().GetValue(c));
                     }
                 
                     ++countPoints;
@@ -177,8 +180,8 @@ public class MultibeamToPointCloud {
             }
         }
         
-        // NeptusLog.pub().info("Number of intensity values: " + countIntens);
-        // NeptusLog.pub().info("Number of intensity zero: " + countIntensZero);
+        NeptusLog.pub().info("Number of intensity values: " + countIntens);
+        NeptusLog.pub().info("Number of intensity zero: " + countIntensZero);
         
         multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints = countPoints;
         batInfo = multibeamDeltaTParser.getBathymetryInfo();
@@ -212,6 +215,14 @@ public class MultibeamToPointCloud {
      */
     public void setIntensities(vtkShortArray intensities) {
         this.intensities = intensities;
+    }
+    
+    public void showIntensities() {
+        NeptusLog.pub().info("Number of intensities values: " + getIntensities().GetSize());
+        
+        for (int i = 0; i < getIntensities().GetSize(); ++i) {
+            //NeptusLog.pub().info("Intensity value: " + getIntensities().GetValue(i));
+        }
     }
     
 //    /**

@@ -40,14 +40,15 @@ import vtk.vtkRenderer;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class BoxWidget {
-    public BoxWidget(){
-        
+    public BoxWidget() {
+
     }
-    
-    public static void addBoxWidget1ToVisualizer (vtkRenderer ren, vtkRenderWindowInteractor interactor, vtkDataSet dataSet) {
+
+    public static void addBoxWidget1ToVisualizer(vtkRenderer ren, vtkRenderWindowInteractor interactor,
+            vtkDataSet dataSet) {
         vtkBoxWidget widget = new vtkBoxWidget();
 
         widget.SetCurrentRenderer(ren);
@@ -55,19 +56,19 @@ public class BoxWidget {
         widget.SetPlaceFactor(1.25);
         widget.PlaceWidget();
         widget.SetInput(dataSet.GetData(null)); // não está bem penso eu
-        
+
         widget.EnabledOn();
     }
-    
-    public static void addBoxWidget2Tovisualizer (vtkRenderer ren, vtkRenderWindowInteractor interactor) {
+
+    public static void addBoxWidget2Tovisualizer(vtkRenderer ren, vtkRenderWindowInteractor interactor) {
         vtkBoxWidget2 widget = new vtkBoxWidget2();
-        
+
         vtkBoxRepresentation boxrep = new vtkBoxRepresentation();
         boxrep.SetPlaceFactor(1.25);
         widget.SetRepresentation(boxrep);
         widget.SetCurrentRenderer(ren);
         widget.SetInteractor(interactor);
-        
+
         widget.EnabledOn();
     }
 }

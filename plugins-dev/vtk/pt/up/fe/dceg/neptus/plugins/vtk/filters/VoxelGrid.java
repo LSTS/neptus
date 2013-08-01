@@ -33,7 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk.filters;
 
 /**
  * @author hfq
- *
+ * FIXME - not implemented
  */
 public class VoxelGrid {
 

@@ -42,134 +42,133 @@ import vtk.vtkTubeFilter;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class AxesActor extends vtkAssembly {
     private vtkRenderer ren;
     private double axisLength = 0.8;
     private vtkTextActor xactor, yactor, zactor;
-    
+
     /**
      * 
      * @param ren_
      */
     public AxesActor(vtkRenderer ren_) {
         super();
-        ren = ren_;    
+        ren = ren_;
     }
 
     /**
      * 
      */
     public void createAxes() {
-       vtkAxes axes = new vtkAxes();
-       axes.SetOrigin(0, 0, 0);
-       axes.SetScaleFactor(axisLength);
-       
-       xactor = new vtkTextActor();
-       yactor = new vtkTextActor();
-       zactor = new vtkTextActor();
-       
-       xactor.SetInput("X");
-       yactor.SetInput("Y");
-       zactor.SetInput("Z");
-       
-       xactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
-       yactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
-       zactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
-       
-       xactor.GetPositionCoordinate().SetValue(axisLength, 0.0, 0.0);
-       yactor.GetPositionCoordinate().SetValue(0.0, axisLength, 0.0);
-       zactor.GetPositionCoordinate().SetValue(0.0, 0.0, axisLength);
-       
-       xactor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
-       xactor.GetTextProperty().ShadowOn();
-       xactor.GetTextProperty().ItalicOn();
-       xactor.GetTextProperty().BoldOff();
-       
-       yactor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
-       yactor.GetTextProperty().ShadowOn();
-       yactor.GetTextProperty().ItalicOn();
-       yactor.GetTextProperty().BoldOff();
-       
-       zactor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
-       zactor.GetTextProperty().ShadowOn();
-       zactor.GetTextProperty().ItalicOn();
-       zactor.GetTextProperty().BoldOff();
-       
-       xactor.SetMaximumLineHeight(0.25);
-       yactor.SetMaximumLineHeight(0.25);
-       zactor.SetMaximumLineHeight(0.25);
-       
-       //xactor.SetMaximumLineHeight(2.0);
-       //yactor.SetMaximumLineHeight(2.0);
-       //zactor.SetMaximumLineHeight(2.0);
-       
-       vtkTubeFilter tube = new vtkTubeFilter();
-       tube.SetInputConnection(axes.GetOutputPort());
-       tube.SetRadius(0.05);
-       //tube.SetRadiusFactor(10.0);
-       //tube.SetRadius(axes.GetScaleFactor() / 50.0);
-       tube.SetNumberOfSides(6);
-       
-       
-       vtkPolyDataMapper tubeMapper = new vtkPolyDataMapper();
-       tubeMapper.SetInputConnection(tube.GetOutputPort());
-       
-       vtkActor tubeActor = new vtkActor();
-       tubeActor.SetMapper(tubeMapper);
-       tubeActor.PickableOff();
-       
-       int coneRes = 12;
-       double coneScale = 0.3;
-       
-       // xcone
-       vtkConeSource xcone = new vtkConeSource();
-       xcone.SetResolution(coneRes);
-       vtkPolyDataMapper xconeMapper = new vtkPolyDataMapper();
-       xconeMapper.SetInputConnection(xcone.GetOutputPort());
-       vtkActor xconeActor = new vtkActor();
-       xconeActor.SetMapper(xconeMapper);
-       xconeActor.GetProperty().SetColor(1, 0, 0);
-       xconeActor.SetScale(coneScale, coneScale, coneScale);
-       xconeActor.SetPosition(axisLength, 0.0, 0.0);
-       
-       // ycone
-       vtkConeSource ycone = new vtkConeSource();
-       ycone.SetResolution(coneRes);
-       vtkPolyDataMapper yconeMapper = new vtkPolyDataMapper();
-       yconeMapper.SetInputConnection(ycone.GetOutputPort());
-       vtkActor yconeActor = new vtkActor();
-       yconeActor.SetMapper(yconeMapper);
-       yconeActor.GetProperty().SetColor(1, 1, 0);
-       yconeActor.RotateZ(90);
-       yconeActor.SetScale(coneScale, coneScale, coneScale);
-       yconeActor.SetPosition(0.0, axisLength, 0.0);
-       
-       // zcone
-       vtkConeSource zcone = new vtkConeSource();
-       zcone.SetResolution(coneRes);
-       vtkPolyDataMapper zconeMapper = new vtkPolyDataMapper();
-       zconeMapper.SetInputConnection(zcone.GetOutputPort());
-       vtkActor zconeActor = new vtkActor();
-       zconeActor.SetMapper(zconeMapper);
-       zconeActor.GetProperty().SetColor(0, 1, 0);
-       zconeActor.RotateY(-90);
-       zconeActor.SetScale(coneScale, coneScale, coneScale);
-       zconeActor.SetPosition(0.0, 0.0, axisLength);
-       
-       ren.AddActor2D(xactor);
-       ren.AddActor2D(yactor);
-       ren.AddActor2D(zactor);
-       
-       this.AddPart(tubeActor);
-       this.AddPart(xconeActor);
-       this.AddPart(yconeActor);
-       this.AddPart(zconeActor);
-       
-       ren.AddActor(this);
+        vtkAxes axes = new vtkAxes();
+        axes.SetOrigin(0, 0, 0);
+        axes.SetScaleFactor(axisLength);
+
+        xactor = new vtkTextActor();
+        yactor = new vtkTextActor();
+        zactor = new vtkTextActor();
+
+        xactor.SetInput("X");
+        yactor.SetInput("Y");
+        zactor.SetInput("Z");
+
+        xactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
+        yactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
+        zactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
+
+        xactor.GetPositionCoordinate().SetValue(axisLength, 0.0, 0.0);
+        yactor.GetPositionCoordinate().SetValue(0.0, axisLength, 0.0);
+        zactor.GetPositionCoordinate().SetValue(0.0, 0.0, axisLength);
+
+        xactor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
+        xactor.GetTextProperty().ShadowOn();
+        xactor.GetTextProperty().ItalicOn();
+        xactor.GetTextProperty().BoldOff();
+
+        yactor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
+        yactor.GetTextProperty().ShadowOn();
+        yactor.GetTextProperty().ItalicOn();
+        yactor.GetTextProperty().BoldOff();
+
+        zactor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
+        zactor.GetTextProperty().ShadowOn();
+        zactor.GetTextProperty().ItalicOn();
+        zactor.GetTextProperty().BoldOff();
+
+        xactor.SetMaximumLineHeight(0.25);
+        yactor.SetMaximumLineHeight(0.25);
+        zactor.SetMaximumLineHeight(0.25);
+
+        // xactor.SetMaximumLineHeight(2.0);
+        // yactor.SetMaximumLineHeight(2.0);
+        // zactor.SetMaximumLineHeight(2.0);
+
+        vtkTubeFilter tube = new vtkTubeFilter();
+        tube.SetInputConnection(axes.GetOutputPort());
+        tube.SetRadius(0.05);
+        // tube.SetRadiusFactor(10.0);
+        // tube.SetRadius(axes.GetScaleFactor() / 50.0);
+        tube.SetNumberOfSides(6);
+
+        vtkPolyDataMapper tubeMapper = new vtkPolyDataMapper();
+        tubeMapper.SetInputConnection(tube.GetOutputPort());
+
+        vtkActor tubeActor = new vtkActor();
+        tubeActor.SetMapper(tubeMapper);
+        tubeActor.PickableOff();
+
+        int coneRes = 12;
+        double coneScale = 0.3;
+
+        // xcone
+        vtkConeSource xcone = new vtkConeSource();
+        xcone.SetResolution(coneRes);
+        vtkPolyDataMapper xconeMapper = new vtkPolyDataMapper();
+        xconeMapper.SetInputConnection(xcone.GetOutputPort());
+        vtkActor xconeActor = new vtkActor();
+        xconeActor.SetMapper(xconeMapper);
+        xconeActor.GetProperty().SetColor(1, 0, 0);
+        xconeActor.SetScale(coneScale, coneScale, coneScale);
+        xconeActor.SetPosition(axisLength, 0.0, 0.0);
+
+        // ycone
+        vtkConeSource ycone = new vtkConeSource();
+        ycone.SetResolution(coneRes);
+        vtkPolyDataMapper yconeMapper = new vtkPolyDataMapper();
+        yconeMapper.SetInputConnection(ycone.GetOutputPort());
+        vtkActor yconeActor = new vtkActor();
+        yconeActor.SetMapper(yconeMapper);
+        yconeActor.GetProperty().SetColor(1, 1, 0);
+        yconeActor.RotateZ(90);
+        yconeActor.SetScale(coneScale, coneScale, coneScale);
+        yconeActor.SetPosition(0.0, axisLength, 0.0);
+
+        // zcone
+        vtkConeSource zcone = new vtkConeSource();
+        zcone.SetResolution(coneRes);
+        vtkPolyDataMapper zconeMapper = new vtkPolyDataMapper();
+        zconeMapper.SetInputConnection(zcone.GetOutputPort());
+        vtkActor zconeActor = new vtkActor();
+        zconeActor.SetMapper(zconeMapper);
+        zconeActor.GetProperty().SetColor(0, 1, 0);
+        zconeActor.RotateY(-90);
+        zconeActor.SetScale(coneScale, coneScale, coneScale);
+        zconeActor.SetPosition(0.0, 0.0, axisLength);
+
+        ren.AddActor2D(xactor);
+        ren.AddActor2D(yactor);
+        ren.AddActor2D(zactor);
+
+        this.AddPart(tubeActor);
+        this.AddPart(xconeActor);
+        this.AddPart(yconeActor);
+        this.AddPart(zconeActor);
+
+        ren.AddActor(this);
     }
-    
+
     /**
      * 
      * @param ison

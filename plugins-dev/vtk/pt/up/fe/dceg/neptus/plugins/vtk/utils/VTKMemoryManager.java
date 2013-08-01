@@ -48,7 +48,7 @@ import vtk.vtkObjectBase;
  * 
  */
 @SuppressWarnings({ "static-access", "unchecked", "rawtypes" })
-public final class VTKMemoryManager {  // final
+public final class VTKMemoryManager {
     private final static Logger LOGGER = Logger.getLogger(VTKMemoryManager.class.getName());
 
     public final static vtkJavaGarbageCollector GC;
