@@ -80,11 +80,11 @@ public class JsfParser {
             indexPath = file.getParent() + "/mra/jsf.index";
             
             if (!new File(indexPath).exists()) {
-                NeptusLog.pub().info("<###>Generating JSF index for " + file.getAbsolutePath());
+                NeptusLog.pub().info("Generating JSF index for " + file.getAbsolutePath());
                 generateIndex();
             }
             else {
-                NeptusLog.pub().info("<###>Loading JSF index for " + file.getAbsolutePath());
+                NeptusLog.pub().info("Loading JSF index for " + file.getAbsolutePath());
                 loadIndex();
             }
 
@@ -152,7 +152,6 @@ public class JsfParser {
                         l = new ArrayList<Integer>();
                         l.add(pos);
                         index.positionMapLow.put(t, l);
-                        System.out.println(t);
                     }
                     else {
                         l.add(pos);
