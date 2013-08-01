@@ -130,7 +130,7 @@ public class MultibeamToPointCloud {
                     
                     // add data to pointcloud
                     double offset[] = tempLoc.getOffsetFrom(initLoc);
-                    System.out.println(offset[0] + " " + offset[1]);
+                    //System.out.println(offset[0] + " " + offset[1]);
                     getPoints().InsertNextPoint(offset[0], 
                             offset[1], 
                             p.depth - tideOffset);
@@ -158,7 +158,7 @@ public class MultibeamToPointCloud {
                     
                     // add data to pointcloud
                     double offset[] = tempLoc.getOffsetFrom(initLoc);
-                    System.out.println(offset[0] + " " + offset[1]);
+                    //System.out.println(offset[0] + " " + offset[1]);
                     getPoints().InsertNextPoint(offset[0], 
                             offset[1], 
                             p.depth - tideOffset);

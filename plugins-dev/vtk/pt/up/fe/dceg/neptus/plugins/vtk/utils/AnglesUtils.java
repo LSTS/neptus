@@ -33,28 +33,28 @@ package pt.up.fe.dceg.neptus.plugins.vtk.utils;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class AnglesUtils {
-    
-    public static float normAngle (float alpha) {
+
+    public static float normAngle(float alpha) {
         float ein = 0.0f;
         return ein;
     }
-    
-    public static float rad2deg (float alpha) {
+
+    public static float rad2deg(float alpha) {
         return (alpha * 52.29578f);
     }
-    
-    public static double rad2deg (double alpha) {
+
+    public static double rad2deg(double alpha) {
         return (alpha * 52.29578);
     }
-    
-    public static float deg2rad (float alpha) {
+
+    public static float deg2rad(float alpha) {
         return (alpha * 0.017453293f);
     }
-    
-    public static double deg2rad (double alpha) {
+
+    public static double deg2rad(double alpha) {
         return (alpha * 0.017453293);
     }
 }

@@ -42,18 +42,18 @@ import vtk.vtkRenderer;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class PointPickingEvent extends vtkCommand {
     private int idx, idx2;
-    
+
     private float x, y, z;
     private float x2, y2, z2;
-    
+
     private boolean pickFirst = false;
-    
+
     Canvas canvas;
-    
+
     /**
      * @param canvas
      */
@@ -64,17 +64,17 @@ public class PointPickingEvent extends vtkCommand {
 
     public void performSinglePick(vtkRenderWindowInteractor interactor) {
         int mouseX, mouseY;
-        //vtkPointPicker picker = (vtkPointPicker) interactor.GetPicker();
         vtkPointPicker picker = new vtkPointPicker();
-        
+
         mouseX = interactor.GetEventPosition()[0];
         mouseY = interactor.GetEventPosition()[1];
-        
+
         interactor.StartPickCallback();
-              
-        vtkRenderer ren = interactor.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
+
+        vtkRenderer ren = interactor.FindPokedRenderer(interactor.GetEventPosition()[0],
+                interactor.GetEventPosition()[1]);
         picker.Pick(mouseX, mouseY, 0.0, ren);
-        
+
         if (!pickFirst) {
             idx = picker.GetPointId();
             if (picker.GetDataSet() != null) {
@@ -88,7 +88,7 @@ public class PointPickingEvent extends vtkCommand {
         }
         else {
             idx2 = picker.GetPointId();
-            if(picker.GetDataSet() != null) {
+            if (picker.GetDataSet() != null) {
                 double[] p = new double[3];
                 picker.GetDataSet().GetPoint(idx2, p);
                 x2 = (float) p[0];
@@ -98,40 +98,43 @@ public class PointPickingEvent extends vtkCommand {
             pickFirst = false;
         }
     }
-    
-    public void execute (MouseEvent e, int eventId) {
-        //NeptusLog.pub().info("expectacular");
+
+    public void execute(MouseEvent e, int eventId) {
+        // NeptusLog.pub().info("expectacular");
         performSinglePick(canvas.getRenderWindowInteractor());
         NeptusLog.pub().info("1 - Point id: " + idx);
-        NeptusLog.pub().info("1 Point picked - x: " + getPoint().getX() + " y: " + getPoint().getY() + " z: " + getPoint().getZ());
-        
+        NeptusLog.pub().info(
+                "1 Point picked - x: " + getPoint().getX() + " y: " + getPoint().getY() + " z: " + getPoint().getZ());
+
         if (getPoint2() != null) {
             NeptusLog.pub().info("2 Point id: " + idx2);
-            NeptusLog.pub().info("2 Point picked - x2: " + getPoint2().getX() + " y2: " + getPoint2().getY() + " z2: " + getPoint2().getZ());
+            NeptusLog.pub().info(
+                    "2 Point picked - x2: " + getPoint2().getX() + " y2: " + getPoint2().getY() + " z2: "
+                            + getPoint2().getZ());
         }
-        
+
     }
-    
+
     public PointXYZ getPoint() {
         PointXYZ p = new PointXYZ();
         p.setX(x);
         p.setY(y);
         p.setZ(z);
-        
+
         return (p);
     }
-    
+
     public PointXYZ getPoint2() {
         PointXYZ p = new PointXYZ();
         p.setX(x2);
         p.setY(y2);
         p.setZ(z2);
-        
-        return (p); 
+
+        return (p);
     }
-    
+
     public int getPointIndex() {
         return (idx);
     }
-    
+
 }

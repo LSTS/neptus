@@ -38,100 +38,96 @@ import vtk.vtkKdTree;
 import vtk.vtkPoints;
 
 /**
- * @author hfq
- * based on R. B. Rusu, Z. C. Marton, N. Blodow, M. Dolha, and M. Beetz
- * Towards 3D Point Cloud Based Object Maps for Household Environments
- * Robotics and Autonomous Systems Journal (Special Issue on Semantic Knowledge), 2008.
+ * @author hfq based on R. B. Rusu, Z. C. Marton, N. Blodow, M. Dolha, and M. Beetz Towards 3D Point Cloud Based Object
+ *         Maps for Household Environments Robotics and Autonomous Systems Journal (Special Issue on Semantic
+ *         Knowledge), 2008.
  * 
- * The algorithm iterates through the entire point cloud twice.
- * On the first iteration it will compute the average distance that each point has to its k nearest neighbors
- * Next, the mean and standard deviation of all the distances are computed in order to determine a distance threshold.
- * The distance threshold will be = mean + stdMul * stddev.
- * During the next iteration the point will be classified as inlier or outlier if their average distance is below or
- * above this threshold respectively
- *
- * meank = 10; stdMul = 0.5
- * for cadiz meank = 20; stdMul = 0.2
- * for aplds meank = 20; stdMul = 0.1
+ *         The algorithm iterates through the entire point cloud twice. On the first iteration it will compute the
+ *         average distance that each point has to its k nearest neighbors Next, the mean and standard deviation of all
+ *         the distances are computed in order to determine a distance threshold. The distance threshold will be = mean
+ *         + stdMul * stddev. During the next iteration the point will be classified as inlier or outlier if their
+ *         average distance is below or above this threshold respectively
+ * 
+ *         meank = 10; stdMul = 0.5 for cadiz meank = 20; stdMul = 0.2 for aplds meank = 20; stdMul = 0.1
  */
 public class StatisticalOutlierRemoval {
-    
-        // Number of points to use for the mean distance estimation
+
+    // Number of points to use for the mean distance estimation
     private int meanK = 30;
-        // Standard deviations threshold multiplier
-    private double stdMul = 1.0;   
+    // Standard deviations threshold multiplier
+    private double stdMul = 1.0;
     private vtkPoints outputPoints;
-    
+
     /**
      * 
      */
     public StatisticalOutlierRemoval() {
-        
+
     }
-    
+
     /**
      * FIXME - Check stddev calc with medium (easier)
+     * 
      * @param points
      */
-    public void applyFilter (vtkPoints points) {
+    public void applyFilter(vtkPoints points) {
         try {
             NeptusLog.pub().info("Number of input points: " + points.GetNumberOfPoints());
             NeptusLog.pub().info("Statistical outliers removal start: " + System.currentTimeMillis());
-            
+
             setOutputPoints(new vtkPoints());
             int outputId = 0;
-            
+
             vtkKdTree kdTree = new vtkKdTree();
             kdTree.BuildLocatorFromPoints(points);
-            //kdTree.PrintVerboseTree();   
-            
+            // kdTree.PrintVerboseTree();
+
             double[] meanDistances = new double[points.GetNumberOfPoints()];
             double meanDistancesSum = 0.0;
-            
+
             double sqSumDistances = 0.0;
-            
-            //double mean = 0.0;
-            
+
+            // double mean = 0.0;
+
             meanK++; // because the indice 0 from N closests points is the query point
-            
+
             for (int i = 0; i < points.GetNumberOfPoints(); ++i) {
                 vtkIdList idsFoundPts = new vtkIdList();
-                kdTree.FindClosestNPoints(meanK , points.GetPoint(i), idsFoundPts);  // indice 0 is the query point
-                
+                kdTree.FindClosestNPoints(meanK, points.GetPoint(i), idsFoundPts); // indice 0 is the query point
+
                 double distSum = 0.0;
-                //double sqSum = 0.0;
+                // double sqSum = 0.0;
                 for (int k = 1; k < meanK; ++k) {
                     double dist = 0.0;
-                    dist += CalcUtils.distanceBetween2Points(points.GetPoint(i),
-                            points.GetPoint(idsFoundPts.GetId(k)));
-                    distSum += dist;        // should be sqrt(dist) ?
+                    dist += CalcUtils.distanceBetween2Points(points.GetPoint(i), points.GetPoint(idsFoundPts.GetId(k)));
+                    distSum += dist; // should be sqrt(dist) ?
                     sqSumDistances += dist * dist;
                 }
-                meanDistances[i] = distSum/(meanK-1);
+                meanDistances[i] = distSum / (meanK - 1);
                 meanDistancesSum += meanDistances[i];
-            }          
-            double mean = meanDistancesSum/points.GetNumberOfPoints();
+            }
+            double mean = meanDistancesSum / points.GetNumberOfPoints();
             double stddev = CalcUtils.stddev(meanDistancesSum, sqSumDistances, points.GetNumberOfPoints());
-            
-            double distanceThreshold = mean + stdMul * stddev;           
-//            NeptusLog.pub().info("Mean: " + mean);
-//            NeptusLog.pub().info("StdDev: " + stddev);
-//            NeptusLog.pub().info("Distance Threshold: " + distanceThreshold);
-            
-                // check wether it is inlier or outlier
+
+            double distanceThreshold = mean + stdMul * stddev;
+            // NeptusLog.pub().info("Mean: " + mean);
+            // NeptusLog.pub().info("StdDev: " + stddev);
+            // NeptusLog.pub().info("Distance Threshold: " + distanceThreshold);
+
+            // check wether it is inlier or outlier
             for (int c = 0; c < points.GetNumberOfPoints(); ++c) {
                 if (meanDistances[c] <= distanceThreshold) {
                     getOutputPoints().InsertPoint(outputId, points.GetPoint(c));
                     ++outputId;
-                } 
+                }
             }
-            
+
             NeptusLog.pub().info("Statistical outliers removal end: " + System.currentTimeMillis());
             NeptusLog.pub().info("Number of points on output: " + getOutputPoints().GetNumberOfPoints());
-            
-            float perc = (float) getOutputPoints().GetNumberOfPoints()/points.GetNumberOfPoints();
+
+            float perc = (float) getOutputPoints().GetNumberOfPoints() / points.GetNumberOfPoints();
             NeptusLog.pub().info("Percentage of inlier points: " + perc);
-            
+
             if (perc >= 0.90) {
                 setOutputPoints(outputPoints);
             }
@@ -185,5 +181,5 @@ public class StatisticalOutlierRemoval {
      */
     public void setStdMul(double stdMul) {
         this.stdMul = stdMul;
-    } 
+    }
 }

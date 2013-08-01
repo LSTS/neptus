@@ -38,56 +38,61 @@ import vtk.vtkPoints;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class PointCloudUtils {
 
     private static double[] center;
-    
+
+    /**
+     * class vtkCenterOfMass doesn't exist for Java on vtk 5.8
+     * 
+     * @param pointCloud
+     * @return
+     */
     public static double[] computeCenterOfMass(PointCloud<PointXYZ> pointCloud) {
         double[] center = computeCenter(pointCloud);
-        
-        
-//        vtkCenterOfMass centerOfMassFilter = new vtkCenterOfMass();
-//        centerOfMassFilter.SetInputData(poly);
-//        centerOfMassFilter.SetUseScalarAsWeights(false);
-//        centerOfMassFilter.Update();
-//        
-//        centerOfMassFilter.GetCenter(center);
-        
+
+        // vtkCenterOfMass centerOfMassFilter = new vtkCenterOfMass();
+        // centerOfMassFilter.SetInputData(poly);
+        // centerOfMassFilter.SetUseScalarAsWeights(false);
+        // centerOfMassFilter.Update();
+        //
+        // centerOfMassFilter.GetCenter(center);
+
         return center;
     }
-    
+
     /**
      * @param points
      * @return
      */
     public static double[] computeBounds(vtkPoints points) {
         double[] bounds = new double[6];
-        
+
         double p[] = points.GetPoint(0);
         bounds[0] = bounds[1] = p[0];
         bounds[2] = bounds[3] = p[1];
         bounds[4] = bounds[5] = p[2];
-        
+
         for (int i = 1; i < points.GetNumberOfPoints(); ++i) {
             p = points.GetPoint(i);
             for (int j = 0; j < 3; ++j) {
-                if (p[j] < bounds[2*j])         // min values
-                    bounds[2*j] = p[j];
-                if (p[j] > bounds[2*j+1]) {     // max values
-                    bounds[2*j+1] = p[j];
+                if (p[j] < bounds[2 * j]) // min values
+                    bounds[2 * j] = p[j];
+                if (p[j] > bounds[2 * j + 1]) { // max values
+                    bounds[2 * j + 1] = p[j];
                 }
             }
         }
-        
+
         return bounds;
     }
-    
+
     public static double[] computeBounds(PointCloud<PointXYZ> pointCloud) {
-        
+
         double[] bounds = new double[6];
-        
+
         double p[] = pointCloud.getPoints().GetPoint(0);
         bounds[0] = bounds[1] = p[0];
         bounds[2] = bounds[3] = p[1];
@@ -96,53 +101,49 @@ public class PointCloudUtils {
         for (int i = 1; i < pointCloud.getNumberOfPoints(); ++i) {
             p = pointCloud.getPoints().GetPoint(i);
             for (int j = 0; j < 3; ++j) {
-                if (p[j] < bounds[2*j])       // min values
-                    bounds[2*j] = p[j];
-                if (p[j] > bounds[2*j+1]) {    // max values
-                    bounds[2*j+1] = p[j];
+                if (p[j] < bounds[2 * j]) // min values
+                    bounds[2 * j] = p[j];
+                if (p[j] > bounds[2 * j + 1]) { // max values
+                    bounds[2 * j + 1] = p[j];
                 }
             }
         }
         return bounds;
     }
-    
+
     public static double[] computeScalarRange(PointCloud<PointXYZ> pointCloud) {
         double[] scalarRange = new double[2];
-        
-        
-        
+
         return scalarRange;
     }
-    
+
     public static double[] computeScalarRange(vtkDataArray scalars) {
         double[] scalarRange = new double[2];
-        
-        
-        
+
         return scalarRange;
     }
-    
+
     public static double[] computeCenter(PointCloud<PointXYZ> pointCloud) {
         double[] center = new double[3];
-        
+
         double[] bounds = computeBounds(pointCloud);
-        
+
         for (int i = 0; i < 3; ++i) {
-            center[i] = (bounds[i*2] + bounds[i*2+1]) / 2;
+            center[i] = (bounds[i * 2] + bounds[i * 2 + 1]) / 2;
         }
-        
+
         return center;
     }
-    
+
     public static double[] computeCenter(vtkPoints points) {
         double[] center = new double[3];
-        
+
         double[] bounds = computeBounds(points);
-        
+
         for (int i = 0; i < 3; ++i) {
-            center[i] = (bounds[i*2] + bounds[i*2+1]) / 2;
+            center[i] = (bounds[i * 2] + bounds[i * 2 + 1]) / 2;
         }
-        
+
         return center;
     }
 }

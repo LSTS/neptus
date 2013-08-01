@@ -31,7 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.pointcloud;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.PointCloudUtils;
 import vtk.vtkCellArray;
@@ -78,18 +77,6 @@ public class PointCloud<T extends PointXYZ> {
     
     /**
      * Create a Pointcloud Actor from loaded points and verts
-     * FIXME poly.GetBounds() dá fatal error
-     * Stack: [0x00007f895586f000,0x00007f8955970000],  sp=0x00007f895596e578,  free space=1021k
-Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
-C  [libvtkCommon.so.5.8+0xf91c0]  vtkDataArrayTemplate<float>::GetTuple(long long, double*)+0x20
-
-Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
-j  vtk.vtkDataSet.GetBounds_23()[D+0
-J  pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud.createLODActorFromPoints()V
-j  pt.up.fe.dceg.neptus.plugins.vtk.Vtk.getComponent(Lpt/up/fe/dceg/neptus/mra/importers/IMraLogGroup;D)Ljava/awt/Component;+260
-j  pt.up.fe.dceg.neptus.mra.MRAPanel$LoadTask.run()V+242
-j  java.lang.Thread.run()V+11
-v  ~StubRoutines::call_stub
      * 
      */
     public void createLODActorFromPoints() {

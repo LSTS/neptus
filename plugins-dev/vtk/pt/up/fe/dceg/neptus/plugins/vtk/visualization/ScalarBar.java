@@ -37,12 +37,12 @@ import vtk.vtkTextProperty;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class ScalarBar {
-    
+
     private vtkScalarBarActor scalarBarActor;
-    
+
     public ScalarBar() {
         setScalarBarActor(new vtkScalarBarActor());
     }
@@ -55,11 +55,11 @@ public class ScalarBar {
         getScalarBarActor().SetPosition(0.15, 0.01);
         getScalarBarActor().SetWidth(0.7);
         getScalarBarActor().SetHeight(0.1);
-        //getScalarBarActor().SetNumberOfLabels(getScalarBarActor().GetNumberOfLabels() * 2);
+        // getScalarBarActor().SetNumberOfLabels(getScalarBarActor().GetNumberOfLabels() * 2);
         getScalarBarActor().SetNumberOfLabels(9);
         getScalarBarActor().UseOpacityOn();
         getScalarBarActor().SetTitle("Multibeam Color Map");
-        
+
         vtkTextProperty textProp = new vtkTextProperty();
         textProp = getScalarBarActor().GetLabelTextProperty();
         textProp.SetFontFamilyToArial();
@@ -67,11 +67,11 @@ public class ScalarBar {
         textProp.ItalicOn();
         textProp.SetOpacity(0.9);
         textProp.SetFontSize(8);
-        
+
         getScalarBarActor().SetLabelTextProperty(textProp);
         getScalarBarActor().SetTitleTextProperty(textProp);
     }
-    
+
     /**
      * 
      */
@@ -83,7 +83,7 @@ public class ScalarBar {
         getScalarBarActor().SetNumberOfLabels(9);
         getScalarBarActor().UseOpacityOn();
         getScalarBarActor().SetTitle("Multibeam Color Map");
-        
+
         vtkTextProperty textProp = new vtkTextProperty();
         textProp = getScalarBarActor().GetLabelTextProperty();
         textProp.SetFontFamilyToArial();
@@ -92,11 +92,11 @@ public class ScalarBar {
         textProp.SetOpacity(0.9);
         textProp.SetFontSize(8);
         textProp.ShadowOn();
-        
+
         getScalarBarActor().SetLabelTextProperty(textProp);
         getScalarBarActor().SetTitleTextProperty(textProp);
     }
-    
+
     public void setUpScalarBarLookupTable(vtkScalarsToColors lut) {
         getScalarBarActor().SetLookupTable(lut);
         getScalarBarActor().Modified();

@@ -35,59 +35,57 @@ import vtk.vtkActor;
 import vtk.vtkCubeAxesActor;
 import vtk.vtkPolyData;
 import vtk.vtkRenderer;
-import vtk.vtkStringArray;
 
 /**
- * @author hfq
- * FIXME - Grid is enabled by default, check better solution
+ * @author hfq FIXME - Grid is enabled by default, check better solution
  */
 public class CubeAxes {
-    
-//    private vtkStringArray xLabel;
-//    private vtkStringArray yLabel;
-//    private vtkStringArray zLabel;
-    
+
+    // private vtkStringArray xLabel;
+    // private vtkStringArray yLabel;
+    // private vtkStringArray zLabel;
+
     private static vtkCubeAxesActor cubeAxesActor;
-    
+
     public CubeAxes() {
-     
+
     }
-    
+
     public static vtkActor AddCubeAxesToVisualizer(vtkRenderer renderer, vtkPolyData polyData) {
-        
+
         cubeAxesActor = new vtkCubeAxesActor();
-        
+
         cubeAxesActor.SetCamera(renderer.GetActiveCamera());
         cubeAxesActor.SetBounds(polyData.GetBounds());
         cubeAxesActor.SetXTitle("X axis");
-        //cubeAxesActor.SetXAxisMinorTickVisibility(0);
-        //cubeAxesActor.SetDrawXGridlines(0);
+        // cubeAxesActor.SetXAxisMinorTickVisibility(0);
+        // cubeAxesActor.SetDrawXGridlines(0);
         cubeAxesActor.DrawXGridlinesOn();
         cubeAxesActor.SetXUnits("m");
-        
-        //cubeAxesActor.SetAxisLabes(0, getXLabels()); nao tem o método, falta impletar o getXLabels
+
+        // cubeAxesActor.SetAxisLabes(0, getXLabels()); nao tem o método, falta impletar o getXLabels
         cubeAxesActor.SetYTitle("Y axis");
-        //cubeAxesActor.SetYAxisLabelVisibility(0);
-        //cubeAxesActor.SetYAxisMinorTickVisibility(0);
+        // cubeAxesActor.SetYAxisLabelVisibility(0);
+        // cubeAxesActor.SetYAxisMinorTickVisibility(0);
         cubeAxesActor.DrawYGridlinesOn();
         cubeAxesActor.SetYUnits("m");
 
-        //cubeAxesActor.SetAxisLabes(0, getYLabels()); nao tem o método, falta impletar o getYLabels
+        // cubeAxesActor.SetAxisLabes(0, getYLabels()); nao tem o método, falta impletar o getYLabels
         cubeAxesActor.SetZTitle("Z axis");
-        //cubeAxesActor.SetZAxisMinorTickVisibility(0);
+        // cubeAxesActor.SetZAxisMinorTickVisibility(0);
         cubeAxesActor.DrawZGridlinesOn();
         cubeAxesActor.SetZUnits("m");
-        
+
         // não colocar
-        //cubeAxesActor.SetCornerOffset(1);
+        // cubeAxesActor.SetCornerOffset(1);
         // não faz nada aparentemente
-        //cubeAxesActor.SetInertia(0);
-        
+        // cubeAxesActor.SetInertia(0);
+
         // propriedades do actor
-        //cubeAxesActor.GetProperty().SetDiffuseColor(0.0, 1.0, 0.0);
+        // cubeAxesActor.GetProperty().SetDiffuseColor(0.0, 1.0, 0.0);
         cubeAxesActor.GetProperty().SetColor(0.0, 1.0, 0.0);
-        //cubeAxesActor.GetProperty().SetInterpolationToPhong();
-        
+        // cubeAxesActor.GetProperty().SetInterpolationToPhong();
+
         return cubeAxesActor;
     }
 

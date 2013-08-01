@@ -33,42 +33,49 @@ package pt.up.fe.dceg.neptus.plugins.vtk.utils;
 
 /**
  * @author hfq
- *
+ * 
  */
 
 public class OsUtils {
-    
+
     private static String OS = System.getProperty("os.name").toLowerCase();
-    
-    private static enum OSValidator{
-        unix, win, mac, solaris
+
+    private static enum OSValidator {
+        unix,
+        win,
+        mac,
+        solaris
     }
+
     private static OSValidator osVal;
-    
+
     private static boolean isWindows() {
         return (OS.indexOf("win") >= 0);
     }
-    
+
     private static boolean isMac() {
         return (OS.indexOf("mac") >= 0);
     }
-    
+
     private static boolean isUnix() {
-        return (OS.indexOf("nix") >= 0  || OS.indexOf("nux") >= 0 || OS.indexOf("aix") >= 0 );
+        return (OS.indexOf("nix") >= 0 || OS.indexOf("nux") >= 0 || OS.indexOf("aix") >= 0);
     }
-    
+
     private static boolean isSolaris() {
         return (OS.indexOf("sunos") >= 0);
     }
-    
-    public static void checkOS () {
+
+    public static void checkOS() {
         if (isUnix()) {
             setOsVal(OSValidator.unix);
-        } else if (isWindows()) {
+        }
+        else if (isWindows()) {
             setOsVal(OSValidator.win);
-        } else if (isMac()) {
+        }
+        else if (isMac()) {
             setOsVal(OSValidator.mac);
-        } else if (isSolaris()) {
+        }
+        else if (isSolaris()) {
             setOsVal(OSValidator.solaris);
         }
     }

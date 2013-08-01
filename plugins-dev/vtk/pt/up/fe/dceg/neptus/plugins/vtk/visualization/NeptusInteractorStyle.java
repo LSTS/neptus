@@ -70,10 +70,9 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
 
     public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
 
-    // A vtkCanvas
-    //public vtkCanvas canvas;
+    // public vtkCanvas canvas;
     public Canvas canvas;
-    
+
     // A renderer
     public vtkRenderer renderer;
     // The render Window Interactor
@@ -129,7 +128,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
 
     // ########## Mouse Interaction ##########
     MouseEvent mouseEvent;
-    
+
     vtkProp3D InteractionProp;
     vtkCellPicker InteractionPicker;
 
@@ -145,7 +144,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
 
     // ########### Point Picking ##########
     PointPickingEvent pointPickEvent;
-    
+
     /**
      * 
      * @param canvas
@@ -153,8 +152,8 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
      * @param interact
      * @param linkedHashMapCloud
      */
-//    public NeptusInteractorStyle(vtkCanvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor interact,
-//            LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
+    // public NeptusInteractorStyle(vtkCanvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor interact,
+    // LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
     public NeptusInteractorStyle(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor interact,
             LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
         super();
@@ -165,7 +164,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
         this.linkedHashMapCloud = linkedHashMapCloud;
         this.setScalarBar(new ScalarBar());
         keyboardEvent = new KeyboardEvent(this.canvas, this.linkedHashMapCloud, this);
-        //mouseEvent = new MouseEvent(this.canvas, this);
+        // mouseEvent = new MouseEvent(this.canvas, this);
 
         pointPickEvent = new PointPickingEvent(this.canvas);
         mouseEvent = new MouseEvent(this.canvas, this.pointPickEvent);
@@ -185,24 +184,23 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
         UseTimersOn();
         HandleObserversOn();
         this.AutoAdjustCameraClippingRangeOn();
-        
 
         // interactModifier = InteractorKeyboardModifier.INTERACTOR_KB_MOD_ALT;
 
-            // Set window size (width, height) to unknow (-1)
+        // Set window size (width, height) to unknow (-1)
         winHeight = winWidth = -1;
         winPosX = winPosY = 0;
 
-            // Grid is disabled by default
+        // Grid is disabled by default
         gridEnabled = false;
         // gridActor = new vtkLegendScaleActor();
 
-            // LUT is enabled by default
+        // LUT is enabled by default
         lutEnabled = true;
         getScalarBar().setScalarBarHorizontalProperties();
-        //getScalarBar().setScalarBarVerticalProperties();
+        // getScalarBar().setScalarBarVerticalProperties();
 
-            // Create the image filter and PNG writer objects
+        // Create the image filter and PNG writer objects
         wif = new vtkWindowToImageFilter();
         snapshotWriter = new vtkPNGWriter();
         snapshotWriter.SetInputConnection(wif.GetOutputPort());
@@ -211,10 +209,10 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
 
         getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
 
-        //canvas.addMouseWheelListener(this);     
-        //canvas.addKeyListener(this);
+        // canvas.addMouseWheelListener(this);
+        // canvas.addKeyListener(this);
 
-            // não colocar o render logo, senão os eventos do java (mouseWheel)
+        // não colocar o render logo, senão os eventos do java (mouseWheel)
         // canvas.Render();
     }
 
@@ -237,13 +235,12 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
             this.renderer.AddActor(fpsActor);
         }
     }
-    
+
     /**
      * Render event to show point coords on mouse hover
      */
     void callbackPointCoords() {
-        
-        
+
     }
 
     /**

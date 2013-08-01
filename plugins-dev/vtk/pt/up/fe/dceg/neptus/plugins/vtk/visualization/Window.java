@@ -42,39 +42,36 @@ import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
 
 /**
- * @author hfq
- * config vtk window
+ * @author hfq config vtk window
  */
 public class Window {
     private vtkInteractorStyle style;
 
     public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
-      
+
     private vtkPanel panel;
-    //private vtkCanvas canvas;
     private Canvas canvas;
     private vtkRenderer renderer;
     private vtkRenderWindow renWin;
     private vtkRenderWindowInteractor renWinInteractor;
     private String windowName;
-    //private vtkLight light;
-    //private vtkLightActor lightActor;
-    
-        // the Neptus interactor Style - mouse, and keyboard events
+    // private vtkLight light;
+    // private vtkLightActor lightActor;
+
+    // the Neptus interactor Style - mouse, and keyboard events
     private NeptusInteractorStyle interactorStyle;
 
     /**
      * 
      * @param panel
-     * @param linkedHashMapCloud
-     * set all vtk render components of a vtkPanel
+     * @param linkedHashMapCloud set all vtk render components of a vtkPanel
      */
     public Window(vtkPanel panel, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
         this.panel = new vtkPanel();
         this.panel = panel;
         this.linkedHashMapCloud = linkedHashMapCloud;
-        
-            // a Renderer
+
+        // a Renderer
         try {
             setRenderer(this.panel.GetRenderer());
         }
@@ -83,7 +80,7 @@ public class Window {
             e.printStackTrace();
         }
 
-            // a Render Window
+        // a Render Window
         try {
             setRenWin(this.panel.GetRenderWindow());
         }
@@ -92,7 +89,7 @@ public class Window {
             e.printStackTrace();
         }
 
-            // a Render Window Interactor
+        // a Render Window Interactor
         try {
             setRenWinInteractor(this.panel.GetRenderWindow().GetInteractor());
         }
@@ -105,9 +102,9 @@ public class Window {
         setUpRenWin();
         setUpRenWinInteractor();
         setUpInteractorStyle();
-            
-            // set up camera to +z viewpoint looking down
-        
+
+        // set up camera to +z viewpoint looking down
+
         getRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
         getRenderer().GetActiveCamera().Render(getRenderer());
         getRenderer().Render();
@@ -115,16 +112,15 @@ public class Window {
 
     /**
      * @param canvas
-     * @param hashCloud
-     * set all vtk render components of a vtkCanvas 
+     * @param hashCloud set all vtk render components of a vtkCanvas
      */
-    //public Window(vtkCanvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
+    // public Window(vtkCanvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
     public Window(Canvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
-        //this.canvas = new vtkCanvas();
+        // this.canvas = new vtkCanvas();
         this.canvas = canvas;
         this.linkedHashMapCloud = linkedHashMapCloud;
 
-            // a Renderer
+        // a Renderer
         try {
             setRenderer(this.canvas.GetRenderer());
         }
@@ -133,7 +129,7 @@ public class Window {
             e.printStackTrace();
         }
 
-            // a Render Window
+        // a Render Window
         try {
             setRenWin(this.canvas.GetRenderWindow());
         }
@@ -142,7 +138,7 @@ public class Window {
             e.printStackTrace();
         }
 
-            // a Render Window Interactor
+        // a Render Window Interactor
         try {
             setRenWinInteractor(this.canvas.getRenderWindowInteractor());
         }
@@ -170,7 +166,7 @@ public class Window {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Sets up the Render Window
      */
@@ -201,9 +197,9 @@ public class Window {
             System.out.println("Exception set render window interactor");
             e.printStackTrace();
         }
-        
+
         getRenWinInteractor().SetDesiredUpdateRate(30.0);
-        //NeptusLog.pub().info("Desired update rate: " + getRenWinInteractor().GetDesiredUpdateRate());
+        // NeptusLog.pub().info("Desired update rate: " + getRenWinInteractor().GetDesiredUpdateRate());
     }
 
     /**

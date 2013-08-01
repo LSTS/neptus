@@ -40,7 +40,7 @@ import vtk.vtkUnsignedCharArray;
 
 /**
  * @author hfq
- * Handles Pointcloud colors
+ * Handles Pointcloud colors x, y, z and intensities
  */
 public class PointCloudHandlers<T extends PointXYZ> {    
     private vtkUnsignedCharArray colorsX;
