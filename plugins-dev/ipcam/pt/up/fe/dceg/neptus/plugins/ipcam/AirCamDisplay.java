@@ -175,7 +175,6 @@ public class AirCamDisplay extends SimpleSubPanel implements ConfigurationListen
                     }
                     catch (Exception e) {
                         status = "Error: "+e.getMessage();
-                        e.printStackTrace();
                         NeptusLog.pub().warn(e);          
                         repaint();
                         connected = false;
