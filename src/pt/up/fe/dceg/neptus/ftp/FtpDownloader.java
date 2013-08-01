@@ -69,8 +69,7 @@ public class FtpDownloader {
         client.login("anonymous", "");
 
         client.setFileType(FTP.BINARY_FILE_TYPE);
-        
-        NeptusLog.pub().info("<###> " + client.printWorkingDirectory());
+        client.setControlEncoding("UTF-8");
     }
 
     public void downloadDirectory(String path, String destPath) throws Exception {
@@ -96,7 +95,27 @@ public class FtpDownloader {
             downloadDirectory(path + "/" + f.getName(), destPath);
         }
     }
-
+    
+    public LinkedHashMap<String, FTPFile> listDirectory(String path) throws Exception {
+        ArrayList<FTPFile> toDoList = new ArrayList<FTPFile>();
+        LinkedHashMap<String, FTPFile> finalList = new LinkedHashMap<String, FTPFile>();
+        
+        client.changeWorkingDirectory(path);
+        
+        for (FTPFile f : client.listFiles()) {
+            if(f.isDirectory()) {
+                toDoList.add(f);
+            }
+            else {
+                String filePath =  path + (path.equals("/") ? "" : "/") + f.getName();
+                finalList.put(filePath, f);
+            }
+        }
+        for(FTPFile f : toDoList) {
+            finalList.putAll(listDirectory(path + "/" + f.getName()));
+        }
+        return finalList;
+    }
     public LinkedHashMap<FTPFile, String> listLogs() throws IOException {
         LinkedHashMap<FTPFile, String> list = new LinkedHashMap<FTPFile, String>();
         
@@ -169,8 +188,21 @@ public class FtpDownloader {
     }
 
     public static void main(String[] args) throws Exception {
-        FtpDownloader test = new FtpDownloader("10.0.10.60", 30021);
+        FtpDownloader test = new FtpDownloader("10.0.10.80", 30021);
+        LinkedHashMap<String, FTPFile> res = new LinkedHashMap<>();
+
+        test.getClient().setControlEncoding("UTF-8");
+        res = test.listDirectory("/");
         
-        test.downloadFile("/20130722/165455_teleoperation-mode/Data.lsf.gz", "/home/jqcorreia/");
+        test.getClient().setRestartOffset(10000000);
+        InputStream stream = test.getClient().retrieveFileStream("/20130724/142631_cross_hatch_1h_v2/Data.jsf"); 
+        
+        System.out.println("skipping");
+        System.out.println("end skipping");
+        
+//        for(String s : res.keySet()) {
+//            System.out.println(s);
+//        }
+//        System.out.println(res.keySet().size());
     }
 }

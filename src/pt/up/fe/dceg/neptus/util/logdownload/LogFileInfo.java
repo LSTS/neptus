@@ -49,6 +49,8 @@ public class LogFileInfo {
 
 	FTPFile file = null;
 	
+	String host = null;
+	
 	private long size = -1;
 	
 	/**
@@ -70,7 +72,21 @@ public class LogFileInfo {
 	    return file;
 	}
 
-	public void setFile(FTPFile file) {
+	/**
+     * @return the host
+     */
+    public String getHost() {
+        return host;
+    }
+
+    /**
+     * @param host the host to set
+     */
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public void setFile(FTPFile file) {
 	    this.file = file;
 	}
 	
