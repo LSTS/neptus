@@ -227,7 +227,7 @@ public class NeptusMain {
         else
             GuiUtils.setLookAndFeel();
 
-        loader.setText(I18n.text("Loading Systems..."));
+        loader.setText(I18n.text("Loading Systems") + "...");
 
         if (!VehiclesHolder.loadVehicles()) {
             GuiUtils.errorMessage(loader, I18n.text("Loading Systems"), I18n.text("Error loading systems!"));
