@@ -58,6 +58,7 @@ import pt.up.fe.dceg.neptus.plugins.acoustic.LBLRangeDisplay.HideOrFadeRangeEnum
 import pt.up.fe.dceg.neptus.plugins.map.MapEditor;
 import pt.up.fe.dceg.neptus.plugins.planning.MapPanel;
 import pt.up.fe.dceg.neptus.plugins.web.NeptusServlet;
+import pt.up.fe.dceg.neptus.renderer2d.tiles.Tile.TileState;
 import pt.up.fe.dceg.neptus.types.map.AbstractElement;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
@@ -89,7 +90,7 @@ public class PluginsPotGenerator {
     public static Vector<Class<?>> enums() {
         Vector<Class<?>> enums = new Vector<>();
         enums.add(Announce.SYS_TYPE.class);
-        //enums.add(ConsoleEventVehicleStateChanged.STATE.class);
+        enums.add(ConsoleEventVehicleStateChanged.STATE.class);
         enums.add(ImcSystem.IMCAuthorityState.class);
         enums.add(Goto.SPEED_UNITS.class);
         enums.add(Loiter.TYPE.class);
@@ -102,7 +103,7 @@ public class PluginsPotGenerator {
         enums.add(VehicleTypeEnum.class);
         enums.add(Z_UNITS.class);
         enums.add(HideOrFadeRangeEnum.class);
-        enums.add(ConsoleEventVehicleStateChanged.STATE.class);
+        enums.add(TileState.class);
         return enums;
     }
 

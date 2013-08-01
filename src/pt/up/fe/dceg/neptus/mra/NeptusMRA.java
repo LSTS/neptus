@@ -973,7 +973,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
 
     @Override
     public String getPropertiesDialogTitle() {
-        return I18n.text("MRA Preferences");
+        return "MRA Preferences";
     }
 
     @Override

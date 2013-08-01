@@ -78,7 +78,6 @@ public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {
     }
     
     public String getTitle() {
-        //return I18n.textf("%plotname plot", getName());
         return (getName() + " plot");
     }
     
@@ -90,7 +89,7 @@ public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {
     protected LinkedHashMap<String, Long> lastAddedPoints = new LinkedHashMap<>();
     
     public void addValue(long timeMillis, double x, double y, String src, String variable) {
-        String seriesName = src+"."+variable;
+        String seriesName = src+"."+I18n.text(variable);
         
         if (!series.containsKey(seriesName)) {
            series.put(seriesName, new LinkedHashMap<Long, Point2D.Double>());

@@ -68,6 +68,7 @@ import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.SelectAllFocusListener;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
@@ -211,7 +212,7 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
             i++;
         }
         i = chart.getSeriesNames().size();
-        checks[i] = new JCheckBox("ALL");
+        checks[i] = new JCheckBox(I18n.text("ALL"));
         checks[i].setOpaque(false);
         checks[i].setForeground(Color.black);
         checks[i].setSelected(allSelected);
@@ -286,6 +287,7 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
         JFreeChart c = chart.getChart(source, timestep);
 
         cpanel = new ChartPanel(c);
+        
         cpanel.getPopupMenu().add(I18n.text("Add Mark")).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

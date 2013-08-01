@@ -83,6 +83,7 @@ import org.jdesktop.swingx.JXTaskPaneContainer;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.BlockingGlassPane;
 import pt.up.fe.dceg.neptus.gui.checklist.exec.CheckListExe;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.types.checklist.CheckItem;
 import pt.up.fe.dceg.neptus.types.checklist.ChecklistType;
 import pt.up.fe.dceg.neptus.util.FileUtil;
@@ -1440,7 +1441,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JButton getSaveAsButton() {
         if (saveAsButton == null) {
             saveAsButton = new JButton();
-            saveAsButton.setText("Save as");
+            saveAsButton.setText(I18n.text("Save as"));
             saveAsButton.setEnabled(true);
             saveAsButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {

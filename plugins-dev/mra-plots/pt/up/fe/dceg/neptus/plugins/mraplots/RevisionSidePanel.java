@@ -128,7 +128,7 @@ public class RevisionSidePanel extends JPanel {
         private void initialize() {
             setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
             setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-            fileLabel = new JLabel("(no log loaded)");
+            fileLabel = new JLabel(I18n.text("(no log loaded)"));
             fileLabel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
             fileLabel.setBackground(Color.white);
             fileLabel.setOpaque(true);
