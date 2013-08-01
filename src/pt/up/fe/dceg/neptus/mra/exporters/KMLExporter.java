@@ -191,7 +191,6 @@ public class KMLExporter implements MraExporter {
         int width = (int) Math.abs(offsets[1]* resolution) ;
         int height = (int) Math.abs(offsets[0] * resolution);
 
-        System.out.println("Sidescan image overlay size: "+width+", "+height);
         if (width <= 0 || height <= 0)
             return "";
         
@@ -226,23 +225,26 @@ public class KMLExporter implements MraExporter {
                 continue;
             }
             
+            BufferedImage previous = new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB);
             for (SidescanLine sl : lines) {
-                if (Math.abs(Math.toDegrees(sl.state.getR())) > 7)
-                    continue;
                 int widthPixels = (int)(sl.range * resolution * 2);
                 if (swath == null || swath.getWidth() != widthPixels)
-                    swath = new BufferedImage(widthPixels, 1, BufferedImage.TYPE_INT_ARGB);
+                    swath = new BufferedImage(widthPixels, 3, BufferedImage.TYPE_INT_ARGB);
+                
+                if (previous != null)
+                    swath.getGraphics().drawImage(previous, 0, 0, swath.getWidth(), 1, 1, 0, 2, previous.getWidth(), null);
                 
                 int samplesPerPixel = sl.data.length / widthPixels;
                 if (samplesPerPixel == 0)
                     continue;
                 double sum = 0;
                 int count = 0;
+                
                 for (int i = 0; i < sl.data.length; i++) {
                     if (i != 0 && i % samplesPerPixel == 0) {
                         double val = sum / count;
                         if ((i/samplesPerPixel-1)<widthPixels)
-                            swath.setRGB(i/samplesPerPixel-1, 0, cmap.getColor(val).getRGB() /*+ (128 << 24)*/);
+                            swath.setRGB(i/samplesPerPixel-1, 0, cmap.getColor(val).getRGB() + (224 << 24));
                         sum = count = 0;
                     }
                     else {
@@ -257,8 +259,9 @@ public class KMLExporter implements MraExporter {
                 g2.translate(pos[1] * resolution, -pos[0] * resolution);
                 g2.rotate(sl.state.getYaw());
                 g2.setColor(Color.black);
-                g2.scale(1, 5*resolution);
+                g2.scale(1, 3*resolution);
                 g2.drawImage(swath, (int)-swath.getWidth()/2, 0, null);
+                previous = swath;
                 lbl.repaint();
             }
         }
