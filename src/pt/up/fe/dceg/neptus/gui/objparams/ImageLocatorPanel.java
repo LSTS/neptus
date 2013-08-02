@@ -55,6 +55,7 @@ import javax.swing.JPopupMenu;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.ImageScaleAndLocationPanel;
 import pt.up.fe.dceg.neptus.gui.LocationPanel;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
@@ -66,187 +67,191 @@ import pt.up.fe.dceg.neptus.util.coord.MapTileUtil;
 @Deprecated
 public class ImageLocatorPanel extends JPanel implements MouseListener {
 
+    private static final long serialVersionUID = -8382828403279503811L;
 
-	private static final long serialVersionUID = -8382828403279503811L;
+    LocationType location1 = new LocationType(), location2 = new LocationType();
+    Point2D point1, point2;
+    Image image;
+    int curLocation = 1;
+    double scale = 1.0;
+    LocationType center = new LocationType();
+    private JButton okBtn, cancelBtn;
+    boolean isCancel = true;
 
-	LocationType location1 = new LocationType(), location2 = new LocationType();
-	Point2D point1, point2;
-	Image image;
-	int curLocation = 1;
-	double scale = 1.0;
-	LocationType center = new LocationType();
-	private JButton okBtn, cancelBtn;
-	boolean isCancel = true;
-	
-	public ImageLocatorPanel(Image image) {
-		this.image = image;
-		setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-		addMouseListener(this);
-	}
-	
-	public void paint(Graphics g) {
-		super.paint(g);
-		
-		Graphics2D g2d = (Graphics2D) g;
-		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		double zoom = Math.min((double)getWidth()/(double)image.getWidth(null), (double)getHeight()/(double)image.getHeight(null));
-		g2d.translate(getWidth()/2, getHeight()/2);
-		g2d.scale(zoom, zoom);
-		g2d.translate(-image.getWidth(null)/2, -image.getHeight(null)/2);			
-		g2d.drawImage(image, 0, 0, null);
-		
-		
-		
-		if (point1 != null) {
-			g2d.setColor(new Color(255,255,255,100));
-			g2d.fill(new Ellipse2D.Double(point1.getX()-7, point1.getY()-7, 14, 14));
-			
-			g2d.setColor(Color.RED);
-			g2d.draw(new Ellipse2D.Double(point1.getX()-7, point1.getY()-7, 14, 14));
-			g2d.drawString("1", (int) point1.getX()-4, (int) point1.getY()+4);
-		}
-		
-		if (point2 != null) {
-			g2d.setColor(new Color(255,255,255,100));
-			g2d.fill(new Ellipse2D.Double(point2.getX()-7, point2.getY()-7, 14, 14));
-			
-			g2d.setColor(Color.RED);
-			g2d.draw(new Ellipse2D.Double(point2.getX()-7, point2.getY()-7, 14, 14));
-			g2d.drawString("2", (int) point2.getX()-4, (int) point2.getY()+4);
-		}
-	}
-	
-	public void mouseClicked(MouseEvent e) {
-		final Point2D position = e.getPoint();
-		JPopupMenu menu = new JPopupMenu();
-		AbstractAction setLoc1 = new AbstractAction("Set Location 1") {
-			private static final long serialVersionUID = -8936197276937360980L;
+    public ImageLocatorPanel(Image image) {
+        this.image = image;
+        setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+        addMouseListener(this);
+    }
 
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				LocationType lt = LocationPanel.showLocationDialog("Set Location 1", location1, null);
-				if (lt != null) {
-					location1 = lt;
-					point1 = position;	
-					if (point2 != null)
-						okBtn.setEnabled(true);
-					repaint();
-				}
-			};
-		};
-		menu.add(setLoc1);
-		
-		AbstractAction setLoc2 = new AbstractAction("Set Location 2") {
-			private static final long serialVersionUID = 395764026001138275L;
+    public void paint(Graphics g) {
+        super.paint(g);
 
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				LocationType lt = LocationPanel.showLocationDialog("Set Location 2", location2, null);
-				if (lt != null) {
-					location2 = lt;
-					point2 = position;		
-					if (point1 != null)
-						okBtn.setEnabled(true);
-					repaint();
-				}
-			};
-		};
-		menu.add(setLoc2);
-		
-		menu.show(this, e.getX(), e.getY());
-	}
-	
-	public boolean performCalculations() {
-		double screenDiff = Math.abs(point2.getX() - point1.getX()); 
-		double locationsDiff = Math.abs(MapTileUtil.getOffsetInPixels(location1, location2)[1]);
-		if (locationsDiff == 0)
-			return false;
-		
-		this.scale = locationsDiff / screenDiff;
-		
-		Point2D.Double meanpoint = new Point2D.Double((double)getWidth()/2, (double)getHeight()/2);
-		double xDiff = Math.abs(point1.getX()-meanpoint.getX());
-		double yDiff = Math.abs(point1.getY()-meanpoint.getY());
-		
-		if (xDiff == 0) 
-			return false;
-		
-		this.center.setLocation(location1);
-		center.translatePosition(xDiff*scale, yDiff*scale, 0);
-		return true;
-	}
-	
-	public void mouseEntered(MouseEvent e) { }
-	public void mouseExited(MouseEvent e) {	}
-	
-	public void mousePressed(MouseEvent e) { }
-	public void mouseReleased(MouseEvent e) { }
-	
-	public static void main(String args[]) {
-		ImageLocatorPanel ilp = new ImageLocatorPanel(ImageUtils.getImage("images/lsts.png"));
-		if (ilp.showDialog()) {
-			NeptusLog.pub().info("<###>Scale: "+ilp.getScale());
-			NeptusLog.pub().info("<###>Center: "+ilp.getCenter().getDebugString());
-		}
-	}
-	
-	public boolean showDialog() {
-		final JDialog positionDialog = new JDialog(new JFrame(), "Set 2 locations", true);
-		JPanel mainPanel = new JPanel(new BorderLayout());
-		JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		
-		okBtn = new JButton("OK");
-		okBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				if (performCalculations()) {
-					positionDialog.setVisible(false);
-					positionDialog.dispose();
-					isCancel = false;
-				}
-				else {
-					okBtn.setEnabled(false);
-					GuiUtils.errorMessage(positionDialog, "Error in the locations", "The entered locations are not valid");
-				}
-			};
-		});
-		okBtn.setEnabled(false);
-		
-		cancelBtn = new JButton("Cancel");
-		cancelBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				positionDialog.setVisible(false);
-				positionDialog.dispose();
-				isCancel = true;
-			};
-		});
-		
-		controlPanel.add(okBtn);
-		controlPanel.add(cancelBtn);
-		
-		mainPanel.add(this, BorderLayout.CENTER);
-		mainPanel.add(controlPanel, BorderLayout.SOUTH);
-		
-		positionDialog.setContentPane(mainPanel);
-		positionDialog.setSize(400, 500);
-		GuiUtils.centerOnScreen(positionDialog);
-		positionDialog.setVisible(true);
-		
-		return !isCancel;
-	}
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        double zoom = Math.min((double) getWidth() / (double) image.getWidth(null), (double) getHeight()
+                / (double) image.getHeight(null));
+        g2d.translate(getWidth() / 2, getHeight() / 2);
+        g2d.scale(zoom, zoom);
+        g2d.translate(-image.getWidth(null) / 2, -image.getHeight(null) / 2);
+        g2d.drawImage(image, 0, 0, null);
 
-	public LocationType getCenter() {
-		return center;
-	}
+        if (point1 != null) {
+            g2d.setColor(new Color(255, 255, 255, 100));
+            g2d.fill(new Ellipse2D.Double(point1.getX() - 7, point1.getY() - 7, 14, 14));
 
-	public void setCenter(LocationType center) {
-		this.center = center;
-	}
+            g2d.setColor(Color.RED);
+            g2d.draw(new Ellipse2D.Double(point1.getX() - 7, point1.getY() - 7, 14, 14));
+            g2d.drawString("1", (int) point1.getX() - 4, (int) point1.getY() + 4);
+        }
 
-	public double getScale() {
-		return scale;
-	}
+        if (point2 != null) {
+            g2d.setColor(new Color(255, 255, 255, 100));
+            g2d.fill(new Ellipse2D.Double(point2.getX() - 7, point2.getY() - 7, 14, 14));
 
-	public void setScale(double scale) {
-		this.scale = scale;
-	}
-	
-	
+            g2d.setColor(Color.RED);
+            g2d.draw(new Ellipse2D.Double(point2.getX() - 7, point2.getY() - 7, 14, 14));
+            g2d.drawString("2", (int) point2.getX() - 4, (int) point2.getY() + 4);
+        }
+    }
+
+    public void mouseClicked(MouseEvent e) {
+        final Point2D position = e.getPoint();
+        JPopupMenu menu = new JPopupMenu();
+        AbstractAction setLoc1 = new AbstractAction(I18n.text("Set Location 1")) {
+            private static final long serialVersionUID = -8936197276937360980L;
+
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                LocationType lt = LocationPanel.showLocationDialog(I18n.text("Set Location 1"), location1, null);
+                if (lt != null) {
+                    location1 = lt;
+                    point1 = position;
+                    if (point2 != null)
+                        okBtn.setEnabled(true);
+                    repaint();
+                }
+            };
+        };
+        menu.add(setLoc1);
+
+        AbstractAction setLoc2 = new AbstractAction(I18n.text("Set Location 2")) {
+            private static final long serialVersionUID = 395764026001138275L;
+
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                LocationType lt = LocationPanel.showLocationDialog(I18n.text("Set Location 2"), location2, null);
+                if (lt != null) {
+                    location2 = lt;
+                    point2 = position;
+                    if (point1 != null)
+                        okBtn.setEnabled(true);
+                    repaint();
+                }
+            };
+        };
+        menu.add(setLoc2);
+
+        menu.show(this, e.getX(), e.getY());
+    }
+
+    public boolean performCalculations() {
+        double screenDiff = Math.abs(point2.getX() - point1.getX());
+        double locationsDiff = Math.abs(MapTileUtil.getOffsetInPixels(location1, location2)[1]);
+        if (locationsDiff == 0)
+            return false;
+
+        this.scale = locationsDiff / screenDiff;
+
+        Point2D.Double meanpoint = new Point2D.Double((double) getWidth() / 2, (double) getHeight() / 2);
+        double xDiff = Math.abs(point1.getX() - meanpoint.getX());
+        double yDiff = Math.abs(point1.getY() - meanpoint.getY());
+
+        if (xDiff == 0)
+            return false;
+
+        this.center.setLocation(location1);
+        center.translatePosition(xDiff * scale, yDiff * scale, 0);
+        return true;
+    }
+
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    public void mouseExited(MouseEvent e) {
+    }
+
+    public void mousePressed(MouseEvent e) {
+    }
+
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    public static void main(String args[]) {
+        ImageLocatorPanel ilp = new ImageLocatorPanel(ImageUtils.getImage("images/lsts.png"));
+        if (ilp.showDialog()) {
+            NeptusLog.pub().info("<###>Scale: " + ilp.getScale());
+            NeptusLog.pub().info("<###>Center: " + ilp.getCenter().getDebugString());
+        }
+    }
+
+    public boolean showDialog() {
+        final JDialog positionDialog = new JDialog(new JFrame(), I18n.text("Set 2 locations"), true);
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        okBtn = new JButton(I18n.text("OK"));
+        okBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                if (performCalculations()) {
+                    positionDialog.setVisible(false);
+                    positionDialog.dispose();
+                    isCancel = false;
+                }
+                else {
+                    okBtn.setEnabled(false);
+                    GuiUtils.errorMessage(positionDialog, I18n.text("Error in the locations"),
+                            I18n.text("The entered locations are not valid"));
+                }
+            };
+        });
+        okBtn.setEnabled(false);
+
+        cancelBtn = new JButton(I18n.text("Cancel"));
+        cancelBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                positionDialog.setVisible(false);
+                positionDialog.dispose();
+                isCancel = true;
+            };
+        });
+
+        controlPanel.add(okBtn);
+        controlPanel.add(cancelBtn);
+
+        mainPanel.add(this, BorderLayout.CENTER);
+        mainPanel.add(controlPanel, BorderLayout.SOUTH);
+
+        positionDialog.setContentPane(mainPanel);
+        positionDialog.setSize(400, 500);
+        GuiUtils.centerOnScreen(positionDialog);
+        positionDialog.setVisible(true);
+
+        return !isCancel;
+    }
+
+    public LocationType getCenter() {
+        return center;
+    }
+
+    public void setCenter(LocationType center) {
+        this.center = center;
+    }
+
+    public double getScale() {
+        return scale;
+    }
+
+    public void setScale(double scale) {
+        this.scale = scale;
+    }
+
 }

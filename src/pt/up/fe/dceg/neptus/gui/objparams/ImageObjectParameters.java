@@ -55,6 +55,7 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.ImageFileChooser;
 import pt.up.fe.dceg.neptus.gui.ImageScaleAndLocationPanel;
 import pt.up.fe.dceg.neptus.gui.LocationPanel;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.map.ImageElement;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
@@ -171,7 +172,7 @@ public class ImageObjectParameters extends ParametersPanel {
 			jPanel = new JPanel();
 			jPanel.setLayout(new BorderLayout());
 			jPanel.setPreferredSize(new java.awt.Dimension(150,170));
-			jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Image", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", java.awt.Font.BOLD, 12), new java.awt.Color(51,51,51)));
+			jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, I18n.text("Image"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", java.awt.Font.BOLD, 12), new java.awt.Color(51,51,51)));
 			
 			jPanel.add(getImgLabel(), java.awt.BorderLayout.NORTH);
 			jPanel.add(getSelectImage(), java.awt.BorderLayout.SOUTH);
@@ -187,7 +188,7 @@ public class ImageObjectParameters extends ParametersPanel {
 	private JButton getSelectImage() {
 		if (selectImage == null) {
 			selectImage = new JButton();
-			selectImage.setText("Select image...");
+			selectImage.setText(I18n.text("Select image..."));
 			selectImage.setPreferredSize(new java.awt.Dimension(90,25));
 			selectImage.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -227,7 +228,7 @@ public class ImageObjectParameters extends ParametersPanel {
 			jLabel1 = new JLabel();
 			jPanel2 = new JPanel();
 			jPanel2.setLayout(flowLayout1);
-			jLabel1.setText("Center:");
+			jLabel1.setText(I18n.text("Center:"));
 			flowLayout1.setVgap(30);
 			jPanel2.add(jLabel1, null);
 			jPanel2.add(getChangeCenter(), null);
@@ -245,10 +246,10 @@ public class ImageObjectParameters extends ParametersPanel {
 	private JButton getChangeCenter() {
 		if (changeCenter == null) {
 			changeCenter = new JButton();
-			changeCenter.setText("Change...");
+			changeCenter.setText(I18n.text("Change..."));
 			changeCenter.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					LocationType tmp = LocationPanel.showLocationDialog("Set the center location", getCenter(), null);
+					LocationType tmp = LocationPanel.showLocationDialog(I18n.text("Set the center location"), getCenter(), null);
 					if (tmp != null)
 						getCenter().setLocation(tmp);
 					
@@ -267,7 +268,7 @@ public class ImageObjectParameters extends ParametersPanel {
 		if (jPanel4 == null) {
 			jLabel3 = new JLabel();
 			jPanel4 = new JPanel();
-			jLabel3.setText("Scale (m/pixel):");
+			jLabel3.setText(I18n.text("Scale (m/pixel):"));
 			jPanel4.add(jLabel3, null);
 			jPanel4.add(getScale(), null);
 		}
@@ -350,7 +351,7 @@ public class ImageObjectParameters extends ParametersPanel {
 		if (jButton == null) {
 			jButton = new JButton();
 			jButton.setPreferredSize(new java.awt.Dimension(120,26));
-			jButton.setText("2 locations...");
+			jButton.setText(I18n.text("2 locations..."));
 			jButton.addActionListener(new java.awt.event.ActionListener() { 
 				
 				public void actionPerformed(java.awt.event.ActionEvent e) {  
@@ -365,7 +366,7 @@ public class ImageObjectParameters extends ParametersPanel {
 					}
 					catch (Exception exception) {
 					    NeptusLog.pub().warn(exception.getMessage());
-						GuiUtils.errorMessage(SwingUtilities.getRoot((Component)e.getSource()), "Select an image first", "You have to select an image fisrt.");
+						GuiUtils.errorMessage(SwingUtilities.getRoot((Component)e.getSource()), I18n.text("Select an image first"), I18n.text("You have to select an image fisrt."));
 					}
 				}
 			});
@@ -411,7 +412,7 @@ public class ImageObjectParameters extends ParametersPanel {
     private JPanel getJPanel5() {
         if (jPanel5 == null) {
             maxHeightLabel = new JLabel();
-            maxHeightLabel.setText("Max height");
+            maxHeightLabel.setText(I18n.text("Max height"));
             jPanel5 = new JPanel();
             jPanel5.add(maxHeightLabel, null);
             jPanel5.add(getMaxHeightFormattedTextField(), null);
@@ -427,7 +428,7 @@ public class ImageObjectParameters extends ParametersPanel {
     private JCheckBox getBatCheckBox() {
         if (batCheckBox == null) {
             batCheckBox = new JCheckBox();
-            batCheckBox.setText("Is bathymetric");
+            batCheckBox.setText(I18n.text("Is bathymetric"));
             batCheckBox.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
                     NeptusLog.pub().info("<###>itemStateChanged()"
@@ -473,7 +474,7 @@ public class ImageObjectParameters extends ParametersPanel {
     private JPanel getJPanel6() {
         if (jPanel6 == null) {
             maxDepthLabel = new JLabel();
-            maxDepthLabel.setText("Max depth");
+            maxDepthLabel.setText(I18n.text("Max depth"));
             jPanel6 = new JPanel();
             jPanel6.add(maxDepthLabel, null);
             jPanel6.add(getMaxDepthFormattedTextField(), null);
@@ -489,7 +490,7 @@ public class ImageObjectParameters extends ParametersPanel {
     private JPanel getJPanel7() {
         if (jPanel7 == null) {
             resolutionLabel = new JLabel();
-            resolutionLabel.setText("Resolution");
+            resolutionLabel.setText(I18n.text("Resolution"));
             jPanel7 = new JPanel();
             jPanel7.add(resolutionLabel, null);
             jPanel7.add(getResolutionFormattedTextField(), null);
@@ -596,7 +597,7 @@ public class ImageObjectParameters extends ParametersPanel {
 		if (bathImageSelect == null) {
 			bathImageSelect = new JButton();
 			bathImageSelect.setPreferredSize(new Dimension(145, 26));
-			bathImageSelect.setText("Bathymetric Image...");
+			bathImageSelect.setText(I18n.text("Bathymetric Image..."));
 			bathImageSelect.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					File imgFile = ImageFileChooser.showOpenImageDialog();
