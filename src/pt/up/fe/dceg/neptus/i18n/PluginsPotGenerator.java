@@ -113,6 +113,7 @@ public class PluginsPotGenerator {
         strs.add("Map");
         strs.add("Infinite Rectangle");
         strs.add("Rows Plan");
+        strs.add("Console Settings");
         return strs;
     }
 
