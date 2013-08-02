@@ -64,7 +64,6 @@ import pt.up.fe.dceg.neptus.console.ContainerSubPanel;
 import pt.up.fe.dceg.neptus.console.SubPanel;
 import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
 import pt.up.fe.dceg.neptus.plugins.Popup;
@@ -284,11 +283,9 @@ public class PluginManager extends SimpleSubPanel {
     }
 
     private void refreshActivePlugins() {
-        System.out.println("refresh");
         pluginsMap.clear();
         List<String> names = new ArrayList<>();
         for (SubPanel panel : console.getSubPanels()) {
-            System.out.println("console panel : "+ panel.getName());
             names.add(panel.getName());
             pluginsMap.put(panel.getName(), panel);
             if (panel instanceof ContainerSubPanel) {
