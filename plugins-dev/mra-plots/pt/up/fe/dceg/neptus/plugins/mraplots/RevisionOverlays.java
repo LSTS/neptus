@@ -175,7 +175,7 @@ public class RevisionOverlays extends SimpleRendererInteraction {
                 return;
             if (getConsole().getMission().getIndividualPlansList().get(planId) != null) {
                 int option = JOptionPane.showConfirmDialog(getConsole(),
-                        I18n.text("Do you wish to substitute existing plan with same name?"));
+                        I18n.text("Do you wish to replace the existing plan with same name?"));
                 if (option == JOptionPane.CANCEL_OPTION)
                     return;
                 else if (option == JOptionPane.YES_OPTION) {
