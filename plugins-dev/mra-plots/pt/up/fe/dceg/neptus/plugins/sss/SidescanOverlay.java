@@ -45,6 +45,7 @@ import org.imgscalr.Scalr;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SonarData;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
@@ -68,7 +69,7 @@ public class SidescanOverlay implements LogReplayLayer {
     };
 
     public String getName() {
-        return "Sidescan Layer";
+        return I18n.text("Sidescan Layer");
     };
 
     public String[] getObservedMessages() {

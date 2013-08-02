@@ -211,6 +211,7 @@ public class I18n {
         UIManager.put("PropertySheetPanel.okButtonText", I18n.text("OK"));
         UIManager.put("PropertySheetPanel.cancelButtonText", I18n.text("Cancel"));
         
+        UIManager.put("ColorChooser.titleText", I18n.text("Pick a Color"));
         UIManager.put("ColorChooser.okText", I18n.text("OK"));
         UIManager.put("ColorChooser.cancelText", I18n.text("Cancel"));
         UIManager.put("ColorChooser.resetText", I18n.text("Reset"));

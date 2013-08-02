@@ -171,7 +171,7 @@ public class RevisionSidePanel extends JPanel {
         public void selectFile() {
             final JFileChooser chooser = new JFileChooser(overlays.defaultDirectory);
             chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("LSF log files"), new String[] {"lsf", "lsf.gz"}));
-            chooser.setApproveButtonText("Open Log");
+            chooser.setApproveButtonText(I18n.text("Open Log"));
             
             int option = chooser.showOpenDialog(overlays.getConsole());
             if (option != JFileChooser.APPROVE_OPTION)

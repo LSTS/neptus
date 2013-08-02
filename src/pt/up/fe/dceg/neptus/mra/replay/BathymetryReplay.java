@@ -35,6 +35,7 @@ import java.awt.Graphics2D;
 
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.colormap.ColormapOverlay;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
@@ -73,7 +74,7 @@ public class BathymetryReplay extends ColormapOverlay implements LogReplayLayer 
 
     @Override
     public String getName() {
-        return "Bathymetry layer";
+        return I18n.text("Bathymetry layer");
     }
     
 
