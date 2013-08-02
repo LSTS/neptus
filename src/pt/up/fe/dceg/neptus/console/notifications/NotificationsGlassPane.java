@@ -35,6 +35,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -56,6 +58,8 @@ import pt.up.fe.dceg.neptus.console.notifications.Notification.NotificationType;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 /**
+ * GlassPane to draw Notification popups
+ * 
  * @author Hugo
  * 
  */
@@ -72,6 +76,7 @@ public class NotificationsGlassPane extends JPanel {
     public NotificationsGlassPane(JFrame frame) {
         super(null);
         this.frame = frame;
+        this.setupListeners();
         setOpaque(false);
         frame.setGlassPane(this);
         this.setVisible(true);
@@ -96,7 +101,7 @@ public class NotificationsGlassPane extends JPanel {
     }
 
     public void add(final Notification noty) {
-        if(list.size() > NotificationsCollection.MAX_SIZE){
+        if (list.size() > NotificationsCollection.MAX_SIZE) {
             this.clear();
         }
         if (noty.getType() == NotificationType.INFO)
@@ -117,7 +122,6 @@ public class NotificationsGlassPane extends JPanel {
         list.add(noty);
         this.add(build(noty, true));
         this.repaint();
-
     }
 
     private JLabel build(final Notification noty, boolean atomic) {
@@ -127,8 +131,7 @@ public class NotificationsGlassPane extends JPanel {
         String html;
         switch (noty.getType()) {
             case SUCCESS:
-                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText()
-                        + "</html>";
+                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText() + "</html>";
                 label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-success.png"),
                         SwingConstants.LEFT);
                 label.setBackground(new Color(0xDFF0D8));
@@ -136,16 +139,14 @@ public class NotificationsGlassPane extends JPanel {
                 border = new LineBorder(new Color(0x468847), 1);
                 break;
             case ERROR:
-                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText()
-                        + "</html>";
+                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText() + "</html>";
                 label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-error.png"), SwingConstants.LEFT);
                 label.setBackground(new Color(0xF2DEDE));
                 label.setForeground(new Color(0x333333));
                 border = new LineBorder(new Color(0xB94A48), 1);
                 break;
             case WARNING:
-                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText()
-                        + "</html>";
+                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText() + "</html>";
                 label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-warning.png"),
                         SwingConstants.LEFT);
                 label.setBackground(new Color(0xFCF8E3));
@@ -153,16 +154,14 @@ public class NotificationsGlassPane extends JPanel {
                 border = new LineBorder(new Color(0xC09853), 1);
                 break;
             case INFO:
-                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText()
-                        + "</html>";
+                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText() + "</html>";
                 label = new JLabel(html, ImageUtils.createImageIcon("images/icons/noty-info.png"), SwingConstants.LEFT);
                 label.setBackground(new Color(0xD9EDF7));
                 label.setForeground(new Color(0x333333));
                 border = new LineBorder(new Color(0x3A87AD), 1);
                 break;
             default:
-                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText()
-                        + "</html>";
+                html = "<html> <b>" + noty.getSrc() + "</b> " + noty.getTitle() + "<br>" + noty.getText() + "</html>";
                 label = new JLabel(html, ImageUtils.createImageIcon("images/icons/info.png"), SwingConstants.LEFT);
                 label.setBackground(new Color(0xD9EDF7));
                 label.setForeground(new Color(0x333333));
@@ -183,9 +182,9 @@ public class NotificationsGlassPane extends JPanel {
         label.setLocation(this.getWidth() - (label.getWidth() + MARGIN_RIGHT), (this.getHeight()
                 - (label.getHeight() + MARGIN_BOTTOM) - currentHeight));
 
-        if(!atomic){
+        if (!atomic) {
             currentHeight += label.getHeight() + MARGIN_BOTTOM;
-            
+
             if (noty.needsHumanAction()) {
                 label.addMouseListener(new MouseAdapter() {
                     @Override
@@ -209,7 +208,7 @@ public class NotificationsGlassPane extends JPanel {
                         refresh();
                         repaint();
                         timer.cancel();
-                        
+
                     }
                 };
                 timer.schedule(tt, 4 * 1000);
@@ -229,4 +228,13 @@ public class NotificationsGlassPane extends JPanel {
         return label;
     }
 
+    private void setupListeners() {
+        this.frame.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                 refresh();
+            }
+
+        });
+    }
 }
