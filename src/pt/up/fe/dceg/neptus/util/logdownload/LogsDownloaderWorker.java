@@ -131,7 +131,7 @@ public class LogsDownloaderWorker {
 	private FtpDownloader clientFtp;
 	
 	private String host = "127.0.0.1";
-	private int port = 8080;
+	private int port = 30021;
 	private String basePath = "/dune/logs/";
 
 	private String dirBaseToStoreFiles = "log/downloaded";
@@ -660,7 +660,7 @@ public class LogsDownloaderWorker {
 //						long timeD1 = System.currentTimeMillis();
 						
 				        try {
-				            clientFtp = new FtpDownloader(host, 30021);
+				            clientFtp = new FtpDownloader(host, port);
 				        }
 				        catch (Exception e) {
 				            e.printStackTrace();
@@ -1607,7 +1607,7 @@ public class LogsDownloaderWorker {
 		}
 		DownloaderPanel workerD = null;
         try {
-            workerD = new DownloaderPanel(new FtpDownloader(lfx.getHost(), 30021), 
+            workerD = new DownloaderPanel(new FtpDownloader(lfx.getHost(), port), 
             		lfx.getFile(), 
             		lfx.getName(),
             		getFileTarget(lfx.getName()));
@@ -1850,7 +1850,7 @@ public class LogsDownloaderWorker {
             
             // REDO the same thing if cameraHost exists with the difference of a another client
             if(cameraHost != null) {
-                FtpDownloader ftpd = new FtpDownloader(cameraHost, 30021);
+                FtpDownloader ftpd = new FtpDownloader(cameraHost, port);
                 for (String logDir : logsDirList) {
                     if (ftpd.getClient().changeWorkingDirectory("/" + logDir + "/") == false) // Log doesnt exist in DOAM
                         continue;

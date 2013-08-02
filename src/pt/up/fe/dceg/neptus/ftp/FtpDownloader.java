@@ -36,6 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -190,19 +191,38 @@ public class FtpDownloader {
     public static void main(String[] args) throws Exception {
         FtpDownloader test = new FtpDownloader("10.0.10.80", 30021);
         LinkedHashMap<String, FTPFile> res = new LinkedHashMap<>();
-
+        
+        System.out.println(test.getClient().getControlEncoding());
+        
         test.getClient().setControlEncoding("UTF-8");
-        res = test.listDirectory("/");
+        test.getClient().changeWorkingDirectory("/20130730/");
         
-        test.getClient().setRestartOffset(10000000);
-        InputStream stream = test.getClient().retrieveFileStream("/20130724/142631_cross_hatch_1h_v2/Data.jsf"); 
+        String foo = test.getClient().listFiles()[6].getName();
         
-        System.out.println("skipping");
-        System.out.println("end skipping");
+        System.out.println(foo + " size: " + foo.length());
         
-//        for(String s : res.keySet()) {
-//            System.out.println(s);
-//        }
-//        System.out.println(res.keySet().size());
+        for(byte b : foo.getBytes())
+            System.out.print(String.format("%02X", b));
+        System.out.println();
+        
+        String foo2 = new String(foo.getBytes(), "ISO-8859-1");
+        
+        System.out.println(foo2 + " size: " + foo2.length());
+        for(byte b : foo2.getBytes())
+            System.out.print(String.format("%02X", b));
+        System.out.println();
+        
+        System.out.println(test.getClient().changeWorkingDirectory(foo));
+
+        for(FTPFile s : test.getClient().listFiles()) {
+            System.out.println(s.getName());
+        }
+        
+//        res = test.listDirectory("20130730/153626_проверить_кириллицы/");
+        
+//        InputStream stream = test.getClient().retrieveFileStream("/20130730/153626_проверить_кириллицы/Output.txt");
+//        InputStream stream = test.getClient().retrieveFileStream("/20130730/162556_pp/Output.txt");
+        
+//        System.out.println(stream);
     }
 }

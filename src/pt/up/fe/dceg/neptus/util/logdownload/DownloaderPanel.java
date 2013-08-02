@@ -508,7 +508,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 client.getClient().setRestartOffset(begByte);
                 System.out.println("using resume");
             }
-			stream = client.getClient().retrieveFileStream(uri);
+			
+			stream = client.getClient().retrieveFileStream(new String(uri.getBytes(), "ISO-8859-1"));
 
 			fullSize = ftpFile.getSize();
 
@@ -627,11 +628,15 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             }, 0, 100);
             
             for(String key : fileList.keySet()) {
-                
                 if(stopping)
                     break;
                 
                 File out = new File(basePath + "/" + key);
+                
+                if(out.exists() && fileList.get(key).getSize() == out.length()) {
+                    done++;
+                    continue;
+                }
                 
                 stream = client.getClient().retrieveFileStream(key);
                 
@@ -646,6 +651,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 client.getClient().completePendingCommand();
                 done++;
             }
+            
             endTimeMillis = System.currentTimeMillis();
             
             if (done == listSize) {
@@ -659,6 +665,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             }
             else 
                 setStateNotDone();
+            
         } catch (Exception ex) {
             ex.printStackTrace();
             if (ex.getMessage() != null && ex.getMessage().startsWith("Timeout waiting for connection")) {
