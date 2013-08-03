@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-03 19:51+0100\n"
-"PO-Revision-Date: 2013-08-03 20:00+0100\n"
+"POT-Creation-Date: 2013-08-03 20:22+0100\n"
+"PO-Revision-Date: 2013-08-03 20:24+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
@@ -16,25 +16,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.5.4\n"
-
-#: src/pt/up/fe/dceg/neptus/gui/Loader.java:75
-msgid " Loading..."
-msgstr "A carregar..."
-
-#: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:201
-#: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:202
-#: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:214
-msgid " m"
-msgstr " m"
-
-#: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:216
-msgid " m/s"
-msgstr " m/s"
-
-#: src/pt/up/fe/dceg/neptus/gui/objparams/TransponderParameters.java:248
-#, fuzzy
-msgid " when altering this file"
-msgstr "Usar filtragem da direcção com velocidade"
 
 #: src/pt/up/fe/dceg/neptus/types/map/PlanUtil.java:214
 msgid "# Maneuvers"
@@ -3224,8 +3205,9 @@ msgid "Full Screen Toggle"
 msgstr "Troca De Ecrã Completo"
 
 #: src/pt/up/fe/dceg/neptus/gui/objparams/TransponderParameters.java:247
-msgid "Full attention"
-msgstr ""
+#, fuzzy
+msgid "Full attention when altering this file"
+msgstr "Usar filtragem da direcção com velocidade"
 
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:815
 #, fuzzy
@@ -4289,6 +4271,11 @@ msgstr "A carregar árvore"
 #: src/pt/up/fe/dceg/neptus/types/mission/MissionType.java:244
 msgid "Loading vehicles..."
 msgstr "A carregar veículos..."
+
+#: src/pt/up/fe/dceg/neptus/gui/Loader.java:75
+#, fuzzy
+msgid "Loading..."
+msgstr "A carregar..."
 
 #: src/pt/up/fe/dceg/neptus/util/comm/manager/imc/MonitorIMCComms.java:157
 msgid "Local Info"
@@ -8431,7 +8418,7 @@ msgid "The calculation was not possible.<br> Some inputs are not valid!"
 msgstr "O cálculo não foi possível.<br> Algumas introduções não são validas!"
 
 #: src/pt/up/fe/dceg/neptus/gui/objparams/TransponderParameters.java:249
-msgid "The changes will aply to all existing missions!"
+msgid "The changes will apply to all existing missions!"
 msgstr ""
 
 #: Description of property 'Color Map' from
@@ -10358,6 +10345,9 @@ msgstr "longitude"
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/RangePainter.java:295
 #: src/pt/up/fe/dceg/neptus/gui/PolarOffsetPanel.java:95
+#: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:201
+#: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:202
+#: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:214
 msgid "m"
 msgstr ""
 
@@ -10365,6 +10355,11 @@ msgstr ""
 msgctxt "Chronometer minutes separator"
 msgid "m"
 msgstr "m"
+
+#: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:216
+#, fuzzy
+msgid "m/s"
+msgstr " m/s"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:339
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:350
@@ -10793,6 +10788,9 @@ msgstr "Δt"
 #: src/pt/up/fe/dceg/neptus/util/comm/manager/BaseAbstractCommsMonitorPanel.java:373
 msgid "∆tTxRx"
 msgstr "∆tTxRx"
+
+#~ msgid " m"
+#~ msgstr " m"
 
 #, fuzzy
 #~ msgid " (degrees)"
