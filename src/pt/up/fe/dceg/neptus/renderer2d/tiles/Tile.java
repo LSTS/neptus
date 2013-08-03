@@ -51,6 +51,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.imageio.ImageIO;
 
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.util.ColorUtils;
@@ -319,7 +320,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
 //            g2.drawLine(255, 0, 0, 255);
             if (state == TileState.LOADING || state == TileState.RETRYING) {
                 g2.setFont(new Font("Arial", 0, 10));
-                g2.drawString(state.toString(), 128, 128);
+                g2.drawString(I18n.text(state.toString()), 128, 128);
             }
             g2.dispose();
         }

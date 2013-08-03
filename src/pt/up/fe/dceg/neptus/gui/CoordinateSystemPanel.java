@@ -158,14 +158,14 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 
 		if ("changecenter".equals(e.getActionCommand())) {
             LocationType tmp = LocationPanel.showLocationDialog(CoordinateSystemPanel.this,
-                    "Change the reference point", centerLocation, null, editable);
+                    I18n.text("Change the reference point"), centerLocation, null, editable);
 
 			if (tmp != null)
 				centerLocation = tmp;
 		}
 		if ("ok".equals(e.getActionCommand())) {
 			if (getErrors() != null) {
-				JOptionPane.showMessageDialog(dialog, getErrors(), "Errors in the parameters", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(dialog, getErrors(), I18n.text("Errors in the parameters"), JOptionPane.ERROR_MESSAGE);
 			}
 			else {			
 				dialog.setVisible(false);
@@ -207,14 +207,16 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 	 */
 	private JPanel getJPanel1() {
 		if (jPanel1 == null) {
-			TitledBorder titledBorder1 = javax.swing.BorderFactory.createTitledBorder(null,"Axis attitude",javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,javax.swing.border.TitledBorder.DEFAULT_POSITION,null,null);
+            TitledBorder titledBorder1 = javax.swing.BorderFactory.createTitledBorder(null, I18n.text("Axis attitude"),
+                    javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                    javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null);
 			jLabel4 = new JLabel();
 			jLabel1 = new JLabel();
 			jPanel1 = new JPanel();
 			jPanel1.setEnabled(true);
 			jPanel1.setBorder(titledBorder1);
 			jLabel1.setText(I18n.text("Rotation over the vertical axis:"));
-			jLabel4.setText(I18n.text(" (degrees)"));
+			jLabel4.setText(" (" + I18n.text("degrees") + ")");
 			//jLabel4.setFont(new java.awt.Font("Dialog", java.awt.Font.BOLD, 14));
 			titledBorder1.setTitle(I18n.text("Offset Angle North"));
 			jPanel1.add(jLabel1, null);

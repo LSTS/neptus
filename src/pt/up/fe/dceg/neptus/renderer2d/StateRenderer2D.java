@@ -1423,7 +1423,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
                                     + "</td></tr>" + "<tr><td>" + I18n.text("up") + "</td><td>"
                                     + I18n.text("Move the map towards north") + "</td></tr>" + "<tr><td>"
                                     + I18n.text("down") + "</td><td>" + I18n.text("Move the map south") + "</td></tr>"
-                                    + "<tr><td>" + I18n.text("N") + "</td><td>"
+                                    + "<tr><td>" + I18n.textc("N", "N key") + "</td><td>"
                                     + I18n.text("Reset the current rotation (up facing north)") + "</td></tr>"
                                     + "<tr><td>" + I18n.text("F1") + "</td><td>"
                                     + I18n.text("Reset the current view to defaults") + "</td></tr></table></div>");

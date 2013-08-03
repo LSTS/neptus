@@ -135,7 +135,7 @@ public class ColorMapFactory {
     public static ColorMap createGrayScaleColorMap() {
 
         if (grayscale == null)
-            grayscale = new InterpolationColorMap(I18n.text("Gray scale"), new double[] { 0.0, 1.0 }, new Color[] {
+            grayscale = new InterpolationColorMap(I18n.textc("Gray scale", "Colormap name"), new double[] { 0.0, 1.0 }, new Color[] {
                     new Color(0, 0, 0), new Color(255, 255, 255) });
         /*
          * grayscale = new ColorMap() { public Color getColor(double value) { int rgbVal = (int) (value * 255); rgbVal =
@@ -150,7 +150,7 @@ public class ColorMapFactory {
 
     public static ColorMap createWhiteColorMap() {
         if (white == null)
-            white = new InterpolationColorMap(I18n.text("All white"), new double[] { 0.0, 1.0 }, new Color[] {
+            white = new InterpolationColorMap(I18n.textc("All white", "Colormap name"), new double[] { 0.0, 1.0 }, new Color[] {
                     Color.white, Color.white });
         return white;
     }
@@ -166,7 +166,7 @@ public class ColorMapFactory {
             }
             catch (Exception e) {
                 NeptusLog.pub().debug(e.getMessage());
-                hot = new InterpolationColorMap(I18n.text("Hot"), new double[] { 0.0, 0.3333333, 0.66666666, 1.0 },
+                hot = new InterpolationColorMap(I18n.textc("Hot", "Colormap name"), new double[] { 0.0, 0.3333333, 0.66666666, 1.0 },
                         new Color[] { Color.BLACK, Color.RED, Color.YELLOW, Color.WHITE });
             }
         }
@@ -177,7 +177,7 @@ public class ColorMapFactory {
 
     public static ColorMap createAllColorsColorMap() {
         if (allColors == null)
-            allColors = new InterpolationColorMap(I18n.text("All Colors"), new double[] { 0.0, 0.3333333, 0.66666666,
+            allColors = new InterpolationColorMap(I18n.textc("All Colors", "Colormap name"), new double[] { 0.0, 0.3333333, 0.66666666,
                     1.0 }, new Color[] { Color.BLACK, Color.BLUE, Color.YELLOW, Color.WHITE });
         return allColors;
     }
@@ -186,7 +186,7 @@ public class ColorMapFactory {
 
     public static ColorMap createRedGreenBlueColorMap() {
         if (rgb == null)
-            rgb = new InterpolationColorMap(I18n.text("RGB"), new double[] { 0.0, 0.5, 1.0 }, new Color[] {
+            rgb = new InterpolationColorMap(I18n.textc("RGB", "Colormap name"), new double[] { 0.0, 0.5, 1.0 }, new Color[] {
                     new Color(255, 0, 0), new Color(0, 255, 0), new Color(0, 0, 255) });
         return rgb;
     }
@@ -195,7 +195,7 @@ public class ColorMapFactory {
 
     public static ColorMap createBlueToRedColorMap() {
         if (bluered == null)
-            bluered = new InterpolationColorMap(I18n.text("Blue to Red"), new double[] { 0.0, 1.0 }, new Color[] {
+            bluered = new InterpolationColorMap(I18n.textc("Blue to Red", "Colormap name"), new double[] { 0.0, 1.0 }, new Color[] {
                     Color.BLUE, Color.RED });
         return bluered;
     }
@@ -204,7 +204,7 @@ public class ColorMapFactory {
 
     public static ColorMap createAutumnColorMap() {
         if (autumn == null)
-            autumn = new InterpolationColorMap(I18n.text("Autumn"), new double[] { 0.0, 1.0 }, new Color[] { Color.RED,
+            autumn = new InterpolationColorMap(I18n.textc("Autumn", "Colormap name"), new double[] { 0.0, 1.0 }, new Color[] { Color.RED,
                     Color.YELLOW });
         return autumn;
     }
@@ -213,7 +213,7 @@ public class ColorMapFactory {
 
     public static ColorMap createCoolColorMap() {
         if (cool == null)
-            cool = new InterpolationColorMap(I18n.text("Cool"), new double[] { 0.0, 1.0 }, new Color[] { Color.CYAN,
+            cool = new InterpolationColorMap(I18n.textc("Cool", "Colormap name"), new double[] { 0.0, 1.0 }, new Color[] { Color.CYAN,
                     Color.MAGENTA });
         return cool;
     }
@@ -229,7 +229,7 @@ public class ColorMapFactory {
             }
             catch (Exception e) {
                 NeptusLog.pub().debug(e.getMessage());
-                jet = new InterpolationColorMap(I18n.text("Jet"), new double[] { 0.0, 0.25, 0.5, 0.75, 1.0 },
+                jet = new InterpolationColorMap(I18n.textc("Jet", "Colormap name"), new double[] { 0.0, 0.25, 0.5, 0.75, 1.0 },
                         new Color[] { Color.blue, Color.cyan, Color.yellow, Color.red, new Color(128, 0, 0) });
             }
         }
@@ -241,7 +241,7 @@ public class ColorMapFactory {
 
     public static ColorMap createSpringColorMap() {
         if (spring == null)
-            spring = new InterpolationColorMap(I18n.text("Spring"), new double[] { 0.0, 1.0 }, new Color[] {
+            spring = new InterpolationColorMap(I18n.textc("Spring", "Colormap name"), new double[] { 0.0, 1.0 }, new Color[] {
                     Color.magenta, Color.yellow });
         return spring;
     }
@@ -250,7 +250,7 @@ public class ColorMapFactory {
 
     public static ColorMap createBoneColorMap() {
         if (bone == null)
-            bone = new InterpolationColorMap(I18n.text("Bone"), new double[] { 0.0, 0.375, 0.75, 1.0 }, new Color[] {
+            bone = new InterpolationColorMap(I18n.textc("Bone", "Colormap name"), new double[] { 0.0, 0.375, 0.75, 1.0 }, new Color[] {
                     new Color(0, 0, 1), new Color(81, 81, 113), new Color(166, 198, 198), Color.white });
         return bone;
     }
@@ -259,7 +259,7 @@ public class ColorMapFactory {
 
     public static ColorMap createCopperColorMap() {
         if (copper == null)
-            copper = new InterpolationColorMap(I18n.text("Copper"), new double[] { 0.0, 0.7869, 0.8125, 1.0 },
+            copper = new InterpolationColorMap(I18n.textc("Copper", "Colormap name"), new double[] { 0.0, 0.7869, 0.8125, 1.0 },
                     new Color[] { Color.black, new Color(253, 158, 100), new Color(255, 161, 103),
                             new Color(255, 199, 127) });
         return copper;
@@ -269,7 +269,7 @@ public class ColorMapFactory {
 
     public static ColorMap createSummerColorMap() {
         if (summer == null)
-            summer = new InterpolationColorMap(I18n.text("Summer"), new double[] { 0.0, 1.0 }, new Color[] {
+            summer = new InterpolationColorMap(I18n.textc("Summer", "Colormap name"), new double[] { 0.0, 1.0 }, new Color[] {
                     new Color(0, 128, 102), new Color(255, 255, 102) });
         return summer;
     }
@@ -278,7 +278,7 @@ public class ColorMapFactory {
 
     public static ColorMap createWinterColorMap() {
         if (winter == null)
-            winter = new InterpolationColorMap(I18n.text("Winter"), new double[] { 0.0, 1.0 }, new Color[] {
+            winter = new InterpolationColorMap(I18n.textc("Winter", "Colormap name"), new double[] { 0.0, 1.0 }, new Color[] {
                     Color.blue, new Color(0, 255, 128) });
         return winter;
     }
@@ -287,7 +287,7 @@ public class ColorMapFactory {
 
     public static ColorMap createPinkColorMap() {
         if (pink == null)
-            pink = new InterpolationColorMap(I18n.text("Pink"), new double[] { 0.0, 1 / 64.0, 2 / 64.0, 3 / 64.0,
+            pink = new InterpolationColorMap(I18n.textc("Pink", "Colormap name"), new double[] { 0.0, 1 / 64.0, 2 / 64.0, 3 / 64.0,
                     24 / 64.0, 48 / 64.0, 1.0 }, new Color[] { new Color(30, 0, 0), new Color(50, 26, 26),
                     new Color(64, 37, 37), new Color(75, 45, 45), new Color(194, 126, 126), new Color(232, 232, 180),
                     new Color(255, 255, 255) });
@@ -298,7 +298,7 @@ public class ColorMapFactory {
 
     public static ColorMap createGreenRadarColorMap() {
         if (greenradar == null)
-            greenradar = new InterpolationColorMap(I18n.text("GreenRadar"), new double[] { 0.0, 1.0 }, new Color[] {
+            greenradar = new InterpolationColorMap(I18n.textc("GreenRadar", "Colormap name"), new double[] { 0.0, 1.0 }, new Color[] {
                     Color.black, Color.green });
         return greenradar;
     }
@@ -307,7 +307,7 @@ public class ColorMapFactory {
 
     public static ColorMap createRedYellowGreenColorMap() {
         if (redYellowGreen == null)
-            redYellowGreen = new InterpolationColorMap(I18n.text("RedYellowBlue"), new double[] { 0.0, 0.5, 1.0 },
+            redYellowGreen = new InterpolationColorMap(I18n.textc("RedYellowBlue", "Colormap name"), new double[] { 0.0, 0.5, 1.0 },
                     new Color[] { Color.red, Color.yellow, Color.green });
         return redYellowGreen;
     }
@@ -316,7 +316,7 @@ public class ColorMapFactory {
 
     public static ColorMap createRainbowColormap() {
         if (rainbow == null)
-            rainbow = new InterpolationColorMap(I18n.text("Rainbow"), new double[] { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7,
+            rainbow = new InterpolationColorMap(I18n.textc("Rainbow", "Colormap name"), new double[] { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7,
                     0.8, 1.0 }, new Color[] { Color.magenta.darker().darker().darker(), Color.magenta, Color.blue,
                     Color.cyan, Color.green, Color.yellow, Color.orange, Color.red,
                     Color.red.darker().darker().darker() });
@@ -331,7 +331,7 @@ public class ColorMapFactory {
                     ClassLoader.getSystemResourceAsStream("colormaps/bronze.colormap"));
             try {
                 bronze = new TabulatedColorMap(isr);
-                ((InterpolationColorMap) bronze).setName(I18n.text("Bronze"));
+                ((InterpolationColorMap) bronze).setName(I18n.textc("Bronze", "Colormap name"));
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -344,7 +344,7 @@ public class ColorMapFactory {
 
     public static ColorMap createSideScanColorMap() {
         if (sscanmap == null)
-            sscanmap = new InterpolationColorMap(I18n.text("Sidescan"), new double[] { 0.0, 1.0 }, new Color[] {
+            sscanmap = new InterpolationColorMap(I18n.textc("Sidescan", "Colormap name"), new double[] { 0.0, 1.0 }, new Color[] {
                     new Color(0xFFFFFF00, true), new Color(0xFFFFFFFF, true) });
         return sscanmap;
     }
@@ -368,7 +368,7 @@ public class ColorMapFactory {
         // for (int i = 0; i < inv.length; i++)
         // colors[i] = original.getColor(1-inv[i]);
 
-        return new InterpolationColorMap(I18n.text("Inverted ") + original.toString(), inv, colors);
+        return new InterpolationColorMap(I18n.text("Inverted") + " " + original.toString(), inv, colors);
     }
 
     public static void main(String[] args) {
@@ -379,5 +379,4 @@ public class ColorMapFactory {
         GuiUtils.testFrame(bar2, bar2.getCmap().toString());
 
     }
-
 }
