@@ -109,6 +109,8 @@ import foxtrot.AsyncWorker;
 @NeptusDoc(ArticleFilename = "logs-downloader/logs-downloader.html#worker", ArticleTitle = "Logs Downloader Worker", Section = "Logs")
 public class LogsDownloaderWorker {
 	
+    private static final int DEFAULT_PORT = 30021;
+
     private static final String DEFAULT_TITLE = I18n.text("Download Log Files");
 
 	public static final ImageIcon ICON_DOWNLOAD_FOLDERS = ImageUtils.getScaledIcon("images/downloader/folder_download.png", 32, 32);
@@ -131,7 +133,7 @@ public class LogsDownloaderWorker {
 	private FtpDownloader clientFtp;
 	
 	private String host = "127.0.0.1";
-	private int port = 30021;
+	private int port = DEFAULT_PORT;
 	private String basePath = "/dune/logs/";
 
 	private String dirBaseToStoreFiles = "log/downloaded";
@@ -1330,7 +1332,7 @@ public class LogsDownloaderWorker {
 	 * @return
 	 */
 	private boolean validateAndSetUI() {
-		int iPort = 8080;
+		int iPort = DEFAULT_PORT;
 		if ("".equalsIgnoreCase(hostField.getText())) {
 			return false;
 		}

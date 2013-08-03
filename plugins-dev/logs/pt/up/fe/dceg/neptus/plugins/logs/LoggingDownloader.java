@@ -551,17 +551,17 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
                 if (idx >= 0)
                     tabbledPane.setTitleAt(idx, dw.getLogLabel());
 
-                // new code 2010-10-27 pdias
-                Vector<URI> sUri = sys3.getServiceProvided("http", "dune");
+                //Vector<URI> sUri = sys3.getServiceProvided("http", "dune");
+                Vector<URI> sUri = sys3.getServiceProvided("ftp", "");
                 if (sUri.size() > 0) {
                     dw.setHost(sUri.get(0).getHost());
-                    dw.setPort((sUri.get(0).getPort() <= 0) ? 80 : sUri.get(0).getPort());
+                    dw.setPort((sUri.get(0).getPort() <= 0) ? 21 : sUri.get(0).getPort());
                 }
                 if (sUri.size() > 1) {
                     for (URI uriT : sUri) {
                         if (NetworkInterfacesUtil.testForReachability(uriT.getHost(), uriT.getPort())) {
                             dw.setHost(uriT.getHost());
-                            dw.setPort((uriT.getPort() <= 0) ? 80 : uriT.getPort());
+                            dw.setPort((uriT.getPort() <= 0) ? 21 : uriT.getPort());
                             break;
                         }
                     }

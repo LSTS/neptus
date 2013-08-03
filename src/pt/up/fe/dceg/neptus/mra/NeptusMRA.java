@@ -690,7 +690,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
 
         try {
 
-            httpVehicleDownload = new AbstractAction(I18n.text("Choose an active vehicle to download logs (HTTP)"),
+            httpVehicleDownload = new AbstractAction(I18n.text("Choose an active vehicle to download logs (FTP)"),
                     ImageUtils.getScaledIcon("images/buttons/web.png", 16, 16)) {
                 public void actionPerformed(ActionEvent e) {
                     final LinkedHashSet<ImcSystem> selectedVehicle = new LinkedHashSet<ImcSystem>();
@@ -751,11 +751,11 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
                         logFetcher.setHost(sys.getHostAddress());
                         // logFetcher.setPort(sys.getRemoteUDPPort());
                         logFetcher.setLogLabel(sys.getName().toLowerCase());
-                        // new code 2010-10-27 pdias
-                        Vector<URI> sUri = sys.getServiceProvided("http", "dune");
+                        //Vector<URI> sUri = sys.getServiceProvided("http", "dune");
+                        Vector<URI> sUri = sys.getServiceProvided("ftp", "");
                         if (sUri.size() > 0) {
                             logFetcher.setHost(sUri.get(0).getHost());
-                            logFetcher.setPort((sUri.get(0).getPort() <= 0) ? 80 : sUri.get(0).getPort());
+                            logFetcher.setPort((sUri.get(0).getPort() <= 0) ? 21 : sUri.get(0).getPort());
                         }
 
                         logFetcher.setEnableHost(false);
@@ -773,7 +773,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
             e.printStackTrace();
         }
 
-        httpDuneDownload = new AbstractAction(I18n.text("Download logs from location (HTTP)"), ImageUtils.getScaledIcon(
+        httpDuneDownload = new AbstractAction(I18n.text("Download logs from location (FTP)"), ImageUtils.getScaledIcon(
                 "images/buttons/web.png", 16, 16)) {
             public void actionPerformed(ActionEvent e) {
                 LogsDownloaderWorker logFetcher = new LogsDownloaderWorker();
