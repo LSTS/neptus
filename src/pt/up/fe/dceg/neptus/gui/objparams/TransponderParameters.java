@@ -244,9 +244,9 @@ public class TransponderParameters extends ParametersPanel {
 				public void actionPerformed(ActionEvent e) {
                     JOptionPane.showMessageDialog(
                             new JFrame(),
-                            "<html><strong>" + I18n.text("Full attention") + "</strong>"
-                                    + I18n.text(" when altering this file") + ", <br>"
-                                    + I18n.text("The changes will aply to all existing missions!") + "</html>",
+                            "<html><strong>" + I18n.text("Full attention when altering this file") + "</strong>"
+                                    + ", <br>"
+                                    + I18n.text("The changes will apply to all existing missions!") + "</html>",
                             I18n.text("Warning"), JOptionPane.WARNING_MESSAGE);
 						//FIXME : alterar o caminho para os ficheiros de configuração para o caminho correcto!
 						(new EditorLauncher()).editFile(ConfigFetch.resolvePath("maps/"+getConfigurationFile().getSelectedItem()));					

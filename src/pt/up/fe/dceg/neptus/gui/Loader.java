@@ -72,7 +72,7 @@ public class Loader extends JFrame implements ActionListener {
     private JLabel getJLabel() {
         if (jLabel == null) {
             jLabel = new JLabel();
-            jLabel.setText(I18n.text(" Loading..."));
+            jLabel.setText(" " + I18n.text("Loading..."));
             jLabel.setForeground(frontColor);
             jLabel.setBackground(backColor);
             jLabel.setAutoscrolls(true);
@@ -142,7 +142,7 @@ public class Loader extends JFrame implements ActionListener {
         this.setBackground(backColor);
         this.setContentPane(getJContentPane());
 
-        this.setTitle("Neptus loader...");
+        this.setTitle("Neptus ...");
         this.setIconImages(ConfigFetch.getIconImagesForFrames());
         this.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent e) {

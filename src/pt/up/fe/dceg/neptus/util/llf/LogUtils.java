@@ -198,8 +198,8 @@ public class LogUtils {
         stats.put(I18n.text("Mission start time"), "" + ds);
         stats.put(I18n.text("Mission end time"), "" + df);
         stats.put(I18n.text("Mission duration"), DateTimeUtil.milliSecondsToFormatedString(endMillis - startMillis));
-        stats.put(I18n.text("Maximum depth"), GuiUtils.getNeptusDecimalFormat(2).format(maxDepth) + I18n.text(" m"));
-        stats.put(I18n.text("Avg depth"), GuiUtils.getNeptusDecimalFormat(2).format(avgDepth) + I18n.text(" m"));
+        stats.put(I18n.text("Maximum depth"), GuiUtils.getNeptusDecimalFormat(2).format(maxDepth) + " " + I18n.text("m"));
+        stats.put(I18n.text("Avg depth"), GuiUtils.getNeptusDecimalFormat(2).format(avgDepth) + " " + I18n.text("m"));
 
         stats.put(I18n.text("Roll min/max/amp/avg"), GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(minRoll)) + "\u00B0 / "
                 + GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(maxRoll)) + "\u00B0 / "
@@ -211,9 +211,9 @@ public class LogUtils {
                 + GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(maxPitch - minPitch)) + "\u00B0 / "
                 + GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(avgPitch)) + "\u00B0");
 
-        stats.put(I18n.text("Distance travelled"), GuiUtils.getNeptusDecimalFormat(2).format(distance) + I18n.text(" m"));
+        stats.put(I18n.text("Distance travelled"), GuiUtils.getNeptusDecimalFormat(2).format(distance) + " " + I18n.text("m"));
         stats.put(I18n.text("Mean velocity"),
-                GuiUtils.getNeptusDecimalFormat(2).format(distance / ((endMillis - startMillis) / 1000.0)) + I18n.text(" m/s"));
+                GuiUtils.getNeptusDecimalFormat(2).format(distance / ((endMillis - startMillis) / 1000.0)) + " " + I18n.text("m/s"));
 
         LocationType loc = LogUtils.getHomeRef(source);
         if (loc != null) {
