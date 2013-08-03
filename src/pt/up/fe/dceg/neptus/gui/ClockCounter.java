@@ -59,9 +59,9 @@ public class ClockCounter extends JPanel {
 	public static final Color COLOR_BACK = new Color(190, 220, 240); //new Color(130, 160, 130);
 	public static final Color COLOR_FORE = new Color(30, 30, 30);;
 
-    public static final String HOURS_SEPARATOR = I18n.textc("h", "Chronometer hour seperator");
-    public static final String MINUTES_SEPARATOR = I18n.textc("m", "Chronometer minutes seperator");;
-    public static final String SECONDS_SEPARATOR = I18n.textc("s", "Chronometer seconds seperator");;
+    public static final String HOURS_SEPARATOR = I18n.textc("h", "Chronometer hour separator");
+    public static final String MINUTES_SEPARATOR = I18n.textc("m", "Chronometer minutes separator");;
+    public static final String SECONDS_SEPARATOR = I18n.textc("s", "Chronometer seconds separator");;
 
 	protected static final Polygon SHAPE_PLAY = new Polygon(new int[] {-4,-4,-1}, new int[] {1,3,2}, 3);
 	protected static final Polygon SHAPE_STOP = new Polygon(new int[] {-4,-4,-1,-1}, new int[] {1,3,3,1}, 4);

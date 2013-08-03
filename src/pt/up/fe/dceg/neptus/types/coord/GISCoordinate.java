@@ -55,7 +55,7 @@ public class GISCoordinate {
     }
     private double _lat=0.0; //in decimal degrees
     private double _lon=0.0; //in decimal degrees
-    private String _sep=","; //seperator for printing out the coordinates
+    private String _sep=","; //separator for printing out the coordinates
     private boolean _printLonFirst=false;
     
     /*
@@ -154,11 +154,11 @@ public class GISCoordinate {
         }
     }   
     
-    public String getPrintSeperator() {
+    public String getPrintSeparator() {
         return _sep;
     }
-    //used to set what the seperator is for printing a coordinate pair
-    public void setPrintSeperator(String sep) {
+    //used to set what the separator is for printing a coordinate pair
+    public void setPrintSeparator(String sep) {
         _sep=sep;
     }
     
@@ -196,14 +196,14 @@ public class GISCoordinate {
     public String toString() {
         try {
             boolean bLatFirst=getPrintLonFirst();
-            String sep=getPrintSeperator();
+            String sep=getPrintSeparator();
             setPrintLonFirst(false);
-            setPrintSeperator(",");
+            setPrintSeparator(",");
             java.io.ByteArrayOutputStream baos=new java.io.ByteArrayOutputStream();
             printDEGMIN(new java.io.PrintStream(baos));
             baos.close();
             setPrintLonFirst(bLatFirst);
-            setPrintSeperator(sep);
+            setPrintSeparator(sep);
             return baos.toString();
         } catch (Throwable t) {
             return t.toString();
