@@ -57,12 +57,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -1952,8 +1955,33 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
      */
     @Override
     public Collection<JMenuItem> getApplicableItems(LocationType loc, IMapPopup source) {
-        // TODO Auto-generated method stub
-        return null;
+        Vector<JMenuItem> menus = new Vector<JMenuItem>();
+
+        JMenu mainMenu = new JMenu(I18n.text("Systems in renderer"));
+        
+        JCheckBoxMenuItem viewInfoBallonCheckMenu = new JCheckBoxMenuItem(new AbstractAction(
+                (String) viewInfoOSDAction.getValue(Action.NAME), ICON_VIEW_INFO) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewInfoOSDSwitch.doClick(50);
+            }
+        });
+        viewInfoBallonCheckMenu.setSelected(viewInfoOSDSwitch.isSelected());
+
+        JCheckBoxMenuItem viewExtendedBallonCheckMenu = new JCheckBoxMenuItem(new AbstractAction(
+                (String) viewExtendedOSDAction.getValue(Action.NAME), ICON_VIEW_EXTRA) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewExtendedOSDSwitch.doClick(50);
+            }
+        });
+        viewExtendedBallonCheckMenu.setSelected(viewExtendedOSDSwitch.isSelected());
+
+        mainMenu.add(viewInfoBallonCheckMenu);
+        mainMenu.add(viewExtendedBallonCheckMenu);
+        
+        menus.add(mainMenu);
+        return menus;
     }
 
     // ------------- ConfigurationListener ----------------------------------------------------------
