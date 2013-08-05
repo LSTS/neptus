@@ -64,6 +64,23 @@ public class FtpDownloader {
         this.host = host;
         this.port = port;
         
+        renewClient();
+    }
+
+    /**
+     * @throws SocketException
+     * @throws IOException
+     */
+    public void renewClient() throws SocketException, IOException {
+        if (client != null) {
+            try {
+                client.disconnect();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
         client = new FTPClient();
         conf = new FTPClientConfig(FTPClientConfig.SYST_UNIX);
 
@@ -92,11 +109,19 @@ public class FtpDownloader {
     }
     
     public void downloadDirectory(String path, String destPath) throws Exception {
-        
         System.out.println("Path :" + path);
         System.out.println("DestPath: " + destPath);
         ArrayList<FTPFile> toDoList = new ArrayList<FTPFile>();
-        
+
+        if (!client.isConnected()) {
+            try {
+                renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         client.changeWorkingDirectory(path);
         
         for (FTPFile f : client.listFiles()) {
@@ -119,7 +144,16 @@ public class FtpDownloader {
         ArrayList<FTPFile> toDoList = new ArrayList<FTPFile>();
         LinkedHashMap<String, FTPFile> finalList = new LinkedHashMap<String, FTPFile>();
         
-        client.changeWorkingDirectory(path);
+        if (!client.isConnected()) {
+            try {
+                renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        boolean ret = client.changeWorkingDirectory(path);
         
         for (FTPFile f : client.listFiles()) {
             if(f.isDirectory()) {
@@ -135,9 +169,19 @@ public class FtpDownloader {
         }
         return finalList;
     }
+    
     public LinkedHashMap<FTPFile, String> listLogs() throws IOException {
         LinkedHashMap<FTPFile, String> list = new LinkedHashMap<FTPFile, String>();
         
+        if (!client.isConnected()) {
+            try {
+                renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         client.changeWorkingDirectory("/");
         
         for (FTPFile f : client.listFiles()) {
@@ -158,7 +202,16 @@ public class FtpDownloader {
         
         String toks[] = filePath.split("/");
         String fileName = toks[toks.length - 1];
-        
+
+        if (!client.isConnected()) {
+            try {
+                renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         try {
             String dest = destPath + fileName;
             boolean b = retrieveFile(client.retrieveFileStream(filePath), new FileOutputStream(new File(dest)));
@@ -169,32 +222,27 @@ public class FtpDownloader {
         }
     }
 
-    
     private boolean retrieveFile(InputStream is, OutputStream os) {
-                try
-                {
-                    System.out.println(is);
-                    
-                    Util.copyStream(is, os, 1024,
-                                    CopyStreamEvent.UNKNOWN_STREAM_SIZE, new CopyStreamListener() {
-                                        
-                                        @Override
-                                        public void bytesTransferred(long arg0, int arg1, long arg2) {
-                                            System.out.println("1 " + " " + arg0 + " " + arg1 + " " + arg2);
-                                        }
-                                        
-                                        @Override
-                                        public void bytesTransferred(CopyStreamEvent arg0) {
-                                            System.out.println("2 " + arg0);
-                                            
-                                        }
-                                    },
-                                    false);
+        try {
+            System.out.println(is);
+
+            Util.copyStream(is, os, 1024, CopyStreamEvent.UNKNOWN_STREAM_SIZE, new CopyStreamListener() {
+
+                @Override
+                public void bytesTransferred(long arg0, int arg1, long arg2) {
+                    System.out.println("1 " + " " + arg0 + " " + arg1 + " " + arg2);
                 }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
+
+                @Override
+                public void bytesTransferred(CopyStreamEvent arg0) {
+                    System.out.println("2 " + arg0);
+
                 }
+            }, false);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 

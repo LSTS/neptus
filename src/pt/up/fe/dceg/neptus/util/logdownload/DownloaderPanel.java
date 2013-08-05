@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketException;
 import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -490,6 +491,16 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		if (getState() == State.WORKING)
 			return false;
 		
+		if (!client.getClient().isConnected()) {
+		    try {
+                client.renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                setStateError();
+            }
+		}
+		
 		State prevState = getState();
 		long begByte = 0;
 		if (usePartialDownload && prevState != State.DONE && outFile.exists() && outFile.isFile() && !isDirectory) {
@@ -513,6 +524,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 System.out.println("using resume");
             }
 			
+			// System.out.println("FTP Client is connected " + client.getClient().isConnected());
 			stream = client.getClient().retrieveFileStream(new String(uri.getBytes(), "ISO-8859-1"));
 
 			fullSize = ftpFile.getSize();
@@ -553,6 +565,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			}
 			if(streamRes && fullSize == downloadedSize) {
 				setStateDone();
+				// downloadButton.setEnabled(false); //FIXME pdias 20130805 For now disable redownload because the get stream above from client cames null
+				// client.getClient().disconnect();
 				getMsgLabel().setText(I18n.textf("Saved in '%filePath'", outFile.getAbsolutePath()));
 			}
 			else {
@@ -572,6 +586,14 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                                 + (ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName()));
 		        setStateError();
 		    }
+		}
+		finally {
+            try {
+                client.getClient().disconnect();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
 		}
 		if (isOnTimeout) {
 		    new Thread() {
@@ -596,6 +618,16 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         if (getState() == State.WORKING)
             return false;
         
+        if (!client.getClient().isConnected()) {
+            try {
+                client.renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                setStateError();
+            }
+        }
+
         State prevState = getState();
         
         setStateWorking();
@@ -674,6 +706,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                                 / ((endTimeMillis - startTimeMillis) / 1000.0), 1)) + "B/s"));
                 getMsgLabel().setText(I18n.textf("Saved in '%filePath'", outFile.getAbsolutePath()));
                 setStateDone();
+                // client.getClient().disconnect();
             }
             else { 
                 setStateNotDone();
@@ -691,6 +724,14 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                         I18n.text("Error:") + " "
                                 + (ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName()));
                 setStateError();
+            }
+        }
+        finally {
+            try {
+                client.getClient().disconnect();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
             }
         }
         if (isOnTimeout) {
