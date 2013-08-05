@@ -482,7 +482,11 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	}
 
 	protected boolean doDownload() {
-	    System.out.println("Downloading " + name + " " + uri + " " + outFile.getAbsolutePath());
+	    if(isDirectory)
+            return doDownloadDirectory();
+	    
+	    
+	    System.out.println("Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
 		if (getState() == State.WORKING)
 			return false;
 		
@@ -517,7 +521,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			
 			try {
 				outFile.createNewFile();
-			} catch (IOException e) {
+			} 
+			catch (IOException e) {
 				e.printStackTrace();
 			}
 
@@ -550,9 +555,11 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 				setStateDone();
 				getMsgLabel().setText(I18n.textf("Saved in '%filePath'", outFile.getAbsolutePath()));
 			}
-			else 
+			else {
 				setStateNotDone();
-		} catch (Exception ex) {
+			}
+		}
+		catch (Exception ex) {
 			ex.printStackTrace();
 		    if (ex.getMessage() != null && ex.getMessage().startsWith("Timeout waiting for connection")) {
 		        isOnTimeout = true;
@@ -644,7 +651,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 out.getParentFile().mkdirs();
                 try {
                     out.createNewFile();
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     e.printStackTrace();
                 }
                 
@@ -664,10 +672,11 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 getMsgLabel().setText(I18n.textf("Saved in '%filePath'", outFile.getAbsolutePath()));
                 setStateDone();
             }
-            else 
+            else { 
                 setStateNotDone();
-            
-        } catch (Exception ex) {
+            }
+        }
+        catch (Exception ex) {
             ex.printStackTrace();
             if (ex.getMessage() != null && ex.getMessage().startsWith("Timeout waiting for connection")) {
                 isOnTimeout = true;
@@ -687,7 +696,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 public void run() {
                     try { Thread.sleep(8000); } catch (InterruptedException e) { }
                     if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
-                        doDownload();
+                        doDownloadDirectory();
                 }
             }.start();
         }
