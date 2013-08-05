@@ -695,7 +695,7 @@ public class LogsDownloaderWorker {
 								LogFolderInfo log = (LogFolderInfo) comp;
 								if (!retList.containsValue(log.getName())) {
 									//retList.remove(log.getName());
-									for (LogFileInfo lfx : log.logFiles) {
+									for (LogFileInfo lfx : log.getLogFiles()) {
 										lfx.setState(LogFolderInfo.State.LOCAL);
 									}
 									log.setState(LogFolderInfo.State.LOCAL);
@@ -753,7 +753,7 @@ public class LogsDownloaderWorker {
 								//LinkedHashMap<String, String> res = filterHrefLogFilesList(docList, logFolder.getName());
 								int indexLFolder = tmpLogFolderList.indexOf(logFolder);
 								LinkedHashSet<LogFileInfo> logFilesTmp = (indexLFolder != -1) ? tmpLogFolderList
-										.get(indexLFolder).logFiles
+										.get(indexLFolder).getLogFiles()
 										: new LinkedHashSet<LogFileInfo>();
 								for (LogFileInfo logFx : logFilesTmp) {
 									if (!logFolder.getLogFiles().contains(logFx)) {
@@ -882,7 +882,7 @@ public class LogsDownloaderWorker {
 							try {
 								//NeptusLog.pub().info("<###>... updateFilesForFolderSelected");
 								LogFolderInfo logFd = (LogFolderInfo) comp;
-								for (LogFileInfo lfx : logFd.logFiles) {
+								for (LogFileInfo lfx : logFd.getLogFiles()) {
 									singleLogFileDownloadWorker(lfx, logFd);
 								}
 							}
@@ -995,7 +995,7 @@ public class LogsDownloaderWorker {
 								boolean resDel = deleteLogFolderFromServer(logFd);
 								if (resDel) {
 									logFd.setState(LogFolderInfo.State.LOCAL);
-									LinkedHashSet<LogFileInfo> logFiles = logFd.logFiles;
+									LinkedHashSet<LogFileInfo> logFiles = logFd.getLogFiles();
 
 									LinkedHashSet<LogFileInfo> toDelFL = updateLogFilesStateDeleted(logFiles);
 									for (LogFileInfo lfx : toDelFL)
@@ -1439,7 +1439,7 @@ public class LogsDownloaderWorker {
 		for (Object comp : logFolderList.getSelectedValues()) {
 			try {
 				LogFolderInfo logFd = (LogFolderInfo) comp;
-				if (logFd.logFiles.contains(lfx))
+				if (logFd.getLogFiles().contains(lfx))
 					return logFd;
 			}
 			catch (Exception e) {
@@ -1475,7 +1475,7 @@ public class LogsDownloaderWorker {
 	                //NeptusLog.pub().info("<###>... updateFilesForFolderSelected");
 	                LogFolderInfo log = (LogFolderInfo) comp;
 	                // NeptusLog.pub().info("<###>LogFolder Sel: " + log.getName());
-	                for (LogFileInfo lgfl : log.logFiles) {
+	                for (LogFileInfo lgfl : log.getLogFiles()) {
 	                    validFiles.add(lgfl);
 
 	                    if (exitRequest)
@@ -1554,7 +1554,7 @@ public class LogsDownloaderWorker {
 			File testFile = new File(getDirTarget(), lf.getName());
 			if (testFile.exists()) {
 				lf.setState(LogFolderInfo.State.UNKNOWN);
-				for (LogFileInfo lfx : lf.logFiles) {
+				for (LogFileInfo lfx : lf.getLogFiles()) {
 					File testFx = new File(getDirTarget(), lfx.getName());
 					if (testFx.exists()) {
 						lfx.setState(LogFolderInfo.State.UNKNOWN);
@@ -1707,7 +1707,6 @@ public class LogsDownloaderWorker {
 		downloadWorkersHolder.repaint();
 		workerD.actionDownload();
 	}
-
 	
 	/**
 	 * @param logFolder
@@ -1717,7 +1716,7 @@ public class LogsDownloaderWorker {
 		LogFolderInfo.State lfdStateTmp = LogFolderInfo.State.UNKNOWN;
 		long nTotal = 0, nDownloading = 0, nError = 0, nNew = 0, nIncomplete = 0,
 				nLocal = 0, nSync = 0, nUnknown = 0;
-		for (LogFileInfo tlfx : logFolder.logFiles) {
+		for (LogFileInfo tlfx : logFolder.getLogFiles()) {
 			nTotal++;
 			if (tlfx.getState() == LogFolderInfo.State.DOWNLOADING) {
 				nDownloading++;
@@ -2200,7 +2199,8 @@ public class LogsDownloaderWorker {
 			doStopLogFoldersDownloads();
 			if (!justStopDownloads)
 			    cleanInterface();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 			warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
 			return false;

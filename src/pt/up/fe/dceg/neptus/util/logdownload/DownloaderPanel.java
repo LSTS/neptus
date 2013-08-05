@@ -116,7 +116,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	
 	private boolean usePartialDownload = true;
 	
-	private FtpDownloader client = null;
 	private String name = "";
 	private String uri = "";
 	private File outFile = null;
@@ -126,7 +125,17 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	
 	private long downloadedSize = 0;
 	private long fullSize = -1;
-	
+
+    private FtpDownloader client = null;
+    private FTPFile ftpFile;
+    
+    private boolean isDirectory = false;
+    
+    private long doneFilesForDirectory = 0;
+    
+    private InputStream stream; // Generic stream
+    private boolean stopping = false;
+
 	//UI
 	private JXLabel infoLabel = null;
 	private JProgressBar progressBar = null;
@@ -134,15 +143,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	private JXLabel msgLabel = null;
 	private MiniButton stopButton = null;
 	private MiniButton downloadButton = null;
-	
-	FTPFile ftpFile;
-	
-	boolean isDirectory = false;
-	
-	long done = 0;
-	
-	InputStream stream; // Generic stream
-	boolean stopping = false;
 	
 	public DownloaderPanel() {
 		initialize();
@@ -622,8 +622,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 
                 @Override
                 public void run() {
-                    getProgressBar().setValue((int) ((done / (float)listSize) * 100));
-                    getProgressBar().setString(done + " out of " + listSize);
+                    getProgressBar().setValue((int) ((doneFilesForDirectory / (float)listSize) * 100));
+                    getProgressBar().setString(doneFilesForDirectory + " out of " + listSize);
+                    
                 }
             }, 0, 100);
             
@@ -634,7 +635,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 File out = new File(basePath + "/" + key);
                 
                 if(out.exists() && fileList.get(key).getSize() == out.length()) {
-                    done++;
+                    doneFilesForDirectory++;
                     continue;
                 }
                 
@@ -649,12 +650,12 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 
                 boolean streamRes = StreamUtil.copyStreamToFile(stream, out, false);
                 client.getClient().completePendingCommand();
-                done++;
+                doneFilesForDirectory++;
             }
             
             endTimeMillis = System.currentTimeMillis();
             
-            if (done == listSize) {
+            if (doneFilesForDirectory == listSize) {
                 getProgressBar().setString(I18n.textf("%listSize files done (in %time) @%dataRate", 
                         listSize,
                         DateTimeUtil.milliSecondsToFormatedString(endTimeMillis - startTimeMillis),

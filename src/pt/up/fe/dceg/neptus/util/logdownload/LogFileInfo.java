@@ -41,15 +41,14 @@ import pt.up.fe.dceg.neptus.util.logdownload.LogFolderInfo.State;
  */
 public class LogFileInfo {
 
-	String name = null;
-	
-	String uriPartial = null;
-	
-	State state = State.NEW;
+	private String name = null;
+	private String uriPartial = null;
 
-	FTPFile file = null;
+	private State state = State.NEW;
+
+	private FTPFile file = null;
 	
-	String host = null;
+	private String host = null;
 	
 	private long size = -1;
 	
