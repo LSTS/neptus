@@ -43,6 +43,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 /**
@@ -209,7 +210,7 @@ public class GotoParameters extends ParametersPanel implements ActionListener {
 	 */    
 	private JComboBox<?> getUnitsCombo() {
 		if (unitsCombo == null) {
-		    String[] units = new String[] {"RPM", "m/s"};
+		    String[] units = new String[] {I18n.text("RPM"), I18n.text("m/s")};
 			unitsCombo = new JComboBox<Object>(units);
 			unitsCombo.setPreferredSize(new java.awt.Dimension(70,20));
 		}

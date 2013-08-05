@@ -50,6 +50,7 @@ import org.jzy3d.plot3d.primitives.LineStrip;
 import org.jzy3d.plot3d.primitives.Point;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS;
@@ -168,7 +169,7 @@ public class PlanSimulation3D extends JPanel {
     
     public static void showSimulation(Window owner, PlanSimulationOverlay overlay, PlanType plan) {
         final PlanSimulation3D sim3d = new PlanSimulation3D(overlay, plan);
-        JDialog dialog = new JDialog(owner, "Plan execution preview");
+        JDialog dialog = new JDialog(owner, I18n.text("Plan execution preview"));
         dialog.setSize(600, 400);
         dialog.getContentPane().add(sim3d);
         dialog.setResizable(false);

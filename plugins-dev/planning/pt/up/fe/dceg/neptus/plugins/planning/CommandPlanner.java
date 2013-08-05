@@ -96,7 +96,7 @@ public class CommandPlanner extends SimpleSubPanel implements IEditorMenuExtensi
     public double auvSpeed = 1000;
 
     @NeptusProperty(name = "AUV travelling speed units", category = "AUV", editorClass = SpeedUnitsEditor.class, userLevel = LEVEL.REGULAR)
-    public String auvSpeedUnits = "RPM";
+    public String auvSpeedUnits = I18n.text("RPM");
 
     @NeptusProperty(name = "AUV loiter radius", category = "AUV", userLevel = LEVEL.REGULAR)
     public double auvLoiterRadius = 20;
@@ -111,7 +111,7 @@ public class CommandPlanner extends SimpleSubPanel implements IEditorMenuExtensi
     public double uavSpeed = 18;
 
     @NeptusProperty(name = "UAV flying speed units", category = "UAV", editorClass = SpeedUnitsEditor.class, userLevel = LEVEL.REGULAR)
-    public String uavSpeedUnits = "m/s";
+    public String uavSpeedUnits = I18n.text("m/s");
 
     @NeptusProperty(name = "UAV loiter radius", category = "UAV", userLevel = LEVEL.REGULAR)
     public double uavLoiterRadius = 180;

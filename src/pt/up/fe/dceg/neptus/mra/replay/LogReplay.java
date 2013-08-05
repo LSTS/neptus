@@ -313,7 +313,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
         
         plotButton = new JButton(I18n.text("Plots"));
         
-        plotButton.setAction(new AbstractAction("Plots") {
+        plotButton.setAction(new AbstractAction(I18n.text("Plots")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final Vector<String> fields = new Vector<String>();

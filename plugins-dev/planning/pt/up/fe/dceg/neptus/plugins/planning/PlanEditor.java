@@ -935,7 +935,7 @@ MissionChangeListener {
                     @Override
                     public void actionPerformed(ActionEvent e) {
 
-                        String[] optionsNew = { "m/s", "RPM", "%" };
+                        String[] optionsNew = { I18n.text("m/s"), I18n.text("RPM"), "%" };
                         DefaultProperty dp = planElem.getLastSetProperties().get("Speed units");
                         String curValue = "RPM";
                         if (dp != null)
