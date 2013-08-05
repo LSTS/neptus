@@ -72,7 +72,7 @@ public class Loader extends JFrame implements ActionListener {
     private JLabel getJLabel() {
         if (jLabel == null) {
             jLabel = new JLabel();
-            jLabel.setText(" " + I18n.text("Loading..."));
+            jLabel.setText(" " + I18n.text("Loading") + "...");
             jLabel.setForeground(frontColor);
             jLabel.setBackground(backColor);
             jLabel.setAutoscrolls(true);

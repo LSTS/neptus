@@ -1027,12 +1027,12 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     public String getTooltipText() {
         String tt = "";
         if (!isInitialManeuver())
-            tt = "<html><b><font color='#0000CC'>" + getId() + "</font></b> " + getType();
+            tt = "<html><b><font color='#0000CC'>" + getId() + "</font></b> " + I18n.text(getType());
         else
-            tt = "<html><b><font color='#00CC00'>" + getId() + "</font></b> " + getType();
+            tt = "<html><b><font color='#00CC00'>" + getId() + "</font></b> " + I18n.text(getType());
         if (!getStartActions().isEmpty() || !getEndActions().isEmpty()) {
-            tt += "<hr>" + "start-actions->" + (getStartActions().isEmpty() ? "no" : "yes") + " | end-actions->"
-                    + (getEndActions().isEmpty() ? "no" : "yes");
+            tt += "<hr>" + I18n.text("start-actions->") + (getStartActions().isEmpty() ? I18n.text("no") : I18n.text("yes")) + I18n.text(" | end-actions->")
+                    + (getEndActions().isEmpty() ? I18n.text("no") : I18n.text("yes"));
         }
         return tt;
     }

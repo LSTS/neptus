@@ -1116,9 +1116,10 @@ MissionChangeListener {
                 popup.addSeparator();
 
                 for (final String manName : mf.getAvailableManeuversIDs()) {
-                    AbstractAction act = new AbstractAction(I18n.textf("Add %maneuverName", manName), mf.getManeuverIcon(manName)) {
+                    String manNameStr = I18n.text(manName); 
+                    AbstractAction act = new AbstractAction(I18n.textf("Add %maneuverName", manNameStr), mf.getManeuverIcon(manName)) {
                         private static final long serialVersionUID = 1L;
-
+                        
                         private final Point2D mousePos = mousePoint;
 
                         @Override

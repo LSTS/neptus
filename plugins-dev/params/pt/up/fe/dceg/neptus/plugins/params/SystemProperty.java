@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.plugins.params;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.params.editor.custom.CustomEditor;
 import pt.up.fe.dceg.neptus.plugins.params.renderer.PropertyRenderer;
 
@@ -47,10 +48,17 @@ import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
  */
 public class SystemProperty extends DefaultProperty implements PropertyChangeListener {
     private static final long serialVersionUID = 1L;
+     
+    private static String[] scopeStrings = {
+        I18n.textmark("global"),
+        I18n.textmark("idle"),
+        I18n.textmark("plan"),
+        I18n.textmark("maneuver")
+    };
     
     public static enum Scope {
-        GLOBAL("global"), IDLE("idle"), PLAN("plan"), MANEUVER("maneuver");
-
+        GLOBAL(scopeStrings[0]), IDLE(scopeStrings[1]), PLAN(scopeStrings[2]), MANEUVER(scopeStrings[3]);
+        
         private String text;
 
         Scope(String text) {
@@ -58,13 +66,13 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         }
 
         public String getText() {
-          return this.text;
+          return I18n.text(this.text);
         }
 
         public static Scope fromString(String text) {
           if (text != null) {
             for (Scope b : Scope.values()) {
-              if (text.equalsIgnoreCase(b.text)) {
+              if (text.equalsIgnoreCase(I18n.text(b.text))) {
                 return b;
               }
             }
