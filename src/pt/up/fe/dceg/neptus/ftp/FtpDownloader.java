@@ -36,7 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -48,18 +48,22 @@ import org.apache.commons.net.io.CopyStreamEvent;
 import org.apache.commons.net.io.CopyStreamListener;
 import org.apache.commons.net.io.Util;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-
 /**
  * @author jqcorreia
  * 
  */
 public class FtpDownloader {
-    FTPClient client;
+    private FTPClient client;
 
-    FTPClientConfig conf;
+    private FTPClientConfig conf;
 
+    private String host;
+    private int port;
+    
     public FtpDownloader(String host, int port) throws Exception {
+        this.host = host;
+        this.port = port;
+        
         client = new FTPClient();
         conf = new FTPClientConfig(FTPClientConfig.SYST_UNIX);
 
@@ -73,6 +77,20 @@ public class FtpDownloader {
         client.setControlEncoding("UTF-8");
     }
 
+    /**
+     * @return the host
+     */
+    public String getHost() {
+        return host;
+    }
+    
+    /**
+     * @return the port
+     */
+    public int getPort() {
+        return port;
+    }
+    
     public void downloadDirectory(String path, String destPath) throws Exception {
         
         System.out.println("Path :" + path);
