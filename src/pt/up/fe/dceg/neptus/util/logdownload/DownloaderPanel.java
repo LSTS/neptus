@@ -599,6 +599,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         State prevState = getState();
         
         setStateWorking();
+        stopping = false;
         
         boolean isOnTimeout = false;
 
@@ -609,7 +610,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         try {
             LinkedHashMap<String, FTPFile> fileList = client.listDirectory("/" + uri);
             
-            System.out.println(fileList.size());
+            System.out.println("Number of FTPFiles in folder: " + fileList.size());
 
             getProgressBar().setValue(0);
             getProgressBar().setString(I18n.text("Starting..."));
@@ -624,17 +625,19 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                     (listSize >= 0 ? I18n.textf("%number files", MathMiscUtils.parseToEngineeringRadix2Notation(fullSize,1)) : "unknown files"));
             //msgPanel.writeMessageText("["+MathMiscUtils.parseToEngineeringNotation(cSize,1)+" bytes] ...");
 
-            Timer t = new Timer();
+            final Timer t = new Timer(DownloaderPanel.class.getSimpleName() + " :: progress for files for directory " + basePath);
             t.scheduleAtFixedRate(new TimerTask() {
-                
                 @Override
                 public void run() {
                     getProgressBar().setValue((int) ((doneFilesForDirectory / (float)listSize) * 100));
                     getProgressBar().setString(doneFilesForDirectory + " out of " + listSize);
                     
+                    if (state != State.WORKING)
+                        t.cancel();
                 }
             }, 0, 100);
             
+            doneFilesForDirectory = 0;
             for(String key : fileList.keySet()) {
                 if(stopping)
                     break;
