@@ -65,7 +65,6 @@ import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
  * @author pdias
  */
 public class I18n {
-
     public static final String I18N_BASE_LOCALIZATION = "conf/i18n/";
 
     protected String defaultLanguage = "en_US";
@@ -323,6 +322,25 @@ public class I18n {
      */
     public static String textfc(String englishDefault, String context, Object... parameters) {
         return textfWorker(englishDefault, context, parameters);
+    }
+    
+    /**
+     * This method marks a string to be translated
+     * @param englishDefault
+     * @return
+     */
+    public static String textmark(String englishDefault) {
+        return englishDefault;
+    }
+    
+    /**
+     * This method marks a string to be translated with context
+     * @param englishDefault
+     * @param context
+     * @return
+     */
+    public static String textmarkc(String englishDefault, String context) {
+        return englishDefault;
     }
 
     private static String textfWorker(String englishDefault, String context, Object... parameters) {
