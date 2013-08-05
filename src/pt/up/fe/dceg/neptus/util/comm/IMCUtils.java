@@ -624,13 +624,14 @@ public class IMCUtils {
         LocationType absLoc = new LocationType();
 
         if (startEl == null && mt != null) {
-            NeptusLog.pub().debug("Couldn't find startup position. Returning homeref position");
+            NeptusLog.pub().warn("Couldn't find startup position. Returning homeref position");
             HomeReference homeRef = mt.getHomeRef();
-            absLoc.setLocation(homeRef);
-            absLoc = absLoc.getNewAbsoluteLatLonDepth();
+            absLoc = homeRef.getNewAbsoluteLatLonDepth();
             return null;
         }
         else if (startEl != null) {
+            NeptusLog.pub().warn("Unable to retrieve homeref from mission type.");
+            
             absLoc.setLocation(startEl.getCenterLocation());
             absLoc = absLoc.getNewAbsoluteLatLonDepth();
         }

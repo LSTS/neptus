@@ -112,6 +112,27 @@ public class FileUtil {
         int lastDotPostion = path.lastIndexOf('.');
         return (lastDotPostion != -1) ? (path.substring(lastDotPostion + 1)) : "";
     }
+    
+    public static String getFileNameWithoutExtension(File fx) {
+        String path = null;
+        try {
+            path = fx.getCanonicalPath();
+        }
+        catch (IOException e1) {
+            path = fx.getAbsolutePath();
+        }
+        return getFileNameWithoutExtension(path);
+    }
+    
+    public static String getFileNameWithoutExtension(String path) {
+        File f = new File(path);
+        String fname = f.getName();
+        
+        int lastDotPostion = fname.lastIndexOf('.');
+       String ret = (lastDotPostion != -1) ? (fname.substring(0, lastDotPostion)) : fname;
+       return ret;
+    }
+    
 
     public static String replaceFileExtension(File fx, String newExtension) {
         String path = null;

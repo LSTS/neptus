@@ -141,7 +141,7 @@ public class KMLExporter implements MraExporter {
             ret += "\t\t\t<description></description>\n";
             ret += "\t\t\t<Icon>\n";
 
-            ret += "\t\t\t\t<href>" + imageFile.toURI().toURL() + "</href>\n";
+            ret += "\t\t\t\t<href>" + imageFile.getName() + "</href>\n";
             ret += "\t\t\t</Icon>\n";
             ret += "\t\t\t<LatLonBox>\n";
             ret += "\t\t\t\t<north>" + ne.getLatitudeAsDoubleValue() + "</north>\n";

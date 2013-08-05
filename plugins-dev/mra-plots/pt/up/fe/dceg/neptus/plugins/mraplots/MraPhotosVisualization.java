@@ -49,8 +49,11 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.TimeZone;
 import java.util.Vector;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -73,6 +76,7 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.Timeline;
 import pt.up.fe.dceg.neptus.gui.TimelineChangeListener;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
@@ -86,6 +90,7 @@ import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.util.FileUtil;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.VideoCreator;
@@ -126,10 +131,10 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     protected boolean fullRes = false;
     protected Vector<LogMarker> markers = new Vector<>();
     private File[] allFiles;
-    
+
     long startTime, endTime;
     Timeline timeline;
-    
+
     public MraPhotosVisualization(MRAPanel panel) {
         this.panel = panel;
         addMouseListener(new MouseAdapter() {
@@ -139,48 +144,48 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                 if (e.getButton() == MouseEvent.BUTTON3)
                     showPopup(curFile, e);
             }
-            
+
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
                 if (e.getButton() == MouseEvent.BUTTON3)
                     return;
-                
+
                 if (imageToDisplay == null)
                     return;
                 zoomPoint = e.getPoint();    
                 repaint();
             }
-            
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
                 if (e.getButton() == MouseEvent.BUTTON3)
                     return;
-                
+
                 zoomPoint = null;
                 repaint();
             }
-            
+
         });
-        
+
         addMouseMotionListener(new MouseAdapter() {
-            
+
             @Override
             public void mouseDragged(MouseEvent e) {
                 super.mouseDragged(e);
                 if (e.getButton() == MouseEvent.BUTTON3)
                     return;
-                
+
                 if (imageToDisplay == null)
                     return;
                 zoomPoint = e.getPoint();
                 repaint();
             }
         });
-        
+
     }
-    
+
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         return source.getFile("Photos") != null && source.getFile("Photos").isDirectory();
@@ -190,7 +195,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     public void onCleanup() {
 
     }
-    
+
     @Override
     public void addLogMarker(LogMarker marker) {
         repaint();
@@ -200,7 +205,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             Collections.sort(markers);
         }
     }
-    
+
     @Override
     public void removeLogMarker(LogMarker marker) {
         repaint();
@@ -210,14 +215,14 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             Collections.sort(markers);
         }
     }
-    
+
     @Override
     public void GotoMarker(LogMarker marker) {
         if (photosDir == null)
             return;
         File[] allFiles = photosDir.listFiles();
         Arrays.sort(allFiles);
-        
+
         for (int i = 0; i < allFiles.length; i++) {
             if (timestampOf(allFiles[i]) >= marker.timestamp/1000) {
                 setCurFile(allFiles[i]);
@@ -238,9 +243,9 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
      */
     public void setCurFile(File curFile) {
         this.curFile = curFile;
-       
+
         try {
-            imageToDisplay = loadImage(curFile);
+            imageToDisplay = loadImage(curFile, false);
             curTime = timestampOf(curFile);
             repaint();
         }
@@ -248,24 +253,24 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             e.printStackTrace();
         }
     }
-    
+
     public static File[] listPhotos(File photosDir) {
-        
+
         File[] allFiles = photosDir.listFiles();
         Vector<File> allF = new Vector<>();
-        
+
         for (File f: allFiles) {
             if (!f.isDirectory())
                 allF.add(f);
             else
                 allF.addAll(Arrays.asList(f.listFiles()));
         }
-        
+
         for (int i = 0; i < allF.size(); i++) {
             if (!allF.get(i).getName().endsWith(".jpg"))
                 allF.remove(i--);
         }
-        
+
         allFiles = allF.toArray(new File[0]);        
         Arrays.sort(allFiles);
 
@@ -285,20 +290,20 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         this.index = source.getLsfIndex();
         this.hud = new MraVehiclePosHud(index, 150, 150);
         allFiles = listPhotos(getPhotosDir());
-        
+
         this.startTime = (long) (timestampOf(allFiles[0]) * 1000.0);
         this.endTime = (long) (timestampOf(allFiles[allFiles.length-1]) * 1000.0);
-        
+
         timeline = new Timeline(0, (int)(endTime - startTime), 7, 1000, false);
         timeline.addTimelineChangeListener(new TimelineChangeListener() {
-            
+
             @Override
             public void timelineChanged(int value) {
                 setTime((startTime + value) / 1000.0);
             }
         });
-        
-        
+
+
         timeline.getSlider().setValue(0);
 
         timeline.getSlider().setUI(new BasicSliderUI(timeline.getSlider()) {
@@ -308,41 +313,41 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                 for(LogMarker m : markers) {
                     long mtime = new Double(m.timestamp).longValue();
                     g.drawLine(xPositionForValue((int)(mtime-startTime)), 0, xPositionForValue((int)(mtime-startTime)),timeline.getSlider().getHeight()/2);
-//                    g.drawString(m.label, xPositionForValue((int)(mtime-firstPingTime))-10, 22);
+                    //                    g.drawString(m.label, xPositionForValue((int)(mtime-firstPingTime))-10, 22);
                 }
             } 
         });
-        
+
         toolbar = new PhotoToolbar(this);
 
         loadStates();
-        
+
         JPanel panel = new JPanel(new MigLayout());
         panel.add(this, "w 100%, h 100%, wrap");
         panel.add(timeline, "split");
         panel.add(toolbar, "wrap");
-        
+
         synchronized (markers) {
             markers.clear();
             markers.addAll(this.panel.getMarkers());
             Collections.sort(markers);
         }
-        
+
         return panel;
     }
-    
+
     protected void loadStates() {
-        
-        
+
+
         File[] files = listPhotos(getPhotosDir());
-        
+
         int lastIndex = 0, stateId = index.getDefinitions().getMessageId("EstimatedState");
         int lastBDistanceIndex = 0, bdistId = index.getDefinitions().getMessageId("BottomDistance"), dvlId = index.getEntityId("DVL");
-        
+
         states = new LinkedHashMap<>();
         for (int i = 0; i < files.length; i++) {
             int msgIndex = index.getMessageAtOrAfer(stateId, 0xFF, lastIndex, timestampOf(files[i]));
-            
+
             if (msgIndex == -1) {
                 states.put(files[i], null);                
             }
@@ -357,7 +362,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                 if (m.getTypeOf("alt") == null) {
                     state.setW(Double.NaN);
                     int bdIndex = index.getMessageAtOrAfer(bdistId, dvlId, lastBDistanceIndex, timestampOf(files[i]));
-                    
+
                     if (bdIndex != -1) {
                         state.setW(index.getMessage(bdIndex).getDouble("value"));
                         lastBDistanceIndex = bdIndex;
@@ -365,10 +370,10 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                 }
                 else
                     state.setW(m.getDouble("alt"));
-                
+
                 state.setU(m.getDouble("u"));
                 states.put(files[i], state);
-                
+
             }
         }
     }
@@ -397,11 +402,11 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     public boolean supportsVariableTimeSteps() {
         return false;
     }
-    
+
     protected void showPopup(final File f, MouseEvent evt) {
         JPopupMenu popup = new JPopupMenu();
         popup.add("Add marker").addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 String resp = JOptionPane.showInputDialog(panel, "Enter marker name", "Add marker", JOptionPane.QUESTION_MESSAGE);
@@ -412,36 +417,70 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                 panel.addMarker(marker);
             }
         });
-        JMenuItem exportVideo = new JMenuItem("Export video", ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/mraplots/film.png"));
+
+        popup.add(I18n.text("Save image")).addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                File output = new File(photosDir.getParentFile(), FileUtil.getFileNameWithoutExtension(f)+".png");
+                
+                try {
+                    boolean prevFullRes = fullRes;
+                    fullRes = true;
+                    Image m = loadImage(f, true);
+                    fullRes = prevFullRes;
+                    BufferedImage tmp = new BufferedImage(m.getWidth(null), m.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D g = (Graphics2D) tmp.getGraphics();
+                    Image watermark = ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/mraplots/lsts-watermark.png");
+
+                    g.drawImage(m, 0, 0, tmp.getWidth(), tmp.getHeight(), 0, 0, m.getWidth(null), m.getHeight(null), null);
+                    if (showLegend) {
+                        drawLegend(g, f);
+                        g.drawImage(hud.getImage(timestampOf(f)), 10, tmp.getHeight()-160, null);
+                        g.drawImage(watermark, tmp.getWidth()-55, tmp.getHeight()-55, null);
+                    }
+
+                    ImageIO.write(tmp, "PNG", output);
+                    GuiUtils.infoMessage(panel, I18n.text("Image saved"), I18n.textf("Image saved in %filename", output.getAbsolutePath()));
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(MraPhotosVisualization.this, ex);
+                }
+            }
+        });
+
+
+
+        JMenuItem exportVideo = new JMenuItem(I18n.text("Export video"), ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/mraplots/film.png"));
         popup.add(exportVideo);
         exportVideo.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 final File[] allFiles = listPhotos(getPhotosDir());
                 final double startTime = timestampOf(allFiles[0]);
                 try {
-                    
+
                     final VideoCreator creator = new VideoCreator(new File(photosDir.getParentFile(), "Video.mp4"), 800, 600);
-                    final ProgressMonitor monitor = new ProgressMonitor(panel, "Creating video", "Starting up", 0, allFiles.length);
-                    
+                    final ProgressMonitor monitor = new ProgressMonitor(panel, I18n.text("Creating video"), I18n.text("Starting up"), 0, allFiles.length);
+
                     Thread videoMaker = new Thread(new Runnable() {
-                        
+
                         @Override
                         public void run() {
                             fullRes = true;
                             Image watermark = ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/mraplots/lsts-watermark.png");
-                            
+
                             BufferedImage tmp = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
                             Graphics2D g = tmp.createGraphics();
                             int count = 0;
                             double speedMult = speedMultiplier;
-                            
+
                             for (File f: allFiles) {
                                 if (monitor.isCanceled())
                                     break;
                                 try {
-                                    Image m = loadImage(f);
+                                    Image m = loadImage(f, false);
                                     g.drawImage(m, 0, 0, tmp.getWidth(), tmp.getHeight(), 0, 0, m.getWidth(null), m.getHeight(null), null);
                                     if (showLegend) {
                                         drawLegend(g, f);
@@ -459,17 +498,17 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                             creator.closeStreams();
                             monitor.close();
                             fullRes = false;
-                            GuiUtils.infoMessage(panel, "Production completed", "Video saved in "+new File(photosDir.getParentFile(), "Video.mp4").getAbsolutePath());
+                            GuiUtils.infoMessage(panel, I18n.text("Production completed"), I18n.textf("Video saved in %filename", new File(photosDir.getParentFile(), "Video.mp4").getAbsolutePath()));
                         }
                     });
                     videoMaker.setName("Video maker thread");
                     videoMaker.start();
-                    
+
                 }
                 catch (Exception ex) {
                     GuiUtils.errorMessage(panel, ex);
                 }
-                
+
             }
         });
         popup.show(MraPhotosVisualization.this, evt.getX(), evt.getY());
@@ -478,33 +517,33 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     @Override
     protected void paintComponent(Graphics g) {
         Image copy = imageToDisplay;
-        
-       
+
+
         if (copy != null)
             g.drawImage(copy, 0, 0, getWidth(), getHeight(), 0, 0, copy.getWidth(this), copy.getHeight(this), this);
-       
+
         int countMarkers = 0;
         for (int i = 0; i < markers.size(); i++) {
-            
+
             if (markers.get(i).timestamp/1000 > curTime+2)
                 break;
             if (markers.get(i).timestamp/1000 < curTime - 2)
                 continue;
-            
+
             countMarkers++;
             int alpha = (int)(127.5 * Math.abs(markers.get(i).timestamp/1000 - curTime));
-            
+
             ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.setColor(new Color(255,255,128,255-alpha));
             g.drawString(markers.get(i).label, 10, 150 + countMarkers*15);            
         }
-        
-        
+
+
         if (showLegend) {
             drawLegend((Graphics2D)g, curFile);
             g.drawImage(hud.getImage(curTime), 10, getHeight()-160, null);
         }
-        
+
         if (zoomPoint != null && imageToDisplay != null) {
             ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             int imgX =(int) ((zoomPoint.getX() / getWidth()) * imageToDisplay.getWidth(null));
@@ -518,7 +557,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     }
 
 
-    protected Image loadImage(File f) throws IOException {
+    protected Image loadImage(File f, boolean useFullResolution) throws IOException {
         Vector<BufferedImageOp> ops = new Vector<>();
         if (whiteBalanceOp != null)
             ops.add(whiteBalanceOp);
@@ -530,29 +569,47 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             ops.add(brightenOp);
         if (grayscale)
             ops.add(grayscaleOp);
-        
+
         final BufferedImageOp[] operations = ops.toArray(new BufferedImageOp[0]);
 
         BufferedImage original = ImageIO.read(f);
-        if (fullRes) {
+        if (fullRes || useFullResolution) {
             if (!ops.isEmpty())
                 original = Scalr.apply(original, operations);
         }
         else {
             original = Scalr.resize(original, getWidth(), getHeight(), operations);
         }
-        
+
         return original;
     }
+
+    protected SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+    {
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
     
-    
+    protected Integer legendWidth = null;
+    protected int getLegendWidth(Vector<String> strs, Graphics2D g) {
+        if (legendWidth == null) {
+            int maxSize = 0;
+            for (String s : strs) {
+                Rectangle2D r = g.getFontMetrics(g.getFont()).getStringBounds(s, g);
+                if (r.getWidth() > maxSize)
+                    maxSize = (int) Math.ceil(r.getWidth());
+            }
+            legendWidth = maxSize;
+        }
+        return legendWidth;
+    }
+
     protected void drawLegend(Graphics2D g, File f) {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setFont(new Font("Arial", Font.BOLD, 14));
         SystemPositionAndAttitude state = states.get(f);
         if (state == null)
             return;
-        
+        long timeUTC = (long)(timestampOf(f)* 1000);
         String depth = GuiUtils.getNeptusDecimalFormat(1).format(state.getPosition().getDepth());
         String alt = Double.isNaN(state.getW())? "N/A" : GuiUtils.getNeptusDecimalFormat(1).format(state.getW());
         String speed = GuiUtils.getNeptusDecimalFormat(1).format(state.getU());
@@ -561,19 +618,30 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         int yaw = (int)Math.toDegrees(state.getYaw());
         String lat = CoordinateUtil.latitudeAsString(state.getPosition().getLatitudeAsDoubleValue(), false, 2);
         String lon = CoordinateUtil.longitudeAsString(state.getPosition().getLongitudeAsDoubleValue(), false, 2);
+
+        Vector<String> details = new Vector<>();
+        details.add(lat);
+        details.add(lon);
+        details.add(I18n.text("Time")+": "+sdf.format(new Date(timeUTC)));
+        details.add(I18n.text("Depth")+": "+depth);
+        details.add(I18n.text("Altitude")+": "+alt);
+        details.add(I18n.text("Roll")+": "+roll);
+        details.add(I18n.text("Pitch")+": "+pitch);
+        details.add(I18n.text("Yaw")+": "+yaw);
+        details.add(I18n.text("Speed")+": "+speed);
         
-        Rectangle2D r = g.getFontMetrics().getStringBounds(lat, g);
+        
+        
+        double width = getLegendWidth(details, g) + 20;
+        
         g.setColor(new Color(0,0,0,128));
-        g.fill(new RoundRectangle2D.Double(10, 10, r.getWidth()+20, 140, 20, 20));
+        g.fill(new RoundRectangle2D.Double(10, 10, width, 155, 20, 20));
         g.setColor(Color.white);
-        g.drawString(lat, 20, 30);
-        g.drawString(lon, 20, 45);
-        g.drawString("Depth: "+depth, 20, 60);
-        g.drawString("Altitude: "+alt, 20, 75);
-        g.drawString("Speed: "+speed, 20, 90);
-        g.drawString("Roll: "+roll, 20, 105);
-        g.drawString("Pitch: "+pitch, 20, 120);
-        g.drawString("Yaw: "+yaw, 20, 135);
+        
+        for (int y = 30; !details.isEmpty(); y += 15) {
+            g.drawString(details.firstElement(), 20, y);
+            details.remove(0);
+        }
     }
 
     protected Thread loadingThread(final String name) {
@@ -600,7 +668,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                         File nextFile = files.take();
                         LoadedImage img = new LoadedImage();
                         BufferedImage original = ImageIO.read(nextFile);
-                        
+
                         if (fullRes) {
                             if (!ops.isEmpty())
                                 img.image = Scalr.apply(original, operations);
@@ -610,7 +678,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                         else {
                             img.image = Scalr.resize(original, getWidth(), getHeight(), operations);
                         }
-                        
+
                         img.timestamp = timestampOf(nextFile);
                         img.file = nextFile;
                         while (imgs.size() > 5) {
@@ -681,7 +749,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     public File getPhotosDir() {
         return photosDir;
     }
-    
+
     protected synchronized void setTime(double time) {
         for (int i = 0; i < allFiles.length; i++) {
             if (timestampOf(allFiles[i]) >= time) {
@@ -690,13 +758,13 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             }
         }
     }
-    
+
     @Override
     public void onHide() {
-//        if (timeline.playToggle.isSelected())
-//            timeline.playToggle.doClick();
+        //        if (timeline.playToggle.isSelected())
+        //            timeline.playToggle.doClick();
     }
-    
+
     public void onShow() {
         //nothing
     }
