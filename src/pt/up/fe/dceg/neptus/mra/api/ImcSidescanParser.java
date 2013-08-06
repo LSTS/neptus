@@ -106,8 +106,13 @@ public class ImcSidescanParser implements SidescanParser {
         }
         
         lastTimestampRequested = timestamp1;
-        
-        IMCMessage ping = pingParser.getEntryAtOrAfter(timestamp1);
+        IMCMessage ping;
+        try {
+             ping = pingParser.getEntryAtOrAfter(timestamp1);
+        }
+        catch (Exception e) {
+            ping = null;
+        }
         if (ping == null)
             return list;
        
