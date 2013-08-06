@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
@@ -44,6 +45,7 @@ import javax.swing.tree.TreePath;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
@@ -333,7 +335,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 HomeReference homeRef = mission.getHomeRef();
                 Vector<TransponderElement> trans = MapGroup.getMapGroupInstance(mission).getAllObjectsOfType(
                         TransponderElement.class);
-                Collection<PlanType> plans = mission.getIndividualPlansList().values();
+                Collections.sort(trans);
+                TreeMap<String, PlanType> plans = mission.getIndividualPlansList();
                 PlanType plan = selectedPlan;
                 treeModel.redoModel(trans, homeRef, plans, plan);
 
@@ -1075,9 +1078,53 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
 
         public void redoModel(final Vector<TransponderElement> transElements, final HomeReference homeRef,
-                final Collection<PlanType> plansElements, final PlanType selectedPlan) {
+                final TreeMap<String, PlanType> plansElements, final PlanType selectedPlan) {
             clearTree();
             setHomeRef(homeRef);
+            int index = 0; // homeRef is at index 0
+
+            for (TransponderElement elem : transElements) {
+                addTransponderNode(elem);
+            }
+            if (trans.getChildCount() >= 0 && !((DefaultMutableTreeNode) root).isNodeChild(trans)) {
+                index++;
+                insertNodeInto(trans, (MutableTreeNode) root, index);
+            }
+
+            for (PlanType planT : plansElements.values()) {
+                addToParents(new ExtendedTreeNode(planT), ParentNodes.PLANS);
+            }
+
+            if (plans.getChildCount() >= 0 && !plans.isNodeChild(root)) {
+                index++;
+                insertNodeInto(plans, (MutableTreeNode) root, index);
+            }
+
+            if (selectedPlan != null)
+                setSelectedPlan(selectedPlan);
+        }
+
+        public void updateModel(final Vector<TransponderElement> transElements, final HomeReference homeRef,
+                final Collection<PlanType> plansElements, final PlanType selectedPlan) {
+            HomeReference localHomeRed = (HomeReference) treeModel.homeR.getUserObject();
+            if (!localHomeRed.equals(homeRef)){
+                setHomeRef(homeRef);
+            }
+
+            int transChildCount = treeModel.getChildCount(trans);
+            Iterator<TransponderElement> remoteNodesIt = transElements.iterator();
+            TransponderElement remoteTrans = (remoteNodesIt.hasNext()) ? remoteNodesIt.next() : null;
+            TransponderElement localTrans;
+            for(int c = 0; c < transChildCount; c++){
+                ExtendedTreeNode childAt = (ExtendedTreeNode) trans.getChildAt(c);
+                localTrans = (TransponderElement) childAt.getUserObject();
+                if (remoteTrans.getId().equals(localTrans.getId())) {
+                    if (!remoteTrans.equals(localTrans)) {
+                        childAt.setUserObject(remoteTrans);
+                        childAt.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
+                    }
+                }
+            }
             int index = 0; // homeRef is at index 0
 
             for (TransponderElement elem : transElements) {
@@ -1098,7 +1145,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
             if (selectedPlan != null)
                 setSelectedPlan(selectedPlan);
-
         }
 
         private void addTransponderNode(TransponderElement elem) {

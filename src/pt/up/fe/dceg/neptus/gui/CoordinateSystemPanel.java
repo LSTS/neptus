@@ -39,7 +39,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.LinkedHashMap;
+import java.util.TreeMap;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -107,7 +107,7 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 		originalCoordinateSystem = cs;
 
 		if (cs != null)
-			this.centerLocation.setLocation( (LocationType) cs);
+			this.centerLocation.setLocation( cs);
 
 		initialize();
 
@@ -122,7 +122,8 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 	}
 
 	
-	public Dimension getPreferredSize() {
+	@Override
+    public Dimension getPreferredSize() {
 		return new Dimension(400,300);
 	}
 
@@ -142,7 +143,8 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 	/* (non-Javadoc)
 	 * @see pt.up.fe.dceg.neptus.mme.objects.ParametersPanel#getErrors()
 	 */
-	public String getErrors() {
+	@Override
+    public String getErrors() {
 		try {
 			//Double.parseDouble(getYawField().getText());
 			//Double.parseDouble(getPitchField().getText());
@@ -154,7 +156,8 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 		return null;
 	}
 
-	public void actionPerformed(ActionEvent e) {
+	@Override
+    public void actionPerformed(ActionEvent e) {
 
 		if ("changecenter".equals(e.getActionCommand())) {
             LocationType tmp = LocationPanel.showLocationDialog(CoordinateSystemPanel.this,
@@ -273,7 +276,8 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 		dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
 		dialog.setAlwaysOnTop(false);
 		dialog.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
+			@Override
+            public void windowClosing(WindowEvent e) {
 				userCancel = true;
 				dialog.setVisible(false);
 				dialog.dispose();
@@ -305,7 +309,7 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 				//NeptusLog.pub().info("<###>Propagating...");
 				// Translate all objects (maps, plans) in the mission
 				MapGroup missonMaps = MapGroup.getMapGroupInstance(getMissionType());
-				LinkedHashMap<String, PlanType> plans = getMissionType().getIndividualPlansList();
+                TreeMap<String, PlanType> plans = getMissionType().getIndividualPlansList();
 				
 				double[] offsets = cs.getOffsetFrom(originalCoordinateSystem);
 				double offsetNorth = offsets[0], offsetEast = offsets[1], offsetDown = offsets[2];
@@ -420,7 +424,8 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 	    getChangeHomePanel().setVisible(value);
 	}
 
-	public void setEditable(boolean value) {
+	@Override
+    public void setEditable(boolean value) {
 	    this.editable = value;
         getYawField().setEditable(editable);
         //getPitchField().setEditable(editable);
