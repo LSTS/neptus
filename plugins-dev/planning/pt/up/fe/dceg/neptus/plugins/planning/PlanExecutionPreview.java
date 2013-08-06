@@ -33,15 +33,26 @@ package pt.up.fe.dceg.neptus.plugins.planning;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 
+import javax.swing.JMenu;
+import javax.swing.JPopupMenu;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventPositionEstimation;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.PlanControlState;
+import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.up.fe.dceg.neptus.mp.preview.PlanSimulation3D;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulationOverlay;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulator;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
@@ -51,6 +62,7 @@ import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
 import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 import pt.up.fe.dceg.neptus.util.DateTimeUtil;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
@@ -63,17 +75,18 @@ import com.l2fprod.common.propertysheet.Property;
 /**
  * @author zp
  */
-@PluginDescription(name = "Plan Execution Preview", author = "zp")
+@PluginDescription(name = "Plan Execution Preview", author = "zp", icon="pt/up/fe/dceg/neptus/plugins/planning/preview.png")
 @LayerPriority(priority = 60)
 public class PlanExecutionPreview extends SimpleRendererInteraction implements Renderer2DPainter, ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
     protected boolean debug = false;
-
+    protected PlanSimulationOverlay simOverlay = null;
     protected PlanSimulator simulator = null;
     protected SystemPositionAndAttitude lastVehicleState = null;
     protected long lastStateTime = 0;
-
+    protected boolean forceSimVisualization = false;
+    
     @NeptusProperty(name = "Active")
     public boolean activated = true;
 
@@ -116,6 +129,137 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
         return true;
     }
     
+    @Override
+    public void mouseClicked(final MouseEvent event, final StateRenderer2D source) {
+        if (event.getButton() == MouseEvent.BUTTON3) {
+            JPopupMenu popup = new JPopupMenu();
+            
+            if (simulator != null) {
+                popup.add("Locate simulator here").addActionListener(new ActionListener() {
+                    
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        LocationType loc = source.getRealWorldLocation(event.getPoint());
+                        loc.convertToAbsoluteLatLonDepth();
+                        if (simulator != null) {
+                            SystemPositionAndAttitude curState = simulator.getState();
+                            EstimatedState newState = curState.toEstimatedState();
+                            
+                            newState.setLat(loc.getLatitudeAsDoubleValueRads());
+                            newState.setLon(loc.getLongitudeAsDoubleValueRads());
+                            
+                            simulator.setPositionEstimation(newState, Double.MAX_VALUE);                            
+                        }
+                    }
+                });
+                
+                JMenu menu = new JMenu("Set current maneuver");
+                for (final Maneuver man : simulator.getPlan().getGraph().getAllManeuvers()) {
+                    menu.add(man.getId()+" ("+man.getType()+")").addActionListener(new ActionListener() {
+                        
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            if (simulator != null) {
+                                try {
+                                    simulator.setManId(man.getId());
+                                }
+                                catch (Exception ex) {
+                                    GuiUtils.errorMessage(getConsole(), ex);
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                popup.add(menu);
+                
+                
+            }
+            popup.add("Simulate from here").addActionListener(new ActionListener() {
+                
+                final LocationType loc = source.getRealWorldLocation(event.getPoint());
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (simulator != null) {
+                        simulator.stopSimulation();
+                    }
+                        simulator = new PlanSimulator(getConsole().getPlan(), new SystemPositionAndAttitude(loc, 0, 0, 0));
+                        simulator.setVehicleId(getConsole().getMainSystem());
+                        try {
+                            simulator.setManId(simulator.getPlan().getGraph().getInitialManeuverId());
+                        }
+                        catch (Exception ex) {
+                            GuiUtils.errorMessage(getConsole(), ex);
+                        }
+                        simulator.setState(new SystemPositionAndAttitude(loc, 0, 0, 0));
+                        simulator.setTimestep(timestep);
+                        simulator.startSimulation();
+                        simOverlay = simulator.getSimulationOverlay();
+                        forceSimVisualization = true;                    
+                }
+            });
+            
+            if (simOverlay != null) {
+                popup.add("Show 3D simulation").addActionListener(new ActionListener() {
+                    
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        
+                        PlanSimulation3D.showSimulation(getConsole(), simOverlay, getConsole().getPlan());
+                    }
+                });
+            }
+            
+            popup.add("Clear simulation").addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (simulator != null) {
+                        simulator.stopSimulation();
+                        simulator = null;
+                        simOverlay = null;
+                    }
+                    forceSimVisualization = false;
+                }
+            });
+            
+            popup.addSeparator();
+            if (simOverlay != null) {
+                popup.add("Plan statistics").addActionListener(new ActionListener() {
+                    
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (simOverlay != null)
+                            generatePlanStatistics();
+                    }
+                });
+            }
+            popup.show(source, event.getX(), event.getY());
+        }
+        else
+            super.mouseClicked(event, source);
+    }
+    
+    
+    private void generatePlanStatistics() {
+        
+        
+        LinkedHashMap<String, String> stats;
+        
+        if (simulator != null)
+            stats = simOverlay.statistics(simulator.getState());
+        else
+            stats = simOverlay.statistics(null);
+        
+        String html = "<html><table>\n";
+        for (Entry<String,String> entry : stats.entrySet()) {
+            html += "<tr><td><b>"+entry.getKey()+"</b></td><td>"+entry.getValue()+"</td></tr>\n";            
+        }
+        html +="</table></html>";
+        
+        GuiUtils.htmlMessage(getConsole(), I18n.text("Plan Statistics"), "", html);        
+    }
 
     @Subscribe
     public void consume(EstimatedState msg) {
@@ -175,32 +319,42 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
         if (!msg.getSourceName().equals(getConsole().getMainSystem()))
             return;
 
-        if (msg.getState() != PlanControlState.STATE.EXECUTING)
-            stopSimulator();
+        if (msg.getState() != PlanControlState.STATE.EXECUTING) {
+            if (forceSimVisualization)
+                return;
+            else
+                stopSimulator();                    
+        }
         else {
-            String planid = msg.getPlanId();
-
-            if (simulator == null || simulator.isFinished() || !planid.equals(simulator.getPlan().getId())) {
-                stopSimulator();
-                PlanType plan = getConsole().getMission().getIndividualPlansList().get(planid);
-                if (plan != null) {
-
-                    EstimatedState last = ImcMsgManager.getManager().getState(msg.getSourceName()).lastEstimatedState();
-                    if (last != null)
-                        simulator = new PlanSimulator(plan, new SystemPositionAndAttitude(last));
-                    else
-                        simulator = new PlanSimulator(plan, null);
-                    simulator.setManId(msg.getManId());
-                    simulator.setVehicleId(getConsole().getMainSystem());
-                    simulator.setState(lastVehicleState);
-                    simulator.setTimestep(timestep);
-                    if (activated)
-                        simulator.startSimulation();
+            try {
+                String planid = msg.getPlanId();
+    
+                if (simulator == null || simulator.isFinished() || !planid.equals(simulator.getPlan().getId())) {
+                    stopSimulator();
+                    PlanType plan = getConsole().getMission().getIndividualPlansList().get(planid);
+                    if (plan != null) {
+    
+                        EstimatedState last = ImcMsgManager.getManager().getState(msg.getSourceName()).lastEstimatedState();
+                        if (last != null)
+                            simulator = new PlanSimulator(plan, new SystemPositionAndAttitude(last));
+                        else
+                            simulator = new PlanSimulator(plan, null);
+                        simulator.setManId(msg.getManId());
+                        simulator.setVehicleId(getConsole().getMainSystem());
+                        simulator.setState(lastVehicleState);
+                        simulator.setTimestep(timestep);
+                        if (activated)
+                            simulator.startSimulation();
+                        simOverlay = simulator.getSimulationOverlay();
+                    }
                 }
+    
+                if (simulator != null)
+                    simulator.setManId(msg.getManId());
             }
-
-            if (simulator != null)
-                simulator.setManId(msg.getManId());
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
         }
     }
 

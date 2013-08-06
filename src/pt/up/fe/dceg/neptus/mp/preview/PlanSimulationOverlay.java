@@ -34,10 +34,12 @@ package pt.up.fe.dceg.neptus.mp.preview;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
+import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
@@ -52,19 +54,19 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
 
     protected LocationType ref;
     protected Vector<SystemPositionAndAttitude> states = new Vector<>();
-    
+
     protected Vector<Color> colors = new Vector<>();
     protected Vector<SimulationState> simStates = new Vector<>();
     public boolean simulationFinished = false;
     public static double bottomDepth = 10;
-    
+
     public PlanSimulationOverlay(PlanType plan, final double usedBattHours, final double remainingBattHours, SystemPositionAndAttitude start) {
         this(plan.getMissionType().getHomeRef());
         final SimulationEngine engine = new SimulationEngine(plan);
-        
+
         if (start != null)
             engine.setState(start);
-        
+
         Thread t = new Thread("Plan simulation overlay") {
             public void run() {
 
@@ -91,8 +93,8 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         t.setDaemon(true);
         t.start();
     }
-    
-    
+
+
 
     public PlanSimulationOverlay(LocationType ref) {
         this.ref = new LocationType(ref);
@@ -121,7 +123,7 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         colors.add(color);
         simStates.add(simState);
     }
-    
+
     public void addPoint(LocationType loc, Color color, SimulationState simState) {
         addPoint(new SystemPositionAndAttitude(loc, 0,0,0), color, simState);
     }
@@ -147,7 +149,7 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
     public SimulationState nearestState(SystemPositionAndAttitude state, double minDistThreshold) {
         int nearest = 0;
         double nearestDistance = Double.MAX_VALUE;
-        
+
         for (int i = 0; i < simStates.size(); i++) {
             LocationType center = states.get(i).getPosition();
             double dist = center.getHorizontalDistanceInMeters(state.getPosition()) + 2 * Math.abs(state.getYaw() - states.get(i).getYaw());
@@ -161,6 +163,33 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
             return simStates.get(nearest);
         else
             return null;
+    }
+
+    public LinkedHashMap<String, String> statistics(SystemPositionAndAttitude state) {
+        LinkedHashMap<String, String> stats = new LinkedHashMap<>();  
+        
+        if (!simStates.isEmpty()) {
+            SimulationState nearest = simStates.get(0);
+
+            if (state != null)
+                nearest = nearestState(state, Integer.MAX_VALUE);
+
+            int pos = simStates.indexOf(nearest);
+
+            int time = states.size() - pos;
+            String timeUnits = I18n.text("seconds");
+            if (time > 300) {
+                timeUnits = I18n.text("minutes");
+                time = time / 60;
+            }
+            
+            stats.put(I18n.text("Completion status"), I18n.textf("%percent % complete", (pos * 1000 / simStates.size())/10.0));
+            stats.put(I18n.text("Time until completion"), time + " " + timeUnits);
+            
+        }
+
+        return stats;
+
     }
 
     @Override

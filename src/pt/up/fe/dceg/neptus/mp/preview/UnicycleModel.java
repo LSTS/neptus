@@ -49,7 +49,6 @@ public class UnicycleModel {
     protected double latRad, lonRad, x, y, rollRad, pitchRad, yawRad, depth, speedMPS;
     protected double targetLatRad, targetLonRad, maxSteeringRad = Math.toRadians(7);
     protected boolean arrived = true;
-    //protected double actuationError = 0.5;
     
     public LocationType getCurrentPosition() {
         LocationType loc = new LocationType();

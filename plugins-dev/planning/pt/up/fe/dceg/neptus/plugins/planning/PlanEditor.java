@@ -87,16 +87,12 @@ import pt.up.fe.dceg.neptus.gui.VehicleChooser;
 import pt.up.fe.dceg.neptus.gui.VehicleSelectionDialog;
 import pt.up.fe.dceg.neptus.gui.ZValueSelector;
 import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.FuelLevel;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.ManeuverFactory;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
-import pt.up.fe.dceg.neptus.mp.preview.PlanSimulation3D;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulationOverlay;
 import pt.up.fe.dceg.neptus.planeditor.PlanTransitionsSimpleEditor;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
@@ -131,7 +127,6 @@ import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -1118,41 +1113,41 @@ MissionChangeListener {
 
                 popup.add(getPasteAction((Point) mousePoint));
 
-                AbstractAction act = new AbstractAction(I18n.text("Simulate plan"), null) {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public void actionPerformed(ActionEvent evt) {
-
-                        String vehicle = getConsole().getMainSystem();
-                        LocationType startLoc = plan.getMissionType().getStartLocation();
-                        SystemPositionAndAttitude start = new SystemPositionAndAttitude(startLoc, 0, 0, 0);
-                        EstimatedState lastState = null;
-                        FuelLevel lastFuel = null;
-                        double motionRemaingHours = 4;
-
-                        try {
-                            lastState = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
-                            lastFuel = ImcMsgManager.getManager().getState(vehicle).lastFuelLevel();
-
-                            if (lastState != null)
-                                start = new SystemPositionAndAttitude(lastState);
-
-                            if (lastFuel != null) {
-                                LinkedHashMap<String, String> opmodes = lastFuel.getOpmodes();
-                                motionRemaingHours = Double.parseDouble(opmodes.get("Full"));
-                            }
-                        }
-                        catch (Exception e) {
-                            NeptusLog.pub().error("Error getting info from main vehicle", e);
-                        }
-
-                        overlay = new PlanSimulationOverlay(plan, 0, motionRemaingHours, start);
-                        PlanSimulation3D.showSimulation(getConsole(), overlay, plan);
-
-                    }
-                };
-                popup.add(act);
+//                AbstractAction act = new AbstractAction(I18n.text("Simulate plan"), null) {
+//                    private static final long serialVersionUID = 1L;
+//
+//                    @Override
+//                    public void actionPerformed(ActionEvent evt) {
+//
+//                        String vehicle = getConsole().getMainSystem();
+//                        LocationType startLoc = plan.getMissionType().getStartLocation();
+//                        SystemPositionAndAttitude start = new SystemPositionAndAttitude(startLoc, 0, 0, 0);
+//                        EstimatedState lastState = null;
+//                        FuelLevel lastFuel = null;
+//                        double motionRemaingHours = 4;
+//
+//                        try {
+//                            lastState = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
+//                            lastFuel = ImcMsgManager.getManager().getState(vehicle).lastFuelLevel();
+//
+//                            if (lastState != null)
+//                                start = new SystemPositionAndAttitude(lastState);
+//
+//                            if (lastFuel != null) {
+//                                LinkedHashMap<String, String> opmodes = lastFuel.getOpmodes();
+//                                motionRemaingHours = Double.parseDouble(opmodes.get("Full"));
+//                            }
+//                        }
+//                        catch (Exception e) {
+//                            NeptusLog.pub().error("Error getting info from main vehicle", e);
+//                        }
+//
+//                        overlay = new PlanSimulationOverlay(plan, 0, motionRemaingHours, start);
+//                        PlanSimulation3D.showSimulation(getConsole(), overlay, plan);
+//
+//                    }
+//                };
+//                popup.add(act);
             }
 
             popup.show(source, (int) mousePoint.getX(), (int) mousePoint.getY());

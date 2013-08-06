@@ -95,7 +95,7 @@ public class SimulationEngine {
         }
     }
 
-    public void setManeuverId(String manId) {
+    public void setManeuverId(String manId) throws Exception {
         if (this.manId.equals(manId))
             return;
         
@@ -105,6 +105,8 @@ public class SimulationEngine {
             finished = false;
             this.manId = manId;
             curPreview = ManPreviewFactory.getPreview(m, vehicleId, state , null);
+            if (curPreview == null)
+                throw new Exception(manId +" cannot be previewed");
             simulationStep();
         }
     }

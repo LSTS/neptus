@@ -96,7 +96,7 @@ public class PlanSimulator {
         return engine.manId;
     }
     
-    public void setManId(String manId) {
+    public void setManId(String manId) throws Exception {
         engine.setManeuverId(manId);
     }
     
@@ -142,6 +142,8 @@ public class PlanSimulator {
         s.setPosition(loc);
         
         SimulationState newState = simulatedPath.nearestState(s, distanceThreshold);
+        
+        
         if (newState != null)
             engine.setSimulationState(state, newState);
     }
