@@ -111,8 +111,8 @@ public class FtpDownloader {
     }
     
     public void downloadDirectory(String path, String destPath) throws Exception {
-        System.out.println("Path :" + path);
-        System.out.println("DestPath: " + destPath);
+        System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "Path :" + path);
+        System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "DestPath: " + destPath);
         ArrayList<FTPFile> toDoList = new ArrayList<FTPFile>();
 
         if (!client.isConnected()) {
@@ -137,7 +137,7 @@ public class FtpDownloader {
             }
             else {
                 String filePath =  path + (path.equals("/") ? "" : "/") + f.getName();
-                System.out.println("Downloading " + filePath);
+                System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "Downloading " + filePath);
                 downloadFile(filePath, destPath);
             }
         }
@@ -243,7 +243,7 @@ public class FtpDownloader {
                         FtpDownloader.class.getSimpleName() + " :: Error downloading file '" + filePath + "' from " + host);
             }
 
-            System.out.println(dest);
+            System.out.println(FtpDownloader.class.getSimpleName() + " :: " + dest);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -252,17 +252,17 @@ public class FtpDownloader {
 
     private boolean retrieveFile(InputStream is, OutputStream os) {
         try {
-            System.out.println(is);
+            System.out.println(FtpDownloader.class.getSimpleName() + " :: " + is);
 
             Util.copyStream(is, os, 1024, CopyStreamEvent.UNKNOWN_STREAM_SIZE, new CopyStreamListener() {
                 @Override
                 public void bytesTransferred(long arg0, int arg1, long arg2) {
-                    System.out.println("1 " + " " + arg0 + " " + arg1 + " " + arg2);
+                    System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "1 " + " " + arg0 + " " + arg1 + " " + arg2);
                 }
 
                 @Override
                 public void bytesTransferred(CopyStreamEvent arg0) {
-                    System.out.println("2 " + arg0);
+                    System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "2 " + arg0);
                 }
             }, false);
         }

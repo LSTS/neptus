@@ -243,7 +243,7 @@ public class LogsDownloaderWorker {
             public void onMessage(MessageInfo info, IMCMessage msg) {
                 if(msg.getAbbrev().equals("PowerChannelState")) {
                     if(msg.getString("name").equals("DOAM") || msg.getString("name").equals("Camera - CPU")) { // xtreme or dolphin
-                        System.out.println(msg.getInteger("state"));
+                        System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: PowerChannelState " + msg.getInteger("state"));
                         cameraButton.setBackground(msg.getInteger("state") == 1 ? Color.GREEN :  null);
                     }
                 }
@@ -689,7 +689,15 @@ public class LogsDownloaderWorker {
 						
 						if (retList.size() == 0) {
 							//TODO
-							return null;
+						    SwingUtilities.invokeAndWait(new Runnable() {
+	                            @Override
+	                            public void run() {
+	                                listHandlingProgressBar.setValue(100);
+	                                listHandlingProgressBar.setIndeterminate(false);
+	                                listHandlingProgressBar.setString(I18n.text("No logs..."));
+	                            }
+	                        });
+						    return null;
 						}
 						
 						//->Removing from already existing LogFolders to LOCAL state
@@ -1866,7 +1874,7 @@ public class LogsDownloaderWorker {
 		    cameraHost = "";
 		
 		
-		System.out.println(cameraHost + " " + getLogLabel());
+		System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + cameraHost + " " + getLogLabel());
 		
 		try {
             for (String logDir : logsDirList) {
@@ -2467,7 +2475,7 @@ public class LogsDownloaderWorker {
             @Override
             public void onMessage(MessageInfo info, IMCMessage msg) {
                 if(msg.getAbbrev().equals("PowerChannelState")) {
-                    System.out.println(msg);
+                    System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + msg);
                 }
             }
         });
@@ -2480,7 +2488,7 @@ public class LogsDownloaderWorker {
                 
                 while(true) {
                     int ent = EntitiesResolver.resolveId("lauv-xtreme-2", "DOAM");
-                    System.out.println("Entity ID: " + ent);
+                    System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + "Entity ID: " + ent);
                     
                     IMCMessage msg = new IMCMessage("QueryPowerChannelState");
                     msg.setDstEnt(255);

@@ -487,7 +487,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             return doDownloadDirectory();
 	    
 	    
-	    System.out.println("Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
+	    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
 		if (getState() == State.WORKING)
 			return false;
 		
@@ -505,7 +505,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		long begByte = 0;
 		if (usePartialDownload && prevState != State.DONE && outFile.exists() && outFile.isFile() && !isDirectory) {
 		    begByte = outFile.length();
-		    System.out.println("!begin byte: " + begByte);
+		    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "!begin byte: " + begByte);
 		}
 		setStateWorking();
 		
@@ -521,7 +521,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			if (begByte > 0) {
                 downloadedSize = begByte;
                 client.getClient().setRestartOffset(begByte);
-                System.out.println("using resume");
+                System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "using resume");
             }
 			
 			// System.out.println("FTP Client is connected " + client.getClient().isConnected());
@@ -610,8 +610,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	}
 	
 	protected boolean doDownloadDirectory() {
-	    System.out.println("DOWNLOADING DIRECTORY");
-	    System.out.println("Downloading " + name + " " + uri + " " + outFile.getAbsolutePath());
+	    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "DOWNLOADING DIRECTORY");
+	    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading " + name + " " + uri + " " + outFile.getAbsolutePath());
 
 	    String basePath = outFile.getParentFile().getParentFile().getParentFile().getAbsolutePath();
 	    
@@ -643,7 +643,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         try {
             LinkedHashMap<String, FTPFile> fileList = client.listDirectory("/" + uri);
             
-            System.out.println("Number of FTPFiles in folder: " + fileList.size());
+            System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "Number of FTPFiles in folder: " + fileList.size());
 
             getProgressBar().setValue(0);
             getProgressBar().setString(I18n.text("Starting..."));
