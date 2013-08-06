@@ -42,10 +42,12 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.PlanControlState;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.up.fe.dceg.neptus.mp.preview.PlanSimulationOverlay;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulator;
+import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
 import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
@@ -63,7 +65,7 @@ import com.l2fprod.common.propertysheet.Property;
  */
 @PluginDescription(name = "Plan Execution Preview", author = "zp")
 @LayerPriority(priority = 60)
-public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPainter {
+public class PlanExecutionPreview extends SimpleRendererInteraction implements Renderer2DPainter, ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
     protected boolean debug = false;
@@ -72,7 +74,7 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
     protected SystemPositionAndAttitude lastVehicleState = null;
     protected long lastStateTime = 0;
 
-    @NeptusProperty(name = "Activated")
+    @NeptusProperty(name = "Active")
     public boolean activated = true;
 
     @NeptusProperty(name = "Milliseconds to wait before simulation")
@@ -80,6 +82,10 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
 
     @NeptusProperty(name = "Interval between simulated states, in seconds")
     public double timestep = 0.25;
+    
+    @NeptusProperty(name = "Simulated (flat) bathymetry")
+    public double bathymetry = 10;
+    
 
     public PlanExecutionPreview(ConsoleLayout console) {
         super(console);
@@ -99,11 +105,22 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
             return 0;
         }
     }
+    
+    @Override
+    public String getName() {
+        return "Plan Simulation";
+    }
+    
+    @Override
+    public boolean isExclusive() {
+        return true;
+    }
+    
 
     @Subscribe
     public void consume(EstimatedState msg) {
 
-
+        // check if message is coming from main vehicle
         if (msg.getSourceName() != null && !msg.getSourceName().equals(getConsole().getMainSystem()))
             return;
 
@@ -116,7 +133,7 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
         lastVehicleState = IMCUtils.parseState(msg);
 
         if (simulator != null)
-            simulator.setState(lastVehicleState);
+            simulator.setEstimatedState(msg);
 
         lastStateTime = System.currentTimeMillis();
     }
@@ -130,11 +147,10 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
             return;
         lastEstimateTime = System.currentTimeMillis();
 
-        //NeptusLog.pub().info("<###>Got a position estimation");
         if (System.currentTimeMillis() - lastStateTime < 1000 || simulator == null)
             return;
         else {
-            simulator.setPositionEstimation(estimate.getEstimation());
+            simulator.setPositionEstimation(estimate.getEstimation(), 8);
         }
     }
 
@@ -149,6 +165,7 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
         stopSimulator();
     }
 
+    
     @Subscribe
     public synchronized void consume(PlanControlState msg) {
 
@@ -206,9 +223,16 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
         arrow.closePath();
     }
 
+    public void paintVerticalProfile(Graphics2D g, StateRenderer2D renderer) {
+        
+    }
+    
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
 
+        if (active && simulator != null)
+            simulator.getSimulationOverlay().paint((Graphics2D)g.create(), renderer);
+        
         if (simulator != null && simulator.isRunning()) {
             long simTime = System.currentTimeMillis() - lastStateTime;
             if (simTime > 1000) {
@@ -255,11 +279,18 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
         }
 
     }
+    
+    @Override
+    public void propertiesChanged() {
+        PlanSimulationOverlay.bottomDepth = bathymetry;
+    }
 
     @Override
     public void initSubPanel() {
 
     }
+    
+    
 
     public int getLayerPriority() {
         return 1;

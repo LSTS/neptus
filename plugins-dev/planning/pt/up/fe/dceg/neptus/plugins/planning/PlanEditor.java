@@ -94,7 +94,6 @@ import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.ManeuverFactory;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.mp.actions.PlanActions;
 import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulation3D;
@@ -1091,22 +1090,6 @@ MissionChangeListener {
                         new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                 popup.add(pTransitions);
 
-                AbstractAction paActions = new AbstractAction(I18n.text("Plan Actions")) {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        PropertiesEditor.editProperties(plan, SwingUtilities.getWindowAncestor(PlanEditor.this), true);
-                        parsePlan();
-                        renderer.repaint();
-
-                        refreshPropertiesManeuver();
-                    }
-                };
-                // For now take this out
-                //paActions.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
-                //popup.add(paActions);
-
                 popup.addSeparator();
 
                 JMenu pStatistics = PlanUtil.getPlanStatisticsAsJMenu(plan, I18n.text("Edited Plan Statistics"));
@@ -1157,7 +1140,7 @@ MissionChangeListener {
 
                             if (lastFuel != null) {
                                 LinkedHashMap<String, String> opmodes = lastFuel.getOpmodes();
-                                motionRemaingHours = Double.parseDouble(opmodes.get("Motion"));
+                                motionRemaingHours = Double.parseDouble(opmodes.get("Full"));
                             }
                         }
                         catch (Exception e) {

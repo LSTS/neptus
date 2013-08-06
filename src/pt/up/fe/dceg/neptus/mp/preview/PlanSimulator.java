@@ -41,22 +41,19 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 
 /**
- * This class simulates the execution of plan (roughly)
+ * This class simulates the execution of a plan (roughly)
  * 
  * @author zp
  */
 public class PlanSimulator {
 
     SimulationEngine engine = null;
-    
     protected Thread simulationThread = null;
     protected boolean finished = false;
     protected PlanSimulationOverlay simulatedPath = null;
     protected double timestep = 0.25;
     protected PlanType plan;
     protected String vehicleId;
-    
-    
     
     /**
      * Class constructor
@@ -133,7 +130,7 @@ public class PlanSimulator {
         simulationThread.start();
     }
 
-    public void setPositionEstimation(EstimatedState state) {
+    public void setPositionEstimation(EstimatedState state, double distanceThreshold) {
         
         LocationType loc = new LocationType();
         loc.setLatitudeRads(state.getLat());
@@ -144,13 +141,25 @@ public class PlanSimulator {
         SystemPositionAndAttitude s = new SystemPositionAndAttitude(getState());
         s.setPosition(loc);
         
-        SimulationState newState = simulatedPath.nearestState(s, 5);
+        SimulationState newState = simulatedPath.nearestState(s, distanceThreshold);
         if (newState != null)
             engine.setSimulationState(state, newState);
     }
     
-    public void setEstimatedState() {
+    public void setEstimatedState(EstimatedState state) {
+        LocationType loc = new LocationType();
+        loc.setLatitudeRads(state.getLat());
+        loc.setLongitudeRads(state.getLon());
+        loc.setDepth(state.getDepth());
+        loc.translatePosition(state.getX(), state.getY(), state.getZ());
+
+        SystemPositionAndAttitude s = new SystemPositionAndAttitude(getState());
+        s.setPosition(loc);
         
+        SimulationState newState = simulatedPath.nearestState(s, Integer.MAX_VALUE);
+        
+        if (newState != null)
+            engine.setSimulationState(state, newState);
     }
 
     public void stopSimulation() {
@@ -201,5 +210,12 @@ public class PlanSimulator {
      */
     public final void setVehicleId(String vehicleId) {
         this.vehicleId = vehicleId;
+    }
+
+    /**
+     * @return the simulatedPath
+     */
+    public final PlanSimulationOverlay getSimulationOverlay() {
+        return simulatedPath;
     }
 }

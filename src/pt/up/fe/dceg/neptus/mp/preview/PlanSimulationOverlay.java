@@ -56,7 +56,7 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
     protected Vector<Color> colors = new Vector<>();
     protected Vector<SimulationState> simStates = new Vector<>();
     public boolean simulationFinished = false;
-    public double bottomDepth = 10;
+    public static double bottomDepth = 10;
     
     public PlanSimulationOverlay(PlanType plan, final double usedBattHours, final double remainingBattHours, SystemPositionAndAttitude start) {
         this(plan.getMissionType().getHomeRef());
