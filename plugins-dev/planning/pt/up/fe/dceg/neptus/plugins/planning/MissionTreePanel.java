@@ -80,7 +80,6 @@ import pt.up.fe.dceg.neptus.imc.LblBeacon;
 import pt.up.fe.dceg.neptus.imc.LblConfig;
 import pt.up.fe.dceg.neptus.imc.LblConfig.OP;
 import pt.up.fe.dceg.neptus.imc.LblRangeAcceptance;
-import pt.up.fe.dceg.neptus.imc.LblRangeAcceptance.ACCEPTANCE;
 import pt.up.fe.dceg.neptus.imc.PlanControlState;
 import pt.up.fe.dceg.neptus.imc.PlanControlState.STATE;
 import pt.up.fe.dceg.neptus.imc.PlanDB;
@@ -787,6 +786,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
     @Override
     public void mainVehicleChangeNotification(String id) {
         browser.transStopTimers();
+        running = false;
         planControlUpdate(id);
     }
 
@@ -871,8 +871,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 try {
                     acceptance = LblRangeAcceptance.clone(message);
                     int id = acceptance.getId();
-                    browser.transUpdateTimer((short) id, acceptance.getAcceptance() == ACCEPTANCE.AT_SURFACE,
-                            getMainVehicleId());
+                    browser.transUpdateTimer((short) id, getMainVehicleId());
                 }
                 catch (Exception e) {
                     NeptusLog.pub().error("Problem cloning a message.", e);
@@ -890,6 +889,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     browser.transStartVehicleTimers(getMainVehicleId());
                     this.running = true;
                 }
+
                 break;
 
             case LblConfig.ID_STATIC:

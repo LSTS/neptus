@@ -848,17 +848,17 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * If at surface, stop timer. Otherwise reset timer to 0.
      * 
      * @param id
-     * @param atSurface
      * @param mainVehicle
      */
-    public void transUpdateTimer(short id, boolean atSurface, String mainVehicle) {
+    public void transUpdateTimer(short id, String mainVehicle) {
         DefaultMutableTreeNode trans = treeModel.trans;
         int childCount = trans.getChildCount();
         for (int c = 0; c < childCount; c++) {
             ExtendedTreeNode transNode = (ExtendedTreeNode) trans.getChildAt(c);
             HashMap<String, Object> userInfo = transNode.getUserInfo();
+            int nodeId = (int) userInfo.get(NodeInfoKey.ID.name());
             String transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
-            if (((int) userInfo.get(NodeInfoKey.ID.name())) == id && transVehicle.equals(mainVehicle)) {
+            if (nodeId == id && transVehicle.equals(mainVehicle)) {
                 ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
                 if (imcSystems != null) {
                     String name = ((TransponderElement) transNode.getUserObject()).getName();
@@ -867,12 +867,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                         timer = new LBLRangesTimer();
                         imcSystems.storeData(name, timer);
                     }
-                    // if (atSurface) {
-                    // timer.stopTimer();
-                    // }
-                    // else {
-                        timer.resetTime();
-                    // }
+                    timer.resetTime();
                 }
                 revalidate();
                 break;
@@ -893,7 +888,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             HashMap<String, Object> userInfo = transNode.getUserInfo();
             String transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
             // only looks at synchronized transponders that are linked to the designated vehicle
-            if (userInfo.get(NodeInfoKey.SYNC.name()) == State.SYNC && transVehicle.equals(mainVehicle)) {
+            State nodeSync = (State) userInfo.get(NodeInfoKey.SYNC.name());
+            if (nodeSync == State.SYNC && transVehicle.equals(mainVehicle)) {
                 ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
                 if (imcSystems != null) {
                     String name = ((TransponderElement) transNode.getUserObject()).getName();
@@ -902,9 +898,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                         timer = new LBLRangesTimer();
                         imcSystems.storeData(name, timer);
                     }
-                    else {
-                        timer.resetTime();
-                    }
+                    timer.resetTime();
                 }
             }
         }
