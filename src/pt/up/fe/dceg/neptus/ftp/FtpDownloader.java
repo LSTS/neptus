@@ -76,7 +76,8 @@ public class FtpDownloader {
     public void renewClient() throws SocketException, IOException {
         if (client != null) {
             try {
-                client.disconnect();
+                if (client.isConnected())
+                    client.disconnect();
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -86,7 +87,9 @@ public class FtpDownloader {
         client = new FTPClient();
         conf = new FTPClientConfig(FTPClientConfig.SYST_UNIX);
 
+        System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "connecting to " + host + ":" + port);
         client.connect(host, port);
+        System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "connected to " + host + ":" + port);
         client.configure(conf);
 
         client.enterLocalPassiveMode();
