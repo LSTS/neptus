@@ -681,7 +681,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                     continue;
                 }
                 
-                stream = client.getClient().retrieveFileStream(key);
+                // stream = client.getClient().retrieveFileStream(key);
+                stream = client.getClient().retrieveFileStream(new String(key.getBytes(), "ISO-8859-1"));
                 
                 out.getParentFile().mkdirs();
                 try {

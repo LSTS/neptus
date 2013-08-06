@@ -48,6 +48,8 @@ import org.apache.commons.net.io.CopyStreamEvent;
 import org.apache.commons.net.io.CopyStreamListener;
 import org.apache.commons.net.io.Util;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
+
 /**
  * @author jqcorreia
  * 
@@ -122,7 +124,12 @@ public class FtpDownloader {
             }
         }
 
-        client.changeWorkingDirectory(path);
+        boolean ret = client.changeWorkingDirectory(new String(path.getBytes(), "ISO-8859-1"));
+        if (!ret) {
+            NeptusLog.pub().warn(
+                    FtpDownloader.class.getSimpleName() + " :: Error downloading folder '" + path + "' from " + host);
+            return;
+        }
         
         for (FTPFile f : client.listFiles()) {
             if(f.isDirectory()) {
@@ -153,7 +160,12 @@ public class FtpDownloader {
             }
         }
 
-        boolean ret = client.changeWorkingDirectory(path);
+        boolean ret = client.changeWorkingDirectory(new String(path.getBytes(), "ISO-8859-1"));
+        if (!ret) {
+            NeptusLog.pub().warn(
+                    FtpDownloader.class.getSimpleName() + " :: Error listing folder '" + path + "' from " + host);
+            return finalList;
+        }
         
         for (FTPFile f : client.listFiles()) {
             if(f.isDirectory()) {
@@ -182,11 +194,22 @@ public class FtpDownloader {
             }
         }
 
-        client.changeWorkingDirectory("/");
+        boolean ret = client.changeWorkingDirectory("/");
+        if (!ret) {
+            NeptusLog.pub().warn(
+                    FtpDownloader.class.getSimpleName() + " :: Error downloading folder '/' from " + host);
+            return list;
+        }
         
         for (FTPFile f : client.listFiles()) {
             if(f.isDirectory()) {
-                client.changeWorkingDirectory("/" + f.getName());
+                boolean ret1 = client.changeWorkingDirectory("/" + new String(f.getName().getBytes(), "ISO-8859-1"));
+                if (!ret1) {
+                    NeptusLog.pub().warn(
+                            FtpDownloader.class.getSimpleName() + " :: Error listing folder '" + f.getName() + "' from " + host);
+                    continue;
+                }
+
                 for (FTPFile f2 : client.listFiles()) {
                     list.put(f2, f.getName() + "/" + f2.getName());
                 }
@@ -214,7 +237,12 @@ public class FtpDownloader {
 
         try {
             String dest = destPath + fileName;
-            boolean b = retrieveFile(client.retrieveFileStream(filePath), new FileOutputStream(new File(dest)));
+            boolean ret = retrieveFile(client.retrieveFileStream(new String(filePath.getBytes(), "ISO-8859-1")), new FileOutputStream(new File(dest)));
+            if (!ret) {
+                NeptusLog.pub().warn(
+                        FtpDownloader.class.getSimpleName() + " :: Error downloading file '" + filePath + "' from " + host);
+            }
+
             System.out.println(dest);
         }
         catch (Exception e) {
@@ -227,7 +255,6 @@ public class FtpDownloader {
             System.out.println(is);
 
             Util.copyStream(is, os, 1024, CopyStreamEvent.UNKNOWN_STREAM_SIZE, new CopyStreamListener() {
-
                 @Override
                 public void bytesTransferred(long arg0, int arg1, long arg2) {
                     System.out.println("1 " + " " + arg0 + " " + arg1 + " " + arg2);
@@ -236,7 +263,6 @@ public class FtpDownloader {
                 @Override
                 public void bytesTransferred(CopyStreamEvent arg0) {
                     System.out.println("2 " + arg0);
-
                 }
             }, false);
         }
@@ -256,6 +282,7 @@ public class FtpDownloader {
 
     public static void main(String[] args) throws Exception {
         FtpDownloader test = new FtpDownloader("10.0.10.80", 30021);
+        @SuppressWarnings("unused")
         LinkedHashMap<String, FTPFile> res = new LinkedHashMap<>();
         
         System.out.println(test.getClient().getControlEncoding());

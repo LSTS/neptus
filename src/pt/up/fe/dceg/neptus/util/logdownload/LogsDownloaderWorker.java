@@ -1834,7 +1834,10 @@ public class LogsDownloaderWorker {
 		
 		try {
             for (String logDir : logsDirList) {
-                clientFtp.getClient().changeWorkingDirectory("/" + logDir + "/");
+                String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
+                boolean ret = clientFtp.getClient().changeWorkingDirectory("/" + isoStr + "/");
+                if (!ret)
+                    continue;
                 LogFolderInfo lFolder = new LogFolderInfo(logDir);
                 for (FTPFile file : clientFtp.getClient().listFiles()) {
                     String name = logDir + "/" + file.getName();
@@ -1853,7 +1856,8 @@ public class LogsDownloaderWorker {
             if(cameraHost != null) {
                 FtpDownloader ftpd = new FtpDownloader(cameraHost, port);
                 for (String logDir : logsDirList) {
-                    if (ftpd.getClient().changeWorkingDirectory("/" + logDir + "/") == false) // Log doesnt exist in DOAM
+                    String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
+                    if (ftpd.getClient().changeWorkingDirectory("/" + isoStr + "/") == false) // Log doesnt exist in DOAM
                         continue;
 
                     LogFolderInfo lFolder = null;
