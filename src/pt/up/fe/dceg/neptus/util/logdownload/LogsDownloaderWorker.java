@@ -770,6 +770,7 @@ public class LogsDownloaderWorker {
 											else if (lfx.getState() == LogFolderInfo.State.LOCAL)
 												lfx.setState(LogFolderInfo.State.INCOMPLETE);
 											lfx.setSize(logFx.getSize()/*size*/);
+											lfx.setFile(logFx.getFile());
 										}										
 										else if (lfx.getSize() == logFx.getSize()/*size*/) {
 											if (lfx.getState() == LogFolderInfo.State.LOCAL)
