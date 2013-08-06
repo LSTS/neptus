@@ -1104,53 +1104,80 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 setSelectedPlan(selectedPlan);
         }
 
-        public void updateModel(final Vector<TransponderElement> transElements, final HomeReference homeRef,
-                final Collection<PlanType> plansElements, final PlanType selectedPlan) {
+        // TODO
+        @SuppressWarnings("unused")
+        public void updateModel(final Vector<Identifiable> transElements, final HomeReference homeRef,
+                final Collection<Identifiable> plansElements, final PlanType selectedPlan, String mainVehicle) {
             HomeReference localHomeRed = (HomeReference) treeModel.homeR.getUserObject();
             if (!localHomeRed.equals(homeRef)){
                 setHomeRef(homeRef);
             }
 
-            int transChildCount = treeModel.getChildCount(trans);
-            Iterator<TransponderElement> remoteNodesIt = transElements.iterator();
-            TransponderElement remoteTrans = (remoteNodesIt.hasNext()) ? remoteNodesIt.next() : null;
-            TransponderElement localTrans;
-            for(int c = 0; c < transChildCount; c++){
-                ExtendedTreeNode childAt = (ExtendedTreeNode) trans.getChildAt(c);
-                localTrans = (TransponderElement) childAt.getUserObject();
-                if (remoteTrans.getId().equals(localTrans.getId())) {
-                    if (!remoteTrans.equals(localTrans)) {
-                        childAt.setUserObject(remoteTrans);
-                        childAt.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
-                    }
-                }
-            }
-            int index = 0; // homeRef is at index 0
+            updateType(mainVehicle, trans, transElements);
 
-            for (TransponderElement elem : transElements) {
-                addTransponderNode(elem);
-            }
-            if (trans.getChildCount() >= 0 && !((DefaultMutableTreeNode) root).isNodeChild(trans)) {
-                index++;
-                insertNodeInto(trans, (MutableTreeNode) root, index);
-            }
-
-            for (PlanType planT : plansElements) {
-                addToParents(new ExtendedTreeNode(planT), ParentNodes.PLANS);
-            }
-            if (plans.getChildCount() >= 0 && !plans.isNodeChild(root)) {
-                index++;
-                insertNodeInto(plans, (MutableTreeNode) root, index);
-            }
+            updateType(mainVehicle, plans, plansElements);
 
             if (selectedPlan != null)
                 setSelectedPlan(selectedPlan);
+        }
+
+        private void updateType(String mainVehicle, DefaultMutableTreeNode parent,
+                final Collection<Identifiable> elements) {
+            int nodeChildCount = getChildCount(parent);
+            Iterator<Identifiable> remoteNodesIt = elements.iterator();
+            Identifiable remoteNode = (remoteNodesIt.hasNext()) ? remoteNodesIt.next() : null;
+            Identifiable localNode;
+            for (int c = 0; c < nodeChildCount; c++) {
+                ExtendedTreeNode childAt = (ExtendedTreeNode) parent.getChildAt(c);
+                localNode = (Identifiable) childAt.getUserObject();
+                int compareTo = localNode.getIdentification().compareTo(remoteNode.getIdentification());
+                if (compareTo == 0) {
+                    // it's the same node
+                    // if contents are different update
+                    if (!remoteNode.equals(localNode)) {
+                        childAt.setUserObject(remoteNode);
+                    }
+                    // set state as sync
+                    HashMap<String, Object> userInfo = childAt.getUserInfo();
+                    userInfo.put(NodeInfoKey.SYNC.name(), State.SYNC);
+                    userInfo.put(NodeInfoKey.VEHICLE.name(), mainVehicle);
+                    // analyze next remote node
+                    remoteNode = remoteNodesIt.next();
+                    // analyze next local node
+
+                }
+                // localNode id is less than remoteNode id
+                else if (compareTo < 0) {
+                    // no local nodes equal to the remote node
+                    // set as local
+                    HashMap<String, Object> userInfo = childAt.getUserInfo();
+                    userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
+                    userInfo.put(NodeInfoKey.VEHICLE.name(), mainVehicle);
+                    // analyze next local node
+                }
+                // localNode id is greater than remoteNode id
+                else {
+                    // no local node equal to the remote one
+                    // add remote
+                    do {
+                        ExtendedTreeNode newNode = new ExtendedTreeNode(remoteNode);
+                        HashMap<String, Object> userInfo = newNode.getUserInfo();
+                        userInfo.put(NodeInfoKey.SYNC.name(), State.SYNC);
+                        userInfo.put(NodeInfoKey.ID.name(), remoteNode.getIdentification());
+                        userInfo.put(NodeInfoKey.VEHICLE.name(), mainVehicle);
+                        insertNodeInto(newNode, parent, c);
+                        // analyze next remote
+                        remoteNode = remoteNodesIt.next();
+                    } while (localNode.getIdentification().compareTo(remoteNode.getIdentification()) > 0);
+                }
+            }
         }
 
         private void addTransponderNode(TransponderElement elem) {
             ExtendedTreeNode node = new ExtendedTreeNode(elem);
             HashMap<String, Object> transInfo = node.getUserInfo();
             transInfo.put(NodeInfoKey.ID.name(), -1);
+            transInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
             transInfo.put(NodeInfoKey.VEHICLE.name(), "");
             addToParents(node, ParentNodes.TRANSPONDERS);
         }

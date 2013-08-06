@@ -68,6 +68,7 @@ import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
 import pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener;
 import pt.up.fe.dceg.neptus.gui.LocationPanel;
 import pt.up.fe.dceg.neptus.gui.MissionBrowser;
+import pt.up.fe.dceg.neptus.gui.MissionBrowser.NodeInfoKey;
 import pt.up.fe.dceg.neptus.gui.MissionBrowser.State;
 import pt.up.fe.dceg.neptus.gui.VehicleSelectionDialog;
 import pt.up.fe.dceg.neptus.gui.tree.ExtendedTreeNode;
@@ -324,17 +325,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
                             if (syncState == State.NOT_SYNC || (debugOn ? true : false)) {
                                 addActionGetRemotePlan(console2, pdbControl, selection, popupMenu);
-                                // popupMenu
-                                // .add(I18n.textf("Get '%planName' from %system", selection,
-                                // console2.getMainSystem())).addActionListener(new ActionListener() {
-                                // @Override
-                                // public void actionPerformed(ActionEvent e) {
-                                // if (selection != null) {
-                                // PlanType sel = (PlanType) selection;
-                                // pdbControl.requestPlan(sel.getId());
-                                // }
-                                // }
-                                // });
                             }
 
                         }
@@ -368,7 +358,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 }
                 else if (selection instanceof PlanDBInfo) {
                     State syncState = selectionNode instanceof ExtendedTreeNode ? (State) ((ExtendedTreeNode) selectionNode)
-                            .getUserInfo().get("sync") : null;
+                            .getUserInfo().get(NodeInfoKey.SYNC.name()) : null;
                     if (syncState == null)
                         syncState = State.LOCAL;
 
@@ -916,7 +906,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public boolean update() {
-        // browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override
