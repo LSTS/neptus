@@ -102,9 +102,13 @@ public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpda
                 return;
             STATE systemState = STATE.valueOf(msg.getOpMode().toString());
             String text = "";
-            if (!msg.getLastError().isEmpty() && systemState != STATE.SERVICE)
-                text += msg.getLastError() + "\n";
-            text += msg.getErrorEnts();
+            if (!msg.getLastError().isEmpty() && systemState != STATE.SERVICE){
+                text += "Last error: " + msg.getLastError() + "<br>";
+            }
+            if(!msg.getErrorEnts().isEmpty()){
+                text += "Entities in error: " + msg.getErrorEnts();
+            }
+            
             
             VehicleState oldState = systemStates.get(src);
             if (oldState == null) {// first time
