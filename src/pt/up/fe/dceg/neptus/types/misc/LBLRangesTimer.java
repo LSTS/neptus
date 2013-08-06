@@ -43,7 +43,7 @@ import javax.swing.Timer;
  */
 public class LBLRangesTimer {
 
-    public final static int maxTime = 300;
+    // public final static int maxTime = 600;
     private int time;
 
     private final Timer timer;
@@ -54,9 +54,9 @@ public class LBLRangesTimer {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 incrementTime();
-                if (getTime() > maxTime) { // after 10 minutes with no reset it stops
-                    stopTimer();
-                }
+                // if (getTime() > maxTime) { // after 10 minutes with no reset it stops
+                // stopTimer();
+                // }
             }
         };
         int delay = 2000; // milliseconds

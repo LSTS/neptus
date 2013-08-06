@@ -58,8 +58,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import com.google.common.eventbus.Subscribe;
-
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventPlanChange;
@@ -78,10 +76,14 @@ import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
 import pt.up.fe.dceg.neptus.imc.IMCUtil;
+import pt.up.fe.dceg.neptus.imc.LblBeacon;
+import pt.up.fe.dceg.neptus.imc.LblConfig;
+import pt.up.fe.dceg.neptus.imc.LblConfig.OP;
 import pt.up.fe.dceg.neptus.imc.LblRangeAcceptance;
 import pt.up.fe.dceg.neptus.imc.LblRangeAcceptance.ACCEPTANCE;
 import pt.up.fe.dceg.neptus.imc.PlanControlState;
 import pt.up.fe.dceg.neptus.imc.PlanControlState.STATE;
+import pt.up.fe.dceg.neptus.imc.PlanDB;
 import pt.up.fe.dceg.neptus.imc.PlanSpecification;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusMessageListener;
@@ -116,6 +118,8 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
+import com.google.common.eventbus.Subscribe;
+
 /**
  * @author ZP
  * @author pdias
@@ -133,8 +137,9 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
     @NeptusProperty(name = "Debug", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
     public boolean debugOn = false;
     @NeptusProperty(name = "Acceptable Elapsed Time", description = "Maximum acceptable interval between beacon ranges, in seconds.")
-    public int maxAcceptableElapsedTime = 300;
+    public int maxAcceptableElapsedTime = 600;
 
+    private boolean running = false;
     boolean inited = false;
     protected MissionBrowser browser = new MissionBrowser();
     protected PlanDBControl pdbControl = new PlanDBControl();
@@ -149,7 +154,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
         @Override
         public void dbPlanReceived(PlanType spec) {
-            // Update when receved remote plan into our system
+            // Update when received remote plan into our system
             PlanType lp = getConsole().getMission().getIndividualPlansList().get(spec.getId());
 
             spec.setMissionType(getConsole().getMission());
@@ -246,7 +251,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     popupMenu.add(I18n.text("Add a new transponder")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            browser.addTransponder(console2);
+                            browser.addTransponderElement(console2);
                         }
                     });
                 }
@@ -433,7 +438,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     popupMenu.add(I18n.text("Add a new transponder")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            browser.addTransponder(console2);
+                            browser.addTransponderElement(console2);
                         }
                     });
 
@@ -673,7 +678,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         if (inited)
             return;
         inited = true;
-        // pdbControl.setConsole(getConsole());
         planControlUpdate(getMainVehicleId());
 
         browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
@@ -769,8 +773,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         String[] messages = new String[5];
         messages[0] = "LblRangeAcceptance";
         messages[2] = "PlanDB";
-        messages[3] = "EntityState";
-        messages[4] = "PlanControlState";
+        messages[3] = "PlanControlState";
+        messages[4] = "LblConfig";
         if (IMCDefinition.getInstance().getMessageId("PlanSpecification") != -1) {
             messages[1] = "PlanSpecification";
         }
@@ -782,8 +786,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public void mainVehicleChangeNotification(String id) {
-        NeptusLog.pub().debug("id:" + id + ", getMainVehicleId:" + getMainVehicleId());
-        browser.stopTimers(getMainVehicleId());
+        browser.transStopTimers();
         planControlUpdate(id);
     }
 
@@ -851,39 +854,58 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
     public void messageArrived(IMCMessage message) {
         int mgid = message.getMgid();
         pdbControl.onMessage(null, message);
-        if (mgid == PlanSpecification.ID_STATIC) {
-            PlanType plan = IMCUtils.parsePlanSpecification(getConsole().getMission(), message);
-            if (getConsole().getMission().getIndividualPlansList().containsKey(plan.getId())) {
-            }
-            else {
-                getConsole().getMission().getIndividualPlansList().put(plan.getId(), plan);
-                getConsole().updateMissionListeners();
-                getConsole().getMission().save(true);
-            }
-        }
-        else if (mgid == LblRangeAcceptance.ID_STATIC) {
-            LblRangeAcceptance acceptance;
-            try {
-                acceptance = LblRangeAcceptance.clone(message);
-                int id = acceptance.getId();
-                double range = acceptance.getRange();
-                if (acceptance.getAcceptance() == ACCEPTANCE.AT_SURFACE) { // clean up when at surface
-                    range = -1;
-                    browser.updateTransponderRange((short) id, range, getMainVehicleId());
+        switch (mgid) {
+            case PlanSpecification.ID_STATIC:
+                PlanType plan = IMCUtils.parsePlanSpecification(getConsole().getMission(), message);
+                if (getConsole().getMission().getIndividualPlansList().containsKey(plan.getId())) {
                 }
                 else {
-                    browser.updateTransponderRange((short) id, range, getMainVehicleId());
+                    getConsole().getMission().getIndividualPlansList().put(plan.getId(), plan);
+                    getConsole().updateMissionListeners();
+                    getConsole().getMission().save(true);
                 }
-            }
-            catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        }
-        else if (mgid == PlanControlState.ID_STATIC) {
-            PlanControlState planState = (PlanControlState) message;
-            if (planState.getState() != STATE.EXECUTING) {
-                browser.stopTransponderRange(getMainVehicleId());
-            }
+                break;
+
+            case LblRangeAcceptance.ID_STATIC:
+                LblRangeAcceptance acceptance;
+                try {
+                    acceptance = LblRangeAcceptance.clone(message);
+                    int id = acceptance.getId();
+                    browser.transUpdateTimer((short) id, acceptance.getAcceptance() == ACCEPTANCE.AT_SURFACE,
+                            getMainVehicleId());
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error("Problem cloning a message.", e);
+                }
+                break;
+            case PlanControlState.ID_STATIC:
+                PlanControlState planState = (PlanControlState) message;
+                if (planState.getState() == STATE.READY || planState.getState() == STATE.BLOCKED) {
+                    if (running) {
+                        browser.transStopTimers();
+                        this.running = false;
+                    }
+                }
+                else if (!running) {
+                    browser.transStartVehicleTimers(getMainVehicleId());
+                    this.running = true;
+                }
+                break;
+
+            case LblConfig.ID_STATIC:
+                LblConfig lblConfig = (LblConfig) message;
+                if (((LblConfig) message).getOp() == OP.CUR_CFG) {
+                    @SuppressWarnings("unchecked")
+                    final Vector<LblBeacon> beacons = (Vector<LblBeacon>) lblConfig.getBeacons().clone();
+                    browser.transSyncConfig(beacons, getMainVehicleId());
+                }
+                break;
+
+            case PlanDB.ID_STATIC:
+                break;
+            default:
+                NeptusLog.pub().error("Unkwon message " + mgid);
+                break;
         }
     }
 
@@ -901,21 +923,17 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             public void run() {
                 TreePath[] selectedNodes = browser.getSelectedNodes();
 
+                browser.transUpdateElapsedTime();
                 if (getMainVehicleId() == null || getMainVehicleId().length() == 0 || !usePlanDBSyncFeatures) {
-
                     browser.updatePlansState(null);
-                    browser.rebuildTransponderNodes(null);
-
                 }
                 else {
                     ImcSystem sys = ImcSystemsHolder.lookupSystemByName(getMainVehicleId());
                     if (sys == null) {
                         browser.updatePlansState(null);
-                        browser.rebuildTransponderNodes(null);
                     }
                     else {
                         browser.updatePlansState(sys);
-                        browser.rebuildTransponderNodes(sys);
                     }
                 }
 

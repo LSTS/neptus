@@ -45,6 +45,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.gui.MissionBrowser.NodeInfoKey;
 import pt.up.fe.dceg.neptus.gui.MissionBrowser.State;
 import pt.up.fe.dceg.neptus.gui.tree.ExtendedTreeNode;
 import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBInfo;
@@ -156,7 +157,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
                 try {
                     if (node instanceof ExtendedTreeNode) {
                         ExtendedTreeNode ptn = (ExtendedTreeNode) node;
-                        State sync = (State) ptn.getUserInfo().get("sync");
+                        State sync = (State) ptn.getUserInfo().get(NodeInfoKey.SYNC.name());
                         if (sync != null)
                             state = sync;
                     }
@@ -256,7 +257,8 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
                 ExtendedTreeNode ptn = (ExtendedTreeNode) node;
                 TransponderElement nodeObj = (TransponderElement) node.getUserObject();
                 HashMap<String, Object> info = ptn.getUserInfo();
-                ImcSystem imcSystem = ImcSystemsHolder.lookupSystemByName((String) info.get("vehicle"));
+                ImcSystem imcSystem = ImcSystemsHolder
+                        .lookupSystemByName((String) info.get(NodeInfoKey.VEHICLE.name()));
                 setBeaconLabel(nodeObj, imcSystem);
                 setBeaconIcon(state, ptn);
 
@@ -283,7 +285,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
     }
 
     private void setBeaconIcon(State state, ExtendedTreeNode ptn) {
-        State sync = (State) ptn.getUserInfo().get("sync");
+        State sync = (State) ptn.getUserInfo().get(NodeInfoKey.SYNC.name());
         if (sync != null)
             state = sync;
         StringBuilder fileName = new StringBuilder(Icons.PATH_SOURCE.getName());
@@ -307,11 +309,8 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
                     if (time <= maxAcceptableElapsedTime) {
                         color = "green";
                     }
-                    else if (time <= LBLRangesTimer.maxTime) {
-                        color = "red";
-                    }
                     else {
-                        color = "black";
+                        color = "red";
                     }
                     int minutes = time / 60;
                     int seconds = time % 60;
