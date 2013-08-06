@@ -41,6 +41,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -686,6 +687,19 @@ public class LogsDownloaderWorker {
 							return null;
 						}
 						msgPanel.writeMessageTextln(I18n.textf("Log Folders: %numberoffolders", retList.size()));
+						
+						// Added in order not to show the active log (the last one
+						if (retList.size() > 0) {
+						    String[] ordList = retList.values().toArray(new String[retList.size()]);
+						    Arrays.sort(ordList);
+						    String activeLogName = ordList[ordList.length - 1];
+						    for (FTPFile fFile : retList.keySet().toArray(new FTPFile[retList.size()])) {
+                                if (retList.get(fFile).equals(activeLogName)) {
+                                    retList.remove(fFile);
+                                    break;
+                                }
+                            }
+						}
 						
 						if (retList.size() == 0) {
 							//TODO
