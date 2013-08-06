@@ -43,9 +43,7 @@ import java.util.List;
 import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged;
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.up.fe.dceg.neptus.console.plugins.SystemsList;
-import pt.up.fe.dceg.neptus.gui.MissionBrowser;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.system.SystemDisplayComparator;
 import pt.up.fe.dceg.neptus.imc.Announce;

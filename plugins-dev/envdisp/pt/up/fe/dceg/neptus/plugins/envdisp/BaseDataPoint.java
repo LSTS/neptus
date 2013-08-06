@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.plugins.envdisp;
 import java.util.ArrayList;
 import java.util.Date;
 
+@SuppressWarnings("rawtypes")
 public class BaseDataPoint<T extends BaseDataPoint> implements Comparable<BaseDataPoint> {
     //lat lon speed (cm/s)    degree  acquired (Date+Time)    resolution (km) origin
     protected double lat;
@@ -108,7 +109,6 @@ public class BaseDataPoint<T extends BaseDataPoint> implements Comparable<BaseDa
         }
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public int compareTo(BaseDataPoint o) {
         if (Double.compare(lat, o.lat) == 0 && Double.compare(lon, o.lon) == 0)
@@ -117,7 +117,6 @@ public class BaseDataPoint<T extends BaseDataPoint> implements Comparable<BaseDa
             return 1; 
     }
     
-    @SuppressWarnings("rawtypes")
     @Override
     public boolean equals(Object obj) {
         if (obj == null)
@@ -128,7 +127,6 @@ public class BaseDataPoint<T extends BaseDataPoint> implements Comparable<BaseDa
         return compareTo((BaseDataPoint) obj) == 0 ? true : false;
     }
     
-    @SuppressWarnings("rawtypes")
     public static String getId(BaseDataPoint hfrdp) {
         return hfrdp.lat + ":" + hfrdp.lon;
     }

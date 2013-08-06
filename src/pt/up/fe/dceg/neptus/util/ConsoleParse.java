@@ -37,7 +37,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.JFrame;
 
@@ -52,11 +51,8 @@ import org.dom4j.io.SAXReader;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.SubPanel;
-import pt.up.fe.dceg.neptus.console.plugins.PluginManager;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.loader.FileHandler;
 import pt.up.fe.dceg.neptus.plugins.configWindow.SettingsWindow;
-import pt.up.fe.dceg.neptus.plugins.containers.MigLayoutContainer;
 import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
