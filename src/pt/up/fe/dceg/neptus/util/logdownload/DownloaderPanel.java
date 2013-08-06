@@ -589,7 +589,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		}
 		finally {
             try {
-                client.getClient().disconnect();
+                if (client.getClient().isConnected())
+                    client.getClient().disconnect();
             }
             catch (IOException e) {
                 e.printStackTrace();
@@ -729,7 +730,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         }
         finally {
             try {
-                client.getClient().disconnect();
+                if (client.getClient().isConnected())
+                    client.getClient().disconnect();
             }
             catch (IOException e) {
                 e.printStackTrace();
