@@ -41,10 +41,10 @@ public class LogFolderInfo {
 
 	public enum State {UNKNOWN, NEW, DOWNLOADING, ERROR, INCOMPLETE, SYNC, LOCAL};
 	
-	String name = null;
-	State state = State.NEW;
+	private String name = null;
+	private State state = State.NEW;
 	
-	LinkedHashSet<LogFileInfo> logFiles = new LinkedHashSet<LogFileInfo>();
+	private LinkedHashSet<LogFileInfo> logFiles = new LinkedHashSet<LogFileInfo>();
 	
 	/**
 	 * @param name

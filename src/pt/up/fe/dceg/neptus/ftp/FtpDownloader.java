@@ -36,7 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -55,11 +55,34 @@ import pt.up.fe.dceg.neptus.NeptusLog;
  * 
  */
 public class FtpDownloader {
-    FTPClient client;
+    private FTPClient client;
 
-    FTPClientConfig conf;
+    private FTPClientConfig conf;
 
+    private String host;
+    private int port;
+    
     public FtpDownloader(String host, int port) throws Exception {
+        this.host = host;
+        this.port = port;
+        
+        renewClient();
+    }
+
+    /**
+     * @throws SocketException
+     * @throws IOException
+     */
+    public void renewClient() throws SocketException, IOException {
+        if (client != null) {
+            try {
+                client.disconnect();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
         client = new FTPClient();
         conf = new FTPClientConfig(FTPClientConfig.SYST_UNIX);
 
@@ -73,13 +96,40 @@ public class FtpDownloader {
         client.setControlEncoding("UTF-8");
     }
 
+    /**
+     * @return the host
+     */
+    public String getHost() {
+        return host;
+    }
+    
+    /**
+     * @return the port
+     */
+    public int getPort() {
+        return port;
+    }
+    
     public void downloadDirectory(String path, String destPath) throws Exception {
-        
-        System.out.println("Path :" + path);
-        System.out.println("DestPath: " + destPath);
+        System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "Path :" + path);
+        System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "DestPath: " + destPath);
         ArrayList<FTPFile> toDoList = new ArrayList<FTPFile>();
-        
-        client.changeWorkingDirectory(path);
+
+        if (!client.isConnected()) {
+            try {
+                renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        boolean ret = client.changeWorkingDirectory(new String(path.getBytes(), "ISO-8859-1"));
+        if (!ret) {
+            NeptusLog.pub().warn(
+                    FtpDownloader.class.getSimpleName() + " :: Error downloading folder '" + path + "' from " + host);
+            return;
+        }
         
         for (FTPFile f : client.listFiles()) {
             if(f.isDirectory()) {
@@ -87,7 +137,7 @@ public class FtpDownloader {
             }
             else {
                 String filePath =  path + (path.equals("/") ? "" : "/") + f.getName();
-                System.out.println("Downloading " + filePath);
+                System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "Downloading " + filePath);
                 downloadFile(filePath, destPath);
             }
         }
@@ -101,7 +151,21 @@ public class FtpDownloader {
         ArrayList<FTPFile> toDoList = new ArrayList<FTPFile>();
         LinkedHashMap<String, FTPFile> finalList = new LinkedHashMap<String, FTPFile>();
         
-        client.changeWorkingDirectory(path);
+        if (!client.isConnected()) {
+            try {
+                renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        boolean ret = client.changeWorkingDirectory(new String(path.getBytes(), "ISO-8859-1"));
+        if (!ret) {
+            NeptusLog.pub().warn(
+                    FtpDownloader.class.getSimpleName() + " :: Error listing folder '" + path + "' from " + host);
+            return finalList;
+        }
         
         for (FTPFile f : client.listFiles()) {
             if(f.isDirectory()) {
@@ -117,14 +181,35 @@ public class FtpDownloader {
         }
         return finalList;
     }
+    
     public LinkedHashMap<FTPFile, String> listLogs() throws IOException {
         LinkedHashMap<FTPFile, String> list = new LinkedHashMap<FTPFile, String>();
         
-        client.changeWorkingDirectory("/");
+        if (!client.isConnected()) {
+            try {
+                renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        boolean ret = client.changeWorkingDirectory("/");
+        if (!ret) {
+            NeptusLog.pub().warn(
+                    FtpDownloader.class.getSimpleName() + " :: Error downloading folder '/' from " + host);
+            return list;
+        }
         
         for (FTPFile f : client.listFiles()) {
             if(f.isDirectory()) {
-                client.changeWorkingDirectory("/" + f.getName());
+                boolean ret1 = client.changeWorkingDirectory("/" + new String(f.getName().getBytes(), "ISO-8859-1"));
+                if (!ret1) {
+                    NeptusLog.pub().warn(
+                            FtpDownloader.class.getSimpleName() + " :: Error listing folder '" + f.getName() + "' from " + host);
+                    continue;
+                }
+
                 for (FTPFile f2 : client.listFiles()) {
                     list.put(f2, f.getName() + "/" + f2.getName());
                 }
@@ -140,43 +225,50 @@ public class FtpDownloader {
         
         String toks[] = filePath.split("/");
         String fileName = toks[toks.length - 1];
-        
+
+        if (!client.isConnected()) {
+            try {
+                renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         try {
             String dest = destPath + fileName;
-            boolean b = retrieveFile(client.retrieveFileStream(filePath), new FileOutputStream(new File(dest)));
-            System.out.println(dest);
+            boolean ret = retrieveFile(client.retrieveFileStream(new String(filePath.getBytes(), "ISO-8859-1")), new FileOutputStream(new File(dest)));
+            if (!ret) {
+                NeptusLog.pub().warn(
+                        FtpDownloader.class.getSimpleName() + " :: Error downloading file '" + filePath + "' from " + host);
+            }
+
+            System.out.println(FtpDownloader.class.getSimpleName() + " :: " + dest);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    
     private boolean retrieveFile(InputStream is, OutputStream os) {
-                try
-                {
-                    System.out.println(is);
-                    
-                    Util.copyStream(is, os, 1024,
-                                    CopyStreamEvent.UNKNOWN_STREAM_SIZE, new CopyStreamListener() {
-                                        
-                                        @Override
-                                        public void bytesTransferred(long arg0, int arg1, long arg2) {
-                                            System.out.println("1 " + " " + arg0 + " " + arg1 + " " + arg2);
-                                        }
-                                        
-                                        @Override
-                                        public void bytesTransferred(CopyStreamEvent arg0) {
-                                            System.out.println("2 " + arg0);
-                                            
-                                        }
-                                    },
-                                    false);
+        try {
+            System.out.println(FtpDownloader.class.getSimpleName() + " :: " + is);
+
+            Util.copyStream(is, os, 1024, CopyStreamEvent.UNKNOWN_STREAM_SIZE, new CopyStreamListener() {
+                @Override
+                public void bytesTransferred(long arg0, int arg1, long arg2) {
+                    System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "1 " + " " + arg0 + " " + arg1 + " " + arg2);
                 }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
+
+                @Override
+                public void bytesTransferred(CopyStreamEvent arg0) {
+                    System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "2 " + arg0);
                 }
+            }, false);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 
@@ -190,6 +282,7 @@ public class FtpDownloader {
 
     public static void main(String[] args) throws Exception {
         FtpDownloader test = new FtpDownloader("10.0.10.80", 30021);
+        @SuppressWarnings("unused")
         LinkedHashMap<String, FTPFile> res = new LinkedHashMap<>();
         
         System.out.println(test.getClient().getControlEncoding());

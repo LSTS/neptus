@@ -243,7 +243,7 @@ public class LogsDownloaderWorker {
             public void onMessage(MessageInfo info, IMCMessage msg) {
                 if(msg.getAbbrev().equals("PowerChannelState")) {
                     if(msg.getString("name").equals("DOAM") || msg.getString("name").equals("Camera - CPU")) { // xtreme or dolphin
-                        System.out.println(msg.getInteger("state"));
+                        System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: PowerChannelState " + msg.getInteger("state"));
                         cameraButton.setBackground(msg.getInteger("state") == 1 ? Color.GREEN :  null);
                     }
                 }
@@ -647,8 +647,13 @@ public class LogsDownloaderWorker {
 					public Object run() throws Exception {
 						//long time = System.currentTimeMillis();
 						//NeptusLog.pub().info("<###>.......downloadListAction");
-						listHandlingProgressBar.setValue(0);
-						listHandlingProgressBar.setString(I18n.text("Starting..."));
+						SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                listHandlingProgressBar.setValue(0);
+                                listHandlingProgressBar.setString(I18n.text("Starting..."));
+                            }
+                        });
 
 						downloadListButton.setEnabled(false);
 						//logFolderList.setEnabled(false);
@@ -656,10 +661,15 @@ public class LogsDownloaderWorker {
 						//logFilesList.setEnabled(false);
 						
 						//->Getting txt list of logs from server
-						listHandlingProgressBar.setValue(10);
-						listHandlingProgressBar.setIndeterminate(true);
-						listHandlingProgressBar.setString(I18n.text("Connecting to remote system for log list update..."));
-//						long timeD1 = System.currentTimeMillis();
+						SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                listHandlingProgressBar.setValue(10);
+                                listHandlingProgressBar.setIndeterminate(true);
+                                listHandlingProgressBar.setString(I18n.text("Connecting to remote system for log list update..."));
+                            }
+                        });
+						//						long timeD1 = System.currentTimeMillis();
 						
 				        try {
 				            clientFtp = new FtpDownloader(host, port);
@@ -679,13 +689,26 @@ public class LogsDownloaderWorker {
 						
 						if (retList.size() == 0) {
 							//TODO
-							return null;
+						    SwingUtilities.invokeAndWait(new Runnable() {
+	                            @Override
+	                            public void run() {
+	                                listHandlingProgressBar.setValue(100);
+	                                listHandlingProgressBar.setIndeterminate(false);
+	                                listHandlingProgressBar.setString(I18n.text("No logs..."));
+	                            }
+	                        });
+						    return null;
 						}
 						
 						//->Removing from already existing LogFolders to LOCAL state
-						listHandlingProgressBar.setValue(20);
-						listHandlingProgressBar.setIndeterminate(false);
-						listHandlingProgressBar.setString(I18n.text("Filtering list..."));
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                listHandlingProgressBar.setValue(20);
+                                listHandlingProgressBar.setIndeterminate(false);
+                                listHandlingProgressBar.setString(I18n.text("Filtering list..."));
+                            }
+                        });
 						//long timeC1 = System.currentTimeMillis();
 						Object[] objArray = new Object[logFolderList.myModel.size()];
 						logFolderList.myModel.copyInto(objArray);
@@ -695,7 +718,7 @@ public class LogsDownloaderWorker {
 								LogFolderInfo log = (LogFolderInfo) comp;
 								if (!retList.containsValue(log.getName())) {
 									//retList.remove(log.getName());
-									for (LogFileInfo lfx : log.logFiles) {
+									for (LogFileInfo lfx : log.getLogFiles()) {
 										lfx.setState(LogFolderInfo.State.LOCAL);
 									}
 									log.setState(LogFolderInfo.State.LOCAL);
@@ -729,21 +752,31 @@ public class LogsDownloaderWorker {
 
 						
 						//->Getting Log files list from server
-						listHandlingProgressBar.setValue(30);
-						listHandlingProgressBar.setIndeterminate(true);
-						listHandlingProgressBar.setString(I18n.text("Contacting remote system for complete log file list..."));
-
-						listHandlingProgressBar.setValue(40);
-						listHandlingProgressBar.setIndeterminate(false);
-						listHandlingProgressBar.setString(I18n.text("Processing log list..."));
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                listHandlingProgressBar.setValue(30);
+                                listHandlingProgressBar.setIndeterminate(true);
+                                listHandlingProgressBar.setString(I18n.text("Contacting remote system for complete log file list..."));
+                                
+                                listHandlingProgressBar.setValue(40);
+                                listHandlingProgressBar.setIndeterminate(false);
+                                listHandlingProgressBar.setString(I18n.text("Processing log list..."));
+                            }
+                        });
 
 						objArray = new Object[logFolderList.myModel.size()];
 						logFolderList.myModel.copyInto(objArray);
 
 						LinkedList<LogFolderInfo> tmpLogFolderList = getLogFileList(new LinkedHashSet<String>(retList.values()));
-						listHandlingProgressBar.setValue(70);
-						listHandlingProgressBar.setIndeterminate(false);
-						listHandlingProgressBar.setString(I18n.text("Updating logs info..."));
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                listHandlingProgressBar.setValue(70);
+                                listHandlingProgressBar.setIndeterminate(false);
+                                listHandlingProgressBar.setString(I18n.text("Updating logs info..."));
+                            }
+                        });
 
 						//Testing for log files from each log folder 
 						for (Object comp : objArray) {
@@ -753,7 +786,7 @@ public class LogsDownloaderWorker {
 								//LinkedHashMap<String, String> res = filterHrefLogFilesList(docList, logFolder.getName());
 								int indexLFolder = tmpLogFolderList.indexOf(logFolder);
 								LinkedHashSet<LogFileInfo> logFilesTmp = (indexLFolder != -1) ? tmpLogFolderList
-										.get(indexLFolder).logFiles
+										.get(indexLFolder).getLogFiles()
 										: new LinkedHashSet<LogFileInfo>();
 								for (LogFileInfo logFx : logFilesTmp) {
 									if (!logFolder.getLogFiles().contains(logFx)) {
@@ -770,6 +803,7 @@ public class LogsDownloaderWorker {
 											else if (lfx.getState() == LogFolderInfo.State.LOCAL)
 												lfx.setState(LogFolderInfo.State.INCOMPLETE);
 											lfx.setSize(logFx.getSize()/*size*/);
+											lfx.setFile(logFx.getFile());
 										}										
 										else if (lfx.getSize() == logFx.getSize()/*size*/) {
 											if (lfx.getState() == LogFolderInfo.State.LOCAL)
@@ -819,9 +853,14 @@ public class LogsDownloaderWorker {
 						}.start();
 						//NeptusLog.pub().info("<###>.......updateFilesListGUIForFolderSelected " + (System.currentTimeMillis()-timeF3));
 						
-						listHandlingProgressBar.setValue(90);
-						listHandlingProgressBar.setIndeterminate(false);
-						listHandlingProgressBar.setString(I18n.text("Updating GUI..."));
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                listHandlingProgressBar.setValue(90);
+                                listHandlingProgressBar.setIndeterminate(false);
+                                listHandlingProgressBar.setString(I18n.text("Updating GUI..."));
+                            }
+                        });
 						logFolderList.invalidate();
 						logFolderList.revalidate();
 						logFolderList.repaint();
@@ -832,9 +871,14 @@ public class LogsDownloaderWorker {
 						logFilesList.setEnabled(true);
 						
 						//NeptusLog.pub().info("<###>.......downloadListAction " + (System.currentTimeMillis()-time));
-						listHandlingProgressBar.setValue(100);
-						listHandlingProgressBar.setIndeterminate(false);
-						listHandlingProgressBar.setString(I18n.text("Done"));
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                listHandlingProgressBar.setValue(100);
+                                listHandlingProgressBar.setIndeterminate(false);
+                                listHandlingProgressBar.setString(I18n.text("Done"));
+                            }
+                        });
 						return true;
 					}
 
@@ -882,7 +926,7 @@ public class LogsDownloaderWorker {
 							try {
 								//NeptusLog.pub().info("<###>... updateFilesForFolderSelected");
 								LogFolderInfo logFd = (LogFolderInfo) comp;
-								for (LogFileInfo lfx : logFd.logFiles) {
+								for (LogFileInfo lfx : logFd.getLogFiles()) {
 									singleLogFileDownloadWorker(lfx, logFd);
 								}
 							}
@@ -995,7 +1039,7 @@ public class LogsDownloaderWorker {
 								boolean resDel = deleteLogFolderFromServer(logFd);
 								if (resDel) {
 									logFd.setState(LogFolderInfo.State.LOCAL);
-									LinkedHashSet<LogFileInfo> logFiles = logFd.logFiles;
+									LinkedHashSet<LogFileInfo> logFiles = logFd.getLogFiles();
 
 									LinkedHashSet<LogFileInfo> toDelFL = updateLogFilesStateDeleted(logFiles);
 									for (LogFileInfo lfx : toDelFL)
@@ -1439,7 +1483,7 @@ public class LogsDownloaderWorker {
 		for (Object comp : logFolderList.getSelectedValues()) {
 			try {
 				LogFolderInfo logFd = (LogFolderInfo) comp;
-				if (logFd.logFiles.contains(lfx))
+				if (logFd.getLogFiles().contains(lfx))
 					return logFd;
 			}
 			catch (Exception e) {
@@ -1475,7 +1519,7 @@ public class LogsDownloaderWorker {
 	                //NeptusLog.pub().info("<###>... updateFilesForFolderSelected");
 	                LogFolderInfo log = (LogFolderInfo) comp;
 	                // NeptusLog.pub().info("<###>LogFolder Sel: " + log.getName());
-	                for (LogFileInfo lgfl : log.logFiles) {
+	                for (LogFileInfo lgfl : log.getLogFiles()) {
 	                    validFiles.add(lgfl);
 
 	                    if (exitRequest)
@@ -1554,7 +1598,7 @@ public class LogsDownloaderWorker {
 			File testFile = new File(getDirTarget(), lf.getName());
 			if (testFile.exists()) {
 				lf.setState(LogFolderInfo.State.UNKNOWN);
-				for (LogFileInfo lfx : lf.logFiles) {
+				for (LogFileInfo lfx : lf.getLogFiles()) {
 					File testFx = new File(getDirTarget(), lfx.getName());
 					if (testFx.exists()) {
 						lfx.setState(LogFolderInfo.State.UNKNOWN);
@@ -1707,7 +1751,6 @@ public class LogsDownloaderWorker {
 		downloadWorkersHolder.repaint();
 		workerD.actionDownload();
 	}
-
 	
 	/**
 	 * @param logFolder
@@ -1717,7 +1760,7 @@ public class LogsDownloaderWorker {
 		LogFolderInfo.State lfdStateTmp = LogFolderInfo.State.UNKNOWN;
 		long nTotal = 0, nDownloading = 0, nError = 0, nNew = 0, nIncomplete = 0,
 				nLocal = 0, nSync = 0, nUnknown = 0;
-		for (LogFileInfo tlfx : logFolder.logFiles) {
+		for (LogFileInfo tlfx : logFolder.getLogFiles()) {
 			nTotal++;
 			if (tlfx.getState() == LogFolderInfo.State.DOWNLOADING) {
 				nDownloading++;
@@ -1831,11 +1874,14 @@ public class LogsDownloaderWorker {
 		    cameraHost = "";
 		
 		
-		System.out.println(cameraHost + " " + getLogLabel());
+		System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + cameraHost + " " + getLogLabel());
 		
 		try {
             for (String logDir : logsDirList) {
-                clientFtp.getClient().changeWorkingDirectory("/" + logDir + "/");
+                String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
+                boolean ret = clientFtp.getClient().changeWorkingDirectory("/" + isoStr + "/");
+                if (!ret)
+                    continue;
                 LogFolderInfo lFolder = new LogFolderInfo(logDir);
                 for (FTPFile file : clientFtp.getClient().listFiles()) {
                     String name = logDir + "/" + file.getName();
@@ -1854,7 +1900,8 @@ public class LogsDownloaderWorker {
             if(cameraHost != null) {
                 FtpDownloader ftpd = new FtpDownloader(cameraHost, port);
                 for (String logDir : logsDirList) {
-                    if (ftpd.getClient().changeWorkingDirectory("/" + logDir + "/") == false) // Log doesnt exist in DOAM
+                    String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
+                    if (ftpd.getClient().changeWorkingDirectory("/" + isoStr + "/") == false) // Log doesnt exist in DOAM
                         continue;
 
                     LogFolderInfo lFolder = null;
@@ -2200,7 +2247,8 @@ public class LogsDownloaderWorker {
 			doStopLogFoldersDownloads();
 			if (!justStopDownloads)
 			    cleanInterface();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 			warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
 			return false;
@@ -2427,7 +2475,7 @@ public class LogsDownloaderWorker {
             @Override
             public void onMessage(MessageInfo info, IMCMessage msg) {
                 if(msg.getAbbrev().equals("PowerChannelState")) {
-                    System.out.println(msg);
+                    System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + msg);
                 }
             }
         });
@@ -2440,7 +2488,7 @@ public class LogsDownloaderWorker {
                 
                 while(true) {
                     int ent = EntitiesResolver.resolveId("lauv-xtreme-2", "DOAM");
-                    System.out.println("Entity ID: " + ent);
+                    System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + "Entity ID: " + ent);
                     
                     IMCMessage msg = new IMCMessage("QueryPowerChannelState");
                     msg.setDstEnt(255);

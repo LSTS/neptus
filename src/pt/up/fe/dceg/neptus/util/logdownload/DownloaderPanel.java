@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketException;
 import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -116,7 +117,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	
 	private boolean usePartialDownload = true;
 	
-	private FtpDownloader client = null;
 	private String name = "";
 	private String uri = "";
 	private File outFile = null;
@@ -126,7 +126,17 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	
 	private long downloadedSize = 0;
 	private long fullSize = -1;
-	
+
+    private FtpDownloader client = null;
+    private FTPFile ftpFile;
+    
+    private boolean isDirectory = false;
+    
+    private long doneFilesForDirectory = 0;
+    
+    private InputStream stream; // Generic stream
+    private boolean stopping = false;
+
 	//UI
 	private JXLabel infoLabel = null;
 	private JProgressBar progressBar = null;
@@ -134,15 +144,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	private JXLabel msgLabel = null;
 	private MiniButton stopButton = null;
 	private MiniButton downloadButton = null;
-	
-	FTPFile ftpFile;
-	
-	boolean isDirectory = false;
-	
-	long done = 0;
-	
-	InputStream stream; // Generic stream
-	boolean stopping = false;
 	
 	public DownloaderPanel() {
 		initialize();
@@ -482,15 +483,29 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	}
 
 	protected boolean doDownload() {
-	    System.out.println("Downloading " + name + " " + uri + " " + outFile.getAbsolutePath());
+	    if(isDirectory)
+            return doDownloadDirectory();
+	    
+	    
+	    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
 		if (getState() == State.WORKING)
 			return false;
+		
+		if (!client.getClient().isConnected()) {
+		    try {
+                client.renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                setStateError();
+            }
+		}
 		
 		State prevState = getState();
 		long begByte = 0;
 		if (usePartialDownload && prevState != State.DONE && outFile.exists() && outFile.isFile() && !isDirectory) {
 		    begByte = outFile.length();
-		    System.out.println("!begin byte: " + begByte);
+		    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "!begin byte: " + begByte);
 		}
 		setStateWorking();
 		
@@ -506,9 +521,10 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			if (begByte > 0) {
                 downloadedSize = begByte;
                 client.getClient().setRestartOffset(begByte);
-                System.out.println("using resume");
+                System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "using resume");
             }
 			
+			// System.out.println("FTP Client is connected " + client.getClient().isConnected());
 			stream = client.getClient().retrieveFileStream(new String(uri.getBytes(), "ISO-8859-1"));
 
 			fullSize = ftpFile.getSize();
@@ -517,7 +533,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			
 			try {
 				outFile.createNewFile();
-			} catch (IOException e) {
+			} 
+			catch (IOException e) {
 				e.printStackTrace();
 			}
 
@@ -548,11 +565,15 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			}
 			if(streamRes && fullSize == downloadedSize) {
 				setStateDone();
+				// downloadButton.setEnabled(false); //FIXME pdias 20130805 For now disable redownload because the get stream above from client cames null
+				// client.getClient().disconnect();
 				getMsgLabel().setText(I18n.textf("Saved in '%filePath'", outFile.getAbsolutePath()));
 			}
-			else 
+			else {
 				setStateNotDone();
-		} catch (Exception ex) {
+			}
+		}
+		catch (Exception ex) {
 			ex.printStackTrace();
 		    if (ex.getMessage() != null && ex.getMessage().startsWith("Timeout waiting for connection")) {
 		        isOnTimeout = true;
@@ -565,6 +586,15 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                                 + (ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName()));
 		        setStateError();
 		    }
+		}
+		finally {
+            try {
+                if (client.getClient().isConnected())
+                    client.getClient().disconnect();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
 		}
 		if (isOnTimeout) {
 		    new Thread() {
@@ -580,8 +610,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	}
 	
 	protected boolean doDownloadDirectory() {
-	    System.out.println("DOWNLOADING DIRECTORY");
-	    System.out.println("Downloading " + name + " " + uri + " " + outFile.getAbsolutePath());
+	    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "DOWNLOADING DIRECTORY");
+	    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading " + name + " " + uri + " " + outFile.getAbsolutePath());
 
 	    String basePath = outFile.getParentFile().getParentFile().getParentFile().getAbsolutePath();
 	    
@@ -589,9 +619,20 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         if (getState() == State.WORKING)
             return false;
         
+        if (!client.getClient().isConnected()) {
+            try {
+                client.renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                setStateError();
+            }
+        }
+
         State prevState = getState();
         
         setStateWorking();
+        stopping = false;
         
         boolean isOnTimeout = false;
 
@@ -602,7 +643,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         try {
             LinkedHashMap<String, FTPFile> fileList = client.listDirectory("/" + uri);
             
-            System.out.println(fileList.size());
+            System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "Number of FTPFiles in folder: " + fileList.size());
 
             getProgressBar().setValue(0);
             getProgressBar().setString(I18n.text("Starting..."));
@@ -617,16 +658,19 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                     (listSize >= 0 ? I18n.textf("%number files", MathMiscUtils.parseToEngineeringRadix2Notation(fullSize,1)) : "unknown files"));
             //msgPanel.writeMessageText("["+MathMiscUtils.parseToEngineeringNotation(cSize,1)+" bytes] ...");
 
-            Timer t = new Timer();
+            final Timer t = new Timer(DownloaderPanel.class.getSimpleName() + " :: progress for files for directory " + basePath);
             t.scheduleAtFixedRate(new TimerTask() {
-                
                 @Override
                 public void run() {
-                    getProgressBar().setValue((int) ((done / (float)listSize) * 100));
-                    getProgressBar().setString(done + " out of " + listSize);
+                    getProgressBar().setValue((int) ((doneFilesForDirectory / (float)listSize) * 100));
+                    getProgressBar().setString(doneFilesForDirectory + " out of " + listSize);
+                    
+                    if (state != State.WORKING)
+                        t.cancel();
                 }
             }, 0, 100);
             
+            doneFilesForDirectory = 0;
             for(String key : fileList.keySet()) {
                 if(stopping)
                     break;
@@ -634,27 +678,29 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 File out = new File(basePath + "/" + key);
                 
                 if(out.exists() && fileList.get(key).getSize() == out.length()) {
-                    done++;
+                    doneFilesForDirectory++;
                     continue;
                 }
                 
-                stream = client.getClient().retrieveFileStream(key);
+                // stream = client.getClient().retrieveFileStream(key);
+                stream = client.getClient().retrieveFileStream(new String(key.getBytes(), "ISO-8859-1"));
                 
                 out.getParentFile().mkdirs();
                 try {
                     out.createNewFile();
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     e.printStackTrace();
                 }
                 
                 boolean streamRes = StreamUtil.copyStreamToFile(stream, out, false);
                 client.getClient().completePendingCommand();
-                done++;
+                doneFilesForDirectory++;
             }
             
             endTimeMillis = System.currentTimeMillis();
             
-            if (done == listSize) {
+            if (doneFilesForDirectory == listSize) {
                 getProgressBar().setString(I18n.textf("%listSize files done (in %time) @%dataRate", 
                         listSize,
                         DateTimeUtil.milliSecondsToFormatedString(endTimeMillis - startTimeMillis),
@@ -662,11 +708,13 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                                 / ((endTimeMillis - startTimeMillis) / 1000.0), 1)) + "B/s"));
                 getMsgLabel().setText(I18n.textf("Saved in '%filePath'", outFile.getAbsolutePath()));
                 setStateDone();
+                // client.getClient().disconnect();
             }
-            else 
+            else { 
                 setStateNotDone();
-            
-        } catch (Exception ex) {
+            }
+        }
+        catch (Exception ex) {
             ex.printStackTrace();
             if (ex.getMessage() != null && ex.getMessage().startsWith("Timeout waiting for connection")) {
                 isOnTimeout = true;
@@ -680,13 +728,22 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 setStateError();
             }
         }
+        finally {
+            try {
+                if (client.getClient().isConnected())
+                    client.getClient().disconnect();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         if (isOnTimeout) {
             new Thread() {
                 @Override
                 public void run() {
                     try { Thread.sleep(8000); } catch (InterruptedException e) { }
                     if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
-                        doDownload();
+                        doDownloadDirectory();
                 }
             }.start();
         }
