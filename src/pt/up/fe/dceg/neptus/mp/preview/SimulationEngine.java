@@ -38,6 +38,7 @@ import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
+import pt.up.fe.dceg.neptus.plugins.planning.SimulatedBathymetry;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 
@@ -60,8 +61,7 @@ public class SimulationEngine {
     protected SystemPositionAndAttitude state;
     protected boolean finished = false;
     protected IManeuverPreview<?> curPreview = null;
-
-    public static final double BOTTOM_DEPTH = 10;
+    public static SimulatedBathymetry simBathym = new SimulatedBathymetry();
     
     public SimulationEngine(final PlanType plan) {
         this.plan = plan;

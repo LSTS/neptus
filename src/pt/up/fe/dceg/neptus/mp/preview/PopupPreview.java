@@ -73,7 +73,7 @@ public class PopupPreview implements IManeuverPreview<PopUp> {
     public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep) {
         
         model.setState(state);        
-        boolean there = model.guide(destination, speed);
+        boolean there = model.guide(destination, speed, null);
         if (totalTime >= maxTime || surfaceTime >= duration)
             finished = true;
         else

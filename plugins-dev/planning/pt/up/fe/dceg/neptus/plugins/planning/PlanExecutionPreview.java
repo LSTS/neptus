@@ -42,6 +42,7 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import javax.swing.JMenu;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
@@ -55,6 +56,7 @@ import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulation3D;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulationOverlay;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulator;
+import pt.up.fe.dceg.neptus.mp.preview.SimulationEngine;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
@@ -98,7 +100,6 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
     
     @NeptusProperty(name = "Simulated (flat) bathymetry")
     public double bathymetry = 10;
-    
 
     public PlanExecutionPreview(ConsoleLayout console) {
         super(console);
@@ -204,8 +205,7 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                 popup.add("Show 3D simulation").addActionListener(new ActionListener() {
                     
                     @Override
-                    public void actionPerformed(ActionEvent e) {
-                        
+                    public void actionPerformed(ActionEvent e) {                        
                         PlanSimulation3D.showSimulation(getConsole(), simOverlay, getConsole().getPlan());
                     }
                 });
@@ -221,6 +221,42 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                         simOverlay = null;
                     }
                     forceSimVisualization = false;
+                }
+            });
+            popup.addSeparator();
+            
+            popup.add("Add depth sounding").addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String ret = JOptionPane.showInputDialog(getConsole(), "Enter simulated depth for this location");
+                    if (ret == null)
+                        return;
+                    try {
+                        double val = Double.parseDouble(ret);
+                        LocationType loc = source.getRealWorldLocation(event.getPoint());
+                        SimulationEngine.simBathym.addSounding(loc, val);
+                    }
+                    catch (Exception ex) {
+                        NeptusLog.pub().error(ex);
+                    }
+                }
+            });
+            
+            popup.add("Clear depth soundings").addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    SimulationEngine.simBathym.clearSoundings();
+                }
+            });
+            
+            popup.add("Show depth here").addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    LocationType loc = source.getRealWorldLocation(event.getPoint());
+                    GuiUtils.infoMessage(getConsole(), "Show depth", "depth is "+SimulationEngine.simBathym.getSimulatedDepth(loc));
                 }
             });
             
@@ -384,6 +420,9 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
 
+        if (active)
+            SimulationEngine.simBathym.paint((Graphics2D)g.create(), renderer);
+        
         if (active && simulator != null)
             simulator.getSimulationOverlay().paint((Graphics2D)g.create(), renderer);
         

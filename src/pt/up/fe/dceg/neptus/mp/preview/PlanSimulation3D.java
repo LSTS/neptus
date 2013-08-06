@@ -95,37 +95,38 @@ public class PlanSimulation3D extends JPanel {
         }
         
         
+        if (plan != null) {
         
-        for (Maneuver m : plan.getGraph().getAllManeuvers()) {
-            if (m instanceof LocatedManeuver) {
-                ManeuverLocation loc = ((LocatedManeuver)m).getStartLocation();
-                double[] offsets = loc.getOffsetFrom(overlay.ref);
-                
-                if (loc.getZUnits() == Z_UNITS.DEPTH) {
-                    chart.getScene().add(new Marker3d(m.getId(), new Coord3d(-offsets[0], offsets[1], -loc.getZ()), java.awt.Color.blue));
-                    
-                    ArrayList<Coord3d> coords = new ArrayList<>();
-                    coords.add(new Coord3d(-offsets[0], offsets[1], 0));
-                    coords.add(new Coord3d(-offsets[0], offsets[1], -loc.getZ()));                    
-                    LineStrip strip = new LineStrip(coords);
-                    strip.setWireframeColor(new Color(0, 100, 100, 100));
-                    chart.getScene().add(strip);
+            for (Maneuver m : plan.getGraph().getAllManeuvers()) {
+                if (m instanceof LocatedManeuver) {
+                    ManeuverLocation loc = ((LocatedManeuver)m).getStartLocation();
+                    double[] offsets = loc.getOffsetFrom(overlay.ref);
+
+                    if (loc.getZUnits() == Z_UNITS.DEPTH) {
+                        chart.getScene().add(new Marker3d(m.getId(), new Coord3d(-offsets[0], offsets[1], -loc.getZ()), java.awt.Color.blue));
+
+                        ArrayList<Coord3d> coords = new ArrayList<>();
+                        coords.add(new Coord3d(-offsets[0], offsets[1], 0));
+                        coords.add(new Coord3d(-offsets[0], offsets[1], -loc.getZ()));                    
+                        LineStrip strip = new LineStrip(coords);
+                        strip.setWireframeColor(new Color(0, 100, 100, 100));
+                        chart.getScene().add(strip);
+                    }
+                    else if (loc.getZUnits() == Z_UNITS.ALTITUDE) { 
+                        chart.getScene().add(new Marker3d(m.getId(), new Coord3d(-offsets[0], offsets[1], -(SimulationEngine.simBathym.getSimulatedDepth(loc)-loc.getZ())), java.awt.Color.blue));
+
+                        ArrayList<Coord3d> coords = new ArrayList<>();
+                        coords.add(new Coord3d(-offsets[0], offsets[1], -SimulationEngine.simBathym.getSimulatedDepth(loc)));
+                        coords.add(new Coord3d(-offsets[0], offsets[1], -(SimulationEngine.simBathym.getSimulatedDepth(loc)-loc.getZ())));                    
+                        LineStrip strip = new LineStrip(coords);
+                        strip.setWireframeColor(new Color(0, 100, 100, 100));
+                        chart.getScene().add(strip);
+                    }
+                    else
+                        chart.getScene().add(new Marker3d(m.getId(), new Coord3d(-offsets[0], offsets[1], 0), java.awt.Color.blue));
                 }
-                else if (loc.getZUnits() == Z_UNITS.ALTITUDE) { 
-                    chart.getScene().add(new Marker3d(m.getId(), new Coord3d(-offsets[0], offsets[1], -overlay.bottomDepth+loc.getZ()), java.awt.Color.blue));
-                    
-                    ArrayList<Coord3d> coords = new ArrayList<>();
-                    coords.add(new Coord3d(-offsets[0], offsets[1], -overlay.bottomDepth));
-                    coords.add(new Coord3d(-offsets[0], offsets[1], -overlay.bottomDepth+loc.getZ()));                    
-                    LineStrip strip = new LineStrip(coords);
-                    strip.setWireframeColor(new Color(0, 100, 100, 100));
-                    chart.getScene().add(strip);
-                }
-                else
-                    chart.getScene().add(new Marker3d(m.getId(), new Coord3d(-offsets[0], offsets[1], 0), java.awt.Color.blue));
             }
         }
-       
         path.add(new Point(lastCoord, new Color(0, 0, 0, 0), 0f));
         path.add(new Point(firstCoord, new Color(0, 0, 0, 0), 0f));
         path.setWidth(2f);

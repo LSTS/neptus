@@ -57,7 +57,7 @@ public class LoiterPreview implements IManeuverPreview<Loiter> {
         if (man.getManeuverLocation().getZUnits() == ManeuverLocation.Z_UNITS.DEPTH)
             destination.setDepth(man.getManeuverLocation().getZ());
         else if (man.getManeuverLocation().getZUnits() == ManeuverLocation.Z_UNITS.ALTITUDE)
-            destination.setDepth(SimulationEngine.BOTTOM_DEPTH-man.getManeuverLocation().getZ());
+            destination.setDepth(-man.getManeuverLocation().getZ());
         else
             destination.setDepth(0);
         
@@ -90,7 +90,7 @@ public class LoiterPreview implements IManeuverPreview<Loiter> {
        if (loiterType.equalsIgnoreCase("circular")) {
 
             if (distToDestination-2 > radius) {
-                model.guide(destination, speed);
+                model.guide(destination, speed, destination.getDepth() >= 0 ? null : - destination.getDepth());
                 if (!enteredLoiter)
                     loiterTime = 0;
             }
@@ -103,7 +103,7 @@ public class LoiterPreview implements IManeuverPreview<Loiter> {
                     loc.translatePosition(Math.cos(perpend) * -20, Math.sin(perpend) * -20, 0);
                 else
                     loc.translatePosition(Math.cos(perpend) * 20, Math.sin(perpend) * 20, 0);
-                model.guide(loc, speed);
+                model.guide(loc, speed, destination.getDepth() >= 0 ? null : - destination.getDepth());
                 loiterTime += timestep;
             }            
         }
@@ -111,7 +111,7 @@ public class LoiterPreview implements IManeuverPreview<Loiter> {
             if (distToDestination < speed * 2)
                 loiterTime += timestep;            
             else
-                model.guide(destination, speed);
+                model.guide(destination, speed, destination.getDepth() >= 0 ? null : - destination.getDepth());
         }
 
         model.advance(timestep);

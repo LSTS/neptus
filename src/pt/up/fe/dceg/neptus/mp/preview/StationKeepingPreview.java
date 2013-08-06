@@ -80,12 +80,12 @@ public class StationKeepingPreview implements IManeuverPreview<StationKeeping> {
         }
         
         if (state.getPosition().getDepth() > 0) {
-            model.guide(destination, 0);
+            model.guide(destination, 0, null);
             model.advance(timestep);
         }
         else {
             model.getState().getPosition().setDepth(0);
-            arrived = model.guide(destination, speed);
+            arrived = model.guide(destination, speed, null);
             model.advance(timestep);
             sk_time = 0;
         }

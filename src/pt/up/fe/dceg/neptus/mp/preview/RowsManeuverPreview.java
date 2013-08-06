@@ -58,7 +58,7 @@ public class RowsManeuverPreview implements IManeuverPreview<RowsManeuver> {
             if (man.getManeuverLocation().getZUnits() == Z_UNITS.DEPTH)
                 loc.setDepth(man.getManeuverLocation().getZ());
             else if (man.getManeuverLocation().getZUnits() == Z_UNITS.ALTITUDE)
-                loc.setDepth(SimulationEngine.BOTTOM_DEPTH-man.getManeuverLocation().getZ());
+                loc.setDepth(-man.getManeuverLocation().getZ());
         }        
         this.vehicleId = vehicleId;
         this.locIndex = 0;
@@ -98,7 +98,7 @@ public class RowsManeuverPreview implements IManeuverPreview<RowsManeuver> {
         model.setState(state);
         LocationType destination = locs.get(locIndex);
         
-        if (model.guide(destination, speed)) {
+        if (model.guide(destination, speed, destination.getDepth() >= 0 ? null : - destination.getDepth())) {
             locIndex++;
         }
         else
