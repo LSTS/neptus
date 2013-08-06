@@ -5087,7 +5087,7 @@ msgstr "Planeador De MultiVeículos"
 #: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/Vtk.java:159
 #, fuzzy
 msgid "Multibeam 3D"
-msgstr "Exportar Multi-raio para 837"
+msgstr "Exportar Multi-feixe para 837"
 
 #: Description of property 'IMC Multicast Enable' from
 #: pt.up.fe.dceg.neptus.util.conf.GeneralPreferences
