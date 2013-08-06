@@ -647,8 +647,13 @@ public class LogsDownloaderWorker {
 					public Object run() throws Exception {
 						//long time = System.currentTimeMillis();
 						//NeptusLog.pub().info("<###>.......downloadListAction");
-						listHandlingProgressBar.setValue(0);
-						listHandlingProgressBar.setString(I18n.text("Starting..."));
+						SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                listHandlingProgressBar.setValue(0);
+                                listHandlingProgressBar.setString(I18n.text("Starting..."));
+                            }
+                        });
 
 						downloadListButton.setEnabled(false);
 						//logFolderList.setEnabled(false);
@@ -656,10 +661,15 @@ public class LogsDownloaderWorker {
 						//logFilesList.setEnabled(false);
 						
 						//->Getting txt list of logs from server
-						listHandlingProgressBar.setValue(10);
-						listHandlingProgressBar.setIndeterminate(true);
-						listHandlingProgressBar.setString(I18n.text("Connecting to remote system for log list update..."));
-//						long timeD1 = System.currentTimeMillis();
+						SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                listHandlingProgressBar.setValue(10);
+                                listHandlingProgressBar.setIndeterminate(true);
+                                listHandlingProgressBar.setString(I18n.text("Connecting to remote system for log list update..."));
+                            }
+                        });
+						//						long timeD1 = System.currentTimeMillis();
 						
 				        try {
 				            clientFtp = new FtpDownloader(host, port);
@@ -683,9 +693,14 @@ public class LogsDownloaderWorker {
 						}
 						
 						//->Removing from already existing LogFolders to LOCAL state
-						listHandlingProgressBar.setValue(20);
-						listHandlingProgressBar.setIndeterminate(false);
-						listHandlingProgressBar.setString(I18n.text("Filtering list..."));
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                listHandlingProgressBar.setValue(20);
+                                listHandlingProgressBar.setIndeterminate(false);
+                                listHandlingProgressBar.setString(I18n.text("Filtering list..."));
+                            }
+                        });
 						//long timeC1 = System.currentTimeMillis();
 						Object[] objArray = new Object[logFolderList.myModel.size()];
 						logFolderList.myModel.copyInto(objArray);
@@ -729,21 +744,31 @@ public class LogsDownloaderWorker {
 
 						
 						//->Getting Log files list from server
-						listHandlingProgressBar.setValue(30);
-						listHandlingProgressBar.setIndeterminate(true);
-						listHandlingProgressBar.setString(I18n.text("Contacting remote system for complete log file list..."));
-
-						listHandlingProgressBar.setValue(40);
-						listHandlingProgressBar.setIndeterminate(false);
-						listHandlingProgressBar.setString(I18n.text("Processing log list..."));
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                listHandlingProgressBar.setValue(30);
+                                listHandlingProgressBar.setIndeterminate(true);
+                                listHandlingProgressBar.setString(I18n.text("Contacting remote system for complete log file list..."));
+                                
+                                listHandlingProgressBar.setValue(40);
+                                listHandlingProgressBar.setIndeterminate(false);
+                                listHandlingProgressBar.setString(I18n.text("Processing log list..."));
+                            }
+                        });
 
 						objArray = new Object[logFolderList.myModel.size()];
 						logFolderList.myModel.copyInto(objArray);
 
 						LinkedList<LogFolderInfo> tmpLogFolderList = getLogFileList(new LinkedHashSet<String>(retList.values()));
-						listHandlingProgressBar.setValue(70);
-						listHandlingProgressBar.setIndeterminate(false);
-						listHandlingProgressBar.setString(I18n.text("Updating logs info..."));
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                listHandlingProgressBar.setValue(70);
+                                listHandlingProgressBar.setIndeterminate(false);
+                                listHandlingProgressBar.setString(I18n.text("Updating logs info..."));
+                            }
+                        });
 
 						//Testing for log files from each log folder 
 						for (Object comp : objArray) {
@@ -820,9 +845,14 @@ public class LogsDownloaderWorker {
 						}.start();
 						//NeptusLog.pub().info("<###>.......updateFilesListGUIForFolderSelected " + (System.currentTimeMillis()-timeF3));
 						
-						listHandlingProgressBar.setValue(90);
-						listHandlingProgressBar.setIndeterminate(false);
-						listHandlingProgressBar.setString(I18n.text("Updating GUI..."));
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                listHandlingProgressBar.setValue(90);
+                                listHandlingProgressBar.setIndeterminate(false);
+                                listHandlingProgressBar.setString(I18n.text("Updating GUI..."));
+                            }
+                        });
 						logFolderList.invalidate();
 						logFolderList.revalidate();
 						logFolderList.repaint();
@@ -833,9 +863,14 @@ public class LogsDownloaderWorker {
 						logFilesList.setEnabled(true);
 						
 						//NeptusLog.pub().info("<###>.......downloadListAction " + (System.currentTimeMillis()-time));
-						listHandlingProgressBar.setValue(100);
-						listHandlingProgressBar.setIndeterminate(false);
-						listHandlingProgressBar.setString(I18n.text("Done"));
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                listHandlingProgressBar.setValue(100);
+                                listHandlingProgressBar.setIndeterminate(false);
+                                listHandlingProgressBar.setString(I18n.text("Done"));
+                            }
+                        });
 						return true;
 					}
 
