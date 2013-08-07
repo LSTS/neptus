@@ -141,9 +141,9 @@ public class UnicycleModel {
             
             double curBathym = SimulationEngine.simBathym.getSimulatedDepth(getCurrentPosition());
             double curAltitude = curBathym-depth;
-            if (curAltitude > altitude-0.1)
+            if (curAltitude > altitude)
                 pitchRad = Math.toRadians(12);
-            else if (curAltitude < altitude+0.1)
+            else if (curAltitude < altitude)
                 pitchRad = -Math.toRadians(12);
             else {
                 depth = (SimulationEngine.simBathym.getSimulatedDepth(getCurrentPosition())-altitude);

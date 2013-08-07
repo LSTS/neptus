@@ -57,6 +57,7 @@ import pt.up.fe.dceg.neptus.mp.preview.PlanSimulation3D;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulationOverlay;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulator;
 import pt.up.fe.dceg.neptus.mp.preview.SimulationEngine;
+import pt.up.fe.dceg.neptus.mp.preview.payloads.PayloadFactory;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
@@ -224,8 +225,8 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                 }
             });
             popup.addSeparator();
-            
-            popup.add("Add depth sounding").addActionListener(new ActionListener() {
+            JMenu simBathym = new JMenu("Simulated bathymetry");
+            simBathym.add("Add depth sounding").addActionListener(new ActionListener() {
                 
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -243,7 +244,7 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                 }
             });
             
-            popup.add("Clear depth soundings").addActionListener(new ActionListener() {
+            simBathym.add("Clear depth soundings").addActionListener(new ActionListener() {
                 
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -251,12 +252,23 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                 }
             });
             
-            popup.add("Show depth here").addActionListener(new ActionListener() {
+            simBathym.add("Show depth here").addActionListener(new ActionListener() {
                 
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     LocationType loc = source.getRealWorldLocation(event.getPoint());
                     GuiUtils.infoMessage(getConsole(), "Show depth", "depth is "+SimulationEngine.simBathym.getSimulatedDepth(loc));
+                }
+            });
+            popup.add(simBathym);
+            
+            popup.add("calculate payloads").addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    PayloadFactory factory = new PayloadFactory();
+                    for (Maneuver m : getConsole().getPlan().getGraph().getAllManeuvers())
+                        factory.getPayloads(m);                    
                 }
             });
             

@@ -36,6 +36,9 @@ import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Vector;
+import java.util.Map.Entry;
 
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -44,12 +47,21 @@ import javax.swing.SwingUtilities;
 import org.jzy3d.chart.Chart;
 import org.jzy3d.chart.ChartLauncher;
 import org.jzy3d.colors.Color;
+import org.jzy3d.colors.ColorMapper;
+import org.jzy3d.colors.colormaps.ColorMapRainbow;
 import org.jzy3d.global.Settings;
+import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
+import org.jzy3d.plot3d.builder.Builder;
+import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
 import org.jzy3d.plot3d.primitives.LineStrip;
 import org.jzy3d.plot3d.primitives.Point;
+import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
+import org.jzy3d.plot3d.rendering.legends.colorbars.ColorbarLegend;
 
+import pt.up.fe.dceg.neptus.colormap.DataDiscretizer;
+import pt.up.fe.dceg.neptus.colormap.DataDiscretizer.DataPoint;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
@@ -59,6 +71,7 @@ import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
+import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
 
 /**
  * @author zp
@@ -94,14 +107,15 @@ public class PlanSimulation3D extends JPanel {
                 firstCoord = new Coord3d(-offsets[0], offsets[1], depth);
         }
         
-        
+        Vector<LocationType> relevantLocations = new Vector<>();
         if (plan != null) {
         
             for (Maneuver m : plan.getGraph().getAllManeuvers()) {
                 if (m instanceof LocatedManeuver) {
                     ManeuverLocation loc = ((LocatedManeuver)m).getStartLocation();
                     double[] offsets = loc.getOffsetFrom(overlay.ref);
-
+                    //relevantLocations.add(loc.clone());
+                    
                     if (loc.getZUnits() == Z_UNITS.DEPTH) {
                         chart.getScene().add(new Marker3d(m.getId(), new Coord3d(-offsets[0], offsets[1], -loc.getZ()), java.awt.Color.blue));
 
@@ -120,13 +134,79 @@ public class PlanSimulation3D extends JPanel {
                         coords.add(new Coord3d(-offsets[0], offsets[1], -(SimulationEngine.simBathym.getSimulatedDepth(loc)-loc.getZ())));                    
                         LineStrip strip = new LineStrip(coords);
                         strip.setWireframeColor(new Color(0, 100, 100, 100));
-                        chart.getScene().add(strip);
+                        chart.getScene().add(strip);                        
                     }
                     else
                         chart.getScene().add(new Marker3d(m.getId(), new Coord3d(-offsets[0], offsets[1], 0), java.awt.Color.blue));
                 }
             }
         }
+        
+        // simulated bathymetry
+//        
+//        BoundingBox3d bounds = chart.getView().
+//        
+//        
+//        System.out.println(bounds.getXmax());
+//        System.out.println(bounds.getXmin());
+//        System.out.println(bounds.getYmax());
+//        System.out.println(bounds.getYmin());
+//        
+   LocationType loc = new LocationType(overlay.ref);
+//        loc.translatePosition(bounds.getYmin(), bounds.getXmin(), 0);
+//        relevantLocations.add(loc);
+//        
+//        loc = new LocationType(overlay.ref);
+//        loc.translatePosition(bounds.getYmax(), bounds.getXmin(), 0);
+//        relevantLocations.add(loc);
+//        
+//        loc = new LocationType(overlay.ref);
+//        loc.translatePosition(bounds.getYmax(), bounds.getXmax(), 0);
+//        relevantLocations.add(loc);
+//        
+//        
+//        loc = new LocationType(overlay.ref);
+//        loc.translatePosition(bounds.getYmax(), bounds.getXmin(), 0);
+//        relevantLocations.add(loc);
+        
+        LinkedHashMap<LocationType, Double> soundings = SimulationEngine.simBathym.getSoundings();
+        
+        
+        if (!soundings.isEmpty()) {
+            DataDiscretizer dd = new DataDiscretizer(3);
+            
+            for (Entry<LocationType, Double> entry : soundings.entrySet()) {                
+                double offsets[] = entry.getKey().getOffsetFrom(overlay.ref);
+                dd.addPoint(-offsets[0], offsets[1], -entry.getValue());
+            }
+            
+            for (LocationType l : relevantLocations) {
+                double offsets[] = l.getOffsetFrom(overlay.ref);
+                dd.addPoint(-offsets[0], offsets[1], -SimulationEngine.simBathym.getSimulatedDepth(loc));
+            }
+            
+            
+            
+            DataPoint[] data = dd.getDataPoints();
+            if (data.length == 0)
+                return;
+            ArrayList<Coord3d> coords = new ArrayList<>();
+
+            for (DataPoint p : data) {
+                coords.add(new Coord3d(p.getPoint2D().getX(), p.getPoint2D().getY(), p.getValue()));
+            }
+            Shape surface = Builder.buildDelaunay(coords);
+            
+            surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), surface.getBounds().getZmin(), surface
+                    .getBounds().getZmax(), new Color(1, 0.5f, 0.5f, 0.5f)));
+            surface.setWireframeDisplayed(false);
+            surface.setLegend(new ColorbarLegend(surface, chart.getView().getAxe().getLayout().getZTickProvider(),
+                    chart.getView().getAxe().getLayout().getZTickRenderer()));
+            surface.setLegendDisplayed(true);
+            chart.getScene().add(surface);
+        }
+
+        
         path.add(new Point(lastCoord, new Color(0, 0, 0, 0), 0f));
         path.add(new Point(firstCoord, new Color(0, 0, 0, 0), 0f));
         path.setWidth(2f);

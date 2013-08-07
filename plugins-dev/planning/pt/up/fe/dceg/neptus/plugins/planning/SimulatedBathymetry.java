@@ -35,6 +35,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
@@ -59,6 +60,10 @@ public class SimulatedBathymetry implements Renderer2DPainter {
     
     protected void clearSoundings() {
         soundings.clear();
+    }
+    
+    public LinkedHashMap<LocationType, Double> getSoundings() {
+        return soundings;
     }
     
     public double getSimulatedDepth(LocationType loc) {

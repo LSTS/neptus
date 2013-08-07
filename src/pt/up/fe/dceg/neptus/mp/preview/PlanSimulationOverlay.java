@@ -33,7 +33,9 @@ package pt.up.fe.dceg.neptus.mp.preview;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Area;
 import java.awt.geom.Point2D;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -41,6 +43,8 @@ import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.up.fe.dceg.neptus.mp.preview.payloads.PayloadFactory;
+import pt.up.fe.dceg.neptus.mp.preview.payloads.PayloadFingerprint;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -54,16 +58,21 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
 
     protected LocationType ref;
     protected Vector<SystemPositionAndAttitude> states = new Vector<>();
-
     protected Vector<Color> colors = new Vector<>();
     protected Vector<SimulationState> simStates = new Vector<>();
     public boolean simulationFinished = false;
     public static double bottomDepth = 10;
+    
+    protected LinkedHashMap<String, Collection<PayloadFingerprint>> payloads;
 
+    protected PlanType plan;
+    
     public PlanSimulationOverlay(PlanType plan, final double usedBattHours, final double remainingBattHours, SystemPositionAndAttitude start) {
-        this(plan.getMissionType().getHomeRef());
+        this.ref = new LocationType(plan.getMissionType().getHomeRef());
+        this.plan = plan;
         final SimulationEngine engine = new SimulationEngine(plan);
-
+        payloads = PayloadFactory.getPayloads(plan);
+        //System.out.println(payloads.entrySet().iterator().next().getValue());
         if (start != null)
             engine.setState(start);
 
@@ -81,8 +90,10 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
                     engine.simulationStep();
                     if (ellapsedTime - lastPoint > 1) {
                         Color c = cmap.getColor(1 - ((ellapsedTime + usedBatt) / totalBattTime));
-                        addPoint(engine.getState(), c, new SimulationState(
-                                engine.getManId(), engine.getCurPreview() == null? null : engine.getCurPreview().getState(), engine.getState()));
+                        addPoint(engine.getState(), c,
+                                new SimulationState(engine.getManId(), engine.getCurPreview() == null ? null : engine
+                                        .getCurPreview().getState(), engine.getState()));
+                        
                         lastPoint = ellapsedTime;
                     }
                     Thread.yield();
@@ -92,12 +103,6 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         };
         t.setDaemon(true);
         t.start();
-    }
-
-
-
-    public PlanSimulationOverlay(LocationType ref) {
-        this.ref = new LocationType(ref);
     }
 
     protected void addPoint(double northing, double easting, Color color) {
@@ -203,6 +208,24 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
             time = time / 60;
         }
 
+        for (int i = 0; i < states.size(); i++) {
+            String man = simStates.get(i).getCurrentManeuver();
+            Graphics2D g2 = (Graphics2D)g.create();
+            Point2D pt = renderer.getScreenPosition(states.get(i).getPosition());
+            g2.translate(pt.getX(), pt.getY());
+            g2.scale(renderer.getZoom(), renderer.getZoom());
+            g2.rotate(states.get(i).getYaw());
+            
+            for (PayloadFingerprint pf : payloads.get(man)) {
+                SystemPositionAndAttitude state = states.get(i);
+                state.setAltitude(SimulationEngine.simBathym.getSimulatedDepth(state.getPosition()));
+                Area a = pf.getFingerprint(states.get(i));
+                //System.out.println(a.getBounds2D());
+                g2.setColor(pf.getColor());
+                g2.fill(a);
+            }
+        }
+        
         g.drawString("Plan takes aproximately "+time+" "+timeUnits, 10, renderer.getHeight()-40);
         g.translate(center.getX(), center.getY());
         g.rotate(-renderer.getRotation());
