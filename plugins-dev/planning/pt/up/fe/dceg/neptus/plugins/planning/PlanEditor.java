@@ -697,8 +697,24 @@ MissionChangeListener {
     }
 
     private void parsePlan() {
-
-        this.mf = plan.getVehicleType().getManeuverFactory();
+        VehicleType vt = plan.getVehicleType();
+        if (vt == null) {
+            NeptusLog.pub().warn("No vehicle type for vehicle " + plan.getVehicle() + " for plan " + plan.getId());
+            String mvid = getMainVehicleId();
+            vt = VehiclesHolder.getVehicleById(mvid);
+            if (vt == null)
+                NeptusLog.pub().warn("No vehicle type for main vehicle " + getMainVehicleId() + " for plan " + plan.getId());
+            else
+                plan.setVehicle(getMainVehicleId());
+        }
+        
+        if (vt != null) {
+            this.mf = vt.getManeuverFactory();
+        }
+        else {
+            NeptusLog.pub().warn("No vehicle type creating empty maneuver factory for plan " + plan.getId());
+            this.mf = new ManeuverFactory(null);
+        }
 
         for (Maneuver man : plan.getGraph().getAllManeuvers()) {
             takenNames.add(man.getId());
