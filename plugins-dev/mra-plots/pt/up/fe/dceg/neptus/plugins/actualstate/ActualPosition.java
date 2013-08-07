@@ -35,7 +35,6 @@ import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.LblRange;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIterator;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
@@ -91,6 +90,7 @@ public class ActualPosition extends Mra2DPlot {
 
         LocationType lastLoc = null;
         double lastTime = 0;
+        
         for (EstimatedState es = it.next(); es != null; es = it.next()) {
             LocationType thisLoc = new LocationType();
             thisLoc.setLatitudeRads(es.getLat());
@@ -116,12 +116,7 @@ public class ActualPosition extends Mra2DPlot {
                             thisLoc.getLongitudeAsDoubleValue(), es.getSourceName(), "Estimated Position");
                 }
                 else if (!nonAdjusted.isEmpty()) {
-                    if (es.getDepth() > 0.25)
-                        addValue(es.getTimestampMillis(), thisLoc.getLatitudeAsDoubleValue(),
-                                thisLoc.getLongitudeAsDoubleValue(), es.getSourceName(), "LBL Readjustments");
-                    else
-                        addValue(es.getTimestampMillis(), thisLoc.getLatitudeAsDoubleValue(),
-                                thisLoc.getLongitudeAsDoubleValue(), es.getSourceName(), "GPS Readjustments");
+
                     
                     double[] adjustment = thisLoc.getOffsetFrom(lastLoc);
                     EstimatedState firstNonAdjusted = nonAdjusted.firstElement();
@@ -139,6 +134,10 @@ public class ActualPosition extends Mra2DPlot {
                         addValue(adj.getTimestampMillis(), loc.getLatitudeAsDoubleValue(),
                                 loc.getLongitudeAsDoubleValue(), adj.getSourceName(), "Actual Position");
                     }
+                    
+                    addValue(es.getTimestampMillis(), thisLoc.getLatitudeAsDoubleValue(),
+                            thisLoc.getLongitudeAsDoubleValue(), es.getSourceName(), "GPS Readjustments");
+
                     nonAdjusted.clear();
                     nonAdjustedLocs.clear();
                     nonAdjusted.add(es);
@@ -150,7 +149,7 @@ public class ActualPosition extends Mra2DPlot {
             lastTime = es.getTimestamp();
         }
         
-        LsfIterator<LblRange> rangeIt = source.getIterator(LblRange.class);
+        //LsfIterator<LblRange> rangeIt = source.getIterator(LblRange.class);
         
         
     }

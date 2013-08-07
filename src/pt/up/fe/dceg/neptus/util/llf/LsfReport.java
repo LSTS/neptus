@@ -293,7 +293,7 @@ public class LsfReport {
             int width = (int) pageSize.getWidth();
             int height = (int) pageSize.getHeight();
 
-            JFreeChart chart = llfChart.getChart(source, llfChart.getDefaultTimeStep());
+            JFreeChart chart = llfChart.getChart(source, NeptusMRA.defaultTimestep);
             chart.setTitle("");
             chart.setBackgroundPaint(Color.white);
             chart.draw(g2, new Rectangle2D.Double(25, 25, width-50, height-50));
