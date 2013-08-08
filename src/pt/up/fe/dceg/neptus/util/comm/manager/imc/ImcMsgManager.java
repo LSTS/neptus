@@ -228,6 +228,8 @@ public class ImcMsgManager extends
                 
                 // IMC Announce
                 announceWorker.getAnnounceMessage().setValue("sys_name", StringUtils.toImcName(GeneralPreferences.imcCcuName));
+                announceWorker.setUseUnicastAnnounce(GeneralPreferences.imcUnicastAnnounceEnable);
+                
                 localId = GeneralPreferences.imcCcuId;
             }
         };

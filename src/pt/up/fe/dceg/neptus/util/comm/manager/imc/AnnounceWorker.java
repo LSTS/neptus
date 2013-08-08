@@ -31,6 +31,10 @@
  */
 package pt.up.fe.dceg.neptus.util.comm.manager.imc;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.InterfaceAddress;
@@ -46,11 +50,13 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.AcousticSystemsQuery;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
 import pt.up.fe.dceg.neptus.mystate.MyState;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.up.fe.dceg.neptus.util.DateTimeUtil;
 import pt.up.fe.dceg.neptus.util.NetworkInterfacesUtil;
+import pt.up.fe.dceg.neptus.util.comm.CommUtil;
 import pt.up.fe.dceg.neptus.util.comm.IMCSendMessageUtils;
 import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem.IMCAuthorityState;
@@ -99,19 +105,24 @@ public class AnnounceWorker {
 	 */
 	
 	private Timer timer = null;
-	private TimerTask ttaskAnnounceMulticast = null, ttaskAnnounceBroadcast = null, ttaskEntityListAndPlanDB = null, ttaskHeartbeat = null;
+	private TimerTask ttaskAnnounceMulticast = null;
+	private TimerTask ttaskAnnounceBroadcast = null;
+    private TimerTask ttaskAnnounceUnicast = null;
+	private TimerTask ttaskEntityListAndPlanDB = null;
+	private TimerTask ttaskHeartbeat = null;
+	
 	private IMCMessage announceMessage = null;
 	private int periodMulticast = 10000;
 	private int periodBroadcast = 7000;
+	private int periodUnicastAnnounce = 10000;
 	private int periodEntityListRequest = 30000;
 	private int periodHeartbeatRequest = 1000;
+	
+	private boolean useUnicastAnnounce = false;
 	
 	private ImcMsgManager imcManager = null;
 	private IMCDefinition imcDefinition = null;
 	
-	/**
-	 * 
-	 */
 	public AnnounceWorker(ImcMsgManager imcManager, IMCDefinition imcDefinition) {
 		this.imcManager = imcManager;
 		this.imcDefinition = imcDefinition;
@@ -221,6 +232,20 @@ public class AnnounceWorker {
 	}
 	
 	/**
+     * @return the periodUnicastAnnounce
+     */
+    public int getPeriodUnicastAnnounce() {
+        return periodUnicastAnnounce;
+    }
+    
+    /**
+     * @param periodUnicastAnnounce the periodUnicastAnnounce to set
+     */
+    public void setPeriodUnicastAnnounce(int periodUnicastAnnounce) {
+        this.periodUnicastAnnounce = periodUnicastAnnounce;
+    }
+	
+	/**
 	 * @return the periodEntityListRequest
 	 */
 	public long getPeriodEntityListRequest() {
@@ -242,18 +267,39 @@ public class AnnounceWorker {
         return periodHeartbeatRequest;
     }
     
+    /**
+     * @return the useUnicastAnnounce
+     */
+    public boolean isUseUnicastAnnounce() {
+        return useUnicastAnnounce;
+    }
+    
+    /**
+     * @param useUnicastAnnounce the useUnicastAnnounce to set
+     */
+    public void setUseUnicastAnnounce(boolean useUnicastAnnounce) {
+        this.useUnicastAnnounce = useUnicastAnnounce;
+    }
+    
 	public synchronized boolean startAnnounceAndPeriodicRequests() {
 		if (timer != null || ttaskAnnounceMulticast != null || ttaskAnnounceBroadcast != null) // || getAnnounceMessage() == null)
 			return false;
 		timer = new Timer(this.getClass().getSimpleName(), true);
 		ttaskAnnounceMulticast = getTtaskAnnounceMulticast();
 		ttaskAnnounceBroadcast = getTtaskAnnounceBroadcast();
+		ttaskAnnounceUnicast = getTtaskAnnounceUnicast();
 		ttaskEntityListAndPlanDB = getTtaskEntityListAndPlanDB();
 		ttaskHeartbeat = getTtaskHeartbeat();
-		timer.scheduleAtFixedRate(ttaskAnnounceMulticast,  500, getPeriodMulticast());
-		timer.scheduleAtFixedRate(ttaskAnnounceBroadcast, 900, getPeriodBroadcast());
-		timer.scheduleAtFixedRate(ttaskEntityListAndPlanDB, 1000, getPeriodEntityListRequest());
-		timer.scheduleAtFixedRate(ttaskHeartbeat, 2000, getPeriodHeartbeatRequest());
+		if (getPeriodMulticast() >= 0)
+		    timer.scheduleAtFixedRate(ttaskAnnounceMulticast,  500, getPeriodMulticast());
+        if (getPeriodBroadcast() >= 0)
+            timer.scheduleAtFixedRate(ttaskAnnounceBroadcast, 900, getPeriodBroadcast());
+        if (getPeriodUnicastAnnounce() >= 0 && useUnicastAnnounce)
+            timer.scheduleAtFixedRate(ttaskAnnounceUnicast, 700, getPeriodUnicastAnnounce());
+        if (getPeriodEntityListRequest() >= 0)
+            timer.scheduleAtFixedRate(ttaskEntityListAndPlanDB, 1000, getPeriodEntityListRequest());
+        if (getPeriodHeartbeatRequest() >= 0)
+            timer.scheduleAtFixedRate(ttaskHeartbeat, 2000, getPeriodHeartbeatRequest());
 		return true;
 	}
 	
@@ -266,6 +312,10 @@ public class AnnounceWorker {
 			ttaskAnnounceBroadcast.cancel();
 			ttaskAnnounceBroadcast = null;
 		}
+        if (ttaskAnnounceUnicast != null) {
+            ttaskAnnounceUnicast.cancel();
+            ttaskAnnounceUnicast = null;
+        }
         if (ttaskEntityListAndPlanDB != null) {
             ttaskEntityListAndPlanDB.cancel();
             ttaskEntityListAndPlanDB = null;
@@ -293,7 +343,6 @@ public class AnnounceWorker {
 			}
 		};
 	}
-
 	
 	/**
 	 * @return the ttaskAnnounceBroadcast
@@ -307,6 +356,57 @@ public class AnnounceWorker {
 			}
 		};
 	}
+	
+	/**
+     * @return the ttaskAnnounceUnicast
+     */
+	private TimerTask getTtaskAnnounceUnicast() {
+        return ttaskAnnounceUnicast = new TimerTask() {
+            private DatagramSocket sock;
+            private int[] multicastPorts = CommUtil.parsePortRangeFromString(
+                    GeneralPreferences.imcMulticastBroadcastPortRange, new int[] { 6969 });
+            
+            @Override
+            public void run() {
+                try {
+                    if (sock == null)
+                        sock = new DatagramSocket();
+                }
+                catch (SocketException e) {
+                    e.printStackTrace();
+                }
+                
+                ImcSystem[] imcSysList = ImcSystemsHolder.lookupAllSystems();
+                IMCMessage message = getAnnounceMessageUpdated().cloneMessage();
+                message.getHeader().setValue("src", imcManager.getLocalId().longValue());
+                message.getHeader().setValue("dst", ImcId16.ANNOUNCE);
+                message.setTimestamp(System.currentTimeMillis() / 1000.0);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                IMCOutputStream imcOs = new IMCOutputStream(baos);
+                try {
+                    message.serialize(imcOs);
+                    byte[] bArray = baos.toByteArray();
+                    for (ImcSystem sys : imcSysList) {
+                        if (!sys.isActive()) {
+                            for (int port : multicastPorts) {
+                                InetSocketAddress add = new InetSocketAddress(sys.getHostAddress(), port);
+                                try {
+                                    DatagramPacket dgram = new DatagramPacket(bArray, bArray.length, add);
+                                    sock.send(dgram);
+                                }
+                                catch (SocketException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
 
 	/**
 	 * @return the ttaskEntityListAndPlanDB

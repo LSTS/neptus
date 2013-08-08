@@ -118,6 +118,10 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "If enable allows the announce msg request to use the sender IP to be use in future comms. to the sender system.")
     public static boolean imcChangeBySourceIpRequest = true;
 
+    @NeptusProperty(name = "IMC Unicast Annonce Enable", category = "IMC Communications", userLevel = LEVEL.ADVANCED, 
+            description = "Multicast enable or disable")
+    public static boolean imcUnicastAnnounceEnable = true;
+
     // -------------------------------------------------------------------------
 
     @NeptusProperty(name = "Logs Downloader - Enable Parcial Download", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED, 

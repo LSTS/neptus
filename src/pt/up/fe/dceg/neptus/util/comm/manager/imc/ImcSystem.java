@@ -60,6 +60,8 @@ import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
  */
 public class ImcSystem implements Comparable<ImcSystem> {
 
+    private static final int TIMEOUT_FOR_NOT_ANNOUNCE_STATE = 12000;
+    
     public final static String GROUND_SPEED_KEY = "Ground Speed";
     public final static String VERTICAL_SPEED_KEY = "Vertical Speed";
     public final static String TRUE_SPEED_KEY = "True Speed";
@@ -814,6 +816,9 @@ public class ImcSystem implements Comparable<ImcSystem> {
      * @return the onAnnounceState
      */
     public boolean isOnAnnounceState() {
+        if (onAnnounceState && System.currentTimeMillis() - getLastAnnounceStateReceived() >= TIMEOUT_FOR_NOT_ANNOUNCE_STATE) {
+            onAnnounceState = false;
+        }
         return onAnnounceState;
     }
     
