@@ -1,5 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.3.0-rc1 (7eb69c4)" system="pilatus-05" i18n="en_US">
+<config format="1" version="2.3.0-rc1 (master,63f1c79)" system="pilatus-05" i18n="en_US">
+  <section name="Text Message Parser" name-i18n="Text Message Parser">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Text Message Parser</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Spew</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+  </section>
   <section name="Path Control" name-i18n="Path Control">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -17,7 +66,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -166,6 +215,16 @@
       <desc>Relation between monitor disabling time and position jump</desc>
       <min>0.1</min>
     </param>
+    <param name="ETA Minimum Speed">
+      <name-i18n>ETA Minimum Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m/s</units>
+      <desc>ETA minimum admissible speed</desc>
+      <min>0.1</min>
+    </param>
     <param name="Bottom Track -- Enabled">
       <name-i18n>Bottom Track -- Enabled</name-i18n>
       <type>boolean</type>
@@ -312,7 +371,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -361,7 +420,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -410,7 +469,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -459,7 +518,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -490,6 +549,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Minimum Radius">
+      <name-i18n>Minimum Radius</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10.0</default>
+      <units/>
+      <desc>Minimum radius to prevent incompatibility with path controller</desc>
+    </param>
   </section>
   <section name="Rows Maneuver" name-i18n="Rows Maneuver">
     <param name="Entity Label">
@@ -508,7 +576,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -557,7 +625,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -633,7 +701,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -718,7 +786,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -805,13 +873,13 @@
       <desc>Maximum number of consecutive transitions before starting to ignore</desc>
     </param>
   </section>
-  <section name="Lost Comms" name-i18n="Lost Comms">
+  <section name="Lost Comms Monitor" name-i18n="Lost Comms Monitor">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Lost Comms</default>
+      <default>Lost Comms Monitor</default>
       <units/>
       <desc>Main entity label</desc>
     </param>
@@ -822,7 +890,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -858,7 +926,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2</default>
+      <default>1</default>
       <units>Hz</units>
       <desc>Frequency at which task is executed</desc>
     </param>
@@ -867,7 +935,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5</default>
+      <default>10</default>
       <units>s</units>
       <desc>Heartbeat Timeout</desc>
     </param>
@@ -876,7 +944,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10</default>
+      <default>20</default>
       <units>s</units>
       <desc>Timeout if executing plan</desc>
     </param>
@@ -907,7 +975,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -1047,7 +1115,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -1105,7 +1173,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -1181,6 +1249,15 @@
       <units>s</units>
       <desc>Duration of vehicle calibration commands</desc>
     </param>
+    <param name="Abort On Failed Activation">
+      <name-i18n>Abort On Failed Activation</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Abort when a payload fails to activate</desc>
+    </param>
   </section>
   <section name="Plan Generator" name-i18n="Plan Generator">
     <param name="Entity Label">
@@ -1199,7 +1276,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -1293,7 +1370,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -1360,7 +1437,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -1499,7 +1576,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -1557,7 +1634,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -1633,7 +1710,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -1687,7 +1764,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Voltage, Current, GpsFix, EntityState, CpuUsage, StorageUsage, Heartbeat, Temperature, RSSI, LinkLevel</default>
+      <default>Voltage, Current, FuelLevel, GpsFix, EntityState, CpuUsage, StorageUsage, Heartbeat, Temperature, RSSI, LinkLevel</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -1709,7 +1786,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -1758,7 +1835,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
@@ -1803,7 +1880,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>none</default>
+      <default>gzip</default>
       <units/>
       <desc>Compression method</desc>
     </param>
@@ -1852,7 +1929,7 @@
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc/>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
       <name-i18n>Activation Time</name-i18n>
