@@ -119,7 +119,7 @@ public class GeneralPreferences implements PropertiesProvider {
     public static boolean imcChangeBySourceIpRequest = true;
 
     @NeptusProperty(name = "IMC Unicast Annonce Enable", category = "IMC Communications", userLevel = LEVEL.ADVANCED, 
-            description = "Multicast enable or disable")
+            description = "To send announce also by Unicast. Enable or disable")
     public static boolean imcUnicastAnnounceEnable = true;
 
     // -------------------------------------------------------------------------
