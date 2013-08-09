@@ -203,8 +203,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public File fileName = null;
     public boolean resizableConsole = false;
 
-    // protected LinkedHashMap<String, AbstractAction> menuActions = new LinkedHashMap<String, AbstractAction>();
-
     /**
      * Static factory method
      * 
