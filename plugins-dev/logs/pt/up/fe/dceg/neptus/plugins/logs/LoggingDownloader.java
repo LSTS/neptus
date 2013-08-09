@@ -54,7 +54,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import org.jdesktop.swingx.JXButton;
@@ -351,16 +350,17 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
         for (LogsDownloaderWorker downloadWorker : downloadWorkerList.values()) {
             downloadWorker.cleanup();
         }
-        if (logsFrame != null) {
-            logsFrame.setVisible(false);
-            SwingUtilities.invokeLater(new Runnable() {
-                
-                @Override
-                public void run() {
-                    logsFrame.dispose();
-                }
-            });            
-        }
+        logsFrame.dispose();
+//        if (logsFrame != null) {
+//            logsFrame.setVisible(false);
+//            SwingUtilities.invokeLater(new Runnable() {
+//                
+//                @Override
+//                public void run() {
+//                    logsFrame.dispose();
+//                }
+//            });            
+//        }
     }
 
     /**

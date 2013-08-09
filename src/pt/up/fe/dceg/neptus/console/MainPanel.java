@@ -144,7 +144,11 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
     public void clean() {
         removeAll();
-        cleanPanels(console.getSubPanels());
+        for (SubPanel panel : console.getSubPanels()) {
+            panel.clean();
+            System.out.println("cleaned " + panel.getName());
+        }
+//        cleanPanels(console.getSubPanels());
     }
 
     public void resetPanelLocations() {

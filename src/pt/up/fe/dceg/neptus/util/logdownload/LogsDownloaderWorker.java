@@ -1285,19 +1285,19 @@ public class LogsDownloaderWorker {
 			timer.cancel();
 			timer = null;
 		}
-		if (frame != null) {
-		    if (!frameIsExternalControlled) {
-	            SwingUtilities.invokeLater(new Runnable() {                
-	                @Override
-	                public void run() {
-	                    frame.dispose();
-	                    frame = null;
-	                }
-	            }); 
-		    }
-		    else
-		        frame = null;
-		}
+//		if (frame != null) {
+//		    if (!frameIsExternalControlled) {
+//	            SwingUtilities.invokeLater(new Runnable() {                
+//	                @Override
+//	                public void run() {
+//	                    frame.dispose();
+//	                    frame = null;
+//	                }
+//	            }); 
+//		    }
+//		    else
+//		        frame = null;
+//		}
 		if (downHelpDialog != null)
 		    downHelpDialog.dispose();
 	}
