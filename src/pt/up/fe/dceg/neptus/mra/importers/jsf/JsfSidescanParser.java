@@ -45,7 +45,7 @@ import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
  */
 public class JsfSidescanParser implements SidescanParser {
 
-    JsfParser parser;
+    private JsfParser parser;
 
     public JsfSidescanParser(File f) {
         parser = new JsfParser(f);
@@ -63,7 +63,7 @@ public class JsfSidescanParser implements SidescanParser {
     
     @Override
     public ArrayList<Integer> getSubsystemList() {
-        return parser.index.subSystemsList;
+        return parser.getIndex().subSystemsList;
     }
 
     @Override

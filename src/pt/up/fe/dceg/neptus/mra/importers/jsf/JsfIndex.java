@@ -48,13 +48,13 @@ public class JsfIndex implements Serializable {
     long firstTimestampLow = -1;
     long lastTimestampLow = -1;
 
-    int numberOfPackets = -1;
+    long numberOfPackets = -1;
     
     boolean hasHigh = false;
     boolean hasLow = false;
     
-    LinkedHashMap<Long, ArrayList<Integer>> positionMapHigh = new LinkedHashMap<Long, ArrayList<Integer>>();
-    LinkedHashMap<Long, ArrayList<Integer>> positionMapLow = new LinkedHashMap<Long, ArrayList<Integer>>();
+    LinkedHashMap<Long, ArrayList<Long>> positionMapHigh = new LinkedHashMap<Long, ArrayList<Long>>();
+    LinkedHashMap<Long, ArrayList<Long>> positionMapLow = new LinkedHashMap<Long, ArrayList<Long>>();
     
     ArrayList<Float> frequenciesList = new ArrayList<Float>();
     ArrayList<Integer> subSystemsList = new ArrayList<Integer>();

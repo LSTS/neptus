@@ -53,20 +53,20 @@ import pt.up.fe.dceg.neptus.NeptusLog;
  * 
  */
 public class JsfParser {
-    File file;
-    FileInputStream fis;
-    FileChannel channel;
-    int curPosition = 0;
-    int curPingNumber = 0;
-    JsfIndex index = new JsfIndex();    
+    private File file;
+    private FileInputStream fis;
+    private FileChannel channel;
+    private long curPosition = 0;
+    private int curPingNumber = 0;
+    private JsfIndex index = new JsfIndex();    
     
-    String indexPath;
+    private String indexPath;
 
-    long nextTimestampHigh;
-    long nextTimestampLow;
+    private long nextTimestampHigh;
+    private long nextTimestampLow;
     
-    LinkedHashMap<Integer, Long[]> tslist = new LinkedHashMap<Integer, Long[]>();
-    LinkedHashMap<Integer, Long> nextTimestamp = new LinkedHashMap<Integer, Long>();
+    private LinkedHashMap<Integer, Long[]> tslist = new LinkedHashMap<Integer, Long[]>();
+    private LinkedHashMap<Integer, Long> nextTimestamp = new LinkedHashMap<Integer, Long>();
     
     final static int SUBSYS_LOW = 20;
     final static int SUBSYS_HIGH = 21;
@@ -94,12 +94,19 @@ public class JsfParser {
         }
     }
 
+    /**
+     * @return the index
+     */
+    public JsfIndex getIndex() {
+        return index;
+    }
+    
     public void generateIndex() {
         JsfHeader header = new JsfHeader();
         JsfSonarData ping = new JsfSonarData();
 
-        int count = 0;
-        int pos = 0;
+        long count = 0;
+        long pos = 0;
         
         long maxTimestampHigh = 0;
         long maxTimestampLow = 0;
@@ -147,9 +154,9 @@ public class JsfParser {
                 if(subsystem == SUBSYS_LOW) {
                     if(!index.hasLow) index.hasLow = true;
                     
-                    ArrayList<Integer> l = index.positionMapLow.get(t);
+                    ArrayList<Long> l = index.positionMapLow.get(t);
                     if (l == null) {
-                        l = new ArrayList<Integer>();
+                        l = new ArrayList<Long>();
                         l.add(pos);
                         index.positionMapLow.put(t, l);
                     }
@@ -163,9 +170,9 @@ public class JsfParser {
                 if(subsystem == SUBSYS_HIGH) {
                     if(!index.hasHigh) index.hasHigh = true;
                     
-                    ArrayList<Integer> l = index.positionMapHigh.get(t);
+                    ArrayList<Long> l = index.positionMapHigh.get(t);
                     if (l == null) {
-                        l = new ArrayList<Integer>();
+                        l = new ArrayList<Long>();
                         l.add(pos);
                         index.positionMapHigh.put(t, l);
                         System.out.println(t);
@@ -250,7 +257,7 @@ public class JsfParser {
         return Math.max(index.lastTimestampHigh, index.lastTimestampLow);
     }
 
-    public JsfSonarData getPingAtPosition(int pos, int subsystem) {
+    public JsfSonarData getPingAtPosition(long pos, int subsystem) {
         JsfHeader header = new JsfHeader();
         JsfSonarData ping = new JsfSonarData();
         try {
@@ -287,7 +294,7 @@ public class JsfParser {
         curPosition = 0;
         ArrayList<JsfSonarData> ping = new ArrayList<JsfSonarData>();
         
-        LinkedHashMap<Long, ArrayList<Integer>> positionMap = ( subsystem == SUBSYS_LOW ? index.positionMapLow : index.positionMapHigh);
+        LinkedHashMap<Long, ArrayList<Long>> positionMap = ( subsystem == SUBSYS_LOW ? index.positionMapLow : index.positionMapHigh);
         
         long ts = 0;
         int c = 0;
@@ -302,7 +309,7 @@ public class JsfParser {
         
         nextTimestamp.put(subsystem, tslist.get(subsystem)[c+1]);
         
-        for(Integer pos : positionMap.get(ts)) {
+        for(Long pos : positionMap.get(ts)) {
             ping.add(getPingAtPosition(pos, subsystem));
         }
 
