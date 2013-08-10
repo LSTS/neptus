@@ -41,6 +41,7 @@ import java.awt.geom.Rectangle2D;
 import java.beans.PropertyEditor;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -851,12 +852,21 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             props.add(pz);
         }
 
+        Vector<DefaultProperty> additionalProperties = additionalProperties();
         Vector<DefaultProperty> addProps = new Vector<DefaultProperty>();
-        PropertiesEditor.localizeProperties(additionalProperties(), addProps);
-        for (DefaultProperty p : addProps) {
+        HashMap<String, PropertyEditor> peLList = new HashMap<>();
+        for (DefaultProperty p : additionalProperties) {
             PropertyEditor pe = PropertiesEditor.getPropertyEditorRegistry().getEditor(p);
+            peLList.put(p.getName(), pe);
+        }
+        PropertiesEditor.localizeProperties(additionalProperties, addProps);
+        for (DefaultProperty p : addProps) {
+            // PropertyEditor pe = PropertiesEditor.getPropertyEditorRegistry().getEditor(p);
             p.setCategory(I18n.textf("%s specific properties", getType()));
-            PropertiesEditor.getPropertyEditorRegistry().registerEditor(p, pe);
+            // PropertiesEditor.getPropertyEditorRegistry().registerEditor(p, pe);
+            PropertyEditor pe = peLList.get(p.getName());
+            if (pe != null)
+                PropertiesEditor.getPropertyEditorRegistry().registerEditor(p, pe);
         }
 
         props.addAll(addProps);
