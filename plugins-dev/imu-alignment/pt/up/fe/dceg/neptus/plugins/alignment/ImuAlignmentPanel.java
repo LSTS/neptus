@@ -197,7 +197,7 @@ public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdate
             default:
                 enableImu.setIcon(grayLed);
                 enableImu.setEnabled(false);
-                enableImu.setToolTipText(I18n.text("IMU cannot be aligned on "+alignState.getSourceName()));
+                enableImu.setToolTipText(I18n.textf("IMU cannot be aligned on %vehicle", alignState.getSourceName()));
                 enableImu.setSelected(false);
                 return "<html><h1><font color='red'>"+I18n.text("IMU cannot be aligned")+"</font></h1>"
                 +"<p>"+I18n.text("This vehicle does not support IMU alignment.")+"</p>"                
