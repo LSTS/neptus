@@ -7089,9 +7089,8 @@ msgid "Selection"
 msgstr "Selecção"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:176
-#, fuzzy
 msgid "Send"
-msgstr "Enviar Plano"
+msgstr "Enviar"
 
 #: plugins-dev/sunfish/pt/up/fe/dceg/neptus/plugins/sunfish/IridiumComms.java:202
 msgid "Send %vehicle a command via Iridium"
@@ -7112,7 +7111,7 @@ msgstr ""
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanControlPanel.java:136
 msgid ""
 "Send Acoustic Beacons. Use Ctrl click to clear the transponders from vehicle."
-msgstr " "
+msgstr ""
 
 #: plugins-dev/simulation/pt/up/fe/dceg/neptus/plugins/sim/SimulationActionsPlugin.java:57
 msgid "Send GPS Fix"
@@ -10357,7 +10356,7 @@ msgstr "latitude"
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1420
 msgid "left"
-msgstr ""
+msgstr "esquerda"
 
 #: Property from pt.up.fe.dceg.neptus.app.tiles.WorldMapPanel
 msgid "levelOfDetail"
@@ -10381,7 +10380,7 @@ msgstr "longitude"
 #: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:202
 #: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:214
 msgid "m"
-msgstr ""
+msgstr "m"
 
 #: src/pt/up/fe/dceg/neptus/gui/ClockCounter.java:63
 msgctxt "Chronometer minutes separator"
@@ -10395,7 +10394,7 @@ msgstr "m"
 #: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:216
 #, fuzzy
 msgid "m/s"
-msgstr " m/s"
+msgstr "m/s"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:56
 #, fuzzy
