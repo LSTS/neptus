@@ -825,10 +825,12 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
 
         DefaultProperty id = PropertiesEditor.getPropertyInstance("ID", I18n.text("Generic properties"),
                 String.class, getId(), false);
+        id.setDisplayName(I18n.text("ID"));
         id.setShortDescription(I18n.text("The identifier for this object"));
         props.add(id);
         DefaultProperty initialMan = PropertiesEditor.getPropertyInstance("Initial Maneuver",
                 I18n.text("Generic properties"), Boolean.class, isInitialManeuver(), true);
+        initialMan.setDisplayName(I18n.text("Initial Maneuver"));
         initialMan.setShortDescription(I18n.text("Whether this will be the first maneuver to be executed"));
         props.add(initialMan);
         
@@ -837,9 +839,14 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             loc.convertToAbsoluteLatLonDepth();
             //props.add(PropertiesEditor.getPropertyInstance("Latitude", "Location", String.class, loc.getLatitudeAsPrettyString(), false, "Maneuver's latitude"));
             //props.add(PropertiesEditor.getPropertyInstance("Longitude", "Location", String.class, loc.getLongitudeAsPrettyString(), false, "Maneuver's longitude"));
-            props.add(PropertiesEditor.getPropertyInstance("Location", "Location", ManeuverLocation.class, loc, true, "Maneuver's location"));
-            props.add(PropertiesEditor.getPropertyInstance("Z", "Location", Double.class, loc.getZ(), true, "Maneuver's z value"));
-            DefaultProperty pz = PropertiesEditor.getPropertyInstance("Z-Units", "Location", ManeuverLocation.Z_UNITS.class, loc.getZUnits(), true, "Maneuver's z units");
+            DefaultProperty propertyLocation = PropertiesEditor.getPropertyInstance("Location", I18n.text("Location"), ManeuverLocation.class, loc, true, I18n.text("Maneuver's location"));
+            propertyLocation.setDisplayName(I18n.text("Location"));
+            props.add(propertyLocation);
+            DefaultProperty propertyZ = PropertiesEditor.getPropertyInstance("Z", I18n.text("Location"), Double.class, loc.getZ(), true, I18n.text("Maneuver's z value"));
+            propertyZ.setDisplayName(I18n.textc("Z", "Maneuver's z value"));
+            props.add(propertyZ);
+            DefaultProperty pz = PropertiesEditor.getPropertyInstance("Z-Units", I18n.text("Location"), ManeuverLocation.Z_UNITS.class, loc.getZUnits(), true, I18n.text("Maneuver's z units"));
+            pz.setDisplayName(I18n.textc("Z-Units", "Maneuver's z units"));
             PropertiesEditor.getPropertyEditorRegistry().registerEditor(pz, new ComboEditor<ManeuverLocation.Z_UNITS>(ManeuverLocation.Z_UNITS.values()));
             props.add(pz);
         }
@@ -907,6 +914,9 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                 if (p.getName().equalsIgnoreCase("Initial Maneuver")) {
                     setInitialManeuver((Boolean) p.getValue());
                 }
+                else  if (p.getName().equalsIgnoreCase(I18n.text("Initial Maneuver"))) {
+                    setInitialManeuver((Boolean) p.getValue());
+                }
                 else if (p.getName().equalsIgnoreCase("Z") && this instanceof LocatedManeuver) {
                     ManeuverLocation manLoc = ((LocatedManeuver)this).getManeuverLocation();
                     manLoc.setZ((Double)p.getValue());
@@ -919,9 +929,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                 }
                 else if (p.getName().equalsIgnoreCase("Location") && this instanceof LocatedManeuver) {                    
                     ((LocatedManeuver)this).getManeuverLocation().setLocation((LocationType)p.getValue());
-                }
-                else  if (p.getName().equalsIgnoreCase(I18n.text("Initial Maneuver"))) {
-                    setInitialManeuver((Boolean) p.getValue());
                 }
                 else if (p.getCategory() != null
                         && p.getCategory().equalsIgnoreCase(I18n.textf("%s custom settings", getType()))) {
