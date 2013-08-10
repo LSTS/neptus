@@ -52,7 +52,7 @@ import org.dom4j.Node;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
-import pt.up.fe.dceg.neptus.gui.editor.ComboEditor;
+import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.Rows;
@@ -874,7 +874,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
         DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", String.class, speed_units, true);
         speedUnits.setShortDescription("The units to consider in the speed parameters");
-        PropertiesEditor.getPropertyEditorRegistry().registerEditor(speedUnits, new ComboEditor<String>(new String[] {"m/s", "Km/h", "RPM", "%"}));      
+        PropertiesEditor.getPropertyEditorRegistry().registerEditor(speedUnits, new SpeedUnitsEditor());      
         props.add(speedUnits);
 
         DefaultProperty curvOffset = PropertiesEditor.getPropertyInstance("Curve Offset", Double.class, curvOff, true);

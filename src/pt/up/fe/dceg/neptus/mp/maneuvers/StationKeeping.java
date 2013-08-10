@@ -44,7 +44,7 @@ import org.dom4j.Node;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.editor.ComboEditor;
+import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
@@ -189,7 +189,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 		
 		DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", String.class, this.speedUnits, true);
 		speedUnits.setShortDescription("The units to consider in the speed parameters");
-		PropertiesEditor.getPropertyEditorRegistry().registerEditor(speedUnits, new ComboEditor<String>(new String[] {"m/s", "Km/h", "RPM", "%"}));		
+		PropertiesEditor.getPropertyEditorRegistry().registerEditor(speedUnits, new SpeedUnitsEditor());		
 		props.add(speedUnits);
 		
 		DefaultProperty radius = PropertiesEditor.getPropertyInstance("Radius", Double.class, this.radius, true);
