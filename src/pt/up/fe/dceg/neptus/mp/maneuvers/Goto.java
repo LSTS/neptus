@@ -43,7 +43,7 @@ import org.dom4j.Node;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.GotoParameters;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.editor.ComboEditor;
+import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
@@ -267,10 +267,13 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     	Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
     	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getUnits(), true);
+    	units.setDisplayName(I18n.text("Speed units"));
     	units.setShortDescription(I18n.text("The speed units"));
-    	PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new ComboEditor<String>(new String[] {"RPM", "m/s", "%"}));    	
+    	PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new SpeedUnitsEditor());    	
     
-    	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
+    	DefaultProperty propertySpeed = PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true);
+    	propertySpeed.setDisplayName(I18n.text("Speed"));
+        properties.add(propertySpeed);
     	properties.add(units);
 
     	return properties;

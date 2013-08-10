@@ -41,7 +41,7 @@ import org.dom4j.Node;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.editor.ComboEditor;
+import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
@@ -277,7 +277,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 
     	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getUnits(), true);
     	units.setShortDescription("The speed units");
-    	PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new ComboEditor<String>(new String[] {"RPM", "m/s", "%"}));    	
+    	PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new SpeedUnitsEditor());    	
     
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
     	properties.add(units);
