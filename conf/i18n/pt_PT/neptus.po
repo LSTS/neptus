@@ -258,56 +258,8 @@ msgstr "83P para PCD"
 
 #: plugins-dev/dev-calibration/pt/up/fe/dceg/neptus/plugins/calib/CalibrationSubPanel.java:75
 #, fuzzy
-msgid "< Previous Step"
-msgstr "Fotografia anterior"
-
-#: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/utils/Utils.java:66
-msgid "<###> cannot load jawt lib!"
-msgstr ""
-
-#: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/utils/Utils.java:139
-msgid "<###> cannot load vtkCharts, skipping..."
-msgstr ""
-
-#: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/utils/Utils.java:74
-msgid "<###> cannot load vtkCommon, skipping..."
-msgstr ""
-
-#: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/utils/Utils.java:81
-msgid "<###> cannot load vtkFiltering, skipping..."
-msgstr ""
-
-#: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/utils/Utils.java:132
-msgid "<###> cannot load vtkGeoVis, skipping..."
-msgstr ""
-
-#: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/utils/Utils.java:95
-msgid "<###> cannot load vtkGrahics, skipping..."
-msgstr ""
-
-#: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/utils/Utils.java:88
-msgid "<###> cannot load vtkImaging, skipping..."
-msgstr ""
-
-#: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/utils/Utils.java:111
-msgid "<###> cannot load vtkInfoVis, skipping..."
-msgstr ""
-
-#: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/utils/Utils.java:102
-msgid "<###> cannot load vtkRendering, skipping..."
-msgstr ""
-
-#: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/utils/Utils.java:118
-msgid "<###> cannot load vtkViews, skipping..."
-msgstr ""
-
-#: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/utils/Utils.java:154
-msgid "<###> cannot load vtkVolumeRendering, skipping..."
-msgstr ""
-
-#: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/utils/Utils.java:125
-msgid "<###> cannot load vtkWidgets, skipping..."
-msgstr ""
+msgid "Previous Step"
+msgstr "Passo Anterior"
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/LBLRangeLabel.java:180
 msgid "<html><b>Beacon %beaconid (%range m) %datetime <br>%reason"
@@ -5099,7 +5051,7 @@ msgstr "Painel Mostrador de Multi Entidade"
 #: Name of plugin
 #: pt.up.fe.dceg.neptus.plugins.planning.MultiVehiclePlanOverlay
 msgid "Multi-Vehicle plan overlay"
-msgstr "Plano de sobreposição de Muli- Veículo"
+msgstr "Camada Plano de Muli-Veículo"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.gauges.CpuBattDiskNetGauge
 msgid "MultiVariable Gauge"
@@ -5291,8 +5243,8 @@ msgstr "Fotografia seguinte"
 
 #: plugins-dev/dev-calibration/pt/up/fe/dceg/neptus/plugins/calib/CalibrationSubPanel.java:75
 #, fuzzy
-msgid "Next step >"
-msgstr "Passo de tempo"
+msgid "Next Step"
+msgstr "Passo Seguinte"
 
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:168
 msgid "No"

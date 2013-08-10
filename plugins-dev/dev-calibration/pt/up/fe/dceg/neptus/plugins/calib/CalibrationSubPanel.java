@@ -74,7 +74,7 @@ public class CalibrationSubPanel extends SimpleSubPanel {
 
     protected JButton btnStart;
     protected JButton btnStop = new JButton(I18n.text("Cancel"));
-    protected JButton btnNext = new JButton(I18n.text("Next step") + " >"); 
+    protected JButton btnNext = new JButton(I18n.text("Next Step") + " >"); 
     protected JButton btnPrev = new JButton("< " + I18n.text("Previous Step"));
     protected JEditorPane calibText;
     protected JPanel bottom;
