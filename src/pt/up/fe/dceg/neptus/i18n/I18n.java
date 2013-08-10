@@ -72,7 +72,7 @@ public class I18n {
 
     protected static Pattern substitutionStringPattern = Pattern.compile("(%[\\w]+)");
     protected static I18n instance = null;
-    protected static String appendedText = "@";
+    protected static String appendedText = "";
     
     public static Pattern localeStringPattern = Pattern.compile("([a-z]{2})(_[A-Z]{2})?");
     
