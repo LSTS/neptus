@@ -778,7 +778,7 @@ msgstr ""
 #: Description of plugin pt.up.fe.dceg.neptus.plugins.containers.TabContainer
 #, fuzzy
 msgid "Allows to add various tabs to the console"
-msgstr "Permite acrescentar várias tabs à consola"
+msgstr "Permite acrescentar vários separadores à consola"
 
 #: Description of plugin pt.up.fe.dceg.neptus.plugins.acoustic.ModemRanger
 msgid "Allows to query acoustic modem for ranges to other devices"
@@ -1693,12 +1693,12 @@ msgstr "A conectar com sistema remoto para actualização de lista de log..."
 
 #: src/pt/up/fe/dceg/neptus/types/map/DynamicElement.java:168
 msgid "Connection Timeout (secs)"
-msgstr ""
+msgstr "Tempo de Expiração (secs)"
 
 #: src/pt/up/fe/dceg/neptus/util/comm/ssh/SshShellPannel.java:169
 #: src/pt/up/fe/dceg/neptus/util/comm/ssh/SshShellPannel.java:197
 msgid "Connection not possible!!"
-msgstr "Não é possivel conectar"
+msgstr "Não é possivel conectar!"
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:166
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:191
@@ -1748,7 +1748,7 @@ msgstr "Disposição (layout) de Consola: Separador"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.containers.TabContainer
 msgid "Console Layout: Tabbed"
-msgstr "Disposição (layout) de Consola: Tabela"
+msgstr "Disposição (layout) de Consola: Separadores"
 
 #: Name of plugin pt.up.fe.dceg.neptus.console.plugins.LockConsolePanel
 msgid "Console Lock Button"
@@ -2614,15 +2614,13 @@ msgid "Enter new speed (%speedUnit)"
 msgstr "Estabelecer nova velocidade (%speedUnit)"
 
 #: src/pt/up/fe/dceg/neptus/gui/ChronometerPanel.java:410
-#, fuzzy
 msgid "Enter the max. time"
-msgstr "estabelecer ID do plano"
+msgstr "Inserir tempo máximo"
 
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/RevisionOverlays.java:172
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:571
-#, fuzzy
 msgid "Enter the plan ID"
-msgstr "estabelecer ID do plano"
+msgstr "Inserir ID do plano"
 
 #: Description of property 'Log Shortcuts' from
 #: pt.up.fe.dceg.neptus.plugins.logs.QuickLogger
@@ -2766,7 +2764,7 @@ msgstr "Erro a abrir Manual Estendido (%error)"
 #: src/pt/up/fe/dceg/neptus/loader/NeptusMain.java:289
 #: src/pt/up/fe/dceg/neptus/loader/NeptusMain.java:317
 msgid "Error opening file"
-msgstr "Erro a abrir ficheiro..."
+msgstr "Erro a abrir ficheiro"
 
 #: src/pt/up/fe/dceg/neptus/mc/lauvconsole/LAUVConsole.java:136
 msgid "Error opening mission file"
@@ -2901,11 +2899,11 @@ msgstr "Expandir infomação extra"
 
 #: src/pt/up/fe/dceg/neptus/mra/exporters/CSVExporter.java:148
 msgid "Export to CSV"
-msgstr ""
+msgstr "Exportar para CSV"
 
 #: src/pt/up/fe/dceg/neptus/mra/exporters/KMLExporter.java:102
 msgid "Export to KML"
-msgstr ""
+msgstr "Exportar para KML"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.spot.SpotOverlay
 msgid "Export to csv"
@@ -2914,7 +2912,7 @@ msgstr ""
 #: src/pt/up/fe/dceg/neptus/mra/MRAPanel.java:234
 #: src/pt/up/fe/dceg/neptus/mra/MRAPanel.java:239
 msgid "Exporters"
-msgstr ""
+msgstr "Exportadores"
 
 #: src/pt/up/fe/dceg/neptus/mra/exporters/CSVExporter.java:127
 msgid "Exporting %message data to %csvfile..."
@@ -2922,13 +2920,12 @@ msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/mra/exporters/CSVExporter.java:110
 msgid "Exporting to CSV"
-msgstr "Exportar para CSV"
+msgstr "A exportar para CSV"
 
 #: Description of property 'CPU load value' from
 #: pt.up.fe.dceg.neptus.plugins.gauges.CpuBattDiskNetGauge
-#, fuzzy
 msgid "Expression for calculating CPU load. Should be a value between 0 and 1."
-msgstr "Expressão para a calcular CPU carga. Deve ser um valor entre 0 e 1."
+msgstr "Expressão para a calcular carga de CPU. Deve ser um valor entre 0 e 1."
 
 #: Description of property 'Battery value' from
 #: pt.up.fe.dceg.neptus.plugins.gauges.CpuBattDiskNetGauge
@@ -2987,10 +2984,8 @@ msgid "FILLED"
 msgstr "PREENCHIDO"
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:455
-#, fuzzy
 msgid "Failed to send message to %sysname."
-msgstr ""
-"Nenhum transporte disponivel para enviar mensagem %message para %system."
+msgstr "Falha a enviar mensagem para %sysname."
 
 #: plugins-dev/state/pt/up/fe/dceg/neptus/plugins/state/EntitySubPanel.java:94
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanControlStatePanel.java:150
@@ -2998,9 +2993,8 @@ msgid "Failure"
 msgstr "Falha"
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:2183
-#, fuzzy
 msgid "Fast Rendering"
-msgstr " Rendering Rápido"
+msgstr "Rendering Rápido"
 
 #: src/pt/up/fe/dceg/neptus/gui/Timeline.java:78
 #: src/pt/up/fe/dceg/neptus/util/llf/replay/LLFMsgReplay.java:324
@@ -3009,7 +3003,7 @@ msgstr "Acelerar"
 
 #: plugins-dev/state/pt/up/fe/dceg/neptus/plugins/state/EntitySubPanel.java:95
 msgid "Fault"
-msgstr "Falha"
+msgstr "Falta"
 
 #. / To fetch the map tiles from the visible area
 #: src/pt/up/fe/dceg/neptus/renderer2d/WorldRenderPainter.java:1298
@@ -3337,7 +3331,7 @@ msgstr "HDOP max para usar para Minha Localização"
 
 #: Field from ManeuverLocation.Z_UNITS enumeration
 msgid "HEIGHT"
-msgstr "ALTURA"
+msgstr "ELEVAÇÃO"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.envdisp.HFRadarVisualization
 #, fuzzy
@@ -3408,7 +3402,7 @@ msgstr "Periodo de Tempo de Pulsação (ms)"
 #: Property from pt.up.fe.dceg.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid "Heartbeat Timeout (ms)"
-msgstr "Tempo Excedente da Pulsação  (ms)"
+msgstr "Tempo de Expiração da Pulsação (ms)"
 
 #: Property from pt.up.fe.dceg.neptus.mp.templates.InfiniteRectTemplate
 #: plugins-dev/gps/pt/up/fe/dceg/neptus/plugins/gps/GPSDevicePanel.java:178
@@ -3859,7 +3853,7 @@ msgstr "Retangulo Infinito"
 
 #: plugins-dev/echosounder/pt/up/fe/dceg/neptus/plugins/sidescan/SidescanToolbar.java:62
 msgid "Info"
-msgstr ""
+msgstr "Informação"
 
 #: src/pt/up/fe/dceg/neptus/graph/DefaultNode.java:142
 msgid "Initial"
@@ -3876,7 +3870,7 @@ msgstr "Entrada"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.gps.GPSDevicePanel
 msgid "Input Timeout (s)"
-msgstr ""
+msgstr "Introdizir tempo de expiração (s)"
 
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/BathymetryPlotter.java:320
 msgid "Input image name"
@@ -8285,7 +8279,7 @@ msgstr ""
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.TabContainer
 #, fuzzy
 msgid "Tab names"
-msgstr "Nomes de tab"
+msgstr "Nomes de separadores"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.TabContainer
 msgid "Tab placement"
@@ -8541,7 +8535,7 @@ msgstr ""
 #: pt.up.fe.dceg.neptus.plugins.containers.TabContainer
 #, fuzzy
 msgid "The name to be displayed in the tabs, separated by commas"
-msgstr "O nome para mostrar nas tabs, separado por vígulas"
+msgstr "O nome para mostrar nos separadores, separado por vígulas"
 
 #: Description of property 'Number cols' from
 #: pt.up.fe.dceg.neptus.plugins.containers.GridContainer
@@ -9866,7 +9860,7 @@ msgstr "Para onde está a olhar o operador na estação base "
 #: pt.up.fe.dceg.neptus.plugins.containers.TabContainer
 #, fuzzy
 msgid "Where to place the tabs"
-msgstr "Onde colocar as tabs"
+msgstr "Onde colocar os separadores"
 
 #: Description of property 'Toolbar placement' from
 #: pt.up.fe.dceg.neptus.plugins.planning.MapPanel
@@ -11277,22 +11271,22 @@ msgstr "∆tTxRx"
 #~ msgstr "Painel de Aborte"
 
 #~ msgid "Container: Axis Layout"
-#~ msgstr "Contentor: Axis Layout"
+#~ msgstr "Contentor: Disposição por Eixos"
 
 #~ msgid "Container: Grid"
-#~ msgstr "Contentor: Grid"
+#~ msgstr "Contentor: Grelha"
 
 #~ msgid "Container: Group"
-#~ msgstr "Contentor: Group"
+#~ msgstr "Contentor: Grupo"
 
 #~ msgid "Container: MiG"
 #~ msgstr "Contentor: MiG"
 
 #~ msgid "Container: Split Pane"
-#~ msgstr "Contentor: Split Pane"
+#~ msgstr "Contentor: Painel Dividido"
 
 #~ msgid "Container: Tabbed Pane"
-#~ msgstr "Contentor: Tabbed Pane"
+#~ msgstr "Contentor: Painel Separadores"
 
 #~ msgid "Open Mission Review & Analysis"
 #~ msgstr "Abrir a Revisão e Análise de Missão"
