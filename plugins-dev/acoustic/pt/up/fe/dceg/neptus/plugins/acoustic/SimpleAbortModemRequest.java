@@ -108,13 +108,13 @@ public class SimpleAbortModemRequest extends SimpleSubPanel implements IAbortSen
         AcousticOperation.OP op = msg.getOp();
         switch (op) {
             case ABORT_ACKED:
-                post(Notification.success(I18n.text("Abort request"), I18n.textf("%sysname has acknowledged abort command", system)).requireHumanAction(true));
+                post(Notification.success(I18n.text("Abort request"), I18n.textf("%sysName has acknowledged abort command", system)).requireHumanAction(true));
                 break;
             case ABORT_IP:
-                post(Notification.warning(I18n.text("Abort request"), I18n.textf("Aborting %sysname acoustically (via %manta)...", system, source)));
+                post(Notification.warning(I18n.text("Abort request"), I18n.textf("Aborting %sysName acoustically (via %manta)...", system, source)));
                 break;
             case ABORT_TIMEOUT:
-                post(Notification.error(I18n.text("Abort request"), I18n.textf("%manta timed out while trying to abort %sysname", source, system)));
+                post(Notification.error(I18n.text("Abort request"), I18n.textf("%manta timed out while trying to abort %sysName", source, system)));
                 break;
             case UNSUPPORTED:
                 post(Notification.error(I18n.text("Abort request"), I18n.textf("%manta does not support aborting of %sysname", source, system)));

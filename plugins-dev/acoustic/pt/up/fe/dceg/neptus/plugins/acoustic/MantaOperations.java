@@ -434,7 +434,7 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                 }
                 break;
             case ABORT_ACKED:
-                addText(I18n.textf("%systemName has acknowledged the abort command", msg.getSystem().toString()));
+                addText(I18n.textf("%systemName has acknowledged abort command", msg.getSystem().toString()));
                 break;
             case BUSY:
                 addText(I18n.textf("%manta is busy. Try again in a few moments", msg.getSourceName()));
@@ -443,10 +443,10 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                 addText(I18n.textf("%manta has no acoustic transducer connected. Connect a transducer.", msg.getSourceName()));
                 break;
             case ABORT_IP:
-                addText(I18n.textf("Aborting of %sysname is in progress...",  msg.getSystem().toString()));
+                addText(I18n.textf("Aborting %sysName acoustically (via %manta)...",  msg.getSystem().toString(), msg.getSourceName()));
                 break;
             case ABORT_TIMEOUT:
-                addText(I18n.textf("Aborting of %sysname timed out.", msg.getSystem().toString()));
+                addText(I18n.textf("%manta timed out while trying to abort %sysName", msg.getSourceName(), msg.getSystem().toString()));
                 break;
             case MSG_DONE:
                 addText(I18n.textf("Message to %sysname has been sent successfully.", msg.getSystem().toString()));
