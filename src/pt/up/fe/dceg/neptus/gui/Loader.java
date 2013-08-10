@@ -31,7 +31,7 @@ import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 /**
  * This class shows a Neptus splash screen during load phases.
- * 
+ * IT IS PROHIBITED TO USE {@link I18n} CALLS IN THIS CLASS.  
  * @author Paulo Dias
  */
 public class Loader extends JFrame implements ActionListener {
@@ -72,7 +72,7 @@ public class Loader extends JFrame implements ActionListener {
     private JLabel getJLabel() {
         if (jLabel == null) {
             jLabel = new JLabel();
-            jLabel.setText(" " + I18n.text("Loading") + "...");
+            jLabel.setText("...");
             jLabel.setForeground(frontColor);
             jLabel.setBackground(backColor);
             jLabel.setAutoscrolls(true);
