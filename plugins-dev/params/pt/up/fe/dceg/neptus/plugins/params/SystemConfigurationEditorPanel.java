@@ -69,6 +69,7 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.MessageDeliveryListener;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
@@ -504,6 +505,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 //        GuiUtils.testFrame(icmm);
         
         String vehicle = "lauv-dolphin-1";
+        
+        GeneralPreferences.language = "pt_PT";
         
         final SystemConfigurationEditorPanel sc1 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
                 Visibility.USER, true, true, true, ImcMsgManager.getManager());

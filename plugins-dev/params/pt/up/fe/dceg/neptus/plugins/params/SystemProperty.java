@@ -66,13 +66,15 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         }
 
         public String getText() {
-          return I18n.text(this.text);
+          // return I18n.text(this.text);
+          return this.text;
         }
 
         public static Scope fromString(String text) {
           if (text != null) {
             for (Scope b : Scope.values()) {
-              if (text.equalsIgnoreCase(I18n.text(b.text))) {
+              // if (text.equalsIgnoreCase(I18n.text(b.text))) {
+              if (text.equalsIgnoreCase(b.text)) {
                 return b;
               }
             }
