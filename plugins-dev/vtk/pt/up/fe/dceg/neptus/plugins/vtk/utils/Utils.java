@@ -42,7 +42,6 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import vtk.vtkCanvas;
 import vtk.vtkNativeLibrary;
@@ -63,7 +62,7 @@ public class Utils {
             System.loadLibrary("jawt");
         }
         catch (Throwable e) {
-            NeptusLog.pub().warn(I18n.text("<###> cannot load jawt lib!"));
+            NeptusLog.pub().warn("<###> cannot load jawt lib!");
         }
         // for simple visualizations
         try {
@@ -71,35 +70,35 @@ public class Utils {
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().warn(I18n.text("<###> cannot load vtkCommon, skipping..."));
+            NeptusLog.pub().warn("<###> cannot load vtkCommon, skipping...");
         }
         try {
             vtkNativeLibrary.FILTERING.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().warn(I18n.text("<###> cannot load vtkFiltering, skipping..."));
+            NeptusLog.pub().warn("<###> cannot load vtkFiltering, skipping...");
         }
         try {
             vtkNativeLibrary.IO.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().warn(I18n.text("<###> cannot load vtkImaging, skipping..."));
+            NeptusLog.pub().warn("<###> cannot load vtkImaging, skipping...");
         }
         try {
             vtkNativeLibrary.GRAPHICS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().warn(I18n.text("<###> cannot load vtkGrahics, skipping..."));
+            NeptusLog.pub().warn("<###> cannot load vtkGrahics, skipping...");
         }
         try {
             vtkNativeLibrary.RENDERING.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().warn(I18n.text("<###> cannot load vtkRendering, skipping..."));
+            NeptusLog.pub().warn("<###> cannot load vtkRendering, skipping...");
         }
 
         // Other
@@ -108,35 +107,35 @@ public class Utils {
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().warn(I18n.text("<###> cannot load vtkInfoVis, skipping..."));
+            NeptusLog.pub().warn("<###> cannot load vtkInfoVis, skipping...");
         }
         try {
             vtkNativeLibrary.VIEWS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().warn(I18n.text("<###> cannot load vtkViews, skipping..."));
+            NeptusLog.pub().warn("<###> cannot load vtkViews, skipping...");
         }
         try {
             vtkNativeLibrary.WIDGETS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().warn(I18n.text("<###> cannot load vtkWidgets, skipping..."));
+            NeptusLog.pub().warn("<###> cannot load vtkWidgets, skipping...");
         }
         try {
             vtkNativeLibrary.GEOVIS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().warn(I18n.text("<###> cannot load vtkGeoVis, skipping..."));
+            NeptusLog.pub().warn("<###> cannot load vtkGeoVis, skipping...");
         }
         try {
             vtkNativeLibrary.CHARTS.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().warn(I18n.text("<###> cannot load vtkCharts, skipping..."));
+            NeptusLog.pub().warn("<###> cannot load vtkCharts, skipping...");
         }
         // FIXME not loading vtkHybrid ?!
         try {
@@ -144,14 +143,14 @@ public class Utils {
         }
         catch (Throwable e) {
             // NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().warn(I18n.text("cannot load vtkHybrid, skipping..."));
+            NeptusLog.pub().warn("cannot load vtkHybrid, skipping...");
         }
         try {
             vtkNativeLibrary.VOLUME_RENDERING.LoadLibrary();
         }
         catch (Throwable e) {
             NeptusMRA.vtkEnabled = false;
-            NeptusLog.pub().warn(I18n.text("<###> cannot load vtkVolumeRendering, skipping..."));
+            NeptusLog.pub().warn("<###> cannot load vtkVolumeRendering, skipping...");
         }
 
         if (NeptusMRA.vtkEnabled) {

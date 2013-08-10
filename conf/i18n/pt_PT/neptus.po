@@ -214,9 +214,8 @@ msgid ""
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/gui/objparams/ImageObjectParameters.java:354
-#, fuzzy
 msgid "2 locations..."
-msgstr "localização"
+msgstr "2 localizações..."
 
 #: src/pt/up/fe/dceg/neptus/types/map/Model3DElement.java:555
 #: src/pt/up/fe/dceg/neptus/types/map/Model3DElement.java:557
