@@ -466,7 +466,7 @@ msgstr "Aceite."
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:206
 msgid "Access Developer Parameters"
-msgstr ""
+msgstr "Aceder a Parâmetros de Desenvolvimento"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.acoustic.ModemRanger
 msgid "Acoustic Modem Ranger"
@@ -3657,11 +3657,11 @@ msgstr "Ajuda para a Descrição dos Ícones"
 
 #: src/pt/up/fe/dceg/neptus/console/plugins/RemoteOperationControlMode.java:97
 msgid "Idle Mode"
-msgstr "Modo Inativo"
+msgstr "Modo em Espera"
 
 #: src/pt/up/fe/dceg/neptus/types/map/DynamicElement.java:167
 msgid "Idle Time"
-msgstr "Tempo Ideal"
+msgstr "Tempo em espera"
 
 #: Description of property '@IMC Change by Source IP Request' from
 #: pt.up.fe.dceg.neptus.util.conf.GeneralPreferences
@@ -10148,9 +10148,8 @@ msgid "debugOn"
 msgstr "Depuração Ligada"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:551
-#, fuzzy
 msgid "default"
-msgstr "Falha"
+msgstr "por defeito"
 
 #: Property from pt.up.fe.dceg.neptus.renderer2d.WorldRenderPainter
 msgid "defaultActiveLayers"
@@ -10245,7 +10244,7 @@ msgstr "ftp"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:53
 msgid "global"
-msgstr ""
+msgstr "global"
 
 #: src/pt/up/fe/dceg/neptus/gui/ClockCounter.java:62
 msgctxt "Chronometer hour separator"
@@ -10285,7 +10284,7 @@ msgstr "cor do ícone"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:54
 msgid "idle"
-msgstr ""
+msgstr "em espera"
 
 #: Description of property '@publishWebReceivedMessages' from
 #: pt.up.fe.dceg.neptus.plugins.webupdate.RemotePositionFetcherUpdater
@@ -10397,16 +10396,15 @@ msgid "m/s"
 msgstr "m/s"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:56
-#, fuzzy
 msgid "maneuver"
-msgstr "Manobra"
+msgstr "manobra"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:339
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:350
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:474
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:481
 msgid "max"
-msgstr ""
+msgstr "max."
 
 #: Description of property '@Send device updates' from
 #: pt.up.fe.dceg.neptus.comm.iridium.IridiumCommand '@Use Iridium hardware'
@@ -10426,9 +10424,8 @@ msgstr "Milésimos de segundo entre Actualizações"
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:348
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:472
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:479
-#, fuzzy
 msgid "min"
-msgstr "Zoom in"
+msgstr "min."
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1419
 #, fuzzy
@@ -10481,18 +10478,16 @@ msgid "path"
 msgstr "caminho"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig
-#, fuzzy
 msgid "pathColor"
-msgstr "caminho"
+msgstr "cor do caminho"
 
 #: src/pt/up/fe/dceg/neptus/util/llf/replay/LLFMsgReplay.java:524
 msgid "pause"
 msgstr "pausa"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:55
-#, fuzzy
 msgid "plan"
-msgstr "Adicionar plano"
+msgstr "plano"
 
 #: src/pt/up/fe/dceg/neptus/util/llf/replay/LLFMsgReplay.java:479
 #: src/pt/up/fe/dceg/neptus/util/llf/replay/LLFMsgReplay.java:506
@@ -10501,7 +10496,7 @@ msgstr "reprodução"
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1417
 msgid "plus (+)"
-msgstr ""
+msgstr "mais (+)"
 
 #: Property from pt.up.fe.dceg.neptus.mp.maneuvers.CoverArea
 msgid "polygon"
