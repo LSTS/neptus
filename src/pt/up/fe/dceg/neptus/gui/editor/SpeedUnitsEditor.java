@@ -31,6 +31,8 @@
  */
 package pt.up.fe.dceg.neptus.gui.editor;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
+
 
 /**
  * @author pdias
@@ -43,6 +45,6 @@ public class SpeedUnitsEditor extends ComboEditor<String> {
      */
     public SpeedUnitsEditor() {
         //Don't I18n.text this. See super implementation
-        super(new String[] {"RPM", "m/s", "%"});
+        super(new String[] {I18n.textmark("m/s"), I18n.textmarkc("RPM", "Rotations per Minutes"), "%"});
     }
 }
