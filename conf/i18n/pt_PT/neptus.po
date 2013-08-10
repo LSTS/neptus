@@ -147,14 +147,12 @@ msgid "%s start actions"
 msgstr "Acções de entrada de %s"
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/SimpleAbortModemRequest.java:111
-#, fuzzy
 msgid "%sysname has acknowledged abort command"
-msgstr "%systemName tem uma operação abortada"
+msgstr "%systemName retornou recebimento de uma operação de aborte"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:335
-#, fuzzy
 msgid "%systemName Parameters"
-msgstr "%systemName tem uma operação abortada"
+msgstr "Parâmetros de %systemName"
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:437
 #, fuzzy
@@ -3331,22 +3329,19 @@ msgstr "HDOP max para usar para Minha Localização"
 
 #: Field from ManeuverLocation.Z_UNITS enumeration
 msgid "HEIGHT"
-msgstr "ELEVAÇÃO"
+msgstr "ALTURA"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.envdisp.HFRadarVisualization
-#, fuzzy
 msgid "HF Radar Visualization"
-msgstr "Visualizações"
+msgstr "Visualização HF-Radar"
 
 #: Field from LBLRangeDisplay.HideOrFadeRangeEnum enumeration
-#, fuzzy
 msgid "HIDE"
 msgstr "ESCONDER"
 
 #: Field from Loiter.TYPE enumeration
-#, fuzzy
 msgid "HOVER"
-msgstr "HOVER"
+msgstr "PAIRAR"
 
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:225
 #, fuzzy
