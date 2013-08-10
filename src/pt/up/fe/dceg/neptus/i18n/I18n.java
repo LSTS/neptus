@@ -72,7 +72,7 @@ public class I18n {
 
     protected static Pattern substitutionStringPattern = Pattern.compile("(%[\\w]+)");
     protected static I18n instance = null;
-    protected static String appendedText = "";
+    protected static String appendedText = "@";
     
     public static Pattern localeStringPattern = Pattern.compile("([a-z]{2})(_[A-Z]{2})?");
     
@@ -195,8 +195,8 @@ public class I18n {
         UIManager.put("FileChooser.detailsViewButtonAccessibleName", I18n.text("Details"));
         UIManager.put("FileChooser.upFolderToolTipText", I18n.text("Up One Level")); 
         UIManager.put("FileChooser.upFolderAccessibleName", I18n.text("Up One Level")); 
-        UIManager.put("FileChooser.homeFolderToolTipText", I18n.text("Home"));
-        UIManager.put("FileChooser.homeFolderAccessibleName", I18n.text("Home"));
+        UIManager.put("FileChooser.homeFolderToolTipText", I18n.textc("Home", "File system Home folder"));
+        UIManager.put("FileChooser.homeFolderAccessibleName", I18n.textc("Home", "File system Home folder"));
         UIManager.put("FileChooser.desktopFolderToolTipText", I18n.text("Desktop")); //???
         UIManager.put("FileChooser.desktopFolderAccessibleName", I18n.text("Desktop")); //???
         UIManager.put("FileChooser.fileNameHeaderText", I18n.text("Name")); 
@@ -220,10 +220,10 @@ public class I18n {
         UIManager.put("ColorChooser.background", ColorUIResource.darkGray);
 
         UIManager.put("ColorChooser.swatchesNameText", I18n.text("Swatches"));
-        UIManager.put("ColorChooser.hsvNameText", I18n.text("HSV"));
-        UIManager.put("ColorChooser.hslNameText", I18n.text("HSL"));
-        UIManager.put("ColorChooser.rgbNameText", I18n.text("RGB"));
-        UIManager.put("ColorChooser.cmykNameText", I18n.text("CMYK"));
+        UIManager.put("ColorChooser.hsvNameText", I18n.textc("HSV", "Color scheme"));
+        UIManager.put("ColorChooser.hslNameText", I18n.textc("HSL", "Color scheme"));
+        UIManager.put("ColorChooser.rgbNameText", I18n.textc("RGB", "Color scheme"));
+        UIManager.put("ColorChooser.cmykNameText", I18n.textc("CMYK", "Color scheme"));
         
         UIManager.put("ColorChooser.swatchesRecentText", I18n.text("Recent:"));
 

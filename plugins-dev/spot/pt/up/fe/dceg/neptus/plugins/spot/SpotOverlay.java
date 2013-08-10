@@ -88,7 +88,7 @@ public class SpotOverlay extends SimpleRendererInteraction implements IPeriodicU
     public boolean showSpeedValue = true;
     @NeptusProperty(userLevel = LEVEL.REGULAR, description = "Set the time window (in hours) for considered positions. Will only consider positions in the last x hours.", name = "Time window (hours)")
     public int hours = 70;
-    @NeptusProperty(userLevel = LEVEL.REGULAR, name = "Export to csv")
+    @NeptusProperty(userLevel = LEVEL.REGULAR, name = "Export to CSV")
     public boolean printCvsFile = false;
 
     protected GeneralPath gp = new GeneralPath();
