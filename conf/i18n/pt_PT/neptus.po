@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
 "POT-Creation-Date: 2013-08-10 16:31+0100\n"
-"PO-Revision-Date: 2013-08-10 16:34+0100\n"
+"PO-Revision-Date: 2013-08-10 17:10+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
@@ -27,7 +27,6 @@ msgid "# Maneuvers"
 msgstr "# de Manobras"
 
 #: src/pt/up/fe/dceg/neptus/mra/ColorMapVisualization.java:492
-#, fuzzy
 msgid "%1 Colormap"
 msgstr "%1 Mapa de cores"
 
@@ -191,19 +190,16 @@ msgstr "(nenhum log carregado)"
 
 #: src/pt/up/fe/dceg/neptus/mra/plots/ZPlot.java:71
 #: src/pt/up/fe/dceg/neptus/mra/plots/ZPlot.java:86
-#, fuzzy
-msgid ".Altitude"
+msgid "Altitude"
 msgstr "Altitude"
 
 #: src/pt/up/fe/dceg/neptus/mra/plots/ZPlot.java:74
-#, fuzzy
-msgid ".Bathymetry"
+msgid "Bathymetry"
 msgstr "Batimetria"
 
 #: src/pt/up/fe/dceg/neptus/mra/plots/ZPlot.java:68
 #: src/pt/up/fe/dceg/neptus/mra/plots/ZPlot.java:80
-#, fuzzy
-msgid ".Depth"
+msgid "Depth"
 msgstr "Profundidade"
 
 #: Description of property '@Renderer 3D Priority' from
@@ -1156,7 +1152,7 @@ msgstr "CIRCULAR"
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:226
 msgctxt "Color scheme"
 msgid "CMYK"
-msgstr ""
+msgstr "CMYK"
 
 #: Field from ConsoleEventVehicleStateChanged.STATE enumeration
 msgid "CONNECTED"
@@ -3320,7 +3316,7 @@ msgstr "destino desconhecido"
 #: src/pt/up/fe/dceg/neptus/colormap/ColorMapFactory.java:138
 msgctxt "Colormap name"
 msgid "Gray scale"
-msgstr ""
+msgstr "Escala de cinzentos"
 
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:241
 msgid "Green"
@@ -3329,7 +3325,7 @@ msgstr ""
 #: src/pt/up/fe/dceg/neptus/colormap/ColorMapFactory.java:301
 msgctxt "Colormap name"
 msgid "GreenRadar"
-msgstr ""
+msgstr "Verde Radar"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.planning.AreaCoveragePlanner
 msgid "Grid width"
@@ -4060,7 +4056,7 @@ msgstr "Distâncias LBL"
 
 #: Field from Tile.TileState enumeration
 msgid "LOADED"
-msgstr ""
+msgstr "CARREGADO"
 
 #: Field from Tile.TileState enumeration
 msgid "LOADING"
