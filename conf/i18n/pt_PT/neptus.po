@@ -5827,9 +5827,8 @@ msgid "Pause/Resume"
 msgstr ""
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1007
-#, fuzzy
 msgid "Payload settings..."
-msgstr "Configurações de Plano"
+msgstr "Configurações de payload..."
 
 #: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/multibeampluginutils/MultibeamToolbar.java:185
 msgid "Perform Mesh Smootihng"
@@ -5910,18 +5909,16 @@ msgid "Plan Control"
 msgstr "Controlo de Plano"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanControlPanel.java:1142
-#, fuzzy
 msgid "Plan Control Error"
-msgstr "Controlo de Plano"
+msgstr "Erro de Controlo de Plano"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.planning.PlanControlStatePanel
 msgid "Plan Control State"
 msgstr "Estado do Controlo de Plano"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanControlPanel.java:1201
-#, fuzzy
 msgid "Plan DB Error"
-msgstr "Cor de Plano"
+msgstr "Erro de BD de Planos"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.planning.PlanEditor
 msgid "Plan Edition"
