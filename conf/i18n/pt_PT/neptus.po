@@ -869,19 +869,16 @@ msgid "Autumn"
 msgstr "Autumn"
 
 #: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:202
-#, fuzzy
 msgid "Avg depth"
-msgstr "profundidade"
+msgstr "Profundidade média"
 
 #: src/pt/up/fe/dceg/neptus/gui/CoordinateSystemPanel.java:213
-#, fuzzy
 msgid "Axis attitude"
-msgstr "Altitude"
+msgstr "Atitude do eixo"
 
 #: src/pt/up/fe/dceg/neptus/gui/objparams/TranspondersPositionHelper.java:237
-#, fuzzy
 msgid "Axis origin (Home Ref.)"
-msgstr "origem do eixo (Home Ref.)"
+msgstr "Origem do eixo (Localização Base)"
 
 #: src/pt/up/fe/dceg/neptus/gui/objparams/TranspondersPositionHelper.java:259
 #: src/pt/up/fe/dceg/neptus/gui/objparams/TranspondersPositionHelper.java:570
@@ -2251,7 +2248,7 @@ msgstr ""
 #: src/pt/up/fe/dceg/neptus/gui/objparams/TranspondersPositionHelper.java:758
 #: src/pt/up/fe/dceg/neptus/gui/objparams/TranspondersPositionHelper.java:782
 msgid "Do you want to base the triangulation on home reference?"
-msgstr ""
+msgstr "Quer basear a triangulação na localização base?"
 
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:541
 #: src/pt/up/fe/dceg/neptus/console/actions/CreateMissionConsoleAction.java:93
@@ -3443,7 +3440,7 @@ msgstr "Longitude"
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/FeatureFocuser.java:100
 msgid "Home reference"
-msgstr "Localização Referência"
+msgstr "Localização Base"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.GroupLayoutContainer
 msgid "Honors Visibility"
@@ -3690,7 +3687,7 @@ msgstr ""
 #: Description of property 'Z relative mode' from
 #: pt.up.fe.dceg.neptus.plugins.position.AbsLatLonDepth
 msgid "If the Z is relative to the HomeRef"
-msgstr "Se o Z é relativo à Referência Base"
+msgstr "Se o Z é relativo à Localização Base"
 
 #: Description of property 'Publishing simulated states' from
 #: pt.up.fe.dceg.neptus.plugins.odss.OdssStatePublisher
@@ -6170,9 +6167,8 @@ msgid "Produce an audible effect in the case of an error"
 msgstr "Produzir um efeito audivel em caso de erro"
 
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/MraPhotosVisualization.java:501
-#, fuzzy
 msgid "Production completed"
-msgstr "Ficheiro de Log incompleto."
+msgstr "Produção completa."
 
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.GroupLayoutContainer
 #: plugins-dev/containers/pt/up/fe/dceg/neptus/plugins/containers/GroupLayoutContainer.java:307
@@ -6182,19 +6178,16 @@ msgstr "Perfís"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanControlStatePanel.java:160
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanControlStatePanel.java:167
-#, fuzzy
 msgid "Progress"
-msgstr "Pressão"
+msgstr "Progresso..."
 
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:173
-#, fuzzy
 msgid "Progress..."
-msgstr "Propriedades..."
+msgstr "Progresso..."
 
 #: src/pt/up/fe/dceg/neptus/gui/CoordinateSystemPanel.java:440
-#, fuzzy
 msgid "Propagate"
-msgstr "Propriedades"
+msgstr "Propagar"
 
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:534
 #: src/pt/up/fe/dceg/neptus/console/MainPanel.java:298
@@ -6266,23 +6259,20 @@ msgid "Queue size:"
 msgstr "Tamanho da fila:"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.logs.QuickLogger
-#, fuzzy
 msgid "Quick Logbook Panel"
-msgstr "Painel Rápido de Livro de Log"
+msgstr "Painel de Livro de Log Rápido"
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1406
-#, fuzzy
 msgid "R2D Shortcuts"
-msgstr "Atalhos Log"
+msgstr "Atalhos R2D"
 
 #: Field from Loiter.TYPE enumeration
-#, fuzzy
 msgid "RACETRACK"
 msgstr "PISTA  DE CORRIDA"
 
 #: Field from Tile.TileState enumeration
 msgid "RETRYING"
-msgstr ""
+msgstr "A TENTAR DE NOVO"
 
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:225
 #, fuzzy
@@ -6336,9 +6326,8 @@ msgstr "Raio do circulo onde o ASV deve manter a sua posição"
 
 #: Description of property 'Radius (m)' from
 #: pt.up.fe.dceg.neptus.mp.maneuvers.CompassCalibration
-#, fuzzy
 msgid "Radius of the maneuver."
-msgstr "Tolerância de raio..."
+msgstr "Raio da manobra"
 
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/interactions/MineDangerAreaInteraction.java:175
 msgid "Radius: %radius m"
@@ -6355,38 +6344,34 @@ msgid "Rainbow"
 msgstr "Rainbow"
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:258
-#, fuzzy
 msgid "Range %systemName commanded to %systemCount systems"
-msgstr "Alcance %systemName comandado para sistemas %systemCount"
+msgstr "Alcance para %systemName comandado para %systemCount sistemas"
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:189
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:243
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:266
-#, fuzzy
 msgid "Range System"
-msgstr "Alcance do Sistema"
+msgstr "Pedir Alcance para Sistema"
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:464
 msgid "Ranging of %sysname is in progress..."
-msgstr ""
+msgstr "Pedido de alcance para %sysname em execução..."
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:467
 msgid "Ranging of %sysname timed out."
-msgstr ""
+msgstr "Pedido de alcance para %sysname excedeu o tempo."
 
 #: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/multibeampluginutils/MultibeamToolbar.java:181
-#, fuzzy
 msgid "Raw"
-msgstr "Yaw"
+msgstr "Em bruto"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.mraplots.LsfTable
 msgid "Raw Messages"
-msgstr "Mensagens Cruas"
+msgstr "Mensagens em Bruto"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.rtplot.RealTimePlot
-#, fuzzy
 msgid "Real-Time plot"
-msgstr "Multiplicador de velocidade em tempo real"
+msgstr "Gráfico em tempo real"
 
 #: plugins-dev/logs/pt/up/fe/dceg/neptus/plugins/logs/LogBookSubPanel.java:136
 msgid "Received %nMessages previous entries from %systemName including: "
@@ -6402,9 +6387,8 @@ msgid "Receiver name"
 msgstr "Nome de receptor"
 
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:228
-#, fuzzy
 msgid "Recent:"
-msgstr "centro"
+msgstr "Recente:"
 
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:890
 #: src/pt/up/fe/dceg/neptus/mc/Workspace.java:537
@@ -6435,9 +6419,8 @@ msgid "Recently opened mission files."
 msgstr "Ficheiros Recentes de Missões."
 
 #: plugins-dev/echosounder/pt/up/fe/dceg/neptus/plugins/sidescan/SidescanToolbar.java:65
-#, fuzzy
 msgid "Record"
-msgstr "Gravar para disco"
+msgstr "Gravar"
 
 #: src/pt/up/fe/dceg/neptus/mc/Workspace.java:1840
 msgid "Record Mouse Actions"
@@ -6453,17 +6436,16 @@ msgstr "Video FPS gravado"
 
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/BathymetryPlotter.java:196
 msgid "Recreate"
-msgstr "Gerar"
+msgstr "Regerar"
 
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:240
-#, fuzzy
 msgid "Red"
-msgstr "Anular"
+msgstr "Vermelho"
 
 #: src/pt/up/fe/dceg/neptus/colormap/ColorMapFactory.java:310
 msgctxt "Colormap name"
 msgid "RedYellowBlue"
-msgstr "RedYellowBlue"
+msgstr "VermelhoAmareloAzul"
 
 #: Property from pt.up.fe.dceg.neptus.util.conf.GeneralPreferences
 msgid "Redirect Unknown Comms. To First Vehicle In Comm. List"
@@ -6474,7 +6456,7 @@ msgstr ""
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:540
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:401
 msgid "Redo"
-msgstr "Anular"
+msgstr "Desfazer"
 
 #: src/pt/up/fe/dceg/neptus/console/plugins/SystemsList.java:503
 msgid "Redo Selection"
@@ -6491,12 +6473,11 @@ msgstr "Ponto de referência"
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:186
 #: plugins-dev/logs/pt/up/fe/dceg/neptus/plugins/logs/MultiSystemHistory.java:124
 msgid "Refresh"
-msgstr ""
+msgstr "Refrescar"
 
 #: plugins-dev/teleoperation/pt/up/fe/dceg/neptus/plugins/teleoperation/ControllerPanel.java:127
-#, fuzzy
 msgid "Refresh Controllers"
-msgstr "Controlo de Servo"
+msgstr "Refrescar Controladores"
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/LBLRangeLabel.java:150
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/LBLRangeLabel.java:182
@@ -6509,17 +6490,15 @@ msgstr "Cor da distância rejeitada"
 
 #: src/pt/up/fe/dceg/neptus/mra/plots/LblRangesPlot.java:131
 #: src/pt/up/fe/dceg/neptus/mra/plots/LblRangesPlot.java:142
-#, fuzzy
 msgid "Rejected."
-msgstr "Rejeitado"
+msgstr "Rejeitado."
 
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:158
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:172
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:272
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:286
-#, fuzzy
 msgid "Relative to HomeRef"
-msgstr "Relativo ao HomeRef"
+msgstr "Relativo à Localização Base"
 
 #: plugins-dev/logs/pt/up/fe/dceg/neptus/plugins/logs/HistoryPanel.java:96
 #: plugins-dev/logs/pt/up/fe/dceg/neptus/plugins/logs/HistoryPanel.java:112
@@ -7299,7 +7278,7 @@ msgstr "Definir Propriedades"
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/MissionTreePanel.java:453
 #, fuzzy
 msgid "Set home reference"
-msgstr "Definir a referencia  home"
+msgstr "Definir a localização base"
 
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:657
 msgid "Set mission"
@@ -9824,7 +9803,7 @@ msgstr "Ver/Editar '%transponderName'"
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/MissionTreePanel.java:448
 #, fuzzy
 msgid "View/Edit home reference"
-msgstr "Ver/Editar referencia home"
+msgstr "Ver/Editar localização base"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.spot.SpotOverlay
 #: pt.up.fe.dceg.neptus.plugins.planning.DistancesLayer
@@ -11731,7 +11710,7 @@ msgstr "∆tTxRx"
 #~ msgstr "Erro ao inicializar IMC"
 
 #~ msgid "Error sending HomeRef"
-#~ msgstr "Erro a enviar HomeRef"
+#~ msgstr "Erro a enviar Localização Base"
 
 #~ msgid "Estimated State"
 #~ msgstr "Posição estimada"
