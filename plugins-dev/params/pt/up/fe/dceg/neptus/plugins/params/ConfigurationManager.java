@@ -55,7 +55,7 @@ import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.ValueTypeEnum;
 import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Visibility;
 import pt.up.fe.dceg.neptus.plugins.params.editor.ComboEditorWithDependancy;
 import pt.up.fe.dceg.neptus.plugins.params.editor.PropertyEditorChangeValuesIfDependancyAdapter;
-import pt.up.fe.dceg.neptus.plugins.params.editor.custom.CustomEditor;
+import pt.up.fe.dceg.neptus.plugins.params.editor.custom.CustomSystemPropertyEditor;
 import pt.up.fe.dceg.neptus.plugins.params.renderer.BooleanSystemPropertyRenderer;
 import pt.up.fe.dceg.neptus.plugins.params.renderer.I18nSystemPropertyRenderer;
 import pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer;
@@ -177,15 +177,15 @@ public class ConfigurationManager {
             sections.add(sectionName);
 
             Node editorNode = section.selectSingleNode("@editor");
-            CustomEditor sectionCustomEditor = null;
+            CustomSystemPropertyEditor sectionCustomEditor = null;
             if (editorNode != null) {
                 String editorStr = editorNode.getText();
                 try {
-                    String str = CustomEditor.class.getPackage().getName() + "." + editorStr + "CustomEditor";
+                    String str = CustomSystemPropertyEditor.class.getPackage().getName() + "." + editorStr + "CustomEditor";
 //                    System.out.println("###########     " + str);
                     Class<?> clazz = Class.forName(str);
                     try {
-                        sectionCustomEditor = (CustomEditor) clazz.getConstructor(Map.class).newInstance(sectionParams);
+                        sectionCustomEditor = (CustomSystemPropertyEditor) clazz.getConstructor(Map.class).newInstance(sectionParams);
                     }
                     catch (Exception e) {
                         e.printStackTrace();
@@ -773,7 +773,7 @@ public class ConfigurationManager {
 
     public ArrayList<SystemProperty> getClonedProperties(String system, Visibility vis, Scope scope) {
         ArrayList<SystemProperty> props = getPropertiesByEntity(system, null, vis, scope);
-        Map<String, CustomEditor> customEditors = new HashMap<>();
+        Map<String, CustomSystemPropertyEditor> customEditors = new HashMap<>();
 
         ArrayList<SystemProperty> clones = new ArrayList<>();
 
@@ -795,7 +795,7 @@ public class ConfigurationManager {
             sp.setVisibility(p.getVisibility());
 
             try {
-                CustomEditor ce = customEditors.get(p.getCategoryId());
+                CustomSystemPropertyEditor ce = customEditors.get(p.getCategoryId());
                 if (ce == null) {
                     ce = p.getSectionCustomEditor() != null ? p.getSectionCustomEditor().clone() : p
                             .getSectionCustomEditor();
@@ -807,7 +807,7 @@ public class ConfigurationManager {
                 e.printStackTrace();
             }
             if (sp.getSectionCustomEditor() != null) {
-                CustomEditor ce = sp.getSectionCustomEditor();
+                CustomSystemPropertyEditor ce = sp.getSectionCustomEditor();
                 SystemProperty kv = ce.getSystemPropertiesList().get(p.getName());
                 if (kv != null)
                     ce.getSystemPropertiesList().put(sp.getName(), sp);

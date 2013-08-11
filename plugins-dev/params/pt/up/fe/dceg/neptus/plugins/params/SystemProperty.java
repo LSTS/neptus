@@ -35,7 +35,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.plugins.params.editor.custom.CustomEditor;
+import pt.up.fe.dceg.neptus.plugins.params.editor.custom.CustomSystemPropertyEditor;
 import pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
@@ -141,7 +141,7 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     private AbstractPropertyEditor editor = null;
     private DefaultCellRenderer renderer = null;
     
-    private CustomEditor sectionCustomEditor = null;
+    private CustomSystemPropertyEditor sectionCustomEditor = null;
     
     private ValueTypeEnum valueType = ValueTypeEnum.STRING;
     
@@ -257,14 +257,14 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     /**
      * @return the sectionCustomEditor
      */
-    public CustomEditor getSectionCustomEditor() {
+    public CustomSystemPropertyEditor getSectionCustomEditor() {
         return sectionCustomEditor;
     }
     
     /**
      * @param sectionCustomEditor the sectionCustomEditor to set
      */
-    public void setSectionCustomEditor(CustomEditor sectionCustomEditor) {
+    public void setSectionCustomEditor(CustomSystemPropertyEditor sectionCustomEditor) {
         this.sectionCustomEditor = sectionCustomEditor;
     }
     

@@ -42,11 +42,11 @@ import pt.up.fe.dceg.neptus.plugins.params.SystemProperty;
  * @author pdias
  *
  */
-public class CustomEditor implements PropertyChangeListener, Cloneable {
+public class CustomSystemPropertyEditor implements PropertyChangeListener, Cloneable {
 
     protected Map<String, SystemProperty> paramList = null;
     
-    public CustomEditor(Map<String, SystemProperty> paramList) {
+    public CustomSystemPropertyEditor(Map<String, SystemProperty> paramList) {
         this.paramList = paramList;
     }
     
@@ -68,8 +68,8 @@ public class CustomEditor implements PropertyChangeListener, Cloneable {
      * @see java.lang.Object#clone()
      */
     @Override
-    public CustomEditor clone() throws CloneNotSupportedException {
-        CustomEditor clone = (CustomEditor) super.clone();
+    public CustomSystemPropertyEditor clone() throws CloneNotSupportedException {
+        CustomSystemPropertyEditor clone = (CustomSystemPropertyEditor) super.clone();
         Map<String, SystemProperty> pl = clone.getSystemPropertiesList();
         LinkedHashMap<String, SystemProperty> cl = new LinkedHashMap<>();
         for (String key : pl.keySet()) {

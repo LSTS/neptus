@@ -43,7 +43,7 @@ import pt.up.fe.dceg.neptus.plugins.params.SystemProperty;
  * @author pdias
  *
  */
-public class Edgetech2205CustomEditor extends CustomEditor {
+public class Edgetech2205CustomEditor extends CustomSystemPropertyEditor {
 
     /*
         The sidescan section will have an additional attribute called 'editor' telling Neptus
