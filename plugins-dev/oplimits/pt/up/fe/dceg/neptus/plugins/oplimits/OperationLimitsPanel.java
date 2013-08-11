@@ -73,7 +73,7 @@ public class OperationLimitsPanel extends JPanel {
 		minAltitudeCheck = new JCheckBox(I18n.text("Minimum Altitude (m)"));
 		maxAltitudeCheck = new JCheckBox(I18n.text("Maximum Altitude (m)"));
 		minSpeedCheck = new JCheckBox(I18n.text("Minimum Speed (m/s)"));
-		maxSpeedCheck = new JCheckBox(I18n.text("Maximum Speed (m/s))"));
+		maxSpeedCheck = new JCheckBox(I18n.text("Maximum Speed (m/s)"));
 		areaCheck = new JCheckBox(I18n.text("Area Limits"));
 		maxVRateCheck = new JCheckBox(I18n.text("Maximum Vertical Rate (m/s)"));
 			

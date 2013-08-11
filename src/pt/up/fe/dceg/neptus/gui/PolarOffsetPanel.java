@@ -92,7 +92,7 @@ public class PolarOffsetPanel extends ParametersPanel {
         jLabel.setText(I18n.text("Distance") + ":");
         jLabel1.setText("   " + I18n.text("Azimuth") + ":");
         jLabel2.setText("   " + I18n.text("Zenith") + ":");
-        jLabel3.setText(I18n.text("m"));
+        jLabel3.setText(I18n.textc("m", "meters"));
         jLabel4.setText("" + CoordinateUtil.CHAR_DEGREE);
         jLabel4.setFont(new Font("Dialog", Font.BOLD, 14));
         jLabel5.setText("" + CoordinateUtil.CHAR_DEGREE);

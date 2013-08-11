@@ -292,7 +292,7 @@ public abstract class RangePainter implements Renderer2DPainter {
 			g.setStroke(newStroke);
 			g.draw(rC);
 			g.setStroke(oldStroke);
-			String rangeTxt = "" + MathMiscUtils.round(range, 1) + I18n.text("m");
+			String rangeTxt = "" + MathMiscUtils.round(range, 1) + I18n.textc("m", "meters");
 			Color oldColor = g.getColor();
 			g.setColor(ColorUtils.setTransparencyToColor(Color.WHITE, oldColor.getAlpha()));
             g.drawString(rangeTxt, (int) (pt.getX() - 5 + 1), (int) (pt.getY() - 10 * (isDrawRangeUpOrDownThePoint() ? 1
