@@ -10829,10 +10829,9 @@ msgid "splitLocation"
 msgstr "local de separação"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:997
-#, fuzzy
 msgctxt "sidescan range"
 msgid "ss range"
-msgstr "distância"
+msgstr "distância sonar de verrimento lateral"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:246
 msgid "start"
