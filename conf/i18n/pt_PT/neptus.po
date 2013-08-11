@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-10 23:04+0100\n"
-"PO-Revision-Date: 2013-08-10 23:09+0100\n"
+"POT-Creation-Date: 2013-08-11 17:00+0100\n"
+"PO-Revision-Date: 2013-08-11 17:04+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
@@ -16,11 +16,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.5.4\n"
-
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1051
-#, fuzzy
-msgid " | end-actions->"
-msgstr "acções de saída"
 
 #: src/pt/up/fe/dceg/neptus/types/map/PlanUtil.java:214
 msgid "# Maneuvers"
@@ -135,25 +130,25 @@ msgstr "Gráfico %plotname"
 msgid "%plugin parameters"
 msgstr "Parametros de %plugin"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:901
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:944
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:995
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:910
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:953
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1004
 msgid "%s custom settings"
 msgstr "Preferencias de %s"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:965
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:974
 msgid "%s end actions"
 msgstr "%s Acções de Fim"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1034
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1043
 msgid "%s properties"
 msgstr "Propriedades de %s"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:865
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:870
 msgid "%s specific properties"
 msgstr "Propriedades específicas de %s"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:956
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:965
 msgid "%s start actions"
 msgstr "Acções de entrada de %s"
 
@@ -196,7 +191,7 @@ msgstr "1- Prioridade Minima <br>10- Prioridade Maxima<br>5- Prioridade Normal"
 #: Description of property 'Yaw Increment' from
 #: pt.up.fe.dceg.neptus.mra.NeptusMRA
 msgid ""
-"180 Yaw (psi) increment for the 83P parser, set true to increment + 180º."
+"180 Yaw (psi) increment for the 83P parser, set true to increment +180°."
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/gui/objparams/ImageObjectParameters.java:354
@@ -323,9 +318,8 @@ msgid "AIS Overlay"
 msgstr "Camada AIS"
 
 #: plugins-dev/ais/pt/up/fe/dceg/neptus/plugins/ais/AisOverlay.java:267
-#, fuzzy
 msgid "AIS settings"
-msgstr "Todas as Configurações"
+msgstr "Configurações AIS"
 
 #: Field from VehicleType.SystemTypeEnum enumeration
 #: VehicleType.VehicleTypeEnum
@@ -438,7 +432,6 @@ msgid "Abs"
 msgstr "Abs"
 
 #: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:676
-#, fuzzy
 msgid "Absence of value"
 msgstr "Ausência de valor"
 
@@ -522,7 +515,6 @@ msgid "Add Free-hand drawing"
 msgstr "Adicionar desenho livre"
 
 #: src/pt/up/fe/dceg/neptus/mra/MraChartPanel.java:291
-#, fuzzy
 msgid "Add Mark"
 msgstr "Adicionar marca"
 
@@ -770,7 +762,7 @@ msgstr ""
 "Intervalo de tempo (em milésimos de segundo) de espera entre actualizações"
 
 #: Property from pt.up.fe.dceg.neptus.mp.maneuvers.CompassCalibration
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:290
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:293
 msgid "Amplitude"
 msgstr "Amplitude"
 
@@ -998,9 +990,9 @@ msgstr ""
 msgid "Beacon Name"
 msgstr "Nome do Beacon"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:863
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:266
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:576
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:865
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:270
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:577
 msgid "Bearing"
 msgstr "Orientação"
 
@@ -1351,6 +1343,10 @@ msgstr "Escolha"
 msgid "Chronometer"
 msgstr "Cronómetro"
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:80
+msgid "Circular"
+msgstr ""
+
 #: src/pt/up/fe/dceg/neptus/types/map/DynamicElement.java:163
 msgid "Class"
 msgstr "Classe"
@@ -1392,6 +1388,10 @@ msgstr "Apagar BD de planos remota do sistema principal"
 #: src/pt/up/fe/dceg/neptus/console/plugins/EntityStatePanel.java:163
 msgid "Clear table"
 msgstr "Limpar tabela"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:86
+msgid "Clockwise"
+msgstr ""
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:611
 #: src/pt/up/fe/dceg/neptus/gui/PropertiesEditor.java:316
@@ -1874,6 +1874,10 @@ msgstr "Não foi encontrado um veículo para enviar um abortar acústico!"
 msgid "Count Up/Down"
 msgstr "Contagem Crescente/Decrescente"
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:87
+msgid "Counter-Clockwise"
+msgstr ""
+
 #: src/pt/up/fe/dceg/neptus/console/plugins/SystemsList.java:1252
 msgid "Course"
 msgstr "Curso"
@@ -1899,8 +1903,8 @@ msgstr "Criar novo plano"
 msgid "Creating video"
 msgstr "Modo de Operação"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:867
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:581
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:869
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:582
 #, fuzzy
 msgid "Cross Angle"
 msgstr "Ângulo cruzado"
@@ -1915,8 +1919,8 @@ msgstr "Perfil Corrente"
 msgid "Current State"
 msgstr "Perfil Corrente"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:880
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:595
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:883
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:597
 #, fuzzy
 msgid "Curve Offset"
 msgstr "Desvio da Curva"
@@ -2131,7 +2135,7 @@ msgid "Dimension"
 msgstr "Versão"
 
 #: Property from pt.up.fe.dceg.neptus.mp.maneuvers.CompassCalibration
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:239
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:240
 msgid "Direction"
 msgstr "Direcção"
 
@@ -2371,11 +2375,11 @@ msgstr ""
 msgid "Dump general preferences"
 msgstr "Despejar preferências gerais"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:230
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/PopUp.java:287
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:254
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/StationKeeping.java:182
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:235
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:232
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/PopUp.java:290
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:256
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/StationKeeping.java:184
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:236
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/HeadingSpeedDepth.java:391
 msgid "Duration"
 msgstr "Duração"
@@ -2721,7 +2725,7 @@ msgstr "Erro a abrir ficheiro"
 msgid "Error opening mission file"
 msgstr "Erro a abrir ficheiro de missão"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1020
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1029
 msgid "Error parsing custom setting '%s' to '%s'!"
 msgstr ""
 
@@ -2781,7 +2785,7 @@ msgstr "Erro ao enviar paragem de plano"
 msgid "Error while extracting schema to file!!"
 msgstr "Erro ao extrair esquema para ficheiro!!"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Goto.java:132
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Goto.java:133
 #, fuzzy
 msgid "Error while loading the XML:"
 msgstr "Erro durante carregamento do XML:"
@@ -2967,6 +2971,10 @@ msgstr "Procurar area visível"
 msgid "Fetch visible area tiles to up to 2 more zoom levels."
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:82
+msgid "Figure 8"
+msgstr "Figura 8"
+
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:452
 #: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:418
 #: src/pt/up/fe/dceg/neptus/mc/Workspace.java:823
@@ -3038,8 +3046,8 @@ msgstr "Encontrar base de veículo em posição e orientação  base."
 msgid "FindVehicle"
 msgstr "Encontrar Veículo"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:888
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:604
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:891
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:606
 msgid "First Curve Right"
 msgstr "Primeira Curva à Direita"
 
@@ -3224,8 +3232,8 @@ msgstr "A gerar plano"
 msgid "Generic Display"
 msgstr "Exposiçao Genérica"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:827
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:833
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:828
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:834
 msgid "Generic properties"
 msgstr "Propriedades genéricas"
 
@@ -3445,8 +3453,8 @@ msgstr "Honrar Visibilidade"
 msgid "Horizontal Accuracy"
 msgstr "Precisão Horizontal"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:855
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:564
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:857
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:565
 msgid "Horizontal Alternation"
 msgstr "Alternação Horizontal"
 
@@ -3462,8 +3470,8 @@ msgstr "Resolução da Grelha Horizontal"
 msgid "Horizontal Group"
 msgstr "Grupo Horizontal"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:859
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:568
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:861
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:569
 msgid "Horizontal Step"
 msgstr "Passo Horizontal"
 
@@ -3503,8 +3511,8 @@ msgstr "Tonalidade"
 #: src/pt/up/fe/dceg/neptus/types/mission/plan/PlanType.java:649
 #: src/pt/up/fe/dceg/neptus/types/map/PlanUtil.java:198
 #: src/pt/up/fe/dceg/neptus/graph/DefaultNode.java:141
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:827
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:829
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:828
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:830
 msgid "ID"
 msgstr "ID"
 
@@ -3827,9 +3835,9 @@ msgstr "Informação"
 msgid "Initial"
 msgstr "Inicial"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:832
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:834
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:927
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:833
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:835
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:936
 msgid "Initial Maneuver"
 msgstr "Manobra Inicial"
 
@@ -3880,6 +3888,10 @@ msgstr "Intervalo entre estados simulados, em segundos"
 #: pt.up.fe.dceg.neptus.plugins.gauges.CpuBattDiskNetGauge
 msgid "Interval between updates in milliseconds"
 msgstr "Intervalo entre actualizações em milésimos de segundo"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:88
+msgid "Into the Wind"
+msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/console/plugins/MyLocationDisplay.java:628
 #: src/pt/up/fe/dceg/neptus/console/plugins/MyLocationDisplay.java:640
@@ -4090,9 +4102,9 @@ msgstr "Esquerda"
 #: Property from pt.up.fe.dceg.neptus.console.plugins.MyLocationDisplay
 #: pt.up.fe.dceg.neptus.mp.templates.RowsTemplate
 #: src/pt/up/fe/dceg/neptus/types/map/PlanUtil.java:200
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:847
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:262
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:551
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:849
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:266
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:552
 msgid "Length"
 msgstr "Comprimento"
 
@@ -4258,10 +4270,10 @@ msgstr "Limites de operacional local tem alterações"
 
 #: src/pt/up/fe/dceg/neptus/gui/MapLocationSelector.java:185
 #: src/pt/up/fe/dceg/neptus/types/map/DynamicElement.java:164
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:843
 #: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:844
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:846
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:849
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:845
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:847
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:850
 msgid "Location"
 msgstr "Localização"
 
@@ -4420,7 +4432,7 @@ msgstr "Descarregador de Logs-Habilitar descarregamento parcial"
 msgid "Logs folder"
 msgstr "Pastas de Log"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:244
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:246
 msgid "Loiter Type"
 msgstr "Tipo de Loiter"
 
@@ -4495,7 +4507,7 @@ msgstr "Visualização MRA a não carregar convenientemente"
 
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:248
 msgid "Magenta"
-msgstr ""
+msgstr "Magenta"
 
 #: src/pt/up/fe/dceg/neptus/gui/system/btn/SystemsSelectionAction.java:54
 msgid "Main"
@@ -4542,17 +4554,17 @@ msgstr "Manobra"
 msgid "Maneuver Mode"
 msgstr "Modo de Manobra"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:843
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:844
 #, fuzzy
 msgid "Maneuver's location"
 msgstr "Marcar localização"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:849
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:850
 #, fuzzy
 msgid "Maneuver's z units"
 msgstr "# de Manobras"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:846
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:847
 #, fuzzy
 msgid "Maneuver's z value"
 msgstr "Modo de Manobra"
@@ -4753,7 +4765,7 @@ msgstr "A criar mapa de batimetria"
 msgid "Maximum depth to be used in bathymetry plots."
 msgstr "O mapa de cores a ser usado no projecto"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:990
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:999
 msgid "Maximum time"
 msgstr "Tempo máximo"
 
@@ -4767,7 +4779,7 @@ msgstr "Valor médio (graus)"
 
 #: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:215
 msgid "Mean velocity"
-msgstr ""
+msgstr "Velocidade média"
 
 #: plugins-dev/echosounder/pt/up/fe/dceg/neptus/plugins/sidescan/SidescanToolbar.java:61
 msgid "Measure"
@@ -5034,7 +5046,7 @@ msgstr ""
 msgid "Move the map towards north"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:232
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:234
 msgid "Move threshold"
 msgstr ""
 
@@ -5368,7 +5380,7 @@ msgstr "Geração de Plano Noptilus"
 
 #: Custom String
 msgid "Normal"
-msgstr ""
+msgstr "Normal"
 
 #: plugins-dev/echosounder/pt/up/fe/dceg/neptus/plugins/sidescan/SidescanToolbar.java:67
 #, fuzzy
@@ -5710,7 +5722,7 @@ msgstr "Outros"
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanControlStatePanel.java:120
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanControlStatePanel.java:144
 msgid "Outcome"
-msgstr ""
+msgstr "Resultado"
 
 #: plugins-dev/logs/pt/up/fe/dceg/neptus/plugins/logs/LogMerger.java:154
 msgid "Output directory:"
@@ -5749,7 +5761,7 @@ msgctxt ""
 msgid "POI"
 msgstr "POI"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:892
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:895
 msgid "Paint SideScan Range Shadow"
 msgstr ""
 
@@ -5884,9 +5896,14 @@ msgstr "Pink"
 msgid "Pitch"
 msgstr "Inclinação"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:291
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:294
 msgid "Pitch angle"
 msgstr "ângulo de inclinação"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:220
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:254
+msgid "Pitch angle shoud be bounded between [0°, 45°]"
+msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:209
 msgid "Pitch min/max/amp/avg"
@@ -6202,7 +6219,7 @@ msgstr "Psi"
 #: src/pt/up/fe/dceg/neptus/mra/plots/EulerAnglesPlot.java:67
 #: src/pt/up/fe/dceg/neptus/mra/plots/EulerAnglesPlot.java:77
 msgid "Psi (deg)."
-msgstr ""
+msgstr "Psi (deg)."
 
 #: Property from
 #: pt.up.fe.dceg.neptus.plugins.webupdate.RemotePositionPublisherUpdater
@@ -6293,12 +6310,17 @@ msgctxt "Rotations per Minutes"
 msgid "RPM"
 msgstr "RPM"
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:81
+#, fuzzy
+msgid "Racetrack"
+msgstr "Reiniciar Tracker"
+
 #: src/pt/up/fe/dceg/neptus/gui/LatLonConv.java:450
 msgid "Radians"
 msgstr "Radianos"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/StationKeeping.java:195
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:258
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/StationKeeping.java:198
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:262
 msgid "Radius"
 msgstr "Raio"
 
@@ -6708,7 +6730,7 @@ msgstr "Reiníciar"
 
 #: src/pt/up/fe/dceg/neptus/gui/objparams/TranspondersPositionHelper.java:663
 msgid "Result"
-msgstr ""
+msgstr "Resultado"
 
 #: src/pt/up/fe/dceg/neptus/util/logdownload/DownloaderPanel.java:516
 msgid "Resuming..."
@@ -6838,7 +6860,7 @@ msgstr "Salinidade"
 
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:217
 msgid "Sample Text"
-msgstr ""
+msgstr "Texto de Amostra"
 
 #: plugins-dev/gps/pt/up/fe/dceg/neptus/plugins/gps/GPSDevicePanel.java:179
 msgid "Satellites"
@@ -6963,7 +6985,7 @@ msgstr "Guardado em '%filePath'"
 
 #: src/pt/up/fe/dceg/neptus/gui/objparams/ImageObjectParameters.java:271
 msgid "Scale (m/pixel):"
-msgstr ""
+msgstr "Escala (m/pixel):"
 
 #: src/pt/up/fe/dceg/neptus/gui/editor/XMLPropertyEditor.java:224
 msgid "Schema extracted to file:"
@@ -7671,7 +7693,7 @@ msgstr "Mostra ajuda especifica-contexto"
 msgid "Shows the Vehicle's speed"
 msgstr "Mostrar velocidade do Veículo"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:895
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:898
 msgid "SideScan Range Shadow"
 msgstr ""
 
@@ -7781,26 +7803,26 @@ msgstr ""
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/MraPhotosVisualization.java:631
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:989
 #: plugins-dev/trex/pt/up/fe/dceg/neptus/plugins/trex/goals/VisitLocationGoal.java:126
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowTrajectory.java:750
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:871
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:285
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:238
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Goto.java:274
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Goto.java:275
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/PopUp.java:282
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:264
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/StationKeeping.java:186
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:249
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowTrajectory.java:752
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:873
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:288
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:241
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Goto.java:276
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Goto.java:277
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/PopUp.java:285
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:267
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/StationKeeping.java:188
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:252
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/HeadingSpeedDepth.java:374
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:586
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:587
 msgid "Speed"
 msgstr "Velocidade"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.noptilus.NoptilusPlanGenerator
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:875
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/StationKeeping.java:190
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:253
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:590
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:877
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/StationKeeping.java:192
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:256
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:591
 msgid "Speed Units"
 msgstr "Unidades de Velocidade"
 
@@ -7808,8 +7830,8 @@ msgstr "Unidades de Velocidade"
 msgid "Speed must be a numeric value"
 msgstr "Velocidade deve ser um valor numerico"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/PopUp.java:285
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:267
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/PopUp.java:288
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:270
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/HeadingSpeedDepth.java:378
 msgid "Speed tolerance"
 msgstr "Tolerância de velocidade"
@@ -7817,13 +7839,13 @@ msgstr "Tolerância de velocidade"
 #: Property from pt.up.fe.dceg.neptus.mp.maneuvers.CompassCalibration
 #: pt.up.fe.dceg.neptus.mp.maneuvers.Elevator
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:996
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowTrajectory.java:746
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:281
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:234
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Goto.java:269
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowTrajectory.java:747
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:283
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:236
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/Goto.java:270
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/PopUp.java:278
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:260
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Goto.java:271
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/PopUp.java:280
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:262
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/HeadingSpeedDepth.java:368
 msgid "Speed units"
 msgstr "Unidades de velocidade"
@@ -7849,8 +7871,8 @@ msgctxt "Colormap name"
 msgid "Spring"
 msgstr "Orientação"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:884
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:599
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:887
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:601
 msgid "Square Curve"
 msgstr ""
 
@@ -8157,15 +8179,15 @@ msgstr "Sincronizado"
 #: src/pt/up/fe/dceg/neptus/mra/MRAPanel.java:138
 #: src/pt/up/fe/dceg/neptus/console/StatusBar.java:93
 #: src/pt/up/fe/dceg/neptus/util/comm/manager/imc/MonitorIMCComms.java:225
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:252
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:254
 msgid "System"
 msgstr "Sistema"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:227
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:229
 msgid "System A"
 msgstr "Sistema A"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:228
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:230
 msgid "System B"
 msgstr "Sistema B"
 
@@ -8514,7 +8536,7 @@ msgstr ""
 msgid "The given ID already exists in the map. Please choose a different one"
 msgstr "A ID atribuída já existe no mapa. por favor escolha uma diferente"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:830
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:831
 msgid "The identifier for this object"
 msgstr "O identificador para este objecto"
 
@@ -8542,11 +8564,11 @@ msgstr ""
 msgid "The maximum allowed drift in the velocity"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:993
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1002
 msgid "The maximum time value must be greater than 0"
 msgstr "O valor de tempo máximo deve ser maior do que 0"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:988
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:997
 msgid "The minimum time value must be greater or equal than 0"
 msgstr "O valor de tempo minimo deve ser maior ou igual a 0"
 
@@ -8668,7 +8690,7 @@ msgstr "A velocidade a ser usada"
 #: Description of property 'Speed units' from
 #: pt.up.fe.dceg.neptus.mp.maneuvers.CompassCalibration
 #: pt.up.fe.dceg.neptus.mp.maneuvers.Elevator
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Goto.java:271
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Goto.java:272
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/HeadingSpeedDepth.java:369
 msgid "The speed units"
 msgstr "Unidades de velocidade"
@@ -9646,6 +9668,11 @@ msgstr "Veículo"
 msgid "Vehicle Battery entity name"
 msgstr "Nome da entidade da Bateria do Veículo"
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:85
+#, fuzzy
+msgid "Vehicle Dependent"
+msgstr "Velocidade do Veículo "
+
 #: src/pt/up/fe/dceg/neptus/mra/plots/VehicleGanttPlot.java:86
 #: src/pt/up/fe/dceg/neptus/mra/plots/VehicleGanttPlot.java:88
 #, fuzzy
@@ -9817,7 +9844,7 @@ msgstr "Volume"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.vtk.Vtk
 msgid "Vtk"
-msgstr ""
+msgstr "Vtk"
 
 #: src/pt/up/fe/dceg/neptus/console/plugins/SystemsList.java:1214
 msgid "WEB POS RECEIVED"
@@ -9924,7 +9951,7 @@ msgstr "Onde colocar a barra de ferramentas"
 msgid "Where to store and load operational limits"
 msgstr "Onde armazenar e carregar os limites operacionais"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:835
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:836
 #, fuzzy
 msgid "Whether this will be the first maneuver to be executed"
 msgstr "Qual destas será a primeira manobra a ser executada"
@@ -9932,8 +9959,8 @@ msgstr "Qual destas será a primeira manobra a ser executada"
 #: Property from pt.up.fe.dceg.neptus.console.plugins.MyLocationDisplay
 #: pt.up.fe.dceg.neptus.mp.templates.RowsTemplate
 #: pt.up.fe.dceg.neptus.mp.templates.InfiniteRectTemplate
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:851
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:556
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:853
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsPattern.java:557
 msgid "Width"
 msgstr "Largura"
 
@@ -9997,7 +10024,7 @@ msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/mra/plots/XYPlot.java:101
 msgid "XY"
-msgstr ""
+msgstr "XY"
 
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/MraPhotosVisualization.java:630
 #: src/pt/up/fe/dceg/neptus/types/map/Model3DElement.java:593
@@ -10014,7 +10041,7 @@ msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:249
 msgid "Yellow"
-msgstr ""
+msgstr "Amarelo"
 
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:167
 msgid "Yes"
@@ -10041,11 +10068,11 @@ msgid "Yoyo motion amplitude."
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/mra/plots/ZPlot.java:99
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:846
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:847
 msgid "Z"
 msgstr "Z"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:847
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:848
 #, fuzzy
 msgctxt "Maneuver's z value"
 msgid "Z"
@@ -10063,11 +10090,11 @@ msgstr "modo Z"
 msgid "Z relative mode"
 msgstr "modo relativo a Z"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:849
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:850
 msgid "Z-Units"
 msgstr "Unidades-Z"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:850
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:851
 #, fuzzy
 msgctxt "Maneuver's z units"
 msgid "Z-Units"
@@ -10115,6 +10142,11 @@ msgstr "adicionar"
 msgid "allowControlFromWebService"
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:991
+#, fuzzy
+msgid "alt"
+msgstr "Falta"
+
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:96
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:163
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:264
@@ -10131,9 +10163,20 @@ msgstr "altitude (ASL)"
 msgid "altitude (Home)"
 msgstr "altitude (Home)"
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:363
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:212
+#, fuzzy
+msgid "amplitude"
+msgstr "Amplitude"
+
 #: src/pt/up/fe/dceg/neptus/console/plugins/SystemsList.java:1036
 msgid "authority"
 msgstr "autoridade"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:993
+#, fuzzy
+msgid "bearing"
+msgstr "Orientação"
 
 #: Property from pt.up.fe.dceg.neptus.app.tiles.WorldMapPanel
 msgid "center"
@@ -10165,6 +10208,23 @@ msgstr "ligado"
 msgid "connected"
 msgstr "ligado"
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:994
+#, fuzzy
+msgid "cross angle"
+msgstr "Ângulo cruzado"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/PopUp.java:350
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:209
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:245
+#, fuzzy
+msgid "cruise depth"
+msgstr "Usar Profundidade"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:325
+msgctxt "down offset"
+msgid "dOff"
+msgstr ""
+
 #: src/pt/up/fe/dceg/neptus/gui/objparams/TranspondersPositionHelper.java:451
 msgid "da1 (m):"
 msgstr "da1 (m):"
@@ -10179,7 +10239,7 @@ msgstr "db1 (m):"
 msgid "debugOn"
 msgstr "Depuração Ligada"
 
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:551
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:577
 msgid "default"
 msgstr "por defeito"
 
@@ -10206,6 +10266,12 @@ msgstr "graus"
 msgid "depth"
 msgstr "profundidade"
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:998
+#, fuzzy
+msgctxt ""
+msgid "depth"
+msgstr "profundidade"
+
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:152
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:281
 msgid "depth (ASL)"
@@ -10216,9 +10282,19 @@ msgstr "profundidade (ASL)"
 msgid "depth (Home)"
 msgstr "profundidade (Home)"
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:344
+#, fuzzy
+msgid "direction"
+msgstr "Direcção"
+
 #: src/pt/up/fe/dceg/neptus/util/comm/ssh/SshShellPannel.java:219
 msgid "disconnect"
 msgstr "desligado"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:996
+#, fuzzy
+msgid "distance"
+msgstr "Distância"
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1425
 msgid "down"
@@ -10228,6 +10304,21 @@ msgstr "baixo"
 msgid "dump"
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:287
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/PopUp.java:351
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:321
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/StationKeeping.java:242
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:345
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:214
+#, fuzzy
+msgid "duration"
+msgstr "Duração"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:324
+msgctxt "east offset"
+msgid "eOff"
+msgstr ""
+
 #: src/pt/up/fe/dceg/neptus/gui/editor/XMLPropertyEditor.java:82
 msgid "edit"
 msgstr "editar"
@@ -10235,6 +10326,16 @@ msgstr "editar"
 #: Property from pt.up.fe.dceg.neptus.comm.proxy.ProxyInfoProvider
 msgid "enableProxy"
 msgstr "Habilitar Proxy"
+
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1067
+#, fuzzy
+msgid "end actions"
+msgstr "acções de saída"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:210
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:247
+msgid "end z"
+msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/types/mission/plan/PlanType.java:656
 msgid "end-actions"
@@ -10296,6 +10397,10 @@ msgstr "altura"
 #: src/pt/up/fe/dceg/neptus/mc/lauvconsole/VehicleIpPortEditor.java:68
 msgid "host name"
 msgstr "nome do hospedeiro"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:992
+msgid "hstep"
+msgstr ""
 
 #: Property from pt.up.fe.dceg.neptus.comm.proxy.ProxyInfoProvider
 msgid "httpProxyHost"
@@ -10389,6 +10494,12 @@ msgstr "latitude"
 msgid "left"
 msgstr "esquerda"
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:989
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:343
+#, fuzzy
+msgid "length"
+msgstr "Comprimento"
+
 #: Property from pt.up.fe.dceg.neptus.app.tiles.WorldMapPanel
 msgid "levelOfDetail"
 msgstr "nível de detalhe"
@@ -10400,6 +10511,11 @@ msgstr "A carregar %chartname"
 #: Property from pt.up.fe.dceg.neptus.console.plugins.MyLocationDisplay
 msgid "location"
 msgstr "localização"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:339
+#, fuzzy
+msgid "loiter type"
+msgstr "Tipo de Loiter"
 
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:95
 msgid "longitude"
@@ -10418,6 +10534,36 @@ msgctxt "Chronometer minutes separator"
 msgid "m"
 msgstr "m"
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:989
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:990
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:992
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:996
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:997
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:998
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:362
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:363
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Goto.java:344
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/PopUp.java:350
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:326
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/StationKeeping.java:241
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:340
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:342
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:343
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:209
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:210
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:211
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:212
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:213
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:214
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:245
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:246
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:247
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:248
+#, fuzzy
+msgctxt "meters"
+msgid "m"
+msgstr "m"
+
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/CommandPlanner.java:114
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:948
 #: src/pt/up/fe/dceg/neptus/gui/editor/SpeedUnitsEditor.java:48
@@ -10431,10 +10577,10 @@ msgstr "m/s"
 msgid "maneuver"
 msgstr "manobra"
 
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:339
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:350
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:474
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:481
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:342
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:353
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:500
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:507
 msgid "max"
 msgstr "max."
 
@@ -10452,10 +10598,10 @@ msgstr "metros"
 msgid "millisBetweenUpdates"
 msgstr "Milésimos de segundo entre Actualizações"
 
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:337
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:348
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:472
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:479
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:340
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:351
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:498
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:505
 msgid "min"
 msgstr "min."
 
@@ -10469,15 +10615,14 @@ msgstr "Raio (m)"
 msgid "minutes"
 msgstr "Raio (m)"
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:323
+msgctxt "north offset"
+msgid "nOff"
+msgstr ""
+
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.TabContainer
 msgid "name"
 msgstr "nome"
-
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1051
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1052
-#, fuzzy
-msgid "no"
-msgstr "Informação"
 
 #: src/pt/up/fe/dceg/neptus/util/comm/manager/imc/MonitorIMCComms.java:472
 #: src/pt/up/fe/dceg/neptus/util/comm/manager/imc/MonitorIMCComms.java:475
@@ -10517,6 +10662,17 @@ msgstr "cor do caminho"
 msgid "pause"
 msgstr "pausa"
 
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1065
+#, fuzzy
+msgid "payload actions"
+msgstr "Acções de Plano"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:364
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:211
+#, fuzzy
+msgid "pitch"
+msgstr "Inclinação"
+
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:55
 msgid "plan"
 msgstr "plano"
@@ -10529,6 +10685,10 @@ msgstr "reprodução"
 #: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1417
 msgid "plus (+)"
 msgstr "mais (+)"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowTrajectory.java:728
+msgid "points"
+msgstr "pontos"
 
 #: Property from pt.up.fe.dceg.neptus.mp.maneuvers.CoverArea
 msgid "polygon"
@@ -10606,6 +10766,10 @@ msgid "rad"
 msgstr "rad"
 
 #: Property from pt.up.fe.dceg.neptus.types.map.MineDangerAreaElement
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/StationKeeping.java:241
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:342
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:213
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:248
 msgid "radius"
 msgstr "raio"
 
@@ -10638,6 +10802,16 @@ msgstr "Direita"
 
 #: src/pt/up/fe/dceg/neptus/gui/ClockCounter.java:64
 msgctxt "Chronometer seconds separator"
+msgid "s"
+msgstr "s"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:287
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/PopUp.java:351
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:321
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/StationKeeping.java:242
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:345
+#, fuzzy
+msgctxt "seconds"
 msgid "s"
 msgstr "s"
 
@@ -10689,6 +10863,16 @@ msgstr "mostrarSistemas"
 #: Property from
 #: pt.up.fe.dceg.neptus.plugins.followref.FollowReferenceInteraction
 #: pt.up.fe.dceg.neptus.plugins.followref.FollowReferenceControl
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowTrajectory.java:727
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:995
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:361
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:286
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Goto.java:343
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/PopUp.java:349
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/StationKeeping.java:240
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:341
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:208
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:244
 #, fuzzy
 msgid "speed"
 msgstr "Velocidade"
@@ -10703,18 +10887,40 @@ msgstr "Desfazer Selecção"
 msgid "splitLocation"
 msgstr "trocarLocal"
 
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:997
+#, fuzzy
+msgctxt "sidescan range"
+msgid "ss range"
+msgstr "distância"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:246
+#, fuzzy
+msgid "start"
+msgstr "Reiníciar"
+
 #: src/pt/up/fe/dceg/neptus/types/mission/plan/PlanType.java:653
 msgid "start-actions"
-msgstr "iniciar-acções"
-
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1051
-#, fuzzy
-msgid "start-actions->"
 msgstr "iniciar-acções"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.CollapsibleContainer
 msgid "state"
 msgstr "estado"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:322
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:323
+#, fuzzy
+msgid "system"
+msgstr "Sistema"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:288
+#, fuzzy
+msgid "system a"
+msgstr "Sistema A"
+
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:289
+#, fuzzy
+msgid "system b"
+msgstr "Sistema A"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.acoustic.ModemRanger
 msgid "targetId"
@@ -10817,6 +11023,7 @@ msgid "vehicle-%vehicleid"
 msgstr "Veículo - %vehicleid"
 
 #: Property from pt.up.fe.dceg.neptus.types.map.QRouteElement
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:990
 msgid "width"
 msgstr "largura"
 
@@ -10825,7 +11032,7 @@ msgstr "largura"
 msgid "x (m):"
 msgstr "x (m):"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:256
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:258
 #, fuzzy
 msgid "x offset"
 msgstr "x offset"
@@ -10840,7 +11047,7 @@ msgstr "desvio de x Câmara para veículo"
 msgid "y (m):"
 msgstr "y (m):"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:257
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:259
 msgid "y offset"
 msgstr "y offset"
 
@@ -10849,18 +11056,12 @@ msgstr "y offset"
 msgid "y offset Camera to vehicle"
 msgstr "desvio de y Câmara para veículo"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1051
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1052
-#, fuzzy
-msgid "yes"
-msgstr "Sim"
-
 #: Property from
 #: pt.up.fe.dceg.neptus.plugins.followref.FollowReferenceInteraction
 msgid "z"
-msgstr ""
+msgstr "z"
 
-#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:258
+#: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:260
 #, fuzzy
 msgid "z offset"
 msgstr "z offset"
@@ -10873,7 +11074,7 @@ msgstr "desvio de z Câmara para veículo"
 #: Property from
 #: pt.up.fe.dceg.neptus.plugins.followref.FollowReferenceInteraction
 msgid "z_units"
-msgstr ""
+msgstr "unidades_z"
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/WorldRenderPainter.java:956
 msgid "© %layerName world overlay"
@@ -10888,15 +11089,28 @@ msgstr "Δt"
 msgid "∆tTxRx"
 msgstr "∆tTxRx"
 
+#, fuzzy
+#~ msgid " | end-actions->"
+#~ msgstr "acções de saída"
+
+#, fuzzy
+#~ msgid "no"
+#~ msgstr "Informação"
+
+#, fuzzy
+#~ msgid "start-actions->"
+#~ msgstr "iniciar-acções"
+
+#, fuzzy
+#~ msgid "yes"
+#~ msgstr "Sim"
+
 #~ msgid "Activated"
 #~ msgstr "Activado"
 
 #, fuzzy
 #~ msgid "Loading..."
 #~ msgstr "A carregar..."
-
-#~ msgid "Plan Actions"
-#~ msgstr "Acções de Plano"
 
 #~ msgid "Simulate plan"
 #~ msgstr "Plano simulalado"
