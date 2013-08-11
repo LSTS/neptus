@@ -472,7 +472,7 @@ public class UDPTransport {
                             setMulticastActive(useMulticast);
                         }
                         catch (Exception e) {
-                            NeptusLog.pub().error(e.getMessage());
+                            NeptusLog.pub().error("Multicast socket join :: " + e.getMessage());
                             setMulticastActive(false);
                         }
 
