@@ -410,7 +410,7 @@ public class LatLonConv extends JPanel {
 			/// Angles Degrees
 			cardsPanel.add(getLatLongSelector(), I18n.text("degs"));
 			/// Angles Radians
-			cardsPanel.add(getRadsPanel(), I18n.text("rads"));
+			cardsPanel.add(getRadsPanel(), I18n.text("rad"));
 		}
 		return cardsPanel;
 	}
