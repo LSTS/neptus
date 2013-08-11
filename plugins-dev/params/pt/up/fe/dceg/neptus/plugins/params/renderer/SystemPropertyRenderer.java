@@ -43,7 +43,7 @@ import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
  *
  */
 @SuppressWarnings("serial")
-public class PropertyRenderer extends DefaultCellRenderer {
+public class SystemPropertyRenderer extends DefaultCellRenderer {
     private Color dirtyColor = new Color(255, 108, 108);
     private Color syncColor = new Color(108, 255, 108);
     @SuppressWarnings("unused")
@@ -59,14 +59,14 @@ public class PropertyRenderer extends DefaultCellRenderer {
         setShowOddAndEvenRows(false);
     }
 
-    public PropertyRenderer() {
+    public SystemPropertyRenderer() {
         unitsStr = null;
     }
 
     /**
      * @param unitsStr
      */
-    public PropertyRenderer(String unitsStr) {
+    public SystemPropertyRenderer(String unitsStr) {
         this.unitsStr = unitsStr;
     }
 

@@ -41,11 +41,11 @@ import javax.swing.JTable;
  *
  */
 @SuppressWarnings("serial")
-public class I18nPropertyRenderer extends PropertyRenderer {
+public class I18nSystemPropertyRenderer extends SystemPropertyRenderer {
 
     protected HashMap<String, String> i18nMapper = null;
     
-    public I18nPropertyRenderer(HashMap<String, String> i18nMapper) {
+    public I18nSystemPropertyRenderer(HashMap<String, String> i18nMapper) {
         this.i18nMapper = i18nMapper;
     }
     

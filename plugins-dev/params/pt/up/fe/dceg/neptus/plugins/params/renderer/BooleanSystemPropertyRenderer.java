@@ -38,7 +38,7 @@ import javax.swing.JTable;
 
 
 @SuppressWarnings("serial")
-public class BooleanPropertyRenderer extends PropertyRenderer {
+public class BooleanSystemPropertyRenderer extends SystemPropertyRenderer {
     private JCheckBox checkBox = new JCheckBox();
     
     /* (non-Javadoc)

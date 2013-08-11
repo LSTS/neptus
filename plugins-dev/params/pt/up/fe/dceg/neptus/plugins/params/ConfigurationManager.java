@@ -56,9 +56,9 @@ import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Visibility;
 import pt.up.fe.dceg.neptus.plugins.params.editor.ComboEditorWithDependancy;
 import pt.up.fe.dceg.neptus.plugins.params.editor.PropertyEditorChangeValuesIfDependancyAdapter;
 import pt.up.fe.dceg.neptus.plugins.params.editor.custom.CustomEditor;
-import pt.up.fe.dceg.neptus.plugins.params.renderer.BooleanPropertyRenderer;
-import pt.up.fe.dceg.neptus.plugins.params.renderer.I18nPropertyRenderer;
-import pt.up.fe.dceg.neptus.plugins.params.renderer.PropertyRenderer;
+import pt.up.fe.dceg.neptus.plugins.params.renderer.BooleanSystemPropertyRenderer;
+import pt.up.fe.dceg.neptus.plugins.params.renderer.I18nSystemPropertyRenderer;
+import pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer;
 import pt.up.fe.dceg.neptus.util.FileUtil;
 import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
 
@@ -389,7 +389,7 @@ public class ConfigurationManager {
                                 i18nMapper.put(valObj.toString(), vaI18nlObj.toString());
                             }
                             if (i18nMapper.size() > 0)
-                                propRenderer = new I18nPropertyRenderer(i18nMapper);
+                                propRenderer = new I18nSystemPropertyRenderer(i18nMapper);
                         }
                         propEditor = comboEditor;
                     }
@@ -464,7 +464,7 @@ public class ConfigurationManager {
                         }
                         // Prep. I18n renderer
                         if (i18nMapper.size() > 0)
-                            propRenderer = new I18nPropertyRenderer(i18nMapper);
+                            propRenderer = new I18nSystemPropertyRenderer(i18nMapper);
                     }
 
                     ArrayList<?> values = pt.getValuesIfTests().size() > 0 ? pt.getValuesIfTests().get(0).values : null;
@@ -591,13 +591,13 @@ public class ConfigurationManager {
                     property.setRenderer(propRenderer);
                 }
                 else if (valueType == ValueTypeEnum.BOOLEAN) {
-                    property.setRenderer(new BooleanPropertyRenderer());
+                    property.setRenderer(new BooleanSystemPropertyRenderer());
                 }
                 else if (units.length() > 0) {
-                    property.setRenderer(new PropertyRenderer(units));
+                    property.setRenderer(new SystemPropertyRenderer(units));
                 }
                 else {
-                    property.setRenderer(new PropertyRenderer());
+                    property.setRenderer(new SystemPropertyRenderer());
                 }
 
                 if (sectionCustomEditor != null) {

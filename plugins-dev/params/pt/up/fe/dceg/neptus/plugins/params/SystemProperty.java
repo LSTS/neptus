@@ -36,7 +36,7 @@ import java.beans.PropertyChangeListener;
 
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.params.editor.custom.CustomEditor;
-import pt.up.fe.dceg.neptus.plugins.params.renderer.PropertyRenderer;
+import pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -317,14 +317,14 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         if (this.renderer == null)
             return;
         
-        if (!(renderer instanceof PropertyRenderer))
+        if (!(renderer instanceof SystemPropertyRenderer))
             return;
             
         if (timeDirty > timeSync || timeSync <= 0) {
-            ((PropertyRenderer) renderer).setPropertyInSync(false);
+            ((SystemPropertyRenderer) renderer).setPropertyInSync(false);
         }
         else {
-            ((PropertyRenderer) renderer).setPropertyInSync(true);
+            ((SystemPropertyRenderer) renderer).setPropertyInSync(true);
         }
     }
     
