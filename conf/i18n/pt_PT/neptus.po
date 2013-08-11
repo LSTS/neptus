@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-11 18:54+0100\n"
-"PO-Revision-Date: 2013-08-11 18:55+0100\n"
+"POT-Creation-Date: 2013-08-11 19:30+0100\n"
+"PO-Revision-Date: 2013-08-11 19:31+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
@@ -10293,14 +10293,13 @@ msgid "enableProxy"
 msgstr "Habilitar Proxy"
 
 #: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1067
-#, fuzzy
 msgid "end actions"
 msgstr "acções de saída"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:210
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:247
 msgid "end z"
-msgstr ""
+msgstr "z final"
 
 #: src/pt/up/fe/dceg/neptus/types/mission/plan/PlanType.java:656
 msgid "end-actions"
@@ -10365,7 +10364,7 @@ msgstr "nome do hospedeiro"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:992
 msgid "hstep"
-msgstr ""
+msgstr "passo horizontal"
 
 #: Property from pt.up.fe.dceg.neptus.comm.proxy.ProxyInfoProvider
 msgid "httpProxyHost"
@@ -10461,9 +10460,8 @@ msgstr "esquerda"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:989
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:343
-#, fuzzy
 msgid "length"
-msgstr "Comprimento"
+msgstr "comprimento"
 
 #: Property from pt.up.fe.dceg.neptus.app.tiles.WorldMapPanel
 msgid "levelOfDetail"
@@ -10591,11 +10589,11 @@ msgstr "nenhuma informação de momento"
 
 #: src/pt/up/fe/dceg/neptus/mra/exporters/KMLExporter.java:333
 msgid "no multibeam data has been found."
-msgstr ""
+msgstr "não foi encontrado dados de multi-feixe."
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/WorldRenderPainter.java:948
 msgid "no tiles at this zoom, max is %zoomLevel"
-msgstr "nenhum tile neste zoom, max é %zoomLevel"
+msgstr "nenhum tile neste zoom, max. é %zoomLevel"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig
 msgid "normalization"
@@ -10622,15 +10620,13 @@ msgid "pause"
 msgstr "pausa"
 
 #: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1065
-#, fuzzy
 msgid "payload actions"
-msgstr "Acções de Plano"
+msgstr "acções de payload"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:364
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:211
-#, fuzzy
 msgid "pitch"
-msgstr "Inclinação"
+msgstr "inclinação"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:55
 msgid "plan"
@@ -10701,24 +10697,22 @@ msgstr "publicarApenasVeículos"
 #: Property from
 #: pt.up.fe.dceg.neptus.plugins.webupdate.RemotePositionFetcherUpdater
 #: pt.up.fe.dceg.neptus.plugins.webupdate.RemotePositionPublisherUpdater
-#, fuzzy
 msgid "publishRemoteSystemsLocally"
 msgstr "publicarLocalmenteSistemasRemotos"
 
 #: Property from
 #: pt.up.fe.dceg.neptus.plugins.webupdate.RemotePositionPublisherUpdater
-#, fuzzy
 msgid "publishVehiclePlan"
 msgstr "publicarPlanoDeVeículo"
 
 #: Property from
 #: pt.up.fe.dceg.neptus.plugins.webupdate.RemotePositionFetcherUpdater
 #: pt.up.fe.dceg.neptus.plugins.webupdate.RemotePositionPublisherUpdater
-#, fuzzy
 msgid "publishWebReceivedMessages"
 msgstr "publicarMensangensRecebidasDaRede"
 
 #. / Angles Radians
+#: src/pt/up/fe/dceg/neptus/gui/LatLonConv.java:413
 #: src/pt/up/fe/dceg/neptus/gui/LatLonConv.java:428
 #: src/pt/up/fe/dceg/neptus/gui/LatLonConv.java:434
 msgid "rad"
@@ -10731,11 +10725,6 @@ msgstr "rad"
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:248
 msgid "radius"
 msgstr "raio"
-
-#. / Angles Radians
-#: src/pt/up/fe/dceg/neptus/gui/LatLonConv.java:413
-msgid "rads"
-msgstr "rads"
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:232
 msgid "range"
@@ -10828,19 +10817,16 @@ msgstr "mostrarSistemas"
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:341
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/CompassCalibration.java:208
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:244
-#, fuzzy
 msgid "speed"
-msgstr "Velocidade"
+msgstr "velocidade"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig
-#, fuzzy
 msgid "speedCorrection"
-msgstr "Desfazer Selecção"
+msgstr "correção de velocidade"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.SplitContainer
-#, fuzzy
 msgid "splitLocation"
-msgstr "trocarLocal"
+msgstr "local de separação"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:997
 #, fuzzy
@@ -10849,13 +10835,12 @@ msgid "ss range"
 msgstr "distância"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:246
-#, fuzzy
 msgid "start"
-msgstr "Reiníciar"
+msgstr "iníciar"
 
 #: src/pt/up/fe/dceg/neptus/types/mission/plan/PlanType.java:653
 msgid "start-actions"
-msgstr "iniciar-acções"
+msgstr "acções de início"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.CollapsibleContainer
 msgid "state"
@@ -10863,33 +10848,29 @@ msgstr "estado"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:322
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:323
-#, fuzzy
 msgid "system"
-msgstr "Sistema"
+msgstr "sistema"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:288
-#, fuzzy
 msgid "system a"
-msgstr "Sistema A"
+msgstr "sistema a"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:289
-#, fuzzy
 msgid "system b"
-msgstr "Sistema A"
+msgstr "sistema b"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.acoustic.ModemRanger
 msgid "targetId"
-msgstr "alvoID"
+msgstr "ID alvo"
 
 #: src/pt/up/fe/dceg/neptus/gui/editor/BitmaskPropertyEditor.java:101
 #: src/pt/up/fe/dceg/neptus/gui/editor/UnixTimeEditor.java:78
-#, fuzzy
 msgid "test"
-msgstr "testar"
+msgstr "teste"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.gauges.GaugeSubPanel
 msgid "textToDisplay"
-msgstr "textoParaExpor"
+msgstr "textoParaMostrar"
 
 #: src/pt/up/fe/dceg/neptus/gui/VehicleInfo.java:1098
 #: src/pt/up/fe/dceg/neptus/gui/VehicleInfo.java:1172
@@ -10913,7 +10894,7 @@ msgstr ""
 
 #: Property from pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig
 msgid "timeVariableGain"
-msgstr "GanhoDeTempoVariável"
+msgstr "ganho de tempo variável"
 
 #: Description of property 'True or Indicated Speed' from
 #: pt.up.fe.dceg.neptus.plugins.position.SpeedPanel
@@ -10948,7 +10929,7 @@ msgstr "cima"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.planning.MapPanel
 msgid "updateMillis"
-msgstr ""
+msgstr "milisegundos para actualizar"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.spot.SpotOverlay
 #, fuzzy
@@ -11043,6 +11024,9 @@ msgstr "Δt"
 #: src/pt/up/fe/dceg/neptus/util/comm/manager/BaseAbstractCommsMonitorPanel.java:373
 msgid "∆tTxRx"
 msgstr "∆tTxRx"
+
+#~ msgid "rads"
+#~ msgstr "rads"
 
 #~ msgid "m"
 #~ msgstr "m"
