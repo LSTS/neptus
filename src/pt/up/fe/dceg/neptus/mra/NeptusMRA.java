@@ -149,7 +149,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
     @NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser (in miliseconds).")
     public static long timestampMultibeamIncrement = 0;
     
-    @NeptusProperty(name = "Yaw Increment", description="180 Yaw (psi) increment for the 83P parser, set true to increment + 180º.")
+    @NeptusProperty(name = "Yaw Increment", description="180 Yaw (psi) increment for the 83P parser, set true to increment +180\u00B0.")
     public static boolean yawMultibeamIncrement = false;
     
     @NeptusProperty(name = "Remove Outliers", description="Remove Outliers from Pointcloud redered on multibeam 3D")
