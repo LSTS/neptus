@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-11 17:00+0100\n"
-"PO-Revision-Date: 2013-08-11 17:04+0100\n"
+"POT-Creation-Date: 2013-08-11 18:54+0100\n"
+"PO-Revision-Date: 2013-08-11 18:55+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
@@ -251,11 +251,11 @@ msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:593
 msgid "<html>Error in the <b>offset</b> parameters:<br>%errors</html>"
-msgstr "<html>Erro em parametro de <b>offset</b>:<br>%errors</html>"
+msgstr "<html>Erro em parametro de <b>desvio</b>:<br>%errors</html>"
 
 #: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:596
 msgid "<html>Error in the <b>polar offset</b> parameters:<br>%errors</html>"
-msgstr "<html>Erro em parametro de <b>offset polar</b>:<br>%errors</html>"
+msgstr "<html>Erro em parametro de <b>desvio polar</b>:<br>%errors</html>"
 
 #: src/pt/up/fe/dceg/neptus/mc/Workspace.java:1427
 #, fuzzy
@@ -758,8 +758,7 @@ msgstr ""
 #: pt.up.fe.dceg.neptus.plugins.alarms.SimpleAlarm
 #: pt.up.fe.dceg.neptus.plugins.alarms.ExceptionAlarm
 msgid "Ammount of time (in milliseconds) to wait between updates"
-msgstr ""
-"Intervalo de tempo (em milésimos de segundo) de espera entre actualizações"
+msgstr "Intervalo de tempo (em milisegundos) de espera entre actualizações"
 
 #: Property from pt.up.fe.dceg.neptus.mp.maneuvers.CompassCalibration
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:293
@@ -2040,7 +2039,7 @@ msgstr "Graus/Minutos/Segundos"
 #: Property from pt.up.fe.dceg.neptus.comm.iridium.IridiumCommand
 #, fuzzy
 msgid "Delay, in seconds, between device updates"
-msgstr "Milésimos de segundo entre actualizações"
+msgstr "Milisegundos entre actualizações"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/edit/ManeuverPropertiesPanel.java:71
 #: src/pt/up/fe/dceg/neptus/gui/MissionBrowser.java:275
@@ -3795,7 +3794,7 @@ msgstr "No caso de o filtro anterior ser VEÍCULO, pode filtrar por sub-tipo"
 #: Description of property 'Rotation' from
 #: pt.up.fe.dceg.neptus.plugins.trex.TrexMapLayer
 msgid "In degrees, an offset to north in clockwise."
-msgstr ""
+msgstr "Em graus, um desvio para norte no sentido dos ponteiros dp relógio"
 
 #: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:195
 msgid "In order to execute dead reckoning missions, IMU must first be aligned."
@@ -3871,7 +3870,7 @@ msgstr ""
 #: pt.up.fe.dceg.neptus.plugins.position.MultiEntityDisplayPanel
 #, fuzzy
 msgid "Interval between display updates, in milliseconds"
-msgstr "Intervalo entre mostrar actualizações, em milésimos de segundo"
+msgstr "Intervalo entre mostrar actualizações, em milisegundos"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.planning.PlanExecutionPreview
 msgid "Interval between simulated states, in seconds"
@@ -3884,7 +3883,7 @@ msgstr "Intervalo entre estados simulados, em segundos"
 #: pt.up.fe.dceg.neptus.plugins.position.EulerAnglesPanel
 #: pt.up.fe.dceg.neptus.plugins.gauges.CpuBattDiskNetGauge
 msgid "Interval between updates in milliseconds"
-msgstr "Intervalo entre actualizações em milésimos de segundo"
+msgstr "Intervalo entre actualizações em milisegundos"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:88
 msgid "Into the Wind"
@@ -4552,19 +4551,16 @@ msgid "Maneuver Mode"
 msgstr "Modo de Manobra"
 
 #: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:844
-#, fuzzy
 msgid "Maneuver's location"
-msgstr "Marcar localização"
+msgstr "Localização da manobra"
 
 #: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:850
-#, fuzzy
 msgid "Maneuver's z units"
-msgstr "# de Manobras"
+msgstr "Unidade de z da manobra"
 
 #: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:847
-#, fuzzy
 msgid "Maneuver's z value"
-msgstr "Modo de Manobra"
+msgstr "Valor de z da manobra"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.acoustic.MantaOperations
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:220
@@ -4650,7 +4646,7 @@ msgstr "Marcas"
 
 #: src/pt/up/fe/dceg/neptus/mra/exporters/MatExporter.java:159
 msgid "MatLab format .MAT"
-msgstr ""
+msgstr "Formato MatLab .MAT"
 
 #: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:677
 msgid "Max Altitude"
@@ -4669,9 +4665,8 @@ msgid "Max depth"
 msgstr "Max. Profundidade"
 
 #: src/pt/up/fe/dceg/neptus/gui/objparams/ImageObjectParameters.java:415
-#, fuzzy
 msgid "Max height"
-msgstr "altura"
+msgstr "Max. altura"
 
 #: src/pt/up/fe/dceg/neptus/types/map/PlanUtil.java:206
 msgid "Max. Depth"
@@ -4694,9 +4689,8 @@ msgid "Maximize Panel"
 msgstr "Painel Maximizar"
 
 #: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsPanel.java:74
-#, fuzzy
 msgid "Maximum Altitude (m)"
-msgstr "Altitude Mínima"
+msgstr "Altitude Máxima (m)"
 
 #: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsPanel.java:72
 #, fuzzy
@@ -4704,28 +4698,25 @@ msgid "Maximum Depth (m)"
 msgstr "Profundidade por Defeito (m)"
 
 #: plugins-dev/trex/pt/up/fe/dceg/neptus/plugins/trex/goals/TrexGoal.java:152
-#, fuzzy
 msgid "Maximum End time"
-msgstr "Tempo máximo"
+msgstr "Tempo de Fim máximo"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.planning.PlanStatistics
 msgid "Maximum Number of RPMs"
 msgstr "Número máximo de RPMs"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.rtplot.RealTimePlot
-#, fuzzy
 msgid "Maximum Number of points"
-msgstr "Número máximo de RPMs"
+msgstr "Número máximo de pontos"
 
 #: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsPanel.java:76
 #, fuzzy
-msgid "Maximum Speed (m/s))"
-msgstr "Máxima Velocidade de Topo (100%)"
+msgid "Maximum Speed (m/s)"
+msgstr "Velocidade Máxima (m/s)"
 
 #: plugins-dev/trex/pt/up/fe/dceg/neptus/plugins/trex/goals/TrexGoal.java:156
-#, fuzzy
 msgid "Maximum Start time"
-msgstr "Tempo máximo"
+msgstr "Tempo de Início máximo"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.planning.PlanStatistics
 msgid "Maximum Top Speed (100%)"
@@ -4738,29 +4729,27 @@ msgstr "Valor máximo (graus)"
 #: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsPanel.java:78
 #, fuzzy
 msgid "Maximum Vertical Rate (m/s)"
-msgstr "Valor máximo (graus)"
+msgstr "Velocidade Vertical máximo (m/s)"
 
 #: Description of property 'Acceptable Elapsed Time' from
 #: pt.up.fe.dceg.neptus.plugins.planning.MissionTreePanel
-#, fuzzy
 msgid "Maximum acceptable interval between beacon ranges, in seconds."
-msgstr "Intervalo entre estados simulados, em segundos"
+msgstr ""
+"Intervalo máximo aceitável entre medidas de alcance pelos transdutores "
+"acústicos, em segundos"
 
 #: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:201
-#, fuzzy
 msgid "Maximum depth"
 msgstr "Max. Profundidade"
 
 #: Property from pt.up.fe.dceg.neptus.mra.NeptusMRA
-#, fuzzy
 msgid "Maximum depth for bathymetry plots"
-msgstr "A criar mapa de batimetria"
+msgstr "Profundidade máxima para gráficos de batímetria"
 
 #: Description of property 'Maximum depth for bathymetry plots' from
 #: pt.up.fe.dceg.neptus.mra.NeptusMRA
-#, fuzzy
 msgid "Maximum depth to be used in bathymetry plots."
-msgstr "O mapa de cores a ser usado no projecto"
+msgstr "Profundidade máxima pare ser usado para gráficos de batímetria"
 
 #: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:999
 msgid "Maximum time"
@@ -4802,7 +4791,6 @@ msgid "Message %messageType to %destination delivery error. (%error)"
 msgstr "Mensagem %messageType para %destination erro de entrega. (%error)"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanControlPanel.java:529
-#, fuzzy
 msgid "Message %messageType to %destination delivery timeout"
 msgstr "Mensagem %messageType para %destination entrege fora de tempo"
 
@@ -4832,25 +4820,25 @@ msgstr "Símbolos Mil Std 2525 Com Preenchimento Ou Não"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.ipcam.IPCameraDisplay
 msgid "Milliseconds between connection retries"
-msgstr ""
+msgstr "Milisegundos entre tentativas de ligação"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.ipcam.AirCamDisplay
 #, fuzzy
 msgid "Milliseconds between refresh"
-msgstr "Milésimos de segundo entre actualizações"
+msgstr "Milisegundos entre actualizações"
 
 #: Property from pt.up.fe.dceg.neptus.console.plugins.SideState2DPanelConsole
 msgid "Milliseconds between updates"
-msgstr "Milésimos de segundo entre actualizações"
+msgstr "Milisegundos entre actualizações"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.ais.AisOverlay
 #, fuzzy
 msgid "Milliseconds between vessel updates"
-msgstr "Milésimos de segundo entre actualizações"
+msgstr "Milisegundos entre actualizações"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.planning.PlanExecutionPreview
 msgid "Milliseconds to wait before simulation"
-msgstr "Milésimos de segundo para esperar antes da simulação"
+msgstr "Milisegundos para esperar antes da simulação"
 
 #: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:679
 msgid "Min Altitude"
@@ -6647,7 +6635,7 @@ msgstr "Reprodução"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.noptilus.NoptilusPlanGenerator
 msgid "Replay interval in milliseconds"
-msgstr "Repetir intervalo em milésimos de segundo"
+msgstr "Repetir intervalo em milisegundos"
 
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:535
 msgid "Report"
@@ -8420,13 +8408,11 @@ msgid "The Z parameters are not valid"
 msgstr "Os parametros Z não são validos"
 
 #: src/pt/up/fe/dceg/neptus/gui/CoordinateSystemPanel.java:154
-#, fuzzy
 msgid "The angle offset is invalid!"
-msgstr "O nome introduzido não é válido "
+msgstr "O ângulo de desvio não é válido!"
 
 #: Description of property 'Layout Axis' from
 #: pt.up.fe.dceg.neptus.plugins.containers.BoxLayoutContainer
-#, fuzzy
 msgid "The axis to follow when laying out components"
 msgstr "O eixo a seguir aquando dispor componentes"
 
@@ -10202,7 +10188,7 @@ msgstr "Usar Profundidade"
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:325
 msgctxt "down offset"
 msgid "dOff"
-msgstr ""
+msgstr "desvio para baixo"
 
 #: src/pt/up/fe/dceg/neptus/gui/objparams/TranspondersPositionHelper.java:451
 msgid "da1 (m):"
@@ -10296,7 +10282,7 @@ msgstr "Duração"
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:324
 msgctxt "east offset"
 msgid "eOff"
-msgstr ""
+msgstr "desvio para este"
 
 #: src/pt/up/fe/dceg/neptus/gui/editor/XMLPropertyEditor.java:82
 msgid "edit"
@@ -10500,19 +10486,16 @@ msgstr "Tipo de Loiter"
 msgid "longitude"
 msgstr "longitude"
 
-#: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/RangePainter.java:295
-#: src/pt/up/fe/dceg/neptus/gui/PolarOffsetPanel.java:95
-#: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:201
-#: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:202
-#: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:214
-msgid "m"
-msgstr "m"
-
 #: src/pt/up/fe/dceg/neptus/gui/ClockCounter.java:63
 msgctxt "Chronometer minutes separator"
 msgid "m"
 msgstr "m"
 
+#: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/RangePainter.java:295
+#: src/pt/up/fe/dceg/neptus/gui/PolarOffsetPanel.java:95
+#: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:201
+#: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:202
+#: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:214
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:989
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:990
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:992
@@ -10538,7 +10521,6 @@ msgstr "m"
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:246
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:247
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/Elevator.java:248
-#, fuzzy
 msgctxt "meters"
 msgid "m"
 msgstr "m"
@@ -10548,7 +10530,6 @@ msgstr "m"
 #: src/pt/up/fe/dceg/neptus/gui/editor/SpeedUnitsEditor.java:48
 #: src/pt/up/fe/dceg/neptus/gui/GotoParameters.java:213
 #: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:216
-#, fuzzy
 msgid "m/s"
 msgstr "m/s"
 
@@ -10575,7 +10556,7 @@ msgstr "metros"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.gauges.GaugeSubPanel
 msgid "millisBetweenUpdates"
-msgstr "Milésimos de segundo entre Actualizações"
+msgstr "Milisegundos entre Actualizações"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:340
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:351
@@ -10597,7 +10578,7 @@ msgstr "Raio (m)"
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:323
 msgctxt "north offset"
 msgid "nOff"
-msgstr ""
+msgstr "desvio para norte"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.TabContainer
 msgid "name"
@@ -10617,9 +10598,8 @@ msgid "no tiles at this zoom, max is %zoomLevel"
 msgstr "nenhum tile neste zoom, max é %zoomLevel"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig
-#, fuzzy
 msgid "normalization"
-msgstr "Válidação"
+msgstr "normalização"
 
 #: src/pt/up/fe/dceg/neptus/util/comm/manager/imc/MonitorIMCComms.java:417
 msgid "not connected"
@@ -10775,9 +10755,8 @@ msgid "request exit remote operation"
 msgstr "pedido de saída de teleoperação"
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1422
-#, fuzzy
 msgid "right"
-msgstr "Direita"
+msgstr "direita"
 
 #: src/pt/up/fe/dceg/neptus/gui/ClockCounter.java:64
 msgctxt "Chronometer seconds separator"
@@ -10789,18 +10768,15 @@ msgstr "s"
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:321
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/StationKeeping.java:242
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/Loiter.java:345
-#, fuzzy
 msgctxt "seconds"
 msgid "s"
 msgstr "s"
 
 #: src/pt/up/fe/dceg/neptus/mp/preview/PlanSimulationOverlay.java:185
-#, fuzzy
 msgid "seconds"
-msgstr "Mostrar Segundos"
+msgstr "segundos"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.TabContainer
-#, fuzzy
 msgid "selectedIndex"
 msgstr "ÍndiceSelecionado"
 
@@ -11014,7 +10990,7 @@ msgstr "x (m):"
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:258
 #, fuzzy
 msgid "x offset"
-msgstr "x offset"
+msgstr "desvio x"
 
 #: src/pt/up/fe/dceg/neptus/renderer3d/ProjectionPropertiesProvider.java:51
 #, fuzzy
@@ -11028,7 +11004,7 @@ msgstr "y (m):"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:259
 msgid "y offset"
-msgstr "y offset"
+msgstr "desvio y"
 
 #: src/pt/up/fe/dceg/neptus/renderer3d/ProjectionPropertiesProvider.java:53
 #, fuzzy
@@ -11043,7 +11019,7 @@ msgstr "z"
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:260
 #, fuzzy
 msgid "z offset"
-msgstr "z offset"
+msgstr "desvio z"
 
 #: src/pt/up/fe/dceg/neptus/renderer3d/ProjectionPropertiesProvider.java:55
 #, fuzzy
@@ -11067,6 +11043,9 @@ msgstr "Δt"
 #: src/pt/up/fe/dceg/neptus/util/comm/manager/BaseAbstractCommsMonitorPanel.java:373
 msgid "∆tTxRx"
 msgstr "∆tTxRx"
+
+#~ msgid "m"
+#~ msgstr "m"
 
 #, fuzzy
 #~ msgid " | end-actions->"
