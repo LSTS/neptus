@@ -50,6 +50,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
+import javax.swing.table.TableCellRenderer;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -855,9 +856,13 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         Vector<DefaultProperty> additionalProperties = additionalProperties();
         Vector<DefaultProperty> addProps = new Vector<DefaultProperty>();
         HashMap<String, PropertyEditor> peLList = new HashMap<>();
+        HashMap<String, TableCellRenderer> peRendererList = new HashMap<>();
         for (DefaultProperty p : additionalProperties) {
             PropertyEditor pe = PropertiesEditor.getPropertyEditorRegistry().getEditor(p);
             peLList.put(p.getName(), pe);
+            
+            TableCellRenderer tcr = PropertiesEditor.getPropertyRendererRegistry().getRenderer(p);
+            peRendererList.put(p.getName(), tcr);
         }
         PropertiesEditor.localizeProperties(additionalProperties, addProps);
         for (DefaultProperty p : addProps) {
@@ -867,6 +872,10 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             PropertyEditor pe = peLList.get(p.getName());
             if (pe != null)
                 PropertiesEditor.getPropertyEditorRegistry().registerEditor(p, pe);
+
+            TableCellRenderer tcr = peRendererList.get(p.getName());
+            if (tcr != null)
+                PropertiesEditor.getPropertyRendererRegistry().registerRenderer(p, tcr);
         }
 
         props.addAll(addProps);
