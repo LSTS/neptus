@@ -46,6 +46,7 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
 import pt.up.fe.dceg.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
@@ -236,12 +237,10 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 	@Override
 	public String getTooltipText() {
 		return super.getTooltipText()+"<hr>"+
-		"<br>speed: <b>"+(int)speed+" "+speedUnits+"</b>"+
-		"<br>radius: <b>"+radius+" m</b>"+
-		"<br>duration: <b>"+duration+" s</b><br>";
+		"<br>" + I18n.text("speed") + ": <b>"+(int)speed+" "+I18n.text(speedUnits)+"</b>"+
+		"<br>" + I18n.text("radius") + ": <b>"+radius+" " + I18n.textc("m", "meters") + "</b>"+
+		"<br>" + I18n.text("duration") + ": <b>"+duration+" " + I18n.textc("s", "seconds") + "</b><br>";
 	}
-	
-	
 
 	public LocationType getLocation() {
 		return location;

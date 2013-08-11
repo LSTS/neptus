@@ -45,6 +45,7 @@ import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.editor.AngleEditorRads;
 import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
 import pt.up.fe.dceg.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
@@ -357,12 +358,11 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
     	NumberFormat nf = GuiUtils.getNeptusDecimalFormat(2);
 		
 		return super.getTooltipText()+"<hr>"+
-		"speed: <b>"+nf.format(getSpeed())+" "+getUnits()+"</b>"+
-		"<br>"+destination.getZUnits()+": <b>"+nf.format(destination.getZ())+" m</b>" +
-		"<br>amplitude: <b>"+nf.format(getAmplitude())+" m</b>"+
-		"<br>pitch: <b>"+nf.format(Math.toDegrees(getPitchAngle()))+" \u00B0</b>";
+		I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+getUnits()+"</b>"+
+		"<br>"+I18n.text(destination.getZUnits().toString())+": <b>"+nf.format(destination.getZ())+" " + I18n.textc("m", "meters") + "</b>" +
+		"<br>" + I18n.text("amplitude") + ": <b>"+nf.format(getAmplitude())+" " + I18n.textc("m", "meters") + "</b>"+
+		"<br>" + I18n.text("pitch") + ": <b>"+nf.format(Math.toDegrees(getPitchAngle()))+" \u00B0</b>";
 	}
-    
     
     @Override
     public void parseIMCMessage(IMCMessage message) {

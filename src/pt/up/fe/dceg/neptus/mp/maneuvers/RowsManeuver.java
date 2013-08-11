@@ -54,6 +54,7 @@ import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
 import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
 import pt.up.fe.dceg.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.Rows;
@@ -985,16 +986,16 @@ IMCSerialization, StatisticsProvider, PathProvider {
     public String getTooltipText() {
         NumberFormat nf = GuiUtils.getNeptusDecimalFormat(2);
         return super.getTooltipText()+"<hr/>"+
-        "length: <b>"+nf.format(length)+" m</b><br/>"+
-        "width: <b>"+nf.format(width)+" m</b><br/>"+
-        "alt: <b>"+(short)(alternationPercentage*100)+" %</b><br/>"+
-        "hstep: <b>"+nf.format(hstep)+" m</b><br/>"+
-        "bearing: <b>"+nf.format(Math.toDegrees(bearingRad))+" degs</b><br/>"+
-        "cross angle: <b>"+nf.format(Math.toDegrees(crossAngleRadians))+" degs</b><br/>"+
-        "speed: <b>"+nf.format(getSpeed())+" "+getUnits()+"</b><br/>"+
-        "distance: <b>"+MathMiscUtils.parseToEngineeringNotation(getDistanceTravelled((LocationType)getStartLocation()), 2)+"m</b><br/>"+
-        (paintSSRangeShadow ? "ss range: <b>"+(short)(ssRangeShadow)+" m</b><br/>" : "") +
-        "<br>depth: <b>"+nf.format(z)+" m</b>";    }
+        I18n.text("length") + ": <b>"+nf.format(length)+" " + I18n.textc("m", "meters") + "</b><br/>"+
+        I18n.text("width") + ": <b>"+nf.format(width)+" " + I18n.textc("m", "meters") + "</b><br/>"+
+        I18n.text("alt") + ": <b>"+(short)(alternationPercentage*100)+" %</b><br/>"+
+        I18n.text("hstep") + ": <b>"+nf.format(hstep)+" " + I18n.textc("m", "meters") + "</b><br/>"+
+        I18n.text("bearing") + ": <b>"+nf.format(Math.toDegrees(bearingRad))+" \u00B0</b><br/>"+
+        I18n.text("cross angle") + ": <b>"+nf.format(Math.toDegrees(crossAngleRadians))+" \u00B0</b><br/>"+
+        I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+getUnits()+"</b><br/>"+
+        I18n.text("distance") + ": <b>"+MathMiscUtils.parseToEngineeringNotation(getDistanceTravelled((LocationType)getStartLocation()), 2)+I18n.textc("m", "meters") + "</b><br/>"+
+        (paintSSRangeShadow ? I18n.textc("ss range", "sidescan range") + ": <b>"+(short)(ssRangeShadow)+" " + I18n.textc("m", "meters") + "</b><br/>" : "") +
+        "<br>" + I18n.textc("depth", "") + ": <b>"+nf.format(z)+" " + I18n.textc("m", "meters") + "</b>";    }
 
     @Override
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {

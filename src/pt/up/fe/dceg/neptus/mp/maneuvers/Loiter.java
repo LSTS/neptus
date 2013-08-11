@@ -336,15 +336,14 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 	@Override
 	public String getTooltipText() {
 		return super.getTooltipText()+"<hr>"+
-		"Loiter type: <b>"+loiterType+"</b>"+
-		"<br>"+location.getZUnits()+": <b>"+location.getZ()+" "+speedUnits+"</b>"+
-		"<br>speed: <b>"+(int)speed+" "+speedUnits+"</b>"+
-		"<br>radius: <b>"+radius+" m</b>"+
-		"<br>length: <b>"+length+" m</b>"+
-		"<br>direction: <b>"+direction+"</b>"+
-		"<br>duration: <b>"+loiterDuration+" s</b><br>";
+		I18n.text("loiter type") + ": <b>"+I18n.text(loiterType)+"</b>"+
+		"<br>"+I18n.text(location.getZUnits().toString())+": <b>"+location.getZ()+" "+I18n.textc("m", "meters")+"</b>"+
+		"<br>" + I18n.text("speed") + ": <b>"+(int)speed+" "+I18n.text(speedUnits)+"</b>"+
+		"<br>" + I18n.text("radius") + ": <b>"+radius+" " + I18n.textc("m", "meters") + "</b>"+
+		"<br>" + I18n.text("length") + ": <b>"+length+" " + I18n.textc("m", "meters") + "</b>"+
+		"<br>" + I18n.text("direction") + ": <b>"+I18n.text(direction)+"</b>"+
+		"<br>" + I18n.text("duration") + ": <b>"+loiterDuration+" " + I18n.textc("s", "seconds") + "</b><br>";
 	}
-	
 	
 	public double getBearing() {
 		return bearing;

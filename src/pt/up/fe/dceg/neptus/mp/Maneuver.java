@@ -1057,8 +1057,14 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         else
             tt = "<html><b><font color='#00CC00'>" + getId() + "</font></b> " + I18n.text(getType());
         if (!getStartActions().isEmpty() || !getEndActions().isEmpty()) {
-            tt += "<hr>" + I18n.text("start-actions->") + (getStartActions().isEmpty() ? I18n.text("no") : I18n.text("yes")) + I18n.text(" | end-actions->")
-                    + (getEndActions().isEmpty() ? I18n.text("no") : I18n.text("yes"));
+//            tt += "<hr>" + I18n.text("start-actions") + "->"
+//                    + (getStartActions().isEmpty() ? I18n.text("no") : I18n.text("yes")) + " | "
+//                    + I18n.text("end-actions") + "->"
+//                    + (getEndActions().isEmpty() ? I18n.text("no") : I18n.text("yes"));
+            tt += "<hr>"
+                    + (getStartActions().isEmpty() ? "" : I18n.text("payload actions"))
+                    + (getEndActions().isEmpty() ? "" : (getStartActions().isEmpty() ? "" : " | ")
+                            + I18n.text("end actions"));
         }
         return tt;
     }

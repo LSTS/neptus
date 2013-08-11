@@ -337,14 +337,12 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     
     @Override
 	public String getTooltipText() {
-		
     	NumberFormat nf = GuiUtils.getNeptusDecimalFormat(2);
 		
 		return super.getTooltipText()+"<hr>"+
-		"speed: <b>"+nf.format(getSpeed())+" "+getUnits()+"</b>"+
-		"<br>"+destination.getZUnits()+": <b>"+nf.format(destination.getZ())+" m</b>";
+		I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+I18n.text(getUnits())+"</b>"+
+		"<br>"+I18n.text(destination.getZUnits().toString())+": <b>"+nf.format(destination.getZ())+" " + I18n.textc("m", "meters") + "</b>";
 	}
-    
     
     @Override
     public void parseIMCMessage(IMCMessage message) {

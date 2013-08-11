@@ -241,17 +241,17 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
 
     @Override
     public String getTooltipText() {
-        return super.getTooltipText() + "<hr>" + "speed: <b>" + speed + " " + speedUnits + "</b>" + 
-                (!startFromCurrentPosition ? "<br>cruise depth: <b>" + (int) getStartLocation().getDepth() + " m</b>":"") + 
-                "<br>start: <b>" + startZ + " m (" + I18n.text(startZUnits.toString()) + ")</b>" +
-                "<br>end z: <b>" + getManeuverLocation().getZ() + " m (" + I18n.text(getManeuverLocation().getZUnits().toString()) + ")</b>" +
-                "<br>radius: <b>" + radius + " m</b>";                
+        return super.getTooltipText() + "<hr>" + I18n.text("speed") + ": <b>" + speed + " " + I18n.text(speedUnits) + "</b>" + 
+                (!startFromCurrentPosition ? "<br>" + I18n.text("cruise depth") + ": <b>" + (int) getStartLocation().getDepth() + " " + I18n.textc("m", "meters") + "</b>":"") + 
+                "<br>" + I18n.text("start") + "" + ": <b>" + startZ + " " + I18n.textc("m", "meters") + " (" + I18n.text(startZUnits.toString()) + ")</b>" +
+                "<br>" + I18n.text("end z") + ": <b>" + getManeuverLocation().getZ() + " " + I18n.textc("m", "meters") + " (" + I18n.text(getManeuverLocation().getZUnits().toString()) + ")</b>" +
+                "<br>" + I18n.text("radius") + ": <b>" + radius + " " + I18n.textc("m", "meters") + "</b>";                
     }
 
     public String validatePitchAngleDegrees(float value) {
         NeptusLog.pub().info("<###>validate...");
         if (value < 0 || value > (float)45)
-            return "Pitch angle shoud be bounded between [0\u00B0, 45\u00B0]";
+            return I18n.text("Pitch angle shoud be bounded between [0\u00B0, 45\u00B0]");
         return null;
     }
 

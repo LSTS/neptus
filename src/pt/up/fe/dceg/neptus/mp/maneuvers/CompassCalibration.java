@@ -204,19 +204,20 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
 
     @Override
     public String getTooltipText() {
-        return super.getTooltipText() + "<hr>" + "speed: <b>" + speed + " " + speedUnits + "</b>" + 
-                ("<br>cruise depth: <b>" + (int) getStartLocation().getDepth() + " m</b>") + 
-                "<br>end z: <b>" + getManeuverLocation().getZ() + " m (" + I18n.text(getManeuverLocation().getZUnits().toString()) + ")</b>" +
-                "<br>pitch: <b>" + pitchDegs + " m</b>" +                
-                "<br>amplitude: <b>" + amplitude + " m</b>" +                
-                "<br>radius: <b>" + radius + " m</b>" +                
-                "<br>duration: <b>" + duration + " m</b>";                
+        return super.getTooltipText() + "<hr>" + 
+                I18n.text("speed") + ": <b>" + speed + " " + I18n.text(speedUnits) + "</b>" + 
+                ("<br>" + I18n.text("cruise depth") + ": <b>" + (int) getStartLocation().getDepth() + " " + I18n.textc("m", "meters") + "</b>") + 
+                "<br>" + I18n.text("end z") + ": <b>" + getManeuverLocation().getZ() + " " + I18n.textc("m", "meters") + " (" + I18n.text(getManeuverLocation().getZUnits().toString()) + ")</b>" +
+                "<br>" + I18n.text("pitch") + ": <b>" + pitchDegs + " " + I18n.textc("m", "meters") + "</b>" +
+                "<br>" + I18n.text("amplitude") + ": <b>" + amplitude + " " + I18n.textc("m", "meters") + "</b>" +                
+                "<br>" + I18n.text("radius") + ": <b>" + radius + " " + I18n.textc("m", "meters") + "</b>" +
+                "<br>" + I18n.text("duration") + ": <b>" + duration + " " + I18n.textc("m", "meters") + "</b>";
     }
 
     public String validatePitchDegs(double value) {
         NeptusLog.pub().info("<###>validate...");
         if (value < 0 || value > (float)45)
-            return "Pitch angle shoud be bounded between [0\u00B0, 45\u00B0]";
+            return I18n.text("Pitch angle shoud be bounded between [0\u00B0, 45\u00B0]");
         return null;
     }
 
