@@ -395,7 +395,7 @@ public class AnnounceWorker {
                                     sock.send(dgram);
                                 }
                                 catch (SocketException e) {
-                                    e.printStackTrace();
+                                    // e.printStackTrace();
                                 }
                             }
                         }
