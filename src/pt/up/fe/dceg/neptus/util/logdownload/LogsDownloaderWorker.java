@@ -137,7 +137,8 @@ public class LogsDownloaderWorker {
     protected static final long DELTA_TIME_TO_CLEAR_DONE = 5000;
     protected static final long DELTA_TIME_TO_CLEAR_NOT_WORKING = 45000;
 
-    private FtpDownloader clientFtp;
+    private FtpDownloader clientFtp = null;
+    private FtpDownloader cameraFtp = null;
 
     private String host = "127.0.0.1";
     private int port = DEFAULT_PORT;
@@ -697,8 +698,8 @@ public class LogsDownloaderWorker {
                         if (cameraHost.length() > 0) {
                             LinkedHashMap<FTPFile, String> retCamList = null;
                             try {
-                                FtpDownloader cameratFtp = new FtpDownloader(cameraHost, port);
-                                retCamList = cameratFtp.listLogs();
+                                cameraFtp = new FtpDownloader(cameraHost, port);
+                                retCamList = cameraFtp.listLogs();
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -1325,6 +1326,8 @@ public class LogsDownloaderWorker {
      * This is used to clean and dispose safely of this component
      */
     public void cleanup() {
+        disconnectFTPClientsForListing();
+
         if (ttaskLocalDiskSpace != null) {
             ttaskLocalDiskSpace.cancel();
             ttaskLocalDiskSpace = null;
@@ -1347,6 +1350,28 @@ public class LogsDownloaderWorker {
             downHelpDialog.dispose();
         
         ImcMsgManager.getManager().removeListener(messageListener);
+    }
+
+    /**
+     * 
+     */
+    private void disconnectFTPClientsForListing() {
+        if (clientFtp != null && clientFtp.getClient().isConnected()) {
+            try {
+                clientFtp.getClient().disconnect();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (cameraFtp != null && cameraFtp.getClient().isConnected()) {
+            try {
+                cameraFtp.getClient().disconnect();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /*
@@ -1884,7 +1909,9 @@ public class LogsDownloaderWorker {
      */
     private boolean deleteLogFolderFromServer(LogFolderInfo logFd) {
         String path = logFd.getName();
-        return deleteLogFolderFromServer(path);
+        boolean ret = deleteLogFolderFromServer(path);
+        ret |= deleteLogFolderFromCameraServer(path);
+        return ret;
     }
 
     /**
@@ -1893,7 +1920,12 @@ public class LogsDownloaderWorker {
      */
     private boolean deleteLogFileFromServer(LogFileInfo logFx) {
         String path = logFx.getName();
-        return deleteLogFolderFromServer(path);
+        String hostFx = logFx.getHost();
+        // Not the best way but for now lets try like this
+        if (hostFx.equals(host))
+            return deleteLogFolderFromServer(path);
+        else
+            return deleteLogFolderFromCameraServer(path);
     }
 
     /**
@@ -1903,6 +1935,19 @@ public class LogsDownloaderWorker {
     private boolean deleteLogFolderFromServer(String path) {
         try {
             return clientFtp.getClient().deleteFile("/" + path);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean deleteLogFolderFromCameraServer(String path) {
+        try {
+            if (cameraFtp != null)
+                return cameraFtp.getClient().deleteFile("/" + path);
+            else
+                return false;
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -2299,6 +2344,9 @@ public class LogsDownloaderWorker {
         try {
             if (!justStopDownloads)
                 warnLongMsg(I18n.text("Resetting... Wait please..."));
+            
+            disconnectFTPClientsForListing();
+            
             doStopLogFoldersDownloads();
             if (!justStopDownloads)
                 cleanInterface();

@@ -87,6 +87,9 @@ public class FtpDownloader {
         client = new FTPClient();
         conf = new FTPClientConfig(FTPClientConfig.SYST_UNIX);
 
+//        client.setDataTimeout(30000);
+//        client.setSoTimeout(30000);
+        
         System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "connecting to " + host + ":" + port);
         client.connect(host, port);
         System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "connected to " + host + ":" + port);
