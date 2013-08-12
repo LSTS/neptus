@@ -945,30 +945,38 @@ MissionChangeListener {
                     @Override
                     public void actionPerformed(ActionEvent e) {
 
-                        String[] optionsNew = { I18n.text("m/s"), I18n.text("RPM"), "%" };
+                        String[] optionsI18n = { I18n.text("m/s"), I18n.text("RPM"), "%" };
+                        String[] optionsNotI18n = { "m/s", "RPM", "%" };
                         DefaultProperty dp = planElem.getLastSetProperties().get("Speed units");
-                        String curValue = "RPM";
+                        String curValueNotI18n = "m/s";
                         if (dp != null)
-                            curValue = dp.getValue().toString();
+                            curValueNotI18n = dp.getValue().toString();
 
                         Object resp = JOptionPane.showInputDialog(getConsole(),
                                 I18n.text("Please choose the speed units"), I18n.text("Set plan speed"),
-                                JOptionPane.QUESTION_MESSAGE, null, optionsNew, curValue);
+                                JOptionPane.QUESTION_MESSAGE, null, optionsI18n, I18n.text(curValueNotI18n));
                         if (resp == null)
                             return;
 
-                        String velUnit = resp.toString();
+                        String velUnitI18n = resp.toString();
+                        String velUnitNotI18n = "m/s";
+                        for (int i = 0; i < optionsI18n.length; i++) {
+                            if (velUnitI18n.equals(optionsI18n[i])) {
+                                velUnitNotI18n = optionsNotI18n[i];
+                                break;
+                            }
+                        }
 
                         double velocity = 0;
                         boolean validVel = false;
                         while (!validVel) {
-                            double curSpeed = 1000;
+                            double curSpeed = 1.3;
                             dp = planElem.getLastSetProperties().get("Speed");
                             if (dp != null)
                                 curSpeed = (Double) dp.getValue();
 
                             String res = JOptionPane.showInputDialog(getConsole(),
-                                    I18n.textf("Enter new speed (%speedUnit)", velUnit), curSpeed);
+                                    I18n.textf("Enter new speed (%speedUnit)", velUnitI18n), curSpeed);
                             if (res == null)
                                 return;
                             try {
@@ -991,7 +999,7 @@ MissionChangeListener {
 
                         DefaultProperty propVelUnits = new DefaultProperty();
                         propVelUnits.setName("Speed units");
-                        propVelUnits.setValue(velUnit);
+                        propVelUnits.setValue(velUnitNotI18n); // velUnitI18n
                         propVelUnits.setType(String.class);
                         propVelUnits.setDisplayName(I18n.text("Speed units"));
                         planElem.setPlanProperty(propVelUnits);
