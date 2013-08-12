@@ -60,7 +60,6 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 /**
@@ -80,8 +79,7 @@ public class PanicButton extends JRoundButton {
      */
     public PanicButton() {
         super();
-        /// This translation should be as short as possible, use lowercase if it feats better
-        setText(I18n.textc("ABORT", "Abort button. Make it 5 uppercase letters"));
+        setText("Abort");
         initCmp();
     }
 
