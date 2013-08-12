@@ -41,9 +41,7 @@ import pt.up.fe.dceg.neptus.NeptusLog;
  */
 public class NameNormalizer {
 	
-	static int count = 0;
-	static Random rnd = new Random(System.currentTimeMillis()); 
-	static StringBuilder builder = new StringBuilder();
+	private static Random rnd = new Random(System.currentTimeMillis()); 
 	
     public static String asIdentifier(String text) {
 
@@ -120,7 +118,7 @@ public class NameNormalizer {
     }
     
     public static String getRandomID(String prefix) {
-        builder.setLength(0);
+        StringBuilder builder = new StringBuilder(9);
         builder.append(prefix);
         builder.append("_");        
         int val = Math.abs(rnd.nextInt());        
@@ -129,9 +127,6 @@ public class NameNormalizer {
     }    
     
     public static void main(String args[]) {
-        String[] tests = new String[] {"Olá mundo", "Isto é um teste", " Ora Ora Ora", "12312+2", "!!!!"};
-        for (int i = 0; i < tests.length; i++) {
-            NeptusLog.pub().info("<###>Test phrase: \""+tests[i]+"\", Result: \""+NameNormalizer.asIdentifier(tests[i])+"\"");
-        }
+        System.out.println(getRandomID());
     }
 }
