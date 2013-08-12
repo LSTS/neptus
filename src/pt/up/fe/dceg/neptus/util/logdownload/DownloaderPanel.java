@@ -791,7 +791,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 
 		//private DownloaderPanel downloadPanel = null;
 		
-		//private long fullSize = -1;
+        private static final int MAX_TIME_MINUTES_LEFT_TO_SHOW = 60;
+
+        //private long fullSize = -1;
 		//private long bytesRead = 0;
 		private long prec = 0;
 		
@@ -911,7 +913,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		private String getTimeLeft(double bps) {
 			long leftB = fullSize - downloadedSize;
 			double tLeft = leftB / bps;
-			long maxS = 10 * 60; // 10min
+			long maxS = MAX_TIME_MINUTES_LEFT_TO_SHOW * 60; // 10min
 			if (tLeft < maxS)
 				return DateTimeUtil.milliSecondsToFormatedString(
 						(long) (MathMiscUtils.round(tLeft,1) * 1000.0));
