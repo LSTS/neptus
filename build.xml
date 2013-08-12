@@ -1490,7 +1490,7 @@ For simple use the main targets are:
 			<filterset refid="sh.filters" />
 		</copy>
 
-		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="*.sh" />
+		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="*.sh" excludes="Neptus*.sh" />
 		<fixcrlf preservelastmodified="true" srcdir="." eol="crlf" includes="*.bat" />
 
 		<fixcrlf preservelastmodified="true" srcdir="./NSIS_release/static_files/batch_files" eol="lf" eof="remove" includes="*.sh" />
