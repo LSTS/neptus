@@ -675,14 +675,51 @@ public class LogsDownloaderWorker {
                         });
                         // long timeD1 = System.currentTimeMillis();
 
+                        LinkedHashMap<FTPFile, String> retList = null;
+                        
+                        // Getting the file list from main CPU
                         try {
                             clientFtp = new FtpDownloader(host, port);
+                            retList = clientFtp.listLogs();
                         }
                         catch (Exception e) {
                             e.printStackTrace();
                         }
 
-                        LinkedHashMap<FTPFile, String> retList = clientFtp.listLogs();
+                        //Getting the log list from Camera CPU
+                        String cameraHost = null;
+                        if (getHost().equals("10.0.10.50"))
+                            cameraHost = "10.0.10.52";
+                        else if (getHost().equals("10.0.10.80"))
+                            cameraHost = "10.0.10.83";
+                        else
+                            cameraHost = "";
+                        if (cameraHost.length() > 0) {
+                            LinkedHashMap<FTPFile, String> retCamList = null;
+                            try {
+                                FtpDownloader cameratFtp = new FtpDownloader(cameraHost, port);
+                                retCamList = cameratFtp.listLogs();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            if (retCamList != null) {
+                                if (retList == null) {
+                                    retList = retCamList;
+                                }
+                                else {
+                                    for (FTPFile camFTPFile : retCamList.keySet()) {
+                                        String val = retCamList.get(camFTPFile);
+                                        if (retList.containsValue(val)) {
+                                            continue;
+                                        }
+                                        else {
+                                            retList.put(camFTPFile, val);
+                                        }
+                                    }
+                                }
+                            }
+                        }
 
                         // NeptusLog.pub().info("<###>.......get list from server " +
                         // (System.currentTimeMillis()-timeD1));
@@ -1930,6 +1967,9 @@ public class LogsDownloaderWorker {
                     for (LogFolderInfo lfi : tmpLogFolders) {
                         if (lfi.getName().equals(logDir))
                             lFolder = lfi;
+                    }
+                    if (lFolder == null) {
+                        lFolder = new LogFolderInfo(logDir);
                     }
 
                     for (FTPFile file : ftpd.getClient().listFiles()) {
