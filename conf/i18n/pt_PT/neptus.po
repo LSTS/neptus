@@ -1614,7 +1614,7 @@ msgstr "Ligar"
 
 #: src/pt/up/fe/dceg/neptus/util/comm/ssh/SSHConnectionDialog.java:81
 msgid "Connect to Remote Host"
-msgstr "Conectar com Hospedeiro Remoto"
+msgstr "Ligar com Hospedeiro Remoto"
 
 #: plugins-dev/gps/pt/up/fe/dceg/neptus/plugins/gps/GPSDevicePanel.java:240
 msgid "Connecting"
@@ -1623,7 +1623,7 @@ msgstr "A ligar"
 #: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:670
 #, fuzzy
 msgid "Connecting to remote system for log list update..."
-msgstr "A conectar com sistema remoto para actualização de lista de log..."
+msgstr "A ligar com sistema remoto para actualização de lista de log..."
 
 #: src/pt/up/fe/dceg/neptus/types/map/DynamicElement.java:168
 msgid "Connection Timeout (secs)"
@@ -1632,7 +1632,7 @@ msgstr "Tempo de Expiração (secs)"
 #: src/pt/up/fe/dceg/neptus/util/comm/ssh/SshShellPannel.java:169
 #: src/pt/up/fe/dceg/neptus/util/comm/ssh/SshShellPannel.java:197
 msgid "Connection not possible!!"
-msgstr "Não é possivel conectar!"
+msgstr "Não é possivel ligar!"
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:166
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:191
@@ -11006,7 +11006,7 @@ msgstr "∆tTxRx"
 #~ msgstr "Configuração"
 
 #~ msgid "Connect IP Camera"
-#~ msgstr "Conectar Câmara IP"
+#~ msgstr "Ligar Câmara IP"
 
 #, fuzzy
 #~ msgid "Content-Range not match the requested [%begByte != %startByte+]!"
@@ -11054,7 +11054,7 @@ msgstr "∆tTxRx"
 #~ msgstr "Estabelecer velocidade do plano"
 
 #~ msgid "Error connecting with the remote system!"
-#~ msgstr "Erro a conectar com o sistema remoto!"
+#~ msgstr "Erro a ligar com o sistema remoto!"
 
 #, fuzzy
 #~ msgid "Error occured toggling water"
