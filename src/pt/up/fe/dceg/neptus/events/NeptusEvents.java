@@ -192,15 +192,20 @@ public enum NeptusEvents {
         INSTANCE.consoleBus.put(console, newBus);
         newBus.register(INSTANCE);
     }
+    
+    public static void delete(ConsoleLayout console) {
+        AsyncEventBus bus = (AsyncEventBus) INSTANCE.consoleBus.remove(console);
+        bus.unregister(INSTANCE);
+    }
 
     public static void clean() {
         for (Entry<ConsoleLayout, EventBus> entry : INSTANCE.consoleBus.entrySet()) {
             entry.getValue().unregister(INSTANCE);
         }
         INSTANCE.consoleBus.clear();
-        INSTANCE.eventBus.unregister(INSTANCE);
-        INSTANCE.mainSystemEventBus.unregister(INSTANCE);
-        INSTANCE.otherSystemEventBus.unregister(INSTANCE);
+        //INSTANCE.eventBus.unregister(INSTANCE);
+        //INSTANCE.mainSystemEventBus.unregister(INSTANCE);
+        //INSTANCE.otherSystemEventBus.unregister(INSTANCE);
     }
 
     /*
