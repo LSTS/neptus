@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.3.0-rc1 (master,63f1c79)" system="lauv-dolphin-1" i18n="ru_RU">
+<config format="1" version="2.3.0-rc1 (master,7befcff)" system="lauv-dolphin-1" i18n="ru_RU">
   <section name="Broom" name-i18n="Метла">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -5911,7 +5911,7 @@
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>true</default>
       <units/>
       <desc>Report more verbose data acoustically</desc>
     </param>
