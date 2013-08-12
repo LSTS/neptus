@@ -235,42 +235,32 @@ public class LogsDownloaderWorker {
 		initialize();
 	}
 
-	private void initializeComm() {
-
-	    // Register for EntityActivationState
-        ImcMsgManager.getManager().addListener(new MessageListener<MessageInfo, IMCMessage>() {
-            
             @Override
             public void onMessage(MessageInfo info, IMCMessage msg) {
-                if(msg.getAbbrev().equals("PowerChannelState")) {
-                    if(msg.getString("name").equals("DOAM") || msg.getString("name").equals("Camera - CPU")) { // xtreme or dolphin
-                        System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: PowerChannelState " + msg.getInteger("state"));
-                        cameraButton.setBackground(msg.getInteger("state") == 1 ? Color.GREEN :  null);
+                if (msg.getAbbrev().equals("PowerChannelState")) {
+                    if (msg.getString("name").equals("DOAM") || msg.getString("name").equals("Camera - CPU")) { // xtreme
+                                                                                                                // or
+                                                                                                                // dolphin
+                        //System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: PowerChannelState "
+                                //+ msg.getInteger("state"));
+                        cameraButton.setBackground(msg.getInteger("state") == 1 ? Color.GREEN : null);
                     }
                 }
             }
-        });
+        };
+        ImcMsgManager.getManager().addListener(messageListener);
         
-        new Thread(new Runnable() {
-            
+        timer.scheduleAtFixedRate(new TimerTask() {
+            protected  IMCMessage msg = new IMCMessage("QueryPowerChannelState");
             @Override
             public void run() {
-                while(true) {
-                    IMCMessage msg = new IMCMessage("QueryPowerChannelState");
-
-                    ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
-                    try {
-                        Thread.sleep(3000);
-                    }
-                    catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+                msg.setTimestampMillis(System.currentTimeMillis());
+                ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
             }
-        }, "Query Camera Activation").start();
-	}
+        }, 500, 5000);
+    }
 
-	/**
+    /**
 	 * 
 	 */
 	private void initialize() {
@@ -1276,32 +1266,6 @@ public class LogsDownloaderWorker {
 	/**
 	 * This is used to clean and dispose safely of this component
 	 */
-	public void cleanup() {
-		if (ttaskLocalDiskSpace != null) {
-			ttaskLocalDiskSpace.cancel();
-			ttaskLocalDiskSpace = null;
-		}
-		if (timer != null) {
-			timer.cancel();
-			timer = null;
-		}
-//		if (frame != null) {
-//		    if (!frameIsExternalControlled) {
-//	            SwingUtilities.invokeLater(new Runnable() {                
-//	                @Override
-//	                public void run() {
-//	                    frame.dispose();
-//	                    frame = null;
-//	                }
-//	            }); 
-//		    }
-//		    else
-//		        frame = null;
-//		}
-		if (downHelpDialog != null)
-		    downHelpDialog.dispose();
-	}
-	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#finalize()
 	 */
@@ -1512,6 +1476,33 @@ public class LogsDownloaderWorker {
 	private boolean exitRequest = false;
 	private final Object lock = new Object();
 	/**
+    /**
+     * This is used to clean and dispose safely of this component
+     */
+    public void cleanup() {
+        if (ttaskLocalDiskSpace != null) {
+            ttaskLocalDiskSpace.cancel();
+            ttaskLocalDiskSpace = null;
+        }
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+        if (frame != null) {
+            if (!frameIsExternalControlled) {
+                frame.dispose();
+                frame = null;
+            }
+            else {
+                frame = null;
+            }
+        }
+        
+        if (downHelpDialog != null)
+            downHelpDialog.dispose();
+        
+        ImcMsgManager.getManager().removeListener(messageListener);
+    }
 	 * 
 	 */
 	private void updateFilesListGUIForFolderSelected() {
