@@ -53,6 +53,8 @@ xgettext \
   --keyword=I18n.textc:1,2c \
   --keyword=I18n.textf \
   --keyword=I18n.textfc:1,2c \
+  --keyword=I18n.textmark \
+  --keyword=I18n.textmarkc:1,2c \
   --keyword=PropertiesEditor.getPropertyInstance \
   --add-location \
   --from-code=UTF-8 \
