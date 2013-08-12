@@ -179,6 +179,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      */
     protected Map<Class<? extends ConsoleAction>, ConsoleAction> actions = new HashMap<>();
     protected Map<String, Action> globalKeybindings = new HashMap<>();
+    protected KeyEventDispatcher keyDispatcher;
     private final List<Window> onRunningFrames = new ArrayList<Window>(); // frames to close on exit
 
     // base components
@@ -316,7 +317,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     private void setupKeyBindings() {
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+        KeyEventDispatcher keyDispatcher = new KeyEventDispatcher() {
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
                 int eventType = e.getID(); // KeyEvent.KEY_PRESSED KeyEvent.KEY_RELEASED KEY_TYPED
@@ -330,7 +331,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
                 return false;
             }
-        });
+        };
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyDispatcher);
+    }
+    
+    private void cleanKeyBindings(){
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(keyDispatcher);
+        globalKeybindings.clear();
     }
 
     /**
@@ -1212,8 +1219,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             statusBar.clean();
             if (controllerPanel != null)
                 controllerPanel.cleanup();
+            this.cleanKeyBindings();
             this.imcOff();
-            NeptusEvents.clean();
+            
+            NeptusEvents.delete(this);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1690,8 +1699,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         loader.setText(I18n.text("Loading console..."));
 
+        @SuppressWarnings("unused")
         ConsoleLayout console = ConsoleLayout.forge("conf/consoles/lauv.ncon", loader);
-        NeptusMain.wrapMainApplicationWindowWithCloseActionWindowAdapter(console);
+//        NeptusMain.wrapMainApplicationWindowWithCloseActionWindowAdapter(console);
         NeptusLog.pub().info("<###>BENCHMARK " + ((System.currentTimeMillis() - ConfigFetch.STARTTIME) / 1E3) + "s");
     }
 }
