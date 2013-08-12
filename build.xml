@@ -57,7 +57,7 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<property name="version.VERSION" value="2" />
 	<property name="version.RELEASE" value="2" />
-	<property name="version.MINOR"   value="1" />
+	<property name="version.MINOR"   value="2" />
 	<!-- Set this to '.dev' if a developer release; blank "" if maintenance release -->
 	<property name="version.DEVELOPER" value="" />
 	<!-- Set the release number. Use the form 'R1' for release 1. Or leave it blank for a non release -->
