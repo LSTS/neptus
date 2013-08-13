@@ -651,6 +651,8 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
                 ManeuverLocation lt = new ManeuverLocation(center.getManeuverLocation());
                 lt.translateInPixel(deltaX, deltaY, MapTileUtil.LEVEL_OFFSET);
                 lt.setAbsoluteDepth(satellite.getManeuverLocation().getAllZ());
+                lt.setZ(satellite.getManeuverLocation().getZ());
+                lt.setZUnits(satellite.getManeuverLocation().getZUnits());
                 satellite.setManeuverLocation(lt);
             }
         }

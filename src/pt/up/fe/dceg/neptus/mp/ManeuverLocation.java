@@ -71,6 +71,11 @@ public class ManeuverLocation extends LocationType {
     
     public ManeuverLocation(LocationType loc) {
         super(loc);
+        if (loc instanceof ManeuverLocation) {
+            ManeuverLocation mloc = (ManeuverLocation) loc;
+            this.setZ(mloc.getZ());
+            this.setZUnits(mloc.getZUnits());
+        }
     }
     
     
