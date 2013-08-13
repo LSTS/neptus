@@ -59,6 +59,7 @@ import pt.up.fe.dceg.neptus.imc.EntityParameter;
 import pt.up.fe.dceg.neptus.imc.EntityParameters;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.QueryEntityParameters;
+import pt.up.fe.dceg.neptus.imc.SaveEntityParameters;
 import pt.up.fe.dceg.neptus.imc.SetEntityParameters;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Scope;
@@ -88,6 +89,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
     protected PropertySheetPanel psp;
     private JButton sendButton;
+    private JButton saveButton;
     private JButton refreshButton;
     private JButton resetButton;
     private JLabel titleLabel;
@@ -124,7 +126,6 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             public void setSelectedItem(Object anObject) {
                 super.setSelectedItem(anObject);
             }
-            
         };
         scopeComboBox.setRenderer(new ListCellRenderer<Scope>() {
             @Override
@@ -177,11 +178,21 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         sendButton = new JButton(new AbstractAction(I18n.text("Send")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                sendPropertiesToSystem();
+                sendPropertiesToSystem(false);
             }
         });
-        if (showSendButton)
+        sendButton.setToolTipText(I18n.text("Send the modified properties."));
+        saveButton = new JButton(new AbstractAction(I18n.text("Save")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sendPropertiesToSystem(true);
+            }
+        });
+        saveButton.setToolTipText(I18n.text("Send the modified properties and saves the modified entities parameters."));
+        if (showSendButton) {
             add(sendButton, "sg buttons, split");
+            add(saveButton, "sg buttons, split, gapafter 30");
+        }
 
         refreshButton = new JButton(new AbstractAction(I18n.text("Refresh")) {
             @Override
@@ -198,7 +209,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             }
         });
         if (showResetButton)
-            add(resetButton, "sg buttons, split");
+            add(resetButton, "sg buttons, split, wrap");
         
         if (showScopeCombo)
             add(scopeComboBox, "split, w :160:");
@@ -360,7 +371,13 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         qep.setName(entityName);
         send(qep);
     }
-    
+
+    private void saveRequest(String entityName) {
+        SaveEntityParameters qep = new SaveEntityParameters();
+        qep.setName(entityName);
+        send(qep);
+    }
+
     private void sendProperty(SystemProperty... propsList) {
         Map<String, ArrayList<EntityParameter>> mapCategoryParameterList = new LinkedHashMap<String, ArrayList<EntityParameter>>(); 
         for (SystemProperty prop : propsList) {
@@ -410,7 +427,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
      * This will send to the system the necessary SetEntityParameters messages with SystemProperty message(s)
      * that are needed. It will only send the SystemProperty messages that are locally dirty.
      */
-    private void sendPropertiesToSystem() {
+    private void sendPropertiesToSystem(boolean save) {
         Set<SystemProperty> sentProps = new LinkedHashSet<SystemProperty>();
         ArrayList<SystemProperty> sysPropToSend = new ArrayList<>();
         for (SystemProperty sp : params.values()) {
@@ -431,6 +448,10 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             }        
             for (String sec : secNames) {
                 queryValues(sec, scopeToUse.getText(), visibility.getText());
+                
+                if (save) {
+                    saveRequest(sec);
+                }
             }
         }
     }
