@@ -791,7 +791,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 
 		//private DownloaderPanel downloadPanel = null;
 		
-        private static final int MAX_TIME_MINUTES_LEFT_TO_SHOW = 60;
+        private static final int MAX_TIME_MINUTES_LEFT_TO_SHOW = 180;
 
         //private long fullSize = -1;
 		//private long bytesRead = 0;
