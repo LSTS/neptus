@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.3.0-rc1 (master,63f1c79)" system="lauv-xtreme-2" i18n="ru_RU">
-  <section name="Broom" name-i18n="Метла">
+<config format="1" version="2.3.0-rc1 (master,0154173,dirty)" system="lauv-xtreme-2" i18n="ru_RU">
+  <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Broom</default>
+      <default>Motor Controller</default>
       <units/>
       <desc>Главным образом ярлык лица</desc>
     </param>
@@ -143,7 +143,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Broom (Bridge)</default>
+      <default>Motor Controller (Bridge)</default>
       <units/>
       <desc/>
     </param>
@@ -152,18 +152,18 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Broom (MCU)</default>
+      <default>Motor Controller (MCU)</default>
       <units/>
       <desc/>
     </param>
   </section>
-  <section name="SCRT" name-i18n="SCRT">
+  <section name="Servo Controller" name-i18n="Servo Controller">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>SCRT</default>
+      <default>Servo Controller</default>
       <units/>
       <desc>Главным образом ярлык лица</desc>
     </param>
@@ -495,7 +495,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>SCRT</default>
+      <default>Servo Controller</default>
       <units/>
       <desc>Label of the servo position message to compute produced torque</desc>
     </param>
@@ -3085,7 +3085,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Broom, Clock, Collisions, DVL, Sidescan, SCRT, Fuel</default>
+      <default>Clock, Collisions, DVL, Fuel, Motor Controller, Servo Controller, Sidescan</default>
       <units/>
       <desc>Additional default entities to monitor in Hardware profile</desc>
     </param>
@@ -3869,7 +3869,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>SCRT0</default>
+      <default>Servo Controller 0</default>
       <units/>
       <desc/>
     </param>
@@ -3878,7 +3878,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>SCRT1</default>
+      <default>Servo Controller 1</default>
       <units/>
       <desc/>
     </param>
@@ -3887,7 +3887,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>SCRT2</default>
+      <default>Servo Controller 2</default>
       <units/>
       <desc/>
     </param>
@@ -3896,7 +3896,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>SCRT3</default>
+      <default>Servo Controller 3</default>
       <units/>
       <desc/>
     </param>
@@ -4328,7 +4328,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0e-5</default>
+      <default>3.0e-4</default>
       <units/>
       <desc>Heading bias uncertainty alignment threshold</desc>
     </param>
@@ -5494,7 +5494,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>SCRT</default>
+      <default>Servo Controller</default>
       <units/>
       <desc/>
     </param>
@@ -6625,12 +6625,12 @@
       <units/>
       <desc>Report data acoustically</desc>
     </param>
-    <param name="Enable Verbose Reports">
-      <name-i18n>Enable Verbose Reports</name-i18n>
+    <param name="Make Reports Verbose">
+      <name-i18n>Make Reports Verbose</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>false</default>
       <units/>
       <desc>Report more verbose data acoustically</desc>
     </param>
