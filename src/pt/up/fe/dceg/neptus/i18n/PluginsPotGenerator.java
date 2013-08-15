@@ -49,6 +49,7 @@ import pt.up.fe.dceg.neptus.gui.system.SystemDisplayComparator;
 import pt.up.fe.dceg.neptus.imc.Announce;
 import pt.up.fe.dceg.neptus.imc.Goto;
 import pt.up.fe.dceg.neptus.imc.Loiter;
+import pt.up.fe.dceg.neptus.imc.PlanControlState;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
@@ -93,7 +94,7 @@ public class PluginsPotGenerator {
         enums.add(Goto.SPEED_UNITS.class);
         enums.add(Loiter.TYPE.class);
         enums.add(MapPanel.PlacementEnum.class);
-        //enums.add(STATE.class);
+        enums.add(PlanControlState.STATE.class);
         enums.add(SystemDisplayComparator.OrderOptionEnum.class);
         enums.add(SystemsList.SortOrderEnum.class);
         enums.add(SystemsList.MilStd2525SymbolsFilledEnum.class);

@@ -192,7 +192,7 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
     @Override
     public boolean update() {
         if (state != null)
-            stateValueLabel.setText(state.toString());
+            stateValueLabel.setText(I18n.text(state.toString()));
 
         String planTimeStr;
 
