@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-12 12:07+0100\n"
+"POT-Creation-Date: 2013-08-15 11:36+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,7 +47,7 @@ msgstr ""
 msgid "%deltaTime with no messages"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/DownloaderPanel.java:898
+#: src/pt/up/fe/dceg/neptus/util/logdownload/DownloaderPanel.java:900
 msgid "%downloadedSize of %fullSize %dataRate - %remainingSize remaining"
 msgstr ""
 
@@ -151,7 +151,7 @@ msgstr ""
 msgid "%sysName has acknowledged abort command"
 msgstr ""
 
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:336
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:353
 msgid "%systemName Parameters"
 msgstr ""
 
@@ -233,7 +233,7 @@ msgstr ""
 msgid "<html><b>Beacon %beaconid (%range m) %datetime <br>%reason"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:278
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:279
 msgid ""
 "<html>Do you want to save the changes to the current <strong>Console "
 "Configuration</strong>?</html>"
@@ -432,7 +432,7 @@ msgstr ""
 msgid "Accepted."
 msgstr ""
 
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:207
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:224
 msgid "Access Developer Parameters"
 msgstr ""
 
@@ -471,7 +471,7 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1114
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1122
 msgid "Add %maneuverName"
 msgstr ""
 
@@ -599,7 +599,7 @@ msgstr ""
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/MissionTreePanel.java:674
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:220
 #: plugins-dev/messages/pt/up/fe/dceg/neptus/plugins/messages/IMCInspector.java:229
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:471
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:478
 msgid "Advanced"
 msgstr ""
 
@@ -756,11 +756,11 @@ msgstr ""
 msgid "Approach to ignore points on Multibeam 3D"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1111
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1158
 msgid "Are you sure you want to delete selected log files from remote system?"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1030
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1078
 msgid ""
 "Are you sure you want to delete selected log folders from remote system?"
 msgstr ""
@@ -832,6 +832,10 @@ msgstr ""
 msgid "Azimuth"
 msgstr ""
 
+#: Field from PlanControlState.STATE enumeration
+msgid "BLOCKED"
+msgstr ""
+
 #: Property from pt.up.fe.dceg.neptus.console.plugins.SideState2DPanelConsole
 msgid "Back distance variable"
 msgstr ""
@@ -872,11 +876,11 @@ msgstr ""
 msgid "Base Orientation"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:293
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:296
 msgid "Base URI Path: "
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:406
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:412
 msgid "Basic log folder not synchronized. Can't open MRA"
 msgstr ""
 
@@ -918,7 +922,7 @@ msgstr ""
 msgid "Baud Rate"
 msgstr ""
 
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:208
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:225
 msgctxt "This will be a tooltip, and use <br> to change line."
 msgid ""
 "Be careful changing these values.<br>They may make the vehicle inoperable."
@@ -1434,7 +1438,7 @@ msgid "Config"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/gui/SimpleTransponderPanel.java:97
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:462
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:465
 msgid "Configuration"
 msgstr ""
 
@@ -1521,7 +1525,7 @@ msgstr ""
 msgid "Connecting"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:670
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:674
 msgid "Connecting to remote system for log list update..."
 msgstr ""
 
@@ -1615,7 +1619,7 @@ msgstr ""
 msgid "Contact info:"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:774
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:817
 msgid "Contacting remote system for complete log file list..."
 msgstr ""
 
@@ -1915,11 +1919,11 @@ msgstr ""
 msgid "Delete '%transponderName'?"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:453
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:457
 msgid "Delete Selected Log Files"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:448
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:452
 msgid "Delete Selected Log Folders"
 msgstr ""
 
@@ -2144,8 +2148,8 @@ msgstr ""
 
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/BathymetryPlotter.java:411
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:435
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:686
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:893
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:728
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:940
 msgid "Done"
 msgstr ""
 
@@ -2242,6 +2246,10 @@ msgstr ""
 msgid "ERROR"
 msgstr ""
 
+#: Field from PlanControlState.STATE enumeration
+msgid "EXECUTING"
+msgstr ""
+
 #: Field from ConsoleEventVehicleStateChanged.STATE enumeration
 msgid "EXTERNAL"
 msgstr ""
@@ -2268,7 +2276,7 @@ msgstr ""
 msgid "Edit %maneuverName in the map"
 msgstr ""
 
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1088
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1096
 msgid "Edit '%planName' plan transitions"
 msgstr ""
 
@@ -2293,7 +2301,7 @@ msgstr ""
 msgid "Edit properties"
 msgstr ""
 
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1106
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1114
 msgid "Edited Plan Statistics"
 msgstr ""
 
@@ -2405,7 +2413,7 @@ msgstr ""
 msgid "Enter command to be sent to %vehicle"
 msgstr ""
 
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:971
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:979
 msgid "Enter new speed (%speedUnit)"
 msgstr ""
 
@@ -2474,7 +2482,7 @@ msgstr ""
 #: plugins-dev/state/pt/up/fe/dceg/neptus/plugins/state/EntitySubPanel.java:93
 #: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:287
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:575
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:878
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:885
 msgid "Error"
 msgstr ""
 
@@ -2482,7 +2490,7 @@ msgstr ""
 msgid "Error Initializing Tele-Operation"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:879
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:886
 msgid "Error Loading Mission File.\n"
 msgstr ""
 
@@ -2498,12 +2506,12 @@ msgstr ""
 msgid "Error Sending Abort by Modem by '%sendermodemid'"
 msgstr ""
 
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1479
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1553
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1487
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1561
 msgid "Error adding maneuver"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:2267
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:2356
 msgid "Error couth on resetting: %errormessage"
 msgstr ""
 
@@ -2539,7 +2547,7 @@ msgstr ""
 msgid "Error monitor"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1360
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1434
 msgid "Error on configuration"
 msgstr ""
 
@@ -2551,8 +2559,8 @@ msgstr ""
 msgid "Error opening Extended Manual (%error)"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/loader/NeptusMain.java:289
-#: src/pt/up/fe/dceg/neptus/loader/NeptusMain.java:317
+#: src/pt/up/fe/dceg/neptus/loader/NeptusMain.java:290
+#: src/pt/up/fe/dceg/neptus/loader/NeptusMain.java:318
 msgid "Error opening file"
 msgstr ""
 
@@ -2802,12 +2810,12 @@ msgid "Figure 8"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:452
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:418
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:425
 #: src/pt/up/fe/dceg/neptus/mc/Workspace.java:823
 msgid "File"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/loader/NeptusMain.java:318
+#: src/pt/up/fe/dceg/neptus/loader/NeptusMain.java:319
 msgid "File '%filename' of type '.%extension' is not supported."
 msgstr ""
 
@@ -2854,7 +2862,7 @@ msgstr ""
 msgid "Filter to Show Only Main Vehicle's Piccolo Waypoints"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:723
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:765
 msgid "Filtering list..."
 msgstr ""
 
@@ -3206,8 +3214,8 @@ msgstr ""
 
 #: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/multibeampluginutils/MultibeamToolbar.java:196
 #: plugins-dev/help/pt/up/fe/dceg/neptus/plugins/help/ContextHelperPlugin.java:70
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:571
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:1470
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:578
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:1479
 #: src/pt/up/fe/dceg/neptus/mc/Workspace.java:854
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:185
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:186
@@ -3285,7 +3293,7 @@ msgstr ""
 msgid "Host"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:286
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:289
 msgid "Host: "
 msgstr ""
 
@@ -3439,6 +3447,10 @@ msgstr ""
 
 #: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:194
 msgid "IMU not aligned"
+msgstr ""
+
+#: Field from PlanControlState.STATE enumeration
+msgid "INITIALIZING"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/console/plugins/SystemsList.java:1292
@@ -3967,7 +3979,7 @@ msgstr ""
 msgid "Loading automatic charts"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:1691
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:1700
 #: src/pt/up/fe/dceg/neptus/mc/lauvconsole/LAUVConsole.java:117
 msgid "Loading console..."
 msgstr ""
@@ -4021,13 +4033,17 @@ msgstr ""
 msgid "Local State"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1259
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1306
 msgid "Local free disk space %usedspace of %totalspace"
 msgstr ""
 
 #: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:171
 #: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:733
 msgid "Local operational limits have changes"
+msgstr ""
+
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:216
+msgid "Local reset. Needs to be sent to system."
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/gui/MapLocationSelector.java:185
@@ -4071,15 +4087,15 @@ msgstr ""
 msgid "Log Download"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:305
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:308
 msgid "Log Files"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:304
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:307
 msgid "Log Folders"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:689
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:731
 msgid "Log Folders: %numberoffolders"
 msgstr ""
 
@@ -4911,7 +4927,7 @@ msgstr ""
 msgid "Needs 'Use Plan DB Sync. Features' on"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:258
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:259
 msgid "Neptus Console"
 msgstr ""
 
@@ -5044,7 +5060,7 @@ msgstr ""
 msgid "No extra info"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:711
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:753
 msgid "No logs..."
 msgstr ""
 
@@ -5526,7 +5542,7 @@ msgstr ""
 msgid "Paste location"
 msgstr ""
 
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1195
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1203
 msgid "Paste maneuver from clipboard"
 msgstr ""
 
@@ -5538,7 +5554,7 @@ msgstr ""
 msgid "Pause/Resume"
 msgstr ""
 
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1007
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1015
 msgid "Payload settings..."
 msgstr ""
 
@@ -5659,7 +5675,7 @@ msgstr ""
 msgid "Plan Statistics"
 msgstr ""
 
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1079
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1087
 msgid "Plan Transitions"
 msgstr ""
 
@@ -5722,7 +5738,7 @@ msgstr ""
 msgid "Play Sound On Surface Ranges"
 msgstr ""
 
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:955
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:956
 msgid "Please choose the speed units"
 msgstr ""
 
@@ -5782,7 +5798,7 @@ msgid ""
 "follow a tag."
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:289
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:292
 msgid "Port: "
 msgstr ""
 
@@ -5835,7 +5851,7 @@ msgstr ""
 msgid "Processing data..."
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:778
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:821
 msgid "Processing log list..."
 msgstr ""
 
@@ -5946,6 +5962,10 @@ msgstr ""
 
 #: Field from Loiter.TYPE enumeration
 msgid "RACETRACK"
+msgstr ""
+
+#: Field from PlanControlState.STATE enumeration
+msgid "READY"
 msgstr ""
 
 #: Field from Tile.TileState enumeration
@@ -6143,7 +6163,7 @@ msgstr ""
 msgid "Reference Point"
 msgstr ""
 
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:186
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:190
 #: plugins-dev/logs/pt/up/fe/dceg/neptus/plugins/logs/MultiSystemHistory.java:124
 msgid "Refresh"
 msgstr ""
@@ -6182,8 +6202,8 @@ msgstr ""
 msgid "Reload Panel"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1034
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1114
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1081
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1160
 msgid "Remote Delete Confirmation"
 msgstr ""
 
@@ -6325,7 +6345,11 @@ msgstr ""
 msgid "Request sent but limits not yet received"
 msgstr ""
 
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:194
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:196
+msgid "Requests the entities sections parameters from the vehicle."
+msgstr ""
+
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:210
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/LBLRangeDisplay.java:398
 #: src/pt/up/fe/dceg/neptus/gui/ChronometerPanel.java:255
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:216
@@ -6352,11 +6376,11 @@ msgstr ""
 msgid "Reset the current view to defaults"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:311
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:314
 msgid "Reset the interface"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:2260
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:2346
 msgid "Resetting... Wait please..."
 msgstr ""
 
@@ -6500,6 +6524,7 @@ msgstr ""
 msgid "Saturation"
 msgstr ""
 
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:199
 #: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/SettingsWindow.java:108
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/BathymetryPlotter.java:204
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:554
@@ -6572,7 +6597,7 @@ msgstr ""
 msgid "Save as PDF"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:279
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:280
 msgid "Save changes?"
 msgstr ""
 
@@ -6605,6 +6630,10 @@ msgstr ""
 #: src/pt/up/fe/dceg/neptus/util/logdownload/DownloaderPanel.java:570
 #: src/pt/up/fe/dceg/neptus/util/logdownload/DownloaderPanel.java:709
 msgid "Saved in '%filePath'"
+msgstr ""
+
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:205
+msgid "Saves the visible entities sections in the vehicle."
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/gui/objparams/ImageObjectParameters.java:271
@@ -6734,7 +6763,7 @@ msgstr ""
 msgid "Selection"
 msgstr ""
 
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:177
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:179
 msgid "Send"
 msgstr ""
 
@@ -6790,6 +6819,10 @@ msgstr ""
 
 #: Property from pt.up.fe.dceg.neptus.comm.iridium.IridiumCommand
 msgid "Send device updates"
+msgstr ""
+
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:185
+msgid "Send the modified properties."
 msgstr ""
 
 #: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:186
@@ -6908,12 +6941,12 @@ msgstr ""
 msgid "Set plan depth / altitude"
 msgstr ""
 
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:955
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:980
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:956
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:988
 msgid "Set plan speed"
 msgstr ""
 
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1055
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1063
 msgid "Set plan vehicles..."
 msgstr ""
 
@@ -7052,7 +7085,7 @@ msgstr ""
 msgid "Show GPS Fix Icon"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:524
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:509
 msgid "Show Help"
 msgstr ""
 
@@ -7238,11 +7271,11 @@ msgstr ""
 msgid "Show world map"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:513
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:499
 msgid "Show/Hide Configuration Panel"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:518
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:504
 msgid "Show/Hide Download Panel"
 msgstr ""
 
@@ -7322,7 +7355,7 @@ msgstr ""
 msgid "Smooth image resizing"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1359
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1432
 msgid "Some of the configuration parameters are not correct!"
 msgstr ""
 
@@ -7353,7 +7386,7 @@ msgstr ""
 #: Property from pt.up.fe.dceg.neptus.mp.maneuvers.CompassCalibration
 #: pt.up.fe.dceg.neptus.mp.maneuvers.Elevator
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/MraPhotosVisualization.java:631
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:989
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:997
 #: plugins-dev/trex/pt/up/fe/dceg/neptus/plugins/trex/goals/VisitLocationGoal.java:126
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowTrajectory.java:752
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:873
@@ -7378,7 +7411,7 @@ msgstr ""
 msgid "Speed Units"
 msgstr ""
 
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:981
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:989
 msgid "Speed must be a numeric value"
 msgstr ""
 
@@ -7390,7 +7423,7 @@ msgstr ""
 
 #: Property from pt.up.fe.dceg.neptus.mp.maneuvers.CompassCalibration
 #: pt.up.fe.dceg.neptus.mp.maneuvers.Elevator
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:996
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1004
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowTrajectory.java:747
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/YoYo.java:283
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/CommsRelay.java:236
@@ -7503,7 +7536,7 @@ msgstr ""
 msgid "Started Teleoperation"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/loader/NeptusMain.java:303
+#: src/pt/up/fe/dceg/neptus/loader/NeptusMain.java:304
 msgid "Starting \"%file\"..."
 msgstr ""
 
@@ -7536,7 +7569,7 @@ msgstr ""
 msgid "Starting up"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:655
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:658
 #: src/pt/up/fe/dceg/neptus/util/logdownload/DownloaderPanel.java:516
 #: src/pt/up/fe/dceg/neptus/util/logdownload/DownloaderPanel.java:649
 msgid "Starting..."
@@ -7622,7 +7655,7 @@ msgstr ""
 msgid "Stop Tele-Operation"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:316
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:319
 msgid "Stop all log downloads"
 msgstr ""
 
@@ -7699,15 +7732,15 @@ msgstr ""
 msgid "Sync day Mission Logs"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:431
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:437
 msgid "Synchronize List of Log Folders"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:442
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:447
 msgid "Synchronize Selected Log Files"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:436
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:442
 msgid "Synchronize Selected Log Folders"
 msgstr ""
 
@@ -7756,7 +7789,7 @@ msgstr ""
 msgid "System Information display on map"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:296
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:299
 msgid "System Label: "
 msgstr ""
 
@@ -8056,8 +8089,8 @@ msgstr ""
 msgid "The identifier for this object"
 msgstr ""
 
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1479
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1553
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1487
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:1561
 msgid "The maneuver %maneuverType can't be added"
 msgstr ""
 
@@ -8348,7 +8381,7 @@ msgstr ""
 msgid "This vehicle does not support IMU alignment."
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:299
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:302
 msgid "This will dictate the directory where the logs will go."
 msgstr ""
 
@@ -8517,7 +8550,7 @@ msgstr ""
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:150
 #: plugins-dev/simulation/pt/up/fe/dceg/neptus/plugins/sim/SimulationActionsPlugin.java:55
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:689
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:458
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:465
 #: src/pt/up/fe/dceg/neptus/mc/Workspace.java:407
 msgid "Tools"
 msgstr ""
@@ -8749,7 +8782,7 @@ msgstr ""
 msgid "Unable to range selected system"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/loader/NeptusMain.java:290
+#: src/pt/up/fe/dceg/neptus/loader/NeptusMain.java:291
 msgid "Unable to read the file '%filename'"
 msgstr ""
 
@@ -8774,7 +8807,7 @@ msgstr ""
 msgid "Unknown Mode"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1268
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1317
 msgid "Unknown local disk free space"
 msgstr ""
 
@@ -8835,11 +8868,11 @@ msgstr ""
 msgid "Updating AIS layer..."
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:875
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:922
 msgid "Updating GUI..."
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:791
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:835
 msgid "Updating logs info..."
 msgstr ""
 
@@ -9208,7 +9241,7 @@ msgstr ""
 #: plugins-dev/logs/pt/up/fe/dceg/neptus/plugins/logs/RemoteHistory.java:151
 #: src/pt/up/fe/dceg/neptus/plugins/SimpleSubPanel.java:430
 #: src/pt/up/fe/dceg/neptus/plugins/SimpleSubPanel.java:573
-#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:452
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:459
 msgid "View"
 msgstr ""
 
@@ -10307,8 +10340,8 @@ msgstr ""
 msgid "tvgGain"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:142
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1423
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:149
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1498
 msgid "unknown"
 msgstr ""
 
