@@ -175,7 +175,7 @@ public class JsfParser {
                         l = new ArrayList<Long>();
                         l.add(pos);
                         index.positionMapHigh.put(t, l);
-                        System.out.println(t);
+                        // System.out.println(t);
                     }
                     else {
                         l.add(pos);
@@ -190,10 +190,10 @@ public class JsfParser {
                 if (curPosition >= channel.size())
                     break;
             }
-            System.out.println(minTimestampHigh);
-            System.out.println(maxTimestampHigh);
-            System.out.println(minTimestampLow);
-            System.out.println(maxTimestampLow);
+            System.out.println(JsfParser.class.getSimpleName() + " :: " + minTimestampHigh);
+            System.out.println(JsfParser.class.getSimpleName() + " :: " + maxTimestampHigh);
+            System.out.println(JsfParser.class.getSimpleName() + " :: " + minTimestampLow);
+            System.out.println(JsfParser.class.getSimpleName() + " :: " + maxTimestampLow);
             
             index.firstTimestampHigh = minTimestampHigh;
             index.firstTimestampLow = minTimestampLow;
