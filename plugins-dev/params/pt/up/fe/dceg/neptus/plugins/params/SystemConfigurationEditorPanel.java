@@ -38,6 +38,7 @@ import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -178,20 +179,12 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         sendButton = new JButton(new AbstractAction(I18n.text("Send")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                sendPropertiesToSystem(false);
+                sendPropertiesToSystem();
             }
         });
         sendButton.setToolTipText(I18n.text("Send the modified properties."));
-        saveButton = new JButton(new AbstractAction(I18n.text("Save")) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                sendPropertiesToSystem(true);
-            }
-        });
-        saveButton.setToolTipText(I18n.text("Send the modified properties and saves the modified entities parameters."));
         if (showSendButton) {
             add(sendButton, "sg buttons, split");
-            add(saveButton, "sg buttons, split, gapafter 30");
         }
 
         refreshButton = new JButton(new AbstractAction(I18n.text("Refresh")) {
@@ -200,7 +193,19 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 refreshPropertiesOnPanel();
             }
         });
+        refreshButton.setToolTipText(I18n.text("Requests the entities sections parameters from the vehicle."));
         add(refreshButton, "sg buttons, split");
+
+        saveButton = new JButton(new AbstractAction(I18n.text("Save")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                savePropertiesToSystem();
+            }
+        });
+        saveButton.setToolTipText(I18n.text("Saves the visible entities sections in the vehicle."));
+        if (showSendButton) {
+            add(saveButton, "sg buttons, split");
+        }
 
         resetButton = new JButton(new AbstractAction(I18n.text("Reset")) {
             @Override
@@ -208,8 +213,9 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 resetPropertiesOnPanel();
             }
         });
+        resetButton.setToolTipText(I18n.text("Local reset. Needs to be sent to system."));
         if (showResetButton)
-            add(resetButton, "sg buttons, split, wrap");
+            add(resetButton, "sg buttons, gapbefore 30, split, wrap");
         
         if (showScopeCombo)
             add(scopeComboBox, "split, w :160:");
@@ -427,7 +433,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
      * This will send to the system the necessary SetEntityParameters messages with SystemProperty message(s)
      * that are needed. It will only send the SystemProperty messages that are locally dirty.
      */
-    private void sendPropertiesToSystem(boolean save) {
+    private void sendPropertiesToSystem() {
         Set<SystemProperty> sentProps = new LinkedHashSet<SystemProperty>();
         ArrayList<SystemProperty> sysPropToSend = new ArrayList<>();
         for (SystemProperty sp : params.values()) {
@@ -448,10 +454,25 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             }        
             for (String sec : secNames) {
                 queryValues(sec, scopeToUse.getText(), visibility.getText());
-                
-                if (save) {
-                    saveRequest(sec);
-                }
+            }
+        }
+    }
+
+    private void savePropertiesToSystem() {
+        Collection<SystemProperty> propsInPanel = params.values();
+        if (propsInPanel.size() > 0) {
+            ArrayList<String> secNames = new ArrayList<>();
+            for (SystemProperty sp : propsInPanel) {
+                String sectionName = sp.getCategoryId();
+                if (!secNames.contains(sectionName))
+                    secNames.add(sectionName);
+            }        
+            for (String sec : secNames) {
+                queryValues(sec, scopeToUse.getText(), visibility.getText());
+            }
+            
+            for (String sec : secNames) {
+                saveRequest(sec);
             }
         }
     }
