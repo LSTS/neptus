@@ -37,8 +37,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.List;
 import java.util.Vector;
 
@@ -52,9 +50,9 @@ import pt.up.fe.dceg.neptus.console.SubPanel;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.up.fe.dceg.neptus.plugins.containers.MigLayoutContainer;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.plugins.containers.MigLayoutContainer;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
@@ -81,7 +79,8 @@ public class SettingsWindow extends SimpleSubPanel {
      */
     public SettingsWindow(ConsoleLayout console) {
         super(console);
-        
+
+        this.removeAll();
         List<SubPanel> consolePlugins = console.getSubPanels();
         for (SubPanel plugin : consolePlugins) {
             if (plugin != null && plugin instanceof MigLayoutContainer) {
@@ -102,6 +101,7 @@ public class SettingsWindow extends SimpleSubPanel {
                 settingsPanel.updateForNewPermission();
             }
         });
+        checkLvl.setSelected(false);
         // direct keyboard inputs to tree after this is pressed
         checkLvl.setFocusable(false);
 
@@ -109,9 +109,10 @@ public class SettingsWindow extends SimpleSubPanel {
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                settingsPanel.saveChanges();
-                // checkLvl.setSelected(false);
                 dialog.setVisible(false);
+                settingsPanel.saveChanges();
+                checkLvl.setSelected(false);
+                settingsPanel.reset();
             }
         });
 
@@ -119,8 +120,9 @@ public class SettingsWindow extends SimpleSubPanel {
         cancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // checkLvl.setSelected(false);
                 dialog.setVisible(false);
+                checkLvl.setSelected(false);
+                settingsPanel.reset();
             }
         });
 
@@ -141,17 +143,11 @@ public class SettingsWindow extends SimpleSubPanel {
         this.removeAll();
         this.settingsPanel = new FunctionalitiesSettings(ConfigFetch.getDistributionType().equals(
                 DistributionEnum.CLIENT), subPanels);
-        settingsPanel.reset();
         this.add(settingsPanel, "w 100%!, h 100%, wrap");
         addButtons();
+        // this is done after the level normal/advanced is set by creating the checkbox
+        settingsPanel.reset();
         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
-        this.dialog.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowActivated(WindowEvent e) {
-                checkLvl.setSelected(false);
-                settingsPanel.reset();
-            }
-        });
     }
 
     @Override

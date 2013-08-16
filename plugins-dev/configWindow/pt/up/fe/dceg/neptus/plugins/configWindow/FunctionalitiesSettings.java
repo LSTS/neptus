@@ -241,8 +241,7 @@ public class FunctionalitiesSettings extends JPanel {
         // remove property panels from left
         JPanel holderPanel = (JPanel) splitPane.getRightComponent();
         holderPanel.removeAll();
-        // repaint();
-        // revalidate();
+        repaint();
     }
 
     public void saveChanges() {
@@ -323,32 +322,6 @@ public class FunctionalitiesSettings extends JPanel {
 
         restoreInsertedProperties(oldProps, selPath);
 
-        // // restore opened settings node if still there
-        // final JPanel holderPropertiesPanel = (JPanel) splitPane.getRightComponent();
-        // holderPropertiesPanel.removeAll();
-        // if (selPath != null) {
-        // // returns node from previous model
-        // DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) selPath.getLastPathComponent();
-        // if (selectedNode.getUserObject() instanceof ClassPropertiesInfo) {
-        // // find selected class by name
-        // ClassPropertiesInfo selectedClassInfo = (ClassPropertiesInfo) selectedNode.getUserObject();
-        // String selectedClassInfoName = selectedClassInfo.getName();
-        // // see if it's still visible
-        // DefaultMutableTreeNode classNode;
-        // ClassPropertiesInfo classInfo;
-        // TreeModel newModel = tree.getModel();
-        // DefaultMutableTreeNode root = (DefaultMutableTreeNode) newModel.getRoot();
-        // int classCount = newModel.getChildCount(root);
-        // for (int c = 0; c < classCount; c++) {
-        // classNode = (DefaultMutableTreeNode) newModel.getChild(root, c);
-        // classInfo = (ClassPropertiesInfo) classNode.getUserObject();
-        // if (classInfo.getName().equalsIgnoreCase(selectedClassInfoName)) {
-        // tree.setSelectionPath(new TreePath(classNode.getPath()));
-        // c = classCount;
-        // }
-        // }
-        // }
-        // }
     }
 
     /**
@@ -614,9 +587,7 @@ public class FunctionalitiesSettings extends JPanel {
     @SuppressWarnings("unchecked")
     private <T> PluginProperty extractPluginProperty(Field f, T class1) {
         NeptusProperty neptusProperty = f.getAnnotation(NeptusProperty.class);
-        // Field value / o
         Object fieldValue = null;
-        
         try {
             fieldValue = f.get(class1);
         }
@@ -625,7 +596,6 @@ public class FunctionalitiesSettings extends JPanel {
             return null;
         }
         
-        // String className = class1.getClass().getCanonicalName();
         // Name
         String nameRaw = neptusProperty.name();
         String displayName;
