@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.3.0-rc1 (master,0154173,dirty)" system="adamastor" i18n="en_US">
+<config format="1" version="2.3.0 (HEAD,824c185)" system="adamastor" i18n="en_US">
   <section name="LED4R" name-i18n="LED4R">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1428,6 +1428,15 @@
       <default>5.0</default>
       <units>s</units>
       <desc>No altitude readings timeout</desc>
+    </param>
+    <param name="Euler timeout">
+      <name-i18n>Euler timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10.0</default>
+      <units>s</units>
+      <desc>No EulerAngles readings timeout</desc>
     </param>
     <param name="Depth timeout">
       <name-i18n>Depth timeout</name-i18n>
@@ -3021,7 +3030,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10</default>
+      <default>50</default>
       <units/>
       <desc>Execution priority</desc>
     </param>
