@@ -99,7 +99,7 @@ public @interface NeptusProperty {
     /**
      * Whether this property is to be hidden in user-input dialogs (changed only in code)
      */
-    boolean hidden() default false;
+    boolean editable() default false;
 
     /**
      * Visibility of setting: 

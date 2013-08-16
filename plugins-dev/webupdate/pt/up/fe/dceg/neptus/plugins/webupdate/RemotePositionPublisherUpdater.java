@@ -146,7 +146,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
     @NeptusProperty
     public boolean publishOn = true;
 
-    @NeptusProperty(hidden = true)
+    @NeptusProperty(editable = true)
     public String publishMessagesListStd = "EstimatedState, LbLConfig, PlanSpecification, "
             + "VehicleState, PlanControlState, EntityList";
 

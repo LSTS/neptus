@@ -163,7 +163,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             + "it display all buttons, if false only teleoperation button is shown.")
     public boolean useFullMode = true;
 
-    @NeptusProperty(name = "Enable console actions", hidden = true)
+    @NeptusProperty(name = "Enable console actions", editable = true)
     public boolean enableConsoleActions = true;
 
     // @NeptusProperty(name = "Use PlanDB to send plan", description = "For current vehicles set to true.")

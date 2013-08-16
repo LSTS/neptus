@@ -155,7 +155,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
     @NeptusProperty(name = "MIDI Channel", category = "Communication")
     public int midi_channel = 13;
 
-    @NeptusProperty(name = "Number of distinct frequencies", category = "Communication", hidden = true, userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Number of distinct frequencies", category = "Communication", editable = true, userLevel = LEVEL.REGULAR)
     public int numFreqs = 8;
 
     @NeptusProperty(name = "Volume")

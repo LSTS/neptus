@@ -228,7 +228,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     public boolean enableSelection = true;
 
     @NeptusProperty(name = "Show Systems Icons On Renderer", description = "If true, if this component is showing systems icons, it will disable them on the renderer panel.", 
-            hidden = true)
+            editable = true)
     public boolean showSystemsIconsOnRenderer = true;
 
     @NeptusProperty(name = "Renderer Icons Size", description = "Configures the system symbols size for the renderer", 

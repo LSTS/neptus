@@ -618,7 +618,12 @@ public class FunctionalitiesSettings extends JPanel {
         pp.setValue(fieldValue);
 
         // Editable
-        pp.setEditable(true);
+        if (neptusProperty.editable() == true) {
+            pp.setEditable(false);
+        }
+        else {
+            pp.setEditable(true);
+        }
         // Display name
         displayName = I18n.text(displayName);
         pp.setDisplayName(displayName);

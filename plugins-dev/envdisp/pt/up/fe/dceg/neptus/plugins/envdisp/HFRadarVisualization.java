@@ -146,10 +146,10 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.ADVANCED, category="Data Update")
     public boolean ignoreDateLimitToLoad = false;
     
-    @NeptusProperty(name = "Request data from Web", hidden=true)
+    @NeptusProperty(name = "Request data from Web", editable=true)
     public boolean requestFromWeb = false;
 
-    @NeptusProperty(name = "Load data from file (hfradar.txt)", hidden=true)
+    @NeptusProperty(name = "Load data from file (hfradar.txt)", editable=true)
     public boolean loadFromFile = false;
     
     @NeptusProperty(name = "Show currents as most recent (true) or mean (false) value", userLevel = LEVEL.REGULAR, category="Data Update")
