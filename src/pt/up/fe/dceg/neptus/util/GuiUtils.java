@@ -384,9 +384,10 @@ public class GuiUtils {
     /**
      * Asks the user for an identifier, returning it.
      * 
-     * @param unavailableIDs An array with corrently taken identifiers
+     * @param unavailableIDs An array with currently taken identifiers
      * @return The entered identifier or <b>null</b> if the user pressed "cancel"
      */
+    @Deprecated // Not used
     public static String idSelector(Object[] unavailableIDs, String defaultValue) {
 
         boolean ok = false;
