@@ -83,6 +83,19 @@ import com.l2fprod.common.propertysheet.Property;
 public class PlanExecutionPreview extends SimpleRendererInteraction implements Renderer2DPainter, ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
+
+    protected GeneralPath arrow = new GeneralPath();
+    {
+        arrow.moveTo(-2, -10);
+        arrow.lineTo(2, -10);
+        arrow.lineTo(2, 0);
+        arrow.lineTo(5, 0);
+        arrow.lineTo(0, 10);
+        arrow.lineTo(-5, 0);
+        arrow.lineTo(-2, 0);
+        arrow.closePath();
+    }
+
     protected boolean debug = false;
     protected PlanSimulationOverlay simOverlay = null;
     protected PlanSimulator simulator = null;
@@ -137,7 +150,7 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
             JPopupMenu popup = new JPopupMenu();
             
             if (simulator != null) {
-                popup.add("Locate simulator here").addActionListener(new ActionListener() {
+                popup.add(I18n.text("Locate simulator here")).addActionListener(new ActionListener() {
                     
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -155,9 +168,9 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                     }
                 });
                 
-                JMenu menu = new JMenu("Set current maneuver");
+                JMenu menu = new JMenu(I18n.text("Set current maneuver"));
                 for (final Maneuver man : simulator.getPlan().getGraph().getAllManeuvers()) {
-                    menu.add(man.getId()+" ("+man.getType()+")").addActionListener(new ActionListener() {
+                    menu.add(man.getId()+" (" + man.getType() + ")").addActionListener(new ActionListener() {
                         
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -177,7 +190,7 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                 
                 
             }
-            popup.add("Simulate from here").addActionListener(new ActionListener() {
+            popup.add(I18n.text("Simulate from here")).addActionListener(new ActionListener() {
                 
                 final LocationType loc = source.getRealWorldLocation(event.getPoint());
                 
@@ -203,7 +216,7 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
             });
             
             if (simOverlay != null) {
-                popup.add("Show 3D simulation").addActionListener(new ActionListener() {
+                popup.add(I18n.text("Show 3D simulation")).addActionListener(new ActionListener() {
                     
                     @Override
                     public void actionPerformed(ActionEvent e) {                        
@@ -212,7 +225,7 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                 });
             }
             
-            popup.add("Clear simulation").addActionListener(new ActionListener() {
+            popup.add(I18n.text("Clear simulation")).addActionListener(new ActionListener() {
                 
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -225,12 +238,12 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                 }
             });
             popup.addSeparator();
-            JMenu simBathym = new JMenu("Simulated bathymetry");
-            simBathym.add("Add depth sounding").addActionListener(new ActionListener() {
+            JMenu simBathym = new JMenu(I18n.text("Simulated bathymetry"));
+            simBathym.add(I18n.text("Add depth sounding")).addActionListener(new ActionListener() {
                 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String ret = JOptionPane.showInputDialog(getConsole(), "Enter simulated depth for this location");
+                    String ret = JOptionPane.showInputDialog(getConsole(), I18n.text("Enter simulated depth for this location"));
                     if (ret == null)
                         return;
                     try {
@@ -244,7 +257,7 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                 }
             });
             
-            simBathym.add("Clear depth soundings").addActionListener(new ActionListener() {
+            simBathym.add(I18n.text("Clear depth soundings")).addActionListener(new ActionListener() {
                 
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -252,29 +265,30 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                 }
             });
             
-            simBathym.add("Show depth here").addActionListener(new ActionListener() {
+            simBathym.add(I18n.text("Show depth here")).addActionListener(new ActionListener() {
                 
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     LocationType loc = source.getRealWorldLocation(event.getPoint());
-                    GuiUtils.infoMessage(getConsole(), "Show depth", "depth is "+SimulationEngine.simBathym.getSimulatedDepth(loc));
+                    GuiUtils.infoMessage(getConsole(), I18n.text("Show depth"),
+                            I18n.textf("Depth is %value m", SimulationEngine.simBathym.getSimulatedDepth(loc)));
                 }
             });
             popup.add(simBathym);
             
-            popup.add("calculate payloads").addActionListener(new ActionListener() {
+            popup.add(I18n.text("Calculate payloads")).addActionListener(new ActionListener() {
                 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    PayloadFactory factory = new PayloadFactory();
-                    for (Maneuver m : getConsole().getPlan().getGraph().getAllManeuvers())
-                        factory.getPayloads(m);                    
+                    for (Maneuver m : getConsole().getPlan().getGraph().getAllManeuvers()) {
+                        PayloadFactory.getPayloads(m);
+                    }
                 }
             });
             
             popup.addSeparator();
             if (simOverlay != null) {
-                popup.add("Plan statistics").addActionListener(new ActionListener() {
+                popup.add(I18n.text("Plan statistics")).addActionListener(new ActionListener() {
                     
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -291,8 +305,6 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
     
     
     private void generatePlanStatistics() {
-        
-        
         LinkedHashMap<String, String> stats;
         
         if (simulator != null)
@@ -356,7 +368,6 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
     public void cleanSubPanel() {
         stopSimulator();
     }
-
     
     @Subscribe
     public synchronized void consume(PlanControlState msg) {
@@ -413,25 +424,11 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
         lastVehicleState = null;
     }
 
-    protected GeneralPath arrow = new GeneralPath();
-    {
-        arrow.moveTo(-2, -10);
-        arrow.lineTo(2, -10);
-        arrow.lineTo(2, 0);
-        arrow.lineTo(5, 0);
-        arrow.lineTo(0, 10);
-        arrow.lineTo(-5, 0);
-        arrow.lineTo(-2, 0);
-        arrow.closePath();
-    }
-
     public void paintVerticalProfile(Graphics2D g, StateRenderer2D renderer) {
-        
     }
     
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-
         if (active)
             SimulationEngine.simBathym.paint((Graphics2D)g.create(), renderer);
         
@@ -482,7 +479,6 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
         if (!activated && simulator != null) {
             stopSimulator();
         }
-
     }
     
     @Override
@@ -494,8 +490,6 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
     public void initSubPanel() {
 
     }
-    
-    
 
     public int getLayerPriority() {
         return 1;
