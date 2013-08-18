@@ -55,7 +55,7 @@ public class SimulationActionsPlugin extends SimpleSubPanel {
     protected final String menuTools = I18n.text("Tools");
     protected final String menuSimulation = I18n.text("Simulation");
     protected final String menuSendFix = I18n.text("Send GPS Fix");
-    protected final String menuManDone = I18n.text("Flag maneuver completion");
+    // protected final String menuManDone = I18n.text("Flag maneuver completion");
 
     private static final long serialVersionUID = 1L;
 
@@ -73,12 +73,12 @@ public class SimulationActionsPlugin extends SimpleSubPanel {
             }
         });
         
-        addMenuItem(menuTools+">"+menuSimulation+">"+menuManDone, null, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                sendManeuverDone();
-            }
-        });
+//        addMenuItem(menuTools+">"+menuSimulation+">"+menuManDone, null, new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                sendManeuverDone();
+//            }
+//        });
     }
 
     private void sendManeuverDone() {
