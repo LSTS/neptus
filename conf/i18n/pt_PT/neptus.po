@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-15 11:36+0100\n"
-"PO-Revision-Date: 2013-08-15 11:45+0100\n"
+"POT-Creation-Date: 2013-08-18 19:00+0100\n"
+"PO-Revision-Date: 2013-08-18 19:12+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
@@ -423,7 +423,7 @@ msgstr "Acerca"
 msgid "Abs"
 msgstr "Abs"
 
-#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:676
+#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:651
 msgid "Absence of value"
 msgstr "Ausência de valor"
 
@@ -541,6 +541,10 @@ msgstr ""
 msgid "Add a new transponder"
 msgstr "Adicionar novo transponder"
 
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:242
+msgid "Add depth sounding"
+msgstr "Adicionar valores de profundidade"
+
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:281
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:298
 msgid "Add filled polygon"
@@ -613,7 +617,7 @@ msgstr "Avançadas"
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/painter/SystemInfoPainter.java:126
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/FindVehicle.java:119
 #: plugins-dev/state/pt/up/fe/dceg/neptus/plugins/state/ImcStatePanel.java:66
-#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/SettingsWindow.java:98
+#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/SettingsWindow.java:97
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/MissionTreePanel.java:674
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:220
 #: plugins-dev/messages/pt/up/fe/dceg/neptus/plugins/messages/IMCInspector.java:229
@@ -1097,6 +1101,11 @@ msgstr "CTD"
 msgid "Calculate"
 msgstr "Calcular"
 
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:279
+#, fuzzy
+msgid "Calculate payloads"
+msgstr "Calcular"
+
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/actualstate/ActualPosition.java:76
 #, fuzzy
 msgid "Calculated position"
@@ -1120,7 +1129,7 @@ msgid "Can only be auvtrack@mbari.org or lstsfeup+auvtrack@gmail.com"
 msgstr "Pode ser apenas auvtrack@mbari.org ou lstsfeup+auvtrack@gmail.com"
 
 #: plugins-dev/gps/pt/up/fe/dceg/neptus/plugins/gps/ConfigDialog.java:123
-#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/SettingsWindow.java:118
+#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/SettingsWindow.java:119
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/BathymetryPlotter.java:316
 #: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/RectangleEditor.java:105
 #: plugins-dev/dev-calibration/pt/up/fe/dceg/neptus/plugins/calib/CalibrationSubPanel.java:76
@@ -1360,6 +1369,10 @@ msgstr "Apagar Dados Guardados"
 msgid "Clear cache"
 msgstr "Limpar Cache"
 
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:260
+msgid "Clear depth soundings"
+msgstr ""
+
 #: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:227
 msgid "Clear operational area"
 msgstr "Apagar area operacional"
@@ -1372,6 +1385,10 @@ msgstr "Limpar fila"
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/MissionTreePanel.java:674
 msgid "Clear remote PlanDB for main system"
 msgstr "Apagar BD de planos remota do sistema principal"
+
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:228
+msgid "Clear simulation"
+msgstr "Limpar simulalção"
 
 #: src/pt/up/fe/dceg/neptus/console/plugins/EntityStatePanel.java:163
 msgid "Clear table"
@@ -2003,7 +2020,7 @@ msgstr "Profundidade por defeito (valor negativo para altitude)"
 msgid "Default time step (seconds)"
 msgstr "Passo de tempo (segundos) prédefinido"
 
-#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:682
+#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:657
 msgid "Default value"
 msgstr "Valor por defeito"
 
@@ -2068,6 +2085,11 @@ msgstr "Profundidade"
 #: pt.up.fe.dceg.neptus.plugins.vtk.Vtk
 msgid "Depth exaggeration multiplier"
 msgstr ""
+
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:274
+#, fuzzy
+msgid "Depth is %value m"
+msgstr "Valor por defeito"
 
 #: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/multibeampluginutils/ToolbarAddons.java:58
 msgid "Depth multipled by: %currentZexagge"
@@ -2552,6 +2574,10 @@ msgstr ""
 msgid "Enter new speed (%speedUnit)"
 msgstr "Estabelecer nova velocidade (%speedUnit)"
 
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:246
+msgid "Enter simulated depth for this location"
+msgstr ""
+
 #: src/pt/up/fe/dceg/neptus/gui/ChronometerPanel.java:410
 msgid "Enter the max. time"
 msgstr "Inserir tempo máximo"
@@ -2616,7 +2642,7 @@ msgid "Entity identifier"
 msgstr "Identificador de entidade"
 
 #: plugins-dev/state/pt/up/fe/dceg/neptus/plugins/state/EntitySubPanel.java:93
-#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:287
+#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:286
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:575
 #: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:885
 msgid "Error"
@@ -3046,10 +3072,6 @@ msgstr "Tamanho de veículo fixado"
 msgid ""
 "Fixed step of number of points to jump on multibeam Pointcloud stored for "
 "render purposes."
-msgstr ""
-
-#: plugins-dev/simulation/pt/up/fe/dceg/neptus/plugins/sim/SimulationActionsPlugin.java:58
-msgid "Flag maneuver completion"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:191
@@ -3907,7 +3929,7 @@ msgstr "Dados inválidos!"
 msgid "Invalid input"
 msgstr "Entrada inválida!"
 
-#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:287
+#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:286
 #: src/pt/up/fe/dceg/neptus/gui/PropertiesEditor.java:387
 msgid "Invalid properties"
 msgstr "Propriedades inválidas"
@@ -4256,6 +4278,11 @@ msgstr "Limites de operacional local tem alterações"
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:216
 msgid "Local reset. Needs to be sent to system."
 msgstr ""
+
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:153
+#, fuzzy
+msgid "Locate simulator here"
+msgstr "Localizar simulador aqui"
 
 #: src/pt/up/fe/dceg/neptus/gui/MapLocationSelector.java:185
 #: src/pt/up/fe/dceg/neptus/types/map/DynamicElement.java:164
@@ -5284,11 +5311,11 @@ msgstr "Localização desconhecida para mais de 10s"
 msgid "No configuration file selected"
 msgstr "Nenhum ficheiro de configuração selecionado"
 
-#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:666
+#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:641
 msgid "No default found for class %className"
 msgstr "Nenhuma pré-definição encontrada para classe %className"
 
-#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:672
+#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:647
 #, fuzzy
 msgid "No default found for field %fieldName"
 msgstr "Nenhuma pré-definição encontrada para campo"
@@ -5915,7 +5942,7 @@ msgid "Plan Speed"
 msgstr "Velocidado do Plano"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.planning.PlanStatistics
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:309
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:321
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:350
 #: src/pt/up/fe/dceg/neptus/types/map/PlanUtil.java:167
 #: src/pt/up/fe/dceg/neptus/types/map/PlanUtil.java:194
@@ -5948,6 +5975,11 @@ msgstr "Plano não sincronizado"
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:942
 msgid "Plan speed..."
 msgstr "Velocidade de plano..."
+
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:291
+#, fuzzy
+msgid "Plan statistics"
+msgstr "Estatísticas de Plano"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/MapPanel.java:437
 msgid "Plan template"
@@ -7218,6 +7250,11 @@ msgstr "Definir Limites de Operação"
 msgid "Set Properties"
 msgstr "Definir Propriedades"
 
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:171
+#, fuzzy
+msgid "Set current maneuver"
+msgstr "A Iniciar Manobra"
+
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/MissionTreePanel.java:453
 msgid "Set home reference"
 msgstr "Definir a localização base"
@@ -7362,6 +7399,11 @@ msgstr "Mostrar '%element'"
 msgid "Show 3D replay"
 msgstr "Mostar reprodução 3D"
 
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:219
+#, fuzzy
+msgid "Show 3D simulation"
+msgstr "Simulação"
+
 #: src/pt/up/fe/dceg/neptus/mc/Workspace.java:1504
 msgid "Show Console"
 msgstr "Mostrar Consola"
@@ -7484,6 +7526,16 @@ msgstr "Mostrar legenda de correntes"
 #: Property from pt.up.fe.dceg.neptus.plugins.envdisp.HFRadarVisualization
 msgid "Show currents legend from zoom level bigger than"
 msgstr ""
+
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:273
+#, fuzzy
+msgid "Show depth"
+msgstr "Mostrar Ajuda"
+
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:268
+#, fuzzy
+msgid "Show depth here"
+msgstr "Mostrar nivel do mar"
 
 #: Property from pt.up.fe.dceg.neptus.console.plugins.SideState2DPanelConsole
 msgid "Show down distance"
@@ -7616,21 +7668,31 @@ msgstr "Reprodução do Sonar de Varrimento Lateral"
 msgid "Simple Abort Modem Request by Manta Gateway"
 msgstr ""
 
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:193
+#, fuzzy
+msgid "Simulate from here"
+msgstr "Simular a partir daqui"
+
 #: Property from pt.up.fe.dceg.neptus.plugins.planning.PlanExecutionPreview
 #, fuzzy
 msgid "Simulated (flat) bathymetry"
-msgstr "Camada de Estado Simulado"
+msgstr "Simular batimetria (plana)"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.sim.SimulatedStatePainter
 #, fuzzy
 msgid "Simulated State Layer"
 msgstr "Camada de Estado Simulado"
 
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:241
+#, fuzzy
+msgid "Simulated bathymetry"
+msgstr "Batimetria simulada"
+
 #: src/pt/up/fe/dceg/neptus/mra/replay/SimulatedStateReplay.java:70
 msgid "SimulatedState path"
-msgstr "Posição estimada"
+msgstr "Caminho da posição estimada"
 
-#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:444
+#: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:441
 msgid "Simulating for %time"
 msgstr "A simular à %time"
 
@@ -8382,7 +8444,7 @@ msgid ""
 "(∆t %deltaTime): %msg"
 msgstr ""
 
-#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:281
+#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:280
 #: src/pt/up/fe/dceg/neptus/gui/PropertiesEditor.java:378
 msgid "The following errors were found"
 msgstr "Os seguintes erros foram encontrados"
