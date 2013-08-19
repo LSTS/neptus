@@ -421,8 +421,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
             makeLocAbsolute.setBounds(new Rectangle(68,360,80,20));
             //makeLocAbsolute.setIcon(new ImageIcon(GuiUtils.getImage("images/buttons/findOnMap.png")));
             
-            /// Abs is the absolute value, don't use more than 3 letters
-            makeLocAbsolute.setText(I18n.text("Abs"));
+            makeLocAbsolute.setText(I18n.textc("Abs", "Abs is the absolute value, don't use more than 3 letters"));
             makeLocAbsolute.setFont(makeLocAbsolute.getFont().deriveFont(10));
             makeLocAbsolute.setMargin(new Insets(0, 0, 0, 0));
             makeLocAbsolute.setEnabled(true);

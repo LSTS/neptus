@@ -312,7 +312,7 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                             }
                         }
                         if (successCount > 0) {
-                            bottomPane.setText(I18n.textf("Abort %system sent to %sucCount systems", selectedSystem, successCount));
+                            bottomPane.setText(I18n.textf("Abort %systemName sent to %systemCount systems", selectedSystem, successCount));
                         }
                         else {
                             // GuiUtils.errorMessage(getConsole(), I18n.text("Abort System"),
@@ -443,28 +443,28 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                 addText(I18n.textf("%manta has no acoustic transducer connected. Connect a transducer.", msg.getSourceName()));
                 break;
             case ABORT_IP:
-                addText(I18n.textf("Aborting %sysName acoustically (via %manta)...",  msg.getSystem().toString(), msg.getSourceName()));
+                addText(I18n.textf("Aborting %systemName acoustically (via %manta)...",  msg.getSystem().toString(), msg.getSourceName()));
                 break;
             case ABORT_TIMEOUT:
-                addText(I18n.textf("%manta timed out while trying to abort %sysName", msg.getSourceName(), msg.getSystem().toString()));
+                addText(I18n.textf("%manta timed out while trying to abort %systemName", msg.getSourceName(), msg.getSystem().toString()));
                 break;
             case MSG_DONE:
-                addText(I18n.textf("Message to %sysname has been sent successfully.", msg.getSystem().toString()));
+                addText(I18n.textf("Message to %systemName has been sent successfully.", msg.getSystem().toString()));
                 break;
             case MSG_FAILURE:
-                addText(I18n.textf("Failed to send message to %sysname.", msg.getSystem().toString()));
+                addText(I18n.textf("Failed to send message to %systemName.", msg.getSystem().toString()));
                 break;
             case MSG_IP:
-                addText(I18n.textf("Sending message to %sysname...", msg.getSystem().toString()));
+                addText(I18n.textf("Sending message to %systemName...", msg.getSystem().toString()));
                 break;
             case MSG_QUEUED:
-                addText(I18n.textf("Message to %sysname has been queued in %manta.", msg.getSystem().toString(), msg.getSourceName()));
+                addText(I18n.textf("Message to %systemName has been queued in %manta.", msg.getSystem().toString(), msg.getSourceName()));
                 break;
             case RANGE_IP:
-                addText(I18n.textf("Ranging of %sysname is in progress...", msg.getSystem().toString()));
+                addText(I18n.textf("Ranging of %systemName is in progress...", msg.getSystem().toString()));
                 break;
             case RANGE_TIMEOUT:
-                addText(I18n.textf("Ranging of %sysname timed out.", msg.getSystem().toString()));
+                addText(I18n.textf("Ranging of %systemName timed out.", msg.getSystem().toString()));
                 break;
             case UNSUPPORTED:
                 addText(I18n.textf("The command is not supported by %manta.", msg.getSourceName()));
