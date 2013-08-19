@@ -1549,7 +1549,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         MissionType mission = this.getMission();
         if (mission != null) {
-            title.append(" | Mission: ");
+            title.append(" | " + I18n.text("Mission") + ": ");
             title.append(mission.getName());
             title.append(" [" + mission.getCompressedFilePath() + "]");
         }
