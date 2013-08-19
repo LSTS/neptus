@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-19 16:23+0100\n"
-"PO-Revision-Date: 2013-08-19 16:42+0100\n"
+"POT-Creation-Date: 2013-08-19 18:46+0100\n"
+"PO-Revision-Date: 2013-08-19 18:48+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: ru\n"
@@ -5866,6 +5866,11 @@ msgstr "Отсутствующие прилагаемый план!"
 #, fuzzy
 msgid "Missing console attached!"
 msgstr "Отсутствующие консоли прилагается!"
+
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:1552
+#, fuzzy
+msgid "Mission"
+msgstr "Миссия"
 
 #: Name of servlet pt.up.fe.dceg.neptus.plugins.web.MissionServlet
 #, fuzzy
