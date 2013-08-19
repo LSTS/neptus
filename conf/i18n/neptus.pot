@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-18 19:00+0100\n"
+"POT-Creation-Date: 2013-08-19 11:17+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -68,7 +68,7 @@ msgid "%manName properties"
 msgstr ""
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/SimpleAbortModemRequest.java:120
-msgid "%manta does not support aborting of %sysname"
+msgid "%manta does not support aborting of %systemName"
 msgstr ""
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:443
@@ -81,7 +81,7 @@ msgstr ""
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/SimpleAbortModemRequest.java:117
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:449
-msgid "%manta timed out while trying to abort %sysName"
+msgid "%manta timed out while trying to abort %systemName"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/console/StatusBar.java:187
@@ -147,14 +147,11 @@ msgstr ""
 msgid "%s start actions"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/SimpleAbortModemRequest.java:111
-msgid "%sysName has acknowledged abort command"
-msgstr ""
-
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:353
 msgid "%systemName Parameters"
 msgstr ""
 
+#: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/SimpleAbortModemRequest.java:111
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:437
 msgid "%systemName has acknowledged abort command"
 msgstr ""
@@ -239,11 +236,11 @@ msgid ""
 "Configuration</strong>?</html>"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:593
+#: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:592
 msgid "<html>Error in the <b>offset</b> parameters:<br>%errors</html>"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:596
+#: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:595
 msgid "<html>Error in the <b>polar offset</b> parameters:<br>%errors</html>"
 msgstr ""
 
@@ -254,7 +251,7 @@ msgid ""
 "Do you want to do this?"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:599
+#: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:598
 msgid "<html>The entered <b>location</b> is invalid:<br>%errors</html>"
 msgstr ""
 
@@ -362,7 +359,7 @@ msgid "Abort"
 msgstr ""
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:315
-msgid "Abort %system sent to %sucCount systems"
+msgid "Abort %systemName sent to %systemCount systems"
 msgstr ""
 
 #: Name of plugin pt.up.fe.dceg.neptus.console.plugins.AbortPanel
@@ -371,6 +368,10 @@ msgstr ""
 
 #: Name of plugin
 #: pt.up.fe.dceg.neptus.plugins.acoustic.SimpleAbortModemRequest
+#: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/SimpleAbortModemRequest.java:111
+#: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/SimpleAbortModemRequest.java:114
+#: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/SimpleAbortModemRequest.java:117
+#: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/SimpleAbortModemRequest.java:120
 msgid "Abort Request"
 msgstr ""
 
@@ -382,16 +383,9 @@ msgstr ""
 msgid "Abort execution"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/SimpleAbortModemRequest.java:111
-#: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/SimpleAbortModemRequest.java:114
-#: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/SimpleAbortModemRequest.java:117
-#: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/SimpleAbortModemRequest.java:120
-msgid "Abort request"
-msgstr ""
-
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/SimpleAbortModemRequest.java:114
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:446
-msgid "Aborting %sysName acoustically (via %manta)..."
+msgid "Aborting %systemName acoustically (via %manta)..."
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/gui/AboutPanel.java:91
@@ -401,8 +395,8 @@ msgstr ""
 msgid "About"
 msgstr ""
 
-#. / Abs is the absolute value, don't use more than 3 letters
-#: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:425
+#: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:424
+msgctxt "Abs is the absolute value, don't use more than 3 letters"
 msgid "Abs"
 msgstr ""
 
@@ -2664,7 +2658,7 @@ msgstr ""
 msgid "Errors"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:496
+#: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:495
 #: src/pt/up/fe/dceg/neptus/gui/CoordinateSystemPanel.java:171
 msgid "Errors in the parameters"
 msgstr ""
@@ -2799,7 +2793,7 @@ msgid "FILLED"
 msgstr ""
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:455
-msgid "Failed to send message to %sysname."
+msgid "Failed to send message to %systemName."
 msgstr ""
 
 #: plugins-dev/state/pt/up/fe/dceg/neptus/plugins/state/EntitySubPanel.java:94
@@ -4328,7 +4322,7 @@ msgstr ""
 msgid "Main vehicle"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:429
+#: src/pt/up/fe/dceg/neptus/gui/LocationPanel.java:428
 msgid "Make the location absolute"
 msgstr ""
 
@@ -4599,11 +4593,11 @@ msgid "Message Name"
 msgstr ""
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:461
-msgid "Message to %sysname has been queued in %manta."
+msgid "Message to %systemName has been queued in %manta."
 msgstr ""
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:452
-msgid "Message to %sysname has been sent successfully."
+msgid "Message to %systemName has been sent successfully."
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/mra/MRAPanel.java:125
@@ -6077,11 +6071,11 @@ msgid "Range System"
 msgstr ""
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:464
-msgid "Ranging of %sysname is in progress..."
+msgid "Ranging of %systemName is in progress..."
 msgstr ""
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:467
-msgid "Ranging of %sysname timed out."
+msgid "Ranging of %systemName timed out."
 msgstr ""
 
 #: plugins-dev/vtk/pt/up/fe/dceg/neptus/plugins/vtk/multibeampluginutils/MultibeamToolbar.java:181
@@ -6866,7 +6860,7 @@ msgid "Sender name"
 msgstr ""
 
 #: plugins-dev/acoustic/pt/up/fe/dceg/neptus/plugins/acoustic/MantaOperations.java:458
-msgid "Sending message to %sysname..."
+msgid "Sending message to %systemName..."
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/util/comm/manager/imc/MonitorIMCComms.java:335
