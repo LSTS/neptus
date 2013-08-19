@@ -3371,11 +3371,11 @@ msgstr "Altura do rectangulo, em metros"
 #: Description of property 'Loiter height' from
 #: pt.up.fe.dceg.neptus.plugins.trex.TrexMapLayer
 msgid "Height of waypoint for uav spotter plan."
-msgstr ""
+msgstr "Altura do ponto de passagem para um plano para spoter de UAV"
 
 #: src/pt/up/fe/dceg/neptus/gui/objparams/ParallelepipedParameters.java:225
 msgid "Height:"
-msgstr "Height:"
+msgstr "Altura:"
 
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/interactions/Box2DInteraction.java:141
 msgid "Height: %height m"
@@ -4437,9 +4437,8 @@ msgid "Loiter Type"
 msgstr "Tipo de Loiter"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.trex.TrexMapLayer
-#, fuzzy
 msgid "Loiter height"
-msgstr "Loiter aqui"
+msgstr "Altura para o Loiter"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/CommandPlanner.java:329
 msgid "Loiter here"
@@ -4873,9 +4872,8 @@ msgid "Minimum Altitude"
 msgstr "Altitude Mínima"
 
 #: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsPanel.java:73
-#, fuzzy
 msgid "Minimum Altitude (m)"
-msgstr "Altitude Mínima"
+msgstr "Altitude Mínima (m)"
 
 #: plugins-dev/trex/pt/up/fe/dceg/neptus/plugins/trex/goals/TrexGoal.java:150
 #, fuzzy
@@ -5936,14 +5934,13 @@ msgid "Plan Transitions"
 msgstr "Transições de Plano"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:929
-#, fuzzy
 msgid "Plan depth / altitude"
-msgstr "Plano de profundidade/altitude"
+msgstr "Profundidade/altitude de plano"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:913
 #, fuzzy
 msgid "Plan depth / altitude..."
-msgstr "Plano de profundidade/altitude..."
+msgstr "Profundidade/altitude de plano..."
 
 #: src/pt/up/fe/dceg/neptus/mp/preview/PlanSimulation3D.java:253
 #, fuzzy
@@ -7254,7 +7251,7 @@ msgstr "Definir  localização base da missão"
 
 #: src/pt/up/fe/dceg/neptus/gui/HeightDepthSelector.java:136
 msgid "Set plan depth / altitude"
-msgstr "Definir rorfundidade / altitude  do plano"
+msgstr "Definir porfundidade / altitude do plano"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:956
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:988
@@ -8468,7 +8465,7 @@ msgstr "A manobra %maneuverType não pode ser adicionada"
 #: src/pt/up/fe/dceg/neptus/types/mission/plan/PlanType.java:130
 #, fuzzy
 msgid "The maneuver '%maneuver' has Z_UNITS set to ALTITUDE and value 0!"
-msgstr "A manobra '%maneuver' tem Z_UNIDADES definidas para NENHUM"
+msgstr "A manobra '%maneuver' tem Z_UNIDADES definidas para ALTITUDE"
 
 #: src/pt/up/fe/dceg/neptus/types/mission/plan/PlanType.java:127
 msgid "The maneuver '%maneuver' has Z_UNITS set to NONE"
