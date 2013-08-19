@@ -995,7 +995,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         I18n.text("speed") + ": <b>"+nf.format(getSpeed())+" "+getUnits()+"</b><br/>"+
         I18n.text("distance") + ": <b>"+MathMiscUtils.parseToEngineeringNotation(getDistanceTravelled((LocationType)getStartLocation()), 2)+I18n.textc("m", "meters") + "</b><br/>"+
         (paintSSRangeShadow ? I18n.textc("ss range", "sidescan range") + ": <b>"+(short)(ssRangeShadow)+" " + I18n.textc("m", "meters") + "</b><br/>" : "") +
-        "<br>" + I18n.textc("depth", "") + ": <b>"+nf.format(z)+" " + I18n.textc("m", "meters") + "</b>";    }
+        "<br>" + I18n.text("depth") + ": <b>"+nf.format(z)+" " + I18n.textc("m", "meters") + "</b>";    }
 
     @Override
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {
