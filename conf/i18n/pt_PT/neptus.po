@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-19 16:23+0100\n"
-"PO-Revision-Date: 2013-08-19 16:30+0100\n"
+"POT-Creation-Date: 2013-08-19 18:46+0100\n"
+"PO-Revision-Date: 2013-08-19 18:47+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
@@ -2227,7 +2227,7 @@ msgstr "Concluído!"
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/StateRenderer2D.java:1418
 msgid "Double the current zoom value"
-msgstr "Dobrar o valor actural do zoom."
+msgstr "Dobrar o valor actual do zoom."
 
 #: src/pt/up/fe/dceg/neptus/gui/RegularOffset.java:54
 msgid "Down"
@@ -4808,6 +4808,10 @@ msgstr "Falta associar plano!"
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanControlPanel.java:1049
 msgid "Missing console attached!"
 msgstr "Falta associar consola!"
+
+#: src/pt/up/fe/dceg/neptus/console/ConsoleLayout.java:1552
+msgid "Mission"
+msgstr "Missão"
 
 #: Name of servlet pt.up.fe.dceg.neptus.plugins.web.MissionServlet
 msgid "Mission Elements"
