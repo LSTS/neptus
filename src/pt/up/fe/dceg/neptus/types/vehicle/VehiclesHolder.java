@@ -198,7 +198,7 @@ public class VehiclesHolder {
             VehiclesHolder.addVehicle(v);
         }
         vehiclesLoaded = true;
-        NeptusLog.pub().info("Vehicles #: " + VehiclesHolder.size());
+        NeptusLog.pub().debug("Vehicles #: " + VehiclesHolder.size());
         return vehiclesLoaded;
     }
 
@@ -397,6 +397,7 @@ public class VehiclesHolder {
             }
             catch (Exception e) {
                 className = null;
+                NeptusLog.pub().debug(e.getMessage());
                 GuiUtils.errorMessage(callerComponent, "Warning", "No operational "
                         + "console(s) configured for this vehicle.\n");
             }

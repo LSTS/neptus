@@ -79,7 +79,7 @@ public class StreamSpeedOverlay extends SimpleSubPanel implements Renderer2DPain
     public void consume(GpsFix gpsfix) {
         String sysId = gpsfix.getSourceName();
         // show only for main vehicle
-        if (sysId != getConsole().getMainSystem())
+        if (getConsole().getMainSystem() != null && sysId.equals(getConsole().getMainSystem()))
             return;
         
         cogRads = gpsfix.getCog();

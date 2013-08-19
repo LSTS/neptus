@@ -421,8 +421,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
             makeLocAbsolute.setBounds(new Rectangle(68,360,80,20));
             //makeLocAbsolute.setIcon(new ImageIcon(GuiUtils.getImage("images/buttons/findOnMap.png")));
             
-            /// Abs is the absolute value, don't use more than 3 letters
-            makeLocAbsolute.setText(I18n.text("Abs"));
+            makeLocAbsolute.setText(I18n.textc("Abs", "Abs is the absolute value, don't use more than 3 letters"));
             makeLocAbsolute.setFont(makeLocAbsolute.getFont().deriveFont(10));
             makeLocAbsolute.setMargin(new Insets(0, 0, 0, 0));
             makeLocAbsolute.setEnabled(true);
@@ -572,7 +571,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 		dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
 		dialog.setAlwaysOnTop(false);
 		GuiUtils.centerOnScreen(dialog);
-		dialog.setVisible(true);
+		
 		dialog.setResizable(false);
 		//dialog.setAlwaysOnTop(true);
 		
@@ -584,7 +583,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 				dialog.dispose();
 			}
 		});
-		
+		dialog.setVisible(true);
 		return dialog;
 	}
 
@@ -596,7 +595,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	        return I18n.textf("<html>Error in the <b>polar offset</b> parameters:<br>%errors</html>", polarOffsetPanel.getErrors());
 
 	    if (pointSelector.getErrors() != null)
-	        return I18n.textf("<html>The entered <b>location</b> is invallid:<br>%errors</html>", pointSelector.getErrors());
+	        return I18n.textf("<html>The entered <b>location</b> is invalid:<br>%errors</html>", pointSelector.getErrors());
 
 	    return null;
 	}

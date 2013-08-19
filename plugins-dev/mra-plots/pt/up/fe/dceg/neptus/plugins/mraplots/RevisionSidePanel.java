@@ -128,7 +128,7 @@ public class RevisionSidePanel extends JPanel {
         private void initialize() {
             setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
             setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-            fileLabel = new JLabel("(no log loaded)");
+            fileLabel = new JLabel(I18n.text("(no log loaded)"));
             fileLabel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
             fileLabel.setBackground(Color.white);
             fileLabel.setOpaque(true);
@@ -171,7 +171,7 @@ public class RevisionSidePanel extends JPanel {
         public void selectFile() {
             final JFileChooser chooser = new JFileChooser(overlays.defaultDirectory);
             chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("LSF log files"), new String[] {"lsf", "lsf.gz"}));
-            chooser.setApproveButtonText("Open Log");
+            chooser.setApproveButtonText(I18n.text("Open Log"));
             
             int option = chooser.showOpenDialog(overlays.getConsole());
             if (option != JFileChooser.APPROVE_OPTION)

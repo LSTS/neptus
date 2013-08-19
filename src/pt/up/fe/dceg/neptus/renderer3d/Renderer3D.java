@@ -2014,7 +2014,8 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 						public void actionPerformed(java.awt.event.ActionEvent e) {
 							// System.err.println("A fixar : "+chek.getName());
                             if (VehiclesHolder.getVehicleById(chek.getName()) == null
-                                    || lockedVehicle == VehiclesHolder.getVehicleById(chek.getName()).getId()) {
+                                    || (lockedVehicle != null && lockedVehicle.equals(VehiclesHolder.getVehicleById(
+                                            chek.getName()).getId()))) {
 								followVehicle(null);
                             }
 							else {
@@ -3424,11 +3425,11 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 					if (obj != null) {
 						Obj3D[] objarray;
 						if (objscatter != null) {
-							if (obj.getObj3DChildsLenght() > objscatter
+							if (obj.getObj3DChildsLength() > objscatter
 									.getNumberOfPoints() * 2) {
-								// System.err.println("obj.getObj3DChildsLenght():"+obj.getObj3DChildsLenght());
+								// System.err.println("obj.getObj3DChildsLength():"+obj.getObj3DChildsLength());
 								// System.err.println("objscatter.getNumberOfPoints()"+objscatter.getNumberOfPoints());
-								obj.removeLastNObj3D(obj.getObj3DChildsLenght()
+								obj.removeLastNObj3D(obj.getObj3DChildsLength()
 										- objscatter.getNumberOfPoints() * 2);
 							}
 

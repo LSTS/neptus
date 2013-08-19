@@ -42,6 +42,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.plaf.ColorUIResource;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
@@ -64,7 +65,6 @@ import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
  * @author pdias
  */
 public class I18n {
-
     public static final String I18N_BASE_LOCALIZATION = "conf/i18n/";
 
     protected String defaultLanguage = "en_US";
@@ -170,6 +170,7 @@ public class I18n {
         UIManager.put("OptionPane.cancelButtonText", I18n.text("Cancel"));
         UIManager.put("OptionPane.titleText", I18n.text("Select an Option"));
         UIManager.put("OptionPane.inputDialogTitle", I18n.text("Input"));
+        UIManager.put("ProgressMonitor.progressText", I18n.text("Progress..."));
         
         UIManager.put("FileChooser.acceptAllFileFilterText", I18n.text("All Files"));
         UIManager.put("FileChooser.lookInLabelText", I18n.text("Look In:"));
@@ -194,8 +195,8 @@ public class I18n {
         UIManager.put("FileChooser.detailsViewButtonAccessibleName", I18n.text("Details"));
         UIManager.put("FileChooser.upFolderToolTipText", I18n.text("Up One Level")); 
         UIManager.put("FileChooser.upFolderAccessibleName", I18n.text("Up One Level")); 
-        UIManager.put("FileChooser.homeFolderToolTipText", I18n.text("Home"));
-        UIManager.put("FileChooser.homeFolderAccessibleName", I18n.text("Home"));
+        UIManager.put("FileChooser.homeFolderToolTipText", I18n.textc("Home", "File system Home folder"));
+        UIManager.put("FileChooser.homeFolderAccessibleName", I18n.textc("Home", "File system Home folder"));
         UIManager.put("FileChooser.desktopFolderToolTipText", I18n.text("Desktop")); //???
         UIManager.put("FileChooser.desktopFolderAccessibleName", I18n.text("Desktop")); //???
         UIManager.put("FileChooser.fileNameHeaderText", I18n.text("Name")); 
@@ -208,6 +209,46 @@ public class I18n {
         
         UIManager.put("PropertySheetPanel.okButtonText", I18n.text("OK"));
         UIManager.put("PropertySheetPanel.cancelButtonText", I18n.text("Cancel"));
+        
+        UIManager.put("ColorChooser.titleText", I18n.text("Pick a Color"));
+        UIManager.put("ColorChooser.okText", I18n.text("OK"));
+        UIManager.put("ColorChooser.cancelText", I18n.text("Cancel"));
+        UIManager.put("ColorChooser.resetText", I18n.text("Reset"));
+        UIManager.put("ColorChooser.sampleText", I18n.text("Sample Text"));
+        UIManager.put("ColorChooser.previewText", I18n.text("Preview"));
+        
+        UIManager.put("ColorChooser.background", ColorUIResource.darkGray);
+
+        UIManager.put("ColorChooser.swatchesNameText", I18n.text("Swatches"));
+        UIManager.put("ColorChooser.hsvNameText", I18n.textc("HSV", "Color scheme"));
+        UIManager.put("ColorChooser.hslNameText", I18n.textc("HSL", "Color scheme"));
+        UIManager.put("ColorChooser.rgbNameText", I18n.textc("RGB", "Color scheme"));
+        UIManager.put("ColorChooser.cmykNameText", I18n.textc("CMYK", "Color scheme"));
+        
+        UIManager.put("ColorChooser.swatchesRecentText", I18n.text("Recent:"));
+
+        UIManager.put("ColorChooser.hsvHueText", I18n.text("Hue"));
+        UIManager.put("ColorChooser.hsvSaturationText", I18n.text("Saturation"));
+        UIManager.put("ColorChooser.hsvValueText", I18n.text("Value"));
+        UIManager.put("ColorChooser.hsvTransparencyText", I18n.text("Transparency"));
+        
+        UIManager.put("ColorChooser.hslHueText", I18n.text("Hue"));
+        UIManager.put("ColorChooser.hslSaturationText", I18n.text("Saturation"));
+        UIManager.put("ColorChooser.hslLightnessText", I18n.text("Lightness"));
+        UIManager.put("ColorChooser.hslTransparencyText", I18n.text("Transparency"));
+        
+        UIManager.put("ColorChooser.rgbRedText", I18n.text("Red"));
+        UIManager.put("ColorChooser.rgbGreenText", I18n.text("Green"));
+        UIManager.put("ColorChooser.rgbBlueText", I18n.text("Blue"));
+        UIManager.put("ColorChooser.rgbAlphaText", I18n.text("Alpha"));
+            // Not working
+        UIManager.put("ColorChooser.colorCodeText", I18n.text("Color Code"));
+        
+        UIManager.put("ColorChooser.cmykCyanText", I18n.text("Cyan"));
+        UIManager.put("ColorChooser.cmykMagentaText", I18n.text("Magenta"));
+        UIManager.put("ColorChooser.cmykYellowText", I18n.text("Yellow"));
+        UIManager.put("ColorChooser.cmykBlackText", I18n.text("Black"));
+        UIManager.put("ColorChooser.cmykAlphaText", I18n.text("Alpha"));
     }
 
     public static String normalize(String text) {
@@ -281,6 +322,25 @@ public class I18n {
      */
     public static String textfc(String englishDefault, String context, Object... parameters) {
         return textfWorker(englishDefault, context, parameters);
+    }
+    
+    /**
+     * This method marks a string to be translated
+     * @param englishDefault
+     * @return
+     */
+    public static String textmark(String englishDefault) {
+        return englishDefault;
+    }
+    
+    /**
+     * This method marks a string to be translated with context
+     * @param englishDefault
+     * @param context
+     * @return
+     */
+    public static String textmarkc(String englishDefault, String context) {
+        return englishDefault;
     }
 
     private static String textfWorker(String englishDefault, String context, Object... parameters) {

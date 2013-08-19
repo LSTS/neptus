@@ -56,6 +56,7 @@ import javax.swing.SwingUtilities;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.renderer2d.InteractionAdapter;
 import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
@@ -100,9 +101,9 @@ public class RectangleEditor extends JPanel implements Renderer2DPainter, StateR
 		renderer.setCursor(Cursor.getDefaultCursor());
 		setLayout(new BorderLayout());
 		JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
-		btnOk = new JButton("OK");
-		btnCancel = new JButton("Cancel");
-		btnClear = new JButton("Clear");
+		btnOk = new JButton(I18n.text("OK"));
+		btnCancel = new JButton(I18n.text("Cancel"));
+		btnClear = new JButton(I18n.text("Clear"));
 		btnOk.setPreferredSize(new Dimension(80,22));
 		btnCancel.setPreferredSize(new Dimension(80, 22));
 		btnClear.setPreferredSize(new Dimension(80, 22));

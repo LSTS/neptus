@@ -31,15 +31,16 @@
  */
 package pt.up.fe.dceg.neptus.mra.plots;
 
+import java.awt.Component;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.TimeZone;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -118,11 +119,11 @@ public abstract class MraTimeSeriesPlot implements LLFChart, LogMarkerListener {
             addTrace(trace);
         }
         
-        series.get(trace).addOrUpdate(new Millisecond(new Date(timeMillis)), value);
+        series.get(trace).addOrUpdate(new Millisecond(new Date(timeMillis), TimeZone.getTimeZone("UTC")), value);
     }
 
     @Override
-    public JComponent getComponent(IMraLogGroup source, double timestep) {
+    public Component getComponent(IMraLogGroup source, double timestep) {
         MraChartPanel fcp = new MraChartPanel(this, source, mraPanel);
         return fcp;
     }

@@ -114,7 +114,7 @@ public class UavHUDInfoPainter implements IUavPainter{
             pitch = ((Number) receivedArgs.get("pitch")).doubleValue();
             yaw = ((Number) receivedArgs.get("yaw")).doubleValue();
             indicatedSpeed = ((Number) receivedArgs.get("indicatedSpeed")).doubleValue();
-            altitude = -((Number) receivedArgs.get("altitude")).intValue();
+            altitude = ((Number) receivedArgs.get("altitude")).intValue();
         }
         
         //anti-aliasing

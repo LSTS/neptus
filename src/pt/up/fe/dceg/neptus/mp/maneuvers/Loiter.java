@@ -45,6 +45,9 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.editor.AngleEditorRads;
 import pt.up.fe.dceg.neptus.gui.editor.ComboEditor;
+import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
+import pt.up.fe.dceg.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.Loiter.DIRECTION;
 import pt.up.fe.dceg.neptus.imc.Loiter.TYPE;
@@ -74,20 +77,19 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 	protected static final LinkedHashMap<Long, String> loiterDirectionConstantsMap = new LinkedHashMap<Long, String>();
     
 	static {
-	    wpLoiterTypeConstantsMap.put(1l, "Circular");
-	    wpLoiterTypeConstantsMap.put(2l, "Racetrack");
-	    wpLoiterTypeConstantsMap.put(3l, "Figure 8");
+	    wpLoiterTypeConstantsMap.put(1l, I18n.textmark("Circular"));
+	    wpLoiterTypeConstantsMap.put(2l, I18n.textmark("Racetrack"));
+	    wpLoiterTypeConstantsMap.put(3l, I18n.textmark("Figure 8"));
 	    // wpLoiterTypeConstantsMap.put(4l, "Hover");
 	    
-	    loiterDirectionConstantsMap.put(0l, "Vehicle Dependent");
-        loiterDirectionConstantsMap.put(1l, "Clockwise");
-        loiterDirectionConstantsMap.put(2l, "Counter-Clockwise");
-        loiterDirectionConstantsMap.put(3l, "Into the Wind");
+	    loiterDirectionConstantsMap.put(0l, I18n.textmark("Vehicle Dependent"));
+        loiterDirectionConstantsMap.put(1l, I18n.textmark("Clockwise"));
+        loiterDirectionConstantsMap.put(2l, I18n.textmark("Counter-Clockwise"));
+        loiterDirectionConstantsMap.put(3l, I18n.textmark("Into the Wind"));
 	}
 	
 	@Override
 	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-		
 		return lastVehicleState;
 	}
 
@@ -238,11 +240,13 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 		DefaultProperty direction = PropertiesEditor.getPropertyInstance("Direction", String.class, this.direction, true);
 		direction.setShortDescription("The direction the vehicle should take when performing this maneuver");		
 		PropertiesEditor.getPropertyEditorRegistry().registerEditor(direction, new ComboEditor<String>(loiterDirectionConstantsMap.values().toArray(new String[]{})));
+		PropertiesEditor.getPropertyRendererRegistry().registerRenderer(direction, new I18nCellRenderer());
 		props.add(direction);
 		
 		DefaultProperty type = PropertiesEditor.getPropertyInstance("Loiter Type", String.class, this.loiterType, true);
 		type.setShortDescription("How to perform this maneuver. Note that some parameters only make sense in some Loiter types.");
-		PropertiesEditor.getPropertyEditorRegistry().registerEditor(type, new ComboEditor<String>(wpLoiterTypeConstantsMap.values().toArray(new String[]{})));		
+		PropertiesEditor.getPropertyEditorRegistry().registerEditor(type, new ComboEditor<String>(wpLoiterTypeConstantsMap.values().toArray(new String[]{})));
+		PropertiesEditor.getPropertyRendererRegistry().registerRenderer(type, new I18nCellRenderer());
 		props.add(type);
 		
 		DefaultProperty speed = PropertiesEditor.getPropertyInstance("Speed", Double.class, this.speed, true);
@@ -251,7 +255,8 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 		
 		DefaultProperty speedUnits = PropertiesEditor.getPropertyInstance("Speed Units", String.class, this.speedUnits, true);
 		speedUnits.setShortDescription("The units to consider in the speed parameters");
-		PropertiesEditor.getPropertyEditorRegistry().registerEditor(speedUnits, new ComboEditor<String>(new String[] {"m/s", "Km/h", "RPM", "%"}));		
+		PropertiesEditor.getPropertyEditorRegistry().registerEditor(speedUnits, new SpeedUnitsEditor());
+		PropertiesEditor.getPropertyRendererRegistry().registerRenderer(speedUnits, new I18nCellRenderer());
 		props.add(speedUnits);
 		
 		DefaultProperty radius = PropertiesEditor.getPropertyInstance("Radius", Double.class, this.radius, true);
@@ -331,15 +336,14 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 	@Override
 	public String getTooltipText() {
 		return super.getTooltipText()+"<hr>"+
-		"Loiter type: <b>"+loiterType+"</b>"+
-		"<br>"+location.getZUnits()+": <b>"+location.getZ()+" "+speedUnits+"</b>"+
-		"<br>speed: <b>"+(int)speed+" "+speedUnits+"</b>"+
-		"<br>radius: <b>"+radius+" m</b>"+
-		"<br>length: <b>"+length+" m</b>"+
-		"<br>direction: <b>"+direction+"</b>"+
-		"<br>duration: <b>"+loiterDuration+" s</b><br>";
+		I18n.text("loiter type") + ": <b>"+I18n.text(loiterType)+"</b>"+
+		"<br>"+I18n.text(location.getZUnits().toString())+": <b>"+location.getZ()+" "+I18n.textc("m", "meters")+"</b>"+
+		"<br>" + I18n.text("speed") + ": <b>"+(int)speed+" "+I18n.text(speedUnits)+"</b>"+
+		"<br>" + I18n.text("radius") + ": <b>"+radius+" " + I18n.textc("m", "meters") + "</b>"+
+		"<br>" + I18n.text("length") + ": <b>"+length+" " + I18n.textc("m", "meters") + "</b>"+
+		"<br>" + I18n.text("direction") + ": <b>"+I18n.text(direction)+"</b>"+
+		"<br>" + I18n.text("duration") + ": <b>"+loiterDuration+" " + I18n.textc("s", "seconds") + "</b><br>";
 	}
-	
 	
 	public double getBearing() {
 		return bearing;

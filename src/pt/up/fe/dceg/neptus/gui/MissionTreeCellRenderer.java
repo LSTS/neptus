@@ -45,6 +45,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.gui.MissionBrowser.NodeInfoKey;
 import pt.up.fe.dceg.neptus.gui.MissionBrowser.State;
 import pt.up.fe.dceg.neptus.gui.tree.ExtendedTreeNode;
 import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBInfo;
@@ -93,7 +94,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
         CHECKLIST_ICON = ImageUtils.createImageIcon("images/buttons/checklist.png");
         DIR_ICON = ImageUtils.createImageIcon("images/menus/open.png");
         DIR_CLOSED_ICON = ImageUtils.createImageIcon("images/menus/folder_closed.png");
-        HOMEREF_ICON = ImageUtils.getScaledIcon("images/buttons/home.png", 16, 16);
+        HOMEREF_ICON = ImageUtils.getScaledIcon("images/buttons/homeRef.png", 16, 16);
         // TRANSPONDER_ICON = new ExtendedIcon(ImageUtils.getScaledImage("images/transponder.png", 16, 16));
         START_ICON = ImageUtils.getScaledIcon("images/flag2_green32.png", 16, 16);
         PLAN_LOCAL = ImageUtils.getScaledIcon("images/plans/planLocal.png", 16, 16);
@@ -101,7 +102,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
         PLAN_REMOTE = ImageUtils.getScaledIcon("images/plans/planRemote.png", 16, 16);
         PLAN_REMOTE_ACOUSTIC = ImageUtils.getScaledIcon("images/plans/planRemoteAcoustic.png", 16, 16);
         PLAN_UNSYNC = ImageUtils.getScaledIcon("images/plans/planUnsync.png", 16, 16);
-        PLAN_UNSYNC_ACOUSTIC = ImageUtils.getScaledIcon("images/plans/planSyncAcoustic.png", 16, 16);
+        PLAN_UNSYNC_ACOUSTIC = ImageUtils.getScaledIcon("images/plans/planUnsyncAcoustic.png", 16, 16);
         PLAN_SYNC = ImageUtils.getScaledIcon("images/plans/planSync.png", 16, 16);
         PLAN_SYNC_ACOUSTIC = ImageUtils.getScaledIcon("images/plans/planSyncAcoustic.png", 16, 16);
     }
@@ -130,51 +131,15 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
 
     }
 
-    private final int MAX_ACCEPTABLE_ELAPSED_TIME = 120;
-
-    private static final long serialVersionUID = -2666337254439313801L;
-
-
-    private static HashMap<String, ImageIcon> VEHICLES_ICONS = new HashMap<String, ImageIcon>();
-    // private static HashMap<String, ImageIcon> PLAN_ICONS = new HashMap<String, ImageIcon>();
-
-    // static {
-    // for (VehicleType ve : VehiclesHolder.getVehiclesList().values()) {
-    // Image vehicleImage;
-    // if (!ve.getPresentationImageHref().equalsIgnoreCase(""))
-    // vehicleImage = ImageUtils.getImage(ve.getPresentationImageHref());
-    // else
-    // vehicleImage = ImageUtils.getImage(ve.getSideImageHref());
-    // if (vehicleImage == null) {
-    // VEHICLES_ICONS.put(ve.getId(), new ImageIcon(vehicleImage));
-    // break;
-    // }
-    // int desiredWidth = 16, desiredHeight = 16;
-    //
-    // int height = vehicleImage.getHeight(null);
-    // int width = vehicleImage.getWidth(null);
-    //
-    // if (height > width) {
-    // desiredWidth = (int) (16.0 * ((double) width / (double) height));
-    // }
-    // else {
-    // desiredHeight = (int) (16.0 * ((double) height / (double) width));
-    // }
-    //
-    // Image sVehicleImage = ImageUtils.getFasterScaledInstance(vehicleImage, desiredWidth, desiredHeight);
-    // VEHICLES_ICONS.put(ve.getId(), new ImageIcon(sVehicleImage));
-    //
-    // PLAN_ICONS.put(ve.getId(), new PlanIcon(sVehicleImage));
-    // }
-    // }
-
+    // Modifiable by properties interface
+    public int maxAcceptableElapsedTime;
     public boolean debugOn = false;
+    private static final long serialVersionUID = -2666337254439313801L;
+    private static HashMap<String, ImageIcon> VEHICLES_ICONS = new HashMap<String, ImageIcon>();
 
     @Override
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
             boolean leaf, int row, boolean hasFocus) {
-        
-
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
         setToolTipText(null); // no tool tip
@@ -192,7 +157,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
                 try {
                     if (node instanceof ExtendedTreeNode) {
                         ExtendedTreeNode ptn = (ExtendedTreeNode) node;
-                        State sync = (State) ptn.getUserInfo().get("sync");
+                        State sync = (State) ptn.getUserInfo().get(NodeInfoKey.SYNC.name());
                         if (sync != null)
                             state = sync;
                     }
@@ -292,7 +257,8 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
                 ExtendedTreeNode ptn = (ExtendedTreeNode) node;
                 TransponderElement nodeObj = (TransponderElement) node.getUserObject();
                 HashMap<String, Object> info = ptn.getUserInfo();
-                ImcSystem imcSystem = ImcSystemsHolder.lookupSystemByName((String) info.get("vehicle"));
+                ImcSystem imcSystem = ImcSystemsHolder
+                        .lookupSystemByName((String) info.get(NodeInfoKey.VEHICLE.name()));
                 setBeaconLabel(nodeObj, imcSystem);
                 setBeaconIcon(state, ptn);
 
@@ -319,7 +285,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
     }
 
     private void setBeaconIcon(State state, ExtendedTreeNode ptn) {
-        State sync = (State) ptn.getUserInfo().get("sync");
+        State sync = (State) ptn.getUserInfo().get(NodeInfoKey.SYNC.name());
         if (sync != null)
             state = sync;
         StringBuilder fileName = new StringBuilder(Icons.PATH_SOURCE.getName());
@@ -340,14 +306,11 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
                     setText(nodeObj.getName());
                 }
                 else {
-                    if (time <= MAX_ACCEPTABLE_ELAPSED_TIME) {
+                    if (time <= maxAcceptableElapsedTime) {
                         color = "green";
                     }
-                    else if (time <= LBLRangesTimer.maxTime) {
-                        color = "red";
-                    }
                     else {
-                        color = "black";
+                        color = "red";
                     }
                     int minutes = time / 60;
                     int seconds = time % 60;
@@ -459,4 +422,5 @@ class ExtendedIcon extends ImageIcon {
             g2.dispose();
         }
     }
+
 }

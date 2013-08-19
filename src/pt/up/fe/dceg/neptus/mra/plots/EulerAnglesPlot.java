@@ -38,19 +38,19 @@ import pt.up.fe.dceg.neptus.mra.MRAPanel;
 
 /**
  * @author zp
- *
+ * 
  */
 public class EulerAnglesPlot extends MraCombinedPlot {
 
     public EulerAnglesPlot(MRAPanel panel) {
         super(panel);
     }
-    
+
     @Override
     public String getName() {
         return I18n.text("Euler Angles");
     }
-    
+
     @Override
     public boolean canBeApplied(LsfIndex index) {
         return index.containsMessagesOfType("EstimatedState");
@@ -59,17 +59,23 @@ public class EulerAnglesPlot extends MraCombinedPlot {
     @Override
     public void process(LsfIndex source) {
         if (source.getDefinitions().getVersion().compareTo("5.0.0") >= 0) {
-            for (IMCMessage msg : source.getIterator("EstimatedState", 0, (long)(timestep*1000))) {
-                addValue(msg.getTimestampMillis(), "Phi (deg)."+msg.getSourceName(), Math.toDegrees(msg.getDouble("phi")));
-                addValue(msg.getTimestampMillis(), "Theta (deg)."+msg.getSourceName(), Math.toDegrees(msg.getDouble("theta")));
-                addValue(msg.getTimestampMillis(), "Psi (deg)."+msg.getSourceName(), Math.toDegrees(msg.getDouble("psi")));
-            }  
+            for (IMCMessage msg : source.getIterator("EstimatedState", 0, (long) (timestep * 1000))) {
+                addValue(msg.getTimestampMillis(), I18n.text("Phi (deg).") + msg.getSourceName(),
+                        Math.toDegrees(msg.getDouble("phi")));
+                addValue(msg.getTimestampMillis(), I18n.text("Theta (deg).") + msg.getSourceName(),
+                        Math.toDegrees(msg.getDouble("theta")));
+                addValue(msg.getTimestampMillis(), I18n.text("Psi (deg).") + msg.getSourceName(),
+                        Math.toDegrees(msg.getDouble("psi")));
+            }
         }
         else {
-            for (IMCMessage msg : source.getIterator("EulerAngles", 0, (long)(timestep*1000))) {
-                addValue(msg.getTimestampMillis(), "Phi (deg)."+msg.getSourceName(), Math.toDegrees(msg.getDouble("roll")));
-                addValue(msg.getTimestampMillis(), "Theta (deg)."+msg.getSourceName(), Math.toDegrees(msg.getDouble("pitch")));
-                addValue(msg.getTimestampMillis(), "Psi (deg)."+msg.getSourceName(), Math.toDegrees(msg.getDouble("yaw")));
+            for (IMCMessage msg : source.getIterator("EulerAngles", 0, (long) (timestep * 1000))) {
+                addValue(msg.getTimestampMillis(), I18n.text("Phi (deg).") + msg.getSourceName(),
+                        Math.toDegrees(msg.getDouble("roll")));
+                addValue(msg.getTimestampMillis(), I18n.text("Theta (deg).") + msg.getSourceName(),
+                        Math.toDegrees(msg.getDouble("pitch")));
+                addValue(msg.getTimestampMillis(), I18n.text("Psi (deg).") + msg.getSourceName(),
+                        Math.toDegrees(msg.getDouble("yaw")));
             }
         }
     }

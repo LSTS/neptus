@@ -44,7 +44,9 @@ public class BathymetryInfo implements Serializable {
     public LocationType topLeft = new LocationType();
     public LocationType bottomRight = new LocationType();
     
+    
     public float minDepth = 1000;
     public float maxDepth = -1000;
     
+    public int totalNumberOfPoints;
 }

@@ -201,6 +201,7 @@ public class WorldMapPanel extends JPanel {
             NeptusLog.pub().error(
                     "Not possible to open \"conf/" + WorldMapPanel.class.getSimpleName().toLowerCase()
                             + ".properties\"");
+            NeptusLog.pub().debug(e, e);
         }
 
         Vector<String> validFiles = new Vector<String>();
@@ -357,7 +358,7 @@ public class WorldMapPanel extends JPanel {
                 // This while is needed because the WorldRenderPainter on the StateRenderer2D.init() 
                 //  is loaded on a thread so it may not be immediately in the renderer painters
                 while (worldRenderPainter == null) {
-                    try { Thread.sleep(100); } catch (InterruptedException e) { }
+                    try { Thread.sleep(100); } catch (InterruptedException e) { NeptusLog.pub().error(e.getMessage());}
                     for (Renderer2DPainter painter : painters.getPreRenderPainters()) {
                         if (painter instanceof WorldRenderPainter) {
                             worldRenderPainter = (WorldRenderPainter) painter;
@@ -803,6 +804,7 @@ public class WorldMapPanel extends JPanel {
                     + ".properties", WorldMapPanel.this);
         }
         catch (Exception e) {
+            NeptusLog.pub().debug(e.getMessage());
             NeptusLog.pub().error(
                     "Not possible to open \"conf/" + WorldMapPanel.class.getSimpleName().toLowerCase()
                             + ".properties\"");
@@ -1009,6 +1011,7 @@ public class WorldMapPanel extends JPanel {
                         }
                     }
                     catch (Exception e) {
+                        NeptusLog.pub().debug(e.getMessage());
                         errorState = true;
                     }
                     bn = bn.getNextSibling();

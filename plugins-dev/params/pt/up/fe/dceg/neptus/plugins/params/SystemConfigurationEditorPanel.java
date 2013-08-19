@@ -38,6 +38,7 @@ import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -59,6 +60,7 @@ import pt.up.fe.dceg.neptus.imc.EntityParameter;
 import pt.up.fe.dceg.neptus.imc.EntityParameters;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.QueryEntityParameters;
+import pt.up.fe.dceg.neptus.imc.SaveEntityParameters;
 import pt.up.fe.dceg.neptus.imc.SetEntityParameters;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Scope;
@@ -69,6 +71,7 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.MessageDeliveryListener;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
@@ -87,6 +90,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 
     protected PropertySheetPanel psp;
     private JButton sendButton;
+    private JButton saveButton;
     private JButton refreshButton;
     private JButton resetButton;
     private JLabel titleLabel;
@@ -123,7 +127,6 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             public void setSelectedItem(Object anObject) {
                 super.setSelectedItem(anObject);
             }
-            
         };
         scopeComboBox.setRenderer(new ListCellRenderer<Scope>() {
             @Override
@@ -179,8 +182,10 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 sendPropertiesToSystem();
             }
         });
-        if (showSendButton)
+        sendButton.setToolTipText(I18n.text("Send the modified properties."));
+        if (showSendButton) {
             add(sendButton, "sg buttons, split");
+        }
 
         refreshButton = new JButton(new AbstractAction(I18n.text("Refresh")) {
             @Override
@@ -188,7 +193,19 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 refreshPropertiesOnPanel();
             }
         });
+        refreshButton.setToolTipText(I18n.text("Requests the entities sections parameters from the vehicle."));
         add(refreshButton, "sg buttons, split");
+
+        saveButton = new JButton(new AbstractAction(I18n.text("Save")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                savePropertiesToSystem();
+            }
+        });
+        saveButton.setToolTipText(I18n.text("Saves the visible entities sections in the vehicle."));
+        if (showSendButton) {
+            add(saveButton, "sg buttons, split");
+        }
 
         resetButton = new JButton(new AbstractAction(I18n.text("Reset")) {
             @Override
@@ -196,14 +213,17 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
                 resetPropertiesOnPanel();
             }
         });
+        resetButton.setToolTipText(I18n.text("Local reset. Needs to be sent to system."));
         if (showResetButton)
-            add(resetButton, "sg buttons, split");
+            add(resetButton, "sg buttons, gapbefore 30, split, wrap");
         
         if (showScopeCombo)
             add(scopeComboBox, "split, w :160:");
 
         
         checkAdvance = new JCheckBox(I18n.text("Access Developer Parameters"));
+        checkAdvance.setToolTipText("<html>" + I18n.textc("Be careful changing these values.<br>They may make the vehicle inoperable.",
+                "This will be a tooltip, and use <br> to change line."));
         if (ConfigFetch.getDistributionType() == DistributionEnum.DEVELOPER)
             add(checkAdvance);
         else
@@ -357,7 +377,13 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         qep.setName(entityName);
         send(qep);
     }
-    
+
+    private void saveRequest(String entityName) {
+        SaveEntityParameters qep = new SaveEntityParameters();
+        qep.setName(entityName);
+        send(qep);
+    }
+
     private void sendProperty(SystemProperty... propsList) {
         Map<String, ArrayList<EntityParameter>> mapCategoryParameterList = new LinkedHashMap<String, ArrayList<EntityParameter>>(); 
         for (SystemProperty prop : propsList) {
@@ -432,6 +458,25 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         }
     }
 
+    private void savePropertiesToSystem() {
+        Collection<SystemProperty> propsInPanel = params.values();
+        if (propsInPanel.size() > 0) {
+            ArrayList<String> secNames = new ArrayList<>();
+            for (SystemProperty sp : propsInPanel) {
+                String sectionName = sp.getCategoryId();
+                if (!secNames.contains(sectionName))
+                    secNames.add(sectionName);
+            }        
+            for (String sec : secNames) {
+                queryValues(sec, scopeToUse.getText(), visibility.getText());
+            }
+            
+            for (String sec : secNames) {
+                saveRequest(sec);
+            }
+        }
+    }
+
     private void send(IMCMessage msg) {
         MessageDeliveryListener mdl = new MessageDeliveryListener() {
             @Override
@@ -502,6 +547,8 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
 //        GuiUtils.testFrame(icmm);
         
         String vehicle = "lauv-dolphin-1";
+        
+        GeneralPreferences.language = "pt_PT";
         
         final SystemConfigurationEditorPanel sc1 = new SystemConfigurationEditorPanel(vehicle, Scope.MANEUVER,
                 Visibility.USER, true, true, true, ImcMsgManager.getManager());

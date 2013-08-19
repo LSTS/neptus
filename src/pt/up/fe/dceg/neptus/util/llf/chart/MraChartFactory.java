@@ -40,10 +40,16 @@ import pt.up.fe.dceg.neptus.mra.plots.CtdPlot;
 import pt.up.fe.dceg.neptus.mra.plots.EstimatedStatePlot;
 import pt.up.fe.dceg.neptus.mra.plots.EulerAnglesPlot;
 import pt.up.fe.dceg.neptus.mra.plots.LblRangesPlot;
+import pt.up.fe.dceg.neptus.mra.plots.SalinityVsDepthPlot;
 import pt.up.fe.dceg.neptus.mra.plots.ScriptedPlot;
+import pt.up.fe.dceg.neptus.mra.plots.StatisticsPlot;
+import pt.up.fe.dceg.neptus.mra.plots.TemperatureVsDepthPlot;
+import pt.up.fe.dceg.neptus.mra.plots.TidePlot;
+import pt.up.fe.dceg.neptus.mra.plots.VehicleGanttPlot;
 import pt.up.fe.dceg.neptus.mra.plots.XYPlot;
 import pt.up.fe.dceg.neptus.mra.plots.ZPlot;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
+import pt.up.fe.dceg.neptus.plugins.actualstate.ActualPosition;
 
 /**
  * @author ZP
@@ -51,7 +57,7 @@ import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 public class MraChartFactory {
 
     private static Class<?>[] automaticCharts = new Class<?>[] { EstimatedStatePlot.class, XYPlot.class, ZPlot.class,
-            LblRangesPlot.class, EulerAnglesPlot.class, CtdPlot.class
+            LblRangesPlot.class, EulerAnglesPlot.class, CtdPlot.class, TemperatureVsDepthPlot.class, SalinityVsDepthPlot.class, VehicleGanttPlot.class, TidePlot.class, ActualPosition.class, StatisticsPlot.class
     };
 
     /**
@@ -75,7 +81,9 @@ public class MraChartFactory {
             }
         }
         
-        charts.addAll(getScriptedPlots(panel));
+        Vector<ScriptedPlot> scrptPlots = getScriptedPlots(panel);
+        if (scrptPlots != null && scrptPlots.size() > 0)
+            charts.addAll(scrptPlots);
         
         return charts.toArray(new MRAVisualization[charts.size()]);
     }
@@ -83,7 +91,11 @@ public class MraChartFactory {
     public static Vector<ScriptedPlot> getScriptedPlots(MRAPanel panel) {
         Vector<ScriptedPlot> plots = new Vector<ScriptedPlot>();
 
-        File[] scripts = new File("conf/mraplots").listFiles();
+        File sFx = new File("conf/mraplots");
+        File[] scripts = sFx.exists() ? sFx.listFiles() : null;
+        if (scripts == null || scripts.length == 0)
+            return plots;
+            
         for (File f : scripts) {
             if (f.isDirectory() || !f.canRead())
                 continue;

@@ -37,6 +37,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Vector;
 
 import org.dom4j.Attribute;
@@ -61,6 +62,7 @@ import pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.up.fe.dceg.neptus.mp.actions.PlanActions;
 import pt.up.fe.dceg.neptus.mp.maneuvers.IMCSerialization;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
+import pt.up.fe.dceg.neptus.mp.maneuvers.PathProvider;
 import pt.up.fe.dceg.neptus.mp.maneuvers.RowsManeuver;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.Identifiable;
@@ -819,6 +821,25 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, Identifia
 
         }
     }
+    
+    public Vector<LocationType> planPath() {
+        Vector<LocationType> locations = new Vector<>();
+        LinkedList<Maneuver> mans = getGraph().getGraphAsManeuversList();
+
+        for (Maneuver man : mans) {
+
+            if (!(man instanceof LocatedManeuver))
+                continue;
+
+            LocationType destTo = ((LocatedManeuver) man).getManeuverLocation();                         
+            if (man instanceof PathProvider)
+                locations.addAll(((PathProvider) man).getPathLocations());
+            else
+                locations.add(destTo);
+        }        
+        return locations;
+    }
+
 
     /*
      * (non-Javadoc)

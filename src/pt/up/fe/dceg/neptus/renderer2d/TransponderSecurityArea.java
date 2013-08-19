@@ -80,17 +80,20 @@ public class TransponderSecurityArea implements Renderer2DPainter {
 			LocationType lt2 = trans2.getCenterLocation();
 			
 			double angle = lt1.getXYAngle(lt2) - renderer.getRotation();
-			double blDistance = lt1.getDistanceInMeters(lt2);
+			double blDistance = lt1.getPixelDistanceTo(lt2, renderer.getLevelOfDetail());
+			
+			if (blDistance > 5000)
+			    return;
 			
 			Point2D pt1 = renderer.getScreenPosition(lt1);
 			pt1.setLocation(pt1.getX(),pt1.getY());
 			g.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 0, new float[] {5,5}, 0));			
-			Rectangle2D.Double rect = new Rectangle2D.Double(0,-blDistance *renderer.getZoom(),blDistance*0.75*renderer.getZoom(), blDistance*renderer.getZoom());
+			Rectangle2D.Double rect = new Rectangle2D.Double(0,-blDistance ,blDistance*0.75, blDistance);
 			g.translate(pt1.getX(), pt1.getY());
 			g.rotate(angle);
-			g.translate(blDistance*0.25*renderer.getZoom(), 0);
+			g.translate(blDistance*0.25, 0);
 			g.draw(rect);
-			g.translate(-blDistance*1.25*renderer.getZoom(), 0);
+			g.translate(-blDistance*1.25, 0);
 			g.draw(rect);
 			g.setStroke(new BasicStroke());
 		}

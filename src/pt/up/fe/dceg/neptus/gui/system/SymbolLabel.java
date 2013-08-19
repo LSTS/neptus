@@ -423,57 +423,57 @@ public class SymbolLabel extends JXPanel implements Painter<JXPanel>, IPeriodicU
 		panel.add(symb1, BorderLayout.CENTER);
 		GuiUtils.testFrame(panel);
 		
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.toggleActive();
-        symb1.repaint();
-
-        try { Thread.sleep(100); } catch (InterruptedException e) { }
-        symb1.toggleActive();
-        symb1.repaint();
-
-        try { Thread.sleep(100); } catch (InterruptedException e) { }
-        symb1.toggleActive();
-        symb1.repaint();
-
-        try { Thread.sleep(200); } catch (InterruptedException e) { }
-        symb1.toggleActive();
-        symb1.repaint();
-
-        try { Thread.sleep(300); } catch (InterruptedException e) { }
-        symb1.toggleActive();
-        symb1.repaint();
-
-        try { Thread.sleep(400); } catch (InterruptedException e) { }
-        symb1.toggleActive();
-        symb1.repaint();
-
-        try { Thread.sleep(650); } catch (InterruptedException e) { }
-        symb1.toggleActive();
-        symb1.repaint();
-
-        try { Thread.sleep(100); } catch (InterruptedException e) { }
-        symb1.toggleActive();
-        symb1.repaint();
-
-        try { Thread.sleep(100); } catch (InterruptedException e) { }
-        symb1.toggleActive();
-        symb1.repaint();
-
-        try { Thread.sleep(2000); } catch (InterruptedException e) { }
-        symb1.toggleActive();
-        symb1.repaint();
-
-        try { Thread.sleep(300); } catch (InterruptedException e) { }
-        symb1.toggleActive();
-        symb1.repaint();
-
-        try { Thread.sleep(400); } catch (InterruptedException e) { }
-        symb1.toggleActive();
-        symb1.repaint();
-
-        try { Thread.sleep(10650); } catch (InterruptedException e) { }
-        symb1.toggleActive();
-        symb1.repaint();
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.toggleActive();
+//        symb1.repaint();
+//
+//        try { Thread.sleep(100); } catch (InterruptedException e) { }
+//        symb1.toggleActive();
+//        symb1.repaint();
+//
+//        try { Thread.sleep(100); } catch (InterruptedException e) { }
+//        symb1.toggleActive();
+//        symb1.repaint();
+//
+//        try { Thread.sleep(200); } catch (InterruptedException e) { }
+//        symb1.toggleActive();
+//        symb1.repaint();
+//
+//        try { Thread.sleep(300); } catch (InterruptedException e) { }
+//        symb1.toggleActive();
+//        symb1.repaint();
+//
+//        try { Thread.sleep(400); } catch (InterruptedException e) { }
+//        symb1.toggleActive();
+//        symb1.repaint();
+//
+//        try { Thread.sleep(650); } catch (InterruptedException e) { }
+//        symb1.toggleActive();
+//        symb1.repaint();
+//
+//        try { Thread.sleep(100); } catch (InterruptedException e) { }
+//        symb1.toggleActive();
+//        symb1.repaint();
+//
+//        try { Thread.sleep(100); } catch (InterruptedException e) { }
+//        symb1.toggleActive();
+//        symb1.repaint();
+//
+//        try { Thread.sleep(2000); } catch (InterruptedException e) { }
+//        symb1.toggleActive();
+//        symb1.repaint();
+//
+//        try { Thread.sleep(300); } catch (InterruptedException e) { }
+//        symb1.toggleActive();
+//        symb1.repaint();
+//
+//        try { Thread.sleep(400); } catch (InterruptedException e) { }
+//        symb1.toggleActive();
+//        symb1.repaint();
+//
+//        try { Thread.sleep(10650); } catch (InterruptedException e) { }
+//        symb1.toggleActive();
+//        symb1.repaint();
 
 	}
 }

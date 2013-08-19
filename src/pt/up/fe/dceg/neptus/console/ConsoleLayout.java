@@ -36,11 +36,13 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
@@ -56,17 +58,14 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.Box;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
 import org.dom4j.Document;
@@ -105,11 +104,11 @@ import pt.up.fe.dceg.neptus.console.plugins.ConsoleVehicleChangeListener;
 import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
 import pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener;
 import pt.up.fe.dceg.neptus.console.plugins.PlanChangeListener;
+import pt.up.fe.dceg.neptus.console.plugins.PluginManager;
 import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeEvent;
 import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
 import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeListener;
 import pt.up.fe.dceg.neptus.controllers.ControllerManager;
-import pt.up.fe.dceg.neptus.events.NeptusEventHiddenMenus;
 import pt.up.fe.dceg.neptus.events.NeptusEvents;
 import pt.up.fe.dceg.neptus.gui.ConsoleFileChooser;
 import pt.up.fe.dceg.neptus.gui.HideMenusListener;
@@ -179,6 +178,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      * UI stuff
      */
     protected Map<Class<? extends ConsoleAction>, ConsoleAction> actions = new HashMap<>();
+    protected Map<String, Action> globalKeybindings = new HashMap<>();
+    protected KeyEventDispatcher keyDispatcher;
     private final List<Window> onRunningFrames = new ArrayList<Window>(); // frames to close on exit
 
     // base components
@@ -203,8 +204,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public File fileName = null;
     public boolean resizableConsole = false;
 
-    // protected LinkedHashMap<String, AbstractAction> menuActions = new LinkedHashMap<String, AbstractAction>();
-
     /**
      * Static factory method
      * 
@@ -216,9 +215,12 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         instance.imcOn();
         ConsoleParse.parseFile(consoleURL, instance);
+        // load core plugins 
+        PluginManager manager = new PluginManager(instance);
+        manager.init();
+        
         instance.setConsoleChanged(false);
-        // Rectangle screen = MouseInfo.getPointerInfo().getDevice().getDefaultConfiguration().getBounds();
-        // instance.setLocation(screen.x, screen.y);
+        
         if (loader != null)
             loader.end();
         instance.setVisible(true);
@@ -315,34 +317,42 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     private void setupKeyBindings() {
-        JRootPane rootPane = this.getRootPane();
-        InputMap globalInputMap = rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        // Hidden menus shift + S key binding
-        globalInputMap.put(KeyStroke.getKeyStroke("shift S"), "pressed");
-        rootPane.getActionMap().put("pressed", new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
+        KeyEventDispatcher keyDispatcher = new KeyEventDispatcher() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                post(new NeptusEventHiddenMenus());
-            }
-        });
+            public boolean dispatchKeyEvent(KeyEvent e) {
+                int eventType = e.getID(); // KeyEvent.KEY_PRESSED KeyEvent.KEY_RELEASED KEY_TYPED
 
-        // KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
-        // @Override
-        // public boolean dispatchKeyEvent(KeyEvent e) {
-        // int eventType = e.getID(); //KeyEvent.KEY_PRESSED KeyEvent.KEY_RELEASED KEY_TYPED
-        //
-        // if(e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_S){
-        // NeptusEvents.manager().post(new NeptusEventHiddenMenus());
-        // if(eventType == KeyEvent.KEY_PRESSED)
-        // NeptusLog.pub().info("<###>pressed");
-        // else if(eventType == KeyEvent.KEY_RELEASED)
-        // NeptusLog.pub().info("<###>released");
-        // }
-        // return false;
-        // }
-        // });
+                Action action = globalKeybindings.get(KeyStroke.getKeyStroke(e.getKeyCode(), e.getModifiers())
+                        .toString());
+                if (action != null && eventType == KeyEvent.KEY_PRESSED) {
+                    action.actionPerformed(null);
+                    return true;
+                }
+
+                return false;
+            }
+        };
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyDispatcher);
+    }
+    
+    private void cleanKeyBindings(){
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(keyDispatcher);
+        globalKeybindings.clear();
+    }
+
+    /**
+     * Register a global key binding with the console
+     * 
+     * @param name
+     * @param action
+     */
+    public void registerGlobalKeyBinding(KeyStroke name, Action action) {
+        if (this.globalKeybindings.containsKey(name.toString())) {
+            NeptusLog.pub().error("Global keybind " + name + " already registered by another component");
+        }
+        else {
+            this.globalKeybindings.put(name.toString(), action);
+        }
     }
 
     /**
@@ -380,52 +390,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         revalidate();
         repaint();
     }
-
-    // @SuppressWarnings("serial")
-    // public void createMenuActions() {
-    //
-    // menuActions.put("About", new AbstractAction(I18n.text("About"), new ImageIcon(this.getClass().getClassLoader()
-    // .getResource("images/menus/info.png"))) {
-    // @Override
-    // public void actionPerformed(ActionEvent e) {
-    // final AboutPanel ap = new AboutPanel();
-    // ap.setVisible(true);
-    // addWindowToOppenedList(ap);
-    // ap.addWindowListener(new WindowAdapter() {
-    // @Override
-    // public void windowClosed(WindowEvent e) {
-    // removeWindowToOppenedList(ap);
-    // }
-    // });
-    // }
-    // });
-    // menuActions.get("About").putValue(
-    // AbstractAction.ACCELERATOR_KEY,
-    // javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_H, java.awt.Event.CTRL_MASK
-    // + java.awt.Event.ALT_MASK, true));
-    //
-    // menuActions.put("Manual", new AbstractAction(I18n.text("Manual"), new ImageIcon(this.getClass()
-    // .getClassLoader().getResource("images/menus/info.png"))) {
-    // @Override
-    // public void actionPerformed(ActionEvent e) {
-    // DocumentationPanel.showDocumentation("start.html");
-    // }
-    // });
-    //
-    // menuActions.put("Extended Manual", new AbstractAction(I18n.text("Extended Manual"), new ImageIcon(this
-    // .getClass().getClassLoader().getResource("images/menus/info.png"))) {
-    // @Override
-    // public void actionPerformed(ActionEvent e) {
-    // try {
-    // Desktop.getDesktop().browse(new File("doc/seacon/manual-seacon.html").toURI());
-    // }
-    // catch (IOException e1) {
-    // e1.printStackTrace();
-    // GuiUtils.errorMessage(I18n.text("Error opening Extended Manual"), e1.getMessage());
-    // }
-    // }
-    // });
-    // }
 
     /**
      * The Frame or Dialog will be added to the opened. On the {@link #cleanup()} these will get dispose of.
@@ -634,19 +598,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     protected void includeExtraMainMenus() {
         menuBar.add(Box.createHorizontalGlue());
-        // JButton teleoperationButton = new JButton(new AbstractAction("", ICON_TELEOP) {
-        // private static final long serialVersionUID = 1L;
-        //
-        // @Override
-        // public void actionPerformed(ActionEvent e) {
-        // if (controllerPanel == null) {
-        // controllerPanel = new ControllerPanel(getConsole());
-        // }
-        // controllerPanel.setVisible(true);
-        // }
-        // });
-        // teleoperationButton.setSize(25, 25);
-        // menuBar.add(teleoperationButton);
         mainSystemCombo = new MainSystemSelectionCombo(this);
         menuBar.add(mainSystemCombo);
     }
@@ -775,13 +726,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     public void setMainSystem(String mainVehicle) {
-        if(this.getSystem(mainVehicle) == null){
+        if (this.getSystem(mainVehicle) == null) {
             NeptusLog.pub().error("trying to add main system without addin it");
             return;
         }
         String old = this.mainVehicle;
         this.mainVehicle = mainVehicle;
-        
+
         if (!(mainVehicle.equals(old))) {
             for (MainVehicleChangeListener mlistener : mainVehicleListeners) {
                 try {
@@ -803,42 +754,44 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public void addSystem(String systemName) {
         VehicleType vehicleType = VehiclesHolder.getVehicleById(systemName);
         ImcSystem imcSystem = ImcSystemsHolder.lookupSystemByName(systemName);
-        if(vehicleType != null && imcSystem == null){
+        if (vehicleType != null && imcSystem == null) {
             imcMsgManager.initVehicleCommInfo(vehicleType.getId(), "");
             return;
         }
-        
-        ConsoleSystem vtl;
+
+        ConsoleSystem system;
         if (imcSystem == null) {
-            NeptusLog.pub().warn("tried to add a vehicle from imc with comms disabled");
+            NeptusLog.pub().warn("tried to add a vehicle from imc with comms disabled: " + systemName);
             return;
         }
-        if (imcSystem.getType() != SystemTypeEnum.VEHICLE){
+        if (imcSystem.getType() != SystemTypeEnum.VEHICLE) {
             return;
         }
-        
-        if (consoleSystems.get(systemName) != null) {            
-            NeptusLog.pub().warn(ReflectionUtil.getCallerStamp() + " tried to add a vehicle that already exist in the console!!");
+
+        if (consoleSystems.get(systemName) != null) {
+            NeptusLog.pub().warn(
+                    ReflectionUtil.getCallerStamp() + " tried to add a vehicle that already exist in the console: "
+                            + systemName);
             return;
         }
         else {
-            vtl = new ConsoleSystem(systemName, this, imcSystem, imcMsgManager);
-            consoleSystems.put(systemName, vtl);
+            system = new ConsoleSystem(systemName, this, imcSystem, imcMsgManager);
+            consoleSystems.put(systemName, system);
             if (this.mainVehicle == null) {
                 this.setMainSystem(systemName);
             }
-
         }
+
         for (ConsoleVehicleChangeListener cvl : consoleVehicleChangeListeners) {
             try {
-                cvl.consoleVehicleChange(VehiclesHolder.getVehicleById(systemName), ConsoleVehicleChangeListener.VEHICLE_ADDED);
+                cvl.consoleVehicleChange(vehicleType, ConsoleVehicleChangeListener.VEHICLE_ADDED);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
             }
         }
-        this.post(new ConsoleEventNewSystem(vtl));
-        vtl.enableIMC();
+        this.post(new ConsoleEventNewSystem(system));
+        system.enableIMC();
     }
 
     /**
@@ -932,6 +885,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                         GuiUtils.errorMessage(getConsole(), I18n.text("Error"),
                                 I18n.text("Error Loading Mission File.\n"));
                         NeptusLog.pub().error("Console Base open file error [" + file.getAbsolutePath() + "]");
+                        NeptusLog.pub().error(e, e);
                     }
                 };
             };
@@ -1238,11 +1192,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      */
     public void cleanup() {
         long start = System.currentTimeMillis();
-        NeptusLog.pub().debug("console layout cleanup start");
+        NeptusLog.pub().info("console layout cleanup start");
         try {
             removeComponentListener(this);
 
-            this.imcOff();
             missionListeners.clear();
             planListeners.clear();
             consoleVehicleChangeListeners.clear();
@@ -1264,17 +1217,19 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             consoleSystems.clear();
             mainPanel.clean();
             statusBar.clean();
-
-            NeptusEvents.clean();
+            if (controllerPanel != null)
+                controllerPanel.cleanup();
+            this.cleanKeyBindings();
+            this.imcOff();
+            
+            NeptusEvents.delete(this);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
 
-        if (controllerPanel != null)
-            controllerPanel.cleanup();
-
-        NeptusLog.pub().debug("console layout cleanup end in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
+        NeptusLog.pub().info("console layout cleanup end in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
+        
     }
 
     private Rectangle2D minimizedBounds = null;
@@ -1594,7 +1549,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         MissionType mission = this.getMission();
         if (mission != null) {
-            title.append(" | Mission: ");
+            title.append(" | " + I18n.text("Mission") + ": ");
             title.append(mission.getName());
             title.append(" [" + mission.getCompressedFilePath() + "]");
         }
@@ -1685,20 +1640,22 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     /**
-     * @return the vehicleTreeListeners
+     * Get Console Systems
+     * 
+     * @return {@link Map}
      */
-    public Map<String, ConsoleSystem> getConsoleSystems() {
+    public Map<String, ConsoleSystem> getSystems() {
         return consoleSystems;
     }
 
     /**
-     * Get ConsoleSystem by ID
+     * Get ConsoleSystem by name
      * 
-     * @param id
-     * @return
+     * @param name
+     * @return {@link ConsoleSystem}
      */
-    public ConsoleSystem getSystem(String id) {
-        return this.consoleSystems.get(id);
+    public ConsoleSystem getSystem(String name) {
+        return this.consoleSystems.get(name);
     }
 
     /**
@@ -1742,8 +1699,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         loader.setText(I18n.text("Loading console..."));
 
+        @SuppressWarnings("unused")
         ConsoleLayout console = ConsoleLayout.forge("conf/consoles/lauv.ncon", loader);
-        NeptusMain.wrapMainApplicationWindowWithCloseActionWindowAdapter(console);
+//        NeptusMain.wrapMainApplicationWindowWithCloseActionWindowAdapter(console);
         NeptusLog.pub().info("<###>BENCHMARK " + ((System.currentTimeMillis() - ConfigFetch.STARTTIME) / 1E3) + "s");
     }
 }

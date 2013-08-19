@@ -44,21 +44,18 @@ import pt.up.fe.dceg.neptus.util.FileUtil;
 
 /**
  * @author Paulo
- *
+ * 
  */
-public class TemplateFileVehicle extends FileType
-{
+public class TemplateFileVehicle extends FileType {
     protected String parametersToPass = "";
     protected String outputFileName = "";
-    
-    protected LinkedHashMap<String, String> parametersToPassList = 
-    	new LinkedHashMap<String, String>();
-    
+
+    protected LinkedHashMap<String, String> parametersToPassList = new LinkedHashMap<String, String>();
+
     /**
      * 
      */
-    public TemplateFileVehicle()
-    {
+    public TemplateFileVehicle() {
         super();
         this.setType("xslt");
     }
@@ -66,9 +63,8 @@ public class TemplateFileVehicle extends FileType
     /**
      * @param xml
      */
-    public TemplateFileVehicle(String xml)
-    {
-        //super(xml);
+    public TemplateFileVehicle(String xml) {
+        // super(xml);
         load(xml);
         this.setType("xslt");
     }
@@ -77,32 +73,27 @@ public class TemplateFileVehicle extends FileType
      * @see pt.up.fe.dceg.neptus.types.misc.FileType#load(java.lang.String)
      */
     @SuppressWarnings("unchecked")
-	public boolean load(String xml)
-    {
+    public boolean load(String xml) {
         if (!super.load(xml))
             return false;
 
-        try
-        {
-            //doc = DocumentHelper.parseText(xml);
+        try {
+            // doc = DocumentHelper.parseText(xml);
             Node nd = doc.selectSingleNode("/file/parameters-to-pass");
-            if (nd != null)
-            {
-                setParametersToPass(""); //nd.asXML());
+            if (nd != null) {
+                setParametersToPass(""); // nd.asXML());
                 List<Node> paramNodesList = nd.selectNodes("./param");
-                for (Node param : paramNodesList)
-                {
-                	String name = param.selectSingleNode("name").getText();
-                	String value = param.selectSingleNode("value").getText();
-                	parametersToPassList.put(name, value);
-                	setParametersToPass(getParametersToPass() + " " + name + "=" + value);
+                for (Node param : paramNodesList) {
+                    String name = param.selectSingleNode("name").getText();
+                    String value = param.selectSingleNode("value").getText();
+                    parametersToPassList.put(name, value);
+                    setParametersToPass(getParametersToPass() + " " + name + "=" + value);
                 }
             }
-            
+
             this.setOutputFileName(doc.selectSingleNode("/file/output-file-name").getText());
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             NeptusLog.pub().error(this, e);
             return false;
         }
@@ -113,92 +104,86 @@ public class TemplateFileVehicle extends FileType
     /**
      * @return Returns the parametersToPass.
      */
-    public String getParametersToPass()
-    {
+    public String getParametersToPass() {
         return parametersToPass;
     }
+
     /**
      * @param parametersToPass The parametersToPass to set.
      */
-    public void setParametersToPass(String parametersToPass)
-    {
+    public void setParametersToPass(String parametersToPass) {
         this.parametersToPass = parametersToPass;
     }
-    
-    
+
     /**
      * @return
      */
-    public LinkedHashMap<String, String> getParametersToPassList() 
-    {
-		return parametersToPassList;
-	}
+    public LinkedHashMap<String, String> getParametersToPassList() {
+        return parametersToPassList;
+    }
 
-	/**
+    /**
      * @return Returns the outputFileName.
      */
-    public String getOutputFileName()
-    {
+    public String getOutputFileName() {
         return outputFileName;
     }
+
     /**
      * @param outputFileName The outputFileName to set.
      */
-    public void setOutputFileName(String outputFileName)
-    {
+    public void setOutputFileName(String outputFileName) {
         this.outputFileName = outputFileName;
     }
-    
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML()
      */
-    public String asXML()
-    {
+    public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asXML(rootElementName);
     }
 
-    
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
-    public String asXML(String rootElementName)
-    {
-        String result = "";        
+    public String asXML(String rootElementName) {
+        String result = "";
         Document document = asDocument(rootElementName);
         result = document.asXML();
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
-    public Document asDocument(String rootElementName)
-    {
+    public Document asDocument(String rootElementName) {
         Document document = super.asDocument(rootElementName);
         Element root = document.getRootElement();
-        
-        if (!parametersToPass.equalsIgnoreCase(""))
-        {
-            //root.addElement( "parameters-to-pass" ).addText(getParametersToPass());
-        	Element paramToPass = root.addElement( "parameters-to-pass" );
-        	for (String key : getParametersToPassList().keySet())
-        	{
-        		String value = getParametersToPassList().get(key);
-        		Element paramT = paramToPass.addElement("param");
-        		paramT.addElement("name").addText(key);
-        		paramT.addElement("value").addText(value);
-        	}
-        	
+
+        if (!parametersToPass.equalsIgnoreCase("")) {
+            // root.addElement( "parameters-to-pass" ).addText(getParametersToPass());
+            Element paramToPass = root.addElement("parameters-to-pass");
+            for (String key : getParametersToPassList().keySet()) {
+                String value = getParametersToPassList().get(key);
+                Element paramT = paramToPass.addElement("param");
+                paramT.addElement("name").addText(key);
+                paramT.addElement("value").addText(value);
+            }
+
         }
-        if (originalFilePath == "")
+        if ("".equals(originalFilePath))
             root.addElement("output-file-name").addText(getOutputFileName());
         else
             root.addElement("output-file-name").addText(
-                    FileUtil.relativizeFilePathAsURI(originalFilePath, this
-                            .getOutputFileName()));
-        
+                    FileUtil.relativizeFilePathAsURI(originalFilePath, this.getOutputFileName()));
+
         return document;
     }
 

@@ -65,6 +65,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultFormatter;
 
 import pt.up.fe.dceg.neptus.gui.ClockCounter.ClockState;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.MathMiscUtils;
 
@@ -133,9 +134,6 @@ public class ChronometerPanel extends JPanel implements ActionListener {
         initialize();
     }
 
-    /**
-	 * 
-	 */
     private void initialize() {
         setBackground(COLOR_OK);
         GroupLayout layout = new GroupLayout(this);
@@ -186,10 +184,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
         if (display == null) {
             display = new ClockCounter();
             final JPopupMenu popup = new JPopupMenu();
-            popup.add(new JMenuItem(new AbstractAction("Copy time") {
-                /**
-                 * 
-                 */
+            popup.add(new JMenuItem(new AbstractAction(I18n.text("Copy time")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -221,7 +216,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             startStopToggleButton.setIcon(ICON_START);
             startStopToggleButton.setActionCommand(ACTION_START_STOP);
             startStopToggleButton.addActionListener(this);
-            startStopToggleButton.setToolTipText("Start/Stop");
+            startStopToggleButton.setToolTipText(I18n.text("Start/Stop"));
         }
         return startStopToggleButton;
     }
@@ -233,7 +228,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             pauseResumeToggleButton.setIcon(ICON_PAUSE);
             pauseResumeToggleButton.setActionCommand(ACTION_PAUSE_RESUME);
             pauseResumeToggleButton.addActionListener(this);
-            pauseResumeToggleButton.setToolTipText("Pause/Resume");
+            pauseResumeToggleButton.setToolTipText(I18n.text("Pause/Resume"));
             // pauseResumeToggleButton.setEnabled(false);
         }
         return pauseResumeToggleButton;
@@ -246,7 +241,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             countdownToggleButton.setIcon(ICON_UP);
             countdownToggleButton.setActionCommand(ACTION_COUNTDOWN);
             countdownToggleButton.addActionListener(this);
-            countdownToggleButton.setToolTipText("Count Up/Down");
+            countdownToggleButton.setToolTipText(I18n.text("Count Up/Down"));
         }
         return countdownToggleButton;
     }
@@ -257,7 +252,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             resetButton.setIcon(ICON_RESET);
             resetButton.setActionCommand(ACTION_RESET);
             resetButton.addActionListener(this);
-            resetButton.setToolTipText("Reset");
+            resetButton.setToolTipText(I18n.text("Reset"));
             resetButton.setVisible(false);
         }
         return resetButton;
@@ -269,7 +264,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             alarmValueButton.setIcon(ICON_ALARM_OFF);
             alarmValueButton.setActionCommand(ACTION_ALARM);
             alarmValueButton.addActionListener(this);
-            alarmValueButton.setToolTipText("Alarm Value");
+            alarmValueButton.setToolTipText(I18n.text("Alarm Value"));
         }
         return alarmValueButton;
     }
@@ -412,11 +407,11 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             value.setValue(getMaxSecs() <= 0 ? 0 : getMaxSecs());
             value.setSelectionStart(0);
             value.setSelectionEnd(value.getText().length());
-            final JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Enter the max. time");
+            final JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), I18n.text("Enter the max. time"));
             JPanel jp = new JPanel();
             jp.setLayout(new FlowLayout());
             jp.add(value);
-            final JButton okButton = new JButton("Ok");
+            final JButton okButton = new JButton(I18n.text("Ok"));
             okButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -535,19 +530,15 @@ public class ChronometerPanel extends JPanel implements ActionListener {
     }
 
     public class HMSFormatter extends DefaultFormatter {
-
-        /**
-         * 
-         */
         private static final long serialVersionUID = 1L;
-        Pattern regex = Pattern.compile("^(((((\\d?\\dh)?\\d)?\\dm)?)?\\d)?\\ds?$");
+        Pattern regex = Pattern.compile("^(((((\\d?\\d" + ClockCounter.HOURS_SEPARATOR + ")?\\d)?\\d"
+                + ClockCounter.MINUTES_SEPARATOR + ")?)?\\d)?\\d" + ClockCounter.SECONDS_SEPARATOR + "?$");
         Matcher matcher;
 
         public HMSFormatter() {
             setValueClass(Long.class);
             setOverwriteMode(false);
-            matcher = regex.matcher(""); // create a Matcher for the regular
-            // expression
+            matcher = regex.matcher(""); // create a Matcher for the regular expression
         }
 
         @Override
@@ -556,14 +547,13 @@ public class ChronometerPanel extends JPanel implements ActionListener {
                 return null;
             matcher.reset(string); // set 'string' as the matcher's input
 
-            if (!matcher.matches()) // Does 'string' match the regular
-                                    // expression?
+            if (!matcher.matches()) // Does 'string' match the regular expression?
                 throw new java.text.ParseException("does not match regex", 0);
 
             // If we get this far, then it did match.
             // return super.stringToValue(string); // will honor the 'valueClass' property
 
-            String[] sv = string.split("[hms]");
+            String[] sv = string.split("[" + ClockCounter.HOURS_SEPARATOR + ClockCounter.MINUTES_SEPARATOR + ClockCounter.SECONDS_SEPARATOR + "]");
             Long[] lv = new Long[] { 0L, 0L, 0L }; // sec, min, hour
             for (int i = 0; i < sv.length; i++) {
                 int k = sv.length - i - 1;
@@ -600,7 +590,7 @@ public class ChronometerPanel extends JPanel implements ActionListener {
                 miS = "0" + miS;
             if (secS.length() == 1)
                 secS = "0" + secS;
-            String time = "" + hrS + "h" + miS + "m" + secS + "s";
+            String time = "" + hrS + ClockCounter.HOURS_SEPARATOR + miS + ClockCounter.MINUTES_SEPARATOR + secS + ClockCounter.SECONDS_SEPARATOR;
 
             return time;
         }
@@ -621,9 +611,8 @@ public class ChronometerPanel extends JPanel implements ActionListener {
             miS = "0" + miS;
         if (Long.toString((long) sec).length() == 1)
             secS = "0" + secS;
-        String time = "" + hrS + "h" + miS + "m" + secS + "s";
+        String time = "" + hrS + ClockCounter.HOURS_SEPARATOR + miS + ClockCounter.MINUTES_SEPARATOR + secS + ClockCounter.SECONDS_SEPARATOR;
 
         return time;
     }
-
 }

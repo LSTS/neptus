@@ -49,7 +49,7 @@ public class UnicycleModel {
     protected double latRad, lonRad, x, y, rollRad, pitchRad, yawRad, depth, speedMPS;
     protected double targetLatRad, targetLonRad, maxSteeringRad = Math.toRadians(7);
     protected boolean arrived = true;
-    //protected double actuationError = 0.5;
+    
     
     public LocationType getCurrentPosition() {
         LocationType loc = new LocationType();
@@ -129,23 +129,37 @@ public class UnicycleModel {
      * @param speed Desired speed
      * @return <b>true</b> if the vehicle is arrived
      */
-    public boolean guide(LocationType loc, double speed) {
+    public boolean guide(LocationType loc, double speed, Double altitude) {
         if (loc.getHorizontalDistanceInMeters(getCurrentPosition()) < speed) {
             speedMPS = rollRad = pitchRad = 0;
             return true;            
         }            
-
+        
         speedMPS = speed;
 
-        if (loc.getDepth() > depth+0.1)
-            pitchRad = Math.toRadians(12);
-        else if (loc.getDepth() < depth-0.1)
-            pitchRad = -Math.toRadians(12);
-        else {
-            depth = loc.getDepth();
-            pitchRad = 0;
-        }
+        if (altitude != null) {
             
+            double curBathym = SimulationEngine.simBathym.getSimulatedDepth(getCurrentPosition());
+            double curAltitude = curBathym-depth;
+            if (curAltitude > altitude)
+                pitchRad = Math.toRadians(12);
+            else if (curAltitude < altitude)
+                pitchRad = -Math.toRadians(12);
+            else {
+                depth = (SimulationEngine.simBathym.getSimulatedDepth(getCurrentPosition())-altitude);
+            }
+        }
+        else {
+        
+            if (loc.getDepth() > depth+0.1)
+                pitchRad = Math.toRadians(12);
+            else if (loc.getDepth() < depth-0.1)
+                pitchRad = -Math.toRadians(12);
+            else {
+                depth = loc.getDepth();
+                pitchRad = 0;
+            }
+        }
         
         double ang = getCurrentPosition().getXYAngle(loc);
         

@@ -237,7 +237,7 @@ public class Device implements SerialPortEventListener {
                 devs.add(dev.getName());
             }
             catch (PortInUseException e) {
-                NeptusLog.pub().info("<###>ERROR: serial port '" + dev.getName() + "' is in use");
+                NeptusLog.pub().info("ERROR: serial port '" + dev.getName() + "' is in use");
             }
             catch (Exception e) {
                 System.err.println("ERROR: failed to open serial port '" + dev.getName() + "'");

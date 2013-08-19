@@ -38,9 +38,9 @@ import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
@@ -74,6 +74,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     public LogTableVisualization(IMraLog source, MRAPanel panel) {
         this.log = source;
         this.mraPanel = panel;
+        this.fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     @Override
@@ -82,7 +83,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     }
 
     @Override
-    public JComponent getComponent(IMraLogGroup source, double timestep) {
+    public Component getComponent(IMraLogGroup source, double timestep) {
         model = new LogTableModel(source, log); 
         table = new JXTable(model) {
             @Override

@@ -29,7 +29,7 @@ while [ x$agreed = x ]; do
 	y* | Y*)
 	    agreed=1;;
 	n* | n*)
-    echo "If you don't agree to the license you can't install this sofware";
+    echo "If you don't agree to the license you can't install this software";
     exit 1;;
     esac
 done

@@ -155,7 +155,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
     @NeptusProperty(name = "MIDI Channel", category = "Communication")
     public int midi_channel = 13;
 
-    @NeptusProperty(name = "Number of distinct frequencies", category = "Communication", hidden = true, userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Number of distinct frequencies", category = "Communication", editable = true, userLevel = LEVEL.REGULAR)
     public int numFreqs = 8;
 
     @NeptusProperty(name = "Volume")
@@ -267,8 +267,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
             receiver = synth.getReceiver();
         }
         catch (Exception e) {
-            /// FIXI18N
-            NeptusLog.pub().error("Unable to start MIDI sound device");
+            NeptusLog.pub().error(I18n.text("Unable to start MIDI sound device"));
             if (ConfigFetch.isOSEqual(ConfigFetch.OS_LINUX)) {
                 System.err.println(I18n.text("For midi, try running Neptus with the command 'padsp ./neptus.sh'."));
             }

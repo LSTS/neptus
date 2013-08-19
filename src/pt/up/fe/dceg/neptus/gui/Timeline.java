@@ -1,6 +1,5 @@
 package pt.up.fe.dceg.neptus.gui;
 
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,10 +7,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,9 +22,15 @@ import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 @SuppressWarnings("serial")
 public class Timeline extends JPanel implements ChangeListener {
+    public static final ImageIcon ICON_PLAY = ImageUtils.getIcon("images/icons/play.png");
+    public static final ImageIcon ICON_PAUSE = ImageUtils.getIcon("images/icons/pause.png");
+    public static final ImageIcon ICON_FW = ImageUtils.getIcon("images/icons/forward.png");
+    public static final ImageIcon ICON_BW = ImageUtils.getIcon("images/icons/backward.png");
+    
     private JSlider slider;
     private JButton play;
     private JButton speedUp;
@@ -34,10 +41,12 @@ public class Timeline extends JPanel implements ChangeListener {
     private AbstractAction pauseAction;
     
     private List<TimelineChangeListener> listeners = new ArrayList<TimelineChangeListener>();
+    
     private ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {
             Thread t = new Thread(r);
+            t.setName("Timeline Thread");
             t.setDaemon(true);
             return t;
         }
@@ -60,8 +69,6 @@ public class Timeline extends JPanel implements ChangeListener {
     
     private Runnable updater;
     
-    private Dimension preferredButtonDimensions = new Dimension(80, 20);
-
     public Timeline(int min, int max, int frequency, int perSecond, boolean wait) {
         slider = new JSlider(min, max);
         slider.addChangeListener(this);
@@ -76,12 +83,13 @@ public class Timeline extends JPanel implements ChangeListener {
         pauseAction = getPauseAction();
         
         play.setAction(playAction);
+        
         speedUp.setAction(getSpeedUpAction());
         speedDown.setAction(getSpeedDownAction());
         
-        speedUp.setMinimumSize(preferredButtonDimensions);
-        play.setMinimumSize(preferredButtonDimensions);
-        speedDown.setMinimumSize(preferredButtonDimensions);
+//        speedUp.setMinimumSize(preferredButtonDimensions);
+//        play.setMinimumSize(preferredButtonDimensions);
+//        speedDown.setMinimumSize(preferredButtonDimensions);
         
         // Layout definition
         setLayout(new MigLayout());
@@ -100,15 +108,22 @@ public class Timeline extends JPanel implements ChangeListener {
         updater = new Runnable() {
             @Override
             public void run() {
-                if (running)
+                if (running) {
                     slider.setValue(slider.getValue() + (advancePerSecond / Timeline.this.frequency) * speed);
+                }
             }
         };
-        service.scheduleAtFixedRate(updater, 0, 1000 / Timeline.this.frequency, TimeUnit.MILLISECONDS);
+        ScheduledFuture<?> future = service.scheduleAtFixedRate(updater, 0, 1000 / Timeline.this.frequency, TimeUnit.MILLISECONDS);
+//        try {
+//            future.get();
+//        } catch(Exception e) {
+//            Throwable t = e.getCause();
+//            t.printStackTrace();
+//        }
     }
 
     public AbstractAction getPlayAction() {
-        return new AbstractAction(I18n.text("Play")) {
+        return new AbstractAction("", ICON_PLAY) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 play();
@@ -117,7 +132,7 @@ public class Timeline extends JPanel implements ChangeListener {
     }
 
     public AbstractAction getPauseAction() {
-        return new AbstractAction(I18n.text("Pause")) {
+        return new AbstractAction("", ICON_PAUSE) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pause();
@@ -126,7 +141,7 @@ public class Timeline extends JPanel implements ChangeListener {
     }
 
     public AbstractAction getSpeedUpAction() {
-        return new AbstractAction(I18n.text("Faster")) {
+        return new AbstractAction("", ICON_FW) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 speed *= 2;
@@ -137,7 +152,7 @@ public class Timeline extends JPanel implements ChangeListener {
     }
 
     public AbstractAction getSpeedDownAction() {
-        return new AbstractAction(I18n.text("Slower")) {
+        return new AbstractAction("", ICON_BW) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 speed /= 2;
@@ -150,7 +165,6 @@ public class Timeline extends JPanel implements ChangeListener {
     public void pause() {
         running = false;
         play.setAction(playAction);
-
     }
     public void play() {
         running = true;

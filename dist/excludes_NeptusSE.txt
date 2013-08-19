@@ -1,9 +1,15 @@
 conf/mraplots/*.plot
+plugins/accu.jar
+plugins/envdisp*.jar
+plugins/followRef.jar
 plugins/matlab*.jar
 plugins/mavs.jar
 plugins/noptilus.jar
 plugins/odss.jar
 plugins/s57*.jar
+plugins/spot.jar
+plugins/sunfish.jar
 plugins/trex*.jar
 plugins/vrp.jar
+plugins/vtk.jar
 plugins/webupdate.jar

@@ -84,7 +84,7 @@ public class NoptilusPlanGenerator extends SimpleSubPanel implements Renderer2DP
     @NeptusProperty(name = "Speed Units")
     public Goto.SPEED_UNITS units = SPEED_UNITS.RPM;
 
-    @NeptusProperty(name = "Waypoints folder", hidden = true)
+    @NeptusProperty(name = "Waypoints folder", editable = true)
     public String defaultFolder = ".";
 
     @NeptusProperty(name = "Show generated message")

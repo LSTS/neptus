@@ -68,7 +68,9 @@ import org.dom4j.Node;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
-import pt.up.fe.dceg.neptus.gui.editor.ComboEditor;
+import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
+import pt.up.fe.dceg.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.PathPoint;
 import pt.up.fe.dceg.neptus.imc.TrajectoryPoint;
@@ -722,8 +724,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     public String getTooltipText() {
         NumberFormat nf = GuiUtils.getNeptusDecimalFormat(2);
         return super.getTooltipText()+"<hr>"+
-        "speed: <b>"+nf.format(speed)+" "+speed_units+"</b>"+
-        "<br>points: <b>"+points.size()+"</b>";       
+        I18n.text("speed") + ": <b>"+nf.format(speed)+" "+I18n.text(speed_units)+"</b>"+
+        "<br>" + I18n.text("points") + ": <b>"+points.size()+"</b>";
     }
 
     protected static void test1() {
@@ -738,14 +740,14 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         other.serializeToIMC().dump(System.out);
     }
 
-
     @Override
     protected Vector<DefaultProperty> additionalProperties() {
         Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
 
         DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getUnits(), true);
         units.setShortDescription("The speed units");
-        PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new ComboEditor<String>(new String[] {"RPM", "m/s", "%"}));       
+        PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new SpeedUnitsEditor());
+        PropertiesEditor.getPropertyRendererRegistry().registerRenderer(units, new I18nCellRenderer());
 
         properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
         properties.add(units);

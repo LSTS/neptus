@@ -38,6 +38,7 @@ import java.io.StringWriter;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlElement;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.FileUtil;
@@ -54,6 +55,12 @@ public class MyState {
 	
     @XmlElement
 	private CoordinateSystem location = new CoordinateSystem();	
+    
+    @XmlElement
+    private double length = 0; 
+    
+    @XmlElement
+    private double width = 0; 
     
     private long lastLocationUpdateTimeMillis = -1;
 	
@@ -152,6 +159,36 @@ public class MyState {
 	    instance.saveXml();
 	}
 
+	/**
+     * @return the length
+     */
+    public static double getLength() {
+        return instance.length;
+    }
+    
+    /**
+     * @param length the length to set
+     */
+    public static void setLength(double length) {
+        instance.length = length < 0 ? 0 : length;
+        instance.saveXml();
+    }
+
+    /**
+     * @return the width
+     */
+    public static double getWidth() {
+        return instance.width;
+    }
+    
+    /**
+     * @param width the width to set
+     */
+    public static void setWidth(double width) {
+        instance.width = width < 0 ? 0 : width;
+        instance.saveXml();
+    }
+    
 	private String asXml() {
 	    StringWriter writer = new StringWriter();
 	    JAXB.marshal(this, writer);
@@ -165,17 +202,24 @@ public class MyState {
 
     private static MyState loadFromXmlFile(String myStatePath) {
         File msfx = new File(myStatePath);
-        if (msfx.exists())
-            return loadXml(FileUtil.getFileAsString(msfx));
-        else
+        if (msfx.exists()) {
+            try {
+                return loadXml(FileUtil.getFileAsString(msfx));
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn("Problem loading MyState from file. Reverting to default.", e);
+                return new MyState();
+            }
+        }
+        else {
             return new MyState();
+        }
     }
 
 	private void saveXml() {
 	    String ms = asXml();
 	    FileUtil.saveToFile(myStatePath, ms);
 	}
-
 
 	/**
 	 * @param args

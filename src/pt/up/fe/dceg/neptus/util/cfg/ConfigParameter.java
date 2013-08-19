@@ -34,6 +34,7 @@ package pt.up.fe.dceg.neptus.util.cfg;
 import java.util.Collection;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.imc.Parameter;
 
@@ -128,6 +129,7 @@ public class ConfigParameter {
             return Integer.parseInt(getValue());
         }
         catch (Exception e) {
+            NeptusLog.pub().debug(e.getMessage());
             return 0;
         }        
     }
@@ -137,6 +139,7 @@ public class ConfigParameter {
             return Double.parseDouble(getValue());
         }
         catch (Exception e) {
+            NeptusLog.pub().debug(e.getMessage());
             return Double.NaN;
         }        
     }
@@ -146,6 +149,7 @@ public class ConfigParameter {
             return Boolean.parseBoolean(getValue());
         }
         catch (Exception e) {
+            NeptusLog.pub().debug(e.getMessage());
             return false;
         }  
     }
@@ -155,6 +159,7 @@ public class ConfigParameter {
             return java.util.Arrays.asList(getValue().split(","));
         }
         catch (Exception e) {
+            NeptusLog.pub().debug(e.getMessage());
             return new Vector<String>();
         }    
     }
@@ -170,6 +175,7 @@ public class ConfigParameter {
             return bools;
         }
         catch (Exception e) {
+            NeptusLog.pub().debug(e.getMessage());
             return new Vector<Boolean>();
         }    
     }
@@ -185,6 +191,7 @@ public class ConfigParameter {
             return ints;
         }
         catch (Exception e) {
+            NeptusLog.pub().debug(e.getMessage());
             return new Vector<Integer>();
         }
     }
@@ -200,6 +207,7 @@ public class ConfigParameter {
             return reals;
         }
         catch (Exception e) {
+            NeptusLog.pub().debug(e.getMessage());
             return new Vector<Double>();
         }
     }

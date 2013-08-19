@@ -91,10 +91,9 @@ public class EchoSounderPanel extends SimpleSubPanel implements ConfigurationLis
                         Thread.sleep(millisBetweenRetries);
                         if (getConsole().getMainSystem() != null)
                             send(IMCDefinition.getInstance().create("RequestImagenexSonarConfig"));
-
                     }
                     catch (Exception e) {
-                        NeptusLog.pub().warn("EchoSounderPanel thread stopped.");
+                        NeptusLog.pub().warn("EchoSounderPanel thread stopped. : " + e);
                     }
                 }
             }

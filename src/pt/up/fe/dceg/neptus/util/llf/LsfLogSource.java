@@ -118,7 +118,6 @@ public class LsfLogSource implements IMraLogGroup {
         else {
             defs = IMCDefinition.getInstance(); // If IMC.xml isn't present use the default ones
         }
-
         index = new LsfIndex(lsfFile, defs, listener);
     }
 
@@ -241,11 +240,5 @@ public class LsfLogSource implements IMraLogGroup {
     @Override
     public LsfIndex getLsfIndex() {
         return index;
-    }
-    
-    public static void main(String[] args) throws Exception {
-        LsfLogSource source = new LsfLogSource("/home/jqcorreia/Desktop/merge2/Data.lsf", null);
-//        NeptusLog.pub().info("<###> "+source.listLogs());
-        NeptusLog.pub().info("<###> "+source.getVehicleSources().size()+ "sfsfsf ");
     }
 }

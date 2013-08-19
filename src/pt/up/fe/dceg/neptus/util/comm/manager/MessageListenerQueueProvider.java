@@ -165,18 +165,15 @@ public class MessageListenerQueueProvider<Mi extends MessageInfo, M extends IMes
             if (messageList.size() > queueMaxSize) {
                 long time = System.currentTimeMillis();
                 if (time - lastFullQueueWarning > 1000) {
-                    NeptusLog.pub().warn("Message queue is full [" + messageList.size() + "] :: " + this + " for " + listener);
+                    NeptusLog.pub().warn("Message queue provider is full [" + messageList.size() + "] :: " + this + " for " + listener);
                     lastFullQueueWarning = time;
                 }
                 return false;
             }
             return messageList.offer(pac, 100, TimeUnit.MILLISECONDS);
         }
-        catch (InterruptedException e) {
-            return false;
-        }
         catch (Exception e) {
-            NeptusLog.pub().error(e);
+            NeptusLog.pub().error(e.getMessage());
             return false;
         }
     }
@@ -229,7 +226,7 @@ public class MessageListenerQueueProvider<Mi extends MessageInfo, M extends IMes
                                 }
                             }
                             else {
-                                try { Thread.sleep(50); } catch (Exception e) { }
+                                try { Thread.sleep(50); } catch (Exception e) { NeptusLog.pub().error(e.getMessage());}
                             }
                         }
                     }

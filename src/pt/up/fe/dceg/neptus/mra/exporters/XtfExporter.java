@@ -31,6 +31,18 @@
  */
 package pt.up.fe.dceg.neptus.mra.exporters;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
+
+import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
+import pt.up.fe.dceg.neptus.mra.api.BathymetryParserFactory;
+import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 
 /**
@@ -40,19 +52,90 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
  */
 
 public class XtfExporter implements MraExporter {
-
+    IMraLogGroup source;
+    BathymetryParser parser;
+    File outFile;
+    RandomAccessFile raf;
+    FileChannel chan;
+    ByteBuffer buf;
+    
+    
+    public XtfExporter(IMraLogGroup source) {
+        this.source = source;
+        parser = BathymetryParserFactory.build(source);
+        outFile = new File(source.getFile("Data.lsf").getParent() + "/mra/Data.xtf");
+        try {
+            raf = new RandomAccessFile(outFile, "rw");
+            chan = raf.getChannel();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return true;
+        return BathymetryParserFactory.build(source) != null;
     }
 
     @Override
-    public void process() {
-        
+    public String process() {
+        try {
+            buf = chan.map(MapMode.READ_WRITE, 0, 1024);
+            buf.order(ByteOrder.LITTLE_ENDIAN);
+            
+            // Write XTF file header
+            buf.put((byte) 0x7b);
+            buf.put((byte) 1);
+            
+            writeString("KleinXlt");
+            writeString("4.0");
+            
+            buf.putShort(34, (short)0); // Sonar Type 0 = NONE
+            buf.position(164);
+            buf.putShort((short)3); // Nav Units 3 = LatLon
+            buf.putShort((short) 0); // Number of sidescan channels
+            buf.putShort((short) 1); // Number of bathy channels
+            
+            // Still inside XTF file header, write CHANINFO structure
+            buf.position(256);
+            
+            buf.put((byte) 3); // Channel type 3 = Bathy
+            buf.putShort((short) 4); // Bytes per sample
+            
+            // Write bathymetry data
+            BathymetrySwath swath;
+            parser.rewind();
+            int swathsRead = 0;
+            
+            while((swath = parser.nextSwath()) != null) {
+                int swathSize = 64;
+                buf = chan.map(MapMode.READ_WRITE, 1024 + (swathsRead * swathSize), swathSize);
+                buf.putShort((short) 0xFACE);
+                buf.put((byte) 42);
+                buf.putInt(64);
+                buf.putDouble(33, swath.getPose().getPosition().getLatitudeAsDoubleValue());
+                buf.putDouble(41, swath.getPose().getPosition().getLongitudeAsDoubleValue());
+                buf.putDouble(49, swath.getPose().getAltitude());
+            }
+            
+            raf.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return I18n.text("XTF conversion done.");
     }
 
+    public void writeString(String s) 
+    {
+        for(char c : s.toCharArray()) {
+            buf.put((byte) c);
+        }
+    }
+    
     @Override
     public String getName() {
-        return "XTF Exporter";
+        return I18n.text("XTF Exporter");
     }   
 }

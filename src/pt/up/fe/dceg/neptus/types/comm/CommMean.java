@@ -393,7 +393,7 @@ public class CommMean implements XmlOutputMethods {
 
         Element laten = root.addElement("latency");
         laten.addAttribute("value", latency);
-        if (latencyUnit != "")
+        if (!"".equals(latencyUnit))
             laten.addAttribute("unit", latencyUnit);
 
         if (protocolsArgs.size() > 0) {

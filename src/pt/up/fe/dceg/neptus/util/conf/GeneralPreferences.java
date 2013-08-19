@@ -118,6 +118,10 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "If enable allows the announce msg request to use the sender IP to be use in future comms. to the sender system.")
     public static boolean imcChangeBySourceIpRequest = true;
 
+    @NeptusProperty(name = "IMC Unicast Annonce Enable", category = "IMC Communications", userLevel = LEVEL.ADVANCED, 
+            description = "To send announce also by Unicast. Enable or disable")
+    public static boolean imcUnicastAnnounceEnable = true;
+
     // -------------------------------------------------------------------------
 
     @NeptusProperty(name = "Logs Downloader - Enable Parcial Download", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED, 
@@ -175,15 +179,15 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "Select the comms. separation time in miliseconds that a message (by type) should be warn. Use \"-1\" for always warn.")
     public static int commsMsgSeparationMillis = -1;
 
-    @NeptusProperty(name = "Filter UDP Redirect Also By Port", hidden = true, category = "IMC Communications", userLevel = LEVEL.ADVANCED)
+    @NeptusProperty(name = "Filter UDP Redirect Also By Port", editable = true, category = "IMC Communications", userLevel = LEVEL.ADVANCED)
     public static boolean filterUdpAlsoByPort = false;
 
-    @NeptusProperty(name = "Redirect Unknown Comms. To First Vehicle In Comm. List", hidden = true, category = "IMC Communications", userLevel = LEVEL.ADVANCED,
+    @NeptusProperty(name = "Redirect Unknown Comms. To First Vehicle In Comm. List", editable = true, category = "IMC Communications", userLevel = LEVEL.ADVANCED,
             description = "Any messages comming from unknown vehicle will be redirect to the first on comm. list.")
     public static boolean redirectUnknownIdsToFirstCommVehicle = false;
     
 
-    @NeptusProperty(name = "Use New System Activity Counter", hidden = true, category = "IMC Communications", userLevel = LEVEL.ADVANCED)
+    @NeptusProperty(name = "Use New System Activity Counter", editable = true, category = "IMC Communications", userLevel = LEVEL.ADVANCED)
     public static boolean commsUseNewSystemActivityCounter = true;
 
     // -------------------------------------------------------------------------
@@ -490,8 +494,7 @@ public class GeneralPreferences implements PropertiesProvider {
 
         }
         catch (NumberFormatException e) {
-//            GeneralPreferences.setProperty(GeneralPreferences.IMC_CCU_ID,
-//                    GeneralPreferences.getPropertyDefaultValue(GeneralPreferences.IMC_CCU_ID));
+            NeptusLog.pub().error(e.getMessage());
         }
     }
 

@@ -44,13 +44,14 @@ import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -65,17 +66,14 @@ import pt.up.fe.dceg.neptus.renderer3d.Camera3D;
 import pt.up.fe.dceg.neptus.renderer3d.Obj3D;
 import pt.up.fe.dceg.neptus.renderer3d.Object3DCreationHelper;
 import pt.up.fe.dceg.neptus.renderer3d.Renderer3D;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.map.DynamicElement;
-import pt.up.fe.dceg.neptus.types.map.ImageElement;
 import pt.up.fe.dceg.neptus.types.map.MapGroup;
 import pt.up.fe.dceg.neptus.types.map.MapType;
 import pt.up.fe.dceg.neptus.types.map.PlanElement;
 import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 /**
@@ -103,9 +101,15 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
 	private PlanType plan;
 	private int delay = 100, currentMode = Renderer.TRANSLATION;
 	private ClassLoader cl = this.getClass().getClassLoader();
-	private JButton pauseMode, restart, findVehicle, tailClean;
-	private ToolbarSwitch interpolate, followMode, zoomMode, translateMode,
-			rotateMode, rulerMode, tailOnOff;
+	
+	private JButton pauseMode, restart, findVehicle, tailClean, selectPainters;
+	private ToolbarSwitch interpolate, followMode, tailOnOff;
+	
+	private JToggleButton zoomMode, translateMode,
+    rotateMode, rulerMode;
+
+	private ButtonGroup bgroup = new ButtonGroup();
+	
 	private JToolBar toolbar;
 	private JLabel status = new JLabel();
 	private JComponent renderPanel;
@@ -124,6 +128,7 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
 	private Timer interpolationTimer = null;
 	private PlanElement po;
 	private MapType localMap = new MapType();
+
 	
 	
 	public void startInterpolatingStates() {
@@ -395,6 +400,7 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
 		findVehicle = new ToolbarButton("images/buttons/vehicle.png", "Center map on vehicle position", "findVehicle");
 		addButtonToToolbar(findVehicle);
 		findVehicle.setEnabled(false);
+		bgroup.add(zoomMode);
 		
 		followMode = new ToolbarSwitch("images/buttons/lock_vehicle.png", "Follow vehicle", "follow", cl);
 		addButtonToToolbar(followMode);
@@ -413,6 +419,11 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
 		rulerMode = new ToolbarSwitch("images/buttons/ruler_btn.png", "Measure distances between two points", "viewMode", cl);
 		addButtonToToolbar(rulerMode);
 
+		bgroup.add(zoomMode);
+		bgroup.add(translateMode);
+		bgroup.add(rotateMode);
+		bgroup.add(rulerMode);
+		
 		interpolate = new ToolbarSwitch("images/buttons/preview.png", "Interpolate the estimated vehicle states", "interpolate", cl);		
 		
 		if (!ConfigFetch.isOnLockedMode())
@@ -424,6 +435,10 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
 		tailClean = new ToolbarButton("images/buttons/tailClean.png", "Clean vehicle tail", "tailClean");
 		addButtonToToolbar(tailClean);
 		
+
+		selectPainters = new ToolbarButton("images/buttons/tailClean.png", "Map Layers", "selectPainters");
+		addButtonToToolbar(selectPainters);
+
 		toolbar.add(status);
 
 		return toolbar;
@@ -526,52 +541,23 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
 				zoomMode.setToolTipText("Activate zoom mode");
 			}
 			else {
-			
-				if (src == translateMode) {
+			    if (translateMode.isSelected()) {
 					currentMode = Renderer.TRANSLATION;
-					zoomMode.setSelected(false);
-					rotateMode.setSelected(false);
-					rulerMode.setSelected(false);
-					rotateMode.setToolTipText("Activate rotate mode");
-					translateMode.setToolTipText("De-activate translation mode");
-					zoomMode.setToolTipText("Activate zoom mode");
-					rulerMode.setToolTipText("Activate ruler mode");
 				}
 				
-				if (src == zoomMode) {
+				if (zoomMode.isSelected()) {
 					currentMode = Renderer.ZOOM;	
-					rotateMode.setSelected(false);
-					translateMode.setSelected(false);
-					rulerMode.setSelected(false);
-					rotateMode.setToolTipText("Activate rotate mode");
-					translateMode.setToolTipText("Activate translation mode");
-					zoomMode.setToolTipText("De-activate zoom mode");
-					rulerMode.setToolTipText("Activate ruler mode");
-					
 				}
 				
-				if (src == rotateMode) {
+				if (rotateMode.isSelected()) {
 					currentMode = Renderer.ROTATION;
-					zoomMode.setSelected(false);
-					translateMode.setSelected(false);
-					rulerMode.setSelected(false);
-					rotateMode.setToolTipText("De-activate rotate mode");
-					translateMode.setToolTipText("Activate translation mode");
-					zoomMode.setToolTipText("Activate zoom mode");
-					rulerMode.setToolTipText("Activate ruler mode");
 				}
 				
-				if (src == rulerMode) {
+				if (rulerMode.isSelected()) {
 					currentMode = Renderer.RULER;
-					zoomMode.setSelected(false);
-					rotateMode.setSelected(false);
-					translateMode.setSelected(false);
-					rotateMode.setToolTipText("Activate rotate mode");
-					translateMode.setToolTipText("De-activate translation mode");
-					zoomMode.setToolTipText("Activate zoom mode");
-					rulerMode.setToolTipText("De-activate ruler mode");
 				}
 			}
+			
 			
 			for (int i = 0; i < renderers.length; i++) {
 				renderers[i].setViewMode(currentMode);
@@ -594,7 +580,11 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
 			for (Renderer rend : renderers)
 				rend.clearVehicleTail(null);
 		}
-
+		
+	    if ("selectPainters".equals(action.getActionCommand())) {
+	        this.add(renderer2d.painters.getSelectionPanel(), BorderLayout.EAST);
+	    }
+	    
 		if (action.getSource() == stateGenerator) {
 			status.setText(action.getActionCommand());
 			return;
@@ -835,34 +825,34 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
 		return myMapGroup;
 	}
 	
-	public static void main(String args[]) {
-
-	    // Inicialização...
-	    ConfigFetch.initialize();
-
-	    //Cria um objecto do tipo MissionRenderer (extends JPanel)
-	    MapGroup mg = MapGroup.getNewInstance(new CoordinateSystem());
-	    MapType map = new MapType(new LocationType());
-
-	    ImageElement io = new ImageElement(mg,map);
-	    io.showParametersDialog(null, new String[0], map, true);
-	    map.addObject(io);
-
-	    mg.addMap(map);
-	    MissionRenderer mr = new MissionRenderer(null, mg, MissionRenderer.R2D_AND_R3D1CAM);
-
-	    //Cria uma JFrame e adiciona-lhe o objecto mr
-	    JFrame testFrame = new JFrame("MissionRenderer Unitary Test");
-	    testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    testFrame.setSize(500,500);
-	    testFrame.setContentPane(mr);
-	    testFrame.setVisible(true);
-
-	    //Cria um VehicleType
-	    VehicleType vt = VehiclesHolder.getVehicleById("isurus");
-
-	    //Altera o estado corrente do veículo
-	    SystemPositionAndAttitude vs = new SystemPositionAndAttitude(new LocationType(),0, 0, Math.PI / 4);
-	    mr.setVehicleState(vt, vs);
-	}
+//	public static void main(String args[]) {
+//
+//	    // Inicialização...
+//	    ConfigFetch.initialize();
+//
+//	    //Cria um objecto do tipo MissionRenderer (extends JPanel)
+//	    MapGroup mg = MapGroup.getNewInstance(new CoordinateSystem());
+//	    MapType map = new MapType(new LocationType());
+//
+//	    ImageElement io = new ImageElement(mg,map);
+//	    io.showParametersDialog(null, new String[0], map, true);
+//	    map.addObject(io);
+//
+//	    mg.addMap(map);
+//	    MissionRenderer mr = new MissionRenderer(null, mg, MissionRenderer.R2D_AND_R3D1CAM);
+//
+//	    //Cria uma JFrame e adiciona-lhe o objecto mr
+//	    JFrame testFrame = new JFrame("MissionRenderer Unitary Test");
+//	    testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//	    testFrame.setSize(500,500);
+//	    testFrame.setContentPane(mr);
+//	    testFrame.setVisible(true);
+//
+//	    //Cria um VehicleType
+//	    VehicleType vt = VehiclesHolder.getVehicleById("isurus");
+//
+//	    //Altera o estado corrente do veículo
+//	    SystemPositionAndAttitude vs = new SystemPositionAndAttitude(new LocationType(),0, 0, Math.PI / 4);
+//	    mr.setVehicleState(vt, vs);
+//	}
 }

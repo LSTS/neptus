@@ -33,18 +33,28 @@ package pt.up.fe.dceg.neptus.plugins.multibeam;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.InterpolationColorMap;
+import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
+import pt.up.fe.dceg.neptus.mra.api.BathymetryParserFactory;
+import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
+import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
+import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
 import pt.up.fe.dceg.neptus.mra.replay.LogReplayLayer;
 import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
 /**
  * @author jqcorreia
@@ -54,61 +64,110 @@ import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 public class MultibeamReplay implements LogReplayLayer {
 
     int lod = 0;
+    
     BufferedImage img;
+    Image sImg;
+    
     Point2D pos;
     
-    ColorMap cm;
+    ColorMap cm = ColorMapFactory.createJetColorMap();
     
-    Color colors[] = new Color[] {Color.black, Color.red, Color.white, Color.yellow, Color.orange,Color.green, Color.BLUE};
-    MultibeamData multibeamData;
+    BathymetryParser parser;
+
+    private IMraLogGroup source;
     
     @Override
     public void cleanup() {
         img = null;
-        if (multibeamData !=  null)
-            multibeamData.locationList.clear();
-        multibeamData = null;
+        sImg = null;
     }
     
     public MultibeamReplay() {
-        File cacheFolder = new File(".cache/multibeam");
-        if(!cacheFolder.exists())
-            cacheFolder.mkdir();
+
     }
+    
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
+        String filePath = "mra/multibeam.png";
+        int baseLod = 18;
         
-        if(lod != renderer.getLevelOfDetail())
+        if(source.getFile(filePath) != null)
         {
-            lod = renderer.getLevelOfDetail();
-            double res[] = multibeamData.topLeftLT.getDistanceInPixelTo(multibeamData.bottomRightLT, lod);
-            img = new BufferedImage((int)res[0], (int)res[1], BufferedImage.TYPE_INT_ARGB);
-            
-            for(Double[] pos : multibeamData.locationList) {
-                img.setRGB(Math.abs((int) (pos[0]* Math.pow(2, lod - 22))), Math.abs((int) (pos[1]* Math.pow(2, lod - 22))), cm.getColor(pos[2]).getRGB());
+            if(img == null) {
+                try {
+                    NeptusLog.pub().info("Loading " + filePath);
+                    img = ImageIO.read(source.getFile(filePath));
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        pos = renderer.getScreenPosition(multibeamData.topLeftLT);
-        g.translate(pos.getX(), pos.getY());
-        g.drawImage(img, 0, 0, null);
+        else {
+            System.out.println(parser.getBathymetryInfo().topLeft);
+            System.out.println(parser.getBathymetryInfo().bottomRight);
+            double res[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(
+                    parser.getBathymetryInfo().bottomRight, baseLod);
+
+            System.out.println(res[0] + " " + res[1]);
+            // Create and paint image
+            img = new BufferedImage((int) res[0], (int) res[1], BufferedImage.TYPE_INT_ARGB);
+            parser.rewind();
+
+            BathymetrySwath swath;
+
+            while ((swath = parser.nextSwath(1)) != null) {
+                LocationType loc = swath.getPose().getPosition();
+                
+                for (BathymetryPoint bp : swath.getData()) {
+                    LocationType loc2 = new LocationType(loc);
+                    if (bp == null)
+                        continue;
+
+                    loc2.translatePosition(bp.north, bp.east, 0);
+
+                    double dist[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(loc2, baseLod);
+                    
+                    if (dist[0] > 0 && dist[1] > 0 && dist[0] < img.getWidth() && dist[1] < img.getHeight()) {
+                        img.setRGB((int) dist[0], (int) dist[1], cm.getColor(1 - (bp.depth / parser.getBathymetryInfo().maxDepth))
+                                .getRGB());
+                    }
+                }
+            }
+            
+            try {
+                NeptusLog.pub().info("Recording " + source.getFile("Data.lsf").getParent() + "/" + filePath);
+                ImageIO.write(img, "PNG", new File(source.getFile("Data.lsf").getParent() + "/" + filePath));
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        pos = renderer.getScreenPosition(parser.getBathymetryInfo().topLeft);
         
-        double diffHeight = multibeamData.maxHeight - multibeamData.minHeight;
+        int difLod = renderer.getLevelOfDetail() - baseLod;
+        Graphics2D g2d = (Graphics2D) g.create();
+
+        g2d.translate(pos.getX(), pos.getY());
+        g2d.rotate(-renderer.getRotation());
+        g2d.scale(Math.pow(2, difLod), Math.pow(2, difLod));
+        g2d.drawImage(img , 0, 0, null);
         
-        g.translate(-pos.getX(),-pos.getY());
         for(int i = 0; i < 200; i++) {
-            g.setColor(cm.getColor(multibeamData.minHeight + diffHeight / 200 * i));
+            double val = parser.getBathymetryInfo().maxDepth * i / 200.0;
+            g.setColor(cm.getColor(1 - (val / parser.getBathymetryInfo().maxDepth)));
             g.drawRect(10, 100+i, 10, 1);
             if(i % 50 == 0 || i == 0 || i == 200-1) {
                 g.setColor(Color.black);
-                g.drawString(""+Math.round(multibeamData.minHeight + diffHeight / 200 * i)+"m", 30, 100+i);
+                g.drawString(""+Math.round(val)+"m", 30, 100+i);
             }
         }
- 
     }
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getFile("multibeam.83P") != null;
+        return BathymetryParserFactory.build(source) != null;
     }
 
     @Override
@@ -118,14 +177,9 @@ public class MultibeamReplay implements LogReplayLayer {
 
     @Override
     public void parse(IMraLogGroup source) {
-        multibeamData = MultibeamData.build(source.getFile("multibeam.83P"), source);
-        double heights[] = new double[colors.length];
-        double diffHeight = multibeamData.maxHeight - multibeamData.minHeight; 
-       
-        NeptusLog.pub().info("<###>Min Height : " + multibeamData.minHeight + " Max Height : " + multibeamData.maxHeight);
-        for(int i = 0; i < colors.length ; i++)
-            heights[i] = multibeamData.minHeight + diffHeight/colors.length * i;
-        cm = new InterpolationColorMap(heights, colors);
+        
+        parser = new DeltaTParser(source);
+        this.source = source;
     }
 
     @Override

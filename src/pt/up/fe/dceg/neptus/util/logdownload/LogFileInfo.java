@@ -31,6 +31,8 @@
  */
 package pt.up.fe.dceg.neptus.util.logdownload;
 
+import org.apache.commons.net.ftp.FTPFile;
+
 import pt.up.fe.dceg.neptus.util.logdownload.LogFolderInfo.State;
 
 /**
@@ -39,12 +41,15 @@ import pt.up.fe.dceg.neptus.util.logdownload.LogFolderInfo.State;
  */
 public class LogFileInfo {
 
-	String name = null;
-	
-	String uriPartial = null;
-	
-	State state = State.NEW;
+	private String name = null;
+	private String uriPartial = null;
 
+	private State state = State.NEW;
+
+	private FTPFile file = null;
+	
+	private String host = null;
+	
 	private long size = -1;
 	
 	/**
@@ -62,6 +67,27 @@ public class LogFileInfo {
 		return name;
 	}
 	
+	public FTPFile getFile() {
+	    return file;
+	}
+
+	/**
+     * @return the host
+     */
+    public String getHost() {
+        return host;
+    }
+
+    /**
+     * @param host the host to set
+     */
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public void setFile(FTPFile file) {
+	    this.file = file;
+	}
 	
 	/**
 	 * @return the uriPartial

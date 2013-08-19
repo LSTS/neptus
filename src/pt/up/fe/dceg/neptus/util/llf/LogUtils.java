@@ -48,6 +48,7 @@ import java.util.zip.ZipInputStream;
 import org.jfree.chart.JFreeChart;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.LblBeacon;
 import pt.up.fe.dceg.neptus.imc.SonarData;
@@ -193,31 +194,31 @@ public class LogUtils {
         Date ds = new Date(startMillis);
         Date df = new Date(endMillis);
 
-        stats.put("Vehicle", "" + LogUtils.getVehicle(source));
-        stats.put("Mission start time", "" + ds);
-        stats.put("Mission end time", "" + df);
-        stats.put("Mission duration", DateTimeUtil.milliSecondsToFormatedString(endMillis - startMillis));
-        stats.put("Maximum depth", GuiUtils.getNeptusDecimalFormat(2).format(maxDepth) + " m");
-        stats.put("Avg depth", GuiUtils.getNeptusDecimalFormat(2).format(avgDepth) + " m");
+        stats.put(I18n.text("Vehicle"), "" + LogUtils.getVehicle(source));
+        stats.put(I18n.text("Mission start time"), "" + ds);
+        stats.put(I18n.text("Mission end time"), "" + df);
+        stats.put(I18n.text("Mission duration"), DateTimeUtil.milliSecondsToFormatedString(endMillis - startMillis));
+        stats.put(I18n.text("Maximum depth"), GuiUtils.getNeptusDecimalFormat(2).format(maxDepth) + " " + I18n.textc("m", "meters"));
+        stats.put(I18n.text("Avg depth"), GuiUtils.getNeptusDecimalFormat(2).format(avgDepth) + " " + I18n.textc("m", "meters"));
 
-        stats.put("Roll min/max/amp/avg", GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(minRoll)) + "\u00B0 / "
+        stats.put(I18n.text("Roll min/max/amp/avg"), GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(minRoll)) + "\u00B0 / "
                 + GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(maxRoll)) + "\u00B0 / "
                 + GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(maxRoll - minRoll)) + "\u00B0 / "
                 + GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(avgRoll)) + "\u00B0");
 
-        stats.put("Pitch min/max/amp/avg", GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(minPitch)) + "\u00B0 / "
+        stats.put(I18n.text("Pitch min/max/amp/avg"), GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(minPitch)) + "\u00B0 / "
                 + GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(maxPitch)) + "\u00B0 / "
                 + GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(maxPitch - minPitch)) + "\u00B0 / "
                 + GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(avgPitch)) + "\u00B0");
 
-        stats.put("Distance travelled", GuiUtils.getNeptusDecimalFormat(2).format(distance) + " m");
-        stats.put("Mean velocity",
-                GuiUtils.getNeptusDecimalFormat(2).format(distance / ((endMillis - startMillis) / 1000.0)) + " m/s");
+        stats.put(I18n.text("Distance travelled"), GuiUtils.getNeptusDecimalFormat(2).format(distance) + " " + I18n.textc("m", "meters"));
+        stats.put(I18n.text("Mean velocity"),
+                GuiUtils.getNeptusDecimalFormat(2).format(distance / ((endMillis - startMillis) / 1000.0)) + " " + I18n.text("m/s"));
 
         LocationType loc = LogUtils.getHomeRef(source);
         if (loc != null) {
-            stats.put("Home Latitude", loc.getLatitudeAsPrettyString());
-            stats.put("Home Longitude", loc.getLongitudeAsPrettyString());
+            stats.put(I18n.text("Home Latitude"), loc.getLatitudeAsPrettyString());
+            stats.put(I18n.text("Home Longitude"), loc.getLongitudeAsPrettyString());
         }
         return stats;
     }
@@ -951,7 +952,7 @@ public class LogUtils {
     
     public static ArrayList<LogMarker> getMarkersFromSource(IMraLogGroup source) {
         try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(source.getFile("Data.lsf").getParent()+"/marks.dat"));
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(source.getFile("Data.lsf").getParent()+"mra/marks.dat"));
             @SuppressWarnings("unchecked")
             ArrayList<LogMarker> markers = (ArrayList<LogMarker>)ois.readObject();
             ois.close();
@@ -969,8 +970,7 @@ public class LogUtils {
         if(sd == null)
             return false;
         
-        long ts = sd.getTimestampMillis();
-        while((sd.getTimestampMillis() - ts) < 5000 && sd != null) {
+        while(sd != null) {
             if(sd.getType() == SonarData.TYPE.SIDESCAN)
                 return true;
             sd = it.next();

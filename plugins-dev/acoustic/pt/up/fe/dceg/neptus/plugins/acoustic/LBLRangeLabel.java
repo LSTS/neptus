@@ -226,13 +226,12 @@ public class LBLRangeLabel extends JXPanel {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		try {
-			LBLRangeLabel cmp = (LBLRangeLabel) obj;
-			return cmp.getName().equals(name);
-		} catch (Exception e) {
-		    e.printStackTrace();
-			return false;
-		}
+	    if(obj instanceof LBLRangeLabel) {
+	        return ((LBLRangeLabel) obj).getName().equals(name);
+	    }
+	    else {
+	        return false;
+	    }
 	}
 
 	private void scheduleUpdateTask() {

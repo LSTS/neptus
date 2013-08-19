@@ -41,7 +41,9 @@ import org.dom4j.Node;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.editor.ComboEditor;
+import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
+import pt.up.fe.dceg.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
@@ -259,7 +261,8 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
 
     	DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getUnits(), true);
     	units.setShortDescription("The speed units");
-    	PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new ComboEditor<String>(new String[] {"RPM", "m/s", "%"}));    	
+    	PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new SpeedUnitsEditor());  
+    	PropertiesEditor.getPropertyRendererRegistry().registerRenderer(units, new I18nCellRenderer());
     
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
     	properties.add(units);
@@ -313,15 +316,14 @@ public class FollowSystem extends DefaultManeuver implements IMCSerialization {
 	
 	@Override
 	public String getTooltipText() {
-	
 		return super.getTooltipText()+"<hr>"+
-		"speed: <b>"+getSpeed()+" "+getUnits()+"</b>"+
-		"<br>duration: <b>"+(int)getDuration()+" s</b>" +
-		"<br>system: <b>"+getSystem()+"</b>" +
-		"<br>system: <b>nOff=</b>'" + MathMiscUtils.round(getXOffset(), 1) +
-		"' <b>eOff=</b>'" + MathMiscUtils.round(getYOffset(), 1) +
-		"' <b>dOff=</b>'" + MathMiscUtils.round(getZOffset(), 1) +
-		"'";
+		"speed" + ": <b>"+getSpeed()+" "+I18n.text(getUnits())+"</b>"+
+		"<br>" + I18n.text("duration") + ": <b>"+(int)getDuration()+" " + I18n.textc("s", "seconds") + "</b>" +
+		"<br>" + I18n.text("system") + ": <b>"+getSystem()+"</b>" +
+		"<br>" + I18n.text("system") + ": <b>" + I18n.textc("nOff", "north offset") + "=</b>'" + MathMiscUtils.round(getXOffset(), 1) +
+		"' <b>" + I18n.textc("eOff", "east offset") + "=</b>'" + MathMiscUtils.round(getYOffset(), 1) +
+		"' <b>" + I18n.textc("dOff", "down offset") + "=</b>'" + MathMiscUtils.round(getZOffset(), 1) +
+		" (" + I18n.textc("m", "meters") + ")'";
 	}
 	
 	@Override

@@ -143,7 +143,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
     @NeptusProperty(name = "Verify plans for island nodes", userLevel = LEVEL.ADVANCED,
             description = "Always runs a verification "
             + "on the plan for maneuvers that have no input edges. If you choose to switch off here "
-            + "you can allways click Alt whan sending the plan that this verification will run.")
+            + "you can allways click Alt when sending the plan that this verification will run.")
     public boolean allwaysVerifyAllManeuversUsed = true;
 
 //    @NeptusProperty(name = "Use Acoustic To Send Msg If System Not In WiFi Range", userLevel = LEVEL.ADVANCED, 
@@ -163,7 +163,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             + "it display all buttons, if false only teleoperation button is shown.")
     public boolean useFullMode = true;
 
-    @NeptusProperty(name = "Enable console actions", hidden = true)
+    @NeptusProperty(name = "Enable console actions", editable = true)
     public boolean enableConsoleActions = true;
 
     // @NeptusProperty(name = "Use PlanDB to send plan", description = "For current vehicles set to true.")
@@ -748,7 +748,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                 }
                 int resp = GuiUtils.confirmDialog(SwingUtilities.windowForComponent(this),
                         I18n.text("LBL Beacons"),
-                        I18n.textf("Are you sure that you want to override the existing LBL configuration with solely %beaconsToSend?",
+                        I18n.textf("Are you sure you want to send only %beaconsToSend?",
                         beaconsToSend));
                 if (resp == JOptionPane.YES_OPTION) {
                     transpondersList.clear();

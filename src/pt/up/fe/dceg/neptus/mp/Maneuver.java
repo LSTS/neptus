@@ -41,6 +41,7 @@ import java.awt.geom.Rectangle2D;
 import java.beans.PropertyEditor;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -49,6 +50,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
+import javax.swing.table.TableCellRenderer;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -823,12 +825,14 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
 
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();
 
-        DefaultProperty id = PropertiesEditor.getPropertyInstance(I18n.text("ID"), I18n.text("Generic properties"),
+        DefaultProperty id = PropertiesEditor.getPropertyInstance("ID", I18n.text("Generic properties"),
                 String.class, getId(), false);
+        id.setDisplayName(I18n.text("ID"));
         id.setShortDescription(I18n.text("The identifier for this object"));
         props.add(id);
-        DefaultProperty initialMan = PropertiesEditor.getPropertyInstance(I18n.text("Initial Maneuver"),
+        DefaultProperty initialMan = PropertiesEditor.getPropertyInstance("Initial Maneuver",
                 I18n.text("Generic properties"), Boolean.class, isInitialManeuver(), true);
+        initialMan.setDisplayName(I18n.text("Initial Maneuver"));
         initialMan.setShortDescription(I18n.text("Whether this will be the first maneuver to be executed"));
         props.add(initialMan);
         
@@ -837,19 +841,41 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             loc.convertToAbsoluteLatLonDepth();
             //props.add(PropertiesEditor.getPropertyInstance("Latitude", "Location", String.class, loc.getLatitudeAsPrettyString(), false, "Maneuver's latitude"));
             //props.add(PropertiesEditor.getPropertyInstance("Longitude", "Location", String.class, loc.getLongitudeAsPrettyString(), false, "Maneuver's longitude"));
-            props.add(PropertiesEditor.getPropertyInstance("Location", "Location", ManeuverLocation.class, loc, true, "Maneuver's location"));
-            props.add(PropertiesEditor.getPropertyInstance("Z", "Location", Double.class, loc.getZ(), true, "Maneuver's z value"));
-            DefaultProperty pz = PropertiesEditor.getPropertyInstance("Z-Units", "Location", ManeuverLocation.Z_UNITS.class, loc.getZUnits(), true, "Maneuver's z units");
+            DefaultProperty propertyLocation = PropertiesEditor.getPropertyInstance("Location", I18n.text("Location"), ManeuverLocation.class, loc, true, I18n.text("Maneuver's location"));
+            propertyLocation.setDisplayName(I18n.text("Location"));
+            props.add(propertyLocation);
+            DefaultProperty propertyZ = PropertiesEditor.getPropertyInstance("Z", I18n.text("Location"), Double.class, loc.getZ(), true, I18n.text("Maneuver's z value"));
+            propertyZ.setDisplayName(I18n.textc("Z", "Maneuver's z value"));
+            props.add(propertyZ);
+            DefaultProperty pz = PropertiesEditor.getPropertyInstance("Z-Units", I18n.text("Location"), ManeuverLocation.Z_UNITS.class, loc.getZUnits(), true, I18n.text("Maneuver's z units"));
+            pz.setDisplayName(I18n.textc("Z-Units", "Maneuver's z units"));
             PropertiesEditor.getPropertyEditorRegistry().registerEditor(pz, new ComboEditor<ManeuverLocation.Z_UNITS>(ManeuverLocation.Z_UNITS.values()));
             props.add(pz);
         }
 
+        Vector<DefaultProperty> additionalProperties = additionalProperties();
         Vector<DefaultProperty> addProps = new Vector<DefaultProperty>();
-        PropertiesEditor.localizeProperties(additionalProperties(), addProps);
-        for (DefaultProperty p : addProps) {
+        HashMap<String, PropertyEditor> peLList = new HashMap<>();
+        HashMap<String, TableCellRenderer> peRendererList = new HashMap<>();
+        for (DefaultProperty p : additionalProperties) {
             PropertyEditor pe = PropertiesEditor.getPropertyEditorRegistry().getEditor(p);
+            peLList.put(p.getName(), pe);
+            
+            TableCellRenderer tcr = PropertiesEditor.getPropertyRendererRegistry().getRenderer(p);
+            peRendererList.put(p.getName(), tcr);
+        }
+        PropertiesEditor.localizeProperties(additionalProperties, addProps);
+        for (DefaultProperty p : addProps) {
+            // PropertyEditor pe = PropertiesEditor.getPropertyEditorRegistry().getEditor(p);
             p.setCategory(I18n.textf("%s specific properties", getType()));
-            PropertiesEditor.getPropertyEditorRegistry().registerEditor(p, pe);
+            // PropertiesEditor.getPropertyEditorRegistry().registerEditor(p, pe);
+            PropertyEditor pe = peLList.get(p.getName());
+            if (pe != null)
+                PropertiesEditor.getPropertyEditorRegistry().registerEditor(p, pe);
+
+            TableCellRenderer tcr = peRendererList.get(p.getName());
+            if (tcr != null)
+                PropertiesEditor.getPropertyRendererRegistry().registerRenderer(p, tcr);
         }
 
         props.addAll(addProps);
@@ -907,6 +933,9 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                 if (p.getName().equalsIgnoreCase("Initial Maneuver")) {
                     setInitialManeuver((Boolean) p.getValue());
                 }
+                else  if (p.getName().equalsIgnoreCase(I18n.text("Initial Maneuver"))) {
+                    setInitialManeuver((Boolean) p.getValue());
+                }
                 else if (p.getName().equalsIgnoreCase("Z") && this instanceof LocatedManeuver) {
                     ManeuverLocation manLoc = ((LocatedManeuver)this).getManeuverLocation();
                     manLoc.setZ((Double)p.getValue());
@@ -919,9 +948,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                 }
                 else if (p.getName().equalsIgnoreCase("Location") && this instanceof LocatedManeuver) {                    
                     ((LocatedManeuver)this).getManeuverLocation().setLocation((LocationType)p.getValue());
-                }
-                else  if (p.getName().equalsIgnoreCase(I18n.text("Initial Maneuver"))) {
-                    setInitialManeuver((Boolean) p.getValue());
                 }
                 else if (p.getCategory() != null
                         && p.getCategory().equalsIgnoreCase(I18n.textf("%s custom settings", getType()))) {
@@ -1016,16 +1042,29 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     public String getPropertiesDialogTitle() {
         return I18n.textf("%s properties", getId());
     }
+    
+    public void cloneActions(Maneuver otherMan) {
+        startActions = new PlanActions();
+        startActions.load(otherMan.getStartActions().asElement("start-actions"));
+        endActions = new PlanActions();
+        endActions.load(otherMan.getEndActions().asElement("end-actions"));
+    }
 
     public String getTooltipText() {
         String tt = "";
         if (!isInitialManeuver())
-            tt = "<html><b><font color='#0000CC'>" + getId() + "</font></b> " + getType();
+            tt = "<html><b><font color='#0000CC'>" + getId() + "</font></b> " + I18n.text(getType());
         else
-            tt = "<html><b><font color='#00CC00'>" + getId() + "</font></b> " + getType();
+            tt = "<html><b><font color='#00CC00'>" + getId() + "</font></b> " + I18n.text(getType());
         if (!getStartActions().isEmpty() || !getEndActions().isEmpty()) {
-            tt += "<hr>" + "start-actions->" + (getStartActions().isEmpty() ? "no" : "yes") + " | end-actions->"
-                    + (getEndActions().isEmpty() ? "no" : "yes");
+//            tt += "<hr>" + I18n.text("start-actions") + "->"
+//                    + (getStartActions().isEmpty() ? I18n.text("no") : I18n.text("yes")) + " | "
+//                    + I18n.text("end-actions") + "->"
+//                    + (getEndActions().isEmpty() ? I18n.text("no") : I18n.text("yes"));
+            tt += "<hr>"
+                    + (getStartActions().isEmpty() ? "" : I18n.text("payload actions"))
+                    + (getEndActions().isEmpty() ? "" : (getStartActions().isEmpty() ? "" : " | ")
+                            + I18n.text("end actions"));
         }
         return tt;
     }

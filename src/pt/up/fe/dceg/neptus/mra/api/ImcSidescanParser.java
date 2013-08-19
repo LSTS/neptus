@@ -33,8 +33,6 @@ package pt.up.fe.dceg.neptus.mra.api;
 
 import java.util.ArrayList;
 
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SonarData;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
@@ -50,8 +48,6 @@ public class ImcSidescanParser implements SidescanParser {
     IMraLog pingParser;
     IMraLog stateParser;
     
-    ColorMap colormap = ColorMapFactory.createBronzeColormap();
-
     long firstTimestamp = -1;
     long lastTimestamp = -1;
     
@@ -60,20 +56,34 @@ public class ImcSidescanParser implements SidescanParser {
     public ImcSidescanParser(IMraLogGroup source) {
         pingParser = source.getLog("SonarData");
         stateParser = source.getLog("EstimatedState");
+        
+        calcFirstAndLastTimestamps();
     }
+
     
+    private void calcFirstAndLastTimestamps() {
+        IMCMessage msg;
+        boolean firstFound = false;
+        
+        while((msg = getNextMessage(pingParser)) != null) {
+            if(!firstFound) {
+                firstFound = true;
+                firstTimestamp = msg.getTimestampMillis();
+            }
+            lastTimestamp = msg.getTimestampMillis();
+        }
+
+        pingParser.firstLogEntry();
+    }
+
+
     @Override
     public long firstPingTimestamp() {
-        if(firstTimestamp != -1 ) return firstTimestamp;
-        firstTimestamp = pingParser.firstLogEntry().getTimestampMillis();
         return firstTimestamp;
     };
     
     @Override
     public long lastPingTimestamp() {
-        if(lastTimestamp != -1 ) return lastTimestamp;
-        lastTimestamp = pingParser.getLastEntry().getTimestampMillis();
-        pingParser.firstLogEntry();
         return lastTimestamp;
     }
     
@@ -96,17 +106,18 @@ public class ImcSidescanParser implements SidescanParser {
         }
         
         lastTimestampRequested = timestamp1;
-        
-        IMCMessage ping = pingParser.getEntryAtOrAfter(timestamp1);
+        IMCMessage ping;
+        try {
+             ping = pingParser.getEntryAtOrAfter(timestamp1);
+        }
+        catch (Exception e) {
+            ping = null;
+        }
         if (ping == null)
             return list;
-//FIXME
-//        if (ping.getDouble("frequency") != freq || ping.getInteger("type") != SonarData.TYPE.SIDESCAN.value()) {
-//            ping = getNextMessageWithFrequency(pingParser, freq);
-//        }
        
         if (ping.getInteger("type") != SonarData.TYPE.SIDESCAN.value()) {
-            ping = getNextMessageWithFrequency(pingParser, 0); //FIXME
+            ping = getNextMessage(pingParser); //FIXME
         }
         IMCMessage state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
 
@@ -121,7 +132,7 @@ public class ImcSidescanParser implements SidescanParser {
         if (fData == null) {
         }
 
-        while (ping.getTimestampMillis() <= timestamp2) {
+        while (ping == null || ping.getTimestampMillis() <= timestamp2) {
             // Null guards
             if (ping == null || state == null)
                 break;
@@ -131,45 +142,27 @@ public class ImcSidescanParser implements SidescanParser {
             pose.setAltitude(state.getDouble("alt"));
             pose.getPosition().setLatitudeRads(state.getDouble("lat"));
             pose.getPosition().setLongitudeRads(state.getDouble("lon"));
-            pose.setYaw(state.getDouble("psi"));
             pose.getPosition().setOffsetNorth(state.getDouble("x"));
             pose.getPosition().setOffsetEast(state.getDouble("y"));
+            pose.setRoll(state.getDouble("phi"));
+            pose.setYaw(state.getDouble("psi"));
+            pose.setP(state.getDouble("p"));
+            pose.setQ(state.getDouble("q"));
+            pose.setR(state.getDouble("r"));
             pose.setU(state.getDouble("u"));
-            
-//            float horizontalScale = (float) ping.getRawData("data").length / (range * 2f);
-//            float verticalScale = horizontalScale;
 
-//            // Time elapsed and speed calculation
-//            IMCMessage nextPing = getNextMessageWithFrequency(pingParser, 0); // WARNING: This advances the
-//                                                                                   // parser
-//            if (nextPing == null)
-//                break;
-//
-//            secondsUntilNextPing = (nextPing.getTimestampMillis() - ping.getTimestampMillis()) / 1000f;
-//            speed = state.getDouble("u");
-//
-//            // Finally the 'height' of the ping in pixels
-//            int size = (int) (secondsUntilNextPing * speed * verticalScale);
-//            if (size <= 0) {
-//                size = 1;
-//            }
-//            else if (secondsUntilNextPing > 0.5) {
-//                // TODO This is way too much time between shots. Maybe mark it on the plot?
-//                // For now put 1 as ysize
-//                size = 1;
-//            }
-
-            // Image building. Calculate and draw a line, scale it and save it
+            // Image building. Calculate and draw a line, scale and save it
             byte[] data = ping.getRawData("data");
 
             for (int c = 0; c < data.length; c++) {
                 fData[c] = (data[c] & 0xFF) / 255.0;
             }
             
-            list.add(new SidescanLine(ping.getTimestampMillis(), range, pose, fData));
+            list.add(new SidescanLine(ping.getTimestampMillis(), range, pose, ping.getFloat("frequency"), fData));
 
-            ping = getNextMessageWithFrequency(pingParser, 0); 
-            state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
+            ping = getNextMessage(pingParser); 
+            if (ping != null)
+                state = stateParser.getEntryAtOrAfter(ping.getTimestampMillis());
         }
         
         return list;
@@ -179,7 +172,12 @@ public class ImcSidescanParser implements SidescanParser {
         return pingParser.currentTimeMillis();
     }
     
-    public IMCMessage getNextMessageWithFrequency(IMraLog parser, double freq) {
+    /**
+     * Method used to get the next SonarData message of Sidescan Type
+     * @param parser
+     * @return
+     */
+    public IMCMessage getNextMessage(IMraLog parser) {
         IMCMessage msg;
         while((msg = parser.nextLogEntry()) != null) {
             if(msg.getInteger("type") == SonarData.TYPE.SIDESCAN.value()) {

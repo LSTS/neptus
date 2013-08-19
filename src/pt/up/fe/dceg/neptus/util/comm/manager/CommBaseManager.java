@@ -100,7 +100,7 @@ public abstract class CommBaseManager<M extends IMessage, Mi extends MessageInfo
      */
     @Override
     public synchronized boolean start() {
-        NeptusLog.pub().debug("Starting IMC");
+        NeptusLog.pub().debug("Starting comms");
         if (started)
             return true; // do nothing
 
@@ -187,20 +187,16 @@ public abstract class CommBaseManager<M extends IMessage, Mi extends MessageInfo
      */
     @Override
     public synchronized boolean stop() {
-        
         boolean ret;
         try {
             if (!started)
                 return true; // do nothing
-            NeptusLog.pub().info("<###>STOP IMC");
+            NeptusLog.pub().debug("Stopping comms");
             if(timerThread != null) {
                 timerThread.interrupt();
                 timerThread = null;
             }
 
-            // FIXME MW
-            // if (openNode != null)
-            // openNode.stop();
             stopManagerComms();
 
             if (messageProcessor != null) {
@@ -499,8 +495,6 @@ public abstract class CommBaseManager<M extends IMessage, Mi extends MessageInfo
 
     // -- ------------------- --//
 
-    // -- ------------------- --//
-
     /**
      * <p style="color='ORANGE'">
      * Don't need to override this method.
@@ -603,21 +597,6 @@ public abstract class CommBaseManager<M extends IMessage, Mi extends MessageInfo
      */
     abstract public boolean sendMessage(M message, I vehicleCommId, String sendProperties);
 
-    // public boolean sendMessage(M message, I vehicleId,
-    // boolean forceBroadcast)
-
-    // -- ------------------ --//
-
-    /**
-     * @param type
-     * @param id
-     * @return null if not found
-     */
-    /*
-     * public final MessagePackage<Mi, M> getLastMessageOfType(String type, I id) { C comm = getCommInfoById(id); if
-     * (comm != null) return comm.getLastMessageOfType(type); else return null; }
-     */
-
     // -- ------------------ --//
 
     /**
@@ -700,22 +679,17 @@ public abstract class CommBaseManager<M extends IMessage, Mi extends MessageInfo
      */
     public final boolean removeListenerFromAllSystems(MessageListener<Mi, M> listener) {
         boolean ret = false;
-        // int r = 0;
+        int r = 0;
         for (C vci : commInfo.values()) {
-            boolean rt = vci.removeListener(listener); // This HAS TO be
-                                                       // separated from the
-                                                       // line of code bellow
-                                                       // because it might not
-                                                       // run if "ret" is
-                                                       // already true
-            // if (rt) r++;
+            boolean rt = vci.removeListener(listener); // This HAS TO be separated from the line of code bellow because
+                                                       // it might not run if "ret" is already true
             ret = ret || rt;
+            if (rt)
+                r++;
         }
-        // NeptusLog.pub().info("<###>remove " + listener.getClass().getName() + " | " + r + " | " +listener.hashCode());
+        NeptusLog.pub().debug("Removed " + listener.getClass().getName() + " | " + r + " | " + listener.hashCode());
         return ret;
     }
-
-    // -- ------------------ --//
 
     // -- ------------------ --//
 

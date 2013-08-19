@@ -422,7 +422,7 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
                 t = null;
             }
         });
-        
+        t.setName("BathymetryPlotter thread");
         t.setDaemon(true);
         t.start();
     }
@@ -626,11 +626,9 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
                 ColorMapUtils.generateInterpolatedColorMap(bounds, dps, 0, image.createGraphics(), image.getWidth(),
                         image.getHeight(), 255, (ColorMap) cmapCombo.getSelectedItem(), dd.minVal[0] * 0.995,
                         dd.maxVal[0] * 1.005);
-
-
             }
             catch (NullPointerException e) {
-                NeptusLog.pub().info("<###> "+bounds + "," + dps + "," + image + "," + cmapCombo);
+                NeptusLog.pub().error(e, e);
             }
 
             // Clip with CHull
@@ -709,7 +707,7 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
             timestamp = System.currentTimeMillis();
             NeptusLog.pub().debug(timestamp + " processing points");
             for (EstimatedState currEstStateMsg : lsfIndex.getIterator(EstimatedState.class)) {
-                if (currEstStateMsg.getAlt() < 0 || currEstStateMsg.getDepth() < 1
+                if (currEstStateMsg.getAlt() < 0 || currEstStateMsg.getDepth() < NeptusMRA.minDepthForBathymetry
                     || Math.abs(currEstStateMsg.getTheta()) > Math.toDegrees(10)) {
                     continue;
                 }

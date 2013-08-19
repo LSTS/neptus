@@ -1180,6 +1180,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             EditorLauncher ed = new EditorLauncher();
             short edType = ed.TEXT_EDITOR_TYPE;
             ed.editFile(fx.getAbsolutePath(), edType, false);
+            NeptusLog.pub().error(e.getStackTrace());
         }
     }
 

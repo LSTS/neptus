@@ -80,7 +80,7 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
 public class ModemRanger extends SimpleSubPanel implements ConfigurationListener, ActionListener,
         NeptusMessageListener, Renderer2DPainter, IAbortSenderProvider {
 
-    @NeptusProperty(hidden = true)
+    @NeptusProperty(editable = true)
     public int targetId = 0;
 
     @NeptusProperty(name = "Name of the modems gateway")

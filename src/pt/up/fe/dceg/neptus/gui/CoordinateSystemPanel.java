@@ -39,7 +39,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.LinkedHashMap;
+import java.util.TreeMap;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -56,6 +56,7 @@ import javax.swing.border.TitledBorder;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
@@ -106,7 +107,7 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 		originalCoordinateSystem = cs;
 
 		if (cs != null)
-			this.centerLocation.setLocation( (LocationType) cs);
+			this.centerLocation.setLocation( cs);
 
 		initialize();
 
@@ -121,7 +122,8 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 	}
 
 	
-	public Dimension getPreferredSize() {
+	@Override
+    public Dimension getPreferredSize() {
 		return new Dimension(400,300);
 	}
 
@@ -141,30 +143,32 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 	/* (non-Javadoc)
 	 * @see pt.up.fe.dceg.neptus.mme.objects.ParametersPanel#getErrors()
 	 */
-	public String getErrors() {
+	@Override
+    public String getErrors() {
 		try {
 			//Double.parseDouble(getYawField().getText());
 			//Double.parseDouble(getPitchField().getText());
 			Double.parseDouble(getYawField().getText());
 		}
 		catch (Exception e) {
-			return "The angle offset is invalid!";
+			return I18n.text("The angle offset is invalid!");
 		}
 		return null;
 	}
 
-	public void actionPerformed(ActionEvent e) {
+	@Override
+    public void actionPerformed(ActionEvent e) {
 
 		if ("changecenter".equals(e.getActionCommand())) {
             LocationType tmp = LocationPanel.showLocationDialog(CoordinateSystemPanel.this,
-                    "Change the reference point", centerLocation, null, editable);
+                    I18n.text("Change the reference point"), centerLocation, null, editable);
 
 			if (tmp != null)
 				centerLocation = tmp;
 		}
 		if ("ok".equals(e.getActionCommand())) {
 			if (getErrors() != null) {
-				JOptionPane.showMessageDialog(dialog, getErrors(), "Errors in the parameters", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(dialog, getErrors(), I18n.text("Errors in the parameters"), JOptionPane.ERROR_MESSAGE);
 			}
 			else {			
 				dialog.setVisible(false);
@@ -206,16 +210,18 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 	 */
 	private JPanel getJPanel1() {
 		if (jPanel1 == null) {
-			TitledBorder titledBorder1 = javax.swing.BorderFactory.createTitledBorder(null,"Axis attitude",javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,javax.swing.border.TitledBorder.DEFAULT_POSITION,null,null);
+            TitledBorder titledBorder1 = javax.swing.BorderFactory.createTitledBorder(null, I18n.text("Axis attitude"),
+                    javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                    javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null);
 			jLabel4 = new JLabel();
 			jLabel1 = new JLabel();
 			jPanel1 = new JPanel();
 			jPanel1.setEnabled(true);
 			jPanel1.setBorder(titledBorder1);
-			jLabel1.setText("Rotation over the vertical axis:");
-			jLabel4.setText(" (degrees)");
+			jLabel1.setText(I18n.text("Rotation over the vertical axis:"));
+			jLabel4.setText(" (" + I18n.text("degrees") + ")");
 			//jLabel4.setFont(new java.awt.Font("Dialog", java.awt.Font.BOLD, 14));
-			titledBorder1.setTitle("Offset Angle North");
+			titledBorder1.setTitle(I18n.text("Offset Angle North"));
 			jPanel1.add(jLabel1, null);
 			jPanel1.add(getYawField(), null);
 			jPanel1.add(jLabel4, null);
@@ -231,7 +237,7 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 	private JButton getChangeCenter() {
 		if (changeCenter == null) {
 			changeCenter = new JButton();
-			changeCenter.setText("Change...");
+			changeCenter.setText(I18n.text("Change..."));
 			changeCenter.setActionCommand("changecenter");
 			changeCenter.addActionListener(this);
 		}
@@ -270,7 +276,8 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 		dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
 		dialog.setAlwaysOnTop(false);
 		dialog.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
+			@Override
+            public void windowClosing(WindowEvent e) {
 				userCancel = true;
 				dialog.setVisible(false);
 				dialog.dispose();
@@ -302,7 +309,7 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 				//NeptusLog.pub().info("<###>Propagating...");
 				// Translate all objects (maps, plans) in the mission
 				MapGroup missonMaps = MapGroup.getMapGroupInstance(getMissionType());
-				LinkedHashMap<String, PlanType> plans = getMissionType().getIndividualPlansList();
+                TreeMap<String, PlanType> plans = getMissionType().getIndividualPlansList();
 				
 				double[] offsets = cs.getOffsetFrom(originalCoordinateSystem);
 				double offsetNorth = offsets[0], offsetEast = offsets[1], offsetDown = offsets[2];
@@ -391,7 +398,7 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 	private JButton getCancelBtn() {
 		if (cancelBtn == null) {
 			cancelBtn = new JButton();
-			cancelBtn.setText("Cancel");
+			cancelBtn.setText(I18n.text("Cancel"));
 			cancelBtn.setActionCommand("cancel");
 			cancelBtn.addActionListener(this);
 		}
@@ -405,7 +412,7 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 	private JButton getOkBtn() {
 		if (okBtn == null) {
 			okBtn = new JButton();
-			okBtn.setText("OK");
+			okBtn.setText(I18n.text("OK"));
 			okBtn.setActionCommand("ok");
 			okBtn.addActionListener(this);
 		}
@@ -417,7 +424,8 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 	    getChangeHomePanel().setVisible(value);
 	}
 
-	public void setEditable(boolean value) {
+	@Override
+    public void setEditable(boolean value) {
 	    this.editable = value;
         getYawField().setEditable(editable);
         //getPitchField().setEditable(editable);
@@ -429,9 +437,9 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 
 	private JCheckBox getApplyToMisson() {
 	    if (applyToMisson == null) {
-	        applyToMisson = new JCheckBox("Propagate");
+	        applyToMisson = new JCheckBox(I18n.text("Propagate"));
 	        applyToMisson.setSelected(false);
-	        applyToMisson.setToolTipText("Translate all mission accordingly to changes");				
+	        applyToMisson.setToolTipText(I18n.text("Translate all mission accordingly to changes"));				
 	    }
 
 	    return applyToMisson;

@@ -37,9 +37,12 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 
+import pt.up.fe.dceg.neptus.imc.Conductivity;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.imc.Salinity;
+import pt.up.fe.dceg.neptus.imc.Temperature;
+import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.importers.ImcLogUtils;
 import pt.up.fe.dceg.neptus.mra.visualizations.SimpleMRAVisualization;
@@ -73,8 +76,8 @@ public class MraCsvExporter extends SimpleMRAVisualization {
                 source.getLog("Temperature") != null ||
                 source.getLog("Salinity") != null)
                 //FIXME 
-//                &&
-//                ImcLogUtils.getEntityListReverse(source).get("CTD") != null
+                //                &&
+                //                ImcLogUtils.getEntityListReverse(source).get("CTD") != null
                 );
     }
 
@@ -91,76 +94,76 @@ public class MraCsvExporter extends SimpleMRAVisualization {
     protected Thread startLoading(IMraLogGroup source) {
         if (loadingThread != null)
             loadingThread.interrupt();
-        
-        csvEditor.setText("time,latitude,longitude,conductivity,temperature,pressure,salinity\n");
 
-        final IMraLog estimatedState = source.getLog("EstimatedState");
-        final IMraLog[] logs = new IMraLog[] {
-                source.getLog("Conductivity"),
-                source.getLog("Temperature"),
-                source.getLog("Pressure"),
-                source.getLog("Salinity")
-        };
+        final LsfIndex index = source.getLsfIndex();
+
+        csvEditor.setText("timestamp,latitude,longitude,depth,altitude,conductivity,temperature,salinity\n");
+
         final int ctdId = ImcLogUtils.getEntityListReverse(source).get("CTD");
-        final long firstTime = (estimatedState.currentTimeMillis()/1000)*1000;
-        final long start = estimatedState.nextLogEntry().getHeader().getLong("timestamp");
-
+        final double start = index.getStartTime();
+        final double end = index.getEndTime();
+        //        final IMraLog estimatedState = source.getLog("EstimatedState");
+        //        
+        //        final IMraLog[] logs = new IMraLog[] {
+        //                source.getLog("Conductivity"),
+        //                source.getLog("Temperature"),
+        //                source.getLog("Pressure"),
+        //                source.getLog("Salinity")
+        //        };
+        //        final int ctdId = ImcLogUtils.getEntityListReverse(source).get("CTD");
+        //        final long firstTime = (estimatedState.currentTimeMillis()/1000)*1000;
+        //        final long start = estimatedState.nextLogEntry().getHeader().getLong("timestamp");
+        //
         loadingThread = new Thread() {
 
             public void run() {
-                long curTime = firstTime;
                 DecimalFormat latFormat = new DecimalFormat("0.000000");
                 DecimalFormat valFormat = new DecimalFormat("0.000");
-
-                while(true) {
-                    String line = ""+(start+(curTime/1000));
-                    long nextTime = curTime + timestep;
-                    IMCMessage msgEstimatedState = estimatedState.getEntryAtOrAfter(curTime);
-                    if (msgEstimatedState == null)
-                        break;
-                    LocationType loc = IMCUtils.getLocation(msgEstimatedState);
+                int condIndex = 0, tempIndex = 0, salIndex = 0;
+                for (double curTime = start + 1; curTime < end; curTime += 1.0) {
+                    String line = valFormat.format(curTime);
+                    IMCMessage state = index.getMessageAt("EstimatedState", curTime);
+                    if (state == null)
+                        continue;
+                    LocationType loc = IMCUtils.getLocation(state);
                     loc.convertToAbsoluteLatLonDepth();
-
                     line +=","+latFormat.format(loc.getLatitudeAsDoubleValue());
                     line +=","+latFormat.format(loc.getLongitudeAsDoubleValue());
-                    //line +=","+valFormat.format(loc.getDepth());
-
-                    for (IMraLog log : logs) {
-                        double sum = 0;
-                        int count = 0;
-                        
-                        // In case some log object doesnt exist continue to next log
-                        if(log == null)
-                            continue;
-                        
-                        IMCMessage m = log.getEntryAtOrAfter(curTime);
-                        
-                        while (log.currentTimeMillis() < nextTime) {
-                            if (m.getHeader().getInteger("src_ent") == ctdId) {
-                                count ++;
-                                sum += m.getDouble("value");                                
-                            }
-                            m = log.nextLogEntry();
-
-                            if(m == null) // End of log break condition
-                                break;
-                        }
-                        
-                        if (sum > 0)
-                            line += ","+valFormat.format(sum/count);
-                        else
-                            line += ",-1";
+                    line +=","+valFormat.format(state.getDouble("depth"));
+                    line +=","+latFormat.format(state.getDouble("alt"));
+                    int newCondIndex = index.getMessageAtOrAfer(Conductivity.ID_STATIC, ctdId, condIndex, state.getTimestamp());
+                    if (newCondIndex != -1) {
+                        condIndex = newCondIndex;
+                        line += ","+valFormat.format(index.getMessage(condIndex).getDouble("value"));
                     }
+                    else
+                        line += ",-1";
+                    
+                    int newTempIndex = index.getMessageAtOrAfer(Temperature.ID_STATIC, ctdId, tempIndex, state.getTimestamp());
+                    if (newTempIndex != -1) {
+                        tempIndex = newTempIndex;
+                        line += ","+valFormat.format(index.getMessage(tempIndex).getDouble("value"));
+                    }
+                    else
+                        line += ",-1";
+                    
+                    int newSalIndex = index.getMessageAtOrAfer(Salinity.ID_STATIC, ctdId, salIndex, state.getTimestamp());
+                    if (newSalIndex != -1) {
+                        salIndex = newSalIndex;
+                        line += ","+valFormat.format(index.getMessage(salIndex).getDouble("value"));
+                    }
+                    else
+                        line += ",-1";
+                        
                     csvEditor.setText(csvEditor.getText()+line+"\n");
-                    curTime = nextTime;
-                }               
+                }
             };
         };
 
         loadingThread.start();
         return loadingThread;
     }
-    
+
     public Type getType() {
         return Type.VISUALIZATION;
     }

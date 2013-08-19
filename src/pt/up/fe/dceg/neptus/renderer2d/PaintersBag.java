@@ -47,6 +47,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ReflectionUtil;
 
@@ -65,6 +66,12 @@ public class PaintersBag {
     protected Vector<String> sortByPriority = new Vector<String>();
     protected Vector<String> sortByName = new Vector<String>();
 
+    protected StateRenderer2D renderer;
+    
+    
+    public PaintersBag(StateRenderer2D renderer) {
+        this.renderer = renderer;
+    }
     /**
      * Add a new painter
      * @param name The name of the painter to be added
@@ -234,6 +241,22 @@ public class PaintersBag {
      * @param owner The window which will be parenting the created dialog
      */
     public void showSelectionDialog(Window owner) {
+        JPanel inner = getSelectionPanel();
+        
+        JDialog dialog = new JDialog(owner);
+        dialog.getContentPane().setLayout(new BorderLayout());
+        dialog.setTitle(I18n.text("Active layers selection"));
+        JScrollPane scrollPane = new JScrollPane(inner);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        
+        dialog.getContentPane().add(scrollPane);
+        dialog.setSize(300, 300);
+        dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        GuiUtils.centerOnScreen(dialog);
+        dialog.setVisible(true);
+    }
+    
+    public JPanel getSelectionPanel() {
         JPanel inner = new JPanel();
         inner.setLayout(new BoxLayout(inner, BoxLayout.PAGE_AXIS));
         ActionListener listener = new ActionListener() {
@@ -242,6 +265,7 @@ public class PaintersBag {
             public void actionPerformed(ActionEvent e) {
                 String name = e.getActionCommand();
                 PaintersBag.this.setPainterActive(name, ((JCheckBox)e.getSource()).isSelected());
+                renderer.repaint();
             }
         }; 
         for (String name : sortByName) {
@@ -251,16 +275,7 @@ public class PaintersBag {
             check.addActionListener(listener);
             inner.add(check);
         }
-        JDialog dialog = new JDialog(owner);
-        dialog.getContentPane().setLayout(new BorderLayout());
-        dialog.setTitle("Active layers selection");
-        JScrollPane scrollPane = new JScrollPane(inner);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         
-        dialog.getContentPane().add(scrollPane);
-        dialog.setSize(300, 300);
-        dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        GuiUtils.centerOnScreen(dialog);
-        dialog.setVisible(true);
+        return inner;
     }
 }

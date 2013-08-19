@@ -93,7 +93,7 @@ public class ProxyInfoProvider {
         }
         catch (Exception e) {
             NeptusLog.pub().error("Not possible to open \"conf/" + ProxyInfoProvider.class.getSimpleName().toLowerCase()
-                    + ".properties\"");
+                    + ".properties\" : " + e.getMessage());
         }
     }
 
@@ -108,7 +108,7 @@ public class ProxyInfoProvider {
         }
         catch (Exception e) {
             NeptusLog.pub().error("Not possible to open \"conf/" + ProxyInfoProvider.class.getSimpleName().toLowerCase()
-                    + ".properties\"");
+                    + ".properties\" : " + e.getMessage());
         }
     }
 
@@ -179,6 +179,7 @@ public class ProxyInfoProvider {
                 httpProxyPort = Short.parseShort(ret[3]);
             }
             catch (NumberFormatException e) {
+                NeptusLog.pub().debug(e.getMessage());
                 httpProxyPort = (short) 80;
             }
 

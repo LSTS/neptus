@@ -39,22 +39,20 @@ import java.io.File;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketException;
+import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
-import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import org.apache.commons.net.ftp.FTPFile;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -73,6 +71,7 @@ import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.ftp.FtpDownloader;
 import pt.up.fe.dceg.neptus.gui.MiniButton;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.util.DateTimeUtil;
@@ -118,7 +117,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	
 	private boolean usePartialDownload = true;
 	
-	private HttpClient client = null;
 	private String name = "";
 	private String uri = "";
 	private File outFile = null;
@@ -128,9 +126,17 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	
 	private long downloadedSize = 0;
 	private long fullSize = -1;
-	
-	private HttpGet get = null;
-	
+
+    private FtpDownloader client = null;
+    private FTPFile ftpFile;
+    
+    private boolean isDirectory = false;
+    
+    private long doneFilesForDirectory = 0;
+    
+    private InputStream stream; // Generic stream
+    private boolean stopping = false;
+
 	//UI
 	private JXLabel infoLabel = null;
 	private JProgressBar progressBar = null;
@@ -139,9 +145,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	private MiniButton stopButton = null;
 	private MiniButton downloadButton = null;
 	
-	/**
-	 * 
-	 */
 	public DownloaderPanel() {
 		initialize();
 	}
@@ -152,13 +155,15 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	 * @param name
 	 * @param uri
 	 */
-	public DownloaderPanel(HttpClient client, String name, String uri, File outFile) {
-		this();
+	public DownloaderPanel(FtpDownloader client, FTPFile ftpFile, String uri, File outFile) {
+	    this();
 		this.client = client;
-		this.name = name;
+		this.ftpFile = ftpFile;
+		this.name = ftpFile.getName();
 		this.uri = uri;
 		this.outFile = outFile;
 		
+		this.isDirectory = ftpFile.isDirectory();
 		getInfoLabel().setText(name + " (" + uri + ")");
 	}
 
@@ -280,16 +285,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		return infoLabel;
 	}
 
-//	/**
-//	 * @return the progressLabel
-//	 */
-//	private JXLabel getProgressLabel() {
-//		if (progressLabel == null) {
-//			progressLabel = new JXLabel("");
-//		}
-//		return progressLabel;
-//	}
-	
 	/**
 	 * @return the msgLabel
 	 */
@@ -467,7 +462,10 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		new Thread() {
 			@Override
 			public void run() {
-				doDownload();
+				if(!isDirectory)
+				    doDownload();
+				else
+				    doDownloadDirectory();
 			}
 		}.start();
 	}
@@ -485,169 +483,62 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	}
 
 	protected boolean doDownload() {
+	    if(isDirectory)
+            return doDownloadDirectory();
+	    
+	    
+	    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
 		if (getState() == State.WORKING)
 			return false;
 		
-		State prevState = getState();
-		long begByte = 0;
-		if (usePartialDownload && prevState != State.DONE && outFile.exists() && outFile.isFile()) {
-		    begByte = outFile.length();
+		if (!client.getClient().isConnected()) {
+		    try {
+                client.renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                setStateError();
+            }
 		}
 		
+		State prevState = getState();
+		long begByte = 0;
+		if (usePartialDownload && prevState != State.DONE && outFile.exists() && outFile.isFile() && !isDirectory) {
+		    begByte = outFile.length();
+		    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "!begin byte: " + begByte);
+		}
 		setStateWorking();
 		
 		boolean isOnTimeout = false;
 		
-//      206
-//      Server: DUNE/2.0.0
-//      Content-Length: 201284
-//      Cache-Control: max-age=1, must-revalidate
-//      Last-Modified: Sat, 28 Apr 2012 10:33:22 GMT
-//      Expires: Sat, 28 Apr 2012 10:33:22 GMT
-//      Accept-Ranges: bytes
-//      Content-Range: bytes 10-201294/201295
-
-		
-		get = new HttpGet(uri);
-//		get.setFollowRedirects(true);
-		
-		if (debug) {
-		    NeptusLog.pub().info("<###>URI: " + uri);
-		    NeptusLog.pub().info("<###>-- Beg. Byte: " + begByte + " --");
-		}
-		if (begByte > 0) {
-		    get.addHeader("Range", "bytes=" + begByte +"-");
-		}
-		if (debug) {
-		    for (Header header : get.getAllHeaders()) {
-		        NeptusLog.pub().info("<###> "+header.toString());
-		    }
-		}
-
 		try {
 			getProgressBar().setValue(0);
 			getProgressBar().setString(begByte == 0 ? I18n.text("Starting...") : I18n.text("Resuming..."));
 			getMsgLabel().setText("");
 			startTimeMillis = System.currentTimeMillis();
 			getInfoLabel().setText(name + " (" + uri + ")");
-			HttpResponse iGetResultCode = client.execute(get);
-            
-			if (debug) {
-    			NeptusLog.pub().info("<###>-- Resp Code: " + iGetResultCode.getStatusLine().getStatusCode() + " --");
-    			for (Header header : iGetResultCode.getAllHeaders()) {
-                    NeptusLog.pub().info("<###> "+header.toString());
-                }
-			}
 			
-			if (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_OK &&
-			        (begByte == 0 ? true : (iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_PARTIAL_CONTENT &&
-			                iGetResultCode.getStatusLine().getStatusCode() != HttpStatus.SC_REQUESTED_RANGE_NOT_SATISFIABLE))) {
-                getProgressBar().setString(
-                        I18n.textf("[%httpdCode] %httpdReasonPhrase code was return from the server", iGetResultCode
-                                .getStatusLine().getStatusCode(), iGetResultCode.getStatusLine().getReasonPhrase()));
-				if (get != null) {
-					get.abort();
-				}
-				setStateError();
-				return false;
-			}
-			else if (begByte > 0 && iGetResultCode.getStatusLine().getStatusCode() == HttpStatus.SC_REQUESTED_RANGE_NOT_SATISFIABLE) {
-                getProgressBar().setString(I18n.textf("[%httpdCode] %httpdReasonPhrase code was return from the server. File already completed!!",
-                        iGetResultCode.getStatusLine().getStatusCode(),
-                        iGetResultCode.getStatusLine().getReasonPhrase()));
-                if (get != null) {
-                    get.abort();
-                }
-                setStateDone();
-                return true;
-			}
-            else if (begByte > 0 && iGetResultCode.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                if (iGetResultCode.containsHeader("Content-Length")) {
-                    begByte = 0; // It does not support partial content
-                }
-                else {
-                    getProgressBar().setString(I18n.textf("[%httpdCode] %httpdReasonPhrase  code was return from the server. File already completed!!",
-                            iGetResultCode.getStatusLine().getStatusCode(),
-                            iGetResultCode.getStatusLine().getReasonPhrase()));
-                    if (get != null) {
-                        get.abort();
-                    }
-                    setStateDone();
-                    return true;
-                }
+			if (begByte > 0) {
+                downloadedSize = begByte;
+                client.getClient().setRestartOffset(begByte);
+                System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "using resume");
             }
 			
-			
-			InputStream streamGetResponseBody = iGetResultCode.getEntity().getContent();
-			// fullSize = iGetResultCode.getEntity().getContentLength();
-			long contentLengh = iGetResultCode.getEntity().getContentLength();
-			long totalSize = -1;
-			
-			if (iGetResultCode.containsHeader("Content-Range")) {
-			    Header[] hds = iGetResultCode.getHeaders("Content-Range");
-			    for (Header header : hds) {
-                    if (!"Content-Range".equalsIgnoreCase(header.getName()))
-                        continue;
-                    //Content-Range: bytes 20873394-20874786/20874787
-                    //Content-Range: bytes 20873394-20874786/*
-                    String val = header.getValue();
-                    String[] parts = val.split("[ -/]");
-                    boolean parseError = false;
-                    String parseErrorMsg = "";
-                    if (parts.length != 4 || !"bytes".equalsIgnoreCase(parts[0])) {
-                        parseErrorMsg = I18n.textf("Content-Range not well formated [Content-Range: %val]!",val);
-                        parseError = true;
-                    }
-                    if (!parseError) {
-                        try {
-                            long startByte = Long.parseLong(parts[1]);
-                            long endByte = Long.parseLong(parts[2]);
-                            totalSize = "*".equalsIgnoreCase(parts[3]) ? -1 : Long.parseLong(parts[3]);
-                            
-                            if (begByte != startByte) {
-                                parseErrorMsg = I18n.textf("Content-Range not match the requested [%begByte != %startByte+]!", begByte, startByte);
-                                parseError = true;
-                            }
-                        }
-                        catch (Exception e) {
-                            parseErrorMsg = I18n.textf("Content-Range not well formated [%msgText]!", e.getMessage());
-                            parseError = true;
-                        }
-                    }
-                    
-                    if (parseError) {
-                        getProgressBar().setString(parseErrorMsg);
-                        if (get != null) {
-                            get.abort();
-                        }
-                        setStateError();
-                        outFile.delete();
-                        return false;
-                    }
-                    break;
-                }
-			}
-			if (totalSize > 0)
-			    fullSize = totalSize;
-			else if (contentLengh > 0)
-			    fullSize = contentLengh;
-			else
-			    fullSize = contentLengh;
-			
-			
-			getProgressBar().setString(I18n.text("Starting... ") + 
-			        (fullSize >= 0 ? I18n.textf("%number bytes", MathMiscUtils.parseToEngineeringRadix2Notation(fullSize,1)) : "unknown bytes"));
-			//msgPanel.writeMessageText("["+MathMiscUtils.parseToEngineeringNotation(cSize,1)+" bytes] ...");
+			// System.out.println("FTP Client is connected " + client.getClient().isConnected());
+			stream = client.getClient().retrieveFileStream(new String(uri.getBytes(), "ISO-8859-1"));
+
+			fullSize = ftpFile.getSize();
+
 			outFile.getParentFile().mkdirs();
+			
 			try {
 				outFile.createNewFile();
-			} catch (IOException e) {
+			} 
+			catch (IOException e) {
 				e.printStackTrace();
 			}
-			
-			FilterDownloadDataMonitor ioS = new FilterDownloadDataMonitor(streamGetResponseBody);
-            if (begByte > 0)
-                downloadedSize = begByte;
+
+			FilterDownloadDataMonitor ioS = new FilterDownloadDataMonitor(stream);
 			boolean streamRes = StreamUtil.copyStreamToFile(ioS, outFile, begByte == 0 ? false : true);
 
 			if (debug) {
@@ -656,14 +547,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			
 			endTimeMillis = System.currentTimeMillis();
 			ioS.stopDisplayUpdate();
-//			getProgressBar().setString(MathMiscUtils.parseToEngineeringRadix2Notation(fullSize, 1)
-//					+ "B "+((streamRes  && fullSize == downloadedSize)?"":"partially [" 
-//					+ MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize, 1)+ "B]")
-//					+ " done (in "
-//					+ DateTimeUtil.milliSecondsToFormatedString(endTimeMillis - startTimeMillis)
-//					+ ") @"
-//					+ (MathMiscUtils.parseToEngineeringRadix2Notation((begByte > 0 ? downloadedSize - begByte: downloadedSize)
-//							/ ((endTimeMillis - startTimeMillis) / 1000.0), 1)) + "B/s");
+
 			if (streamRes  && fullSize == downloadedSize) {
                 getProgressBar().setString(I18n.textf("%fullSize done (in %time) @%dataRate", 
                         MathMiscUtils.parseToEngineeringRadix2Notation(fullSize, 1) + "B",
@@ -681,12 +565,16 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			}
 			if(streamRes && fullSize == downloadedSize) {
 				setStateDone();
+				// downloadButton.setEnabled(false); //FIXME pdias 20130805 For now disable redownload because the get stream above from client cames null
+				// client.getClient().disconnect();
 				getMsgLabel().setText(I18n.textf("Saved in '%filePath'", outFile.getAbsolutePath()));
 			}
-			else 
+			else {
 				setStateNotDone();
-		} catch (Exception ex) {
-			//ex.printStackTrace();
+			}
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
 		    if (ex.getMessage() != null && ex.getMessage().startsWith("Timeout waiting for connection")) {
 		        isOnTimeout = true;
                 getProgressBar().setString(" " + I18n.text("Error:") + " " + ex.getMessage());
@@ -698,19 +586,16 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                                 + (ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName()));
 		        setStateError();
 		    }
-		} finally {
-			if (get != null) {
-//				get.releaseConnection();
-				get.abort();
-				get = null;
-			}
 		}
-		if (get != null) {
-//			get.releaseConnection();
-			get.abort();
-			get = null;
+		finally {
+            try {
+                if (client.getClient().isConnected())
+                    client.getClient().disconnect();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
 		}
-		
 		if (isOnTimeout) {
 		    new Thread() {
 	            @Override
@@ -724,21 +609,162 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		return true;
 	}
 	
+	protected boolean doDownloadDirectory() {
+	    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "DOWNLOADING DIRECTORY");
+	    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading " + name + " " + uri + " " + outFile.getAbsolutePath());
+
+	    String basePath = outFile.getParentFile().getParentFile().getParentFile().getAbsolutePath();
+	    
+        // Get file list for directory 
+        if (getState() == State.WORKING)
+            return false;
+        
+        if (!client.getClient().isConnected()) {
+            try {
+                client.renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                setStateError();
+            }
+        }
+
+        State prevState = getState();
+        
+        setStateWorking();
+        stopping = false;
+        
+        boolean isOnTimeout = false;
+
+        if (debug) {
+            NeptusLog.pub().info("<###>URI: " + uri);
+        }
+        
+        try {
+            LinkedHashMap<String, FTPFile> fileList = client.listDirectory("/" + uri);
+            
+            System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "Number of FTPFiles in folder: " + fileList.size());
+
+            getProgressBar().setValue(0);
+            getProgressBar().setString(I18n.text("Starting..."));
+            getMsgLabel().setText("");
+            startTimeMillis = System.currentTimeMillis();
+            getInfoLabel().setText(name + " (" + uri + ")");
+            
+            long contentLengh = ftpFile.getSize();
+            final long listSize = fileList.size();
+            
+            getProgressBar().setString(I18n.text("Starting... ") + 
+                    (listSize >= 0 ? I18n.textf("%number files", MathMiscUtils.parseToEngineeringRadix2Notation(fullSize,1)) : "unknown files"));
+            //msgPanel.writeMessageText("["+MathMiscUtils.parseToEngineeringNotation(cSize,1)+" bytes] ...");
+
+            final Timer t = new Timer(DownloaderPanel.class.getSimpleName() + " :: progress for files for directory " + basePath);
+            t.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    getProgressBar().setValue((int) ((doneFilesForDirectory / (float)listSize) * 100));
+                    getProgressBar().setString(doneFilesForDirectory + " out of " + listSize);
+                    
+                    if (state != State.WORKING)
+                        t.cancel();
+                }
+            }, 0, 100);
+            
+            doneFilesForDirectory = 0;
+            for(String key : fileList.keySet()) {
+                if(stopping)
+                    break;
+                
+                File out = new File(basePath + "/" + key);
+                
+                if(out.exists() && fileList.get(key).getSize() == out.length()) {
+                    doneFilesForDirectory++;
+                    continue;
+                }
+                
+                // stream = client.getClient().retrieveFileStream(key);
+                stream = client.getClient().retrieveFileStream(new String(key.getBytes(), "ISO-8859-1"));
+                
+                out.getParentFile().mkdirs();
+                try {
+                    out.createNewFile();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                
+                boolean streamRes = StreamUtil.copyStreamToFile(stream, out, false);
+                client.getClient().completePendingCommand();
+                doneFilesForDirectory++;
+            }
+            
+            endTimeMillis = System.currentTimeMillis();
+            
+            if (doneFilesForDirectory == listSize) {
+                getProgressBar().setString(I18n.textf("%listSize files done (in %time) @%dataRate", 
+                        listSize,
+                        DateTimeUtil.milliSecondsToFormatedString(endTimeMillis - startTimeMillis),
+                        (MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize
+                                / ((endTimeMillis - startTimeMillis) / 1000.0), 1)) + "B/s"));
+                getMsgLabel().setText(I18n.textf("Saved in '%filePath'", outFile.getAbsolutePath()));
+                setStateDone();
+                // client.getClient().disconnect();
+            }
+            else { 
+                setStateNotDone();
+            }
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            if (ex.getMessage() != null && ex.getMessage().startsWith("Timeout waiting for connection")) {
+                isOnTimeout = true;
+                getProgressBar().setString(" " + I18n.text("Error:") + " " + ex.getMessage());
+                setStateTimeout();
+            }
+            else {
+                getProgressBar().setString(
+                        I18n.text("Error:") + " "
+                                + (ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName()));
+                setStateError();
+            }
+        }
+        finally {
+            try {
+                if (client.getClient().isConnected())
+                    client.getClient().disconnect();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (isOnTimeout) {
+            new Thread() {
+                @Override
+                public void run() {
+                    try { Thread.sleep(8000); } catch (InterruptedException e) { }
+                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
+                        doDownloadDirectory();
+                }
+            }.start();
+        }
+        return true;
+    }
+	
 	protected void doStop() {
-		if (get != null) {
-			get.abort();
-//			get.releaseConnection();
-			get.abort();
-			get = null;
-			setStateNotDone();
-		}
+		try {
+		    stopping = true;
+		    stream.close();
+//            client.getClient().disconnect();
+            setStateNotDone();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+		
 		if (getState() == State.TIMEOUT)
 		    setStateNotDone();
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 	    if(this == obj)
@@ -748,7 +774,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	        return false;
 	    
 		DownloaderPanel cmp = (DownloaderPanel) obj;
-		return name.equals(cmp.getName());
+		return uri.equals(cmp.uri);
 
 	}
 	
@@ -765,7 +791,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 
 		//private DownloaderPanel downloadPanel = null;
 		
-		//private long fullSize = -1;
+        private static final int MAX_TIME_MINUTES_LEFT_TO_SHOW = 180;
+
+        //private long fullSize = -1;
 		//private long bytesRead = 0;
 		private long prec = 0;
 		
@@ -785,7 +813,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			super(in);
 			//this.downloadPanel = downloadPanel;
 			//this.fullSize = fullSize;
-			downloadedSize = 0;
+//			downloadedSize = 0;
 		}
 
 		public void stopDisplayUpdate() {
@@ -885,7 +913,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		private String getTimeLeft(double bps) {
 			long leftB = fullSize - downloadedSize;
 			double tLeft = leftB / bps;
-			long maxS = 10 * 60; // 10min
+			long maxS = MAX_TIME_MINUTES_LEFT_TO_SHOW * 60; // 10min
 			if (tLeft < maxS)
 				return DateTimeUtil.milliSecondsToFormatedString(
 						(long) (MathMiscUtils.round(tLeft,1) * 1000.0));
@@ -977,96 +1005,96 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		dpn.getProgressBar().setString("3452bytes (15.9KB/s),00:00:07s left");
 		//GuiUtils.testFrame(dpn);
 
-        final DownloaderPanel dpn0 = new DownloaderPanel(client, "Data.lsf",
-                "http://127.0.0.1:8080/dune/logs/download/20120428/092009_idle/Data.lsf", new File("d:/zztest/Data.lsf"));
-
-        final DownloaderPanel dpn01 = new DownloaderPanel(client, "IMC.xml",
-                "http://127.0.0.1:8080/dune/logs/download/20120428/092009_idle/IMC.xml", new File("d:/zztest/IMC.xml"));
-
-        final DownloaderPanel dpn02 = new DownloaderPanel(client, "rfc2616.html",
-                "http://tools.ietf.org/html/rfc2616", new File("d:/zztest/rfc2616.html"));
-        
-        final DownloaderPanel dpn03 = new DownloaderPanel(client, "REC-xml-20081126.html",
-                "http://www.w3.org/TR/2008/REC-xml-20081126/", new File("d:/zztest/REC-xml-20081126.html"));
-        
-
-		final DownloaderPanel dpn1 = new DownloaderPanel(client, "crystal.tar.gz",
-				"http://127.0.0.1:8080/images/crystal.tar.gz", new File(
-				"d:/zztest/crystal.tar.gz"));
-		//dpn1.getProgressLabel().setText("346652bytes (95.9KB/s),00:00:07s left");
-
-
-		final DownloaderPanel dpn2 = new DownloaderPanel(client, "list.xml",
-				"http://localhost:8080/dune/logs/list.xml", new File(
-						"d:/zztest/list.xml"));
-		//dpn2.getProgressLabel().setText("346652bytes (95.9KB/s),00:00:07s left");
-
-		final DownloaderPanel dpn3 = new DownloaderPanel(client, "list.html",
-				"http://127.0.0.1:8080/dune/logssss/20090922/134555/asdasasdasdasdasdasasdasdasdasdasadadimages/list.html", new File(
-						"d:/zztest/list.html"));
-
-		final DownloaderPanel dpn4 = new DownloaderPanel(client, "list.html",
-				"http://127.0.0.1:8080/images/list.html", new File(
-						"d:/zztest/list.html"));
-
-		final DownloaderPanel dpn5 = new DownloaderPanel(client, "PAPER_MAST2008-NetworkedOperations-final.pdf",
-				"http://whale.fe.up.pt/Papers/2008/PAPER_MAST2008-NetworkedOperations-final.pdf", new File(
-						"d:/zztest/PAPER_MAST2008-NetworkedOperations-final.pdf"));
-
-        final DownloaderPanel dpn6 = new DownloaderPanel(client, "Blender 2.57",
-                "http://download.blender.org/release//Blender2.57/blender-2.57-windows32.exe",
-                new File("d:/zztest/blender-2.57-windows32.exe"));
-		
-        final DownloaderPanel dpn7 = new DownloaderPanel(client, "testBig",
-                "http://localhost:8080/dune/logs/download/20130202/174447_idle/testBig.raw",
-                new File("/tmp/testBig.raw"));
-            
-		JPanel jph = new JPanel();
-		jph.setLayout(new BoxLayout(jph, BoxLayout.Y_AXIS));
-		
-		JScrollPane sp = new JScrollPane();
-		sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		sp.setBorder(BorderFactory.createEmptyBorder(3,5,3,5));
-		sp.setPreferredSize(new Dimension(800,600));
-		sp.setViewportView(jph);
-		
-		jph.add(dpn);
-        jph.add(dpn0);
-        jph.add(dpn01);
-        jph.add(dpn02);
-        jph.add(dpn03);
-        jph.add(dpn1);
-		jph.add(dpn2);
-		jph.add(dpn3);
-		jph.add(dpn4);
-		jph.add(dpn5);
-		jph.add(dpn6);
-		jph.add(dpn7);
-		
-		//jph.add(sp);
-		
-		GuiUtils.testFrame(sp, "Download Test", 800, 600);
-		
-		new Thread() {
-			@Override
-			public void run() {
-				dpn1.doDownload();
-			}
-		}.start();
-
-		new Thread() {
-			@Override
-			public void run() {
-				dpn2.doDownload();
-			}
-		}.start();
-
-		new Thread() {
-			@Override
-			public void run() {
-				dpn3.doDownload();
-			}
-		}.start();
+//        final DownloaderPanel dpn0 = new DownloaderPanel(client, "Data.lsf",
+//                "http://127.0.0.1:8080/dune/logs/download/20120428/092009_idle/Data.lsf", new File("d:/zztest/Data.lsf"));
+//
+//        final DownloaderPanel dpn01 = new DownloaderPanel(client, "IMC.xml",
+//                "http://127.0.0.1:8080/dune/logs/download/20120428/092009_idle/IMC.xml", new File("d:/zztest/IMC.xml"));
+//
+//        final DownloaderPanel dpn02 = new DownloaderPanel(client, "rfc2616.html",
+//                "http://tools.ietf.org/html/rfc2616", new File("d:/zztest/rfc2616.html"));
+//        
+//        final DownloaderPanel dpn03 = new DownloaderPanel(client, "REC-xml-20081126.html",
+//                "http://www.w3.org/TR/2008/REC-xml-20081126/", new File("d:/zztest/REC-xml-20081126.html"));
+//        
+//
+//		final DownloaderPanel dpn1 = new DownloaderPanel(client, "crystal.tar.gz",
+//				"http://127.0.0.1:8080/images/crystal.tar.gz", new File(
+//				"d:/zztest/crystal.tar.gz"));
+//		//dpn1.getProgressLabel().setText("346652bytes (95.9KB/s),00:00:07s left");
+//
+//
+//		final DownloaderPanel dpn2 = new DownloaderPanel(client, "list.xml",
+//				"http://localhost:8080/dune/logs/list.xml", new File(
+//						"d:/zztest/list.xml"));
+//		//dpn2.getProgressLabel().setText("346652bytes (95.9KB/s),00:00:07s left");
+//
+//		final DownloaderPanel dpn3 = new DownloaderPanel(client, "list.html",
+//				"http://127.0.0.1:8080/dune/logssss/20090922/134555/asdasasdasdasdasdasasdasdasdasdasadadimages/list.html", new File(
+//						"d:/zztest/list.html"));
+//
+//		final DownloaderPanel dpn4 = new DownloaderPanel(client, "list.html",
+//				"http://127.0.0.1:8080/images/list.html", new File(
+//						"d:/zztest/list.html"));
+//
+//		final DownloaderPanel dpn5 = new DownloaderPanel(client, "PAPER_MAST2008-NetworkedOperations-final.pdf",
+//				"http://whale.fe.up.pt/Papers/2008/PAPER_MAST2008-NetworkedOperations-final.pdf", new File(
+//						"d:/zztest/PAPER_MAST2008-NetworkedOperations-final.pdf"));
+//
+//        final DownloaderPanel dpn6 = new DownloaderPanel(client, "Blender 2.57",
+//                "http://download.blender.org/release//Blender2.57/blender-2.57-windows32.exe",
+//                new File("d:/zztest/blender-2.57-windows32.exe"));
+//		
+//        final DownloaderPanel dpn7 = new DownloaderPanel(client, "testBig",
+//                "http://localhost:8080/dune/logs/download/20130202/174447_idle/testBig.raw",
+//                new File("/tmp/testBig.raw"));
+//            
+//		JPanel jph = new JPanel();
+//		jph.setLayout(new BoxLayout(jph, BoxLayout.Y_AXIS));
+//		
+//		JScrollPane sp = new JScrollPane();
+//		sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+//		sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+//		sp.setBorder(BorderFactory.createEmptyBorder(3,5,3,5));
+//		sp.setPreferredSize(new Dimension(800,600));
+//		sp.setViewportView(jph);
+//		
+//		jph.add(dpn);
+//        jph.add(dpn0);
+//        jph.add(dpn01);
+//        jph.add(dpn02);
+//        jph.add(dpn03);
+//        jph.add(dpn1);
+//		jph.add(dpn2);
+//		jph.add(dpn3);
+//		jph.add(dpn4);
+//		jph.add(dpn5);
+//		jph.add(dpn6);
+//		jph.add(dpn7);
+//		
+//		//jph.add(sp);
+//		
+//		GuiUtils.testFrame(sp, "Download Test", 800, 600);
+//		
+//		new Thread() {
+//			@Override
+//			public void run() {
+//				dpn1.doDownload();
+//			}
+//		}.start();
+//
+//		new Thread() {
+//			@Override
+//			public void run() {
+//				dpn2.doDownload();
+//			}
+//		}.start();
+//
+//		new Thread() {
+//			@Override
+//			public void run() {
+//				dpn3.doDownload();
+//			}
+//		}.start();
 	}
 }

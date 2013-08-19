@@ -87,16 +87,12 @@ import pt.up.fe.dceg.neptus.gui.VehicleChooser;
 import pt.up.fe.dceg.neptus.gui.VehicleSelectionDialog;
 import pt.up.fe.dceg.neptus.gui.ZValueSelector;
 import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.FuelLevel;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.ManeuverFactory;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
-import pt.up.fe.dceg.neptus.mp.preview.PlanSimulation3D;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulationOverlay;
 import pt.up.fe.dceg.neptus.planeditor.PlanTransitionsSimpleEditor;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
@@ -131,7 +127,6 @@ import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -514,8 +509,8 @@ MissionChangeListener {
 
         try {
             if (getPropertiesPanel().getManeuver() != null) {
-                //if (plan.getGraph().getManeuver(getPropertiesPanel().getManeuver().getId()) == null)
-                getPropertiesPanel().setManeuver(null);
+                if (plan.getGraph().getManeuver(getPropertiesPanel().getManeuver().getId()) == null)
+                    getPropertiesPanel().setManeuver(null);
             }
         }
         catch (Exception e) {
@@ -573,7 +568,7 @@ MissionChangeListener {
                         return;
                     if (getConsole().getMission().getIndividualPlansList().get(planId) != null) {
                         int option = JOptionPane.showConfirmDialog(getConsole(),
-                                I18n.text("Do you wish to substitute existing plan with same name?"));
+                                I18n.text("Do you wish to replace the existing plan with same name?"));
                         if (option == JOptionPane.CANCEL_OPTION)
                             return;
                         else if (option == JOptionPane.YES_OPTION) {
@@ -702,8 +697,24 @@ MissionChangeListener {
     }
 
     private void parsePlan() {
-
-        this.mf = plan.getVehicleType().getManeuverFactory();
+        VehicleType vt = plan.getVehicleType();
+        if (vt == null) {
+            NeptusLog.pub().warn("No vehicle type for vehicle " + plan.getVehicle() + " for plan " + plan.getId());
+            String mvid = getMainVehicleId();
+            vt = VehiclesHolder.getVehicleById(mvid);
+            if (vt == null)
+                NeptusLog.pub().warn("No vehicle type for main vehicle " + getMainVehicleId() + " for plan " + plan.getId());
+            else
+                plan.setVehicle(getMainVehicleId());
+        }
+        
+        if (vt != null) {
+            this.mf = vt.getManeuverFactory();
+        }
+        else {
+            NeptusLog.pub().warn("No vehicle type creating empty maneuver factory for plan " + plan.getId());
+            this.mf = new ManeuverFactory(null);
+        }
 
         for (Maneuver man : plan.getGraph().getAllManeuvers()) {
             takenNames.add(man.getId());
@@ -934,30 +945,38 @@ MissionChangeListener {
                     @Override
                     public void actionPerformed(ActionEvent e) {
 
-                        String[] optionsNew = { "m/s", "RPM", "%" };
+                        String[] optionsI18n = { I18n.text("m/s"), I18n.text("RPM"), "%" };
+                        String[] optionsNotI18n = { "m/s", "RPM", "%" };
                         DefaultProperty dp = planElem.getLastSetProperties().get("Speed units");
-                        String curValue = "RPM";
+                        String curValueNotI18n = "m/s";
                         if (dp != null)
-                            curValue = dp.getValue().toString();
+                            curValueNotI18n = dp.getValue().toString();
 
                         Object resp = JOptionPane.showInputDialog(getConsole(),
                                 I18n.text("Please choose the speed units"), I18n.text("Set plan speed"),
-                                JOptionPane.QUESTION_MESSAGE, null, optionsNew, curValue);
+                                JOptionPane.QUESTION_MESSAGE, null, optionsI18n, I18n.text(curValueNotI18n));
                         if (resp == null)
                             return;
 
-                        String velUnit = resp.toString();
+                        String velUnitI18n = resp.toString();
+                        String velUnitNotI18n = "m/s";
+                        for (int i = 0; i < optionsI18n.length; i++) {
+                            if (velUnitI18n.equals(optionsI18n[i])) {
+                                velUnitNotI18n = optionsNotI18n[i];
+                                break;
+                            }
+                        }
 
                         double velocity = 0;
                         boolean validVel = false;
                         while (!validVel) {
-                            double curSpeed = 1000;
+                            double curSpeed = 1.3;
                             dp = planElem.getLastSetProperties().get("Speed");
                             if (dp != null)
                                 curSpeed = (Double) dp.getValue();
 
                             String res = JOptionPane.showInputDialog(getConsole(),
-                                    I18n.textf("Enter new speed (%speedUnit)", velUnit), curSpeed);
+                                    I18n.textf("Enter new speed (%speedUnit)", velUnitI18n), curSpeed);
                             if (res == null)
                                 return;
                             try {
@@ -980,7 +999,7 @@ MissionChangeListener {
 
                         DefaultProperty propVelUnits = new DefaultProperty();
                         propVelUnits.setName("Speed units");
-                        propVelUnits.setValue(velUnit);
+                        propVelUnits.setValue(velUnitNotI18n); // velUnitI18n
                         propVelUnits.setType(String.class);
                         propVelUnits.setDisplayName(I18n.text("Speed units"));
                         planElem.setPlanProperty(propVelUnits);
@@ -1090,22 +1109,6 @@ MissionChangeListener {
                         new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                 popup.add(pTransitions);
 
-                AbstractAction paTransitions = new AbstractAction(I18n.text("Plan Actions")) {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        PropertiesEditor.editProperties(plan, SwingUtilities.getWindowAncestor(PlanEditor.this), true);
-                        parsePlan();
-                        renderer.repaint();
-
-                        refreshPropertiesManeuver();
-                    }
-                };
-                paTransitions.putValue(AbstractAction.SMALL_ICON,
-                        new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
-                popup.add(paTransitions);
-
                 popup.addSeparator();
 
                 JMenu pStatistics = PlanUtil.getPlanStatisticsAsJMenu(plan, I18n.text("Edited Plan Statistics"));
@@ -1115,9 +1118,10 @@ MissionChangeListener {
                 popup.addSeparator();
 
                 for (final String manName : mf.getAvailableManeuversIDs()) {
-                    AbstractAction act = new AbstractAction(I18n.textf("Add %maneuverName", manName), mf.getManeuverIcon(manName)) {
+                    String manNameStr = I18n.text(manName); 
+                    AbstractAction act = new AbstractAction(I18n.textf("Add %maneuverName", manNameStr), mf.getManeuverIcon(manName)) {
                         private static final long serialVersionUID = 1L;
-
+                        
                         private final Point2D mousePos = mousePoint;
 
                         @Override
@@ -1133,41 +1137,41 @@ MissionChangeListener {
 
                 popup.add(getPasteAction((Point) mousePoint));
 
-                AbstractAction act = new AbstractAction(I18n.text("Simulate plan"), null) {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public void actionPerformed(ActionEvent evt) {
-
-                        String vehicle = getConsole().getMainSystem();
-                        LocationType startLoc = plan.getMissionType().getStartLocation();
-                        SystemPositionAndAttitude start = new SystemPositionAndAttitude(startLoc, 0, 0, 0);
-                        EstimatedState lastState = null;
-                        FuelLevel lastFuel = null;
-                        double motionRemaingHours = 4;
-
-                        try {
-                            lastState = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
-                            lastFuel = ImcMsgManager.getManager().getState(vehicle).lastFuelLevel();
-
-                            if (lastState != null)
-                                start = new SystemPositionAndAttitude(lastState);
-
-                            if (lastFuel != null) {
-                                LinkedHashMap<String, String> opmodes = lastFuel.getOpmodes();
-                                motionRemaingHours = Double.parseDouble(opmodes.get("Motion"));
-                            }
-                        }
-                        catch (Exception e) {
-                            NeptusLog.pub().error("Error getting info from main vehicle", e);
-                        }
-
-                        overlay = new PlanSimulationOverlay(plan, 0, motionRemaingHours, start);
-                        PlanSimulation3D.showSimulation(getConsole(), overlay, plan);
-
-                    }
-                };
-                popup.add(act);
+//                AbstractAction act = new AbstractAction(I18n.text("Simulate plan"), null) {
+//                    private static final long serialVersionUID = 1L;
+//
+//                    @Override
+//                    public void actionPerformed(ActionEvent evt) {
+//
+//                        String vehicle = getConsole().getMainSystem();
+//                        LocationType startLoc = plan.getMissionType().getStartLocation();
+//                        SystemPositionAndAttitude start = new SystemPositionAndAttitude(startLoc, 0, 0, 0);
+//                        EstimatedState lastState = null;
+//                        FuelLevel lastFuel = null;
+//                        double motionRemaingHours = 4;
+//
+//                        try {
+//                            lastState = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
+//                            lastFuel = ImcMsgManager.getManager().getState(vehicle).lastFuelLevel();
+//
+//                            if (lastState != null)
+//                                start = new SystemPositionAndAttitude(lastState);
+//
+//                            if (lastFuel != null) {
+//                                LinkedHashMap<String, String> opmodes = lastFuel.getOpmodes();
+//                                motionRemaingHours = Double.parseDouble(opmodes.get("Full"));
+//                            }
+//                        }
+//                        catch (Exception e) {
+//                            NeptusLog.pub().error("Error getting info from main vehicle", e);
+//                        }
+//
+//                        overlay = new PlanSimulationOverlay(plan, 0, motionRemaingHours, start);
+//                        PlanSimulation3D.showSimulation(getConsole(), overlay, plan);
+//
+//                    }
+//                };
+//                popup.add(act);
             }
 
             popup.show(source, (int) mousePoint.getX(), (int) mousePoint.getY());
@@ -1348,7 +1352,7 @@ MissionChangeListener {
                 maneuverLocationBeforeMoving = ((LocatedManeuver) selectedManeuver).getManeuverLocation();
             }
             if (selectedManeuver != getPropertiesPanel().getManeuver()) {
-                if (getPropertiesPanel().isChanged()) {
+                if (getPropertiesPanel().getManeuver() != null && getPropertiesPanel().isChanged()) {
                     ManeuverChanged edit = new ManeuverChanged(getPropertiesPanel().getManeuver(), plan,
                             getPropertiesPanel().getBeforeXml());
                     manager.addEdit(edit);
@@ -1574,10 +1578,10 @@ MissionChangeListener {
             if (man.getType().equals(lastMan.getType())) {
                 String id = man.getId();
                 man = (Maneuver) lastMan.clone();
-                man.getStartActions().getPayloadConfigs().clear();
-                man.getStartActions().getActionMsgs().clear();
-                man.getEndActions().getPayloadConfigs().clear();
-                man.getEndActions().getActionMsgs().clear();
+                //man.getStartActions().getPayloadConfigs().clear();
+                //man.getStartActions().getActionMsgs().clear();
+                //man.getEndActions().getPayloadConfigs().clear();
+                //man.getEndActions().getActionMsgs().clear();
                 man.setId(id);
             }
 
@@ -1589,6 +1593,8 @@ MissionChangeListener {
                 lt.setLocation(worldLoc);
                 ((LocatedManeuver) man).setManeuverLocation(lt);
             }
+            
+            man.cloneActions(lastMan);
 
             addedTransitions.add(plan.getGraph().addTransition(lastMan.getId(), man.getId(), defaultCondition));
 

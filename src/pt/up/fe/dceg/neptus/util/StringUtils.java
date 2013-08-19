@@ -82,48 +82,48 @@ public class StringUtils {
 
 	/**
 	 * @param txt
-	 * @param lineLenght
+	 * @param lineLength
 	 * @return
 	 */
-	public static final String wrapEveryNChars(String txt, short lineLenght) {
-	    return wrapEveryNChars(txt, lineLenght, -1, false);
+	public static final String wrapEveryNChars(String txt, short lineLength) {
+	    return wrapEveryNChars(txt, lineLength, -1, false);
 	}
 
     /**
      * @param txt
-     * @param lineLenght
+     * @param lineLength
      * @param maxCharacters
      * @return
      */
-    public static final String wrapEveryNChars(String txt, short lineLenght, int maxCharacters) {
-        return wrapEveryNChars(txt, lineLenght, maxCharacters, false);
+    public static final String wrapEveryNChars(String txt, short lineLength, int maxCharacters) {
+        return wrapEveryNChars(txt, lineLength, maxCharacters, false);
     }
     
     /**
      * @param txt
-     * @param lineLenght
+     * @param lineLength
      * @param maxCharacters Place -1 for no limit
      * @param placeElipsisIfCuted
      * @return
      */
-    public static final String wrapEveryNChars(String txt, short lineLenght, int maxCharacters,
+    public static final String wrapEveryNChars(String txt, short lineLength, int maxCharacters,
             boolean placeElipsisIfCuted) {
         boolean hasLimit = true;
         if (maxCharacters <= 0)
             hasLimit = false;
-	    if (lineLenght <= 1) {
+	    if (lineLength <= 1) {
             if (hasLimit && txt.length() >= maxCharacters)
                 return txt.substring(0, maxCharacters) + (placeElipsisIfCuted?"...":"");
             return txt;
 	    }
 	    String ret = "";
-	    if (lineLenght >= txt.length()) {
+	    if (lineLength >= txt.length()) {
 	        if (hasLimit && txt.length() >= maxCharacters)
 	            return txt.substring(0, maxCharacters) + (placeElipsisIfCuted?"...":"");
 	        return txt;
 	    }
-	    for (int i = 0; i < txt.length(); i+=lineLenght) {
-	        int end = i+ lineLenght;
+	    for (int i = 0; i < txt.length(); i+=lineLength) {
+	        int end = i+ lineLength;
 	        if (end > txt.length())
 	            end = txt.length();
 	        ret += txt.substring(i, end) + "\n";
@@ -157,5 +157,4 @@ public class StringUtils {
         NeptusLog.pub().info("<###> "+wrapEveryNChars(txt, (short) 100, 100, true));
         NeptusLog.pub().info("<###> "+wrapEveryNChars(txt, (short) 120, 100, true));
 	}
-
 }

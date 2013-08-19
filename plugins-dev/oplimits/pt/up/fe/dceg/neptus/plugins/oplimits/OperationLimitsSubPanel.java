@@ -67,7 +67,6 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.notifications.Notification;
 import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
-import pt.up.fe.dceg.neptus.doc.DocumentationPanel;
 import pt.up.fe.dceg.neptus.gui.ToolbarButton;
 import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
 import pt.up.fe.dceg.neptus.i18n.I18n;
@@ -101,7 +100,7 @@ import pt.up.fe.dceg.neptus.util.MathMiscUtils;
  * @author zp
  * 
  */
-@PluginDescription(name = "Operation Limits Plugin", category = CATEGORY.PLANNING, icon = "pt/up/fe/dceg/neptus/plugins/oplimits/limits.png", documentation = "oplimits/oplimits.html")
+@PluginDescription(name = "Operation Limits", category = CATEGORY.PLANNING, icon = "pt/up/fe/dceg/neptus/plugins/oplimits/limits.png", documentation = "oplimits/oplimits.html")
 public class OperationLimitsSubPanel extends SimpleSubPanel implements ConfigurationListener,
         MainVehicleChangeListener, NeptusMessageListener, Renderer2DPainter, StateRendererInteraction {
 
@@ -120,7 +119,7 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
     protected OperationLimits limits = null;
     protected ToolbarSwitch sw;
     protected InteractionAdapter adapter = new InteractionAdapter(null);
-    protected AbstractAction updateAction, editLimits, sendAction, showOpArea, clearRect, help;
+    protected AbstractAction updateAction, editLimits, sendAction, showOpArea, clearRect;
     protected boolean editing = false;
     // rectangle editing variables
     protected PathElement rectangle = null;
@@ -132,7 +131,7 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
     protected boolean dragging = false;
 
     protected void createActions() {
-        editLimits = new AbstractAction("Edit Operational Limits",
+        editLimits = new AbstractAction(I18n.text("Operation Limits"),
                 ImageUtils.getIcon("pt/up/fe/dceg/neptus/plugins/oplimits/edit.png")) {
             private static final long serialVersionUID = 1L;
 
@@ -147,7 +146,7 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
                 dialog.getContentPane().setLayout(new BorderLayout());
                 dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
                 dialog.add(panel);
-                JButton okButton = new JButton(new AbstractAction("Ok") {
+                JButton okButton = new JButton(new AbstractAction(I18n.text("Ok")) {
 
                     private static final long serialVersionUID = 1L;
 
@@ -234,16 +233,6 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
                 rectangle = null;
                 setLimitsFromSelection(pp);
                 clickCount = 0;
-            }
-        };
-
-        help = new AbstractAction(I18n.text("Help")) {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DocumentationPanel.showDocumentation(OperationLimitsSubPanel.class);
             }
         };
     }
@@ -490,7 +479,7 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
 
     @Override
     public String getName() {
-        return "Edit operational limits";
+        return "Edit Operational Limits";
     }
 
     @Override
@@ -522,7 +511,6 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
             popup.addSeparator();
             popup.add(sendAction);
             popup.add(updateAction);
-            popup.add(help);
             popup.show(source, event.getX(), event.getY());
         }
         else {

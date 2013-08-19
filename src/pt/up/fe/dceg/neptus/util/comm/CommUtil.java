@@ -320,6 +320,7 @@ public class CommUtil {
                         }
                     }
                     catch (NumberFormatException e) {
+                        NeptusLog.pub().error(e.getMessage());
                         return defaultValue;
                     }
                 }
@@ -330,6 +331,7 @@ public class CommUtil {
                     list.add(vi);
                 }
                 catch (NumberFormatException e) {
+                    NeptusLog.pub().error(e.getMessage());
                     return defaultValue;
                 }
             }

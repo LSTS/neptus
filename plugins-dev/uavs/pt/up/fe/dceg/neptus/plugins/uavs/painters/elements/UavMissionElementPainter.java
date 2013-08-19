@@ -133,7 +133,7 @@ public class UavMissionElementPainter implements IUavPainter{
     
     private void drawVehicleLabel(Graphics2D g, String vehicle) {
         g.drawString(vehicle, vehicleIconTable.get(vehicle).getWidth()/2, -2);
-        g.drawString(-vehicleAltitudes.get(vehicle) + " m", vehicleIconTable.get(vehicle).getWidth()/2, 12);
+        g.drawString(vehicleAltitudes.get(vehicle) + " m", vehicleIconTable.get(vehicle).getWidth()/2, 12);
     }
     
     private void drawVehicleIcon(Graphics2D g, String vehicle) {

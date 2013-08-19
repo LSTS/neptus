@@ -64,6 +64,7 @@ public class ContainerSubPanel extends SubPanel implements SubPanelProvider, Loc
     @NeptusProperty(name = "Maximize Panel", description = "Use this to indicate that this panel "
             + "should be maximized on load. (Only works for top level panels.)", distribution = DistributionEnum.DEVELOPER)
     public boolean maximizePanel = false;
+    
     protected List<SubPanel> panels = new ArrayList<>();
 
     public ContainerSubPanel(ConsoleLayout console) {
@@ -243,8 +244,10 @@ public class ContainerSubPanel extends SubPanel implements SubPanelProvider, Loc
     public void clean() {
         super.clean();
         this.removeAll();
-
-        //MainPanel.cleanPanels(panels);
+        for (SubPanel panel : this.panels) {
+            panel.clean();
+            System.out.println("cleaned " + panel.getName());
+        }
     }
 
     @Override

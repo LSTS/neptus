@@ -29,7 +29,6 @@
  */
 package pt.up.fe.dceg.neptus.console;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -51,8 +50,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
-import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
@@ -65,7 +62,6 @@ import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
 
 /**
  * 
@@ -143,11 +139,16 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 e.printStackTrace();
             }
         }
+        NeptusLog.pub().info("All panels have been cleaned up.");
     }
 
     public void clean() {
         removeAll();
-        cleanPanels(console.getSubPanels());
+        for (SubPanel panel : console.getSubPanels()) {
+            panel.clean();
+            System.out.println("cleaned " + panel.getName());
+        }
+//        cleanPanels(console.getSubPanels());
     }
 
     public void resetPanelLocations() {
@@ -218,7 +219,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 sp.init();
                 sp.deactivateComponents();
                 sp.setEditMode(true);
-                sp.setBorder(new TitledBorder(new LineBorder(Color.YELLOW), sp.getName()));
+//                sp.setBorder(new TitledBorder(new LineBorder(Color.YELLOW), sp.getName()));
                 console.informSubPanelListener(sp, SubPanelChangeAction.ADDED);
             }
             catch (Exception ex) {
@@ -550,14 +551,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 panel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                 panel.deactivateComponents();
                 panel.setEditMode(true);
-                try {
-                    panel.setBorder(new TitledBorder(new LineBorder(
-                    // GeneralPreferences.getPropertyColor("console edit border color")
-                            GeneralPreferences.consoleEditBorderColor), panel.getName()));
-                }
-                catch (Exception e) {
-                    panel.setBorder(new TitledBorder(new LineBorder(Color.YELLOW), panel.getName()));
-                }
+//                panel.setBorder(new TitledBorder(new LineBorder(GeneralPreferences.consoleEditBorderColor), panel.getName()));
             }
         }
     }
@@ -574,7 +568,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                 panel.setEditMode(false);
                 panel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                 panel.activateComponents();
-                panel.setBorder(null);
+//                panel.setBorder(null);
             }
         }
     }

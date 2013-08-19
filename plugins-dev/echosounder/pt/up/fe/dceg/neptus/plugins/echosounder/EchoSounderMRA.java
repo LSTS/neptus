@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.plugins.echosounder;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Transparency;
@@ -41,12 +42,12 @@ import java.awt.image.BufferedImage;
 import java.util.Iterator;
 
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.Distance;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SonarData;
@@ -75,12 +76,12 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     public ColorMap colormap = ColorMapFactory.createJetColorMap();
 
     private BufferedImage image = null;
-    int imageWidth;
-    int imageHeight;
+    private int imageWidth;
+    private int imageHeight;
 
-    int maxRange;
+    private int maxRange;
 
-    double yscale;
+    private double yscale;
 
     public EchoSounderMRA(MRAPanel panel) {
         mraPanel = panel;
@@ -101,9 +102,8 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
         return true;
     }
 
-
     @Override
-    public JComponent getComponent(IMraLogGroup source, double timestep) {
+    public Component getComponent(IMraLogGroup source, double timestep) {
         this.source = source;
         generateImage();
 
@@ -187,9 +187,8 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
         return ImageUtils.getScaledIcon(PluginUtils.getPluginIcon(this.getClass()), 16, 16);
     }
 
-    public String getName() 
-    {		
-        return PluginUtils.getPluginName(this.getClass());
+    public String getName() {		
+        return I18n.text(PluginUtils.getPluginName(this.getClass()));
     }
 
     public Type getType() {
@@ -209,5 +208,4 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     public void onShow() {
         //nothing
     }
-
 }

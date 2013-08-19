@@ -185,8 +185,8 @@ public class ScaleBar extends JPanel {
 			int radius = axisy - (bordery);
 			if (radius > (axisx - borderx))
 				radius = axisx - borderx;
-			//double lenght = ((maxvalue - minvalue));
-			//double passos = lenght / this.step;
+			//double length = ((maxvalue - minvalue));
+			//double passos = length / this.step;
 
 			if (hor) {
 

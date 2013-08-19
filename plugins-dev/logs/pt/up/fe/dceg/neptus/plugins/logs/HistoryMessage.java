@@ -43,7 +43,7 @@ public class HistoryMessage implements Comparable<HistoryMessage> {
         critical
     };
 
-    protected DateFormat format = new SimpleDateFormat("HH:mm:ss");
+    protected static final DateFormat format = new SimpleDateFormat("HH:mm:ss");
     public long timestamp;
     public String text;
     public String context;

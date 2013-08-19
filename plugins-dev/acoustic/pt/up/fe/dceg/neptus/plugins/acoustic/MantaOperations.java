@@ -68,7 +68,6 @@ import pt.up.fe.dceg.neptus.imc.AcousticSystems;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.PlanControl;
-import pt.up.fe.dceg.neptus.imc.state.ImcSysState;
 import pt.up.fe.dceg.neptus.mystate.MyState;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
@@ -119,12 +118,6 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
 
     @NeptusProperty(name = "Display ranges in the map")
     public boolean showRanges = true;
-
-    @NeptusProperty(name = "Ranges source location")
-    public LocationType rangesSource = null;
-
-    @NeptusProperty(name = "Use console's GPS location for range source")
-    public boolean useMyLocation = true;
 
     /**
      * @param console
@@ -319,7 +312,7 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                             }
                         }
                         if (successCount > 0) {
-                            bottomPane.setText(I18n.textf("Abort %system sent to %sucCount systems", selectedSystem, successCount));
+                            bottomPane.setText(I18n.textf("Abort %systemName sent to %systemCount systems", selectedSystem, successCount));
                         }
                         else {
                             // GuiUtils.errorMessage(getConsole(), I18n.text("Abort System"),
@@ -420,20 +413,20 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
         
     }
 
+    protected LinkedHashMap<String, LocationType> systemLocations = new LinkedHashMap<>();
+        
     @Subscribe
     public void on(AcousticOperation msg) {
-
+        
+        
         
         switch (msg.getOp()) {
             case RANGE_RECVED:
                 if (showRanges) {
                     LocationType loc = new LocationType(MyState.getLocation());
-
-                    ImcSysState state = ImcMsgManager.getManager().getState(msg.getSourceName());
-                    if (state != null && state.lastAnnounce() != null) {
-                        loc.setLongitude(state.lastAnnounce().getLon());
-                        loc.setLatitude(state.lastAnnounce().getLat());
-                    }
+                    if (ImcSystemsHolder.getSystemWithName(msg.getSourceName()) != null)
+                        loc = ImcSystemsHolder.getSystemWithName(msg.getSourceName()).getLocation();
+                    
                     rangeDistances.add(msg.getRange());
                     rangeSources.add(loc);
                     addText(I18n.textf("Distance to %systemName is %distance", msg.getSystem().toString(),
@@ -441,7 +434,7 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                 }
                 break;
             case ABORT_ACKED:
-                addText(I18n.textf("%systemName has acknowledged the abort command", msg.getSystem().toString()));
+                addText(I18n.textf("%systemName has acknowledged abort command", msg.getSystem().toString()));
                 break;
             case BUSY:
                 addText(I18n.textf("%manta is busy. Try again in a few moments", msg.getSourceName()));
@@ -450,28 +443,28 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                 addText(I18n.textf("%manta has no acoustic transducer connected. Connect a transducer.", msg.getSourceName()));
                 break;
             case ABORT_IP:
-                addText(I18n.textf("Aborting of %sysname is in progress...",  msg.getSystem().toString()));
+                addText(I18n.textf("Aborting %systemName acoustically (via %manta)...",  msg.getSystem().toString(), msg.getSourceName()));
                 break;
             case ABORT_TIMEOUT:
-                addText(I18n.textf("Aborting of %sysname timed out.", msg.getSystem().toString()));
+                addText(I18n.textf("%manta timed out while trying to abort %systemName", msg.getSourceName(), msg.getSystem().toString()));
                 break;
             case MSG_DONE:
-                addText(I18n.textf("Message to %sysname has been sent successfully.", msg.getSystem().toString()));
+                addText(I18n.textf("Message to %systemName has been sent successfully.", msg.getSystem().toString()));
                 break;
             case MSG_FAILURE:
-                addText(I18n.textf("Failed to send message to %sysname.", msg.getSystem().toString()));
+                addText(I18n.textf("Failed to send message to %systemName.", msg.getSystem().toString()));
                 break;
             case MSG_IP:
-                addText(I18n.textf("Sending message to %sysname...", msg.getSystem().toString()));
+                addText(I18n.textf("Sending message to %systemName...", msg.getSystem().toString()));
                 break;
             case MSG_QUEUED:
-                addText(I18n.textf("Message to %sysname has been queued in %manta.", msg.getSystem().toString(), msg.getSourceName()));
+                addText(I18n.textf("Message to %systemName has been queued in %manta.", msg.getSystem().toString(), msg.getSourceName()));
                 break;
             case RANGE_IP:
-                addText(I18n.textf("Ranging of %sysname is in progress...", msg.getSystem().toString()));
+                addText(I18n.textf("Ranging of %systemName is in progress...", msg.getSystem().toString()));
                 break;
             case RANGE_TIMEOUT:
-                addText(I18n.textf("Ranging of %sysname timed out.", msg.getSystem().toString()));
+                addText(I18n.textf("Ranging of %systemName timed out.", msg.getSystem().toString()));
                 break;
             case UNSUPPORTED:
                 addText(I18n.textf("The command is not supported by %manta.", msg.getSourceName()));
@@ -479,7 +472,6 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
             default:
                 addText(I18n.textf("[%manta]: %status", msg.getSourceName(), msg.getOp().toString()));
                 break;
-
         }
     }
 
@@ -498,7 +490,12 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
         for (int i = 0; i < rangeSources.size(); i++) {
             double radius = rangeDistances.get(i) * renderer.getZoom();
             Point2D pt = renderer.getScreenPosition(rangeSources.get(i));
-            g.setColor(Color.orange);
+            
+            if (i < rangeSources.size()-1)
+                g.setColor(new Color(255,128,0,128));
+            else
+                g.setColor(new Color(255,128,0,255));
+            
             g.setStroke(new BasicStroke(2f));
             g.draw(new Ellipse2D.Double(pt.getX() - radius, pt.getY() - radius, radius * 2, radius * 2));
         }

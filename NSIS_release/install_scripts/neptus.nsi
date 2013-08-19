@@ -90,7 +90,7 @@ Var StartMenuGroup
 
 # Installer pages
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "${BASEDIR}\legal\Neptus-LICENSE.txt"
+!insertmacro MUI_PAGE_LICENSE "${BASEDIR}\LICENSE.md"
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_STARTMENU Application $StartMenuGroup

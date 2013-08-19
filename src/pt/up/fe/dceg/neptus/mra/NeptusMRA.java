@@ -33,7 +33,6 @@ package pt.up.fe.dceg.neptus.mra;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dialog.ModalityType;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -69,9 +68,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
+import javax.swing.ToolTipManager;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
@@ -124,13 +125,42 @@ import foxtrot.AsyncWorker;
 @SuppressWarnings("serial")
 public class NeptusMRA extends JFrame implements PropertiesProvider {
     public final static String RECENTLY_OPENED_LOGS = "conf/mra_recent.xml";
+    
+    public static boolean vtkEnabled = true;
 
     @NeptusProperty(name = "Show 3D replay")
     public static boolean show3D = true;
 
     @NeptusProperty(name = "Default time step (seconds)")
     public static double defaultTimestep = 1.0;
-
+    
+    @NeptusProperty(name = "Minimum depth for bathymetry", description="Filter all bathymetry data if vehicle's depth is less than this value (meters).")
+    public static double minDepthForBathymetry = 1.0;
+    
+    @NeptusProperty(name = "Points to ignore on Multibeam 3D", description="Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.")
+    public static int ptsToIgnore = 50;
+    
+    @NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description="Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).")
+    public static boolean approachToIgnorePts = true; 
+    
+    @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration.")
+    public static int zExaggeration = 10;
+    
+    @NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser (in miliseconds).")
+    public static long timestampMultibeamIncrement = 0;
+    
+    @NeptusProperty(name = "Yaw Increment", description="180 Yaw (psi) increment for the 83P parser, set true to increment +180\u00B0.")
+    public static boolean yawMultibeamIncrement = false;
+    
+    @NeptusProperty(name = "Remove Outliers", description="Remove Outliers from Pointcloud redered on multibeam 3D")
+    public static boolean outliersRemoval = false; 
+    
+    @NeptusProperty(name = "Maximum depth for bathymetry plots", description="Maximum depth to be used in bathymetry plots.")
+    public static double maxBathymDepth = 15;
+    
+    @NeptusProperty(name = "Print page number in generated reports")
+    public static boolean printPageNumbers = true;
+    
     private AbstractAction genReport, setMission, preferences, openLsf, httpDuneDownload, httpVehicleDownload;
     
     private File tmpFile = null;
@@ -154,6 +184,9 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
             NeptusLog.pub().error(I18n.text("Not possible to open")
                     + " \"conf/mra.properties\"");
         }
+        JPopupMenu.setDefaultLightWeightPopupEnabled(false);
+        ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
+        
         setSize(1200, 700);
 
         setIconImage(Toolkit.getDefaultToolkit().getImage(ConfigFetch.class.getResource("/images/neptus-icon.png")));
@@ -235,16 +268,18 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
     }
     
     public void closeLogSource() {
-        if (mraPanel != null)
+        if (mraPanel != null) {
             mraPanel.cleanup();
-        mraPanel = null;
-        getContentPane().removeAll();
-        NeptusLog.pub().info("<###>Log source was closed.");
+            mraPanel = null;
+            getContentPane().removeAll();
+            NeptusLog.pub().info("<###>Log source was closed.");
+        }
     }
     
     public void openLogSource(IMraLogGroup source) {
         abortPendingOpenLogActions();
         closeLogSource();
+        getContentPane().removeAll();
         mraPanel = new MRAPanel(source,this);
         getContentPane().add(mraPanel);
         invalidate();
@@ -267,19 +302,28 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
             FileOutputStream outstream = new FileOutputStream(outputFile, false);
             byte[] buf = new byte[2048];
             int len;
-            while ((len = ginstream.read(buf)) > 0) {
-                outstream.write(buf, 0, len);
+            try {
+                while ((len = ginstream.read(buf)) > 0) {
+                    outstream.write(buf, 0, len);
+                }
             }
-            ginstream.close();
-            outstream.close();
+            catch (Exception e) {
+                GuiUtils.errorMessage(NeptusMRA.this, e);
+                NeptusLog.pub().error(e);
+            }
+            finally {
+                ginstream.close();
+                outstream.close();
+            }
             res = new File(f.getParent(), "Data.lsf");
             
             return res;
         }
         catch (IOException ioe) {
-            System.err.println("Exception has been thrown" + ioe);
+            System.err.println("Exception has been thrown: " + ioe);
             bgp.setText(I18n.text("Decompressing LSF Data...") + "   "
                     + ioe.getMessage());
+            ioe.printStackTrace();
             return null;
         }
     }
@@ -383,6 +427,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
                     bgp.setText(messageToDisplay);
                 }
             });
+            
             updateMissionFilesOpened(f);
             
             bgp.setText(I18n.text("Starting interface"));
@@ -475,15 +520,15 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
         
         AbstractAction exit = new AbstractAction(I18n.text("Exit"), ImageUtils.getIcon("images/menus/exit.png")) {
             public void actionPerformed(ActionEvent e) {
-                NeptusMRA.this.setVisible(false);
-
-                NeptusMRA.this.dispose();
-                Container c = getContentPane();
-                if (c instanceof MRAPanel) {
-                    ((MRAPanel) c).cleanup();
+                if (mraPanel != null) {
+                    mraPanel.cleanup();
                 }
+
+                NeptusMRA.this.setVisible(false);
+                NeptusMRA.this.dispose();
             }
         };
+        
         file.addSeparator();
         file.add(exit);
 
@@ -645,7 +690,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
 
         try {
 
-            httpVehicleDownload = new AbstractAction(I18n.text("Choose an active vehicle to download logs (HTTP)"),
+            httpVehicleDownload = new AbstractAction(I18n.text("Choose an active vehicle to download logs (FTP)"),
                     ImageUtils.getScaledIcon("images/buttons/web.png", 16, 16)) {
                 public void actionPerformed(ActionEvent e) {
                     final LinkedHashSet<ImcSystem> selectedVehicle = new LinkedHashSet<ImcSystem>();
@@ -706,11 +751,11 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
                         logFetcher.setHost(sys.getHostAddress());
                         // logFetcher.setPort(sys.getRemoteUDPPort());
                         logFetcher.setLogLabel(sys.getName().toLowerCase());
-                        // new code 2010-10-27 pdias
-                        Vector<URI> sUri = sys.getServiceProvided("http", "dune");
+                        //Vector<URI> sUri = sys.getServiceProvided("http", "dune");
+                        Vector<URI> sUri = sys.getServiceProvided("ftp", "");
                         if (sUri.size() > 0) {
                             logFetcher.setHost(sUri.get(0).getHost());
-                            logFetcher.setPort((sUri.get(0).getPort() <= 0) ? 80 : sUri.get(0).getPort());
+                            logFetcher.setPort((sUri.get(0).getPort() <= 0) ? 21 : sUri.get(0).getPort());
                         }
 
                         logFetcher.setEnableHost(false);
@@ -728,7 +773,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
             e.printStackTrace();
         }
 
-        httpDuneDownload = new AbstractAction(I18n.text("Download logs from location (HTTP)"), ImageUtils.getScaledIcon(
+        httpDuneDownload = new AbstractAction(I18n.text("Download logs from location (FTP)"), ImageUtils.getScaledIcon(
                 "images/buttons/web.png", 16, 16)) {
             public void actionPerformed(ActionEvent e) {
                 LogsDownloaderWorker logFetcher = new LogsDownloaderWorker();
@@ -928,7 +973,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
 
     @Override
     public String getPropertiesDialogTitle() {
-        return I18n.text("MRA Preferences");
+        return "MRA Preferences";
     }
 
     @Override

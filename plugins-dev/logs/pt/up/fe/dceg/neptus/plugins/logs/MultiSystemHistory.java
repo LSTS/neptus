@@ -83,7 +83,7 @@ public class MultiSystemHistory extends JPanel {
         Collection<HistoryMessage> ret = histories.get(src).add(msgs);
 
         int size = lists.get(src).getModel().getSize()-1;
-        if (size > 0)
+        if (!ret.isEmpty() && isDisplayable())
             lists.get(src).ensureIndexIsVisible(size);
         
         return ret;

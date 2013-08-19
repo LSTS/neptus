@@ -157,7 +157,8 @@ public class NeptusMain {
             return;
         }
 
-        loader.setText(I18n.textf("Starting %appname...", appNames.get(app)));
+        String appName = appNames.get(app);
+        loader.setText(I18n.textf("Starting %appname...", appName != null ? appName : ""));
 
         if (app.equalsIgnoreCase("ws") || app.equalsIgnoreCase("mc")) {
             Workspace ws = new Workspace();
@@ -226,7 +227,7 @@ public class NeptusMain {
         else
             GuiUtils.setLookAndFeel();
 
-        loader.setText(I18n.text("Loading Systems..."));
+        loader.setText(I18n.text("Loading Systems") + "...");
 
         if (!VehiclesHolder.loadVehicles()) {
             GuiUtils.errorMessage(loader, I18n.text("Loading Systems"), I18n.text("Error loading systems!"));
@@ -270,6 +271,7 @@ public class NeptusMain {
                 Thread t = new Thread("Neptus Shutdown") {
                     public void run() {
                         try { Thread.sleep(10000); } catch (InterruptedException e1) { }
+                        System.out.println("Force close !");
                         System.exit(0);
                     };
                 };

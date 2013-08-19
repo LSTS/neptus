@@ -112,6 +112,27 @@ public class FileUtil {
         int lastDotPostion = path.lastIndexOf('.');
         return (lastDotPostion != -1) ? (path.substring(lastDotPostion + 1)) : "";
     }
+    
+    public static String getFileNameWithoutExtension(File fx) {
+        String path = null;
+        try {
+            path = fx.getCanonicalPath();
+        }
+        catch (IOException e1) {
+            path = fx.getAbsolutePath();
+        }
+        return getFileNameWithoutExtension(path);
+    }
+    
+    public static String getFileNameWithoutExtension(String path) {
+        File f = new File(path);
+        String fname = f.getName();
+        
+        int lastDotPostion = fname.lastIndexOf('.');
+       String ret = (lastDotPostion != -1) ? (fname.substring(0, lastDotPostion)) : fname;
+       return ret;
+    }
+    
 
     public static String replaceFileExtension(File fx, String newExtension) {
         String path = null;
@@ -776,8 +797,31 @@ public class FileUtil {
         return retval;
     }
 
+    private static Class<?> getCallerClass() {
+        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+        String className = stack[3].getClassName();
+        if (className.startsWith(FileUtil.class.getName())) {
+            className = stack[4].getClassName();
+        }
+        try {
+            Class<?> clazz = Class.forName(className);
+            return clazz;
+        }
+        catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
+    
     public static String getResourceAsFile(String name) {
         InputStream inStream = FileUtil.class.getResourceAsStream(name.replace('\\', '/'));
+        if (inStream == null) {
+            Class<?> clazz = getCallerClass();
+            if (clazz == null)
+                return null;
+            inStream = clazz.getResourceAsStream(name.replace('\\', '/'));
+            if (inStream == null)
+                return null;
+        }
         try {
             return StreamUtil.copyStreamToTempFile(inStream).getPath();
         }
@@ -788,6 +832,14 @@ public class FileUtil {
 
     public static String getResourceAsFileKeepName(String name) {
         InputStream inStream = FileUtil.class.getResourceAsStream(name.replace('\\', '/'));
+        if (inStream == null) {
+            Class<?> clazz = getCallerClass();
+            if (clazz == null)
+                return null;
+            inStream = clazz.getResourceAsStream(name.replace('\\', '/'));
+            if (inStream == null)
+                return null;
+        }
         try {
             File fx;
             File tmpDir = new File(ConfigFetch.getNeptusTmpDir());

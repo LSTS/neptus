@@ -59,6 +59,7 @@ import org.jfree.chart.JFreeChart;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
+import pt.up.fe.dceg.neptus.mra.NeptusMRA;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.map.MapGroup;
@@ -214,6 +215,10 @@ public class LsfReport {
 
 
     private static void writePageNumber(PdfContentByte cb, int curPage, int totalPages) {
+
+        if (!NeptusMRA.printPageNumbers)
+            return;
+        
         Rectangle pageSize = PageSize.A4.rotate();
 
         try {
@@ -227,6 +232,7 @@ public class LsfReport {
         catch (Exception e) {
             e.printStackTrace();
         }
+        
     }
 
     private static void writeHeader(PdfContentByte cb, IMraLogGroup source) {
@@ -265,6 +271,43 @@ public class LsfReport {
             e.printStackTrace();
         }
 
+    }
+    
+    public static boolean savePdf(IMraLogGroup source, LLFChart llfChart, File destination) {
+        Rectangle pageSize = PageSize.A4.rotate();
+        try {
+            FileOutputStream out = new FileOutputStream(destination);
+
+            Document doc = new Document(pageSize);
+            PdfWriter writer = PdfWriter.getInstance(doc, out);
+            doc.open();
+
+            doc.addTitle(llfChart.getName());
+            doc.addCreationDate();
+            doc.addCreator("Neptus "+ConfigFetch.getNeptusVersion());
+            doc.addProducer();
+            doc.addAuthor(System.getProperty("user.name"));         
+
+            PdfContentByte cb = writer.getDirectContent();
+            java.awt.Graphics2D g2 = cb.createGraphicsShapes(pageSize.getWidth(), pageSize.getHeight());
+            int width = (int) pageSize.getWidth();
+            int height = (int) pageSize.getHeight();
+
+            JFreeChart chart = llfChart.getChart(source, NeptusMRA.defaultTimestep);
+            chart.setTitle("");
+            chart.setBackgroundPaint(Color.white);
+            chart.draw(g2, new Rectangle2D.Double(25, 25, width-50, height-50));
+
+            g2.dispose();
+            doc.close();
+            out.flush();
+            out.close();
+            return true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }        
     }
 
     public static boolean generateReport(IMraLogGroup source, File destination, MRAPanel panel) {

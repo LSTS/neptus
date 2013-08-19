@@ -37,28 +37,24 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.util.List;
 import java.util.Vector;
 
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.console.SubPanel;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.Popup;
-import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.plugins.containers.MigLayoutContainer;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-
 
 /**
  * Window to encapsulate settings panel.<br>
@@ -72,7 +68,7 @@ public class SettingsWindow extends SimpleSubPanel {
 
     private static final long serialVersionUID = 1L;
     private FunctionalitiesSettings settingsPanel;
-    private final Vector<PropertiesProvider> subPanels;
+    private final Vector<PropertiesProvider> subPanels = new Vector<>();
     private JCheckBox checkLvl;
 
     /**
@@ -81,27 +77,20 @@ public class SettingsWindow extends SimpleSubPanel {
      * @param console
      * @param subPanels
      */
-    public SettingsWindow(ConsoleLayout console, Vector<PropertiesProvider> subPanels) {
+    public SettingsWindow(ConsoleLayout console) {
         super(console);
-        this.subPanels = subPanels;
-    }
 
-    @Override
-    protected JMenuItem createMenuItem(final POSITION popupPosition, String name2, ImageIcon icon) {
-        JMenuItem menuItem = new JMenuItem(new AbstractAction(PluginUtils.i18nTranslate(name2),
-                ImageUtils.getScaledIcon(icon, 16, 16)) {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                checkLvl.setSelected(false);
-                settingsPanel.reset();
-                setPopupPosition(popupPosition);
+        this.removeAll();
+        List<SubPanel> consolePlugins = console.getSubPanels();
+        for (SubPanel plugin : consolePlugins) {
+            if (plugin != null && plugin instanceof MigLayoutContainer) {
+                List<SubPanel> containerPlugins = ((MigLayoutContainer) plugin).getSubPanels();
+                for (SubPanel containerPlugin : containerPlugins) {
+                    subPanels.add(containerPlugin);
+                }
+                
             }
-
-        });
-
-        return menuItem;
+        }
     }
 
     private void addButtons() {
@@ -112,6 +101,7 @@ public class SettingsWindow extends SimpleSubPanel {
                 settingsPanel.updateForNewPermission();
             }
         });
+        checkLvl.setSelected(false);
         // direct keyboard inputs to tree after this is pressed
         checkLvl.setFocusable(false);
 
@@ -119,9 +109,10 @@ public class SettingsWindow extends SimpleSubPanel {
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                settingsPanel.saveChanges();
-                // checkLvl.setSelected(false);
                 dialog.setVisible(false);
+                settingsPanel.saveChanges();
+                checkLvl.setSelected(false);
+                settingsPanel.reset();
             }
         });
 
@@ -129,8 +120,9 @@ public class SettingsWindow extends SimpleSubPanel {
         cancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // checkLvl.setSelected(false);
                 dialog.setVisible(false);
+                checkLvl.setSelected(false);
+                settingsPanel.reset();
             }
         });
 
@@ -151,9 +143,10 @@ public class SettingsWindow extends SimpleSubPanel {
         this.removeAll();
         this.settingsPanel = new FunctionalitiesSettings(ConfigFetch.getDistributionType().equals(
                 DistributionEnum.CLIENT), subPanels);
-        settingsPanel.reset();
         this.add(settingsPanel, "w 100%!, h 100%, wrap");
         addButtons();
+        // this is done after the level normal/advanced is set by creating the checkbox
+        settingsPanel.reset();
         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
     }
 

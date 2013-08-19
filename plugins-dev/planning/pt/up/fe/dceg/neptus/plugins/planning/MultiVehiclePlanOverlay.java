@@ -39,16 +39,12 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener;
 import pt.up.fe.dceg.neptus.imc.PlanControlState;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
-import pt.up.fe.dceg.neptus.mp.maneuvers.PathProvider;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
@@ -120,25 +116,7 @@ public class MultiVehiclePlanOverlay extends SimpleSubPanel implements Renderer2
                 break;
         }
     }
-
-    protected static final Vector<LocationType> planPath(PlanType plan) {
-        Vector<LocationType> locations = new Vector<>();
-        LinkedList<Maneuver> mans = plan.getGraph().getGraphAsManeuversList();
-
-        for (Maneuver man : mans) {
-
-            if (!(man instanceof LocatedManeuver))
-                continue;
-
-            LocationType destTo = ((LocatedManeuver) man).getManeuverLocation();                         
-            if (man instanceof PathProvider)
-                locations.addAll(((PathProvider) man).getPathLocations());
-            else
-                locations.add(destTo);
-        }        
-        return locations;
-    }
-
+    
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
@@ -167,7 +145,7 @@ public class MultiVehiclePlanOverlay extends SimpleSubPanel implements Renderer2
             if (!planToLocations.containsKey(entry.getValue())) {
                 PlanType pt = getConsole().getMission().getIndividualPlansList().get(entry.getValue());
                 if (pt != null)
-                    planToLocations.put(pt.getId(), planPath(pt));
+                    planToLocations.put(pt.getId(), pt.planPath());
 
             }
 

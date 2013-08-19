@@ -350,6 +350,7 @@ public class UDPTransport {
                     senderThreads.remove(0); // shifts the right elements to the left
                 }
                 catch (Exception e) {
+                    NeptusLog.pub().error(e.getMessage());
                 }
             }
 
@@ -452,7 +453,10 @@ public class UDPTransport {
                     try {
                         boolean useMulticast = isMulticastEnable();
                         sock = (!useMulticast) ? new DatagramSocket(null) : new MulticastSocket(null);
-                        sock.setReuseAddress(true);
+//                        if (useMulticast) {
+//                            sock.setReuseAddress(true); // This may be a potential problem when opening two Neptus instances, we don't detect a bind error  
+//                        }
+                        sock.setReuseAddress(false);
                         if (bindPort != 0) {
                             sock.bind(new InetSocketAddress(bindPort));
                         }
@@ -468,6 +472,7 @@ public class UDPTransport {
                             setMulticastActive(useMulticast);
                         }
                         catch (Exception e) {
+                            NeptusLog.pub().error("Multicast socket join :: " + e.getMessage());
                             setMulticastActive(false);
                         }
 
@@ -478,6 +483,7 @@ public class UDPTransport {
                                 setBroadcastActive(true);
                             }
                             catch (Exception e) {
+                                NeptusLog.pub().error(e.getMessage());
                                 setBroadcastActive(false);
                             }
                         }
@@ -491,13 +497,10 @@ public class UDPTransport {
                         if (isOnBindError()) {
                             try {
                                 sock.disconnect();
-                            }
-                            catch (Exception e) {
-                            }
-                            try {
                                 sock.close();
                             }
                             catch (Exception e) {
+                                NeptusLog.pub().error(e.getStackTrace());
                             }
                         }
                     }

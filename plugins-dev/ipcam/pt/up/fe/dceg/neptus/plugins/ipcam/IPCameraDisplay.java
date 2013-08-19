@@ -254,7 +254,7 @@ public class IPCameraDisplay extends SimpleSubPanel implements ConfigurationList
                             //boundary
                             String line = "--"+readLine(is, false);
                             
-                            String cl = line = readLine(is, false);;
+                            String cl = line = readLine(is, false);
                             while (!line.startsWith("Content-Length:")) {
                                 line = readLine(is, false);
                             }

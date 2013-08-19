@@ -54,6 +54,8 @@ public class SidescanLine {
     
     public BufferedImage image;
     public double data[];
+
+    public float frequency;
     
     /**
      * @param xsize
@@ -62,13 +64,14 @@ public class SidescanLine {
      * @param ping
      * @param state
      */
-    public SidescanLine(long timestamp, float range, SystemPositionAndAttitude state, double data[]) {
+    public SidescanLine(long timestamp, float range, SystemPositionAndAttitude state, float frequency, double data[]) {
         super();
         this.timestampMillis = timestamp;
         this.xsize = data.length;
         this.range = range;
         this.state = state;
         this.data = data;
+        this.frequency = frequency;
     }
     
     /**

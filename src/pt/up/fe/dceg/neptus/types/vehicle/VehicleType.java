@@ -211,7 +211,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             doc = DocumentHelper.parseText(xml);
         }
         catch (DocumentException e) {
-            // e.printStackTrace();
+            NeptusLog.pub().error(e.getMessage());
             isLoadOk = false;
             return false;
         }
@@ -249,6 +249,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 }
             }
             catch (Exception e) {
+                NeptusLog.pub().debug(e.getMessage());
                 NeptusLog.pub().warn("No maneuvers found for system " + id + "!!");
             }
 
@@ -266,6 +267,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                     operationalActive = Boolean.parseBoolean(nd.getText());
                 }
                 catch (Exception e) {
+                    NeptusLog.pub().debug(e.getMessage());
                     operationalActive = true;
                 }
             }
@@ -870,31 +872,31 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         appearence.addElement("x-size").addText(Float.toString(getXSize()));
         appearence.addElement("y-size").addText(Float.toString(getYSize()));
         appearence.addElement("z-size").addText(Float.toString(getZSize()));
-        if (originalFilePath == "")
+        if ("".equals(originalFilePath))
             appearence.addElement("top-image-2D").addText(getTopImageHref());
         else
             appearence.addElement("top-image-2D").addText(
                     FileUtil.relativizeFilePathAsURI(originalFilePath, getTopImageHref()));
-        if (originalFilePath == "")
+        if ("".equals(originalFilePath))
             appearence.addElement("side-image-2D").addText(getSideImageHref());
         else
             appearence.addElement("side-image-2D").addText(
                     FileUtil.relativizeFilePathAsURI(originalFilePath, getSideImageHref()));
         if (!getBackImageHref().equalsIgnoreCase("")) {
-            if (originalFilePath == "")
+            if ("".equals(originalFilePath))
                 appearence.addElement("back-image-2D").addText(getBackImageHref());
             else
                 appearence.addElement("back-image-2D").addText(
                         FileUtil.relativizeFilePathAsURI(originalFilePath, getBackImageHref()));
         }
         if (!getPresentationImageHref().equalsIgnoreCase("")) {
-            if (originalFilePath == "")
+            if ("".equals(originalFilePath))
                 appearence.addElement("presentation-image-2D").addText(getPresentationImageHref());
             else
                 appearence.addElement("presentation-image-2D").addText(
                         FileUtil.relativizeFilePathAsURI(originalFilePath, getPresentationImageHref()));
         }
-        if (originalFilePath == "")
+        if ("".equals(originalFilePath))
             appearence.addElement("model-3D").addText(getModel3DHref());
         else
             appearence.addElement("model-3D").addText(
@@ -907,7 +909,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             colorE.addElement("b").setText(Integer.toString(getIconColor().getBlue()));
         }
 
-        if (coordinateSystemLabel == "")
+        if ("".equals(coordinateSystemLabel))
             properties.add(coordinateSystem.asElement());
         else
             properties.addElement("coordinate-system-label").addText(coordinateSystemLabel);
@@ -920,6 +922,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             root.add(docX.getRootElement().detach());
         }
         catch (Exception e) {
+            NeptusLog.pub().debug(e.getMessage());
             NeptusLog.pub().warn("No maneuvers found for system " + id + "!!");
         }
 

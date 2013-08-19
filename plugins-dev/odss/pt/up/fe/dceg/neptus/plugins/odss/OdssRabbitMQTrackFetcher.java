@@ -585,7 +585,7 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
                             NeptusLog.pub().info("<###> [x] Received '" + message + "'  from Exchange '" + exchangeName + "'");
                     }
                     catch (ShutdownSignalException e) {
-                        NeptusLog.pub().warn(OdssRabbitMQTrackFetcher.class.getSimpleName() + ": ShutdownSignalException" + "  from Exchange '" + exchangeName + "'");
+                        NeptusLog.pub().warn(OdssRabbitMQTrackFetcher.class.getSimpleName() + ": " + e + "  from Exchange '" + exchangeName + "'");
                         break;
                     }
                     catch (ConsumerCancelledException e) {
@@ -655,7 +655,7 @@ public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodi
                             NeptusLog.pub().info("<###> [x] Received '" + message + "'  from Exchange '" + exchangeName + "'");
                     }
                     catch (ShutdownSignalException e) {
-                        NeptusLog.pub().warn(OdssRabbitMQTrackFetcher.class.getSimpleName() + ": ShutdownSignalException" + "  from Exchange '" + exchangeName + "'");
+                        NeptusLog.pub().warn(OdssRabbitMQTrackFetcher.class.getSimpleName() + ": " + e + " from Exchange '" + exchangeName + "'");
                         break;
                     }
                     catch (ConsumerCancelledException e) {

@@ -51,6 +51,7 @@ import javax.swing.JPanel;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.LocationPanel;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.map.MapGroup;
@@ -102,7 +103,7 @@ public class TransponderParameters extends ParametersPanel {
     public String getErrors() {
         
     	if (getConfigurationFile().getSelectedItem() == null) {
-    		return "A configuration file must be selected";
+    		return I18n.text("A configuration file must be selected");
     	}
     	
         if (getLocationPanel().getErrors() != null)
@@ -158,7 +159,7 @@ public class TransponderParameters extends ParametersPanel {
 			jLabel = new JLabel();
 			jPanel = new JPanel();
 			jPanel.setLayout(flowLayout1);
-			jLabel.setText("Configuration File: ");
+			jLabel.setText(I18n.text("Configuration File: "));
 			flowLayout1.setHgap(5);
 			jLabel1.setText("           ");
 			jPanel.add(getJButton(), null);
@@ -208,7 +209,7 @@ public class TransponderParameters extends ParametersPanel {
 	private JButton getJButton() {
 		if (jButton == null) {
 			jButton = new JButton();
-			jButton.setText("Triangulation");
+			jButton.setText(I18n.text("Triangulation"));
 			jButton.setPreferredSize(new java.awt.Dimension(110,25));
 			jButton.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -237,12 +238,16 @@ public class TransponderParameters extends ParametersPanel {
 	}
 	public JButton getEditBtn() {
 		if (editBtn == null) {
-			editBtn = new JButton("Edit file");
+			editBtn = new JButton(I18n.text("Edit file"));
 			editBtn.setPreferredSize(new java.awt.Dimension(110,25));
 			editBtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					JOptionPane.showMessageDialog(new JFrame(), "<html><strong>Full attention</strong> when altering this file, <br>"+
-							"The changes will aply to all existing missions!</html>", "Warning", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(
+                            new JFrame(),
+                            "<html><strong>" + I18n.text("Full attention when altering this file") + "</strong>"
+                                    + ", <br>"
+                                    + I18n.text("The changes will apply to all existing missions!") + "</html>",
+                            I18n.text("Warning"), JOptionPane.WARNING_MESSAGE);
 						//FIXME : alterar o caminho para os ficheiros de configuração para o caminho correcto!
 						(new EditorLauncher()).editFile(ConfigFetch.resolvePath("maps/"+getConfigurationFile().getSelectedItem()));					
 				}

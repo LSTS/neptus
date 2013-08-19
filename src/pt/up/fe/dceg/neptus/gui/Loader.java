@@ -25,12 +25,13 @@ import javax.swing.JProgressBar;
 import javax.swing.Timer;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 /**
  * This class shows a Neptus splash screen during load phases.
- * 
+ * IT IS PROHIBITED TO USE {@link I18n} CALLS IN THIS CLASS.  
  * @author Paulo Dias
  */
 public class Loader extends JFrame implements ActionListener {
@@ -71,7 +72,7 @@ public class Loader extends JFrame implements ActionListener {
     private JLabel getJLabel() {
         if (jLabel == null) {
             jLabel = new JLabel();
-            jLabel.setText(" Loading...");
+            jLabel.setText("...");
             jLabel.setForeground(frontColor);
             jLabel.setBackground(backColor);
             jLabel.setAutoscrolls(true);
@@ -141,7 +142,7 @@ public class Loader extends JFrame implements ActionListener {
         this.setBackground(backColor);
         this.setContentPane(getJContentPane());
 
-        this.setTitle("Neptus loader...");
+        this.setTitle("Neptus ...");
         this.setIconImages(ConfigFetch.getIconImagesForFrames());
         this.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent e) {

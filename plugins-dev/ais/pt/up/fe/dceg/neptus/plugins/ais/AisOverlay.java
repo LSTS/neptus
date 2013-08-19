@@ -60,6 +60,7 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension;
 import pt.up.fe.dceg.neptus.planeditor.IMapPopup;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
@@ -174,21 +175,27 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
         lastThread = new Thread() {
             public void run() {
                 updating = true;
-                if (renderer == null) {
+                try {
+                    
+                    if (renderer == null) {
+                        lastThread = null;
+                        return;
+                    }
+    
+                    LocationType topLeft = renderer.getTopLeftLocationType();
+                    LocationType bottomRight = renderer.getBottomRightLocationType();
+    
+                    shipsOnMap = getShips(bottomRight.getLatitudeAsDoubleValue(), topLeft.getLongitudeAsDoubleValue(),
+                            topLeft.getLatitudeAsDoubleValue(), bottomRight.getLongitudeAsDoubleValue(), showStoppedShips);
+    
                     lastThread = null;
-                    return;
+    
+                    
+                    renderer.repaint();
                 }
-
-                LocationType topLeft = renderer.getTopLeftLocationType();
-                LocationType bottomRight = renderer.getBottomRightLocationType();
-
-                shipsOnMap = getShips(bottomRight.getLatitudeAsDoubleValue(), topLeft.getLongitudeAsDoubleValue(),
-                        topLeft.getLatitudeAsDoubleValue(), bottomRight.getLongitudeAsDoubleValue(), showStoppedShips);
-
-                lastThread = null;
-
-                updating = false;
-                renderer.repaint();
+                finally {
+                    updating = false;
+                }
             };
         };
         lastThread.setName("AIS Fetcher thread");
@@ -257,7 +264,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
         super.mouseClicked(event, source);
 
         JPopupMenu popup = new JPopupMenu();
-        popup.add("AIS settings").addActionListener(new ActionListener() {
+        popup.add(I18n.text("AIS settings")).addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -265,7 +272,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             }
         });
 
-        popup.add("Update ships").addActionListener(new ActionListener() {
+        popup.add(I18n.text("Update ships")).addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -287,10 +294,12 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             return;
 
         if (lastThread != null) {
-            g.drawString("Updating AIS layer...", 10, 15);
+            //String strUpdateAIS = I18n.text("Updating AIS layer...");
+            g.drawString(I18n.text("Updating AIS layer..."), 10, 15);
         }
         else {
-            g.drawString(shipsOnMap.size() + " visible ships", 10, 15);
+            //String strVisShips = I18n.text(" visible ships");
+            g.drawString(I18n.textf("%numberOfShips visible ships", shipsOnMap.size()), 10, 15);
         }
 
         for (AisShip ship : shipsOnMap) {
@@ -313,7 +322,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
             double scaleX = (renderer.getZoom() / 10) * ship.getLength() / 9;
             double scaleY = (renderer.getZoom() / 10) * ship.getLength();
 
-            clone.rotate(Math.PI + ship.getHeadingRads());
+            clone.rotate(Math.PI + ship.getHeadingRads() - renderer.getRotation());
             clone.setColor(c.brighter());//new Color(c.getRed(), c.getGreen(), c.getBlue(), 128));
             clone.setStroke(new BasicStroke(1.0f,
                     BasicStroke.CAP_BUTT,
@@ -347,7 +356,7 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
     
     protected JMenu getShipInfoMenu() {
         Vector<AisShip> ships = new Vector<>();
-        JMenu menu = new JMenu("Ship Info");
+        JMenu menu = new JMenu(I18n.text("Ship Info"));
         ships.addAll(shipsOnMap);
         Collections.sort(ships);
 

@@ -37,53 +37,58 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 
 /**
  * @author pdias
  *
  */
+@SuppressWarnings("serial")
 public class DateTimeUtil {
 
-	public static final long DAY    = 1000*60*60*24;
-    public static final long HOUR   = 1000*60*60;
-    public static final long MINUTE = 1000*60;
+    public static final long DAY = 1000 * 60 * 60 * 24;
+    public static final long HOUR = 1000 * 60 * 60;
+    public static final long MINUTE = 1000 * 60;
     public static final long SECOND = 1000;
     
-    public static final SimpleDateFormat dateFormaterXMLUTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'.0Z'"); // This one should be UTC (Zulu)
+    public static final int DAYS_SINCE_YEAR_0_TILL_1970 = 719530;
+    
+    public static final SimpleDateFormat dateFormaterXMLUTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'.0Z'") {{setTimeZone(TimeZone.getTimeZone("UTC"));}}; // This one should be UTC (Zulu)
 //    public static final SimpleDateFormat dateFormaterXMLNoMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");  // This one should be UTC (Zulu)
-    public static final SimpleDateFormat dateFormaterXMLNoMillisUTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");  // This one should be UTC (Zulu)
+    public static final SimpleDateFormat dateFormaterXMLNoMillisUTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};;  // This one should be UTC (Zulu)
     public static final SimpleDateFormat dateFormater = new SimpleDateFormat("yyyy-MM-dd");
-    public static final SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd");
+    public static final SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};;
     public static final SimpleDateFormat dateFormaterNoSpaces = new SimpleDateFormat("yyyyMMdd");
     public static final SimpleDateFormat timeFormater = new SimpleDateFormat("HH:mm:ss.SSS");
-    public static final SimpleDateFormat timeFormaterUTC = new SimpleDateFormat("HH:mm:ss.SSS");
+    public static final SimpleDateFormat timeFormaterUTC = new SimpleDateFormat("HH:mm:ss.SSS") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};;
     public static final SimpleDateFormat timeFormaterNoMillis = new SimpleDateFormat("HH:mm:ss");
     public static final SimpleDateFormat timeFormaterNoMillis2 = new SimpleDateFormat("HH'h'mm'm'ss's'");
-    public static final SimpleDateFormat timeFormaterNoMillis2UTC = new SimpleDateFormat("HH'h'mm'm'ss's'");
+    public static final SimpleDateFormat timeFormaterNoMillis2UTC = new SimpleDateFormat("HH'h'mm'm'ss's'") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};;
     public static final SimpleDateFormat timeFormaterNoSegs = new SimpleDateFormat("HH:mm");
     public static final SimpleDateFormat timeFormaterNoSegs2 = new SimpleDateFormat("HH'h'mm'm'");
-    public static final SimpleDateFormat timeUTCFormaterNoSegs2 = new SimpleDateFormat("HH'h'mm'm'");
-    public static final SimpleDateFormat timeUTCFormaterNoSegs3 = new SimpleDateFormat("HH':'mm");
+    public static final SimpleDateFormat timeUTCFormaterNoSegs2 = new SimpleDateFormat("HH'h'mm'm'") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};;
+    public static final SimpleDateFormat timeUTCFormaterNoSegs3 = new SimpleDateFormat("HH':'mm") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};;
     public static final SimpleDateFormat dateTimeFormater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-    public static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    public static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};;
     public static final SimpleDateFormat dateTimeFormaterNoMillis = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static final SimpleDateFormat dateTimeFormaterNoSegs = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-    public static final SimpleDateFormat dateTimeFormater2UTC = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy", new Locale("en"));
+    public static final SimpleDateFormat dateTimeFormater2UTC = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy", new Locale("en")) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};;
 
     public static final SimpleDateFormat dateTimeFileNameFormater = new SimpleDateFormat("yyyy-MM-dd_HH'h'mm'm'ss's'");
     public static final SimpleDateFormat dateTimeFileNameFormaterMillis = new SimpleDateFormat("yyyy-MM-dd_HH'h'mm'm'ss.SSS's'");
 
-    static {
-        dateFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-        dateFormaterXMLUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-        dateTimeFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-        dateTimeFormater2UTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-        dateFormaterXMLNoMillisUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-        
-        timeUTCFormaterNoSegs2.setTimeZone(TimeZone.getTimeZone("UTC"));
-        timeFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-        timeFormaterNoMillis2UTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
+//    static {
+//        dateFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+//        dateFormaterXMLUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+//        dateTimeFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+//        dateTimeFormater2UTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+//        dateFormaterXMLNoMillisUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+//        
+//        timeUTCFormaterNoSegs2.setTimeZone(TimeZone.getTimeZone("UTC"));
+//        timeUTCFormaterNoSegs3.setTimeZone(TimeZone.getTimeZone("UTC"));
+//        timeFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+//        timeFormaterNoMillis2UTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+//    }
 
     private static long initialTimeMillis;
     private static long initialTimeNanos;
@@ -159,5 +164,9 @@ public class DateTimeUtil {
 		
 		NeptusLog.pub().info("<###> "+dateTimeFormater2UTC.format(new Date()));
 		NeptusLog.pub().info("<###> "+new Date());
+		
+		String clockStr = DateTimeUtil.timeUTCFormaterNoSegs3.format(new Date(System.currentTimeMillis()))
+                + " " + I18n.text("UTC");
+		System.out.println(clockStr);
 	}
 }

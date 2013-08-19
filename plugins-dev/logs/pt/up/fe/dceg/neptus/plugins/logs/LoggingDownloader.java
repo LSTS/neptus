@@ -54,7 +54,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import org.jdesktop.swingx.JXButton;
@@ -314,6 +313,21 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
         };
     }
 
+    @Override
+    public void initSubPanel() {
+        if (getConsole().getMainSystem() == null) {
+            button.setEnabled(false);
+            button.setToolTipText(I18n.text("Log: (communications not started)"));
+        }
+        else {
+            resetDownloaderForVehicle(getConsole().getMainSystem());
+
+            send(IMCDefinition.getInstance().create("LoggingControl", "op", Operation.REQUEST_CURRENT_NAME.type()));
+            button.setEnabled(changeLogNameEnabled);
+            button.setToolTipText(I18n.text("Log: (updating...)"));
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -336,16 +350,17 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
         for (LogsDownloaderWorker downloadWorker : downloadWorkerList.values()) {
             downloadWorker.cleanup();
         }
-        if (logsFrame != null) {
-            logsFrame.setVisible(false);
-            SwingUtilities.invokeLater(new Runnable() {
-                
-                @Override
-                public void run() {
-                    logsFrame.dispose();
-                }
-            });            
-        }
+        logsFrame.dispose();
+//        if (logsFrame != null) {
+//            logsFrame.setVisible(false);
+//            SwingUtilities.invokeLater(new Runnable() {
+//                
+//                @Override
+//                public void run() {
+//                    logsFrame.dispose();
+//                }
+//            });            
+//        }
     }
 
     /**
@@ -353,7 +368,14 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
 	 */
     private void updateLogsState() {
         LogsDownloaderWorker dw = getDownloadWorker();
-        String[] listFolders = dw.doGiveListOfLogFolders();
+        String[] listFolders;
+        try {
+            listFolders = dw.doGiveListOfLogFolders();
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+            return;
+        }
         long nTotal = 0, nDownloading = 0, nError = 0, nNew = 0, nIncomplete = 0, nSync = 0, nUnknown = 0;
         // NeptusLog.pub().info("<###>listFolders  filter: "+listFolders.length);
         for (String strLFd : listFolders) {
@@ -455,6 +477,11 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
     }
 
     public synchronized LogsDownloaderWorker getDownloadWorker(String id) {
+        if (id == null || id.length() == 0) {
+            NeptusLog.pub().warn("Trying to get a downloader worker for a null id!");
+            return null;
+        }
+        
         LogsDownloaderWorker downloadWorker = downloadWorkerList.get(id);
         if (downloadWorker == null) {
             downloadWorker = new LogsDownloaderWorker(logsFrame);
@@ -475,6 +502,10 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
      * @param id
      */
     private void resetDownloaderForVehicle(String id) {
+        LogsDownloaderWorker dw = getDownloadWorker(id);
+        if (dw == null)
+            return;
+        
         String oldId = getDownloadWorker(id).getLogLabel();
         if (!id.equalsIgnoreCase(oldId)) {
             try {
@@ -485,7 +516,7 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
                 scheduleDownloadListFromServer();
             }
             catch (Exception e) {
-                e.printStackTrace();
+                NeptusLog.pub().error("Bad log downloader settings for '" + id + "'", e);
                 getDownloadWorker(id).setHost("");
                 getDownloadWorker(id).setLogLabel(id.toLowerCase());
                 getDownloadWorker(id).doReset(false);
@@ -498,7 +529,7 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
             try {
                 LogsDownloaderWorker dw = getDownloadWorker(id);
                 ImcSystem sys3 = ImcSystemsHolder.lookupSystemByName(id);
-                if (sys3 == null) {
+                if (dw == null || sys3 == null) {
                     NeptusLog.pub().warn("Not able to get IMC System for '" + id + "'");
                     continue;
                 }
@@ -520,17 +551,17 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
                 if (idx >= 0)
                     tabbledPane.setTitleAt(idx, dw.getLogLabel());
 
-                // new code 2010-10-27 pdias
-                Vector<URI> sUri = sys3.getServiceProvided("http", "dune");
+                //Vector<URI> sUri = sys3.getServiceProvided("http", "dune");
+                Vector<URI> sUri = sys3.getServiceProvided("ftp", "");
                 if (sUri.size() > 0) {
                     dw.setHost(sUri.get(0).getHost());
-                    dw.setPort((sUri.get(0).getPort() <= 0) ? 80 : sUri.get(0).getPort());
+                    dw.setPort((sUri.get(0).getPort() <= 0) ? 21 : sUri.get(0).getPort());
                 }
                 if (sUri.size() > 1) {
                     for (URI uriT : sUri) {
                         if (NetworkInterfacesUtil.testForReachability(uriT.getHost(), uriT.getPort())) {
                             dw.setHost(uriT.getHost());
-                            dw.setPort((uriT.getPort() <= 0) ? 80 : uriT.getPort());
+                            dw.setPort((uriT.getPort() <= 0) ? 21 : uriT.getPort());
                             break;
                         }
                     }
@@ -568,7 +599,7 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
             public void run() {
                 for (String id : downloadWorkerList.keySet().toArray(new String[0])) {
                     LogsDownloaderWorker dw = getDownloadWorker(id);
-                    if (dw.validateConfiguration()) {
+                    if (dw != null && dw.validateConfiguration()) {
                         dw.doUpdateListFromServer();
                     }
                 }
@@ -680,22 +711,6 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
     @Override
     public long millisBetweenUpdates() {
         return updatePeriodSeconds * 1000;
-    }
-
-    @Override
-    public void initSubPanel() {
-
-        if (getConsole().getMainSystem() == null) {
-            button.setEnabled(false);
-            button.setToolTipText(I18n.text("Log: (communications not started)"));
-        }
-        else {
-            resetDownloaderForVehicle(getConsole().getMainSystem());
-
-            send(IMCDefinition.getInstance().create("LoggingControl", "op", Operation.REQUEST_CURRENT_NAME.type()));
-            button.setEnabled(false);
-            button.setToolTipText(I18n.text("Log: (updating...)"));
-        }
     }
 
     @Override

@@ -55,7 +55,7 @@ public abstract class SimpleRendererInteraction extends SimpleSubPanel implement
     private static final long serialVersionUID = 1L;
     protected InteractionAdapter interactionAdapter;
     protected ToolbarSwitch associatedSwitch = null;
-    
+    protected boolean active = false;
     /**
      * @param console
      */
@@ -137,6 +137,6 @@ public abstract class SimpleRendererInteraction extends SimpleSubPanel implement
     
     @Override
     public void setActive(boolean mode, StateRenderer2D source) {
-        
+        this.active = mode;
     }
 }

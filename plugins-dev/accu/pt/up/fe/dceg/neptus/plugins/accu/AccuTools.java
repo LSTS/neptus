@@ -139,7 +139,7 @@ public class AccuTools extends SimpleSubPanel {
         
     };
 
-    @NeptusProperty(hidden=true)
+    @NeptusProperty(editable=true)
     String destination = "accu-10688";
 
     @Override

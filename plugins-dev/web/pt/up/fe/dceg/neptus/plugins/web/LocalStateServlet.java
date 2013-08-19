@@ -48,6 +48,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.JMenuItem;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mystate.MyState;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.DateTimeUtil;
@@ -178,17 +179,17 @@ public class LocalStateServlet extends HttpServlet implements IConsoleMenuItemSe
      */
     @Override
     public ConsoleMenuItem[] getConsoleMenuItems() {
-        return new ConsoleMenuItem[] {new ConsoleMenuItem("Allow console exposure to the outside",
+        return new ConsoleMenuItem[] {new ConsoleMenuItem(I18n.text("Allow console exposure to the outside"),
                 null, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        if (exposuredMenuItem.getText().equals("Allow console exposure to the outside")) {
+                        if (exposuredMenuItem.getText().equals(I18n.text("Allow console exposure to the outside"))) {
                             allowConsoleExposure = true;
-                            exposuredMenuItem.setText("Disallow console exposure to the outside");
+                            exposuredMenuItem.setText(I18n.text("Disallow console exposure to the outside"));
                         }
                         else {
                             allowConsoleExposure = false;
-                            exposuredMenuItem.setText("Allow console exposure to the outside");
+                            exposuredMenuItem.setText(I18n.text("Allow console exposure to the outside"));
                         }
                     }
                 })};
@@ -200,7 +201,7 @@ public class LocalStateServlet extends HttpServlet implements IConsoleMenuItemSe
     @Override
     public void informCreatedConsoleMenuItem(Hashtable<String, JMenuItem> consoleMenuItems) {
         for (String path : consoleMenuItems.keySet()) {
-            if ("Allow console exposure to the outside".equalsIgnoreCase(path)) 
+            if (I18n.text("Allow console exposure to the outside").equalsIgnoreCase(path)) 
                 exposuredMenuItem = consoleMenuItems.get(path);
         }
     }

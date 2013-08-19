@@ -26,9 +26,15 @@ if exist jre\bin (
 
 for /f "delims=" %%a in ('%JAVA_BIN_FOLDER%java -cp bin/neptus.jar pt.up.fe.dceg.neptus.loader.helper.CheckJavaOSArch') do (@set JAVA_MACHINE_TYPE=%%a)
 if %JAVA_MACHINE_TYPE%==x86 (
-   set LIBRARYPATH=.;libJNI/x86;libJNI
+	if %PROCESSOR_ARCHITECTURE%==x86 (
+		set LIBRARYPATH=.;libJNI/x86;libJNI;C:\Program^ Files\VTK\bin
+	)
+	else (
+		set LIBRARYPATH=.;libJNI/x86;libJNI;C:\Program^ Files^ ^(x86^)\VTK\bin
+	)
+    set LIBRARYPATH=.;libJNI/x86;libJNI;C:\Program^ Files\VTK\bin
 ) else (
-   set LIBRARYPATH=.;libJNI/x64;libJNI
+	set LIBRARYPATH=.;libJNI/x64;libJNI;C:\Program^ Files\VTK\bin
 )
 
 
@@ -58,7 +64,9 @@ if not "%1"=="wm" goto end10
 
 REM @echo on
 
+set VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
+
 set OLDPATH=%PATH%
 set PATH=%LIBRARYPATH%;%PATH%
-%JAVA_BIN_FOLDER%java -Xms10m -Xmx912m -Dj3d.rend=d3d -Dsun.java2d.d3d=true -Djava.library.path="%LIBRARYPATH%" -cp %CLASSPATH% %DEFAULT% %1 %2 %3 %4 %5 %6 %7 %8 %9
+%JAVA_BIN_FOLDER%java -Xms10m -Xmx912m -Dj3d.rend=d3d -Dsun.java2d.d3d=true %VMFLAGS% -Djava.library.path="%LIBRARYPATH%" -cp %CLASSPATH% %DEFAULT% %1 %2 %3 %4 %5 %6 %7 %8 %9
 set PATH=%OLDPATH%

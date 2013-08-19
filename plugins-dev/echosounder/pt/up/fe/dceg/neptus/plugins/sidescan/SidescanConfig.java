@@ -33,7 +33,6 @@ package pt.up.fe.dceg.neptus.plugins.sidescan;
 
 import java.awt.Color;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMap;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
@@ -55,6 +54,9 @@ public class SidescanConfig implements PropertiesProvider {
 //    
 //    @NeptusProperty
 //    public boolean slantRangeCorrection = false;
+
+    @NeptusProperty
+    public boolean speedCorrection = false;
     
     @NeptusProperty
     public boolean timeVariableGain = false;
@@ -63,10 +65,10 @@ public class SidescanConfig implements PropertiesProvider {
     public ColorMap colorMap = ColorMapFactory.createBronzeColormap();
     
     @NeptusProperty
-    public double normalization = 0.05;
+    public double normalization = 0.2;
     
     @NeptusProperty
-    public double tvgGain = 100;
+    public double tvgGain = 75;
     
     @NeptusProperty
     public boolean showPositionHud = true;
@@ -86,7 +88,6 @@ public class SidescanConfig implements PropertiesProvider {
     @Override
     public void setProperties(Property[] properties) {
         PluginUtils.setPluginProperties(this, properties);
-        NeptusLog.pub().info("<###>setProperties");
     }
 
     @Override

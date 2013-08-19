@@ -68,7 +68,7 @@ public class ElevatorPreview implements IManeuverPreview<Elevator> {
         if (destination.getZUnits() == ManeuverLocation.Z_UNITS.DEPTH)
             destination.setDepth(startZ);
         else if (destination.getZUnits() == ManeuverLocation.Z_UNITS.ALTITUDE)
-            destination.setDepth(SimulationEngine.BOTTOM_DEPTH-startZ);
+            destination.setDepth(-startZ);
         else
             destination.setDepth(0);
                 
@@ -92,14 +92,14 @@ public class ElevatorPreview implements IManeuverPreview<Elevator> {
         model.setState(state);
         double distToDestination = state.getPosition().getHorizontalDistanceInMeters(destination);
         if (distToDestination-2 > radius) {
-            model.guide(destination, speed);
+            model.guide(destination, speed, destination.getDepth() >= 0 ? null : - destination.getDepth());
         }
         else {
             double perpend = state.getPosition().getXYAngle(destination) + Math.PI/2;
             LocationType loc = new LocationType(state.getPosition());
             loc.setDepth(endZ);
             loc.translatePosition(Math.cos(perpend) * -20, Math.sin(perpend) * -20, 0);
-            model.guide(loc, speed);
+            model.guide(loc, speed, destination.getDepth() >= 0 ? null : - destination.getDepth());
         }
 
         model.advance(timestep);

@@ -258,6 +258,7 @@ public class IMCUtils {
             }
             catch (Exception e) {
                 // e.printStackTrace();
+                NeptusLog.pub().error(e.getStackTrace());
             }
         }
         return doc;
@@ -447,6 +448,7 @@ public class IMCUtils {
             catch (NumberFormatException e2) {
                 GuiUtils.errorMessage(ConfigFetch.getSuperParentAsFrame(), "Send transponders",
                         "Bad configuration parsing for transponder " + transp.getId() + "!");
+                NeptusLog.pub().error(e2.getStackTrace());
                 return null;
             }
 
@@ -536,8 +538,10 @@ public class IMCUtils {
      * See {@link LogUtils#parseManeuver}
      */
     public static Maneuver parseManeuver(IMCMessage message) {
-        Maneuver m = new Goto();
+        Maneuver m = null;
 
+        if (message.getAbbrev().equalsIgnoreCase("goto"))
+            m = new Goto();
         if (message.getAbbrev().equalsIgnoreCase("loiter"))
             m = new Loiter();
         else if (message.getAbbrev().equalsIgnoreCase("teleoperation"))
@@ -563,7 +567,10 @@ public class IMCUtils {
         else if (message.getAbbrev().equalsIgnoreCase("elevator"))
             m = new Elevator();
 
-        ((IMCSerialization) m).parseIMCMessage(message);
+        if (m != null)
+            ((IMCSerialization) m).parseIMCMessage(message);
+        else
+            m = new Unconstrained();
         return m;
     }
 
@@ -602,7 +609,6 @@ public class IMCUtils {
         msgPlanCommand.setValue("argument", specs);
 
         return msgPlanCommand;
-
     }
 
     public static LocationType lookForStartPosition(MissionType mt) {
@@ -618,13 +624,14 @@ public class IMCUtils {
         LocationType absLoc = new LocationType();
 
         if (startEl == null && mt != null) {
-            NeptusLog.pub().debug("Couldn't find startup position. Returning homeref position");
+            NeptusLog.pub().warn("Couldn't find startup position. Returning homeref position");
             HomeReference homeRef = mt.getHomeRef();
-            absLoc.setLocation(homeRef);
-            absLoc = absLoc.getNewAbsoluteLatLonDepth();
+            absLoc = homeRef.getNewAbsoluteLatLonDepth();
             return null;
         }
         else if (startEl != null) {
+            NeptusLog.pub().warn("Unable to retrieve homeref from mission type.");
+            
             absLoc.setLocation(startEl.getCenterLocation());
             absLoc = absLoc.getNewAbsoluteLatLonDepth();
         }
@@ -955,7 +962,7 @@ public class IMCUtils {
                 beaconMessages.add(lblBeacon);
             }
             catch (NumberFormatException e2) {
-                NeptusLog.pub().error("Malformed Transponder configuration for " + transp.getId());
+                NeptusLog.pub().error(e2.getStackTrace());
                 return null;
             }
         }
@@ -1049,27 +1056,21 @@ public class IMCUtils {
             for (String hf : headerType.getFieldNames()) {
                 try {
                     Object fieldValue;
-                    try {
-                        fieldValue = message.getHeader().getValue(hf);
-                    }
-                    catch (Exception e) {
+                    fieldValue = message.getHeader().getValue(hf);
+                    
+                    PluginProperty ap = null;
+
+                    if(fieldValue == null) {
                         continue;
                     }
-
-                    PluginProperty ap = null;
-                    if (fieldValue != null) {
+                    else {
                         if (hf.equalsIgnoreCase("src") || hf.equalsIgnoreCase("dst")) {
                             fieldValue = new ImcId16(fieldValue);
                         }
                         ap = new PluginProperty(hf, fieldValue.getClass(), fieldValue);
                         ap.setDisplayName(headerType.getLongFieldName(hf));
                     }
-                    else {
-                        NeptusLog.pub().info("<###> "+hf + " is null [" + 
-                                // headerType.getFieldType(hf)+"]");
-                                headerType.getTypeOf(hf)+"]");
-                        continue;
-                    }
+                    
                     ap.setCategory("header");
                     if (hf.equalsIgnoreCase("time") || hf.equalsIgnoreCase("mgid") || hf.equalsIgnoreCase("sync") ||
                             hf.equalsIgnoreCase("size")) {
@@ -1098,7 +1099,7 @@ public class IMCUtils {
 
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    NeptusLog.pub().error(e.getStackTrace());
                 }
             }
         }
@@ -1154,6 +1155,7 @@ public class IMCUtils {
                     ap.setShortDescription(d);
                 }
                 catch (Exception e) {
+                    NeptusLog.pub().error(e.getMessage());
                     ap.setShortDescription(desc);
                 }
 

@@ -33,6 +33,8 @@ package pt.up.fe.dceg.neptus.console.notifications;
 
 import java.text.SimpleDateFormat;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
+
 /**
  * @author Hugo Dias
  * 
@@ -54,7 +56,7 @@ public class Notification implements Comparable<Notification> {
     private final String text;
     private final SimpleDateFormat formater = new SimpleDateFormat("HH:mm:ss");
     private boolean requireHumanAction = false;
-    private String src = "Console";
+    private String src = I18n.text("Console");
 
     /**
      * Static factory method for error type This already has require human action activated

@@ -509,7 +509,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
         getConsole().addConsoleVehicleListener(this);
         
-        for (ConsoleSystem v : getConsole().getConsoleSystems().values()) {   
+        for (ConsoleSystem v : getConsole().getSystems().values()) {   
             v.addRenderFeed(this);
         }
         if (getConsole() != null) {
@@ -603,7 +603,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     public void missionReplaced(MissionType mission) {
         // editor.setMission(mission);
         setMission(mission);
-        addPlan.setEnabled(mission != null);
+        if (addPlan != null)
+            addPlan.setEnabled(mission != null);
     }
 
     /* (non-Javadoc)
@@ -749,7 +750,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                     }
                 }
             };
-            ToolbarSwitch tswitch = new ToolbarSwitch(custom);
+            ToolbarSwitch tswitch = new ToolbarSwitch(I18n.text(name), custom);
             if (tswitch.isEnabled())
                 bg.add(tswitch);
             bottom.add(tswitch, 4);

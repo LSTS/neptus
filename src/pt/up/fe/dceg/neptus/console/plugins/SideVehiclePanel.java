@@ -41,10 +41,8 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 /**
@@ -128,8 +126,6 @@ public class SideVehiclePanel extends JPanel {
 
         if (this.image == null)
             return;
-        try {
-
             this.g2 = (Graphics2D) arg0;
             if (g2 == null)
                 return;
@@ -190,10 +186,6 @@ public class SideVehiclePanel extends JPanel {
             // g2.drawImage(bi.getScaledInstance(this.getWidth(), this.getHeight(), Image.SCALE_SMOOTH), 0, 0, this);
 
             g2.drawImage(bi, 0, 0, this);
-        }
-        catch (Exception e) {
-            // repaint();
-        }
     }
 
     public void drawImage(Graphics2D g, Image img, int imgx, int imgy, int x, int y, int w, int h) {
@@ -211,19 +203,19 @@ public class SideVehiclePanel extends JPanel {
     }
 
     public static void main(String[] arg) {
-        SideVehiclePanel buss = new SideVehiclePanel();
-        GuiUtils.testFrame(buss, "compass");
-        for (int i = 0;; i -= 2) {
-            buss.setPitch(((float) Math.toRadians((double) i)));
-            try {// nada
-                 // NeptusLog.pub().info("<###>espera...");
-                Thread.sleep(50);
-                // NeptusLog.pub().info("<###>esperou");
-            }
-            catch (Exception e) {
-                NeptusLog.pub().info("<###>excepcao");
-            }
-        }
+//        SideVehiclePanel buss = new SideVehiclePanel();
+//        GuiUtils.testFrame(buss, "compass");
+//        for (int i = 0;; i -= 2) {
+//            buss.setPitch(((float) Math.toRadians((double) i)));
+//            try {// nada
+//                 // NeptusLog.pub().info("<###>espera...");
+//                Thread.sleep(50);
+//                // NeptusLog.pub().info("<###>esperou");
+//            }
+//            catch (Exception e) {
+//                NeptusLog.pub().info("<###>excepcao");
+//            }
+//        }
     }
 
 }

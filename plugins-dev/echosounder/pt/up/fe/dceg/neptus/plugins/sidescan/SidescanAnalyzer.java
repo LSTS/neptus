@@ -31,11 +31,14 @@
  */
 package pt.up.fe.dceg.neptus.plugins.sidescan;
 
+import java.awt.Component;
 import java.awt.Graphics;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.plaf.basic.BasicSliderUI;
 
@@ -96,17 +99,24 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         this.mraPanel = panel;
     }
     
+    protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
+    
     public void initialize(IMraLogGroup source) {
         ssParser = SidescanParserFactory.build(source);
-        
+
         firstPingTime = ssParser.firstPingTimestamp();
         lastPingTime = ssParser.lastPingTimestamp();
         
         lastUpdateTime = firstPingTime;
         
         for(Integer subsys : ssParser.getSubsystemList()) {
+            System.out.println(subsys);
             sidescanPanels.add(new SidescanPanel(this, ssParser, subsys));
         }
+        
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+        
+        System.out.println(fmt.format(new Date(firstPingTime)) + " " + fmt.format(new Date(lastPingTime)) + " " + (lastPingTime - firstPingTime));
         
         timeline = new Timeline(0, (int) (lastPingTime - firstPingTime), 30, 1000, false);
         timeline.getSlider().setValue(0);
@@ -124,20 +134,18 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
             } 
         });
         
-        //histogram = new Histogram();
-        
         // Layout building
         setLayout(new MigLayout());
         
         for(SidescanPanel p : sidescanPanels) {
             add(p, "w 100%, h 100%, wrap");
         }
-        
-        add(timeline, "w 100%, h 32!, split");
+
+        add(timeline, "w 100%, split");
     }
 
     @Override
-    public JComponent getComponent(IMraLogGroup source, double timestep) {
+    public Component getComponent(IMraLogGroup source, double timestep) {
         initialize(source);
         revalidate();
         repaint();
@@ -194,8 +202,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        
-        return LogUtils.hasIMCSidescan(source)|| source.getFile("Data.jsf") != null;
+        return LogUtils.hasIMCSidescan(source) || source.getFile("Data.jsf") != null || source.getLog("SidescanPing") != null;
     }
 
     @Override

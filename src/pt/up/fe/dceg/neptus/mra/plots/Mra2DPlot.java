@@ -31,13 +31,13 @@
  */
 package pt.up.fe.dceg.neptus.mra.plots;
 
+import java.awt.Component;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -78,7 +78,7 @@ public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {
     }
     
     public String getTitle() {
-        return I18n.textf("%plotname plot", getName());
+        return (getName() + " plot");
     }
     
     private LsfIndex index;
@@ -89,7 +89,7 @@ public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {
     protected LinkedHashMap<String, Long> lastAddedPoints = new LinkedHashMap<>();
     
     public void addValue(long timeMillis, double x, double y, String src, String variable) {
-        String seriesName = src+"."+variable;
+        String seriesName = src+"."+I18n.text(variable);
         
         if (!series.containsKey(seriesName)) {
            series.put(seriesName, new LinkedHashMap<Long, Point2D.Double>());
@@ -107,7 +107,7 @@ public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {
     }
     
     @Override
-    public JComponent getComponent(IMraLogGroup source, double timestep) {
+    public Component getComponent(IMraLogGroup source, double timestep) {
         return new MraChartPanel(this, source, mraPanel);
     }
 
@@ -220,7 +220,7 @@ public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {
 
     public XYSeries getMarkerSeries() {
         if(markerSeries == null && chart != null) {
-            markerSeries = new XYSeries("Marks");
+            markerSeries = new XYSeries(I18n.text("Marks"));
             XYSeriesCollection dataset = (XYSeriesCollection) chart.getXYPlot().getDataset();
             dataset.addSeries(markerSeries);
             // Special case for marks    

@@ -101,15 +101,15 @@ public class DistancePanel extends JPanel {
 			// g2.translate();
 			// g2.translate(image.getWidth(null)/2,image.getHeight(null)/2);
 
-			int percent_arrow_lenght = this.getWidth() / 9;
+			int percent_arrow_length = this.getWidth() / 9;
 			int percent_arrow_height = this.getHeight() / 7;
 			if (type == VERTICAL_UP) {
 				g.drawLine(this.getWidth() / 2, 0, this.getWidth() / 2, this
 						.getHeight());
 
-				g.drawLine(this.getWidth() / 2 - percent_arrow_lenght,
+				g.drawLine(this.getWidth() / 2 - percent_arrow_length,
 						percent_arrow_height, this.getWidth() / 2, 0);
-				g.drawLine(this.getWidth() / 2 + percent_arrow_lenght,
+				g.drawLine(this.getWidth() / 2 + percent_arrow_length,
 						percent_arrow_height, this.getWidth() / 2, 0);
 
 				Rectangle2D stringBounds = g2.getFontMetrics().getStringBounds(
@@ -128,9 +128,9 @@ public class DistancePanel extends JPanel {
 						.getHeight());
 				
 				//seta
-				g.drawLine(this.getWidth() / 2 - percent_arrow_lenght,
+				g.drawLine(this.getWidth() / 2 - percent_arrow_length,
 						this.getHeight()-percent_arrow_height, this.getWidth() / 2, this.getHeight()-1);
-				g.drawLine(this.getWidth() / 2 + percent_arrow_lenght,
+				g.drawLine(this.getWidth() / 2 + percent_arrow_length,
 						this.getHeight()-percent_arrow_height, this.getWidth() / 2, this.getHeight()-1);
 				
 				// valor
@@ -152,9 +152,9 @@ public class DistancePanel extends JPanel {
 				
 				//seta
 				g.drawLine(0, this.getHeight() / 2,
-					percent_arrow_lenght,this.getHeight()/2-percent_arrow_height);
+					percent_arrow_length,this.getHeight()/2-percent_arrow_height);
 				g.drawLine(0, this.getHeight() / 2,
-						percent_arrow_lenght,this.getHeight()/2+percent_arrow_height);
+						percent_arrow_length,this.getHeight()/2+percent_arrow_height);
 				
 				
 				//				 valor
@@ -174,10 +174,10 @@ public class DistancePanel extends JPanel {
 						.getHeight()/2);
 				
 				//seta
-				g.drawLine(this.getWidth()-percent_arrow_lenght,this.getHeight()/2-percent_arrow_height ,
+				g.drawLine(this.getWidth()-percent_arrow_length,this.getHeight()/2-percent_arrow_height ,
 						this.getWidth()-1,this.getHeight() / 2);
 				g.drawLine(this.getWidth()-1, this.getHeight() / 2,
-						this.getWidth()-percent_arrow_lenght,this.getHeight()/2+percent_arrow_height);
+						this.getWidth()-percent_arrow_length,this.getHeight()/2+percent_arrow_height);
 				
 				
 				//				 valor

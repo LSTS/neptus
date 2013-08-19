@@ -40,6 +40,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 import javax.swing.ProgressMonitor;
 
@@ -83,7 +84,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     private String type = "Test";
     private String description = "No description available";
 
-    private LinkedList<String> notesList = new LinkedList<String>();
+    private final LinkedList<String> notesList = new LinkedList<String>();
 
     private LinkedHashMap<String, VehicleMission> vehiclesList = new LinkedHashMap<String, VehicleMission>();
     private LinkedHashMap<String, MapMission> mapsList = new LinkedHashMap<String, MapMission>();
@@ -92,7 +93,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
 
     private HomeReference homeRef = new HomeReference();
 
-    private LinkedHashMap<String, PlanType> individualPlansList = new LinkedHashMap<String, PlanType>();
+    private TreeMap<String, PlanType> individualPlansList = new TreeMap<String, PlanType>();
 
     private Document doc;
     protected boolean isLoadOk = true;
@@ -162,6 +163,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlInputMethods#load(org.dom4j.Element)
      */
+    @Override
     public boolean load(Element elem) {
         doc = Dom4JUtil.elementToDocument(elem);
         if (doc == null) {
@@ -176,6 +178,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlInputMethods#load(java.lang.String)
      */
+    @Override
     public boolean load(String xml) {
         try {
             doc = DocumentHelper.parseText(xml);
@@ -282,7 +285,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 MapMission mm = new MapMission();
                 mm.setId(velem.selectSingleNode("./id").getText());
                 mm.setName(velem.selectSingleNode("./name").getText());
-                if (originalFilePath == "")
+                if ("".equals(originalFilePath))
                     mm.setHref(velem.selectSingleNode("./href").getText());
                 else
                     mm.setHrefAndLoadMap(ConfigFetch.resolvePathWithParent(originalFilePath,
@@ -302,7 +305,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 ChecklistMission cm = new ChecklistMission();
                 cm.setId(velem.selectSingleNode("./id").getText());
                 cm.setName(velem.selectSingleNode("./name").getText());
-                if (originalFilePath == "")
+                if ("".equals(originalFilePath))
                     cm.setHref(velem.selectSingleNode("./href").getText());
                 else
                     cm.setHrefAndLoadChecklist(ConfigFetch.resolvePathWithParent(originalFilePath, velem
@@ -343,6 +346,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         return true;
     }
 
+    @Override
     public boolean loadFile(File file) {
         return loadFile(file.getAbsolutePath());
     }
@@ -350,6 +354,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     /**
      * @param url
      */
+    @Override
     public boolean loadFile(String url) {
         ProgressMonitor pmon = null;
 
@@ -386,6 +391,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         return load(fileAsString);
     }
 
+    @Override
     public boolean isLoadOk() {
         return isLoadOk;
     }
@@ -552,7 +558,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     /**
      * @return Returns the individualPlansList.
      */
-    public LinkedHashMap<String, PlanType> getIndividualPlansList() {
+    public TreeMap<String, PlanType> getIndividualPlansList() {
         return individualPlansList;
     }
 
@@ -576,6 +582,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML()
      */
+    @Override
     public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asXML(rootElementName);
@@ -586,6 +593,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
+    @Override
     public String asXML(String rootElementName) {
         String result = "";
         Document document = asDocument(rootElementName);
@@ -598,6 +606,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement()
      */
+    @Override
     public Element asElement() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asElement(rootElementName);
@@ -608,6 +617,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement(java.lang.String)
      */
+    @Override
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
     }
@@ -617,6 +627,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument()
      */
+    @Override
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
@@ -627,6 +638,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
      * 
      * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
+    @Override
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
         Element root = document.addElement(rootElementName);
@@ -655,7 +667,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             ve.addElement("name").addText(vm.getName());
             CoordinateSystem vcs = vm.getCoordinateSystem();
             if (vcs != null)
-                if (!(vcs.getId() == "home"))
+                if (!"home".equals(vcs.getId()))
                     ve.add(vcs.asElement("vehicle-reference"));
         }
 
@@ -665,7 +677,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             Element ma = maps.addElement("map");
             ma.addElement("id").addText(mm.getId());
             ma.addElement("name").addText(mm.getName());
-            if (originalFilePath == "")
+            if ("".equals(originalFilePath))
                 ma.addElement("href").addText(mm.getHref());
             else
                 ma.addElement("href").addText(FileUtil.relativizeFilePathAsURI(originalFilePath, mm.getHref()));
@@ -677,7 +689,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             Element cl = checklists.addElement("checklist");
             cl.addElement("id").addText(cm.getId());
             cl.addElement("name").addText(cm.getName());
-            if (originalFilePath == "")
+            if ("".equals(originalFilePath))
                 cl.addElement("href").addText(cm.getHref());
             else
                 cl.addElement("href").addText(FileUtil.relativizeFilePathAsURI(originalFilePath, cm.getHref()));
@@ -713,7 +725,7 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         this.mapsList = mapsList;
     }
 
-    public void setPlanList(LinkedHashMap<String, PlanType> planList) {
+    public void setPlanList(TreeMap<String, PlanType> planList) {
         this.individualPlansList = planList;
     }
 

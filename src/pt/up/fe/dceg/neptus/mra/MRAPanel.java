@@ -15,6 +15,7 @@ package pt.up.fe.dceg.neptus.mra;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -45,9 +46,13 @@ import pt.up.fe.dceg.neptus.gui.InfiniteProgressPanel;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfGenericIterator;
+import pt.up.fe.dceg.neptus.mra.exporters.CSVExporter;
 import pt.up.fe.dceg.neptus.mra.exporters.ImcTo837;
+import pt.up.fe.dceg.neptus.mra.exporters.KMLExporter;
+import pt.up.fe.dceg.neptus.mra.exporters.MatExporter;
 import pt.up.fe.dceg.neptus.mra.exporters.MraExporter;
 import pt.up.fe.dceg.neptus.mra.exporters.PCDExporter;
+import pt.up.fe.dceg.neptus.mra.exporters.XtfExporter;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
 import pt.up.fe.dceg.neptus.mra.replay.LogReplay;
@@ -56,6 +61,7 @@ import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.up.fe.dceg.neptus.util.FileUtil;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.llf.LogTree;
@@ -70,6 +76,8 @@ import pt.up.fe.dceg.neptus.util.llf.replay.LLFMsgReplay;
  */
 @SuppressWarnings("serial")
 public class MRAPanel extends JPanel {
+    
+    
     private LsfTree tree;
     private LogTree logTree;
 
@@ -88,7 +96,8 @@ public class MRAPanel extends JPanel {
 
     private final LinkedHashMap<String, MRAVisualization> visualizationList = new LinkedHashMap<String, MRAVisualization>();
     private final LinkedHashMap<String, Component> openVisualizationList = new LinkedHashMap<String, Component>();
-
+    private final ArrayList<String> loadingVisualizations = new ArrayList<String>();
+    
     private final ArrayList<LogMarker> logMarkers = new ArrayList<LogMarker>();
     private MRAVisualization shownViz = null;
 
@@ -100,6 +109,11 @@ public class MRAPanel extends JPanel {
         this.source = source;
         MRAVisualization[] automaticCharts = MraChartFactory.getAutomaticCharts(this);
 
+        
+        if (new File("conf/tides.txt").canRead() && source.getFile("tides.txt") == null) {
+            FileUtil.copyFile("conf/tides.txt",new File(source.getFile("."), "tides.txt").getAbsolutePath());
+        }
+        
         // Setup interface
         tree = new LsfTree(source);
         logTree = new LogTree(source, this);
@@ -208,23 +222,35 @@ public class MRAPanel extends JPanel {
         // Exporters list, this will be moved in the future
         MraExporter exporterList[] = new MraExporter[] { 
                 new ImcTo837(source),
-                new PCDExporter(source)
+                new PCDExporter(source),
+                new MatExporter(source),
+                new KMLExporter(this, source),
+                new CSVExporter(source),
+                new XtfExporter(source)
         }; 
         
-        // Check for existence of Exporters menu and remove on existence
+        // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
         JMenuBar bar = mra.getMRAMenuBar();
-        JMenu previousMenu = GuiUtils.getJMenuByName(bar, "Exporters");
+        JMenu previousMenu = GuiUtils.getJMenuByName(bar, I18n.text("Exporters"));
         if(previousMenu != null) {
             bar.remove(previousMenu);
         }
         
-        exporters = new JMenu("Exporters");
+        exporters = new JMenu(I18n.text("Exporters"));
         for(final MraExporter exp : exporterList) {
             if(exp.canBeApplied(source)) {
                 JMenuItem item = new JMenuItem(new AbstractAction(exp.getName()) {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        exp.process();
+                        Thread t = new Thread(exp.getName()+" processing") {
+                            public void run() {
+                                String res = exp.process();
+                                GuiUtils.infoMessage(MRAPanel.this, exp.getName(), res);
+                            };
+                        };
+                        t.setDaemon(true);
+                        t.start();
+                        
                     }
                 });
                 exporters.add(item);
@@ -290,7 +316,7 @@ public class MRAPanel extends JPanel {
     }
 
     public void removeMarker(LogMarker marker) {
-        removeTreeObject(marker);
+        logTree.removeMarker(marker);
         logMarkers.remove(marker);
         for (MRAVisualization vis : visualizationList.values()) {
             if (vis instanceof LogMarkerListener) {
@@ -365,6 +391,7 @@ public class MRAPanel extends JPanel {
     }
 
     public void cleanup() {
+        NeptusLog.pub().info("MRA Cleanup");
         tree.removeAll();
         tree = null;
 
@@ -402,7 +429,7 @@ public class MRAPanel extends JPanel {
 
     public void saveMarkers() {
         try {
-            ObjectOutputStream dos = new ObjectOutputStream(new FileOutputStream(source.getFile("Data.lsf").getParent()
+            ObjectOutputStream dos = new ObjectOutputStream(new FileOutputStream(source.getFile(".").getParent()
                     + "/marks.dat"));
             dos.writeObject(logMarkers);
             dos.close();
@@ -417,7 +444,7 @@ public class MRAPanel extends JPanel {
             if (v instanceof LogMarkerListener)
                 ((LogMarkerListener) v).GotoMarker(marker);
         }
-    }
+    }    
 
     class LoadTask implements Runnable {
         MRAVisualization vis;
@@ -433,19 +460,35 @@ public class MRAPanel extends JPanel {
             if (openVisualizationList.containsKey(vis.getName())) {
                 c = openVisualizationList.get(vis.getName());
             }
+            else if(loadingVisualizations.contains(vis.getName())) {
+                loader.setText(I18n.textf("Loading %visName", vis.getName()));
+                loader.start();
+                c = loader;
+            }
             else {
+                loadingVisualizations.add(vis.getName());
+                
                 // Do the loading
                 mainPanel.removeAll();
                 mainPanel.repaint();
                 mainPanel.add(loader, "w 100%, h 100%");
 
-                loader.setText("Loading " + vis.getName());
+                loader.setText(I18n.textf("Loading %visName", vis.getName()));
                 loader.start();
 
                 c = vis.getComponent(source, NeptusMRA.defaultTimestep);
                 openVisualizationList.put(vis.getName(), c);
-
+                
+                // Add markers
+                // For every LogMarker just call the handler of the new visualization
+                if (vis instanceof LogMarkerListener) {
+                    for (LogMarker marker : logMarkers) {
+                        ((LogMarkerListener) vis).addLogMarker(marker);
+                    }
+                }
+                
                 loader.stop();
+                loadingVisualizations.remove(vis.getName());
             }
 
             if (shownViz != null)
@@ -455,15 +498,7 @@ public class MRAPanel extends JPanel {
             vis.onShow();
             mainPanel.removeAll();
             mainPanel.add(c, "w 100%, h 100%");
-
-            // Add markers
-            // For every LogMarker just call the handler of the new visualization
-            if (vis instanceof LogMarkerListener) {
-                for (LogMarker marker : logMarkers) {
-                    ((LogMarkerListener) vis).addLogMarker(marker);
-                }
-            }
-
+                        
             mainPanel.revalidate();
             mainPanel.repaint();
         }

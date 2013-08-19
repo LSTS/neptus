@@ -34,7 +34,9 @@ package pt.up.fe.dceg.neptus.plugins.params;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import pt.up.fe.dceg.neptus.plugins.params.renderer.PropertyRenderer;
+import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.plugins.params.editor.custom.CustomSystemPropertyEditor;
+import pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -46,10 +48,17 @@ import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
  */
 public class SystemProperty extends DefaultProperty implements PropertyChangeListener {
     private static final long serialVersionUID = 1L;
+     
+    private static String[] scopeStrings = {
+        I18n.textmark("global"),
+        I18n.textmark("idle"),
+        I18n.textmark("plan"),
+        I18n.textmark("maneuver")
+    };
     
     public static enum Scope {
-        GLOBAL("global"), PLAN("plan"), MANEUVER("maneuver");
-
+        GLOBAL(scopeStrings[0]), IDLE(scopeStrings[1]), PLAN(scopeStrings[2]), MANEUVER(scopeStrings[3]);
+        
         private String text;
 
         Scope(String text) {
@@ -57,12 +66,14 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         }
 
         public String getText() {
+          // return I18n.text(this.text);
           return this.text;
         }
 
         public static Scope fromString(String text) {
           if (text != null) {
             for (Scope b : Scope.values()) {
+              // if (text.equalsIgnoreCase(I18n.text(b.text))) {
               if (text.equalsIgnoreCase(b.text)) {
                 return b;
               }
@@ -130,6 +141,8 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     private AbstractPropertyEditor editor = null;
     private DefaultCellRenderer renderer = null;
     
+    private CustomSystemPropertyEditor sectionCustomEditor = null;
+    
     private ValueTypeEnum valueType = ValueTypeEnum.STRING;
     
     private long timeSync = -2;
@@ -143,7 +156,7 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         boolean equals = false;
         if (getValue() != null && getValue().equals(value))
             equals = true;
-//        NeptusLog.pub().info("<###>##################################### " + getName() + " equals=" + equals);
+        // System.out.println("<###>##################################### " + getName() + " equals=" + equals + "   " +  getValue() + "   " + value);
         super.setValue(value);
         if (!equals)
             setTimeDirty(System.currentTimeMillis());
@@ -242,6 +255,20 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     }
     
     /**
+     * @return the sectionCustomEditor
+     */
+    public CustomSystemPropertyEditor getSectionCustomEditor() {
+        return sectionCustomEditor;
+    }
+    
+    /**
+     * @param sectionCustomEditor the sectionCustomEditor to set
+     */
+    public void setSectionCustomEditor(CustomSystemPropertyEditor sectionCustomEditor) {
+        this.sectionCustomEditor = sectionCustomEditor;
+    }
+    
+    /**
      * @return the valueType
      */
     public ValueTypeEnum getValueType() {
@@ -290,14 +317,14 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
         if (this.renderer == null)
             return;
         
-        if (!(renderer instanceof PropertyRenderer))
+        if (!(renderer instanceof SystemPropertyRenderer))
             return;
             
         if (timeDirty > timeSync || timeSync <= 0) {
-            ((PropertyRenderer) renderer).setPropertyInSync(false);
+            ((SystemPropertyRenderer) renderer).setPropertyInSync(false);
         }
         else {
-            ((PropertyRenderer) renderer).setPropertyInSync(true);
+            ((SystemPropertyRenderer) renderer).setPropertyInSync(true);
         }
     }
     
@@ -306,6 +333,11 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
+        if (sectionCustomEditor != null) {
+            sectionCustomEditor.propertyChange(evt);
+            return;
+        }
+        
         if(!(evt.getSource() instanceof SystemProperty))
             return;
         

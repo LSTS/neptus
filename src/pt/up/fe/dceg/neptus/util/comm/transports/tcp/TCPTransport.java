@@ -233,6 +233,7 @@ public class TCPTransport {
                 channel = createAndConnectSocketChannel(new InetSocketAddress(resolveAddress(host), port));
             }
             catch (UnknownHostException e) {
+                NeptusLog.pub().error(e.getMessage());
                 channel = createAndConnectSocketChannel(new InetSocketAddress(host, port));
             }
             if (channel != null) {
@@ -314,7 +315,7 @@ public class TCPTransport {
 			selector = Selector.open();
 			serverCh.configureBlocking(false);
 			serverCh.socket().setSoTimeout(timeoutMillis);
-			serverCh.socket().setReuseAddress(true);
+			// serverCh.socket().setReuseAddress(true); // Possible problem in reusing socket address!!!
 			serverCh.socket().bind(new InetSocketAddress(getBindPort()));
 			serverCh.register(selector, SelectionKey.OP_ACCEPT);
             isOnBindError = false;
@@ -347,7 +348,7 @@ public class TCPTransport {
 //	        if (!connect)
 //	            return null;
 	        while (!channel.finishConnect()) {
-	            try { Thread.sleep(10); } catch (InterruptedException e1) { }
+	            try { Thread.sleep(10); } catch (InterruptedException e1) { NeptusLog.pub().error(e1.getMessage()); }
 	        }
             selector.wakeup();
 //	        NeptusLog.pub().info("<###>rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
@@ -390,6 +391,7 @@ public class TCPTransport {
                         // safelyAlertAndCloseChannelToListeners(channel);
                     }
                     catch (IOException e) {
+                        NeptusLog.pub().error(e.getStackTrace());
                         // Ignore error when closing client socket
                     }
                 }
@@ -664,12 +666,13 @@ public class TCPTransport {
                                             }
                                         }
                                         catch (IOException e) {
+                                            NeptusLog.pub().error(e.getMessage());
                                             SocketChannel channel = (SocketChannel) key.channel();
                                             channel.close();
                                             key.cancel();
                                         }
                                     }
-									try { Thread.sleep(10); } catch (Exception e) { }
+									try { Thread.sleep(10); } catch (Exception e) { NeptusLog.pub().error(e.getMessage());}
 								}
 							} 
 							catch (IOException e) {
@@ -725,8 +728,7 @@ public class TCPTransport {
 						}
 					}
 					catch (InterruptedException e) {
-						//e.printStackTrace();
-						NeptusLog.pub().warn(this + " Thread interrupted");
+						NeptusLog.pub().warn(e.getMessage());
 					}
 					
 					NeptusLog.pub().info(this + " Thread Stopped");
@@ -1049,34 +1051,34 @@ public class TCPTransport {
         msgES.getHeader().setValue("src", 0x0015);
         int size = msg.serialize(imcos);
         int size2 = msgES.serialize(imcos2);
-
-        try { Thread.sleep(10000); } catch (InterruptedException e1) { }
-
-        NeptusLog.pub().info("<###>Start --------------------------------------------");
-		try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-		tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
-
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcp2.sendMessage("127.0.0.1", 8082, baos2.toByteArray(), null);
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcp2.sendMessage("127.0.0.1", 8082, baos2.toByteArray(), null);
-
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
-
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
-        tcp2.sendMessage("127.0.0.1", 8082, baos2.toByteArray(), null);
-        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
-
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcp2.stop();
-
-        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
+//
+//        try { Thread.sleep(10000); } catch (InterruptedException e1) { }
+//
+//        NeptusLog.pub().info("<###>Start --------------------------------------------");
+//		try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//		tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
+//
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcp2.sendMessage("127.0.0.1", 8082, baos2.toByteArray(), null);
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcp2.sendMessage("127.0.0.1", 8082, baos2.toByteArray(), null);
+//
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
+//
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
+//        tcp2.sendMessage("127.0.0.1", 8082, baos2.toByteArray(), null);
+//        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
+//
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcp2.stop();
+//
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//        tcp.sendMessage("127.0.0.1", 8083, baos.toByteArray(), null);
 	}
 }

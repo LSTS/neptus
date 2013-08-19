@@ -45,7 +45,7 @@ import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
  */
 public class JsfSidescanParser implements SidescanParser {
 
-    JsfParser parser;
+    private JsfParser parser;
 
     public JsfSidescanParser(File f) {
         parser = new JsfParser(f);
@@ -63,7 +63,7 @@ public class JsfSidescanParser implements SidescanParser {
     
     @Override
     public ArrayList<Integer> getSubsystemList() {
-        return parser.index.subSystemsList;
+        return parser.getIndex().subSystemsList;
     }
 
     @Override
@@ -71,14 +71,18 @@ public class JsfSidescanParser implements SidescanParser {
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         
         ArrayList<JsfSonarData> ping = parser.getPingAt(timestamp1, subsystem);
-        ArrayList<JsfSonarData> nextPing;
         
         if(ping.size() == 0) return list;
+
         while(ping.get(0).getTimestamp() < timestamp2) {
-            int size = 1;
             JsfSonarData sboard = null;
             JsfSonarData pboard = null;
 
+            if(ping.size() < 2) {
+                ping = parser.nextPing(subsystem);
+                continue;
+            }
+            
             for (JsfSonarData temp : ping) {
                 if(temp != null) {
                     if (temp.getHeader().getChannel() == 0) {
@@ -90,16 +94,10 @@ public class JsfSidescanParser implements SidescanParser {
                 }
             }
             // From here portboard channel (pboard var) will be the reference
-//            BufferedImage line = new BufferedImage(pboard.getNumberOfSamples() + sboard.getNumberOfSamples(), 1, BufferedImage.TYPE_INT_RGB);
             double fData[] = new double[pboard.getNumberOfSamples() + sboard.getNumberOfSamples()];
             
             double avgSboard = 0, avgPboard = 0;
             
-//            for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
-//                double r = pboard.getData()[i];
-//                min = Math.min(r, min);
-//                max = Math.max(r, max);
-//            }
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
                 double r = pboard.getData()[i];
                 avgPboard += r;
@@ -113,21 +111,7 @@ public class JsfSidescanParser implements SidescanParser {
             avgPboard /= (double)pboard.getNumberOfSamples() * config.normalization;
             avgSboard /= (double)sboard.getNumberOfSamples() * config.normalization;
             
-            float horizontalScale = (float)fData.length / (pboard.getRange() * 2f);
-            float verticalScale = horizontalScale;
-        
-            nextPing = parser.nextPing(subsystem);
-            
-            float secondsUntilNextPing = (nextPing.get(0).getTimestamp() - ping.get(0).getTimestamp()) / 1000f;
-            float speed = ping.get(0).getSpeed();
-            
-            size = (int) (secondsUntilNextPing * speed * verticalScale);
-            if (size <= 0) {
-                size = 1;
-            }
-            size = 1;
-            
-            // Draw Portboard
+            // Calculate Portboard
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
                 double r =  i / (double)pboard.getNumberOfSamples();
                 double gain;
@@ -137,7 +121,7 @@ public class JsfSidescanParser implements SidescanParser {
                 fData[i] = pb / avgPboard;
             }
             
-            // Draw Starboard
+            // Calculate Starboard
             for (int i = 0; i < sboard.getNumberOfSamples(); i++) {
                 double r = 1 - (i / (double)sboard.getNumberOfSamples());
                 double gain;
@@ -152,11 +136,14 @@ public class JsfSidescanParser implements SidescanParser {
             pose.getPosition().setLongitude((pboard.getLon() / 10000.0) / 60.0);
             pose.setRoll(Math.toRadians(pboard.getRoll() * (180 / 32768.0)));
             pose.setYaw(Math.toRadians(pboard.getHeading() / 100));
-            pose.setAltitude(pboard.getAltMillis() / 1000);
+            pose.setAltitude(pboard.getAltMillis() / 1000.0);
+            pose.setU(pboard.getSpeed() * 0.51444); // Convert knot-to-ms
             
-            list.add(new SidescanLine(ping.get(0).getTimestamp(), ping.get(0).getRange(), pose, fData));
+            list.add(new SidescanLine(ping.get(0).getTimestamp(), ping.get(0).getRange(), pose, ping.get(0).getFrequency(), fData));
 
-            ping = nextPing;
+            ping = parser.nextPing(subsystem);
+            if(ping.size() == 0) return list;
+            
         }
         return list;
     }

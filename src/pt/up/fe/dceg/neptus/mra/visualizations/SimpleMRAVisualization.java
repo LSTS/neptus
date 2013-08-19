@@ -31,6 +31,8 @@
  */
 package pt.up.fe.dceg.neptus.mra.visualizations;
 
+import java.awt.Component;
+
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -69,7 +71,7 @@ public abstract class SimpleMRAVisualization extends JPanel implements MRAVisual
 	}
 	
 	@Override
-	public final JComponent getComponent(IMraLogGroup source, double timestep) {
+	public final Component getComponent(IMraLogGroup source, double timestep) {
 		this.source = source;
 		this.timestep = timestep;
 		return getVisualization(source, timestep);

@@ -450,7 +450,7 @@ public class TranspondersPositionHelper extends JPanel {
                     TitledBorder.DEFAULT_POSITION, null, null));
             da1Label.setText(I18n.text("da1 (m):"));
             da1Label.setPreferredSize(new java.awt.Dimension(50, 19));
-            db1Label.setText("     "+I18n.text("db1 (m):"));
+            db1Label.setText("     " + I18n.text("db1 (m):"));
             db1Label.setPreferredSize(new java.awt.Dimension(65, 19));
             distances.add(da1Label, null);
             distances.add(getDa1Value(), null);
@@ -597,7 +597,7 @@ public class TranspondersPositionHelper extends JPanel {
     private JButton getJButton() {
         if (jButton == null) {
             jButton = new JButton();
-            jButton.setText("Ok");
+            jButton.setText(I18n.text("Ok"));
             jButton.setPreferredSize(new java.awt.Dimension(87, 26));
             jButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -631,7 +631,7 @@ public class TranspondersPositionHelper extends JPanel {
     private JButton getJButton1() {
         if (jButton1 == null) {
             jButton1 = new JButton();
-            jButton1.setText("Cancel");
+            jButton1.setText(I18n.text("Cancel"));
             jButton1.setPreferredSize(new java.awt.Dimension(87, 26));
             jButton1.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -660,7 +660,7 @@ public class TranspondersPositionHelper extends JPanel {
             jPanel3 = new JPanel();
             jPanel3.setLayout(new BorderLayout());
             jPanel3.setBounds(10, 433, 402, 71);
-            jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Result",
+            jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, I18n.text("Result"),
                     javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                     javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null));
             jPanel3.add(getResultsTextArea(), java.awt.BorderLayout.CENTER);
@@ -710,7 +710,7 @@ public class TranspondersPositionHelper extends JPanel {
         if (jDialog == null) {
             jDialog = new JDialog(windowParent);
             jDialog.setContentPane(getJContentPane());
-            jDialog.setTitle("Triangulating transponder position");
+            jDialog.setTitle(I18n.text("Triangulating transponder position"));
             jDialog.setSize(this.getWidth() + 5, this.getHeight() + 35);
             jDialog.setLayout(new BorderLayout());
             jDialog.getContentPane().add(this, BorderLayout.CENTER);
@@ -755,8 +755,8 @@ public class TranspondersPositionHelper extends JPanel {
         CoordinateSystem cs = new CoordinateSystem();
         cs.setCoordinateSystem(homeRef);
         if (1 == JOptionPane.showConfirmDialog(windowParent,
-                "Do you want to base the triangulation on home reference?", "", JOptionPane.YES_NO_OPTION))
-            cs = CoordinateSystemPanel.showCoordinateSystemDialog("Set reference", cs, parent);
+                I18n.text("Do you want to base the triangulation on home reference?"), "", JOptionPane.YES_NO_OPTION))
+            cs = CoordinateSystemPanel.showCoordinateSystemDialog(I18n.text("Set reference"), cs, parent);
         if (cs == null)
             return null;
         TranspondersPositionHelper tph = new TranspondersPositionHelper(cs);
@@ -779,8 +779,8 @@ public class TranspondersPositionHelper extends JPanel {
         CoordinateSystem cs = new CoordinateSystem();
         cs.setCoordinateSystem(homeRef);
         if (1 == JOptionPane.showConfirmDialog(windowParent,
-                "Do you want to base the triangulation on home reference?", "", JOptionPane.YES_NO_OPTION))
-            cs = CoordinateSystemPanel.showCoordinateSystemDialog("Set reference", cs, parent);
+                I18n.text("Do you want to base the triangulation on home reference?"), "", JOptionPane.YES_NO_OPTION))
+            cs = CoordinateSystemPanel.showCoordinateSystemDialog(I18n.text("Set reference"), cs, parent);
         if (cs == null)
             return null;
         TranspondersPositionHelper tph = new TranspondersPositionHelper(cs);

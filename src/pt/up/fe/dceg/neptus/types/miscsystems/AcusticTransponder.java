@@ -288,17 +288,17 @@ public class AcusticTransponder extends MiscSystems implements XmlOutputMethods,
         appearence.addElement("x-size").addText(Float.toString(getXSize()));
         appearence.addElement("y-size").addText(Float.toString(getYSize()));
         appearence.addElement("z-size").addText(Float.toString(getZSize()));
-        if (originalFilePath == "")
+        if ("".equals(originalFilePath))
             appearence.addElement("top-image-2D").addText(getTopImageHref());
         else
             appearence.addElement("top-image-2D").addText(
                     FileUtil.relativizeFilePathAsURI(originalFilePath, getTopImageHref()));
-        if (originalFilePath == "")
+        if ("".equals(originalFilePath))
             appearence.addElement("side-image-2D").addText(getSideImageHref());
         else
             appearence.addElement("side-image-2D").addText(
                     FileUtil.relativizeFilePathAsURI(originalFilePath, getSideImageHref()));
-        if (originalFilePath == "")
+        if ("".equals(originalFilePath))
             appearence.addElement("model-3D").addText(getModel3DHref());
         else
             appearence.addElement("model-3D").addText(

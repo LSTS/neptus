@@ -56,7 +56,7 @@ For simple use the main targets are:
 	<!-- Defines variables used by the other targets                         -->
 	<!-- =================================================================== -->
 	<property name="version.VERSION" value="2" />
-	<property name="version.RELEASE" value="2" />
+	<property name="version.RELEASE" value="3" />
 	<property name="version.MINOR"   value="0" />
 	<!-- Set this to '.dev' if a developer release; blank "" if maintenance release -->
 	<property name="version.DEVELOPER" value="" />
@@ -80,7 +80,7 @@ For simple use the main targets are:
 
 
 	<property name="build.compiler" value="modern" />
-	<property name="debug" value="off" />
+	<property name="debug" value="on" />
 	<property name="deprecation" value="off" />
 	<property name="compile-source" value="1.7" />
 	<property name="compile-target" value="1.7" />
@@ -241,7 +241,7 @@ For simple use the main targets are:
 	</target>
 
 	<target name="generate-all-necessary-missing-files"
-			depends="jar, jar-bundle-checklist, jar-bundle-worldmap">
+			depends="jar, jar-bundle-checklist, jar-bundle-worldmap, generate-launchers">
 	</target>
 
 	<!-- =================================================================== -->
@@ -250,6 +250,10 @@ For simple use the main targets are:
 	<target name="test-and-fail-for-generated-all-necessary-missing-files">
 		<fileset id="plugins-jars-to-test-fileset" dir="${plugin.dir.dest}" casesensitive="no">
 			<include name="**/*.jar"/>
+		</fileset>
+		<fileset id="nsis-generated-launchers" dir="NSIS_release/static_files/batch_files" casesensitive="no">
+			<include name="*.bat"/>
+			<include name="*.sh"/>
 		</fileset>
 		<fail message="There are some missing files to be able to run Neptus. Please run 'ant' command (with no arguments) and try again.">
 			<condition>
@@ -264,6 +268,16 @@ For simple use the main targets are:
 						</resourceexists>
 						<resourceexists>
 							<file file="${bundle.jar.worldmap.path}"/>
+						</resourceexists>
+						<resourceexists>
+							<file file="neptus.sh"/>
+						</resourceexists>
+						<resourceexists>
+							<file file="neptus.bat"/>
+						</resourceexists>
+						<resourcecount refid="nsis-generated-launchers" when="ge" count="4" />
+						<resourceexists>
+							<file file="dev-scripts/grow_pot.sh"/>
 						</resourceexists>
 					</and>
 				</not>
@@ -408,6 +422,7 @@ For simple use the main targets are:
 	<target name="clean" description="Deletes the ${build.dir}.">
 		<delete dir="${build.dir}" />
 		<delete dir="${tmp.dir}" />
+		<delete dir="${plugin.dir.dest}" />
 		<delete>
 			<fileset dir=".">
 				<include name="*.tar.gz"/>
@@ -850,6 +865,7 @@ For simple use the main targets are:
         	<include name="pt/up/fe/dceg/vartree/*.class"/>
         	<include name="pt/up/fe/dceg/neptus/plugins/PluginProperty.class"/>
         	<include name="pt/up/fe/dceg/neptus/plugins/NeptusProperty*.class"/>
+        	<include name="pt/up/fe/dceg/neptus/types/Identifiable*.class"/>
         	<!--include name="pt/up/fe/dceg/neptus/types/**/*.class"/ -->
         	<!-- include name="images/**/*.*" / -->
         	<include name="images/neptus-icon.png"/>
@@ -1458,6 +1474,7 @@ For simple use the main targets are:
 		<chmod file="dev-scripts/grow_pot.sh" perm="a+x" />
 		
 		<!-- generate the installers bat and sh files -->
+		<mkdir dir="NSIS_release/static_files/batch_files"/>
 		<copy todir="./NSIS_release/static_files/batch_files" overwrite="true">
 			<fileset dir="${src.shell.dir}/installers">
 				<include name="*.bat" />
@@ -1473,7 +1490,7 @@ For simple use the main targets are:
 			<filterset refid="sh.filters" />
 		</copy>
 
-		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="*.sh" />
+		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="*.sh" excludes="Neptus*.sh" />
 		<fixcrlf preservelastmodified="true" srcdir="." eol="crlf" includes="*.bat" />
 
 		<fixcrlf preservelastmodified="true" srcdir="./NSIS_release/static_files/batch_files" eol="lf" eof="remove" includes="*.sh" />
@@ -1802,6 +1819,7 @@ For simple use the main targets are:
 			<filterset refid="dist.filters" />
 			<filterset refid="common.filters" />
 		</copy>
+		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="sfx_header.sh"/>
 
 		<echo message="Creating Neptus_bin.sh...">
 		</echo>

@@ -42,12 +42,19 @@ import java.util.LinkedHashMap;
 public class JsfIndex implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    long firstTimestamp = -1;
-    long lastTimestamp = -1;
-    int numberOfPackets = -1;
+    long firstTimestampHigh = -1;
+    long lastTimestampHigh = -1;
     
-    LinkedHashMap<Long, Integer> pingMap = new LinkedHashMap<Long, Integer>();
-    LinkedHashMap<Integer, ArrayList<Integer>> positionMap = new LinkedHashMap<>();
+    long firstTimestampLow = -1;
+    long lastTimestampLow = -1;
+
+    long numberOfPackets = -1;
+    
+    boolean hasHigh = false;
+    boolean hasLow = false;
+    
+    LinkedHashMap<Long, ArrayList<Long>> positionMapHigh = new LinkedHashMap<Long, ArrayList<Long>>();
+    LinkedHashMap<Long, ArrayList<Long>> positionMapLow = new LinkedHashMap<Long, ArrayList<Long>>();
     
     ArrayList<Float> frequenciesList = new ArrayList<Float>();
     ArrayList<Integer> subSystemsList = new ArrayList<Integer>();

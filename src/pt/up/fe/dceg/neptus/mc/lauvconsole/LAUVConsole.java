@@ -39,6 +39,7 @@ import javax.swing.JFrame;
 
 import org.dom4j.Node;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.actions.LayoutEditConsoleAction;
 import pt.up.fe.dceg.neptus.console.actions.OpenConsoleAction;
@@ -63,7 +64,7 @@ public class LAUVConsole extends ConsoleLayout {
     public static final int CLOSE_ACTION = JFrame.EXIT_ON_CLOSE;
     private static String consoleURL = "conf/consoles/lauv.ncon";
     // "conf/consoles/seacon-light.ncon" "conf/consoles/seacon-console.ncon";
-    public static String lauvVehicle = "lauv-seacon-1";
+    public static String lauvVehicle = "lauv-dolphin-1";
     private static Loader loader = null;
     private static boolean editEnabled = false;
 
@@ -115,8 +116,10 @@ public class LAUVConsole extends ConsoleLayout {
         // }
         loader.setText(I18n.text("Loading console..."));
 
+        NeptusLog.pub().info("Loading " + LAUVConsole.class.getSimpleName() + ".");
+        
         final LAUVConsole cls = new LAUVConsole();
-
+        cls.imcOn();
         // ConsoleParse.loadConsole(cls, ConfigFetch.resolvePath(consoleURL));
         ConsoleParse.parseFile(ConfigFetch.resolvePath(consoleURL), cls);
         cls.setConsoleChanged(false);
@@ -138,6 +141,7 @@ public class LAUVConsole extends ConsoleLayout {
                     filename = f.getCanonicalPath();
                 }
                 catch (IOException e1) {
+                    NeptusLog.pub().error(e1.getStackTrace());
                 }
                 String extension = FileUtil.getFileExtension(f).toLowerCase();
                 if (FileUtil.FILE_TYPE_MISSION_COMPRESSED.equalsIgnoreCase(extension)
@@ -187,7 +191,7 @@ public class LAUVConsole extends ConsoleLayout {
             }
         }
         
-        cls.imcOn();
+        
         cls.setVisible(true);
         return cls;
     }

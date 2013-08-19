@@ -58,12 +58,13 @@ public class ManeuverFactory {
     boolean forceManeuverAltitude = false;
 
     public ManeuverFactory(VehicleType vehicle) {
-
+        if (vehicle == null)
+            return;
+        
         for (String manName : vehicle.getFeasibleManeuvers().keySet()) {
             Maneuver man = ManeuverFactory.createManeuver(manName, vehicle.getFeasibleManeuvers().get(manName));
             if (man == null)
                 man = new DefaultManeuver();
-            
             
             availableManeuvers.put(man.getType(), man);
         }

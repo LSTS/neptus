@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="**/.svn/*|pt/up/fe/dceg/messages/" kind="src" path="src">
+	<classpathentry excluding="**/.svn/*|pt/up/fe/dceg/messages/|pt/up/fe/dceg/neptus/env/" kind="src" path="src">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Neptus/libJNI"/>
 		</attributes>
@@ -41,7 +41,6 @@
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/map"/>
 	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/messages"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/trex"/>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/3D"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/matlab-planning"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/ais"/>
 	<classpathentry kind="src" output="build/tests" path="srcTests"/>
@@ -55,6 +54,11 @@
 	<classpathentry kind="src" path="plugins-dev/dev-calibration"/>
 	<classpathentry kind="src" path="plugins-dev/tidePrediction"/>
 	<classpathentry kind="src" path="plugins-dev/spot"/>
+	<classpathentry excluding="pt/up/fe/dceg/neptus/plugins/vtk/utils/MultibeamDeltaTParser.java" kind="src" path="plugins-dev/vtk"/>
+	<classpathentry kind="src" path="plugins-dev/followRef"/>
+	<classpathentry kind="src" path="plugins-dev/imu-alignment"/>
+	<classpathentry kind="src" path="plugins-dev/envdisp"/>
+	<classpathentry kind="src" path="plugins-dev/sunfish"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
@@ -70,7 +74,7 @@
 	<classpathentry kind="lib" path="lib/fop/fop.jar"/>
 	<classpathentry kind="lib" path="lib/fop/batik.jar"/>
 	<classpathentry kind="lib" path="lib/rhino.jar"/>
-	<classpathentry kind="lib" path="lib/jsch-0.1.40.jar"/>
+	<classpathentry kind="lib" path="lib/jsch-0.1.50.jar"/>
 	<classpathentry kind="lib" path="lib/jchart2d-1.03.jar"/>
 	<classpathentry kind="lib" path="lib/jgoodies-looks-2.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/jgoodies-common-1.4.0.jar"/>
@@ -154,26 +158,6 @@
 	<classpathentry kind="lib" path="lib/httpclient-4.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/httpcore-4.2.2.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/messages/lib/jchart2d-3.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/eventbus.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/j-ogg-oggd.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/j-ogg-vorbisd.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jbullet.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-core.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-desktop.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-effects.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-jbullet.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-jogg.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-lwjgl-natives.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-lwjgl.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-niftygui.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-plugins.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/jME3-terrain.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/lwjgl.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/nifty-default-controls.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/nifty-style-black.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/nifty.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/stack-alloc.jar"/>
-	<classpathentry kind="lib" path="lib/jme3/xmlpull-xpp3.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/odss/lib/protobuf.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/odss/lib/rabbitmq-client.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.2.2.jar"/>
@@ -208,10 +192,18 @@
 	<classpathentry kind="lib" path="lib/htmlUnit/cssparser-0.9.8.jar"/>
 	<classpathentry kind="lib" path="lib/htmlUnit/nekohtml-1.9.17.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.9.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jmatio.jar"/>
+	<classpathentry kind="lib" path="lib/libimc.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-oro-core-2.1-dev-1.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-oro-perl5-2.1-dev-1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>
-	<classpathentry kind="lib" path="lib/libimc.jar"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>
+	<classpathentry kind="lib" path="lib/vtk.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/usr/lib/jni"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

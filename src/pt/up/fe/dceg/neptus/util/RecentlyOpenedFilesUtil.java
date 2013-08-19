@@ -168,6 +168,7 @@ public class RecentlyOpenedFilesUtil {
                 }
             }
             catch (NumberFormatException e) {
+                NeptusLog.pub().debug(e.getMessage());
                 nf = 0;
             }
         }

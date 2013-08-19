@@ -88,8 +88,7 @@ import pt.up.fe.dceg.neptus.util.coord.MapTileUtil;
  * @author Paulo Dias
  * @author ZP
  */
-public class LocationType implements XmlOutputMethods, Serializable,
-Comparable<LocationType> {
+public class LocationType implements XmlOutputMethods, Serializable, Comparable<LocationType>, Cloneable {
 
     /**
      * 13/12/2010 - pdias - Added Serializable interface for S57Map plugin
@@ -100,6 +99,8 @@ Comparable<LocationType> {
 
     public static final LocationType ABSOLUTE_ZERO = new LocationType();
 
+    public static final LocationType FEUP = new LocationType(41.17785, -8.59796);
+    
     public static double ONE_LAT_DEGREE = 0;
     static {
         ABSOLUTE_ZERO.setId("ABSOLUTE_ZERO");
@@ -1206,6 +1207,18 @@ Comparable<LocationType> {
         LocationType targetWithOffset = target.getNewAbsoluteLatLonDepth();
         return MapTileUtil.getOffsetInPixels(meWithOffset, targetWithOffset, levelOfDetail);
     }
+    
+    /**
+     * Get distance in pixels to the target point in the given level
+     * @param target
+     * @param level
+     * @return
+     */
+    public double getPixelDistanceTo(LocationType target, int levelOfDetail) {
+        double[] offsets =  getDistanceInPixelTo(target, levelOfDetail);        
+        return Math.sqrt(offsets[0] * offsets[0] + offsets[1] * offsets[1]);
+    }
+    
 
     /**
      * Translate a location by pixels

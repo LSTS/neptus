@@ -31,68 +31,199 @@
  */
 package pt.up.fe.dceg.neptus.plugins.ipcam;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.net.URL;
 
-import javax.swing.JOptionPane;
+import javax.imageio.ImageIO;
+import javax.swing.JPopupMenu;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.actions.SimpleMenuAction;
+import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.up.fe.dceg.neptus.plugins.Popup;
+import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
+import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
 
 /**
  * @author jfortuna
  *
  */
-public class AirCamDisplay extends SimpleMenuAction {
+@Popup( pos = POSITION.RIGHT, width=640/2, height=368/2)
+@LayerPriority(priority=0)
+@PluginDescription(name="AirCam Display", author="JFortuna", description="Video display for Ubiquiti Cameras", icon="pt/up/fe/dceg/neptus/plugins/ipcam/camera.png")
+public class AirCamDisplay extends SimpleSubPanel implements ConfigurationListener {
 
-    @NeptusProperty(name="Hostname")
-    public String host = "10.0.20.19";
-    /**
-     * @param console
-     */
-    public AirCamDisplay(ConsoleLayout console) {
-        super(console);
-    }
-
-    
-    @Override
-    public String getMenuName() {
-        return I18n.text("Tools")+">"+I18n.text("Connect IP Camera");
-    }
-    
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
+    @NeptusProperty(name="Camera IP", description="The IP address of the camera you want to display")
+    public String ip = "10.0.20.209";
+
+    @NeptusProperty(name="Milliseconds between refresh")
+    public long millisBetweenRefresh = 500;
+
+    protected BufferedImage imageToDisplay = null;
+    protected boolean connected = true;
+    protected Thread updater = null;
+    protected String status = "initializing";
+
+    public AirCamDisplay(ConsoleLayout console) {
+        super(console);
+        removeAll();
+
+        status = "initializing...";
+        updater = updaterThread();
+        updater.setPriority(Thread.MIN_PRIORITY);
+        updater.start();
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    JPopupMenu popup = new JPopupMenu();
+                    popup.add("Reconnect").addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            reconnect();
+                        }
+                    });
+
+                    popup.add("Camera settings").addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            PropertiesEditor.editProperties(AirCamDisplay.this, getConsole(), true);
+                        }
+                    });
+                    popup.show((Component)e.getSource(), e.getX(), e.getY());
+                }
+
+            }
+        });
+    }
+    
     @Override
-    public void actionPerformed(ActionEvent e) {
-       String option = JOptionPane.showInputDialog(getConsole(), I18n.text("Camera IP"), host);
-       
-       if (option == null)
-           return;
-       host = option;
-       
-       try {
-           Runtime.getRuntime().exec("ffplay rtsp://" + host + ":554/live/ch01_0");
-       }
-       catch (IOException e1) {
-           e1.printStackTrace();
-       }
+    public void paint(Graphics g) {
+        if (imageToDisplay != null) {
+            double factorw = (double) getWidth() / imageToDisplay.getWidth();
+            double factorh = (double) getHeight() / imageToDisplay.getHeight();
+            
+            double factor = (factorw < factorh ? factorw : factorh);
+            
+            double w = getWidth();
+            double h = getHeight();
+            
+            g.setColor(Color.black);
+            g.fillRect(0, 0, getWidth(), getHeight());
+            ((Graphics2D)g).scale(factor,factor);
+            g.drawImage(imageToDisplay,
+                    (int) ((w - factor *  imageToDisplay.getWidth())  / (factor * 2)),
+                    (int) ((h - factor * imageToDisplay.getHeight())  / (factor * 2)),
+                    null);
+        }
+        else {
+            g.setColor(Color.black);
+            g.fillRect(0, 0, getWidth(), getHeight());
+        }
     }
 
-    /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#cleanSubPanel()
-     */
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(640, 368);
+    }
+
+    public void reconnect() {
+        NeptusLog.pub().info("AirCamDisplay: reconnecting to "+ip+"...");
+        connected = false;        
+    }
+    
+    private Thread updaterThread() {
+    
+        return new Thread() {
+
+            @Override
+            public void run() {
+
+                while(true) {   
+                    
+                    if (updater != this)
+                        return;
+
+                    if (ip == null)
+                        break;
+                    connected = true;
+                    try {
+                        URL snap = new URL("http://"+ip+"/snapshot.cgi");
+                        imageToDisplay = ImageIO.read(snap);     
+                        repaint();
+                    }
+                    catch (Exception e) {
+                        status = "Error: "+e.getMessage();
+                        NeptusLog.pub().warn(e);          
+                        repaint();
+                        connected = false;
+                        status = "reconnecting";
+                    }
+
+                    try {
+                        Thread.sleep(millisBetweenRefresh);
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().warn(e);
+                    }
+                }
+                NeptusLog.pub().info("<###>Thread exiting...");
+            }
+        };
+    }
+
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
+        status = "stopping";
+        ip = null;
+        connected = false;
+        updater.interrupt();
     }
 
+    protected String previousURL = null;
+
+    @Override
+    public DefaultProperty[] getProperties() {
+        previousURL = ip;
+        return super.getProperties();
+    }
+
+    @Override
+    public void propertiesChanged() {
+        if (!ip.equals(previousURL))
+            reconnect();
+    }
+
+    @Override
+    public void initSubPanel() {
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        final AirCamDisplay display = new AirCamDisplay(null);
+        GuiUtils.testFrame(display, "Camera Display");
+    }
 }

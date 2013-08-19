@@ -35,13 +35,14 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog.ModalityType;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -51,6 +52,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -71,12 +73,19 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JToggleButton;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXStatusBar;
@@ -117,7 +126,7 @@ import com.l2fprod.common.propertysheet.Property;
  *
  */
 @NeptusDoc(ArticleFilename = "world-overlay/world-overlay.html", Section = "Renderer2D")
-@LayerPriority(priority = -100)
+@LayerPriority(priority = -500)
 public class WorldRenderPainter implements Renderer2DPainter, MouseListener, MouseMotionListener {
 
     private static final int ICON_SIZE = 20;
@@ -187,19 +196,28 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     private Renderer2DPainter postRenderPainter = null;
 
     private static Map<String, Boolean> mapActiveHolderList = Collections.synchronizedMap(new LinkedHashMap<String, Boolean>());
+    private static Map<String, Boolean> mapBaseOrLayerHolderList = Collections.synchronizedMap(new LinkedHashMap<String, Boolean>());
+    private static Map<String, Short> mapLayerPrioriryHolderList = Collections.synchronizedMap(new LinkedHashMap<String, Short>());
     private static Map<String, MapPainterProvider> mapPainterHolderList = Collections.synchronizedMap(new LinkedHashMap<String, MapPainterProvider>());
     private static Map<String, Map<String, Tile>> tileHolderList = Collections.synchronizedMap(new LinkedHashMap<String, Map<String, Tile>>());
     private static Map<String, Class<? extends Tile>> tileClassList = Collections.synchronizedMap(new LinkedHashMap<String, Class<? extends Tile>>());
+    
+    private static List<String> mapsOrderedForPainting = Collections.synchronizedList(new ArrayList<String>());
+    
     static {
         long start = System.currentTimeMillis();
 
         String mapId = TileMercadorSVG.class.getAnnotation(MapTileProvider.class).name();
         mapActiveHolderList.put(mapId, true); //TileMercadorSVG.getTileStyleID()
+        mapBaseOrLayerHolderList.put(mapId, TileMercadorSVG.class.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
+        mapLayerPrioriryHolderList.put(mapId, TileMercadorSVG.class.getAnnotation(MapTileProvider.class).layerPriority());
         tileHolderList.put(mapId, TileMercadorSVG.getTilesMap());
         tileClassList.put(mapId, TileMercadorSVG.class);
 
         mapId = TileOpenStreetMap.class.getAnnotation(MapTileProvider.class).name();
         mapActiveHolderList.put(mapId, false); //TileOpenStreetMap.getTileStyleID()
+        mapBaseOrLayerHolderList.put(mapId, TileMercadorSVG.class.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
+        mapLayerPrioriryHolderList.put(mapId, TileMercadorSVG.class.getAnnotation(MapTileProvider.class).layerPriority());
         tileHolderList.put(mapId, TileOpenStreetMap.getTilesMap());
         tileClassList.put(mapId, TileOpenStreetMap.class);
 
@@ -243,6 +261,8 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         @SuppressWarnings("unchecked")
                         Map<String, Tile> map = (Map<String, Tile>) clazz.getMethod("getTilesMap").invoke(null);
                         mapActiveHolderList.put(id, false);
+                        mapBaseOrLayerHolderList.put(id, clazz.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
+                        mapLayerPrioriryHolderList.put(id, clazz.getAnnotation(MapTileProvider.class).layerPriority());
                         tileHolderList.put(id, map);
                         tileClassList.put(id, cz);
                     }
@@ -256,6 +276,8 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         Class<? extends MapPainterProvider> cz = (Class<? extends MapPainterProvider>) clazz;
                         MapPainterProvider instance = (MapPainterProvider) clazz.getConstructor().newInstance();
                         mapActiveHolderList.put(id, false);
+                        mapBaseOrLayerHolderList.put(id, clazz.getAnnotation(MapTileProvider.class).isBaseMapOrLayer());
+                        mapLayerPrioriryHolderList.put(id, clazz.getAnnotation(MapTileProvider.class).layerPriority());
                         mapPainterHolderList.put(id, instance);
                     }
                     catch (ClassCastException e1) {
@@ -272,14 +294,25 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         }
 
         if (defaultActiveLayers.length() != 0) {
-            Vector<String> list = new Vector<String>(); 
-            list.addAll(Arrays.asList(defaultActiveLayers.split(";")));
+            List<String> list = Arrays.asList(defaultActiveLayers.split(";"));
             for (String mapKey : mapActiveHolderList.keySet()) {
                 mapActiveHolderList.put(mapKey, false);
+                // mapLayerPrioriryHolderList.put(mapKey, (short) 0);
             }
-            for (String mapDef : list) {
+            for (String mapDefTag : list) {
+                String[] tags = mapDefTag.split(":");
+                String mapDef = tags[0];
                 if (mapActiveHolderList.containsKey(mapDef))
                     mapActiveHolderList.put(mapDef, true);
+                if (mapLayerPrioriryHolderList.containsKey(mapDef) && tags.length > 1) {
+                    try {
+                        short prio = Short.parseShort(tags[1]);
+                        mapLayerPrioriryHolderList.put(mapDef, prio);
+                    }
+                    catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
             boolean isAtLeastOneSet = false;
             for (Boolean mapBool : mapActiveHolderList.values()) {
@@ -292,6 +325,8 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 mapActiveHolderList.entrySet().iterator().next().setValue(true);
         }
 
+        refreshMapsListOrderedForPainting();
+        
         NeptusLog.pub().debug("Initializing MapProviders in "
                 + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - start));
     }
@@ -380,10 +415,6 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             }
         });
     }
-
-    //    public WorldRenderPainter(boolean drawWorldBoundaries, boolean drawWorldMap, String... mapStyle) {
-    //        this(null, drawWorldBoundaries, drawWorldMap, mapStyle);
-    //    }
 
     /**
      * 
@@ -623,28 +654,39 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     /**
      * @param mapStyle the mapStyle to set
      */
-    public void setMapStyle(String mapStyle) {
-        setMapStyle(mapStyle, true);
+    public void setMapStyle(String mapStyleName) {
+        setMapStyle(true, true, mapStyleName);
     }
 
-    public void setMapStyle(String mapStyle, boolean exclusive) {
-        for (String mapKey : mapActiveHolderList.keySet()) {
-            if (mapKey.equalsIgnoreCase(mapStyle)) {
-                mapActiveHolderList.put(mapKey, true);
-            }
-            else {
-                if (exclusive)
-                    mapActiveHolderList.put(mapKey, false);
+    public void setMapStyle(boolean exclusive, boolean activate, String... mapStyleName) {
+        List<String> mapStyleList = Arrays.asList(mapStyleName);
+        for (String mapStyle : mapStyleList) {
+            for (String mapKey : mapActiveHolderList.keySet()) {
+                if (mapKey.equalsIgnoreCase(mapStyle)) {
+                    mapActiveHolderList.put(mapKey, activate);
+                }
+                else {
+                    if (exclusive && !mapStyleList.contains(mapKey)) {
+                        mapActiveHolderList.put(mapKey, !activate);
+                    }
+                }
             }
         }
 
+        updateDefaultActiveLayers();
+        savePropertiesToDisk();
+    }
+
+    private void updateDefaultActiveLayers() {
         String tmp = "";
         for (String mapKey : mapActiveHolderList.keySet()) {
-            if (mapActiveHolderList.get(mapKey))
+            if (mapActiveHolderList.get(mapKey)) {
                 tmp += (tmp.length() != 0 ? ";" : "") + mapKey;
+                if (!mapBaseOrLayerHolderList.get(mapKey) && mapLayerPrioriryHolderList.get(mapKey) != 0)
+                    tmp += ":" + mapLayerPrioriryHolderList.get(mapKey);
+            }
         }
         defaultActiveLayers = tmp;
-        savePropertiesToDisk();
     }
 
     /**
@@ -802,8 +844,8 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
      * @param renderer
      */
     private void drawWorldMap(Graphics2D g, StateRenderer2D renderer, boolean useTransparency) {
-        for (String mapKey : mapActiveHolderList.keySet()) {
-            // TODO Ordenar
+        List<String> mapKeys = mapsOrderedForPainting; // getOrderedMapList(true);
+        for (String mapKey : mapKeys) {
             String mapStyle = mapKey;
 
             if (!mapActiveHolderList.get(mapKey))
@@ -851,7 +893,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         }
                     }
                     g2.dispose();
-                    break;
+//                    break;
                 }
                 else if (mapPainterHolderList.containsKey(mapStyle)) {
                     Graphics2D g2 = (Graphics2D) g.create();
@@ -862,7 +904,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         e.printStackTrace();
                     }
                     g2.dispose();
-                    break;
+//                    break;
                 }
             }
         }
@@ -1077,15 +1119,13 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         createChooseMapStyleDialog();
         dialogProperties.setVisible(true);
     }
+
     /**
      * @param stateRenderer2D
      */
     @SuppressWarnings("serial")
     public void createChooseMapStyleDialog() {
         if (dialogProperties != null) {
-            //            GuiUtils.centerParent(dialogProperties, dialogProperties.getOwner());
-            //            dialogProperties.setVisible(true);
-            //            //dialogProperties.dispose();
             return;
         }
         Window winParent = SwingUtilities.windowForComponent(renderer2D); //parent);
@@ -1094,24 +1134,64 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         dialogProperties.setSize(700, 350);
         dialogProperties.setIconImages(ConfigFetch.getIconImagesForFrames());
         dialogProperties.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        //dialogProperties.setAlwaysOnTop(true);
         dialogProperties.setTitle(I18n.text("World Map Layer"));
-        ButtonGroup chooseButtonGroup = new ButtonGroup();
-        JPanel radioPanel = new JPanel(new GridLayout(0, 4, 5, 5));
-        radioPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-        for (final String ms : mapActiveHolderList.keySet()) { // tileHolderList.keySet()
-            JRadioButton rButton = new JRadioButton(ms.toString());
+        
+        ButtonGroup baseMapsButtonGroup = new ButtonGroup();
+        JPanel confPanel = new JPanel(new MigLayout("ins 0, wrap 5"));
+        confPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        
+        List<String> mapKeys = getOrderedMapList();
+        boolean alreadyinsertedBaseOrLayerMapSeparator = false;
+        confPanel.add(new JLabel("<html><b>" + I18n.text("Base Maps") + "</b></html>"), "wrap");
+        for (final String ms : mapKeys) {
+            if (!alreadyinsertedBaseOrLayerMapSeparator) {
+                if (mapBaseOrLayerHolderList.containsKey(ms) && !mapBaseOrLayerHolderList.get(ms)) {
+                    alreadyinsertedBaseOrLayerMapSeparator = true;
+                    confPanel.add(new JLabel("<html><b>" + I18n.text("Layer Maps") + "</b></html>"), "wrap");
+                }
+            }
+            
+            final JToggleButton rButton;
+            if (mapBaseOrLayerHolderList.containsKey(ms) && mapBaseOrLayerHolderList.get(ms))
+                rButton = new JRadioButton(ms.toString());
+            else
+                rButton = new JCheckBox(ms.toString());
             rButton.setActionCommand(ms);
-            if (mapActiveHolderList.containsKey(ms) && mapActiveHolderList.get(ms)) //mapStyle.equalsIgnoreCase(ms)
+            if (mapActiveHolderList.containsKey(ms) && mapActiveHolderList.get(ms))
                 rButton.setSelected(true);
-            rButton.addActionListener(new ActionListener() {
+            rButton.addItemListener(new ItemListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
-                    WorldRenderPainter.this.setMapStyle(ms);
+                public void itemStateChanged(ItemEvent e) {
+                    WorldRenderPainter.this.setMapStyle(false, rButton.isSelected(), ms);
                 }
             });
-            chooseButtonGroup.add(rButton);
-            radioPanel.add(rButton);
+            if (mapBaseOrLayerHolderList.containsKey(ms) && mapBaseOrLayerHolderList.get(ms))
+                baseMapsButtonGroup.add(rButton);
+            confPanel.add(rButton, "sg sel, grow, push");
+
+            if (mapBaseOrLayerHolderList.containsKey(ms) && mapBaseOrLayerHolderList.get(ms)) {
+                confPanel.add(new JLabel(), "sg prio");
+            }
+            else {
+                short lp = mapLayerPrioriryHolderList.get(ms);
+                final JSpinner spinner = new JSpinner(new SpinnerNumberModel(lp, 0, 10, 1));
+                spinner.setSize(new Dimension(20, 20));
+                spinner.setToolTipText(I18n.text("This sets the layer priority. The higher the value more on top will appear."));
+                ((JSpinner.NumberEditor) spinner.getEditor()).getTextField().setEditable(false);
+                ((JSpinner.NumberEditor) spinner.getEditor()).getTextField().setBackground(Color.WHITE);
+                spinner.addChangeListener(new ChangeListener() {
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        short val = ((Integer) spinner.getValue()).shortValue();
+                        mapLayerPrioriryHolderList.put(ms, val);
+                        updateDefaultActiveLayers();
+                        refreshMapsListOrderedForPainting();
+                        savePropertiesToDisk();
+                    }
+                });
+                confPanel.add(spinner, "sg prio, width 50:50:");
+            }
+
             boolean tileOrMapProvider = isTileOrMapProvider(ms);
             if (tileOrMapProvider) {
                 final JButton clearButton = new JButton();
@@ -1141,14 +1221,13 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                     }
                 };
                 clearButton.setAction(clearAction);
-                radioPanel.add(clearButton);
+                confPanel.add(clearButton, "sg buttons");
             }
             else {
-                radioPanel.add(new JLabel());
+                confPanel.add(new JLabel(), "sg buttons");
             }
 
             final Class<?> clazz = getClassForStyle(ms);
-            //            final Class<? extends Tile> clazz = tileClassList.get(ms);
             if (clazz.getAnnotation(MapTileProvider.class).usePropertiesOrCustomOptionsDialog()) {
                 Vector<Field> dFA = new Vector<Field>();
                 PluginUtils.extractFieldsWorker(clazz, dFA);
@@ -1156,16 +1235,16 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                     JLabel label = new JLabel(I18n.text("No properties").toLowerCase());
                     label.setHorizontalAlignment(SwingConstants.CENTER);
                     label.setEnabled(false);
-                    radioPanel.add(label);
+                    confPanel.add(label, "sg buttons");
                 }
                 else {
                     final PropertiesProvider pprov = createPropertiesProvider(ms, dFA);
-                    radioPanel.add(new JButton(new AbstractAction(I18n.text("Edit properties").toLowerCase()) {
+                    confPanel.add(new JButton(new AbstractAction(I18n.text("Edit properties").toLowerCase()) {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             PropertiesEditor.editProperties(pprov, dialogProperties, true);
                         }
-                    }));
+                    }), "sg buttons");
                 }
             }
             else {
@@ -1180,20 +1259,20 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
 
                     final JDialog dialog1 = dialog;
-                    radioPanel.add(new JButton(new AbstractAction(I18n.text("Edit properties").toLowerCase()) {
+                    confPanel.add(new JButton(new AbstractAction(I18n.text("Edit properties").toLowerCase()) {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             dialog1.requestFocus();
                             GuiUtils.centerParent(dialog1, dialogProperties);
                             dialog1.setVisible(true);
                         }
-                    }));
+                    }), "sg buttons");
                 }
                 catch (Exception e1) {
                     JLabel label = new JLabel(I18n.text("No properties").toLowerCase());
                     label.setHorizontalAlignment(SwingConstants.CENTER);
                     label.setEnabled(false);
-                    radioPanel.add(label);
+                    confPanel.add(label, "sg buttons");
                 }
             }
 
@@ -1211,7 +1290,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 JLabel label = new JLabel("");
                 label.setHorizontalAlignment(SwingConstants.CENTER);
                 label.setEnabled(false);
-                radioPanel.add(label);
+                confPanel.add(label, "sg buttons");
             }
             else {
                 final JButton fetchButton = new JButton();
@@ -1243,7 +1322,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
                 };
                 fetchButton.setAction(fetchAction);
                 fetchButton.setToolTipText(I18n.text("Fetch visible area tiles to up to 2 more zoom levels."));
-                radioPanel.add(fetchButton);
+                confPanel.add(fetchButton, "sg buttons");
             }
         }
 
@@ -1332,12 +1411,44 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             }
         }, 500, 200);
 
-        JScrollPane scroll = new JScrollPane(radioPanel);
+        JScrollPane scroll = new JScrollPane(confPanel);
         scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         dialogProperties.add(scroll);
         GuiUtils.centerParent(dialogProperties, winParent);
         //        dialogProperties.setVisible(true);
+    }
+
+    private static void refreshMapsListOrderedForPainting() {
+        mapsOrderedForPainting.clear();
+        mapsOrderedForPainting.addAll(getOrderedMapList(false));
+    }
+
+    private static List<String> getOrderedMapList() {
+        return getOrderedMapList(false);
+    }
+
+    private static List<String> getOrderedMapList(final boolean orderWithDisplayPriority) {
+        // Order according with being base map or layer
+        Comparator<String> comparatorMapBaseOrLayer = new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                boolean o1Base = mapBaseOrLayerHolderList.containsKey(o1) ? mapBaseOrLayerHolderList.get(o1) : false;
+                boolean o2Base = mapBaseOrLayerHolderList.containsKey(o2) ? mapBaseOrLayerHolderList.get(o2) : false;
+                short o1Prio = mapLayerPrioriryHolderList.containsKey(o1) ? mapLayerPrioriryHolderList.get(o1) : 0;
+                short o2Prio = mapLayerPrioriryHolderList.containsKey(o2) ? mapLayerPrioriryHolderList.get(o2) : 0;
+                if (o1Base ^ o2Base) // One base map other layer
+                    return o1Base ? -1 : 1;
+                else if (o1Base & o2Base) // Both base maps
+                    return 0;                    
+                else  // Both layer maps
+                    return orderWithDisplayPriority ? o1Prio - o2Prio : 0;
+            }
+        };
+        String[] tmpArrayMapKeysToSorted = mapActiveHolderList.keySet().toArray(new String[0]);
+        Arrays.sort(tmpArrayMapKeysToSorted, comparatorMapBaseOrLayer);
+        List<String> mapKeys = Arrays.asList(tmpArrayMapKeysToSorted);
+        return mapKeys;
     }
 
     /**

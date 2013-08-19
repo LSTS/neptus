@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.util.llf;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
@@ -40,9 +41,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -62,6 +63,9 @@ public class MessageHtmlVisualization implements MRAVisualization {
 
     protected IMCMessage message;
     protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss");
+    {
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
     protected JScrollPane scroll;
     
     public MessageHtmlVisualization(final IMCMessage message) {
@@ -122,7 +126,7 @@ public class MessageHtmlVisualization implements MRAVisualization {
     }
     
     @Override
-    public JComponent getComponent(IMraLogGroup source, double timestep) {
+    public Component getComponent(IMraLogGroup source, double timestep) {
         return scroll;
     }
     

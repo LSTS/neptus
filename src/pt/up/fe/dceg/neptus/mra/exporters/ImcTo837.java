@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
@@ -87,7 +88,7 @@ public class ImcTo837 implements MraExporter {
         return false;
     }
 
-    public void process() {
+    public String process() {
         try {
             File outFile = new File(log.getFile("Data.lsf").getParentFile() + "/multibeam.837");
             os = new DataOutputStream(new FileOutputStream(outFile));
@@ -96,6 +97,7 @@ public class ImcTo837 implements MraExporter {
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
+            return e.getClass().getSimpleName()+" while exporting to 837: "+e.getMessage();
         }
 
         IMCMessage pingMsg = pingLog.firstLogEntry();
@@ -114,6 +116,8 @@ public class ImcTo837 implements MraExporter {
         double res[] = new double[2];
         
         Calendar cal = Calendar.getInstance();
+        cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+        
         new LocationType();
 
         // Build zeroFill padding
@@ -134,7 +138,7 @@ public class ImcTo837 implements MraExporter {
                         heading = 900;
                     }
                     else {
-                        roll = -5; //(short) (Math.toDegrees(esMsg.getDouble("phi")));
+                        roll = (short) (Math.toDegrees(esMsg.getDouble("phi")));
                         pitch = (short) (Math.toDegrees(esMsg.getDouble("theta")));
                         heading = (short) (Math.toDegrees(esMsg.getDouble("psi")));
                         res = CoordinateUtil.latLonAddNE2(Math.toDegrees(esMsg.getDouble("lat")), Math.toDegrees(esMsg.getDouble("lon")), esMsg.getDouble("x"), esMsg.getDouble("y"));
@@ -192,7 +196,7 @@ public class ImcTo837 implements MraExporter {
                     os.writeByte(1); // Start gain
                     os.write(new byte[] { 0, 0 }); // Tilt Angle
                     os.write(new byte[] { 0, 0, 7 } ); // Reserved, Reserved, Pings Averaged
-                    os.writeByte(18); // Pulse lenght in us/10
+                    os.writeByte(18); // Pulse length in us/10
                     os.writeByte(0); // User defined byte
                     os.writeShort(0); // sound speed short ( 0 = 1500ms )
                     os.write(lat.getBytes()); // Lat and Lon NMEA style
@@ -256,8 +260,10 @@ public class ImcTo837 implements MraExporter {
         }
         catch (Exception e) {
             e.printStackTrace();
+            return e.getClass().getSimpleName()+" while exporting to 837: "+e.getMessage();
         }
         NeptusLog.pub().info("<###>end");
+        return "Export to 837 completed successfully";
     }
     
 //    public static void main(String args[]) throws Exception {

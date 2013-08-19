@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -54,13 +55,16 @@ import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.ValueTypeEnum;
 import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Visibility;
 import pt.up.fe.dceg.neptus.plugins.params.editor.ComboEditorWithDependancy;
 import pt.up.fe.dceg.neptus.plugins.params.editor.PropertyEditorChangeValuesIfDependancyAdapter;
-import pt.up.fe.dceg.neptus.plugins.params.renderer.BooleanPropertyRenderer;
-import pt.up.fe.dceg.neptus.plugins.params.renderer.PropertyRenderer;
+import pt.up.fe.dceg.neptus.plugins.params.editor.custom.CustomSystemPropertyEditor;
+import pt.up.fe.dceg.neptus.plugins.params.renderer.BooleanSystemPropertyRenderer;
+import pt.up.fe.dceg.neptus.plugins.params.renderer.I18nSystemPropertyRenderer;
+import pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer;
 import pt.up.fe.dceg.neptus.util.FileUtil;
 import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.beans.editor.BooleanAsCheckBoxPropertyEditor;
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 /**
  * @author pdias
@@ -163,12 +167,35 @@ public class ConfigurationManager {
                 NeptusLog.pub().error("Error loading unnamed section for " + file.getName());
                 continue;
             }
+
+            LinkedHashMap<String, SystemProperty> sectionParams = new LinkedHashMap<>();
+            
             String sectionI18nName = section.attributeValue("name-i18n");
             if (sectionI18nName == null)
                 sectionI18nName = sectionName;
 
             sections.add(sectionName);
 
+            Node editorNode = section.selectSingleNode("@editor");
+            CustomSystemPropertyEditor sectionCustomEditor = null;
+            if (editorNode != null) {
+                String editorStr = editorNode.getText();
+                try {
+                    String str = CustomSystemPropertyEditor.class.getPackage().getName() + "." + editorStr + "CustomEditor";
+//                    System.out.println("###########     " + str);
+                    Class<?> clazz = Class.forName(str);
+                    try {
+                        sectionCustomEditor = (CustomSystemPropertyEditor) clazz.getConstructor(Map.class).newInstance(sectionParams);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            
             for(Object oparam : section.selectNodes("*")) {
                 SystemProperty property;
                 Element param = (Element) oparam;
@@ -246,6 +273,7 @@ public class ConfigurationManager {
                 Object value = !isList ? getValueTypedFromString(defaultValue, valueType) : getListValueTypedFromString(defaultValue, valueType);
 
                 AbstractPropertyEditor propEditor = null;
+                DefaultCellRenderer propRenderer = null;
 
                 // If in need of a bounded property
                 Double minV = null;
@@ -256,12 +284,14 @@ public class ConfigurationManager {
                         minV = Double.parseDouble(minStr);
                     }
                     catch (Exception e) {
+                        NeptusLog.pub().debug(e.getMessage());
                         minV = null;
                     }
                     try {
                         maxV = Double.parseDouble(maxStr);
                     }
                     catch (Exception e) {
+                        NeptusLog.pub().debug(e.getMessage());
                         maxV = null;
                     }
                 }
@@ -284,6 +314,7 @@ public class ConfigurationManager {
                                 minSize = Integer.parseInt(sizeMinList);
                             }
                             catch (NumberFormatException e) {
+                                NeptusLog.pub().debug(e.getMessage());
                             }
                         }
                         if (sizeMaxList != null) {
@@ -291,6 +322,7 @@ public class ConfigurationManager {
                                 maxSize = Integer.parseInt(sizeMaxList);
                             }
                             catch (NumberFormatException e) {
+                                NeptusLog.pub().debug(e.getMessage());
                             }
                         }
                     }
@@ -348,6 +380,16 @@ public class ConfigurationManager {
                             ArrayList<?> valuesI18n = extractI18nValues(type, pValues, values);
                             comboEditor = new ComboEditor<>(((ArrayList<String>) values).toArray(new String[0]),
                                     valuesI18n == null ? null : ((ArrayList<String>) valuesI18n).toArray(new String[0]));
+
+                            // Prep. I18n renderer
+                            HashMap<String, String> i18nMapper = new HashMap<>();
+                            for (int i = 0; i < Math.min(values.size(), valuesI18n.size()); i++) {
+                                Object valObj = values.get(i);
+                                Object vaI18nlObj = valuesI18n.get(i);
+                                i18nMapper.put(valObj.toString(), vaI18nlObj.toString());
+                            }
+                            if (i18nMapper.size() > 0)
+                                propRenderer = new I18nSystemPropertyRenderer(i18nMapper);
                         }
                         propEditor = comboEditor;
                     }
@@ -367,6 +409,9 @@ public class ConfigurationManager {
                     }
 
                     if (pt != null) {
+                        // Prep. I18n renderer
+                        HashMap<String, String> i18nMapper = new HashMap<>();
+
                         for (Object obj : pValuesIfList) {
                             Element elem = (Element) obj;
                             Element paramComp = (Element) elem.selectSingleNode("param");
@@ -404,12 +449,22 @@ public class ConfigurationManager {
                                             paramComp.getText(), tv,
                                             PropertyEditorChangeValuesIfDependancyAdapter.TestOperation.EQUALS,
                                             (ArrayList<String>) values, valuesI18n != null ? (ArrayList<String>) valuesI18n : null);
+
+                                    // Prep. I18n renderer
+                                    for (int i = 0; i < Math.min(values.size(), valuesI18n.size()); i++) {
+                                        Object valObj = values.get(i);
+                                        Object vaI18nlObj = valuesI18n.get(i);
+                                        i18nMapper.put(valObj.toString(), vaI18nlObj.toString());
+                                    }
                                 }
                                 else {
                                     break;
                                 }
                             }
                         }
+                        // Prep. I18n renderer
+                        if (i18nMapper.size() > 0)
+                            propRenderer = new I18nSystemPropertyRenderer(i18nMapper);
                     }
 
                     ArrayList<?> values = pt.getValuesIfTests().size() > 0 ? pt.getValuesIfTests().get(0).values : null;
@@ -532,21 +587,28 @@ public class ConfigurationManager {
                     property.setEditor(propEditor);
 
                 // Setting renderer
-                if (valueType == ValueTypeEnum.BOOLEAN) {
-                    property.setRenderer(new BooleanPropertyRenderer());
+                if (propRenderer != null) {
+                    property.setRenderer(propRenderer);
+                }
+                else if (valueType == ValueTypeEnum.BOOLEAN) {
+                    property.setRenderer(new BooleanSystemPropertyRenderer());
                 }
                 else if (units.length() > 0) {
-                    property.setRenderer(new PropertyRenderer(units));
+                    property.setRenderer(new SystemPropertyRenderer(units));
                 }
                 else {
-                    property.setRenderer(new PropertyRenderer());
+                    property.setRenderer(new SystemPropertyRenderer());
                 }
 
+                if (sectionCustomEditor != null) {
+                    property.setSectionCustomEditor(sectionCustomEditor);
+//                    sectionCustomEditor = null;
+                }
+                
                 params.put(sectionName + "." + paramName, property);
-
+                sectionParams.put(paramName, property);
             }
         }
-        //NeptusLog.pub().info("<###> "+params);        
         return params;
     }
 
@@ -711,6 +773,7 @@ public class ConfigurationManager {
 
     public ArrayList<SystemProperty> getClonedProperties(String system, Visibility vis, Scope scope) {
         ArrayList<SystemProperty> props = getPropertiesByEntity(system, null, vis, scope);
+        Map<String, CustomSystemPropertyEditor> customEditors = new HashMap<>();
 
         ArrayList<SystemProperty> clones = new ArrayList<>();
 
@@ -730,6 +793,31 @@ public class ConfigurationManager {
             sp.setType(p.getType());
             sp.setValueType(p.getValueType());
             sp.setVisibility(p.getVisibility());
+
+            try {
+                CustomSystemPropertyEditor ce = customEditors.get(p.getCategoryId());
+                if (ce == null) {
+                    ce = p.getSectionCustomEditor() != null ? p.getSectionCustomEditor().clone() : p
+                            .getSectionCustomEditor();
+                    customEditors.put(p.getCategoryId(), ce);
+                }
+                sp.setSectionCustomEditor(ce);
+            }
+            catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+            if (sp.getSectionCustomEditor() != null) {
+                CustomSystemPropertyEditor ce = sp.getSectionCustomEditor();
+                SystemProperty kv = ce.getSystemPropertiesList().get(p.getName());
+                if (kv != null)
+                    ce.getSystemPropertiesList().put(sp.getName(), sp);
+                
+                // System.out.println("System Property (" + p.getName() + "): " + Integer.toHexString(p.hashCode()) + " --- " + Integer.toHexString(sp.hashCode()));
+                // System.out.println("Custom Section Editor: " + Integer.toHexString(p.getSectionCustomEditor().hashCode()) + " --- " + Integer.toHexString(sp.getSectionCustomEditor().hashCode()));
+                // GuiUtils.printList(p.getSectionCustomEditor().getSystemPropertiesList().values());
+                // GuiUtils.printList(sp.getSectionCustomEditor().getSystemPropertiesList().values());
+            }
+
             clones.add(sp);
         }
         return clones;

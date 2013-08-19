@@ -45,6 +45,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
@@ -72,7 +73,7 @@ public class PCDExporter implements MraExporter{
     
     public PCDExporter(IMraLogGroup source) {
         this.source = source;
-        File baseFolder = source.getFile("Data.lsf").getParentFile();
+        File baseFolder = source.getFile(".").getParentFile();
         f = source.getFile("multibeam.83P");
         // @JQCorreia Why should we assume the file 83P exists??????? Result NullPointer and no MRA opening!!
         // output = new File(f.getParent()+"multibeam.pcd");
@@ -80,7 +81,7 @@ public class PCDExporter implements MraExporter{
     }
     
     @SuppressWarnings("unused")
-    public void process() {
+    public String process() {
         RandomAccessFile buf;
         FileInputStream fis;
         FileChannel channel;
@@ -439,7 +440,10 @@ public class PCDExporter implements MraExporter{
         }
         catch (IOException e) {
             e.printStackTrace();
+            return e.getClass().getSimpleName()+" while exporting to PCD: "+e.getMessage();
         }
+        
+        return "Log exported sucessfully";
     }
     
     public static void main(String[] args) {
@@ -461,6 +465,6 @@ public class PCDExporter implements MraExporter{
 
     @Override
     public String getName() {
-        return "83P to PCD";
+        return I18n.text("83P to PCD");
     }
 }

@@ -174,7 +174,7 @@ public class MessagePanel extends JPanel {
 					ClipboardOwner owner = new ClipboardOwner() {
 						public void lostOwnership(java.awt.datatransfer.Clipboard clipboard, java.awt.datatransfer.Transferable contents) {};						
 					};
-					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(msgTextPane.getText()), owner);;
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(msgTextPane.getText()), owner);
 					writeMessageTextln("Text was copied to the system clipboard", DEFAULT);
 					return;
 				}
@@ -246,7 +246,7 @@ public class MessagePanel extends JPanel {
             int docLength = doc.getLength();
             if (docLength > MAX_TEXT_MSG_LENGHT)
                 doc.remove(0, docLength - MAX_TEXT_MSG_LENGHT);
-            //System.err.println("Doc. lenght " + doc.getLength());
+            //System.err.println("Doc. length " + doc.getLength());
             getMsgTextPane().setCaretPosition(doc.getLength());
         }
         catch (Exception e) {}

@@ -31,7 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.util.llf;
 
-import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -47,7 +46,7 @@ public class LogTableModel extends AbstractTableModel {
 
 	//RandomAccessFile raf = null;
 	private LinkedHashMap<Integer, Vector<Object>> cache = new LinkedHashMap<Integer, Vector<Object>>();
-	protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
+
 	protected int rowCount = 1;
 	protected IMraLog parser;
 	protected IMraLogGroup source;

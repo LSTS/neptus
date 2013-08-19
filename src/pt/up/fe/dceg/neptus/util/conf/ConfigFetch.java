@@ -83,7 +83,6 @@ import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.up.fe.dceg.neptus.util.DateTimeUtil;
 import pt.up.fe.dceg.neptus.util.FileUtil;
 import pt.up.fe.dceg.neptus.util.NameNormalizer;
-import pt.up.fe.dceg.neptus.util.ReflectionUtil;
 import pt.up.fe.dceg.neptus.util.StreamUtil;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
 import pt.up.fe.dceg.neptus.util.output.OutputMonitor;
@@ -128,6 +127,7 @@ public class ConfigFetch {
     }
 
     private static final String VERSION_FILE_NAME = "/version.txt";
+    private static final String VERSION__EXTENDED_FILE_NAME = "/info";
 
     protected static final String classPackage = "pt/up/fe/dceg/neptus/util/conf";
     protected static final String className = "ConfigFetch.class";
@@ -204,7 +204,7 @@ public class ConfigFetch {
         
         load();
         
-        loadIMCDefinitions();
+       // loadIMCDefinitions();
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
@@ -247,6 +247,7 @@ public class ConfigFetch {
             INSTANCE = new ConfigFetch();
         }
         catch (RuntimeException e) {
+            NeptusLog.pub().error(e.getStackTrace());
             return false;
         }
         return true;
@@ -264,6 +265,7 @@ public class ConfigFetch {
             INSTANCE = new ConfigFetch(configFile, ifLog);
         }
         catch (RuntimeException e) {
+            NeptusLog.pub().error(e.getStackTrace());
             return false;
         }
         return true;
@@ -281,6 +283,7 @@ public class ConfigFetch {
             INSTANCE = new ConfigFetch(ifLog);
         }
         catch (RuntimeException e) {
+            NeptusLog.pub().error(e.getStackTrace());
             return false;
         }
         return true;
@@ -298,6 +301,7 @@ public class ConfigFetch {
             INSTANCE = new ConfigFetch(configFile);
         }
         catch (RuntimeException e) {
+            NeptusLog.pub().error(e.getStackTrace());
             return false;
         }
         return true;
@@ -328,6 +332,7 @@ public class ConfigFetch {
                     NeptusLog.pub().debug("Log4J configured with a XML conf. file!");
                 }
                 catch (Error e) {
+                    NeptusLog.pub().debug(e.getMessage());
                     BasicConfigurator.configure();
                     NeptusLog.pub().warn("Could not configure Log4J with a default config, will try to load from configuration file!!");
                 }
@@ -339,12 +344,16 @@ public class ConfigFetch {
                     + System.getProperty("java.version");
             String strOSVersion = "On OS: " + System.getProperty("os.name") + " | Version: "
                     + System.getProperty("os.version") + " | Arch.: " + System.getProperty("os.arch");
-            //NeptusLog.pub().info("<###> "+strNeptusVersion);
-            //NeptusLog.pub().info("<###> "+strJavaVersion);
-            //NeptusLog.pub().info("<###> "+strOSVersion + "\n");
             NeptusLog.pub().info(strNeptusVersion);
             NeptusLog.pub().info(strJavaVersion);
             NeptusLog.pub().info(strOSVersion);
+            
+            String strNeptusExtendedVersionInfo = getVersionExtendedInfoSimpleString();
+            if (strNeptusExtendedVersionInfo != null && strNeptusExtendedVersionInfo.length() > 0) {
+                String str = "SCM Extended Info:\n"; 
+                str += strNeptusExtendedVersionInfo;
+                NeptusLog.pub().info(str);
+            }
             
             NeptusLog.pub().debug("Path to ConfigFetch class: " + inFileName);
 
@@ -415,6 +424,7 @@ public class ConfigFetch {
                     NeptusLog.pub().debug("Log4J configured with a XML conf. file!");
                 }
                 catch (Error e) {
+                    NeptusLog.pub().debug(e.getMessage());
                     BasicConfigurator.configure();
                     NeptusLog.pub().warn("Could not configure Log4J!!");
                 }
@@ -425,6 +435,7 @@ public class ConfigFetch {
                     NeptusLog.pub().debug("Log4J configured with a JavaProperties conf. file!");
                 }
                 catch (Error e1) {
+                    NeptusLog.pub().debug(e1.getMessage());
                     BasicConfigurator.configure();
                     NeptusLog.pub().warn("Could not configure Log4J!!");
                 }
@@ -442,6 +453,7 @@ public class ConfigFetch {
                 e1.printStackTrace();
                 hostadr = "127.0.0.1";
             }
+            NeptusLog.pub().debug("Using initial option for IMC ID is '" + hostadr + "'");
             String osName = System.getProperty("os.name");
             if (osName.toLowerCase().indexOf("linux") != -1) {
                 try {
@@ -453,7 +465,10 @@ public class ConfigFetch {
                             InetAddress ia = iAddress.nextElement();
                             if (!ia.isLoopbackAddress()) {
                                 if (ia instanceof Inet4Address) {
+                                    String msg = "Changing initial option for IMC ID from '" + hostadr + "' to '";
                                     hostadr = ia.getHostAddress();
+                                    msg += hostadr + "'";
+                                    NeptusLog.pub().debug(msg);
                                     break;
                                 }
                             }
@@ -461,7 +476,7 @@ public class ConfigFetch {
                     }
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    NeptusLog.pub().error(e.getStackTrace());
                 }
             }
             String[] sl2 = hostadr.split("\\.");
@@ -473,6 +488,8 @@ public class ConfigFetch {
 
             GeneralPreferences.imcCcuName = "CCU " + System.getProperty("user.name")
                     + " " + sl2[2] + "_" + sl2[3];
+            
+            NeptusLog.pub().debug("Using IMC ID " + newCcuId.toPrettyString() + " with name '" + GeneralPreferences.imcCcuName + "'");
             
             GeneralPreferences.saveProperties();
         }
@@ -541,7 +558,7 @@ public class ConfigFetch {
             return null;
         }
         catch (Exception any) {
-            NeptusLog.pub().debug("The file '" + path + "' requested by "+ReflectionUtil.getCallerStamp()+" was not found in this system.");
+            NeptusLog.pub().debug(any, any);
             return null;
         }
     }
@@ -682,7 +699,7 @@ public class ConfigFetch {
                 ret = reader.read(br);
             }
             catch (Exception e) {
-                System.err.println("Sorry, configuration file not found.");
+                NeptusLog.pub().error("Configuration file not found. " + e.getMessage());
             }
         }
         else {
@@ -968,6 +985,21 @@ public class ConfigFetch {
         return versionString;
     }
 
+    public static String getVersionExtendedInfoSimpleString() {
+        String versionString = "";
+        InputStream ist = ConfigFetch.class.getResourceAsStream(VERSION__EXTENDED_FILE_NAME);
+
+        if (ist != null) {
+            try {
+                versionString = StreamUtil.copyStreamToString(ist);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().debug(e);
+            }
+        }
+        return versionString;
+    }
+
     /**
      * @return
      */
@@ -1203,12 +1235,12 @@ public class ConfigFetch {
      * @param args
      */
     public static void main(String[] args) {
-        NeptusLog.pub().info("<###> "+ConfigFetch.getLoggingPropertiesLocation());
+        NeptusLog.pub().info(ConfigFetch.getLoggingPropertiesLocation());
 
         String st = ConfigFetch.getConfigFile();
         String st1 = ConfigFetch.resolvePathWithParent(st, "../fe.txt");
-        NeptusLog.pub().info("<###> "+st.concat("\n").concat(st1));
+        NeptusLog.pub().info(st.concat("\n").concat(st1));
         st1 = ConfigFetch.resolvePathWithParent(st, "c:/fe.txt");
-        NeptusLog.pub().info("<###> "+st.concat("\n").concat(st1));
+        NeptusLog.pub().info(st.concat("\n").concat(st1));
     }
 }

@@ -70,7 +70,6 @@ import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.up.fe.dceg.neptus.util.ColorUtils;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
@@ -92,7 +91,7 @@ public class AbortPanel extends SimpleSubPanel implements MainVehicleChangeListe
     
     private ActionListener abortAction = null;
     
-    private final String tooltip = I18n.text("Send Abort to the main vehicle (Ctrl+click to send to all known vehicles)"); 
+    private final String tooltip = I18n.text("Send abort to the main vehicle (Ctrl+click to send to all known vehicles)"); 
 
     public AbortPanel(ConsoleLayout console) {
         super(console);
@@ -141,7 +140,7 @@ public class AbortPanel extends SimpleSubPanel implements MainVehicleChangeListe
      */
     private PanicButton getAbortButton() {
         if (abortButton == null) {
-            abortButton = new PanicButton(I18n.text("Abort"));
+            abortButton = new PanicButton(I18n.textc("Abort", "Abort button. Make it with less letters as possible."));
             abortButton.setCircular(true);
             abortButton.addActionListener(getAbortAction());
             abortButton.setToolTipText(tooltip);
@@ -154,7 +153,7 @@ public class AbortPanel extends SimpleSubPanel implements MainVehicleChangeListe
      */
     public JXButton getAbortButtonRectangular() {
         if (abortButtonRectangular == null) {
-            abortButtonRectangular = new JXButton(I18n.text("Abort")) {
+            abortButtonRectangular = new JXButton(I18n.textc("Abort", "Abort button. Make it with less letters as possible.")) {
                 private Paint[] paints = null; 
                 private Dimension dim = null;
                 private Color redTransp = ColorUtils.setTransparencyToColor(new Color(232,28,28), 210);
@@ -295,7 +294,7 @@ public class AbortPanel extends SimpleSubPanel implements MainVehicleChangeListe
                                 // post(Notification.success("Accoustic abort sent !"));
                                 // else
                                 post(Notification.error(I18n.text("Abort"),
-                                        I18n.text("Couldn't find a system to send an accoustic abort !")));
+                                        I18n.text("Couldn't find a system to send an accoustic abort!")));
                             }
                             return null;
                         }
@@ -353,25 +352,25 @@ public class AbortPanel extends SimpleSubPanel implements MainVehicleChangeListe
     public void cleanSubPanel() {
     }
     
-    public static void main(String[] args) {
-        AbortPanel ap = new AbortPanel(new ConsoleLayout());
-        
-        GuiUtils.testFrame(ap);
-        
-        try { Thread.sleep(3000); } catch (InterruptedException e) { }
-        
-        ap.buttonShape = AbortButtonShapeEnum.RECTANGULAR;
-        ap.propertiesChanged();
-        
-        try { Thread.sleep(3000); } catch (InterruptedException e) { }
-        
-        ap.buttonShape = AbortButtonShapeEnum.ROUND;
-        ap.propertiesChanged();
-        
-        try { Thread.sleep(3000); } catch (InterruptedException e) { }
-        
-        ap.buttonShape = AbortButtonShapeEnum.RECTANGULAR;
-        ap.propertiesChanged();
-        
-    }
+//    public static void main(String[] args) {
+//        AbortPanel ap = new AbortPanel(new ConsoleLayout());
+//        
+//        GuiUtils.testFrame(ap);
+//        
+//        try { Thread.sleep(3000); } catch (InterruptedException e) { }
+//        
+//        ap.buttonShape = AbortButtonShapeEnum.RECTANGULAR;
+//        ap.propertiesChanged();
+//        
+//        try { Thread.sleep(3000); } catch (InterruptedException e) { }
+//        
+//        ap.buttonShape = AbortButtonShapeEnum.ROUND;
+//        ap.propertiesChanged();
+//        
+//        try { Thread.sleep(3000); } catch (InterruptedException e) { }
+//        
+//        ap.buttonShape = AbortButtonShapeEnum.RECTANGULAR;
+//        ap.propertiesChanged();
+//        
+//    }
 }

@@ -139,16 +139,16 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
         removeProfilesMenu(); // Cleanup the menu before (re)loading the profiles
 
         profilesMenu = console.getOrCreateJMenu(new String[] { I18n.text("Profiles") });
-        for (String name : profileList) {
-            JCheckBoxMenuItem item = new JCheckBoxMenuItem(new AbstractAction(name) {
+        for (final String name : profileList) {
+            JCheckBoxMenuItem item = new JCheckBoxMenuItem(new AbstractAction(I18n.text(name)) {
                 private static final long serialVersionUID = 1L;
-
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    changeProfile(e.getActionCommand());
+                    changeProfile(name);
                     applyLayout();
                 }
             });
+           
             profilesMenu.add(item);
         }
     }

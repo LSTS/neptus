@@ -43,6 +43,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 /**
@@ -143,7 +144,7 @@ public class GotoParameters extends ParametersPanel implements ActionListener {
 	private JButton getJButton() {
 		if (jButton == null) {
 			jButton = new JButton();
-			jButton.setText("Change...");
+			jButton.setText(I18n.text("Change..."));
 			jButton.setPreferredSize(new java.awt.Dimension(90,20));
 			jButton.addActionListener(this);
 		}
@@ -159,7 +160,7 @@ public class GotoParameters extends ParametersPanel implements ActionListener {
 			velocity = new JFormattedTextField(nf);
 			velocity.setText("0.0");
 			velocity.setColumns(4);
-			velocity.setToolTipText("The desired velocity over the trajectory");
+			velocity.setToolTipText(I18n.text("The desired velocity over the trajectory"));
 			velocity.addFocusListener(new SelectAllFocusListener());
 		}
 		return velocity;
@@ -174,7 +175,7 @@ public class GotoParameters extends ParametersPanel implements ActionListener {
 			radiusTolerance = new JFormattedTextField(nf);
 			radiusTolerance.setText("0.0");
 			radiusTolerance.setColumns(4);
-			radiusTolerance.setToolTipText("The radius tolerance over the trajectory (in meters)");
+			radiusTolerance.setToolTipText(I18n.text("The radius tolerance over the trajectory (in meters)"));
 			radiusTolerance.addFocusListener(new SelectAllFocusListener());
 		}
 		return radiusTolerance;
@@ -189,14 +190,14 @@ public class GotoParameters extends ParametersPanel implements ActionListener {
 			velocityTolerance = new JFormattedTextField(nf);
 			velocityTolerance.setColumns(4);
 			velocityTolerance.setText("0.0");
-			velocityTolerance.setToolTipText("The maximum allowed drift in the velocity");
+			velocityTolerance.setToolTipText(I18n.text("The maximum allowed drift in the velocity"));
 			velocityTolerance.addFocusListener(new SelectAllFocusListener());
 		}
 		return velocityTolerance;
 	}
 	
 	public void actionPerformed(ActionEvent e) {
-	    LocationType loc = LocationPanel.showLocationDialog("Goto destination", getDestination(), getMissionType());
+	    LocationType loc = LocationPanel.showLocationDialog(I18n.text("Goto destination"), getDestination(), getMissionType());
 	    if (loc != null)
 	        setDestination(loc);
 	}
@@ -209,7 +210,7 @@ public class GotoParameters extends ParametersPanel implements ActionListener {
 	 */    
 	private JComboBox<?> getUnitsCombo() {
 		if (unitsCombo == null) {
-		    String[] units = new String[] {"RPM", "m/s"};
+		    String[] units = new String[] {I18n.text("RPM"), I18n.text("m/s")};
 			unitsCombo = new JComboBox<Object>(units);
 			unitsCombo.setPreferredSize(new java.awt.Dimension(70,20));
 		}

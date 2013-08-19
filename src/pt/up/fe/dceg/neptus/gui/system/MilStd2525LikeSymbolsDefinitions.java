@@ -144,17 +144,17 @@ public class MilStd2525LikeSymbolsDefinitions {
 
     private static final GeneralPath ICON_SHAPE_OCTAGON = new GeneralPath();
     static {
-        double halfLenght = SYMBOL_SIZE / 2.;
-        double halfLenghtCosPiPer4 = halfLenght * Math.cos(Math.PI / 4.);
+        double halfLength = SYMBOL_SIZE / 2.;
+        double halfLengthCosPiPer4 = halfLength * Math.cos(Math.PI / 4.);
 
-        ICON_SHAPE_OCTAGON.moveTo(0, -halfLenght );
-        ICON_SHAPE_OCTAGON.lineTo(halfLenghtCosPiPer4, -halfLenghtCosPiPer4);
-        ICON_SHAPE_OCTAGON.lineTo(halfLenght, 0);
-        ICON_SHAPE_OCTAGON.lineTo(halfLenghtCosPiPer4, halfLenghtCosPiPer4);
-        ICON_SHAPE_OCTAGON.lineTo(0, halfLenght);
-        ICON_SHAPE_OCTAGON.lineTo(-halfLenghtCosPiPer4, halfLenghtCosPiPer4);
-        ICON_SHAPE_OCTAGON.lineTo(-halfLenght, 0);
-        ICON_SHAPE_OCTAGON.lineTo(-halfLenghtCosPiPer4, -halfLenghtCosPiPer4);
+        ICON_SHAPE_OCTAGON.moveTo(0, -halfLength );
+        ICON_SHAPE_OCTAGON.lineTo(halfLengthCosPiPer4, -halfLengthCosPiPer4);
+        ICON_SHAPE_OCTAGON.lineTo(halfLength, 0);
+        ICON_SHAPE_OCTAGON.lineTo(halfLengthCosPiPer4, halfLengthCosPiPer4);
+        ICON_SHAPE_OCTAGON.lineTo(0, halfLength);
+        ICON_SHAPE_OCTAGON.lineTo(-halfLengthCosPiPer4, halfLengthCosPiPer4);
+        ICON_SHAPE_OCTAGON.lineTo(-halfLength, 0);
+        ICON_SHAPE_OCTAGON.lineTo(-halfLengthCosPiPer4, -halfLengthCosPiPer4);
         ICON_SHAPE_OCTAGON.closePath();
     }
 
@@ -404,22 +404,22 @@ public class MilStd2525LikeSymbolsDefinitions {
         }
         else if (shapeType == SymbolShapeEnum.UNKNOWN) {
             GeneralPath gp;
-            double halfLenght = SYMBOL_SIZE / 2.;
-            double halfLenghtCosPiPer4 = halfLenght * Math.cos(Math.PI / 4.);
+            double halfLength = SYMBOL_SIZE / 2.;
+            double halfLengthCosPiPer4 = halfLength * Math.cos(Math.PI / 4.);
             switch (type) {
                 case AIR:
                 case SUBSURFACE:
                     gp = new GeneralPath();
-                    gp.moveTo(SYMBOL_SIZE / 2. - halfLenghtCosPiPer4, SYMBOL_SIZE);
+                    gp.moveTo(SYMBOL_SIZE / 2. - halfLengthCosPiPer4, SYMBOL_SIZE);
                     gp.curveTo(-(SYMBOL_SIZE * 0.5 / 2.), SYMBOL_SIZE, 
-                            -(SYMBOL_SIZE * 0.5 / 2.), SYMBOL_SIZE / 2. - halfLenghtCosPiPer4, 
-                            SYMBOL_SIZE / 2. - halfLenghtCosPiPer4, SYMBOL_SIZE / 2. - halfLenghtCosPiPer4);
-                    gp.curveTo(SYMBOL_SIZE / 2. - halfLenghtCosPiPer4, -SYMBOL_SIZE * 0.3,  
-                            SYMBOL_SIZE / 2. + halfLenghtCosPiPer4, -SYMBOL_SIZE * 0.3, 
-                            SYMBOL_SIZE / 2. + halfLenghtCosPiPer4, SYMBOL_SIZE / 2. - halfLenghtCosPiPer4);
-                    gp.curveTo(SYMBOL_SIZE + (SYMBOL_SIZE * 0.5 / 2.), SYMBOL_SIZE / 2. - halfLenghtCosPiPer4,
+                            -(SYMBOL_SIZE * 0.5 / 2.), SYMBOL_SIZE / 2. - halfLengthCosPiPer4, 
+                            SYMBOL_SIZE / 2. - halfLengthCosPiPer4, SYMBOL_SIZE / 2. - halfLengthCosPiPer4);
+                    gp.curveTo(SYMBOL_SIZE / 2. - halfLengthCosPiPer4, -SYMBOL_SIZE * 0.3,  
+                            SYMBOL_SIZE / 2. + halfLengthCosPiPer4, -SYMBOL_SIZE * 0.3, 
+                            SYMBOL_SIZE / 2. + halfLengthCosPiPer4, SYMBOL_SIZE / 2. - halfLengthCosPiPer4);
+                    gp.curveTo(SYMBOL_SIZE + (SYMBOL_SIZE * 0.5 / 2.), SYMBOL_SIZE / 2. - halfLengthCosPiPer4,
                             SYMBOL_SIZE + (SYMBOL_SIZE * 0.5 / 2.), SYMBOL_SIZE,
-                            SYMBOL_SIZE / 2. + halfLenghtCosPiPer4, SYMBOL_SIZE);
+                            SYMBOL_SIZE / 2. + halfLengthCosPiPer4, SYMBOL_SIZE);
                     shape = gp;
                     if (type == SymbolTypeEnum.SUBSURFACE)
                         shape = gp.createTransformedShape(new AffineTransform(-1, 0, 0, -1, SYMBOL_SIZE, SYMBOL_SIZE));
@@ -427,19 +427,19 @@ public class MilStd2525LikeSymbolsDefinitions {
                 case SURFACE:
                 case SURFACE_UNIT:
                     gp = new GeneralPath();
-                    gp.moveTo(SYMBOL_SIZE / 2. - halfLenghtCosPiPer4, SYMBOL_SIZE / 2. - halfLenghtCosPiPer4);
-                    gp.curveTo(SYMBOL_SIZE / 2. - halfLenghtCosPiPer4, -SYMBOL_SIZE * 0.44 / 2,  
-                            SYMBOL_SIZE / 2. + halfLenghtCosPiPer4, -SYMBOL_SIZE * 0.44 / 2, 
-                            SYMBOL_SIZE / 2. + halfLenghtCosPiPer4, SYMBOL_SIZE / 2. - halfLenghtCosPiPer4);
-                    gp.curveTo(SYMBOL_SIZE + SYMBOL_SIZE * 0.44 / 2, SYMBOL_SIZE / 2. - halfLenghtCosPiPer4,
-                            SYMBOL_SIZE + SYMBOL_SIZE * 0.44 / 2, SYMBOL_SIZE / 2. + halfLenghtCosPiPer4, 
-                            SYMBOL_SIZE / 2. + halfLenghtCosPiPer4, SYMBOL_SIZE / 2. + halfLenghtCosPiPer4);
-                    gp.curveTo(SYMBOL_SIZE / 2. + halfLenghtCosPiPer4, SYMBOL_SIZE + SYMBOL_SIZE * 0.44 / 2,
-                            SYMBOL_SIZE / 2. - halfLenghtCosPiPer4, SYMBOL_SIZE + SYMBOL_SIZE * 0.44 / 2, 
-                            SYMBOL_SIZE / 2. - halfLenghtCosPiPer4, SYMBOL_SIZE / 2. + halfLenghtCosPiPer4);
-                    gp.curveTo(-SYMBOL_SIZE * 0.44 / 2, SYMBOL_SIZE / 2. + halfLenghtCosPiPer4,
-                            -SYMBOL_SIZE * 0.44 / 2, SYMBOL_SIZE / 2. - halfLenghtCosPiPer4,
-                            SYMBOL_SIZE / 2. - halfLenghtCosPiPer4, SYMBOL_SIZE / 2. - halfLenghtCosPiPer4);
+                    gp.moveTo(SYMBOL_SIZE / 2. - halfLengthCosPiPer4, SYMBOL_SIZE / 2. - halfLengthCosPiPer4);
+                    gp.curveTo(SYMBOL_SIZE / 2. - halfLengthCosPiPer4, -SYMBOL_SIZE * 0.44 / 2,  
+                            SYMBOL_SIZE / 2. + halfLengthCosPiPer4, -SYMBOL_SIZE * 0.44 / 2, 
+                            SYMBOL_SIZE / 2. + halfLengthCosPiPer4, SYMBOL_SIZE / 2. - halfLengthCosPiPer4);
+                    gp.curveTo(SYMBOL_SIZE + SYMBOL_SIZE * 0.44 / 2, SYMBOL_SIZE / 2. - halfLengthCosPiPer4,
+                            SYMBOL_SIZE + SYMBOL_SIZE * 0.44 / 2, SYMBOL_SIZE / 2. + halfLengthCosPiPer4, 
+                            SYMBOL_SIZE / 2. + halfLengthCosPiPer4, SYMBOL_SIZE / 2. + halfLengthCosPiPer4);
+                    gp.curveTo(SYMBOL_SIZE / 2. + halfLengthCosPiPer4, SYMBOL_SIZE + SYMBOL_SIZE * 0.44 / 2,
+                            SYMBOL_SIZE / 2. - halfLengthCosPiPer4, SYMBOL_SIZE + SYMBOL_SIZE * 0.44 / 2, 
+                            SYMBOL_SIZE / 2. - halfLengthCosPiPer4, SYMBOL_SIZE / 2. + halfLengthCosPiPer4);
+                    gp.curveTo(-SYMBOL_SIZE * 0.44 / 2, SYMBOL_SIZE / 2. + halfLengthCosPiPer4,
+                            -SYMBOL_SIZE * 0.44 / 2, SYMBOL_SIZE / 2. - halfLengthCosPiPer4,
+                            SYMBOL_SIZE / 2. - halfLengthCosPiPer4, SYMBOL_SIZE / 2. - halfLengthCosPiPer4);
                     shape = gp;
                     break;
                 default:
@@ -753,20 +753,20 @@ public class MilStd2525LikeSymbolsDefinitions {
         JScrollPane jsp = new JScrollPane(panel,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         GuiUtils.testFrame(jsp, "MIL-STD-2525 Like Symbology", 860, 750);
 
-        try { Thread.sleep(5000); } catch (InterruptedException e) { }
-        colorIntencity = SymbolColorIntencityEnum.MEDIUM;
-        panel.repaint();
-        try { Thread.sleep(5000); } catch (InterruptedException e) { }
-        colorIntencity = SymbolColorIntencityEnum.DARK;
-        panel.repaint();
-        try { Thread.sleep(5000); } catch (InterruptedException e) { }
-        colorIntencity = SymbolColorIntencityEnum.LIGHT;
-        panel.repaint();
-        try { Thread.sleep(5000); } catch (InterruptedException e) { }
-        debugOn = true;
-        panel.repaint();
-        try { Thread.sleep(5000); } catch (InterruptedException e) { }
-        debugOn = false;
-        panel.repaint();
+//        try { Thread.sleep(5000); } catch (InterruptedException e) { }
+//        colorIntencity = SymbolColorIntencityEnum.MEDIUM;
+//        panel.repaint();
+//        try { Thread.sleep(5000); } catch (InterruptedException e) { }
+//        colorIntencity = SymbolColorIntencityEnum.DARK;
+//        panel.repaint();
+//        try { Thread.sleep(5000); } catch (InterruptedException e) { }
+//        colorIntencity = SymbolColorIntencityEnum.LIGHT;
+//        panel.repaint();
+//        try { Thread.sleep(5000); } catch (InterruptedException e) { }
+//        debugOn = true;
+//        panel.repaint();
+//        try { Thread.sleep(5000); } catch (InterruptedException e) { }
+//        debugOn = false;
+//        panel.repaint();
     }
 }

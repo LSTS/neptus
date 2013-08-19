@@ -31,12 +31,12 @@
  */
 package pt.up.fe.dceg.neptus.mra.plots;
 
+import java.awt.Component;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -92,7 +92,7 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
     }
     
     @Override
-    public JComponent getComponent(IMraLogGroup source, double timestep) {
+    public Component getComponent(IMraLogGroup source, double timestep) {
         return new MraChartPanel(this, source, mraPanel);
     }
 

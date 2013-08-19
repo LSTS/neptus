@@ -67,8 +67,8 @@ public class ManeuversUtil {
         
         Vector<double[]> newPoints = new Vector<double[]>();
         
-        double lenght = width;
-        double[] pointBaseB = {-lenght/2., -width/2., 0, -1};
+        double length = width;
+        double[] pointBaseB = {-length/2., -width/2., 0, -1};
         double[] res = AngleCalc.rotate(bearingRad, pointBaseB[X], pointBaseB[Y], false);
         double[] pointBase1 = new double[] {res[X], res[Y], 0, -1};
         res = AngleCalc.rotate(bearingRad+Math.toRadians(-60), pointBaseB[X], pointBaseB[Y], false);
@@ -117,9 +117,9 @@ public class ManeuversUtil {
         
         Vector<double[]> newPoints = new Vector<double[]>();
         
-        double lenght = width;
-        double[] pointBase1 = {-lenght/2., -width/2., 0, -1};
-        double[] pointBase2 = {-lenght/2., width/2., 0, -1};
+        double length = width;
+        double[] pointBase1 = {-length/2., -width/2., 0, -1};
+        double[] pointBase2 = {-length/2., width/2., 0, -1};
         double[] res = AngleCalc.rotate(bearingRad, pointBase1[X], pointBase1[Y], false);
         pointBase1 = new double[] {res[X], res[Y], 0, -1};
         res = AngleCalc.rotate(bearingRad, pointBase2[X], pointBase2[Y], false);

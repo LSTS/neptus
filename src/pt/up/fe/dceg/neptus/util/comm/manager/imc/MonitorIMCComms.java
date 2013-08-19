@@ -311,7 +311,10 @@ public class MonitorIMCComms extends
 
         String ret = "<html>";
         ret += "<b>" + I18n.text("Name:") + "</b> " + imcCCUName + "<br>";
-        ret += "<b>" + I18n.text("ID:") + "</b> " + idImc.toPrettyString() + "<br>";
+        ret += "<b>" + I18n.text("ID:") + "</b> " + idImc.toPrettyString();
+        if (getCommManager().is2IdErrorMode())
+            ret += " <b color='red'>" + I18n.text("Another node with this ID detected!") + "</b>";;
+        ret += "<br>";
         ret += "<b>" + I18n.text("Services:") + "</b> "
                 + getCommManager().getAllServicesString().replaceAll(";", ";<br>") + "<br><br>";
 
@@ -367,7 +370,7 @@ public class MonitorIMCComms extends
             });
         }
         catch (Exception e) {
-            // e.printStackTrace();
+            NeptusLog.pub().error(e.getStackTrace());
         }
     }
 
@@ -544,6 +547,7 @@ public class MonitorIMCComms extends
             });
         }
         catch (Exception e) {
+            NeptusLog.pub().error(e.getStackTrace());
             // e.printStackTrace();
         }
     }
@@ -606,6 +610,7 @@ public class MonitorIMCComms extends
             return ImcId16.valueOf(id);
         }
         catch (NumberFormatException e) {
+            NeptusLog.pub().error(e.getMessage());
             return null;
         }
     }

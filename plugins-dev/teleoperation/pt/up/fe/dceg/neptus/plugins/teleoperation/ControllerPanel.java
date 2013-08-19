@@ -228,7 +228,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         for (String action : actions.keySet()) {
             MapperComponent comp = getMapperComponentByName(systemName, controllerName, action);
             if (comp == null)
-                result.add(new MapperComponent(action, "", 0.0f, false));
+                result.add(new MapperComponent(action, "", 0.0f, false));               
             else
                 result.add(comp);
         }
@@ -271,9 +271,9 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         removeAll();
         
         if(console.getMainSystem() != null)
-            add(new JLabel("Waiting for vehicle action list"));
+            add(new JLabel(I18n.text("Waiting for vehicle action list")));
         else
-            add(new JLabel("No main vehicle selected in the console"));
+            add(new JLabel(I18n.text("No main vehicle selected in the console")));
         
         invalidate();
         revalidate();
@@ -451,7 +451,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
             this.component = component;
             this.value = value;
             this.inverted = inverted;
-            this.edit = new JButton("Edit");
+            this.edit = new JButton(I18n.text("Edit"));
             
             edit.addMouseListener(new MouseAdapter() {
                 @Override

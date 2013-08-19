@@ -70,7 +70,7 @@ public class GotoPreview implements IManeuverPreview<Goto> {
     @Override
     public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep) {
         model.setState(state);
-        if (model.guide(destination, speed))
+        if (model.guide(destination, speed, destination.getDepth() >= 0 ? null : - destination.getDepth()))
             finished = true;        
         else
             model.advance(timestep);            

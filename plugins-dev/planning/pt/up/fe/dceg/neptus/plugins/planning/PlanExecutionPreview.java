@@ -33,22 +33,39 @@ package pt.up.fe.dceg.neptus.plugins.planning;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 
+import javax.swing.JMenu;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventPositionEstimation;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.PlanControlState;
+import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.up.fe.dceg.neptus.mp.preview.PlanSimulation3D;
+import pt.up.fe.dceg.neptus.mp.preview.PlanSimulationOverlay;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulator;
+import pt.up.fe.dceg.neptus.mp.preview.SimulationEngine;
+import pt.up.fe.dceg.neptus.mp.preview.payloads.PayloadFactory;
+import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
 import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 import pt.up.fe.dceg.neptus.util.DateTimeUtil;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
@@ -61,18 +78,32 @@ import com.l2fprod.common.propertysheet.Property;
 /**
  * @author zp
  */
-@PluginDescription(name = "Plan Execution Preview", author = "zp")
+@PluginDescription(name = "Plan Execution Preview", author = "zp", icon="pt/up/fe/dceg/neptus/plugins/planning/preview.png")
 @LayerPriority(priority = 60)
-public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPainter {
+public class PlanExecutionPreview extends SimpleRendererInteraction implements Renderer2DPainter, ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
-    protected boolean debug = false;
 
+    protected GeneralPath arrow = new GeneralPath();
+    {
+        arrow.moveTo(-2, -10);
+        arrow.lineTo(2, -10);
+        arrow.lineTo(2, 0);
+        arrow.lineTo(5, 0);
+        arrow.lineTo(0, 10);
+        arrow.lineTo(-5, 0);
+        arrow.lineTo(-2, 0);
+        arrow.closePath();
+    }
+
+    protected boolean debug = false;
+    protected PlanSimulationOverlay simOverlay = null;
     protected PlanSimulator simulator = null;
     protected SystemPositionAndAttitude lastVehicleState = null;
     protected long lastStateTime = 0;
-
-    @NeptusProperty(name = "Activated")
+    protected boolean forceSimVisualization = false;
+    
+    @NeptusProperty(name = "Active")
     public boolean activated = true;
 
     @NeptusProperty(name = "Milliseconds to wait before simulation")
@@ -80,6 +111,9 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
 
     @NeptusProperty(name = "Interval between simulated states, in seconds")
     public double timestep = 0.25;
+    
+    @NeptusProperty(name = "Simulated (flat) bathymetry")
+    public double bathymetry = 10;
 
     public PlanExecutionPreview(ConsoleLayout console) {
         super(console);
@@ -99,11 +133,198 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
             return 0;
         }
     }
+    
+    @Override
+    public String getName() {
+        return "Plan Simulation";
+    }
+    
+    @Override
+    public boolean isExclusive() {
+        return true;
+    }
+    
+    @Override
+    public void mouseClicked(final MouseEvent event, final StateRenderer2D source) {
+        if (event.getButton() == MouseEvent.BUTTON3) {
+            JPopupMenu popup = new JPopupMenu();
+            
+            if (simulator != null) {
+                popup.add(I18n.text("Locate simulator here")).addActionListener(new ActionListener() {
+                    
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        LocationType loc = source.getRealWorldLocation(event.getPoint());
+                        loc.convertToAbsoluteLatLonDepth();
+                        if (simulator != null) {
+                            SystemPositionAndAttitude curState = simulator.getState();
+                            EstimatedState newState = curState.toEstimatedState();
+                            
+                            newState.setLat(loc.getLatitudeAsDoubleValueRads());
+                            newState.setLon(loc.getLongitudeAsDoubleValueRads());
+                            
+                            simulator.setPositionEstimation(newState, Double.MAX_VALUE);                            
+                        }
+                    }
+                });
+                
+                JMenu menu = new JMenu(I18n.text("Set current maneuver"));
+                for (final Maneuver man : simulator.getPlan().getGraph().getAllManeuvers()) {
+                    menu.add(man.getId()+" (" + man.getType() + ")").addActionListener(new ActionListener() {
+                        
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            if (simulator != null) {
+                                try {
+                                    simulator.setManId(man.getId());
+                                }
+                                catch (Exception ex) {
+                                    GuiUtils.errorMessage(getConsole(), ex);
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                popup.add(menu);
+                
+                
+            }
+            popup.add(I18n.text("Simulate from here")).addActionListener(new ActionListener() {
+                
+                final LocationType loc = source.getRealWorldLocation(event.getPoint());
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (simulator != null) {
+                        simulator.stopSimulation();
+                    }
+                        simulator = new PlanSimulator(getConsole().getPlan(), new SystemPositionAndAttitude(loc, 0, 0, 0));
+                        simulator.setVehicleId(getConsole().getMainSystem());
+                        try {
+                            simulator.setManId(simulator.getPlan().getGraph().getInitialManeuverId());
+                        }
+                        catch (Exception ex) {
+                            GuiUtils.errorMessage(getConsole(), ex);
+                        }
+                        simulator.setState(new SystemPositionAndAttitude(loc, 0, 0, 0));
+                        simulator.setTimestep(timestep);
+                        simulator.startSimulation();
+                        simOverlay = simulator.getSimulationOverlay();
+                        forceSimVisualization = true;                    
+                }
+            });
+            
+            if (simOverlay != null) {
+                popup.add(I18n.text("Show 3D simulation")).addActionListener(new ActionListener() {
+                    
+                    @Override
+                    public void actionPerformed(ActionEvent e) {                        
+                        PlanSimulation3D.showSimulation(getConsole(), simOverlay, getConsole().getPlan());
+                    }
+                });
+            }
+            
+            popup.add(I18n.text("Clear simulation")).addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (simulator != null) {
+                        simulator.stopSimulation();
+                        simulator = null;
+                        simOverlay = null;
+                    }
+                    forceSimVisualization = false;
+                }
+            });
+            popup.addSeparator();
+            JMenu simBathym = new JMenu(I18n.text("Simulated bathymetry"));
+            simBathym.add(I18n.text("Add depth sounding")).addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String ret = JOptionPane.showInputDialog(getConsole(), I18n.text("Enter simulated depth for this location"));
+                    if (ret == null)
+                        return;
+                    try {
+                        double val = Double.parseDouble(ret);
+                        LocationType loc = source.getRealWorldLocation(event.getPoint());
+                        SimulationEngine.simBathym.addSounding(loc, val);
+                    }
+                    catch (Exception ex) {
+                        NeptusLog.pub().error(ex);
+                    }
+                }
+            });
+            
+            simBathym.add(I18n.text("Clear depth soundings")).addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    SimulationEngine.simBathym.clearSoundings();
+                }
+            });
+            
+            simBathym.add(I18n.text("Show depth here")).addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    LocationType loc = source.getRealWorldLocation(event.getPoint());
+                    GuiUtils.infoMessage(getConsole(), I18n.text("Show depth"),
+                            I18n.textf("Depth is %value m", SimulationEngine.simBathym.getSimulatedDepth(loc)));
+                }
+            });
+            popup.add(simBathym);
+            
+            popup.add(I18n.text("Calculate payloads")).addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    for (Maneuver m : getConsole().getPlan().getGraph().getAllManeuvers()) {
+                        PayloadFactory.getPayloads(m);
+                    }
+                }
+            });
+            
+            popup.addSeparator();
+            if (simOverlay != null) {
+                popup.add(I18n.text("Plan statistics")).addActionListener(new ActionListener() {
+                    
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (simOverlay != null)
+                            generatePlanStatistics();
+                    }
+                });
+            }
+            popup.show(source, event.getX(), event.getY());
+        }
+        else
+            super.mouseClicked(event, source);
+    }
+    
+    
+    private void generatePlanStatistics() {
+        LinkedHashMap<String, String> stats;
+        
+        if (simulator != null)
+            stats = simOverlay.statistics(simulator.getState());
+        else
+            stats = simOverlay.statistics(null);
+        
+        String html = "<html><table>\n";
+        for (Entry<String,String> entry : stats.entrySet()) {
+            html += "<tr><td><b>"+entry.getKey()+"</b></td><td>"+entry.getValue()+"</td></tr>\n";            
+        }
+        html +="</table></html>";
+        
+        GuiUtils.htmlMessage(getConsole(), I18n.text("Plan Statistics"), "", html);        
+    }
 
     @Subscribe
     public void consume(EstimatedState msg) {
 
-
+        // check if message is coming from main vehicle
         if (msg.getSourceName() != null && !msg.getSourceName().equals(getConsole().getMainSystem()))
             return;
 
@@ -116,7 +337,7 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
         lastVehicleState = IMCUtils.parseState(msg);
 
         if (simulator != null)
-            simulator.setState(lastVehicleState);
+            simulator.setEstimatedState(msg);
 
         lastStateTime = System.currentTimeMillis();
     }
@@ -130,11 +351,10 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
             return;
         lastEstimateTime = System.currentTimeMillis();
 
-        //NeptusLog.pub().info("<###>Got a position estimation");
         if (System.currentTimeMillis() - lastStateTime < 1000 || simulator == null)
             return;
         else {
-            simulator.setPositionEstimation(estimate.getEstimation());
+            simulator.setPositionEstimation(estimate.getEstimation(), 8);
         }
     }
 
@@ -148,7 +368,7 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
     public void cleanSubPanel() {
         stopSimulator();
     }
-
+    
     @Subscribe
     public synchronized void consume(PlanControlState msg) {
 
@@ -158,32 +378,42 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
         if (!msg.getSourceName().equals(getConsole().getMainSystem()))
             return;
 
-        if (msg.getState() != PlanControlState.STATE.EXECUTING)
-            stopSimulator();
+        if (msg.getState() != PlanControlState.STATE.EXECUTING) {
+            if (forceSimVisualization)
+                return;
+            else
+                stopSimulator();                    
+        }
         else {
-            String planid = msg.getPlanId();
-
-            if (simulator == null || simulator.isFinished() || !planid.equals(simulator.getPlan().getId())) {
-                stopSimulator();
-                PlanType plan = getConsole().getMission().getIndividualPlansList().get(planid);
-                if (plan != null) {
-
-                    EstimatedState last = ImcMsgManager.getManager().getState(msg.getSourceName()).lastEstimatedState();
-                    if (last != null)
-                        simulator = new PlanSimulator(plan, new SystemPositionAndAttitude(last));
-                    else
-                        simulator = new PlanSimulator(plan, null);
-                    simulator.setManId(msg.getManId());
-                    simulator.setVehicleId(getConsole().getMainSystem());
-                    simulator.setState(lastVehicleState);
-                    simulator.setTimestep(timestep);
-                    if (activated)
-                        simulator.startSimulation();
+            try {
+                String planid = msg.getPlanId();
+    
+                if (simulator == null || simulator.isFinished() || !planid.equals(simulator.getPlan().getId())) {
+                    stopSimulator();
+                    PlanType plan = getConsole().getMission().getIndividualPlansList().get(planid);
+                    if (plan != null) {
+    
+                        EstimatedState last = ImcMsgManager.getManager().getState(msg.getSourceName()).lastEstimatedState();
+                        if (last != null)
+                            simulator = new PlanSimulator(plan, new SystemPositionAndAttitude(last));
+                        else
+                            simulator = new PlanSimulator(plan, null);
+                        simulator.setManId(msg.getManId());
+                        simulator.setVehicleId(getConsole().getMainSystem());
+                        simulator.setState(lastVehicleState);
+                        simulator.setTimestep(timestep);
+                        if (activated)
+                            simulator.startSimulation();
+                        simOverlay = simulator.getSimulationOverlay();
+                    }
                 }
+    
+                if (simulator != null)
+                    simulator.setManId(msg.getManId());
             }
-
-            if (simulator != null)
-                simulator.setManId(msg.getManId());
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
         }
     }
 
@@ -194,21 +424,17 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
         lastVehicleState = null;
     }
 
-    protected GeneralPath arrow = new GeneralPath();
-    {
-        arrow.moveTo(-2, -10);
-        arrow.lineTo(2, -10);
-        arrow.lineTo(2, 0);
-        arrow.lineTo(5, 0);
-        arrow.lineTo(0, 10);
-        arrow.lineTo(-5, 0);
-        arrow.lineTo(-2, 0);
-        arrow.closePath();
+    public void paintVerticalProfile(Graphics2D g, StateRenderer2D renderer) {
     }
-
+    
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-
+        if (active)
+            SimulationEngine.simBathym.paint((Graphics2D)g.create(), renderer);
+        
+        if (active && simulator != null)
+            simulator.getSimulationOverlay().paint((Graphics2D)g.create(), renderer);
+        
         if (simulator != null && simulator.isRunning()) {
             long simTime = System.currentTimeMillis() - lastStateTime;
             if (simTime > 1000) {
@@ -253,7 +479,11 @@ public class PlanExecutionPreview extends SimpleSubPanel implements Renderer2DPa
         if (!activated && simulator != null) {
             stopSimulator();
         }
-
+    }
+    
+    @Override
+    public void propertiesChanged() {
+        PlanSimulationOverlay.bottomDepth = bathymetry;
     }
 
     @Override

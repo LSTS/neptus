@@ -220,7 +220,7 @@ implements Runnable, TelnetNotificationHandler
                                 }
                                 catch (Exception e)
                                 {
-                                    System.err.println("Error registering the spy");
+                                    NeptusLog.pub().error(e.getMessage());
                                 }
                             }
                             else if((new String(buff, 0, ret_read)).startsWith("UNSPY"))
@@ -236,14 +236,15 @@ implements Runnable, TelnetNotificationHandler
                                 }
                                 catch (Exception e)
                                 {
-                                        end_loop = true;
+                                    NeptusLog.pub().error(e.getMessage());
+                                    end_loop = true;
                                 }
                             }
                         }
                     }
                     catch (Exception e)
                     {
-                        System.err.println("Exception while reading keyboard:" + e.getMessage());
+                        NeptusLog.pub().error(e.getMessage());
                         end_loop = true;
                     }
                 }

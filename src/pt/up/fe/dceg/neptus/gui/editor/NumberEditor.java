@@ -36,6 +36,8 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,9 +53,11 @@ import com.l2fprod.common.util.converter.ConverterRegistry;
  * @author pdias
  *
  */
-public class NumberEditor<T extends Number> extends NumberPropertyEditor {
+public class NumberEditor<T extends Number> extends NumberPropertyEditor implements ValidationEnableInterface {
     
     protected final Class<T> classType;
+    
+    protected boolean enableValidation = true;
     
     protected T minValue = null;
     protected T maxValue = null;
@@ -66,6 +70,9 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor {
     private Border defaultBorder = null;
     private Border errorBorder = null;
 
+    private Timer timer = null;
+    private TimerTask validatorTask = null;
+    
     @SuppressWarnings("unchecked")
     public NumberEditor(Class<T> type, T minValue, T maxValue) {
         this(type);
@@ -152,11 +159,25 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor {
 //                else if ((classType == Long.class || classType == Integer.class || classType == Short.class) && !Character.isDigit(keyChar))
 //                        e.consume();
             }
-            
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                // System.out.println("keyPressed " + e);
+                if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_TAB)
+                    validateValue();
+            }
+
             @Override
             public void keyReleased(KeyEvent e) {
+                // System.out.println("keyReleased " + e);
+                // validateValue();
+                revokeScheduleValidatorTask();
+                scheduleValidatorTask();
+            }
+
+            private void validateValue() {
                 boolean checkOk = true;
-                String txt = ((JTextField) editor).getText();
+                String txt = ((JTextField) editor).getText().trim();
                 try {
                     convertFromString(txt);
                 }
@@ -176,7 +197,6 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor {
                     ((JTextField) editor).setBorder(defaultBorder);
                 }
             }
-
         });
         
         ((JTextField) editor).addFocusListener(new FocusAdapter() {
@@ -191,6 +211,7 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor {
             }
 
             public void focusLost(FocusEvent fe) {
+                // System.out.println("focusLost " + fe);
                 try {
                     T newVal = (T) convertFromString(((JTextField) editor).getText());
                     firePropertyChange(oldVal, newVal);
@@ -202,18 +223,91 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor {
         });
     }
     
+//    @Override
+//    public void setValue(Object value) {
+//        System.out.println("setValue Editor " + value);
+//        super.setValue(value);
+//    }
+    
+    @Override
+    public Object getValue() {
+//        System.out.println("getValue Editor " + super.getValue());
+        return convertFromString(convertToString(super.getValue()));
+    }
+    
+    private void scheduleValidatorTask() {
+        if (validatorTask == null) {
+            if (timer == null)
+                timer = new Timer(NumberEditor.this.getClass().getSimpleName() + " keyboard entry value validator for "
+                        + classType.getSimpleName() + " [" + minValue + ", " + maxValue + "]", true);
+            validatorTask = createValidatorTimerTask();
+            timer.schedule(validatorTask, 700);
+        }
+    }
+
+    private void revokeScheduleValidatorTask() {
+        if (validatorTask != null) {
+            validatorTask.cancel();
+            try {
+                if (validatorTask != null)
+                    validatorTask.wait();
+            }
+            catch (Exception e) {
+                // Don't need to catch it
+            }
+            validatorTask = null;
+        }
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+    }
+
+    private TimerTask createValidatorTimerTask() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                boolean checkOk = true;
+                String txt = ((JTextField) editor).getText();
+                try {
+                    convertFromString(txt);
+                }
+                catch (Exception e1) {
+                    checkOk = false;
+                }
+                if (!checkOk) {
+                    if (errorBorder == null) {
+                        errorBorder = BorderFactory.createLineBorder(errorColor, 2);
+                        defaultBorder = ((JTextField) editor).getBorder();
+                    }
+
+                    ((JTextField) editor).setBorder(errorBorder);
+                    UIManager.getLookAndFeel().provideErrorFeedback(editor);
+                }
+                else {
+                    ((JTextField) editor).setBorder(defaultBorder);
+                }
+
+                if (timer != null) {
+                    timer.cancel();
+                    timer = null;
+                }
+            }
+        };
+    }
+    
     @SuppressWarnings("unchecked")
     private T convertFromString(String txt) {
         if (pattern == null) {
             pattern = Pattern.compile(elementPattern, Pattern.CASE_INSENSITIVE);
         }
-        Matcher m = pattern.matcher(((JTextField) editor).getText());
+        Matcher m = pattern.matcher(txt);
         boolean checkOk = m.matches();
         if (!checkOk)
             throw new NumberFormatException();
         
         T valueToReq = (T) ConverterRegistry.instance().convert(this.classType, txt);
-        if (minValue != null && maxValue != null) {
+        if (enableValidation && minValue != null && maxValue != null) {
             if (valueToReq.doubleValue() < minValue.doubleValue()) {
                 ((JTextField) editor).setText(convertToString(minValue));
                 valueToReq = minValue;
@@ -231,12 +325,19 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor {
         return (String) ConverterRegistry.instance().convert(String.class, value);
     }
 
-    /**
-     * @param args
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.gui.editor.ValidationEnableInterface#isEnableValidation()
      */
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
+    @Override
+    public boolean isEnableValidation() {
+        return enableValidation;
     }
-
+    
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.gui.editor.ValidationEnableInterface#setEnableValidation(boolean)
+     */
+    @Override
+    public void setEnableValidation(boolean enableValidation) {
+        this.enableValidation = enableValidation;
+    }
 }

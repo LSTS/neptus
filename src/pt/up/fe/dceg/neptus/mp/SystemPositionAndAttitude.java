@@ -74,6 +74,34 @@ public class SystemPositionAndAttitude implements Cloneable {
         setPitch(pitch);
         setYaw(yaw);
     }
+    
+    public EstimatedState toEstimatedState() {
+        EstimatedState estate = new EstimatedState();
+        LocationType loc = new LocationType(getPosition());
+        loc.convertToAbsoluteLatLonDepth();
+        estate.setLat(loc.getLatitudeAsDoubleValueRads());
+        estate.setLon(loc.getLongitudeAsDoubleValueRads());
+        estate.setDepth(loc.getDepth());
+        estate.setAlt(getAltitude());
+        
+        estate.setPhi(getRoll());
+        estate.setTheta(getPitch());
+        estate.setPsi(getYaw());
+        
+        estate.setP(getP());
+        estate.setQ(getQ());
+        estate.setR(getR());
+        
+        estate.setU(getU());
+        estate.setV(getV());
+        estate.setW(getW());
+        estate.setVx(getVx());
+        estate.setVy(getVy());
+        estate.setVz(getVz());
+        
+        return estate;
+        
+    }
 
     public SystemPositionAndAttitude(SystemPositionAndAttitude vs) {
         setPosition(new LocationType(vs.getPosition()));

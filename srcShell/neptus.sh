@@ -32,10 +32,12 @@ if test -d jre/bin; then JAVA_BIN_FOLDER="jre/bin/"; else JAVA_BIN_FOLDER=""; fi
 
 JAVA_MACHINE_TYPE=$($JAVA_BIN_FOLDER"java" -cp bin/neptus.jar pt.up.fe.dceg.neptus.loader.helper.CheckJavaOSArch)
 if [ ${JAVA_MACHINE_TYPE} == 'x64' ]; then
- LIBS=".:libJNI/x64:libJNI"
+ LIBS=".:libJNI/x64:libJNI:/usr/lib/jni:/usr/lib/vtk-5.10"
 else
-  LIBS=".:libJNI/x86:libJNI"
+  LIBS=".:libJNI/x86:libJNI:/usr/lib/jni:/usr/lib/vtk-5.10"
 fi
 
+export VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
+
 export LD_LIBRARY_PATH=$LIBS
-$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m -Djava.library.path=$LIBS -cp $CLASSPATH $DEFAULT "$@"
+$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m $VMFLAGS -Djava.library.path=$LIBS -cp $CLASSPATH $DEFAULT "$@"

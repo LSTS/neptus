@@ -50,6 +50,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.renderer2d.CursorLocationPainter;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
@@ -181,7 +182,7 @@ class LocationObject extends AbstractElement {
     }
     @Override
     public String getType() {		 
-        return "Location";
+        return I18n.text("Location");
     }
     @Override
     public void initialize(ParametersPanel paramsPanel) {

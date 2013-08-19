@@ -146,7 +146,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
     @NeptusProperty
     public boolean publishOn = true;
 
-    @NeptusProperty(hidden = true)
+    @NeptusProperty(editable = true)
     public String publishMessagesListStd = "EstimatedState, LbLConfig, PlanSpecification, "
             + "VehicleState, PlanControlState, EntityList";
 
@@ -632,15 +632,17 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
                 if ((getConsole() != null && getConsole().getMission() != null && getConsole().getMission()
                         .getIndividualPlansList() != null)) {
                     PlanType pt = getConsole().getMission().getIndividualPlansList().get(planStr);
-                    if (!planToLocations.containsKey(planStr)) {
-                        locs = PublishHelper.planPathLocs(pt);
-                        path = PublishHelper.planPathElement(locs, vehStr + ":" + planStr);
-                        planToLocations.put(pt.getId(), locs);
-                        planToPath.put(pt.getId(), path);
-                    }
-                    else {
-                        locs = planToLocations.get(pt.getId());
-                        path = planToPath.get(pt.getId());
+                    if (pt != null) {
+                        if (!planToLocations.containsKey(planStr)) {
+                            locs = PublishHelper.planPathLocs(pt);
+                            path = PublishHelper.planPathElement(locs, vehStr + ":" + planStr);
+                            planToLocations.put(pt.getId(), locs);
+                            planToPath.put(pt.getId(), path);
+                        }
+                        else {
+                            locs = planToLocations.get(pt.getId());
+                            path = planToPath.get(pt.getId());
+                        }
                     }
                 }
                 if (path != null) {

@@ -202,6 +202,7 @@ implements ActionListener, Comparable<AbstractElement>, XmlOutputMethods, XmlInp
                         val = Double.parseDouble(text);
                     }
                     catch (NumberFormatException e) {
+                        NeptusLog.pub().error(e.getMessage());
                         val = 0;
                     }
                     setPhi(val);
@@ -214,6 +215,7 @@ implements ActionListener, Comparable<AbstractElement>, XmlOutputMethods, XmlInp
                         val = Double.parseDouble(text);
                     }
                     catch (NumberFormatException e) {
+                        NeptusLog.pub().error(e.getMessage());
                         val = 0;
                     }
                     setTheta(val);
@@ -226,6 +228,7 @@ implements ActionListener, Comparable<AbstractElement>, XmlOutputMethods, XmlInp
                         val = Double.parseDouble(text);
                     }
                     catch (NumberFormatException e) {
+                        NeptusLog.pub().error(e.getMessage());
                         val = 0;
                     }
                     setPsi(val);
@@ -238,7 +241,8 @@ implements ActionListener, Comparable<AbstractElement>, XmlOutputMethods, XmlInp
                 try {
                     val = Double.parseDouble(text);
                 }
-                catch (NumberFormatException e) {                        
+                catch (NumberFormatException e) {
+                    NeptusLog.pub().error(e.getMessage());
                     val = 0;
                 }
                 if (val < 0)
@@ -683,6 +687,7 @@ implements ActionListener, Comparable<AbstractElement>, XmlOutputMethods, XmlInp
             	setTransparency((int)val);
             }
             catch (NumberFormatException e) {
+                NeptusLog.pub().debug(e.getMessage());
             	JOptionPane.showMessageDialog(paramsPanel, I18n.text("The object transparency is not valid"));
             	return;
 			}
@@ -833,7 +838,6 @@ implements ActionListener, Comparable<AbstractElement>, XmlOutputMethods, XmlInp
         Dimension pSize = paramsPanel.getPreferredSize();
         dialog.setSize(Math.max(pSize.width, 480), pSize.height + 12*2);
         GuiUtils.centerOnScreen(dialog);
-        dialog.setVisible(true);
         dialog.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 userCancel = true;
@@ -841,6 +845,7 @@ implements ActionListener, Comparable<AbstractElement>, XmlOutputMethods, XmlInp
                 dialog.dispose();
             }
         });
+        dialog.setVisible(true);
     }
     
     /**

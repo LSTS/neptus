@@ -42,6 +42,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,19 +54,17 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.SonarData;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
 import pt.up.fe.dceg.neptus.mra.api.SidescanLine;
 import pt.up.fe.dceg.neptus.mra.api.SidescanParser;
 import pt.up.fe.dceg.neptus.mra.api.SidescanPoint;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
 import pt.up.fe.dceg.neptus.mra.replay.MraVehiclePosHud;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.up.fe.dceg.neptus.util.VideoCreator;
 
 /**
  * @author jqcorreia
@@ -119,6 +118,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         posHud.setPathColor(config.pathColor);
                         g.drawImage(posHud.getImage((firstPingTime + currentTime) / 1000.0), 0, getHeight() - config.hudSize, null);
                     }
+                    
+                    if(record) {
+                        creator.addFrame(image, firstPingTime + currentTime);
+                    }
                 }
             }
             catch (Exception e) {
@@ -136,6 +139,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     long currentTime;
 
+    long prevPingTime;
+    
     float range = 0;
     
     // Misc
@@ -173,7 +178,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     ArrayList<SidescanLine> removeList = new ArrayList<SidescanLine>();
     
     NumberFormat altFormat = GuiUtils.getNeptusDecimalFormat(2);
-    //NumberFormat coordFormat = GuiUtils.getNeptusDecimalFormat(6);
     
     SidescanParser ssParser;
     
@@ -186,7 +190,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     SlantRangeImageFilter filter;
     
     int subsystem;
+    
+    VideoCreator creator;
+    
+    protected boolean record = false;
         
+
     public SidescanPanel(SidescanAnalyzer analyzer, SidescanParser parser, int subsystem) {
         this.parent = analyzer;
         ssParser = parser;
@@ -198,7 +207,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     
     public void initialize() {
         firstPingTime = ssParser.firstPingTimestamp();
-       
+        prevPingTime = firstPingTime;
+        
         // Deal with panel resize by recreating the image buffers
         view.addComponentListener(new ComponentAdapter() {
             @Override
@@ -223,32 +233,63 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         add(view, "w 100%, h 100%");
     }
     
-    public IMCMessage getNextMessageWithFrequency(IMraLog parser, double freq) {
-        IMCMessage msg;
-        while((msg = parser.nextLogEntry()) != null) {
-            if(msg.getDouble("frequency") == freq && msg.getInteger("type") == SonarData.TYPE.SIDESCAN.value()) {
-                return msg;
-            }
-        }
-        return null;
-    }
-    
     int tcount = 0;
     int lcount = 0;
+
+    public void record(boolean r) {
+        record = r;
+        if(r) {
+            try {
+                creator = new VideoCreator(new File(parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/Sidescan_" + subsystem + ".mp4"), 800, 600);
+                System.out.println("RECORDING TO Sidescan.mp4");
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            creator.closeStreams();
+        }
+    }
     
     public void updateImage(long currentTime, long lastUpdateTime) {
         int yref = 0;
         this.currentTime = currentTime;
-        drawList.addAll(ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime + currentTime, subsystem, config));
+        ArrayList<SidescanLine> list = ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime + currentTime, subsystem, config);
+        
+        drawList.addAll(list);
         
         for(SidescanLine l : drawList) {
             if(l.range != getRange()) {
                 setRange(l.range);
             }
-//            yref +=  l.ysize;
-            yref++;
-        }
+            
+            // Deal with speed correction here, because this would be repeated code in the various parsers
+            if(config.speedCorrection) {
+              double horizontalScale = image.getWidth() / (l.range * 2f);
+              double verticalScale = horizontalScale;
 
+              double secondsElapsed = (l.timestampMillis - prevPingTime) / 1000f;
+              double speed = l.state.getU();
+
+              // Finally the 'height' of the ping in pixels
+              int size = (int) (secondsElapsed * speed * verticalScale);
+              
+              if (size <= 0 || secondsElapsed > 0.5) {
+                  l.ysize = 1;
+              }
+              else {
+                  l.ysize = size;
+              }
+            }
+            else {
+                l.ysize = 1;
+            }
+            prevPingTime = l.timestampMillis;
+            yref+= l.ysize;
+        }
+        
+        
         // This check is to prevent negative array indexes (from dragging too much)
         if (yref <= image.getHeight()) {
             ImageUtils.copySrcIntoDst(image, bufferedCache, 0, 0, image.getWidth(), image.getHeight() - yref, 0, 0, image.getWidth(), image.getHeight());
@@ -260,7 +301,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         int d = 0;
         for (SidescanLine sidescanLine : drawList) {
-            sidescanLine.ypos = yref - d++;
+            sidescanLine.ypos = yref - d;
+            d += sidescanLine.ysize;
             sidescanLine.image = new BufferedImage(sidescanLine.data.length, 1, BufferedImage.TYPE_INT_RGB);
             
             // Apply colormap to data
@@ -268,7 +310,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 sidescanLine.image.setRGB(c, 0, config.colorMap.getColor(sidescanLine.data[c]).getRGB());
             }
             
-            g2d.drawImage(ImageUtils.getScaledImage(sidescanLine.image, image.getWidth(), 1, true), 0, sidescanLine.ypos, null);
+            g2d.drawImage(ImageUtils.getScaledImage(sidescanLine.image, image.getWidth(), sidescanLine.ysize, true), 0, sidescanLine.ypos, null);
 //            g2d.drawImage(sidescanLine.image, 0, sidescanLine.ypos, null);
         }
 
@@ -517,14 +559,19 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             
             // Check for a valid response 
             if(res != null) {
+                
+                // Calc the center of the rectangle
                 int x = (int) (((mouseX + initialX) / 2) * (mouseSidescanLine.xsize / (float)image.getWidth()));
                 int y = (mouseY + initialY) / 2;
+                
+                // Find the corresponding SidescanLine object
                 SidescanLine l = null;
                 for (SidescanLine line : lineList) {
                     if (y >= line.ypos && y <= (line.ypos + line.ysize)) {
                         l = line;
                     }
                 }
+                
                 SidescanPoint point = l.calcPointForCoord(x);
                 parent.mraPanel.addMarker(new LogMarker(res, l.timestampMillis, point.location
                         .getLatitudeAsDoubleValueRads(), point.location.getLongitudeAsDoubleValueRads(), x, y, Math

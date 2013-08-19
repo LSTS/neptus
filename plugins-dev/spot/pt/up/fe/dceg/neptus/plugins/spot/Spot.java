@@ -31,6 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.spot;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeSet;
 
@@ -40,7 +41,6 @@ import org.apache.log4j.Logger;
 
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
-import com.jme3.math.Vector3f;
 
 /**
  * Has information of one SPOT device.
@@ -55,7 +55,9 @@ public class Spot {
     private final String id;
     protected Float speed;
     protected Double direction;
-    protected LocationType lastLocation;
+    protected ArrayList<LocationType> lastLocations;
+
+    // private final ArrayList<LocationType> lastLocations;
 
     /**
      * @param pageInfo
@@ -64,9 +66,9 @@ public class Spot {
         super();
         // this.pageInfo = pageInfo;
         this.id = id;
-        lastLocation = null;
         speed = null;
         direction = null;
+        lastLocations = new ArrayList<LocationType>();
     }
 
 
@@ -75,23 +77,23 @@ public class Spot {
      * the EDT.<br>
      * For each SPOT the messages: are fetched from the page and the location, speed and direction angle set.
      */
-    public void update(TreeSet<SpotMessage> messages) {
+    public void update(final TreeSet<SpotMessage> messages) {
         // ask for messages
-        Spot.log.debug(id + " has " + messages.size() + " messages");
+        // Spot.log.debug(id + " has " + messages.size() + " messages");
         // calculate direction and speed
         final LocationSpeedDirection speedLocationDirection = setSpeedMpsAndDirection(messages);
-        Spot.log.debug("Speed:" + speedLocationDirection.speed + ", direction:" + speedLocationDirection.direction
-                + " [" + speedLocationDirection.location.getLatitude() + ","
-                + speedLocationDirection.location.getLongitude() + "]");
+        // Spot.log.debug("Speed:" + speedLocationDirection.speed + ", direction:" + speedLocationDirection.direction
+        // + " [" + speedLocationDirection.location.getLatitude() + ","
+        // + speedLocationDirection.location.getLongitude() + "]");
         // update in EDT
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 speed = speedLocationDirection.speed;
                 direction = speedLocationDirection.direction;
-                lastLocation = speedLocationDirection.location;
-                Spot.log.debug("Gonna update speed and directions variables in EDT "
-                        + SwingUtilities.isEventDispatchThread());
+                lastLocations = speedLocationDirection.locations;
+                // Spot.log.debug("Gonna update " + messages.first().id + " with " + speed + " m/s, at "
+                // + lastLocation.toString());
             }
         });
     }
@@ -103,9 +105,12 @@ public class Spot {
      */
     private LocationSpeedDirection setSpeedMpsAndDirection(TreeSet<SpotMessage> messages) {
         if (messages.size() == 1) {
-            Spot.log.debug("Just one message");
+            // Spot.log.debug("Just one message");
+            LocationType location = new LocationType(messages.first().latitude, messages.first().longitude);
+            ArrayList<LocationType> locations = new ArrayList<LocationType>();
+            locations.add(location);
             return new LocationSpeedDirection(LocationSpeedDirection.NO_VALUE_F, -LocationSpeedDirection.NO_VALUE_D,
-                    new LocationType(messages.first().latitude, messages.first().longitude));
+                    locations);
         }
 
         long elapsedTime;
@@ -114,6 +119,7 @@ public class Spot {
         double distanceInMeters, speedMeterSecond;
         SpotMessage tmpMsg;
         LocationType tmpLocation, prevLocation;
+        ArrayList<LocationType> locations = new ArrayList<LocationType>();
         SpotMessage prevMsg = null;
         tmpLocation = prevLocation = null;
         Vector3f sumDirVector = new Vector3f(0f, 0f, 0f);
@@ -122,6 +128,7 @@ public class Spot {
         for (Iterator<SpotMessage> it = messages.iterator(); it.hasNext();) {
             tmpMsg = it.next();
             tmpLocation = new LocationType(tmpMsg.latitude, tmpMsg.longitude);// tmpMsg.getLocation();
+            locations.add(tmpLocation);
             numMeasurements++;
             if (prevMsg != null) {
                 distanceInMeters = tmpLocation.getDistanceInMeters(prevLocation);
@@ -135,11 +142,12 @@ public class Spot {
                         movementVectorArray[1]),
                         0f);
                 movementVector = movementVector.divide(movementVector.length());
-                Spot.log.debug("Direction: (" + movementVectorArray[0] + ", " + movementVectorArray[1] + ")  --> ("
-                        + movementVector.x + ", " + movementVector.y + ")");
+                // Spot.log.debug("Direction: (" + movementVectorArray[0] + ", " + movementVectorArray[1] + ")  --> ("
+                // + movementVector.x + ", " + movementVector.y + ")");
                 // weighted sum
                 sumDirVector.x = movementVector.x * numMeasurements;
                 sumDirVector.y = movementVector.y * numMeasurements;
+
 
                 // latDif = tmpLocation.getLatitudeAsDoubleValueRads() - prevLocation.getLatitudeAsDoubleValueRads();
                 // lonDif = tmpLocation.getLongitudeAsDoubleValueRads() - prevLocation.getLongitudeAsDoubleValueRads();
@@ -158,7 +166,7 @@ public class Spot {
         double finalDirection = Math.atan(sumDirVector.y / sumDirVector.x);
         log.debug("finalSpeed " + finalSpeed + ", direction: (" + sumDirVector.x + ", " + sumDirVector.y + ")"
                 + finalDirection);
-        return new LocationSpeedDirection(finalSpeed, finalDirection, prevLocation);
+        return new LocationSpeedDirection(finalSpeed, finalDirection, locations);
     }
 
     static double gamma(double z) {
@@ -170,7 +178,17 @@ public class Spot {
 
 
     public LocationType getLastLocation() {
-        return lastLocation;
+        int size = lastLocations.size();
+        if (size > 0) {
+            return lastLocations.get(size - 1);
+        }
+        else {
+            return null;
+        }
+    }
+
+    public ArrayList<LocationType> getLastLocations() {
+        return lastLocations;
     }
 
     public String getName() {
@@ -211,18 +229,19 @@ public class Spot {
         public final static double NO_VALUE_D = -1;
         public final double direction;
         public final Float speed;
-        public final LocationType location;
+        public final ArrayList<LocationType> locations;
 
         /**
          * @param latitude
          * @param longitude
          */
-        public LocationSpeedDirection(float speed, double direction, LocationType location) {
+        public LocationSpeedDirection(float speed, double direction, ArrayList<LocationType> locations) {
             super();
             this.speed = speed;
             this.direction = direction;
-            this.location = location;
+            this.locations = locations;
         }
     }
+
 }
 

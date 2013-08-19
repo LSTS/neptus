@@ -55,7 +55,7 @@ public class CommunicationsControlsProvider implements PropertiesProvider {
 
         Vector<DefaultProperty> props = new Vector<DefaultProperty>();
 
-        for (ConsoleSystem j : console.getConsoleSystems().values()) {
+        for (ConsoleSystem j : console.getSystems().values()) {
             if (CommUtil.isProtocolSupported(j.getVehicleId(), CommMean.IMC))
                 props.add(PropertiesEditor.getPropertyInstance(j.getVehicleId(), "IMC Communications", Boolean.class,
                         j.isNeptusCommunications(), true));
@@ -67,7 +67,7 @@ public class CommunicationsControlsProvider implements PropertiesProvider {
     public void setProperties(Property[] properties) {
 
         for (Property p : properties) {
-            for (ConsoleSystem j : console.getConsoleSystems().values()) {
+            for (ConsoleSystem j : console.getSystems().values()) {
                 if (j.getVehicleId().equals(p.getName())) {
 
                     if (p.getCategory().equals("IMC Communications")) {

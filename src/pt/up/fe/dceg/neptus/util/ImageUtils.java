@@ -328,7 +328,7 @@ public class ImageUtils {
             return new ImageIcon(img);
         }
         catch (Exception e) {
-            NeptusLog.pub().error(e);
+            NeptusLog.pub().error(e.getStackTrace());
             return new ImageIcon(getImage("images/menus/no.png"));
         }
     }

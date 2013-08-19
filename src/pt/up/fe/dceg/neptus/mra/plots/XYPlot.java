@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.mra.plots;
 
 import org.jfree.data.xy.XYSeries;
 
+import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
@@ -97,7 +98,7 @@ public class XYPlot extends Mra2DPlot {
     
     @Override
     public String getName() {
-        return "XY";
+        return I18n.text("XY");
     }
 
     @Override
