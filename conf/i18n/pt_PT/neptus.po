@@ -5735,23 +5735,21 @@ msgstr "POI"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:895
 msgid "Paint SideScan Range Shadow"
-msgstr ""
+msgstr "Pintar Sombra da Cobertura de Sonar de Varrimento Lateral"
 
 #: Description of property 'Enable Info' from
 #: pt.up.fe.dceg.neptus.plugins.position.painter.SystemInfoPainter
-#, fuzzy
 msgid "Paint Vehicle Information on panel"
-msgstr "Pintar Informação de Veiculo no Painel"
+msgstr "Pintar Informação de Veiculo no painel"
 
 #: Description of property 'Enable Alarm' from
 #: pt.up.fe.dceg.neptus.plugins.position.painter.SystemInfoPainter
-#, fuzzy
 msgid "Paint border on alarm state"
 msgstr "Pintar o bordo em estado de alarme"
 
 #: src/pt/up/fe/dceg/neptus/renderer3d/ProjectionPropertiesProvider.java:61
 msgid "Pan angle"
-msgstr ""
+msgstr "Ângulo parorâmico"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.uavs.panels.UavAltitudePanel
 msgid "Panel measuring units"
@@ -8803,7 +8801,6 @@ msgid "Tiles Loading: %tiles of %totalTiles"
 msgstr "A Carregar Tiles: %tiles de %totalTiles"
 
 #: src/pt/up/fe/dceg/neptus/renderer3d/ProjectionPropertiesProvider.java:63
-#, fuzzy
 msgid "Tilt angle"
 msgstr "Ângulo de inclinação"
 
