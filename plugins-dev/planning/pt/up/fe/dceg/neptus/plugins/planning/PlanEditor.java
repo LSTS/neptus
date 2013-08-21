@@ -1358,8 +1358,8 @@ MissionChangeListener {
                     manager.addEdit(edit);
                 }
 
-                getPropertiesPanel().setManeuver(selectedManeuver);
                 getPropertiesPanel().setPlan(plan);
+                getPropertiesPanel().setManeuver(selectedManeuver);
                 getPropertiesPanel().setManager(manager);
 
                 getPropertiesPanel().getEditBtn().setEnabled(selectedManeuver instanceof StateRendererInteraction);

@@ -89,7 +89,7 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
        for(EntityParameter ep : param.getParams()) {
            SystemProperty p = params.get(section + "." + ep.getName());
            if(p == null) {
-               NeptusLog.pub().warn("Property not in config: " + section + ep.getName());
+               NeptusLog.pub().warn("Property not in config: " + section + "." + ep.getName());
            }
            else {
                boolean isList = false;
@@ -117,7 +117,7 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
                 sp.resetToDefault();
                 
                 String name = sp.getName();
-                params.put(sp.getCategory() + "." + name, sp);
+                params.put(sp.getCategoryId() + "." + name, sp);
 
                 sp.addPropertyChangeListener(this);
 
