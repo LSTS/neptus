@@ -55,4 +55,11 @@ public class I18nSystemPropertyRenderer extends SystemPropertyRenderer {
         String i18nString = i18nMapper.get(value);
         return super.getTableCellRendererComponent(table, i18nString == null ? value : i18nString, false, hasFocus, row, column);
     }
+    
+    /**
+     * @return the i18nMapper
+     */
+    public HashMap<String, String> getI18nMapper() {
+        return i18nMapper;
+    }
 }

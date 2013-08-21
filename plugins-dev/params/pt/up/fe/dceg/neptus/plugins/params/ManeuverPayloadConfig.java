@@ -40,16 +40,20 @@ import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
+import pt.up.fe.dceg.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.up.fe.dceg.neptus.imc.EntityParameter;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SetEntityParameters;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Scope;
 import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Visibility;
+import pt.up.fe.dceg.neptus.plugins.params.renderer.I18nSystemPropertyRenderer;
+import pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
+import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
 /**
  * @author zp
@@ -123,6 +127,16 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
 
                 if (sp.getEditor() != null) {
                     psp.getEditorRegistry().registerEditor(sp, sp.getEditor());
+                }
+                if (sp.getRenderer() != null) {
+                    DefaultCellRenderer rend;                    
+                    if(sp.getRenderer() instanceof I18nSystemPropertyRenderer) {
+                        I18nSystemPropertyRenderer rendSProp = (I18nSystemPropertyRenderer) sp.getRenderer();
+                        I18nCellRenderer newRend = new I18nCellRenderer(rendSProp.getUnitsStr());
+                        newRend.setI18nMapper(rendSProp.getI18nMapper());
+                        rend = newRend;
+                        psp.getRendererRegistry().registerRenderer(sp, rend);
+                    }
                 }
             }
             

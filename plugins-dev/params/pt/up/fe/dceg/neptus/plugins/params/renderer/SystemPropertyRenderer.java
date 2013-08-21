@@ -96,4 +96,11 @@ public class SystemPropertyRenderer extends DefaultCellRenderer {
             setEvenBackgroundColor(dirtyColor);
         }
     }
+    
+    /**
+     * @return the unitsStr
+     */
+    public String getUnitsStr() {
+        return unitsStr;
+    }
 }
