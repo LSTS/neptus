@@ -115,6 +115,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
         layers.add(new TrexReplay());
         layers.add(markersReplay);
         layers.add(new BathymetryReplay());
+        layers.add(new AnnouncesReplay());
 //        layers.add(new DeltaTReplayLayer());
     }
     
