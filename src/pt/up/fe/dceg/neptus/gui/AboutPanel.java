@@ -27,7 +27,7 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: Paulo Dias
- * 5/Mar/2005
+ * 5/03/2005
  */
 package pt.up.fe.dceg.neptus.gui;
 
@@ -63,8 +63,8 @@ public class AboutPanel extends JFrame {
 
     private static final String COPY_YEARS = "2004-2013";
 
-    private String mainDevelopers = "Paulo Dias, José Pinto, Sérgio Ferreira, José Correia, Hugo Dias, Margarida Faria";
-    private String contributersDevelopers = "Ricardo Martins";
+    private String mainDevelopers = "Paulo Dias, José Pinto, José Correia, Hugo Dias, Margarida Faria";
+    private String contributersDevelopers = "Ricardo Martins, Sérgio Ferreira";
     private String pastDevelopers = "Rui Gonçalves, Eduardo Marques";
 
     private JPanel contentPanel = null;
