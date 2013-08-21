@@ -949,7 +949,7 @@ msgstr "Baud Rate"
 msgctxt "This will be a tooltip, and use <br> to change line."
 msgid ""
 "Be careful changing these values.<br>They may make the vehicle inoperable."
-msgstr ""
+msgstr "Tenha cuidado ao alterar estes valores.<br>Eles podem tornar o veículo inoperável."
 
 #: src/pt/up/fe/dceg/neptus/gui/SimpleTransponderPanel.java:94
 msgid "Beacon Name"
@@ -1869,7 +1869,7 @@ msgstr "POR_DEFEITO"
 
 #: Field from ManeuverLocation.Z_UNITS enumeration
 msgid "DEPTH"
-msgstr "PROFUNCIDIDADE"
+msgstr "PROFUNDIDADE"
 
 #: Field from ConsoleEventVehicleStateChanged.STATE enumeration
 msgid "DISCONNECTED"
@@ -4142,8 +4142,7 @@ msgstr "Limites de operacional local tem alterações"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:216
 msgid "Local reset. Needs to be sent to system."
-msgstr ""
-"Retornar aos valores pré-definidos (local). Necessitam de ser enviados para "
+msgstr "Retornar aos valores pré-definidos (local). Necessitam de ser enviados para "
 "o sistema."
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanExecutionPreview.java:153
@@ -6759,7 +6758,7 @@ msgstr "Guardado em '%filePath'"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:205
 msgid "Saves the visible entities sections in the vehicle."
-msgstr ""
+msgstr "Guarda as secções vísiveis das entidades no veículo."
 
 #: src/pt/up/fe/dceg/neptus/gui/objparams/ImageObjectParameters.java:271
 msgid "Scale (m/pixel):"
@@ -6958,7 +6957,7 @@ msgstr "Enviar actualizações de dispositivo"
 
 #: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemConfigurationEditorPanel.java:185
 msgid "Send the modified properties."
-msgstr "Enviar as propriedades alteradas"
+msgstr "Enviar as propriedades alteradas."
 
 #: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/OperationLimitsSubPanel.java:186
 msgid "Send to Vehicle"
