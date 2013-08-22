@@ -1358,7 +1358,7 @@ MissionChangeListener {
                     manager.addEdit(edit);
                 }
 
-                getPropertiesPanel().setPlan(plan);
+                getPropertiesPanel().setPlan(plan); // This call has to be before setManeuver (pdias 20130822)
                 getPropertiesPanel().setManeuver(selectedManeuver);
                 getPropertiesPanel().setManager(manager);
 
