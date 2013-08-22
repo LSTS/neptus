@@ -195,14 +195,12 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
 
         for (Maneuver m : allMans) {
             if (m instanceof LocatedManeuver) {
-
                 if (!includeThisManeuver && m.getId().equals(getId()))
                     continue;
 
                 double dist = ((LocatedManeuver) m).getManeuverLocation().getHorizontalDistanceInMeters(myPos);
                 if ((float) dist < 0.01)
                     samePosMans.add(m);
-
             }
         }
 
@@ -210,7 +208,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     }
 
     public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
-
         if (this instanceof LocatedManeuver) {
             if (planElement.isBeingEdited()) {
                 g2d.setPaint(paint2);
@@ -225,6 +222,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             g2d.setPaint(paint1);
             g2d.fill(ellis);
         }
+        
         if (planElement.getActiveManeuver() != null && planElement.getActiveManeuver().equals(getId())) {
             g2d.setColor(Color.yellow);
             g2d.fill(activeRect);
@@ -242,20 +240,20 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             else {
                 g2d.setColor(Color.green.darker().darker());
                 g2d.fill(biggerEllis);
-
             }
         }
+        
         if (planElement.getSelectedManeuver() != null && planElement.getSelectedManeuver().equals(getId())) {
             g2d.setPaint(paint4);
             g2d.fill(biggerEllis);
             g2d.setColor(new Color(150, 0, 0));
             g2d.draw(biggerEllis);
         }
-
         else {
             g2d.setColor(Color.black);
             g2d.draw(ellis);
         }
+
         if (this instanceof LocatedManeuver) {
             ManeuverLocation loc = ((LocatedManeuver) this).getManeuverLocation();
             // g2d.setPaint(paint1);
@@ -277,8 +275,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                         g2d.setColor(Color.cyan.brighter());
                         g2d.draw(new Line2D.Double(-6, -6, 6, -6));    
                     }
-                    
-
                     break;
                 case HEIGHT:
                     g2d.setColor(Color.white);
