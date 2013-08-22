@@ -3549,7 +3549,7 @@ msgstr "Mostrador de Câmara IP"
 
 #: src/pt/up/fe/dceg/neptus/util/comm/manager/imc/MonitorIMCComms.java:414
 msgid "IP:"
-msgstr "IP: "
+msgstr "IP:"
 
 #: src/pt/up/fe/dceg/neptus/util/logdownload/DownloaderHelp.java:115
 msgid "Icons Description Help"
@@ -3642,11 +3642,12 @@ msgstr ""
 msgid ""
 "If true, the program output will be augmented with more info (mainly for "
 "problem solving)."
-msgstr ""
+msgstr "Se verdade, a saída do programa será aumentada com mais informação "
+"(sobretudo para resolução de problemas)."
 
 #: Property from pt.up.fe.dceg.neptus.plugins.envdisp.HFRadarVisualization
 msgid "Ignore data limit validity to load data"
-msgstr ""
+msgstr "Ignorar o limite de validade dos dados para os carregar"
 
 #: Property from pt.up.fe.dceg.neptus.console.plugins.GPSPanel
 msgid "Ignore heading if speed < X m/s"
@@ -3675,7 +3676,7 @@ msgstr "Imagem guardada em %filename"
 
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/BathymetryPlotter.java:296
 msgid "Image width"
-msgstr "Largura"
+msgstr "Largura da imagem"
 
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:611
 msgid "Images acompanied by world file"
@@ -3694,7 +3695,7 @@ msgstr "Em graus, um desvio para norte no sentido dos ponteiros do relógio"
 #: plugins-dev/imu-alignment/pt/up/fe/dceg/neptus/plugins/alignment/ImuAlignmentPanel.java:195
 msgid "In order to execute dead reckoning missions, IMU must first be aligned."
 msgstr ""
-"Para executat missões em dead reckoning, o IMU tem que ser alinhado primeiro."
+"Para executar missões em dead reckoning, o IMU tem que ser alinhado primeiro."
 
 #: src/pt/up/fe/dceg/neptus/console/actions/IncomingDataAction.java:69
 #: src/pt/up/fe/dceg/neptus/console/actions/IncomingDataAction.java:82
