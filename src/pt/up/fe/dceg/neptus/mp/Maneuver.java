@@ -300,16 +300,16 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             double depth = loc.getZ();
             switch (loc.getZUnits()) {
                 case ALTITUDE:
-                    depthStr = "[altitude: " + depth + "m]";
+                    depthStr = "[" + I18n.text("altitude") + ": " + depth + I18n.textc("m", "meters") + "]";
                     break;
                 case DEPTH:
-                    depthStr = "[depth: " + depth + "m]";
+                    depthStr = "[" + I18n.text("depth") + ": " + depth + I18n.textc("m", "meters") + "]";
                     break;
                 case HEIGHT:
-                    depthStr = "[height: " + depth + "m]";
+                    depthStr = "[" + I18n.text("height") + ": " + depth + I18n.textc("m", "meters") + "]";
                     break;
                 default:
-                    depthStr = "[z: " + depth + "m]";
+                    depthStr = "[" + I18n.textc("z", "Maneuver's z value") + ": " + depth + I18n.textc("m", "meters") + "]";
                     break;
             }
             text += depthStr;
