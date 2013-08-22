@@ -108,9 +108,13 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     }
 
     public static enum ValueTypeEnum {
-        STRING("string"), INTEGER("integer"), REAL("real"), BOOLEAN("boolean");
+        STRING(I18n.textmark("string")), INTEGER(I18n.textmark("integer")), REAL(I18n.textmark("real")), BOOLEAN(I18n.textmark("boolean"));
         private String text;
 
+        {
+            I18n.textmark("list"); // just marking for translation
+        }
+        
         ValueTypeEnum(String text) {
           this.text = text;
         }
