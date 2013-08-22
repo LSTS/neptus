@@ -52,4 +52,14 @@ public class BooleanSystemPropertyRenderer extends SystemPropertyRenderer {
         checkBox.setBackground(comp.getBackground());
         return checkBox;
     }
+    
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer#clone()
+     */
+    @Override
+    public BooleanSystemPropertyRenderer clone() throws CloneNotSupportedException {
+        BooleanSystemPropertyRenderer clone = (BooleanSystemPropertyRenderer) super.clone();
+        clone.checkBox = new JCheckBox();
+        return clone;
+    }
 }

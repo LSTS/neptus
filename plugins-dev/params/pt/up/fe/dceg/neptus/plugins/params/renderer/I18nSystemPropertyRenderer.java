@@ -62,4 +62,15 @@ public class I18nSystemPropertyRenderer extends SystemPropertyRenderer {
     public HashMap<String, String> getI18nMapper() {
         return i18nMapper;
     }
+    
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer#clone()
+     */
+    @Override
+    public I18nSystemPropertyRenderer clone() throws CloneNotSupportedException {
+        I18nSystemPropertyRenderer clone = (I18nSystemPropertyRenderer) super.clone();
+        clone.i18nMapper = new HashMap<>();
+        clone.i18nMapper.putAll(i18nMapper);
+        return clone;
+    }
 }

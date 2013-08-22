@@ -789,6 +789,15 @@ public class ConfigurationManager {
             sp.setEditor(p.getEditor());
             sp.setName(p.getName());
             sp.setRenderer(p.getRenderer());
+            if (sp.getRenderer() != null && sp.getRenderer() instanceof SystemPropertyRenderer) {
+                try {
+                    DefaultCellRenderer clone = (DefaultCellRenderer) ((SystemPropertyRenderer) sp.getRenderer()).clone();
+                    sp.setRenderer(clone);
+                }
+                catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
             sp.setScope(p.getScope());
             sp.setShortDescription(p.getShortDescription());
             sp.setValue(p.getValue());
