@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.3.0 (HEAD,824c185)" system="adamastor" i18n="ru_RU">
-  <section name="LED4R" name-i18n="LED4R">
+<config format="1" version="2.4.0-rc1 (master,7b62102)" system="adamastor" i18n="ru_RU">
+  <section name="LED Driver" name-i18n="LED Driver">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>LED4R</default>
+      <default>LED Driver</default>
       <units/>
       <desc>Главным образом ярлык лица</desc>
     </param>

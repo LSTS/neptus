@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.3.0 (HEAD,824c185)" system="lauv-dolphin-1" i18n="pt_PT">
+<config format="1" version="2.4.0-rc1 (master,7b62102)" system="lauv-dolphin-1" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -1706,7 +1706,7 @@
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
   </section>
-  <section name="Idle Maneuver" name-i18n="Manobra Ociosa">
+  <section name="Idle Maneuver" name-i18n="Manobra de Espera">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
       <type>string</type>
@@ -4862,7 +4862,7 @@
       <type>ipv4-address</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>192.168.0.5</default>
+      <default>10.0.10.84</default>
       <units/>
       <desc>IP address of the sonar</desc>
     </param>
@@ -4929,13 +4929,13 @@
       <max>150</max>
     </param>
     <param name="Range Multiplier">
-      <name-i18n>Multiplicador de Distância</name-i18n>
+      <name-i18n>Multiplicador de Alcance</name-i18n>
       <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
       <default>1</default>
       <units/>
-      <desc>Multiplicador de distância</desc>
+      <desc>Multiplicador de alcance</desc>
       <min>1</min>
       <max>150</max>
     </param>
