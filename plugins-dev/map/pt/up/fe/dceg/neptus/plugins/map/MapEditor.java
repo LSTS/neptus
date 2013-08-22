@@ -677,20 +677,20 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
                             centerElem.setEnabled(true);
                     }
 
-                    editElem.add(elem.getId() + " [" + elem.getType() + "]").addActionListener(new ActionListener() {
+                    editElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             editElement(elem.getId());
                         }
                     });
-                    removeElem.add(elem.getId() + " [" + elem.getType() + "]").addActionListener(new ActionListener() {
+                    removeElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             removeElement(elem.getId());
                         }
                     });
                     if (renderer != null) {
-                        centerElem.add(elem.getId() + " [" + elem.getType() + "]").addActionListener(
+                        centerElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
                                 new ActionListener() {
                                     @Override
                                     public void actionPerformed(ActionEvent e) {
