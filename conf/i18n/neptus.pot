@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-22 13:50+0100\n"
+"POT-Creation-Date: 2013-08-22 15:57+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3271,7 +3271,7 @@ msgid "Home Longitude"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/FeatureFocuser.java:100
-msgid "Home reference"
+msgid "Home Reference"
 msgstr ""
 
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.GroupLayoutContainer
@@ -6175,6 +6175,7 @@ msgstr ""
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:540
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:401
+#: src/pt/up/fe/dceg/neptus/i18n/I18n.java:253
 msgid "Redo"
 msgstr ""
 
@@ -8851,6 +8852,7 @@ msgstr ""
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:524
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:389
+#: src/pt/up/fe/dceg/neptus/i18n/I18n.java:254
 msgid "Undo"
 msgstr ""
 

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-22 13:50+0100\n"
-"PO-Revision-Date: 2013-08-22 14:39+0100\n"
+"POT-Creation-Date: 2013-08-22 15:57+0100\n"
+"PO-Revision-Date: 2013-08-22 15:58+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
@@ -3340,7 +3340,7 @@ msgid "Home Longitude"
 msgstr "Longitude Base"
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/FeatureFocuser.java:100
-msgid "Home reference"
+msgid "Home Reference"
 msgstr "Localização Base"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.GroupLayoutContainer
@@ -6276,6 +6276,7 @@ msgstr ""
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:540
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:401
+#: src/pt/up/fe/dceg/neptus/i18n/I18n.java:253
 msgid "Redo"
 msgstr "Refazer"
 
@@ -8996,6 +8997,7 @@ msgstr "Incapaz de iniciar o dispositivo de som MIDI"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:524
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:389
+#: src/pt/up/fe/dceg/neptus/i18n/I18n.java:254
 msgid "Undo"
 msgstr "Desfazer"
 

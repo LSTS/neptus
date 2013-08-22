@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-22 13:50+0100\n"
-"PO-Revision-Date: 2013-08-22 13:52+0100\n"
+"POT-Creation-Date: 2013-08-22 15:57+0100\n"
+"PO-Revision-Date: 2013-08-22 15:58+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: ru\n"
@@ -4069,7 +4069,7 @@ msgstr "Главная долгота"
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/FeatureFocuser.java:100
 #, fuzzy
-msgid "Home reference"
+msgid "Home Reference"
 msgstr "Главная ссылки"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.GroupLayoutContainer
@@ -7654,6 +7654,7 @@ msgstr "Redirect Unknown Comms. To First Vehicle In Comm. Список"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:540
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:401
+#: src/pt/up/fe/dceg/neptus/i18n/I18n.java:253
 #, fuzzy
 msgid "Redo"
 msgstr "Redo"
@@ -10974,6 +10975,7 @@ msgstr "Unable to start MIDI sound device"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:524
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:389
+#: src/pt/up/fe/dceg/neptus/i18n/I18n.java:254
 #, fuzzy
 msgid "Undo"
 msgstr "Аннулировать"
