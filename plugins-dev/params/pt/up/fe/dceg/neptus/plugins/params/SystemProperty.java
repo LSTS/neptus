@@ -49,61 +49,54 @@ import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 public class SystemProperty extends DefaultProperty implements PropertyChangeListener {
     private static final long serialVersionUID = 1L;
      
-    private static String[] scopeStrings = {
-        I18n.textmark("global"),
-        I18n.textmark("idle"),
-        I18n.textmark("plan"),
-        I18n.textmark("maneuver")
-    };
-    
     public static enum Scope {
-        GLOBAL(scopeStrings[0]), IDLE(scopeStrings[1]), PLAN(scopeStrings[2]), MANEUVER(scopeStrings[3]);
-        
+        GLOBAL(I18n.textmark("global")), IDLE(I18n.textmark("idle")), PLAN(I18n.textmark("plan")), MANEUVER(I18n.textmark("maneuver"));
+
         private String text;
 
         Scope(String text) {
-          this.text = text;
+            this.text = text;
         }
 
         public String getText() {
-          // return I18n.text(this.text);
-          return this.text;
+            // return I18n.text(this.text);
+            return this.text;
         }
 
         public static Scope fromString(String text) {
-          if (text != null) {
-            for (Scope b : Scope.values()) {
-              // if (text.equalsIgnoreCase(I18n.text(b.text))) {
-              if (text.equalsIgnoreCase(b.text)) {
-                return b;
-              }
+            if (text != null) {
+                for (Scope b : Scope.values()) {
+                    // if (text.equalsIgnoreCase(I18n.text(b.text))) {
+                    if (text.equalsIgnoreCase(b.text)) {
+                        return b;
+                    }
+                }
             }
-          }
-          return null;
+            return null;
         }
     }
-    
+
     public static enum Visibility {
         USER("user"), DEVELOPER("developer");
         private String text;
 
         Visibility(String text) {
-          this.text = text;
+            this.text = text;
         }
 
         public String getText() {
-          return this.text;
+            return this.text;
         }
 
         public static Visibility fromString(String text) {
-          if (text != null) {
-            for (Visibility b : Visibility.values()) {
-              if (text.equalsIgnoreCase(b.text)) {
-                return b;
-              }
+            if (text != null) {
+                for (Visibility b : Visibility.values()) {
+                    if (text.equalsIgnoreCase(b.text)) {
+                        return b;
+                    }
+                }
             }
-          }
-          return null;
+            return null;
         }
     }
 
