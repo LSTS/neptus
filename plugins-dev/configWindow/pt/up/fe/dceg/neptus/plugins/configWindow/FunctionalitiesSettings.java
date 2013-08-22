@@ -499,13 +499,15 @@ public class FunctionalitiesSettings extends JPanel {
         PluginDescription pluginAnnotation = funcClass.getClass().getAnnotation(PluginDescription.class);
         String name, icon;
         if (pluginAnnotation == null) {
-            name = funcClass.getClass().getSimpleName();
+            // name = funcClass.getClass().getSimpleName();
+            name = funcClass.getPropertiesDialogTitle();
             icon = "";
         }
         else {
             name = pluginAnnotation.name();
             if (name == null || name.length() == 0) {
-                name = funcClass.getClass().getSimpleName();
+                // name = funcClass.getClass().getSimpleName();
+                name = funcClass.getPropertiesDialogTitle();
                 char firstLetter = Character.toUpperCase(name.charAt(0));
                 name = firstLetter + name.substring(1);
             }
@@ -607,10 +609,6 @@ public class FunctionalitiesSettings extends JPanel {
         else {
             displayName = nameRaw;
         }
-        // signal the scope is the whole Neptus
-        if (class1.getClass().equals(GeneralPreferences.class)) {
-            displayName = "* " + displayName;
-        }
         // Type
         Class<?> type = f.getType();
 
@@ -625,7 +623,11 @@ public class FunctionalitiesSettings extends JPanel {
             pp.setEditable(true);
         }
         // Display name
-        displayName = I18n.text(displayName);
+        // signal the scope is the whole Neptus
+        if (class1.getClass().equals(GeneralPreferences.class))
+            displayName = "* " + I18n.text(displayName);
+        else
+            displayName = I18n.text(displayName);
         pp.setDisplayName(displayName);
         // Category
         if (neptusProperty.category() != null) {
