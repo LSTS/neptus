@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-22 11:02+0100\n"
-"PO-Revision-Date: 2013-08-22 11:03+0100\n"
+"POT-Creation-Date: 2013-08-22 13:50+0100\n"
+"PO-Revision-Date: 2013-08-22 14:39+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
@@ -775,13 +775,13 @@ msgstr "Aplicação iniciada"
 msgid "Approach to ignore points on Multibeam 3D"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1158
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1159
 msgid "Are you sure you want to delete selected log files from remote system?"
 msgstr ""
 "Tem a certeza que quer apagar ficheiros de log selecionados do sistema "
 "remoto?"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1078
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1079
 msgid ""
 "Are you sure you want to delete selected log folders from remote system?"
 msgstr ""
@@ -903,7 +903,7 @@ msgstr "Orientação Base"
 msgid "Base URI Path: "
 msgstr "Caminho URI Base:"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:412
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:413
 msgid "Basic log folder not synchronized. Can't open MRA"
 msgstr "Pasta de Log básico não sincronizada. Não é possível abrir o MRA"
 
@@ -1479,7 +1479,7 @@ msgid "Config"
 msgstr "Configuração"
 
 #: src/pt/up/fe/dceg/neptus/gui/SimpleTransponderPanel.java:97
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:465
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:466
 msgid "Configuration"
 msgstr "Configuração"
 
@@ -1575,7 +1575,7 @@ msgstr "Ligar com Hospedeiro Remoto"
 msgid "Connecting"
 msgstr "A ligar"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:674
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:675
 msgid "Connecting to remote system for log list update..."
 msgstr "A ligar com sistema remoto para actualização de lista de log..."
 
@@ -1669,7 +1669,7 @@ msgstr "Marcador de Contactos"
 msgid "Contact info:"
 msgstr "Informação de contacto:"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:817
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:818
 msgid "Contacting remote system for complete log file list..."
 msgstr "A contactar sistema remoto para lista de ficheiro log completa..."
 
@@ -1985,11 +1985,11 @@ msgstr "Apagar"
 msgid "Delete '%transponderName'?"
 msgstr "Apagar '%transponderName'?"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:457
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:458
 msgid "Delete Selected Log Files"
 msgstr "Apagar Ficheiros de Log Seleccionados"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:452
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:453
 msgid "Delete Selected Log Folders"
 msgstr "Apagar Pastas de Log Seleccionadas"
 
@@ -2218,8 +2218,8 @@ msgstr "Não usar este elemento de topo (isto é informativo)"
 
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/BathymetryPlotter.java:411
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:435
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:728
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:940
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:729
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:941
 msgid "Done"
 msgstr "Concluído"
 
@@ -2945,7 +2945,7 @@ msgstr ""
 msgid "Filter to Show Only Main Vehicle's Piccolo Waypoints"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:765
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:766
 msgid "Filtering list..."
 msgstr "A filtrar lista..."
 
@@ -4202,7 +4202,7 @@ msgstr "Ficheiros de Log"
 msgid "Log Folders"
 msgstr "Pastas de Log"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:731
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:732
 msgid "Log Folders: %numberoffolders"
 msgstr "Pastas de Logs: %numberoffolders"
 
@@ -4738,7 +4738,7 @@ msgstr "Area de Perigo de Mina"
 
 #: Map element type (class MineDangerAreaElement)
 msgid "MineDangerAreaElement"
-msgstr "ElementoDeAreaDePerigoDeMina "
+msgstr "Elemento de Area de Perigo de Mina"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/MapPanel.java:462
 msgid "Minimize"
@@ -5178,7 +5178,7 @@ msgstr "Nenhuma pré-definição encontrada para campo %fieldName"
 msgid "No extra info"
 msgstr "Sem informação extra"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:753
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:754
 msgid "No logs..."
 msgstr "Sem Logs..."
 
@@ -5356,7 +5356,7 @@ msgstr ""
 
 #: Field from ImcSystem.IMCAuthorityState enumeration
 msgid "OFF"
-msgstr "OFF"
+msgstr "DESLIGADO"
 
 #: plugins-dev/gps/pt/up/fe/dceg/neptus/plugins/gps/ConfigDialog.java:96
 #: plugins-dev/oplimits/pt/up/fe/dceg/neptus/plugins/oplimits/RectangleEditor.java:104
@@ -5561,15 +5561,15 @@ msgstr "Resultado"
 
 #: plugins-dev/logs/pt/up/fe/dceg/neptus/plugins/logs/LogMerger.java:154
 msgid "Output directory:"
-msgstr ""
+msgstr "Pasta destino:"
 
 #: Field from ImcSystem.IMCAuthorityState enumeration
 msgid "PAYLOAD"
-msgstr ""
+msgstr "CARGA"
 
 #: Field from ImcSystem.IMCAuthorityState enumeration
 msgid "PAYLOAD_MONITOR"
-msgstr ""
+msgstr "MONITORAR_CARGA"
 
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:574
 msgid "PDF <b>was not</b> saved to file."
@@ -5977,7 +5977,7 @@ msgstr "Processamento completo."
 msgid "Processing data..."
 msgstr "A processar dados..."
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:821
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:822
 msgid "Processing log list..."
 msgstr "A processar lista de logs..."
 
@@ -6277,11 +6277,11 @@ msgstr ""
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:540
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:401
 msgid "Redo"
-msgstr "Desfazer"
+msgstr "Refazer"
 
 #: src/pt/up/fe/dceg/neptus/console/plugins/SystemsList.java:503
 msgid "Redo Selection"
-msgstr "Desfazer Selecção"
+msgstr "Refazer Selecção"
 
 #: src/pt/up/fe/dceg/neptus/mra/MraChartPanel.java:149
 msgid "Redraw"
@@ -6330,10 +6330,10 @@ msgstr "Re-Carregar"
 msgid "Reload Panel"
 msgstr "Re-Carregar Painel"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1081
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1160
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1082
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1161
 msgid "Remote Delete Confirmation"
-msgstr "Confirmação de Apagar Remota"
+msgstr "Confirmação de Apagar Remoto"
 
 #: Name of plugin pt.up.fe.dceg.neptus.plugins.logs.RemoteHistory
 #: plugins-dev/logs/pt/up/fe/dceg/neptus/plugins/logs/RemoteHistory.java:113
@@ -6629,11 +6629,11 @@ msgstr "SENSORESTÁTICO"
 
 #: Field from ImcSystem.IMCAuthorityState enumeration
 msgid "SYSTEM_FULL"
-msgstr "SISTEMA_CHEIO"
+msgstr "SISTEMA_COMPLETO"
 
 #: Field from ImcSystem.IMCAuthorityState enumeration
 msgid "SYSTEM_MONITOR"
-msgstr "MONITOR_SISTEMA"
+msgstr "MONITORAR_SISTEMA"
 
 #: src/pt/up/fe/dceg/neptus/mra/plots/SalinityVsDepthPlot.java:53
 msgid "Salinity VS Depth"
@@ -7236,7 +7236,7 @@ msgstr "Mostrar Icones de Sistemas Externos"
 msgid "Show GPS Fix Icon"
 msgstr "Mostrar ícone de GPS Fix"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:509
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:510
 msgid "Show Help"
 msgstr "Mostrar Ajuda"
 
@@ -7430,11 +7430,11 @@ msgstr "Mostrar vento"
 msgid "Show world map"
 msgstr "Mostrar mapa mundo"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:499
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:500
 msgid "Show/Hide Configuration Panel"
 msgstr "Mostrar/Esconder Painel de Configurações"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:504
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:505
 msgid "Show/Hide Download Panel"
 msgstr "Mostrar/Esconder Painel do Descarregador"
 
@@ -7736,7 +7736,7 @@ msgstr "A iniciar Renderers"
 msgid "Starting up"
 msgstr "A iniciar"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:658
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:659
 #: src/pt/up/fe/dceg/neptus/util/logdownload/DownloaderPanel.java:516
 #: src/pt/up/fe/dceg/neptus/util/logdownload/DownloaderPanel.java:649
 msgid "Starting..."
@@ -7899,15 +7899,15 @@ msgstr "Sinc. Logs"
 msgid "Sync day Mission Logs"
 msgstr "Sinc. Logs de Missão do dia"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:437
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:438
 msgid "Synchronize List of Log Folders"
 msgstr "Sincronizar Lista de Pastas de Logs"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:447
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:448
 msgid "Synchronize Selected Log Files"
 msgstr "Sincronizar Ficheiros de Log Seleccionados"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:442
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:443
 msgid "Synchronize Selected Log Folders"
 msgstr "Sincronizar Pastas de Log Seleccionadas"
 
@@ -8135,7 +8135,7 @@ msgstr "A Longitude de Graus Décimais é invalida"
 #: Description of property 'Camera IP' from
 #: pt.up.fe.dceg.neptus.plugins.ipcam.AirCamDisplay
 msgid "The IP address of the camera you want to display"
-msgstr "O endereço IP da camara que quer mostrar"
+msgstr "O endereço IP da câmara que quer mostrar"
 
 #: src/pt/up/fe/dceg/neptus/gui/LatLongSelector.java:531
 msgid "The Latitude/Longitude parameters are not valid"
@@ -8825,12 +8825,16 @@ msgstr ""
 
 #: Property from pt.up.fe.dceg.neptus.plugins.position.SpeedPanel
 msgid "True or Indicated Speed"
-msgstr "Verdadeiro ou Velocidade Indicada"
+msgstr "Velocidade Verdadeira ou Indicada"
 
 #: Description of property 'Hide or fade the old ranges' from
 #: pt.up.fe.dceg.neptus.plugins.acoustic.LBLRangeDisplay
 msgid "True to hide the range and false to fade when display time elapses."
 msgstr ""
+
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:324
+msgid "Turn on/off camera CPU"
+msgstr "(Ligar/desligar CPU da câmara."
 
 #: Property from pt.up.fe.dceg.neptus.plugins.trex.TrexMapLayer
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:204
@@ -9064,11 +9068,11 @@ msgstr "Actualizar navios"
 msgid "Updating AIS layer..."
 msgstr "A actualizar camada AIS..."
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:922
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:923
 msgid "Updating GUI..."
 msgstr "A actualizar GUI..."
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:835
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:836
 msgid "Updating logs info..."
 msgstr "A actualizar info de logs..."
 
@@ -9431,11 +9435,11 @@ msgstr "Mapeamento de Painel de Video"
 
 #: Description of plugin pt.up.fe.dceg.neptus.plugins.ipcam.IPCameraDisplay
 msgid "Video display for Conceptronic IP Camera"
-msgstr "Mostrador de video para camara Conceptronic IP"
+msgstr "Mostrador de video para câmara Conceptronic IP"
 
 #: Description of plugin pt.up.fe.dceg.neptus.plugins.ipcam.AirCamDisplay
 msgid "Video display for Ubiquiti Cameras"
-msgstr "Mostrador de video para camara Ubiquiti"
+msgstr "Mostrador de video para câmara Ubiquiti"
 
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/MraPhotosVisualization.java:501
 msgid "Video saved in %filename"

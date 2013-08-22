@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-22 11:02+0100\n"
+"POT-Creation-Date: 2013-08-22 13:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -754,11 +754,11 @@ msgstr ""
 msgid "Approach to ignore points on Multibeam 3D"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1158
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1159
 msgid "Are you sure you want to delete selected log files from remote system?"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1078
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1079
 msgid ""
 "Are you sure you want to delete selected log folders from remote system?"
 msgstr ""
@@ -878,7 +878,7 @@ msgstr ""
 msgid "Base URI Path: "
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:412
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:413
 msgid "Basic log folder not synchronized. Can't open MRA"
 msgstr ""
 
@@ -1448,7 +1448,7 @@ msgid "Config"
 msgstr ""
 
 #: src/pt/up/fe/dceg/neptus/gui/SimpleTransponderPanel.java:97
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:465
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:466
 msgid "Configuration"
 msgstr ""
 
@@ -1535,7 +1535,7 @@ msgstr ""
 msgid "Connecting"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:674
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:675
 msgid "Connecting to remote system for log list update..."
 msgstr ""
 
@@ -1629,7 +1629,7 @@ msgstr ""
 msgid "Contact info:"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:817
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:818
 msgid "Contacting remote system for complete log file list..."
 msgstr ""
 
@@ -1929,11 +1929,11 @@ msgstr ""
 msgid "Delete '%transponderName'?"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:457
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:458
 msgid "Delete Selected Log Files"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:452
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:453
 msgid "Delete Selected Log Folders"
 msgstr ""
 
@@ -2162,8 +2162,8 @@ msgstr ""
 
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/BathymetryPlotter.java:411
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:435
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:728
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:940
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:729
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:941
 msgid "Done"
 msgstr ""
 
@@ -2880,7 +2880,7 @@ msgstr ""
 msgid "Filter to Show Only Main Vehicle's Piccolo Waypoints"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:765
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:766
 msgid "Filtering list..."
 msgstr ""
 
@@ -4114,7 +4114,7 @@ msgstr ""
 msgid "Log Folders"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:731
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:732
 msgid "Log Folders: %numberoffolders"
 msgstr ""
 
@@ -5083,7 +5083,7 @@ msgstr ""
 msgid "No extra info"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:753
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:754
 msgid "No logs..."
 msgstr ""
 
@@ -5878,7 +5878,7 @@ msgstr ""
 msgid "Processing data..."
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:821
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:822
 msgid "Processing log list..."
 msgstr ""
 
@@ -6229,8 +6229,8 @@ msgstr ""
 msgid "Reload Panel"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1081
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1160
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1082
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1161
 msgid "Remote Delete Confirmation"
 msgstr ""
 
@@ -7120,7 +7120,7 @@ msgstr ""
 msgid "Show GPS Fix Icon"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:509
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:510
 msgid "Show Help"
 msgstr ""
 
@@ -7314,11 +7314,11 @@ msgstr ""
 msgid "Show world map"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:499
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:500
 msgid "Show/Hide Configuration Panel"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:504
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:505
 msgid "Show/Hide Download Panel"
 msgstr ""
 
@@ -7620,7 +7620,7 @@ msgstr ""
 msgid "Starting up"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:658
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:659
 #: src/pt/up/fe/dceg/neptus/util/logdownload/DownloaderPanel.java:516
 #: src/pt/up/fe/dceg/neptus/util/logdownload/DownloaderPanel.java:649
 msgid "Starting..."
@@ -7783,15 +7783,15 @@ msgstr ""
 msgid "Sync day Mission Logs"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:437
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:438
 msgid "Synchronize List of Log Folders"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:447
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:448
 msgid "Synchronize Selected Log Files"
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:442
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:443
 msgid "Synchronize Selected Log Folders"
 msgstr ""
 
@@ -8689,6 +8689,10 @@ msgstr ""
 msgid "True to hide the range and false to fade when display time elapses."
 msgstr ""
 
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:324
+msgid "Turn on/off camera CPU"
+msgstr ""
+
 #: Property from pt.up.fe.dceg.neptus.plugins.trex.TrexMapLayer
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:204
 msgid "Type"
@@ -8919,11 +8923,11 @@ msgstr ""
 msgid "Updating AIS layer..."
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:922
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:923
 msgid "Updating GUI..."
 msgstr ""
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:835
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:836
 msgid "Updating logs info..."
 msgstr ""
 
