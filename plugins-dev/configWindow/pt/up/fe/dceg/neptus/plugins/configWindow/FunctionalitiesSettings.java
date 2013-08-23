@@ -499,15 +499,17 @@ public class FunctionalitiesSettings extends JPanel {
         PluginDescription pluginAnnotation = funcClass.getClass().getAnnotation(PluginDescription.class);
         String name, icon;
         if (pluginAnnotation == null) {
-            // name = funcClass.getClass().getSimpleName();
             name = funcClass.getPropertiesDialogTitle();
+            if (name == null || name.isEmpty())
+                name = funcClass.getClass().getSimpleName();
             icon = "";
         }
         else {
             name = pluginAnnotation.name();
             if (name == null || name.length() == 0) {
-                // name = funcClass.getClass().getSimpleName();
                 name = funcClass.getPropertiesDialogTitle();
+                if (name == null || name.isEmpty())
+                    name = funcClass.getClass().getSimpleName();
                 char firstLetter = Character.toUpperCase(name.charAt(0));
                 name = firstLetter + name.substring(1);
             }
