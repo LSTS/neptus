@@ -3326,10 +3326,9 @@ msgstr "Esconder ou esbater os limites antigos"
 
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:198
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:199
-#, fuzzy
 msgctxt "File system Home folder"
 msgid "Home"
-msgstr "Base"
+msgstr "Pasta Pessoal"
 
 #: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:220
 msgid "Home Latitude"
