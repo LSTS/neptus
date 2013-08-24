@@ -321,6 +321,7 @@ public class LogsDownloaderWorker {
         stopAllButton.addActionListener(stopAllAction);
 
         cameraButton = new JButton();
+        cameraButton.setToolTipText(I18n.text("Turn on/off camera CPU"));
         cameraButton.setIcon(ICON_DOWNLOAD_PHOTO);
         cameraButton.addActionListener(turnCameraOn);
 
@@ -1259,12 +1260,11 @@ public class LogsDownloaderWorker {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 try {
                     String powerChannel = getLogLabel().equals("lauv-xtreme-2") ? "DOAM" : "Camera - CPU";
                     IMCMessage msg = new IMCMessage("PowerChannelControl");
                     msg.setValue("name", powerChannel);
-                    msg.setValue("op", 1);
+                    msg.setValue("op", cameraButton.getBackground() != Color.GREEN ? 1 : 0);
 
                     ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
                 }

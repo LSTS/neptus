@@ -334,7 +334,7 @@ public class GeneralPreferences implements PropertiesProvider {
      */
     @Override
     public String getPropertiesDialogTitle() {
-        return "Neptus General Preferences";
+        return I18n.text("General Preferences");
     }
 
     /*

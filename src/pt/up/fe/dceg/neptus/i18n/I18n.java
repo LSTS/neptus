@@ -249,6 +249,9 @@ public class I18n {
         UIManager.put("ColorChooser.cmykYellowText", I18n.text("Yellow"));
         UIManager.put("ColorChooser.cmykBlackText", I18n.text("Black"));
         UIManager.put("ColorChooser.cmykAlphaText", I18n.text("Alpha"));
+        
+        UIManager.put("AbstractUndoableEdit.redoText", I18n.text("Redo"));
+        UIManager.put("AbstractUndoableEdit.undoText", I18n.text("Undo"));
     }
 
     public static String normalize(String text) {

@@ -355,7 +355,7 @@ public class ConfigurationManager {
                             break;
                         default:
                             String stringTypeStringNotString = type.replaceAll("^list:", "");
-                            if (stringTypeStringNotString.equals("ipv4-address"))
+                            if (stringTypeStringNotString.equals(I18n.textmark("ipv4-address")))
                                 propEditor = ArrayListEditor.forgeString(minSize, maxSize, ArrayListEditor.IP_ADDRESS_PATTERN);
                             else
                                 propEditor = ArrayListEditor.forgeString(minSize, maxSize);
@@ -573,7 +573,9 @@ public class ConfigurationManager {
                 }
 
                 String unitsTxt = units.length() > 0 ? "\n(" + units + ")" : "";
-                String typeTxt = type != null ? "\n[" + type + lstSizeTxt + "]" : "";
+                String typeTxt = type != null ? "\n["
+                        + (type.startsWith("list:") ? I18n.text(type.substring(0, 4)) + ":"
+                                + I18n.text(type.substring(5)) : I18n.text(type)) + lstSizeTxt + "]" : "";
                 String defaultTxt = defaultValue != null ? "\n[" + I18n.text("default") + "=" + defaultValue + units + "]" : "";
                 String minMaxValuesTxt = minMaxStr.length() > 0 ? "[" + minMaxStr + "]" : "";
                 property.setShortDescription(desc + unitsTxt + typeTxt + defaultTxt + minMaxValuesTxt);
@@ -787,6 +789,15 @@ public class ConfigurationManager {
             sp.setEditor(p.getEditor());
             sp.setName(p.getName());
             sp.setRenderer(p.getRenderer());
+            if (sp.getRenderer() != null && sp.getRenderer() instanceof SystemPropertyRenderer) {
+                try {
+                    DefaultCellRenderer clone = (DefaultCellRenderer) ((SystemPropertyRenderer) sp.getRenderer()).clone();
+                    sp.setRenderer(clone);
+                }
+                catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
             sp.setScope(p.getScope());
             sp.setShortDescription(p.getShortDescription());
             sp.setValue(p.getValue());

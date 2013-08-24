@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.gui.editor.renderer;
 
 import java.awt.Component;
+import java.util.HashMap;
 
 import javax.swing.JTable;
 
@@ -50,6 +51,26 @@ public class I18nCellRenderer extends DefaultCellRenderer {
         setShowOddAndEvenRows(false);
     }
 
+    private final String unitsStr;
+
+    protected HashMap<String, String> i18nMapper = null;
+
+    public I18nCellRenderer() {
+        super();
+        unitsStr = null;
+    }
+
+    public I18nCellRenderer(String unitsStr) {
+        super();
+        this.unitsStr = unitsStr;
+    }
+
+    @Override
+    protected String convertToString(Object value) {
+        return (value == null ? "" : super.convertToString(value)) + (unitsStr == null ? "" : " " + unitsStr);
+    }
+
+
     /* (non-Javadoc)
      * @see com.l2fprod.common.swing.renderer.DefaultCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
      */
@@ -61,6 +82,30 @@ public class I18nCellRenderer extends DefaultCellRenderer {
             stringToI18n = (String) value;
         else
             stringToI18n = value.toString();
-        return super.getTableCellRendererComponent(table, I18n.text(stringToI18n), isSelected, hasFocus, row, column);
+    
+        String i18nString = i18nMapper != null ? i18nMapper.get(value) : I18n.text(stringToI18n);
+        return super.getTableCellRendererComponent(table, i18nString == null ? value : i18nString, isSelected, hasFocus, row, column);
+        // return super.getTableCellRendererComponent(table, I18n.text(stringToI18n), isSelected, hasFocus, row, column);
+    }
+    
+    /**
+     * @return the i18nMapper
+     */
+    public HashMap<String, String> getI18nMapper() {
+        return i18nMapper;
+    }
+    
+    /**
+     * @param i18nMapper the i18nMapper to set
+     */
+    public void setI18nMapper(HashMap<String, String> i18nMapper) {
+        this.i18nMapper = i18nMapper;
+    }
+    
+    /**
+     * @return the unitsStr
+     */
+    public String getUnitsStr() {
+        return unitsStr;
     }
 }

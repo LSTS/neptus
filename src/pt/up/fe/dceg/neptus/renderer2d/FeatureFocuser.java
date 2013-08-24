@@ -97,7 +97,7 @@ public class FeatureFocuser implements IEditorMenuExtension {
         
         
         final LocationType location = mg.getHomeRef().getCenterLocation();
-        JMenuItem homeItem = new JMenuItem(I18n.text("Home reference"), homeIcon);     
+        JMenuItem homeItem = new JMenuItem(I18n.text("Home Reference"), homeIcon);     
         homeItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {                    
