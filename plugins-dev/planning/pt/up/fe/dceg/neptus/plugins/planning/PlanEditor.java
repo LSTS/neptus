@@ -1358,8 +1358,8 @@ MissionChangeListener {
                     manager.addEdit(edit);
                 }
 
+                getPropertiesPanel().setPlan(plan); // This call has to be before setManeuver (pdias 20130822)
                 getPropertiesPanel().setManeuver(selectedManeuver);
-                getPropertiesPanel().setPlan(plan);
                 getPropertiesPanel().setManager(manager);
 
                 getPropertiesPanel().getEditBtn().setEnabled(selectedManeuver instanceof StateRendererInteraction);

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2013-08-19 18:46+0100\n"
-"PO-Revision-Date: 2013-08-19 18:48+0100\n"
+"POT-Creation-Date: 2013-08-22 15:57+0100\n"
+"PO-Revision-Date: 2013-08-22 15:58+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: ru\n"
@@ -152,29 +152,29 @@ msgstr "%plotname участок"
 msgid "%plugin parameters"
 msgstr "%plugin параметры"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:910
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:953
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1004
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:906
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:949
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1000
 #, fuzzy
 msgid "%s custom settings"
 msgstr "%s пользовательские настройки"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:974
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:970
 #, fuzzy
 msgid "%s end actions"
 msgstr "%s конца действия"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1043
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1039
 #, fuzzy
 msgid "%s properties"
 msgstr "%s свойствами"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:870
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:866
 #, fuzzy
 msgid "%s specific properties"
 msgstr "%s специфические свойства"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:965
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:961
 #, fuzzy
 msgid "%s start actions"
 msgstr "%s начала действия"
@@ -501,7 +501,7 @@ msgctxt "Abs is the absolute value, don't use more than 3 letters"
 msgid "Abs"
 msgstr "Абс"
 
-#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:651
+#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:653
 #, fuzzy
 msgid "Absence of value"
 msgstr "Отсутствие значения"
@@ -941,13 +941,13 @@ msgstr "Применение началась"
 msgid "Approach to ignore points on Multibeam 3D"
 msgstr "Подход к игнорировать точек на многолучевой 3D"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1158
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1159
 #, fuzzy
 msgid "Are you sure you want to delete selected log files from remote system?"
 msgstr ""
 "Вы уверены, что хотите удалить выбранные файлы журналов из удаленной системы?"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1078
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1079
 #, fuzzy
 msgid ""
 "Are you sure you want to delete selected log folders from remote system?"
@@ -1097,7 +1097,7 @@ msgstr "База Ориентация"
 msgid "Base URI Path: "
 msgstr "Путь Базовый URI:"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:412
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:413
 #, fuzzy
 msgid "Basic log folder not synchronized. Can't open MRA"
 msgstr "Основные папки журнала не синхронизированы. Не удается открыть MRA"
@@ -1799,7 +1799,7 @@ msgid "Config"
 msgstr "Конфиг"
 
 #: src/pt/up/fe/dceg/neptus/gui/SimpleTransponderPanel.java:97
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:465
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:466
 #, fuzzy
 msgid "Configuration"
 msgstr "Конфигурация"
@@ -1913,7 +1913,7 @@ msgstr "Подключение к удаленному хосту"
 msgid "Connecting"
 msgstr "Соединительный"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:674
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:675
 #, fuzzy
 msgid "Connecting to remote system for log list update..."
 msgstr "Подключение к удаленной системе обновление журнала список ..."
@@ -2028,7 +2028,7 @@ msgstr "Связаться Маркер"
 msgid "Contact info:"
 msgstr "Контактная информация:"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:817
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:818
 #, fuzzy
 msgid "Contacting remote system for complete log file list..."
 msgstr "Обращение в удаленной системе для полного списка файлов журнала ..."
@@ -2369,7 +2369,7 @@ msgstr "По умолчанию глубина (отрицательное дл�
 msgid "Default time step (seconds)"
 msgstr "Умолчанию времени шага (в секундах)"
 
-#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:657
+#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:659
 #, fuzzy
 msgid "Default value"
 msgstr "Значение по умолчанию"
@@ -2410,12 +2410,12 @@ msgstr "Удалять"
 msgid "Delete '%transponderName'?"
 msgstr "Удалить '%transponderName?"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:457
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:458
 #, fuzzy
 msgid "Delete Selected Log Files"
 msgstr "Удаление выбранных файлов Войти"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:452
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:453
 #, fuzzy
 msgid "Delete Selected Log Folders"
 msgstr "Удалить выбранные папки Войти"
@@ -2694,8 +2694,8 @@ msgstr "Не используйте это верхний элемент (это
 
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/BathymetryPlotter.java:411
 #: src/pt/up/fe/dceg/neptus/mra/NeptusMRA.java:435
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:728
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:940
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:729
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:941
 #, fuzzy
 msgid "Done"
 msgstr "Сделанный"
@@ -3218,7 +3218,7 @@ msgstr "Ошибка при открытии файла"
 msgid "Error opening mission file"
 msgstr "Ошибка при открытии файла миссии"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1029
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1025
 #, fuzzy
 msgid "Error parsing custom setting '%s' to '%s'!"
 msgstr "Ошибка разбора пользовательскую настройку '%s' к '%s!"
@@ -3589,7 +3589,7 @@ msgid "Filter to Show Only Main Vehicle's Piccolo Waypoints"
 msgstr ""
 "Фильтр для отображения только Piccolo основным средством Маршрутные точки"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:765
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:766
 #, fuzzy
 msgid "Filtering list..."
 msgstr "Фильтрация список ..."
@@ -3781,6 +3781,7 @@ msgstr "GPSFixPanel"
 msgid "Gauge Panel"
 msgstr "Панели датчиков"
 
+#: src/pt/up/fe/dceg/neptus/util/conf/GeneralPreferences.java:337
 #: src/pt/up/fe/dceg/neptus/util/conf/GeneralPreferences.java:518
 #: src/pt/up/fe/dceg/neptus/util/conf/GeneralPreferences.java:540
 #, fuzzy
@@ -3817,8 +3818,8 @@ msgstr "Создание плана"
 msgid "Generic Display"
 msgstr "Generic дисплей"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:828
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:834
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:824
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:830
 #, fuzzy
 msgid "Generic properties"
 msgstr "Общие свойства"
@@ -4068,7 +4069,7 @@ msgstr "Главная долгота"
 
 #: src/pt/up/fe/dceg/neptus/renderer2d/FeatureFocuser.java:100
 #, fuzzy
-msgid "Home reference"
+msgid "Home Reference"
 msgstr "Главная ссылки"
 
 #: Property from pt.up.fe.dceg.neptus.plugins.containers.GroupLayoutContainer
@@ -4149,8 +4150,8 @@ msgstr "Оттенок"
 #: src/pt/up/fe/dceg/neptus/types/mission/plan/PlanType.java:649
 #: src/pt/up/fe/dceg/neptus/types/map/PlanUtil.java:198
 #: src/pt/up/fe/dceg/neptus/graph/DefaultNode.java:141
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:828
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:830
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:824
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:826
 #, fuzzy
 msgid "ID"
 msgstr "ID"
@@ -4535,9 +4536,9 @@ msgstr "Информация"
 msgid "Initial"
 msgstr "Начальный"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:833
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:835
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:936
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:829
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:831
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:932
 #, fuzzy
 msgid "Initial Maneuver"
 msgstr "Начальная Маневр"
@@ -5059,10 +5060,10 @@ msgstr "Найдите симулятора здесь"
 
 #: src/pt/up/fe/dceg/neptus/gui/MapLocationSelector.java:185
 #: src/pt/up/fe/dceg/neptus/types/map/DynamicElement.java:164
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:844
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:845
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:847
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:850
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:840
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:841
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:843
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:846
 #, fuzzy
 msgid "Location"
 msgstr "Расположение"
@@ -5116,7 +5117,7 @@ msgstr "Файлы журналов"
 msgid "Log Folders"
 msgstr "Папки журналов"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:731
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:732
 #, fuzzy
 msgid "Log Folders: %numberoffolders"
 msgstr "Войти Папки: %numberoffolders"
@@ -5404,17 +5405,17 @@ msgstr "Маневр"
 msgid "Maneuver Mode"
 msgstr "Маневр режим"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:844
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:840
 #, fuzzy
 msgid "Maneuver's location"
 msgstr "Маневр Откуда"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:850
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:846
 #, fuzzy
 msgid "Maneuver's z units"
 msgstr "Z Маневр подразделениями"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:847
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:843
 #, fuzzy
 msgid "Maneuver's z value"
 msgstr "Z Маневр ценностных"
@@ -5645,7 +5646,7 @@ msgstr "Максимальная глубина для батиметрию уч
 msgid "Maximum depth to be used in bathymetry plots."
 msgstr "Максимальная глубина для использования в батиметрию участков."
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:999
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:995
 #, fuzzy
 msgid "Maximum time"
 msgstr "Максимальное время"
@@ -6304,12 +6305,12 @@ msgstr "Ни одно сообщение не получено в течение
 msgid "No configuration file selected"
 msgstr "Нет файла конфигурации выбран"
 
-#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:641
+#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:643
 #, fuzzy
 msgid "No default found for class %className"
 msgstr "по умолчанию не найдено для класса %className"
 
-#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:647
+#: plugins-dev/configWindow/pt/up/fe/dceg/neptus/plugins/configWindow/FunctionalitiesSettings.java:649
 #, fuzzy
 msgid "No default found for field %fieldName"
 msgstr "по умолчанию не найдено для поля %fieldName"
@@ -6320,7 +6321,7 @@ msgstr "по умолчанию не найдено для поля %fieldName"
 msgid "No extra info"
 msgstr "Никакая дополнительная информация"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:753
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:754
 #, fuzzy
 msgid "No logs..."
 msgstr "Нет журналов ..."
@@ -7292,7 +7293,7 @@ msgstr "Process complete"
 msgid "Processing data..."
 msgstr "Processing data..."
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:821
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:822
 #, fuzzy
 msgid "Processing log list..."
 msgstr "Processing log list..."
@@ -7653,6 +7654,7 @@ msgstr "Redirect Unknown Comms. To First Vehicle In Comm. Список"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:540
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:401
+#: src/pt/up/fe/dceg/neptus/i18n/I18n.java:253
 #, fuzzy
 msgid "Redo"
 msgstr "Redo"
@@ -7719,8 +7721,8 @@ msgstr "Перезагружать"
 msgid "Reload Panel"
 msgstr "Reload Panel"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1081
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1160
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1082
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:1161
 #, fuzzy
 msgid "Remote Delete Confirmation"
 msgstr "Remote Delete Confirmation"
@@ -8820,7 +8822,7 @@ msgstr "Show External Systems Icons"
 msgid "Show GPS Fix Icon"
 msgstr "Show GPS Fix Icon"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:509
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:510
 #, fuzzy
 msgid "Show Help"
 msgstr "Show Help"
@@ -9062,12 +9064,12 @@ msgstr "Show wind"
 msgid "Show world map"
 msgstr "Show world map"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:499
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:500
 #, fuzzy
 msgid "Show/Hide Configuration Panel"
 msgstr "Show/Hide Configuration Panel"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:504
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:505
 #, fuzzy
 msgid "Show/Hide Download Panel"
 msgstr "Show/Hide Download Panel"
@@ -9434,7 +9436,7 @@ msgstr "Starting renderers"
 msgid "Starting up"
 msgstr "Starting up"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:658
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:659
 #: src/pt/up/fe/dceg/neptus/util/logdownload/DownloaderPanel.java:516
 #: src/pt/up/fe/dceg/neptus/util/logdownload/DownloaderPanel.java:649
 #, fuzzy
@@ -9635,17 +9637,17 @@ msgstr "Sync Logs"
 msgid "Sync day Mission Logs"
 msgstr "Sync day Mission Logs"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:437
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:438
 #, fuzzy
 msgid "Synchronize List of Log Folders"
 msgstr "Synchronize List of Log Folders"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:447
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:448
 #, fuzzy
 msgid "Synchronize Selected Log Files"
 msgstr "Synchronize Selected Log Files"
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:442
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:443
 #, fuzzy
 msgid "Synchronize Selected Log Folders"
 msgstr "Synchronize Selected Log Folders"
@@ -10072,7 +10074,7 @@ msgstr "The font size. Use '1' for default."
 msgid "The given ID already exists in the map. Please choose a different one"
 msgstr "The given ID already exists in the map. Please choose a different one"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:831
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:827
 #, fuzzy
 msgid "The identifier for this object"
 msgstr "The identifier for this object"
@@ -10107,12 +10109,12 @@ msgstr ""
 msgid "The maximum allowed drift in the velocity"
 msgstr "The maximum allowed drift in the velocity"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1002
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:998
 #, fuzzy
 msgid "The maximum time value must be greater than 0"
 msgstr "The maximum time value must be greater than 0"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:997
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:993
 #, fuzzy
 msgid "The minimum time value must be greater or equal than 0"
 msgstr "The minimum time value must be greater or equal than 0"
@@ -10771,6 +10773,10 @@ msgstr "True or Indicated Speed"
 msgid "True to hide the range and false to fade when display time elapses."
 msgstr "True to hide the range and false to fade when display time elapses."
 
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:324
+msgid "Turn on/off camera CPU"
+msgstr ""
+
 #: Property from pt.up.fe.dceg.neptus.plugins.trex.TrexMapLayer
 #: src/pt/up/fe/dceg/neptus/i18n/I18n.java:204
 #, fuzzy
@@ -10969,6 +10975,7 @@ msgstr "Unable to start MIDI sound device"
 
 #: plugins-dev/planning/pt/up/fe/dceg/neptus/plugins/planning/PlanEditor.java:524
 #: plugins-dev/map/pt/up/fe/dceg/neptus/plugins/map/MapEditor.java:389
+#: src/pt/up/fe/dceg/neptus/i18n/I18n.java:254
 #, fuzzy
 msgid "Undo"
 msgstr "Аннулировать"
@@ -11057,12 +11064,12 @@ msgstr "Update ships"
 msgid "Updating AIS layer..."
 msgstr "Updating AIS layer..."
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:922
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:923
 #, fuzzy
 msgid "Updating GUI..."
 msgstr "Updating GUI..."
 
-#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:835
+#: src/pt/up/fe/dceg/neptus/util/logdownload/LogsDownloaderWorker.java:836
 #, fuzzy
 msgid "Updating logs info..."
 msgstr "Updating logs info..."
@@ -11679,7 +11686,7 @@ msgstr "Where to place the toolbar"
 msgid "Where to store and load operational limits"
 msgstr "Where to store and load operational limits"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:836
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:832
 #, fuzzy
 msgid "Whether this will be the first maneuver to be executed"
 msgstr "Whether this will be the first maneuver to be executed"
@@ -11817,12 +11824,12 @@ msgid "Yoyo motion amplitude."
 msgstr "Yoyo motion amplitude."
 
 #: src/pt/up/fe/dceg/neptus/mra/plots/ZPlot.java:99
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:847
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:843
 #, fuzzy
 msgid "Z"
 msgstr "Z"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:848
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:844
 #, fuzzy
 msgctxt "Maneuver's z value"
 msgid "Z"
@@ -11843,12 +11850,12 @@ msgstr "Z mode"
 msgid "Z relative mode"
 msgstr "Z relative mode"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:850
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:846
 #, fuzzy
 msgid "Z-Units"
 msgstr "Z-Units"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:851
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:847
 #, fuzzy
 msgctxt "Maneuver's z units"
 msgid "Z-Units"
@@ -11914,6 +11921,7 @@ msgstr "высота"
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:96
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:163
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:264
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:299
 #, fuzzy
 msgid "altitude"
 msgstr "altitude"
@@ -11945,6 +11953,10 @@ msgstr "власти"
 #, fuzzy
 msgid "bearing"
 msgstr "bearing"
+
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:104
+msgid "boolean"
+msgstr ""
 
 #: Property from pt.up.fe.dceg.neptus.app.tiles.WorldMapPanel
 #, fuzzy
@@ -12017,7 +12029,7 @@ msgstr "db1 (m):"
 msgid "debugOn"
 msgstr "debugOn"
 
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:577
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:579
 #, fuzzy
 msgid "default"
 msgstr "умолчание"
@@ -12046,6 +12058,7 @@ msgstr "degs"
 #: Property from pt.up.fe.dceg.neptus.plugins.followref.FollowReferenceControl
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:149
 #: plugins-dev/position/pt/up/fe/dceg/neptus/plugins/position/AbsLatLonDepth.java:278
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:302
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:998
 #, fuzzy
 msgid "depth"
@@ -12114,7 +12127,7 @@ msgstr "редактировать"
 msgid "enableProxy"
 msgstr "enableProxy"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1067
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1063
 #, fuzzy
 msgid "end actions"
 msgstr "end actions"
@@ -12186,6 +12199,7 @@ msgid "heartBeatSecs"
 msgstr "heartBeatSecs"
 
 #: plugins-dev/mra-plots/pt/up/fe/dceg/neptus/plugins/mraplots/BathymetryPlotter.java:298
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:305
 #, fuzzy
 msgid "height"
 msgstr "высота"
@@ -12221,7 +12235,7 @@ msgstr "hudSize"
 msgid "icon color"
 msgstr "icon color"
 
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:54
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:53
 #, fuzzy
 msgid "idle"
 msgstr "idle"
@@ -12281,6 +12295,16 @@ msgstr "imc.udp-on"
 msgid "infoExtended"
 msgstr "infoExtended"
 
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:104
+#, fuzzy
+msgid "integer"
+msgstr "Winter"
+
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/ConfigurationManager.java:358
+#, fuzzy
+msgid "ipv4-address"
+msgstr "Web address"
+
 #: src/pt/up/fe/dceg/neptus/gui/VehicleInfo.java:1133
 #, fuzzy
 msgid "is password saved"
@@ -12323,6 +12347,11 @@ msgstr "длина"
 msgid "levelOfDetail"
 msgstr "levelOfDetail"
 
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:108
+#, fuzzy
+msgid "list"
+msgstr "Контрольный список"
+
 #: src/pt/up/fe/dceg/neptus/mra/MRAPanel.java:168
 #, fuzzy
 msgid "loading %chartname"
@@ -12354,6 +12383,10 @@ msgstr "м"
 #: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:201
 #: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:202
 #: src/pt/up/fe/dceg/neptus/util/llf/LogUtils.java:214
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:299
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:302
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:305
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:308
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:989
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:990
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/RowsManeuver.java:992
@@ -12393,7 +12426,7 @@ msgstr "м"
 msgid "m/s"
 msgstr "m/s"
 
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:56
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:53
 #, fuzzy
 msgid "maneuver"
 msgstr "maneuver"
@@ -12497,7 +12530,7 @@ msgstr "pathColor"
 msgid "pause"
 msgstr "pause"
 
-#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1065
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:1061
 #, fuzzy
 msgid "payload actions"
 msgstr "payload actions"
@@ -12508,7 +12541,7 @@ msgstr "payload actions"
 msgid "pitch"
 msgstr "pitch"
 
-#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:55
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:53
 #, fuzzy
 msgid "plan"
 msgstr "план"
@@ -12628,6 +12661,10 @@ msgstr "радиус"
 #, fuzzy
 msgid "range"
 msgstr "диапазон"
+
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:104
+msgid "real"
+msgstr ""
 
 #. / Maintain length
 #: src/pt/up/fe/dceg/neptus/console/plugins/RemoteOperationControlMode.java:148
@@ -12764,6 +12801,11 @@ msgstr "start-actions"
 #, fuzzy
 msgid "state"
 msgstr "государство"
+
+#: plugins-dev/params/pt/up/fe/dceg/neptus/plugins/params/SystemProperty.java:104
+#, fuzzy
+msgid "string"
+msgstr "Весна"
 
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:322
 #: src/pt/up/fe/dceg/neptus/mp/maneuvers/FollowSystem.java:323
@@ -12941,6 +12983,12 @@ msgstr "y offset Camera to vehicle"
 #: Property from
 #: pt.up.fe.dceg.neptus.plugins.followref.FollowReferenceInteraction
 #, fuzzy
+msgid "z"
+msgstr "Z"
+
+#: src/pt/up/fe/dceg/neptus/mp/Maneuver.java:308
+#, fuzzy
+msgctxt "Maneuver's z value"
 msgid "z"
 msgstr "Z"
 

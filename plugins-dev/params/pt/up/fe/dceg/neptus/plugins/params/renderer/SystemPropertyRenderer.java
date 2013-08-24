@@ -43,13 +43,9 @@ import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
  *
  */
 @SuppressWarnings("serial")
-public class SystemPropertyRenderer extends DefaultCellRenderer {
+public class SystemPropertyRenderer extends DefaultCellRenderer implements Cloneable {
     private Color dirtyColor = new Color(255, 108, 108);
     private Color syncColor = new Color(108, 255, 108);
-    @SuppressWarnings("unused")
-    private Color blueColor = new Color(108, 108, 255);
-    @SuppressWarnings("unused")
-    private Color orangeColor = new Color(255, 108, 54);
 
     private boolean sync = false;
     
@@ -95,5 +91,20 @@ public class SystemPropertyRenderer extends DefaultCellRenderer {
             setOddBackgroundColor(dirtyColor);
             setEvenBackgroundColor(dirtyColor);
         }
+    }
+    
+    /**
+     * @return the unitsStr
+     */
+    public String getUnitsStr() {
+        return unitsStr;
+    }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public SystemPropertyRenderer clone() throws CloneNotSupportedException {
+        return (SystemPropertyRenderer) super.clone();
     }
 }

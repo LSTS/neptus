@@ -87,7 +87,7 @@ public class PoFile {
                 if (matcher.find())
                     curEntry.msgid = matcher.group(1);                
                 else
-                    curEntry.msgid = "";    
+                    curEntry.msgid = "";
             }
 
             else if (line.startsWith("msgstr")) {
@@ -97,7 +97,7 @@ public class PoFile {
                 if (matcher.find())
                     curEntry.msgstr = matcher.group(1);                
                 else
-                    curEntry.msgstr = "";                                    
+                    curEntry.msgstr = "";
             }
 
             else if (line.startsWith("msgctxt")) {
@@ -111,7 +111,7 @@ public class PoFile {
                 if (matcher.find())
                     curEntry.msgctxt = matcher.group(1);                
                 else
-                    curEntry.msgctxt = ""; 
+                    curEntry.msgctxt = "";
             }
 
             else if (line.startsWith("\"")) {
@@ -126,14 +126,17 @@ public class PoFile {
                         break;
                     case STR:
                         curEntry.msgstr += text;
+                        break;
                     case ID:
                         curEntry.msgid += text;
+                        break;
                     default:
                         break;
                 }
             }        
         }
         reader.close();
+        NeptusLog.pub().info("Loaded " + translations.size() + " translations.");
     }
 
 
