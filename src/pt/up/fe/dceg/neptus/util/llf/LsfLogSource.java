@@ -111,9 +111,13 @@ public class LsfLogSource implements IMraLogGroup {
         }
 
         lsfFile = f;
-        File defsFile = new File(f.getParent()+"/IMC.xml");
-        if(defsFile.canRead()) {
-            defs = new IMCDefinition(new FileInputStream(defsFile));
+        File defsFile1 = new File(f.getParent()+"/IMC.xml");
+        File defsFile2 = new File(f.getParent()+"/IMC.xml.gz");
+        if(defsFile1.canRead()) {
+            defs = new IMCDefinition(new FileInputStream(defsFile1));
+        }
+        else if (defsFile2.canRead()) {
+            defs = new IMCDefinition(new MultiMemberGZIPInputStream(new FileInputStream(defsFile2)));
         }
         else {
             defs = IMCDefinition.getInstance(); // If IMC.xml isn't present use the default ones
@@ -175,7 +179,7 @@ public class LsfLogSource implements IMraLogGroup {
                     indexes.add(type);
                     String msgName = index.getDefinitions().getMessageName(type);
                     if (msgName == null) {
-                        System.err.println("Message type not found in the definitions: "+type);
+                        System.err.println("Message type not found in the definitions: "+type+", "+(index.getNumberOfMessages()-i));
                     }
                     else
                         list.add(index.getDefinitions().getMessageName(type));
