@@ -15,7 +15,7 @@
  *
  * European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -26,67 +26,38 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: José Correia
- * Nov 16, 2012
+ * Author: jqcorreia
+ * Aug 26, 2013
  */
 package pt.up.fe.dceg.neptus.mra;
-
-import java.io.Serializable;
-
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
 /**
  * @author jqcorreia
  *
  */
-public class LogMarker implements Serializable, Comparable<LogMarker> {
+public class SidescanLogMarker extends LogMarker {
     private static final long serialVersionUID = 1L;
-
-    public String label;
-    public double timestamp;
-
-    /**
-     * Latitude in radians
-     */
-    public double lat;
-    /**
-     * Longitude in radians
-     */
-    public double lon;
     
+    public double x;
+    public double y;
+    public int w;
+    public int h;
+
     /**
      * @param label
      * @param timestamp
+     * @param lat
+     * @param lon
      * @param x
      * @param y
      * @param w
      * @param h
      */
-    public LogMarker(String label, double timestamp, double lat, double lon) {
-        super();
-        this.label = label;
-        this.timestamp = timestamp;
-        this.lat = lat;
-        this.lon = lon;
+    public SidescanLogMarker(String label, double timestamp, double lat, double lon, double x, double y, int w, int h) {
+        super(label, timestamp, lat, lon);
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
     }
-    
-    @Override
-    public int compareTo(LogMarker o) {
-        if (o.timestamp > timestamp)
-            return -1;
-        else if (o.timestamp < timestamp)
-            return 1;
-        else
-            return 0;
-    }
-    
-    public LocationType getLocation() {
-        return new LocationType(Math.toDegrees(lat), Math.toDegrees(lon));
-    }
-
-//    @Override
-//    public boolean equals(Object obj) {
-//        return (obj instanceof LogMarker ? ((LogMarker)obj).label.equals(label): false);
-//    }
-//    
 }

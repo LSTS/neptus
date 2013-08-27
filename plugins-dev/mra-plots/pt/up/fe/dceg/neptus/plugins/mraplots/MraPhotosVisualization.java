@@ -413,7 +413,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                 if (resp == null)
                     return;
                 SystemPositionAndAttitude state = states.get(f);
-                LogMarker marker = new LogMarker(resp, timestampOf(f)*1000, state.getPosition().getLatitudeAsDoubleValueRads(), state.getPosition().getLongitudeAsDoubleValueRads(), 0, 0, 0, 0);
+                LogMarker marker = new LogMarker(resp, timestampOf(f)*1000, state.getPosition().getLatitudeAsDoubleValueRads(), state.getPosition().getLongitudeAsDoubleValueRads());
                 panel.addMarker(marker);
             }
         });
