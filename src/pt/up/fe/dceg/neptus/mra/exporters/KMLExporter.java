@@ -70,6 +70,7 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.up.fe.dceg.neptus.util.WGS84Utilities;
 import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
 import pt.up.fe.dceg.neptus.util.llf.LogUtils;
 
@@ -485,12 +486,20 @@ public class KMLExporter implements MraExporter {
                 
                 states.add(loc);
             }
+
+            if (topLeft == null) {
+                bw.close();
+                throw new Exception("This log doesn't have required data (EstimatedState)");
+            }
             bw.write(path(states, "Estimated State", "estate"));
 
             // plan
+            PlanType plan = null;
             MissionType mt = LogUtils.generateMission(source);
-            PlanType plan = LogUtils.generatePlan(mt, source);
-            bw.write(path(plan.planPath(), "Planned waypoints", "plan"));
+            if (mt != null)
+                plan = LogUtils.generatePlan(mt, source);
+            if (plan != null)
+                bw.write(path(plan.planPath(), "Planned waypoints", "plan"));
 
             topLeft.translatePosition(50, -50, 0);
             bottomRight.translatePosition(-50, 50, 0);
@@ -531,8 +540,20 @@ public class KMLExporter implements MraExporter {
             GuiUtils.errorMessage("Error while exporting to KML", "Exception of type " + e.getClass().getSimpleName()
                     + " occurred: " + e.getMessage());
             e.printStackTrace();
-            return e.getClass().getSimpleName() + " while exporting to KML: " + e.getMessage();
+            return null;
         }
+    }
+    
+    public static void main(String[] args) {
+        LocationType loc1 = new LocationType(41.08, -8.2343);
+        LocationType loc2 = new LocationType(41.12, -8.2324);
+        System.out.println(loc1.getDistanceInMeters(loc2));
+        System.out.println(loc2.getDistanceInMeters(loc1));
+        double[] res1 = loc2.getOffsetFrom(loc1);
+        
+        double[] res2 = WGS84Utilities.WGS84displacement(loc1.getLatitudeAsDoubleValue(), loc1.getLongitudeAsDoubleValue(), 0, loc2.getLatitudeAsDoubleValue(), loc2.getLongitudeAsDoubleValue(), 0);
+        System.out.println(Math.sqrt(res2[0] * res2[0] + res2[1] * res2[1]));
+        System.out.println(Math.sqrt(res1[0] * res1[0] + res1[1] * res1[1]));
     }
 
 }

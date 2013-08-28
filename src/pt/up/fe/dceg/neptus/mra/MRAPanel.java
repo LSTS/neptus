@@ -245,7 +245,9 @@ public class MRAPanel extends JPanel {
                         Thread t = new Thread(exp.getName()+" processing") {
                             public void run() {
                                 String res = exp.process();
-                                GuiUtils.infoMessage(MRAPanel.this, exp.getName(), res);
+                                
+                                if (res != null)
+                                    GuiUtils.infoMessage(MRAPanel.this, exp.getName(), res);
                             };
                         };
                         t.setDaemon(true);
