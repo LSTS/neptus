@@ -61,6 +61,9 @@
 # /conf/i18n/
 /conf/i18n/en
 
+# /conf/controllers/
+/cont/controllers/actions.xml
+
 # /dev-scripts/i18n/
 
 # /dist/
