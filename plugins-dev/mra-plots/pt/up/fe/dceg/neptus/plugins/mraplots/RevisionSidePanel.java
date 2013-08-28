@@ -156,8 +156,8 @@ public class RevisionSidePanel extends JPanel {
                     new GPSFixReplay(),
                     new LBLRangesReplay(),
                     new LogMarkersReplay(),
-                    new BathymetryReplay(),
-                    new SidescanOverlay()
+                    new BathymetryReplay()
+//                    new SidescanOverlay()
             };
            
             for (LogReplayLayer layer : layers) {                         
