@@ -251,7 +251,7 @@ public class LogsDownloaderWorker {
             @Override
             public void onMessage(MessageInfo info, IMCMessage msg) {
                 if (msg.getAbbrev().equals("PowerChannelState")) {
-                    if (msg.getString("name").equals("DOAM") || msg.getString("name").equals("Camera - CPU")) { // xtreme
+                    if (msg.getString("name").equals("Camera Module") || msg.getString("name").equals("Camera - CPU")) { // xtreme
                                                                                                                 // or
                                                                                                                 // dolphin
                         //System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: PowerChannelState "
@@ -1261,7 +1261,7 @@ public class LogsDownloaderWorker {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String powerChannel = getLogLabel().equals("lauv-xtreme-2") ? "DOAM" : "Camera - CPU";
+                    String powerChannel = getLogLabel().equals("lauv-xtreme-2") ? "Camera Module" : "Camera - CPU";
                     IMCMessage msg = new IMCMessage("PowerChannelControl");
                     msg.setValue("name", powerChannel);
                     msg.setValue("op", cameraButton.getBackground() != Color.GREEN ? 1 : 0);
@@ -2596,7 +2596,7 @@ public class LogsDownloaderWorker {
             public void run() {
 
                 while (true) {
-                    int ent = EntitiesResolver.resolveId("lauv-xtreme-2", "DOAM");
+                    int ent = EntitiesResolver.resolveId("lauv-xtreme-2", "Camera Module");
                     System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + "Entity ID: " + ent);
 
                     IMCMessage msg = new IMCMessage("QueryPowerChannelState");
