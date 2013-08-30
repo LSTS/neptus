@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,7b62102)" system="lauv-noptilus-1" i18n="ru_RU">
+<config format="1" version="2.4.0-rc1 (master,426673d)" system="lauv-noptilus-1" i18n="ru_RU">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -693,6 +693,60 @@
       <units/>
       <desc>Altitude value below which altitude from DVL will be ignored</desc>
     </param>
+    <param name="Coarse Altitude -- Enabled">
+      <name-i18n>Coarse Altitude -- Enabled</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Coarse Altitude arguments</desc>
+    </param>
+    <param name="Coarse Altitude -- Window Sizes">
+      <name-i18n>Coarse Altitude -- Window Sizes</name-i18n>
+      <type>list:integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10, 20, 40, 80</default>
+      <units/>
+      <desc>Vector of window sizes for the moving averages</desc>
+    </param>
+    <param name="Coarse Altitude -- Upper Gap">
+      <name-i18n>Coarse Altitude -- Upper Gap</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.4, 0.8, 1.1, 1.5</default>
+      <units>m</units>
+      <desc>Size of the upper part of the corridor</desc>
+    </param>
+    <param name="Coarse Altitude -- Period">
+      <name-i18n>Coarse Altitude -- Period</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20.0</default>
+      <units>s</units>
+      <desc>Period for checking time spent outside the corridor</desc>
+    </param>
+    <param name="Coarse Altitude -- Ratio Time Outside">
+      <name-i18n>Coarse Altitude -- Ratio Time Outside</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60.0</default>
+      <units>%</units>
+      <desc>Percentage of time outside the corridor to change corridor size</desc>
+    </param>
+    <param name="Coarse Altitude -- Sample Limit">
+      <name-i18n>Coarse Altitude -- Sample Limit</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2</default>
+      <units/>
+      <desc>Limit of a fixed number of incoming samples per second</desc>
+    </param>
   </section>
   <section name="Diving" name-i18n="Дайвинг">
     <param name="Entity Label">
@@ -1378,6 +1432,24 @@
       <default>5</default>
       <units>Hz</units>
       <desc>Bottom tracker's execution frequency</desc>
+    </param>
+    <param name="Bottom Track -- Depth Avoidance">
+      <name-i18n>Bottom Track -- Depth Avoidance</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable or disable obstacle avoidance during depth control</desc>
+    </param>
+    <param name="Bottom Track -- Admissible Altitude">
+      <name-i18n>Bottom Track -- Admissible Altitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units>m</units>
+      <desc>Admissible altitude when doing depth control</desc>
     </param>
     <param name="Corridor -- Width">
       <name-i18n>Corridor -- Width</name-i18n>
@@ -2977,15 +3049,6 @@
       <units/>
       <desc>Additional default entities to monitor in Hardware profile</desc>
     </param>
-    <param name="Trace">
-      <name-i18n>Trace</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable verbose output</desc>
-    </param>
     <param name="Transition Time Gap">
       <name-i18n>Transition Time Gap</name-i18n>
       <type>real</type>
@@ -4239,121 +4302,6 @@
       <desc>Entity label of the IMU</desc>
     </param>
   </section>
-  <section name="Coarse Alignment" name-i18n="Грубое выравнивание">
-    <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Coarse Alignment</default>
-      <units/>
-      <desc>Главным образом ярлык лица</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Приоритет выполнения</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Debug</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Entity Label - IMU">
-      <name-i18n>Entity Label - IMU</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>IMU</default>
-      <units/>
-      <desc>Entity label of the IMU</desc>
-    </param>
-    <param name="Calibration Time">
-      <name-i18n>Calibration Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>100</default>
-      <units>s</units>
-      <desc>Minimum amount of time that the vehicle has to perform static orientation calibration</desc>
-      <min>20</min>
-    </param>
-    <param name="Delay Time">
-      <name-i18n>Delay Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units>s</units>
-      <desc>Delay time to avoid using initial noisier IMU booting data.</desc>
-      <min>5</min>
-    </param>
-    <param name="Watchdog">
-      <name-i18n>Watchdog</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>3</default>
-      <units>s</units>
-      <desc>Task watchdog for data income.</desc>
-      <min>2</min>
-    </param>
-    <param name="Moving Average Samples">
-      <name-i18n>Moving Average Samples</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Number of moving average samples to smooth acceleration vector</desc>
-    </param>
-    <param name="Minimum Std Dev for Motion Detection">
-      <name-i18n>Minimum Std Dev for Motion Detection</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.2</default>
-      <units/>
-      <desc>Minimum standard deviation value for motion detection</desc>
-    </param>
-    <param name="Start At Boot">
-      <name-i18n>Start At Boot</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Task starts alignment as soon as it is activated.</desc>
-    </param>
-  </section>
   <section name="LBL Estimator" name-i18n="LBL Оценщик">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -4396,7 +4344,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Debug</default>
+      <default>None</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
@@ -4428,6 +4376,15 @@
       <default>10.0</default>
       <units/>
       <desc>Kalman Filter LBL Measurement Noise Covariance value</desc>
+    </param>
+    <param name="LBL Process Noise Covariance">
+      <name-i18n>LBL Process Noise Covariance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1e-5</default>
+      <units/>
+      <desc>Kalman Filter LBL Process Noise Covariance value</desc>
     </param>
     <param name="LBL Expected Range Rejection Constants">
       <name-i18n>LBL Expected Range Rejection Constants</name-i18n>
@@ -5118,7 +5075,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Servos</default>
+      <default>Communications Board</default>
       <units/>
       <desc/>
     </param>
@@ -5208,7 +5165,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Servo Controller</default>
+      <default>N/C (+5V_4)</default>
       <units/>
       <desc/>
     </param>
@@ -5217,7 +5174,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>0</default>
       <units/>
       <desc/>
     </param>
@@ -5226,7 +5183,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Compass</default>
+      <default>N/C (+5V_5)</default>
       <units/>
       <desc/>
     </param>
@@ -5235,7 +5192,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>0</default>
       <units/>
       <desc/>
     </param>
@@ -5253,7 +5210,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>0</default>
       <units/>
       <desc/>
     </param>
