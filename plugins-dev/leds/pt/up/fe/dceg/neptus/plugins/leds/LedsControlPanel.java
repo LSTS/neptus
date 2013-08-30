@@ -33,16 +33,14 @@ package pt.up.fe.dceg.neptus.plugins.leds;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.imc.QueryLedBrightness;
+import pt.up.fe.dceg.neptus.imc.SetLedBrightness;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
@@ -55,29 +53,33 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
  * @author hfq
  *
  * FIX ME - Change icon
+ * 
  * Use:
  * IMC::SetLedBrightness
  * IMC::QueryLedBrightness
  * 
  * SetLedBrightness extends IMCMessage
+ * 
  * QueryLedBrightness extends IMCMessage
+ * will reply with LedBrightness
+ * 
+ * LED4R - device that allows controlling up to 12 high-brightnesse LEDs
+ *   //! Device driver for LED4R.
  * 
  */
 @Popup(pos = POSITION.TOP_LEFT, width = 200, height = 300, accelerator = 'D')
 @PluginDescription(author = "hfq", description = "Panel that enables setting up leds brightness", name = "Leds Control Panel", version = "0.1", icon = "images/menus/tip.png")
-public class LedsControlPanel extends SimpleSubPanel implements ActionListener, WindowListener {
+public class LedsControlPanel extends SimpleSubPanel implements ActionListener {
     private static final long serialVersionUID = 1L;
-    
     private ConsoleLayout console;
     
-    //private JSlider slider;
-    
     private LedsSlider slider1, slider2, slider3, slider4;
+    
+    public LinkedHashMap<String, Integer> msgLeds = new LinkedHashMap<>();
     
     static final int LED_MIN_BRIGHTNESS = 0;
     static final int LED_MAX_BRIGHTNESS = 100;
     static final int LED_INIT_BRIGHTNESS = 0;
-    
     // Can have a timer to turn on the 4 groups of leds (3 leds per group) in a clockwise matter
     //Timer time;
 
@@ -94,6 +96,36 @@ public class LedsControlPanel extends SimpleSubPanel implements ActionListener, 
         //console.addMainVehicleListener(this);
         ImcMsgManager.getManager().addListener(this);
         
+        initMsgMapping();
+        printMsgMapping();
+        createPanel();
+        
+        //SetLedBrightness bright = new SetLedBrightness();
+        //QueryLedBrightness queryBright = new QueryLedBrightness();
+    }
+
+    /**
+     * 
+     */
+    private void printMsgMapping() {
+        for (Entry<String, Integer> entry : msgLeds.entrySet()) {
+            NeptusLog.pub().info("Key: " + entry.getKey() + " Value: " + entry.getValue());
+        }
+    }
+
+    /**
+     * 
+     */
+    private void initMsgMapping() {
+        for (int i = 0; i < 12; ++i) {
+            msgLeds.put("led" + (i+1), 0);
+        }
+    }
+
+    /**
+     * 
+     */
+    private void createPanel() {
         slider1 = new LedsSlider("Leds 1 ");
         slider2 = new LedsSlider("Leds 2 ");
         slider3 = new LedsSlider("Leds 3 ");
@@ -103,8 +135,18 @@ public class LedsControlPanel extends SimpleSubPanel implements ActionListener, 
         this.add(slider3, "wrap");
         this.add(slider4, "wrap");
         
-        //SetLedBrightness bright = new SetLedBrightness();
-        //QueryLedBrightness queryBright = new QueryLedBrightness();
+        int setLed = SetLedBrightness.ID_STATIC;
+        NeptusLog.pub().info("Led brightness id: " + setLed);
+        int queryLed = QueryLedBrightness.ID_STATIC;
+        NeptusLog.pub().info("Query Led id " + queryLed);
+        
+        SetLedBrightness msgLed1 = new SetLedBrightness();
+        
+        
+//        // Finally send the message
+//        RemoteActions msg = new RemoteActions();
+//        msg.setActions(msgActions);
+//        ImcMsgManager.getManager().sendMessageToSystem(msg, console.getMainSystem());
     }
 
     /**
@@ -112,7 +154,6 @@ public class LedsControlPanel extends SimpleSubPanel implements ActionListener, 
      */
     public static void main(String[] args) {
         GuiUtils.testFrame(new LedsControlPanel(null));
-
     }
 
     @Override
@@ -120,27 +161,6 @@ public class LedsControlPanel extends SimpleSubPanel implements ActionListener, 
 
     @Override
     public void cleanSubPanel() {}
-
-    @Override
-    public void windowOpened(WindowEvent e) {}
-
-    @Override
-    public void windowClosing(WindowEvent e) {}
-
-    @Override
-    public void windowClosed(WindowEvent e) {}
-
-    @Override
-    public void windowIconified(WindowEvent e) {}
-
-    @Override
-    public void windowDeiconified(WindowEvent e) {}
-
-    @Override
-    public void windowActivated(WindowEvent e) {}
-
-    @Override
-    public void windowDeactivated(WindowEvent e) {}
 
     @Override
     public void actionPerformed(ActionEvent e) {}
