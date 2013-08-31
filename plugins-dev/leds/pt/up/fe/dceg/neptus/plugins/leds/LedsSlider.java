@@ -41,7 +41,10 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.Timer;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -51,8 +54,9 @@ import net.miginfocom.swing.MigLayout;
 
 /**
  * This component has a label, a slider, a text representing the desired value for brightness, and a text with the value
- * queried from imc message of the leds brightness (three,each led?).
- * Each slider is responsible to set the brightness of a group of 3 leds.
+ * queried from imc message of the leds brightness (three,each led?). Each slider is responsible to set the brightness
+ * of a group of 3 leds.
+ * 
  * @author hfq
  * 
  */
@@ -62,8 +66,14 @@ public class LedsSlider extends JPanel implements ChangeListener {
 
     private JSlider slider;
     private String sliderName;
+    private int sliderValue = 0;
 
     private JLabel sliderLabel;
+
+    private JTextField sliderTextField;
+
+    private Border loweredetched;
+    private TitledBorder titled;
 
     // timer so that the message isn't send instantaneously
     private Timer timer;
@@ -73,23 +83,51 @@ public class LedsSlider extends JPanel implements ChangeListener {
         // super();
         this.setLayout(new MigLayout());
         this.sliderName = name;
-        // this.setSize(600, 1000);
         // this.setBackground(Color.BLACK);
         this.setOpaque(false);
-
-        createSliderContainer();
+        this.setSize(LedsControlPanel.WIDTH, LedsControlPanel.HEIGHT/4);
+        createBorder();
+        createSlider();
+        createSliderTextField();
     }
 
-    public void createSliderContainer() {
-        sliderLabel = new JLabel(sliderName, JLabel.CENTER);
-        // sliderLabel.setBackground(Color.DARK_GRAY);
-        sliderLabel.setFont(new Font(Font.SERIF, (Font.BOLD + Font.ITALIC), 12));
-        sliderLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        sliderLabel.setOpaque(false);
+    /**
+     * 
+     */
+    private void createSliderTextField() {
+        sliderTextField = new JTextField();
+        sliderTextField.setColumns(3);
+        sliderTextField.setCursor(new Cursor(Cursor.TEXT_CURSOR));
+        sliderTextField.setText(String.valueOf(sliderValue));
+        sliderTextField.setEditable(false);
+        sliderTextField.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 1));
+        this.add(sliderTextField);
+    }
 
-        slider = new JSlider(JSlider.HORIZONTAL, LedsControlPanel.LED_MIN_BRIGHTNESS,
-                LedsControlPanel.LED_MAX_BRIGHTNESS, LedsControlPanel.LED_INIT_BRIGHTNESS);
-        slider.setValue(LedsControlPanel.LED_INIT_BRIGHTNESS);
+    /**
+     * 
+     */
+    private void createBorder() {
+        // loweredetched = BorderFactory.createLoweredSoftBevelBorder();
+        loweredetched = BorderFactory.createLoweredBevelBorder();
+
+        titled = BorderFactory.createTitledBorder(loweredetched, sliderName);
+        titled.setTitleJustification(TitledBorder.LEFT);
+        titled.setTitlePosition(TitledBorder.DEFAULT_POSITION);
+
+        this.setBorder(titled);
+    }
+
+    public void createSlider() {
+        // sliderLabel = new JLabel(sliderName, JLabel.CENTER);
+        // // sliderLabel.setBackground(Color.DARK_GRAY);
+        // sliderLabel.setFont(new Font(Font.SERIF, (Font.BOLD + Font.ITALIC), 12));
+        // sliderLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // sliderLabel.setOpaque(false);
+
+        slider = new JSlider(JSlider.HORIZONTAL, LedsUtils.LED_MIN_BRIGHTNESS, LedsUtils.LED_MAX_BRIGHTNESS,
+                LedsUtils.LED_INIT_BRIGHTNESS);
+        slider.setValue(LedsUtils.LED_INIT_BRIGHTNESS);
 
         slider.setMajorTickSpacing(20);
         slider.setMinorTickSpacing(1);
@@ -105,7 +143,7 @@ public class LedsSlider extends JPanel implements ChangeListener {
 
         slider.addChangeListener(this);
 
-        this.add(sliderLabel);
+        // this.add(sliderLabel);
         this.add(slider);
     }
 
@@ -113,15 +151,24 @@ public class LedsSlider extends JPanel implements ChangeListener {
     public void stateChanged(ChangeEvent e) {
         JSlider source = (JSlider) e.getSource();
         if (!source.getValueIsAdjusting()) {
-            int value = source.getValue();
-            if (value == 0) {
+            sliderValue = source.getValue();
+            sliderTextField.setText(String.valueOf(sliderValue));
+            if (sliderValue == 0) {
                 NeptusLog.pub().info("Send message turn off leds - brightness = 0");
             }
             else {
-                NeptusLog.pub().info("Value of slider " + sliderName + " value: " + value);
+                // send message with the value of
+                // LedsUtils.convPercToLedsBright(sliderValue)
+                NeptusLog.pub().info(
+                        "Value of slider " + sliderName + " value in perc: " + sliderValue + " value in brightness: "
+                                + LedsUtils.convPercToLedsBright(sliderValue));
             }
         }
-
+        else {
+            sliderValue = source.getValue();
+            sliderTextField.setText(String.valueOf(sliderValue));
+        }
+        source.getValue();
         // JSlider source = (JSlider)e.getSource();
         // if (!source.getValueIsAdjusting()) {
         // int fps = (int)source.getValue();
