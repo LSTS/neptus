@@ -43,6 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.border.Border;
 
 import net.miginfocom.swing.MigLayout;
@@ -51,6 +52,7 @@ import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.imc.LedBrightness;
 import pt.up.fe.dceg.neptus.imc.QueryLedBrightness;
 import pt.up.fe.dceg.neptus.imc.SetLedBrightness;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
@@ -80,21 +82,23 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
  *         Hardware Entity Label = LED Driver Serial Port - Device = /dev/ttyUSB3 LED - Names = LED0, LED1, LED2, LED3,
  *         LED4, LED5, LED6, LED7, LED8, LED9, LED10, LED11
  * 
- *         adamastor_en_US.xml
- *         Neptus conf parameters <param name="LED - Names"> <name-i18n>LED - Names</name-i18n> <type>list:string</type>
- *         <visibility>developer</visibility> <scope>global</scope> <default>01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11,
- *         12</default> <units/> <desc>List of LED names</desc> <size>12</size> </param>
+ *         adamastor_en_US.xml Neptus conf parameters <param name="LED - Names"> <name-i18n>LED - Names</name-i18n>
+ *         <type>list:string</type> <visibility>developer</visibility> <scope>global</scope> <default>01, 02, 03, 04,
+ *         05, 06, 07, 08, 09, 10, 11, 12</default> <units/> <desc>List of LED names</desc> <size>12</size> </param>
  */
 // @Popup(pos = POSITION.TOP_LEFT, accelerator = 'D')
 @Popup(pos = POSITION.TOP_LEFT, width = 400, height = 400, accelerator = 'D')
 @PluginDescription(author = "hfq", description = "Panel that enables setting up leds brightness", name = "Leds Control Panel", version = "0.1", icon = "images/menus/tip.png")
 public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates, ActionListener {
     private static final long serialVersionUID = 1L;
+
+    @NeptusProperty(name = "Periodicity millis", description = "Set periodicity in miliseconds", editable = true)
+    public int periodicity = 1000;
+
     private ConsoleLayout console;
-
     public LinkedHashMap<String, Integer> msgLeds = new LinkedHashMap<>();
-
     private LedsSlider slider1, slider2, slider3, slider4;
+    private PictureComponent picComp;
 
     // Can have a timer to turn on the 4 groups of leds (3 leds per group) in a clockwise matter
     // Timer time;
@@ -136,11 +140,13 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         this.add(slider2, "wrap");
         this.add(slider3, "wrap");
         this.add(slider4, "wrap");
+        picComp = new PictureComponent();
+        this.add(picComp);
 
         SetLedBrightness msgLed1 = new SetLedBrightness();
-        
-        //QueryLedBrightness qled = new QueryLedBrightness(ledNames[0]);
-        //int value1 = (Integer)qled.getValue(ledNames[0]);
+
+        // QueryLedBrightness qled = new QueryLedBrightness(ledNames[0]);
+        // int value1 = (Integer)qled.getValue(ledNames[0]);
     }
 
     @Override
@@ -149,7 +155,7 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         Graphics2D graphic2d = (Graphics2D) g;
         Color color1 = getBackground();
         Color color2 = color1.darker();
-        //Color color3 = Color.BLACK;
+        // Color color3 = Color.BLACK;
         GradientPaint gradpaint = new GradientPaint(0, 0, color1, getWidth(), getHeight(), color2);
         graphic2d.setPaint(gradpaint);
         graphic2d.fillRect(0, 0, getWidth(), getHeight());
@@ -160,7 +166,7 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         createPanel();
         Border panEdge = BorderFactory.createEmptyBorder(0, 10, 10, 10);
         this.setBorder(panEdge);
-        
+
         this.console.addMainVehicleListener(this);
         ImcMsgManager.getManager().addListener(this);
     }
@@ -184,7 +190,9 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
      */
     @Override
@@ -193,7 +201,9 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         return 0;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#update()
      */
     @Override
@@ -201,7 +211,7 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         // TODO Auto-generated method stub
         return false;
     }
-    
+
     /**
      * @param args
      */

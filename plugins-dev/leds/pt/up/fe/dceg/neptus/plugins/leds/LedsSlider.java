@@ -85,7 +85,7 @@ public class LedsSlider extends JPanel implements ChangeListener {
         this.sliderName = name;
         // this.setBackground(Color.BLACK);
         this.setOpaque(false);
-        this.setSize(LedsControlPanel.WIDTH, LedsControlPanel.HEIGHT/4);
+        this.setSize(LedsControlPanel.WIDTH, LedsControlPanel.HEIGHT / 4);
         createBorder();
         createSlider();
         createSliderTextField();

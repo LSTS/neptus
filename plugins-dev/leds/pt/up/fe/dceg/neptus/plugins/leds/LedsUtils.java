@@ -33,12 +33,12 @@ package pt.up.fe.dceg.neptus.plugins.leds;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class LedsUtils {
     protected static final int PANEL_WIDTH = 400;
-    protected static final int PANEL_HEIGHT = 400;
-    
+    protected static final int PANEL_HEIGHT = 600;
+
     // Leds Brightness in percentage / max brightness value = 255
     protected static final int LED_MIN_BRIGHTNESS = 0;
     protected static final int LED_MAX_BRIGHTNESS = 100;
@@ -46,13 +46,13 @@ public class LedsUtils {
 
     public static final String[] ledNames = { "LED0", "LED1", "LED2", "LED3", "LED4", "LED5", "LED6", "LED7", "LED8",
             "LED9", "LED10", "LED11", "LED12" };
-    
+
     public static int convPercToLedsBright(int perc) {
         return (255 * perc / 100);
     }
-    
+
     public static int convBrightToPerc(int value) {
         return (100 * value / 255);
     }
-    
+
 }
