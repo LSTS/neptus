@@ -42,14 +42,19 @@ import java.awt.event.ActionListener;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
+import javax.swing.BorderFactory;
+import javax.swing.border.Border;
+
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.imc.LedBrightness;
 import pt.up.fe.dceg.neptus.imc.QueryLedBrightness;
 import pt.up.fe.dceg.neptus.imc.SetLedBrightness;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
+import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
@@ -71,28 +76,21 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
  * 
  *         QueryLedBrightness extends IMCMessage will reply with LedBrightness
  * 
- *         LED4R - device that allows controlling up to 12 high-brightness LEDs [Actuators.LED4R] Enabled = Hardware
- *         Entity Label = LED Driver Serial Port - Device = /dev/ttyUSB3 LED - Names = LED0, LED1, LED2, LED3, LED4,
- *         LED5, LED6, LED7, LED8, LED9, LED10, LED11
+ *         DUNE LED4R - device that allows controlling up to 12 high-brightness LEDs [Actuators.LED4R] Enabled =
+ *         Hardware Entity Label = LED Driver Serial Port - Device = /dev/ttyUSB3 LED - Names = LED0, LED1, LED2, LED3,
+ *         LED4, LED5, LED6, LED7, LED8, LED9, LED10, LED11
  * 
+ *         adamastor_en_US.xml
+ *         Neptus conf parameters <param name="LED - Names"> <name-i18n>LED - Names</name-i18n> <type>list:string</type>
+ *         <visibility>developer</visibility> <scope>global</scope> <default>01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11,
+ *         12</default> <units/> <desc>List of LED names</desc> <size>12</size> </param>
  */
 // @Popup(pos = POSITION.TOP_LEFT, accelerator = 'D')
 @Popup(pos = POSITION.TOP_LEFT, width = 400, height = 400, accelerator = 'D')
 @PluginDescription(author = "hfq", description = "Panel that enables setting up leds brightness", name = "Leds Control Panel", version = "0.1", icon = "images/menus/tip.png")
-public class LedsControlPanel extends SimpleSubPanel implements ActionListener {
+public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates, ActionListener {
     private static final long serialVersionUID = 1L;
     private ConsoleLayout console;
-
-    private static final int PANEL_WIDTH = 400;
-    private static final int PANEL_HEIGHT = 400;
-
-    // Leds Brightness in percentage / max brightness value = 255
-    protected static final int LED_MIN_BRIGHTNESS = 0;
-    protected static final int LED_MAX_BRIGHTNESS = 100;
-    protected static final int LED_INIT_BRIGHTNESS = 0;
-
-    public static final String[] ledNames = { "LED0", "LED1", "LED2", "LED3", "LED4", "LED5", "LED6", "LED7", "LED8",
-            "LED9", "LED10", "LED11", "LED12" };
 
     public LinkedHashMap<String, Integer> msgLeds = new LinkedHashMap<>();
 
@@ -112,8 +110,6 @@ public class LedsControlPanel extends SimpleSubPanel implements ActionListener {
         // this.setBackground(Color.DARK_GRAY);
         this.setOpaque(true);
         this.setResizable(true);
-        // this.console.addMainVehicleListener(this);
-        ImcMsgManager.getManager().addListener(this);
 
         initMsgMapping();
     }
@@ -124,12 +120,12 @@ public class LedsControlPanel extends SimpleSubPanel implements ActionListener {
     private void initMsgMapping() {
         for (int i = 0; i < 12; ++i) {
             // msgLeds.put("LED" + (i), 0);
-            msgLeds.put(ledNames[0], 0);
+            msgLeds.put(LedsUtils.ledNames[0], 0);
         }
     }
 
     /**
-     * 
+     * create and add components to this panel
      */
     private void createPanel() {
         slider1 = new LedsSlider("Leds G1 ");
@@ -142,17 +138,9 @@ public class LedsControlPanel extends SimpleSubPanel implements ActionListener {
         this.add(slider4, "wrap");
 
         SetLedBrightness msgLed1 = new SetLedBrightness();
-    }
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        LedsControlPanel lcp = new LedsControlPanel(null);
-        // lcp.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
-        lcp.printMsgMapping();
-        lcp.createPanel();
-        GuiUtils.testFrame(lcp, "Test" + lcp.getClass().getSimpleName(), PANEL_WIDTH, PANEL_HEIGHT);
+        
+        //QueryLedBrightness qled = new QueryLedBrightness(ledNames[0]);
+        //int value1 = (Integer)qled.getValue(ledNames[0]);
     }
 
     @Override
@@ -161,8 +149,8 @@ public class LedsControlPanel extends SimpleSubPanel implements ActionListener {
         Graphics2D graphic2d = (Graphics2D) g;
         Color color1 = getBackground();
         Color color2 = color1.darker();
-        Color color3 = Color.BLACK;
-        GradientPaint gradpaint = new GradientPaint(0, 0, color1, getWidth(), getHeight(), color3);
+        //Color color3 = Color.BLACK;
+        GradientPaint gradpaint = new GradientPaint(0, 0, color1, getWidth(), getHeight(), color2);
         graphic2d.setPaint(gradpaint);
         graphic2d.fillRect(0, 0, getWidth(), getHeight());
     }
@@ -170,6 +158,11 @@ public class LedsControlPanel extends SimpleSubPanel implements ActionListener {
     @Override
     public void initSubPanel() {
         createPanel();
+        Border panEdge = BorderFactory.createEmptyBorder(0, 10, 10, 10);
+        this.setBorder(panEdge);
+        
+        this.console.addMainVehicleListener(this);
+        ImcMsgManager.getManager().addListener(this);
     }
 
     @Override
@@ -189,9 +182,36 @@ public class LedsControlPanel extends SimpleSubPanel implements ActionListener {
         for (Entry<String, Integer> entry : msgLeds.entrySet()) {
             NeptusLog.pub().info("Key: " + entry.getKey() + " Value: " + entry.getValue());
         }
-        // // Finally send the message
-        // RemoteActions msg = new RemoteActions();
-        // msg.setActions(msgActions);
-        // ImcMsgManager.getManager().sendMessageToSystem(msg, console.getMainSystem());
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
+     */
+    @Override
+    public long millisBetweenUpdates() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#update()
+     */
+    @Override
+    public boolean update() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+    
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        LedsControlPanel lcp = new LedsControlPanel(null);
+        // lcp.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
+        lcp.printMsgMapping();
+        lcp.createPanel();
+        Border panEdge = BorderFactory.createEmptyBorder(0, 10, 10, 10);
+        lcp.setBorder(panEdge);
+        GuiUtils.testFrame(lcp, "Test" + lcp.getClass().getSimpleName(), LedsUtils.PANEL_WIDTH, LedsUtils.PANEL_HEIGHT);
     }
 }
