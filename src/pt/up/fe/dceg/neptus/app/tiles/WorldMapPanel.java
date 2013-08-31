@@ -225,16 +225,15 @@ public class WorldMapPanel extends JPanel {
         }
     }
 
-    /**
-     * 
-     */
     public WorldMapPanel() {
         initialize();
     }
 
-    /**
-     * 
-     */
+    public WorldMapPanel(LocationType center) {
+        this.center = center;
+        initialize();
+    }
+
     private void initialize() {
 
         showOptionsDialog = new JButton(new AbstractAction("Preferences") {
@@ -516,6 +515,13 @@ public class WorldMapPanel extends JPanel {
         // this.setSize(new Dimension(1024, 600));
 
         getTimer().scheduleAtFixedRate(getTimerTask(), 500, 200);
+    }
+    
+    /**
+     * @return the renderer
+     */
+    public StateRenderer2D getRenderer() {
+        return renderer;
     }
 
     /**
