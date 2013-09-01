@@ -39,20 +39,24 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 import net.miginfocom.swing.MigLayout;
 
 /**
  * @author hfq
- *
+ * FIXME - add the other 4 images and link them to actions on leds slider panel
  */
 public class PictureComponent extends JPanel {
     private static final long serialVersionUID = 1L;
     
     private JLabel picture;
+    private ImageIcon icon;
     
     public PictureComponent() {
         this.setLayout(new MigLayout());
+        //this.setSize(LedsUtils.PANEL_WIDTH, LedsUtils.PANEL_WIDTH);
+        this.setOpaque(false);
         createPictureComp();
     }
 
@@ -64,33 +68,22 @@ public class PictureComponent extends JPanel {
         picture.setHorizontalAlignment(JLabel.CENTER);
         picture.setAlignmentX(Component.CENTER_ALIGNMENT);
         picture.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(), BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+        picture.setOpaque(false);
         
         updatePicture(0); // Display the leds picture without any leds beeing setted
         this.add(picture);
     }
 
     /**
+     * Updates the picture on 
      * @param picNumber
      */
-    @SuppressWarnings("unused")
     private void updatePicture(int picNumber) {
-//        ImageIcon icon = new ImageIcon("C:/Users/Zhao/Desktop/leds_nothing.png");
-//        if (icon != null)
-//            picture.setIcon(icon);
-//        else {
-//            NeptusLog.pub().info("Picture not found");
-//            picture.setName("Not Found");
-//        }
-        //icon = createI
-        //picture.setIcon()
-        
+        if ((icon = new ImageIcon(ImageUtils.getImage("images/leds/leds_clean.png"))) != null)
+            picture.setIcon(icon);
+        else {
+            NeptusLog.pub().info("Picture not found");
+            picture.setName("Not Found");
+        }
     }
-    
-    protected static ImageIcon createImageIcon(String path) {
-//        URL imgURL = 
-//        
-//        
-        return null;
-    }
-    
 }
