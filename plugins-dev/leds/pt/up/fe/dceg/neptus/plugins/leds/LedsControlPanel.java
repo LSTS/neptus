@@ -32,32 +32,28 @@
 package pt.up.fe.dceg.neptus.plugins.leds;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Scrollbar;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.border.Border;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.imc.LedBrightness;
 import pt.up.fe.dceg.neptus.imc.QueryLedBrightness;
 import pt.up.fe.dceg.neptus.imc.SetLedBrightness;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
-import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 
@@ -132,15 +128,15 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
      * create and add components to this panel
      */
     private void createPanel() {
-        slider1 = new LedsSlider("Leds G1 ");
-        slider2 = new LedsSlider("Leds G2 ");
-        slider3 = new LedsSlider("Leds G3 ");
-        slider4 = new LedsSlider("Leds G4 ");
+        slider1 = new LedsSlider("Leds G1 ", this);
+        slider2 = new LedsSlider("Leds G2 ", this);
+        slider3 = new LedsSlider("Leds G3 ", this);
+        slider4 = new LedsSlider("Leds G4 ", this);
         this.add(slider1, "wrap");
         this.add(slider2, "wrap");
         this.add(slider3, "wrap");
         this.add(slider4, "wrap");
-        picComp = new PictureComponent();
+        picComp = new PictureComponent(this);
         this.add(picComp);
 
         SetLedBrightness msgLed1 = new SetLedBrightness();
@@ -156,8 +152,8 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         Color color1 = getBackground();
         Color color2 = color1.darker();
         // Color color3 = Color.BLACK;
-        GradientPaint gradpaint = new GradientPaint(0, 0, color1, getWidth(), getHeight(), color2);
-        graphic2d.setPaint(gradpaint);
+        GradientPaint gradPaint = new GradientPaint(0, 0, color1, getWidth(), getHeight(), color2);
+        graphic2d.setPaint(gradPaint);
         graphic2d.fillRect(0, 0, getWidth(), getHeight());
     }
 

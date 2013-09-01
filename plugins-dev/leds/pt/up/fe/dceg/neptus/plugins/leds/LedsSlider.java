@@ -31,26 +31,23 @@
  */
 package pt.up.fe.dceg.neptus.plugins.leds;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
-import javax.swing.Timer;
 import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-
 import net.miginfocom.swing.MigLayout;
+import pt.up.fe.dceg.neptus.NeptusLog;
 
 /**
  * This component has a label, a slider, a text representing the desired value for brightness, and a text with the value
@@ -61,27 +58,34 @@ import net.miginfocom.swing.MigLayout;
  * 
  */
 public class LedsSlider extends JPanel implements ChangeListener {
-
     private static final long serialVersionUID = 1L;
+
+    private JComponent parent;
 
     private JSlider slider;
     private String sliderName;
     private int sliderValue = 0;
-
-    private JLabel sliderLabel;
-
+    // private JLabel sliderLabel;
     private JTextField sliderTextField;
-
     private Border loweredetched;
     private TitledBorder titled;
 
-    // timer so that the message isn't send instantaneously
-    private Timer timer;
-    int delay = 1000;
+    private JPanel collectionLedsPanel;
+    private JLabel led1Label;
+    private JTextField led1;
+    private JLabel led2Label;
+    private JTextField led2;
+    private JLabel led3Label;
+    private JTextField led3;
 
-    public LedsSlider(String name) {
+    /**
+     * @param name
+     * @param parent
+     */
+    public LedsSlider(String name, JComponent parent) {
         // super();
         this.setLayout(new MigLayout());
+        this.parent = parent;
         this.sliderName = name;
         // this.setBackground(Color.BLACK);
         this.setOpaque(false);
@@ -89,23 +93,11 @@ public class LedsSlider extends JPanel implements ChangeListener {
         createBorder();
         createSlider();
         createSliderTextField();
+        createTextFieldsForGroup();
     }
 
     /**
-     * 
-     */
-    private void createSliderTextField() {
-        sliderTextField = new JTextField();
-        sliderTextField.setColumns(3);
-        sliderTextField.setCursor(new Cursor(Cursor.TEXT_CURSOR));
-        sliderTextField.setText(String.valueOf(sliderValue));
-        sliderTextField.setEditable(false);
-        sliderTextField.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 1));
-        this.add(sliderTextField);
-    }
-
-    /**
-     * 
+     * Create border for this component
      */
     private void createBorder() {
         // loweredetched = BorderFactory.createLoweredSoftBevelBorder();
@@ -118,6 +110,9 @@ public class LedsSlider extends JPanel implements ChangeListener {
         this.setBorder(titled);
     }
 
+    /**
+     * Create and set JSlider
+     */
     public void createSlider() {
         // sliderLabel = new JLabel(sliderName, JLabel.CENTER);
         // // sliderLabel.setBackground(Color.DARK_GRAY);
@@ -147,6 +142,81 @@ public class LedsSlider extends JPanel implements ChangeListener {
         this.add(slider);
     }
 
+    /**
+     * Create and set text field showing slider values
+     */
+    private void createSliderTextField() {
+        sliderTextField = new JTextField();
+        sliderTextField.setColumns(3);
+        sliderTextField.setCursor(new Cursor(Cursor.TEXT_CURSOR));
+        sliderTextField.setText(String.valueOf(sliderValue));
+        sliderTextField.setEditable(false);
+        sliderTextField.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 1));
+        this.add(sliderTextField);
+    }
+
+    /**
+     * Create and set text fields that are will hold queried brightness values for each led on this each group
+     */
+    private void createTextFieldsForGroup() {
+        collectionLedsPanel = new JPanel();
+        collectionLedsPanel.setLayout(new MigLayout());
+        collectionLedsPanel.setOpaque(false);
+        collectionLedsPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+
+        led1Label = new JLabel();
+        setPropertiesForLedsLabel(led1Label);
+        led1Label.setText(LedsUtils.ledNames[0]);
+
+        led1 = new JTextField();
+        setPropertiesForLedsTextField(led1);
+        led1.setText(String.valueOf(0));
+
+        led2Label = new JLabel();
+        setPropertiesForLedsLabel(led2Label);
+        led2Label.setText(LedsUtils.ledNames[1]);
+        
+        led2 = new JTextField();
+        setPropertiesForLedsTextField(led2);
+        led2.setText(String.valueOf(0));
+        
+        led3Label = new JLabel();
+        setPropertiesForLedsLabel(led3Label);
+        led3Label.setText(LedsUtils.ledNames[2]);
+        
+        led3 = new JTextField();
+        setPropertiesForLedsTextField(led3);
+        led3.setText(String.valueOf(0));
+        
+        collectionLedsPanel.add(led1Label);
+        collectionLedsPanel.add(led1);
+        collectionLedsPanel.add(led2Label);
+        collectionLedsPanel.add(led2);
+        collectionLedsPanel.add(led3Label);
+        collectionLedsPanel.add(led3);
+
+        this.add(collectionLedsPanel);
+    }
+
+    /**
+     * Set properties of Leds textfield component
+     * @param textField 
+     */
+    private void setPropertiesForLedsTextField(JTextField textField) {
+        textField.setColumns(3);
+        textField.setEditable(false);
+    }
+
+    /**
+     * set properties of Leds label component
+     * @param led1Label2
+     */
+    private void setPropertiesForLedsLabel(JLabel label) {
+        label.setFont(new Font(Font.SERIF, (Font.BOLD + Font.ITALIC), 10));
+        label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 1));
+        label.setOpaque(false);    
+    }
+
     @Override
     public void stateChanged(ChangeEvent e) {
         JSlider source = (JSlider) e.getSource();
@@ -169,17 +239,5 @@ public class LedsSlider extends JPanel implements ChangeListener {
             sliderTextField.setText(String.valueOf(sliderValue));
         }
         source.getValue();
-        // JSlider source = (JSlider)e.getSource();
-        // if (!source.getValueIsAdjusting()) {
-        // int fps = (int)source.getValue();
-        // if (fps == 0) {
-        // if (!frozen) stopAnimation();
-        // } else {
-        // delay = 1000 / fps;
-        // timer.setDelay(delay);
-        // timer.setInitialDelay(delay * 10);
-        // if (frozen) startAnimation();
-        // }
-        // }
     }
 }

@@ -35,27 +35,29 @@ import java.awt.Component;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 
-import net.miginfocom.swing.MigLayout;
-
 /**
- * @author hfq
- * FIXME - add the other 4 images and link them to actions on leds slider panel
+ * @author hfq FIXME - add the other 4 images and link them to actions on leds slider panel
  */
 public class PictureComponent extends JPanel {
     private static final long serialVersionUID = 1L;
     
+    JComponent parent;
+    
     private JLabel picture;
     private ImageIcon icon;
-    
-    public PictureComponent() {
+
+    public PictureComponent(JComponent parent) {
         this.setLayout(new MigLayout());
-        //this.setSize(LedsUtils.PANEL_WIDTH, LedsUtils.PANEL_WIDTH);
+        this.parent = parent;
+        // this.setSize(LedsUtils.PANEL_WIDTH, LedsUtils.PANEL_WIDTH);
         this.setOpaque(false);
         createPictureComp();
     }
@@ -67,15 +69,17 @@ public class PictureComponent extends JPanel {
         picture = new JLabel();
         picture.setHorizontalAlignment(JLabel.CENTER);
         picture.setAlignmentX(Component.CENTER_ALIGNMENT);
-        picture.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(), BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+        picture.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)));
         picture.setOpaque(false);
-        
+
         updatePicture(0); // Display the leds picture without any leds beeing setted
         this.add(picture);
     }
 
     /**
-     * Updates the picture on 
+     * Updates the picture on
+     * 
      * @param picNumber
      */
     private void updatePicture(int picNumber) {
