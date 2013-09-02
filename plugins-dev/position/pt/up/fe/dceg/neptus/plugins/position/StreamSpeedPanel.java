@@ -157,7 +157,7 @@ implements MainVehicleChangeListener, Renderer2DPainter, SubPanelChangeListener,
             
             // value
             DecimalFormat myFormatter = new DecimalFormat("###.##");
-            String output = myFormatter.format(Math.sqrt(strX * strX + strY * strY + strZ * strZ));
+            String output = myFormatter.format(Math.sqrt(strX * strX + strY * strY));
 
             String text =  output+" m/s";
             Rectangle2D stringBounds = g2.getFontMetrics().getStringBounds(text, g2);
