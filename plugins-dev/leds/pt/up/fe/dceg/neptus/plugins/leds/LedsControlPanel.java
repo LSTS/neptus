@@ -37,11 +37,18 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
 import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+
+import com.jogamp.newt.event.KeyEvent;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
@@ -85,7 +92,7 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 // @Popup(pos = POSITION.TOP_LEFT, accelerator = 'D')
 @Popup(pos = POSITION.TOP_LEFT, width = 550, height = 550, accelerator = 'D')
 @PluginDescription(author = "hfq", description = "Panel that enables setting up leds brightness", name = "Leds Control Panel", version = "0.1", icon = "images/menus/tip.png")
-public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates, ActionListener {
+public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates, ActionListener, ItemListener {
     private static final long serialVersionUID = 1L;
 
     @NeptusProperty(name = "Periodicity millis", description = "Set update periodicity in miliseconds", editable = true)
@@ -93,9 +100,12 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
 
     private ConsoleLayout console;
     public LinkedHashMap<String, Integer> msgLeds = new LinkedHashMap<>();
-    private LedsSlider slider1, slider2, slider3, slider4;
+    protected LedsSlider slider1, slider2, slider3, slider4;
+    protected JPanel checkBoxPanel;
+    protected JCheckBox checkBoxSetAllLeds;
     protected PictureComponent picComp;
     protected int sliderNumComp = 0;
+    protected boolean allLedsToBeSet = false;
 
     // Can have a timer to turn on the 4 groups of leds (3 leds per group) in a clockwise matter
     // Timer time;
@@ -138,13 +148,37 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         this.add(slider2, "wrap");
         this.add(slider3, "wrap");
         this.add(slider4, "wrap");
+        
+        checkBoxPanel = new JPanel();
+        setPropertiesCheckBox();
+        this.add(checkBoxPanel, "wrap");
+        
         picComp = new PictureComponent(this);
-        this.add(picComp);
+        this.add(picComp, "wrap");
 
         SetLedBrightness msgLed1 = new SetLedBrightness();
 
         // QueryLedBrightness qled = new QueryLedBrightness(ledNames[0]);
         // int value1 = (Integer)qled.getValue(ledNames[0]);
+    }
+
+    /**
+     * Set properties of Panel containg the checkbox, and properties of the components that are added to this panel
+     */
+    private void setPropertiesCheckBox() {
+        checkBoxPanel.setLayout(new MigLayout());
+        checkBoxPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
+                BorderFactory.createEmptyBorder(0, 1, 0, 0)));
+        checkBoxPanel.setOpaque(false);
+        
+        checkBoxSetAllLeds = new JCheckBox("Set up all Leds");
+        checkBoxSetAllLeds.setName("Set all Leds");
+        checkBoxSetAllLeds.setMnemonic(KeyEvent.VK_A);
+        checkBoxSetAllLeds.setSelected(false);
+        checkBoxSetAllLeds.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 0));
+        checkBoxSetAllLeds.setOpaque(false);
+        checkBoxSetAllLeds.addItemListener(this);
+        checkBoxPanel.add(checkBoxSetAllLeds, "wrap");
     }
 
     @Override
@@ -206,7 +240,7 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
      */
     @Override
     public boolean update() {
-        // TODO Auto-generated method stub
+        // sempre que houver um update de x em x milisegundos, preenche-se as textbox dos leds correspondetes
         return false;
     }
 
@@ -221,5 +255,18 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         Border panEdge = BorderFactory.createEmptyBorder(0, 10, 10, 10);
         lcp.setBorder(panEdge);
         GuiUtils.testFrame(lcp, "Test" + lcp.getClass().getSimpleName(), LedsUtils.PANEL_WIDTH, LedsUtils.PANEL_HEIGHT);
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.ItemListener#itemStateChanged(java.awt.event.ItemEvent)
+     */
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        if (allLedsToBeSet)
+            allLedsToBeSet = false;
+        else {
+            allLedsToBeSet = true;
+            sliderNumComp = 5;
+        }
     }
 }

@@ -73,6 +73,7 @@ public class PictureComponent extends JPanel {
         picture.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
         picture.setOpaque(false);
+        picture.setToolTipText("Image representing leds being setted!");
 
         updatePicture(0); // Display the leds picture without any leds beeing setted
         this.add(picture);
@@ -119,6 +120,14 @@ public class PictureComponent extends JPanel {
                 break;
             case 4:
                 if ((icon = new ImageIcon(ImageUtils.getImage("images/leds/leds4.png"))) != null)
+                    picture.setIcon(icon);
+                else {
+                    NeptusLog.pub().info("Picture not found");
+                    picture.setName("Not Found");
+                }
+                break;
+            case 5:
+                if ((icon = new ImageIcon(ImageUtils.getImage("images/leds/leds_clean.png"))) != null)
                     picture.setIcon(icon);
                 else {
                     NeptusLog.pub().info("Picture not found");

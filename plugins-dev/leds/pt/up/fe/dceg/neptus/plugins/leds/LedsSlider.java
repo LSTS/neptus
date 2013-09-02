@@ -166,6 +166,7 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
         collectionLedsPanel.setLayout(new MigLayout());
         collectionLedsPanel.setOpaque(false);
         collectionLedsPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+        collectionLedsPanel.setName(String.valueOf(sliderNumber));
 
         led1Label = new JLabel();
         led2Label = new JLabel();
@@ -255,31 +256,82 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
     @Override
     public void stateChanged(ChangeEvent e) {
         JSlider source = (JSlider) e.getSource();
-        if (!source.getValueIsAdjusting()) {
-            sliderValue = source.getValue();
-            sliderTextField.setText(String.valueOf(sliderValue));
-            if (sliderValue == 0) {
-                NeptusLog.pub().info(
-                        "Value of slider " + String.valueOf(sliderNumber) + " value in perc: " + sliderValue
-                                + " value in brightness: " + LedsUtils.convPercToLedsBright(sliderValue));
+        
+        if(!parent.allLedsToBeSet) {           
+            if (!source.getValueIsAdjusting()) {
+                sliderValue = source.getValue();
+                sliderTextField.setText(String.valueOf(sliderValue));
+                if (sliderValue == 0) {
+                    NeptusLog.pub().info(
+                            "Value of slider " + String.valueOf(sliderNumber) + " value in perc: " + sliderValue
+                                    + " value in brightness: " + LedsUtils.convPercToLedsBright(sliderValue));
+                }
+                else {
+                    // send message with the value of
+                    // LedsUtils.convPercToLedsBright(sliderValue)
+                    NeptusLog.pub().info(
+                            "Value of slider " + String.valueOf(sliderNumber) + " value in perc: " + sliderValue
+                                    + " value in brightness: " + LedsUtils.convPercToLedsBright(sliderValue));
+                }
             }
             else {
-                // send message with the value of
-                // LedsUtils.convPercToLedsBright(sliderValue)
-                NeptusLog.pub().info(
-                        "Value of slider " + String.valueOf(sliderNumber) + " value in perc: " + sliderValue
-                                + " value in brightness: " + LedsUtils.convPercToLedsBright(sliderValue));
+                sliderValue = source.getValue();
+                sliderTextField.setText(String.valueOf(sliderValue));
             }
-        }
+            if (sliderNumber != parent.sliderNumComp)
+                parent.picComp.updatePicture(sliderNumber);
+            parent.sliderNumComp = sliderNumber;
+        } 
         else {
-            sliderValue = source.getValue();
-            sliderTextField.setText(String.valueOf(sliderValue));
+            if(!source.getValueIsAdjusting()) {
+                sliderValue = source.getValue();
+                sliderTextField.setText(String.valueOf(sliderValue));
+                for (int i = 1; i <= 4; ++i) {
+                    if(this.equals(parent.slider1)) {
+                        parent.slider2.slider.setValue(sliderValue);
+                        parent.slider2.sliderTextField.setText(String.valueOf(sliderValue));
+                        parent.slider3.slider.setValue(sliderValue);
+                        parent.slider3.sliderTextField.setText(String.valueOf(sliderValue));
+                        parent.slider4.slider.setValue(sliderValue);
+                        parent.slider4.sliderTextField.setText(String.valueOf(sliderValue));
+                    }
+                    else if (this.equals(parent.slider2)) {
+                        parent.slider1.slider.setValue(sliderValue);
+                        parent.slider1.sliderTextField.setText(String.valueOf(sliderValue));
+                        parent.slider3.slider.setValue(sliderValue);
+                        parent.slider3.sliderTextField.setText(String.valueOf(sliderValue));
+                        parent.slider4.slider.setValue(sliderValue);
+                        parent.slider4.sliderTextField.setText(String.valueOf(sliderValue));                       
+                    }
+                    else if (this.equals(parent.slider3)) {
+                        parent.slider1.slider.setValue(sliderValue);
+                        parent.slider1.sliderTextField.setText(String.valueOf(sliderValue));
+                        parent.slider2.slider.setValue(sliderValue);
+                        parent.slider2.sliderTextField.setText(String.valueOf(sliderValue));
+                        parent.slider4.slider.setValue(sliderValue);
+                        parent.slider4.sliderTextField.setText(String.valueOf(sliderValue));                        
+                    }
+                    else if (this.equals(parent.slider4)) {
+                        parent.slider1.slider.setValue(sliderValue);
+                        parent.slider1.sliderTextField.setText(String.valueOf(sliderValue));
+                        parent.slider2.slider.setValue(sliderValue);
+                        parent.slider2.sliderTextField.setText(String.valueOf(sliderValue));
+                        parent.slider3.slider.setValue(sliderValue);
+                        parent.slider3.sliderTextField.setText(String.valueOf(sliderValue));                        
+                    }
+                }
+//                if (this.getName().equals()) {
+//                    parent.s
+//                }
+            }
+            else {
+                sliderValue = source.getValue();
+                sliderTextField.setText(String.valueOf(sliderValue));
+            }
+            //sliderNumber = 5;
+            //parent.sliderNumComp = sliderNumber;
+            parent.picComp.updatePicture(parent.sliderNumComp);
         }
-        if (sliderNumber != parent.sliderNumComp) {
-            NeptusLog.pub().info("Veid aki");
-            parent.picComp.updatePicture(sliderNumber);
-        }
-        parent.sliderNumComp = sliderNumber;
     }
 
     /*
