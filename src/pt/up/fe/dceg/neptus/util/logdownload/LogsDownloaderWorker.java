@@ -1934,6 +1934,7 @@ public class LogsDownloaderWorker {
      */
     private boolean deleteLogFolderFromServer(String path) {
         try {
+            System.out.println("Deleting folder");
             return clientFtp.getClient().deleteFile("/" + path);
         }
         catch (IOException e) {
@@ -1985,7 +1986,9 @@ public class LogsDownloaderWorker {
                 if (!ret)
                     continue;
                 LogFolderInfo lFolder = new LogFolderInfo(logDir);
-                for (FTPFile file : clientFtp.getClient().listFiles()) {
+
+                FTPFile[] files = clientFtp.getClient().listFiles();
+                for (FTPFile file : files) {
                     String name = logDir + "/" + file.getName();
                     String uriPartial = logDir + "/" + file.getName();
                     LogFileInfo logFileTmp = new LogFileInfo(name);
