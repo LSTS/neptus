@@ -49,6 +49,7 @@ import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.imc.SetLedBrightness;
 
 /**
  * This component has a label, a slider, a text representing the desired value for brightness, and a text with the value
@@ -86,7 +87,7 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
      */
     public LedsSlider(int sliderNumber, LedsControlPanel parent) {
         // super();
-        this.setLayout(new MigLayout());
+        this.setLayout(new MigLayout("fill"));
         this.parent = parent;
         // this.sliderName = name;
         this.sliderNumber = sliderNumber;
@@ -196,15 +197,15 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
      * @param led1Label2
      */
     private void setPropertiesForLedsLabel(JLabel label1, JLabel label2, JLabel label3) {
-        label1.setFont(new Font(Font.SERIF, (Font.BOLD + Font.ITALIC), 10));
+        label1.setFont(new Font(Font.SERIF, (Font.BOLD + Font.ITALIC), 9));
         label1.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 1));
         label1.setOpaque(false);
 
-        label2.setFont(new Font(Font.SERIF, (Font.BOLD + Font.ITALIC), 10));
+        label2.setFont(new Font(Font.SERIF, (Font.BOLD + Font.ITALIC), 9));
         label2.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 1));
         label2.setOpaque(false);
 
-        label3.setFont(new Font(Font.SERIF, (Font.BOLD + Font.ITALIC), 10));
+        label3.setFont(new Font(Font.SERIF, (Font.BOLD + Font.ITALIC), 9));
         label3.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 1));
         label3.setOpaque(false);
 
@@ -256,8 +257,8 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
     @Override
     public void stateChanged(ChangeEvent e) {
         JSlider source = (JSlider) e.getSource();
-        
-        if(!parent.allLedsToBeSet) {           
+
+        if (!parent.allLedsToBeSet) {
             if (!source.getValueIsAdjusting()) {
                 sliderValue = source.getValue();
                 sliderTextField.setText(String.valueOf(sliderValue));
@@ -269,6 +270,18 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
                 else {
                     // send message with the value of
                     // LedsUtils.convPercToLedsBright(sliderValue)
+                    SetLedBrightness setLedBrigt1 = new SetLedBrightness();
+                    setLedBrigt1.setName("LED0");
+                    setLedBrigt1.setValue((short) sliderValue);
+                    
+                    parent.send(setLedBrigt1);
+                    
+                    SetLedBrightness setLedBrigt2 = new SetLedBrightness();                    
+                    setLedBrigt2.setName("LED1");
+                    setLedBrigt2.setValue((short) sliderValue);
+                    
+                    parent.send(setLedBrigt2);
+                                     
                     NeptusLog.pub().info(
                             "Value of slider " + String.valueOf(sliderNumber) + " value in perc: " + sliderValue
                                     + " value in brightness: " + LedsUtils.convPercToLedsBright(sliderValue));
@@ -281,13 +294,13 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
             if (sliderNumber != parent.sliderNumComp)
                 parent.picComp.updatePicture(sliderNumber);
             parent.sliderNumComp = sliderNumber;
-        } 
+        }
         else {
-            if(!source.getValueIsAdjusting()) {
+            if (!source.getValueIsAdjusting()) {
                 sliderValue = source.getValue();
                 sliderTextField.setText(String.valueOf(sliderValue));
                 for (int i = 1; i <= 4; ++i) {
-                    if(this.equals(parent.slider1)) {
+                    if (this.equals(parent.slider1)) {
                         parent.slider2.slider.setValue(sliderValue);
                         parent.slider2.sliderTextField.setText(String.valueOf(sliderValue));
                         parent.slider3.slider.setValue(sliderValue);
@@ -301,7 +314,7 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
                         parent.slider3.slider.setValue(sliderValue);
                         parent.slider3.sliderTextField.setText(String.valueOf(sliderValue));
                         parent.slider4.slider.setValue(sliderValue);
-                        parent.slider4.sliderTextField.setText(String.valueOf(sliderValue));                       
+                        parent.slider4.sliderTextField.setText(String.valueOf(sliderValue));
                     }
                     else if (this.equals(parent.slider3)) {
                         parent.slider1.slider.setValue(sliderValue);
@@ -309,7 +322,7 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
                         parent.slider2.slider.setValue(sliderValue);
                         parent.slider2.sliderTextField.setText(String.valueOf(sliderValue));
                         parent.slider4.slider.setValue(sliderValue);
-                        parent.slider4.sliderTextField.setText(String.valueOf(sliderValue));                        
+                        parent.slider4.sliderTextField.setText(String.valueOf(sliderValue));
                     }
                     else if (this.equals(parent.slider4)) {
                         parent.slider1.slider.setValue(sliderValue);
@@ -317,19 +330,19 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
                         parent.slider2.slider.setValue(sliderValue);
                         parent.slider2.sliderTextField.setText(String.valueOf(sliderValue));
                         parent.slider3.slider.setValue(sliderValue);
-                        parent.slider3.sliderTextField.setText(String.valueOf(sliderValue));                        
+                        parent.slider3.sliderTextField.setText(String.valueOf(sliderValue));
                     }
                 }
-//                if (this.getName().equals()) {
-//                    parent.s
-//                }
+                // if (this.getName().equals()) {
+                // parent.s
+                // }
             }
             else {
                 sliderValue = source.getValue();
                 sliderTextField.setText(String.valueOf(sliderValue));
             }
-            //sliderNumber = 5;
-            //parent.sliderNumComp = sliderNumber;
+            // sliderNumber = 5;
+            // parent.sliderNumComp = sliderNumber;
             parent.picComp.updatePicture(parent.sliderNumComp);
         }
     }

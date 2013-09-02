@@ -39,6 +39,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
@@ -46,13 +47,13 @@ import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
 
-import com.jogamp.newt.event.KeyEvent;
+import com.google.common.eventbus.Subscribe;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.imc.LedBrightness;
 import pt.up.fe.dceg.neptus.imc.QueryLedBrightness;
 import pt.up.fe.dceg.neptus.imc.SetLedBrightness;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
@@ -116,7 +117,8 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
     public LedsControlPanel(ConsoleLayout console) {
         super(console);
         this.console = console;
-        this.setLayout(new MigLayout("insets 0"));
+        //this.setLayout(new MigLayout("insets 0"));
+        this.setLayout(new MigLayout("fill"));
         this.removeAll();
         // this.setBackground(Color.DARK_GRAY);
         this.setOpaque(true);
@@ -144,17 +146,19 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         slider2 = new LedsSlider(2, this);
         slider3 = new LedsSlider(3, this);
         slider4 = new LedsSlider(4, this);
-        this.add(slider1, "wrap");
-        this.add(slider2, "wrap");
-        this.add(slider3, "wrap");
-        this.add(slider4, "wrap");
-        
+        this.add(slider1, "w 100%, wrap");
+        this.add(slider2, "w 100%, wrap");
+        this.add(slider3, "w 100%, wrap");
+        this.add(slider4, "w 100%, wrap");
+
         checkBoxPanel = new JPanel();
         setPropertiesCheckBox();
-        this.add(checkBoxPanel, "wrap");
+        //this.add(checkBoxPanel, "wrap");
+        this.add(checkBoxPanel, "w 100%, wrap");
         
         picComp = new PictureComponent(this);
-        this.add(picComp, "wrap");
+        this.add(picComp, "w 100%, wrap");
+        //this.add(picComp, "grow, push, span");
 
         SetLedBrightness msgLed1 = new SetLedBrightness();
 
@@ -170,7 +174,7 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         checkBoxPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
                 BorderFactory.createEmptyBorder(0, 1, 0, 0)));
         checkBoxPanel.setOpaque(false);
-        
+
         checkBoxSetAllLeds = new JCheckBox("Set up all Leds");
         checkBoxSetAllLeds.setName("Set all Leds");
         checkBoxSetAllLeds.setMnemonic(KeyEvent.VK_A);
@@ -186,7 +190,7 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         super.paintComponent(g);
         Graphics2D graphic2d = (Graphics2D) g;
         Color color1 = getBackground();
-        Color color2 = color1.darker();
+        //Color color2 = color1.darker();
         Color color3 = Color.DARK_GRAY;
         GradientPaint gradPaint = new GradientPaint(0, 0, color1, getWidth(), getHeight(), color3);
         graphic2d.setPaint(gradPaint);
@@ -200,6 +204,8 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         this.setBorder(panEdge);
 
         this.console.addMainVehicleListener(this);
+        
+        
         ImcMsgManager.getManager().addListener(this);
     }
 
@@ -230,7 +236,7 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
     @Override
     public long millisBetweenUpdates() {
         // TODO Auto-generated method stub
-        return 0;
+        return periodicity;
     }
 
     /*
@@ -240,9 +246,27 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
      */
     @Override
     public boolean update() {
-        // sempre que houver um update de x em x milisegundos, preenche-se as textbox dos leds correspondetes
+        QueryLedBrightness query1 = new QueryLedBrightness();
+        query1.setName(LedsUtils.ledNames[0]);
+        
+        send(query1);
+        
         return false;
     }
+    
+    @Subscribe
+    public void consume(LedBrightness msg) {
+        
+        try {
+            short i = msg.getValue();
+        }
+        catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+
 
     /**
      * @param args
@@ -251,13 +275,15 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         LedsControlPanel lcp = new LedsControlPanel(null);
         // lcp.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         lcp.printMsgMapping();
-        lcp.createPanel();
         Border panEdge = BorderFactory.createEmptyBorder(0, 10, 10, 10);
         lcp.setBorder(panEdge);
+        lcp.createPanel();
         GuiUtils.testFrame(lcp, "Test" + lcp.getClass().getSimpleName(), LedsUtils.PANEL_WIDTH, LedsUtils.PANEL_HEIGHT);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ItemListener#itemStateChanged(java.awt.event.ItemEvent)
      */
     @Override
