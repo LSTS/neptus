@@ -36,8 +36,8 @@ package pt.up.fe.dceg.neptus.plugins.leds;
  * 
  */
 public class LedsUtils {
-    protected static final int PANEL_WIDTH = 500;
-    protected static final int PANEL_HEIGHT = 600;
+    protected static final int PANEL_WIDTH = 550;
+    protected static final int PANEL_HEIGHT = 550;
 
     // Leds Brightness in percentage / max brightness value = 255
     protected static final int LED_MIN_BRIGHTNESS = 0;

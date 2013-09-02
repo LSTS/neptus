@@ -33,9 +33,10 @@ package pt.up.fe.dceg.neptus.plugins.leds;
 
 import java.awt.Cursor;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -57,13 +58,14 @@ import pt.up.fe.dceg.neptus.NeptusLog;
  * @author hfq
  * 
  */
-public class LedsSlider extends JPanel implements ChangeListener {
+public class LedsSlider extends JPanel implements ChangeListener, ActionListener {
     private static final long serialVersionUID = 1L;
 
-    private JComponent parent;
+    private LedsControlPanel parent;
 
     private JSlider slider;
-    private String sliderName;
+    // private String sliderName;
+    private int sliderNumber = 0;;
     private int sliderValue = 0;
     // private JLabel sliderLabel;
     private JTextField sliderTextField;
@@ -82,11 +84,12 @@ public class LedsSlider extends JPanel implements ChangeListener {
      * @param name
      * @param parent
      */
-    public LedsSlider(String name, JComponent parent) {
+    public LedsSlider(int sliderNumber, LedsControlPanel parent) {
         // super();
         this.setLayout(new MigLayout());
         this.parent = parent;
-        this.sliderName = name;
+        // this.sliderName = name;
+        this.sliderNumber = sliderNumber;
         // this.setBackground(Color.BLACK);
         this.setOpaque(false);
         this.setSize(LedsControlPanel.WIDTH, LedsControlPanel.HEIGHT / 4);
@@ -103,7 +106,7 @@ public class LedsSlider extends JPanel implements ChangeListener {
         // loweredetched = BorderFactory.createLoweredSoftBevelBorder();
         loweredetched = BorderFactory.createLoweredBevelBorder();
 
-        titled = BorderFactory.createTitledBorder(loweredetched, sliderName);
+        titled = BorderFactory.createTitledBorder(loweredetched, "Leds Group " + String.valueOf(sliderNumber));
         titled.setTitleJustification(TitledBorder.LEFT);
         titled.setTitlePosition(TitledBorder.DEFAULT_POSITION);
 
@@ -132,7 +135,7 @@ public class LedsSlider extends JPanel implements ChangeListener {
 
         slider.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 0));
 
-        slider.setToolTipText(sliderName + " Brightness Controller");
+        slider.setToolTipText("Leds Group " + String.valueOf(sliderNumber) + " Brightness Controller");
         slider.setFont(new Font(Font.SERIF, Font.ITALIC, 10));
         slider.setOpaque(false);
 
@@ -165,29 +168,15 @@ public class LedsSlider extends JPanel implements ChangeListener {
         collectionLedsPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 
         led1Label = new JLabel();
-        setPropertiesForLedsLabel(led1Label);
-        led1Label.setText(LedsUtils.ledNames[0]);
+        led2Label = new JLabel();
+        led3Label = new JLabel();
+        setPropertiesForLedsLabel(led1Label, led2Label, led3Label);
 
         led1 = new JTextField();
-        setPropertiesForLedsTextField(led1);
-        led1.setText(String.valueOf(0));
-
-        led2Label = new JLabel();
-        setPropertiesForLedsLabel(led2Label);
-        led2Label.setText(LedsUtils.ledNames[1]);
-        
         led2 = new JTextField();
-        setPropertiesForLedsTextField(led2);
-        led2.setText(String.valueOf(0));
-        
-        led3Label = new JLabel();
-        setPropertiesForLedsLabel(led3Label);
-        led3Label.setText(LedsUtils.ledNames[2]);
-        
         led3 = new JTextField();
-        setPropertiesForLedsTextField(led3);
-        led3.setText(String.valueOf(0));
-        
+        setPropertiesForLedsTextField(led1, led2, led3);
+
         collectionLedsPanel.add(led1Label);
         collectionLedsPanel.add(led1);
         collectionLedsPanel.add(led2Label);
@@ -199,22 +188,68 @@ public class LedsSlider extends JPanel implements ChangeListener {
     }
 
     /**
-     * Set properties of Leds textfield component
-     * @param textField 
+     * set properties of Leds label component
+     * 
+     * @param led3Label2
+     * @param led2Label2
+     * @param led1Label2
      */
-    private void setPropertiesForLedsTextField(JTextField textField) {
-        textField.setColumns(3);
-        textField.setEditable(false);
+    private void setPropertiesForLedsLabel(JLabel label1, JLabel label2, JLabel label3) {
+        label1.setFont(new Font(Font.SERIF, (Font.BOLD + Font.ITALIC), 10));
+        label1.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 1));
+        label1.setOpaque(false);
+
+        label2.setFont(new Font(Font.SERIF, (Font.BOLD + Font.ITALIC), 10));
+        label2.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 1));
+        label2.setOpaque(false);
+
+        label3.setFont(new Font(Font.SERIF, (Font.BOLD + Font.ITALIC), 10));
+        label3.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 1));
+        label3.setOpaque(false);
+
+        switch (sliderNumber) {
+            case 1:
+                label1.setText(LedsUtils.ledNames[0]);
+                label2.setText(LedsUtils.ledNames[1]);
+                label3.setText(LedsUtils.ledNames[2]);
+                break;
+            case 2:
+                label1.setText(LedsUtils.ledNames[3]);
+                label2.setText(LedsUtils.ledNames[4]);
+                label3.setText(LedsUtils.ledNames[5]);
+                break;
+            case 3:
+                label1.setText(LedsUtils.ledNames[6]);
+                label2.setText(LedsUtils.ledNames[7]);
+                label3.setText(LedsUtils.ledNames[8]);
+                break;
+            case 4:
+                label1.setText(LedsUtils.ledNames[9]);
+                label2.setText(LedsUtils.ledNames[10]);
+                label3.setText(LedsUtils.ledNames[11]);
+                break;
+        }
     }
 
     /**
-     * set properties of Leds label component
-     * @param led1Label2
+     * Set properties of Leds textfield component
+     * 
+     * @param textField
+     * @param led32
+     * @param led22
      */
-    private void setPropertiesForLedsLabel(JLabel label) {
-        label.setFont(new Font(Font.SERIF, (Font.BOLD + Font.ITALIC), 10));
-        label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 1));
-        label.setOpaque(false);    
+    private void setPropertiesForLedsTextField(JTextField text1, JTextField text2, JTextField text3) {
+        text1.setColumns(3);
+        text1.setEditable(false);
+        text1.setText(String.valueOf(0));
+
+        text2.setColumns(3);
+        text2.setEditable(false);
+        text2.setText(String.valueOf(0));
+
+        text3.setColumns(3);
+        text3.setEditable(false);
+        text3.setText(String.valueOf(0));
     }
 
     @Override
@@ -224,20 +259,37 @@ public class LedsSlider extends JPanel implements ChangeListener {
             sliderValue = source.getValue();
             sliderTextField.setText(String.valueOf(sliderValue));
             if (sliderValue == 0) {
-                NeptusLog.pub().info("Send message turn off leds - brightness = 0");
+                NeptusLog.pub().info(
+                        "Value of slider " + String.valueOf(sliderNumber) + " value in perc: " + sliderValue
+                                + " value in brightness: " + LedsUtils.convPercToLedsBright(sliderValue));
             }
             else {
                 // send message with the value of
                 // LedsUtils.convPercToLedsBright(sliderValue)
                 NeptusLog.pub().info(
-                        "Value of slider " + sliderName + " value in perc: " + sliderValue + " value in brightness: "
-                                + LedsUtils.convPercToLedsBright(sliderValue));
+                        "Value of slider " + String.valueOf(sliderNumber) + " value in perc: " + sliderValue
+                                + " value in brightness: " + LedsUtils.convPercToLedsBright(sliderValue));
             }
         }
         else {
             sliderValue = source.getValue();
             sliderTextField.setText(String.valueOf(sliderValue));
         }
-        source.getValue();
+        if (sliderNumber != parent.sliderNumComp) {
+            NeptusLog.pub().info("Veid aki");
+            parent.picComp.updatePicture(sliderNumber);
+        }
+        parent.sliderNumComp = sliderNumber;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        NeptusLog.pub().info("Action performed");
+
     }
 }
