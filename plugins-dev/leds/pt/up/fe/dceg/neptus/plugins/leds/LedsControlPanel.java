@@ -100,13 +100,15 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
     public int periodicity = 1000;
 
     private ConsoleLayout console;
-    public LinkedHashMap<String, Integer> msgLeds = new LinkedHashMap<>();
     protected LedsSlider slider1, slider2, slider3, slider4;
     protected JPanel checkBoxPanel;
     protected JCheckBox checkBoxSetAllLeds;
     protected PictureComponent picComp;
     protected int sliderNumComp = 0;
     protected boolean allLedsToBeSet = false;
+
+    protected LinkedHashMap<String, SetLedBrightness> msgsSetLeds = new LinkedHashMap<>();
+    protected LinkedHashMap<String, QueryLedBrightness> msgsQueryLeds = new LinkedHashMap<>();
 
     // Can have a timer to turn on the 4 groups of leds (3 leds per group) in a clockwise matter
     // Timer time;
@@ -117,7 +119,7 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
     public LedsControlPanel(ConsoleLayout console) {
         super(console);
         this.console = console;
-        //this.setLayout(new MigLayout("insets 0"));
+        // this.setLayout(new MigLayout("insets 0"));
         this.setLayout(new MigLayout("fill"));
         this.removeAll();
         // this.setBackground(Color.DARK_GRAY);
@@ -129,12 +131,17 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
     }
 
     /**
-     * Fill up leds mapping
+     * Fill up leds mapping for the SetLedBrightness and QueryLedBrightness messages
      */
     private void initMsgMapping() {
         for (int i = 0; i < 12; ++i) {
-            // msgLeds.put("LED" + (i), 0);
-            msgLeds.put(LedsUtils.ledNames[0], 0);
+            SetLedBrightness setMsg = new SetLedBrightness();
+            setMsg.setName(LedsUtils.ledNames[i]);
+            msgsSetLeds.put(LedsUtils.ledNames[i], setMsg);
+
+            QueryLedBrightness queryMsg = new QueryLedBrightness();
+            queryMsg.setName(LedsUtils.ledNames[i]);
+            msgsQueryLeds.put(LedsUtils.ledNames[i], queryMsg);
         }
     }
 
@@ -153,21 +160,16 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
 
         checkBoxPanel = new JPanel();
         setPropertiesCheckBox();
-        //this.add(checkBoxPanel, "wrap");
+        // this.add(checkBoxPanel, "wrap");
         this.add(checkBoxPanel, "w 100%, wrap");
-        
+
         picComp = new PictureComponent(this);
         this.add(picComp, "w 100%, wrap");
-        //this.add(picComp, "grow, push, span");
-
-        SetLedBrightness msgLed1 = new SetLedBrightness();
-
-        // QueryLedBrightness qled = new QueryLedBrightness(ledNames[0]);
-        // int value1 = (Integer)qled.getValue(ledNames[0]);
+        // this.add(picComp, "grow, push, span");
     }
 
     /**
-     * Set properties of Panel containg the checkbox, and properties of the components that are added to this panel
+     * Set properties of Panel containing the checkbox, and properties of the components that are added to this panel
      */
     private void setPropertiesCheckBox() {
         checkBoxPanel.setLayout(new MigLayout());
@@ -190,7 +192,7 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         super.paintComponent(g);
         Graphics2D graphic2d = (Graphics2D) g;
         Color color1 = getBackground();
-        //Color color2 = color1.darker();
+        // Color color2 = color1.darker();
         Color color3 = Color.DARK_GRAY;
         GradientPaint gradPaint = new GradientPaint(0, 0, color1, getWidth(), getHeight(), color3);
         graphic2d.setPaint(gradPaint);
@@ -204,8 +206,7 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         this.setBorder(panEdge);
 
         this.console.addMainVehicleListener(this);
-        
-        
+
         ImcMsgManager.getManager().addListener(this);
     }
 
@@ -223,7 +224,7 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
     private void printMsgMapping() {
         NeptusLog.pub().info("Led brightness class id: " + SetLedBrightness.ID_STATIC);
         NeptusLog.pub().info("Query Led class id  " + QueryLedBrightness.ID_STATIC);
-        for (Entry<String, Integer> entry : msgLeds.entrySet()) {
+        for (Entry<String, SetLedBrightness> entry : msgsSetLeds.entrySet()) {
             NeptusLog.pub().info("Key: " + entry.getKey() + " Value: " + entry.getValue());
         }
     }
@@ -248,16 +249,21 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
     public boolean update() {
         QueryLedBrightness query1 = new QueryLedBrightness();
         query1.setName(LedsUtils.ledNames[0]);
-        
+
         send(query1);
-        
+
         return false;
     }
-    
+
     @Subscribe
     public void consume(LedBrightness msg) {
-        
         try {
+            String name = msg.getName();
+//            if (msgLeds.get(name) != null) {
+//
+//            }
+//            msgLeds.get(name);
+
             short i = msg.getValue();
         }
         catch (Exception e) {
@@ -265,8 +271,6 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
             e.printStackTrace();
         }
     }
-    
-
 
     /**
      * @param args

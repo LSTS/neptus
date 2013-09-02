@@ -59,7 +59,7 @@ import pt.up.fe.dceg.neptus.imc.SetLedBrightness;
  * @author hfq
  * 
  */
-public class LedsSlider extends JPanel implements ChangeListener, ActionListener {
+public class LedsSlider extends JPanel implements ChangeListener {
     private static final long serialVersionUID = 1L;
 
     private LedsControlPanel parent;
@@ -91,7 +91,6 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
         this.parent = parent;
         // this.sliderName = name;
         this.sliderNumber = sliderNumber;
-        // this.setBackground(Color.BLACK);
         this.setOpaque(false);
         this.setSize(LedsControlPanel.WIDTH, LedsControlPanel.HEIGHT / 4);
         createBorder();
@@ -104,13 +103,10 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
      * Create border for this component
      */
     private void createBorder() {
-        // loweredetched = BorderFactory.createLoweredSoftBevelBorder();
         loweredetched = BorderFactory.createLoweredBevelBorder();
-
         titled = BorderFactory.createTitledBorder(loweredetched, "Leds Group " + String.valueOf(sliderNumber));
         titled.setTitleJustification(TitledBorder.LEFT);
         titled.setTitlePosition(TitledBorder.DEFAULT_POSITION);
-
         this.setBorder(titled);
     }
 
@@ -118,31 +114,19 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
      * Create and set JSlider
      */
     public void createSlider() {
-        // sliderLabel = new JLabel(sliderName, JLabel.CENTER);
-        // // sliderLabel.setBackground(Color.DARK_GRAY);
-        // sliderLabel.setFont(new Font(Font.SERIF, (Font.BOLD + Font.ITALIC), 12));
-        // sliderLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        // sliderLabel.setOpaque(false);
-
         slider = new JSlider(JSlider.HORIZONTAL, LedsUtils.LED_MIN_BRIGHTNESS, LedsUtils.LED_MAX_BRIGHTNESS,
                 LedsUtils.LED_INIT_BRIGHTNESS);
         slider.setValue(LedsUtils.LED_INIT_BRIGHTNESS);
-
         slider.setMajorTickSpacing(20);
         slider.setMinorTickSpacing(1);
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
         slider.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
         slider.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 0));
-
         slider.setToolTipText("Leds Group " + String.valueOf(sliderNumber) + " Brightness Controller");
         slider.setFont(new Font(Font.SERIF, Font.ITALIC, 10));
         slider.setOpaque(false);
-
         slider.addChangeListener(this);
-
-        // this.add(sliderLabel);
         this.add(slider);
     }
 
@@ -262,30 +246,12 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
             if (!source.getValueIsAdjusting()) {
                 sliderValue = source.getValue();
                 sliderTextField.setText(String.valueOf(sliderValue));
-                if (sliderValue == 0) {
-                    NeptusLog.pub().info(
-                            "Value of slider " + String.valueOf(sliderNumber) + " value in perc: " + sliderValue
-                                    + " value in brightness: " + LedsUtils.convPercToLedsBright(sliderValue));
-                }
-                else {
-                    // send message with the value of
-                    // LedsUtils.convPercToLedsBright(sliderValue)
-                    SetLedBrightness setLedBrigt1 = new SetLedBrightness();
-                    setLedBrigt1.setName("LED0");
-                    setLedBrigt1.setValue((short) sliderValue);
-                    
-                    parent.send(setLedBrigt1);
-                    
-                    SetLedBrightness setLedBrigt2 = new SetLedBrightness();                    
-                    setLedBrigt2.setName("LED1");
-                    setLedBrigt2.setValue((short) sliderValue);
-                    
-                    parent.send(setLedBrigt2);
-                                     
-                    NeptusLog.pub().info(
-                            "Value of slider " + String.valueOf(sliderNumber) + " value in perc: " + sliderValue
-                                    + " value in brightness: " + LedsUtils.convPercToLedsBright(sliderValue));
-                }
+
+                sendBrightnessMsgs();
+
+                NeptusLog.pub().info(
+                        "Value of slider " + String.valueOf(sliderNumber) + " value in perc: " + sliderValue
+                                + " value in brightness: " + LedsUtils.convPercToLedsBright(sliderValue));
             }
             else {
                 sliderValue = source.getValue();
@@ -299,6 +265,7 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
             if (!source.getValueIsAdjusting()) {
                 sliderValue = source.getValue();
                 sliderTextField.setText(String.valueOf(sliderValue));
+                
                 for (int i = 1; i <= 4; ++i) {
                     if (this.equals(parent.slider1)) {
                         parent.slider2.slider.setValue(sliderValue);
@@ -333,9 +300,7 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
                         parent.slider3.sliderTextField.setText(String.valueOf(sliderValue));
                     }
                 }
-                // if (this.getName().equals()) {
-                // parent.s
-                // }
+                sendBrightnessMsgs();
             }
             else {
                 sliderValue = source.getValue();
@@ -347,14 +312,58 @@ public class LedsSlider extends JPanel implements ChangeListener, ActionListener
         }
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * 
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        NeptusLog.pub().info("Action performed");
+    private void sendBrightnessMsgs() {
+        switch(parent.sliderNumComp) {
+        //switch (sliderNumber) {
+            case 1:
+                NeptusLog.pub().info("Sending message to G1");
+                for(int i = 0; i < 3; ++i) {
+                    NeptusLog.pub().info("Sending message to G1: " + LedsUtils.ledNames[i]);
+                    parent.msgsSetLeds.get(LedsUtils.ledNames[i]).setValue((short) LedsUtils.convPercToLedsBright(sliderValue));
+                    parent.send(parent.msgsSetLeds.get(LedsUtils.ledNames[i]));
+                    NeptusLog.pub().info("Sending message to G1");
+                }
+                break;
+            case 2:
+                NeptusLog.pub().info("Sending message to G2");
+                for(int i = 3; i < 6; ++i) {
+                    NeptusLog.pub().info("Sending message to G2: " + LedsUtils.ledNames[i]);
+                    parent.msgsSetLeds.get(LedsUtils.ledNames[i]).setValue((short) LedsUtils.convPercToLedsBright(sliderValue));
+                    parent.send(parent.msgsSetLeds.get(LedsUtils.ledNames[i]));
+                    NeptusLog.pub().info("Sending message to G2");
+                }
+                break;
+            case 3:
+                NeptusLog.pub().info("Sending message to G3");
+                for(int i = 6; i < 9; ++i) {
+                    NeptusLog.pub().info("Sending message to G3: " + LedsUtils.ledNames[i]);
+                    parent.msgsSetLeds.get(LedsUtils.ledNames[i]).setValue((short) LedsUtils.convPercToLedsBright(sliderValue));
+                    parent.send(parent.msgsSetLeds.get(LedsUtils.ledNames[i]));
+                    NeptusLog.pub().info("Sending message to G3");
+                }
+                break;
+            case 4:
+                NeptusLog.pub().info("Sending message to G4");
+                for(int i = 9; i < 12; ++i) {
+                    NeptusLog.pub().info("Sending message to G4: " + LedsUtils.ledNames[i]);
+                    parent.msgsSetLeds.get(LedsUtils.ledNames[i]).setValue((short) LedsUtils.convPercToLedsBright(sliderValue));
+                    parent.send(parent.msgsSetLeds.get(LedsUtils.ledNames[i]));
+                    NeptusLog.pub().info("Sending message to G4");
+                }
+                break;
+            case 5:
+                NeptusLog.pub().info("Sending message to All leds");
+                for(int i = 0; i < 12; ++i) {
+                    NeptusLog.pub().info("Sending message to All leds: " + LedsUtils.ledNames[i]);
+                    parent.msgsSetLeds.get(LedsUtils.ledNames[i]).setValue((short) LedsUtils.convPercToLedsBright(sliderValue));
+                    parent.send(parent.msgsSetLeds.get(LedsUtils.ledNames[i]));
+                    NeptusLog.pub().info("Sending message to All leds");
+                }
+                break;
+        }
 
     }
 }

@@ -31,6 +31,10 @@
  */
 package pt.up.fe.dceg.neptus.plugins.leds;
 
+import javax.swing.ImageIcon;
+
+import pt.up.fe.dceg.neptus.util.ImageUtils;
+
 /**
  * @author hfq
  * 
@@ -44,8 +48,34 @@ public class LedsUtils {
     protected static final int LED_MAX_BRIGHTNESS = 100;
     protected static final int LED_INIT_BRIGHTNESS = 0;
 
+    protected static final int IMAGE_WIDTH = 75;
+    protected static final int IMAGE_HEIGHT = 60;
+
+    protected static final ImageIcon ICON_NONE = ImageUtils.getScaledIcon(
+            ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/leds/images/leds_clean.png"), LedsUtils.IMAGE_WIDTH,
+            LedsUtils.IMAGE_HEIGHT);
+
+    protected static final ImageIcon ICON_LEDS1 = ImageUtils.getScaledIcon(
+            ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/leds/images/leds1.png"), LedsUtils.IMAGE_WIDTH,
+            LedsUtils.IMAGE_HEIGHT);
+    protected static final ImageIcon ICON_LEDS2 = ImageUtils.getScaledIcon(
+            ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/leds/images/leds2.png"), LedsUtils.IMAGE_WIDTH,
+            LedsUtils.IMAGE_HEIGHT);
+    protected static final ImageIcon ICON_LEDS3 = ImageUtils.getScaledIcon(
+            ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/leds/images/leds3.png"), LedsUtils.IMAGE_WIDTH,
+            LedsUtils.IMAGE_HEIGHT);
+    protected static final ImageIcon ICON_LEDS4 = ImageUtils.getScaledIcon(
+            ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/leds/images/leds4.png"), LedsUtils.IMAGE_WIDTH,
+            LedsUtils.IMAGE_HEIGHT);
+    protected static final ImageIcon ICON_LEDS_ALL = ImageUtils.getScaledIcon(
+            ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/leds/images/leds_all.png"), LedsUtils.IMAGE_WIDTH,
+            LedsUtils.IMAGE_HEIGHT);
+
     public static final String[] ledNames = { "LED0", "LED1", "LED2", "LED3", "LED4", "LED5", "LED6", "LED7", "LED8",
-            "LED9", "LED10", "LED11", "LED12" };
+            "LED9", "LED10", "LED11" };
+
+    // public static final String[] ledNames = { "00", "01", "02", "03", "04", "05", "06", "07", "08",
+    // "9", "10", "11" };
 
     public static int convPercToLedsBright(int perc) {
         return (255 * perc / 100);

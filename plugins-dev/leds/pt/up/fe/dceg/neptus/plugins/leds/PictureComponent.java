@@ -48,9 +48,7 @@ public class PictureComponent extends JPanel {
     private static final long serialVersionUID = 1L;
 
     JComponent parent;
-
     private JLabel picture;
-    private ImageIcon icon;
 
     /**
      * @param parent
@@ -64,7 +62,7 @@ public class PictureComponent extends JPanel {
     }
 
     /**
-     * Create a set properties of JLabel that will contatin the image loaded
+     * Create a set properties of JLabel that will contain the image loaded
      */
     private void createPictureComp() {
         picture = new JLabel();
@@ -87,48 +85,49 @@ public class PictureComponent extends JPanel {
     public void updatePicture(int picNumber) {
         switch (picNumber) {
             case 0:
-                if ((icon = new ImageIcon(ImageUtils.getImage("images/leds/leds_clean.png"))) != null)
-                    picture.setIcon(icon);
+                if (LedsUtils.ICON_NONE != null)
+                    picture.setIcon(LedsUtils.ICON_NONE);
                 else {
                     NeptusLog.pub().info("Picture not found");
                     picture.setName("Not Found");
                 }
                 break;
             case 1:
-                if ((icon = new ImageIcon(ImageUtils.getImage("images/leds/leds1.png"))) != null)
-                    picture.setIcon(icon);
+                if (LedsUtils.ICON_LEDS1 != null)
+                    picture.setIcon(LedsUtils.ICON_LEDS1);
                 else {
                     NeptusLog.pub().info("Picture not found");
                     picture.setName("Not Found");
                 }
                 break;
             case 2:
-                if ((icon = new ImageIcon(ImageUtils.getImage("images/leds/leds2.png"))) != null)
-                    picture.setIcon(icon);
+                if (LedsUtils.ICON_LEDS2 != null)
+                    picture.setIcon(LedsUtils.ICON_LEDS2);
                 else {
                     NeptusLog.pub().info("Picture not found");
                     picture.setName("Not Found");
                 }
                 break;
             case 3:
-                if ((icon = new ImageIcon(ImageUtils.getImage("images/leds/leds3.png"))) != null)
-                    picture.setIcon(icon);
+                if (LedsUtils.ICON_LEDS3 != null)
+                    picture.setIcon(LedsUtils.ICON_LEDS3);
                 else {
                     NeptusLog.pub().info("Picture not found");
                     picture.setName("Not Found");
                 }
                 break;
             case 4:
-                if ((icon = new ImageIcon(ImageUtils.getImage("images/leds/leds4.png"))) != null)
-                    picture.setIcon(icon);
+                if (LedsUtils.ICON_LEDS4 != null)
+                    picture.setIcon(LedsUtils.ICON_LEDS4);
                 else {
                     NeptusLog.pub().info("Picture not found");
                     picture.setName("Not Found");
                 }
                 break;
             case 5:
-                if ((icon = new ImageIcon(ImageUtils.getImage("images/leds/leds_clean.png"))) != null)
-                    picture.setIcon(icon);
+                // if ((icon = new ImageIcon(ImageUtils.getImage("images/leds/leds_clean.png"))) != null)
+                if (LedsUtils.ICON_LEDS_ALL != null)
+                    picture.setIcon(LedsUtils.ICON_LEDS_ALL);
                 else {
                     NeptusLog.pub().info("Picture not found");
                     picture.setName("Not Found");
