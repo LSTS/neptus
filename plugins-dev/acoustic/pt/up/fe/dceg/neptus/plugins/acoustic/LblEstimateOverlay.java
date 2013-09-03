@@ -102,7 +102,7 @@ public class LblEstimateOverlay extends SimpleSubPanel implements Renderer2DPain
 
             Point2D center = renderer.getScreenPosition(loc);
             g.translate(center.getX(), center.getY());
-            g.rotate(renderer.getRotation());
+            g.rotate(-renderer.getRotation());
             boolean outside = estimateEntry.getValue().getDistance() > Math.max(estimateEntry.getValue().getVarX(),
                     estimateEntry.getValue().getVarY());
 
