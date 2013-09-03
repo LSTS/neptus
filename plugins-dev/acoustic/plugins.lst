@@ -9,3 +9,4 @@ pt.up.fe.dceg.neptus.plugins.acoustic.LBLRangeDisplay
 pt.up.fe.dceg.neptus.plugins.acoustic.ModemRanger
 pt.up.fe.dceg.neptus.plugins.acoustic.SimpleAbortModemRequest
 pt.up.fe.dceg.neptus.plugins.acoustic.MantaOperations
+pt.up.fe.dceg.neptus.plugins.acoustic.LblEstimateOverlay
