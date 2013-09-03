@@ -43,8 +43,8 @@ import pt.up.fe.dceg.neptus.console.notifications.Notification;
 import pt.up.fe.dceg.neptus.imc.LblEstimate;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
+import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -88,24 +88,25 @@ public class LblEstimateOverlay extends SimpleSubPanel implements Renderer2DPain
     }
 
     @Override
-    public void paint(Graphics2D g, StateRenderer2D renderer) {
+    public void paint(Graphics2D g2d, StateRenderer2D renderer) {
         
         if (!paintEstimates)
             return;
         double zoom = renderer.getZoom();
         
         for (Entry<String, LblEstimate> estimateEntry : lastEstimates.entrySet()) {
+            Graphics2D g = (Graphics2D) g2d.create();
             LocationType loc = new LocationType(Math.toDegrees(estimateEntry.getValue().getBeacon().getLat()),
                     Math.toDegrees(estimateEntry.getValue().getBeacon().getLon()));
-            loc.translatePosition(estimateEntry.getValue().getX(), estimateEntry.getValue().getY(), 0);
+            //loc.translatePosition(estimateEntry.getValue().getX(), estimateEntry.getValue().getY(), 0);
 
             Point2D center = renderer.getScreenPosition(loc);
             g.translate(center.getX(), center.getY());
             g.rotate(renderer.getRotation());
-            boolean inside = estimateEntry.getValue().getDistance() > Math.max(estimateEntry.getValue().getVarX(),
+            boolean outside = estimateEntry.getValue().getDistance() > Math.max(estimateEntry.getValue().getVarX(),
                     estimateEntry.getValue().getVarY());
 
-            if (inside)
+            if (!outside)
                 g.setColor(new Color(0, 255, 0, 128));
             else
                 g.setColor(new Color(192, 64, 0, 128));
@@ -113,14 +114,21 @@ public class LblEstimateOverlay extends SimpleSubPanel implements Renderer2DPain
             double northVar = estimateEntry.getValue().getVarX() * zoom;
             double eastVar = estimateEntry.getValue().getVarY() * zoom;
             g.fill(new Ellipse2D.Double(-eastVar, -northVar, eastVar * 2, northVar * 2));
-            g.setColor(Color.yellow);
-            g.fill(new Ellipse2D.Double(-2, -2, 4, 4));
+            if ((System.currentTimeMillis()/1000) %2 == 0) {
+                if (outside)
+                    g.setColor(Color.red.brighter());
+                else
+                    g.setColor(Color.green.brighter());
+            }
+            else
+                g.setColor(Color.black);
+            
+            g.fill(new Ellipse2D.Double(-2.5, -2.5, 5, 5));
         }
     }
 
     @Subscribe
     public void on(LblEstimate estimate) {
-        estimate.dump(System.err);
         String beacon = estimate.getBeacon().getBeacon();
         lastEstimates.put(beacon, estimate);
 
