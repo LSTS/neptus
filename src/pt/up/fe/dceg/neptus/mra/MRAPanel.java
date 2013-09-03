@@ -425,7 +425,7 @@ public class MRAPanel extends JPanel {
             ois.close();
         }
         catch (Exception e) {
-            NeptusLog.pub().info("No markers for this log");
+            NeptusLog.pub().info("No markers for this log, or erroneous mark file");
         }
     }
 

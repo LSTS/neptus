@@ -292,7 +292,7 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String res = JOptionPane.showInputDialog(I18n.text("Marker name"));
-                mraPanel.addMarker(new LogMarker(res, mouseValue, 0, 0, 0, 0, 0, 0));
+                mraPanel.addMarker(new LogMarker(res, mouseValue, 0, 0));
             }
         });
         

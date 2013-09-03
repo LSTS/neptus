@@ -241,7 +241,7 @@ public class ScriptedPlot extends MraTimeSeriesPlot {
         }
         
         public void mark(double time, String label) {
-            mraPanel.addMarker(new LogMarker(label, time * 1000,0,0,0,0,0,0));
+            mraPanel.addMarker(new LogMarker(label, time * 1000,0,0));
         }
         
         public void mark(String label) {

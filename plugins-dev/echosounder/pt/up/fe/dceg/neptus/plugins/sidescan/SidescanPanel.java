@@ -55,6 +55,7 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
+import pt.up.fe.dceg.neptus.mra.SidescanLogMarker;
 import pt.up.fe.dceg.neptus.mra.api.SidescanLine;
 import pt.up.fe.dceg.neptus.mra.api.SidescanParser;
 import pt.up.fe.dceg.neptus.mra.api.SidescanPoint;
@@ -70,7 +71,8 @@ import pt.up.fe.dceg.neptus.util.VideoCreator;
  * @author jqcorreia
  *
  */
-public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener{
+public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener 
+{
     private static final long serialVersionUID = 1L;
     
     SidescanAnalyzer parent;
@@ -80,6 +82,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     enum InteractionMode {
         NONE, ZOOM, INFO, MARK, MEASURE;
     }
+    
     InteractionMode imode = InteractionMode.INFO;
 
     MraVehiclePosHud posHud;
@@ -406,17 +409,20 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     if (old != null) {
                         // In case of being a marker just with time information
                         if (timestamp >= old.timestampMillis && timestamp <= line.timestampMillis) {
-                            if (m.x == 0 && m.y == 0) {
-                                g.fillRect(0, line.ypos - 1, 10, 2);
-                                g.fillRect(line.image.getWidth(null) - 10, line.ypos - 1, 10, 2);
-                                g.drawString(m.label, m.x - (m.w / 2), line.ypos - (m.h / 2) - 10);
+                            if (m instanceof SidescanLogMarker) {
+                                SidescanLogMarker slm = (SidescanLogMarker) m;
+                                double scale = (image.getWidth() / 2) / line.range;
+                                
+                                int x = (int) ((image.getWidth() / 2) + (slm.x * scale));
+                                g.drawRect(x - (slm.w / 2), line.ypos - (slm.h / 2), slm.w, slm.h);
+                                g.drawString(m.label, x - (slm.w / 2), line.ypos - (slm.h / 2) - 10);
                             }
                             else {
-                                int x = (int)(m.x / (lineList.get(0).xsize / (float)image.getWidth()));
-                                g.drawRect(x - (m.w / 2), line.ypos - (m.h / 2), m.w, m.h);
-                                g.drawString(m.label, x - (m.w / 2), line.ypos - (m.h / 2) - 10);
+                                g.fillRect(0, line.ypos - 1, 10, 2);
+                                g.fillRect(line.image.getWidth(null) - 10, line.ypos - 1, 10, 2);
+                                g.drawString(m.label, 0, line.ypos - 10);
                             }
-                            break;
+                            break; // ??
                         }
                     }
                     old = line;
@@ -573,8 +579,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 }
                 
                 SidescanPoint point = l.calcPointForCoord(x);
-                parent.mraPanel.addMarker(new LogMarker(res, l.timestampMillis, point.location
-                        .getLatitudeAsDoubleValueRads(), point.location.getLongitudeAsDoubleValueRads(), x, y, Math
+                
+                // Distance to line center point, negative values mean portboard
+                double distanceToNadir = l.state.getPosition().getDistanceInMeters(point.location); 
+                distanceToNadir *= (x > l.xsize / 2 ? 1 : -1);
+                
+                parent.mraPanel.addMarker(new SidescanLogMarker(res, l.timestampMillis, point.location
+                        .getLatitudeAsDoubleValueRads(), point.location.getLongitudeAsDoubleValueRads(), distanceToNadir, y, Math
                         .abs(mouseX - initialX), Math.abs(mouseY - initialY)));
             }
             marking = false;

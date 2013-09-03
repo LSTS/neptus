@@ -1024,6 +1024,7 @@ For simple use the main targets are:
       	<unzip dest="${tmp.bundle.dir}" src="lib/commons-logging-1.1.1.jar"/>
     	<unzip dest="${tmp.bundle.dir}" src="plugins/tiles-extra.jar"/>
     	<unzip dest="${tmp.bundle.dir}" src="lib/libimc.jar"/>
+    	<unzip dest="${tmp.bundle.dir}" src="lib/miglayout-4.0-swing.jar"/>
     	
     	<unzip dest="${tmp.bundle.dir}" src="${bundle.jar.worldmap.path}" overwrite="yes"/>
     	<copy flatten="false" todir="${tmp.bundle.dir}/legal">
