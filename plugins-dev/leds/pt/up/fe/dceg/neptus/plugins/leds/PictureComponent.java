@@ -32,14 +32,13 @@
 package pt.up.fe.dceg.neptus.plugins.leds;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.up.fe.dceg.neptus.i18n.I18n;
 
 /**
  * @author hfq
@@ -71,7 +70,7 @@ public class PictureComponent extends JPanel {
         picture.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
         picture.setOpaque(false);
-        picture.setToolTipText("Image representing leds being setted!");
+        picture.setToolTipText(I18n.text("Image representing leds being setted!"));
 
         updatePicture(0); // Display the leds picture without any leds beeing setted
         this.add(picture);

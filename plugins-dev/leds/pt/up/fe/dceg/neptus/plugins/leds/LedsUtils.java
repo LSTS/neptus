@@ -48,8 +48,8 @@ public class LedsUtils {
     protected static final int LED_MAX_BRIGHTNESS = 100;
     protected static final int LED_INIT_BRIGHTNESS = 0;
 
-    protected static final int IMAGE_WIDTH = 75;
-    protected static final int IMAGE_HEIGHT = 60;
+    protected static final int IMAGE_WIDTH = 100;
+    protected static final int IMAGE_HEIGHT = 85;
 
     protected static final ImageIcon ICON_NONE = ImageUtils.getScaledIcon(
             ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/leds/images/leds_clean.png"), LedsUtils.IMAGE_WIDTH,

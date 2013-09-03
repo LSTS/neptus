@@ -48,8 +48,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
-import com.google.common.eventbus.Subscribe;
-
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
@@ -64,6 +62,8 @@ import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * This panel is responsible for controlling the Leds brightness placed on Adamastor.
@@ -247,24 +247,30 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
      */
     @Override
     public boolean update() {
-        QueryLedBrightness query1 = new QueryLedBrightness();
-        query1.setName(LedsUtils.ledNames[0]);
+        for (Entry<String, QueryLedBrightness> entry : msgsQueryLeds.entrySet()) {
+            QueryLedBrightness msg = msgsQueryLeds.get(entry.getKey());
+            send(msg);
 
-        send(query1);
-
-        return false;
+            // NeptusLog.pub().info("Key: " + entry.getKey() + " Value: " + entry.getValue());
+        }
+        // QueryLedBrightness query1 = new QueryLedBrightness();
+        // query1.setName(LedsUtils.ledNames[0]);
+        // send(query1);
+        return true;
     }
 
     @Subscribe
     public void consume(LedBrightness msg) {
         try {
             String name = msg.getName();
-//            if (msgLeds.get(name) != null) {
-//
-//            }
-//            msgLeds.get(name);
+
+            // if (msgLeds.get(name) != null) {
+            //
+            // }
+            // msgLeds.get(name);
 
             short i = msg.getValue();
+            NeptusLog.pub().info("value of brightness on led " + name + ": " + i);
         }
         catch (Exception e) {
             // TODO Auto-generated catch block
