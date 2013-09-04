@@ -66,7 +66,6 @@ public class PictureComponent extends JPanel {
     private void createPictureComp() {
         picture = new JLabel();
         picture.setHorizontalAlignment(JLabel.CENTER);
-        // picture.setAlignmentX(Component.CENTER_ALIGNMENT);
         picture.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
         picture.setOpaque(false);
@@ -124,7 +123,6 @@ public class PictureComponent extends JPanel {
                 }
                 break;
             case 5:
-                // if ((icon = new ImageIcon(ImageUtils.getImage("images/leds/leds_clean.png"))) != null)
                 if (LedsUtils.ICON_LEDS_ALL != null)
                     picture.setIcon(LedsUtils.ICON_LEDS_ALL);
                 else {

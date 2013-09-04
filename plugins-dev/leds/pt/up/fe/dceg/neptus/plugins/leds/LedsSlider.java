@@ -62,10 +62,8 @@ public class LedsSlider extends JPanel implements ChangeListener {
     private LedsControlPanel parent;
 
     private JSlider slider;
-    // private String sliderName;
     private int sliderNumber = 0;;
     private int sliderValue = 0;
-    // private JLabel sliderLabel;
     private JTextField sliderTextField;
     private Border loweredetched;
     private TitledBorder titled;
@@ -86,14 +84,13 @@ public class LedsSlider extends JPanel implements ChangeListener {
         // super();
         this.setLayout(new MigLayout("fill"));
         this.parent = parent;
-        // this.sliderName = name;
         this.sliderNumber = sliderNumber;
         this.setOpaque(false);
         this.setSize(LedsControlPanel.WIDTH, LedsControlPanel.HEIGHT / 4);
         createBorder();
         createSlider();
         createSliderTextField();
-        createTextFieldsForGroup();
+        // createTextFieldsForGroup();
     }
 
     /**
@@ -312,14 +309,12 @@ public class LedsSlider extends JPanel implements ChangeListener {
     }
 
     /**
-     * 
+     * Send Msgs SetLedBrightness to intended leds configured by each led group
      */
     private void sendBrightnessMsgs() {
         switch (parent.sliderNumComp) {
-        // switch (sliderNumber) {
             case 1:
                 for (int i = 0; i < 3; ++i) {
-                    // NeptusLog.pub().info("Sending message to G1: " + LedsUtils.ledNames[i]);
                     parent.msgsSetLeds.get(LedsUtils.ledNames[i]).setValue(
                             (short) LedsUtils.convPercToLedsBright(sliderValue));
                     parent.send(parent.msgsSetLeds.get(LedsUtils.ledNames[i]));
@@ -327,7 +322,6 @@ public class LedsSlider extends JPanel implements ChangeListener {
                 break;
             case 2:
                 for (int i = 3; i < 6; ++i) {
-                    // NeptusLog.pub().info("Sending message to G2: " + LedsUtils.ledNames[i]);
                     parent.msgsSetLeds.get(LedsUtils.ledNames[i]).setValue(
                             (short) LedsUtils.convPercToLedsBright(sliderValue));
                     parent.send(parent.msgsSetLeds.get(LedsUtils.ledNames[i]));
@@ -335,7 +329,6 @@ public class LedsSlider extends JPanel implements ChangeListener {
                 break;
             case 3:
                 for (int i = 6; i < 9; ++i) {
-                    // NeptusLog.pub().info("Sending message to G3: " + LedsUtils.ledNames[i]);
                     parent.msgsSetLeds.get(LedsUtils.ledNames[i]).setValue(
                             (short) LedsUtils.convPercToLedsBright(sliderValue));
                     parent.send(parent.msgsSetLeds.get(LedsUtils.ledNames[i]));
@@ -343,7 +336,6 @@ public class LedsSlider extends JPanel implements ChangeListener {
                 break;
             case 4:
                 for (int i = 9; i < 12; ++i) {
-                    // NeptusLog.pub().info("Sending message to G4: " + LedsUtils.ledNames[i]);
                     parent.msgsSetLeds.get(LedsUtils.ledNames[i]).setValue(
                             (short) LedsUtils.convPercToLedsBright(sliderValue));
                     parent.send(parent.msgsSetLeds.get(LedsUtils.ledNames[i]));
@@ -351,7 +343,6 @@ public class LedsSlider extends JPanel implements ChangeListener {
                 break;
             case 5:
                 for (int i = 0; i < 12; ++i) {
-                    // NeptusLog.pub().info("Sending message to All leds: " + LedsUtils.ledNames[i]);
                     parent.msgsSetLeds.get(LedsUtils.ledNames[i]).setValue(
                             (short) LedsUtils.convPercToLedsBright(sliderValue));
                     parent.send(parent.msgsSetLeds.get(LedsUtils.ledNames[i]));

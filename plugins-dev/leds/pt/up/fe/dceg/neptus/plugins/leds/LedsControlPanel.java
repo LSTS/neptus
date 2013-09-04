@@ -90,8 +90,7 @@ import com.google.common.eventbus.Subscribe;
  *         <type>list:string</type> <visibility>developer</visibility> <scope>global</scope> <default>01, 02, 03, 04,
  *         05, 06, 07, 08, 09, 10, 11, 12</default> <units/> <desc>List of LED names</desc> <size>12</size> </param>
  */
-// @Popup(pos = POSITION.TOP_LEFT, accelerator = 'D')
-@Popup(pos = POSITION.TOP_LEFT, width = 550, height = 550, accelerator = 'D')
+@Popup(pos = POSITION.TOP_LEFT, width = 300, height = 530, accelerator = 'D')
 @PluginDescription(author = "hfq", description = "Panel that enables setting up leds brightness", name = "Leds Control Panel", version = "0.1", icon = "images/menus/tip.png")
 public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates, ActionListener, ItemListener {
     private static final long serialVersionUID = 1L;
@@ -119,13 +118,10 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
     public LedsControlPanel(ConsoleLayout console) {
         super(console);
         this.console = console;
-        // this.setLayout(new MigLayout("insets 0"));
         this.setLayout(new MigLayout("fill"));
         this.removeAll();
-        // this.setBackground(Color.DARK_GRAY);
         this.setOpaque(true);
         this.setResizable(true);
-        // this.add
 
         initMsgMapping();
     }
@@ -160,12 +156,10 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
 
         checkBoxPanel = new JPanel();
         setPropertiesCheckBox();
-        // this.add(checkBoxPanel, "wrap");
         this.add(checkBoxPanel, "w 100%, wrap");
 
         picComp = new PictureComponent(this);
         this.add(picComp, "w 100%, wrap");
-        // this.add(picComp, "grow, push, span");
     }
 
     /**
@@ -253,27 +247,19 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
 
             // NeptusLog.pub().info("Key: " + entry.getKey() + " Value: " + entry.getValue());
         }
-        // QueryLedBrightness query1 = new QueryLedBrightness();
-        // query1.setName(LedsUtils.ledNames[0]);
-        // send(query1);
         return true;
     }
 
     @Subscribe
     public void consume(LedBrightness msg) {
         try {
+            // update the LedsSlider component with TextFields with the current Led Brightness
+            // got from msg QueryLedBrightness
             String name = msg.getName();
-
-            // if (msgLeds.get(name) != null) {
-            //
-            // }
-            // msgLeds.get(name);
-
             short i = msg.getValue();
             NeptusLog.pub().info("value of brightness on led " + name + ": " + i);
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -283,7 +269,6 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
      */
     public static void main(String[] args) {
         LedsControlPanel lcp = new LedsControlPanel(null);
-        // lcp.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         lcp.printMsgMapping();
         Border panEdge = BorderFactory.createEmptyBorder(0, 10, 10, 10);
         lcp.setBorder(panEdge);
