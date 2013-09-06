@@ -65,7 +65,6 @@ public class FtpDownloader {
     public FtpDownloader(String host, int port) throws Exception {
         this.host = host;
         this.port = port;
-        
         renewClient();
     }
 
