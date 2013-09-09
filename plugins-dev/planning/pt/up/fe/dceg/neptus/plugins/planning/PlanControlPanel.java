@@ -89,6 +89,7 @@ import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBState;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
+import pt.up.fe.dceg.neptus.systems.SystemsManager;
 import pt.up.fe.dceg.neptus.types.map.TransponderElement;
 import pt.up.fe.dceg.neptus.types.map.TransponderUtils;
 import pt.up.fe.dceg.neptus.types.mission.MapMission;
@@ -203,6 +204,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
 
     private boolean locked = false;
     private final LinkedHashMap<Integer, Long> registerRequestIdsTime = new LinkedHashMap<Integer, Long>();
+    private final LinkedHashMap<Integer, PlanControl> requests = new LinkedHashMap<>();
     private final String[] messagesToObserve = new String[] { "PlanControl", "PlanControlState", "VehicleState",
             "PlanDB", "LblConfig" };
 
@@ -911,8 +913,17 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                 I18n.text("Error sending plan download request"), DONT_USE_ACOUSTICS,
                 acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
 
-        if (ret)
+        if (ret) {
             registerPlanControlRequest(reqId);
+            PlanControl pc = new PlanControl();
+            try {
+                pc.setMessage(planControlMessage);
+                requests.put(reqId, pc);
+            }
+            catch (Exception e) {
+                e.printStackTrace();               
+            }
+        }
 
         return ret;
     }
@@ -988,6 +999,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         }
         else {
             registerPlanControlRequest(reqId);
+            requests.put(reqId, pc);
         }
 
         return true;
@@ -1132,6 +1144,26 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                             boolean cleanReg = false;
 
                             if (type == TYPE.SUCCESS) {
+                                PlanControl request = requests.get(reqId);
+                                String text = I18n.textf("Request %d completed successfully.", reqId);
+                                String src = ImcSystemsHolder.translateImcIdToSystemName(msg.getSrc());
+                                
+                                if (request != null) {
+                                    switch (request.getOp()) {
+                                        case START:
+                                            text = I18n.textf("Starting of %plan was acknowledged by %system.",
+                                                    request.getPlanId(), src);
+                                            break;
+                                        case STOP:
+                                            text = I18n.textf("Stopping of %plan was acknowledged by %system.",
+                                                    request.getPlanId(), src);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                                
+                                post(Notification.success("Plan Control", text));                                
                                 cleanReg = true;
                             }
                             else if (type == TYPE.FAILURE) {

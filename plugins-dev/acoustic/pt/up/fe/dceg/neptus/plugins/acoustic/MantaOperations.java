@@ -85,6 +85,7 @@ import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.ConsoleParse;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.up.fe.dceg.neptus.util.comm.IMCSendMessageUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
@@ -111,6 +112,8 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
     protected JToggleButton toggle;
     protected String selectedSystem = null;
 
+    protected LinkedHashMap<Integer, PlanControl> pendingRequests = new LinkedHashMap<>();
+    
     @NeptusProperty(name = "Systems listing", description = "Use commas to separate system identifiers")
     public String sysListing = "benthos-1,benthos-2,benthos-3,benthos-4,lauv-seacon-1,lauv-seacon-2,lauv-seacon-3,lauv-seacon-4,lauv-xtreme-2,lauv-noptilus-1";
 
@@ -186,7 +189,7 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                 if (sysLst.length == 0) {
                     // GuiUtils.errorMessage(getConsole(), I18n.text("Range system"),
                     // I18n.text("No acoustic device is capable of sending this request"));
-                    post(Notification.error(I18n.text("Range System"),
+                    post(Notification.error(I18n.text("Start Plan"),
                             I18n.text("No acoustic device is capable of sending this request")).src(
                                     I18n.text("Console")));
                     return;
@@ -196,7 +199,11 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                 pc.setType(PlanControl.TYPE.REQUEST);
                 pc.setOp(PlanControl.OP.START);
                 pc.setPlanId(ops[option]);
+                int req = IMCSendMessageUtils.getNextRequestId();
+                pc.setRequestId(req);
 
+                pendingRequests.put(req, pc);
+                
                 AcousticOperation aop = new AcousticOperation();
                 aop.setOp(AcousticOperation.OP.MSG);
                 aop.setSystem(choice.getId());
@@ -415,6 +422,32 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
 
     protected LinkedHashMap<String, LocationType> systemLocations = new LinkedHashMap<>();
         
+    @Subscribe
+    public void on(PlanControl msg) {
+        if (pendingRequests.containsKey(msg.getRequestId())) {
+            PlanControl request = pendingRequests.get(msg.getRequestId());
+            String text = I18n.textf("Request %d completed successfully.", msg.getRequestId());
+            String src = ImcSystemsHolder.translateImcIdToSystemName(msg.getSrc());
+            
+            if (request != null) {
+                switch (request.getOp()) {
+                    case START:
+                        text = I18n.textf("Starting of %plan was acknowledged by %system.",
+                                request.getPlanId(), src);
+                        break;
+                    case STOP:
+                        text = I18n.textf("Stopping of %plan was acknowledged by %system.",
+                                request.getPlanId(), src);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            
+            post(Notification.success("Manta Operations", text));    
+        }
+    }
+    
     @Subscribe
     public void on(AcousticOperation msg) {
         
