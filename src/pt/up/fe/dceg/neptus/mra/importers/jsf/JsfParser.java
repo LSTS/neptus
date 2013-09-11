@@ -85,7 +85,10 @@ public class JsfParser {
             }
             else {
                 NeptusLog.pub().info("Loading JSF index for " + file.getAbsolutePath());
-                loadIndex();
+                if(!loadIndex()) {
+                    NeptusLog.pub().error("Corrupted JSF index file. Trying to create a new index.");
+                    generateIndex();
+                }
             }
 
         }
@@ -225,7 +228,7 @@ public class JsfParser {
         }
     }
 
-    public void loadIndex() {
+    public boolean loadIndex() {
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexPath));
             index = (JsfIndex) in.readObject();
@@ -246,7 +249,9 @@ public class JsfParser {
         }
         catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
+        return true;
     }
 
     public long getFirstTimeStamp() {
