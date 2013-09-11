@@ -40,7 +40,6 @@ import pt.up.fe.dceg.neptus.imc.IMCInputStream;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
 import pt.up.fe.dceg.neptus.imc.RemoteSensorInfo;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp

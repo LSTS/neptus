@@ -34,8 +34,6 @@ package pt.up.fe.dceg.neptus.util;
 import java.util.GregorianCalendar;
 import java.util.Random;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-
 /**
  * @author zecarlos
  */

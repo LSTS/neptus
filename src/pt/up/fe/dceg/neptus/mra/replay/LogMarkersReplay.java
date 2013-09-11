@@ -47,7 +47,6 @@ import pt.up.fe.dceg.neptus.mra.LogMarker;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.llf.LogUtils;
 
 /**
  * @author zp

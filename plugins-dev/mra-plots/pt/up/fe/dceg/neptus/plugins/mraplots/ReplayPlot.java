@@ -34,7 +34,6 @@ package pt.up.fe.dceg.neptus.plugins.mraplots;
 import java.awt.Component;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.Vector;
 
 import javax.swing.JPanel;
 

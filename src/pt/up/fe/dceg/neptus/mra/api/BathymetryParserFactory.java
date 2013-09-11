@@ -35,7 +35,6 @@ import java.io.File;
 
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
-import pt.up.fe.dceg.neptus.util.llf.LogUtils;
 
 /**
  * @author jqcorreia

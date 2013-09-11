@@ -37,8 +37,8 @@ import java.awt.Window;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Vector;
 import java.util.Map.Entry;
+import java.util.Vector;
 
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -50,10 +50,8 @@ import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
 import org.jzy3d.global.Settings;
-import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.plot3d.builder.Builder;
-import org.jzy3d.plot3d.builder.concrete.OrthonormalGrid;
 import org.jzy3d.plot3d.primitives.LineStrip;
 import org.jzy3d.plot3d.primitives.Point;
 import org.jzy3d.plot3d.primitives.Shape;
@@ -71,7 +69,6 @@ import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
 
 /**
  * @author zp

@@ -642,7 +642,6 @@ public class LoaderHelper {
         System.out.println(val[0] + "    " + val[1]);
         
         Pattern timeStringPattern = Pattern.compile("^(\\w+?)\\ssince\\s(\\w+?)");
-        Date dateBase = new Date(-1900, 1-1, 1);
         String timeUnits = "days since 00-01-00 00:00:00";
         Matcher matcher = timeStringPattern.matcher(timeUnits);
 

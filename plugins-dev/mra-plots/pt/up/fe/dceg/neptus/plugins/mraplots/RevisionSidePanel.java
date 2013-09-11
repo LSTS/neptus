@@ -61,7 +61,6 @@ import pt.up.fe.dceg.neptus.mra.replay.GPSFixReplay;
 import pt.up.fe.dceg.neptus.mra.replay.LBLRangesReplay;
 import pt.up.fe.dceg.neptus.mra.replay.LogMarkersReplay;
 import pt.up.fe.dceg.neptus.mra.replay.LogReplayLayer;
-import pt.up.fe.dceg.neptus.plugins.sss.SidescanOverlay;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.llf.LsfLogSource;

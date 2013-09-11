@@ -48,8 +48,6 @@ import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Scope;
 import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Visibility;
 import pt.up.fe.dceg.neptus.plugins.params.renderer.I18nSystemPropertyRenderer;
-import pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer;
-
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;

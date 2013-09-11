@@ -437,6 +437,9 @@ public class PCDExporter implements MraExporter{
 //            
 //            // Reset buffer
 //            buf.seek(0);
+            buf.close();
+            fis.close();
+            out.close();
         }
         catch (IOException e) {
             e.printStackTrace();

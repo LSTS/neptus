@@ -309,10 +309,6 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         httpComm.initializeComm();
     }
     
-    /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#initSubPanel()
-     */
-    @SuppressWarnings("unchecked")
     @Override
     public void initSubPanel() {
         

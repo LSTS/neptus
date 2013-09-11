@@ -37,7 +37,6 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCamera;
 import vtk.vtkCellPicker;
-import vtk.vtkCommand;
 import vtk.vtkInteractorStyleTrackballActor;
 import vtk.vtkInteractorStyleTrackballCamera;
 import vtk.vtkLegendScaleActor;

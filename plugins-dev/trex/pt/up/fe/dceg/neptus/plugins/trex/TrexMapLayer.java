@@ -78,7 +78,6 @@ import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.SimpleRendererInteraction;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.AUVDrifterSurvey;
-import pt.up.fe.dceg.neptus.plugins.trex.goals.TagSimulation;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.TrexGoal;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.UavSpotterSurvey;
 import pt.up.fe.dceg.neptus.plugins.trex.goals.VisitLocationGoal;
