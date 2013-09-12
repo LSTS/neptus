@@ -41,6 +41,7 @@ import vtk.vtkUnsignedCharArray;
 /**
  * @author hfq
  * Handles Pointcloud colors x, y, z and intensities
+ * FIXME - fix generation of intensities colors.
  */
 public class PointCloudHandlers<T extends PointXYZ> {    
     private vtkUnsignedCharArray colorsX;
@@ -77,12 +78,10 @@ public class PointCloudHandlers<T extends PointXYZ> {
         getLutY().SetRange(bounds[2], bounds[3]);
         getLutY().SetScaleToLinear();
         getLutY().Build();
-        //getLutZ().SetValueRange(-bounds[5], -bounds[4]);
         getLutZ().SetRange(bounds[4], bounds[5]);
         getLutZ().SetScaleToLinear();
         getLutZ().Build();
-        
-        
+               
         colorsX.SetNumberOfComponents(3);
         colorsY.SetNumberOfComponents(3);
         colorsZ.SetNumberOfComponents(3);      
@@ -151,7 +150,7 @@ public class PointCloudHandlers<T extends PointXYZ> {
         
         
         if (intensities.GetDataSize() != 0) {
-            NeptusLog.pub().info("got into built color handler for intens");
+            //NeptusLog.pub().info("got into built color handler for intens");
             //NeptusLog.pub().info("Data max: " + intensities.GetValueRange()[0]);
             getLutIntensities().SetRange(0, 32000);
             //intensities.SetNumberOfComponents(1);
@@ -166,7 +165,6 @@ public class PointCloudHandlers<T extends PointXYZ> {
             colorsI.SetName("colorsI");
         }
         
-        
         for (int i = 0; i < polyData.GetNumberOfPoints(); ++i) {
             double[] point = new double[3];
             polyData.GetPoint(i, point);
@@ -179,8 +177,8 @@ public class PointCloudHandlers<T extends PointXYZ> {
             getLutX().GetColor(point[0], xDColor);
             getLutY().GetColor(point[1], yDColor);
             getLutZ().GetColor(point[2], zDColor);
-            //NeptusLog.pub().info("intensity value: " + intensities.GetValue(i));
-            getLutIntensities().GetColor(intensities.GetValue(i), iDColor);
+            //getLutIntensities().GetColor(intensities.GetValue(i), iDColor);
+            getLutIntensities().GetColor(0.0, iDColor);
             //NeptusLog.pub().info("intens value: " + intensities.GetValue(i));
             
             char[] colorx = new char[3];
@@ -193,8 +191,7 @@ public class PointCloudHandlers<T extends PointXYZ> {
                 colory[j] = (char) (255.0 * yDColor[j]);
                 colorz[j] = (char) (255.0 * zDColor[j]);
                 colori[j] = (char) (255.0 * iDColor[j]);
-            }
-                       
+            }                      
             //NeptusLog.pub().info("colors int: " + colori[0] + " " + colori[1] + " " + colori[2]);
             
             colorsX.InsertNextTuple3(colorx[0], colorx[1], colorx[2]);
@@ -202,10 +199,6 @@ public class PointCloudHandlers<T extends PointXYZ> {
             colorsZ.InsertNextTuple3(colorz[0], colorz[1], colorz[2]);
             colorsI.InsertNextTuple3(colori[0], colori[1], colori[2]);
         }
-//        double minRangeValue = getLutZ().GetValueRange()[0];
-//        double maxRangeValue = getLutZ().GetValueRange()[1];
-//        NeptusLog.pub().info("Min Range Value: " + minRangeValue);
-//        NeptusLog.pub().info("Max range value: " + maxRangeValue);
     }   
 
     /**
@@ -218,7 +211,7 @@ public class PointCloudHandlers<T extends PointXYZ> {
     /**
      * @param colorsX the colorsX to set
      */
-    public void setColorsX(vtkUnsignedCharArray colorsX) {
+    private void setColorsX(vtkUnsignedCharArray colorsX) {
         this.colorsX = colorsX;
     }
 
@@ -232,7 +225,7 @@ public class PointCloudHandlers<T extends PointXYZ> {
     /**
      * @param colorsY the colorsY to set
      */
-    public void setColorsY(vtkUnsignedCharArray colorsY) {
+    private void setColorsY(vtkUnsignedCharArray colorsY) {
         this.colorsY = colorsY;
     }
 
@@ -246,7 +239,7 @@ public class PointCloudHandlers<T extends PointXYZ> {
     /**
      * @param colorsZ the colorsZ to set
      */
-    public void setColorsZ(vtkUnsignedCharArray colorsZ) {
+    private void setColorsZ(vtkUnsignedCharArray colorsZ) {
         this.colorsZ = colorsZ;
     }    
     
@@ -260,7 +253,7 @@ public class PointCloudHandlers<T extends PointXYZ> {
     /**
      * @param lutX the lutX to set
      */
-    public void setLutX(vtkLookupTable lutX) {
+    private void setLutX(vtkLookupTable lutX) {
         this.lutX = lutX;
     }
 
@@ -274,7 +267,7 @@ public class PointCloudHandlers<T extends PointXYZ> {
     /**
      * @param lutY the lutY to set
      */
-    public void setLutY(vtkLookupTable lutY) {
+    private void setLutY(vtkLookupTable lutY) {
         this.lutY = lutY;
     }
 
@@ -288,7 +281,7 @@ public class PointCloudHandlers<T extends PointXYZ> {
     /**
      * @param lutZ the lutZ to set
      */
-    public void setLutZ(vtkLookupTable lutZ) {
+    private void setLutZ(vtkLookupTable lutZ) {
         this.lutZ = lutZ;
     }
 
@@ -302,7 +295,7 @@ public class PointCloudHandlers<T extends PointXYZ> {
     /**
      * @param intensities the intensities to set
      */
-    public void setIntensities(vtkShortArray intensities) {
+    private void setIntensities(vtkShortArray intensities) {
         this.intensities = intensities;
     }
 
