@@ -49,10 +49,10 @@ public class DataDiscretizer {
 	private final GeneralPath cHullShape = new GeneralPath();
 	public double maxX = Double.NaN, maxY = Double.NaN, minX = Double.NaN, minY = Double.NaN;
 	public double minVal[] = null, maxVal[] = null;
-	private int cellWidth = 5;
+	private double cellWidth = 5;
     private ArrayList<Point> chull = new ArrayList<Point>();;
 	
-	public DataDiscretizer(int cellWidth) {
+	public DataDiscretizer(double cellWidth) {
 		this.cellWidth = cellWidth;		
 	}
 	

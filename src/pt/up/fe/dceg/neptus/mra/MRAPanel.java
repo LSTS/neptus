@@ -59,6 +59,7 @@ import pt.up.fe.dceg.neptus.mra.replay.LogReplay;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
+import pt.up.fe.dceg.neptus.plugins.noptilus.NoptilusMapExporter;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.util.FileUtil;
@@ -107,6 +108,9 @@ public class MRAPanel extends JPanel {
     
     public MRAPanel(final IMraLogGroup source, NeptusMRA mra) {
         this.source = source;
+        
+        
+        
         MRAVisualization[] automaticCharts = MraChartFactory.getAutomaticCharts(this);
 
         
@@ -226,7 +230,8 @@ public class MRAPanel extends JPanel {
                 new MatExporter(source),
                 new KMLExporter(this, source),
                 new CSVExporter(source),
-                new XtfExporter(source)
+                new XtfExporter(source),
+                new NoptilusMapExporter(source)
         }; 
         
         // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
