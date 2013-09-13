@@ -31,13 +31,13 @@
  */
 package pt.up.fe.dceg.neptus.plugins.noptilus;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
+import javax.imageio.ImageIO;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
@@ -56,7 +56,6 @@ import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -108,8 +107,7 @@ public class NoptilusMapExporter implements MraExporter, PropertiesProvider {
         boolean pathLow[][] = new boolean[numCols/10 + 1][numRows/10 + 1];
         BufferedImage imgHigh = new BufferedImage(numRows, numCols, BufferedImage.TYPE_INT_ARGB);
         BufferedImage imgLow = new BufferedImage(numRows/10, numCols/10, BufferedImage.TYPE_INT_ARGB);
-
-        
+        BufferedImage pathImg = new BufferedImage(numRows, numCols, BufferedImage.TYPE_INT_ARGB);
         if (source.getFile("multibeam.83P") == null) {
             NeptusLog.pub().info(I18n.text("no multibeam data has been found... using DVL"));
             LsfIterator<EstimatedState> it = source.getLsfIndex().getIterator(EstimatedState.class);
@@ -128,7 +126,8 @@ public class NoptilusMapExporter implements MraExporter, PropertiesProvider {
                 pathHigh[col][row] = true;            
                 pathLow[col/10][row/10] = true;
                 highRes.addPoint(offsets[1], offsets[0], state.getAlt()+state.getDepth());
-                lowRes.addPoint(offsets[1], offsets[0], state.getAlt()+state.getDepth());                        
+                lowRes.addPoint(offsets[1], offsets[0], state.getAlt()+state.getDepth());      
+                pathImg.setRGB(col, row, Color.blue.darker().getRGB());
             }
         }
         else {
@@ -164,41 +163,56 @@ public class NoptilusMapExporter implements MraExporter, PropertiesProvider {
                     pathLow[col/10][row/10] = true;
                     highRes.addPoint(offsets[1], offsets[0], bp.depth);
                     lowRes.addPoint(offsets[1], offsets[0], bp.depth); 
+                    pathImg.setRGB(col, row, Color.red.darker().getRGB());
                 }
             }
         }
         
-        for (int row = numRows-1; row >= 0; row--) {
-            for (int col = 0; col < numCols; col++) {
-                if (pathHigh[col][row])
-                    System.out.print("*");
-                else
-                    System.out.print(" ");
-            }
-            System.out.println();
-        }
-        
         String dirOut = source.getFile("mra").getAbsolutePath()+"/noptilus";
         
-        
         ColorMapUtils.generateColorMap(highRes.getDataPoints(), imgHigh.createGraphics(), numRows, numCols, 0, ColorMapFactory.createGrayScaleColorMap());
-        JLabel lbl = new JLabel(new ImageIcon(imgHigh));
         ColorMapUtils.generateColorMap(lowRes.getDataPoints(), imgLow.createGraphics(), numRows/10, numCols/10, 0, ColorMapFactory.createGrayScaleColorMap());
-        JLabel lbl2 = new JLabel(new ImageIcon(imgLow));
-
-        GuiUtils.testFrame(lbl, "High resolution");
-        GuiUtils.testFrame(lbl2, "Low resolution");
         
         try {            
             String desc = "Map centered in "+mapCenter.getLatitudeAsPrettyString()+" / "+mapCenter.getLongitudeAsPrettyString();
+            pathToFile(pathHigh, (float)cellSize, new File(dirOut+"/path_highres.txt"), desc);
+            pathToFile(pathLow, (float)cellSize*10, new File(dirOut+"/path_lowres.txt"), desc);
             ImageToFile(imgHigh, (float)cellSize, new File(dirOut+"/highres.txt"), desc);
-            ImageToFile(imgLow, (float)cellSize*10, new File(dirOut+"/lowres.txt"), desc);
+            ImageToFile(imgLow, (float)cellSize*10, new File(dirOut+"/lowres.txt"), desc);            
+            ImageIO.write(pathImg, "PNG", new File(dirOut+"/path.png"));
+            ImageIO.write(imgHigh, "PNG", new File(dirOut+"/highres.png"));
+            ImageIO.write(imgLow, "PNG", new File(dirOut+"/lowres.png"));
         }
         catch (Exception e) {
             e.printStackTrace();
             return e.getClass().getSimpleName()+"  while generating maps: "+e.getMessage();
         }
         return "Map files saved in "+dirOut;
+    }
+    
+    public void pathToFile(boolean[][] path, float resolution, File out, String desc) throws Exception {
+        out.getParentFile().mkdirs();
+        int numRows = path.length;
+        int numCols = path[0].length;
+        BufferedWriter bw = new BufferedWriter(new FileWriter(out));
+        bw.write("# Path generated by Neptus MRA\n");
+        bw.write("# "+desc+"\n");
+        bw.write("# <num cols> <num rows> <cell size> <?> <?>\n");
+        bw.write(numCols+ " "+numRows+" "+resolution+" 0 0\n\n");
+        for (int row = 0; row < numRows; row++) {
+            for (int col = 0; col < numCols; col++) {
+                if (path[col][row])
+                    bw.write('1');
+                else
+                    bw.write('0');
+                
+                if (col == numCols-1)
+                    bw.write('\n');
+                else
+                    bw.write(' ');
+            }
+        }      
+        bw.close();
     }
     
     public void ImageToFile(BufferedImage img, float resolution, File out, String desc) throws Exception {
@@ -212,12 +226,10 @@ public class NoptilusMapExporter implements MraExporter, PropertiesProvider {
         for (int y = 0; y < img.getHeight(); y++) {
             for (int x = 0; x < img.getWidth(); x++) {
                 int val = (img.getRGB(x, y) & 0x0000FF00) >> 8;
-                System.out.print(val / 255.0+" ");
                 double value = (val * 20) / 255.0;
                 bw.write((float)value+" ");                                
             }   
-            bw.write("\n");
-            System.out.println();
+            bw.write("\n");            
         }
         
         bw.close();
