@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.mra.api;
 
 import java.io.File;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
 
@@ -68,8 +69,10 @@ public class BathymetryParserFactory {
             return null; //FIXME for now only directories are supported 
         }
         else if(dir != null) {
-            file = new File(dir.getAbsolutePath()+"/multibeam.83P");
-            if(file.exists()) {
+            if (new File(dir.getAbsolutePath()+"/data.83P").exists()) {
+                return new DeltaTParser(source);
+            }
+            else if (new File(dir.getAbsolutePath()+"/multibeam.83P").exists()) {
                 return new DeltaTParser(source);
             }
             
