@@ -72,11 +72,7 @@ public class LedsUtils {
             ImageUtils.getImage("pt/up/fe/dceg/neptus/plugins/leds/images/leds_all.png"), LedsUtils.IMAGE_WIDTH,
             LedsUtils.IMAGE_HEIGHT);
 
-    public static final String[] ledNames = { "LED0", "LED1", "LED2", "LED3", "LED4", "LED5", "LED6", "LED7", "LED8",
-            "LED9", "LED10", "LED11" };
-
-    // public static final String[] ledNames = { "00", "01", "02", "03", "04", "05", "06", "07", "08",
-    // "9", "10", "11" };
+    public static final String[] ledNames = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" };
 
     public static int convPercToLedsBright(int perc) {
         return (255 * perc / 100);

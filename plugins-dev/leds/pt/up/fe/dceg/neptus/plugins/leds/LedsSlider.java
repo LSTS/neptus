@@ -244,10 +244,6 @@ public class LedsSlider extends JPanel implements ChangeListener {
                 sliderTextField.setText(String.valueOf(sliderValue));
 
                 sendBrightnessMsgs();
-
-                // NeptusLog.pub().info(
-                // "Value of slider " + String.valueOf(sliderNumber) + " value in perc: " + sliderValue
-                // + " value in brightness: " + LedsUtils.convPercToLedsBright(sliderValue));
             }
             else {
                 sliderValue = source.getValue();

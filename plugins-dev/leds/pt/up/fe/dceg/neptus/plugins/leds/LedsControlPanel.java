@@ -70,25 +70,9 @@ import com.google.common.eventbus.Subscribe;
  * 
  * @author hfq
  * 
- *         FIX ME - Change panel icon
+ *         FIXME - Change panel icon
  * 
  *         There are 4 groups of leds, each one containing 3 leds, placed on the front of the Rov
- * 
- *         Use: IMC::SetLedBrightness IMC::QueryLedBrightness
- * 
- *         IMC::LedBrightness
- * 
- *         SetLedBrightness extends IMCMessage
- * 
- *         QueryLedBrightness extends IMCMessage will reply with LedBrightness
- * 
- *         DUNE LED4R - device that allows controlling up to 12 high-brightness LEDs [Actuators.LED4R] Enabled =
- *         Hardware Entity Label = LED Driver Serial Port - Device = /dev/ttyUSB3 LED - Names = LED0, LED1, LED2, LED3,
- *         LED4, LED5, LED6, LED7, LED8, LED9, LED10, LED11
- * 
- *         adamastor_en_US.xml Neptus conf parameters <param name="LED - Names"> <name-i18n>LED - Names</name-i18n>
- *         <type>list:string</type> <visibility>developer</visibility> <scope>global</scope> <default>01, 02, 03, 04,
- *         05, 06, 07, 08, 09, 10, 11, 12</default> <units/> <desc>List of LED names</desc> <size>12</size> </param>
  */
 @Popup(pos = POSITION.TOP_LEFT, width = 300, height = 530, accelerator = 'D')
 @PluginDescription(author = "hfq", description = "Panel that enables setting up leds brightness", name = "Leds Control Panel", version = "0.1", icon = "images/menus/tip.png")
@@ -186,9 +170,8 @@ public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates
         super.paintComponent(g);
         Graphics2D graphic2d = (Graphics2D) g;
         Color color1 = getBackground();
-        // Color color2 = color1.darker();
-        Color color3 = Color.DARK_GRAY;
-        GradientPaint gradPaint = new GradientPaint(0, 0, color1, getWidth(), getHeight(), color3);
+        Color color2 = Color.DARK_GRAY;
+        GradientPaint gradPaint = new GradientPaint(0, 0, color1, getWidth(), getHeight(), color2);
         graphic2d.setPaint(gradPaint);
         graphic2d.fillRect(0, 0, getWidth(), getHeight());
     }
