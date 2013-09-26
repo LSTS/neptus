@@ -54,10 +54,14 @@ import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.InputSource;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.ContainerSubPanel;
 import pt.up.fe.dceg.neptus.console.SubPanel;
+import pt.up.fe.dceg.neptus.events.NeptusEventLayoutChanged;
+import pt.up.fe.dceg.neptus.events.NeptusEvents;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
@@ -71,17 +75,15 @@ import pt.up.fe.dceg.neptus.plugins.containers.propeditor.MiGLayoutXmlPropertyEd
  * 
  */
 @SuppressWarnings("serial")
-@PluginDescription(author = "José Quadrado", version = "1.0.0", name = "Console Layout: MiG", description = "Container using MigLayout",
+@PluginDescription(author = "José Quadrado", version = "1.0.0", name = "Console Layout: MigLayout", description = "This container uses MigLayout manager",
 // documentation = "",
 icon = "pt/up/fe/dceg/neptus/plugins/containers/layout.png", category = CATEGORY.INTERFACE)
 public class MigLayoutContainer extends ContainerSubPanel implements ConfigurationListener, LayoutProfileProvider {
 
-    @NeptusProperty(name = "XML Definitions", description = "XML layout definition", editorClass = MiGLayoutXmlPropertyEditor.class,
- distribution = DistributionEnum.DEVELOPER)
+    @NeptusProperty(name = "XML Definitions", description = "XML layout definition", editorClass = MiGLayoutXmlPropertyEditor.class, distribution = DistributionEnum.DEVELOPER)
     public String xmlDef = "";
 
-    @NeptusProperty(name = "Current Profile", description = "Name of the current active profile",
- distribution = DistributionEnum.DEVELOPER)
+    @NeptusProperty(name = "Current Profile", description = "Name of the current active profile", distribution = DistributionEnum.DEVELOPER)
     public String currentProfile = "";
 
     private final ArrayList<String> profileList = new ArrayList<String>();
@@ -90,6 +92,7 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
 
     public MigLayoutContainer(ConsoleLayout console) {
         super(console);
+        NeptusEvents.register(this);
         setLayout(new MigLayout("ins 0"));
     }
 
@@ -99,11 +102,11 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
         // Enforce at least one profile
         if (profileList.size() >= 1 && currentProfile.equals("")) {
             changeProfile(profileList.get(0));
-            applyLayout();
+            applyLayout(this.xmlDef);
         }
         else {
             changeProfile(currentProfile); // This call maybe redundant but is needed for profile menu update
-            applyLayout();
+            applyLayout(this.xmlDef);
         }
         super.init();
     }
@@ -142,13 +145,14 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
         for (final String name : profileList) {
             JCheckBoxMenuItem item = new JCheckBoxMenuItem(new AbstractAction(I18n.text(name)) {
                 private static final long serialVersionUID = 1L;
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     changeProfile(name);
-                    applyLayout();
+                    applyLayout(xmlDef);
                 }
             });
-           
+
             profilesMenu.add(item);
         }
     }
@@ -179,20 +183,26 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
 
     @Override
     public void propertiesChanged() {
+        System.out.println("layout changed");
         if (panels.size() > 0) { // Meaning it is not the first run where the properties are all empty
             loadProfiles();
             changeProfile(currentProfile);
-            applyLayout();
+            applyLayout(this.xmlDef);
         }
     }
 
-    public void applyLayout() {
+    @Subscribe
+    public void consume(NeptusEventLayoutChanged e) {
+        this.applyLayout(e.getLayout());
+    }
+
+    public void applyLayout(String xml) {
         this.removeAll();
-        if (xmlDef.isEmpty())
+        if (xml.isEmpty())
             return;
         SAXReader reader = new SAXReader();
         InputSource is = new InputSource();
-        is.setCharacterStream(new StringReader(xmlDef));
+        is.setCharacterStream(new StringReader(xml));
 
         // Parse new XML layout definition
         try {
@@ -201,7 +211,7 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
             List<Node> nodes = doc.selectNodes("//profiles/profile");
             for (Node node : nodes) {
                 if (node.valueOf("@name").equals(currentProfile)) {
-                    NeptusLog.pub().debug("Loaded profile "+node.valueOf("@name"));
+                    NeptusLog.pub().debug("Loaded profile " + node.valueOf("@name"));
                     parse(node, this);
                 }
             }
@@ -275,7 +285,7 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
     public void removeSubPanel(SubPanel sp) {
         panels.remove(sp);
         this.remove(sp);
-        applyLayout();
+        applyLayout(this.xmlDef);
         sp.clean();
     }
 
@@ -285,7 +295,9 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
         removeProfilesMenu();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.plugins.containers.LayoutProfileProvider#getActiveProfile()
      */
     @Override
@@ -293,14 +305,16 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
         return currentProfile;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.plugins.containers.LayoutProfileProvider#setActiveProfile(java.lang.String)
      */
     @Override
     public boolean setActiveProfile(String name) {
         if (profileList.contains(name)) {
             changeProfile(name);
-            applyLayout();
+            applyLayout(this.xmlDef);
         }
         else
             return false;
@@ -308,7 +322,9 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
         return true;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.plugins.containers.LayoutProfileProvider#listProfileNames()
      */
     @Override
@@ -316,15 +332,19 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
         return profileList.toArray(new String[0]);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.plugins.containers.LayoutProfileProvider#supportsMaximizePanelOnContainer()
      */
     @Override
     public boolean supportsMaximizePanelOnContainer() {
         return false;
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.up.fe.dceg.neptus.plugins.containers.LayoutProfileProvider#maximizePanelOnContainer(java.awt.Component)
      */
     @Override
