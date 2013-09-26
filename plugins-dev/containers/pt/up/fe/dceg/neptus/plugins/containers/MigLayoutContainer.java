@@ -183,7 +183,6 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
 
     @Override
     public void propertiesChanged() {
-        System.out.println("layout changed");
         if (panels.size() > 0) { // Meaning it is not the first run where the properties are all empty
             loadProfiles();
             changeProfile(currentProfile);
