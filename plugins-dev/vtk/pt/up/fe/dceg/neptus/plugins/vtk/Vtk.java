@@ -142,16 +142,14 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
     //private DownsamplePointCloud performDownsample;
     //private Boolean isDownsampleDone = false;
-    
-    static {
-        Utils.loadVTKLibraries();
-    }
+
     
     /**
      * @param panel
      */
     public Vtk(MRAPanel panel) {
         super(new MigLayout());
+        Utils.loadVTKLibraries();
     }
 
     @Override
