@@ -51,6 +51,7 @@ import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.up.fe.dceg.neptus.plugins.Popup;
+import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.containers.MigLayoutContainer;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
@@ -63,7 +64,7 @@ import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
  * @author Margarida Faria
  * 
  */
-@Popup(icon = "images/menus/settings.png", name = "Console Settings", accelerator = KeyEvent.VK_F3, height = 400, width = 600)
+@Popup(icon = "images/menus/settings.png", name = "Console Settings", pos = POSITION.CENTER, accelerator = KeyEvent.VK_F3, height = 400, width = 600)
 public class SettingsWindow extends SimpleSubPanel {
 
     private static final long serialVersionUID = 1L;
