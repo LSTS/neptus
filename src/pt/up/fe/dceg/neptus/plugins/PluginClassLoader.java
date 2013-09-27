@@ -200,7 +200,6 @@ public class PluginClassLoader extends URLClassLoader {
                     if (line.length() > 0 && line.charAt(0) != '#') {
                         try {
                             PluginsRepository.addPlugin(line);
-                            System.out.println("add plugin "+ line);
                         }
                         catch (Exception e) {
                         }

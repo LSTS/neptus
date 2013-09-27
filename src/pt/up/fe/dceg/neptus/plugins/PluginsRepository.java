@@ -63,7 +63,6 @@ public class PluginsRepository {
 //                PluginsRepository.addPlugin(sp.getCanonicalName());
 //            }
 //        }
-        System.out.println("Search");
        
         try {
             ClassPath cp = ClassPath.from(Thread.currentThread().getContextClassLoader());
