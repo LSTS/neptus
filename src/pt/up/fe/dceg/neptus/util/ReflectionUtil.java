@@ -179,12 +179,14 @@ public class ReflectionUtil {
         Vector<Class<?>> subpanels = new Vector<Class<?>>();
         try {
             List<Class<?>> classes = ReflectionUtil.getClassesForPackage("pt.up.fe.dceg.neptus.console.plugins");
-
+            System.out.println("list plugins");
             for (Class<?> clazz : classes) {
+                System.out.println(clazz.toString());
                 if (clazz == null || clazz.getSimpleName().length() == 0)
                     continue;
 
                 if (hasInterface(clazz, SubPanelProvider.class)) {
+                    System.out.println("added");
                     subpanels.add(clazz);
                 }
             }

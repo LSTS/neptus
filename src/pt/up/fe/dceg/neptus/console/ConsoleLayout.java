@@ -210,7 +210,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      */
     public static ConsoleLayout forge(String consoleURL, Loader loader) {
         ConsoleLayout instance = new ConsoleLayout();
-
         instance.imcOn();
         ConsoleParse.parseFile(consoleURL, instance);
         // load core plugins 

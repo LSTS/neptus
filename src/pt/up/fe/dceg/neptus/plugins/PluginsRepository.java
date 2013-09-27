@@ -31,7 +31,9 @@
  */
 package pt.up.fe.dceg.neptus.plugins;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
@@ -42,6 +44,9 @@ import pt.up.fe.dceg.neptus.renderer2d.tiles.MapPainterProvider;
 import pt.up.fe.dceg.neptus.renderer2d.tiles.Tile;
 import pt.up.fe.dceg.neptus.util.ReflectionUtil;
 
+import com.google.common.reflect.ClassPath;
+import com.google.common.reflect.ClassPath.ClassInfo;
+
 public class PluginsRepository {
 
     private static LinkedHashMap<String, Class<? extends NeptusAction>> actionClasses = new LinkedHashMap<String, Class<? extends NeptusAction>>();
@@ -50,16 +55,40 @@ public class PluginsRepository {
     private static LinkedHashMap<String, Class<? extends MRAVisualization>> visualizations = new LinkedHashMap<String, Class<? extends MRAVisualization>>();
     private static LinkedHashMap<String, Class<? extends MapTileProvider>> tileProviders = new LinkedHashMap<String, Class<? extends MapTileProvider>>();
     private static LinkedHashMap<Class<?>, LinkedHashMap<String, Class<?>>> otherPlugins = new LinkedHashMap<Class<?>, LinkedHashMap<String, Class<?>>>();
-    
-    static {
-        Class<?>[] subpanels = ReflectionUtil.listSubPanels();
-        for (Class<?> sp : subpanels) {
-            if (sp.getAnnotation(PluginDescription.class) != null){
-                PluginsRepository.addPlugin(sp.getCanonicalName());
+
+    public static void searchPlugins() {
+//        Class<?>[] subpanels = ReflectionUtil.listSubPanels();
+//        for (Class<?> sp : subpanels) {
+//            if (sp.getAnnotation(PluginDescription.class) != null) {
+//                PluginsRepository.addPlugin(sp.getCanonicalName());
+//            }
+//        }
+        System.out.println("Search");
+       
+        try {
+            ClassPath cp = ClassPath.from(Thread.currentThread().getContextClassLoader());
+            
+            Set<ClassInfo> plugins = cp.getTopLevelClassesRecursive("pt.up.fe.dceg.neptus.console.plugins");
+            for (ClassInfo classInfo : plugins) {
+                if(classInfo.load().isAnnotationPresent(PluginDescription.class)){
+                    PluginsRepository.addPlugin(classInfo.getName());
+                }
+                
+            }
+            Set<ClassInfo> plugins2 = cp.getTopLevelClassesRecursive("pt.up.fe.dceg.neptus.plugins");
+            for (ClassInfo classInfo : plugins2) {
+                if(classInfo.load().isAnnotationPresent(PluginDescription.class)){
+                    PluginsRepository.addPlugin(classInfo.getName());
+                }
             }
         }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        
     }
-    
 
     @SuppressWarnings("unchecked")
     public static void addPlugin(String className) {
@@ -109,7 +138,7 @@ public class PluginsRepository {
         }
 
     }
-    
+
     public static void addOtherPlugin(Class<?> service, Class<?> implementation) {
         if (!otherPlugins.containsKey(service)) {
             otherPlugins.put(service, new LinkedHashMap<String, Class<?>>());
@@ -120,14 +149,15 @@ public class PluginsRepository {
     public static LinkedHashMap<String, Class<?>> getImplementers(Class<?> service) {
         return otherPlugins.get(service);
     }
-    
+
     /**
      * Factory for SubPanel plugins
+     * 
      * @param pluginName
      * @param console
      * @return
      */
-    public static SubPanel getPanelPlugin(String pluginName, ConsoleLayout console){
+    public static SubPanel getPanelPlugin(String pluginName, ConsoleLayout console) {
         SubPanel np = null;
         try {
             np = (SubPanel) panelClasses.get(pluginName).getConstructor(ConsoleLayout.class).newInstance(console);

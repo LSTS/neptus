@@ -45,34 +45,20 @@ import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.swing.JFrame;
-
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.util.ReflectionUtil;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 public class PluginClassLoader extends URLClassLoader {
 
-    private static PluginClassLoader instance = null;
-
-    public static PluginClassLoader getInstance() {
-        return instance;
-    }
-
-    public static Object getInstance(String classname) {
-        try {
-            Class<?> o = instance.loadClass(classname);
-            return o.newInstance();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    private static final Class<?>[] parameters = new Class[] { URL.class };
+   
+    public static void install() {
+        // install(new String[] { "source", "plugins", "plugins-dev" });
+        install(new String[] { "plugins" });
     }
 
     public static void install(String[] pluginsDirs) {
-
-        ClassLoader currentThreadClassLoader = Thread.currentThread().getContextClassLoader();
 
         File[] dirs = new File[pluginsDirs.length];
         for (int i = 0; i < pluginsDirs.length; i++) {
@@ -91,28 +77,28 @@ public class PluginClassLoader extends URLClassLoader {
             }
         });
 
-        instance = PluginClassLoader.forge(dirs, currentThreadClassLoader);
-        Thread.currentThread().setContextClassLoader(instance);
-
+        // dynamic load plugins jars at runtime
+        Vector<URL> urls = listPlugins(dirs);
+        
+        try {
+            for (URL url : urls) {
+                // add the jars to the classloader
+                PluginClassLoader.addToSysClassLoader(url);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        parsePlugins(urls);
+        // add the plugins inside the normal packages
+        PluginsRepository.searchPlugins();
     }
 
-    public static void install() {
-        install(new String[] { "source", "plugins", "plugins-dev" });
-    }
-    
-    /**
-     * Static factory method
-     * @param pluginsDirs
-     * @param parent
-     * @return
-     */
-    private static PluginClassLoader forge(File[] pluginsDirs, ClassLoader parent){
-        Vector<URL> urls = listPlugins(pluginsDirs);
-        return new PluginClassLoader(urls, parent);
-    }
-    
+   
+
     /**
      * Private Constructor
+     * 
      * @param urls
      * @param parent
      */
@@ -121,14 +107,15 @@ public class PluginClassLoader extends URLClassLoader {
 
         try {
             for (URL url : urls) {
+                System.out.println(url.toString());
                 PluginClassLoader.addToSysClassLoader(url);
             }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-
-        parsePlugins(urls);
+        System.out.println("end");
+        // parsePlugins(urls);
     }
 
     private static String getFileExtension(File fx) {
@@ -213,6 +200,7 @@ public class PluginClassLoader extends URLClassLoader {
                     if (line.length() > 0 && line.charAt(0) != '#') {
                         try {
                             PluginsRepository.addPlugin(line);
+                            System.out.println("add plugin "+ line);
                         }
                         catch (Exception e) {
                         }
@@ -238,21 +226,20 @@ public class PluginClassLoader extends URLClassLoader {
                 continue;
 
             for (File file : subF) {
-                if (file.isDirectory()) {
-                    File desc = new File(file, "plugins.lst");
-                    if (desc.canRead()) {
-                        try {
-                            urls.add(file.toURI().toURL());
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    urls.addAll(listPlugins(new File[] { file }));
-                }
+                // if (file.isDirectory()) {
+                // File desc = new File(file, "plugins.lst");
+                // if (desc.canRead()) {
+                // try {
+                // urls.add(file.toURI().toURL());
+                // }
+                // catch (Exception e) {
+                // e.printStackTrace();
+                // }
+                // }
+                // urls.addAll(listPlugins(new File[] { file }));
+                // }
 
                 if (getFileExtension(file).equalsIgnoreCase("jar")) {
-
                     try {
                         urls.add(file.toURI().toURL());
                     }
@@ -265,8 +252,6 @@ public class PluginClassLoader extends URLClassLoader {
 
         return urls;
     }
-
-    private static final Class<?>[] parameters = new Class[] { URL.class };
 
     private static void addToSysClassLoader(URL u) throws Exception {
 
@@ -281,15 +266,7 @@ public class PluginClassLoader extends URLClassLoader {
         catch (Throwable t) {
             t.printStackTrace();
             throw new Exception("Error, could not add URL to system classloader: " + t.getMessage());
-        }// end try catch
-
+        }
     }
 
-    public static void main(String[] args) throws Exception {
-        PluginClassLoader.install();
-        Class.forName("pt.up.fe.dceg.neptus.plugins.CounterPlugin");
-        JFrame frame = new JFrame("rwst");
-        frame.setVisible(true);
-        // Class.forName("com.jgoodies.looks.windows.WindowsIconFactory");
-    }
 }
