@@ -91,7 +91,7 @@ public class PluginClassLoader extends URLClassLoader {
             }
         });
 
-        instance = new PluginClassLoader(dirs, currentThreadClassLoader);
+        instance = PluginClassLoader.forge(dirs, currentThreadClassLoader);
         Thread.currentThread().setContextClassLoader(instance);
 
     }
@@ -99,10 +99,25 @@ public class PluginClassLoader extends URLClassLoader {
     public static void install() {
         install(new String[] { "source", "plugins", "plugins-dev" });
     }
-
-    private PluginClassLoader(File[] pluginsDirs, ClassLoader parent) {
-        super(listPlugins(pluginsDirs).toArray(new URL[] {}), parent);
+    
+    /**
+     * Static factory method
+     * @param pluginsDirs
+     * @param parent
+     * @return
+     */
+    private static PluginClassLoader forge(File[] pluginsDirs, ClassLoader parent){
         Vector<URL> urls = listPlugins(pluginsDirs);
+        return new PluginClassLoader(urls, parent);
+    }
+    
+    /**
+     * Private Constructor
+     * @param urls
+     * @param parent
+     */
+    private PluginClassLoader(Vector<URL> urls, ClassLoader parent) {
+        super(urls.toArray(new URL[] {}), parent);
 
         try {
             for (URL url : urls) {
@@ -267,10 +282,6 @@ public class PluginClassLoader extends URLClassLoader {
             t.printStackTrace();
             throw new Exception("Error, could not add URL to system classloader: " + t.getMessage());
         }// end try catch
-
-    }
-
-    public static void launch(String[] args) throws Exception {
 
     }
 
