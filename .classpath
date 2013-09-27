@@ -164,7 +164,6 @@
 	<classpathentry kind="lib" path="lib/gson-2.2.2.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/s57/s57-package-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/wms.jar"/>
-	<classpathentry kind="lib" path="lib/guava-13.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/toolsUI-4.3.jar"/>
 	<classpathentry kind="lib" path="lib/imgscalr-lib-4.2.jar"/>
 	<classpathentry kind="lib" path="lib/xuggle-xuggler-5.4.jar"/>
@@ -197,6 +196,9 @@
 	<classpathentry kind="lib" path="lib/libimc.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-oro-core-2.1-dev-1.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-oro-perl5-2.1-dev-1.jar"/>
+	<classpathentry kind="lib" path="lib/reflections-0.9.9-RC1-uberjar.jar"/>
+	<classpathentry kind="lib" path="lib/javassist.jar"/>
+	<classpathentry kind="lib" path="lib/guava-15.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>
