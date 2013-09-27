@@ -113,7 +113,7 @@ public class ControllerManager {
 
 		// Fectch controllers list
 		Controller controllers[] = new JoyEnvironment().getControllers();
-
+		System.out.println("very slow controllers loading ");
 		// Create new controllerMap
 		for (Controller c : controllers) {
 			if(!c.getName().toLowerCase().contains("keyboard") && !c.getName().toLowerCase().contains("mouse"))
