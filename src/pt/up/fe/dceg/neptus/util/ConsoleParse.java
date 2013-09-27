@@ -52,7 +52,6 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.SubPanel;
 import pt.up.fe.dceg.neptus.loader.FileHandler;
-import pt.up.fe.dceg.neptus.plugins.configWindow.SettingsWindow;
 import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
@@ -160,11 +159,6 @@ public class ConsoleParse implements FileHandler {
         ConfigFetch.mark("reinit");
         console.initSubPanels();
         ConfigFetch.benchmark("reinit");
-        
-       
-        SettingsWindow settings = new SettingsWindow(console);
-        settings.init();
-        
     }
 
     public static void parseDocument(Document doc, ConsoleLayout console, String consoleURL) {

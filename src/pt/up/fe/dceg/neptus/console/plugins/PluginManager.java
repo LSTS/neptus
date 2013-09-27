@@ -83,6 +83,7 @@ public class PluginManager extends SimpleSubPanel {
 
     private static final long serialVersionUID = 1L;
     private JPanel content;
+    @SuppressWarnings("unused")
     private JPanel statusPanel;
     private JTextArea description;
     private JList<String> activePluginsList;

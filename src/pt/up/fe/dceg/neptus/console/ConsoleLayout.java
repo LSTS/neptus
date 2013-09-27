@@ -121,6 +121,7 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.state.ImcSysState;
 import pt.up.fe.dceg.neptus.loader.NeptusMain;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.plugins.configWindow.SettingsWindow;
 import pt.up.fe.dceg.neptus.plugins.teleoperation.ControllerPanel;
 import pt.up.fe.dceg.neptus.renderer2d.VehicleStateListener;
 import pt.up.fe.dceg.neptus.types.XmlInOutMethods;
@@ -153,9 +154,6 @@ import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
  */
 public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentListener {
     private static final long serialVersionUID = -7457352031399061316L;
-
-    // ICONS
-    // private static ImageIcon ICON_SETTINGS = ImageUtils.createImageIcon("images/menus/settings.png");
 
     public static final String DEFAULT_ROOT_ELEMENT = "console";
     private Document xmlDoc = null;
@@ -218,6 +216,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         // load core plugins 
         PluginManager manager = new PluginManager(instance);
         manager.init();
+        SettingsWindow settings = new SettingsWindow(instance);
+        settings.init();
         
         instance.setConsoleChanged(false);
         
@@ -227,6 +227,12 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         return instance;
     }
 
+    /**
+     * Static factory method
+     * 
+     * @param consoleURL
+     * @return
+     */
     public static ConsoleLayout forge(String consoleURL) {
         return forge(consoleURL, null);
     }

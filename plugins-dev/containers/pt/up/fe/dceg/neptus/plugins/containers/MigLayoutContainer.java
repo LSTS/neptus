@@ -75,9 +75,7 @@ import pt.up.fe.dceg.neptus.plugins.containers.propeditor.MiGLayoutXmlPropertyEd
  * 
  */
 @SuppressWarnings("serial")
-@PluginDescription(author = "José Quadrado", version = "1.0.0", name = "Console Layout: MigLayout", description = "This container uses MigLayout manager",
-// documentation = "",
-icon = "pt/up/fe/dceg/neptus/plugins/containers/layout.png", category = CATEGORY.INTERFACE)
+@PluginDescription(author = "José Quadrado", version = "1.0.0", name = "Console Layout: MigLayout", description = "This container uses MigLayout manager", icon = "pt/up/fe/dceg/neptus/plugins/containers/layout.png", category = CATEGORY.INTERFACE)
 public class MigLayoutContainer extends ContainerSubPanel implements ConfigurationListener, LayoutProfileProvider {
 
     @NeptusProperty(name = "XML Definitions", description = "XML layout definition", editorClass = MiGLayoutXmlPropertyEditor.class, distribution = DistributionEnum.DEVELOPER)
