@@ -37,7 +37,7 @@ import junit.framework.TestCase;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.plugins.SubPanelProvider;
 import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.PluginClassLoader;
+import pt.up.fe.dceg.neptus.plugins.PluginsLoader;
 import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
@@ -50,7 +50,7 @@ public class PluginsTest extends TestCase {
 
     public void testPanelPlugins() {
         ConfigFetch.initialize();
-        PluginClassLoader.install();
+        PluginsLoader.load();
 
         LinkedHashMap<String, Class<? extends SubPanelProvider>> sp = PluginsRepository.getPanelPlugins();
 
@@ -72,7 +72,7 @@ public class PluginsTest extends TestCase {
 
     public void testMRAVisualizations() {
         ConfigFetch.initialize();
-        PluginClassLoader.install();
+        PluginsLoader.load();
 
         LinkedHashMap<String, Class<? extends MRAVisualization>> sp = PluginsRepository.getMraVisualizations();
 

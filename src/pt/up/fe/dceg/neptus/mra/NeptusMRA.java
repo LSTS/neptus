@@ -90,7 +90,7 @@ import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.importers.lsf.ConcatenateLsfLog;
 import pt.up.fe.dceg.neptus.mra.replay.LogReplay;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginClassLoader;
+import pt.up.fe.dceg.neptus.plugins.PluginsLoader;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
@@ -1027,7 +1027,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
         mra.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Thread t = new Thread("startup") {
             public void run() {
-                PluginClassLoader.install();
+                PluginsLoader.load();
                 //ConfigFetch.initialize();
             };
         };

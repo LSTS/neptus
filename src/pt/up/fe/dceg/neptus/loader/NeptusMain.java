@@ -54,7 +54,7 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mc.Workspace;
 import pt.up.fe.dceg.neptus.mc.lauvconsole.LAUVConsole;
 import pt.up.fe.dceg.neptus.mra.NeptusMRA;
-import pt.up.fe.dceg.neptus.plugins.PluginClassLoader;
+import pt.up.fe.dceg.neptus.plugins.PluginsLoader;
 import pt.up.fe.dceg.neptus.plugins.params.ConfigurationManager;
 import pt.up.fe.dceg.neptus.types.miscsystems.MiscSystemsHolder;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
@@ -218,7 +218,7 @@ public class NeptusMain {
      */
     public static void loadPreRequirementsDataExceptConfigFetch(Loader loader, boolean neptusLookAndFeelOrNative) {
         loader.setText(I18n.text("Loading Plug-ins..."));
-        PluginClassLoader.install();
+        PluginsLoader.load();
 
         loader.setText(I18n.text("Loading Look&Feel..."));
 

@@ -47,11 +47,9 @@ import javax.swing.ListCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.console.MainPanel;
-import pt.up.fe.dceg.neptus.plugins.PluginClassLoader;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.ReflectionUtil;
 
@@ -118,8 +116,4 @@ public class ComponentSelector extends JComboBox<Class<?>> {
         }
     }
 
-    public static void main(String args[]) {
-        PluginClassLoader.install();
-        GuiUtils.testFrame(new ComponentSelector(null));
-    }
 }

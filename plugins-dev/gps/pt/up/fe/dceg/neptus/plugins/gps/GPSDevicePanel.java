@@ -50,7 +50,7 @@ import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mystate.MyState;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginClassLoader;
+import pt.up.fe.dceg.neptus.plugins.PluginsLoader;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
@@ -313,7 +313,7 @@ public class GPSDevicePanel extends SimpleSubPanel implements ActionListener, Fi
     }
 
     public static void main(String[] args) {
-        PluginClassLoader.install();
+        PluginsLoader.load();
         ConsoleParse.testSubPanel(GPSDevicePanel.class);
     }
 }

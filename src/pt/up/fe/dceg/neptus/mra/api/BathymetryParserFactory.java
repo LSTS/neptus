@@ -33,7 +33,6 @@ package pt.up.fe.dceg.neptus.mra.api;
 
 import java.io.File;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
 
