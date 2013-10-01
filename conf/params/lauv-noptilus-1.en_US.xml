@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,09db244)" system="lauv-noptilus-1" i18n="en_US">
+<config format="1" version="2.4.0-rc1 (unknown,unknown)" system="lauv-noptilus-1" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -3485,7 +3485,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.0</default>
+      <default>5.0</default>
       <units/>
       <desc>No valid wet sensor data threshold value</desc>
     </param>
@@ -5806,7 +5806,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Spew</default>
+      <default>None</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
@@ -7514,7 +7514,7 @@
       <scope>global</scope>
       <default>1</default>
       <units/>
-      <desc>Source level</desc>
+      <desc>Signal transmission source level during data exchange</desc>
       <min>0</min>
       <max>3</max>
     </param>
