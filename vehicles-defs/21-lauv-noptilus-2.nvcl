@@ -372,7 +372,7 @@
           <port>6002</port>
           <udp-on>true</udp-on>
           <rtps-on>false</rtps-on>
-          <imc3-id>00:1A</imc3-id>
+          <imc3-id>00:1B</imc3-id>
         </imc>
       </protocols-args>
     </comm-mean>
