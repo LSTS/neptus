@@ -117,9 +117,6 @@ public class convcaoNeptusInteraction extends SimpleSubPanel {
     protected ImageIcon appLogo = ImageUtils.getIcon("images/control-mode/externalApp.png");
     protected ImageIcon noptilusLogo = ImageUtils.getIcon("images/control-mode/noptilus.png");
     
-    
-    
-    
     public class InputData
     {
         public String DateTime = "";
@@ -132,11 +129,13 @@ public class convcaoNeptusInteraction extends SimpleSubPanel {
     {
         public String SessionID = "";
         public int timeStep = 0;
+        
+        // 1 row per auv, 1 coordinates (depth)         
         public double[] Bathymeter;
+
+        // 1 row per auv, 2 coordinates (northing, easting) 
         public int[][] Location;
     };
-    
-    
     
     protected class backgroundWorker extends Thread{
         
@@ -165,7 +164,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel {
                 for (int AUV = 0; AUV < AUVS; AUV++)
                 {
                     InD.Bathymeter[AUV] = MapAsTable[PosAUVS[AUV][0]][PosAUVS[AUV][1]];
-                    InD.Location[AUV][0] =   PosAUVS[AUV][0];
+                    InD.Location[AUV][0] = PosAUVS[AUV][0];
                     InD.Location[AUV][1] = PosAUVS[AUV][1];
                 }
 
@@ -361,19 +360,12 @@ public class convcaoNeptusInteraction extends SimpleSubPanel {
         jButton1.setEnabled(false);
         renewButton.setEnabled(false);
         connectButton.setEnabled(false);
-        
-
 
         t1.start();
     }
     
 
-    
-    
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) throws SocketException, IOException {
-        
-
-        
         MapAsTable = ReadMapfile(); //TODO parse dynamically the map
 
         InputData InD = new InputData();
@@ -405,6 +397,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel {
         
         
         FTPClient client = new FTPClient();
+
         boolean PathNameCreated=false;
         try {
             client.connect("www.convcao.com",21);
@@ -439,8 +432,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel {
             jLabel1.setVisible(false);
         }
         
-        myDeleteFile(fileName);
-        
+        myDeleteFile(fileName);        
     }
     
     
