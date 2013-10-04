@@ -55,7 +55,8 @@ public class NeptusLog {
     private static Logger action = Logger.getLogger(NEPTUS_ACTION);
     private static Logger waste = Logger.getLogger(NEPTUS_WASTE);
 
-    static {
+   
+    public static void init(){
         try {
             if (new File("conf/log4j.xml").exists()) {
                 DOMConfigurator.configure("conf/log4j.xml");
@@ -71,7 +72,7 @@ public class NeptusLog {
             pub.warn("Could not configure Log4J with a default config, will try to load from configuration file!!");
         }
     }
-
+    
     private static String getCallerStamp() {
         StackTraceElement[] stack = Thread.currentThread().getStackTrace();
         int idx = 4; // 3

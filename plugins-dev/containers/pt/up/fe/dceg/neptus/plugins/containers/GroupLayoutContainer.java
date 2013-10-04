@@ -87,7 +87,7 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.up.fe.dceg.neptus.plugins.PluginClassLoader;
+import pt.up.fe.dceg.neptus.plugins.PluginsLoader;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
@@ -1533,7 +1533,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
             return;
 
         ConfigFetch.initialize();
-        PluginClassLoader.install();
+        PluginsLoader.load();
         ConsoleLayout cl = new ConsoleLayout();
         // ConsoleParse parse=new ConsoleParse(cl);
         // try

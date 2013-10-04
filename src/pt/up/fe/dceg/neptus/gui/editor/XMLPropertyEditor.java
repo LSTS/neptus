@@ -33,7 +33,6 @@ package pt.up.fe.dceg.neptus.gui.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
@@ -59,7 +58,6 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import pt.up.fe.dceg.neptus.events.NeptusEvents;
 import pt.up.fe.dceg.neptus.fileeditor.SyntaxDocument;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.containers.GroupLayoutContainer;
