@@ -74,6 +74,8 @@ implements MainVehicleChangeListener, Renderer2DPainter, SubPanelChangeListener,
 	
 	
 	private boolean initCalled=false;
+	
+    @SuppressWarnings("unused")
     private double strX, strY, strZ; // stream vector
 
 	/**

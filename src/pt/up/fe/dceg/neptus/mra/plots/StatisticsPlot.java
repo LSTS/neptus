@@ -52,7 +52,8 @@ import pt.up.fe.dceg.neptus.util.llf.LogUtils;
  *
  */
 public class StatisticsPlot extends JPanel implements MRAVisualization {
-    
+    private static final long serialVersionUID = -2664129262334634012L;
+
     JTable table;
     TableModel model = new TableModel();
         
@@ -118,6 +119,8 @@ public class StatisticsPlot extends JPanel implements MRAVisualization {
     }
     
     class TableModel extends AbstractTableModel {
+        private static final long serialVersionUID = 1L;
+
         public LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
         
 //        public LinkedHashMap<String, String> getMap() {

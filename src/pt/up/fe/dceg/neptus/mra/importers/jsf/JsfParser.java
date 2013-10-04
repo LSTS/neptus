@@ -53,17 +53,15 @@ import pt.up.fe.dceg.neptus.NeptusLog;
  * 
  */
 public class JsfParser {
+    @SuppressWarnings("unused")
     private File file;
+
     private FileInputStream fis;
     private FileChannel channel;
     private long curPosition = 0;
-    private int curPingNumber = 0;
     private JsfIndex index = new JsfIndex();    
     
     private String indexPath;
-
-    private long nextTimestampHigh;
-    private long nextTimestampLow;
     
     private LinkedHashMap<Integer, Long[]> tslist = new LinkedHashMap<Integer, Long[]>();
     private LinkedHashMap<Integer, Long> nextTimestamp = new LinkedHashMap<Integer, Long>();

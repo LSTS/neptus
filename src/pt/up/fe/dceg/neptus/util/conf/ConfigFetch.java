@@ -39,8 +39,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -75,7 +73,6 @@ import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.up.fe.dceg.neptus.util.DateTimeUtil;
@@ -1181,37 +1178,37 @@ public class ConfigFetch {
     /**
      * 
      */
-    private void loadIMCDefinitions() {
-        // IMC definition loading
-        boolean loadDefault = false;
-        File imcFx = new File(getDefaultIMCDefinitionsLocation());
-        FileInputStream fis = null;
-        if (imcFx.exists()) {
-            try {
-                fis = new FileInputStream(imcFx);
-            }
-            catch (FileNotFoundException e) {
-                loadDefault = true;
-                NeptusLog.pub().fatal(e);
-            }
-        }
-        else {
-            loadDefault = true;
-        }
-        String msg = "IMC definition loading from default: \""
-                + getDefaultIMCDefinitionsLocation()
-                + (!loadDefault ? "\"" : "\" [file doesn't exists!!! | loading \"" + IMCDefinition.pathToDefaults
-                        + "\" inside the jar!!!]");
-
-        if (!loadDefault)
-            NeptusLog.pub().info(msg);
-        else
-            NeptusLog.pub().error(msg);
-        if (!loadDefault)
-            IMCDefinition.getInstance(fis);
-        else
-            IMCDefinition.getInstance();
-    }
+//    private void loadIMCDefinitions() {
+//        // IMC definition loading
+//        boolean loadDefault = false;
+//        File imcFx = new File(getDefaultIMCDefinitionsLocation());
+//        FileInputStream fis = null;
+//        if (imcFx.exists()) {
+//            try {
+//                fis = new FileInputStream(imcFx);
+//            }
+//            catch (FileNotFoundException e) {
+//                loadDefault = true;
+//                NeptusLog.pub().fatal(e);
+//            }
+//        }
+//        else {
+//            loadDefault = true;
+//        }
+//        String msg = "IMC definition loading from default: \""
+//                + getDefaultIMCDefinitionsLocation()
+//                + (!loadDefault ? "\"" : "\" [file doesn't exists!!! | loading \"" + IMCDefinition.pathToDefaults
+//                        + "\" inside the jar!!!]");
+//
+//        if (!loadDefault)
+//            NeptusLog.pub().info(msg);
+//        else
+//            NeptusLog.pub().error(msg);
+//        if (!loadDefault)
+//            IMCDefinition.getInstance(fis);
+//        else
+//            IMCDefinition.getInstance();
+//    }
 
     /**
      * @return

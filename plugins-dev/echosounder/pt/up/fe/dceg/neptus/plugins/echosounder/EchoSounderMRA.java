@@ -81,8 +81,6 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
 
     private int maxRange;
 
-    private double yscale;
-
     public EchoSounderMRA(MRAPanel panel) {
         mraPanel = panel;
 
