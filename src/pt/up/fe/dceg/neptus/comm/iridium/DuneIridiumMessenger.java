@@ -128,10 +128,12 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
 
     @Override
     public boolean isAvailable() {
-        ImcSystem sys = ImcSystemsHolder.lookupSystemByName(messengerName);
-        if (sys == null)
-            return false;
-        return (System.currentTimeMillis() - sys.getLastErrorStateReceived()) < 60000;
+        //System.out.println(System.currentTimeMillis() - ImcMsgManager.getManager().getState(messengerName).lastAnnounce().getTimestampMillis() < 60000);
+        return true;
+        //ImcSystem sys = ImcSystemsHolder.lookupSystemByName(messengerName);
+        //if (sys == null)
+        //    return false;
+        //return (System.currentTimeMillis() - sys.getLastErrorStateReceived()) < 60000;
     }
     
     @Override

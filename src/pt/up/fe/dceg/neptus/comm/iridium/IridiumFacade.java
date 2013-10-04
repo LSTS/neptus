@@ -113,16 +113,21 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
             protected Void doInBackground() throws Exception {
                 String provider = null;
                 for (IridiumMessenger m : messengers) {
-                    if (m.isAvailable()) {
+                    System.out.println("trying to send iridium message using "+m.getName());
+                    //if (m.isAvailable()) {
                         try {
                             m.sendMessage(msg);
                             provider = m.getName();
                             break;
                         }
                         catch (Exception e) {
+                            e.printStackTrace();
                             NeptusLog.pub().error(e);
                         }
-                    }
+                    //}
+                    //else {
+                    //    System.err.println(m.getName()+" is not available");
+                    //}
                 }
                 if (provider == null)
                     throw new Exception("Unable to send iridium message");
@@ -171,10 +176,15 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
     }
 
     public void updateMessengers() {
+        System.out.println("updating messengers");
         ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("iridium",
                 SystemTypeEnum.ALL, true);
         if (iridiumSystemProvider == null)
             iridiumSystemProvider = "any";
+        
+        for (ImcSystem sys : sysLst) {
+            System.out.println("Found messenger: "+sys.getName());
+        }
         
         if (!iridiumSystemProvider.equals("any")) {
             Vector<IridiumMessenger> toDelete = new Vector<>();
@@ -187,6 +197,8 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
                 }
             }            
             messengers.removeAll(toDelete);
+            
+            
         }
         
         if (iridiumSystemProvider.equals("any") || (""+iridiumSystemProvider).equalsIgnoreCase("hub")) {
@@ -202,7 +214,22 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
                 messengers.add(m);
                 NeptusLog.pub().info("Added "+m);
             }
-        }    
+        }
+        else {
+            
+            boolean alreadyAdded = false;
+            for (IridiumMessenger m : messengers) {
+                if (m instanceof DuneIridiumMessenger && ((DuneIridiumMessenger) m).getMessengerName().equals(iridiumSystemProvider)) {                    
+                    alreadyAdded = true;
+                    break;
+                }
+            }
+            if (!alreadyAdded) {
+                DuneIridiumMessenger m = new DuneIridiumMessenger(iridiumSystemProvider);
+                messengers.add(m);
+                NeptusLog.pub().info("Added "+m);
+            }
+        }
         
         if (iridiumSystemProvider.equals("any") || (""+iridiumSystemProvider).equalsIgnoreCase("sim")) {
             boolean alreadyAdded = false;
@@ -218,6 +245,7 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
                 NeptusLog.pub().info("Added "+m);
             }
         }     
+        
         
         for (ImcSystem s : sysLst) {
             boolean alreadyAdded = false;
@@ -237,6 +265,14 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
                     NeptusLog.pub().info("Added "+m);
                 }
             }
+        }
+        
+        for (IridiumMessenger m : messengers) {
+            System.out.println("Stayed with: "+m.getName());
+        }
+        
+        if (messengers.isEmpty()) {
+            System.err.println("No messengers are available");
         }
     }
     

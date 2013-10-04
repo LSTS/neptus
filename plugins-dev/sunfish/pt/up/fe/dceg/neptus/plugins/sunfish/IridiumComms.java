@@ -46,6 +46,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.comm.iridium.ActivateSubscription;
+import pt.up.fe.dceg.neptus.comm.iridium.DeactivateSubscription;
 import pt.up.fe.dceg.neptus.comm.iridium.DesiredAssetPosition;
 import pt.up.fe.dceg.neptus.comm.iridium.DeviceUpdate;
 import pt.up.fe.dceg.neptus.comm.iridium.HubIridiumMessenger;
@@ -204,6 +206,35 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                 sendIridiumCommand();                
             }
         });
+        
+        popup.add(I18n.textf("Subscribe to device updates", getMainVehicleId())).addActionListener(new ActionListener() {            
+            public void actionPerformed(ActionEvent e) {
+                ActivateSubscription activate = new ActivateSubscription();
+                activate.setDestination(0xFF);
+                activate.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+                try {
+                    IridiumFacade.getInstance().sendMessage(activate);    
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                }
+            }
+        });
+        
+        popup.add(I18n.textf("Unsubscribe to device updates", getMainVehicleId())).addActionListener(new ActionListener() {            
+            public void actionPerformed(ActionEvent e) {
+                DeactivateSubscription deactivate = new DeactivateSubscription();
+                deactivate.setDestination(0xFF);
+                deactivate.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+                try {
+                    IridiumFacade.getInstance().sendMessage(deactivate);    
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                }
+            }
+        });
+        
 
         popup.add("Set this as actual wave glider target").addActionListener(new ActionListener() {            
             public void actionPerformed(ActionEvent e) {

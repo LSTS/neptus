@@ -59,6 +59,7 @@ import pt.up.fe.dceg.neptus.imc.PlanTransition;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.up.fe.dceg.neptus.mp.actions.PayloadConfig;
 import pt.up.fe.dceg.neptus.mp.actions.PlanActions;
 import pt.up.fe.dceg.neptus.mp.maneuvers.IMCSerialization;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
@@ -838,6 +839,19 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, Identifia
                 locations.add(destTo);
         }        
         return locations;
+    }
+    
+    public boolean isCompatibleWith(VehicleType vehicle) {
+        if (getVehicle().equals(vehicle.getName()))
+            return true;
+        
+        for (Maneuver m : getGraph().getAllManeuvers()) {
+            if (!vehicle.getFeasibleManeuvers().containsKey(m.getType()))
+                return false;
+            // FIXME test the payloads
+        }
+        
+        return true;
     }
 
 
