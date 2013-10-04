@@ -45,8 +45,6 @@ import pt.up.fe.dceg.neptus.messages.TypedMessageFilter;
 import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
 import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp

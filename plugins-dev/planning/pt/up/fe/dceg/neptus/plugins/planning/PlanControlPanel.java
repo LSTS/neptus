@@ -89,7 +89,6 @@ import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBState;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
-import pt.up.fe.dceg.neptus.systems.SystemsManager;
 import pt.up.fe.dceg.neptus.types.map.TransponderElement;
 import pt.up.fe.dceg.neptus.types.map.TransponderUtils;
 import pt.up.fe.dceg.neptus.types.mission.MapMission;

@@ -66,9 +66,6 @@ import java.util.StringTokenizer;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;

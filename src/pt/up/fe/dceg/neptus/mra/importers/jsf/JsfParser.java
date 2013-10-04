@@ -323,7 +323,7 @@ public class JsfParser {
 
         public static void main(String[] args) throws IOException {
             JsfParser parser = new JsfParser(new File("/home/jqcorreia/lsts/logs/lauv-dolphin-1/20130626/133827_rows_a1.5m/Data.jsf"));
-            ArrayList<JsfSonarData> ping = parser.getPingAt(parser.index.firstTimestampHigh, parser.index.subSystemsList.get(0));
+//            ArrayList<JsfSonarData> ping = parser.getPingAt(parser.index.firstTimestampHigh, parser.index.subSystemsList.get(0));
             
             System.out.println();
             System.out.println();

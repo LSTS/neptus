@@ -59,7 +59,6 @@ import pt.up.fe.dceg.neptus.imc.PlanTransition;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
 import pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS;
-import pt.up.fe.dceg.neptus.mp.actions.PayloadConfig;
 import pt.up.fe.dceg.neptus.mp.actions.PlanActions;
 import pt.up.fe.dceg.neptus.mp.maneuvers.IMCSerialization;
 import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
