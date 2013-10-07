@@ -59,6 +59,7 @@ import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.up.fe.dceg.neptus.util.MathMiscUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.EntitiesResolver;
 
 /**
@@ -82,8 +83,8 @@ public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPaint
     private final ImageIcon NET_ICON = ImageUtils.getScaledIcon(
             ImageUtils.getImage(getClass().getResource("images/wifi-icon.png")), ICON_SIZE, ICON_SIZE);
 
-    private static final int RECT_WIDTH = 275;
-    private static final int RECT_HEIGHT = 55;
+    private static final int RECT_WIDTH = 250;
+    private static final int RECT_HEIGHT = 100;
     private static final int MARGIN = 5;
 
     @NeptusProperty(name = "Enable")
@@ -102,7 +103,7 @@ public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPaint
 
     private int cpuUsage = 0;
     private double batteryVoltage;
-    private float fuelLevel;
+    private float fuelLevel, confidenceLevel;
     private int storageUsage;
 
     private int hbCount = 0;
@@ -144,9 +145,7 @@ public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPaint
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        if (!enablePainter)
-            return;
-        if (mainSysName == null)
+        if (!enablePainter || mainSysName == null)
             return;
 
         // Red alarm border
@@ -172,23 +171,23 @@ public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPaint
             g.setFont(textFont);
             g.drawString(I18n.text("Vehicle")+": " + mainSysName, 5, 15);
 
-            g.drawImage(CPU_ICON.getImage(), 5, 25, null);
-            g.drawString(cpuUsage + "%", 30, 40);
+//            g.drawImage(CPU_ICON.getImage(), 5, 25, null);
+            g.drawString("CPU usage: " + cpuUsage + "%", 5, 40);
 
-            g.drawImage(BATT_ICON.getImage(), 65, 25, null);
-            g.drawString((int) fuelLevel + "%", 90, 34);
-            g.drawString((int) (batteryVoltage * 100) / 100f + " V", 90, 47);
+//            g.drawImage(BATT_ICON.getImage(), 65, 25, null);
+            g.drawString("Fuel Level: " + (int) fuelLevel + "% " + (int) (batteryVoltage * 100) / 100f + "V " + MathMiscUtils.round(confidenceLevel, 2) + "%", 5, 55);
+//            g.drawString((int) (batteryVoltage * 100) / 100f + " V", 90, 47);
 
-            g.drawImage(DISK_ICON.getImage(), 130, 25, null);
-            g.drawString(storageUsage + "%", 160, 40);
+//            g.drawImage(DISK_ICON.getImage(), 130, 25, null);
+            g.drawString("Storage Usage: " + storageUsage + "%", 5, 70);
 
-            g.drawImage(NET_ICON.getImage(), 195, 25, null);
+//            g.drawImage(NET_ICON.getImage(), 195, 25, null);
+//
+//            // Preventing an Heartbeat rate of 120%
+//            if (lastHbCount > 5)
+//                lastHbCount = 5;
 
-            // Preventing an Heartbeat rate of 120%
-            if (lastHbCount > 5)
-                lastHbCount = 5;
-
-            g.drawString(lastHbCount * 20 + "%", 220, 40);
+            g.drawString("Heartbeat: " + (lastHbCount * 20) + "%", 5, 85);
         }
     }
 
@@ -225,6 +224,7 @@ public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPaint
         }
         else if (message.getAbbrev().equals("FuelLevel")) {
             fuelLevel = message.getFloat("value");
+            confidenceLevel = message.getFloat("confidence");
         }
     }
 
@@ -296,9 +296,6 @@ public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPaint
     public void alarmRemoved(AlarmProvider provider) {
     }
 
-    /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#cleanSubPanel()
-     */
     @Override
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
