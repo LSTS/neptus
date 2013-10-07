@@ -37,13 +37,8 @@ import vtk.vtkActor;
 import vtk.vtkCellArray;
 import vtk.vtkContourFilter;
 import vtk.vtkCutter;
-import vtk.vtkDataArray;
 import vtk.vtkDoubleArray;
-import vtk.vtkIdList;
-import vtk.vtkMath;
 import vtk.vtkPlane;
-import vtk.vtkPoints;
-import vtk.vtkPolyData;
 import vtk.vtkPolyDataMapper;
 import vtk.vtkStripper;
 
@@ -60,7 +55,7 @@ public class Contours {
     
     private vtkActor isolinesActor;
      
-    private static int pointThreshold = 10;
+    // private static int pointThreshold = 10;
     
     /**
      * FIXME
@@ -114,26 +109,25 @@ public class Contours {
         NeptusLog.pub().info("Maximum Length: " + contourStripper.GetMaximumLength());
         NeptusLog.pub().info(contourStripper.GetInformation().toString());
         
-        vtkPoints points = new vtkPoints();
-        points = contourStripper.GetOutput().GetPoints();
+        //vtkPoints points = new vtkPoints();
+        //points = contourStripper.GetOutput().GetPoints();
         vtkCellArray cells = new vtkCellArray();
         cells = contourStripper.GetOutput().GetLines();
-        vtkDataArray scalars = new vtkDataArray();
-        scalars = contourStripper.GetOutput().GetPointData().GetScalars();
-                
+        //vtkDataArray scalars = new vtkDataArray();
+        //scalars = contourStripper.GetOutput().GetPointData().GetScalars();
+        
         NeptusLog.pub().info("Number of cells: " + cells.GetNumberOfCells());
            
-        vtkPolyData labelPolyData = new vtkPolyData();
-        vtkPoints labelPoints = new vtkPoints();
+        //vtkPolyData labelPolyData = new vtkPolyData();
+        //vtkPoints labelPoints = new vtkPoints();
         vtkDoubleArray labelScalars = new vtkDoubleArray();
         
         labelScalars.SetNumberOfComponents(1);
         labelScalars.SetName("Isovalues");
         
-        //vtkIdTypeArray indices = new vtkIdTypeArray();
-        vtkIdList indices = new vtkIdList();
-        int numberOfPoints;
-        int lineCount = 0;
+//        vtkIdList indices = new vtkIdList();
+//        int numberOfPoints;
+//        int lineCount = 0;
 
 //        for (cells.InitTraversal(); cells.GetCell(numberOfPoints ,indices); ++lineCount) {
 //            //cells.get
@@ -177,9 +171,8 @@ public class Contours {
         center[0] = mesh.getPolyData().GetCenter()[1];
         center[0] = mesh.getPolyData().GetCenter()[2];
         
-        vtkMath math = new vtkMath();
-        double distanceMin = Math.sqrt(math.Distance2BetweenPoints(minBound, center));
-        double distanceMax = Math.sqrt(math.Distance2BetweenPoints(maxBound, center));
+        // double distanceMin = Math.sqrt(math.Distance2BetweenPoints(minBound, center));
+        // double distanceMax = Math.sqrt(math.Distance2BetweenPoints(maxBound, center));
         
         vtkCutter cutter = new vtkCutter();
         cutter.SetCutFunction(plane);
@@ -191,10 +184,8 @@ public class Contours {
         vtkPolyDataMapper cutterMapper = new vtkPolyDataMapper();
         cutterMapper.SetInputConnection(cutter.GetOutputPort());
         cutterMapper.ScalarVisibilityOff();
-        NeptusLog.pub().info("number of pices on mapper: " + cutterMapper.GetNumberOfPieces());
+        NeptusLog.pub().info("number of pieces on mapper: " + cutterMapper.GetNumberOfPieces());
         NeptusLog.pub().info("Number of clipping planes: " + cutterMapper.GetClippingPlanes().GetNumberOfItems());
-        //
-        //NeptusLog.pub().info()
         
         planeActor = new vtkActor();
         planeActor.GetProperty().SetColor(1.0, 1,0);

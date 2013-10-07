@@ -276,17 +276,6 @@ public class MultibeamDeltaTHeader {
     }
 
     /**
-     * @return FIX ME
-     */
-    private float parseStartAngle() {
-        // byte start76 = buf.get(76);
-        // byte start77 = buf.get(77);
-        float start = (buf.getShort(76) / 100f - 180f);
-
-        return (float) start;
-    }
-
-    /**
      * @return
      */
     private float parseHeadingAngle() {
@@ -404,9 +393,9 @@ public class MultibeamDeltaTHeader {
         return fileTypeStr;
     }
 
-    private static Boolean isBitSet(short sh, int bit) {
-        return (sh & (1 << bit)) != 0;
-    }
+//    private static Boolean isBitSet(short sh, int bit) {
+//        return (sh & (1 << bit)) != 0;
+//    }
 
     private static Boolean isBitSet(byte b, int bit) {
         return (b & (1 << bit)) != 0;
@@ -415,7 +404,7 @@ public class MultibeamDeltaTHeader {
     /**
      * FIXME - change all system out to Neptus Log
      */
-    private void printDeltaTHeaderInfo() {
+    protected void printDeltaTHeaderInfo() {
         System.out.println("File Type: " + fileType);
         System.out.println("File Version: " + fileVersion);
         System.out.println("Number of bytes for this ping N: " + numberBytesPing);

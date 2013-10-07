@@ -97,10 +97,10 @@ public class MultibeamToolbar {
     private vtkTextActor textProcessingActor;
     private vtkTextActor textZExagInfoActor;
 
-    private int currentPtsToIgnore = 0;
-    private boolean currentApproachToIgnorePts = false;
-    private long currentTimestampMultibeamIncrement = 0;
-    private boolean currentYawMultibeamIncrement = false;
+    protected int currentPtsToIgnore = 0;
+    protected boolean currentApproachToIgnorePts = false;
+    protected long currentTimestampMultibeamIncrement = 0;
+    protected boolean currentYawMultibeamIncrement = false;
     private int currentDepthExaggeValue = 0;
     private int lastDepthExaggeValue = 0;
 

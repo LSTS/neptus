@@ -142,7 +142,7 @@ public class LedsSlider extends JPanel implements ChangeListener {
     /**
      * Create and set text fields that are will hold queried brightness values for each led on this each group
      */
-    private void createTextFieldsForGroup() {
+    protected void createTextFieldsForGroup() {
         collectionLedsPanel = new JPanel();
         collectionLedsPanel.setLayout(new MigLayout());
         collectionLedsPanel.setOpaque(false);

@@ -44,7 +44,7 @@ import vtk.vtkPoints;
  * this method isn't the best one to downsample... it simply cleans data within a tolerance
  */
 public class DownsamplePointCloud {
-    private int numberOfPoints = 0;
+    protected int numberOfPoints = 0;
     public PointCloud<PointXYZ> pointCloud;
     private PointCloud<PointXYZ> outputDownsampledCloud;
     private double tolerance;

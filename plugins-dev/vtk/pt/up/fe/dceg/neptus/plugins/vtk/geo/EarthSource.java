@@ -32,7 +32,6 @@
 package pt.up.fe.dceg.neptus.plugins.vtk.geo;
 
 import vtk.vtkEarthSource;
-import vtk.vtkGeoSource;
 import vtk.vtkLODActor;
 import vtk.vtkPolyDataMapper;
 
@@ -64,7 +63,7 @@ public class EarthSource {
         vtkPolyDataMapper mapper = new vtkPolyDataMapper();
         mapper.SetInputConnection(earth.GetOutputPort());
         
-        vtkGeoSource source = new vtkGeoSource();
+        // vtkGeoSource source = new vtkGeoSource();
        
         
         setEarthActor(new vtkLODActor());

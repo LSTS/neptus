@@ -291,12 +291,12 @@ public class PointCloudHandlers<T extends PointXYZ> {
         return intensities;
     }
 
-    /**
-     * @param intensities the intensities to set
-     */
-    private void setIntensities(vtkShortArray intensities) {
-        this.intensities = intensities;
-    }
+//    /**
+//     * @param intensities the intensities to set
+//     */
+//    private void setIntensities(vtkShortArray intensities) {
+//        this.intensities = intensities;
+//    }
 
     /**
      * @return the lutIntensities

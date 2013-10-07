@@ -42,7 +42,7 @@ import vtk.vtkPoints;
  */
 public class PointCloudUtils {
 
-    private static double[] center;
+    protected static double[] center;
 
     /**
      * class vtkCenterOfMass doesn't exist for Java on vtk 5.8

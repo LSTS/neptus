@@ -39,19 +39,19 @@ public class PointXYZI extends PointXYZ {
     private float intensity;
     
     public PointXYZI() {
-        PointXYZ p = new PointXYZ();
+        // PointXYZ p = new PointXYZ();
         setIntensity(0.0f);
     }
     
     public PointXYZI (float _x, float _y, float _z, float _intensity) {
-        PointXYZ p = new PointXYZ(_x, _y, _z);
+        // PointXYZ p = new PointXYZ(_x, _y, _z);
         setIntensity(_intensity);
     }
 
     /**
      * @return the intensity
      */
-    private float getIntensity() {
+    public float getIntensity() {
         return intensity;
     }
 

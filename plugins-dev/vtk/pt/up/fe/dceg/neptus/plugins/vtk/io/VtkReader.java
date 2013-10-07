@@ -52,8 +52,8 @@ import vtk.vtkVRMLImporter;
 public class VtkReader {
     protected static Path path = null;
     
-    private static String filePath;
-    private static String fileName;
+    // private static String filePath;
+    // private static String fileName;
     private static String absolutePath;
     
     protected static final String FILE_VTK_EXT = ".vtk";
@@ -173,9 +173,11 @@ public class VtkReader {
             readOBJ.Update();
             readOBJ.UpdateInformation();
             
+            setActor(new vtkLODActor());
+            
             vtkPolyDataMapper mapper = new vtkPolyDataMapper();
             mapper.SetInputConnection(readOBJ.GetOutputPort());
-            
+
             actor.SetMapper(mapper);
         }
         catch (Exception e) {

@@ -38,21 +38,21 @@ package pt.up.fe.dceg.neptus.plugins.vtk.pointtypes;
 public class PointXYZRGB extends PointXYZ{
     // byte only 8 bits variable in Java - IT IS SIGNED - 255 valores bastam para rgb
     // from -127 -> 128
-    private byte r;
-    private byte g;
-    private byte b;
+    protected byte r;
+    protected byte g;
+    protected byte b;
     /**
      * 
      */
     public PointXYZRGB() {
-        PointXYZ p = new PointXYZ();
+        // PointXYZ p = new PointXYZ();
         r = -127;
         g = -127;
         b = -127;
     }
     
     public PointXYZRGB(float _x, float _y, float _z, byte _r, byte _g, byte _b) {
-        PointXYZ p = new PointXYZ(_x, _y, _z);
+        // PointXYZ p = new PointXYZ(_x, _y, _z);
         r = _r;
         g = _g;
         b = _b;

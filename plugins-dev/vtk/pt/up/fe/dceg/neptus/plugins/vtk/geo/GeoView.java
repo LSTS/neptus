@@ -31,7 +31,6 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.geo;
 
-import vtk.vtkGeoGlobeSource;
 import vtk.vtkGeoSource;
 import vtk.vtkGeoTerrain;
 import vtk.vtkGeoView;
@@ -52,7 +51,7 @@ public class GeoView {
         
         vtkGeoSource terrainSource = new vtkGeoSource();
         //vtkGeoFileTerrainSource terrainSource = new vtkGeoFileTerrainSource();
-        vtkGeoGlobeSource geoGlobe = new vtkGeoGlobeSource();
+        // vtkGeoGlobeSource geoGlobe = new vtkGeoGlobeSource();
         
         //terrainSource.Register(geoGlobe);
         terrainSource.SetReferenceCount(1);

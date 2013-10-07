@@ -107,7 +107,7 @@ public class MeshSubdivision {
     /**
      * @param polyDataSubdivided the polyDataSubdivided to set
      */
-    private void setPolyDataSubdivided(vtkPolyData polyDataSubdivided) {
+    protected void setPolyDataSubdivided(vtkPolyData polyDataSubdivided) {
         this.polyDataSubdivided = polyDataSubdivided;
     }
     

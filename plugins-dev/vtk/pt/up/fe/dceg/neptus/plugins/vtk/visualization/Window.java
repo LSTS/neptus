@@ -35,7 +35,6 @@ import java.util.LinkedHashMap;
 
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
-import vtk.vtkInteractorStyle;
 import vtk.vtkPanel;
 import vtk.vtkRenderWindow;
 import vtk.vtkRenderWindowInteractor;
@@ -45,7 +44,7 @@ import vtk.vtkRenderer;
  * @author hfq config vtk window
  */
 public class Window {
-    private vtkInteractorStyle style;
+    // private vtkInteractorStyle style;
 
     public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
 
@@ -207,7 +206,8 @@ public class Window {
      */
     private void setUpInteractorStyle() {
         try {
-            interactorStyle = new NeptusInteractorStyle(canvas, renderer, renWinInteractor, linkedHashMapCloud);
+            setInteractorStyle(new NeptusInteractorStyle(canvas, renderer, renWinInteractor, linkedHashMapCloud));
+            //interactorStyle = new NeptusInteractorStyle(canvas, renderer, renWinInteractor, linkedHashMapCloud);
             getRenWinInteractor().SetInteractorStyle(interactorStyle);
         }
         catch (Exception e) {
@@ -216,19 +216,12 @@ public class Window {
         }
     }
 
-    /**
-     * @return the interactor style
-     */
-    public vtkInteractorStyle getStyle() {
-        return style;
-    }
-
-    /**
-     * @param style the style to set
-     */
-    private void setStyle(vtkInteractorStyle style) {
-        this.style = style;
-    }
+//    /**
+//     * @return the interactor style
+//     */
+//    public vtkInteractorStyle getStyle() {
+//        return style;
+//    }
 
     /**
      * @return the renWin

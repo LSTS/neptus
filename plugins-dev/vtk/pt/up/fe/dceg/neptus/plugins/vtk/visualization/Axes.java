@@ -44,7 +44,7 @@ import vtk.vtkTubeFilter;
  */
 public class Axes {
     private static final double axesScale = 1.0;
-    private static final int viewport = 0;
+    // private static final int viewport = 0;
     private vtkAxes axes;
     private vtkLODActor axesActor;
 

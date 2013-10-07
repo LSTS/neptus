@@ -36,7 +36,6 @@ import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCleanPolyData;
 import vtk.vtkDelaunay2D;
-import vtk.vtkLODActor;
 import vtk.vtkPolyData;
 
 /**
@@ -44,20 +43,9 @@ import vtk.vtkPolyData;
  *
  */
 public class Delauny2D {
-    private vtkPolyData polyData;
-       
-    //public PointCloud<PointXYZ> pointCloud;
-    //private PointCloudMesh mesh;
-    
-    private vtkLODActor delaunyActor;
+    private vtkPolyData polyData;   
     private vtkCleanPolyData cleanPolyData;
-    
-//    public Delauny2D(PointCloud<PointXYZ> intputCloud, PointCloudMesh outputMesh) {
-//        this.pointCloud = intputCloud;
-//        this.mesh = outputMesh;
-//        
-//        setDelaunyActor(new vtkLODActor());
-//    }
+
     
     public Delauny2D() {
         
@@ -72,43 +60,15 @@ public class Delauny2D {
         cleanPolyData.SetInputConnection(inputCloud.getPoly().GetProducerPort());
         cleanPolyData.Update();
         
-        //mesh.setPolyData(cleanPolyData.GetOutput());
-        
         NeptusLog.pub().info("Generate mesh...");
         vtkDelaunay2D delauny = new vtkDelaunay2D();
         delauny.SetInputConnection(cleanPolyData.GetOutputPort());
-        //delauny.SetInputConnection(pointCloud.getPoly().GetProducerPort());
-        //delauny.SetInput(pointCloud.getPoly());
         //delauny.BoundingTriangulationOn();
         delauny.Update();
         
         setPolyData(delauny.GetOutput());
         
-//        mesh.setPolyData(delauny.GetOutput());
-//        
-//        vtkPolyDataMapper triangulateMapper = new vtkPolyDataMapper();
-//        triangulateMapper.SetInputConnection(delauny.GetOutputPort());
-//        
-//        delaunyActor.SetMapper(triangulateMapper);
-//        delaunyActor.Modified();
-//        
-//        mesh.setMeshCloudLODActor(getDelaunyActor());
-        
         NeptusLog.pub().info("Delauny Triangulation time end: " + System.currentTimeMillis());
-    }
-
-    /**
-     * @return the delaunyActor
-     */
-    public vtkLODActor getDelaunyActor() {
-        return delaunyActor;
-    }
-
-    /**
-     * @param delaunyActor the delaunyActor to set
-     */
-    private void setDelaunyActor(vtkLODActor delaunyActor) {
-        this.delaunyActor = delaunyActor;
     }
 
     /**

@@ -84,7 +84,7 @@ public class KeyboardEvent implements KeyListener {
 
     private static final boolean VTKIS_ANIMEOFF = false;
     private static final boolean VTKIS_ANIMEON = true;
-    private boolean AnimeState = VTKIS_ANIMEOFF;
+    protected boolean AnimeState = VTKIS_ANIMEOFF;
 
     /**
      * @param canvas
@@ -117,11 +117,11 @@ public class KeyboardEvent implements KeyListener {
                         actorCollection.InitTraversal();
 
                         for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
-                            vtkLODActor tempActor = new vtkLODActor();
+                            // vtkLODActor tempActor = new vtkLODActor();
 
                             if (actorCollection.GetNextActor().IsA("vtkActor2D") > 0)
                                 continue;
-                            tempActor = (vtkLODActor) actorCollection.GetNextActor();
+                            // tempActor = (vtkLODActor) actorCollection.GetNextActor();
 
                             setOfClouds = linkedHashMapCloud.keySet();
                             for (String skey : setOfClouds) {
@@ -138,6 +138,10 @@ public class KeyboardEvent implements KeyListener {
                                     case zMap:
                                         neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(
                                                 pointCloud.getColorHandler().getLutZ());
+                                        break;
+                                    case iMap:
+                                        break;
+                                    default:
                                         break;
                                 }
                             }
@@ -386,6 +390,7 @@ public class KeyboardEvent implements KeyListener {
                         tempActor = (vtkLODActor) actorCollection.GetNextActor();
                         setOfClouds = linkedHashMapCloud.keySet();
                         for (String sKey : setOfClouds) {
+                            pointCloud = linkedHashMapCloud.get(sKey);
                             if (tempActor.equals(pointCloud.getCloudLODActor())) {
                                 double pointSize = tempActor.GetProperty().GetPointSize();
                                 if (pointSize > 1.0) {
