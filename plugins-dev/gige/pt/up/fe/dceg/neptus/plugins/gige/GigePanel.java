@@ -156,10 +156,10 @@ public class GigePanel extends SimpleSubPanel implements GigeDatagramListener{
             int type = bb.get(4) & 0x0F; // Payload type (leader, data or trailer)
 
             if (type == 1) {
-//              if(!trailerReceived && (currentBlockId != -1)) {
-//                  manager.requestResend(numPackets + 1, numPackets + 1, currentBlockId);
-//                  return;
-//              }
+              if(!trailerReceived && (currentBlockId != -1)) {
+                  manager.requestResend(numPackets + 1, numPackets + 1, currentBlockId);
+                  return;
+              }
                 trailerReceived = false;
                 currentBlockId = bb.getShort(2);
                 receivedList.clear();

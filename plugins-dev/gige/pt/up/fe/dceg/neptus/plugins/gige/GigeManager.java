@@ -117,6 +117,21 @@ public class GigeManager {
         System.out.println("Packet size: " + packetSize);
     
         timer = new Timer(false);
+
+        // Heartbeat timer task
+        // Just read CCP register to keep the connection alive
+        TimerTask heartbeat = new TimerTask() {
+            
+            @Override
+            public void run() {
+                try {
+                    readRegister(0x0A00);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        
         timer.scheduleAtFixedRate(heartbeat, 0, 1000); // Start heartbeat thread
         
         // Stream receiving thread
