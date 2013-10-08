@@ -53,6 +53,8 @@ public class GigeManager {
 		}
 	};
 	
+	Timer timer;
+	
 	Thread receivingThread;
 	
 	public static int seq_num = 1;
@@ -92,7 +94,7 @@ public class GigeManager {
 		listenerList.add(l);
 	}
 	
-	public void connect() throws IOException {
+	public void connect(String destIp) throws IOException {
         int version = readRegister(0x0000);
         
         System.out.println("GigE Version: " + (version >> 16 & 0x0000FFFF) + "." + (version & 0x000000FF));
@@ -107,15 +109,14 @@ public class GigeManager {
         System.out.println(writeRegister(REG_S0_DEST_PORT, LISTEN_STREAM_PORT));
         System.out.println("S0 Destination port:" + readRegister(REG_S0_DEST_PORT));
         
-        System.out.println(writeRegister(REG_S0_DEST_ADDR, ipToInt("10.0.10.79")));
+        System.out.println(writeRegister(REG_S0_DEST_ADDR, ipToInt(destIp)));
         int address = readRegister(0xD18);
         System.out.println("Destination 32bit IP address for Channel 0: " + address);
 
         packetSize = (readRegister(0xD04) & 0x0000FFFF) - 28;
         System.out.println("Packet size: " + packetSize);
     
-        Timer timer = new Timer(false);
-        
+        timer = new Timer(false);
         timer.scheduleAtFixedRate(heartbeat, 0, 1000); // Start heartbeat thread
         
         // Stream receiving thread

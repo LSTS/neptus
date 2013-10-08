@@ -44,6 +44,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
@@ -101,14 +102,15 @@ public class GigePanel extends SimpleSubPanel implements GigeDatagramListener{
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                manager.connect();
+                manager.connect(ipField.getText());
             }
             catch (IOException e1) {
                 e1.printStackTrace();
             }
         }
     });
-
+    JTextField ipField = new JTextField();
+    
     /**
      * @param console
      */
@@ -131,6 +133,7 @@ public class GigePanel extends SimpleSubPanel implements GigeDatagramListener{
         add(connect, "split");
         add(start, "");
         add(stop, "wrap");
+        add(ipField, "w 100");
     }
 
     @Override
