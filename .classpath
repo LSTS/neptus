@@ -61,6 +61,7 @@
 	<classpathentry kind="src" path="plugins-dev/sunfish"/>
 	<classpathentry kind="src" path="plugins-dev/leds"/>
 	<classpathentry kind="src" path="plugins-dev/caoAgent"/>
+	<classpathentry kind="src" path="plugins-dev/gige"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
