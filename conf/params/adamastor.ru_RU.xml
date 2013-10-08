@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (unknown,unknown)" system="adamastor" i18n="ru_RU">
+<config format="1" version="2.4.0-rc1 (master,f3059b7)" system="adamastor" i18n="ru_RU">
   <section name="LED Driver" name-i18n="LED Driver">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -3071,6 +3071,220 @@
       <desc>Device address in the network</desc>
     </param>
   </section>
+  <section name="Pencil Beam" name-i18n="Pencil Beam">
+    <param name="Entity Label">
+      <name-i18n>Entity Этикетка</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Pencil Beam</default>
+      <units/>
+      <desc>Главным образом ярлык лица</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Приоритет выполнения</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Приоритет выполнения</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Время активации</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Время деактивации</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Уровень отладки</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Spew</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/uart/9</default>
+      <units/>
+      <desc>Serial port device used to communicate with the sensor</desc>
+    </param>
+    <param name="Start Gain">
+      <name-i18n>Start Gain</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3</default>
+      <units>dB</units>
+      <desc>Start gain</desc>
+      <min>0</min>
+      <max>40</max>
+    </param>
+    <param name="Absorption">
+      <name-i18n>Absorption</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.1</default>
+      <units>dB/m</units>
+      <desc>Absorption</desc>
+      <min>0</min>
+      <max>2.55</max>
+    </param>
+    <param name="Profile Minimum Range">
+      <name-i18n>Profile Minimum Range</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.1</default>
+      <units>m</units>
+      <desc>Minimum range for profile point digitization</desc>
+      <min>0.0</min>
+      <max>25.0</max>
+    </param>
+    <param name="Step Size">
+      <name-i18n>Step Size</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0.3</default>
+      <units>°</units>
+      <desc>Step size</desc>
+      <values>0, 0.3, 0.6, 0.9, 1.2, 2.4</values>
+      <values-i18n>0, 0.3, 0.6, 0.9, 1.2, 2.4</values-i18n>
+    </param>
+    <param name="Data Bits">
+      <name-i18n>Data Bits</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>8</default>
+      <units>bit</units>
+      <desc>Resolution (number of data bits) of the returned echo data</desc>
+      <values>4, 8, 16</values>
+      <values-i18n>4, 8, 16</values-i18n>
+    </param>
+    <param name="Data Points">
+      <name-i18n>Data Points</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>250</default>
+      <units/>
+      <desc>Number of sonar return data points</desc>
+      <values>250, 500</values>
+      <values-i18n>250, 500</values-i18n>
+    </param>
+    <param name="Switch Delay">
+      <name-i18n>Switch Delay</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>ms</units>
+      <desc>The head can be commanded to pause before sendingits return data to allow the commanding programenough time to setup for the return of the data.</desc>
+      <min>0</min>
+      <max>510</max>
+    </param>
+    <param name="Range">
+      <name-i18n>Диапазон</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>30</default>
+      <units>m</units>
+      <desc>Рабочий диапазон</desc>
+      <values>1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 60, 80, 100</values>
+      <values-i18n>1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 60, 80, 100</values-i18n>
+    </param>
+    <param name="Frequency">
+      <name-i18n>Частота</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>675</default>
+      <units>kHz</units>
+      <desc>Рабочая частота</desc>
+      <min>600</min>
+      <max>1000</max>
+    </param>
+    <param name="Sector Width">
+      <name-i18n>Sector Width</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>360</default>
+      <units>°</units>
+      <desc>Sweep sector width</desc>
+      <min>0</min>
+      <max>360</max>
+    </param>
+    <param name="Profile Mode">
+      <name-i18n>Profile Mode</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Gather data in profile mode</desc>
+    </param>
+    <param name="Sound Speed on Water">
+      <name-i18n>Sound Speed on Water</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1500</default>
+      <units>m/s</units>
+      <desc>Water sound speed</desc>
+    </param>
+    <param name="Use Dynamic Sound Speed">
+      <name-i18n>Use Dynamic Sound Speed</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Update measurements according with measured sound speed</desc>
+    </param>
+    <param name="Sonar position">
+      <name-i18n>Sonar position</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.2, 0, -0.4</default>
+      <units/>
+      <desc>Sonar position</desc>
+      <size>3</size>
+    </param>
+    <param name="Use Default Configuration">
+      <name-i18n>Use Default Configuration</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Use default Imagenex configuration for frequency and absorption levels.</desc>
+    </param>
+  </section>
   <section name="Depth Sensor" name-i18n="Датчик глубины">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -3289,6 +3503,237 @@
       <default>Compass Calibration Maneuver</default>
       <units/>
       <desc>Entity label of maneuver responsible for compass calibration</desc>
+    </param>
+  </section>
+  <section name="LBL" name-i18n="LBL">
+    <param name="Entity Label">
+      <name-i18n>Entity Этикетка</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>LBL</default>
+      <units/>
+      <desc>Главным образом ярлык лица</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Приоритет выполнения</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Приоритет выполнения</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Время активации</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Время деактивации</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Уровень отладки</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Активная - Сфера</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Сфера применения 'Активные' параметра</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Активная - Видимость</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Видимость 'Активные' параметра</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Активный</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>true</default>
+      <units/>
+      <desc>Правда, чтобы активировать задачу, иначе ложь</desc>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/uart/11</default>
+      <units/>
+      <desc>Serial port device used to communicate with the sensor</desc>
+    </param>
+    <param name="Serial Port - Baud Rate">
+      <name-i18n>Serial Port - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>19200</default>
+      <units/>
+      <desc>Serial port baud rate</desc>
+    </param>
+    <param name="Sound Speed - Default Value">
+      <name-i18n>Sound Speed - Default Value</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1500</default>
+      <units>m/s</units>
+      <desc/>
+    </param>
+    <param name="Sound Speed - Entity Label">
+      <name-i18n>Sound Speed - Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Entity label of sound speed provider</desc>
+    </param>
+    <param name="Length of Transmit Pings">
+      <name-i18n>Length of Transmit Pings</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>ms</units>
+      <desc/>
+    </param>
+    <param name="Length of Receive Pings">
+      <name-i18n>Length of Receive Pings</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>ms</units>
+      <desc/>
+    </param>
+    <param name="Ping Timeout">
+      <name-i18n>Ping Timeout</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1000</default>
+      <units>ms</units>
+      <desc/>
+    </param>
+    <param name="Ping Periodicity">
+      <name-i18n>Ping Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2</default>
+      <units>s</units>
+      <desc/>
+    </param>
+    <param name="Enable Reports">
+      <name-i18n>Enable Reports</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Report data acoustically</desc>
+    </param>
+    <param name="Make Reports Verbose">
+      <name-i18n>Make Reports Verbose</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Report more verbose data acoustically</desc>
+    </param>
+    <param name="Reports Periodicity">
+      <name-i18n>Reports Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units>s</units>
+      <desc>Reports periodicity</desc>
+      <min>30</min>
+      <max>600</max>
+    </param>
+    <param name="Good Range Age">
+      <name-i18n>Good Range Age</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>s</units>
+      <desc/>
+    </param>
+    <param name="Mini-Packet Delay - Before">
+      <name-i18n>Mini-Packet Delay - Before</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>s</units>
+      <desc/>
+    </param>
+    <param name="Mini-Packet Delay - After">
+      <name-i18n>Mini-Packet Delay - After</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.5</default>
+      <units>s</units>
+      <desc/>
+    </param>
+    <param name="Range Reports Delay - Before">
+      <name-i18n>Range Reports Delay - Before</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.5</default>
+      <units>s</units>
+      <desc/>
+    </param>
+    <param name="Range Reports Delay - After">
+      <name-i18n>Range Reports Delay - After</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>s</units>
+      <desc/>
+    </param>
+    <param name="Turn Around Time">
+      <name-i18n>Turn Around Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20</default>
+      <units>ms</units>
+      <desc/>
     </param>
   </section>
   <section name="DVL" name-i18n="DVL">
