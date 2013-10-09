@@ -20,3 +20,4 @@ pt.up.fe.dceg.neptus.plugins.position.MultiEntityDisplayPanel
 pt.up.fe.dceg.neptus.plugins.position.RemoteStateSimplePanel
 pt.up.fe.dceg.neptus.plugins.position.painter.SystemInfoPainter
 pt.up.fe.dceg.neptus.plugins.position.StreamSpeedOverlay
+pt.up.fe.dceg.neptus.plugins.position.DistancesPanel

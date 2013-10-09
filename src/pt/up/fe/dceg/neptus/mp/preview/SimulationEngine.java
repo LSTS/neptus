@@ -124,13 +124,13 @@ public class SimulationEngine {
                 curPreview = ManPreviewFactory.getPreview(m, vehicleId, state, null);
             }
             if (curPreview == null) {
-                NeptusLog.pub().info(
-                        "Unable to create preview for maneuver " + m.getId() + " (" + m.getClass().getSimpleName()
-                        + ")");
+//                NeptusLog.pub().info(
+//                        "Unable to create preview for maneuver " + m.getId() + " (" + m.getClass().getSimpleName()
+//                        + ")");
                 Maneuver next = plan.getGraph().getFollowingManeuver(m.getId());
                 if (next == null) {
                     finished = true;
-                    NeptusLog.pub().info("Plan finished at " + new Date());
+//                    NeptusLog.pub().info("Plan finished at " + new Date());
                 }
                 else {                    
                     manId = next.getId();

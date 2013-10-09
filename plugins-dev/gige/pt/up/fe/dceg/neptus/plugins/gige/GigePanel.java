@@ -35,6 +35,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.nio.ByteBuffer;
@@ -53,6 +54,7 @@ import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.gige.GigeManager.GigeDatagramListener;
+import pt.up.fe.dceg.neptus.util.VideoCreator;
 
 /**
  * @author jqcorreia
@@ -63,6 +65,8 @@ import pt.up.fe.dceg.neptus.plugins.gige.GigeManager.GigeDatagramListener;
 public class GigePanel extends SimpleSubPanel implements GigeDatagramListener{
     private static final long serialVersionUID = 1L;
     
+    static int recordNum = 0;
+    
     BufferedImage image = new BufferedImage(720, 480,
             BufferedImage.TYPE_BYTE_GRAY);
     JPanel panel = new JPanel() {
@@ -70,6 +74,8 @@ public class GigePanel extends SimpleSubPanel implements GigeDatagramListener{
 
         protected void paintComponent(java.awt.Graphics g) {
             g.drawImage(image, 0, 0, null);
+            if(recording)
+                creator.addFrame(image, System.currentTimeMillis());
         };
     };
 
@@ -80,6 +86,9 @@ public class GigePanel extends SimpleSubPanel implements GigeDatagramListener{
 
     ArrayList<Integer> receivedList = new ArrayList<Integer>();
     boolean debug = true;
+    boolean recording = false;
+    
+    VideoCreator creator;
     
     private JButton start = new JButton(new AbstractAction("Start") {
 
@@ -111,6 +120,29 @@ public class GigePanel extends SimpleSubPanel implements GigeDatagramListener{
     });
     JTextField ipField = new JTextField();
     
+    private JButton record = new JButton(new AbstractAction("Record") {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(!recording) {
+                recording = true;
+                try {
+                    creator = new VideoCreator(new File("ROV_" + recordNum++ + ".mp4"), 720, 480);
+                }
+                catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+                record.setText("Recording");
+            }
+            else {
+                
+                creator.closeStreams();
+                recording = false;
+                record.setText("Record");
+            }
+        }
+        
+    });
     /**
      * @param console
      */
@@ -132,7 +164,8 @@ public class GigePanel extends SimpleSubPanel implements GigeDatagramListener{
         add(panel, "w 720!, h 480!, wrap");
         add(connect, "split");
         add(start, "");
-        add(stop, "wrap");
+        add(stop, "");
+        add(record, "wrap");
         add(ipField, "w 100");
     }
 
@@ -227,6 +260,16 @@ public class GigePanel extends SimpleSubPanel implements GigeDatagramListener{
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+    }
+    public static void main(String[] args) {
+        JFrame frame = new JFrame();
+        GigePanel panel = new GigePanel(null);
+        
+        panel.initSubPanel();
+        frame.setLayout(new MigLayout());
+        frame.setSize(800,600);
+        frame.add(panel, "w 800, h 600");
+        
+        frame.setVisible(true);
     }
 }
