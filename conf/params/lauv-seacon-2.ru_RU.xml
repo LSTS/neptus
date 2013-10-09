@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,f3059b7)" system="lauv-seacon-2" i18n="ru_RU">
+<config format="1" version="2.4.0-rc1 (master,a4755f7)" system="lauv-seacon-2" i18n="ru_RU">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
