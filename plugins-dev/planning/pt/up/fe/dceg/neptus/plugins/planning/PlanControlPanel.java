@@ -163,6 +163,9 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             + "it display all buttons, if false only teleoperation button is shown.")
     public boolean useFullMode = true;
 
+    @NeptusProperty(name = "Enable teleoperation button", userLevel = LEVEL.ADVANCED, description = "Configures if send beacons button is shown or not in Full Mode.")
+    public boolean enableTeleopButton = true;
+
     @NeptusProperty(name = "Enable console actions", editable = true)
     public boolean enableConsoleActions = true;
 
@@ -279,7 +282,17 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             comp.setVisible(useFullMode);
         }
         titleLabel.setVisible(useFullMode);
-        teleOpButton.setVisible(true);
+        if (useFullMode) {
+            if (enableTeleopButton) {
+                teleOpButton.setVisible(true);
+            }
+            else {
+                teleOpButton.setVisible(false);
+            }
+        }
+        else {
+            teleOpButton.setVisible(true);
+        }
         selectionButton.setVisible(enableSelectionButton && useFullMode);
         sendAcousticsButton.setVisible(enableBeaconsButton && useFullMode);
     }
