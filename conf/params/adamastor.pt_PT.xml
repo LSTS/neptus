@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,a4755f7)" system="adamastor" i18n="pt_PT">
+<config format="1" version="2.4.0-rc1 (master,1130183)" system="adamastor" i18n="pt_PT">
   <section name="LED Driver" name-i18n="Controlador de LEDs">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -3219,8 +3219,8 @@
     <param name="Frequency">
       <name-i18n>Frequência</name-i18n>
       <type>integer</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
+      <visibility>developer</visibility>
+      <scope>global</scope>
       <default>675</default>
       <units>kHz</units>
       <desc>Frequência de operação</desc>
@@ -3230,8 +3230,8 @@
     <param name="Sector Width">
       <name-i18n>Sector Width</name-i18n>
       <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
       <default>360</default>
       <units>°</units>
       <desc>Sweep sector width</desc>
@@ -3241,8 +3241,8 @@
     <param name="Profile Mode">
       <name-i18n>Profile Mode</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
       <default>true</default>
       <units/>
       <desc>Gather data in profile mode</desc>
