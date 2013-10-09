@@ -645,15 +645,17 @@ class MissionTreeMouse extends MouseAdapter {
         else if (selection instanceof PlanType) {
             // if (plansCount == 1) {
             popupMenu.addSeparator();
-            addActionRemovePlanLocally(console, (Identifiable) selection, popupMenu);
             addActionSendPlan(console, pdbControl, selection, popupMenu);
+            addActionRemovePlanLocally(console, (Identifiable) selection, popupMenu);
 
-            State syncState = (State) ((ExtendedTreeNode) selectionNode).getUserInfo().get("sync");
+                State syncState = (State) ((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.SYNC.name());
             if (syncState == null)
                 syncState = State.LOCAL;
             else if (syncState == State.SYNC || syncState == State.NOT_SYNC) {
                 addActionRemovePlanRemotely(console, pdbControl, (Identifiable) selection, popupMenu);
+                addActionGetRemotePlan(console, pdbControl, selection, popupMenu);
             }
+            System.out.println("syncState"+syncState);
 
             dissemination.add(I18n.textf("Share '%planName'", selection)).addActionListener(new ActionListener() {
                 @Override
@@ -900,7 +902,7 @@ class MissionTreeMouse extends MouseAdapter {
     private <T extends Identifiable> void addActionRemovePlanLocally(final ConsoleLayout console2, final T selection,
             JPopupMenu popupMenu) {
 
-        popupMenu.add(I18n.textf("Remove '%planName'", selection)).addActionListener(new ActionListener() {
+            popupMenu.add(I18n.textf("Delete '%planName' locally", selection)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (selection != null) {
