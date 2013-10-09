@@ -119,6 +119,7 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 import com.google.common.eventbus.Subscribe;
 
+
 /**
  * @author ZP
  * @author pdias
@@ -139,7 +140,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
     @NeptusProperty(name = "Acceptable Elapsed Time", description = "Maximum acceptable interval between beacon ranges, in seconds.")
     public int maxAcceptableElapsedTime = 600;
 
-
+    private MissionTreeMouse mouseAdapter;
     private boolean running = false;
     boolean inited = false;
     protected MissionBrowser browser = new MissionBrowser();
@@ -223,7 +224,16 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     public void setupListeners() {
         browser.addTreeListener(getConsole());
-        browser.addMouseAdapter(new MissionTreeMouse());
+        mouseAdapter = new MissionTreeMouse();
+        browser.addMouseAdapter(mouseAdapter);
+    }
+
+    public void addPlanMenuItem(ActionItem item) {
+        mouseAdapter.addPlanMenuItem(item);
+    }
+
+    public boolean removePlanMenuItem(String label) {
+        return mouseAdapter.removePlanMenuItem(label);
     }
 
     @Override
