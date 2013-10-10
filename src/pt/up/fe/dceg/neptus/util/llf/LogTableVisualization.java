@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.util.llf;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
@@ -40,14 +41,20 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+import pt.up.fe.dceg.neptus.gui.swing.RangeSlider;
 import pt.up.fe.dceg.neptus.mra.LogMarker;
 import pt.up.fe.dceg.neptus.mra.MRAPanel;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
@@ -71,6 +78,21 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     LogTableModel model;
     JXTable table;
     
+    JPanel panel = new JPanel(new MigLayout());
+    RangeSlider rangeSlider;
+    
+    JButton btnFilter = new JButton(new AbstractAction("Filter") {
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            long initTime = log.firstLogEntry().getTimestampMillis();
+            model = new LogTableModel(mraPanel.getSource(), log,  initTime + rangeSlider.getValue(), initTime + rangeSlider.getUpperValue());
+            table.setModel(model);
+            table.revalidate();
+            table.repaint();
+       }
+    });
+    
     public LogTableVisualization(IMraLog source, MRAPanel panel) {
         this.log = source;
         this.mraPanel = panel;
@@ -84,6 +106,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
+        
         model = new LogTableModel(source, log); 
         table = new JXTable(model) {
             @Override
@@ -124,8 +147,19 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
             };
         });
         table.setAutoResizeMode(JXTable.AUTO_RESIZE_OFF);
-        // Wrap on a JScrollPane and return
-        return  new JScrollPane(table);
+
+        // Build Range slider for time
+        
+        rangeSlider = new RangeSlider(0,  (int)(log.getLastEntry().getTimestampMillis() - log.firstLogEntry().getTimestampMillis()));
+        rangeSlider.setValue(0);
+        rangeSlider.setUpperValue((int)(log.getLastEntry().getTimestampMillis() - log.firstLogEntry().getTimestampMillis()));
+
+        // Build Panel
+        panel.add(new JScrollPane(table), "w 100%, h 100%, wrap");
+        panel.add(rangeSlider, "w 100%, split");
+        panel.add(btnFilter, "wrap");
+        
+        return  panel;
     }
 
     @Override

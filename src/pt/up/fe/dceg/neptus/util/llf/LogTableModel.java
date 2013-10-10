@@ -52,11 +52,15 @@ public class LogTableModel extends AbstractTableModel {
 	protected IMraLogGroup source;
 	protected IMCMessageType msgType;
 	
-	protected void load(IMraLog parser) {
+	protected long initTimeMillis = 0;
+	protected long finalTimeMillis = 0;
+	
+	protected void load(IMraLog parser, long initTime, long finalTime) {
 
-        IMCMessage msg = parser.firstLogEntry();
+        IMCMessage msg = parser.getEntryAtOrAfter(initTime);
         int rowIndex = 0;
-        while (msg != null) {
+        System.out.println(initTime + " " + finalTime);
+        while (msg.getTimestampMillis() < finalTime && msg != null) {
             Vector<Object> values = new Vector<Object>();
             values.add(msg.getTimestampMillis());
             int src = msg.getInteger("src");
@@ -76,20 +80,23 @@ public class LogTableModel extends AbstractTableModel {
             msg = parser.nextLogEntry();
             rowIndex++;
         }
-	 
+        rowCount = rowIndex;
 	}
 	
 	public LogTableModel(IMraLogGroup source, IMraLog log) {
+	    this(source, log, log.firstLogEntry().getTimestampMillis(), log.getLastEntry().getTimestampMillis());
+	}
+	
+	public LogTableModel(IMraLogGroup source, IMraLog log, long initTime, long finalTime) {
 	    this.source = source;
-	    parser = log;
-	    try {						
-			msgType = parser.firstLogEntry().getMessageType();
-			rowCount = parser.getNumberOfEntries();
-			load(parser);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+        parser = log;
+        try {                       
+            msgType = parser.firstLogEntry().getMessageType();
+            load(parser, initTime, finalTime);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 	}
 	
 
