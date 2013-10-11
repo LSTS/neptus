@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,4c799e2)" system="adamastor" i18n="pt_PT">
+<config format="1" version="2.4.0-rc1 (master,25058c1)" system="adamastor" i18n="pt_PT">
   <section name="LED Driver" name-i18n="Controlador de LEDs">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -21,7 +21,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -30,7 +30,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -98,7 +98,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -107,7 +107,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -174,7 +174,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -183,7 +183,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -304,7 +304,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -313,7 +313,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -434,7 +434,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -443,7 +443,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -483,7 +483,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -492,7 +492,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -597,7 +597,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -606,7 +606,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -768,7 +768,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -777,7 +777,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -872,7 +872,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -881,7 +881,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -921,7 +921,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -930,7 +930,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -970,7 +970,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -979,7 +979,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1046,7 +1046,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1055,7 +1055,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1141,7 +1141,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1150,7 +1150,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1281,7 +1281,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1290,7 +1290,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1405,7 +1405,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1414,7 +1414,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1782,7 +1782,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1791,7 +1791,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1840,7 +1840,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1849,7 +1849,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1905,7 +1905,7 @@
     </param>
     <param name="Minimum Calibration Time">
       <name-i18n>Minimum Calibration Time</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>3</default>
@@ -1943,7 +1943,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -1952,7 +1952,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2037,7 +2037,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2046,7 +2046,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2084,7 +2084,7 @@
     </param>
     <param name="Channel States - Emergency">
       <name-i18n>Channel States - Emergency</name-i18n>
-      <type>list:string</type>
+      <type>list:integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0x01, 0x00, 0x00</default>
@@ -2661,7 +2661,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -2670,7 +2670,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3007,7 +3007,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3016,7 +3016,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3092,7 +3092,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>60</default>
@@ -3101,7 +3101,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3157,7 +3157,7 @@
     </param>
     <param name="Start Gain">
       <name-i18n>Start Gain</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>3</default>
@@ -3201,7 +3201,7 @@
     </param>
     <param name="Data Bits">
       <name-i18n>Data Bits</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
       <default>8</default>
@@ -3212,7 +3212,7 @@
     </param>
     <param name="Data Points">
       <name-i18n>Data Points</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>250</default>
@@ -3223,7 +3223,7 @@
     </param>
     <param name="Switch Delay">
       <name-i18n>Switch Delay</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3234,7 +3234,7 @@
     </param>
     <param name="Range">
       <name-i18n>Alcance</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
       <default>30</default>
@@ -3245,7 +3245,7 @@
     </param>
     <param name="Frequency">
       <name-i18n>Frequência</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>675</default>
@@ -3256,7 +3256,7 @@
     </param>
     <param name="Sector Width">
       <name-i18n>Sector Width</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
       <default>360</default>
@@ -3267,7 +3267,7 @@
     </param>
     <param name="Train Angle">
       <name-i18n>Train Angle</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3353,7 +3353,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3362,7 +3362,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3458,7 +3458,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3467,7 +3467,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3573,7 +3573,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3582,7 +3582,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3804,7 +3804,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3813,7 +3813,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3900,7 +3900,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3909,7 +3909,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3967,7 +3967,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -3976,7 +3976,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4106,7 +4106,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4115,7 +4115,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4164,7 +4164,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4173,7 +4173,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4240,7 +4240,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4249,7 +4249,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4269,7 +4269,7 @@
     </param>
     <param name="Data Port">
       <name-i18n>Data Port</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>30020</default>
@@ -4278,7 +4278,7 @@
     </param>
     <param name="Control Port">
       <name-i18n>Control Port</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>30021</default>
@@ -4316,7 +4316,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4325,7 +4325,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4392,7 +4392,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4401,7 +4401,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4441,7 +4441,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4450,7 +4450,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4535,7 +4535,7 @@
     </param>
     <param name="Activation Time">
       <name-i18n>Tempo de Ativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
@@ -4544,7 +4544,7 @@
     </param>
     <param name="Deactivation Time">
       <name-i18n>Tempo de Desativação</name-i18n>
-      <type>string</type>
+      <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0</default>
