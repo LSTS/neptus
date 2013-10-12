@@ -134,12 +134,13 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
     public void consume(PlanControlState message) {
         try {
             state = message.getState();
-            if (message.getState() != STATE.EXECUTING && message.getPlanId() != "") {
-                planId = message.getPlanId();                
-                nodeId = message.getManId();
+            
+            if (message.getState() == STATE.EXECUTING && message.getPlanId().equals("")) {
+                planId = nodeId = "underwater";                
             }
             else {
-                planId = nodeId = "underwater";
+                planId = message.getPlanId();                
+                nodeId = message.getManId();
             }
             
             nodeTypeImcId = message.getManType();
