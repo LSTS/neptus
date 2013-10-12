@@ -101,6 +101,14 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
 
     @Override
     public void sendMessage(IridiumMessage msg) throws Exception {
+        
+        // Activate and deactivate subscriptions should use the id of the used gateway
+        if (msg instanceof ActivateSubscription || msg instanceof DeactivateSubscription) {
+            ImcSystem system = ImcSystemsHolder.lookupSystemByName(messengerName);
+            if (system != null)
+                msg.setSource(system.getId().intValue());
+        }
+        
         IridiumMsgTx tx = new IridiumMsgTx();
         tx.setReqId((++req_id % 65535));
         tx.setTtl(3600);
