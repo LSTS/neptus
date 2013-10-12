@@ -31,6 +31,8 @@
  */
 package pt.up.fe.dceg.neptus.mra.plots;
 
+
+
 import org.jfree.data.xy.XYSeries;
 
 import pt.up.fe.dceg.neptus.i18n.I18n;
@@ -108,7 +110,8 @@ public class EstimatedStatePlot extends Mra2DPlot implements LogMarkerListener {
     @Override
     public void addLogMarker(LogMarker marker) {
         XYSeries markerSeries = getMarkerSeries();
-        IMCMessage state = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
+        IMCMessage state = mraPanel.getSource().getLsfIndex().getMessageAtOrAfter("EstimatedState", 0, marker.timestamp);//getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
+        System.out.println("s="+state);
         LocationType loc = new LocationType();
         loc.setLatitudeRads(state.getDouble("lat"));
         loc.setLongitudeRads(state.getDouble("lon"));

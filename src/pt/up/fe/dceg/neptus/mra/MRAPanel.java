@@ -44,6 +44,7 @@ import org.jdesktop.swingx.JXStatusBar;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.InfiniteProgressPanel;
 import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.lsf.LsfGenericIterator;
 import pt.up.fe.dceg.neptus.mra.exporters.CSVExporter;
@@ -302,13 +303,20 @@ public class MRAPanel extends JPanel {
         if (existsMark(marker))
             return;
 
+        //System.out.println(marker.timestamp+" vs "+source.getLsfIndex().getIterator(EstimatedState.class).next().getTimestamp());
         // Calculate marker location
         if (marker.lat == 0 && marker.lon == 0) {
-            IMCMessage m = source.getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
-            LocationType loc = LogUtils.getLocation(m);
+            
+            IMCMessage m = source.getLsfIndex().getMessageAtOrAfter("EstimatedState", 0, marker.timestamp/1000.0);
+            if (m != null)
+                m = source.getLsfIndex().getIterator(EstimatedState.class).next();
+            LocationType loc = new LocationType();
+            if (m != null)
+                loc = LogUtils.getLocation(m);
 
             marker.lat = loc.getLatitudeAsDoubleValueRads();
             marker.lon = loc.getLongitudeAsDoubleValueRads();
+                        
         }
         logTree.addMarker(marker);
         logMarkers.add(marker);

@@ -186,6 +186,7 @@ public class ImcMsgManager extends
         ignoredClasses.add(SimpleSubPanel.class.getName());
         ignoredClasses.add(Thread.class.getName());
         ignoredClasses.add(IMCSendMessageUtils.class.getName());
+        ignoredClasses.add(IMCSendMessageUtils.class.getName());
     }
 
     public static void registerBusListener(Object listener) {

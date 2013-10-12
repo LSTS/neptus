@@ -57,10 +57,12 @@ import org.apache.commons.net.ftp.FTPClient;
 import com.google.gson.Gson;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 
@@ -73,7 +75,6 @@ import pt.up.fe.dceg.neptus.util.ImageUtils;
 public class convcaoNeptusInteraction extends SimpleSubPanel {
 
     private static final long serialVersionUID = -1330079540844029305L;
-    
     
     // Variables declaration - do not modify
     protected int AUVS ;
@@ -164,7 +165,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel {
                 for (int AUV = 0; AUV < AUVS; AUV++)
                 {
                     InD.Bathymeter[AUV] = MapAsTable[PosAUVS[AUV][0]][PosAUVS[AUV][1]];
-                    InD.Location[AUV][0] = PosAUVS[AUV][0];
+                    InD.Location[AUV][0] =   PosAUVS[AUV][0];
                     InD.Location[AUV][1] = PosAUVS[AUV][1];
                 }
 

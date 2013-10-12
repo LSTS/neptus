@@ -51,6 +51,7 @@ import pt.up.fe.dceg.neptus.console.events.ConsoleEventPositionEstimation;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.PlanControlState;
+import pt.up.fe.dceg.neptus.imc.PlanControlState.STATE;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
 import pt.up.fe.dceg.neptus.mp.preview.PlanSimulation3D;
@@ -378,6 +379,10 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
         if (!msg.getSourceName().equals(getConsole().getMainSystem()))
             return;
 
+        // messages sent while vehicle is underwater
+        if (msg.getPlanId().equals("") && msg.getState() == STATE.EXECUTING)
+            return;
+        
         if (msg.getState() != PlanControlState.STATE.EXECUTING) {
             if (forceSimVisualization)
                 return;
