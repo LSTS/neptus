@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,25058c1)" system="lauv-noptilus-3" i18n="ru_RU">
+<config format="1" version="2.4.0-rc1 (master,cb1e7ef)" system="lauv-noptilus-3" i18n="ru_RU">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -74,6 +74,7 @@
       <default>0.5</default>
       <units>Hz</units>
       <desc>Value of the state sampling frequency</desc>
+      <min>0.1</min>
     </param>
     <param name="Motor Pole Pairs">
       <name-i18n>Motor Pole Pairs</name-i18n>
@@ -83,6 +84,7 @@
       <default>12</default>
       <units/>
       <desc>Number of motor pole pairs</desc>
+      <min>1.0</min>
     </param>
     <param name="Maximum Phase Current">
       <name-i18n>Maximum Phase Current</name-i18n>
@@ -92,6 +94,7 @@
       <default>5.4</default>
       <units>A</units>
       <desc/>
+      <min>0.0</min>
     </param>
     <param name="Maximum Rotor RPM">
       <name-i18n>Maximum Rotor RPM</name-i18n>
@@ -101,6 +104,7 @@
       <default>2500</default>
       <units>r/min</units>
       <desc/>
+      <min>0</min>
     </param>
     <param name="Thrust Control Mode">
       <name-i18n>Thrust Control Mode</name-i18n>
@@ -110,6 +114,8 @@
       <default>rpm</default>
       <units/>
       <desc>Thrust control mode ('none', 'voltage', 'current', 'rpm')</desc>
+      <values>none, voltage, current, rpm</values>
+      <values-i18n>none, voltage, current, rpm</values-i18n>
     </param>
     <param name="Inverted Rotation">
       <name-i18n>Inverted Rotation</name-i18n>
@@ -2648,6 +2654,7 @@
       <default>10</default>
       <units/>
       <desc>Number of moving average samples to smooth CPU usage</desc>
+      <min>0</min>
     </param>
     <param name="CPU - Maximum Usage">
       <name-i18n>CPU - Maximum Usage</name-i18n>
@@ -2657,6 +2664,8 @@
       <default>65</default>
       <units/>
       <desc>Maximum CPU usage. When this value is hit an error will be raised</desc>
+      <min>0</min>
+      <max>100</max>
     </param>
   </section>
   <section name="Clock" name-i18n="Часы">
@@ -2715,6 +2724,7 @@
       <default>30</default>
       <units/>
       <desc>Minimum number of GPS fixes required to compute the clock offset</desc>
+      <min>0</min>
     </param>
     <param name="Maximum Clock Offset">
       <name-i18n>Maximum Clock Offset</name-i18n>
@@ -2724,6 +2734,7 @@
       <default>2</default>
       <units>s</units>
       <desc>Maximum Clock Offset. If the clock offset is above this value the clock will be syncronized</desc>
+      <min>0</min>
     </param>
     <param name="Boot Synchronization Timeout">
       <name-i18n>Boot Synchronization Timeout</name-i18n>
@@ -2733,6 +2744,7 @@
       <default>60</default>
       <units>s</units>
       <desc>At boot the system tries to synchronize clocks. It continues unsynched after timeout</desc>
+      <min>0</min>
     </param>
     <param name="Hardware Clock Synchronization Command">
       <name-i18n>Hardware Clock Synchronization Command</name-i18n>
@@ -2800,6 +2812,8 @@
       <default>10</default>
       <units/>
       <desc>Number of moving average samples to smooth accelerations</desc>
+      <min>5</min>
+      <max>20</max>
     </param>
     <param name="Absolute Moving Average Samples">
       <name-i18n>Absolute Moving Average Samples</name-i18n>
@@ -2809,6 +2823,8 @@
       <default>50</default>
       <units/>
       <desc>Number of moving average samples to smooth accelerations</desc>
+      <min>2</min>
+      <max>5</max>
     </param>
     <param name="Maximum Deviation Factor">
       <name-i18n>Maximum Deviation Factor</name-i18n>
@@ -2877,6 +2893,8 @@
       <default>1.0</default>
       <units/>
       <desc>Depth value below which collisions will be ignored</desc>
+      <min>0.5</min>
+      <max>10.0</max>
     </param>
   </section>
   <section name="Emergency Monitor" name-i18n="Аварийный монитор">
@@ -2953,6 +2971,7 @@
       <default>300</default>
       <units>s</units>
       <desc>Lost Communications Timeout</desc>
+      <min>60.0</min>
     </param>
     <param name="Expiration Time - Abort SMS">
       <name-i18n>Expiration Time - Abort SMS</name-i18n>
@@ -2962,6 +2981,7 @@
       <default>30</default>
       <units>s</units>
       <desc>Abort SMS Timeout</desc>
+      <min>30.0</min>
     </param>
     <param name="Expiration Time - Lost Communications">
       <name-i18n>Expiration Time - Lost Communications</name-i18n>
@@ -2971,6 +2991,7 @@
       <default>30</default>
       <units>s</units>
       <desc>Expiration time of lost communications SMS</desc>
+      <min>0.0</min>
     </param>
   </section>
   <section name="Entity Monitor" name-i18n="Entity монитор">
@@ -3066,6 +3087,7 @@
       <default>3</default>
       <units/>
       <desc>Maximum number of consecutive transitions before starting to ignore</desc>
+      <min>0</min>
     </param>
   </section>
   <section name="Fuel" name-i18n="Топливо">
@@ -3187,6 +3209,7 @@
       <default>700</default>
       <units>Wh</units>
       <desc>Energy capacity of the batteries advertised by manufacturer</desc>
+      <min>0.0</min>
     </param>
     <param name="Minimum Samples For Estimate">
       <name-i18n>Minimum Samples For Estimate</name-i18n>
@@ -3196,6 +3219,7 @@
       <default>20</default>
       <units/>
       <desc>Least amount of samples before an initial estimate is computed</desc>
+      <min>0</min>
     </param>
     <param name="Capacity Decay Factor">
       <name-i18n>Capacity Decay Factor</name-i18n>
@@ -3205,6 +3229,8 @@
       <default>10.0</default>
       <units>%</units>
       <desc>Decay factor given by percentage of actual/advertised capacity</desc>
+      <min>0</min>
+      <max>100</max>
     </param>
     <param name="Optimistic Model Voltage">
       <name-i18n>Optimistic Model Voltage</name-i18n>
@@ -3376,6 +3402,8 @@
       <default>35</default>
       <units>%</units>
       <desc>Level of battery below which a warning will be thrown</desc>
+      <min>0.0</min>
+      <max>100.0</max>
     </param>
     <param name="Error Level">
       <name-i18n>Error Level</name-i18n>
@@ -3385,6 +3413,8 @@
       <default>20</default>
       <units>%</units>
       <desc>Level of battery below which an error will be thrown</desc>
+      <min>0.0</min>
+      <max>100.0</max>
     </param>
     <param name="Low Confidence Level">
       <name-i18n>Low Confidence Level</name-i18n>
@@ -3394,6 +3424,8 @@
       <default>60.0</default>
       <units>%</units>
       <desc>Value below which fuel estimation is unreliable</desc>
+      <min>0.0</min>
+      <max>100.0</max>
     </param>
     <param name="Acceptable Temperature">
       <name-i18n>Acceptable Temperature</name-i18n>
@@ -3470,6 +3502,8 @@
       <default>30.0</default>
       <units>s</units>
       <desc>Time to wait at beginning before assessing vehicle medium</desc>
+      <min>20.0</min>
+      <max>60.0</max>
     </param>
     <param name="Wet Data Timeout">
       <name-i18n>Wet Data Timeout</name-i18n>
@@ -3479,6 +3513,7 @@
       <default>3.0</default>
       <units>s</units>
       <desc>No valid wet sensor data timeout</desc>
+      <min>1.5</min>
     </param>
     <param name="Wet Data Threshold">
       <name-i18n>Wet Data Threshold</name-i18n>
@@ -3488,6 +3523,7 @@
       <default>5.0</default>
       <units/>
       <desc>No valid wet sensor data threshold value</desc>
+      <min>3.0</min>
     </param>
     <param name="GPS Timeout">
       <name-i18n>GPS Timeout</name-i18n>
@@ -3497,6 +3533,7 @@
       <default>2.0</default>
       <units>s</units>
       <desc>No valid GPS fixes timeout</desc>
+      <min>2.0</min>
     </param>
     <param name="Underwater Depth Threshold">
       <name-i18n>Underwater Depth Threshold</name-i18n>
@@ -3506,6 +3543,8 @@
       <default>0.3</default>
       <units>m</units>
       <desc>Minimum depth necessary to consider a vehicle underwater</desc>
+      <min>0.2</min>
+      <max>0.8</max>
     </param>
     <param name="Vehicle Type">
       <name-i18n>Vehicle Type</name-i18n>
@@ -3724,6 +3763,7 @@
       <default>0.2</default>
       <units>rad</units>
       <desc>Threshold for position error in fault detection</desc>
+      <min>0.0</min>
     </param>
     <param name="Position Rate Factor">
       <name-i18n>Position Rate Factor</name-i18n>
@@ -3751,6 +3791,7 @@
       <default>5</default>
       <units/>
       <desc>Number of samples for the moving average in the DelayedTrigger object</desc>
+      <min>1</min>
     </param>
     <param name="Maximum Rotation Rate">
       <name-i18n>Maximum Rotation Rate</name-i18n>
@@ -3778,6 +3819,7 @@
       <default>0.5</default>
       <units>A</units>
       <desc>Current lower threshold to consider abnormal behavior</desc>
+      <min>0.0</min>
     </param>
     <param name="Current Upper Threshold">
       <name-i18n>Current Upper Threshold</name-i18n>
@@ -3787,6 +3829,7 @@
       <default>0.9</default>
       <units>A</units>
       <desc>Current upper threshold to consider abnormal behavior</desc>
+      <min>0.0</min>
     </param>
     <param name="Maximum Lower Faults">
       <name-i18n>Maximum Lower Faults</name-i18n>
@@ -3796,6 +3839,7 @@
       <default>20</default>
       <units/>
       <desc>Number of faults above the lower threshold to consider a current fault detection</desc>
+      <min>0</min>
     </param>
     <param name="Maximum Upper Faults">
       <name-i18n>Maximum Upper Faults</name-i18n>
@@ -3805,6 +3849,7 @@
       <default>4</default>
       <units/>
       <desc>Number of faults above the upper threshold to consider a current fault detection</desc>
+      <min>0</min>
     </param>
     <param name="Fault Time Cooldown">
       <name-i18n>Fault Time Cooldown</name-i18n>
@@ -3814,6 +3859,7 @@
       <default>60.0</default>
       <units>s</units>
       <desc>Period of time after which the fault vectors will be reset to zero</desc>
+      <min>0.0</min>
     </param>
     <param name="Entity Label - Current 0">
       <name-i18n>Entity Label - Current 0</name-i18n>
@@ -3917,6 +3963,7 @@
       <default>1000</default>
       <units>m</units>
       <desc>Maximum allowed distance to 'EstimatedState' reference</desc>
+      <min>500</min>
     </param>
     <param name="Maximum Horizontal Position Variance">
       <name-i18n>Maximum Horizontal Position Variance</name-i18n>
@@ -3926,6 +3973,7 @@
       <default>500.0</default>
       <units>m^2</units>
       <desc>Maximum allowed horizontal position estimation variance</desc>
+      <min>100.0</min>
     </param>
     <param name="Reject all LBL ranges">
       <name-i18n>Reject all LBL ranges</name-i18n>
@@ -3954,6 +4002,7 @@
       <default>1.5</default>
       <units>s</units>
       <desc>No GPS readings timeout</desc>
+      <min>2.0</min>
     </param>
     <param name="DVL timeout">
       <name-i18n>DVL timeout</name-i18n>
@@ -3963,6 +4012,7 @@
       <default>3.0</default>
       <units>s</units>
       <desc>No DVL readings timeout</desc>
+      <min>1.0</min>
     </param>
     <param name="Altitude timeout">
       <name-i18n>Altitude timeout</name-i18n>
@@ -3972,6 +4022,7 @@
       <default>5.0</default>
       <units>s</units>
       <desc>No altitude readings timeout</desc>
+      <min>3.0</min>
     </param>
     <param name="Euler timeout">
       <name-i18n>Euler timeout</name-i18n>
@@ -3981,6 +4032,7 @@
       <default>10.0</default>
       <units>s</units>
       <desc>No EulerAngles readings timeout</desc>
+      <min>5.0</min>
     </param>
     <param name="Depth timeout">
       <name-i18n>Depth timeout</name-i18n>
@@ -3990,6 +4042,7 @@
       <default>3.0</default>
       <units>s</units>
       <desc>No Depth readings timeout</desc>
+      <min>2.0</min>
     </param>
     <param name="Main Depth timeout">
       <name-i18n>Main Depth timeout</name-i18n>
@@ -3999,6 +4052,7 @@
       <default>1.0</default>
       <units>s</units>
       <desc>No Depth readings from main provider timeout</desc>
+      <min>0.5</min>
     </param>
     <param name="DVL sanity timeout">
       <name-i18n>DVL sanity timeout</name-i18n>
@@ -4008,6 +4062,7 @@
       <default>10.0</default>
       <units>s</units>
       <desc>DVL sanity timeout</desc>
+      <min>10.0</min>
     </param>
     <param name="Distance Between DVL and CG">
       <name-i18n>Distance Between DVL and CG</name-i18n>
@@ -4017,6 +4072,7 @@
       <default>0.36</default>
       <units>m</units>
       <desc>Distance between DVL and vehicle Center of Gravity</desc>
+      <min>0.0</min>
     </param>
     <param name="Distance Between GPS and CG">
       <name-i18n>Distance Between GPS and CG</name-i18n>
@@ -4026,6 +4082,7 @@
       <default>0.28</default>
       <units>m</units>
       <desc>Distance between GPS and vehicle Center of Gravity</desc>
+      <min>0.0</min>
     </param>
     <param name="Distance Between LBL and GPS">
       <name-i18n>Distance Between LBL and GPS</name-i18n>
@@ -4035,6 +4092,7 @@
       <default>1.09</default>
       <units>m</units>
       <desc>Distance between LBL receiver and GPS in the vehicle</desc>
+      <min>0.0</min>
     </param>
     <param name="DVL absolute thresholds">
       <name-i18n>DVL absolute thresholds</name-i18n>
@@ -4074,6 +4132,7 @@
       <default>6.0</default>
       <units/>
       <desc>LBL Threshold value for the LBL level check rejection scheme</desc>
+      <min>2.0</min>
     </param>
     <param name="GPS Maximum HDOP">
       <name-i18n>GPS Maximum HDOP</name-i18n>
@@ -4116,6 +4175,7 @@
       <default>40</default>
       <units/>
       <desc>Number of moving average samples to smooth heave</desc>
+      <min>10</min>
     </param>
     <param name="GPS Moving Average Samples">
       <name-i18n>GPS Moving Average Samples</name-i18n>
@@ -4125,6 +4185,7 @@
       <default>7</default>
       <units/>
       <desc>Number of moving average samples to smooth maximum GPS HACC.</desc>
+      <min>5</min>
     </param>
     <param name="Entity Label - Depth">
       <name-i18n>Entity Label - Depth</name-i18n>
@@ -4206,6 +4267,7 @@
       <default>0.0</default>
       <units/>
       <desc>Position process noise covariance value when IMU is available</desc>
+      <min>0.0</min>
     </param>
     <param name="LBL Noise Covariance with IMU">
       <name-i18n>LBL Noise Covariance with IMU</name-i18n>
@@ -4215,6 +4277,7 @@
       <default>0.1</default>
       <units/>
       <desc>LBL measurement noise covariance value when IMU is available</desc>
+      <min>0.0</min>
     </param>
     <param name="Process Noise Covariance">
       <name-i18n>Process Noise Covariance</name-i18n>
@@ -4264,6 +4327,8 @@
       <default>10</default>
       <units/>
       <desc>Number of moving average samples to smooth forward speed</desc>
+      <min>5</min>
+      <max>20</max>
     </param>
     <param name="RPM to Speed multiplicative factor">
       <name-i18n>RPM to Speed multiplicative factor</name-i18n>
@@ -4273,6 +4338,8 @@
       <default>1.2e-3</default>
       <units/>
       <desc>Kalman Filter initial RPM to Speed multiplicative factor state value</desc>
+      <min>0.8e-3</min>
+      <max>2.0e-3</max>
     </param>
     <param name="Update Heading with Euler Increments">
       <name-i18n>Update Heading with Euler Increments</name-i18n>
@@ -4291,6 +4358,8 @@
       <default>1.0e-5</default>
       <units/>
       <desc>Heading bias uncertainty alignment threshold</desc>
+      <min>1e-6</min>
+      <max>1e-4</max>
     </param>
     <param name="Entity Label - IMU">
       <name-i18n>Entity Label - IMU</name-i18n>
@@ -4358,6 +4427,7 @@
       <default>1.0</default>
       <units/>
       <desc>Kalman Filter State Covariance initial values</desc>
+      <min>1.0</min>
     </param>
     <param name="LBL Threshold">
       <name-i18n>LBL Threshold</name-i18n>
@@ -4367,6 +4437,7 @@
       <default>10.0</default>
       <units/>
       <desc>LBL Threshold value for the LBL level check rejection scheme</desc>
+      <min>2.0</min>
     </param>
     <param name="LBL Measure Noise Covariance">
       <name-i18n>LBL Measure Noise Covariance</name-i18n>
@@ -4376,6 +4447,7 @@
       <default>10.0</default>
       <units/>
       <desc>Kalman Filter LBL Measurement Noise Covariance value</desc>
+      <min>0.1</min>
     </param>
     <param name="LBL Process Noise Covariance">
       <name-i18n>LBL Process Noise Covariance</name-i18n>
@@ -4385,6 +4457,7 @@
       <default>1e-5</default>
       <units/>
       <desc>Kalman Filter LBL Process Noise Covariance value</desc>
+      <min>0.0</min>
     </param>
     <param name="LBL Expected Range Rejection Constants">
       <name-i18n>LBL Expected Range Rejection Constants</name-i18n>
@@ -4404,6 +4477,7 @@
       <default>3.0</default>
       <units>s</units>
       <desc>No GPS readings timeout</desc>
+      <min>2.0</min>
     </param>
     <param name="GPS Maximum HACC">
       <name-i18n>GPS Maximum HACC</name-i18n>
@@ -4424,6 +4498,7 @@
       <default>0.80</default>
       <units>m</units>
       <desc>Distance between LBL receiver and GPS in the vehicle</desc>
+      <min>0.0</min>
     </param>
   </section>
   <section name="Plan Database" name-i18n="План баз данных">
@@ -4765,6 +4840,8 @@
       <default>22</default>
       <units>V</units>
       <desc>Once this value is hit the system will enter emergency mode</desc>
+      <min>20</min>
+      <max>25</max>
     </param>
     <param name="Watchdog Timeout">
       <name-i18n>Watchdog Timeout</name-i18n>
@@ -4774,6 +4851,7 @@
       <default>2.0</default>
       <units>s</units>
       <desc>Watchdog timeout</desc>
+      <min>1.0</min>
     </param>
     <param name="LED - Names">
       <name-i18n>LED - Names</name-i18n>
@@ -5379,6 +5457,7 @@
       <default>4.0</default>
       <units>s</units>
       <desc>Input timeout</desc>
+      <min>0.0</min>
     </param>
     <param name="Power Channel - Names">
       <name-i18n>Power Channel - Names</name-i18n>
@@ -5743,15 +5822,19 @@
       <default>5</default>
       <units>Hz</units>
       <desc>Number of samples per second</desc>
+      <min>0.1</min>
+      <max>10</max>
     </param>
     <param name="Range">
       <name-i18n>Диапазон</name-i18n>
       <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
       <default>30</default>
       <units>m</units>
       <desc>Default range</desc>
+      <values>5, 10, 20, 30, 40, 50</values>
+      <values-i18n>5, 10, 20, 30, 40, 50</values-i18n>
     </param>
     <param name="Start Gain">
       <name-i18n>Start Gain</name-i18n>
@@ -5759,8 +5842,10 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>20</default>
-      <units/>
+      <units>dB</units>
       <desc>Start gain</desc>
+      <min>0</min>
+      <max>40</max>
     </param>
     <param name="Pulse Length">
       <name-i18n>Pulse Length</name-i18n>
@@ -5770,6 +5855,8 @@
       <default>0.000030</default>
       <units>s</units>
       <desc>Pulse length</desc>
+      <min>0.000001</min>
+      <max>0.000255</max>
     </param>
     <param name="Profile Minimum Range">
       <name-i18n>Profile Minimum Range</name-i18n>
@@ -5779,6 +5866,8 @@
       <default>0</default>
       <units>m</units>
       <desc>Profile minimum range</desc>
+      <min>0</min>
+      <max>25</max>
     </param>
     <param name="Data Points">
       <name-i18n>Data Points</name-i18n>
@@ -5798,7 +5887,9 @@
       <scope>global</scope>
       <default>1500</default>
       <units>m/s</units>
-      <desc/>
+      <desc>Water sound speed</desc>
+      <min>1375</min>
+      <max>1900</max>
     </param>
     <param name="Use Dynamic Sound Speed">
       <name-i18n>Use Dynamic Sound Speed</name-i18n>
@@ -5807,7 +5898,7 @@
       <scope>global</scope>
       <default>false</default>
       <units/>
-      <desc/>
+      <desc>Update measurements according with measured sound speed</desc>
     </param>
     <param name="Sonar position">
       <name-i18n>Sonar position</name-i18n>
@@ -6046,15 +6137,6 @@
       <units/>
       <desc>Name of the power channel</desc>
     </param>
-    <param name="Output Frequency">
-      <name-i18n>Output Frequency</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>100</default>
-      <units>Hz</units>
-      <desc>Output frequency</desc>
-    </param>
     <param name="Hard-Iron Calibration">
       <name-i18n>Hard-Iron Calibration</name-i18n>
       <type>list:real</type>
@@ -6195,7 +6277,9 @@
       <scope>global</scope>
       <default>1500</default>
       <units>m/s</units>
-      <desc/>
+      <desc>Water sound speed</desc>
+      <min>1375</min>
+      <max>1900</max>
     </param>
     <param name="Sound Speed - Entity Label">
       <name-i18n>Sound Speed - Entity Label</name-i18n>
@@ -6243,6 +6327,7 @@
       <default>2.0</default>
       <units>s</units>
       <desc>Duration of power off when the sensor is rebooted.</desc>
+      <min>1.0</min>
     </param>
     <param name="Watchdog Timeout">
       <name-i18n>Watchdog Timeout</name-i18n>
@@ -6252,6 +6337,7 @@
       <default>1.5</default>
       <units>s</units>
       <desc>Timeout for the incoming data watchdog.</desc>
+      <min>1.0</min>
     </param>
     <param name="Sane Working Depth">
       <name-i18n>Sane Working Depth</name-i18n>
@@ -6261,6 +6347,7 @@
       <default>2.0</default>
       <units>m</units>
       <desc>Value of depth above which DVL's data is expected to be sane.</desc>
+      <min>0.0</min>
     </param>
     <param name="Sane Altitude Threshold">
       <name-i18n>Sane Altitude Threshold</name-i18n>
@@ -6270,6 +6357,8 @@
       <default>0.6</default>
       <units>m</units>
       <desc>Altitude threshold for detection of bad samples.</desc>
+      <min>0.1</min>
+      <max>1.0</max>
     </param>
     <param name="Maximum Bad Samples">
       <name-i18n>Maximum Bad Samples</name-i18n>
@@ -6279,6 +6368,7 @@
       <default>8</default>
       <units/>
       <desc>Maximum number of samples below threshold.</desc>
+      <min>5</min>
     </param>
   </section>
   <section name="Mainboard" name-i18n="Плата">
@@ -6449,6 +6539,7 @@
       <default>4</default>
       <units>s</units>
       <desc>Amount of seconds to wait for data before reporting an error</desc>
+      <min>1.0</min>
     </param>
   </section>
   <section name="Power Supervisor" name-i18n="Мощность Supervisor">

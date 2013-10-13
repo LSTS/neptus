@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,25058c1)" system="adamastor" i18n="pt_PT">
+<config format="1" version="2.4.0-rc1 (master,cb1e7ef)" system="adamastor" i18n="pt_PT">
   <section name="LED Driver" name-i18n="Controlador de LEDs">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -65,6 +65,7 @@
       <default>2.0</default>
       <units>s</units>
       <desc>Watchdog timeout</desc>
+      <min>1.0</min>
     </param>
     <param name="LED - Names">
       <name-i18n>LED - Names</name-i18n>
@@ -142,6 +143,7 @@
       <default>2.0</default>
       <units>s</units>
       <desc>Watchdog timeout</desc>
+      <min>1.0</min>
     </param>
     <param name="Laser - Name">
       <name-i18n>Laser - Name</name-i18n>
@@ -258,11 +260,13 @@
     <param name="Scale Factor">
       <name-i18n>Scale Factor</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
       <default>50</default>
       <units>%</units>
       <desc>Scale factor to be multiplied to the thruster actuation reference</desc>
+      <min>0.0</min>
+      <max>100.0</max>
     </param>
     <param name="Feedback Querying Frequency">
       <name-i18n>Feedback Querying Frequency</name-i18n>
@@ -272,6 +276,7 @@
       <default>1.0</default>
       <units>Hz</units>
       <desc>Frequency with which the motors are queried for current and RPMs</desc>
+      <min>0.1</min>
     </param>
     <param name="Watchdog Timeout">
       <name-i18n>Watchdog Timeout</name-i18n>
@@ -388,11 +393,13 @@
     <param name="Scale Factor">
       <name-i18n>Scale Factor</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
       <default>50</default>
       <units>%</units>
       <desc>Scale factor to be multiplied to the thruster actuation reference</desc>
+      <min>0.0</min>
+      <max>100.0</max>
     </param>
     <param name="Feedback Querying Frequency">
       <name-i18n>Feedback Querying Frequency</name-i18n>
@@ -402,6 +409,7 @@
       <default>1.0</default>
       <units>Hz</units>
       <desc>Frequency with which the motors are queried for current and RPMs</desc>
+      <min>0.1</min>
     </param>
     <param name="Watchdog Timeout">
       <name-i18n>Watchdog Timeout</name-i18n>
@@ -1014,6 +1022,7 @@
       <default>10</default>
       <units/>
       <desc>Number of moving average samples to smooth CPU usage</desc>
+      <min>0</min>
     </param>
     <param name="CPU - Maximum Usage">
       <name-i18n>CPU - Maximum Usage</name-i18n>
@@ -1023,6 +1032,8 @@
       <default>65</default>
       <units/>
       <desc>Maximum CPU usage. When this value is hit an error will be raised</desc>
+      <min>0</min>
+      <max>100</max>
     </param>
   </section>
   <section name="Entity Monitor" name-i18n="Monitor de Entidades">
@@ -1118,6 +1129,7 @@
       <default>3</default>
       <units/>
       <desc>Maximum number of consecutive transitions before starting to ignore</desc>
+      <min>0</min>
     </param>
   </section>
   <section name="Operational Limits" name-i18n="Limites de Operação">
@@ -1316,6 +1328,7 @@
       <default>1.0</default>
       <units/>
       <desc>Kalman Filter State Covariance initial values</desc>
+      <min>1.0</min>
     </param>
     <param name="LBL Threshold">
       <name-i18n>LBL Threshold</name-i18n>
@@ -1325,6 +1338,7 @@
       <default>10.0</default>
       <units/>
       <desc>LBL Threshold value for the LBL level check rejection scheme</desc>
+      <min>2.0</min>
     </param>
     <param name="LBL Measure Noise Covariance">
       <name-i18n>LBL Measure Noise Covariance</name-i18n>
@@ -1334,6 +1348,7 @@
       <default>10.0</default>
       <units/>
       <desc>Kalman Filter LBL Measurement Noise Covariance value</desc>
+      <min>0.1</min>
     </param>
     <param name="LBL Process Noise Covariance">
       <name-i18n>LBL Process Noise Covariance</name-i18n>
@@ -1343,6 +1358,7 @@
       <default>1e-5</default>
       <units/>
       <desc>Kalman Filter LBL Process Noise Covariance value</desc>
+      <min>0.0</min>
     </param>
     <param name="LBL Expected Range Rejection Constants">
       <name-i18n>LBL Expected Range Rejection Constants</name-i18n>
@@ -1362,6 +1378,7 @@
       <default>3.0</default>
       <units>s</units>
       <desc>No GPS readings timeout</desc>
+      <min>2.0</min>
     </param>
     <param name="GPS Maximum HACC">
       <name-i18n>GPS Maximum HACC</name-i18n>
@@ -1382,6 +1399,7 @@
       <default>0.80</default>
       <units>m</units>
       <desc>Distance between LBL receiver and GPS in the vehicle</desc>
+      <min>0.0</min>
     </param>
   </section>
   <section name="Navigation" name-i18n="Navegação">
@@ -1449,6 +1467,7 @@
       <default>1000</default>
       <units>m</units>
       <desc>Maximum allowed distance to 'EstimatedState' reference</desc>
+      <min>500</min>
     </param>
     <param name="Maximum Horizontal Position Variance">
       <name-i18n>Máxima Variância Horizontal de Posição</name-i18n>
@@ -1458,6 +1477,7 @@
       <default>500.0</default>
       <units>m^2</units>
       <desc>Maximum allowed horizontal position estimation variance</desc>
+      <min>100.0</min>
     </param>
     <param name="Reject all LBL ranges">
       <name-i18n>Reject all LBL ranges</name-i18n>
@@ -1486,6 +1506,7 @@
       <default>1.5</default>
       <units>s</units>
       <desc>No GPS readings timeout</desc>
+      <min>2.0</min>
     </param>
     <param name="DVL timeout">
       <name-i18n>DVL timeout</name-i18n>
@@ -1495,6 +1516,7 @@
       <default>3.0</default>
       <units>s</units>
       <desc>No DVL readings timeout</desc>
+      <min>1.0</min>
     </param>
     <param name="Altitude timeout">
       <name-i18n>Altitude timeout</name-i18n>
@@ -1504,6 +1526,7 @@
       <default>5.0</default>
       <units>s</units>
       <desc>No altitude readings timeout</desc>
+      <min>3.0</min>
     </param>
     <param name="Euler timeout">
       <name-i18n>Euler timeout</name-i18n>
@@ -1513,6 +1536,7 @@
       <default>10.0</default>
       <units>s</units>
       <desc>No EulerAngles readings timeout</desc>
+      <min>5.0</min>
     </param>
     <param name="Depth timeout">
       <name-i18n>Depth timeout</name-i18n>
@@ -1522,6 +1546,7 @@
       <default>3.0</default>
       <units>s</units>
       <desc>No Depth readings timeout</desc>
+      <min>2.0</min>
     </param>
     <param name="Main Depth timeout">
       <name-i18n>Main Depth timeout</name-i18n>
@@ -1531,6 +1556,7 @@
       <default>1.0</default>
       <units>s</units>
       <desc>No Depth readings from main provider timeout</desc>
+      <min>0.5</min>
     </param>
     <param name="DVL sanity timeout">
       <name-i18n>DVL sanity timeout</name-i18n>
@@ -1540,6 +1566,7 @@
       <default>10.0</default>
       <units>s</units>
       <desc>DVL sanity timeout</desc>
+      <min>10.0</min>
     </param>
     <param name="Distance Between DVL and CG">
       <name-i18n>Distance Between DVL and CG</name-i18n>
@@ -1549,6 +1576,7 @@
       <default>0.0</default>
       <units>m</units>
       <desc>Distance between DVL and vehicle Center of Gravity</desc>
+      <min>0.0</min>
     </param>
     <param name="Distance Between GPS and CG">
       <name-i18n>Distance Between GPS and CG</name-i18n>
@@ -1558,6 +1586,7 @@
       <default>0.0</default>
       <units>m</units>
       <desc>Distance between GPS and vehicle Center of Gravity</desc>
+      <min>0.0</min>
     </param>
     <param name="Distance Between LBL and GPS">
       <name-i18n>Distance Between LBL and GPS</name-i18n>
@@ -1567,6 +1596,7 @@
       <default>0.0</default>
       <units>m</units>
       <desc>Distance between LBL receiver and GPS in the vehicle</desc>
+      <min>0.0</min>
     </param>
     <param name="DVL absolute thresholds">
       <name-i18n>DVL absolute thresholds</name-i18n>
@@ -1606,6 +1636,7 @@
       <default>6.0</default>
       <units/>
       <desc>LBL Threshold value for the LBL level check rejection scheme</desc>
+      <min>2.0</min>
     </param>
     <param name="GPS Maximum HDOP">
       <name-i18n>GPS Maximum HDOP</name-i18n>
@@ -1648,6 +1679,7 @@
       <default>40</default>
       <units/>
       <desc>Number of moving average samples to smooth heave</desc>
+      <min>10</min>
     </param>
     <param name="GPS Moving Average Samples">
       <name-i18n>GPS Moving Average Samples</name-i18n>
@@ -1657,6 +1689,7 @@
       <default>7</default>
       <units/>
       <desc>Number of moving average samples to smooth maximum GPS HACC.</desc>
+      <min>5</min>
     </param>
     <param name="Entity Label - Depth">
       <name-i18n>Entity Label - Depth</name-i18n>
@@ -2100,6 +2133,8 @@
       <default>22</default>
       <units>V</units>
       <desc>Once this value is hit the system will enter emergency mode</desc>
+      <min>20</min>
+      <max>25</max>
     </param>
     <param name="Watchdog Timeout">
       <name-i18n>Watchdog Timeout</name-i18n>
@@ -2109,6 +2144,7 @@
       <default>2.0</default>
       <units>s</units>
       <desc>Watchdog timeout</desc>
+      <min>1.0</min>
     </param>
     <param name="LED - Names">
       <name-i18n>LED - Names</name-i18n>
@@ -2714,6 +2750,7 @@
       <default>4.0</default>
       <units>s</units>
       <desc>Input timeout</desc>
+      <min>0.0</min>
     </param>
     <param name="Power Channel - Names">
       <name-i18n>Power Channel - Names</name-i18n>
@@ -3060,6 +3097,8 @@
       <default>5000</default>
       <units/>
       <desc>TCP port</desc>
+      <min>0</min>
+      <max>65535</max>
     </param>
     <param name="Device Address">
       <name-i18n>Device Address</name-i18n>
@@ -3069,6 +3108,8 @@
       <default>6</default>
       <units/>
       <desc>Device address in the network</desc>
+      <min>0</min>
+      <max>30</max>
     </param>
   </section>
   <section name="Pencil Beam" name-i18n="Feixe de Distância">
@@ -3293,6 +3334,8 @@
       <default>1500</default>
       <units>m/s</units>
       <desc>Water sound speed</desc>
+      <min>1375</min>
+      <max>1900</max>
     </param>
     <param name="Use Dynamic Sound Speed">
       <name-i18n>Use Dynamic Sound Speed</name-i18n>
@@ -3503,15 +3546,6 @@
       <units/>
       <desc>Name of the power channel</desc>
     </param>
-    <param name="Output Frequency">
-      <name-i18n>Output Frequency</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>100</default>
-      <units>Hz</units>
-      <desc>Output frequency</desc>
-    </param>
     <param name="Hard-Iron Calibration">
       <name-i18n>Hard-Iron Calibration</name-i18n>
       <type>list:real</type>
@@ -3652,7 +3686,9 @@
       <scope>global</scope>
       <default>1500</default>
       <units>m/s</units>
-      <desc/>
+      <desc>Water sound speed</desc>
+      <min>1375</min>
+      <max>1900</max>
     </param>
     <param name="Sound Speed - Entity Label">
       <name-i18n>Sound Speed - Entity Label</name-i18n>
@@ -3671,6 +3707,7 @@
       <default>5</default>
       <units>ms</units>
       <desc/>
+      <min>0</min>
     </param>
     <param name="Length of Receive Pings">
       <name-i18n>Length of Receive Pings</name-i18n>
@@ -3680,6 +3717,7 @@
       <default>5</default>
       <units>ms</units>
       <desc/>
+      <min>0</min>
     </param>
     <param name="Ping Timeout">
       <name-i18n>Ping Timeout</name-i18n>
@@ -3689,6 +3727,7 @@
       <default>1000</default>
       <units>ms</units>
       <desc/>
+      <min>0</min>
     </param>
     <param name="Ping Periodicity">
       <name-i18n>Ping Periodicity</name-i18n>
@@ -3698,6 +3737,7 @@
       <default>2</default>
       <units>s</units>
       <desc/>
+      <min>2</min>
     </param>
     <param name="Enable Reports">
       <name-i18n>Permitir Relatórios</name-i18n>
@@ -3736,6 +3776,7 @@
       <default>5</default>
       <units>s</units>
       <desc/>
+      <min>0</min>
     </param>
     <param name="Mini-Packet Delay - Before">
       <name-i18n>Mini-Packet Delay - Before</name-i18n>
@@ -3745,6 +3786,7 @@
       <default>1.0</default>
       <units>s</units>
       <desc/>
+      <min>0</min>
     </param>
     <param name="Mini-Packet Delay - After">
       <name-i18n>Mini-Packet Delay - After</name-i18n>
@@ -3754,6 +3796,7 @@
       <default>0.5</default>
       <units>s</units>
       <desc/>
+      <min>0</min>
     </param>
     <param name="Range Reports Delay - Before">
       <name-i18n>Range Reports Delay - Before</name-i18n>
@@ -3763,6 +3806,7 @@
       <default>0.5</default>
       <units>s</units>
       <desc/>
+      <min>0</min>
     </param>
     <param name="Range Reports Delay - After">
       <name-i18n>Range Reports Delay - After</name-i18n>
@@ -3772,6 +3816,7 @@
       <default>1.0</default>
       <units>s</units>
       <desc/>
+      <min>0</min>
     </param>
     <param name="Turn Around Time">
       <name-i18n>Turn Around Time</name-i18n>
@@ -3781,6 +3826,7 @@
       <default>20</default>
       <units>ms</units>
       <desc/>
+      <min>0</min>
     </param>
   </section>
   <section name="DVL" name-i18n="DVL">
@@ -3857,6 +3903,7 @@
       <default>2.0</default>
       <units>s</units>
       <desc>Number of seconds without data before reporting an error</desc>
+      <min>1.0</min>
     </param>
     <param name="Device position">
       <name-i18n>Device position</name-i18n>
