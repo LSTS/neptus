@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,cb1e7ef)" system="lauv-noptilus-2" i18n="ru_RU">
+<config format="1" version="2.4.0-rc1 (master,721bd3e)" system="lauv-noptilus-2" i18n="ru_RU">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -5144,7 +5144,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>0</default>
       <units/>
       <desc/>
     </param>
@@ -5381,6 +5381,188 @@
       <default>Leak Sensor - Antenna</default>
       <units/>
       <desc/>
+    </param>
+  </section>
+  <section name="Sidescan" name-i18n="Sidescan" editor="Edgetech2205">
+    <param name="Entity Label">
+      <name-i18n>Entity Этикетка</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Sidescan</default>
+      <units/>
+      <desc>Главным образом ярлык лица</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Приоритет выполнения</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Приоритет выполнения</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Время активации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>240</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Время деактивации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Уровень отладки</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Активная - Сфера</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Сфера применения 'Активные' параметра</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Активная - Видимость</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Видимость 'Активные' параметра</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Активный</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0</default>
+      <units/>
+      <desc>Правда, чтобы активировать задачу, иначе ложь</desc>
+    </param>
+    <param name="IPv4 Address">
+      <name-i18n>IPv4 Address</name-i18n>
+      <type>ipv4-address</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10.0.10.84</default>
+      <units/>
+      <desc>IP address of the sonar</desc>
+    </param>
+    <param name="TCP Port - Command">
+      <name-i18n>TCP Port - Command</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1700</default>
+      <units/>
+      <desc>TCP command port</desc>
+      <min>0</min>
+      <max>65535</max>
+    </param>
+    <param name="TCP Port - Data">
+      <name-i18n>TCP Port - Data</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1701</default>
+      <units/>
+      <desc>TCP data port</desc>
+      <min>0</min>
+      <max>65535</max>
+    </param>
+    <param name="High-Frequency Channels">
+      <name-i18n>ВЧ каналов</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>Both</default>
+      <units/>
+      <desc>High-frequency subsystem channels</desc>
+      <values>None, Port, Starboard, Both</values>
+      <values-i18n>Нет, порт, борта, оба</values-i18n>
+    </param>
+    <param name="High-Frequency Range">
+      <name-i18n>Высокочастотный диапазон</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>50</default>
+      <units>m</units>
+      <desc>Enable high frequency subsystem</desc>
+      <min>5</min>
+      <max>75</max>
+    </param>
+    <param name="Low-Frequency Channels">
+      <name-i18n>Низкочастотных каналов</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>None</default>
+      <units/>
+      <desc>Low-frequency subsystem channels</desc>
+      <values>None, Port, Starboard, Both</values>
+      <values-i18n>Нет, порт, борта, оба</values-i18n>
+    </param>
+    <param name="Low-Frequency Range">
+      <name-i18n>Низкочастотный диапазон</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>50</default>
+      <units>m</units>
+      <desc>Enable high frequency subsystem</desc>
+      <min>5</min>
+      <max>150</max>
+    </param>
+    <param name="Range Multiplier">
+      <name-i18n>Range Multiplier</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>1</default>
+      <units/>
+      <desc>Range multiplier</desc>
+      <min>1</min>
+      <max>150</max>
+    </param>
+    <param name="Pulse Autoselection Mode">
+      <name-i18n>Pulse Autoselection Mode</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2</default>
+      <units/>
+      <desc>Auto pulse selection mode</desc>
+      <min>0</min>
+      <max>4</max>
+    </param>
+    <param name="Power Channel - Sidescan">
+      <name-i18n>Power Channel - Sidescan</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Sidescan</default>
+      <units/>
+      <desc>Name of sidescan's power channel</desc>
     </param>
   </section>
   <section name="GPS" name-i18n="GPS">
