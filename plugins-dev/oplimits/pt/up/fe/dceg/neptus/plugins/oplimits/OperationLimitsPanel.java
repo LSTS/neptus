@@ -35,7 +35,6 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.NumberFormat;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -77,12 +76,12 @@ public class OperationLimitsPanel extends JPanel {
 		areaCheck = new JCheckBox(I18n.text("Area Limits"));
 		maxVRateCheck = new JCheckBox(I18n.text("Maximum Vertical Rate (m/s)"));
 			
-		maxDepthField = new JFormattedTextField(NumberFormat.getInstance());
-		maxAltitudeField = new JFormattedTextField(NumberFormat.getInstance());
-		minAltitudeField = new JFormattedTextField(NumberFormat.getInstance());
-		maxSpeedField = new JFormattedTextField(NumberFormat.getInstance());
-		minSpeedField = new JFormattedTextField(NumberFormat.getInstance());
-		maxVRateField = new JFormattedTextField(NumberFormat.getInstance());
+		maxDepthField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(1) /*NumberFormat.getInstance()*/);
+		maxAltitudeField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(1) /*NumberFormat.getInstance()*/);
+		minAltitudeField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(1) /*NumberFormat.getInstance()*/);
+		maxSpeedField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(1) /*NumberFormat.getInstance()*/);
+		minSpeedField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(1) /*NumberFormat.getInstance()*/);
+		maxVRateField = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(1) /*NumberFormat.getInstance()*/);
 		
 		JPanel tmp = new JPanel(new GridLayout(0, 2,2,10));
 		tmp.add(maxDepthCheck);

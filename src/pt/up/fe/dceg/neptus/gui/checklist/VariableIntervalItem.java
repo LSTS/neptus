@@ -19,7 +19,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.text.NumberFormat;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -32,6 +31,7 @@ import javax.swing.JTextField;
 
 import pt.up.fe.dceg.neptus.types.checklist.CheckAutoSubItem;
 import pt.up.fe.dceg.neptus.types.checklist.CheckAutoVarIntervalItem;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 @SuppressWarnings("serial")
 public class VariableIntervalItem extends JPanel implements CheckSubItem{
@@ -86,7 +86,7 @@ public class VariableIntervalItem extends JPanel implements CheckSubItem{
 	    });
 		
 		
-		lastValue = new JFormattedTextField(NumberFormat.getInstance());
+		lastValue = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat() /*NumberFormat.getInstance()*/);
 		lastValue.setColumns(3);
 		lastValue.addKeyListener(new KeyAdapter() {
 	        @Override
@@ -95,7 +95,7 @@ public class VariableIntervalItem extends JPanel implements CheckSubItem{
 	        }
 	    });
 		
-		startInterval = new JFormattedTextField(NumberFormat.getInstance());
+		startInterval = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat() /*NumberFormat.getInstance()*/);
 		startInterval.setColumns(3);
 		startInterval.addKeyListener(new KeyAdapter() {
 	        @Override
@@ -104,7 +104,7 @@ public class VariableIntervalItem extends JPanel implements CheckSubItem{
 	        }
 	    });
 	
-		endInterval = new JFormattedTextField(NumberFormat.getInstance());
+		endInterval = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat() /*NumberFormat.getInstance()*/);
 		endInterval.setColumns(3);
 		endInterval.addKeyListener(new KeyAdapter() {
 	        @Override

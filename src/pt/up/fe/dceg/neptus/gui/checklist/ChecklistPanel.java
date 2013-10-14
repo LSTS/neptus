@@ -32,7 +32,6 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -2366,7 +2365,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
 
         final JTextField textIP = new JTextField();
         textIP.setText(ip);
-        final JFormattedTextField textPort = new JFormattedTextField(NumberFormat.getInstance());
+        final JFormattedTextField textPort = new JFormattedTextField(GuiUtils.getNeptusIntegerFormat() /*NumberFormat.getInstance()*/);
         textPort.setValue(port);
 
         JButton buttonOK = new JButton();
