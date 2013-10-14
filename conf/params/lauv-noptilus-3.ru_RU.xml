@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,cb1e7ef)" system="lauv-noptilus-3" i18n="ru_RU">
+<config format="1" version="2.4.0-rc1 (master,274361f)" system="lauv-noptilus-3" i18n="ru_RU">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -5964,6 +5964,168 @@
       <default>50</default>
       <units/>
       <desc>Pattern maximum difference</desc>
+    </param>
+  </section>
+  <section name="Sidescan" name-i18n="Sidescan">
+    <param name="Entity Label">
+      <name-i18n>Entity Этикетка</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Sidescan</default>
+      <units/>
+      <desc>Главным образом ярлык лица</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Приоритет выполнения</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Приоритет выполнения</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Время активации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Время деактивации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Уровень отладки</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Execution Frequency">
+      <name-i18n>Частоты выполнения</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>Hz</units>
+      <desc>Частота, на которой выполняется задача</desc>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Активная - Сфера</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Сфера применения 'Активные' параметра</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Активная - Видимость</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Видимость 'Активные' параметра</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Активный</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>true</default>
+      <units/>
+      <desc>Правда, чтобы активировать задачу, иначе ложь</desc>
+    </param>
+    <param name="IPv4 Address">
+      <name-i18n>IPv4 Address</name-i18n>
+      <type>ipv4-address</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>192.168.0.5</default>
+      <units/>
+      <desc>IP address of the sonar</desc>
+    </param>
+    <param name="TCP Port">
+      <name-i18n>TCP Port</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4040</default>
+      <units/>
+      <desc>TCP port</desc>
+      <min>0</min>
+      <max>65535</max>
+    </param>
+    <param name="Data Gain">
+      <name-i18n>Data Gain</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20</default>
+      <units>%</units>
+      <desc>Data gain</desc>
+      <min>0</min>
+      <max>100</max>
+    </param>
+    <param name="Balance Gain">
+      <name-i18n>Balance Gain</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units/>
+      <desc>Balance gain</desc>
+      <min>0</min>
+      <max>60</max>
+    </param>
+    <param name="Frequency">
+      <name-i18n>Частота</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>770</default>
+      <units>kHz</units>
+      <desc>Рабочая частота</desc>
+      <values>260, 330, 770</values>
+      <values-i18n>260, 330, 770</values-i18n>
+    </param>
+    <param name="Range">
+      <name-i18n>Диапазон</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>30</default>
+      <units>m</units>
+      <desc>Рабочий диапазон</desc>
+      <values-if>
+        <param>Frequency</param>
+        <equals>260</equals>
+        <values>10, 20, 30, 40, 50, 60, 80, 100, 150, 200</values>
+      </values-if>
+      <values-if>
+        <param>Frequency</param>
+        <equals>330</equals>
+        <values>10, 20, 30, 40, 50, 60, 80, 100, 150, 200</values>
+      </values-if>
+      <values-if>
+        <param>Frequency</param>
+        <equals>770</equals>
+        <values>10, 20, 30, 40, 50</values>
+      </values-if>
     </param>
   </section>
   <section name="Depth Sensor" name-i18n="Датчик глубины">
