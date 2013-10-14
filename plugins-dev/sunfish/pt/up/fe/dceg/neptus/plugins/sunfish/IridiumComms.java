@@ -40,6 +40,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.LinkedHashMap;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
@@ -94,6 +95,8 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     protected Image spot, desired, target, unknown;
     protected final int HERMES_ID = 0x08c1;
     
+    protected Vector<VirtualDrifter> drifters = new Vector<>();
+    
     @NeptusProperty(name="Iridium communications device", description="The name of Iridium comms provider. Examples: lauv-xtreme-2, manta-1, hub, ...")
     public String messengerName = null;
     
@@ -128,6 +131,19 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                 e.printStackTrace();
             }
         }
+        
+        for (VirtualDrifter d : drifters) {
+            RemoteSensorInfo rsi = new RemoteSensorInfo();
+            rsi.setId(d.id);
+            LocationType loc = d.getLocation();
+            rsi.setLat(loc.getLatitudeAsDoubleValueRads());
+            rsi.setLon(loc.getLongitudeAsDoubleValueRads());
+            rsi.setTimestampMillis(System.currentTimeMillis());
+            rsi.setSensorClass("drifter");
+            post(rsi);
+            on(rsi);
+        }
+        
         return true;
     }
     
@@ -253,6 +269,19 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         
         popup.addSeparator();
         
+        popup.add("Add virtual drifter").addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                VirtualDrifter d = new VirtualDrifter(loc, 0, 0.1);
+                PropertiesEditor.editProperties(d, true);
+                drifters.add(d);
+                update();
+            }
+        });
+        
+        popup.addSeparator();
+        
         popup.add("Settings").addActionListener(new ActionListener() {            
             public void actionPerformed(ActionEvent e) {
                 PropertiesEditor.editProperties(IridiumComms.this, getConsole(), true);
@@ -316,6 +345,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
+        
         for (RemoteSensorInfo sinfo : sensorData.values()) {
             LocationType loc = new LocationType();
             loc.setLatitudeRads(sinfo.getLat());
@@ -351,8 +381,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
             
             g.setColor(Color.black);
             int mins = (int)((System.currentTimeMillis() - sinfo.getTimestampMillis()) / 1000);
-            g.drawString(sinfo.getId() +" ("+mins+")", (int)(pt.getX()+img.getWidth(this)/2 + 3),  (int)(pt.getY() + 5));
-         
+            g.drawString(sinfo.getId() +" ("+mins+")", (int)(pt.getX()+img.getWidth(this)/2 + 3),  (int)(pt.getY() + 5));         
         }
     }
     
