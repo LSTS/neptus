@@ -91,7 +91,7 @@ public class OdssStatePublisher extends SimpleSubPanel implements IPeriodicUpdat
     @NeptusProperty(name = "Receiver name", category = "E-mail content")
     public String toName = "Track";
 
-    @NeptusProperty(name = "Sender e-mail", category = "E-mail content", description = "Can only be auvtrack@mbari.org or lstsfeup+auvtrack@gmail.com")
+    @NeptusProperty(name = "Receiver e-mail", category = "E-mail content", description = "Can only be auvtrack@mbari.org or auvtrack+lstsfeup@gmail.com")
     public String toEmail = "auvtrack@mbari.org";
 
     @NeptusProperty(name = "CC name", category = "E-mail content")
@@ -109,14 +109,14 @@ public class OdssStatePublisher extends SimpleSubPanel implements IPeriodicUpdat
     @NeptusProperty(name = "Publishing")
     public boolean publishOn = false;
     
-    @NeptusProperty(name = "Publishing simulated states", description = "If true any simulated system will not be published.")
+    @NeptusProperty(name = "Ignore simulated states", description = "If true any simulated system will not be published.")
     public boolean ignoreSimulatedSystems = true;
 
     @NeptusProperty(name = "Stmp server", category = "Server Settings")
     public String smtpServerName = "smtp.gmail.com";
     
     @NeptusProperty(name = "Stmp port", category = "Server Settings")
-    public int smtpServerPort = 587;
+    public int smtpServerPort = 465;
     
     @NeptusProperty(name = "Use SSL", category = "Server Settings")
     public boolean smtpServerSSL = true;
@@ -194,6 +194,12 @@ public class OdssStatePublisher extends SimpleSubPanel implements IPeriodicUpdat
                     @Override
                     public void menuChecked(ActionEvent e) {
                         publishOn = true;
+                        try {
+                            publishState(getMainVehicleId());
+                        }
+                        catch (Exception ex){
+                            ex.printStackTrace();
+                        }
                     }
                 });
 
@@ -236,9 +242,11 @@ public class OdssStatePublisher extends SimpleSubPanel implements IPeriodicUpdat
 
     @Override
     public boolean update() {
-        if (publishCheckItem != null)
-            publishCheckItem.setState(publishOn);
         
+        if (publishCheckItem != null) {
+            publishCheckItem.setState(publishOn);
+            //System.out.println("publishCheckItem == "+publishOn);
+        }
         return true;
     }
 
@@ -305,7 +313,13 @@ public class OdssStatePublisher extends SimpleSubPanel implements IPeriodicUpdat
         mail.setMsg(mailMessage);
 
         mail.send();
+        
+        System.out.println("Sent: "+mail.toString());
 
         NeptusLog.pub().warn("Sent email to "+mail.getToAddresses()+" ["+mailSubject+"] "+mailMessage);
+    }
+    
+    public static void main(String[] args) {
+        
     }
 }
