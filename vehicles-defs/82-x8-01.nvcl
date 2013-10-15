@@ -81,6 +81,14 @@
 					</annotation>
 				</Goto>
 			</maneuver>
+			<maneuver>
+				<CoverArea kind="automatic">
+					<annotation>
+						<documentation>Cover an area</documentation>
+						<implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.CoverArea</implementation-class>
+					</annotation>
+				</CoverArea>
+			</maneuver>
 	</feasibleManeuvers>
 	<communication-means>
 		<comm-mean>
