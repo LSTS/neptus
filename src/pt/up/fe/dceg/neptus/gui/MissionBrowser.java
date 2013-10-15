@@ -31,8 +31,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -127,7 +125,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     private final MissionTreeCellRenderer cellRenderer;
     private final JTree elementTree;
     final private Model treeModel;
-    private final Vector<ChangeListener> listeners = new Vector<ChangeListener>();
+
+    // private final Vector<ChangeListener> listeners = new Vector<ChangeListener>();
 
     /**
      * Creates a new mission browser which will display the items contained in the given mission type
@@ -332,11 +331,24 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     treeModel.clearTree();
                     return;
                 }
+                long start = System.currentTimeMillis();
                 HomeReference homeRef = mission.getHomeRef();
                 Vector<TransponderElement> trans = MapGroup.getMapGroupInstance(mission).getAllObjectsOfType(
                         TransponderElement.class);
+                long end = System.currentTimeMillis();
+                System.out.println("Get transponders " + (end - start));
+
+                start = System.currentTimeMillis();
                 Collections.sort(trans);
+                end = System.currentTimeMillis();
+                System.out.println("Sort transponders " + (end - start));
+
+                start = System.currentTimeMillis();
                 TreeMap<String, PlanType> plans = mission.getIndividualPlansList();
+                end = System.currentTimeMillis();
+                System.out.println("Get plans " + (end - start));
+
+                start = System.currentTimeMillis();
                 PlanType plan = selectedPlan;
                 treeModel.redoModel(trans, homeRef, plans, plan);
 
@@ -542,21 +554,21 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param item The item to be removed from this component
      */
     public void removeItem(Object item) {
-        boolean isChanged = false;
+//        boolean isChanged = false;
         if (item instanceof MapType) {
-            isChanged = treeModel.removeById((MapType) item, treeModel.maps);
+            /* isChanged = */treeModel.removeById((MapType) item, treeModel.maps);
         }
         else if (item instanceof PlanType) {
-            isChanged = treeModel.removeById((PlanType) item, treeModel.plans);
+            /* isChanged = */treeModel.removeById((PlanType) item, treeModel.plans);
         }
         else {
             NeptusLog.pub().error(
                     "Missing support for " + item.getClass().getCanonicalName() + " in "
                             + MissionBrowser.class.getCanonicalName() + ".removeItem()");
         }
-        if (isChanged) {
-            warnListeners();
-        }
+        // if (isChanged) {
+        // warnListeners();
+        // }
     }
 
 
@@ -613,21 +625,21 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         return elementTree.getPathForLocation(x, y);
     }
 
-    public void addChangeListener(ChangeListener listener) {
-        listeners.add(listener);
-    }
+    // public void addChangeListener(ChangeListener listener) {
+    // listeners.add(listener);
+    // }
+    //
+    // public void removeChangeListener(ChangeListener listener) {
+    // listeners.remove(listener);
+    // }
 
-    public void removeChangeListener(ChangeListener listener) {
-        listeners.remove(listener);
-    }
-
-    public void warnListeners() {
-        ChangeEvent ce = new ChangeEvent(this);
-        for (int i = 0; i < listeners.size(); i++) {
-            ChangeListener listener = listeners.get(i);
-            listener.stateChanged(ce);
-        }
-    }
+    // public void warnListeners() {
+    // ChangeEvent ce = new ChangeEvent(this);
+    // for (int i = 0; i < listeners.size(); i++) {
+    // ChangeListener listener = listeners.get(i);
+    // listener.stateChanged(ce);
+    // }
+    // }
 
     public void setSelectedPlan(PlanType plan) {
         if (getSelectedItem() == plan) {
@@ -1079,10 +1091,15 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
         public void redoModel(final Vector<TransponderElement> transElements, final HomeReference homeRef,
                 final TreeMap<String, PlanType> plansElements, final PlanType selectedPlan) {
+            long start = System.currentTimeMillis();
             clearTree();
+            long end = System.currentTimeMillis();
+            System.out.println("Clear tree " + (end - start));
+
             setHomeRef(homeRef);
             int index = 0; // homeRef is at index 0
 
+            start = System.currentTimeMillis();
             for (TransponderElement elem : transElements) {
                 addTransponderNode(elem);
             }
@@ -1090,15 +1107,19 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 index++;
                 insertNodeInto(trans, (MutableTreeNode) root, index);
             }
+            end = System.currentTimeMillis();
+            System.out.println("Sort trans " + (end - start));
 
+            start = System.currentTimeMillis();
             for (PlanType planT : plansElements.values()) {
                 addToParents(new ExtendedTreeNode(planT), ParentNodes.PLANS);
             }
-
             if (plans.getChildCount() >= 0 && !plans.isNodeChild(root)) {
                 index++;
                 insertNodeInto(plans, (MutableTreeNode) root, index);
             }
+            end = System.currentTimeMillis();
+            System.out.println("Sort plans " + (end - start));
 
             if (selectedPlan != null)
                 setSelectedPlan(selectedPlan);

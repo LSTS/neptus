@@ -146,7 +146,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
     protected MissionBrowser browser = new MissionBrowser();
     protected PlanDBControl pdbControl;
     protected PlanDBAdapter planDBListener = new PlanDBAdapter() {
-        // Called only if Type == SUCCESS
+        // Called only if Type == SUCCESS in received PlanDB message
         @Override
         public void dbCleared() {
         }
@@ -154,14 +154,57 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         @Override
         public void dbInfoUpdated(PlanDBState updatedInfo) {
             // PlanDB Operation = GET_STATE
+            // Get state of the entire DB. Successful replies will yield a
+            // 'PlanDBState' message in the 'arg' field but without
+            // individual plan information (in the 'plans_info' field of
+            // 'PlanDBState').
+            // ImcSystem imcSystem = ImcSystemsHolder.lookupSystemByName(getMainVehicleId());
+            // LinkedHashMap<String, PlanDBInfo> storedPlans =
+            // imcSystem.getPlanDBControl().getRemoteState().getStoredPlans();
+            SwingUtilities.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    TreePath[] selectedNodes = browser.getSelectedNodes();
+
+                    browser.transUpdateElapsedTime();
+                    if (getMainVehicleId() == null || getMainVehicleId().length() == 0 || !usePlanDBSyncFeatures) {
+                        browser.updatePlansState(null);
+                    }
+                    else {
+                        ImcSystem sys = ImcSystemsHolder.lookupSystemByName(getMainVehicleId());
+                        if (sys == null) {
+                            browser.updatePlansState(null);
+                        }
+                        else {
+                            browser.updatePlansState(sys);
+                        }
+                    }
+
+                    ConsoleLayout console2 = getConsole();
+                    if (console2 != null) {
+                        Vector<ISystemsSelection> sys = console2.getSubPanelsOfInterface(ISystemsSelection.class);
+                        if (sys.size() != 0) {
+                            if (usePlanDBSyncFeaturesExt) {
+                                ImcSystem[] imcSystemsArray = convertToImcSystemsArray(sys);
+                                browser.updateRemotePlansState(imcSystemsArray);
+                            }
+                        }
+                    }
+                    // browser.expandTree();
+                    browser.setSelectedNodes(selectedNodes);
+                }
+            });
         }
 
         @Override
         public void dbPlanReceived(PlanType spec) {
             // PlanDB Operation = GET
+            // Get a plan stored in the DB.The 'plan_id' field identifies
+            // the plan. Successful replies will yield a
+            // 'PlanSpecification' message in the 'arg' field.
             // Update when received remote plan into our system
             PlanType lp = getConsole().getMission().getIndividualPlansList().get(spec.getId());
-
             spec.setMissionType(getConsole().getMission());
 
             getConsole().getMission().addPlan(spec);
@@ -198,11 +241,17 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         @Override
         public void dbPlanRemoved(String planId) {
             // PlanDB Operation = DEL
+            // Delete a plan from the DB. The 'plan_id' field identifies
+            // the plan to delete.
         }
 
         @Override
         public void dbPlanSent(String planId) {
-            // PlanDB Operation = SET
+            // PlanDB Operation = SET message.
+            // Set a plan in the DB. The 'plan_id' field identifies the
+            // plan, and a pre-existing plan with the same identifier, if
+            // any will be overwritten. For requests, the 'arg' field must
+            // contain a 'PlanSpecification' message.
         }
     };
 
@@ -257,7 +306,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         if (inited)
             return;
         inited = true;
-        planControlUpdate(getMainVehicleId());
+        updatePlanDBListener(getMainVehicleId());
 
         browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
 
@@ -353,13 +402,16 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
     public void mainVehicleChangeNotification(String id) {
         browser.transStopTimers();
         running = false;
-        planControlUpdate(id);
+        updatePlanDBListener(id);
     }
 
     /**
-     * @param id
+     * Remove current PlanDB listener. Fetch the running PlanDB listener from IMCSystemsHolder or create a new one if
+     * none is found. Set the designeted PlanDB listener.
+     * 
+     * @param id of the main vehicle.
      */
-    private void planControlUpdate(String id) {
+    private void updatePlanDBListener(String id) {
         removePlanDBListener();
         ImcSystem sys = ImcSystemsHolder.lookupSystemByName(id);
 
@@ -487,45 +539,13 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public boolean update() {
-        SwingUtilities.invokeLater(new Runnable() {
 
-            @Override
-            public void run() {
-                TreePath[] selectedNodes = browser.getSelectedNodes();
-
-                browser.transUpdateElapsedTime();
-                if (getMainVehicleId() == null || getMainVehicleId().length() == 0 || !usePlanDBSyncFeatures) {
-                    browser.updatePlansState(null);
-                }
-                else {
-                    ImcSystem sys = ImcSystemsHolder.lookupSystemByName(getMainVehicleId());
-                    if (sys == null) {
-                        browser.updatePlansState(null);
-                    }
-                    else {
-                        browser.updatePlansState(sys);
-                    }
-                }
-
-                ConsoleLayout console2 = getConsole();
-                if (console2 != null) {
-                    Vector<ISystemsSelection> sys = console2.getSubPanelsOfInterface(ISystemsSelection.class);
-                    if (sys.size() != 0) {
-                        if (usePlanDBSyncFeaturesExt) {
-                            ImcSystem[] imcSystemsArray = convertToImcSystemsArray(sys);
-                            browser.updateRemotePlansState(imcSystemsArray);
-                        }
-                    }
-                }
-                // browser.expandTree();
-                browser.setSelectedNodes(selectedNodes);
-            }
-        });
         return true;
     }
 
     @Subscribe
     public void on(ConsoleEventPlanChange event) {
+        // removed runnable
         browser.setSelectedPlan(event.getCurrent());
     }
 
@@ -648,7 +668,7 @@ class MissionTreeMouse extends MouseAdapter {
             addActionSendPlan(console, pdbControl, selection, popupMenu);
             addActionRemovePlanLocally(console, (Identifiable) selection, popupMenu);
 
-                State syncState = (State) ((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.SYNC.name());
+            State syncState = (State) ((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.SYNC.name());
             if (syncState == null)
                 syncState = State.LOCAL;
             else if (syncState == State.SYNC || syncState == State.NOT_SYNC) {
@@ -914,7 +934,7 @@ class MissionTreeMouse extends MouseAdapter {
 
                         if (console2 != null)
                             console2.setPlan(null);
-                        browser.refreshBrowser(console2.getPlan(), console2.getMission());
+                            browser.removeItem(selection);
                     }
                 }
             }
