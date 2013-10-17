@@ -49,7 +49,7 @@ public class PlanDBState implements IMCSerialization {
     protected long lastStateUpdated = -1;
     
     protected LinkedHashMap<String, PlanDBInfo> storedPlans = new LinkedHashMap<String, PlanDBInfo>();
-    protected LinkedHashMap<String, PlanType> storedPlansTypes = new LinkedHashMap<String, PlanType>();
+    // protected LinkedHashMap<String, PlanType> storedPlansTypes = new LinkedHashMap<String, PlanType>();
     protected byte[] md5 = null;
     protected Double lastChange = null;
     protected ImcId16 lastChangeAddr = null;
