@@ -37,6 +37,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import org.dom4j.Document;
@@ -345,7 +346,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 start = System.currentTimeMillis();
                 TreeMap<String, PlanType> plans = mission.getIndividualPlansList();
                 end = System.currentTimeMillis();
-                System.out.println("Get plans " + (end - start));
+                System.out.println("Get plans " + (end - start) + " got " + plans.size() + " plans");
 
                 start = System.currentTimeMillis();
                 PlanType plan = selectedPlan;
@@ -684,8 +685,40 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             @Override
             public void run() {
                 treeModel.plans = nextTreeModel.plans;
+                treeModel.nodeStructureChanged(treeModel.plans);
+                treeModel.expandTree();
+                TreeModel model = elementTree.getModel();
                 revalidate();
                 repaint();
+                System.out.println("Nodes in Plans:" + treeModel.plans.getChildCount());
+            }
+        });
+    }
+
+    /**
+     * Takes the local plans and gets the remote ones stored in the PlanDBState associated with the system and merges
+     * with the current tree. The following rules are applied: - insert plans not previouly in the tree - if a plan with
+     * the same id and md5 exists in both local and remote set as SYNC - if a plan with the same id exists in both local
+     * and remote but different md5 set as NOT_SYNC - if a plan only exists in remote set as REMOTE - if a plan only
+     * exists in local set as LOCAL
+     * 
+     * The merging is done in the EDT since the process of the deep copy and updating the tree after merging costs too
+     * much time and memory in comparison to the small cost of doing the merge (since there are at most 20 plans
+     * typically).
+     * 
+     * @param localPlans the plans in the mission
+     * @param sysName the system to consider
+     */
+    public void updatePlansStateEDT(final TreeMap<String, PlanType> localPlans, final String sysName) {
+        final LinkedHashMap<String, PlanDBInfo> remotePlans = getRemotePlans(sysName);
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                mergeLocalPlans(localPlans, sysName, treeModel);
+                mergeRemotePlans(sysName, remotePlans, treeModel);
+                elementTree.expandPath(new TreePath(treeModel.plans.getPath()));
+                System.out.println("Nodes in Plans:" + treeModel.plans.getChildCount());
             }
         });
     }
@@ -699,17 +732,16 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      */
     private void mergeRemotePlans(String sysName, LinkedHashMap<String, PlanDBInfo> remotePlans, Model treeModel) {
         ExtendedTreeNode target;
-        ExtendedTreeNode newNode;
         Set<String> remotePlansIds = remotePlans.keySet();
         for (String planId : remotePlansIds) {
             target = treeModel.findPlan(planId);
             PlanDBInfo remotePlan = remotePlans.get(planId);
             if (target == null) {
                 // If no plan exits insert as remote
-                newNode = new ExtendedTreeNode(remotePlan);
-                newNode.getUserInfo().put(NodeInfoKey.ID.name(), planId);
-                newNode.getUserInfo().put(NodeInfoKey.SYNC.name(), State.REMOTE);
-                treeModel.insertPlanAlphabetically(newNode, treeModel);
+                target = new ExtendedTreeNode(remotePlan);
+                target.getUserInfo().put(NodeInfoKey.ID.name(), planId);
+                target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.REMOTE);
+                treeModel.insertPlanAlphabetically(target, treeModel);
             }
             else {
                 // Check if existing plan is PlanDBInfo
@@ -1318,22 +1350,23 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             end = System.currentTimeMillis();
             System.out.println("Sort trans " + (end - start));
 
-            start = System.currentTimeMillis();
-            ExtendedTreeNode node;
-            for (PlanType planT : plansElements.values()) {
-                node = new ExtendedTreeNode(planT);
-                setSyncState(node, State.LOCAL);
-                addToParents(node, ParentNodes.PLANS);
-            }
+            // TODO
+            // start = System.currentTimeMillis();
+            // ExtendedTreeNode node;
+            // for (PlanType planT : plansElements.values()) {
+            // node = new ExtendedTreeNode(planT);
+            // setSyncState(node, State.LOCAL);
+            // addToParents(node, ParentNodes.PLANS);
+            // }
             if (plans.getChildCount() >= 0 && !plans.isNodeChild(root)) {
                 index++;
                 insertNodeInto(plans, (MutableTreeNode) root, index);
             }
-            end = System.currentTimeMillis();
-            System.out.println("Sort plans " + (end - start));
-
-            if (selectedPlan != null)
-                setSelectedPlan(selectedPlan);
+            // end = System.currentTimeMillis();
+            // System.out.println("Sort plans " + (end - start));
+            //
+            // if (selectedPlan != null)
+            // setSelectedPlan(selectedPlan);
         }
 
         private void addTransponderNode(TransponderElement elem) {

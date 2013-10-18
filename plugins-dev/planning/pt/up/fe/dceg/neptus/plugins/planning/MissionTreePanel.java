@@ -180,7 +180,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                         localPlans = new TreeMap<String, PlanType>();
                     }
 
-                    browser.updatePlansState_(localPlans, getMainVehicleId());
+                    browser.updatePlansStateEDT(localPlans, getMainVehicleId());
                     
                     /// END NEW ///
 
