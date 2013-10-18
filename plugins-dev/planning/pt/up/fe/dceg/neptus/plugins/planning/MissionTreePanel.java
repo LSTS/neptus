@@ -49,6 +49,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -161,40 +162,55 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             // ImcSystem imcSystem = ImcSystemsHolder.lookupSystemByName(getMainVehicleId());
             // LinkedHashMap<String, PlanDBInfo> storedPlans =
             // imcSystem.getPlanDBControl().getRemoteState().getStoredPlans();
-            SwingUtilities.invokeLater(new Runnable() {
-
-                @Override
-                public void run() {
+            // SwingUtilities.invokeLater(new Runnable() {
+            //
+            // @Override
+            // public void run() {
                     TreePath[] selectedNodes = browser.getSelectedNodes();
 
                     browser.transUpdateElapsedTime();
-                    if (getMainVehicleId() == null || getMainVehicleId().length() == 0 || !usePlanDBSyncFeatures) {
-                        browser.updatePlansState(null);
+                    
+                    /// NEW ///
+                    TreeMap<String, PlanType> localPlans;
+                    try {
+                        localPlans = getConsole().getMission().getIndividualPlansList();
                     }
-                    else {
-                        ImcSystem sys = ImcSystemsHolder.lookupSystemByName(getMainVehicleId());
-                        if (sys == null) {
-                            browser.updatePlansState(null);
-                        }
-                        else {
-                            browser.updatePlansState(sys);
-                        }
+                    catch (NullPointerException e) {
+                        NeptusLog.pub().warn("I cannot find local plans for " + getMainVehicleId());
+                        localPlans = new TreeMap<String, PlanType>();
                     }
 
-                    ConsoleLayout console2 = getConsole();
-                    if (console2 != null) {
-                        Vector<ISystemsSelection> sys = console2.getSubPanelsOfInterface(ISystemsSelection.class);
-                        if (sys.size() != 0) {
-                            if (usePlanDBSyncFeaturesExt) {
-                                ImcSystem[] imcSystemsArray = convertToImcSystemsArray(sys);
-                                browser.updateRemotePlansState(imcSystemsArray);
-                            }
-                        }
-                    }
+                    browser.updatePlansState_(localPlans, getMainVehicleId());
+                    
+                    /// END NEW ///
+
+                    // if (getMainVehicleId() == null || getMainVehicleId().length() == 0 || !usePlanDBSyncFeatures) {
+                    // browser.updatePlansState(null);
+                    // }
+                    // else {
+                    // ImcSystem sys = ImcSystemsHolder.lookupSystemByName(getMainVehicleId());
+                    // if (sys == null) {
+                    // browser.updatePlansState(null);
+                    // }
+                    // else {
+                    // browser.updatePlansState(sys);
+                    // }
+                    // }
+                    //
+                    // ConsoleLayout console2 = getConsole();
+                    // if (console2 != null) {
+                    // Vector<ISystemsSelection> sys = console2.getSubPanelsOfInterface(ISystemsSelection.class);
+                    // if (sys.size() != 0) {
+                    // if (usePlanDBSyncFeaturesExt) {
+                    // ImcSystem[] imcSystemsArray = convertToImcSystemsArray(sys);
+                    // browser.updateRemotePlansState(imcSystemsArray);
+                    // }
+                    // }
+                    // }
                     // browser.expandTree();
                     browser.setSelectedNodes(selectedNodes);
-                }
-            });
+            // }
+            // });
             System.out.println("dbInfoUpdated");
         }
 
@@ -301,14 +317,14 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public void missionReplaced(MissionType mission) {
-        browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
+        // TODO browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
         // TOFIX
     }
 
     @Override
     public void missionUpdated(MissionType mission) {
         // it is called (among others) when the specs for a remote plan have just been received
-        browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
+        // TODO browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
         // TOFIX
     }
 

@@ -37,7 +37,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeCellRenderer;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.dom4j.Document;
@@ -148,7 +147,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         this.add(new JScrollPane(elementTree), BorderLayout.CENTER);
         ConfigFetch.benchmark("MissionBrowser");
 
-        treeModel = new Model(new DefaultMutableTreeNode("Mission Elements"));
+        treeModel = new Model();
         elementTree.setModel(treeModel);
     }
 
@@ -164,16 +163,16 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
         Vector<Object> sel = new Vector<Object>();
         for (TreePath path : selectionPaths) {
-            sel.add(((DefaultMutableTreeNode) path.getLastPathComponent()).getUserObject());
+            sel.add(((ExtendedTreeNode) path.getLastPathComponent()).getUserObject());
         }
 
         return sel.toArray();
     }
 
-    public DefaultMutableTreeNode getSelectedTreeNode() {
+    public ExtendedTreeNode getSelectedTreeNode() {
         if (elementTree.getSelectionPath() == null)
             return null;
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) elementTree.getSelectionPath().getLastPathComponent();
+        ExtendedTreeNode node = (ExtendedTreeNode) elementTree.getSelectionPath().getLastPathComponent();
 
         return node;
     }
@@ -186,7 +185,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     public Object getSelectedItem() {
         if (elementTree.getSelectionPath() == null)
             return null;
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) elementTree.getSelectionPath().getLastPathComponent();
+        ExtendedTreeNode node = (ExtendedTreeNode) elementTree.getSelectionPath().getLastPathComponent();
 
         return node.getUserObject();
     }
@@ -243,7 +242,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     public void editTransponder(TransponderElement elem, MissionType mission) {
-        ExtendedTreeNode selectedTreeNode = (ExtendedTreeNode)getSelectedTreeNode();
+        ExtendedTreeNode selectedTreeNode = getSelectedTreeNode();
         TransponderElement res = SimpleTransponderPanel.showTransponderDialog(elem,
                 I18n.text("Transponder properties"), true, true, elem.getParentMap().getObjectNames(),
                 MissionBrowser.this);
@@ -366,7 +365,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
     private void expandParent(DefaultMutableTreeNode parent) {
         if (parent.getChildCount() > 0) {
-            DefaultMutableTreeNode firstChild = (DefaultMutableTreeNode) parent.getFirstChild();
+            ExtendedTreeNode firstChild = (ExtendedTreeNode) parent.getFirstChild();
             elementTree.makeVisible(new TreePath(firstChild.getPath()));
         }
     }
@@ -582,7 +581,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
                 if (e.isAddedPath()) {
-                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) elementTree.getSelectionPath()
+                    ExtendedTreeNode node = (ExtendedTreeNode) elementTree.getSelectionPath()
                             .getLastPathComponent();
 
                     if (node.getUserObject() == lastSelection)
@@ -650,12 +649,12 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             return;
         }
 
-        DefaultMutableTreeNode plans = treeModel.trans;
+        ExtendedTreeNode plans = treeModel.trans;
         if (plans != null) {
             int numPlans = treeModel.getChildCount(plans);
 
             for (int i = 0; i < numPlans; i++) {
-                DefaultMutableTreeNode tmp = (DefaultMutableTreeNode) treeModel.getChild(plans, i);
+                ExtendedTreeNode tmp = (ExtendedTreeNode) treeModel.getChild(plans, i);
                 if (tmp.getUserObject() == plan) {
                     TreePath selPath = new TreePath(treeModel.getPathToRoot(tmp));
                     elementTree.setSelectionPath(selPath);
@@ -676,7 +675,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
     public void updatePlansState_(TreeMap<String, PlanType> localPlans, String sysName) {
         LinkedHashMap<String, PlanDBInfo> remotePlans = getRemotePlans(sysName);
-        final Model nextTreeModel = (Model) treeModel.clone();
+        final Model nextTreeModel = treeModel.clone();
         mergeLocalPlans(localPlans, sysName, nextTreeModel);
         mergeRemotePlans(sysName, remotePlans, nextTreeModel);
 
@@ -685,6 +684,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             @Override
             public void run() {
                 treeModel.plans = nextTreeModel.plans;
+                revalidate();
+                repaint();
             }
         });
     }
@@ -708,7 +709,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 newNode = new ExtendedTreeNode(remotePlan);
                 newNode.getUserInfo().put(NodeInfoKey.ID.name(), planId);
                 newNode.getUserInfo().put(NodeInfoKey.SYNC.name(), State.REMOTE);
-                treeModel.insertPlanAlphabetically(newNode);
+                treeModel.insertPlanAlphabetically(newNode, treeModel);
             }
             else {
                 // Check if existing plan is PlanDBInfo
@@ -722,7 +723,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     // If there is already a plan use md5 to find out if it is sync
                     byte[] localMD5 = existingLocalPlan.asIMCPlan().payloadMD5();
                     byte[] remoteMD5 = remotePlan.getMd5();
-                    if (localMD5.equals(remoteMD5)) {
+                    if (ByteUtil.equal(localMD5, remoteMD5)) {
                         target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
                     }
                     else {
@@ -751,7 +752,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 // If no plan exits insert as local
                 newNode = new ExtendedTreeNode(plan);
                 newNode.getUserInfo().put(NodeInfoKey.ID.name(), planId);
-                treeModel.insertPlanAlphabetically(newNode);
+                treeModel.insertPlanAlphabetically(newNode, treeModel);
                 target = newNode;
             }
             // Set the node to local regardless.
@@ -788,7 +789,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             Vector<String> plansThatMatchLocal = new Vector<String>();
             Vector<ExtendedTreeNode> pathsToRemove = new Vector<ExtendedTreeNode>();
 
-            DefaultMutableTreeNode plans = treeModel.plans;
+            ExtendedTreeNode plans = treeModel.plans;
             if (plans != null && plans.getChildCount() != 0) {
                 ExtendedTreeNode childPlan = (ExtendedTreeNode) plans.getFirstChild();
                 // For all plans on tree
@@ -900,7 +901,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 //            if (imcSystem == null)
 //                return;
 
-            DefaultMutableTreeNode trans = treeModel.trans;
+            ExtendedTreeNode trans = treeModel.trans;
             if (trans != null && trans.getChildCount() != 0) {
                 // LblConfig lblCfg = (LblConfig) imcSystem.retrieveData(ImcSystem.LBL_CONFIG_KEY);
                 // Vector<LblBeacon> beacons = lblCfg != null ? lblCfg.getBeacons() : new Vector<LblBeacon>();
@@ -967,7 +968,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param mainVehicle
      */
     public void transUpdateTimer(short id, String mainVehicle) {
-        DefaultMutableTreeNode trans = treeModel.trans;
+        ExtendedTreeNode trans = treeModel.trans;
         int childCount = trans.getChildCount();
         for (int c = 0; c < childCount; c++) {
             ExtendedTreeNode transNode = (ExtendedTreeNode) trans.getChildAt(c);
@@ -997,7 +998,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param mainVehicle
      */
     public void transStartVehicleTimers(String mainVehicle) {
-        DefaultMutableTreeNode trans = treeModel.trans;
+        ExtendedTreeNode trans = treeModel.trans;
         int childCount = trans.getChildCount();
         for (int c = 0; c < childCount; c++) {
             ExtendedTreeNode transNode = (ExtendedTreeNode) trans.getChildAt(c);
@@ -1058,7 +1059,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * 
      */
     public void transStopTimers() {
-        DefaultMutableTreeNode trans = treeModel.trans;
+        ExtendedTreeNode trans = treeModel.trans;
         int childCount = trans.getChildCount();
         ExtendedTreeNode transNode;
         HashMap<String, Object> transInfo;
@@ -1093,7 +1094,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param vehicle
      */
     public void transSyncConfig(Vector<LblBeacon> vehicleBeacons, String vehicle) {
-        DefaultMutableTreeNode trans = treeModel.trans;
+        ExtendedTreeNode trans = treeModel.trans;
         // Doesn't add nodes, only updates state of existing ones
         if (trans != null && trans.getChildCount() != 0) {
             ExtendedTreeNode childTrans = (ExtendedTreeNode) trans.getFirstChild();
@@ -1143,13 +1144,13 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     public <T extends Identifiable> void removeCurrSelectedNodeFromVehicle() {
-        DefaultMutableTreeNode selectionNode = getSelectedTreeNode();
-        State syncState = (State) ((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.SYNC.name());
+        ExtendedTreeNode selectionNode = getSelectedTreeNode();
+        State syncState = (State) selectionNode.getUserInfo().get(NodeInfoKey.SYNC.name());
         switch (syncState) {
             case SYNC:
             case NOT_SYNC:
                 // Local
-                setSyncState((ExtendedTreeNode) selectionNode, State.LOCAL);
+                setSyncState(selectionNode, State.LOCAL);
                 break;
             case REMOTE:
                 // Disappear
@@ -1165,8 +1166,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     public <T extends Identifiable> void deleteCurrSelectedNodeLocally() {
-        DefaultMutableTreeNode selectionNode = getSelectedTreeNode();
-        State syncState = (State) ((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.SYNC.name());
+        ExtendedTreeNode selectionNode = getSelectedTreeNode();
+        State syncState = (State) selectionNode.getUserInfo().get(NodeInfoKey.SYNC.name());
         switch (syncState) {
             case SYNC:
                 // Remote
@@ -1211,9 +1212,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      */
     private class Model extends DefaultTreeModel {
         private static final long serialVersionUID = 5581485271978065950L;
-        private final DefaultMutableTreeNode trans, maps;
-        private DefaultMutableTreeNode plans;
-        private DefaultMutableTreeNode homeR;
+        private final ExtendedTreeNode trans, maps;
+        private ExtendedTreeNode plans;
+        private ExtendedTreeNode homeR;
 
 
         // !!Important!! Always add with insertNodeInto (instead of add) and remove with removeNodeFromParent (instead
@@ -1223,16 +1224,38 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         /**
          * @param root
          */
-        public Model(TreeNode root) {
-            super(root);
-            maps = new DefaultMutableTreeNode(ParentNodes.MAP.nodeName);
-            plans = new DefaultMutableTreeNode(ParentNodes.PLANS.nodeName);
-            trans = new DefaultMutableTreeNode(ParentNodes.TRANSPONDERS.nodeName);
+        public Model() {
+            super(new ExtendedTreeNode("Mission Elements"));
+            maps = new ExtendedTreeNode(ParentNodes.MAP.nodeName);
+            plans = new ExtendedTreeNode(ParentNodes.PLANS.nodeName);
+            trans = new ExtendedTreeNode(ParentNodes.TRANSPONDERS.nodeName);
+        }
+
+        /**
+         * Used only for clonning
+         * 
+         * @param root
+         */
+        private Model(ExtendedTreeNode maps, ExtendedTreeNode plans, ExtendedTreeNode trans) {
+            super(new ExtendedTreeNode("Mission Elements"));
+            this.maps = maps;
+            this.plans = plans;
+            this.trans = trans;
         }
 
         @Override
-        public DefaultTreeModel clone() {
-            return clone();
+        public Model clone() {
+            ExtendedTreeNode mapsClone = maps.clone();
+            mapsClone.cloneExtendedTreeNodeChildren(maps);
+            ExtendedTreeNode plansClone = plans.clone();
+            plansClone.cloneExtendedTreeNodeChildren(plans);
+            ExtendedTreeNode transClone = trans.clone();
+            transClone.cloneExtendedTreeNodeChildren(trans);
+            Model newModel = new Model(mapsClone, plansClone, transClone);
+            mapsClone.setParent((MutableTreeNode) newModel.root);
+            plansClone.setParent((MutableTreeNode) newModel.root);
+            transClone.setParent((MutableTreeNode) newModel.root);
+            return newModel;
         }
 
         /**
@@ -1253,14 +1276,10 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             return null;
         }
 
-        public void updatePlans(ExtendedTreeNode newPlans) {
-            treeModel.plans = newPlans;
-        }
-
         public void clearTree() {
 
             if (((DefaultMutableTreeNode) root).getChildCount() > 0) {
-                DefaultMutableTreeNode firstLeaf = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) root)
+                ExtendedTreeNode firstLeaf = (ExtendedTreeNode) ((DefaultMutableTreeNode) root)
                         .getFirstChild();
                 removeNodeFromParent(firstLeaf);
             }
@@ -1326,22 +1345,22 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             addToParents(node, ParentNodes.TRANSPONDERS);
         }
         
-        private void insertPlanAlphabetically(ExtendedTreeNode newNode){
+        private void insertPlanAlphabetically(ExtendedTreeNode newNode, Model treeModel) {
             Identifiable plan = (Identifiable) newNode.getUserObject();
-            int nodeChildCount = getChildCount(plans);
+            int nodeChildCount = getChildCount(treeModel.plans);
             for (int c = 0; c < nodeChildCount; c++) {
-                ExtendedTreeNode childAt = (ExtendedTreeNode) plans.getChildAt(c);
+                ExtendedTreeNode childAt = (ExtendedTreeNode) treeModel.plans.getChildAt(c);
                 Identifiable tempPlan = (Identifiable) childAt.getUserObject();
                 if (tempPlan.getIdentification().compareTo(plan.getIdentification()) > 0) {
-                    insertNodeInto(newNode, plans, c);
+                    insertNodeInto(newNode, treeModel.plans, c);
                     return;
                 }
             }
-            
+            treeModel.addToParents(newNode, ParentNodes.PLANS);
         }
         
         private void cleanParent(ParentNodes parent) {
-            DefaultMutableTreeNode parentNode;
+            ExtendedTreeNode parentNode;
             switch (parent) {
                 case PLANS:
                     parentNode = plans;
@@ -1362,7 +1381,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
 
 
-        private void addToParents(DefaultMutableTreeNode node, ParentNodes parent) {
+        private void addToParents(ExtendedTreeNode node, ParentNodes parent) {
             switch (parent) {
                 case PLANS:
                     insertNodeInto(node, plans, plans.getChildCount());
@@ -1381,7 +1400,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
 
         private void addToParents(ArrayList<Identifiable> objectToAdd, ParentNodes parent, State state) {
-            DefaultMutableTreeNode parentNode;
+            ExtendedTreeNode parentNode;
             switch (parent) {
                 case PLANS:
                     parentNode = plans;
@@ -1414,11 +1433,11 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
          * @param parent
          * @return true changes have been made
          */
-        private <E extends Identifiable> boolean removeById(E item, DefaultMutableTreeNode parent) {
+        private <E extends Identifiable> boolean removeById(E item, ExtendedTreeNode parent) {
             int childCount = parent.getChildCount();
             for (int i = 0; i < childCount; i++) {
                 @SuppressWarnings("unchecked")
-                E userObject = (E) ((DefaultMutableTreeNode) parent.getChildAt(i)).getUserObject();
+                E userObject = (E) ((ExtendedTreeNode) parent.getChildAt(i)).getUserObject();
                 if (userObject.getIdentification().equals(item.getIdentification())) {
                     MutableTreeNode child = (MutableTreeNode) parent.getChildAt(i);
                     removeNodeFromParent(child);
@@ -1433,7 +1452,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
 
         public void setHomeRef(HomeReference href) {
-            homeR = new DefaultMutableTreeNode(href);
+            homeR = new ExtendedTreeNode(href);
             insertNodeInto(homeR, (MutableTreeNode) root, 0);
         }
 

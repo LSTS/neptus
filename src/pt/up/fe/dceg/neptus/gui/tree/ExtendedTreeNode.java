@@ -80,4 +80,35 @@ public class ExtendedTreeNode extends DefaultMutableTreeNode {
     public HashMap<String, Object> getUserInfo() {
         return userInfo;
     }
+
+    protected void setUserInfo(HashMap<String, Object> userInfo) {
+        this.userInfo = userInfo;
+    }
+
+    @Override
+    /**
+     * Only clones userObject and userInfo. Parent and children are lost.
+     */
+    public ExtendedTreeNode clone() {
+        ExtendedTreeNode clone = new ExtendedTreeNode(getUserObject());
+        clone.setUserInfo(userInfo);
+        return clone;
+    }
+
+    /**
+     * Clones the children of a node that are of type ExtendedTreeNode
+     * 
+     * @param familyModel node serving as source
+     */
+    public void cloneExtendedTreeNodeChildren(ExtendedTreeNode familyModel) {
+        ExtendedTreeNode clone;
+        if (familyModel.children != null) {
+            for (Object child : familyModel.children) {
+                if (child instanceof ExtendedTreeNode) {
+                    clone = ((ExtendedTreeNode) child).clone();
+                    add(clone);
+                }
+            }
+        }
+    }
 }
