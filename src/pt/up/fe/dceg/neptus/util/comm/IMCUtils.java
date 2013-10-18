@@ -1238,6 +1238,9 @@ public class IMCUtils {
 
     public static void main(String[] args) {
 
+        
+        System.out.println(IMCUtils.reduceSystemName("lauv-xtreme-2"));
+        
         String services = "dune://1294925553839635/;" + "imc+udp://192.168.106.189:6002/;"
                 + "imc+udp://172.16.13.1:6002/;" + "imc+udp://172.16.216.1:6002/;"
                 + "http://192.168.106.189:8080/dune/re;" + "http://172.16.13.1:8080/dune;"
