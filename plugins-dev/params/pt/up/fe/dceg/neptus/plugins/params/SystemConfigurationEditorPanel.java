@@ -517,7 +517,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             for(EntityParameter ep : eps.getParams()) {
                 SystemProperty p = systemConfEditor.getParams().get(section + "." + ep.getName());
                 if(p == null) {
-                    NeptusLog.pub().warn("Property not in config: " + section + ep.getName());
+                    NeptusLog.pub().warn("Property not in config: " + section + ep.getName() + " from system with ID " + message.getSrc());
                 }
                 else {
                     boolean isList = false;
