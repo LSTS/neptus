@@ -376,7 +376,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 pdbControl = new PlanDBControl();
                 pdbControl.setRemoteSystemId(id);
             }
-            System.out.println("Pdb set");
             pdbControl.addListener(planDBListener);
         }
     }
