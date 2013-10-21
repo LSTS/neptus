@@ -37,7 +37,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import pt.up.fe.dceg.neptus.gui.editor.ComboEditor;
+import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
 import pt.up.fe.dceg.neptus.plugins.MapTileProvider;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 
 /**
  * @author pdias
@@ -76,6 +79,16 @@ public class TileOpenStreetMap extends TileHttpFetcher {
 
     private static final int MAX_LEVEL_OF_DETAIL = 18;
 
+    public class TileModeEditor extends ComboEditor<String> {
+
+        public TileModeEditor() {
+            super(new String[] {"Standard", "Cycle"});
+        }
+    }
+    
+    @NeptusProperty(name = "Tile Mode", editorClass = SpeedUnitsEditor.class)
+    public String tileMode = "RPM";
+    
     public TileOpenStreetMap(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
         super(levelOfDetail, tileX, tileY, image);
     }
@@ -101,8 +114,16 @@ public class TileOpenStreetMap extends TileHttpFetcher {
         // http://c.tile.openstreetmap.org/14/7801/6129.png
         int server = (int) (3 * rnd.nextFloat());
         char sv = (char) ('a' + server); // server a, b, and c
-        String urlGet = "http://" + sv + "." + "tile.openstreetmap.org/" + levelOfDetail + "/"
-                + tileX + "/" + tileY + ".png";
+        
+        // TileMode property 
+        String urlGet;
+        if(tileMode.equalsIgnoreCase("cycle"))
+            urlGet = "http://" + sv + "." + "tile.opencyclemap.org/cycle/" + levelOfDetail + "/"
+                    + tileX + "/" + tileY + ".png";
+        else
+            urlGet = "http://" + sv + "." + "tile.openstreetmap.org/" + levelOfDetail + "/"
+                    + tileX + "/" + tileY + ".png";
+        
         return urlGet;
         
 //        MapQuest tile
