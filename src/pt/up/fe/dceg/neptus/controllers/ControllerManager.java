@@ -29,6 +29,7 @@ import pt.up.fe.dceg.neptus.NeptusLog;
  */
 public class ControllerManager {
 	private static String MAP_FILE_XML = "conf/controllers/mapping.xml";
+	
 	private LinkedHashMap<String, Controller> controllerList = new LinkedHashMap<String, Controller>();
 	private LinkedHashMap<String, LinkedHashMap<String, String>> controllerMappings = new LinkedHashMap<String, LinkedHashMap<String, String>>();
 	
@@ -113,7 +114,7 @@ public class ControllerManager {
 
 		// Fectch controllers list
 		Controller controllers[] = new JoyEnvironment().getControllers();
-		System.out.println("very slow controllers loading ");
+
 		// Create new controllerMap
 		for (Controller c : controllers) {
 			if(!c.getName().toLowerCase().contains("keyboard") && !c.getName().toLowerCase().contains("mouse"))
@@ -151,46 +152,5 @@ public class ControllerManager {
 
 	public LinkedHashMap<String, Controller> getControllerList() {
 		return controllerList;
-	}
-
-	public static void main(String[] args) {
-//		final ControllerManager manager = new ControllerManager();
-//		final String device = "Logitech Logitech Dual Action";
-//		
-//		JFrame frame = new JFrame();
-//		JButton b = new JButton(new AbstractAction("refresh") {
-//
-//            private static final long serialVersionUID = -2069772609771099451L;
-//
-//            @Override
-//			public void actionPerformed(ActionEvent e) {
-//				manager.fetchControllers();
-//			}
-//		});
-//
-//		frame.setSize(200, 200);
-//		frame.setLayout(new MigLayout());
-//		frame.add(b, "wrap");
-//		
-//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		frame.setVisible(true);
-//		
-//		while (true) {
-//			LinkedHashMap<String, Component> res = manager
-//					.pollMappedController(device);
-//			if (res != null) {
-//				for (String k : res.keySet()) {
-//					System.out.print(k + " " + res.get(k).getPollData() + " ");
-//				}
-//				NeptusLog.pub().info("<###> "+);
-//			}
-//			
-//			try {
-//				Thread.sleep(500);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
 	}
 }
