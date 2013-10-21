@@ -77,7 +77,7 @@ public class TileS57 extends TileHttpFetcher {
     		"[default='http://localhost:8082/map/s57/png?']")
     public static String mapServerURL = "http://localhost:8082/map/s57/png?";
     
-    static {
+    {
         try {
             String confFx = "conf/" + TileS57.class.getSimpleName().toLowerCase() + ".properties";
             if (new File(confFx).exists())
