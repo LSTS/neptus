@@ -78,6 +78,7 @@ import pt.up.fe.dceg.neptus.types.mission.TransitionType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.ByteUtil;
+import pt.up.fe.dceg.neptus.util.NameNormalizer;
 import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -91,7 +92,7 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, Identifia
     public static final int INIT_HOMEREF = 0, INIT_START_WPT = 1, INIT_NONE = 2;
     protected static final String DEFAULT_ROOT_ELEMENT = "plan";
 
-    protected String id = "id_"+System.currentTimeMillis();
+    protected String id = NameNormalizer.getRandomID("pl"); // "id_"+System.currentTimeMillis();
     protected Vector<VehicleType> vehicles = new Vector<VehicleType>();
     protected MissionType missionType = null;
     protected GraphType graph = new GraphType();

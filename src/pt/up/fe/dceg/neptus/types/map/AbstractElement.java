@@ -46,7 +46,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Comparator;
-import java.util.Random;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -83,11 +82,11 @@ import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
  * @author Zé Carlos
  */
 public abstract class AbstractElement 
-implements ActionListener, Comparable<AbstractElement>, XmlOutputMethods, XmlInputMethods 
-{
+ implements ActionListener, Comparable<AbstractElement>, XmlOutputMethods,
+        XmlInputMethods {
 	public enum ELEMENT_TYPE { MODEL_3D, TYPE_HOMEREFERENCE, TYPE_MARK, TYPE_PARALLELEPIPED, TYPE_ELLIPSOID, TYPE_TRANSPONDER, TYPE_PATH, TYPE_CYLINDER, TYPE_IMAGE, TYPE_OTHER };
 
-	private static Random rnd = new Random(System.currentTimeMillis());
+//	private static Random rnd = new Random(System.currentTimeMillis());
     protected static final LocationType guine = LocationType.ABSOLUTE_ZERO;
     protected boolean isLoadOk = true;
     protected static final String DEFAULT_ROOT_ELEMENT = "mark";
@@ -102,7 +101,7 @@ implements ActionListener, Comparable<AbstractElement>, XmlOutputMethods, XmlInp
    
     protected Document doc = null;
     
-    protected String name = "obj_"+System.currentTimeMillis()+rnd.nextInt(100);
+    protected String name = NameNormalizer.getRandomID("me"); // "obj_"+System.currentTimeMillis()+rnd.nextInt(100);
     protected String id = name;
 
     // ===== Old MapObject
