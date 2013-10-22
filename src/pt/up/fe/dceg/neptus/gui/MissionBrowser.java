@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -677,8 +678,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     public void updatePlansState_(TreeMap<String, PlanType> localPlans, String sysName) {
         LinkedHashMap<String, PlanDBInfo> remotePlans = getRemotePlans(sysName);
         final Model nextTreeModel = treeModel.clone();
-        mergeLocalPlans(localPlans, sysName, nextTreeModel);
-        mergeRemotePlans(sysName, remotePlans, nextTreeModel);
+        HashSet<String> existingPlans = mergeLocalPlans(localPlans, sysName, nextTreeModel);
+        existingPlans = mergeRemotePlans(sysName, remotePlans, nextTreeModel, existingPlans);
+        deleteDiscontinuedPlans(existingPlans);
 
         SwingUtilities.invokeLater(new Runnable() {
 
@@ -693,6 +695,27 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 System.out.println("Nodes in Plans:" + treeModel.plans.getChildCount());
             }
         });
+    }
+    
+    /**
+     * Delete all plans not in the set.
+     * 
+     * @param existingPlans the set of existing plans.
+     */
+    private void deleteDiscontinuedPlans(HashSet<String> existingPlans){
+        int planNumber = treeModel.plans.getChildCount();
+        int p = 0;
+        ExtendedTreeNode child;
+        while (p < planNumber) {
+            child = (ExtendedTreeNode) treeModel.plans.getChildAt(p);
+            Identifiable plan = (Identifiable) child.getUserObject();
+            String planId = plan.getIdentification();
+            if(!existingPlans.contains(planId)){
+                treeModel.removeById(plan, treeModel.plans);
+                System.out.println("Removing " + planId);
+            }
+            p++;
+        }
     }
 
     /**
@@ -715,8 +738,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
             @Override
             public void run() {
-                mergeLocalPlans(localPlans, sysName, treeModel);
-                mergeRemotePlans(sysName, remotePlans, treeModel);
+                HashSet<String> existingPlans = mergeLocalPlans(localPlans, sysName, treeModel);
+                existingPlans = mergeRemotePlans(sysName, remotePlans, treeModel, existingPlans);
+                deleteDiscontinuedPlans(existingPlans);
                 elementTree.expandPath(new TreePath(treeModel.plans.getPath()));
                 System.out.println("Nodes in Plans:" + treeModel.plans.getChildCount());
             }
@@ -730,18 +754,22 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param remotePlans remote plans known to IMCSystem
      * @param treeModel the model where to merge
      */
-    private void mergeRemotePlans(String sysName, LinkedHashMap<String, PlanDBInfo> remotePlans, Model treeModel) {
+    private HashSet<String> mergeRemotePlans(String sysName, LinkedHashMap<String, PlanDBInfo> remotePlans,
+            Model treeModel, HashSet<String> existingPlans) {
         ExtendedTreeNode target;
         Set<String> remotePlansIds = remotePlans.keySet();
         for (String planId : remotePlansIds) {
+            existingPlans.add(planId);
             target = treeModel.findPlan(planId);
             PlanDBInfo remotePlan = remotePlans.get(planId);
+            System.out.print(planId + "\t");
             if (target == null) {
                 // If no plan exits insert as remote
                 target = new ExtendedTreeNode(remotePlan);
                 target.getUserInfo().put(NodeInfoKey.ID.name(), planId);
                 target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.REMOTE);
                 treeModel.insertPlanAlphabetically(target, treeModel);
+                System.out.println(" plan from IMCSystem not found in mission tree  >> Remote.");
             }
             else {
                 // Check if existing plan is PlanDBInfo
@@ -749,6 +777,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 if (existingPlan instanceof PlanDBInfo) {
                     target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.REMOTE);
                     target.setUserObject(remotePlan);
+                    System.out.println(" in tree mission is PlanDBInfo (remote type)  >> Remote.");
                 }
                 else if (existingPlan instanceof PlanType) {
                     PlanType existingLocalPlan = (PlanType) existingPlan;
@@ -757,41 +786,74 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     byte[] remoteMD5 = remotePlan.getMd5();
                     if (ByteUtil.equal(localMD5, remoteMD5)) {
                         target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
+                        System.out.println(" in tree mission is PlanType (local type). Md5 ==,  >> Sync.");
                     }
                     else {
                         target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.NOT_SYNC);
+                        System.out.println(" in tree mission is PlanType (local type). Md5 !=,  >> Not_sync.");
                     }
                 }
             }
             target.getUserInfo().put(NodeInfoKey.VEHICLE.name(), sysName);
         }
+        return existingPlans;
     }
 
     /**
-     * Go through remote plans and alphabetically merge into model.
+     * Go through remote plans and alphabetically merge into model. Make a list of all seen plans so discontinued ones
+     * can be deleted later on.
      * 
      * @param localPlans local plans known to IMCSystem
      * @param sysName the main vehicle
      * @param treeModel the model where to merge
+     * @return the list of seen plans.
      */
-    private void mergeLocalPlans(TreeMap<String, PlanType> localPlans, String sysName, Model treeModel) {
+    private HashSet<String> mergeLocalPlans(TreeMap<String, PlanType> localPlans, String sysName, Model treeModel) {
         Set<String> localPlansIds = localPlans.keySet();
+        HashSet<String> existingPlans = new HashSet<String>();
         ExtendedTreeNode target, newNode;
+        PlanType plan;
         for (String planId : localPlansIds) {
+            existingPlans.add(planId);
             target = treeModel.findPlan(planId);
-            PlanType plan = localPlans.get(planId);
+            plan = localPlans.get(planId);
+            System.out.print(planId + " \t");
             if (target == null) {
                 // If no plan exits insert as local
                 newNode = new ExtendedTreeNode(plan);
                 newNode.getUserInfo().put(NodeInfoKey.ID.name(), planId);
                 treeModel.insertPlanAlphabetically(newNode, treeModel);
                 target = newNode;
+                System.out.print(" mission plan not found in mission tree. Creating with mission plan.");
+            }
+            else {
+                target.setUserObject(plan);
+                System.out.print(" updated plan object.");
+                // not worth the troubele of checking if it is different
+
+                // // Check if you have the correct content
+                // userObj = target.getUserObject();
+                // if (userObj instanceof PlanType) {
+                // treePlan = (PlanType) userObj;
+                // byte[] treeMd5 = treePlan.asIMCPlan().payloadMD5();
+                // byte[] localMd5 = plan.asIMCPlan().payloadMD5();
+                // if (!ByteUtil.equal(localMd5, treeMd5)) {
+                // // Different plans
+                // target.setUserObject(plan);
+                // System.out.print(" (tree plan) != (mission plan). Updating to mission plan.");
+                // }
+                // else {
+                // System.out.print(" (tree plan) == (mission plan). Still tree plan.");
+                // }
+                // }
             }
             // Set the node to local regardless.
             // It will be checked when processing remote states.
             target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.LOCAL);
             target.getUserInfo().put(NodeInfoKey.VEHICLE.name(), sysName);
+            System.out.println(" Setting as local.");
         }
+        return existingPlans;
     }
 
     private LinkedHashMap<String, PlanDBInfo> getRemotePlans(String sysName) {
@@ -1381,14 +1443,18 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         private void insertPlanAlphabetically(ExtendedTreeNode newNode, Model treeModel) {
             Identifiable plan = (Identifiable) newNode.getUserObject();
             int nodeChildCount = getChildCount(treeModel.plans);
+            ExtendedTreeNode childAt;
+            Identifiable tempPlan;
             for (int c = 0; c < nodeChildCount; c++) {
-                ExtendedTreeNode childAt = (ExtendedTreeNode) treeModel.plans.getChildAt(c);
-                Identifiable tempPlan = (Identifiable) childAt.getUserObject();
+                childAt = (ExtendedTreeNode) treeModel.plans.getChildAt(c);
+                tempPlan = (Identifiable) childAt.getUserObject();
                 if (tempPlan.getIdentification().compareTo(plan.getIdentification()) > 0) {
                     insertNodeInto(newNode, treeModel.plans, c);
+                    System.out.print(" [insertNodeInto] ");
                     return;
                 }
             }
+            System.out.print(" [addToParents] ");
             treeModel.addToParents(newNode, ParentNodes.PLANS);
         }
         
@@ -1461,9 +1527,10 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
 
         /**
+         * TODO change input to id and parent enumeration
          * 
-         * @param item
-         * @param parent
+         * @param item user object of the node
+         * @param parent node in tree
          * @return true changes have been made
          */
         private <E extends Identifiable> boolean removeById(E item, ExtendedTreeNode parent) {
