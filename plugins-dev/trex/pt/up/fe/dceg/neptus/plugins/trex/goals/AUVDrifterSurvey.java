@@ -273,7 +273,7 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
     
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        g.setColor(Color.orange);
+        g.setColor(Color.green.darker().darker());
         if (survey != null) {            
             Point2D centerPt = renderer.getScreenPosition(center);
             g.translate(centerPt.getX(), centerPt.getY());

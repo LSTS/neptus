@@ -104,7 +104,7 @@ public class IridiumFacade implements IridiumMessenger, IPeriodicUpdates, Iridiu
             instance = new IridiumFacade();
         return instance;
     }
-
+    
     @Override
     public void sendMessage(final IridiumMessage msg) throws Exception {
         
