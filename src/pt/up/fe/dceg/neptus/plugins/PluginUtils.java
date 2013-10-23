@@ -293,6 +293,33 @@ public class PluginUtils {
         }
         return null;
     }
+    
+    public static void editPluginProperties(final Object obj, boolean editable) {
+        PropertiesProvider provider = new PropertiesProvider() {
+            
+            @Override
+            public void setProperties(Property[] properties) {
+                setPluginProperties(obj, properties);                
+            }
+            
+            @Override
+            public String[] getPropertiesErrors(Property[] properties) {
+                return null;
+            }
+            
+            @Override
+            public String getPropertiesDialogTitle() {
+                return getPluginName(obj.getClass())+" properties";
+            }
+            
+            @Override
+            public DefaultProperty[] getProperties() {
+                return getPluginProperties(obj);
+            }
+        };
+        
+        PropertiesEditor.editProperties(provider, editable);
+    }
 
     /**
      * Retrieves the plugin properties as an array
