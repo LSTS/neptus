@@ -95,12 +95,14 @@ public class NoptilusCoords {
         LocationType sw = new LocationType(squareCenter);
         sw.translatePosition(-cellWidth * numRows/2, -cellWidth * numCols/2, 0);
         double[] offsets = loc.getOffsetFrom(sw);
+        offsets[0] /= cellWidth;
+        offsets[1] /= cellWidth;        
         if (offsets[0] < 0 || offsets[0] > numRows)
             return null;
         if (offsets[1] < 0 || offsets[1] > numCols)
             return null;
         
-        return new int[] {(int)offsets[0],(int)offsets[1]};
+        return new int[] {(int)Math.round(offsets[0]),(int)Math.round(offsets[1])};
     }    
     
     public static void main(String[] args) {
@@ -108,5 +110,6 @@ public class NoptilusCoords {
         PluginUtils.editPluginProperties(coords, true);
         coords.saveProps();
         System.out.println(coords.convert(20, 21));
+        System.out.println(coords.convert(new LocationType(41,  -7.999941))[1]);
     }
 }
