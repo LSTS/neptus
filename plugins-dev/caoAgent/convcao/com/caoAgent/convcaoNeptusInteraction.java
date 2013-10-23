@@ -48,6 +48,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.LinkedHashMap;
 import java.util.Random;
 
 import javax.swing.ImageIcon;
@@ -55,11 +56,18 @@ import javax.swing.ImageIcon;
 import org.apache.commons.net.ftp.FTPClient;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.imc.EstimatedState;
+import pt.up.fe.dceg.neptus.imc.FollowReference;
+import pt.up.fe.dceg.neptus.imc.Reference;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.plugins.controllers.IController;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
 
 import com.google.gson.Gson;
 
@@ -70,7 +78,7 @@ import com.google.gson.Gson;
  */
 @PluginDescription(author="thanasis", category=CATEGORY.UNSORTED, name="convcao Neptus Interaction")
 @Popup(accelerator=KeyEvent.VK_N, pos=Popup.POSITION.CENTER, height=500, width=510, name="convcao Neptus Interaction")
-public class convcaoNeptusInteraction extends SimpleSubPanel {
+public class convcaoNeptusInteraction extends SimpleSubPanel implements IController {
 
     private static final long serialVersionUID = -1330079540844029305L;
     
@@ -809,6 +817,59 @@ public class convcaoNeptusInteraction extends SimpleSubPanel {
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
 
+    }
+    
+    // ICONTROLLER METHODS //    
+    protected LinkedHashMap<String, LocationType> positions = new LinkedHashMap<>();
+    protected LinkedHashMap<String, LocationType> destinations = new LinkedHashMap<>();
+    protected LinkedHashMap<String, Double> bathymetry = new LinkedHashMap<>();    
+    
+    @Override
+    public String getControllerName() {
+        return "convcao";
+    }
+    
+    @Override
+    public Reference guide(VehicleType vehicle, EstimatedState estate, FollowReference frefState) {
+        if (estate.getAlt() != -1) {
+            bathymetry.put(vehicle.getId(), estate.getDepth()+estate.getAlt());            
+        }
+        positions.put(vehicle.getId(), IMCUtils.parseLocation(estate));
+        if (!destinations.containsKey(vehicle.getId())) {
+            destinations.put(vehicle.getId(), positions.get(vehicle.getId()));
+        }
+        
+        Reference ref = new Reference();
+        ref.setFlags(Reference.FLAG_LOCATION);
+        LocationType dest = destinations.get(vehicle.getId());
+        dest.convertToAbsoluteLatLonDepth();
+        ref.setLat(dest.getLatitudeAsDoubleValueRads());
+        ref.setLon(dest.getLongitudeAsDoubleValueRads());
+        return ref;
+    }
+    
+    @Override
+    public void startControlling(VehicleType vehicle, EstimatedState state) {
+        positions.put(vehicle.getId(), IMCUtils.getLocation(state));
+        if (state.getAlt() != -1)
+            bathymetry.put(vehicle.getId(), state.getDepth()+state.getAlt());
+    }
+    
+    @Override
+    public void stopControlling(VehicleType vehicle) {
+        this.positions.remove(vehicle.getId());
+        this.destinations.remove(vehicle.getId());
+        this.bathymetry.remove(vehicle.getId());
+    }
+    
+    @Override
+    public boolean supportsVehicle(VehicleType vehicle, EstimatedState state) {
+        return vehicle.getType().equalsIgnoreCase("uuv") || vehicle.getType().equalsIgnoreCase("auv"); 
+    }
+    
+    @Override
+    public void vehicleTimedOut(VehicleType vehicle) {
+        stopControlling(vehicle);
     }
 
 }
