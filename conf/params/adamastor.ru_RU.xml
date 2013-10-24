@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,cb1e7ef)" system="adamastor" i18n="ru_RU">
+<config format="1" version="2.4.0-rc1 (master,ff19c18)" system="adamastor" i18n="ru_RU">
   <section name="LED Driver" name-i18n="LED Driver">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -76,6 +76,45 @@
       <units/>
       <desc>List of LED names</desc>
       <size>12</size>
+    </param>
+    <param name="LED - Patterns">
+      <name-i18n>LED - Patterns</name-i18n>
+      <type>list:integer</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>0x0000, 0x0007, 0x0038, 0x01c0, 0x0e00</default>
+      <units/>
+      <desc>List of LED patterns</desc>
+      <max-size>8</max-size>
+    </param>
+    <param name="LED - Patterns Pulse Width">
+      <name-i18n>LED - Patterns Pulse Width</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>3000</default>
+      <units/>
+      <desc>Pulse width for LED patterns</desc>
+      <min>0</min>
+      <max>20000</max>
+    </param>
+    <param name="LED - External Driver">
+      <name-i18n>LED - External Driver</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable external LED driver</desc>
+    </param>
+    <param name="LED - External Trigger">
+      <name-i18n>LED - External Trigger</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable external LED trigger</desc>
     </param>
   </section>
   <section name="MCD4R" name-i18n="MCD4R">
