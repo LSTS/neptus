@@ -21,8 +21,6 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 
 /**
  * ControllerManager class 
- * Since controllerListener doesnt and listening thread
- * isn't feasible the
  * 
  * @author jqcorreia
  * 
