@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<systems> 
+  <system name="lauv-xtreme-2"> 
+    <controller> 
+      <entry component="" action="Exit" inverted="false"/>  
+      <entry component="" action="Accelerate" inverted="false"/>  
+      <entry component="" action="Decelerate" inverted="false"/>  
+      <entry component="" action="Stop" inverted="false"/>  
+      <entry component="" action="Heading" inverted="false"/>  
+      <entry component="" action="Thrust" inverted="false"/> 
+    </controller>  
+    <controller name="Logitech Logitech Dual Action">
+      <entry component="" action="Exit" inverted="false"/>
+      <entry component="" action="Accelerate" inverted="false"/>
+      <entry component="" action="Decelerate" inverted="false"/>
+      <entry component="" action="Stop" inverted="false"/>
+      <entry component="" action="Heading" inverted="false"/>
+      <entry component="" action="Thrust" inverted="false"/>
+    </controller>
+  </system> 
+</systems>

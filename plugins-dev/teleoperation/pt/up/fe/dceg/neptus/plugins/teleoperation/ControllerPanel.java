@@ -148,6 +148,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         super(console);
         this.console = console;
         this.removeAll();
+     
         // Register listeners
         console.addMainVehicleListener(this);
         PeriodicUpdatesService.register(this);
@@ -199,7 +200,6 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
             @Override
             public void windowClosing(WindowEvent e) {
                 sending = false;
-                saveMappings();
             }
         });
         
@@ -293,9 +293,11 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
 
     @Override
     public boolean update() {
-
+        
         if(manager == null || currentController == null)
             return true;
+        
+        sending = dialog.isVisible();
         
         // Always poll the controller
         poll = manager.pollController(currentController);
@@ -317,7 +319,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
                                 // Finish editing and save mappings
                                 editing = false;
                                 mcomp.editFlag = false;
-                                saveMappings();
+                                saveMappings(); // Save every time we edit a single action
                                 break;
                             }
                         }
@@ -383,13 +385,13 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
 
             Element system = (Element) systems.selectSingleNode("system[@name='" + console.getMainSystem() + "']");
             if(system == null) {
-                NeptusLog.pub().info("<###>adding new system");
+                NeptusLog.pub().info("Adding new system to controller mapping");
                 system = systems.addElement("system").addAttribute("name", console.getMainSystem());
             }
             
             Element controller = (Element) system.selectSingleNode("controller[@name='" + currentController + "']");
             if(controller == null) {
-                NeptusLog.pub().info("<###>adding new controller");
+                NeptusLog.pub().info("Adding new controller to controller mapping");
                 controller = system.addElement("controller").addAttribute("name", currentController);
             }
 
