@@ -47,7 +47,7 @@ import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
 import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
-import pt.up.fe.dceg.neptus.plugins.params.ManeuverPayloadConfig;
+import pt.up.fe.dceg.neptus.params.ManeuverPayloadConfig;
 import pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 import pt.up.fe.dceg.neptus.util.GuiUtils;

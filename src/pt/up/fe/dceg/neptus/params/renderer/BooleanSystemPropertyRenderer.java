@@ -26,32 +26,40 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: José Pinto
- * Dec 14, 2012
+ * Author: Paulo Dias
+ * Mar 2, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.params;
+package pt.up.fe.dceg.neptus.params.renderer;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import java.awt.Component;
 
-/**
- * @author zp
- */
+import javax.swing.JCheckBox;
+import javax.swing.JTable;
 
-public class ImcParametersSubPanel extends SimpleSubPanel {
-    private static final long serialVersionUID = 1L;
-    SystemConfiguration config;
+
+@SuppressWarnings("serial")
+public class BooleanSystemPropertyRenderer extends SystemPropertyRenderer {
+    private JCheckBox checkBox = new JCheckBox();
     
-    public ImcParametersSubPanel(ConsoleLayout console) {
-        super(console);
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.plugins.params.ConfigurationManager.PropertyRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+     */
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+            boolean hasFocus, int row, int column) {
+        checkBox.setSelected(Boolean.TRUE.equals(!(value instanceof Boolean) ? Boolean.parseBoolean(value.toString()) : value));
+        Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        checkBox.setBackground(comp.getBackground());
+        return checkBox;
     }
     
+    /* (non-Javadoc)
+     * @see pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer#clone()
+     */
     @Override
-    public void initSubPanel() {
-    }
-    
-    @Override
-    public void cleanSubPanel() {
-        
+    public BooleanSystemPropertyRenderer clone() throws CloneNotSupportedException {
+        BooleanSystemPropertyRenderer clone = (BooleanSystemPropertyRenderer) super.clone();
+        clone.checkBox = new JCheckBox();
+        return clone;
     }
 }

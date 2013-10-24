@@ -29,20 +29,20 @@
  * Author: José Pinto
  * Dec 14, 2012
  */
-package pt.up.fe.dceg.neptus.plugins.params;
+package pt.up.fe.dceg.neptus.params;
 
 import java.awt.BorderLayout;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.up.fe.dceg.neptus.params.SystemProperty.Scope;
+import pt.up.fe.dceg.neptus.params.SystemProperty.Visibility;
 import pt.up.fe.dceg.neptus.plugins.NeptusMessageListener;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Scope;
-import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Visibility;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 
 /**

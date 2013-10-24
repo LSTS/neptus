@@ -29,7 +29,7 @@
  * Author: zp
  * Mar 18, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.params;
+package pt.up.fe.dceg.neptus.params;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -45,9 +45,10 @@ import pt.up.fe.dceg.neptus.imc.EntityParameter;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.SetEntityParameters;
 import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Scope;
-import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Visibility;
-import pt.up.fe.dceg.neptus.plugins.params.renderer.I18nSystemPropertyRenderer;
+import pt.up.fe.dceg.neptus.params.SystemProperty.Scope;
+import pt.up.fe.dceg.neptus.params.SystemProperty.Visibility;
+import pt.up.fe.dceg.neptus.params.renderer.I18nSystemPropertyRenderer;
+
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;

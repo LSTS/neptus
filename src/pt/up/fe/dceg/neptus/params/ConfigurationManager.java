@@ -29,7 +29,7 @@
  * Author: José Correia
  * Jan 28, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.params;
+package pt.up.fe.dceg.neptus.params;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -50,15 +50,15 @@ import pt.up.fe.dceg.neptus.gui.editor.ComboEditor;
 import pt.up.fe.dceg.neptus.gui.editor.NumberEditor;
 import pt.up.fe.dceg.neptus.gui.editor.StringPatternEditor;
 import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Scope;
-import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.ValueTypeEnum;
-import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Visibility;
-import pt.up.fe.dceg.neptus.plugins.params.editor.ComboEditorWithDependancy;
-import pt.up.fe.dceg.neptus.plugins.params.editor.PropertyEditorChangeValuesIfDependancyAdapter;
-import pt.up.fe.dceg.neptus.plugins.params.editor.custom.CustomSystemPropertyEditor;
-import pt.up.fe.dceg.neptus.plugins.params.renderer.BooleanSystemPropertyRenderer;
-import pt.up.fe.dceg.neptus.plugins.params.renderer.I18nSystemPropertyRenderer;
-import pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer;
+import pt.up.fe.dceg.neptus.params.SystemProperty.Scope;
+import pt.up.fe.dceg.neptus.params.SystemProperty.ValueTypeEnum;
+import pt.up.fe.dceg.neptus.params.SystemProperty.Visibility;
+import pt.up.fe.dceg.neptus.params.editor.ComboEditorWithDependancy;
+import pt.up.fe.dceg.neptus.params.editor.PropertyEditorChangeValuesIfDependancyAdapter;
+import pt.up.fe.dceg.neptus.params.editor.custom.CustomSystemPropertyEditor;
+import pt.up.fe.dceg.neptus.params.renderer.BooleanSystemPropertyRenderer;
+import pt.up.fe.dceg.neptus.params.renderer.I18nSystemPropertyRenderer;
+import pt.up.fe.dceg.neptus.params.renderer.SystemPropertyRenderer;
 import pt.up.fe.dceg.neptus.util.FileUtil;
 import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
 

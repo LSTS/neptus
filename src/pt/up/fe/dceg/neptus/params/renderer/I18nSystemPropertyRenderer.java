@@ -27,57 +27,50 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: pdias
- * May 21, 2013
+ * Aug 11, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.params.editor.custom;
+package pt.up.fe.dceg.neptus.params.renderer;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.awt.Component;
+import java.util.HashMap;
 
-import pt.up.fe.dceg.neptus.plugins.params.SystemProperty;
+import javax.swing.JTable;
 
 /**
  * @author pdias
  *
  */
-public class CustomSystemPropertyEditor implements PropertyChangeListener, Cloneable {
+@SuppressWarnings("serial")
+public class I18nSystemPropertyRenderer extends SystemPropertyRenderer {
 
-    protected Map<String, SystemProperty> paramList = null;
+    protected HashMap<String, String> i18nMapper = null;
     
-    public CustomSystemPropertyEditor(Map<String, SystemProperty> paramList) {
-        this.paramList = paramList;
+    public I18nSystemPropertyRenderer(HashMap<String, String> i18nMapper) {
+        this.i18nMapper = i18nMapper;
     }
     
-    /* (non-Javadoc)
-     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+            boolean hasFocus, int row, int column) {
+        String i18nString = i18nMapper.get(value);
+        return super.getTableCellRendererComponent(table, i18nString == null ? value : i18nString, false, hasFocus, row, column);
+    }
+    
+    /**
+     * @return the i18nMapper
      */
-    public void propertyChange(PropertyChangeEvent evt) {
-    }
-
-    public Map<String, SystemProperty> getSystemPropertiesList() {
-        return this.paramList;
-    }
-
-    public void setSystemPropertiesList(Map<String, SystemProperty> paramList) {
-        this.paramList = paramList;
+    public HashMap<String, String> getI18nMapper() {
+        return i18nMapper;
     }
     
     /* (non-Javadoc)
-     * @see java.lang.Object#clone()
+     * @see pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer#clone()
      */
     @Override
-    public CustomSystemPropertyEditor clone() throws CloneNotSupportedException {
-        CustomSystemPropertyEditor clone = (CustomSystemPropertyEditor) super.clone();
-        Map<String, SystemProperty> pl = clone.getSystemPropertiesList();
-        LinkedHashMap<String, SystemProperty> cl = new LinkedHashMap<>();
-        for (String key : pl.keySet()) {
-            if (key == null)
-                continue;
-            cl.put(key, pl.get(key));
-        }
-        clone.setSystemPropertiesList(cl);
+    public I18nSystemPropertyRenderer clone() throws CloneNotSupportedException {
+        I18nSystemPropertyRenderer clone = (I18nSystemPropertyRenderer) super.clone();
+        clone.i18nMapper = new HashMap<>();
+        clone.i18nMapper.putAll(i18nMapper);
         return clone;
     }
 }

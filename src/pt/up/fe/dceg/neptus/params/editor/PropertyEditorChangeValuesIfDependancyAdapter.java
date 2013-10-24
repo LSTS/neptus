@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 18/02/2013
  */
-package pt.up.fe.dceg.neptus.plugins.params.editor;
+package pt.up.fe.dceg.neptus.params.editor;
 
 import java.util.ArrayList;
 

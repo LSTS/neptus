@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * Mar 2, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.params;
+package pt.up.fe.dceg.neptus.params;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -62,9 +62,9 @@ import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.QueryEntityParameters;
 import pt.up.fe.dceg.neptus.imc.SaveEntityParameters;
 import pt.up.fe.dceg.neptus.imc.SetEntityParameters;
+import pt.up.fe.dceg.neptus.params.SystemProperty.Scope;
+import pt.up.fe.dceg.neptus.params.SystemProperty.Visibility;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Scope;
-import pt.up.fe.dceg.neptus.plugins.params.SystemProperty.Visibility;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
@@ -517,7 +517,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             for(EntityParameter ep : eps.getParams()) {
                 SystemProperty p = systemConfEditor.getParams().get(section + "." + ep.getName());
                 if(p == null) {
-                    NeptusLog.pub().warn("Property not in config: " + section + ep.getName() + " from system with ID " + message.getSrc());
+                    NeptusLog.pub().warn("Property not in config: " + section + " - " + ep.getName() + " from system with ID " + message.getSrc());
                 }
                 else {
                     boolean isList = false;

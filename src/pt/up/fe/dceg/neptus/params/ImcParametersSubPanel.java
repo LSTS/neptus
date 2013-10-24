@@ -26,40 +26,32 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Paulo Dias
- * Mar 2, 2013
+ * Author: José Pinto
+ * Dec 14, 2012
  */
-package pt.up.fe.dceg.neptus.plugins.params.renderer;
+package pt.up.fe.dceg.neptus.params;
 
-import java.awt.Component;
+import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 
-import javax.swing.JCheckBox;
-import javax.swing.JTable;
+/**
+ * @author zp
+ */
 
-
-@SuppressWarnings("serial")
-public class BooleanSystemPropertyRenderer extends SystemPropertyRenderer {
-    private JCheckBox checkBox = new JCheckBox();
+public class ImcParametersSubPanel extends SimpleSubPanel {
+    private static final long serialVersionUID = 1L;
+    SystemConfiguration config;
     
-    /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.params.ConfigurationManager.PropertyRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
-     */
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-            boolean hasFocus, int row, int column) {
-        checkBox.setSelected(Boolean.TRUE.equals(!(value instanceof Boolean) ? Boolean.parseBoolean(value.toString()) : value));
-        Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        checkBox.setBackground(comp.getBackground());
-        return checkBox;
+    public ImcParametersSubPanel(ConsoleLayout console) {
+        super(console);
     }
     
-    /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer#clone()
-     */
     @Override
-    public BooleanSystemPropertyRenderer clone() throws CloneNotSupportedException {
-        BooleanSystemPropertyRenderer clone = (BooleanSystemPropertyRenderer) super.clone();
-        clone.checkBox = new JCheckBox();
-        return clone;
+    public void initSubPanel() {
+    }
+    
+    @Override
+    public void cleanSubPanel() {
+        
     }
 }

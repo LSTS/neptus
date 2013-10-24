@@ -29,7 +29,7 @@
  * Author: pdias
  * May 21, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.params.editor.custom;
+package pt.up.fe.dceg.neptus.params.editor.custom;
 
 import java.beans.PropertyChangeEvent;
 import java.util.Map;
@@ -37,7 +37,7 @@ import java.util.Map;
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 
 import pt.up.fe.dceg.neptus.gui.editor.ValidationEnableInterface;
-import pt.up.fe.dceg.neptus.plugins.params.SystemProperty;
+import pt.up.fe.dceg.neptus.params.SystemProperty;
 
 /**
  * @author pdias
