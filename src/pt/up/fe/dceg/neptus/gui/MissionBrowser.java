@@ -1515,8 +1515,16 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
 
         public void setHomeRef(HomeReference href) {
-            homeR = new ExtendedTreeNode(href);
-            insertNodeInto(homeR, (MutableTreeNode) root, 0);
+            // insert if root has no children or if the first child is not Home Reference
+            if (root.getChildCount() == 0
+                    || !(((ExtendedTreeNode) root.getChildAt(0)).getUserObject() instanceof HomeReference)) {
+                homeR = new ExtendedTreeNode(href);
+                insertNodeInto(homeR, (MutableTreeNode) root, 0);
+            }
+            else {
+                homeR.setUserObject(href);
+            }
+
         }
 
         public void expandTree() {
