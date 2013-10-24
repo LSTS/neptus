@@ -230,6 +230,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             // Alert listeners
             getConsole().updateMissionListeners();
 
+
             if (debugOn && lp != null) {
                 try {
                     IMCMessage p1 = lp.asIMCPlan(), p2 = spec.asIMCPlan();
@@ -263,6 +264,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             // PlanDB Operation = DEL
             // Delete a plan from the DB. The 'plan_id' field identifies
             // the plan to delete.
+            browser.removeCurrSelectedNodeRemotely();
             System.out.println("dbPlanRemoved");
         }
 
@@ -709,7 +711,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                                 // PlanType sel = (PlanType) selection;
                                 pdbControl.setRemoteSystemId(console2.getMainSystem());
                                 pdbControl.deletePlan(((Identifiable) selection).getIdentification());
-                                browser.removeCurrSelectedNodeFromVehicle();
                             }
                         }
 

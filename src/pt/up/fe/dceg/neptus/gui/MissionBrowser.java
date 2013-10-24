@@ -555,12 +555,21 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param item The item to be removed from this component
      */
     public void removeItem(Object item) {
-//        boolean isChanged = false;
+        boolean isChanged = false;
         if (item instanceof MapType) {
             /* isChanged = */treeModel.removeById((MapType) item, treeModel.maps);
         }
         else if (item instanceof PlanType) {
-            /* isChanged = */treeModel.removeById((PlanType) item, treeModel.plans);
+            isChanged = treeModel.removeById((PlanType) item, treeModel.plans);
+            if(!isChanged){
+                NeptusLog.pub().error("Could not find " + ((Identifiable) item).getIdentification());
+            }
+        }
+        else if (item instanceof PlanDBInfo) {
+            isChanged = treeModel.removeById((PlanDBInfo) item, treeModel.plans);
+            if (!isChanged) {
+                NeptusLog.pub().error("Could not find " + ((Identifiable) item).getIdentification());
+            }
         }
         else {
             NeptusLog.pub().error(
@@ -572,7 +581,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         // }
     }
 
-
+    public void removeplanById(String planId) {
+        treeModel.removeById(planId, ParentNodes.PLANS);
+    }
 
 
     public void addTreeListener(final ConsoleLayout console2) {
@@ -713,6 +724,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             if(!existingPlans.contains(planId)){
                 treeModel.removeById(plan, treeModel.plans);
                 System.out.println("Removing " + planId);
+                planNumber--;
+                p--;
             }
             p++;
         }
@@ -854,6 +867,16 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             System.out.println(" Setting as local.");
         }
         return existingPlans;
+    }
+
+    public boolean remotePlanUpdated(PlanType plan) {
+        ExtendedTreeNode target = treeModel.findPlan(plan.getIdentification());
+        if (target != null) {
+            target.setUserObject(plan);
+            target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
+            return true;
+        }
+        return false;
     }
 
     private LinkedHashMap<String, PlanDBInfo> getRemotePlans(String sysName) {
@@ -1237,18 +1260,25 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         repaint();
     }
 
-    public <T extends Identifiable> void removeCurrSelectedNodeFromVehicle() {
+    public <T extends Identifiable> void removeCurrSelectedNodeRemotely() {
         ExtendedTreeNode selectionNode = getSelectedTreeNode();
+
+        // This is triggered twice, on the second one check for null
+        if (selectionNode == null) {
+            return;
+        }
         State syncState = (State) selectionNode.getUserInfo().get(NodeInfoKey.SYNC.name());
         switch (syncState) {
             case SYNC:
+                // Local
             case NOT_SYNC:
                 // Local
-                setSyncState(selectionNode, State.LOCAL);
+                    setSyncState(selectionNode, State.LOCAL);
                 break;
             case REMOTE:
                 // Disappear
-                removeItem(getSelectedItem());
+                Object selectedItem = getSelectedItem();
+                    removeItem(selectedItem);
                 break;
             case LOCAL:
                 // Invalid
@@ -1263,15 +1293,15 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         ExtendedTreeNode selectionNode = getSelectedTreeNode();
         State syncState = (State) selectionNode.getUserInfo().get(NodeInfoKey.SYNC.name());
         switch (syncState) {
+            case NOT_SYNC:
+                // To Remote
             case SYNC:
                 // Remote
                 PlanDBInfo remoteNode = new PlanDBInfo();
                 remoteNode.setPlanId(((PlanType) getSelectedItem()).getIdentification());
                 ExtendedTreeNode node = new ExtendedTreeNode(remoteNode);
                 setSyncState(node, State.REMOTE);
-                treeModel.addToParents(node, ParentNodes.PLANS);
-            case NOT_SYNC:
-                // Disappear
+                treeModel.insertPlanAlphabetically(node, treeModel);
             case LOCAL:
                 // Disappear
                 removeItem(getSelectedItem());
@@ -1440,6 +1470,13 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             addToParents(node, ParentNodes.TRANSPONDERS);
         }
         
+        /**
+         * TODO remove need for treeModel attribute.
+         * 
+         * 
+         * @param newNode
+         * @param treeModel
+         */
         private void insertPlanAlphabetically(ExtendedTreeNode newNode, Model treeModel) {
             Identifiable plan = (Identifiable) newNode.getUserObject();
             int nodeChildCount = getChildCount(treeModel.plans);
@@ -1450,7 +1487,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 tempPlan = (Identifiable) childAt.getUserObject();
                 if (tempPlan.getIdentification().compareTo(plan.getIdentification()) > 0) {
                     insertNodeInto(newNode, treeModel.plans, c);
-                    System.out.print(" [insertNodeInto] ");
                     return;
                 }
             }
@@ -1539,6 +1575,40 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 @SuppressWarnings("unchecked")
                 E userObject = (E) ((ExtendedTreeNode) parent.getChildAt(i)).getUserObject();
                 if (userObject.getIdentification().equals(item.getIdentification())) {
+                    MutableTreeNode child = (MutableTreeNode) parent.getChildAt(i);
+                    removeNodeFromParent(child);
+                    if (childCount == 0) {
+                        removeNodeFromParent(parent);
+                        parent = null;
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Remove a node with the given id from the given type.
+         * 
+         * @param id
+         * @param parentType
+         * @return true if the item was found and removed, false otherwise.
+         */
+        private <E extends Identifiable> boolean removeById(String id, ParentNodes parentType) {
+            ExtendedTreeNode parent;
+            switch (parentType) {
+                case PLANS:
+                    parent = treeModel.plans;
+                    break;
+                default:
+                    NeptusLog.pub().error("ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.removeById()");
+                    return false;
+            }
+            int childCount = parent.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                @SuppressWarnings("unchecked")
+                E userObject = (E) ((ExtendedTreeNode) parent.getChildAt(i)).getUserObject();
+                if (userObject.getIdentification().equals(id)) {
                     MutableTreeNode child = (MutableTreeNode) parent.getChildAt(i);
                     removeNodeFromParent(child);
                     if (childCount == 0) {
