@@ -159,58 +159,20 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             // 'PlanDBState' message in the 'arg' field but without
             // individual plan information (in the 'plans_info' field of
             // 'PlanDBState').
-            // ImcSystem imcSystem = ImcSystemsHolder.lookupSystemByName(getMainVehicleId());
-            // LinkedHashMap<String, PlanDBInfo> storedPlans =
-            // imcSystem.getPlanDBControl().getRemoteState().getStoredPlans();
-            // SwingUtilities.invokeLater(new Runnable() {
-            //
-            // @Override
-            // public void run() {
-                    TreePath[] selectedNodes = browser.getSelectedNodes();
+            TreePath[] selectedNodes = browser.getSelectedNodes();
 
-                    browser.transUpdateElapsedTime();
-                    
-                    /// NEW ///
-                    TreeMap<String, PlanType> localPlans;
-                    try {
-                        localPlans = getConsole().getMission().getIndividualPlansList();
-                    }
-                    catch (NullPointerException e) {
-                        NeptusLog.pub().warn("I cannot find local plans for " + getMainVehicleId());
-                        localPlans = new TreeMap<String, PlanType>();
-                    }
+            browser.transUpdateElapsedTime();
 
-                    browser.updatePlansStateEDT(localPlans, getMainVehicleId());
-                    
-                    /// END NEW ///
-
-                    // if (getMainVehicleId() == null || getMainVehicleId().length() == 0 || !usePlanDBSyncFeatures) {
-                    // browser.updatePlansState(null);
-                    // }
-                    // else {
-                    // ImcSystem sys = ImcSystemsHolder.lookupSystemByName(getMainVehicleId());
-                    // if (sys == null) {
-                    // browser.updatePlansState(null);
-                    // }
-                    // else {
-                    // browser.updatePlansState(sys);
-                    // }
-                    // }
-                    //
-                    // ConsoleLayout console2 = getConsole();
-                    // if (console2 != null) {
-                    // Vector<ISystemsSelection> sys = console2.getSubPanelsOfInterface(ISystemsSelection.class);
-                    // if (sys.size() != 0) {
-                    // if (usePlanDBSyncFeaturesExt) {
-                    // ImcSystem[] imcSystemsArray = convertToImcSystemsArray(sys);
-                    // browser.updateRemotePlansState(imcSystemsArray);
-                    // }
-                    // }
-                    // }
-                    // browser.expandTree();
-                    browser.setSelectedNodes(selectedNodes);
-            // }
-            // });
+            TreeMap<String, PlanType> localPlans;
+            try {
+                localPlans = getConsole().getMission().getIndividualPlansList();
+            }
+            catch (NullPointerException e) {
+                NeptusLog.pub().warn("I cannot find local plans for " + getMainVehicleId());
+                localPlans = new TreeMap<String, PlanType>();
+            }
+            browser.updatePlansStateEDT(localPlans, getMainVehicleId());
+            browser.setSelectedNodes(selectedNodes);
             System.out.println("dbInfoUpdated");
         }
 
@@ -337,7 +299,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         inited = true;
         updatePlanDBListener(getMainVehicleId());
 
-        browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
+        browser.refreshBrowser_(getConsole().getPlan(), getConsole().getMission(), getMainVehicleId());
 
         addMenuItem(I18n.text("Advanced") + ">" + I18n.text("Clear remote PlanDB for main system"), new ImageIcon(
                 PluginUtils.getPluginIcon(getClass())), new ActionListener() {
@@ -948,7 +910,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
                                 if (console != null)
                                     console.setPlan(null);
-                                browser.refreshBrowser(console.getPlan(), console.getMission());
+                                browser.refreshBrowser_(getConsole().getPlan(), getConsole().getMission(),
+                                        getMainVehicleId());
                             }
                         }
                     }
@@ -959,7 +922,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             popupMenu.add(I18n.text("Reload Panel")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    browser.refreshBrowser(console.getPlan(), console.getMission());
+                    browser.refreshBrowser_(getConsole().getPlan(), getConsole().getMission(), getMainVehicleId());
                 }
             });
 

@@ -51,6 +51,7 @@ import org.dom4j.Node;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
 import pt.up.fe.dceg.neptus.gui.objparams.TransponderParameters;
+import pt.up.fe.dceg.neptus.imc.LblBeacon;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.Identifiable;
 import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
@@ -397,5 +398,10 @@ public class TransponderElement extends AbstractElement implements Identifiable{
     @Override
     public String getIdentification() {
         return getName();
+    }
+
+    public byte[] getMd5() {
+        LblBeacon beacon = TransponderUtils.getTransponderAsLblBeaconMessage(this);
+        return beacon.payloadMD5();
     }
 }
