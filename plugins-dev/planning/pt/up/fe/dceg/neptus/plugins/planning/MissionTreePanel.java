@@ -281,15 +281,13 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public void missionReplaced(MissionType mission) {
-        // TODO browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
-        // TOFIX
+        browser.refreshBrowser_(getConsole().getPlan(), getConsole().getMission(), getMainVehicleId());
     }
 
     @Override
     public void missionUpdated(MissionType mission) {
         // it is called (among others) when the specs for a remote plan have just been received
-        // TODO browser.refreshBrowser(getConsole().getPlan(), getConsole().getMission());
-        // TOFIX
+        browser.refreshBrowser_(getConsole().getPlan(), getConsole().getMission(), getMainVehicleId());
     }
 
     @Override
