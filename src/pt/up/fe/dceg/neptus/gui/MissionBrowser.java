@@ -1096,46 +1096,47 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         TransponderElement remoteBeacon;
         byte[] localMD5, remoteMD5;
         HashMap<String, Object> userInfo;
-        Iterator<TransponderElement> beaconsIt = remoteTrans.iterator();
+        Iterator<TransponderElement> remoteBeaconsIt = remoteTrans.iterator();
         if (transParentNode != null && transParentNode.getChildCount() != 0) {
-            ExtendedTreeNode childLocalTrans = (ExtendedTreeNode) transParentNode.getFirstChild();
-            int id = 0;
             TransponderElement localTransElem;
-            boolean sync;
+            // boolean sync;
+            int id = 0;
+            ExtendedTreeNode childLocalTrans = (ExtendedTreeNode) transParentNode.getFirstChild();
             while (childLocalTrans != null) {
                 localTransElem = (TransponderElement) childLocalTrans.getUserObject();
                 localMD5 = localTransElem.getMd5();
-                sync = false;
+                // sync = false;
+                userInfo = childLocalTrans.getUserInfo();
+                userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
                 // If there is a MD5 match between the child and any incoming transponder configuration that child
                 // becomes SYNC
-                while(beaconsIt.hasNext()){
-                    remoteBeacon = beaconsIt.next();
+                while(remoteBeaconsIt.hasNext()){
+                    remoteBeacon = remoteBeaconsIt.next();
                     remoteMD5 = remoteBeacon.getMd5();
                     if (ByteUtil.equal(localMD5, remoteMD5)) {
-                        userInfo = childLocalTrans.getUserInfo();
                         userInfo.put(NodeInfoKey.SYNC.name(), State.SYNC);
                         userInfo.put(NodeInfoKey.ID.name(), id);
                         userInfo.put(NodeInfoKey.VEHICLE.name(), vehicle);
                         treeModel.nodeStructureChanged(childLocalTrans);
-                        beaconsIt.remove();
-                        sync = true;
+                        remoteBeaconsIt.remove();
+                        // sync = true;
                     }
                 }
-                // If no match is found the child becomes LOCAL
-                if (!sync) {
-                    userInfo = childLocalTrans.getUserInfo();
-                    userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
-                }
+                // // If no match is found the child becomes LOCAL
+                // if (!sync) {
+                // userInfo = childLocalTrans.getUserInfo();
+                // userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
+                // }
                 id++;
                 childLocalTrans = (ExtendedTreeNode) childLocalTrans.getNextSibling();
             }
         }
         ExtendedTreeNode newNode;
-        while (beaconsIt.hasNext()) {
-            remoteBeacon = beaconsIt.next();
+        while (remoteBeaconsIt.hasNext()) {
+            remoteBeacon = remoteBeaconsIt.next();
             newNode = treeModel.addTransponderNode(remoteBeacon);
             userInfo = newNode.getUserInfo();
-            userInfo.put(NodeInfoKey.SYNC.name(), State.SYNC);
+            userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
             userInfo.put(NodeInfoKey.ID.name(), remoteBeacon.getIdentification());
             userInfo.put(NodeInfoKey.VEHICLE.name(), vehicle);
         }
@@ -1423,6 +1424,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             }
 
             if (index != -1) {
+                System.out.println("Adding " + parentType.name() + " at index " + index);
                 insertNodeInto(parent, (MutableTreeNode) root, index);
             }
         }
