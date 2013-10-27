@@ -1,90 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<config format="1" version="2.4.0-rc1 (master,027f14b)" system="alfa02" i18n="en_US">
-<section name="Text Message Parser" name-i18n="Text Message Parser">
-<param name="Entity Label">
-<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Text Message Parser</default><units></units><desc>Main entity label</desc></param>
-<param name="Execution Priority">
-<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
-<param name="Activation Time">
-<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
-<param name="Deactivation Time">
-<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
-<param name="Debug Level">
-<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Spew</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
-</section>
-<section name="Path Control" name-i18n="Path Control">
-<param name="Entity Label">
-<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Path Control</default><units></units><desc>Main entity label</desc></param>
-<param name="Execution Priority">
-<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
-<param name="Activation Time">
-<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
-<param name="Deactivation Time">
-<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
-<param name="Debug Level">
-<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Debug</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
-<param name="Control Frequency">
-<name-i18n>Control Frequency</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>10</default><units>Hz</units><desc>Control frequency (&lt; 0 for event-driven EstimatedState processing)</desc></param>
-<param name="State Report Frequency">
-<name-i18n>State Report Frequency</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>1</default><units>Hz</units><desc>State report frequency</desc></param>
-<param name="Course Control">
-<name-i18n>Course Control</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>true</default><units></units><desc>Enable course control</desc></param>
-<param name="Along-track -- Monitor">
-<name-i18n>Along-track -- Monitor</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>false</default><units></units><desc>Enable along-track error monitoring</desc></param>
-<param name="Along-track -- Check Period">
-<name-i18n>Along-track -- Check Period</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>15</default><units>s</units><desc>Period for along-track error check</desc></param>
-<param name="Along-track -- Minimum Speed">
-<name-i18n>Along-track -- Minimum Speed</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>10</default><units>m/s</units><desc>Minimum speed for along-track progress</desc></param>
-<param name="Along-track -- Minimum Yaw">
-<name-i18n>Along-track -- Minimum Yaw</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>10</default><units>°/s</units><desc>Minimum yaw speed for track bearing convergence</desc></param>
-<param name="Cross-track -- Monitor">
-<name-i18n>Cross-track -- Monitor</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>true</default><units></units><desc>Enable cross-track error monitoring</desc></param>
-<param name="Cross-track -- Distance Limit">
-<name-i18n>Cross-track -- Distance Limit</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>250</default><units>m</units><desc>Distance threshold value for cross-track error</desc></param>
-<param name="Cross-track -- Time Limit">
-<name-i18n>Cross-track -- Time Limit</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>10</default><units>s</units><desc>Time threshold value for cross-track error</desc></param>
-<param name="Cross-track -- Nav. Unc. Factor">
-<name-i18n>Cross-track -- Nav. Unc. Factor</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>-1</default><units></units><desc></desc></param>
-<param name="Position Jump Threshold">
-<name-i18n>Position Jump Threshold</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>7.0</default><units>m</units><desc>Threshold for a jump in EstimatedState to turn monitors off</desc></param>
-<param name="Position Jump Time Factor">
-<name-i18n>Position Jump Time Factor</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>0.3</default><units>m/s</units><desc>Relation between monitor disabling time and position jump</desc><min>0.1</min></param>
-<param name="ETA Minimum Speed">
-<name-i18n>ETA Minimum Speed</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>1.0</default><units>m/s</units><desc>ETA minimum admissible speed</desc><min>0.1</min></param>
-<param name="Bottom Track -- Enabled">
-<name-i18n>Bottom Track -- Enabled</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>false</default><units></units><desc>Enable or disable bottom track control</desc></param>
-<param name="Bottom Track -- Forward Samples">
-<name-i18n>Bottom Track -- Forward Samples</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>5</default><units></units><desc>Number of samples for forward range moving average</desc></param>
-<param name="Bottom Track -- Safe Pitch">
-<name-i18n>Bottom Track -- Safe Pitch</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>15.0</default><units>°</units><desc>Safe pitch angle to perform bottom tracking</desc></param>
-<param name="Bottom Track -- Slope Hysteresis">
-<name-i18n>Bottom Track -- Slope Hysteresis</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>1.5</default><units>°</units><desc>Slope hysteresis when recovering from avoidance</desc></param>
-<param name="Bottom Track -- Minimum Altitude">
-<name-i18n>Bottom Track -- Minimum Altitude</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>1.0</default><units>m</units><desc>Minimum admissible altitude for bottom tracking</desc></param>
-<param name="Bottom Track -- Minimum Range">
-<name-i18n>Bottom Track -- Minimum Range</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>4.0</default><units>m</units><desc>Minimum admissible forward range for bottom tracking</desc></param>
-<param name="Bottom Track -- Altitude Tolerance">
-<name-i18n>Bottom Track -- Altitude Tolerance</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>2.0</default><units>m</units><desc>Altitude tolerance below which altitude is ignored</desc></param>
-<param name="Bottom Track -- Depth Tolerance">
-<name-i18n>Bottom Track -- Depth Tolerance</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>1.0</default><units>m</units><desc>Depth tolerance below which altitude is ignored</desc></param>
-<param name="Bottom Track -- Depth Limit">
-<name-i18n>Bottom Track -- Depth Limit</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>48.0</default><units>m</units><desc>Depth limit for bottom tracking</desc></param>
-<param name="Bottom Track -- Check Trend">
-<name-i18n>Bottom Track -- Check Trend</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>true</default><units></units><desc>Check slope angle trend in unsafe state</desc></param>
-<param name="Bottom Track -- Execution Frequency">
-<name-i18n>Bottom Track -- Execution Frequency</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>5</default><units>Hz</units><desc>Bottom tracker&apos;s execution frequency</desc></param>
-<param name="Bottom Track -- Depth Avoidance">
-<name-i18n>Bottom Track -- Depth Avoidance</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>true</default><units></units><desc>Enable or disable obstacle avoidance during depth control</desc></param>
-<param name="Bottom Track -- Admissible Altitude">
-<name-i18n>Bottom Track -- Admissible Altitude</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>3.0</default><units>m</units><desc>Admissible altitude when doing depth control</desc></param>
-<param name="Look Ahead Gain">
-<name-i18n>Look Ahead Gain</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>2.0</default><units></units><desc>Lookahead again for control</desc></param>
-<param name="Turn Rate Gain">
-<name-i18n>Turn Rate Gain</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>0.00007</default><units></units><desc>Lookahead again for control</desc></param>
-<param name="Maximum Bank">
-<name-i18n>Maximum Bank</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>25</default><units>°</units><desc>Limit for absolute value of output bank reference</desc><min>5</min><max>45</max></param>
-</section>
+<config format="1" version="2.4.0-rc1 (master,027f14b)" system="piccolo-testbed" i18n="en_US">
 <section name="Follow Path Maneuver" name-i18n="Follow Path Maneuver">
 <param name="Entity Label">
 <name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Follow Path Maneuver</default><units></units><desc>Main entity label</desc></param>
@@ -241,7 +157,7 @@
 <param name="Actuation Conversion Factor">
 <name-i18n>Actuation Conversion Factor</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>0.02</default><units></units><desc>Factor to convert from actuation to meters per second</desc></param>
 <param name="Minimum Calibration Time">
-<name-i18n>Minimum Calibration Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>3</default><units>s</units><desc>Duration of vehicle calibration commands</desc></param>
+<name-i18n>Minimum Calibration Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units>s</units><desc>Duration of vehicle calibration commands</desc></param>
 <param name="Abort On Failed Activation">
 <name-i18n>Abort On Failed Activation</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>true</default><units></units><desc>Abort when a payload fails to activate</desc></param>
 </section>
@@ -266,6 +182,30 @@
 <name-i18n>Loiter radius</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>10.0</default><units></units><desc>Radius of generated loiter and station keeping maneuvers</desc></param>
 <param name="RPM Speed">
 <name-i18n>RPM Speed</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>1000</default><units></units><desc>Speed in RPMs to be used in the generated maneuvers</desc></param>
+</section>
+<section name="INOV Target" name-i18n="INOV Target">
+<param name="Entity Label">
+<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>INOV Target</default><units></units><desc>Main entity label</desc></param>
+<param name="Execution Priority">
+<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
+<param name="Activation Time">
+<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Deactivation Time">
+<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Debug Level">
+<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
+<param name="Execution Frequency">
+<name-i18n>Execution Frequency</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>1</default><units>Hz</units><desc>Frequency at which task is executed</desc></param>
+<param name="Latitude">
+<name-i18n>Latitude</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>39.08794</default><units></units><desc>Initial Target Latitude</desc></param>
+<param name="Longitude">
+<name-i18n>Longitude</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>-8.96503</default><units></units><desc>Initial Target Longitude</desc></param>
+<param name="Height">
+<name-i18n>Height</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>2</default><units></units><desc>Initial Target Height</desc></param>
+<param name="Max Speed">
+<name-i18n>Max Speed</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>1.5</default><units></units><desc>Maximum Target Speed in m/s</desc></param>
+<param name="Target Name">
+<name-i18n>Target Name</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>lauv-seacon-1</default><units></units><desc>Target Name</desc></param>
 </section>
 <section name="Lost Comms Monitor" name-i18n="Lost Comms Monitor">
 <param name="Entity Label">
@@ -437,6 +377,30 @@
 <param name="Transports">
 <name-i18n>Transports</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default>Acceleration, AngularVelocity, ControlLoops, CpuUsage, Current, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, GpsFix, IndicatedSpeed, LinkLevel, LogBookEntry, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, Pressure, Reference, Rpm, RSSI, SetControlSurfaceDeflection, SetThrusterActuation, StopManeuver, Temperature, TrueSpeed, TrexObservation, TrexPlan, TrexToken, VehicleCommand, VehicleState, Voltage</default><units></units><desc></desc></param>
 </section>
+<section name="INOV TCP" name-i18n="INOV TCP">
+<param name="Entity Label">
+<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>INOV TCP</default><units></units><desc>Main entity label</desc></param>
+<param name="Execution Priority">
+<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
+<param name="Activation Time">
+<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Deactivation Time">
+<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Debug Level">
+<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
+<param name="Transports">
+<name-i18n>Transports</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default>Target, EstimatedState, CompressedImage</default><units></units><desc>Messages to transport</desc></param>
+<param name="Rate Limiters">
+<name-i18n>Rate Limiters</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default></default><units></units><desc>Rate limiters (message name/frequency pairs)</desc></param>
+<param name="Trace - Incoming Messages">
+<name-i18n>Trace - Incoming Messages</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>false</default><units></units><desc>Enable verbose output regarding incoming messages</desc></param>
+<param name="Trace - Outgoing Messages">
+<name-i18n>Trace - Outgoing Messages</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>false</default><units></units><desc>Enable verbose output regarding outgoing messages</desc></param>
+<param name="Port">
+<name-i18n>Port</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>2013</default><units></units><desc>TCP server port</desc></param>
+<param name="Announce Service">
+<name-i18n>Announce Service</name-i18n><type>boolean</type><visibility>developer</visibility><scope>global</scope><default>true</default><units></units><desc>Set to true to announce the service</desc></param>
+</section>
 <section name="UDP" name-i18n="UDP">
 <param name="Entity Label">
 <name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>UDP</default><units></units><desc>Main entity label</desc></param>
@@ -472,5 +436,29 @@
 <name-i18n>Transports</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default>Acceleration, CpuUsage, Current, DesiredRoll, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, GpsFix, Heartbeat, LinkLevel, LogBookControl, LoggingControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, RemoteActionsRequest, Rpm, RSSI, SetServoPosition, SimulatedState, Target, Temperature, VehicleState, Voltage</default><units></units><desc>List of messages to transport</desc></param>
 <param name="Always Transmitted Messages">
 <name-i18n>Always Transmitted Messages</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default></default><units></units><desc>List of messages that will always be transmitted disregarding communication limitations</desc></param>
+</section>
+<section name="Frame Grabber" name-i18n="Frame Grabber">
+<param name="Entity Label">
+<name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Frame Grabber</default><units></units><desc>Main entity label</desc></param>
+<param name="Execution Priority">
+<name-i18n>Execution Priority</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>10</default><units></units><desc>Execution priority</desc></param>
+<param name="Activation Time">
+<name-i18n>Activation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Deactivation Time">
+<name-i18n>Deactivation Time</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>0</default><units></units><desc></desc></param>
+<param name="Debug Level">
+<name-i18n>Debug Level</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>None</default><units></units><desc></desc><values>None, Debug, Trace, Spew</values><values-i18n>None, Debug, Trace, Spew</values-i18n></param>
+<param name="Execution Frequency">
+<name-i18n>Execution Frequency</name-i18n><type>real</type><visibility>developer</visibility><scope>global</scope><default>10</default><units>Hz</units><desc>Frequency at which task is executed</desc></param>
+<param name="Video Device">
+<name-i18n>Video Device</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>/dev/video0</default><units></units><desc>Platform dependent video device</desc></param>
+<param name="Picture Width">
+<name-i18n>Picture Width</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>360</default><units>px</units><desc>Picture Width</desc></param>
+<param name="Picture Height">
+<name-i18n>Picture Height</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>288</default><units>px</units><desc>Picture Height</desc></param>
+<param name="JPEG Quality">
+<name-i18n>JPEG Quality</name-i18n><type>integer</type><visibility>developer</visibility><scope>global</scope><default>50</default><units>%</units><desc>JPEG image quality</desc><min>0</min><max>100</max></param>
+<param name="Video Standard">
+<name-i18n>Video Standard</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>PAL</default><units></units><desc>Video standard</desc><values>PAL, NTSC</values><values-i18n>PAL, NTSC</values-i18n></param>
 </section>
 </config>
