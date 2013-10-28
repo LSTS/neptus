@@ -31,6 +31,10 @@
  */
 package convcao.com.caoAgent;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
+import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
@@ -40,7 +44,7 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
  * Properties for this conversion are stored in "conf/noptcoords.properties"
  * @author zp
  */
-public class NoptilusCoords {
+public class NoptilusCoords implements PropertiesProvider {
     
     @NeptusProperty 
     public LocationType squareCenter = new LocationType();
@@ -53,6 +57,9 @@ public class NoptilusCoords {
     
     @NeptusProperty 
     public int numCols = 40;
+    
+    @NeptusProperty 
+    public int maxDepth = 50;    
     
     {
         loadProps();
@@ -76,7 +83,7 @@ public class NoptilusCoords {
         }
     }
     
-    public LocationType convert(int row, int col) {
+    public LocationType convert(double row, double col) {
         if (col < 0 || col >= numCols)
             return null;
         
@@ -91,7 +98,17 @@ public class NoptilusCoords {
         return loc;        
     }
     
-    public int[] convert(LocationType loc) {
+    //FIXME
+    public double convertWgsDepthToNoptilusDepth(double depth) {
+        return maxDepth - depth;
+    }
+    
+    //FIXME
+    public double convertNoptilusDepthToWgsDepth(double depth) {
+        return maxDepth - depth;
+    }
+    
+    public double[] convert(LocationType loc) {
         LocationType sw = new LocationType(squareCenter);
         sw.translatePosition(-cellWidth * numRows/2, -cellWidth * numCols/2, 0);
         double[] offsets = loc.getOffsetFrom(sw);
@@ -102,8 +119,28 @@ public class NoptilusCoords {
         if (offsets[1] < 0 || offsets[1] > numCols)
             return null;
         
-        return new int[] {(int)Math.round(offsets[0]),(int)Math.round(offsets[1])};
-    }    
+        return new double[] {offsets[0],offsets[1]};
+    }
+    
+    @Override
+    public DefaultProperty[] getProperties() {
+        return PluginUtils.getPluginProperties(this);
+    }
+    
+    @Override
+    public String getPropertiesDialogTitle() {
+        return "Noptilus Coordinate System properties";
+    }
+    
+    @Override
+    public String[] getPropertiesErrors(Property[] properties) {
+        return null;
+    }
+    
+    @Override
+    public void setProperties(Property[] properties) {
+        PluginUtils.setPluginProperties(this, properties);
+    }
     
     public static void main(String[] args) {
         NoptilusCoords coords = new NoptilusCoords();

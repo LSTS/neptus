@@ -31,8 +31,14 @@
  */
 package convcao.com.caoAgent;
 
+import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -45,9 +51,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Random;
 
@@ -55,19 +60,30 @@ import javax.swing.ImageIcon;
 
 import org.apache.commons.net.ftp.FTPClient;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.FollowReference;
 import pt.up.fe.dceg.neptus.imc.Reference;
+import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
+import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.up.fe.dceg.neptus.plugins.controllers.ControllerManager;
 import pt.up.fe.dceg.neptus.plugins.controllers.IController;
+import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
+import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 
 import com.google.gson.Gson;
 
@@ -78,23 +94,25 @@ import com.google.gson.Gson;
  */
 @PluginDescription(author="thanasis", category=CATEGORY.UNSORTED, name="convcao Neptus Interaction")
 @Popup(accelerator=KeyEvent.VK_N, pos=Popup.POSITION.CENTER, height=500, width=510, name="convcao Neptus Interaction")
-public class convcaoNeptusInteraction extends SimpleSubPanel implements IController {
+public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer2DPainter, IController, ConfigurationListener {
 
     private static final long serialVersionUID = -1330079540844029305L;
     
     // Variables declaration - do not modify
     protected int AUVS ;
     protected String SessionID = "";
-    protected double[][] MapAsTable;
+    //protected double[][] MapAsTable;
     
     // 1 row per AUV, 1 column per coordinate
-    protected double[][] PosAUVS;
+    //protected double[][] PosAUVS;
     
     
     protected boolean cancel = false;
     protected String Report = "";
     
-    backgroundWorker t1;
+    //backgroundWorker t1;
+    
+    //Thread updateThread = null;
     
     //GUI
     protected javax.swing.JButton jButton1;
@@ -128,6 +146,13 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
     protected ImageIcon appLogo = ImageUtils.getIcon("images/control-mode/externalApp.png");
     protected ImageIcon noptilusLogo = ImageUtils.getIcon("images/control-mode/noptilus.png");
     
+    
+    @NeptusProperty
+    public String controlledVehicles = "lauv-noptilus-1,lauv-noptilus-2";
+    
+    @NeptusProperty
+    public int controlLatencySecs = 5;     
+    
     public class InputData
     {
         public String DateTime = "";
@@ -148,6 +173,118 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
         public double[][] Location;
     };
     
+    int timestep = 1;
+    
+    protected void showText(String text) {
+        jTextArea1.append(text+"\n");
+        jTextArea1.repaint();
+    }
+    
+    @Override
+    public void propertiesChanged() {
+        
+    }
+    
+    protected NoptilusCoords coords = new NoptilusCoords();
+    
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        
+        Point2D center = renderer.getScreenPosition(coords.squareCenter);
+        double width = renderer.getZoom() * coords.cellWidth * coords.numCols;
+        double height = renderer.getZoom() * coords.cellWidth * coords.numRows;
+        g.setColor(new Color(0,255,0,128));
+        g.fill(new Rectangle2D.Double(center.getX() - width/2, center.getY() - height / 2, width, height));        
+    }
+    
+    public TransferData localState() {
+        TransferData data = new TransferData();
+        data.timeStep = this.timestep;
+        data.SessionID = SessionID;
+        data.Bathymeter = new double[AUVS];
+        data.Location = new double[AUVS][3];
+        
+        for (int AUV = 0; AUV < AUVS; AUV++) {
+            String auvName = nameTable.get(AUV);
+            data.Bathymeter[AUV] = bathymetry.get(auvName);
+            double[] nopCoords = coords.convert(positions.get(auvName));
+            if (nopCoords == null) {
+                GuiUtils.errorMessage(getConsole(), "ConvCAO", auvName+" is outside operating region");
+                return null;
+            }
+                
+            data.Location[AUV][0] = nopCoords[0];
+            data.Location[AUV][1] = nopCoords[1];
+            data.Location[AUV][2] = coords.convertWgsDepthToNoptilusDepth(positions.get(auvName).getDepth());                        
+            
+        }
+        
+        return data;
+    }
+    
+    /**
+     * This method is called whenever the AUVs have reached their destinations and new data is to be sent to the server.<br/>
+     * As a result, new destinations will be received and vehicles will travel to the new destinations.
+     * @throws Exception If there is a problem communicating with the server.
+     */
+    public void controlLoop() throws Exception {
+        
+        TransferData send = localState();
+        if (send == null)
+            throw new Exception("Unable to compute local state");
+        
+        TransferData receive = new TransferData();
+        
+        for (int AUV = 0; AUV < AUVS; AUV++) {
+            showText(nameTable.get(AUV)+" is at "+send.Location[AUV][0]+", "+send.Location[AUV][1]+", "+send.Location[AUV][2]);
+        }
+        
+        Gson gson = new Gson();
+        String json = gson.toJson(send);
+        
+        PrintWriter writer = null;
+        writer = new PrintWriter(SessionID + "_Data.txt", "UTF-8");
+        writer.write(json);
+        writer.close();
+        
+        NeptusLog.pub().info("uploading to convcao..."+json.toString());
+        Upload("www.convcao.com","NEPTUS","",jTextField1.getText(),new String(jPasswordField1.getPassword()),SessionID + "_Data.txt");
+        
+        showText("Upload complete, downloading new AUV destinations");
+        
+        int receivedTimestep = 0;
+        while (!cancel && receivedTimestep < timestep) {            
+            Thread.sleep(100);
+            
+            try {
+                URL url = new URL("http://www.convcao.com/caoagile/FilesFromAgent/NEPTUS/" + SessionID + "_NewActions.txt");
+                BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+                String jsonClient = in.readLine();
+                receive = new Gson().fromJson(jsonClient,TransferData.class);    
+                receivedTimestep = receive.timeStep;
+             }
+             catch(IOException ex) {
+                 NeptusLog.pub().error(ex);
+             }
+        }
+        
+        showText("Received updated positions from convcao");
+        
+        //PosAUVS = receive.Location;
+        timestep++;
+        
+        for (int AUV = 0; AUV < receive.Location.length; AUV++) {
+            String name = nameTable.get(AUV);
+            LocationType loc = coords.convert(receive.Location[AUV][0], receive.Location[AUV][1]);
+            loc.setDepth(coords.convertNoptilusDepthToWgsDepth(receive.Location[AUV][2]));
+            destinations.put(name, loc);
+            showText(name+" is being sent to "+receive.Location[AUV][0]+", "+receive.Location[AUV][1]);
+        }
+        
+        myDeleteFile(SessionID + "_Data.txt");
+    }
+    
+    /*
     protected class backgroundWorker extends Thread{
         
         protected backgroundWorker()
@@ -198,32 +335,23 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
                     writer = new PrintWriter(SessionID + "_Data.txt", "UTF-8");
                 }
                 catch (FileNotFoundException | UnsupportedEncodingException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 writer.write(json);
                 writer.close();
 
                 Upload("www.convcao.com","NEPTUS","",jTextField1.getText(),new String(jPasswordField1.getPassword()),SessionID + "_Data.txt");
-
                 
                 while (cancel == false &&  i > webClientTimeStep)
                 {
-
-                    
+                    /*
                     try {
                         Thread.sleep(50);
                     }
                     catch (InterruptedException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
-                    }
-                    
-                    /*while (!IsValidUri("http://www.convcao.com/caoagile/FilesFromAgent/NEPTUS/" + SessionID + "_NewActions.txt"))
-                    {
-                        continue;
-                    } */
-
+                    }* /
                     
                     try {
                         URL url = new URL("http://www.convcao.com/caoagile/FilesFromAgent/NEPTUS/" + SessionID + "_NewActions.txt");
@@ -251,6 +379,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
         }
         
     }
+    */
     
     
     /**
@@ -343,12 +472,6 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
         
         cancel=true;
         
-        if (t1.isAlive())
-        {
-            //t1.interrupt();
-            t1.stop();
-        }
-        
         
         jLabel9.setVisible(false);
         jButton1.setEnabled(false);
@@ -373,47 +496,86 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
         renewButton.setEnabled(false);
         connectButton.setEnabled(false);
 
-        t1.start();
+        controlLoopBackground().start();        
+        
+        //t1.start();
+    }
+    
+    private void startLocalStructures(String[] vehicles) throws Exception {
+        positions.clear();
+        destinations.clear();
+        bathymetry.clear();
+        nameTable.clear();
+        arrived.clear();
+        
+        for (String auvName : vehicles) {            
+            EstimatedState state = ImcMsgManager.getManager().getState(auvName).lastEstimatedState();
+            if (state == null)
+                throw new Exception("Not able to get initial position for vehicle "+auvName);
+            LocationType auvPosition = IMCUtils.getLocation(state);
+            positions.put(auvName, auvPosition);
+            destinations.put(auvName, auvPosition);
+            bathymetry.put(auvName, state.getDepth() + state.getAlt()); // FIXME tide offsets
+            arrived.put(auvName, true);
+            
+            
+            startControlling(VehiclesHolder.getVehicleById(auvName), ImcMsgManager.getManager().getState(auvName).lastEstimatedState());
+        }
+        int i = 0;
+        for (String v : positions.keySet())
+            nameTable.put(i++, v);
     }
     
 
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) throws SocketException, IOException {
-        MapAsTable = ReadMapfile(); //TODO parse dynamically the map
-
-        InputData InD = new InputData();
+        String[] vehicles = controlledVehicles.split(",");
         
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        //get current date time with Calendar()
-        Calendar cal = Calendar.getInstance();
-            InD.DateTime = dateFormat.format(cal.getTime());
-            
-            InD.SessionID = SessionID;
-            InD.DemoMode = "1";
-            InD.AUVs = "2";     //TODO parse dynamically the number of AUVs
-
-        this.AUVS =  Integer.parseInt(InD.AUVs);
-        this.PosAUVS = new double[this.AUVS][3];
-
-        for(int AUV=0;AUV<AUVS;AUV++)
-        {
-            PosAUVS[AUV][0] = 199;
-            PosAUVS[AUV][1]= MapAsTable[0].length-1;   //TODO
-            PosAUVS[AUV][2]= 20;
+        showText("Starting FollowReference plans on vehicles");
+        try {
+            ControllerManager manager = new ControllerManager();
+            for (String v : vehicles)
+                manager.associateControl(this, VehiclesHolder.getVehicleById(v), controlLatencySecs);
+        }
+        catch (Exception e) {
+            GuiUtils.errorMessage(getConsole(), e);
+            return;
         }
         
-        // FIXME this should work for more than 2 vehicles
-        if (PosAUVS[0][2] == PosAUVS[1][2])
-        {
-            PosAUVS[1][2] += 2;
+        showText("Initializing Control Structures");
+        
+        try {
+            startLocalStructures(vehicles);
+        }
+        catch (Exception e) {
+            GuiUtils.errorMessage(getConsole(), e);
+            return;
         }
         
-        Gson gson = new Gson();
-        String json = gson.toJson(InD);
         
-        PrintWriter writer = new PrintWriter(SessionID + ".txt", "UTF-8");
-        writer.write(json);
-        writer.close();
+        AUVS = positions.keySet().size();
+//        this.PosAUVS = new double[AUVS][3];
+//
+//        for(int AUV=0;AUV<AUVS;AUV++)
+//        {
+//            String name = nameTable.get(AUV);
+//            LocationType loc = positions.get(name);
+//            
+//            double[] noptilusCoords = coords.convert(loc);
+//            
+//            PosAUVS[AUV][0] = noptilusCoords[0];
+//            PosAUVS[AUV][1] = noptilusCoords[1];
+//            PosAUVS[AUV][2] = coords.convertWgsDepthToNoptilusDepth(positions.get(name).getDepth()); // don't forget this is altitude from deepest point
+//        }
+//        
+//        // FIXME this should work for more than 2 vehicles
+//        if (PosAUVS[0][2] == PosAUVS[1][2])
+//        {
+//            PosAUVS[1][2] += 2;
+//        }
         
+        // Create path on server
+        
+        showText("Initializing server connection");
         
         FTPClient client = new FTPClient();
 
@@ -426,10 +588,26 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
 
         } catch (IOException e) {
             jLabel6.setText("Connection Error");
-            e.printStackTrace();
+            throw e;
         }
         
+        showText("Sending session data");
+        InputData initialState = new InputData();
+        initialState.DateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
+        initialState.SessionID = SessionID;
+        initialState.DemoMode = "1";
+        initialState.AUVs = ""+positions.keySet().size();
         String fileName = SessionID + ".txt";
+        
+        Gson gson = new Gson();
+        String json = gson.toJson(initialState);
+        
+        PrintWriter writer = new PrintWriter(fileName, "UTF-8");
+        writer.write(json);
+        writer.close();
+        
+        
+           
         if (PathNameCreated)
         {
             jLabel6.setText("Connection Established");
@@ -442,8 +620,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
             jTextField1.setEditable(false);
             jPasswordField1.setEditable(false);
             connectButton.setEnabled(false);
-            renewButton.setEnabled(false);
-            t1 = new  backgroundWorker();
+            renewButton.setEnabled(false);            
         }
         else
         {
@@ -451,7 +628,25 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
             jLabel1.setVisible(false);
         }
         
-        myDeleteFile(fileName);        
+        myDeleteFile(fileName);      
+        
+        showText("ConvCAO control has started");
+        
+    }
+    
+    public Thread controlLoopBackground() {
+        Thread t = new Thread() {
+            public void run() {
+                try {
+                    controlLoop();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    NeptusLog.pub().error(e);
+                }
+            };
+        };
+        return t;
     }
     
     
@@ -814,7 +1009,14 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
         );
 
 
-
+        addMenuItem("Tools>Noptilus>Coordinate Settings", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PluginUtils.editPluginProperties(coords, true);
+                coords.saveProps();                
+            }
+        });
         
         add(jPanelMain);
         
@@ -835,6 +1037,12 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
     protected LinkedHashMap<String, LocationType> positions = new LinkedHashMap<>();
     protected LinkedHashMap<String, LocationType> destinations = new LinkedHashMap<>();
     protected LinkedHashMap<String, Double> bathymetry = new LinkedHashMap<>();    
+    protected LinkedHashMap<String, Boolean> arrived = new LinkedHashMap<>();
+    protected LinkedHashMap<Integer, String> nameTable = new LinkedHashMap<>();
+    
+    void updateConvCaoService() {
+        
+    }
     
     @Override
     public String getControllerName() {
@@ -843,6 +1051,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
     
     @Override
     public Reference guide(VehicleType vehicle, EstimatedState estate, FollowReference frefState) {
+        
         if (estate.getAlt() != -1) {
             bathymetry.put(vehicle.getId(), estate.getDepth()+estate.getAlt());            
         }
@@ -857,6 +1066,9 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
         dest.convertToAbsoluteLatLonDepth();
         ref.setLat(dest.getLatitudeAsDoubleValueRads());
         ref.setLon(dest.getLongitudeAsDoubleValueRads());
+        
+        System.out.println("Sending this reference to "+vehicle.getId()+":");
+        ref.dump(System.out);
         return ref;
     }
     
@@ -883,5 +1095,8 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
     public void vehicleTimedOut(VehicleType vehicle) {
         stopControlling(vehicle);
     }
+    
+    
+    
 
 }

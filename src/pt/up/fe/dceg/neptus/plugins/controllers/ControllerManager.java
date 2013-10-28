@@ -49,7 +49,7 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
  * This class is used to associate external controllers with existing vehicles and manage their control loops
  * @author zp
  */
-public class ControllerManager {
+public class ControllerManager extends Thread {
 
     // Currently active controllers
     protected LinkedHashMap<String, IController> activeControllers = new LinkedHashMap<>();
@@ -58,6 +58,10 @@ public class ControllerManager {
     protected Vector<Class<? extends IController>> controllers = new Vector<>();    
     
     protected boolean debug = true;
+    
+    {
+        setDaemon(true);
+    }
     
     /**
      * Add a new controller class
@@ -89,7 +93,7 @@ public class ControllerManager {
         man.setControlEnt((short)255);
         man.setControlSrc(65535);
         man.setAltitudeInterval(2);
-        man.setTimeout(60);
+        man.setTimeout(controlLatencySeconds * 5);
 
         PlanSpecification spec = new PlanSpecification();
         spec.setPlanId(controller.getControllerName());
@@ -132,4 +136,25 @@ public class ControllerManager {
         if (debug)
             System.out.println(controller.getControllerName()+" stopped controlling "+vehicle.getId());        
     }    
+    
+    
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e) {
+                System.err.println("Controller manager stopped.");
+                return;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+//            for (IController c : activeControllers.values()) {
+                
+//            }            
+        }
+    }
 }
