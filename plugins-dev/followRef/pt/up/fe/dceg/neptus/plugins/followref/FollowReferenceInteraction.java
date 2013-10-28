@@ -50,6 +50,7 @@ import javax.swing.JPopupMenu;
 
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.up.fe.dceg.neptus.imc.AcousticOperation;
 import pt.up.fe.dceg.neptus.imc.DesiredSpeed;
 import pt.up.fe.dceg.neptus.imc.DesiredZ;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
@@ -90,7 +91,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     protected HashSet<String> activeVehicles = new HashSet<>();
     protected ReferenceWaypoint movingWaypoint = null;
     protected double radius = 8;
-
+    
     @NeptusProperty
     public ManeuverLocation.Z_UNITS z_units = ManeuverLocation.Z_UNITS.DEPTH;
 
@@ -99,6 +100,13 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
     @NeptusProperty
     public double speed = 1.3;
+    
+    @NeptusProperty
+    public boolean useAcousticCommunications = false;
+    
+    @NeptusProperty
+    public long controlLoopLatencySecs = 3;
+    
 
     public FollowReferenceInteraction(ConsoleLayout cl) {
         super(cl);
@@ -106,7 +114,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
     @Override
     public long millisBetweenUpdates() {
-        return 1000;
+        return controlLoopLatencySecs * 1000;
     }
 
     @Override
@@ -122,8 +130,17 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                         (prox & FollowRefState.PROX_Z_NEAR) != 0)
                     plans.get(v).popFirstWaypoint();                
             }
-            if (plans.containsKey(v))
-                send(v, plans.get(v).currentWaypoint().getReference());
+            if (plans.containsKey(v)) {
+                if (!useAcousticCommunications)
+                    send(v, plans.get(v).currentWaypoint().getReference());
+                else {
+                    AcousticOperation op = new AcousticOperation();
+                    op.setOp(AcousticOperation.OP.MSG);
+                    op.setMsg(plans.get(v).currentWaypoint().getReference());
+                    op.setSystem(v);
+                    send(v, op);
+                }
+            }
         }
         return true;
     }

@@ -62,15 +62,14 @@ import org.apache.commons.net.ftp.FTPClient;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.FollowReference;
+import pt.up.fe.dceg.neptus.imc.FollowRefState;
 import pt.up.fe.dceg.neptus.imc.Reference;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
+import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.plugins.Popup;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.controllers.ControllerManager;
@@ -151,7 +150,13 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
     public String controlledVehicles = "lauv-noptilus-1,lauv-noptilus-2";
     
     @NeptusProperty
-    public int controlLatencySecs = 5;     
+    public String controlledVehicleDepths = "1.0,2.5";  
+    
+    @NeptusProperty
+    public int controlLatencySecs = 5;  
+    
+    @NeptusProperty
+    public boolean useAcousticComms = false;
     
     public class InputData
     {
@@ -206,17 +211,17 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         
         for (int AUV = 0; AUV < AUVS; AUV++) {
             String auvName = nameTable.get(AUV);
-            data.Bathymeter[AUV] = bathymetry.get(auvName);
+            double noptDepth = coords.convertWgsDepthToNoptilusDepth(positions.get(auvName).getDepth());
+            data.Bathymeter[AUV] = noptDepth-bathymetry.get(auvName);
             double[] nopCoords = coords.convert(positions.get(auvName));
             if (nopCoords == null) {
                 GuiUtils.errorMessage(getConsole(), "ConvCAO", auvName+" is outside operating region");
                 return null;
             }
                 
-            data.Location[AUV][0] = nopCoords[0];
-            data.Location[AUV][1] = nopCoords[1];
-            data.Location[AUV][2] = coords.convertWgsDepthToNoptilusDepth(positions.get(auvName).getDepth());                        
-            
+            data.Location[AUV][0] = Math.round(nopCoords[0]);
+            data.Location[AUV][1] = Math.round(nopCoords[1]);
+            data.Location[AUV][2] = (int)noptDepth;                                   
         }
         
         return data;
@@ -270,7 +275,6 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         
         showText("Received updated positions from convcao");
         
-        //PosAUVS = receive.Location;
         timestep++;
         
         for (int AUV = 0; AUV < receive.Location.length; AUV++) {
@@ -483,6 +487,8 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         jTextArea1.setText("");
         jLabel10.setText("");
         jLabel6.setText("Please Renew your ID to start again");
+        
+        
     }
     
 
@@ -495,7 +501,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         jButton1.setEnabled(false);
         renewButton.setEnabled(false);
         connectButton.setEnabled(false);
-
+        timestep = 1;
         controlLoopBackground().start();        
         
         //t1.start();
@@ -918,7 +924,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
@@ -1039,6 +1045,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
     protected LinkedHashMap<String, Double> bathymetry = new LinkedHashMap<>();    
     protected LinkedHashMap<String, Boolean> arrived = new LinkedHashMap<>();
     protected LinkedHashMap<Integer, String> nameTable = new LinkedHashMap<>();
+    protected LinkedHashMap<String, Double> depths = new LinkedHashMap<>();
     
     void updateConvCaoService() {
         
@@ -1050,7 +1057,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
     }
     
     @Override
-    public Reference guide(VehicleType vehicle, EstimatedState estate, FollowReference frefState) {
+    public Reference guide(VehicleType vehicle, EstimatedState estate, FollowRefState frefState) {
         
         if (estate.getAlt() != -1) {
             bathymetry.put(vehicle.getId(), estate.getDepth()+estate.getAlt());            
@@ -1095,8 +1102,4 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
     public void vehicleTimedOut(VehicleType vehicle) {
         stopControlling(vehicle);
     }
-    
-    
-    
-
 }

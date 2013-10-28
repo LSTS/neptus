@@ -33,6 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.controllers;
 
 
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
+import pt.up.fe.dceg.neptus.imc.FollowRefState;
 import pt.up.fe.dceg.neptus.imc.FollowReference;
 import pt.up.fe.dceg.neptus.imc.Reference;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
@@ -50,7 +51,7 @@ public interface IController {
      * @param frefState The last known maneuver execution state
      * @return A {@link Reference} message with desired control reference
      */
-    public Reference guide(VehicleType vehicle, EstimatedState estate, FollowReference frefState);
+    public Reference guide(VehicleType vehicle, EstimatedState estate, FollowRefState frefState);
     
     /**
      * @return The desired name for this controller (also used for plan names)

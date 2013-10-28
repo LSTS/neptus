@@ -33,7 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.controllers;
 
 import pt.up.fe.dceg.neptus.imc.DesiredZ;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.FollowReference;
+import pt.up.fe.dceg.neptus.imc.FollowRefState;
 import pt.up.fe.dceg.neptus.imc.Reference;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
@@ -51,7 +51,7 @@ public abstract class FollowRefController implements IController {
     public abstract LocationType getDestination(LocationType curLoc, double curDepth, double curAlt);
    
     @Override
-    public Reference guide(VehicleType vehicle, EstimatedState estate, FollowReference frefState) {
+    public Reference guide(VehicleType vehicle, EstimatedState estate, FollowRefState frefState) {
         LocationType loc = IMCUtils.parseLocation(estate);
         double depth = estate.getDepth();
         double alt = estate.getAlt();

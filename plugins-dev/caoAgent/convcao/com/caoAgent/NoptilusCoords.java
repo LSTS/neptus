@@ -53,13 +53,13 @@ public class NoptilusCoords implements PropertiesProvider {
     public double cellWidth = 5;
     
     @NeptusProperty 
-    public int numRows = 40;
+    public double numRows = 40;
     
     @NeptusProperty 
-    public int numCols = 40;
+    public double numCols = 40;
     
     @NeptusProperty 
-    public int maxDepth = 50;    
+    public double maxDepth = 50;    
     
     {
         loadProps();

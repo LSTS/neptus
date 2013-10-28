@@ -33,15 +33,18 @@ package pt.up.fe.dceg.neptus.plugins.controllers;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
+import pt.up.fe.dceg.neptus.imc.FollowRefState;
 import pt.up.fe.dceg.neptus.imc.FollowReference;
 import pt.up.fe.dceg.neptus.imc.PlanControl;
-import pt.up.fe.dceg.neptus.imc.PlanManeuver;
-import pt.up.fe.dceg.neptus.imc.PlanSpecification;
 import pt.up.fe.dceg.neptus.imc.PlanControl.OP;
 import pt.up.fe.dceg.neptus.imc.PlanControl.TYPE;
+import pt.up.fe.dceg.neptus.imc.PlanManeuver;
+import pt.up.fe.dceg.neptus.imc.PlanSpecification;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 
@@ -53,9 +56,11 @@ public class ControllerManager extends Thread {
 
     // Currently active controllers
     protected LinkedHashMap<String, IController> activeControllers = new LinkedHashMap<>();
+        protected LinkedHashMap<String, Timer> timers = new LinkedHashMap<>();
     
     // Available controller classes
     protected Vector<Class<? extends IController>> controllers = new Vector<>();    
+    protected boolean useAcousticComms = false;
     
     protected boolean debug = true;
     
@@ -72,6 +77,14 @@ public class ControllerManager extends Thread {
             controllers.add(cClass);
     }
     
+    /*public AcousticOperation sendAcoustically(String system, IMCMessage message) {
+        AcousticOperation op = new AcousticOperation();
+        op.setOp(AcousticOperation.OP.MSG);
+        op.setMsg(message);
+        op.setSystem(system);
+        
+    }*/
+    
     /**
      * Create a control loop
      * @param controller The controller in charge
@@ -79,7 +92,7 @@ public class ControllerManager extends Thread {
      * @param controlLatencySeconds 
      * @throws Exception
      */
-    public void associateControl(IController controller, VehicleType vehicle, int controlLatencySeconds) throws Exception {
+    public void associateControl(final IController controller, final VehicleType vehicle, int controlLatencySeconds) throws Exception {
         EstimatedState lastState = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
         if (!controller.supportsVehicle(vehicle, lastState)) {
             throw new Exception("The vehicle "+vehicle.getName()+" is not supported by "+controller.getControllerName()+" controller");
@@ -109,11 +122,26 @@ public class ControllerManager extends Thread {
 
         ImcMsgManager.getManager().sendMessageToSystem(startPlan, vehicle.getId());
         
+        if (useAcousticComms) {
+            
+        }
+        
         if (debug)
             System.out.println(controller.getControllerName()+" is now controlling "+vehicle.getId());
         
         controller.startControlling(vehicle, lastState);
         activeControllers.put(vehicle.getName(), controller);
+        TimerTask task = new TimerTask() {            
+            @Override
+            public void run() {
+                EstimatedState state = ImcMsgManager.getManager().getState(vehicle.getId()).lastEstimatedState();
+                FollowRefState frefState = ImcMsgManager.getManager().getState(vehicle.getId()).lastFollowRefState();
+                controller.guide(vehicle, state, frefState);
+            }
+        };
+        
+        Timer t = new Timer(controller.getControllerName()+" control timer", true);
+        t.schedule(task, 0, controlLatencySeconds * 1000);
     }
     
     public void dissociateControl(VehicleType vehicle) {
@@ -134,27 +162,10 @@ public class ControllerManager extends Thread {
         ImcMsgManager.getManager().sendMessageToSystem(stopPlan, vehicle.getId());
         
         if (debug)
-            System.out.println(controller.getControllerName()+" stopped controlling "+vehicle.getId());        
+            System.out.println(controller.getControllerName()+" stopped controlling "+vehicle.getId());
+        
+        if (timers.containsKey(vehicle.getId()))
+            timers.get(vehicle.getId()).cancel();
+        timers.remove(vehicle.getId());
     }    
-    
-    
-    @Override
-    public void run() {
-        while (true) {
-            try {
-                Thread.sleep(1000);
-            }
-            catch (InterruptedException e) {
-                System.err.println("Controller manager stopped.");
-                return;
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-            
-//            for (IController c : activeControllers.values()) {
-                
-//            }            
-        }
-    }
 }
