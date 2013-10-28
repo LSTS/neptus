@@ -37,16 +37,25 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import org.apache.commons.io.output.ByteArrayOutputStream;
+
+import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.up.fe.dceg.neptus.imc.AcousticOperation;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.FollowRefState;
 import pt.up.fe.dceg.neptus.imc.FollowReference;
+import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
 import pt.up.fe.dceg.neptus.imc.PlanControl;
 import pt.up.fe.dceg.neptus.imc.PlanControl.OP;
 import pt.up.fe.dceg.neptus.imc.PlanControl.TYPE;
 import pt.up.fe.dceg.neptus.imc.PlanManeuver;
 import pt.up.fe.dceg.neptus.imc.PlanSpecification;
+import pt.up.fe.dceg.neptus.imc.Reference;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * This class is used to associate external controllers with existing vehicles and manage their control loops
@@ -96,7 +105,7 @@ public class ControllerManager extends Thread {
         EstimatedState lastState = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
         if (!controller.supportsVehicle(vehicle, lastState)) {
             throw new Exception("The vehicle "+vehicle.getName()+" is not supported by "+controller.getControllerName()+" controller");
-        }        
+        }
 
         PlanControl startPlan = new PlanControl();
         startPlan.setType(TYPE.REQUEST);
@@ -105,9 +114,10 @@ public class ControllerManager extends Thread {
         FollowReference man = new FollowReference();
         man.setControlEnt((short)255);
         man.setControlSrc(65535);
-        man.setAltitudeInterval(2);
+        man.setAltitudeInterval(1);
         man.setTimeout(controlLatencySeconds * 5);
-
+        man.setLoiterRadius(7.5);
+        
         PlanSpecification spec = new PlanSpecification();
         spec.setPlanId(controller.getControllerName());
         spec.setStartManId("external_control");
@@ -122,9 +132,12 @@ public class ControllerManager extends Thread {
 
         ImcMsgManager.getManager().sendMessageToSystem(startPlan, vehicle.getId());
         
-        if (useAcousticComms) {
-            
-        }
+/*        if (useAcousticComms) {
+            AcousticOperation op = new AcousticOperation();
+            op.setOp(AcousticOperation.OP.MSG);
+            op.setSystem(vehicle.getId());
+            op.setMsg(startPlan);
+        }*/
         
         if (debug)
             System.out.println(controller.getControllerName()+" is now controlling "+vehicle.getId());
@@ -136,7 +149,43 @@ public class ControllerManager extends Thread {
             public void run() {
                 EstimatedState state = ImcMsgManager.getManager().getState(vehicle.getId()).lastEstimatedState();
                 FollowRefState frefState = ImcMsgManager.getManager().getState(vehicle.getId()).lastFollowRefState();
-                controller.guide(vehicle, state, frefState);
+                Reference ref = controller.guide(vehicle, state, frefState);
+                try {
+                    System.out.println("size in bytes of the reference message: "+ ref.serialize(new IMCOutputStream(new ByteArrayOutputStream(256))));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                
+                if (useAcousticComms) {
+                    AcousticOperation op = new AcousticOperation();
+                    op.setOp(AcousticOperation.OP.MSG);
+                    op.setSystem(vehicle.getId());
+                    op.setMsg(ref);
+
+                    ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
+                            SystemTypeEnum.ALL, true);
+
+                    if (sysLst.length == 0) {
+                        NeptusLog.pub().error("Cannot send reference acoustically because no system is capable of it");
+                        return;
+                    }
+                    
+                    int successCount = 0;
+
+                    for (ImcSystem sys : sysLst) {
+                        if (ImcMsgManager.getManager().sendMessage(op, sys.getId(), null)) {
+                            successCount++;
+                            NeptusLog.pub().warn("Sent reference to "+vehicle.getId()+" acoustically via "+ sys.getName());
+                        }
+                    }
+                    if (successCount == 0) {
+                        NeptusLog.pub().error("Cannot send reference acoustically because no system is capable of it");
+                    }
+                }
+                else {
+                    ImcMsgManager.getManager().sendMessageToSystem(ref, vehicle.getId());
+                }
             }
         };
         
@@ -167,5 +216,9 @@ public class ControllerManager extends Thread {
         if (timers.containsKey(vehicle.getId()))
             timers.get(vehicle.getId()).cancel();
         timers.remove(vehicle.getId());
+    }
+
+    public void setUseAcousticComms(boolean useAcousticComms) {
+        this.useAcousticComms = useAcousticComms;
     }    
 }
