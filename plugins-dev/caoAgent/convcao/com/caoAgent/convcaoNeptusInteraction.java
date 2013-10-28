@@ -86,7 +86,11 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
     protected int AUVS ;
     protected String SessionID = "";
     protected double[][] MapAsTable;
-    protected int[][] PosAUVS;
+    
+    // 1 row per AUV, 1 column per coordinate
+    protected double[][] PosAUVS;
+    
+    
     protected boolean cancel = false;
     protected String Report = "";
     
@@ -141,7 +145,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
         public double[] Bathymeter;
 
         // 1 row per auv, 2 coordinates (northing, easting) 
-        public int[][] Location;
+        public double[][] Location;
     };
     
     protected class backgroundWorker extends Thread{
@@ -166,20 +170,21 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
                 InD.timeStep = i;
                 InD.SessionID = SessionID;
                 InD.Bathymeter = new double[AUVS];
-                InD.Location = new int[AUVS][2];
+                InD.Location = new double[AUVS][3];
 
                 for (int AUV = 0; AUV < AUVS; AUV++)
                 {
-                    InD.Bathymeter[AUV] = MapAsTable[PosAUVS[AUV][0]][PosAUVS[AUV][1]];
-                    InD.Location[AUV][0] =   PosAUVS[AUV][0];
+                    InD.Bathymeter[AUV] = MapAsTable[(int)PosAUVS[AUV][0]][(int)PosAUVS[AUV][1]];
+                    InD.Location[AUV][0] = PosAUVS[AUV][0];
                     InD.Location[AUV][1] = PosAUVS[AUV][1];
+                    InD.Location[AUV][2] = PosAUVS[AUV][2];
                 }
 
                 //display in monitor
                 jTextArea1.append(Integer.toString(RecieveData.timeStep) + " || ");
                 for (int AUV = 0; AUV < AUVS; AUV++)
                 {
-                    jTextArea1.append(" [" + Integer.toString(InD.Location[AUV][0]) + "],[" + Integer.toString(InD.Location[AUV][1]) + "]");
+                    jTextArea1.append(" [" + Double.toString(InD.Location[AUV][0]) + "],[" + Double.toString(InD.Location[AUV][1]) + "]");
                 }
                 jTextArea1.append("\n");
                 jTextArea1.setCaretPosition(jTextArea1.getDocument().getLength());
@@ -387,12 +392,19 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements IControl
             InD.AUVs = "2";     //TODO parse dynamically the number of AUVs
 
         this.AUVS =  Integer.parseInt(InD.AUVs);
-        this.PosAUVS = new int[this.AUVS][2];
+        this.PosAUVS = new double[this.AUVS][3];
 
         for(int AUV=0;AUV<AUVS;AUV++)
         {
             PosAUVS[AUV][0] = 199;
             PosAUVS[AUV][1]= MapAsTable[0].length-1;   //TODO
+            PosAUVS[AUV][2]= 20;
+        }
+        
+        // FIXME this should work for more than 2 vehicles
+        if (PosAUVS[0][2] == PosAUVS[1][2])
+        {
+            PosAUVS[1][2] += 2;
         }
         
         Gson gson = new Gson();
