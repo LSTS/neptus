@@ -79,12 +79,6 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
-import pt.up.fe.dceg.neptus.imc.LblBeacon;
-import pt.up.fe.dceg.neptus.imc.LblConfig;
-import pt.up.fe.dceg.neptus.imc.LblConfig.OP;
-import pt.up.fe.dceg.neptus.imc.LblRangeAcceptance;
-import pt.up.fe.dceg.neptus.imc.PlanControlState;
-import pt.up.fe.dceg.neptus.imc.PlanControlState.STATE;
 import pt.up.fe.dceg.neptus.imc.PlanSpecification;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusMessageListener;
@@ -161,7 +155,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             // 'PlanDBState').
             TreePath[] selectedNodes = browser.getSelectedNodes();
 
-            browser.transUpdateElapsedTime();
+            // browser.transUpdateElapsedTime(); //TODO
 
             TreeMap<String, PlanType> localPlans;
             try {
@@ -389,7 +383,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public void mainVehicleChangeNotification(String id) {
-        browser.transStopTimers();
+        // browser.transStopTimers();
         running = false;
         updatePlanDBListener(id);
     }
@@ -449,14 +443,29 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
      * 
      * @see pt.up.fe.dceg.neptus.console.plugins.ITransponderSelection#getSelectedTransponders()
      */
+    // @Override
+    // public Collection<TransponderElement> getSelectedTransponders() {
+    // final Object[] multiSel = browser.getSelectedItems();
+    // ArrayList<TransponderElement> trans = new ArrayList<>();
+    // if (multiSel != null) {
+    // for (Object o : multiSel) {
+    // if (o instanceof TransponderElement)
+    // trans.add((TransponderElement) o);
+    // }
+    // }
+    // return trans;
+    // }
     @Override
     public Collection<TransponderElement> getSelectedTransponders() {
-        final Object[] multiSel = browser.getSelectedItems();
+        final TreePath[] multiSel = browser.getSelectedNodes();
         ArrayList<TransponderElement> trans = new ArrayList<>();
         if (multiSel != null) {
-            for (Object o : multiSel) {
-                if (o instanceof TransponderElement)
-                    trans.add((TransponderElement) o);
+            for (TreePath path : multiSel) {
+                ExtendedTreeNode node = ((ExtendedTreeNode) path.getLastPathComponent());
+                Object userObject = node.getUserObject();
+                if (userObject instanceof TransponderElement
+                        && node.getUserInfo().get(NodeInfoKey.SYNC) != State.REMOTE)
+                    trans.add((TransponderElement) userObject);
             }
         }
         return trans;
@@ -478,42 +487,42 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     getConsole().getMission().save(true);
                 }
                 break;
+            // // Timer management
+            // case PlanControlState.ID_STATIC:
+            // PlanControlState planState = (PlanControlState) message;
+            // if (planState.getState() == STATE.READY || planState.getState() == STATE.BLOCKED) {
+            // if (running) {
+            // browser.transStopTimers();
+            // this.running = false;
+            // }
+            // }
+            // else if (!running) {
+            // browser.transStartVehicleTimers(getMainVehicleId());
+            // this.running = true;
+            // }
+            //
+            // break;
             // Timer management
-            case PlanControlState.ID_STATIC:
-                PlanControlState planState = (PlanControlState) message;
-                if (planState.getState() == STATE.READY || planState.getState() == STATE.BLOCKED) {
-                    if (running) {
-                        browser.transStopTimers();
-                        this.running = false;
-                    }
-                }
-                else if (!running) {
-                    browser.transStartVehicleTimers(getMainVehicleId());
-                    this.running = true;
-                }
-
-                break;
-            // Timer management
-            case LblRangeAcceptance.ID_STATIC:
-                LblRangeAcceptance acceptance;
-                try {
-                    acceptance = LblRangeAcceptance.clone(message);
-                    int id = acceptance.getId();
-                    browser.transUpdateTimer((short) id, getMainVehicleId());
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().error("Problem cloning a message.", e);
-                }
-                break;
-            // Beacons list and state management
-            case LblConfig.ID_STATIC:
-                LblConfig lblConfig = (LblConfig) message;
-                if (((LblConfig) message).getOp() == OP.CUR_CFG) {
-                    @SuppressWarnings("unchecked")
-                    final Vector<LblBeacon> beacons = (Vector<LblBeacon>) lblConfig.getBeacons().clone();
-                    browser.transSyncConfig(beacons, getMainVehicleId());
-                }
-                break;
+            // case LblRangeAcceptance.ID_STATIC:
+            // LblRangeAcceptance acceptance;
+            // try {
+            // acceptance = LblRangeAcceptance.clone(message);
+            // int id = acceptance.getId();
+            // browser.transUpdateTimer((short) id, getMainVehicleId());
+            // }
+            // catch (Exception e) {
+            // NeptusLog.pub().error("Problem cloning a message.", e);
+            // }
+            // break;
+            // // Beacons list and state management
+            // case LblConfig.ID_STATIC:
+            // LblConfig lblConfig = (LblConfig) message;
+            // if (((LblConfig) message).getOp() == OP.CUR_CFG) {
+            // @SuppressWarnings("unchecked")
+            // final Vector<LblBeacon> beacons = (Vector<LblBeacon>) lblConfig.getBeacons().clone();
+            // browser.transSyncConfig(beacons, getMainVehicleId());
+            // }
+            // break;
 
             default:
                 NeptusLog.pub().error("Unkwon message " + mgid);

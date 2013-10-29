@@ -18,10 +18,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.TreeMap;
@@ -34,7 +32,6 @@ import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeCellRenderer;
@@ -43,7 +40,6 @@ import javax.swing.tree.TreePath;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
@@ -51,6 +47,7 @@ import pt.up.fe.dceg.neptus.console.plugins.PlanChangeListener;
 import pt.up.fe.dceg.neptus.gui.tree.ExtendedTreeNode;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.LblBeacon;
+import pt.up.fe.dceg.neptus.imc.LblConfig;
 import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
 import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBInfo;
 import pt.up.fe.dceg.neptus.types.Identifiable;
@@ -61,7 +58,6 @@ import pt.up.fe.dceg.neptus.types.map.MapGroup;
 import pt.up.fe.dceg.neptus.types.map.MapType;
 import pt.up.fe.dceg.neptus.types.map.MarkElement;
 import pt.up.fe.dceg.neptus.types.map.TransponderElement;
-import pt.up.fe.dceg.neptus.types.map.TransponderUtils;
 import pt.up.fe.dceg.neptus.types.misc.LBLRangesTimer;
 import pt.up.fe.dceg.neptus.types.mission.HomeReference;
 import pt.up.fe.dceg.neptus.types.mission.MapMission;
@@ -69,7 +65,6 @@ import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 import pt.up.fe.dceg.neptus.util.ByteUtil;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.JTreeUtils;
 import pt.up.fe.dceg.neptus.util.comm.HTTPUtils;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
@@ -319,34 +314,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
     }
 
-    // public void refreshBrowser(final PlanType selectedPlan, final MissionType mission) {
-    //
-    // SwingUtilities.invokeLater(new Runnable() {
-    //
-    // @Override
-    // public void run() {
-    // if (mission == null) {
-    // treeModel.clearTree();
-    // return;
-    // }
-    // HomeReference homeRef = mission.getHomeRef();
-    // Vector<TransponderElement> trans = MapGroup.getMapGroupInstance(mission).getAllObjectsOfType(
-    // TransponderElement.class);
-    // Collections.sort(trans);
-    //
-    // TreeMap<String, PlanType> plans = mission.getIndividualPlansList();
-    // PlanType plan = selectedPlan;
-    // treeModel.redoModel(trans, homeRef, plans, plan);
-    //
-    // // elementTree.expandPath(new TreePath(treeModel.trans));
-    // treeModel.expandTree();
-    // // JTreeUtils.expandAll(elementTree);
-    // revalidate();
-    // repaint();
-    // }
-    //
-    // });
-    // }
 
     public void refreshBrowser_(final PlanType selectedPlan, final MissionType mission, final String mainVehicleId) {
         // Home ref
@@ -362,26 +329,21 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
         updatePlansStateEDT(localPlans, mainVehicleId);
         // Transponders
-        final Vector<TransponderElement> trans = MapGroup.getMapGroupInstance(mission).getAllObjectsOfType(
-                TransponderElement.class);
-        Collections.sort(trans);
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                transElemSyncConfig(trans, mainVehicleId);
-                JTreeUtils.expandAll(elementTree);
-            }
-
-        });
+        updateTransStateEDT(mission, mainVehicleId);
+        // final Vector<TransponderElement> trans = MapGroup.getMapGroupInstance(mission).getAllObjectsOfType(
+        // TransponderElement.class);
+        // Collections.sort(trans);
+        // SwingUtilities.invokeLater(new Runnable() {
+        //
+        // @Override
+        // public void run() {
+        // transElemSyncConfig(trans, mainVehicleId);
+        // JTreeUtils.expandAll(elementTree);
+        // }
+        //
+        // });
     }
 
-    private void expandParent(DefaultMutableTreeNode parent) {
-        if (parent.getChildCount() > 0) {
-            ExtendedTreeNode firstChild = (ExtendedTreeNode) parent.getFirstChild();
-            elementTree.makeVisible(new TreePath(firstChild.getPath()));
-        }
-    }
     @Override
     public void planChange(PlanType plan) {
         setSelectedPlan(plan);
@@ -587,9 +549,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     "Missing support for " + item.getClass().getCanonicalName() + " in "
                             + MissionBrowser.class.getCanonicalName() + ".removeItem()");
         }
-        // if (isChanged) {
-        // warnListeners();
-        // }
     }
 
     public void removeplanById(String planId) {
@@ -626,15 +585,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         });
     }
 
-    // /**
-    // * Returns the JTree where all the items are displayed
-    // *
-    // * @return The JTree component that displays all the items of the mission
-    // */
-    // public JTree getElementTree() {
-    // return elementTree;
-    // }
-
     public Object getElementAt(int x, int y) {
         TreePath path = elementTree.getPathForLocation(x, y);
         if (path != null) {
@@ -648,22 +598,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         return elementTree.getPathForLocation(x, y);
     }
 
-    // public void addChangeListener(ChangeListener listener) {
-    // listeners.add(listener);
-    // }
-    //
-    // public void removeChangeListener(ChangeListener listener) {
-    // listeners.remove(listener);
-    // }
-
-    // public void warnListeners() {
-    // ChangeEvent ce = new ChangeEvent(this);
-    // for (int i = 0; i < listeners.size(); i++) {
-    // ChangeListener listener = listeners.get(i);
-    // listener.stateChanged(ce);
-    // }
-    // }
-
     public void setSelectedPlan(PlanType plan) {
         if (getSelectedItem() == plan) {
             return;
@@ -673,7 +607,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             return;
         }
 
-        ExtendedTreeNode plans = treeModel.trans;
+        ExtendedTreeNode plans = treeModel.plans;
         if (plans != null) {
             int numPlans = treeModel.getChildCount(plans);
 
@@ -697,23 +631,60 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         elementTree.setSelectionPaths(selectedNodes);
     }
 
+    // /**
+    // * Delete all plans not in the set.
+    // *
+    // * @param existingPlans the set of existing plans.
+    // */
+    // private void deleteDiscontinuedPlans(HashSet<String> existingPlans){
+    // int planNumber = treeModel.plans.getChildCount();
+    // int p = 0;
+    // ExtendedTreeNode child;
+    // while (p < planNumber) {
+    // child = (ExtendedTreeNode) treeModel.plans.getChildAt(p);
+    // Identifiable plan = (Identifiable) child.getUserObject();
+    // String planId = plan.getIdentification();
+    // if(!existingPlans.contains(planId)){
+    // treeModel.removeById(plan, treeModel.plans);
+    // System.out.println("Removing " + planId);
+    // planNumber--;
+    // p--;
+    // }
+    // p++;
+    // }
+    // }
+
     /**
-     * Delete all plans not in the set.
+     * Delete all items not in the set.
      * 
-     * @param existingPlans the set of existing plans.
+     * @param existing the set of existing items.
      */
-    private void deleteDiscontinuedPlans(HashSet<String> existingPlans){
-        int planNumber = treeModel.plans.getChildCount();
+    private void deleteDiscontinued(HashSet<String> existing, ParentNodes parentType) {
+        ExtendedTreeNode parent;
+        switch (parentType) {
+            case PLANS:
+                parent = treeModel.plans;
+                break;
+            case TRANSPONDERS:
+                parent = treeModel.trans;
+                break;
+            default:
+                NeptusLog.pub().error(
+                        "ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.deleteDiscontinued()");
+                return;
+        }
+        int count = parent.getChildCount();
         int p = 0;
         ExtendedTreeNode child;
-        while (p < planNumber) {
-            child = (ExtendedTreeNode) treeModel.plans.getChildAt(p);
-            Identifiable plan = (Identifiable) child.getUserObject();
-            String planId = plan.getIdentification();
-            if(!existingPlans.contains(planId)){
-                treeModel.removeById(plan, treeModel.plans);
-                System.out.println("Removing " + planId);
-                planNumber--;
+        Identifiable childObj;
+        while (p < count) {
+            child = (ExtendedTreeNode) parent.getChildAt(p);
+            childObj = (Identifiable) child.getUserObject();
+            String id = childObj.getIdentification();
+            if (!existing.contains(id)) {
+                treeModel.removeById(childObj, parent);
+                System.out.println("Removing " + id);
+                count--;
                 p--;
             }
             p++;
@@ -742,7 +713,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             public void run() {
                 HashSet<String> existingPlans = mergeLocalPlans(localPlans, sysName, treeModel);
                 existingPlans = mergeRemotePlans(sysName, remotePlans, treeModel, existingPlans);
-                deleteDiscontinuedPlans(existingPlans);
+                deleteDiscontinued(existingPlans, ParentNodes.PLANS);
                 elementTree.expandPath(new TreePath(treeModel.plans.getPath()));
                 System.out.println("Nodes in Plans:" + treeModel.plans.getChildCount());
             }
@@ -750,7 +721,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     /**
-     * Go through local plans and alphabetically merge into nextModel.
+     * Go through remote plans and alphabetically merge into nextModel.
      * 
      * @param sysName the main vehicle
      * @param remotePlans remote plans known to IMCSystem
@@ -762,7 +733,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         Set<String> remotePlansIds = remotePlans.keySet();
         for (String planId : remotePlansIds) {
             existingPlans.add(planId);
-            target = treeModel.findPlan(planId);
+            target = treeModel.findNode(planId, ParentNodes.PLANS);
             PlanDBInfo remotePlan = remotePlans.get(planId);
             System.out.print(planId + "\t");
             if (target == null) {
@@ -770,7 +741,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 target = new ExtendedTreeNode(remotePlan);
                 target.getUserInfo().put(NodeInfoKey.ID.name(), planId);
                 target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.REMOTE);
-                treeModel.insertPlanAlphabetically(target, treeModel);
+                treeModel.insertAlphabetically(target, treeModel, ParentNodes.PLANS);
                 System.out.println(" plan from IMCSystem not found in mission tree  >> Remote.");
             }
             else {
@@ -802,6 +773,64 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     /**
+     * Go through remote LblBeacon configurations and alphabetically merge into nextModel.
+     * <p>
+     * Unable to use the same method as for plan because of the differences between LblBeacons, PlanDBInfo and PlanType.
+     * 
+     * @param sysName the main vehicle
+     * @param remote beacon configurations known to IMCSystem
+     * @param treeModel the model where to merge
+     */
+    private HashSet<String> mergeRemoteTrans(String sysName, LinkedHashMap<String, LblBeacon> remote,
+            Model treeModel, HashSet<String> existing) {
+        ExtendedTreeNode target;
+        LblBeacon remoteItem;
+        TransponderElement newTrans;
+        Set<String> remoteIds = remote.keySet();
+        for (String id : remoteIds) {
+            existing.add(id);
+            target = treeModel.findNode(id, ParentNodes.TRANSPONDERS);
+            remoteItem = remote.get(id);
+            System.out.print(id + "\t");
+            if (target == null) {
+                // If no plan exits insert as remote
+                newTrans = new TransponderElement();
+                newTrans.setId(id);
+                target = new ExtendedTreeNode(remoteItem);
+                target.getUserInfo().put(NodeInfoKey.ID.name(), id);
+                target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.REMOTE);
+                treeModel.insertAlphabetically(target, treeModel, ParentNodes.TRANSPONDERS);
+                System.out.println(" trans from IMCSystem not found in mission tree  >> Remote.");
+            }
+            else {
+                   // Check if existing trans is remote
+                Object existingTrans = target.getUserObject();
+                if (target.getUserInfo().get(NodeInfoKey.SYNC.name()) == State.REMOTE) {
+                    target.setUserObject(remoteItem);
+                    System.out.println(" in tree mission was updated  >> Remote.");
+                }
+                else {
+                    PlanType existingLocalPlan = (PlanType) existingTrans;
+                    // If there is already a config use md5 to find out if it is sync
+                    byte[] localMD5 = existingLocalPlan.asIMCPlan().payloadMD5();
+                    byte[] remoteMD5 = remoteItem.getRawData("md5");
+                    if (ByteUtil.equal(localMD5, remoteMD5)) {
+                        target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
+                        System.out.println(" in tree mission is TransponderElement (local type). Md5 ==,  >> Sync.");
+                    }
+                    else {
+                        target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.NOT_SYNC);
+                        System.out.println(" in tree mission is TransponderElement (local type). "
+                                + "Md5 !=,  >> Not_sync.");
+                    }
+                }
+            }
+            target.getUserInfo().put(NodeInfoKey.VEHICLE.name(), sysName);
+        }
+        return existing;
+    }
+
+    /**
      * Go through remote plans and alphabetically merge into model. Make a list of all seen plans so discontinued ones
      * can be deleted later on.
      * 
@@ -817,14 +846,14 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         PlanType plan;
         for (String planId : localPlansIds) {
             existingPlans.add(planId);
-            target = treeModel.findPlan(planId);
+            target = treeModel.findNode(planId, ParentNodes.PLANS);
             plan = localPlans.get(planId);
             System.out.print(planId + " \t");
             if (target == null) {
                 // If no plan exits insert as local
                 newNode = new ExtendedTreeNode(plan);
                 newNode.getUserInfo().put(NodeInfoKey.ID.name(), planId);
-                treeModel.insertPlanAlphabetically(newNode, treeModel);
+                treeModel.insertAlphabetically(newNode, treeModel, ParentNodes.PLANS);
                 target = newNode;
                 System.out.print(" mission plan not found in mission tree. Creating with mission plan.");
             }
@@ -842,8 +871,51 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         return existingPlans;
     }
 
+    /**
+     * Go through remote items and alphabetically merge into model. Make a list of all seen items so discontinued ones
+     * can be deleted later on.
+     * 
+     * @param local items associated with the mission known to IMCSystem
+     * @param sysName the main vehicle
+     * @param treeModel the model where to merge
+     * @return the list of seen items.
+     */
+    private HashSet<String> mergeLocal(LinkedHashMap<String, ? extends Identifiable> local, String sysName,
+            Model treeModel,
+            ParentNodes itemType) {
+        Set<String> localIds = local.keySet();
+        HashSet<String> existing = new HashSet<String>();
+        ExtendedTreeNode target, newNode;
+        Identifiable item;
+        for (String id : localIds) {
+            existing.add(id);
+            target = treeModel.findNode(id, itemType);
+            item = local.get(id);
+            System.out.print(id + " \t");
+            if (target == null) {
+                // If no plan exits insert as local
+                newNode = new ExtendedTreeNode(item);
+                newNode.getUserInfo().put(NodeInfoKey.ID.name(), id);
+                treeModel.insertAlphabetically(newNode, treeModel, itemType);
+                target = newNode;
+                System.out.print(itemType.name() + " not found in mission tree. Creating with mission plan.");
+            }
+            else {
+                target.setUserObject(item);
+                System.out.print(" updated " + itemType.name() + " object.");
+                // not worth the troubele of checking if it is different
+            }
+            // Set the node to local regardless.
+            // It will be checked when processing remote states.
+            target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.LOCAL);
+            target.getUserInfo().put(NodeInfoKey.VEHICLE.name(), sysName);
+            System.out.println(" Setting as local.");
+        }
+        return existing;
+    }
+
     public boolean remotePlanUpdated(PlanType plan) {
-        ExtendedTreeNode target = treeModel.findPlan(plan.getIdentification());
+        ExtendedTreeNode target = treeModel.findNode(plan.getIdentification(), ParentNodes.PLANS);
         if (target != null) {
             target.setUserObject(plan);
             target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
@@ -852,6 +924,12 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         return false;
     }
 
+    /**
+     * Go to IMCSystem in the IMCSystemHolder and the plans stored in the associated PlanDBControl.
+     * 
+     * @param sysName the name of the system you want the plans from
+     * @return the plans found, an empty map if none are found
+     */
     private LinkedHashMap<String, PlanDBInfo> getRemotePlans(String sysName) {
         LinkedHashMap<String, PlanDBInfo> remotePlans;
         try {
@@ -865,63 +943,56 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         return remotePlans;
     }
 
+
+    /**
+     * Go to IMCSystem in the IMCSystemHolder and return the lastest LblBeacon configurations.
+     * 
+     * @param sysName the name of the system you want the plans from
+     * @return the LBLBeacons found, an empty Map if anything was uninitialized
+     */
+    private LinkedHashMap<String, LblBeacon> getRemoteTrans(String sysName) {
+        LinkedHashMap<String, LblBeacon> remoteTrans = new LinkedHashMap<String, LblBeacon>();
+        try {
+            Vector<LblBeacon> beacons = ((LblConfig) ImcSystemsHolder.lookupSystemByName(sysName).retrieveData(
+                    ImcSystem.LBL_CONFIG_KEY)).getBeacons();
+            for (LblBeacon lblBeacon : beacons) {
+                remoteTrans.put(lblBeacon.getBeacon(), lblBeacon);
+            }
+        }
+        catch (NullPointerException e) {
+            NeptusLog.pub().warn("I cannot find remote beacon configuration for " + sysName);
+        }
+        return remoteTrans;
+    }
+
     public synchronized void updateRemotePlansState(ImcSystem[] imcSystems) {
         NeptusLog.pub().error(
                 "The method updateRemotePlansState is disabled, please review code in "
                         + MissionBrowser.class.getCanonicalName());
     }
 
-    public void transUpdateElapsedTime() {
-        try {
-//            if (imcSystem == null)
-//                return;
-
-            ExtendedTreeNode trans = treeModel.trans;
-            if (trans != null && trans.getChildCount() != 0) {
-                // LblConfig lblCfg = (LblConfig) imcSystem.retrieveData(ImcSystem.LBL_CONFIG_KEY);
-                // Vector<LblBeacon> beacons = lblCfg != null ? lblCfg.getBeacons() : new Vector<LblBeacon>();
-                ExtendedTreeNode childTrans = (ExtendedTreeNode) trans.getFirstChild();
-                // int i = 0;
-                while (childTrans != null) {
-                    if (childTrans.getUserObject() instanceof TransponderElement) {
-                        HashMap<String, Object> userInfo = childTrans.getUserInfo();
-
-                        updateTimeElapsed(childTrans, userInfo);// NEEDS to run!!!
-
-                        // userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
-                        //
-                        // if (lblCfg != null && !beacons.isEmpty()) {
-                        // try {
-                        // TransponderElement transE = (TransponderElement) childTrans.getUserObject();
-                        // LblBeacon childBeacon = TransponderUtils.getTransponderAsLblBeaconMessage(transE);
-                        // byte[] localMD5 = childBeacon.payloadMD5();
-                        // for (LblBeacon b : beacons) {
-                        // byte[] remoteMD5 = b.payloadMD5();
-                        // if (ByteUtil.equal(localMD5, remoteMD5)) {
-                        // userInfo.put(NodeInfoKey.SYNC.name(), State.SYNC);
-                        // userInfo.put(NodeInfoKey.ID.name(), i);
-                        // userInfo.put(NodeInfoKey.VEHICLE.name(), imcSystem.getName());
-                        // beacons.remove(b);
-                        // break;
-                        // }
-                        // }
-                        // }
-                        // catch (Exception e) {
-                        // e.printStackTrace();
-                        // }
-                        // }
-                    }
-                    // i++;
-                    childTrans = (ExtendedTreeNode) childTrans.getNextSibling();
-                }
-            }
-            treeModel.nodeStructureChanged(trans);// --> has twitches
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
+    // public void transUpdateElapsedTime() {
+    // try {
+    // ExtendedTreeNode trans = treeModel.trans;
+    // if (trans != null && trans.getChildCount() != 0) {
+    // ExtendedTreeNode childTrans = (ExtendedTreeNode) trans.getFirstChild();
+    // while (childTrans != null) {
+    // if (childTrans.getUserObject() instanceof TransponderElement) {
+    // HashMap<String, Object> userInfo = childTrans.getUserInfo();
+    //
+    // updateTimeElapsed(childTrans, userInfo);// NEEDS to run!!!
+    //
+    // }
+    // childTrans = (ExtendedTreeNode) childTrans.getNextSibling();
+    // }
+    // }
+    // treeModel.nodeStructureChanged(trans);// --> has twitches
+    // }
+    // catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    //
+    // }
 
     private void updateTimeElapsed(ExtendedTreeNode childTrans, HashMap<String, Object> userInfo) {
         ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName((String) userInfo.get(NodeInfoKey.VEHICLE.name()));
@@ -936,211 +1007,247 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
     }
 
-    /**
-     * If at surface, stop timer. Otherwise reset timer to 0.
-     * 
-     * @param id
-     * @param mainVehicle
-     */
-    public void transUpdateTimer(short id, String mainVehicle) {
-        ExtendedTreeNode trans = treeModel.trans;
-        int childCount = trans.getChildCount();
-        for (int c = 0; c < childCount; c++) {
-            ExtendedTreeNode transNode = (ExtendedTreeNode) trans.getChildAt(c);
-            HashMap<String, Object> userInfo = transNode.getUserInfo();
-            int nodeId = (int) userInfo.get(NodeInfoKey.ID.name());
-            String transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
-            if (nodeId == id && transVehicle.equals(mainVehicle)) {
-                ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
-                if (imcSystems != null) {
-                    String name = ((TransponderElement) transNode.getUserObject()).getName();
-                    LBLRangesTimer timer = (LBLRangesTimer) imcSystems.retrieveData(name);
-                    if (timer == null) {
-                        timer = new LBLRangesTimer();
-                        imcSystems.storeData(name, timer);
-                    }
-                    timer.resetTime();
-                }
-                revalidate();
-                break;
+    // /**
+    // * If at surface, stop timer. Otherwise reset timer to 0.
+    // *
+    // * @param id
+    // * @param mainVehicle
+    // */
+    // public void transUpdateTimer(short id, String mainVehicle) {
+    // ExtendedTreeNode trans = treeModel.trans;
+    // int childCount = trans.getChildCount();
+    // for (int c = 0; c < childCount; c++) {
+    // ExtendedTreeNode transNode = (ExtendedTreeNode) trans.getChildAt(c);
+    // HashMap<String, Object> userInfo = transNode.getUserInfo();
+    // int nodeId = (int) userInfo.get(NodeInfoKey.ID.name());
+    // String transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
+    // if (nodeId == id && transVehicle.equals(mainVehicle)) {
+    // ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
+    // if (imcSystems != null) {
+    // String name = ((TransponderElement) transNode.getUserObject()).getName();
+    // LBLRangesTimer timer = (LBLRangesTimer) imcSystems.retrieveData(name);
+    // if (timer == null) {
+    // timer = new LBLRangesTimer();
+    // imcSystems.storeData(name, timer);
+    // }
+    // timer.resetTime();
+    // }
+    // revalidate();
+    // break;
+    // }
+    // }
+    // }
+    //
+    // /**
+    // * Start all synchronized transponders associated with the vehicle.
+    // *
+    // * @param mainVehicle
+    // */
+    // public void transStartVehicleTimers(String mainVehicle) {
+    // ExtendedTreeNode trans = treeModel.trans;
+    // int childCount = trans.getChildCount();
+    // for (int c = 0; c < childCount; c++) {
+    // ExtendedTreeNode transNode = (ExtendedTreeNode) trans.getChildAt(c);
+    // HashMap<String, Object> userInfo = transNode.getUserInfo();
+    // String transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
+    // // only looks at synchronized transponders that are linked to the designated vehicle
+    // State nodeSync = (State) userInfo.get(NodeInfoKey.SYNC.name());
+    // if (nodeSync == State.SYNC && transVehicle.equals(mainVehicle)) {
+    // ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
+    // if (imcSystems != null) {
+    // String name = ((TransponderElement) transNode.getUserObject()).getName();
+    // LBLRangesTimer timer = (LBLRangesTimer) imcSystems.retrieveData(name);
+    // if (timer == null) {
+    // timer = new LBLRangesTimer();
+    // imcSystems.storeData(name, timer);
+    // }
+    // timer.resetTime();
+    // }
+    // }
+    // }
+    // revalidate(); // call EDT
+    // }
+    //
+    //
+    // /**
+    // * Stop all transponder timers for every vehicle.
+    // *
+    // */
+    // public void transStopTimers() {
+    // ExtendedTreeNode trans = treeModel.trans;
+    // int childCount = trans.getChildCount();
+    // ExtendedTreeNode transNode;
+    // HashMap<String, Object> transInfo;
+    // ImcSystem imcSystems;
+    // String name;
+    // LBLRangesTimer timer;
+    // // For every transponder node, get the vehicle associated with it
+    // // Then retrieve the timer with the node's name in that vehicle's imcSystem hashmap.
+    // for (int c = 0; c < childCount; c++) {
+    // transNode = (ExtendedTreeNode) trans.getChildAt(c);
+    // transInfo = transNode.getUserInfo();
+    // String transVehicle = (String) transInfo.get(NodeInfoKey.VEHICLE.name());
+    // imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
+    // if (imcSystems != null) {
+    // name = ((TransponderElement) transNode.getUserObject()).getName();
+    // timer = (LBLRangesTimer) imcSystems.retrieveData(name);
+    // if (timer != null) {
+    // NeptusLog.pub().info("<###>Stoping timer for " + trans + " of " + transVehicle);
+    // timer.stopTimer();
+    // }
+    // }
+    // }
+    // revalidate();
+    // }
+
+    // /**
+    // * Compare current beacons with incoming beacons from vehicle. If there is a transponder configuration in the
+    // * vehicle equal to a configuration in the console, it becomes SYNc. If there is none it becomes LOCAL. No
+    // * transponder nodes are added.
+    // *
+    // * @param vehicleBeacons the incoming configuration
+    // * @param vehicle
+    // */
+    // public void transSyncConfig(Vector<LblBeacon> vehicleBeacons, String vehicle) {
+    // ExtendedTreeNode trans = treeModel.trans;
+    // // Doesn't add nodes, only updates state of existing ones
+    // if (trans != null && trans.getChildCount() != 0) {
+    // ExtendedTreeNode childTrans = (ExtendedTreeNode) trans.getFirstChild();
+    // int id = 0;
+    // TransponderElement transE;
+    // LblBeacon childBeacon;
+    // HashMap<String, Object> userInfo;
+    // byte[] localMD5, remoteMD5;
+    // boolean sync;
+    // while (childTrans != null) {
+    // transE = (TransponderElement) childTrans.getUserObject();
+    // childBeacon = TransponderUtils.getTransponderAsLblBeaconMessage(transE);
+    // localMD5 = childBeacon.payloadMD5();
+    // sync = false;
+    // // If there is a MD5 match between the child and any incoming transponder configuration that child
+    // // becomes SYNC
+    // LblBeacon beacon;
+    // Iterator<LblBeacon> beaconsIt = vehicleBeacons.iterator();
+    // while(beaconsIt.hasNext()){
+    // beacon = beaconsIt.next();
+    // remoteMD5 = beacon.payloadMD5();
+    // if (ByteUtil.equal(localMD5, remoteMD5)) {
+    // userInfo = childTrans.getUserInfo();
+    // userInfo.put(NodeInfoKey.SYNC.name(), State.SYNC);
+    // userInfo.put(NodeInfoKey.ID.name(), id);
+    // userInfo.put(NodeInfoKey.VEHICLE.name(), vehicle);
+    // treeModel.nodeStructureChanged(childTrans);
+    // beaconsIt.remove();
+    // sync = true;
+    // }
+    // }
+    // // If no match is found the child becomes LOCAL
+    // if (!sync) {
+    // userInfo = childTrans.getUserInfo();
+    // userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
+    // }
+    // id++;
+    // childTrans = (ExtendedTreeNode) childTrans.getNextSibling();
+    // }
+    // revalidate();
+    // }
+    // }
+    //
+    // /**
+    // * This is duplicate with update from IMC Message because of the difference between TransponderElement (which has
+    // no
+    // * md5) and LblBeacon (which has). This is duplicate with plan update because data types are not uniform
+    // * (PlanDBInfo, PlanType, TransElement, LblConfig)
+    // *
+    // * @param remoteTrans
+    // * @param vehicle
+    // */
+    // public void transElemSyncConfig(Vector<TransponderElement> remoteTrans, String vehicle) {
+    // ExtendedTreeNode transParentNode = treeModel.trans;
+    // TransponderElement remoteBeacon;
+    // byte[] localMD5, remoteMD5;
+    // HashMap<String, Object> userInfo;
+    // Iterator<TransponderElement> remoteBeaconsIt = remoteTrans.iterator();
+    // if (transParentNode != null && transParentNode.getChildCount() != 0) {
+    // TransponderElement localTransElem;
+    // int id = 0;
+    // ExtendedTreeNode childLocalTrans = (ExtendedTreeNode) transParentNode.getFirstChild();
+    // while (childLocalTrans != null) {
+    // localTransElem = (TransponderElement) childLocalTrans.getUserObject();
+    // localMD5 = localTransElem.getMd5();
+    // userInfo = childLocalTrans.getUserInfo();
+    // userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
+    // System.out.print(localTransElem.getIdentification());
+    // // If there is a MD5 match between the child and any incoming transponder configuration that child
+    // // becomes SYNC
+    // while(remoteBeaconsIt.hasNext()){
+    // remoteBeacon = remoteBeaconsIt.next();
+    // remoteMD5 = remoteBeacon.getMd5();
+    // if (ByteUtil.equal(localMD5, remoteMD5)) {
+    // userInfo.put(NodeInfoKey.SYNC.name(), State.SYNC);
+    // userInfo.put(NodeInfoKey.ID.name(), id);
+    // userInfo.put(NodeInfoKey.VEHICLE.name(), vehicle);
+    // treeModel.nodeStructureChanged(childLocalTrans);
+    // remoteBeaconsIt.remove();
+    // System.out.print(" is sync.");
+    // break;
+    // }
+    // }
+    // System.out.println();
+    // id++;
+    // childLocalTrans = (ExtendedTreeNode) childLocalTrans.getNextSibling();
+    // }
+    // }
+    // ExtendedTreeNode newNode;
+    // while (remoteBeaconsIt.hasNext()) {
+    // remoteBeacon = remoteBeaconsIt.next();
+    // newNode = treeModel.addTransponderNode(remoteBeacon);
+    // userInfo = newNode.getUserInfo();
+    // userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
+    // userInfo.put(NodeInfoKey.ID.name(), remoteBeacon.getIdentification());
+    // userInfo.put(NodeInfoKey.VEHICLE.name(), vehicle);
+    // System.out.println("Adding " + remoteBeacon.getIdentification());
+    // }
+    // revalidate();
+    // }
+
+    public void updateTransStateEDT(MissionType mission, final String sysName) {
+        final LinkedHashMap<String, TransponderElement> localTrans = getLocalTrans(mission);
+        final LinkedHashMap<String, LblBeacon> remoteTrans = getRemoteTrans(sysName);
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                HashSet<String> existingTrans = mergeLocal(localTrans, sysName, treeModel, ParentNodes.TRANSPONDERS);
+
+                existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans);
+                deleteDiscontinued(existingTrans, ParentNodes.TRANSPONDERS);
+                elementTree.expandPath(new TreePath(treeModel.plans.getPath()));
+                System.out.println("Nodes in Plans:" + treeModel.plans.getChildCount());
             }
-        }
+        });
     }
 
     /**
-     * Start all synchronized transponders associated with the vehicle.
+     * Get all the transponder elements associated with the mission.
      * 
-     * @param mainVehicle
+     * @param mission current mission
+     * @return the found elements
      */
-    public void transStartVehicleTimers(String mainVehicle) {
-        ExtendedTreeNode trans = treeModel.trans;
-        int childCount = trans.getChildCount();
-        for (int c = 0; c < childCount; c++) {
-            ExtendedTreeNode transNode = (ExtendedTreeNode) trans.getChildAt(c);
-            HashMap<String, Object> userInfo = transNode.getUserInfo();
-            String transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
-            // only looks at synchronized transponders that are linked to the designated vehicle
-            State nodeSync = (State) userInfo.get(NodeInfoKey.SYNC.name());
-            if (nodeSync == State.SYNC && transVehicle.equals(mainVehicle)) {
-                ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
-                if (imcSystems != null) {
-                    String name = ((TransponderElement) transNode.getUserObject()).getName();
-                    LBLRangesTimer timer = (LBLRangesTimer) imcSystems.retrieveData(name);
-                    if (timer == null) {
-                        timer = new LBLRangesTimer();
-                        imcSystems.storeData(name, timer);
-                    }
-                    timer.resetTime();
-                }
+    @SuppressWarnings("unchecked")
+    private <T extends Identifiable> LinkedHashMap<String, T> getLocalTrans(MissionType mission) {
+        LinkedHashMap<String, T> map = new LinkedHashMap<String, T>();
+        Vector<T> vector;
+        try {
+            vector = (Vector<T>) MapGroup.getMapGroupInstance(mission).getAllObjectsOfType(TransponderElement.class);
+            for (T transponderElement : vector) {
+                map.put(transponderElement.getIdentification(), transponderElement);
             }
         }
-        revalidate(); // call EDT
-    }
-
-
-    /**
-     * Stop all transponder timers for every vehicle.
-     * 
-     */
-    public void transStopTimers() {
-        ExtendedTreeNode trans = treeModel.trans;
-        int childCount = trans.getChildCount();
-        ExtendedTreeNode transNode;
-        HashMap<String, Object> transInfo;
-        ImcSystem imcSystems;
-        String name;
-        LBLRangesTimer timer;
-        // For every transponder node, get the vehicle associated with it
-        // Then retrieve the timer with the node's name in that vehicle's imcSystem hashmap.
-        for (int c = 0; c < childCount; c++) {
-            transNode = (ExtendedTreeNode) trans.getChildAt(c);
-            transInfo = transNode.getUserInfo();
-            String transVehicle = (String) transInfo.get(NodeInfoKey.VEHICLE.name());
-            imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
-            if (imcSystems != null) {
-                name = ((TransponderElement) transNode.getUserObject()).getName();
-                timer = (LBLRangesTimer) imcSystems.retrieveData(name);
-                if (timer != null) {
-                    NeptusLog.pub().info("<###>Stoping timer for " + trans + " of " + transVehicle);
-                    timer.stopTimer();
-                }
-            }
+        catch (NullPointerException e) {
+            NeptusLog.pub().warn("I cannot find local trans for main vehicle");
         }
-        revalidate();
-    }
-
-    /**
-     * Compare current beacons with incoming beacons from vehicle. If there is a transponder configuration in the
-     * vehicle equal to a configuration in the console, it becomes SYNc. If there is none it becomes LOCAL. No
-     * transponder nodes are added.
-     * 
-     * @param vehicleBeacons the incoming configuration
-     * @param vehicle
-     */
-    public void transSyncConfig(Vector<LblBeacon> vehicleBeacons, String vehicle) {
-        ExtendedTreeNode trans = treeModel.trans;
-        // Doesn't add nodes, only updates state of existing ones
-        if (trans != null && trans.getChildCount() != 0) {
-            ExtendedTreeNode childTrans = (ExtendedTreeNode) trans.getFirstChild();
-            int id = 0;
-            TransponderElement transE;
-            LblBeacon childBeacon;
-            HashMap<String, Object> userInfo;
-            byte[] localMD5, remoteMD5;
-            boolean sync;
-            while (childTrans != null) {
-                transE = (TransponderElement) childTrans.getUserObject();
-                childBeacon = TransponderUtils.getTransponderAsLblBeaconMessage(transE);
-                localMD5 = childBeacon.payloadMD5();
-                sync = false;
-                // If there is a MD5 match between the child and any incoming transponder configuration that child
-                // becomes SYNC
-                LblBeacon beacon;
-                Iterator<LblBeacon> beaconsIt = vehicleBeacons.iterator();
-                while(beaconsIt.hasNext()){
-                    beacon = beaconsIt.next();
-                    remoteMD5 = beacon.payloadMD5();
-                    if (ByteUtil.equal(localMD5, remoteMD5)) {
-                        userInfo = childTrans.getUserInfo();
-                        userInfo.put(NodeInfoKey.SYNC.name(), State.SYNC);
-                        userInfo.put(NodeInfoKey.ID.name(), id);
-                        userInfo.put(NodeInfoKey.VEHICLE.name(), vehicle);
-                        treeModel.nodeStructureChanged(childTrans);
-                        beaconsIt.remove();
-                        sync = true;
-                    }
-                }
-                // If no match is found the child becomes LOCAL
-                if (!sync) {
-                    userInfo = childTrans.getUserInfo();
-                    userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
-                }
-                id++;
-                childTrans = (ExtendedTreeNode) childTrans.getNextSibling();
-            }
-            revalidate();
-        }
-    }
-    
-    /**
-     * This is duplicate with update from IMC Message because of the difference between TransponderElement (which has no
-     * md5) and LblBeacon (which has). This is duplicate with plan update because data types are not uniform
-     * (PlanDBInfo, PlanType, TransElement, LblConfig)
-     * 
-     * @param remoteTrans
-     * @param vehicle
-     */
-    public void transElemSyncConfig(Vector<TransponderElement> remoteTrans, String vehicle) {
-        ExtendedTreeNode transParentNode = treeModel.trans;
-        // Doesn't add nodes, only updates state of existing ones
-        TransponderElement remoteBeacon;
-        byte[] localMD5, remoteMD5;
-        HashMap<String, Object> userInfo;
-        Iterator<TransponderElement> remoteBeaconsIt = remoteTrans.iterator();
-        if (transParentNode != null && transParentNode.getChildCount() != 0) {
-            TransponderElement localTransElem;
-            // boolean sync;
-            int id = 0;
-            ExtendedTreeNode childLocalTrans = (ExtendedTreeNode) transParentNode.getFirstChild();
-            while (childLocalTrans != null) {
-                localTransElem = (TransponderElement) childLocalTrans.getUserObject();
-                localMD5 = localTransElem.getMd5();
-                // sync = false;
-                userInfo = childLocalTrans.getUserInfo();
-                userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
-                // If there is a MD5 match between the child and any incoming transponder configuration that child
-                // becomes SYNC
-                while(remoteBeaconsIt.hasNext()){
-                    remoteBeacon = remoteBeaconsIt.next();
-                    remoteMD5 = remoteBeacon.getMd5();
-                    if (ByteUtil.equal(localMD5, remoteMD5)) {
-                        userInfo.put(NodeInfoKey.SYNC.name(), State.SYNC);
-                        userInfo.put(NodeInfoKey.ID.name(), id);
-                        userInfo.put(NodeInfoKey.VEHICLE.name(), vehicle);
-                        treeModel.nodeStructureChanged(childLocalTrans);
-                        remoteBeaconsIt.remove();
-                        // sync = true;
-                    }
-                }
-                // // If no match is found the child becomes LOCAL
-                // if (!sync) {
-                // userInfo = childLocalTrans.getUserInfo();
-                // userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
-                // }
-                id++;
-                childLocalTrans = (ExtendedTreeNode) childLocalTrans.getNextSibling();
-            }
-        }
-        ExtendedTreeNode newNode;
-        while (remoteBeaconsIt.hasNext()) {
-            remoteBeacon = remoteBeaconsIt.next();
-            newNode = treeModel.addTransponderNode(remoteBeacon);
-            userInfo = newNode.getUserInfo();
-            userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
-            userInfo.put(NodeInfoKey.ID.name(), remoteBeacon.getIdentification());
-            userInfo.put(NodeInfoKey.VEHICLE.name(), vehicle);
-        }
-        revalidate();
+        return map;
     }
 
     private void setSyncState(ExtendedTreeNode child, State state) {
@@ -1189,7 +1296,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 remoteNode.setPlanId(((PlanType) getSelectedItem()).getIdentification());
                 ExtendedTreeNode node = new ExtendedTreeNode(remoteNode);
                 setSyncState(node, State.REMOTE);
-                treeModel.insertPlanAlphabetically(node, treeModel);
+                treeModel.insertAlphabetically(node, treeModel, ParentNodes.PLANS);
             case LOCAL:
                 // Disappear
                 removeItem(getSelectedItem());
@@ -1204,7 +1311,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     public void setPlanAsSync(String planId) {
-        ExtendedTreeNode plan = treeModel.findPlan(planId);
+        ExtendedTreeNode plan = treeModel.findNode(planId, ParentNodes.PLANS);
         if (plan != null) {
             setSyncState(plan, State.SYNC);
         }
@@ -1270,77 +1377,54 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             return newModel;
         }
 
+        // /**
+        // * Searched for a plan with this id in the nodes of the tree.
+        // *
+        // * @param id of the plan
+        // * @return the node of the plan or null if none is found
+        // */
+        // public ExtendedTreeNode findPlan(String id) {
+        // int nodeChildCount = getChildCount(plans);
+        // for (int c = 0; c < nodeChildCount; c++) {
+        // ExtendedTreeNode childAt = (ExtendedTreeNode) plans.getChildAt(c);
+        // Identifiable tempPlan = (Identifiable) childAt.getUserObject();
+        // if (tempPlan.getIdentification().equals(id)) {
+        // return childAt;
+        // }
+        // }
+        // return null;
+        // }
+
         /**
-         * Searched for a plan with this id in the nodes of the tree.
+         * Searched for a node with this id in the nodes of the parent type.
          * 
          * @param id of the plan
-         * @return the node of the plan or null if none is found
+         * @param parentType of the node
+         * @return the node with the same id or null if none is found
          */
-        public ExtendedTreeNode findPlan(String id) {
-            int nodeChildCount = getChildCount(plans);
+        public ExtendedTreeNode findNode(String id, ParentNodes parentType) {
+            ExtendedTreeNode parent;
+            switch (parentType) {
+                case PLANS:
+                    parent = treeModel.plans;
+                    break;
+                case TRANSPONDERS:
+                    parent = treeModel.trans;
+                    break;
+                default:
+                    NeptusLog.pub().error(
+                            "ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.insertAlphabetically()");
+                    return null;
+            }
+            int nodeChildCount = getChildCount(parent);
             for (int c = 0; c < nodeChildCount; c++) {
-                ExtendedTreeNode childAt = (ExtendedTreeNode) plans.getChildAt(c);
-                Identifiable tempPlan = (Identifiable) childAt.getUserObject();
-                if (tempPlan.getIdentification().equals(id)) {
+                ExtendedTreeNode childAt = (ExtendedTreeNode) parent.getChildAt(c);
+                Identifiable temp = (Identifiable) childAt.getUserObject();
+                if (temp.getIdentification().equals(id)) {
                     return childAt;
                 }
             }
             return null;
-        }
-
-        public void clearTree() {
-
-            if (((DefaultMutableTreeNode) root).getChildCount() > 0) {
-                ExtendedTreeNode firstLeaf = (ExtendedTreeNode) ((DefaultMutableTreeNode) root)
-                        .getFirstChild();
-                removeNodeFromParent(firstLeaf);
-            }
-            if (trans.getParent() != null) {
-                removeNodeFromParent(trans);
-                cleanParent(ParentNodes.TRANSPONDERS);
-            }
-            if (plans.getParent() != null) {
-                removeNodeFromParent(plans);
-                cleanParent(ParentNodes.PLANS);
-            }
-            if (maps.getParent() != null) {
-                removeNodeFromParent(maps);
-                cleanParent(ParentNodes.MAP);
-            }
-        }
-
-        public void redoModel(final Vector<TransponderElement> transElements, final HomeReference homeRef,
-                final TreeMap<String, PlanType> plansElements, final PlanType selectedPlan) {
-            clearTree();
-
-            setHomeRef(homeRef);
-            int index = 0; // homeRef is at index 0
-
-            for (TransponderElement elem : transElements) {
-                addTransponderNode(elem);
-            }
-            if (trans.getChildCount() >= 0 && !((DefaultMutableTreeNode) root).isNodeChild(trans)) {
-                index++;
-                insertNodeInto(trans, (MutableTreeNode) root, index);
-            }
-
-            // TODO
-            // start = System.currentTimeMillis();
-            // ExtendedTreeNode node;
-            // for (PlanType planT : plansElements.values()) {
-            // node = new ExtendedTreeNode(planT);
-            // setSyncState(node, State.LOCAL);
-            // addToParents(node, ParentNodes.PLANS);
-            // }
-            if (plans.getChildCount() >= 0 && !plans.isNodeChild(root)) {
-                index++;
-                insertNodeInto(plans, (MutableTreeNode) root, index);
-            }
-            // end = System.currentTimeMillis();
-            // System.out.println("Sort plans " + (end - start));
-            //
-            // if (selectedPlan != null)
-            // setSelectedPlan(selectedPlan);
         }
 
         private ExtendedTreeNode addTransponderNode(TransponderElement elem) {
@@ -1350,55 +1434,74 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             transInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
             transInfo.put(NodeInfoKey.VEHICLE.name(), "");
             addToParents(node, ParentNodes.TRANSPONDERS);
-            System.out.println("Added transponder " + elem.getIdentification());
             return node;
         }
         
+        // /**
+        // * TODO remove need for treeModel attribute.
+        // *
+        // *
+        // * @param newNode
+        // * @param treeModel
+        // */
+        // private void insertPlanAlphabetically(ExtendedTreeNode newNode, Model treeModel) {
+        // Identifiable plan = (Identifiable) newNode.getUserObject();
+        // int nodeChildCount = getChildCount(treeModel.plans);
+        // ExtendedTreeNode childAt;
+        // Identifiable tempPlan;
+        // for (int c = 0; c < nodeChildCount; c++) {
+        // childAt = (ExtendedTreeNode) treeModel.plans.getChildAt(c);
+        // tempPlan = (Identifiable) childAt.getUserObject();
+        // if (tempPlan.getIdentification().compareTo(plan.getIdentification()) > 0) {
+        // insertNodeInto(newNode, treeModel.plans, c);
+        // return;
+        // }
+        // }
+        // System.out.print(" [addToParents] ");
+        // treeModel.addToParents(newNode, ParentNodes.PLANS);
+        // }
+        
         /**
-         * TODO remove need for treeModel attribute.
-         * 
+         * TODO remove need for treeModel attribute. \n
+         * TODO check why it is not needed to add if outside the last for
          * 
          * @param newNode
          * @param treeModel
          */
-        private void insertPlanAlphabetically(ExtendedTreeNode newNode, Model treeModel) {
-            Identifiable plan = (Identifiable) newNode.getUserObject();
-            int nodeChildCount = getChildCount(treeModel.plans);
-            ExtendedTreeNode childAt;
-            Identifiable tempPlan;
-            for (int c = 0; c < nodeChildCount; c++) {
-                childAt = (ExtendedTreeNode) treeModel.plans.getChildAt(c);
-                tempPlan = (Identifiable) childAt.getUserObject();
-                if (tempPlan.getIdentification().compareTo(plan.getIdentification()) > 0) {
-                    insertNodeInto(newNode, treeModel.plans, c);
-                    return;
-                }
-            }
-            System.out.print(" [addToParents] ");
-            treeModel.addToParents(newNode, ParentNodes.PLANS);
-        }
-        
-        private void cleanParent(ParentNodes parent) {
-            ExtendedTreeNode parentNode;
-            switch (parent) {
+        private boolean insertAlphabetically(ExtendedTreeNode newNode, Model treeModel, ParentNodes parentType) {
+            ExtendedTreeNode parent;
+            switch (parentType) {
                 case PLANS:
-                    parentNode = plans;
+                    parent = treeModel.plans;
                     break;
                 case TRANSPONDERS:
-                    parentNode = trans;
-                    break;
-                case MAP:
-                    parentNode = maps;
+                    parent = treeModel.trans;
+                    Thread.dumpStack();
                     break;
                 default:
-                    NeptusLog.pub().error("ADD SUPPORT FOR " + parent.nodeName + " IN MissionBrowser");
-                    return;
+                    NeptusLog.pub().error(
+                            "ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.insertAlphabetically()");
+                    return false;
             }
-            while (parentNode.getChildCount() > 0) {
-                removeNodeFromParent((MutableTreeNode) parentNode.getFirstChild());
+            Identifiable plan = (Identifiable) newNode.getUserObject();
+            int nodeChildCount = getChildCount(parent);
+            ExtendedTreeNode childAt;
+            Identifiable temp;
+            boolean inserted = false;
+            for (int c = 0; c < nodeChildCount && !inserted; c++) {
+                childAt = (ExtendedTreeNode) parent.getChildAt(c);
+                temp = (Identifiable) childAt.getUserObject();
+                if (temp.getIdentification().compareTo(plan.getIdentification()) > 0) {
+                    insertNodeInto(newNode, parent, c);
+                    inserted = true;
+                }
             }
+            System.out.print(" [addToParents] "
+                    + ((SwingUtilities.isEventDispatchThread() ? "out of EDT" : " in EDT ")));
+            // Add to the end (this ensures that if the parent wasn't visible in the tree before it is now
+            treeModel.addToParents(newNode, parentType);
+            return inserted;
         }
-
 
         private void addToParents(ExtendedTreeNode node, ParentNodes parentType) {
             ExtendedTreeNode parent = null;
@@ -1412,7 +1515,15 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     }
                     break;
                 case TRANSPONDERS:
-                    insertNodeInto(node, trans, trans.getChildCount());
+                    int childCount = trans.getChildCount();
+
+                    try {
+                        insertNodeInto(node, trans, childCount);
+                    }
+                    catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                     if (trans.getChildCount() == 1) {
                         parent = trans;
                         index = 1;
@@ -1429,33 +1540,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             }
         }
 
-        private void addToParents(ArrayList<Identifiable> objectToAdd, ParentNodes parent, State state) {
-            ExtendedTreeNode parentNode;
-            switch (parent) {
-                case PLANS:
-                    parentNode = plans;
-                    break;
-                case TRANSPONDERS:
-                    parentNode = trans;
-                    break;
-                case MAP:
-                    parentNode = maps;
-                    break;
-                default:
-                    NeptusLog.pub().error("ADD SUPPORT FOR " + parent.nodeName + " IN MissionBrowser");
-                    return;
-            }
-
-            Identifiable object;
-            ExtendedTreeNode newChild;
-            for (Iterator<Identifiable> iterator = objectToAdd.iterator(); iterator.hasNext();) {
-                object = iterator.next();
-                newChild = new ExtendedTreeNode(object);
-                newChild.getUserInfo().put(NodeInfoKey.SYNC.name(), state);
-                parentNode.add(newChild);
-            }
-            nodeStructureChanged(parentNode);
-        }
 
         /**
          * TODO change input to id and parent enumeration
@@ -1526,14 +1610,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             else {
                 homeR.setUserObject(href);
             }
-
-        }
-
-        public void expandTree() {
-            // elementTree.expandRow(0);
-            expandParent((DefaultMutableTreeNode) treeModel.getRoot());
-            expandParent(treeModel.trans);
-            expandParent(treeModel.plans);
         }
     }
 
@@ -1547,4 +1623,3 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         cellRenderer.maxAcceptableElapsedTime = maxAcceptableElapsedTime;
     }
 }
-
