@@ -113,11 +113,16 @@ public class NoptilusCoords implements PropertiesProvider {
         sw.translatePosition(-cellWidth * numRows/2, -cellWidth * numCols/2, 0);
         double[] offsets = loc.getOffsetFrom(sw);
         offsets[0] /= cellWidth;
-        offsets[1] /= cellWidth;        
-        if (offsets[0] < 0 || offsets[0] > numRows)
-            return null;
-        if (offsets[1] < 0 || offsets[1] > numCols)
-            return null;
+        offsets[1] /= cellWidth;
+        if (offsets[0] < 0)
+            offsets[0] = 0;
+        
+        if (offsets[0] > numRows-1)
+            offsets[0] = numRows-1;
+        if (offsets[1] < 0)
+            offsets[1] = 0;
+        if (offsets[1] > numCols-1)
+            offsets[1] = numCols-1;
         
         return new double[] {offsets[0],offsets[1]};
     }

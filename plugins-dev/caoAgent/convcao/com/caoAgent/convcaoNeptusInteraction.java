@@ -31,12 +31,16 @@
  */
 package convcao.com.caoAgent;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
@@ -50,6 +54,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -57,10 +62,13 @@ import java.util.Random;
 
 import javax.swing.ImageIcon;
 
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.up.fe.dceg.neptus.imc.DesiredZ;
+import pt.up.fe.dceg.neptus.imc.DesiredZ.Z_UNITS;
 import pt.up.fe.dceg.neptus.imc.EstimatedState;
 import pt.up.fe.dceg.neptus.imc.FollowRefState;
 import pt.up.fe.dceg.neptus.imc.Reference;
@@ -175,8 +183,11 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
     int timestep = 1;
 
     protected void showText(String text) {
-        jTextArea1.append(text+"\n");
+        jTextArea1.append("["+timestep+"] "+text+"\n");
+        while (jTextArea1.getRows() > 50 && jTextArea1.getText().contains("\n"))
+            jTextArea1.setText(jTextArea1.getText().substring(jTextArea1.getText().indexOf('\n')+1));
         jTextArea1.repaint();
+        jTextArea1.scrollRectToVisible(new Rectangle(0, jTextArea1.getHeight()+22, 1, 1) );
     }
 
     @Override
@@ -192,8 +203,31 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         Point2D center = renderer.getScreenPosition(coords.squareCenter);
         double width = renderer.getZoom() * coords.cellWidth * coords.numCols;
         double height = renderer.getZoom() * coords.cellWidth * coords.numRows;
-        g.setColor(new Color(0,255,0,128));
-        g.fill(new Rectangle2D.Double(center.getX() - width/2, center.getY() - height / 2, width, height));        
+        g.setColor(new Color(0,255,0,64));
+        g.fill(new Rectangle2D.Double(center.getX() - width/2, center.getY() - height / 2, width, height));
+        
+        for (String vehicle : nameTable.values()) {
+            LocationType src = positions.get(vehicle);
+            LocationType dst = destinations.get(vehicle);
+            
+            if (!arrived.get(vehicle))
+                g.setColor(Color.red);
+            else
+                g.setColor(Color.green.darker());
+            float dash[] = { 4.0f };
+            g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT,
+                    BasicStroke.JOIN_MITER,5.0f, dash, 0.0f));
+            g.draw(new Line2D.Double(renderer.getScreenPosition(src), renderer.getScreenPosition(dst)));
+            
+            Point2D dstPt = renderer.getScreenPosition(dst);
+            
+            if (!arrived.get(vehicle))
+                g.setColor(new Color(255,0,0,128));
+            else
+                g.setColor(new Color(0,128,0,128));
+            
+            g.fill(new Ellipse2D.Double(dstPt.getX()-4, dstPt.getY()-4, 8, 8));
+        }
     }
 
     public TransferData localState() {
@@ -257,7 +291,11 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
 
             try {
                 URL url = new URL("http://www.convcao.com/caoagile/FilesFromAgent/NEPTUS/" + SessionID + "_NewActions.txt");
-                BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+                URLConnection conn = url.openConnection();
+                conn.setUseCaches(false);
+                conn.connect();
+                //BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 String jsonClient = in.readLine();
                 receive = new Gson().fromJson(jsonClient,TransferData.class);    
                 receivedTimestep = receive.timeStep;
@@ -274,7 +312,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         for (int AUV = 0; AUV < receive.Location.length; AUV++) {
             String name = nameTable.get(AUV);
             LocationType loc = coords.convert(receive.Location[AUV][0], receive.Location[AUV][1]);
-            loc.setDepth(coords.convertNoptilusDepthToWgsDepth(receive.Location[AUV][2]));
+            loc.setDepth(1+AUV*1.5);//coords.convertNoptilusDepthToWgsDepth(receive.Location[AUV][2]));
             destinations.put(name, loc);
             showText(name+" is being sent to "+receive.Location[AUV][0]+", "+receive.Location[AUV][1]);
         }
@@ -298,6 +336,11 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
                             try {
                                 controlLoop();
                             }
+                            catch (InterruptedException e) {
+                                NeptusLog.pub().warn("Control thread interrupted");
+                                manager.stop();
+                                return;
+                            }
                             catch (Exception e) {
                                 GuiUtils.errorMessage(getConsole(), e);
                                 return;
@@ -308,6 +351,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
                         }
                     } catch (InterruptedException e) {
                         showText("Control thread interrupted");
+                        manager.stop();
                         return;
                     }
                 }                
@@ -357,9 +401,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         if (controlThread != null)
             controlThread.interrupt();
         
-        for (String v : nameTable.values())
-            manager.dissociateControl(VehiclesHolder.getVehicleById(v));
-        
+        manager.stop();
         jLabel9.setVisible(false);
         jButton1.setEnabled(false);
         jButton2.setEnabled(false);
@@ -370,8 +412,6 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         jTextArea1.setText("");
         jLabel10.setText("");
         jLabel6.setText("Please Renew your ID to start again");
-
-
     }
 
 
@@ -423,7 +463,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         bathymetry.clear();
         nameTable.clear();
         arrived.clear();
-
+        
         for (String auvName : vehicles) {            
             EstimatedState state = ImcMsgManager.getManager().getState(auvName).lastEstimatedState();
             if (state == null)
@@ -433,19 +473,22 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
             destinations.put(auvName, auvPosition);
             bathymetry.put(auvName, state.getDepth() + state.getAlt()); // FIXME tide offsets
             arrived.put(auvName, true);
-
-
             startControlling(VehiclesHolder.getVehicleById(auvName), ImcMsgManager.getManager().getState(auvName).lastEstimatedState());
         }
         int i = 0;
-        for (String v : positions.keySet())
+        double depth = 1;
+        for (String v : positions.keySet()) {
             nameTable.put(i++, v);
+            depths.put(v, depth);
+            depth += 1.5;
+        }
     }
 
 
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) throws SocketException, IOException {
         String[] vehicles = controlledVehicles.split(",");
-
+        jTextArea1.setText("");
+        jTextArea1.repaint();
         showText("Initializing Control Structures");
 
         try {
@@ -495,8 +538,11 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         {
             jLabel6.setText("Connection Established");
             jLabel1.setVisible(true);
+            System.out.println("Uploading first file");
             Upload("www.convcao.com","NEPTUS","",jTextField1.getText(),new String(jPasswordField1.getPassword()),fileName); //send first file
-            Upload("www.convcao.com","NEPTUS/" + SessionID,"plugins-dev/caoAgent/convcao/com/caoAgent/",jTextField1.getText(),new String(jPasswordField1.getPassword()),"mapPortoSparse.txt"); //send space map
+            System.out.println("Uploading second file");
+            Upload("www.convcao.com","NEPTUS/" + SessionID,"plugins-dev/caoAgent/convcao/com/caoAgent/",jTextField1.getText(),new String(jPasswordField1.getPassword()),"mapPortoSparse.txt"); //send sparse map
+            System.out.println("Both files uploaded");
             jButton1.setEnabled(true);
             jButton2.setEnabled(true);
             jTextPane1.setEditable(false);
@@ -554,14 +600,20 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
 
         FTPClient client = new FTPClient();
         FileInputStream fis = null;
+        
+        
 
         try {
             client.connect(ftpServer);
             client.login(userName, password);
+            client.enterLocalPassiveMode();
+            client.setFileType(FTP.BINARY_FILE_TYPE);
             fis = new FileInputStream(SourcePathDirectory+filename);
-            //TODO cancel async
             client.changeWorkingDirectory("/"+pathDirectory);
+            
             client.storeFile(filename, fis);
+            
+            System.out.println("The file "+SourcePathDirectory+" was stored to "+"/"+pathDirectory+"/"+filename);
             client.logout();
 
 
@@ -569,6 +621,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         }
         catch (Exception exp)
         {
+            exp.printStackTrace();
             Report = "Server Error";
             jLabel6.setText(Report);
         }finally {
@@ -929,12 +982,15 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         }
 
         Reference ref = new Reference();
-        ref.setFlags(Reference.FLAG_LOCATION);
+        ref.setFlags((short)(Reference.FLAG_LOCATION | Reference.FLAG_Z));
         LocationType dest = destinations.get(vehicle.getId());
+        float depth = depths.get(vehicle.getId()).floatValue();
         dest.convertToAbsoluteLatLonDepth();
+        System.out.println("depth for "+vehicle.getId()+" is "+depth);
         ref.setLat(dest.getLatitudeAsDoubleValueRads());
         ref.setLon(dest.getLongitudeAsDoubleValueRads());
-
+        DesiredZ desZ = new DesiredZ(depth, Z_UNITS.DEPTH);
+        ref.setZ(desZ);
         System.out.println("Sending this reference to "+vehicle.getId()+":");
         ref.dump(System.out);
         return ref;
@@ -949,9 +1005,9 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
 
     @Override
     public void stopControlling(VehicleType vehicle) {
-        this.positions.remove(vehicle.getId());
-        this.destinations.remove(vehicle.getId());
-        this.bathymetry.remove(vehicle.getId());
+        //this.positions.remove(vehicle.getId());
+        //this.destinations.remove(vehicle.getId());
+        //this.bathymetry.remove(vehicle.getId());
     }
 
     @Override

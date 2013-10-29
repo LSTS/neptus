@@ -53,6 +53,7 @@ import pt.up.fe.dceg.neptus.imc.PlanSpecification;
 import pt.up.fe.dceg.neptus.imc.Reference;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
@@ -61,7 +62,7 @@ import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
  * This class is used to associate external controllers with existing vehicles and manage their control loops
  * @author zp
  */
-public class ControllerManager extends Thread {
+public class ControllerManager {
 
     // Currently active controllers
     protected LinkedHashMap<String, IController> activeControllers = new LinkedHashMap<>();
@@ -73,10 +74,6 @@ public class ControllerManager extends Thread {
     
     protected boolean debug = true;
     
-    {
-        setDaemon(true);
-    }
-    
     /**
      * Add a new controller class
      * @param cClass The class of the controller
@@ -86,13 +83,22 @@ public class ControllerManager extends Thread {
             controllers.add(cClass);
     }
     
-    /*public AcousticOperation sendAcoustically(String system, IMCMessage message) {
-        AcousticOperation op = new AcousticOperation();
-        op.setOp(AcousticOperation.OP.MSG);
-        op.setMsg(message);
-        op.setSystem(system);
+    public void stop() {
         
-    }*/
+        if (debug)
+        System.out.println("Stopping all controller manager timers");
+        for (String v : activeControllers.keySet())
+            activeControllers.get(v).stopControlling(VehiclesHolder.getVehicleById(v));
+        
+        activeControllers.clear();
+        
+        for (Timer t : timers.values()) {
+            t.cancel();
+            t.purge();
+        }
+        
+        timers.clear();
+    }
     
     /**
      * Create a control loop
@@ -191,6 +197,7 @@ public class ControllerManager extends Thread {
         
         Timer t = new Timer(controller.getControllerName()+" control timer", true);
         t.schedule(task, 0, controlLatencySeconds * 1000);
+        timers.put(vehicle.getId(), t);
     }
     
     public void dissociateControl(VehicleType vehicle) {

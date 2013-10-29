@@ -48,6 +48,7 @@ import java.util.Vector;
 
 import javax.swing.JPopupMenu;
 
+import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
 import pt.up.fe.dceg.neptus.imc.AcousticOperation;
@@ -72,6 +73,8 @@ import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
+import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
@@ -99,7 +102,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     public double z = 0;
 
     @NeptusProperty
-    public double speed = 1.3;
+    public double speed = 1.1;
     
     @NeptusProperty
     public boolean useAcousticCommunications = false;
@@ -131,15 +134,49 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                     plans.get(v).popFirstWaypoint();                
             }
             if (plans.containsKey(v)) {
-                if (!useAcousticCommunications)
-                    send(v, plans.get(v).currentWaypoint().getReference());
-                else {
+                
+                if (useAcousticCommunications) {
                     AcousticOperation op = new AcousticOperation();
                     op.setOp(AcousticOperation.OP.MSG);
-                    op.setMsg(plans.get(v).currentWaypoint().getReference());
                     op.setSystem(v);
-                    send(v, op);
+                    op.setMsg(plans.get(v).currentWaypoint().getReference());
+
+                    ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
+                            SystemTypeEnum.ALL, true);
+
+                    if (sysLst.length == 0) {
+                        NeptusLog.pub().error("Cannot send reference acoustically because no system is capable of it");
+                        return true;
+                    }
+                    
+                    int successCount = 0;
+
+                    for (ImcSystem sys : sysLst) {
+                        if (ImcMsgManager.getManager().sendMessage(op, sys.getId(), null)) {
+                            successCount++;
+                            NeptusLog.pub().warn("Sent reference to "+v+" acoustically via "+ sys.getName());
+                        }
+                    }
+                    if (successCount == 0) {
+                        NeptusLog.pub().error("Cannot send reference acoustically because no system is capable of it");
+                    }
                 }
+                else {
+                    send(v, plans.get(v).currentWaypoint().getReference());
+                    //ImcMsgManager.getManager().sendMessageToSystem(ref, vehicle.getId());
+                }
+                
+//                
+//                
+//                if (!useAcousticCommunications)
+//                    send(v, plans.get(v).currentWaypoint().getReference());
+//                else {
+//                    AcousticOperation op = new AcousticOperation();
+//                    op.setOp(AcousticOperation.OP.MSG);
+//                    op.setMsg(plans.get(v).currentWaypoint().getReference());
+//                    op.setSystem(v);
+//                    send(v, op);
+//                }
             }
         }
         return true;
@@ -190,6 +227,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
 
+        try {
         Vector<ReferenceWaypoint> wpts = new Vector<>();
         for (ReferencePlan p : plans.values()) {
             wpts.clear();
@@ -210,14 +248,12 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 g.fill(ellis);
             }
         }
-            
-        
-        
+         
         
         for (ReferencePlan p : plans.values()) {
             Reference ref = p.currentWaypoint().getReference();
             FollowRefState lastFrefState = frefStates.get(p.system_id);
-            if (ref != null) {
+            if (ref != null && lastFrefState != null) {
                 Color c = Color.red;
 
                 if (lastFrefState != null) {
@@ -249,6 +285,10 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 g.setColor(c);
                 g.fill(ellis);
             }
+        }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
         }
     }
 
