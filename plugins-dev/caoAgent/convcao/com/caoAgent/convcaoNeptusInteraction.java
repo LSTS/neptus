@@ -213,7 +213,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
             if (!arrived.get(vehicle))
                 g.setColor(Color.red);
             else
-                g.setColor(Color.green.darker());
+                g.setColor(Color.blue.darker());
             float dash[] = { 4.0f };
             g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT,
                     BasicStroke.JOIN_MITER,5.0f, dash, 0.0f));
@@ -224,7 +224,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
             if (!arrived.get(vehicle))
                 g.setColor(new Color(255,0,0,128));
             else
-                g.setColor(new Color(0,128,0,128));
+                g.setColor(new Color(0,0,128,128));
             
             g.fill(new Ellipse2D.Double(dstPt.getX()-4, dstPt.getY()-4, 8, 8));
         }
@@ -412,6 +412,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         jTextArea1.setText("");
         jLabel10.setText("");
         jLabel6.setText("Please Renew your ID to start again");
+        timestep = 1;
     }
 
 
