@@ -112,7 +112,8 @@ fi
 touch -t $todayFind _start
 
 echo "# Creating a clean folder '"$to_upload"/'"
-rm -Rf $to_upload && mkdir $to_upload
+# rm -Rf $to_upload && mkdir $to_upload
+mkdir $to_upload
 
 if [ $? -ne 0 ]; then
   zenity --title="Create package" --error --text="Delete "$to_upload" please!";
