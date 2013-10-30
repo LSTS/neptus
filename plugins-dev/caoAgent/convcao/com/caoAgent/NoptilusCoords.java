@@ -46,19 +46,19 @@ import pt.up.fe.dceg.neptus.types.coord.LocationType;
  */
 public class NoptilusCoords implements PropertiesProvider {
     
-    @NeptusProperty 
+    @NeptusProperty(name="Area Center") 
     public LocationType squareCenter = new LocationType();
     
-    @NeptusProperty 
+    @NeptusProperty(name="Cell size", description="Cell size in meters for each map square")
     public double cellWidth = 5;
     
-    @NeptusProperty 
+    @NeptusProperty(name="Number of Rows", description="Number of rows in the area rectangle") 
     public double numRows = 40;
     
-    @NeptusProperty 
+    @NeptusProperty(name="Number of Columns", description="Number of columns in the area rectangle") 
     public double numCols = 40;
     
-    @NeptusProperty 
+    @NeptusProperty(name="Maximum Depth", description="Number of depth units to use for the Noptilus map") 
     public double maxDepth = 50;    
     
     {

@@ -143,20 +143,26 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
     protected ImageIcon noptilusLogo = ImageUtils.getIcon("images/control-mode/noptilus.png");
     protected ControllerManager manager = new ControllerManager();
     
-    @NeptusProperty
+    @NeptusProperty(name="Used vehicles", description="Identifiers of the vehicles to be used, separated by commas")
     public String controlledVehicles = "lauv-noptilus-1,lauv-noptilus-2";
 
-    @NeptusProperty
-    public String controlledVehicleDepths = "1.0,2.5";  
-
-    @NeptusProperty
-    public int controlLatencySecs = 5;  
-
-    @NeptusProperty
+    @NeptusProperty(name="First Depth", description="Depth for vehicle closer to the surface")
+    public double firstVehicleDepth = 1.5;
+    
+    @NeptusProperty(name="Depth separation", description="Depth separation between vehicles")
+    public double depthIncrements = 1.5;
+    
+    @NeptusProperty(name="Control Latency", description="Time, in seconds, between sending vehicle references")
+    public int controlLatencySecs = 3;
+    
+    @NeptusProperty(name="Control Timeout", description="Time, in seconds, after which the vehicle will stop executing the plan if no references are received")
+    public int controlTimeoutSecs = 120;
+    
+    @NeptusProperty(name="Use Acoustic Communications", description="Use acoustic communications to transmit desired control references")
     public boolean useAcousticComms = false;
 
-    @NeptusProperty
-    public double nearDistance = 12.5;    
+    @NeptusProperty(name="Near distance", description="Distance, in meters, to consider that the vehicles have arrived at desired reference points")
+    public double nearDistance = 12.5;
 
     protected Thread controlThread = null;
     
@@ -193,7 +199,18 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
     @Override
     public void propertiesChanged() {
         manager.setUseAcousticComms(useAcousticComms);
+        
+        LinkedHashMap<String, Double> newDepths = new LinkedHashMap<>();
+        double depth = firstVehicleDepth;
+        for (String v : positions.keySet()) {         
+            newDepths.put(v, depth);
+            depth += depthIncrements;
+        }
+      
+        depths = newDepths;
     }
+    
+    
 
     protected NoptilusCoords coords = new NoptilusCoords();
 
@@ -430,7 +447,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         showText("Starting FollowReference plans on vehicles");
         try {            
             for (String v : nameTable.values())
-                manager.associateControl(this, VehiclesHolder.getVehicleById(v), controlLatencySecs);
+                manager.associateControl(this, VehiclesHolder.getVehicleById(v), controlLatencySecs, controlTimeoutSecs);
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), e);
@@ -477,11 +494,11 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
             startControlling(VehiclesHolder.getVehicleById(auvName), ImcMsgManager.getManager().getState(auvName).lastEstimatedState());
         }
         int i = 0;
-        double depth = 1;
+        double depth = firstVehicleDepth;
         for (String v : positions.keySet()) {
             nameTable.put(i++, v);
             depths.put(v, depth);
-            depth += 1.5;
+            depth += depthIncrements;
         }
     }
 
@@ -930,12 +947,18 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
                 );
 
 
-        addMenuItem("Tools>Noptilus>Coordinate Settings", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
-
+        addMenuItem("Settings>Noptilus>Coordinate Settings", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 PluginUtils.editPluginProperties(coords, true);
                 coords.saveProps();                
+            }
+        });
+        
+        addMenuItem("Settings>Noptilus>ConvCAO Settings", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PluginUtils.editPluginProperties(convcaoNeptusInteraction.this, true);                               
             }
         });
 

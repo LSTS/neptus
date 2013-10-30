@@ -71,8 +71,10 @@ public class ControllerManager {
     // Available controller classes
     protected Vector<Class<? extends IController>> controllers = new Vector<>();    
     protected boolean useAcousticComms = false;
-    
     protected boolean debug = true;
+    
+    
+    
     
     /**
      * Add a new controller class
@@ -81,6 +83,10 @@ public class ControllerManager {
     public void addController(Class<? extends IController> cClass) {
         if (!controllers.contains(cClass))
             controllers.add(cClass);
+    }
+    
+    protected void startTimers() {
+        
     }
     
     public void stop() {
@@ -107,7 +113,7 @@ public class ControllerManager {
      * @param controlLatencySeconds 
      * @throws Exception
      */
-    public void associateControl(final IController controller, final VehicleType vehicle, int controlLatencySeconds) throws Exception {
+    public void associateControl(final IController controller, final VehicleType vehicle, int controlLatencySeconds, int timeoutSeconds) throws Exception {
         EstimatedState lastState = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
         if (!controller.supportsVehicle(vehicle, lastState)) {
             throw new Exception("The vehicle "+vehicle.getName()+" is not supported by "+controller.getControllerName()+" controller");
@@ -121,7 +127,7 @@ public class ControllerManager {
         man.setControlEnt((short)255);
         man.setControlSrc(65535);
         man.setAltitudeInterval(1);
-        man.setTimeout(controlLatencySeconds * 5);
+        man.setTimeout(timeoutSeconds);
         man.setLoiterRadius(7.5);
         
         PlanSpecification spec = new PlanSpecification();
