@@ -61,6 +61,7 @@ import java.util.LinkedHashMap;
 import java.util.Random;
 
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -216,11 +217,18 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
+        
+        g.setColor(Color.orange);
+        int pos = 50;
+        for (String v : nameTable.values()) {
+            g.drawString(v+": "+depths.get(v)+"m", 15, pos);
+            pos +=20;
+        }
 
         Point2D center = renderer.getScreenPosition(coords.squareCenter);
         double width = renderer.getZoom() * coords.cellWidth * coords.numCols;
         double height = renderer.getZoom() * coords.cellWidth * coords.numRows;
-        g.setColor(new Color(0,255,0,64));
+        g.setColor(new Color(0,0,255,64));
         g.fill(new Rectangle2D.Double(center.getX() - width/2, center.getY() - height / 2, width, height));
         
         for (String vehicle : nameTable.values()) {
@@ -228,9 +236,9 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
             LocationType dst = destinations.get(vehicle);
             
             if (!arrived.get(vehicle))
-                g.setColor(Color.red);
+                g.setColor(Color.red.darker());
             else
-                g.setColor(Color.blue.darker());
+                g.setColor(Color.green.darker());
             float dash[] = { 4.0f };
             g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT,
                     BasicStroke.JOIN_MITER,5.0f, dash, 0.0f));
@@ -239,9 +247,9 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
             Point2D dstPt = renderer.getScreenPosition(dst);
             
             if (!arrived.get(vehicle))
-                g.setColor(new Color(255,0,0,128));
+                g.setColor(Color.red.darker());
             else
-                g.setColor(new Color(0,0,128,128));
+                g.setColor(Color.green.darker());
             
             g.fill(new Ellipse2D.Double(dstPt.getX()-4, dstPt.getY()-4, 8, 8));
         }
@@ -961,6 +969,32 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
                 PluginUtils.editPluginProperties(convcaoNeptusInteraction.this, true);                               
             }
         });
+        
+        addMenuItem("Settings>Noptilus>Force vehicle depth", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (positions.isEmpty()) {
+                    GuiUtils.errorMessage(getConsole(), "Force vehicle depth", "ConvCAO control is not active");
+                    return;
+                }
+                String[] choices = nameTable.values().toArray(new String[0]);
+                
+                String vehicle = (String) JOptionPane.showInputDialog(getConsole(), "Force vehicle depth", "Choose vehicle",
+                    JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]); 
+                
+                if (vehicle != null) {
+                    double depth = depths.get(vehicle);
+                    String newDepth = JOptionPane.showInputDialog(getConsole(), "New depth", ""+depth);
+                    try {
+                        double dd = Double.parseDouble(newDepth);
+                        depths.put(vehicle, dd);
+                    }
+                    catch (Exception ex) {
+                        GuiUtils.errorMessage(getConsole(), ex);
+                    }
+                }
+            }
+        });        
 
         add(jPanelMain);
 
