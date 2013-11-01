@@ -32,13 +32,14 @@
 package pt.up.fe.dceg.neptus.plugins.acoustic;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.HashSet;
@@ -58,7 +59,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
+
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.notifications.Notification;
 import pt.up.fe.dceg.neptus.gui.VehicleChooser;
@@ -73,6 +75,8 @@ import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
+import pt.up.fe.dceg.neptus.plugins.Popup;
+import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.renderer2d.ILayerPainter;
 import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
@@ -96,8 +100,9 @@ import com.google.common.eventbus.Subscribe;
  * @author zp
  * 
  */
-@PluginDescription(name = "Manta Operations", author = "ZP")
+@PluginDescription(name = "Acoustic Operations", author = "ZP", icon="pt/up/fe/dceg/neptus/plugins/acoustic/manta.png")
 @LayerPriority(priority = 40)
+@Popup(name="Acoustic Operations", accelerator=KeyEvent.VK_M, width=350, height=250, pos=POSITION.BOTTOM_RIGHT, icon="pt/up/fe/dceg/neptus/plugins/acoustic/manta.png")
 public class MantaOperations extends SimpleSubPanel implements ConfigurationListener, Renderer2DPainter {
 
     private static final long serialVersionUID = 1L;
@@ -111,11 +116,12 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
     protected JTextArea bottomPane = new JTextArea();
     protected JToggleButton toggle;
     protected String selectedSystem = null;
+    protected String gateway = "any";
 
     protected LinkedHashMap<Integer, PlanControl> pendingRequests = new LinkedHashMap<>();
-    
+
     @NeptusProperty(name = "Systems listing", description = "Use commas to separate system identifiers")
-    public String sysListing = "benthos-1,benthos-2,benthos-3,benthos-4,lauv-seacon-1,lauv-seacon-2,lauv-seacon-3,lauv-seacon-4,lauv-xtreme-2,lauv-noptilus-1";
+    public String sysListing = "benthos-1,benthos-2,benthos-3,benthos-4.lauv-xtreme-2,lauv-noptilus-1,lauv-noptilus-2,lauv-noptilus-3";
 
     public HashSet<String> knownSystems = new HashSet<>();
 
@@ -162,8 +168,6 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                         filtered.add(planId);
 
                 if (filtered.isEmpty()) {
-                    // GuiUtils.errorMessage(I18n.text("Send Plan acoustically"),
-                    // I18n.text("Plans started acoustically cannot have an ID bigger than 1 character"));
                     post(Notification.error(I18n.text("Send Plan acoustically"),
                             I18n.text("Plans started acoustically cannot have an ID bigger than 1 character"))
                             .src(I18n.text("Console")));
@@ -187,8 +191,6 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                         SystemTypeEnum.ALL, true);
 
                 if (sysLst.length == 0) {
-                    // GuiUtils.errorMessage(getConsole(), I18n.text("Range system"),
-                    // I18n.text("No acoustic device is capable of sending this request"));
                     post(Notification.error(I18n.text("Start Plan"),
                             I18n.text("No acoustic device is capable of sending this request")).src(
                                     I18n.text("Console")));
@@ -203,7 +205,7 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                 pc.setRequestId(req);
 
                 pendingRequests.put(req, pc);
-                
+
                 AcousticOperation aop = new AcousticOperation();
                 aop.setOp(AcousticOperation.OP.MSG);
                 aop.setSystem(choice.getId());
@@ -224,154 +226,140 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
         });
 
         ImcMsgManager.getManager().addListener(this);
-        addMenuItem(I18n.text("Advanced") + ">" + I18n.text("Manta Operations"),
-                ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
 
-            @Override
+        JPanel ctrlPanel = new JPanel();
+        //BoxLayout layout = new BoxLayout(ctrlPanel, BoxLayout.PAGE_AXIS);
+        ctrlPanel.setLayout(new GridLayout(0, 1, 2, 2));
+
+        JButton btn = new JButton(I18n.textf("GW: %s", gateway));
+        btn.setActionCommand("gw");
+        cmdButtons.put("gw", btn);
+
+        btn.addActionListener(new ActionListener() {
+            @SuppressWarnings("unchecked")
             public void actionPerformed(ActionEvent arg0) {
-                if (visibleDialog != null) {
-                    GuiUtils.centerOnScreen(visibleDialog);
-                    visibleDialog.toFront();
+                Vector<Object> systems = new Vector<>();
+                systems.add("any");
+                systems.addAll(Arrays.asList(ImcSystemsHolder.lookupSystemByService("acoustic/operation",
+                        SystemTypeEnum.ALL, true)));
+                
+                Object[] choices = systems.toArray();
+                
+                if (choices.length == 0) {
+                    GuiUtils.errorMessage(getConsole(), "Select acoustic gateway", "No acoustic gateways have been discovered in the network");
+                    return;
                 }
-                JPanel ctrlPanel = new JPanel();
-                ctrlPanel.setLayout(new BoxLayout(ctrlPanel, BoxLayout.PAGE_AXIS));
 
-                JButton btn = new JButton(I18n.text("range"));
-                btn.setActionCommand("range");
-                cmdButtons.put("range", btn);
-                btn.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent arg0) {
-                        ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
-                                SystemTypeEnum.ALL, true);
+                Object gw = (Object) JOptionPane.showInputDialog(getConsole(), "Select Gateway", "Select acoustic gateway to use",
+                        JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
 
-                        if (sysLst.length == 0) {
-                            // GuiUtils.errorMessage(getConsole(), I18n.text("Range system"),
-                            // I18n.text("No acoustic device is capable of sending this request"));
-                            post(Notification.error(I18n.text("Range System"),
-                                    I18n.text("No acoustic device is capable of sending this request")).src(
-                                            I18n.text("Console")));
-                        }
-
-                        IMCMessage m = IMCDefinition.getInstance().create("AcousticOperation", "op", "RANGE",
-                                "system", selectedSystem);
-
-                        int successCount = 0;
-                        for (ImcSystem sys : sysLst)
-                            if (ImcMsgManager.getManager().sendMessage(m, sys.getId(), null))
-                                successCount++;
-
-                        if (successCount > 0) {
-                            bottomPane.setText(I18n.textf(
-                                    "Range %systemName commanded to %systemCount systems", selectedSystem,
-                                    successCount));
-                            // bottomPane.setCaretPosition(bottomPane.getText().length());
-                            // ((JScrollPane)bottomPane.getParent()).scrollRectToVisible(bottomPane.getBounds());
-                        }
-                        else {
-                            // GuiUtils.errorMessage(getConsole(), I18n.text("Range system"),
-                            // I18n.text("Unable to range selected system"));
-                            post(Notification.error(I18n.text("Range System"),
-                                    I18n.text("Unable to range selected system")).src(I18n.text("Console")));
-
-                        }
-                    }
-                });
-                ctrlPanel.add(btn);
-
-                toggle = new JToggleButton(I18n.text("show ranges"));
-                toggle.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent arg0) {
-                        showRanges = ((JToggleButton) arg0.getSource()).isSelected();
-                        if (!showRanges) {
-                            rangeDistances.clear();
-                            rangeSources.clear();
-                        }
-                    }
-                });
-                toggle.setSelected(showRanges);
-                ctrlPanel.add(toggle);
-
-                btn = new JButton(I18n.text("abort"));
-                btn.setActionCommand("abort");
-                cmdButtons.put("abort", btn);
-
-                btn.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent arg0) {
-                        ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
-                                SystemTypeEnum.ALL, true);
-
-                        if (sysLst.length == 0) {
-                            // GuiUtils.errorMessage(getConsole(), I18n.text("Abort execution"),
-                            // I18n.text("No acoustic device is capable of sending this request"));
-                            post(Notification.error(I18n.text("Abort execution"),
-                                    I18n.text("No acoustic device is capable of sending this request")).src(
-                                            I18n.text("Console")));
-                        }
-                        IMCMessage m = IMCDefinition.getInstance().create("AcousticOperation", "op", "ABORT",
-                                "system", selectedSystem);
-
-                        int successCount = 0;
-
-                        for (ImcSystem sys : sysLst) {
-                            if (ImcMsgManager.getManager().sendMessage(m, sys.getId(), null)) {
-                                successCount++;
-                                NeptusLog.pub().error("Acoustic Abort sent through " + sys.getName());
-                            }
-                        }
-                        if (successCount > 0) {
-                            bottomPane.setText(I18n.textf("Abort %systemName sent to %systemCount systems", selectedSystem, successCount));
-                        }
-                        else {
-                            // GuiUtils.errorMessage(getConsole(), I18n.text("Abort System"),
-                            // I18n.text("Unable to abort selected system"));
-                            post(Notification.error(I18n.text("Abort System"),
-                                    I18n.text("Unable to abort selected system")).src(I18n.text("Console")));
-                        }
-                    }
-                });
-                ctrlPanel.add(btn);
-
-                btn = new JButton(I18n.text("clear text"));
-                btn.setActionCommand("clear");
-                cmdButtons.put("clear", btn);
-
-                btn.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent arg0) {
-                        bottomPane.setText("");
-                    }
-                });
-                ctrlPanel.add(btn);
-
-                listPanel.setBackground(Color.white);
-                listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.PAGE_AXIS));
-                JSplitPane split1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(listPanel),
-                        ctrlPanel);
-                split1.setDividerLocation(180);
-                bottomPane.setEditable(false);
-                bottomPane.setBackground(Color.white);
-                JSplitPane split2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, split1, new JScrollPane(bottomPane));
-                split2.setDividerLocation(150);
-
-                JDialog dialog = new JDialog(getConsole(), I18n.text("Manta Operations"));
-                dialog.setContentPane(split2);
-                dialog.setSize(320, 240);
-                dialog.setAlwaysOnTop(true);
-                GuiUtils.centerOnScreen(dialog);
-                dialog.setVisible(true);
-                visibleDialog = dialog;
-                dialog.addWindowListener(new WindowAdapter() {
-                    @Override
-                    public void windowClosed(WindowEvent e) {
-                        if (visibleDialog != null)
-                            visibleDialog.dispose();
-                        visibleDialog = null;
-                    }
-                });
+                if (gw != null)
+                    gateway = ""+gw;
             }
         });
+        ctrlPanel.add(btn);
 
+
+        btn = new JButton(I18n.text("Range System"));
+        btn.setActionCommand("range");
+        cmdButtons.put("range", btn);
+        btn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+
+
+                ImcSystem[] sysLst;
+
+                if (gateway.equals("any"))                    
+                    sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
+                            SystemTypeEnum.ALL, true);
+                else {
+                    ImcSystem sys = ImcSystemsHolder.lookupSystemByName(gateway);
+                    if (sys != null)
+                        sysLst = new ImcSystem[]{sys};
+                    else 
+                        sysLst = new ImcSystem[]{};
+                }
+
+                if (sysLst.length == 0) {
+                    post(Notification.error(I18n.text("Range System"),
+                            I18n.text("No acoustic device is capable of sending this request")).src(
+                                    I18n.text("Console")));
+                }
+
+                IMCMessage m = IMCDefinition.getInstance().create("AcousticOperation", "op", "RANGE",
+                        "system", selectedSystem);
+
+                int successCount = 0;
+                for (ImcSystem sys : sysLst)
+                    if (ImcMsgManager.getManager().sendMessage(m, sys.getId(), null))
+                        successCount++;
+
+                if (successCount > 0) {
+                    bottomPane.setText(I18n.textf(
+                            "Range %systemName commanded to %systemCount systems", selectedSystem,
+                            successCount));
+                }
+                else {
+                    post(Notification.error(I18n.text("Range System"),
+                            I18n.text("Unable to range selected system")).src(I18n.text("Console")));
+                }
+            }
+        });
+        ctrlPanel.add(btn);
+
+        toggle = new JToggleButton(I18n.text("Show Ranges"));
+        toggle.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                showRanges = ((JToggleButton) arg0.getSource()).isSelected();
+                if (!showRanges) {
+                    rangeDistances.clear();
+                    rangeSources.clear();
+                }
+            }
+        });
+        toggle.setSelected(showRanges);
+        ctrlPanel.add(toggle);
+
+        //        btn = new JButton(I18n.text("Clear Text"));
+        //        btn.setActionCommand("clear");
+        //        cmdButtons.put("clear", btn);
+        //
+        //        btn.addActionListener(new ActionListener() {
+        //            public void actionPerformed(ActionEvent arg0) {
+        //                bottomPane.setText("");
+        //            }
+        //        });
+        //        ctrlPanel.add(btn);
+
+        listPanel.setBackground(Color.white);
+        listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.PAGE_AXIS));
+        JSplitPane split1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(listPanel),
+                ctrlPanel);
+        split1.setDividerLocation(180);
+        bottomPane.setEditable(false);
+        bottomPane.setBackground(Color.white);
+        JSplitPane split2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, split1, new JScrollPane(bottomPane));
+        split2.setDividerLocation(150);
+        setLayout(new BorderLayout());
+        add(split2, BorderLayout.CENTER);
+        //JDialog dialog = new JDialog(getConsole(), I18n.text("Manta Operations"));
+        //dialog.setContentPane(split2);
+        //dialog.setSize(320, 240);
+        //dialog.setAlwaysOnTop(true);
+        //GuiUtils.centerOnScreen(dialog);
+        //dialog.setVisible(true);
+        //visibleDialog = dialog;
+        //dialog.addWindowListener(new WindowAdapter() {
+        //    @Override
+        //    public void windowClosed(WindowEvent e) {
+        //        if (visibleDialog != null)
+        //            visibleDialog.dispose();
+        //        visibleDialog = null;
+        //    }
+        //});
         propertiesChanged();
     }
+
 
     @Override
     public void propertiesChanged() {
@@ -413,22 +401,22 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                 cmdButtons.get("abort").setEnabled(false);
         }
     }
-    
+
     public void addText(String text) {
         bottomPane.setText(bottomPane.getText() +" \n"+text);        
         bottomPane.scrollRectToVisible(new Rectangle(0, bottomPane.getHeight()+22, 1, 1) );
-        
+
     }
 
     protected LinkedHashMap<String, LocationType> systemLocations = new LinkedHashMap<>();
-        
+
     @Subscribe
     public void on(PlanControl msg) {
         if (pendingRequests.containsKey(msg.getRequestId())) {
             PlanControl request = pendingRequests.get(msg.getRequestId());
             String text = I18n.textf("Request %d completed successfully.", msg.getRequestId());
             String src = ImcSystemsHolder.translateImcIdToSystemName(msg.getSrc());
-            
+
             if (request != null) {
                 switch (request.getOp()) {
                     case START:
@@ -443,23 +431,23 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                         break;
                 }
             }
-            
+
             post(Notification.success("Manta Operations", text));    
         }
     }
-    
+
     @Subscribe
     public void on(AcousticOperation msg) {
-        
-        
-        
+
+
+
         switch (msg.getOp()) {
             case RANGE_RECVED:
                 if (showRanges) {
                     LocationType loc = new LocationType(MyState.getLocation());
                     if (ImcSystemsHolder.getSystemWithName(msg.getSourceName()) != null)
                         loc = ImcSystemsHolder.getSystemWithName(msg.getSourceName()).getLocation();
-                    
+
                     rangeDistances.add(msg.getRange());
                     rangeSources.add(loc);
                     addText(I18n.textf("Distance to %systemName is %distance", msg.getSystem().toString(),
@@ -523,12 +511,12 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
         for (int i = 0; i < rangeSources.size(); i++) {
             double radius = rangeDistances.get(i) * renderer.getZoom();
             Point2D pt = renderer.getScreenPosition(rangeSources.get(i));
-            
+
             if (i < rangeSources.size()-1)
                 g.setColor(new Color(255,128,0,128));
             else
                 g.setColor(new Color(255,128,0,255));
-            
+
             g.setStroke(new BasicStroke(2f));
             g.draw(new Ellipse2D.Double(pt.getX() - radius, pt.getY() - radius, radius * 2, radius * 2));
         }
