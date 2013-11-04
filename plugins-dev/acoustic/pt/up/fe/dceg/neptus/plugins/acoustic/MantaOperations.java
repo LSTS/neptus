@@ -253,8 +253,12 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                 Object gw = (Object) JOptionPane.showInputDialog(getConsole(), "Select Gateway", "Select acoustic gateway to use",
                         JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
 
+                System.out.println(gw);
+                
                 if (gw != null)
                     gateway = ""+gw;
+                
+                ((JButton)arg0.getSource()).setText(I18n.textf("GW: %s", gateway));
             }
         });
         ctrlPanel.add(btn);
@@ -320,17 +324,6 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
         toggle.setSelected(showRanges);
         ctrlPanel.add(toggle);
 
-        //        btn = new JButton(I18n.text("Clear Text"));
-        //        btn.setActionCommand("clear");
-        //        cmdButtons.put("clear", btn);
-        //
-        //        btn.addActionListener(new ActionListener() {
-        //            public void actionPerformed(ActionEvent arg0) {
-        //                bottomPane.setText("");
-        //            }
-        //        });
-        //        ctrlPanel.add(btn);
-
         listPanel.setBackground(Color.white);
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.PAGE_AXIS));
         JSplitPane split1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(listPanel),
@@ -342,21 +335,6 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
         split2.setDividerLocation(150);
         setLayout(new BorderLayout());
         add(split2, BorderLayout.CENTER);
-        //JDialog dialog = new JDialog(getConsole(), I18n.text("Manta Operations"));
-        //dialog.setContentPane(split2);
-        //dialog.setSize(320, 240);
-        //dialog.setAlwaysOnTop(true);
-        //GuiUtils.centerOnScreen(dialog);
-        //dialog.setVisible(true);
-        //visibleDialog = dialog;
-        //dialog.addWindowListener(new WindowAdapter() {
-        //    @Override
-        //    public void windowClosed(WindowEvent e) {
-        //        if (visibleDialog != null)
-        //            visibleDialog.dispose();
-        //        visibleDialog = null;
-        //    }
-        //});
         propertiesChanged();
     }
 
