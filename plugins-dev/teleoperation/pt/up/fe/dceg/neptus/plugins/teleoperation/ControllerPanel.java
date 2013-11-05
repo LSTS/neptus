@@ -294,14 +294,19 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
     @Override
     public boolean update() {
         
-        if(manager == null || currentController == null)
+        if(manager == null || currentController == null) {
             return true;
+        }
         
         sending = dialog.isVisible();
         
-        // Always poll the controller
         poll = manager.pollController(currentController);
-
+        
+        // Also if polling fails return true
+        if(poll == null) {
+            return true;
+        }
+        
         btnRefresh.setEnabled(!editing);
         comboBox.setEnabled(!editing);
         

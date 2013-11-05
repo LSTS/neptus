@@ -56,7 +56,10 @@ public class ControllerManager {
 
 	public LinkedHashMap<String, Component> pollController(Controller c) {
 		LinkedHashMap<String, Component> pollResult = new LinkedHashMap<String, Component>();
-		c.poll();
+		
+		// In case of failed device poll NULL should be returned for error capture
+		if(!c.poll())
+		    return null;
 
 		for (Component comp : c.getComponents()) {
 			pollResult.put(comp.getName(), comp);
