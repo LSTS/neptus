@@ -144,6 +144,58 @@ public class TransponderElement extends AbstractElement implements Identifiable{
             setCenterLocation(new LocationType(mg.getHomeRef().getCenterLocation()));
     }
 
+    public TransponderElement(LblBeacon lblBeacon) {
+        String beacon = lblBeacon.getString("beacon");
+        double lat = Math.toDegrees(lblBeacon.getDouble("lat"));
+        double lon = Math.toDegrees(lblBeacon.getDouble("lon"));
+        double depth = lblBeacon.getDouble("depth");
+        LocationType lt = new LocationType();
+        lt.setLatitude(lat);
+        lt.setLongitude(lon);
+        lt.setDepth(depth);
+        setId(beacon);
+        setName(beacon);
+        setCenterLocation(lt);
+        propConf.setProperty("interrogation channel", lblBeacon.getQueryChannel() + "");
+        propConf.setProperty("reply channel", lblBeacon.getReplyChannel() + "");
+        propConf.setProperty("transponder delay (msecs.)", lblBeacon.getTransponderDelay() + "");
+    }
+
+    /**
+     * Compare contents (interrogation channel, querry channel, transponder delay, lat, lon, depth and name) of this
+     * beacon excluding the id field.
+     * 
+     * @param lblBeacon
+     * @return true if all are equal false otherwise
+     */
+    public boolean equals (LblBeacon lblBeacon){
+        // Location
+        LocationType lt = new LocationType();
+        lt.setLatitude(Math.toDegrees(lblBeacon.getDouble("lat")));
+        lt.setLongitude(Math.toDegrees(lblBeacon.getDouble("lon")));
+        lt.setDepth(lblBeacon.getDouble("depth"));
+        if(!getCenterLocation().equals(lt)){
+            return false;
+        }
+        // Name
+        String beaconName = lblBeacon.getString("beacon");
+        if(!getName().equals(beaconName)){
+            return false;
+        }
+        // Configuration
+        if (propConf.get("interrogation channel").equals(lblBeacon.getQueryChannel())) {
+            return false;
+        }
+        if (propConf.get("reply channel").equals(lblBeacon.getReplyChannel())) {
+            return false;
+        }
+        if (propConf.get("transponder delay (msecs.)").equals(lblBeacon.getTransponderDelay())) {
+            return false;
+        }
+        // Id is independently generated on both sides so it's irrelevant
+        return true;
+    }
+
     @Override
     public String getType() {
         return "Transponder";

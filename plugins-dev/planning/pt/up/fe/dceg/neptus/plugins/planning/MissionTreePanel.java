@@ -79,6 +79,9 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
+import pt.up.fe.dceg.neptus.imc.LblRangeAcceptance;
+import pt.up.fe.dceg.neptus.imc.PlanControlState;
+import pt.up.fe.dceg.neptus.imc.PlanControlState.STATE;
 import pt.up.fe.dceg.neptus.imc.PlanSpecification;
 import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
 import pt.up.fe.dceg.neptus.plugins.NeptusMessageListener;
@@ -487,33 +490,33 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     getConsole().getMission().save(true);
                 }
                 break;
-            // // Timer management
-            // case PlanControlState.ID_STATIC:
-            // PlanControlState planState = (PlanControlState) message;
-            // if (planState.getState() == STATE.READY || planState.getState() == STATE.BLOCKED) {
-            // if (running) {
-            // browser.transStopTimers();
-            // this.running = false;
-            // }
-            // }
-            // else if (!running) {
-            // browser.transStartVehicleTimers(getMainVehicleId());
-            // this.running = true;
-            // }
-            //
-            // break;
             // Timer management
-            // case LblRangeAcceptance.ID_STATIC:
-            // LblRangeAcceptance acceptance;
-            // try {
-            // acceptance = LblRangeAcceptance.clone(message);
-            // int id = acceptance.getId();
-            // browser.transUpdateTimer((short) id, getMainVehicleId());
-            // }
-            // catch (Exception e) {
-            // NeptusLog.pub().error("Problem cloning a message.", e);
-            // }
-            // break;
+            case PlanControlState.ID_STATIC:
+                PlanControlState planState = (PlanControlState) message;
+                if (planState.getState() == STATE.READY || planState.getState() == STATE.BLOCKED) {
+                    if (running) {
+                        browser.transStopTimers();
+                        this.running = false;
+                    }
+                }
+                else if (!running) {
+                    browser.transStartVehicleTimers(getMainVehicleId());
+                    this.running = true;
+                }
+
+                break;
+            // Timer management
+            case LblRangeAcceptance.ID_STATIC:
+                LblRangeAcceptance acceptance;
+                try {
+                    acceptance = LblRangeAcceptance.clone(message);
+                    short id = acceptance.getId();
+                    browser.transUpdateTimer(id, getMainVehicleId());
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error("Problem cloning a message.", e);
+                }
+             break;
             // // Beacons list and state management
             // case LblConfig.ID_STATIC:
             // LblConfig lblConfig = (LblConfig) message;
@@ -525,7 +528,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             // break;
 
             default:
-                NeptusLog.pub().error("Unkwon message " + mgid);
+                NeptusLog.pub().error("Unknown message " + mgid);
                 break;
         }
     }

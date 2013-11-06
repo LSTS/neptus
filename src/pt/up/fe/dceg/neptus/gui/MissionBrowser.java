@@ -795,50 +795,51 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * Unable to use the same method as for plan because of the differences between LblBeacons, PlanDBInfo and PlanType.
      * 
      * @param sysName the main vehicle
-     * @param remote beacon configurations known to IMCSystem
+     * @param remoteList beacon configurations known to IMCSystem
      * @param treeModel the model where to merge
      */
-    private HashSet<String> mergeRemoteTrans(String sysName, LinkedHashMap<String, LblBeacon> remote,
+    private HashSet<String> mergeRemoteTrans(String sysName, LinkedHashMap<String, LblBeacon> remoteList,
             MissionTreeModel treeModel, HashSet<String> existing) {
         ExtendedTreeNode target;
         LblBeacon remoteItem;
         TransponderElement newTrans;
-        Set<String> remoteIds = remote.keySet();
-        for (String id : remoteIds) {
-            existing.add(id);
-            target = treeModel.findNode(id, ParentNodes.TRANSPONDERS);
-            remoteItem = remote.get(id);
-            System.out.print(id + "\t");
+        Set<String> remoteNames = remoteList.keySet();
+        for (String remoteName : remoteNames) {
+            existing.add(remoteName);
+            target = treeModel.findNode(remoteName, ParentNodes.TRANSPONDERS);
+            remoteItem = remoteList.get(remoteName);
+            System.out.print(remoteName + "\t");
             if (target == null) {
-                // If no plan exits insert as remote
-                newTrans = new TransponderElement();
-                newTrans.setId(id);
-                target = new ExtendedTreeNode(remoteItem);
-                target.getUserInfo().put(NodeInfoKey.ID.name(), id);
-                target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.REMOTE);
+                // If no plan exits insert as sync
+                newTrans = new TransponderElement(remoteItem);
+                target = new ExtendedTreeNode(newTrans);
+                target.getUserInfo().put(NodeInfoKey.ID.name(), (short) -1);
+                target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
                 treeModel.insertAlphabetically(target, ParentNodes.TRANSPONDERS);
-                System.out.println(" trans from IMCSystem not found in mission tree  >> Remote.");
+                System.out.println(" trans from IMCSystem not found in mission tree  >> Sync.");
             }
             else {
-                   // Check if existing trans is remote
+                // Check if existing trans is remote (TODO check is remote is ever set as a state!)
                 Object existingTrans = target.getUserObject();
                 if (target.getUserInfo().get(NodeInfoKey.SYNC.name()) == State.REMOTE) {
-                    target.setUserObject(remoteItem);
-                    System.out.println(" in tree mission was updated  >> Remote.");
+                    treeModel.removeById(((TransponderElement) existingTrans).getIdentification(),
+                            ParentNodes.TRANSPONDERS);
+                    newTrans = new TransponderElement(remoteItem);
+                    target = new ExtendedTreeNode(newTrans);
+                    target.getUserInfo().put(NodeInfoKey.ID.name(), (short) -1);
+                    target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
+                    treeModel.insertAlphabetically(target, ParentNodes.TRANSPONDERS);
+                    System.out.println(" in tree mission was updated  >> Sync.");
                 }
                 else {
-                    PlanType existingLocalPlan = (PlanType) existingTrans;
                     // If there is already a config use md5 to find out if it is sync
-                    byte[] localMD5 = existingLocalPlan.asIMCPlan().payloadMD5();
-                    byte[] remoteMD5 = remoteItem.getRawData("md5");
-                    if (ByteUtil.equal(localMD5, remoteMD5)) {
+                    if (target.equals(remoteItem)) {
                         target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
-                        System.out.println(" in tree mission is TransponderElement (local type). Md5 ==,  >> Sync.");
+                        System.out.println(" in tree mission. == fields,  >> Sync.");
                     }
                     else {
                         target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.NOT_SYNC);
-                        System.out.println(" in tree mission is TransponderElement (local type). "
-                                + "Md5 !=,  >> Not_sync.");
+                        System.out.println(" in tree mission. != fields,  >> Not_sync.");
                     }
                 }
             }
@@ -913,10 +914,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             if (target == null) {
                 // If no plan exits insert as local
                 newNode = new ExtendedTreeNode(item);
-                newNode.getUserInfo().put(NodeInfoKey.ID.name(), id);
+                newNode.getUserInfo().put(NodeInfoKey.ID.name(), (short) -1);
                 treeModel.insertAlphabetically(newNode, itemType);
-                newNode.getUserInfo().put(NodeInfoKey.SYNC.name(), State.LOCAL);
-                newNode.getUserInfo().put(NodeInfoKey.VEHICLE.name(), sysName);
                 target = newNode;
                 System.out.print(itemType.name() + " not found in mission tree. Creating with mission plan.");
             }
@@ -1027,98 +1026,172 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
     }
 
-    // /**
-    // * If at surface, stop timer. Otherwise reset timer to 0.
-    // *
-    // * @param id
-    // * @param mainVehicle
-    // */
-    // public void transUpdateTimer(short id, String mainVehicle) {
-    // ExtendedTreeNode trans = treeModel.trans;
-    // int childCount = trans.getChildCount();
-    // for (int c = 0; c < childCount; c++) {
-    // ExtendedTreeNode transNode = (ExtendedTreeNode) trans.getChildAt(c);
-    // HashMap<String, Object> userInfo = transNode.getUserInfo();
-    // int nodeId = (int) userInfo.get(NodeInfoKey.ID.name());
-    // String transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
-    // if (nodeId == id && transVehicle.equals(mainVehicle)) {
-    // ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
-    // if (imcSystems != null) {
-    // String name = ((TransponderElement) transNode.getUserObject()).getName();
-    // LBLRangesTimer timer = (LBLRangesTimer) imcSystems.retrieveData(name);
-    // if (timer == null) {
-    // timer = new LBLRangesTimer();
-    // imcSystems.storeData(name, timer);
-    // }
-    // timer.resetTime();
-    // }
-    // revalidate();
-    // break;
-    // }
-    // }
-    // }
-    //
-    // /**
-    // * Start all synchronized transponders associated with the vehicle.
-    // *
-    // * @param mainVehicle
-    // */
-    // public void transStartVehicleTimers(String mainVehicle) {
-    // ExtendedTreeNode trans = treeModel.trans;
-    // int childCount = trans.getChildCount();
-    // for (int c = 0; c < childCount; c++) {
-    // ExtendedTreeNode transNode = (ExtendedTreeNode) trans.getChildAt(c);
-    // HashMap<String, Object> userInfo = transNode.getUserInfo();
-    // String transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
-    // // only looks at synchronized transponders that are linked to the designated vehicle
-    // State nodeSync = (State) userInfo.get(NodeInfoKey.SYNC.name());
-    // if (nodeSync == State.SYNC && transVehicle.equals(mainVehicle)) {
-    // ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
-    // if (imcSystems != null) {
-    // String name = ((TransponderElement) transNode.getUserObject()).getName();
-    // LBLRangesTimer timer = (LBLRangesTimer) imcSystems.retrieveData(name);
-    // if (timer == null) {
-    // timer = new LBLRangesTimer();
-    // imcSystems.storeData(name, timer);
-    // }
-    // timer.resetTime();
-    // }
-    // }
-    // }
-    // revalidate(); // call EDT
-    // }
-    //
-    //
-    // /**
-    // * Stop all transponder timers for every vehicle.
-    // *
-    // */
-    // public void transStopTimers() {
-    // ExtendedTreeNode trans = treeModel.trans;
-    // int childCount = trans.getChildCount();
-    // ExtendedTreeNode transNode;
-    // HashMap<String, Object> transInfo;
-    // ImcSystem imcSystems;
-    // String name;
-    // LBLRangesTimer timer;
-    // // For every transponder node, get the vehicle associated with it
-    // // Then retrieve the timer with the node's name in that vehicle's imcSystem hashmap.
-    // for (int c = 0; c < childCount; c++) {
-    // transNode = (ExtendedTreeNode) trans.getChildAt(c);
-    // transInfo = transNode.getUserInfo();
-    // String transVehicle = (String) transInfo.get(NodeInfoKey.VEHICLE.name());
-    // imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
-    // if (imcSystems != null) {
-    // name = ((TransponderElement) transNode.getUserObject()).getName();
-    // timer = (LBLRangesTimer) imcSystems.retrieveData(name);
-    // if (timer != null) {
-    // NeptusLog.pub().info("<###>Stoping timer for " + trans + " of " + transVehicle);
-    // timer.stopTimer();
-    // }
-    // }
-    // }
-    // revalidate();
-    // }
+    /**
+     * If at surface, stop timer. Otherwise reset timer to 0.
+     * 
+     * @param id
+     * @param mainVehicle
+     */
+    public void transUpdateTimer(short id, String mainVehicle) {
+        HashMap<String, Object> userInfo;
+        short nodeId;
+        String transVehicle, name;
+        ImcSystem imcSystems;
+        LBLRangesTimer timer;
+        ChildIterator transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
+        ExtendedTreeNode transNode;
+        boolean reval = false;
+        while (transIt.hasNext()) {
+            transNode = transIt.next();
+            userInfo = transNode.getUserInfo();
+            nodeId = (short) userInfo.get(NodeInfoKey.ID.name());
+            transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
+            if (nodeId == id && transVehicle.equals(mainVehicle)) {
+                imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
+                if (imcSystems != null) {
+                    name = ((TransponderElement) transNode.getUserObject()).getName();
+                    timer = (LBLRangesTimer) imcSystems.retrieveData(name);
+                    if (timer == null) {
+                        timer = new LBLRangesTimer();
+                        imcSystems.storeData(name, timer);
+                    }
+                    timer.resetTime();
+                    reval = true;
+                }
+                break;
+            }
+        }
+        if (reval)
+            revalidate();
+
+        // ExtendedTreeNode trans = treeModel.trans;
+        // int childCount = trans.getChildCount();
+        // for (int c = 0; c < childCount; c++) {
+        // ExtendedTreeNode transNode = (ExtendedTreeNode) trans.getChildAt(c);
+        // HashMap<String, Object> userInfo = transNode.getUserInfo();
+        // int nodeId = (int) userInfo.get(NodeInfoKey.ID.name());
+        // String transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
+        // if (nodeId == id && transVehicle.equals(mainVehicle)) {
+        // ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
+        // if (imcSystems != null) {
+        // String name = ((TransponderElement) transNode.getUserObject()).getName();
+        // LBLRangesTimer timer = (LBLRangesTimer) imcSystems.retrieveData(name);
+        // if (timer == null) {
+        // timer = new LBLRangesTimer();
+        // imcSystems.storeData(name, timer);
+        // }
+        // timer.resetTime();
+        // }
+        // revalidate();
+        // break;
+        // }
+        // }
+    }
+
+    /**
+     * Start all synchronized transponders associated with the vehicle.
+     * 
+     * @param mainVehicle
+     */
+    public void transStartVehicleTimers(String mainVehicle) {
+        ChildIterator transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
+        ExtendedTreeNode transNode;
+        while (transIt.hasNext()) {
+            transNode = transIt.next();
+            HashMap<String, Object> userInfo = transNode.getUserInfo();
+            String transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
+            // only looks at synchronized transponders that are linked to the designated vehicle
+            State nodeSync = (State) userInfo.get(NodeInfoKey.SYNC.name());
+            if (nodeSync == State.SYNC && transVehicle.equals(mainVehicle)) {
+                ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
+                if (imcSystems != null) {
+                    String name = ((TransponderElement) transNode.getUserObject()).getName();
+                    LBLRangesTimer timer = (LBLRangesTimer) imcSystems.retrieveData(name);
+                    if (timer == null) {
+                        timer = new LBLRangesTimer();
+                        imcSystems.storeData(name, timer);
+                    }
+                    timer.resetTime();
+                }
+            }
+        }
+
+        // ExtendedTreeNode trans = treeModel.trans;
+        // int childCount = trans.getChildCount();
+        // for (int c = 0; c < childCount; c++) {
+        // ExtendedTreeNode transNode = (ExtendedTreeNode) trans.getChildAt(c);
+        // HashMap<String, Object> userInfo = transNode.getUserInfo();
+        // String transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
+        // // only looks at synchronized transponders that are linked to the designated vehicle
+        // State nodeSync = (State) userInfo.get(NodeInfoKey.SYNC.name());
+        // if (nodeSync == State.SYNC && transVehicle.equals(mainVehicle)) {
+        // ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
+        // if (imcSystems != null) {
+        // String name = ((TransponderElement) transNode.getUserObject()).getName();
+        // LBLRangesTimer timer = (LBLRangesTimer) imcSystems.retrieveData(name);
+        // if (timer == null) {
+        // timer = new LBLRangesTimer();
+        // imcSystems.storeData(name, timer);
+        // }
+        // timer.resetTime();
+        // }
+        // }
+        // }
+        revalidate(); // call EDT
+    }
+
+    /**
+     * Stop all transponder timers for every vehicle.
+     * 
+     */
+    public void transStopTimers() {
+        HashMap<String, Object> transInfo;
+        ImcSystem imcSystems;
+        String name;
+        LBLRangesTimer timer;
+        ChildIterator transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
+        ExtendedTreeNode transNode;
+        while (transIt.hasNext()) {
+            transNode = transIt.next();
+            transInfo = transNode.getUserInfo();
+            String transVehicle = (String) transInfo.get(NodeInfoKey.VEHICLE.name());
+            imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
+            if (imcSystems != null) {
+                name = ((TransponderElement) transNode.getUserObject()).getName();
+                timer = (LBLRangesTimer) imcSystems.retrieveData(name);
+                if (timer != null) {
+                    NeptusLog.pub().info(
+                            "<###>Stoping timer for " + transInfo.get(NodeInfoKey.ID) + " of " + transVehicle);
+                    timer.stopTimer();
+                }
+            }
+        }
+
+        // ExtendedTreeNode trans = treeModel.trans;
+        // int childCount = trans.getChildCount();
+        // ExtendedTreeNode transNode;
+        // HashMap<String, Object> transInfo;
+        // ImcSystem imcSystems;
+        // String name;
+        // LBLRangesTimer timer;
+        // For every transponder node, get the vehicle associated with it
+        // Then retrieve the timer with the node's name in that vehicle's imcSystem hashmap.
+        // for (int c = 0; c < childCount; c++) {
+        // transNode = (ExtendedTreeNode) trans.getChildAt(c);
+        // transInfo = transNode.getUserInfo();
+        // String transVehicle = (String) transInfo.get(NodeInfoKey.VEHICLE.name());
+        // imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
+        // if (imcSystems != null) {
+        // name = ((TransponderElement) transNode.getUserObject()).getName();
+        // timer = (LBLRangesTimer) imcSystems.retrieveData(name);
+        // if (timer != null) {
+        // NeptusLog.pub().info("<###>Stoping timer for " + trans + " of " + transVehicle);
+        // timer.stopTimer();
+        // }
+        // }
+        // }
+        revalidate();
+    }
 
     // /**
     // * Compare current beacons with incoming beacons from vehicle. If there is a transponder configuration in the
@@ -1239,10 +1312,30 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             @Override
             public void run() {
                 HashSet<String> existingTrans = mergeLocal(localTrans, sysName, treeModel, ParentNodes.TRANSPONDERS);
-                // existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans);
-                // deleteDiscontinued(existingTrans, ParentNodes.TRANSPONDERS);
+                existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans);
                 // treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
+                cleanUpIds();
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
+            }
+
+            private void cleanUpIds() {
+                ChildIterator transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
+                ExtendedTreeNode currNode;
+                int idCounter = 0;
+                while (transIt.hasNext()) {
+                    currNode = transIt.next();
+                    State state = (State) currNode.getUserInfo().get(NodeInfoKey.SYNC.name());
+                    if (state.equals(State.SYNC) || state.equals(State.NOT_SYNC)) {
+                        currNode.getUserInfo().put(NodeInfoKey.ID.name(), idCounter);
+                        idCounter++;
+                    }
+                    else {
+                        currNode.getUserInfo().put(NodeInfoKey.ID.name(), (short) -1);
+                    }
+                    NeptusLog.pub().error(
+                            ((TransponderElement) currNode.getUserObject()).getIdentification() + " ["
+                                    + currNode.getUserInfo().get(NodeInfoKey.ID.name()) + "] is " + state);
+                }
             }
         });
     }
@@ -1335,296 +1428,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             setSyncState(plan, State.SYNC);
         }
     }
-
-    // /**
-    // * Handles major changes in node structure.
-    // *
-    // * @author Margarida Faria
-    // *
-    // */
-    // private class Model extends DefaultTreeModel {
-    // private static final long serialVersionUID = 5581485271978065950L;
-    // private final ExtendedTreeNode trans, maps;
-    // private final ExtendedTreeNode plans;
-    // private ExtendedTreeNode homeR;
-    //
-    //
-    // // !!Important!! Always add with insertNodeInto (instead of add) and remove with removeNodeFromParent (instead
-    // // of remove). It will remove directly from the Vector that support the model and notify of the structure
-    // // changes.
-    //
-    // /**
-    // * @param root
-    // */
-    // public Model() {
-    // super(new ExtendedTreeNode("Mission Elements"));
-    // maps = new ExtendedTreeNode(ParentNodes.MAP.nodeName);
-    // plans = new ExtendedTreeNode(ParentNodes.PLANS.nodeName);
-    // trans = new ExtendedTreeNode(ParentNodes.TRANSPONDERS.nodeName);
-    // }
-    //
-    // /**
-    // * Used only for clonning
-    // *
-    // * @param root
-    // */
-    // private Model(ExtendedTreeNode maps, ExtendedTreeNode plans, ExtendedTreeNode trans) {
-    // super(new ExtendedTreeNode("Mission Elements"));
-    // this.maps = maps;
-    // this.plans = plans;
-    // this.trans = trans;
-    // }
-    //
-    // @Override
-    // public Model clone() {
-    // ExtendedTreeNode mapsClone = maps.clone();
-    // mapsClone.cloneExtendedTreeNodeChildren(maps);
-    // ExtendedTreeNode plansClone = plans.clone();
-    // plansClone.cloneExtendedTreeNodeChildren(plans);
-    // ExtendedTreeNode transClone = trans.clone();
-    // transClone.cloneExtendedTreeNodeChildren(trans);
-    // Model newModel = new Model(mapsClone, plansClone, transClone);
-    // mapsClone.setParent((MutableTreeNode) newModel.root);
-    // plansClone.setParent((MutableTreeNode) newModel.root);
-    // transClone.setParent((MutableTreeNode) newModel.root);
-    // return newModel;
-    // }
-    //
-    // // /**
-    // // * Searched for a plan with this id in the nodes of the tree.
-    // // *
-    // // * @param id of the plan
-    // // * @return the node of the plan or null if none is found
-    // // */
-    // // public ExtendedTreeNode findPlan(String id) {
-    // // int nodeChildCount = getChildCount(plans);
-    // // for (int c = 0; c < nodeChildCount; c++) {
-    // // ExtendedTreeNode childAt = (ExtendedTreeNode) plans.getChildAt(c);
-    // // Identifiable tempPlan = (Identifiable) childAt.getUserObject();
-    // // if (tempPlan.getIdentification().equals(id)) {
-    // // return childAt;
-    // // }
-    // // }
-    // // return null;
-    // // }
-    //
-    // /**
-    // * Searched for a node with this id in the nodes of the parent type.
-    // *
-    // * @param id of the plan
-    // * @param parentType of the node
-    // * @return the node with the same id or null if none is found
-    // */
-    // public ExtendedTreeNode findNode(String id, ParentNodes parentType) {
-    // ExtendedTreeNode parent;
-    // switch (parentType) {
-    // case PLANS:
-    // parent = treeModel.plans;
-    // break;
-    // case TRANSPONDERS:
-    // parent = treeModel.trans;
-    // break;
-    // default:
-    // NeptusLog.pub().error(
-    // "ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.insertAlphabetically()");
-    // return null;
-    // }
-    // int nodeChildCount = getChildCount(parent);
-    // for (int c = 0; c < nodeChildCount; c++) {
-    // ExtendedTreeNode childAt = (ExtendedTreeNode) parent.getChildAt(c);
-    // Identifiable temp = (Identifiable) childAt.getUserObject();
-    // if (temp.getIdentification().equals(id)) {
-    // return childAt;
-    // }
-    // }
-    // return null;
-    // }
-    //
-    // private ExtendedTreeNode addTransponderNode(TransponderElement elem) {
-    // ExtendedTreeNode node = new ExtendedTreeNode(elem);
-    // HashMap<String, Object> transInfo = node.getUserInfo();
-    // transInfo.put(NodeInfoKey.ID.name(), -1);
-    // transInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
-    // transInfo.put(NodeInfoKey.VEHICLE.name(), "");
-    // addToParents(node, ParentNodes.TRANSPONDERS);
-    // return node;
-    // }
-    //
-    // // /**
-    // // * TODO remove need for treeModel attribute.
-    // // *
-    // // *
-    // // * @param newNode
-    // // * @param treeModel
-    // // */
-    // // private void insertPlanAlphabetically(ExtendedTreeNode newNode, Model treeModel) {
-    // // Identifiable plan = (Identifiable) newNode.getUserObject();
-    // // int nodeChildCount = getChildCount(treeModel.plans);
-    // // ExtendedTreeNode childAt;
-    // // Identifiable tempPlan;
-    // // for (int c = 0; c < nodeChildCount; c++) {
-    // // childAt = (ExtendedTreeNode) treeModel.plans.getChildAt(c);
-    // // tempPlan = (Identifiable) childAt.getUserObject();
-    // // if (tempPlan.getIdentification().compareTo(plan.getIdentification()) > 0) {
-    // // insertNodeInto(newNode, treeModel.plans, c);
-    // // return;
-    // // }
-    // // }
-    // // System.out.print(" [addToParents] ");
-    // // treeModel.addToParents(newNode, ParentNodes.PLANS);
-    // // }
-    //
-    // /**
-    // * TODO remove need for treeModel attribute. \n
-    // * TODO check why it is not needed to add if outside the last for
-    // *
-    // * @param newNode
-    // * @param treeModel
-    // */
-    // private boolean insertAlphabetically(ExtendedTreeNode newNode, Model treeModel, ParentNodes parentType) {
-    // ExtendedTreeNode parent;
-    // switch (parentType) {
-    // case PLANS:
-    // parent = treeModel.plans;
-    // break;
-    // case TRANSPONDERS:
-    // parent = treeModel.trans;
-    // Thread.dumpStack();
-    // break;
-    // default:
-    // NeptusLog.pub().error(
-    // "ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.insertAlphabetically()");
-    // return false;
-    // }
-    // Identifiable plan = (Identifiable) newNode.getUserObject();
-    // int nodeChildCount = getChildCount(parent);
-    // ExtendedTreeNode childAt;
-    // Identifiable temp;
-    // boolean inserted = false;
-    // for (int c = 0; c < nodeChildCount && !inserted; c++) {
-    // childAt = (ExtendedTreeNode) parent.getChildAt(c);
-    // temp = (Identifiable) childAt.getUserObject();
-    // if (temp.getIdentification().compareTo(plan.getIdentification()) > 0) {
-    // insertNodeInto(newNode, parent, c);
-    // inserted = true;
-    // }
-    // }
-    // System.out.println(" [addToParents] "
-    // + ((SwingUtilities.isEventDispatchThread() ? " is EDT " : " out of EDT ")));
-    // // Add to the end (this ensures that if the parent wasn't visible in the tree before it is now
-    // treeModel.addToParents(newNode, parentType);
-    // return inserted;
-    // }
-    //
-    // private void addToParents(ExtendedTreeNode node, ParentNodes parentType) {
-    // ExtendedTreeNode parent = null;
-    // int index = -1;
-    // switch (parentType) {
-    // case PLANS:
-    // insertNodeInto(node, plans, plans.getChildCount());
-    // if (plans.getChildCount() == 1) {
-    // parent = plans;
-    // index = root.getChildCount();
-    // }
-    // break;
-    // case TRANSPONDERS:
-    // int childCount = trans.getChildCount();
-    //
-    // try {
-    // insertNodeInto(node, trans, childCount);
-    // }
-    // catch (Exception e) {
-    // // TODO Auto-generated catch block
-    // e.printStackTrace();
-    // }
-    // if (trans.getChildCount() == 1) {
-    // parent = trans;
-    // index = 1;
-    // }
-    // break;
-    // default:
-    // NeptusLog.pub().error("ADD SUPPORT FOR " + parentType.nodeName + " IN MissionBrowser");
-    // return;
-    // }
-    //
-    // if (index != -1) {
-    // System.out.println("Adding " + parentType.name() + " at index " + index);
-    // insertNodeInto(parent, (MutableTreeNode) root, index);
-    // }
-    // }
-    //
-    //
-    // /**
-    // * TODO change input to id and parent enumeration
-    // *
-    // * @param item user object of the node
-    // * @param parent node in tree
-    // * @return true changes have been made
-    // */
-    // private <E extends Identifiable> boolean removeById(E item, ExtendedTreeNode parent) {
-    // int childCount = parent.getChildCount();
-    // for (int i = 0; i < childCount; i++) {
-    // @SuppressWarnings("unchecked")
-    // E userObject = (E) ((ExtendedTreeNode) parent.getChildAt(i)).getUserObject();
-    // if (userObject.getIdentification().equals(item.getIdentification())) {
-    // MutableTreeNode child = (MutableTreeNode) parent.getChildAt(i);
-    // removeNodeFromParent(child);
-    // if (childCount == 0) {
-    // removeNodeFromParent(parent);
-    // parent = null;
-    // }
-    // return true;
-    // }
-    // }
-    // return false;
-    // }
-    //
-    // /**
-    // * Remove a node with the given id from the given type.
-    // *
-    // * @param id
-    // * @param parentType
-    // * @return true if the item was found and removed, false otherwise.
-    // */
-    // private <E extends Identifiable> boolean removeById(String id, ParentNodes parentType) {
-    // ExtendedTreeNode parent;
-    // switch (parentType) {
-    // case PLANS:
-    // parent = treeModel.plans;
-    // break;
-    // default:
-    // NeptusLog.pub().error("ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.removeById()");
-    // return false;
-    // }
-    // int childCount = parent.getChildCount();
-    // for (int i = 0; i < childCount; i++) {
-    // @SuppressWarnings("unchecked")
-    // E userObject = (E) ((ExtendedTreeNode) parent.getChildAt(i)).getUserObject();
-    // if (userObject.getIdentification().equals(id)) {
-    // MutableTreeNode child = (MutableTreeNode) parent.getChildAt(i);
-    // removeNodeFromParent(child);
-    // if (childCount == 0) {
-    // removeNodeFromParent(parent);
-    // parent = null;
-    // }
-    // return true;
-    // }
-    // }
-    // return false;
-    // }
-    //
-    // public void setHomeRef(HomeReference href) {
-    // // insert if root has no children or if the first child is not Home Reference
-    // if (root.getChildCount() == 0
-    // || !(((ExtendedTreeNode) root.getChildAt(0)).getUserObject() instanceof HomeReference)) {
-    // homeR = new ExtendedTreeNode(href);
-    // insertNodeInto(homeR, (MutableTreeNode) root, 0);
-    // }
-    // else {
-    // homeR.setUserObject(href);
-    // }
-    // }
-    // }
 
     public void setDebugOn(boolean value) {
         TreeCellRenderer cr = elementTree.getCellRenderer();
