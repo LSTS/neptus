@@ -12,9 +12,12 @@
 package pt.up.fe.dceg.neptus.gui;
 
 import java.awt.BorderLayout;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -22,35 +25,49 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.plugins.PlanChangeListener;
+import pt.up.fe.dceg.neptus.gui.MissionTreeModel.NodeInfoKey;
+import pt.up.fe.dceg.neptus.gui.MissionTreeModel.ParentNodes;
 import pt.up.fe.dceg.neptus.gui.tree.ExtendedTreeNode;
+import pt.up.fe.dceg.neptus.gui.tree.ExtendedTreeNode.ChildIterator;
 import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.LblBeacon;
 import pt.up.fe.dceg.neptus.imc.LblConfig;
+import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
 import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBInfo;
 import pt.up.fe.dceg.neptus.types.Identifiable;
+import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.up.fe.dceg.neptus.types.map.AbstractElement;
+import pt.up.fe.dceg.neptus.types.map.HomeReferenceElement;
 import pt.up.fe.dceg.neptus.types.map.MapGroup;
 import pt.up.fe.dceg.neptus.types.map.MapType;
+import pt.up.fe.dceg.neptus.types.map.MarkElement;
 import pt.up.fe.dceg.neptus.types.map.TransponderElement;
 import pt.up.fe.dceg.neptus.types.misc.LBLRangesTimer;
 import pt.up.fe.dceg.neptus.types.mission.HomeReference;
+import pt.up.fe.dceg.neptus.types.mission.MapMission;
 import pt.up.fe.dceg.neptus.types.mission.MissionType;
 import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 import pt.up.fe.dceg.neptus.util.ByteUtil;
+import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.comm.HTTPUtils;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
@@ -85,24 +102,10 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
     };
     
-    private enum ParentNodes {
-        MAP(I18n.text("Maps")),
-        TRANSPONDERS(I18n.text("Transponders")),
-        PLANS(I18n.text("Plans")),
-        // REMOTE_PLANS("Remote Plans"),
-        MARKS(I18n.text("Marks")),
-        CHECKLISTS(I18n.text("Checklists"));
-
-        public final String nodeName;
-
-        private ParentNodes(String nodeName) {
-            this.nodeName = nodeName;
-        }
-    }
 
     private final MissionTreeCellRenderer cellRenderer;
     private final JTree elementTree;
-    final private Model treeModel;
+    final private MissionTreeModel treeModel;
 
     /**
      * Creates a new mission browser which will display the items contained in the given mission type
@@ -124,7 +127,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         this.add(new JScrollPane(elementTree), BorderLayout.CENTER);
         ConfigFetch.benchmark("MissionBrowser");
 
-        treeModel = new Model();
+        treeModel = new MissionTreeModel();
         elementTree.setModel(treeModel);
     }
 
@@ -139,49 +142,44 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             return null;
 
         Vector<Object> sel = new Vector<Object>();
-        // TODO uncomment
-        NeptusLog.pub().error("getSelectedItems");
-//        for (TreePath path : selectionPaths) {
-//            ExtendedTreeNode node = (ExtendedTreeNode) path.getLastPathComponent();
-//            Object userObject = node.getUserObject();
-//            // This method is used by the send transponder button so it's important to make sure the button only see
-//            // transponder elements that have the full configuration.
-//            if (userObject instanceof TransponderElement) {
-//                System.out.println("getSelectedItems");
-//                if (!node.getUserInfo().get(NodeInfoKey.SYNC).equals(State.REMOTE)) {
-//                    sel.add(userObject);
-//                }
-//            }
-//            else {
-//                sel.add(userObject);
-//            }
-//        }
+        for (TreePath path : selectionPaths) {
+            ExtendedTreeNode node = (ExtendedTreeNode) path.getLastPathComponent();
+            Object userObject = node.getUserObject();
+            // This method is used by the send transponder button so it's important to make sure the button only see
+            // transponder elements that have the full configuration.
+            if (userObject instanceof TransponderElement) {
+                System.out.println("getSelectedItems");
+                if (!node.getUserInfo().get(NodeInfoKey.SYNC.name()).equals(State.REMOTE)) {
+                    sel.add(userObject);
+                }
+            }
+            else {
+                sel.add(userObject);
+            }
+        }
 
         return sel.toArray();
     }
 
     public ExtendedTreeNode getSelectedTreeNode() {
-        // TODO uncomment and remove this
-        NeptusLog.pub().error("getSelectedTreeNode");
-        return null;
-        // if (elementTree.getSelectionPath() == null)
-        // return null;
-        // ExtendedTreeNode node = (ExtendedTreeNode) elementTree.getSelectionPath().getLastPathComponent();
-        // Object userObject = node.getUserObject();
-        // // This method is used by the send transponder button so it's important to make sure the button only see
-        // // transponder elements that have the full configuration.
-        // if (userObject instanceof TransponderElement) {
-        // System.out.println("getSelectedItems");
-        // if (!node.getUserInfo().get(NodeInfoKey.SYNC).equals(State.REMOTE)) {
-        // return node;
-        // }
-        // else {
-        // return null;
-        // }
-        // }
-        // else {
-        // return node;
-        // }
+        if (elementTree.getSelectionPath() == null)
+            return null;
+        ExtendedTreeNode node = (ExtendedTreeNode) elementTree.getSelectionPath().getLastPathComponent();
+        Object userObject = node.getUserObject();
+        // This method is used by the send transponder button so it's important to make sure the button only see
+        // transponder elements that have the full configuration.
+        if (userObject instanceof TransponderElement) {
+            System.out.println("getSelectedItems");
+            if (!node.getUserInfo().get(NodeInfoKey.SYNC.name()).equals(State.REMOTE)) {
+                return node;
+            }
+            else {
+                return null;
+            }
+        }
+        else {
+            return node;
+        }
     }
 
     /**
@@ -197,145 +195,134 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
 
     public void addTransponderElement(ConsoleLayout console2) {
-        // TODO uncomment
-        NeptusLog.pub().error("addTransponderElement");
-        // if (console2 == null) {
-        // GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(), I18n.text("Add transponder"),
-        // I18n.text("Unable to find a parent console"));
-        // return;
-        // }
-        //
-        // if (console2.getMission() == null) {
-        // GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(), I18n.text("Add transponder"),
-        // I18n.text("No mission opened in the console"));
-        // return;
-        // }
-        //
-        // MissionType mt = console2.getMission();
-        // MapType pivot;
-        // Vector<TransponderElement> ts =
-        // MapGroup.getMapGroupInstance(mt).getAllObjectsOfType(TransponderElement.class);
-        // if (ts.size() > 0) {
-        // pivot = ts.firstElement().getParentMap();
-        // }
-        // else {
-        // if (mt.getMapsList().size() > 0)
-        // pivot = mt.getMapsList().values().iterator().next().getMap();
-        // else {
-        // MapType map = new MapType(new LocationType(mt.getHomeRef()));
-        // MapMission mm = new MapMission();
-        // mm.setMap(map);
-        // mt.addMap(mm);
-        // MapGroup.getMapGroupInstance(mt).addMap(map);
-        // pivot = map;
-        // }
-        // }
-        //
-        // TransponderElement te = new TransponderElement(MapGroup.getMapGroupInstance(mt), pivot);
-        // te = SimpleTransponderPanel.showTransponderDialog(te, I18n.text("New transponder properties"), true, true,
-        // pivot.getObjectNames(), MissionBrowser.this);
-        // if (te != null) {
-        // te.getParentMap().addObject(te);
-        // te.getParentMap().saveFile(te.getParentMap().getHref());
-        // if (console2 != null && console2.getMission() != null
-        // && console2.getMission().getCompressedFilePath() != null) {
-        // console2.getMission().save(false);
-        // }
-        // // TODO refreshBrowser(console2.getPlan(), console2.getMission());
-        // treeModel.addTransponderNode(te);
-        // ImcMsgManager.disseminate(te, "Transponder");
-        // }
+        if (console2 == null) {
+            GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(), I18n.text("Add transponder"),
+                    I18n.text("Unable to find a parent console"));
+            return;
+        }
+
+        if (console2.getMission() == null) {
+            GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(), I18n.text("Add transponder"),
+                    I18n.text("No mission opened in the console"));
+            return;
+        }
+
+        MissionType mt = console2.getMission();
+        MapType pivot;
+        Vector<TransponderElement> ts = MapGroup.getMapGroupInstance(mt).getAllObjectsOfType(TransponderElement.class);
+        if (ts.size() > 0) {
+            pivot = ts.firstElement().getParentMap();
+        }
+        else {
+            if (mt.getMapsList().size() > 0)
+                pivot = mt.getMapsList().values().iterator().next().getMap();
+            else {
+                MapType map = new MapType(new LocationType(mt.getHomeRef()));
+                MapMission mm = new MapMission();
+                mm.setMap(map);
+                mt.addMap(mm);
+                MapGroup.getMapGroupInstance(mt).addMap(map);
+                pivot = map;
+            }
+        }
+
+        TransponderElement te = new TransponderElement(MapGroup.getMapGroupInstance(mt), pivot);
+        te = SimpleTransponderPanel.showTransponderDialog(te, I18n.text("New transponder properties"), true, true,
+                pivot.getObjectNames(), MissionBrowser.this);
+        if (te != null) {
+            te.getParentMap().addObject(te);
+            te.getParentMap().saveFile(te.getParentMap().getHref());
+            if (console2 != null && console2.getMission() != null
+                    && console2.getMission().getCompressedFilePath() != null) {
+                console2.getMission().save(false);
+            }
+            // TODO refreshBrowser(console2.getPlan(), console2.getMission());
+            treeModel.addTransponderNode(te);
+            ImcMsgManager.disseminate(te, "Transponder");
+        }
     }
 
     public void editTransponder(TransponderElement elem, MissionType mission) {
-        // TODO uncomment
-        NeptusLog.pub().error("editTransponder");
-        // ExtendedTreeNode selectedTreeNode = getSelectedTreeNode();
-        // TransponderElement res = SimpleTransponderPanel.showTransponderDialog(elem,
-        // I18n.text("Transponder properties"), true, true, elem.getParentMap().getObjectNames(),
-        // MissionBrowser.this);
-        //
-        // if (res != null) {
-        // MapType pivot = elem.getParentMap();
-        // MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
-        // mce.setSourceMap(pivot);
-        // mce.setMapGroup(MapGroup.getMapGroupInstance(mission));
-        // mce.setChangedObject(elem);
-        // pivot.warnChangeListeners(mce);
-        //
-        // LinkedHashMap<String, MapMission> mapsList = mission.getMapsList();
-        // MapMission mm = mapsList.get(pivot.getId());
-        // mm.setMap(pivot);
-        // pivot.saveFile(mm.getHref());
-        //
-        // if (mission != null && mission.getCompressedFilePath() != null) {
-        // mission.save(false);
-        // }
-        // setSyncState(selectedTreeNode, State.LOCAL);
-        // treeModel.nodeChanged(selectedTreeNode);
-        // }
+        ExtendedTreeNode selectedTreeNode = getSelectedTreeNode();
+        TransponderElement res = SimpleTransponderPanel.showTransponderDialog(elem,
+                I18n.text("Transponder properties"), true, true, elem.getParentMap().getObjectNames(),
+                MissionBrowser.this);
+
+        if (res != null) {
+            MapType pivot = elem.getParentMap();
+            MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
+            mce.setSourceMap(pivot);
+            mce.setMapGroup(MapGroup.getMapGroupInstance(mission));
+            mce.setChangedObject(elem);
+            pivot.warnChangeListeners(mce);
+
+            LinkedHashMap<String, MapMission> mapsList = mission.getMapsList();
+            MapMission mm = mapsList.get(pivot.getId());
+            mm.setMap(pivot);
+            pivot.saveFile(mm.getHref());
+
+            if (mission != null && mission.getCompressedFilePath() != null) {
+                mission.save(false);
+            }
+            setSyncState(selectedTreeNode, State.LOCAL);
+            treeModel.nodeChanged(selectedTreeNode);
+        }
     }
 
     public void removeTransponder(TransponderElement elem, ConsoleLayout console2) {
-        // TODO uncomment
-        NeptusLog.pub().error("removeTransponder");
-        // int ret = JOptionPane.showConfirmDialog(this, I18n.textf("Delete '%transponderName'?", elem.getId()),
-        // I18n.text("Delete"), JOptionPane.YES_NO_OPTION);
-        // if (ret == JOptionPane.YES_OPTION) {
-        // elem.getParentMap().remove(elem.getId());
-        // elem.getParentMap().warnChangeListeners(new MapChangeEvent(MapChangeEvent.OBJECT_REMOVED));
-        // elem.getParentMap().saveFile(elem.getParentMap().getHref());
-        //
-        // if (console2.getMission() != null) {
-        // if (console2.getMission().getCompressedFilePath() != null)
-        // console2.getMission().save(false);
-        // console2.updateMissionListeners();
-        // }
-        // removeItem(elem);
-        // }
+        int ret = JOptionPane.showConfirmDialog(this, I18n.textf("Delete '%transponderName'?", elem.getId()),
+                I18n.text("Delete"), JOptionPane.YES_NO_OPTION);
+        if (ret == JOptionPane.YES_OPTION) {
+            elem.getParentMap().remove(elem.getId());
+            elem.getParentMap().warnChangeListeners(new MapChangeEvent(MapChangeEvent.OBJECT_REMOVED));
+            elem.getParentMap().saveFile(elem.getParentMap().getHref());
+
+            if (console2.getMission() != null) {
+                if (console2.getMission().getCompressedFilePath() != null)
+                    console2.getMission().save(false);
+                console2.updateMissionListeners();
+            }
+            removeItem(elem);
+        }
     }
 
     public void swithLocationsTransponder(TransponderElement tel1, TransponderElement tel2, ConsoleLayout console2) {
-        // TODO uncomment
-        NeptusLog.pub().error("swithLocationsTransponder");
-        // LocationType loc1 = tel1.getCenterLocation();
-        // LocationType loc2 = tel2.getCenterLocation();
-        // tel1.setCenterLocation(loc2);
-        // tel2.setCenterLocation(loc1);
-        //
-        // MapType pivot = tel1.getParentMap();
-        // MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
-        // mce.setSourceMap(pivot);
-        // mce.setMapGroup(MapGroup.getMapGroupInstance(console2.getMission()));
-        // mce.setChangedObject(tel1);
-        // pivot.warnChangeListeners(mce);
-        //
-        // MapType pivot2 = tel2.getParentMap();
-        // MapChangeEvent mce2 = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
-        // mce2.setSourceMap(pivot2);
-        // mce2.setMapGroup(MapGroup.getMapGroupInstance(console2.getMission()));
-        // mce2.setChangedObject(tel2);
-        // pivot2.warnChangeListeners(mce2);
-        //
-        // LinkedHashMap<String, MapMission> mapsList = console2.getMission().getMapsList();
-        // MapMission mm = mapsList.get(pivot.getId());
-        // mm.setMap(pivot);
-        // pivot.saveFile(mm.getHref());
-        // mm = mapsList.get(pivot2.getId());
-        // mm.setMap(pivot2);
-        // pivot2.saveFile(mm.getHref());
-        //
-        // if (console2 != null && console2.getMission() != null && console2.getMission().getCompressedFilePath() !=
-        // null) {
-        // console2.getMission().save(false);
-        // console2.updateMissionListeners();
-        // }
+        LocationType loc1 = tel1.getCenterLocation();
+        LocationType loc2 = tel2.getCenterLocation();
+        tel1.setCenterLocation(loc2);
+        tel2.setCenterLocation(loc1);
+
+        MapType pivot = tel1.getParentMap();
+        MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
+        mce.setSourceMap(pivot);
+        mce.setMapGroup(MapGroup.getMapGroupInstance(console2.getMission()));
+        mce.setChangedObject(tel1);
+        pivot.warnChangeListeners(mce);
+
+        MapType pivot2 = tel2.getParentMap();
+        MapChangeEvent mce2 = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
+        mce2.setSourceMap(pivot2);
+        mce2.setMapGroup(MapGroup.getMapGroupInstance(console2.getMission()));
+        mce2.setChangedObject(tel2);
+        pivot2.warnChangeListeners(mce2);
+
+        LinkedHashMap<String, MapMission> mapsList = console2.getMission().getMapsList();
+        MapMission mm = mapsList.get(pivot.getId());
+        mm.setMap(pivot);
+        pivot.saveFile(mm.getHref());
+        mm = mapsList.get(pivot2.getId());
+        mm.setMap(pivot2);
+        pivot2.saveFile(mm.getHref());
+
+        if (console2 != null && console2.getMission() != null && console2.getMission().getCompressedFilePath() != null) {
+            console2.getMission().save(false);
+            console2.updateMissionListeners();
+        }
 
     }
 
 
     public void refreshBrowser_(final PlanType selectedPlan, final MissionType mission, final String mainVehicleId) {
-        NeptusLog.pub().error("refreshBrowser_");
         // Home ref
         treeModel.setHomeRef(mission.getHomeRef());
         // Plans
@@ -376,31 +363,29 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @return true if mission listeners should be updated
      */
     public boolean setContent(Transferable tr, MissionType mission) {
-        // TODO uncomment
-        NeptusLog.pub().error("setContent");
-        // DataFlavor[] flavors = tr.getTransferDataFlavors();
-        // for (int i = 0; i < flavors.length; i++) {
-        // if (flavors[i].isMimeTypeEqual("text/plain; class=java.lang.String; charset=Unicode")) {
-        // String url = null;
-        //
-        // try {
-        // Object data = tr.getTransferData(flavors[i]);
-        // if (data instanceof InputStreamReader) {
-        // BufferedReader reader = new BufferedReader((InputStreamReader) data);
-        // url = reader.readLine();
-        // reader.close();
-        // }
-        // else if (data instanceof String) {
-        // url = data.toString();
-        // }
-        //
-        // return parseURL(url, mission);
-        // }
-        // catch (Exception e) {
-        // NeptusLog.pub().error(e);
-        // }
-        // }
-        // }
+        DataFlavor[] flavors = tr.getTransferDataFlavors();
+        for (int i = 0; i < flavors.length; i++) {
+            if (flavors[i].isMimeTypeEqual("text/plain; class=java.lang.String; charset=Unicode")) {
+                String url = null;
+
+                try {
+                    Object data = tr.getTransferData(flavors[i]);
+                    if (data instanceof InputStreamReader) {
+                        BufferedReader reader = new BufferedReader((InputStreamReader) data);
+                        url = reader.readLine();
+                        reader.close();
+                    }
+                    else if (data instanceof String) {
+                        url = data.toString();
+                    }
+
+                    return parseURL(url, mission);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                }
+            }
+        }
         return false;
     }
 
@@ -438,109 +423,107 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @return true if mission listeners should be updated
      */
     public boolean parseContents(String file, MissionType mission) {
-        // TODO uncomment
-        NeptusLog.pub().error("parseContents");
-        // try {
-        // Document doc = DocumentHelper.parseText(file);
-        // String root = doc.getRootElement().getName();
-        // if (root.equalsIgnoreCase("home-reference")) {
-        // HomeReference homeRef = new HomeReference();
-        // boolean loadOk = homeRef.load(file);
-        // if (loadOk) {
-        // mission.getHomeRef().setCoordinateSystem(homeRef);
-        // Vector<HomeReferenceElement> hrefElems = MapGroup.getMapGroupInstance(mission).getAllObjectsOfType(
-        // HomeReferenceElement.class);
-        // hrefElems.get(0).setCoordinateSystem(mission.getHomeRef());
-        // mission.save(false);
-        // return true;
-        // }
-        // }
-        // else if (root.equalsIgnoreCase("StartLocation")) {
-        // MarkElement start = new MarkElement(file);
-        // AbstractElement[] startLocs = MapGroup.getMapGroupInstance(mission).getMapObjectsByID("start");
-        // MapType pivot = null;
-        //
-        // if (startLocs.length == 1 && startLocs[0] instanceof MarkElement) {
-        // ((MarkElement) startLocs[0]).setCenterLocation(start.getCenterLocation());
-        // pivot = startLocs[0].getParentMap();
-        // MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
-        // mce.setSourceMap(pivot);
-        // mce.setMapGroup(pivot.getMapGroup());
-        // mce.setChangedObject(startLocs[0]);
-        // pivot.warnChangeListeners(mce);
-        // }
-        // else if (startLocs.length == 0) {
-        // try {
-        // pivot = mission.getMapsList().values().iterator().next().getMap();
-        // start.setId("start");
-        // start.setName("start");
-        // start.setParentMap(pivot);
-        // start.setMapGroup(pivot.getMapGroup());
-        // pivot.addObject(start);
-        // }
-        // catch (Exception e) {
-        // NeptusLog.pub().error(e);
-        // }
-        // }
-        // if (pivot != null) {
-        // pivot.saveFile(pivot.getHref());
-        // if (mission != null && mission.getCompressedFilePath() != null) {
-        // mission.save(false);
-        // }
-        // }
-        // return true;
-        // }
-        // else if (root.equalsIgnoreCase("Transponder")) {
-        // TransponderElement transponder = new TransponderElement(file);
-        // AbstractElement[] sameId = MapGroup.getMapGroupInstance(mission).getMapObjectsByID(transponder.getId());
-        // MapType pivot = null;
-        //
-        // if (sameId.length == 1 && sameId[0] instanceof TransponderElement) {
-        // ((TransponderElement) sameId[0]).setCenterLocation(transponder.getCenterLocation());
-        // ((TransponderElement) sameId[0]).setBuoyAttached(transponder.isBuoyAttached());
-        // ((TransponderElement) sameId[0]).setConfiguration(transponder.getConfiguration());
-        //
-        // pivot = sameId[0].getParentMap();
-        // MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
-        // mce.setSourceMap(pivot);
-        // mce.setMapGroup(pivot.getMapGroup());
-        // mce.setChangedObject(sameId[0]);
-        // pivot.warnChangeListeners(mce);
-        // }
-        // else if (sameId.length == 0) {
-        // try {
-        // pivot = mission.getMapsList().values().iterator().next().getMap();
-        // transponder.setParentMap(pivot);
-        // transponder.setMapGroup(pivot.getMapGroup());
-        // pivot.addObject(transponder);
-        // }
-        // catch (Exception e) {
-        // NeptusLog.pub().error(e);
-        // }
-        // }
-        // if (pivot != null) {
-        // pivot.saveFile(pivot.getHref());
-        // if (mission != null && mission.getCompressedFilePath() != null) {
-        // mission.save(false);
-        // }
-        // }
-        // return true;
-        // }
-        // else if (root.equalsIgnoreCase("Plan") && mission != null) {
-        // PlanType plan = new PlanType(file, mission);
-        //
-        // mission.getIndividualPlansList().put(plan.getId(), plan);
-        //
-        // if (mission != null && mission.getCompressedFilePath() != null) {
-        // mission.save(false);
-        // }
-        // return true;
-        // }
-        // }
-        // catch (DocumentException e) {
-        // NeptusLog.pub().error(e);
-        // return false;
-        // }
+        try {
+            Document doc = DocumentHelper.parseText(file);
+            String root = doc.getRootElement().getName();
+            if (root.equalsIgnoreCase("home-reference")) {
+                HomeReference homeRef = new HomeReference();
+                boolean loadOk = homeRef.load(file);
+                if (loadOk) {
+                    mission.getHomeRef().setCoordinateSystem(homeRef);
+                    Vector<HomeReferenceElement> hrefElems = MapGroup.getMapGroupInstance(mission).getAllObjectsOfType(
+                            HomeReferenceElement.class);
+                    hrefElems.get(0).setCoordinateSystem(mission.getHomeRef());
+                    mission.save(false);
+                    return true;
+                }
+            }
+            else if (root.equalsIgnoreCase("StartLocation")) {
+                MarkElement start = new MarkElement(file);
+                AbstractElement[] startLocs = MapGroup.getMapGroupInstance(mission).getMapObjectsByID("start");
+                MapType pivot = null;
+
+                if (startLocs.length == 1 && startLocs[0] instanceof MarkElement) {
+                    ((MarkElement) startLocs[0]).setCenterLocation(start.getCenterLocation());
+                    pivot = startLocs[0].getParentMap();
+                    MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
+                    mce.setSourceMap(pivot);
+                    mce.setMapGroup(pivot.getMapGroup());
+                    mce.setChangedObject(startLocs[0]);
+                    pivot.warnChangeListeners(mce);
+                }
+                else if (startLocs.length == 0) {
+                    try {
+                        pivot = mission.getMapsList().values().iterator().next().getMap();
+                        start.setId("start");
+                        start.setName("start");
+                        start.setParentMap(pivot);
+                        start.setMapGroup(pivot.getMapGroup());
+                        pivot.addObject(start);
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(e);
+                    }
+                }
+                if (pivot != null) {
+                    pivot.saveFile(pivot.getHref());
+                    if (mission != null && mission.getCompressedFilePath() != null) {
+                        mission.save(false);
+                    }
+                }
+                return true;
+            }
+            else if (root.equalsIgnoreCase("Transponder")) {
+                TransponderElement transponder = new TransponderElement(file);
+                AbstractElement[] sameId = MapGroup.getMapGroupInstance(mission).getMapObjectsByID(transponder.getId());
+                MapType pivot = null;
+
+                if (sameId.length == 1 && sameId[0] instanceof TransponderElement) {
+                    ((TransponderElement) sameId[0]).setCenterLocation(transponder.getCenterLocation());
+                    ((TransponderElement) sameId[0]).setBuoyAttached(transponder.isBuoyAttached());
+                    ((TransponderElement) sameId[0]).setConfiguration(transponder.getConfiguration());
+
+                    pivot = sameId[0].getParentMap();
+                    MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
+                    mce.setSourceMap(pivot);
+                    mce.setMapGroup(pivot.getMapGroup());
+                    mce.setChangedObject(sameId[0]);
+                    pivot.warnChangeListeners(mce);
+                }
+                else if (sameId.length == 0) {
+                    try {
+                        pivot = mission.getMapsList().values().iterator().next().getMap();
+                        transponder.setParentMap(pivot);
+                        transponder.setMapGroup(pivot.getMapGroup());
+                        pivot.addObject(transponder);
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(e);
+                    }
+                }
+                if (pivot != null) {
+                    pivot.saveFile(pivot.getHref());
+                    if (mission != null && mission.getCompressedFilePath() != null) {
+                        mission.save(false);
+                    }
+                }
+                return true;
+            }
+            else if (root.equalsIgnoreCase("Plan") && mission != null) {
+                PlanType plan = new PlanType(file, mission);
+
+                mission.getIndividualPlansList().put(plan.getId(), plan);
+
+                if (mission != null && mission.getCompressedFilePath() != null) {
+                    mission.save(false);
+                }
+                return true;
+            }
+        }
+        catch (DocumentException e) {
+            NeptusLog.pub().error(e);
+            return false;
+        }
         return false;
     }
 
@@ -553,16 +536,16 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     public void removeItem(Object item) {
         boolean isChanged = false;
         if (item instanceof MapType) {
-            /* isChanged = */treeModel.removeById((MapType) item, treeModel.maps);
+            treeModel.removeById(((MapType) item).getIdentification(), ParentNodes.MAP);
         }
         else if (item instanceof PlanType) {
-            isChanged = treeModel.removeById((PlanType) item, treeModel.plans);
+            treeModel.removeById(((PlanType) item).getIdentification(), ParentNodes.PLANS);
             if(!isChanged){
                 NeptusLog.pub().error("Could not find " + ((Identifiable) item).getIdentification());
             }
         }
         else if (item instanceof PlanDBInfo) {
-            isChanged = treeModel.removeById((PlanDBInfo) item, treeModel.plans);
+            treeModel.removeById(((PlanDBInfo) item).getIdentification(), ParentNodes.PLANS);
             if (!isChanged) {
                 NeptusLog.pub().error("Could not find " + ((Identifiable) item).getIdentification());
             }
@@ -630,20 +613,31 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             return;
         }
 
-        ExtendedTreeNode plans = treeModel.plans;
-        if (plans != null) {
-            int numPlans = treeModel.getChildCount(plans);
-
-            for (int i = 0; i < numPlans; i++) {
-                ExtendedTreeNode tmp = (ExtendedTreeNode) treeModel.getChild(plans, i);
-                if (tmp.getUserObject() == plan) {
-                    TreePath selPath = new TreePath(treeModel.getPathToRoot(tmp));
-                    elementTree.setSelectionPath(selPath);
-                    elementTree.scrollPathToVisible(selPath);
-                    return;
-                }
+        ExtendedTreeNode planNode = null;
+        for (ChildIterator planIt = treeModel.getIterator(ParentNodes.PLANS); 
+                planIt.hasNext(); planNode = planIt.next()) {
+            if (planNode.getUserObject() == plan) {
+                TreePath selPath = new TreePath(treeModel.getPathToRoot(planNode));
+                elementTree.setSelectionPath(selPath);
+                elementTree.scrollPathToVisible(selPath);
+                return;
             }
         }
+
+        // ExtendedTreeNode plans = treeModel.plans;
+        // if (plans != null) {
+        // int numPlans = treeModel.getChildCount(plans);
+        //
+        // for (int i = 0; i < numPlans; i++) {
+        // ExtendedTreeNode tmp = (ExtendedTreeNode) treeModel.getChild(plans, i);
+        // if (tmp.getUserObject() == plan) {
+        // TreePath selPath = new TreePath(treeModel.getPathToRoot(tmp));
+        // elementTree.setSelectionPath(selPath);
+        // elementTree.scrollPathToVisible(selPath);
+        // return;
+        // }
+        // }
+        // }
     }
 
     public TreePath[] getSelectedNodes() {
@@ -677,42 +671,42 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     // }
     // }
 
-    /**
-     * Delete all items not in the set.
-     * 
-     * @param existing the set of existing items.
-     */
-    private void deleteDiscontinued(HashSet<String> existing, ParentNodes parentType) {
-        ExtendedTreeNode parent;
-        switch (parentType) {
-            case PLANS:
-                parent = treeModel.plans;
-                break;
-            case TRANSPONDERS:
-                parent = treeModel.trans;
-                break;
-            default:
-                NeptusLog.pub().error(
-                        "ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.deleteDiscontinued()");
-                return;
-        }
-        int count = parent.getChildCount();
-        int p = 0;
-        ExtendedTreeNode child;
-        Identifiable childObj;
-        while (p < count) {
-            child = (ExtendedTreeNode) parent.getChildAt(p);
-            childObj = (Identifiable) child.getUserObject();
-            String id = childObj.getIdentification();
-            if (!existing.contains(id)) {
-                treeModel.removeById(childObj, parent);
-                System.out.println("Removing " + id);
-                count--;
-                p--;
-            }
-            p++;
-        }
-    }
+    // /**
+    // * Delete all items not in the set.
+    // *
+    // * @param existing the set of existing items.
+    // */
+    // private void deleteDiscontinued(HashSet<String> existing, ParentNodes parentType) {
+    // ExtendedTreeNode parent;
+    // switch (parentType) {
+    // case PLANS:
+    // parent = treeModel.plans;
+    // break;
+    // case TRANSPONDERS:
+    // parent = treeModel.trans;
+    // break;
+    // default:
+    // NeptusLog.pub().error(
+    // "ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.deleteDiscontinued()");
+    // return;
+    // }
+    // int count = parent.getChildCount();
+    // int p = 0;
+    // ExtendedTreeNode child;
+    // Identifiable childObj;
+    // while (p < count) {
+    // child = (ExtendedTreeNode) parent.getChildAt(p);
+    // childObj = (Identifiable) child.getUserObject();
+    // String id = childObj.getIdentification();
+    // if (!existing.contains(id)) {
+    // treeModel.removeById(childObj, parent);
+    // System.out.println("Removing " + id);
+    // count--;
+    // p--;
+    // }
+    // p++;
+    // }
+    // }
 
     /**
      * Takes the local plans and gets the remote ones stored in the PlanDBState associated with the system and merges
@@ -736,9 +730,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             public void run() {
                 HashSet<String> existingPlans = mergeLocalPlans(localPlans, sysName, treeModel);
                 existingPlans = mergeRemotePlans(sysName, remotePlans, treeModel, existingPlans);
-                deleteDiscontinued(existingPlans, ParentNodes.PLANS);
-                elementTree.expandPath(new TreePath(treeModel.plans.getPath()));
-                System.out.println("Nodes in Plans:" + treeModel.plans.getChildCount());
+                treeModel.removeSet(existingPlans, ParentNodes.PLANS);
+                // deleteDiscontinued(existingPlans, ParentNodes.PLANS);
+                elementTree.expandPath(treeModel.getPathToParent(ParentNodes.PLANS));
             }
         });
     }
@@ -751,7 +745,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param treeModel the model where to merge
      */
     private HashSet<String> mergeRemotePlans(String sysName, LinkedHashMap<String, PlanDBInfo> remotePlans,
-            Model treeModel, HashSet<String> existingPlans) {
+            MissionTreeModel treeModel, HashSet<String> existingPlans) {
         ExtendedTreeNode target;
         Set<String> remotePlansIds = remotePlans.keySet();
         for (String planId : remotePlansIds) {
@@ -764,7 +758,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 target = new ExtendedTreeNode(remotePlan);
                 target.getUserInfo().put(NodeInfoKey.ID.name(), planId);
                 target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.REMOTE);
-                treeModel.insertAlphabetically(target, treeModel, ParentNodes.PLANS);
+                treeModel.insertAlphabetically(target, ParentNodes.PLANS);
                 System.out.println(" plan from IMCSystem not found in mission tree  >> Remote.");
             }
             else {
@@ -805,7 +799,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param treeModel the model where to merge
      */
     private HashSet<String> mergeRemoteTrans(String sysName, LinkedHashMap<String, LblBeacon> remote,
-            Model treeModel, HashSet<String> existing) {
+            MissionTreeModel treeModel, HashSet<String> existing) {
         ExtendedTreeNode target;
         LblBeacon remoteItem;
         TransponderElement newTrans;
@@ -822,7 +816,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 target = new ExtendedTreeNode(remoteItem);
                 target.getUserInfo().put(NodeInfoKey.ID.name(), id);
                 target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.REMOTE);
-                treeModel.insertAlphabetically(target, treeModel, ParentNodes.TRANSPONDERS);
+                treeModel.insertAlphabetically(target, ParentNodes.TRANSPONDERS);
                 System.out.println(" trans from IMCSystem not found in mission tree  >> Remote.");
             }
             else {
@@ -862,7 +856,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param treeModel the model where to merge
      * @return the list of seen plans.
      */
-    private HashSet<String> mergeLocalPlans(TreeMap<String, PlanType> localPlans, String sysName, Model treeModel) {
+    private HashSet<String> mergeLocalPlans(TreeMap<String, PlanType> localPlans, String sysName,
+            MissionTreeModel treeModel) {
         Set<String> localPlansIds = localPlans.keySet();
         HashSet<String> existingPlans = new HashSet<String>();
         ExtendedTreeNode target, newNode;
@@ -876,7 +871,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 // If no plan exits insert as local
                 newNode = new ExtendedTreeNode(plan);
                 newNode.getUserInfo().put(NodeInfoKey.ID.name(), planId);
-                treeModel.insertAlphabetically(newNode, treeModel, ParentNodes.PLANS);
+                treeModel.insertAlphabetically(newNode, ParentNodes.PLANS);
                 target = newNode;
                 System.out.print(" mission plan not found in mission tree. Creating with mission plan.");
             }
@@ -904,7 +899,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @return the list of seen items.
      */
     private HashSet<String> mergeLocal(LinkedHashMap<String, ? extends Identifiable> local, String sysName,
-            Model treeModel,
+            MissionTreeModel treeModel,
             ParentNodes itemType) {
         Set<String> localIds = local.keySet();
         HashSet<String> existing = new HashSet<String>();
@@ -919,7 +914,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 // If no plan exits insert as local
                 newNode = new ExtendedTreeNode(item);
                 newNode.getUserInfo().put(NodeInfoKey.ID.name(), id);
-                treeModel.insertAlphabetically(newNode, treeModel, itemType);
+                treeModel.insertAlphabetically(newNode, itemType);
+                newNode.getUserInfo().put(NodeInfoKey.SYNC.name(), State.LOCAL);
+                newNode.getUserInfo().put(NodeInfoKey.VEHICLE.name(), sysName);
                 target = newNode;
                 System.out.print(itemType.name() + " not found in mission tree. Creating with mission plan.");
             }
@@ -1244,8 +1241,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 HashSet<String> existingTrans = mergeLocal(localTrans, sysName, treeModel, ParentNodes.TRANSPONDERS);
                 // existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans);
                 // deleteDiscontinued(existingTrans, ParentNodes.TRANSPONDERS);
-                elementTree.expandPath(new TreePath(treeModel.plans.getPath()));
-                System.out.println("Nodes in Plans:" + treeModel.plans.getChildCount());
+                // treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
+                elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
             }
         });
     }
@@ -1318,7 +1315,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 remoteNode.setPlanId(((PlanType) getSelectedItem()).getIdentification());
                 ExtendedTreeNode node = new ExtendedTreeNode(remoteNode);
                 setSyncState(node, State.REMOTE);
-                treeModel.insertAlphabetically(node, treeModel, ParentNodes.PLANS);
+                treeModel.insertAlphabetically(node, ParentNodes.PLANS);
             case LOCAL:
                 // Disappear
                 removeItem(getSelectedItem());
@@ -1339,301 +1336,295 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
     }
 
-    public enum NodeInfoKey {
-        ID,
-        SYNC,
-        VEHICLE;
-    }
-
-    /**
-     * Handles major changes in node structure.
-     * 
-     * @author Margarida Faria
-     * 
-     */
-    private class Model extends DefaultTreeModel {
-        private static final long serialVersionUID = 5581485271978065950L;
-        private final ExtendedTreeNode trans, maps;
-        private final ExtendedTreeNode plans;
-        private ExtendedTreeNode homeR;
-
-
-        // !!Important!! Always add with insertNodeInto (instead of add) and remove with removeNodeFromParent (instead
-        // of remove). It will remove directly from the Vector that support the model and notify of the structure
-        // changes.
-
-        /**
-         * @param root
-         */
-        public Model() {
-            super(new ExtendedTreeNode("Mission Elements"));
-            maps = new ExtendedTreeNode(ParentNodes.MAP.nodeName);
-            plans = new ExtendedTreeNode(ParentNodes.PLANS.nodeName);
-            trans = new ExtendedTreeNode(ParentNodes.TRANSPONDERS.nodeName);
-        }
-
-        /**
-         * Used only for clonning
-         * 
-         * @param root
-         */
-        private Model(ExtendedTreeNode maps, ExtendedTreeNode plans, ExtendedTreeNode trans) {
-            super(new ExtendedTreeNode("Mission Elements"));
-            this.maps = maps;
-            this.plans = plans;
-            this.trans = trans;
-        }
-
-        @Override
-        public Model clone() {
-            ExtendedTreeNode mapsClone = maps.clone();
-            mapsClone.cloneExtendedTreeNodeChildren(maps);
-            ExtendedTreeNode plansClone = plans.clone();
-            plansClone.cloneExtendedTreeNodeChildren(plans);
-            ExtendedTreeNode transClone = trans.clone();
-            transClone.cloneExtendedTreeNodeChildren(trans);
-            Model newModel = new Model(mapsClone, plansClone, transClone);
-            mapsClone.setParent((MutableTreeNode) newModel.root);
-            plansClone.setParent((MutableTreeNode) newModel.root);
-            transClone.setParent((MutableTreeNode) newModel.root);
-            return newModel;
-        }
-
-        // /**
-        // * Searched for a plan with this id in the nodes of the tree.
-        // *
-        // * @param id of the plan
-        // * @return the node of the plan or null if none is found
-        // */
-        // public ExtendedTreeNode findPlan(String id) {
-        // int nodeChildCount = getChildCount(plans);
-        // for (int c = 0; c < nodeChildCount; c++) {
-        // ExtendedTreeNode childAt = (ExtendedTreeNode) plans.getChildAt(c);
-        // Identifiable tempPlan = (Identifiable) childAt.getUserObject();
-        // if (tempPlan.getIdentification().equals(id)) {
-        // return childAt;
-        // }
-        // }
-        // return null;
-        // }
-
-        /**
-         * Searched for a node with this id in the nodes of the parent type.
-         * 
-         * @param id of the plan
-         * @param parentType of the node
-         * @return the node with the same id or null if none is found
-         */
-        public ExtendedTreeNode findNode(String id, ParentNodes parentType) {
-            ExtendedTreeNode parent;
-            switch (parentType) {
-                case PLANS:
-                    parent = treeModel.plans;
-                    break;
-                case TRANSPONDERS:
-                    parent = treeModel.trans;
-                    break;
-                default:
-                    NeptusLog.pub().error(
-                            "ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.insertAlphabetically()");
-                    return null;
-            }
-            int nodeChildCount = getChildCount(parent);
-            for (int c = 0; c < nodeChildCount; c++) {
-                ExtendedTreeNode childAt = (ExtendedTreeNode) parent.getChildAt(c);
-                Identifiable temp = (Identifiable) childAt.getUserObject();
-                if (temp.getIdentification().equals(id)) {
-                    return childAt;
-                }
-            }
-            return null;
-        }
-
-        private ExtendedTreeNode addTransponderNode(TransponderElement elem) {
-            ExtendedTreeNode node = new ExtendedTreeNode(elem);
-            HashMap<String, Object> transInfo = node.getUserInfo();
-            transInfo.put(NodeInfoKey.ID.name(), -1);
-            transInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
-            transInfo.put(NodeInfoKey.VEHICLE.name(), "");
-            addToParents(node, ParentNodes.TRANSPONDERS);
-            return node;
-        }
-        
-        // /**
-        // * TODO remove need for treeModel attribute.
-        // *
-        // *
-        // * @param newNode
-        // * @param treeModel
-        // */
-        // private void insertPlanAlphabetically(ExtendedTreeNode newNode, Model treeModel) {
-        // Identifiable plan = (Identifiable) newNode.getUserObject();
-        // int nodeChildCount = getChildCount(treeModel.plans);
-        // ExtendedTreeNode childAt;
-        // Identifiable tempPlan;
-        // for (int c = 0; c < nodeChildCount; c++) {
-        // childAt = (ExtendedTreeNode) treeModel.plans.getChildAt(c);
-        // tempPlan = (Identifiable) childAt.getUserObject();
-        // if (tempPlan.getIdentification().compareTo(plan.getIdentification()) > 0) {
-        // insertNodeInto(newNode, treeModel.plans, c);
-        // return;
-        // }
-        // }
-        // System.out.print(" [addToParents] ");
-        // treeModel.addToParents(newNode, ParentNodes.PLANS);
-        // }
-        
-        /**
-         * TODO remove need for treeModel attribute. \n
-         * TODO check why it is not needed to add if outside the last for
-         * 
-         * @param newNode
-         * @param treeModel
-         */
-        private boolean insertAlphabetically(ExtendedTreeNode newNode, Model treeModel, ParentNodes parentType) {
-            ExtendedTreeNode parent;
-            switch (parentType) {
-                case PLANS:
-                    parent = treeModel.plans;
-                    break;
-                case TRANSPONDERS:
-                    parent = treeModel.trans;
-                    Thread.dumpStack();
-                    break;
-                default:
-                    NeptusLog.pub().error(
-                            "ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.insertAlphabetically()");
-                    return false;
-            }
-            Identifiable plan = (Identifiable) newNode.getUserObject();
-            int nodeChildCount = getChildCount(parent);
-            ExtendedTreeNode childAt;
-            Identifiable temp;
-            boolean inserted = false;
-            for (int c = 0; c < nodeChildCount && !inserted; c++) {
-                childAt = (ExtendedTreeNode) parent.getChildAt(c);
-                temp = (Identifiable) childAt.getUserObject();
-                if (temp.getIdentification().compareTo(plan.getIdentification()) > 0) {
-                    insertNodeInto(newNode, parent, c);
-                    inserted = true;
-                }
-            }
-            System.out.println(" [addToParents] "
-                    + ((SwingUtilities.isEventDispatchThread() ? " is EDT " : " out of EDT ")));
-            // Add to the end (this ensures that if the parent wasn't visible in the tree before it is now
-            treeModel.addToParents(newNode, parentType);
-            return inserted;
-        }
-
-        private void addToParents(ExtendedTreeNode node, ParentNodes parentType) {
-            ExtendedTreeNode parent = null;
-            int index = -1;
-            switch (parentType) {
-                case PLANS:
-                    insertNodeInto(node, plans, plans.getChildCount());
-                    if (plans.getChildCount() == 1) {
-                        parent = plans;
-                        index = root.getChildCount();
-                    }
-                    break;
-                case TRANSPONDERS:
-                    int childCount = trans.getChildCount();
-
-                    try {
-                        insertNodeInto(node, trans, childCount);
-                    }
-                    catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    if (trans.getChildCount() == 1) {
-                        parent = trans;
-                        index = 1;
-                    }
-                    break;
-                default:
-                    NeptusLog.pub().error("ADD SUPPORT FOR " + parentType.nodeName + " IN MissionBrowser");
-                    return;
-            }
-
-            if (index != -1) {
-                System.out.println("Adding " + parentType.name() + " at index " + index);
-                insertNodeInto(parent, (MutableTreeNode) root, index);
-            }
-        }
-
-
-        /**
-         * TODO change input to id and parent enumeration
-         * 
-         * @param item user object of the node
-         * @param parent node in tree
-         * @return true changes have been made
-         */
-        private <E extends Identifiable> boolean removeById(E item, ExtendedTreeNode parent) {
-            int childCount = parent.getChildCount();
-            for (int i = 0; i < childCount; i++) {
-                @SuppressWarnings("unchecked")
-                E userObject = (E) ((ExtendedTreeNode) parent.getChildAt(i)).getUserObject();
-                if (userObject.getIdentification().equals(item.getIdentification())) {
-                    MutableTreeNode child = (MutableTreeNode) parent.getChildAt(i);
-                    removeNodeFromParent(child);
-                    if (childCount == 0) {
-                        removeNodeFromParent(parent);
-                        parent = null;
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /**
-         * Remove a node with the given id from the given type.
-         * 
-         * @param id
-         * @param parentType
-         * @return true if the item was found and removed, false otherwise.
-         */
-        private <E extends Identifiable> boolean removeById(String id, ParentNodes parentType) {
-            ExtendedTreeNode parent;
-            switch (parentType) {
-                case PLANS:
-                    parent = treeModel.plans;
-                    break;
-                default:
-                    NeptusLog.pub().error("ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.removeById()");
-                    return false;
-            }
-            int childCount = parent.getChildCount();
-            for (int i = 0; i < childCount; i++) {
-                @SuppressWarnings("unchecked")
-                E userObject = (E) ((ExtendedTreeNode) parent.getChildAt(i)).getUserObject();
-                if (userObject.getIdentification().equals(id)) {
-                    MutableTreeNode child = (MutableTreeNode) parent.getChildAt(i);
-                    removeNodeFromParent(child);
-                    if (childCount == 0) {
-                        removeNodeFromParent(parent);
-                        parent = null;
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public void setHomeRef(HomeReference href) {
-            // insert if root has no children or if the first child is not Home Reference
-            if (root.getChildCount() == 0
-                    || !(((ExtendedTreeNode) root.getChildAt(0)).getUserObject() instanceof HomeReference)) {
-                homeR = new ExtendedTreeNode(href);
-                insertNodeInto(homeR, (MutableTreeNode) root, 0);
-            }
-            else {
-                homeR.setUserObject(href);
-            }
-        }
-    }
+    // /**
+    // * Handles major changes in node structure.
+    // *
+    // * @author Margarida Faria
+    // *
+    // */
+    // private class Model extends DefaultTreeModel {
+    // private static final long serialVersionUID = 5581485271978065950L;
+    // private final ExtendedTreeNode trans, maps;
+    // private final ExtendedTreeNode plans;
+    // private ExtendedTreeNode homeR;
+    //
+    //
+    // // !!Important!! Always add with insertNodeInto (instead of add) and remove with removeNodeFromParent (instead
+    // // of remove). It will remove directly from the Vector that support the model and notify of the structure
+    // // changes.
+    //
+    // /**
+    // * @param root
+    // */
+    // public Model() {
+    // super(new ExtendedTreeNode("Mission Elements"));
+    // maps = new ExtendedTreeNode(ParentNodes.MAP.nodeName);
+    // plans = new ExtendedTreeNode(ParentNodes.PLANS.nodeName);
+    // trans = new ExtendedTreeNode(ParentNodes.TRANSPONDERS.nodeName);
+    // }
+    //
+    // /**
+    // * Used only for clonning
+    // *
+    // * @param root
+    // */
+    // private Model(ExtendedTreeNode maps, ExtendedTreeNode plans, ExtendedTreeNode trans) {
+    // super(new ExtendedTreeNode("Mission Elements"));
+    // this.maps = maps;
+    // this.plans = plans;
+    // this.trans = trans;
+    // }
+    //
+    // @Override
+    // public Model clone() {
+    // ExtendedTreeNode mapsClone = maps.clone();
+    // mapsClone.cloneExtendedTreeNodeChildren(maps);
+    // ExtendedTreeNode plansClone = plans.clone();
+    // plansClone.cloneExtendedTreeNodeChildren(plans);
+    // ExtendedTreeNode transClone = trans.clone();
+    // transClone.cloneExtendedTreeNodeChildren(trans);
+    // Model newModel = new Model(mapsClone, plansClone, transClone);
+    // mapsClone.setParent((MutableTreeNode) newModel.root);
+    // plansClone.setParent((MutableTreeNode) newModel.root);
+    // transClone.setParent((MutableTreeNode) newModel.root);
+    // return newModel;
+    // }
+    //
+    // // /**
+    // // * Searched for a plan with this id in the nodes of the tree.
+    // // *
+    // // * @param id of the plan
+    // // * @return the node of the plan or null if none is found
+    // // */
+    // // public ExtendedTreeNode findPlan(String id) {
+    // // int nodeChildCount = getChildCount(plans);
+    // // for (int c = 0; c < nodeChildCount; c++) {
+    // // ExtendedTreeNode childAt = (ExtendedTreeNode) plans.getChildAt(c);
+    // // Identifiable tempPlan = (Identifiable) childAt.getUserObject();
+    // // if (tempPlan.getIdentification().equals(id)) {
+    // // return childAt;
+    // // }
+    // // }
+    // // return null;
+    // // }
+    //
+    // /**
+    // * Searched for a node with this id in the nodes of the parent type.
+    // *
+    // * @param id of the plan
+    // * @param parentType of the node
+    // * @return the node with the same id or null if none is found
+    // */
+    // public ExtendedTreeNode findNode(String id, ParentNodes parentType) {
+    // ExtendedTreeNode parent;
+    // switch (parentType) {
+    // case PLANS:
+    // parent = treeModel.plans;
+    // break;
+    // case TRANSPONDERS:
+    // parent = treeModel.trans;
+    // break;
+    // default:
+    // NeptusLog.pub().error(
+    // "ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.insertAlphabetically()");
+    // return null;
+    // }
+    // int nodeChildCount = getChildCount(parent);
+    // for (int c = 0; c < nodeChildCount; c++) {
+    // ExtendedTreeNode childAt = (ExtendedTreeNode) parent.getChildAt(c);
+    // Identifiable temp = (Identifiable) childAt.getUserObject();
+    // if (temp.getIdentification().equals(id)) {
+    // return childAt;
+    // }
+    // }
+    // return null;
+    // }
+    //
+    // private ExtendedTreeNode addTransponderNode(TransponderElement elem) {
+    // ExtendedTreeNode node = new ExtendedTreeNode(elem);
+    // HashMap<String, Object> transInfo = node.getUserInfo();
+    // transInfo.put(NodeInfoKey.ID.name(), -1);
+    // transInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
+    // transInfo.put(NodeInfoKey.VEHICLE.name(), "");
+    // addToParents(node, ParentNodes.TRANSPONDERS);
+    // return node;
+    // }
+    //
+    // // /**
+    // // * TODO remove need for treeModel attribute.
+    // // *
+    // // *
+    // // * @param newNode
+    // // * @param treeModel
+    // // */
+    // // private void insertPlanAlphabetically(ExtendedTreeNode newNode, Model treeModel) {
+    // // Identifiable plan = (Identifiable) newNode.getUserObject();
+    // // int nodeChildCount = getChildCount(treeModel.plans);
+    // // ExtendedTreeNode childAt;
+    // // Identifiable tempPlan;
+    // // for (int c = 0; c < nodeChildCount; c++) {
+    // // childAt = (ExtendedTreeNode) treeModel.plans.getChildAt(c);
+    // // tempPlan = (Identifiable) childAt.getUserObject();
+    // // if (tempPlan.getIdentification().compareTo(plan.getIdentification()) > 0) {
+    // // insertNodeInto(newNode, treeModel.plans, c);
+    // // return;
+    // // }
+    // // }
+    // // System.out.print(" [addToParents] ");
+    // // treeModel.addToParents(newNode, ParentNodes.PLANS);
+    // // }
+    //
+    // /**
+    // * TODO remove need for treeModel attribute. \n
+    // * TODO check why it is not needed to add if outside the last for
+    // *
+    // * @param newNode
+    // * @param treeModel
+    // */
+    // private boolean insertAlphabetically(ExtendedTreeNode newNode, Model treeModel, ParentNodes parentType) {
+    // ExtendedTreeNode parent;
+    // switch (parentType) {
+    // case PLANS:
+    // parent = treeModel.plans;
+    // break;
+    // case TRANSPONDERS:
+    // parent = treeModel.trans;
+    // Thread.dumpStack();
+    // break;
+    // default:
+    // NeptusLog.pub().error(
+    // "ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.insertAlphabetically()");
+    // return false;
+    // }
+    // Identifiable plan = (Identifiable) newNode.getUserObject();
+    // int nodeChildCount = getChildCount(parent);
+    // ExtendedTreeNode childAt;
+    // Identifiable temp;
+    // boolean inserted = false;
+    // for (int c = 0; c < nodeChildCount && !inserted; c++) {
+    // childAt = (ExtendedTreeNode) parent.getChildAt(c);
+    // temp = (Identifiable) childAt.getUserObject();
+    // if (temp.getIdentification().compareTo(plan.getIdentification()) > 0) {
+    // insertNodeInto(newNode, parent, c);
+    // inserted = true;
+    // }
+    // }
+    // System.out.println(" [addToParents] "
+    // + ((SwingUtilities.isEventDispatchThread() ? " is EDT " : " out of EDT ")));
+    // // Add to the end (this ensures that if the parent wasn't visible in the tree before it is now
+    // treeModel.addToParents(newNode, parentType);
+    // return inserted;
+    // }
+    //
+    // private void addToParents(ExtendedTreeNode node, ParentNodes parentType) {
+    // ExtendedTreeNode parent = null;
+    // int index = -1;
+    // switch (parentType) {
+    // case PLANS:
+    // insertNodeInto(node, plans, plans.getChildCount());
+    // if (plans.getChildCount() == 1) {
+    // parent = plans;
+    // index = root.getChildCount();
+    // }
+    // break;
+    // case TRANSPONDERS:
+    // int childCount = trans.getChildCount();
+    //
+    // try {
+    // insertNodeInto(node, trans, childCount);
+    // }
+    // catch (Exception e) {
+    // // TODO Auto-generated catch block
+    // e.printStackTrace();
+    // }
+    // if (trans.getChildCount() == 1) {
+    // parent = trans;
+    // index = 1;
+    // }
+    // break;
+    // default:
+    // NeptusLog.pub().error("ADD SUPPORT FOR " + parentType.nodeName + " IN MissionBrowser");
+    // return;
+    // }
+    //
+    // if (index != -1) {
+    // System.out.println("Adding " + parentType.name() + " at index " + index);
+    // insertNodeInto(parent, (MutableTreeNode) root, index);
+    // }
+    // }
+    //
+    //
+    // /**
+    // * TODO change input to id and parent enumeration
+    // *
+    // * @param item user object of the node
+    // * @param parent node in tree
+    // * @return true changes have been made
+    // */
+    // private <E extends Identifiable> boolean removeById(E item, ExtendedTreeNode parent) {
+    // int childCount = parent.getChildCount();
+    // for (int i = 0; i < childCount; i++) {
+    // @SuppressWarnings("unchecked")
+    // E userObject = (E) ((ExtendedTreeNode) parent.getChildAt(i)).getUserObject();
+    // if (userObject.getIdentification().equals(item.getIdentification())) {
+    // MutableTreeNode child = (MutableTreeNode) parent.getChildAt(i);
+    // removeNodeFromParent(child);
+    // if (childCount == 0) {
+    // removeNodeFromParent(parent);
+    // parent = null;
+    // }
+    // return true;
+    // }
+    // }
+    // return false;
+    // }
+    //
+    // /**
+    // * Remove a node with the given id from the given type.
+    // *
+    // * @param id
+    // * @param parentType
+    // * @return true if the item was found and removed, false otherwise.
+    // */
+    // private <E extends Identifiable> boolean removeById(String id, ParentNodes parentType) {
+    // ExtendedTreeNode parent;
+    // switch (parentType) {
+    // case PLANS:
+    // parent = treeModel.plans;
+    // break;
+    // default:
+    // NeptusLog.pub().error("ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.removeById()");
+    // return false;
+    // }
+    // int childCount = parent.getChildCount();
+    // for (int i = 0; i < childCount; i++) {
+    // @SuppressWarnings("unchecked")
+    // E userObject = (E) ((ExtendedTreeNode) parent.getChildAt(i)).getUserObject();
+    // if (userObject.getIdentification().equals(id)) {
+    // MutableTreeNode child = (MutableTreeNode) parent.getChildAt(i);
+    // removeNodeFromParent(child);
+    // if (childCount == 0) {
+    // removeNodeFromParent(parent);
+    // parent = null;
+    // }
+    // return true;
+    // }
+    // }
+    // return false;
+    // }
+    //
+    // public void setHomeRef(HomeReference href) {
+    // // insert if root has no children or if the first child is not Home Reference
+    // if (root.getChildCount() == 0
+    // || !(((ExtendedTreeNode) root.getChildAt(0)).getUserObject() instanceof HomeReference)) {
+    // homeR = new ExtendedTreeNode(href);
+    // insertNodeInto(homeR, (MutableTreeNode) root, 0);
+    // }
+    // else {
+    // homeR.setUserObject(href);
+    // }
+    // }
+    // }
 
     public void setDebugOn(boolean value) {
         TreeCellRenderer cr = elementTree.getCellRenderer();

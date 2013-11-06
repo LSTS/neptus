@@ -32,6 +32,7 @@
 package pt.up.fe.dceg.neptus.gui.tree;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -110,5 +111,39 @@ public class ExtendedTreeNode extends DefaultMutableTreeNode {
                 }
             }
         }
+    }
+
+    public ChildIterator childIterator() {
+        return new ChildIterator();
+    }
+
+    public class ChildIterator implements Iterator<ExtendedTreeNode> {
+        int index;
+        ExtendedTreeNode childLocalTrans;
+        int elemNum;
+
+        public ChildIterator() {
+            index = 0;
+            elemNum = getChildCount();
+            childLocalTrans = (ExtendedTreeNode) getFirstChild();
+        }
+
+        @Override
+        public boolean hasNext() {
+            return index < elemNum;
+        }
+
+        @Override
+        public ExtendedTreeNode next() {
+            index++;
+            return (ExtendedTreeNode) childLocalTrans.getNextSibling();
+        }
+
+        @Override
+        public void remove() {
+            ExtendedTreeNode.this.remove(index);
+            elemNum--;
+        }
+
     }
 }

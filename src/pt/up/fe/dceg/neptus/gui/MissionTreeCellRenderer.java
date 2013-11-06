@@ -45,8 +45,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.MissionBrowser.NodeInfoKey;
 import pt.up.fe.dceg.neptus.gui.MissionBrowser.State;
+import pt.up.fe.dceg.neptus.gui.MissionTreeModel.NodeInfoKey;
 import pt.up.fe.dceg.neptus.gui.tree.ExtendedTreeNode;
 import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBInfo;
 import pt.up.fe.dceg.neptus.types.checklist.ChecklistType;
