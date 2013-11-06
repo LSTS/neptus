@@ -29,7 +29,7 @@
  * Author: José Correia
  * Feb 5, 2013
  */
-package pt.up.fe.dceg.neptus.mra.api;
+package pt.lsts.neptus.mra.api;
 
 import java.util.ArrayList;
 

@@ -5,14 +5,14 @@
 //  Rua Dr. Roberto Frias, 4200-465 Porto, Portugal
 //  http://whale.fe.up.pt
 // ----------------------------------------------------------------------------
-package pt.up.fe.dceg.neptus.messages;
+package pt.lsts.neptus.messages;
 
 import java.lang.reflect.Constructor;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * Tuple list datum in the form of 'name1=value;name2=value2;'.

@@ -29,9 +29,9 @@
  * Author: José Correia
  * Feb 19, 2013
  */
-package pt.up.fe.dceg.neptus.mra.exporters;
+package pt.lsts.neptus.mra.exporters;
 
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 
 /**
  * @author jqcorreia

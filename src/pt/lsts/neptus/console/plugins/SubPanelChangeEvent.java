@@ -29,9 +29,9 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
-import pt.up.fe.dceg.neptus.console.SubPanel;
+import pt.lsts.neptus.console.SubPanel;
 
 public class SubPanelChangeEvent {
     public enum SubPanelChangeAction {

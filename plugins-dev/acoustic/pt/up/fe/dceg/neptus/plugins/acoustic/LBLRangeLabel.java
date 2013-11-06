@@ -47,10 +47,10 @@ import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.gui.LBLUtil;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.gui.LBLUtil;
 
 /**
  * @author pdias

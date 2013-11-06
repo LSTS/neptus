@@ -37,14 +37,14 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author zp

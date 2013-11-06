@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 3 de Out de 2012
  */
-package pt.up.fe.dceg.neptus.loader.helper;
+package pt.lsts.neptus.loader.helper;
 
 
 /**

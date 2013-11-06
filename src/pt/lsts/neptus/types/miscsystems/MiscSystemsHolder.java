@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2005/10/09
  */
-package pt.up.fe.dceg.neptus.types.miscsystems;
+package pt.lsts.neptus.types.miscsystems;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,10 +39,10 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.miscsystems.MiscSystems.MiscSystemTypeEnum;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.miscsystems.MiscSystems.MiscSystemTypeEnum;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author Paulo Dias

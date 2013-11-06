@@ -29,14 +29,14 @@
  * Author: 
  * 9/Abr/2006
  */
-package pt.up.fe.dceg.neptus.util.comm.ssh;
+package pt.lsts.neptus.util.comm.ssh;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSchException;

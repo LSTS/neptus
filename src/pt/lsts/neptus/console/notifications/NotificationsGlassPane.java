@@ -29,7 +29,7 @@
  * Author: Hugo Dias
  * Nov 21, 2012
  */
-package pt.up.fe.dceg.neptus.console.notifications;
+package pt.lsts.neptus.console.notifications;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -54,8 +54,8 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.text.View;
 
-import pt.up.fe.dceg.neptus.console.notifications.Notification.NotificationType;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.console.notifications.Notification.NotificationType;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * GlassPane to draw Notification popups

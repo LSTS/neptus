@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.planeditor;
+package pt.lsts.neptus.planeditor;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -41,14 +41,14 @@ import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
-import pt.up.fe.dceg.neptus.graph.NeptusGraph;
-import pt.up.fe.dceg.neptus.graph.VehiclePainter;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.mp.maneuvers.FollowPath;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.graph.NeptusGraph;
+import pt.lsts.neptus.graph.VehiclePainter;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.mp.maneuvers.FollowPath;
+import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.GuiUtils;
 /**
  * 
  * @author ZP

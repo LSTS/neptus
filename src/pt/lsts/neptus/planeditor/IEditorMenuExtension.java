@@ -29,13 +29,13 @@
  * Author: José Pinto
  * 2010/04/25
  */
-package pt.up.fe.dceg.neptus.planeditor;
+package pt.lsts.neptus.planeditor;
 
 import java.util.Collection;
 
 import javax.swing.JMenuItem;
 
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationType;
 
 
 /**

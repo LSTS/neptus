@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Sep 5, 2012
  */
-package pt.up.fe.dceg.neptus.i18n;
+package pt.lsts.neptus.i18n;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,7 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author zp

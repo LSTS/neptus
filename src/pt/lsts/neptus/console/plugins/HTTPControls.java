@@ -29,18 +29,18 @@
  * Author: José Pinto
  * 2010/01/08
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.gui.ToolbarButton;
-import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.ws.WebServer;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.gui.ToolbarButton;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.ws.WebServer;
 
 /**
  * @author zepinto

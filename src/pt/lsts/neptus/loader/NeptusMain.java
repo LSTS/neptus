@@ -29,7 +29,7 @@
  * Author: José Pinto and pdias
  * 200?/??/??
  */
-package pt.up.fe.dceg.neptus.loader;
+package pt.lsts.neptus.loader;
 
 import java.awt.Frame;
 import java.awt.Toolkit;
@@ -46,26 +46,26 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.fileeditor.RMFEditor;
-import pt.up.fe.dceg.neptus.gui.Loader;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mc.Workspace;
-import pt.up.fe.dceg.neptus.mc.lauvconsole.LAUVConsole;
-import pt.up.fe.dceg.neptus.mra.NeptusMRA;
-import pt.up.fe.dceg.neptus.params.ConfigurationManager;
-import pt.up.fe.dceg.neptus.plugins.PluginsLoader;
-import pt.up.fe.dceg.neptus.types.miscsystems.MiscSystemsHolder;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.ConsoleParse;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
-import pt.up.fe.dceg.neptus.util.editors.EditorLauncher;
-import pt.up.fe.dceg.neptus.util.output.OutputMonitor;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.fileeditor.RMFEditor;
+import pt.lsts.neptus.gui.Loader;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mc.Workspace;
+import pt.lsts.neptus.mc.lauvconsole.LAUVConsole;
+import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.params.ConfigurationManager;
+import pt.lsts.neptus.plugins.PluginsLoader;
+import pt.lsts.neptus.types.miscsystems.MiscSystemsHolder;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.ConsoleParse;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.editors.EditorLauncher;
+import pt.lsts.neptus.util.output.OutputMonitor;
 
 /**
  * This class launches the application received as an argument from the command line

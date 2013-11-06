@@ -29,7 +29,7 @@
  * Author: 
  * 2006/11/11
  */
-package pt.up.fe.dceg.neptus.types.map;
+package pt.lsts.neptus.types.map;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -42,9 +42,9 @@ import javax.media.j3d.BranchGroup;
 import javax.media.j3d.Canvas3D;
 import javax.swing.JFrame;
 
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.renderer3d.Util3D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer3d.Util3D;
+import pt.lsts.neptus.types.coord.LocationType;
 
 import com.sun.j3d.utils.geometry.Sphere;
 import com.sun.j3d.utils.universe.SimpleUniverse;

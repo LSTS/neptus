@@ -39,14 +39,14 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.dot.IMCGraph;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.visualizations.SimpleMRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.lsts.dot.IMCGraph;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.visualizations.SimpleMRAVisualization;
+import pt.lsts.neptus.plugins.PluginDescription;
 
 /**
  * @author zp and ribcar

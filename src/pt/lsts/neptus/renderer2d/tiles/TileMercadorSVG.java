@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 8/10/2011
  */
-package pt.up.fe.dceg.neptus.renderer2d.tiles;
+package pt.lsts.neptus.renderer2d.tiles;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
@@ -49,11 +49,11 @@ import org.apache.batik.transcoder.print.PrintTranscoder;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.w3c.dom.Document;
 
-import pt.up.fe.dceg.neptus.plugins.MapTileProvider;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.SvgUtil;
-import pt.up.fe.dceg.neptus.util.coord.MapTileUtil;
+import pt.lsts.neptus.plugins.MapTileProvider;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.SvgUtil;
+import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
  * @author pdias

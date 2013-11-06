@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 11/09/2011
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -40,7 +40,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.AngleCalc;
 
 /**
  * @author pdias

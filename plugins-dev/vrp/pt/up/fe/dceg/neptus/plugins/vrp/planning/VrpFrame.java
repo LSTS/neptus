@@ -44,7 +44,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.vecmath.Point2d;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 
 /**

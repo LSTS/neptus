@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 8/10/2011
  */
-package pt.up.fe.dceg.neptus.renderer2d.tiles;
+package pt.lsts.neptus.renderer2d.tiles;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -50,15 +50,15 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.imageio.ImageIO;
 
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.util.ColorUtils;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.coord.MapTileUtil;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
  * @author pdias

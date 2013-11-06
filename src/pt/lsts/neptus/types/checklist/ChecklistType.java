@@ -29,7 +29,7 @@
  * Author: 
  * 26/Jun/2005
  */
-package pt.up.fe.dceg.neptus.types.checklist;
+package pt.lsts.neptus.types.checklist;
 
 import java.io.File;
 import java.util.Iterator;
@@ -43,16 +43,16 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.Identifiable;
-import pt.up.fe.dceg.neptus.types.XmlInputMethods;
-import pt.up.fe.dceg.neptus.types.XmlInputMethodsFromFile;
-import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
-import pt.up.fe.dceg.neptus.types.mission.ChecklistMission;
-import pt.up.fe.dceg.neptus.util.Dom4JUtil;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.XMLValidator;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.Identifiable;
+import pt.lsts.neptus.types.XmlInputMethods;
+import pt.lsts.neptus.types.XmlInputMethodsFromFile;
+import pt.lsts.neptus.types.XmlOutputMethods;
+import pt.lsts.neptus.types.mission.ChecklistMission;
+import pt.lsts.neptus.util.Dom4JUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.XMLValidator;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * Refactored in 06/11/2006.

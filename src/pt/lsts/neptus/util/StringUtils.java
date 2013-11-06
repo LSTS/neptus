@@ -29,9 +29,9 @@
  * Author: Paulo Dias
  * 2009/04/04
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 
 /**

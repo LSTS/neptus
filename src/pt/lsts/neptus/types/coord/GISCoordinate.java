@@ -4,9 +4,9 @@
  * Created on May 17, 2004, 2:23 PM
  */
 
-package pt.up.fe.dceg.neptus.types.coord;
+package pt.lsts.neptus.types.coord;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  *

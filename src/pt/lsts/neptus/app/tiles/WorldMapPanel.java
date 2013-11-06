@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 21//01/2012
  */
-package pt.up.fe.dceg.neptus.app.tiles;
+package pt.lsts.neptus.app.tiles;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -101,21 +101,21 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.InfiniteProgressPanel;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.renderer2d.WorldRenderPainter;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.ColorUtils;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.output.OutputMonitor;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.WorldRenderPainter;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.output.OutputMonitor;
 
 /**
  * @author Paulo Dias

@@ -29,9 +29,9 @@
  * Author: José Correia
  * Nov 29, 2012
  */
-package pt.up.fe.dceg.neptus.mra.plots;
+package pt.lsts.neptus.mra.plots;
 
-import pt.up.fe.dceg.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.LogMarker;
 
 /**
  * @author jqcorreia

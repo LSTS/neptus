@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Color;
 import java.awt.Frame;
@@ -43,14 +43,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-import pt.up.fe.dceg.neptus.renderer3d.Obj3D;
-import pt.up.fe.dceg.neptus.renderer3d.Renderer3D;
-import pt.up.fe.dceg.neptus.types.map.AbstractElement;
-import pt.up.fe.dceg.neptus.types.map.CylinderElement;
-import pt.up.fe.dceg.neptus.types.map.EllipsoidElement;
-import pt.up.fe.dceg.neptus.types.map.ImageElement;
-import pt.up.fe.dceg.neptus.types.map.ParallelepipedElement;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.renderer3d.Obj3D;
+import pt.lsts.neptus.renderer3d.Renderer3D;
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.CylinderElement;
+import pt.lsts.neptus.types.map.EllipsoidElement;
+import pt.lsts.neptus.types.map.ImageElement;
+import pt.lsts.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.util.GuiUtils;
 
 public class Properties3D extends JDialog  {
 	/**

@@ -29,7 +29,7 @@
  * Author: 
  * 16/Jan/2005
  */
-package pt.up.fe.dceg.neptus.types.vehicle;
+package pt.lsts.neptus.types.vehicle;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,9 +38,9 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.misc.FileType;
-import pt.up.fe.dceg.neptus.util.FileUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.misc.FileType;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author Paulo

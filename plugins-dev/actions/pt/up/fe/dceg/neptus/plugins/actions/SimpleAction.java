@@ -39,10 +39,10 @@ import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JToggleButton;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * This class eases the creation of console buttons

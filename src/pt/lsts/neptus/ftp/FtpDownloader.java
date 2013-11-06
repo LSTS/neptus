@@ -29,7 +29,7 @@
  * Author: José Correia
  * Dec 11, 2012
  */
-package pt.up.fe.dceg.neptus.ftp;
+package pt.lsts.neptus.ftp;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,7 +48,7 @@ import org.apache.commons.net.io.CopyStreamEvent;
 import org.apache.commons.net.io.CopyStreamListener;
 import org.apache.commons.net.io.Util;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author jqcorreia

@@ -29,7 +29,7 @@
  * Author: 
  * 14/Set/2004
  */
-package pt.up.fe.dceg.neptus.types.map;
+package pt.lsts.neptus.types.map;
 
 import java.io.File;
 import java.util.Collection;
@@ -50,23 +50,23 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.swing.NeptusFileView;
-import pt.up.fe.dceg.neptus.mp.Dimension;
-import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
-import pt.up.fe.dceg.neptus.mp.MapChangeListener;
-import pt.up.fe.dceg.neptus.types.Identifiable;
-import pt.up.fe.dceg.neptus.types.XmlInputMethods;
-import pt.up.fe.dceg.neptus.types.XmlInputMethodsFromFile;
-import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.coord.LocationsHolder;
-import pt.up.fe.dceg.neptus.types.mission.HomeReference;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.util.Dom4JUtil;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.XMLValidator;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.swing.NeptusFileView;
+import pt.lsts.neptus.mp.Dimension;
+import pt.lsts.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.mp.MapChangeListener;
+import pt.lsts.neptus.types.Identifiable;
+import pt.lsts.neptus.types.XmlInputMethods;
+import pt.lsts.neptus.types.XmlInputMethodsFromFile;
+import pt.lsts.neptus.types.XmlOutputMethods;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationsHolder;
+import pt.lsts.neptus.types.mission.HomeReference;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.util.Dom4JUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.XMLValidator;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * Refactored in 17/11/2006.

@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Dec 5, 2012
  */
-package pt.up.fe.dceg.neptus.colormap;
+package pt.lsts.neptus.colormap;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -46,14 +46,14 @@ import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp

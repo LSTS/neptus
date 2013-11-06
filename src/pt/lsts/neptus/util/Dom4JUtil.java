@@ -29,7 +29,7 @@
  * Author: 
  * 2006/11/18
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -38,9 +38,9 @@ import org.dom4j.Element;
 import org.dom4j.io.DOMReader;
 import org.dom4j.io.DOMWriter;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.llf.LsfReport;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.llf.LsfReport;
 
 /**
  * @author Paulo Dias

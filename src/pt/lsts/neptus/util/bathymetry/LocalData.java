@@ -29,7 +29,7 @@
  * Author: meg
  * May 15, 2013
  */
-package pt.up.fe.dceg.neptus.util.bathymetry;
+package pt.lsts.neptus.util.bathymetry;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,7 +40,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import pt.up.fe.dceg.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
+import pt.lsts.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
 
 /**
  * @author meg

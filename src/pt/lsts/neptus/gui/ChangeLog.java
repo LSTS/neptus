@@ -29,7 +29,7 @@
  * Author: 
  * 29/Dez/2004
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Toolkit;
@@ -40,7 +40,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.GuiUtils;
 /**
  * This class shows this application's changelog. The changelog file is downloaded over 
  * the internet and shown in the form of a HTML page.

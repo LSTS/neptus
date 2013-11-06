@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.graph;
+package pt.lsts.neptus.graph;
 
 @SuppressWarnings("rawtypes")
 public interface GraphElementFactory<N extends NeptusNodeElement, E extends NeptusEdgeElement> {

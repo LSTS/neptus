@@ -6,7 +6,7 @@
 //  http://whale.fe.up.pt
 // ---------------------------------------------------------------------------- 
 
-package pt.up.fe.dceg.neptus.messages;
+package pt.lsts.neptus.messages;
 
 /**
  * Exception thrown when application tries to create an invalid message.

@@ -29,7 +29,7 @@
  * Author: José Pinto, pdias
  * 11/03/2011
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -49,27 +49,27 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
-import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
-import pt.up.fe.dceg.neptus.gui.editor.renderer.I18nCellRenderer;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.Rows;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.renderer2d.InteractionAdapter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.PlanElement;
-import pt.up.fe.dceg.neptus.util.ConsoleParse;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.Rows;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
+import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.renderer2d.InteractionAdapter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.StateRendererInteraction;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.util.ConsoleParse;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -710,13 +710,13 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
         String speedU = this.getUnits();
         if ("m/s".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.up.fe.dceg.neptus.imc.Rows.SPEED_UNITS.METERS_PS);
+            man.setSpeedUnits(pt.lsts.imc.Rows.SPEED_UNITS.METERS_PS);
         else if ("RPM".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.up.fe.dceg.neptus.imc.Rows.SPEED_UNITS.RPM);
+            man.setSpeedUnits(pt.lsts.imc.Rows.SPEED_UNITS.RPM);
         else if ("%".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.up.fe.dceg.neptus.imc.Rows.SPEED_UNITS.PERCENTAGE);
+            man.setSpeedUnits(pt.lsts.imc.Rows.SPEED_UNITS.PERCENTAGE);
         else if ("percentage".equalsIgnoreCase(speedU))
-            man.setSpeedUnits(pt.up.fe.dceg.neptus.imc.Rows.SPEED_UNITS.PERCENTAGE);
+            man.setSpeedUnits(pt.lsts.imc.Rows.SPEED_UNITS.PERCENTAGE);
 
         return man;
     }
@@ -737,7 +737,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         latRad = man.getLat();
         lonRad = man.getLon();
         z = man.getZ();
-        zunits = pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(man.getZUnits().toString());
+        zunits = ManeuverLocation.Z_UNITS.valueOf(man.getZUnits().toString());
         speed = man.getSpeed();
         width = man.getWidth();
         length = man.getLength();

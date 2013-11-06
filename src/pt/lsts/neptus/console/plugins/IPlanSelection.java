@@ -29,11 +29,11 @@
  * Author: José Pinto
  * Jun 28, 2011
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * This interface is provided by any components that allow the user to make a plan selection

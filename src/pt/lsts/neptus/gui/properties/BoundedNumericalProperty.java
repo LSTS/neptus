@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui.properties;
+package pt.lsts.neptus.gui.properties;
 
 import java.util.Vector;
 

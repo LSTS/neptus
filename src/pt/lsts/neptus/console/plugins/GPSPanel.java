@@ -29,7 +29,7 @@
  * Author: José Pinto and pdias
  * 2006/08/08
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import gnu.io.CommPortIdentifier;
 
@@ -56,26 +56,26 @@ import javax.swing.SwingUtilities;
 
 import org.jdesktop.swingx.JXPanel;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.gps.GPSConnection;
-import pt.up.fe.dceg.neptus.gps.GPSListener;
-import pt.up.fe.dceg.neptus.gps.GPSState;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.painters.SubPanelTitlePainter;
-import pt.up.fe.dceg.neptus.mystate.MyState;
-import pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension;
-import pt.up.fe.dceg.neptus.planeditor.IMapPopup;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
-import pt.up.fe.dceg.neptus.serial.PortSelector;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ReflectionUtil;
-import pt.up.fe.dceg.neptus.util.coord.egm96.EGM96Util;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.gps.GPSConnection;
+import pt.lsts.neptus.gps.GPSListener;
+import pt.lsts.neptus.gps.GPSState;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.painters.SubPanelTitlePainter;
+import pt.lsts.neptus.mystate.MyState;
+import pt.lsts.neptus.planeditor.IEditorMenuExtension;
+import pt.lsts.neptus.planeditor.IMapPopup;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.serial.PortSelector;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.util.coord.egm96.EGM96Util;
 
 import com.l2fprod.common.swing.JLinkButton;
 

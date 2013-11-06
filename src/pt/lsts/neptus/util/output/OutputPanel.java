@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.util.output;
+package pt.lsts.neptus.util.output;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -46,9 +46,9 @@ import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 public class OutputPanel extends JPanel implements OutputListener {
 

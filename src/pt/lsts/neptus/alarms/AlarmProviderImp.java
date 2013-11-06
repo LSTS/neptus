@@ -29,10 +29,10 @@
  * Author: José Correia
  * Mar 20, 2012
  */
-package pt.up.fe.dceg.neptus.alarms;
+package pt.lsts.neptus.alarms;
 
-import pt.up.fe.dceg.neptus.alarms.AlarmManager.AlarmLevel;
-import pt.up.fe.dceg.neptus.console.plugins.EntityStatePanel;
+import pt.lsts.neptus.alarms.AlarmManager.AlarmLevel;
+import pt.lsts.neptus.console.plugins.EntityStatePanel;
 
 /**
  * A simple implementation of a AlarmProvider meant to be used by components who are able to issue various alarms (see {@link EntityStatePanel} for an example).

@@ -29,7 +29,7 @@
  * Author: zp
  * Mar 18, 2013
  */
-package pt.up.fe.dceg.neptus.params;
+package pt.lsts.neptus.params;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -38,16 +38,16 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.gui.editor.renderer.I18nCellRenderer;
-import pt.up.fe.dceg.neptus.imc.EntityParameter;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.SetEntityParameters;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.params.SystemProperty.Scope;
-import pt.up.fe.dceg.neptus.params.SystemProperty.Visibility;
-import pt.up.fe.dceg.neptus.params.renderer.I18nSystemPropertyRenderer;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.params.SystemProperty.Scope;
+import pt.lsts.neptus.params.SystemProperty.Visibility;
+import pt.lsts.neptus.params.renderer.I18nSystemPropertyRenderer;
+import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.SetEntityParameters;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

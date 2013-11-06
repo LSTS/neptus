@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/01/24
  */
-package pt.up.fe.dceg.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.util.comm.manager.imc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,22 +46,22 @@ import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.AcousticSystemsQuery;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
-import pt.up.fe.dceg.neptus.mystate.MyState;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.NetworkInterfacesUtil;
-import pt.up.fe.dceg.neptus.util.comm.CommUtil;
-import pt.up.fe.dceg.neptus.util.comm.IMCSendMessageUtils;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem.IMCAuthorityState;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mystate.MyState;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.NetworkInterfacesUtil;
+import pt.lsts.neptus.util.comm.CommUtil;
+import pt.lsts.neptus.util.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.util.comm.IMCUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem.IMCAuthorityState;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.imc.AcousticSystemsQuery;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
 
 /**
  * @author pdias

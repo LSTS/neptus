@@ -29,11 +29,11 @@
  * Author: Paulo Dias
  * 2009/04/02
  */
-package pt.up.fe.dceg.neptus.util.conf;
+package pt.lsts.neptus.util.conf;
 
 import java.util.HashSet;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author pdias

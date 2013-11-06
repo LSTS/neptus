@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -40,9 +40,9 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * 

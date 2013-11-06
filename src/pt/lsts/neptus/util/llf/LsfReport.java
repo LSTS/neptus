@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.util.llf;
+package pt.lsts.neptus.util.llf;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -56,25 +56,25 @@ import org.apache.batik.transcoder.print.PrintTranscoder;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.jfree.chart.JFreeChart;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.NeptusMRA;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
-import pt.up.fe.dceg.neptus.types.map.MapType;
-import pt.up.fe.dceg.neptus.types.map.PathElement;
-import pt.up.fe.dceg.neptus.types.map.PlanElement;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.SvgUtil;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.llf.chart.LLFChart;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.PathElement;
+import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.SvgUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.llf.chart.LLFChart;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.PageSize;

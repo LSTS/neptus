@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 24/06/2011
  */
-package pt.up.fe.dceg.neptus.gui.system.img;
+package pt.lsts.neptus.gui.system.img;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -42,7 +42,7 @@ import java.awt.geom.RoundRectangle2D;
 import javax.swing.Icon;
 import javax.swing.JButton;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.GuiUtils;
 
 
 /**

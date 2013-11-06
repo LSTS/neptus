@@ -29,17 +29,17 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.util.llf;
+package pt.lsts.neptus.util.llf;
 
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IMCMessageType;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCMessageType;
 
 @SuppressWarnings("serial")
 public class LogTableModel extends AbstractTableModel {

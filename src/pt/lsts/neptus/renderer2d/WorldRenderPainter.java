@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2/10/2011
  */
-package pt.up.fe.dceg.neptus.renderer2d;
+package pt.lsts.neptus.renderer2d;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -90,33 +90,33 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXStatusBar;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.comm.proxy.ProxyInfoProvider;
-import pt.up.fe.dceg.neptus.doc.NeptusDoc;
-import pt.up.fe.dceg.neptus.gui.InfiniteProgressPanel;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.plugins.MapTileProvider;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
-import pt.up.fe.dceg.neptus.renderer2d.tiles.MapPainterProvider;
-import pt.up.fe.dceg.neptus.renderer2d.tiles.Tile;
-import pt.up.fe.dceg.neptus.renderer2d.tiles.Tile.TileState;
-import pt.up.fe.dceg.neptus.renderer2d.tiles.TileMercadorSVG;
-import pt.up.fe.dceg.neptus.renderer2d.tiles.TileOpenStreetMap;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.ColorUtils;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.ReflectionUtil;
-import pt.up.fe.dceg.neptus.util.StringUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.coord.MapTileUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
+import pt.lsts.neptus.doc.NeptusDoc;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.MapTileProvider;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.PluginsRepository;
+import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
+import pt.lsts.neptus.renderer2d.tiles.Tile;
+import pt.lsts.neptus.renderer2d.tiles.Tile.TileState;
+import pt.lsts.neptus.renderer2d.tiles.TileMercadorSVG;
+import pt.lsts.neptus.renderer2d.tiles.TileOpenStreetMap;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.util.StringUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.coord.MapTileUtil;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

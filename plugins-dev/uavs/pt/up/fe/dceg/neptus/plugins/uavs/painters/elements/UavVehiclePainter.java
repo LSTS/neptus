@@ -44,12 +44,12 @@ import java.awt.geom.Point2D;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.plugins.planning.MapPanel;
 import pt.up.fe.dceg.neptus.plugins.uavs.UavVehicleIcon;
 import pt.up.fe.dceg.neptus.plugins.uavs.daemons.UavPainterDaemon;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 
 /**
  * @author Canasta

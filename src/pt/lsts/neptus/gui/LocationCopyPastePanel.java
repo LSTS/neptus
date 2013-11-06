@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2008/10/12
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -52,11 +52,11 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author pdias

@@ -29,12 +29,12 @@
  * Author: José Pinto
  * Mar 30, 2012
  */
-package pt.up.fe.dceg.neptus.doc;
+package pt.lsts.neptus.doc;
 
 import java.io.File;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.FileUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author zp

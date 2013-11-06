@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Jun 4, 2009
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.beans.PropertyEditor;
 import java.util.LinkedHashMap;
@@ -43,8 +43,8 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import pt.up.fe.dceg.neptus.imc.state.ImcSysState;
-import pt.up.fe.dceg.neptus.plugins.PropertyType;
+import pt.lsts.neptus.plugins.PropertyType;
+import pt.lsts.imc.state.ImcSysState;
 
 import com.l2fprod.common.beans.editor.StringPropertyEditor;
 

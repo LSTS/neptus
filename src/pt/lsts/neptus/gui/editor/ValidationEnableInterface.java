@@ -29,7 +29,7 @@
  * Author: pdias
  * May 21, 2013
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 /**
  * @author pdias

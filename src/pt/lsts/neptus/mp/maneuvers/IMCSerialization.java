@@ -29,9 +29,9 @@
  * Author: Paulo Dias
  * 2007/08/04
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author pdias

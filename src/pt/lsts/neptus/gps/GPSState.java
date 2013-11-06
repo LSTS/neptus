@@ -29,11 +29,11 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gps;
+package pt.lsts.neptus.gps;
 
 import java.util.StringTokenizer;
 
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * This class represents a GPS State which can be obtained by a physical GPS device.

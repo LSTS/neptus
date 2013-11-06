@@ -29,7 +29,7 @@
  * Author: 
  * Jun 16, 2005
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -48,12 +48,12 @@ import org.dom4j.ElementHandler;
 import org.dom4j.ElementPath;
 import org.dom4j.io.SAXReader;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.swing.NeptusFileView;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.ZipUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.swing.NeptusFileView;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.ZipUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp

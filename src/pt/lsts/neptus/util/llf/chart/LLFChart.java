@@ -29,15 +29,15 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.util.llf.chart;
+package pt.lsts.neptus.util.llf.chart;
 
 import java.util.Vector;
 
 import org.jfree.chart.JFreeChart;
 
-import pt.up.fe.dceg.neptus.mra.LogStatisticsItem;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.mra.LogStatisticsItem;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 
 public interface LLFChart extends MRAVisualization {
 	public JFreeChart getChart(IMraLogGroup source, double timestep);

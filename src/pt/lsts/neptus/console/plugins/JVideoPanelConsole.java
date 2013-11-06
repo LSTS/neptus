@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -37,13 +37,13 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.SubPanel;
-import pt.up.fe.dceg.neptus.gui.ImagePanel;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.renderer3d.Util3D;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.gui.ImagePanel;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.renderer3d.Util3D;
+import pt.lsts.neptus.util.ImageUtils;
 
 @SuppressWarnings("serial")
 @PluginDescription(icon = "images/buttons/quicktimebutt.png", name = "Video Panel JMF")

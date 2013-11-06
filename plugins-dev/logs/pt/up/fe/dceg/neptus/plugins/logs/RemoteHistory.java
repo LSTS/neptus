@@ -46,22 +46,22 @@ import javax.swing.JMenuItem;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
-import pt.up.fe.dceg.neptus.gui.ToolbarButton;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.LogBookControl;
-import pt.up.fe.dceg.neptus.imc.LogBookControl.COMMAND;
-import pt.up.fe.dceg.neptus.imc.LogBookEntry;
-import pt.up.fe.dceg.neptus.plugins.NeptusMessageListener;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.gui.ToolbarButton;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusMessageListener;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.util.ConsoleParse;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.LogBookControl;
+import pt.lsts.imc.LogBookControl.COMMAND;
+import pt.lsts.imc.LogBookEntry;
 import pt.up.fe.dceg.neptus.plugins.logs.HistoryMessage.msg_type;
-import pt.up.fe.dceg.neptus.util.ConsoleParse;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 /**
  * @author ZP

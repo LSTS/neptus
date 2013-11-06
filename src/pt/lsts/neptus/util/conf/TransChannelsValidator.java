@@ -30,9 +30,9 @@
  * 2007/09/15
  * Extends StringPatternValidator on 2008/12/17
  */
-package pt.up.fe.dceg.neptus.util.conf;
+package pt.lsts.neptus.util.conf;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 
 /**

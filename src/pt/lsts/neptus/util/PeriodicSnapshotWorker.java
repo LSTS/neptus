@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2008/10/15
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.awt.Component;
 import java.awt.Frame;
@@ -39,8 +39,8 @@ import java.util.TimerTask;
 
 import javax.swing.SwingUtilities;
 
-import pt.up.fe.dceg.neptus.console.plugins.BlinkStatusLed;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.console.plugins.BlinkStatusLed;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author pdias

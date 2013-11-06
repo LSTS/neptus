@@ -40,18 +40,18 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.CommManagerStatusChangeListener;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.comm.manager.CommManagerStatusChangeListener;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp
@@ -107,7 +107,7 @@ public class ImcStatePanel extends SimpleSubPanel implements CommManagerStatusCh
             
             @Override
             public void actionPerformed(ActionEvent e) {                
-                pt.up.fe.dceg.neptus.imc.gui.ImcStatePanel statePanel = new pt.up.fe.dceg.neptus.imc.gui.ImcStatePanel(ImcMsgManager.getManager().getState(sys.getId()));
+                pt.lsts.imc.gui.ImcStatePanel statePanel = new pt.lsts.imc.gui.ImcStatePanel(ImcMsgManager.getManager().getState(sys.getId()));
                 JFrame frm = new JFrame(sys.getName()+" messages");
                 frm.setSize(800, 600);
                 frm.getContentPane().add(statePanel);                

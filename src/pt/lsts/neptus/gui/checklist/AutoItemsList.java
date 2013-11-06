@@ -8,7 +8,7 @@
  * Author: Rui Gonçalves
  * 200?/??/??
  */
-package pt.up.fe.dceg.neptus.gui.checklist;
+package pt.lsts.neptus.gui.checklist;
 
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -21,7 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author rjpg

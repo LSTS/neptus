@@ -29,16 +29,16 @@
  * Author: Hugo Dias
  * Oct 22, 2012
  */
-package pt.up.fe.dceg.neptus.systems;
+package pt.lsts.neptus.systems;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import pt.up.fe.dceg.neptus.NeptusConfig;
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.Announce;
-import pt.up.fe.dceg.neptus.systems.links.ImcSystemLink;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.NeptusConfig;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.systems.links.ImcSystemLink;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.Announce;
 
 import com.google.common.eventbus.Subscribe;
 

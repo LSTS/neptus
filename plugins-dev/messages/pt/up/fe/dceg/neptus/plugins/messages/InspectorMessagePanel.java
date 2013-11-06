@@ -35,8 +35,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.lsf.IMCMessagePanel;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.IMCMessagePanel;
 
 /**
  * @author jqcorreia

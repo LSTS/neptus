@@ -29,7 +29,7 @@
  * Author: 
  * 12/Fev/2005
  */
-package pt.up.fe.dceg.neptus.types.coord;
+package pt.lsts.neptus.types.coord;
 
 import java.util.Arrays;
 

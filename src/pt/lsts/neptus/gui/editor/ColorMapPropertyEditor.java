@@ -29,16 +29,16 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 import javax.swing.JComboBox;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.gui.ColorMapListRenderer;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.gui.ColorMapListRenderer;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesProvider;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.propertysheet.DefaultProperty;

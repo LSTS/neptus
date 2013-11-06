@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.loader;
+package pt.lsts.neptus.loader;
 
 import java.io.File;
 

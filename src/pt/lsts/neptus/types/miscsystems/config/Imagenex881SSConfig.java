@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/06/25
  */
-package pt.up.fe.dceg.neptus.types.miscsystems.config;
+package pt.lsts.neptus.types.miscsystems.config;
 
 import java.awt.Dialog.ModalityType;
 import java.awt.Window;
@@ -38,11 +38,11 @@ import java.util.HashMap;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.SonarConfig;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.SonarConfig;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

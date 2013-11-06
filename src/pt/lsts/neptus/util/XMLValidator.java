@@ -29,7 +29,7 @@
  * Author: 
  * 12/Fev/2005
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +46,7 @@ import org.dom4j.io.XMLWriter;
 import org.dom4j.util.XMLErrorHandler;
 import org.xml.sax.SAXException;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author Jan Woerner <woerner@ipr.uka.de> (original author)

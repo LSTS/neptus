@@ -29,15 +29,15 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.util.comm.ssh;
+package pt.lsts.neptus.util.comm.ssh;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 
 public class SSHScp

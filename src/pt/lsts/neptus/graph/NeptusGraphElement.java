@@ -29,12 +29,12 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.graph;
+package pt.lsts.neptus.graph;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.gui.PropertiesProvider;
 
 public interface NeptusGraphElement<O> extends PropertiesProvider {	
 	

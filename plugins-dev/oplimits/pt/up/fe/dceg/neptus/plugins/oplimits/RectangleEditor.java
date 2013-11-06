@@ -54,22 +54,22 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.renderer2d.InteractionAdapter;
-import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
-import pt.up.fe.dceg.neptus.types.map.ParallelepipedElement;
-import pt.up.fe.dceg.neptus.types.map.PathElement;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.renderer2d.InteractionAdapter;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.StateRendererInteraction;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.types.map.PathElement;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp

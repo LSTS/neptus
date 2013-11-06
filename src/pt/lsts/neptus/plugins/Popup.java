@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.plugins;
+package pt.lsts.neptus.plugins;
 
 import java.awt.event.KeyEvent;
 import java.lang.annotation.ElementType;

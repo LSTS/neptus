@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.colormap;
+package pt.lsts.neptus.colormap;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -42,9 +42,9 @@ import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-import pt.up.fe.dceg.neptus.colormap.DataDiscretizer.DataPoint;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.ws.Location;
+import pt.lsts.neptus.colormap.DataDiscretizer.DataPoint;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.ws.Location;
 
 /**
  * @author ZP

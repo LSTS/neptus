@@ -29,7 +29,7 @@
  * Author: lsts
  * Jul 8, 2013
  */
-package pt.up.fe.dceg.neptus.util.logdownload;
+package pt.lsts.neptus.util.logdownload;
 
 /**
  * @author jqcorreia

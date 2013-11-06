@@ -28,7 +28,7 @@
  *
  * 2007/05/25 pdias
  */
-package pt.up.fe.dceg.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.util.comm.manager.imc;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -47,40 +47,40 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.swing.JFrame;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.Announce;
-import pt.up.fe.dceg.neptus.imc.EntityInfo;
-import pt.up.fe.dceg.neptus.imc.EntityList;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.state.ImcSysState;
-import pt.up.fe.dceg.neptus.messages.MessageFilter;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.NetworkInterfacesUtil;
-import pt.up.fe.dceg.neptus.util.NetworkInterfacesUtil.NInterface;
-import pt.up.fe.dceg.neptus.util.StringUtils;
-import pt.up.fe.dceg.neptus.util.comm.CommUtil;
-import pt.up.fe.dceg.neptus.util.comm.IMCSendMessageUtils;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.CommBaseManager;
-import pt.up.fe.dceg.neptus.util.comm.manager.CommManagerStatusChangeListener;
-import pt.up.fe.dceg.neptus.util.comm.manager.MessageFrequencyCalculator;
-import pt.up.fe.dceg.neptus.util.comm.transports.ImcTcpTransport;
-import pt.up.fe.dceg.neptus.util.comm.transports.ImcUdpTransport;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
-import pt.up.fe.dceg.neptus.util.conf.PreferencesListener;
-import pt.up.fe.dceg.neptus.util.llf.NeptusMessageLogger;
+import pt.lsts.imc.Announce;
+import pt.lsts.imc.EntityInfo;
+import pt.lsts.imc.EntityList;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.messages.MessageFilter;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.types.XmlOutputMethods;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.NetworkInterfacesUtil;
+import pt.lsts.neptus.util.NetworkInterfacesUtil.NInterface;
+import pt.lsts.neptus.util.StringUtils;
+import pt.lsts.neptus.util.comm.CommUtil;
+import pt.lsts.neptus.util.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.util.comm.IMCUtils;
+import pt.lsts.neptus.util.comm.manager.CommBaseManager;
+import pt.lsts.neptus.util.comm.manager.CommManagerStatusChangeListener;
+import pt.lsts.neptus.util.comm.manager.MessageFrequencyCalculator;
+import pt.lsts.neptus.util.comm.transports.ImcTcpTransport;
+import pt.lsts.neptus.util.comm.transports.ImcUdpTransport;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.conf.PreferencesListener;
+import pt.lsts.neptus.util.llf.NeptusMessageLogger;
 
 import com.google.common.eventbus.AsyncEventBus;
 

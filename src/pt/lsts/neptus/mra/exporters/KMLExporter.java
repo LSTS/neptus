@@ -29,7 +29,7 @@
  * Author: José Correia
  * Jan 8, 2013
  */
-package pt.up.fe.dceg.neptus.mra.exporters;
+package pt.lsts.neptus.mra.exporters;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -48,31 +48,31 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.colormap.ColorBar;
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfGenericIterator;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.NeptusMRA;
-import pt.up.fe.dceg.neptus.mra.WorldImage;
-import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
-import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
-import pt.up.fe.dceg.neptus.mra.api.SidescanLine;
-import pt.up.fe.dceg.neptus.mra.api.SidescanParser;
-import pt.up.fe.dceg.neptus.mra.api.SidescanParserFactory;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfGenericIterator;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorBar;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.WorldImage;
+import pt.lsts.neptus.mra.api.BathymetryPoint;
+import pt.lsts.neptus.mra.api.BathymetrySwath;
+import pt.lsts.neptus.mra.api.SidescanLine;
+import pt.lsts.neptus.mra.api.SidescanParser;
+import pt.lsts.neptus.mra.api.SidescanParserFactory;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.comm.IMCUtils;
+import pt.lsts.neptus.util.llf.LogUtils;
+import pt.lsts.util.WGS84Utilities;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.WGS84Utilities;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
-import pt.up.fe.dceg.neptus.util.llf.LogUtils;
 
 /**
  * @author zp

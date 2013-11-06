@@ -29,13 +29,13 @@
  * Author: jqcorreia
  * Mar 28, 2013
  */
-package pt.up.fe.dceg.neptus.mra.api;
+package pt.lsts.neptus.mra.api;
 
 import java.io.File;
 
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.importers.jsf.JsfSidescanParser;
-import pt.up.fe.dceg.neptus.util.llf.LogUtils;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParser;
+import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
  * @author jqcorreia

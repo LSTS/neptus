@@ -29,7 +29,7 @@
  * Author: José Pinto and pdias
  * 2007/08/23
  */
-package pt.up.fe.dceg.neptus.mc.lauvconsole;
+package pt.lsts.neptus.mc.lauvconsole;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,25 +39,25 @@ import javax.swing.JFrame;
 
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.actions.LayoutEditConsoleAction;
-import pt.up.fe.dceg.neptus.console.actions.OpenConsoleAction;
-import pt.up.fe.dceg.neptus.console.actions.RunChecklistConsoleAction;
-import pt.up.fe.dceg.neptus.console.actions.SaveAsConsoleAction;
-import pt.up.fe.dceg.neptus.console.actions.SaveConsoleAction;
-import pt.up.fe.dceg.neptus.gui.Loader;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.loader.NeptusMain;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.ConsoleParse;
-import pt.up.fe.dceg.neptus.util.Dom4JUtil;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.actions.LayoutEditConsoleAction;
+import pt.lsts.neptus.console.actions.OpenConsoleAction;
+import pt.lsts.neptus.console.actions.RunChecklistConsoleAction;
+import pt.lsts.neptus.console.actions.SaveAsConsoleAction;
+import pt.lsts.neptus.console.actions.SaveConsoleAction;
+import pt.lsts.neptus.gui.Loader;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.loader.NeptusMain;
+import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.ConsoleParse;
+import pt.lsts.neptus.util.Dom4JUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 @SuppressWarnings("serial")
 public class LAUVConsole extends ConsoleLayout {

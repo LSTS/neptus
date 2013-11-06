@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Sep 11, 2012
  */
-package pt.up.fe.dceg.neptus.i18n;
+package pt.lsts.neptus.i18n;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -42,27 +42,27 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged;
-import pt.up.fe.dceg.neptus.console.plugins.SystemsList;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.system.SystemDisplayComparator;
-import pt.up.fe.dceg.neptus.imc.Announce;
-import pt.up.fe.dceg.neptus.imc.Goto;
-import pt.up.fe.dceg.neptus.imc.Loiter;
-import pt.up.fe.dceg.neptus.imc.PlanControlState;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
+import pt.lsts.neptus.console.plugins.SystemsList;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.system.SystemDisplayComparator;
+import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.renderer2d.tiles.Tile.TileState;
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.imc.Announce;
+import pt.lsts.imc.Goto;
+import pt.lsts.imc.Loiter;
+import pt.lsts.imc.PlanControlState;
 import pt.up.fe.dceg.neptus.plugins.acoustic.LBLRangeDisplay.HideOrFadeRangeEnum;
 import pt.up.fe.dceg.neptus.plugins.map.MapEditor;
 import pt.up.fe.dceg.neptus.plugins.planning.MapPanel;
 import pt.up.fe.dceg.neptus.plugins.web.NeptusServlet;
-import pt.up.fe.dceg.neptus.renderer2d.tiles.Tile.TileState;
-import pt.up.fe.dceg.neptus.types.map.AbstractElement;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 

@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2011/11/19
  */
-package pt.up.fe.dceg.neptus.gui.system;
+package pt.lsts.neptus.gui.system;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -44,7 +44,7 @@ import java.awt.geom.RoundRectangle2D;
 
 import org.jdesktop.swingx.JXPanel;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author pdias

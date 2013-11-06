@@ -29,7 +29,7 @@
  * Author: 
  * Mar 4, 2005
  */
-package pt.up.fe.dceg.neptus.types.map;
+package pt.lsts.neptus.types.map;
 
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -37,16 +37,16 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
-import pt.up.fe.dceg.neptus.mp.MapChangeListener;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.mission.MapMission;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.util.llf.NeptusMessageLogger;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.mp.MapChangeListener;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.MapMission;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.util.llf.NeptusMessageLogger;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
 
 
 /**

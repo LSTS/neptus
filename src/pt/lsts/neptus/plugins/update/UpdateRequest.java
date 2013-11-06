@@ -29,9 +29,9 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.plugins.update;
+package pt.lsts.neptus.plugins.update;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 public class UpdateRequest implements Comparable<UpdateRequest> {
 

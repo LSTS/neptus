@@ -29,14 +29,14 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 
 /**
  * When a maneuver of an unknown type is encountered. The maneuver factories use this class as default.

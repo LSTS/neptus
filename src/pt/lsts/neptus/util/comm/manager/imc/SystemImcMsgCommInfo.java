@@ -28,46 +28,46 @@
  *
  * 2007/05/25 pdias
  */
-package pt.up.fe.dceg.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.util.comm.manager.imc;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.AcousticSystems;
-import pt.up.fe.dceg.neptus.imc.EmergencyControlState;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.FuelLevel;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IndicatedSpeed;
-import pt.up.fe.dceg.neptus.imc.LblConfig;
-import pt.up.fe.dceg.neptus.imc.LblConfig.OP;
-import pt.up.fe.dceg.neptus.imc.OperationalLimits;
-import pt.up.fe.dceg.neptus.imc.PlanControlState;
-import pt.up.fe.dceg.neptus.imc.PlanDB;
-import pt.up.fe.dceg.neptus.imc.Rpm;
-import pt.up.fe.dceg.neptus.imc.SimulatedState;
-import pt.up.fe.dceg.neptus.imc.TrueSpeed;
-import pt.up.fe.dceg.neptus.imc.VehicleState;
-import pt.up.fe.dceg.neptus.imc.state.ImcSysState;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.types.comm.CommMean;
-import pt.up.fe.dceg.neptus.types.comm.protocol.IMCArgs;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.AngleCalc;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.StringUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.MessageFrequencyCalculator;
-import pt.up.fe.dceg.neptus.util.comm.manager.SystemCommBaseInfo;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
-import pt.up.fe.dceg.neptus.util.conf.PreferencesListener;
-import pt.up.fe.dceg.neptus.util.llf.NeptusMessageLogger;
+import pt.lsts.imc.AcousticSystems;
+import pt.lsts.imc.EmergencyControlState;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.FuelLevel;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IndicatedSpeed;
+import pt.lsts.imc.LblConfig;
+import pt.lsts.imc.LblConfig.OP;
+import pt.lsts.imc.OperationalLimits;
+import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.PlanDB;
+import pt.lsts.imc.Rpm;
+import pt.lsts.imc.SimulatedState;
+import pt.lsts.imc.TrueSpeed;
+import pt.lsts.imc.VehicleState;
+import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.types.comm.CommMean;
+import pt.lsts.neptus.types.comm.protocol.IMCArgs;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.StringUtils;
+import pt.lsts.neptus.util.comm.manager.MessageFrequencyCalculator;
+import pt.lsts.neptus.util.comm.manager.SystemCommBaseInfo;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.conf.PreferencesListener;
+import pt.lsts.neptus.util.llf.NeptusMessageLogger;
 
 import com.google.common.eventbus.AsyncEventBus;
 

@@ -41,12 +41,12 @@ import java.awt.geom.Rectangle2D;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.ColorUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author pdias

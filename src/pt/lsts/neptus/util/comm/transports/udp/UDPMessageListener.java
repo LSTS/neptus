@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/01/16
  */
-package pt.up.fe.dceg.neptus.util.comm.transports.udp;
+package pt.lsts.neptus.util.comm.transports.udp;
 
 /**
  * @author pdias

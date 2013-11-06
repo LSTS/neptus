@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2007/09/25
  */
-package pt.up.fe.dceg.neptus.mra;
+package pt.lsts.neptus.mra;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -76,41 +76,41 @@ import javax.swing.ToolTipManager;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.BlockingGlassPane;
-import pt.up.fe.dceg.neptus.gui.MissionFileChooser;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.gui.WaitPanel;
-import pt.up.fe.dceg.neptus.gui.swing.NeptusFileView;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndexListener;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.importers.lsf.ConcatenateLsfLog;
-import pt.up.fe.dceg.neptus.mra.replay.LogReplay;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginsLoader;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.RecentlyOpenedFilesUtil;
-import pt.up.fe.dceg.neptus.util.StreamUtil;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.SystemImcMsgCommInfo;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.llf.LogUtils;
-import pt.up.fe.dceg.neptus.util.llf.LogUtils.LogValidity;
-import pt.up.fe.dceg.neptus.util.llf.LsfLogSource;
-import pt.up.fe.dceg.neptus.util.llf.LsfReport;
-import pt.up.fe.dceg.neptus.util.logdownload.LogsDownloaderWorker;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.BlockingGlassPane;
+import pt.lsts.neptus.gui.MissionFileChooser;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.gui.WaitPanel;
+import pt.lsts.neptus.gui.swing.NeptusFileView;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.lsf.ConcatenateLsfLog;
+import pt.lsts.neptus.mra.replay.LogReplay;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.PluginsLoader;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
+import pt.lsts.neptus.util.StreamUtil;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.util.comm.manager.imc.SystemImcMsgCommInfo;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.llf.LogUtils;
+import pt.lsts.neptus.util.llf.LogUtils.LogValidity;
+import pt.lsts.neptus.util.llf.LsfLogSource;
+import pt.lsts.neptus.util.llf.LsfReport;
+import pt.lsts.neptus.util.logdownload.LogsDownloaderWorker;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.lsf.LsfIndexListener;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

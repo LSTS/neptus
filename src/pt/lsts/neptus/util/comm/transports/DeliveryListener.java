@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 10/02/2011
  */
-package pt.up.fe.dceg.neptus.util.comm.transports;
+package pt.lsts.neptus.util.comm.transports;
 
 
 /**

@@ -52,10 +52,10 @@ import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.Painter;
 
-import pt.up.fe.dceg.neptus.console.plugins.AlarmProviderOld;
-import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
-import pt.up.fe.dceg.neptus.plugins.update.PeriodicUpdatesService;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.console.plugins.AlarmProviderOld;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author ZP

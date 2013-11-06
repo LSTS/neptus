@@ -50,15 +50,15 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.EntityState;
-import pt.up.fe.dceg.neptus.imc.EntityState.STATE;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.comm.manager.imc.EntitiesResolver;
+import pt.lsts.imc.EntityState;
+import pt.lsts.imc.EntityState.STATE;
 import pt.up.fe.dceg.neptus.plugins.state.EntitiesModel.DataIndex;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.EntitiesResolver;
 
 import com.google.common.eventbus.Subscribe;
 

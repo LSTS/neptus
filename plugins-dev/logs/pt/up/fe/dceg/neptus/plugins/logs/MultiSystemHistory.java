@@ -51,10 +51,10 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.LogBookControl;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.LogBookControl;
 
 /**
  * @author zp

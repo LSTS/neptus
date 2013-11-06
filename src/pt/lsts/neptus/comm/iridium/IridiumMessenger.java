@@ -29,7 +29,7 @@
  * Author: zp
  * Jun 28, 2013
  */
-package pt.up.fe.dceg.neptus.comm.iridium;
+package pt.lsts.neptus.comm.iridium;
 
 import java.util.Collection;
 import java.util.Date;

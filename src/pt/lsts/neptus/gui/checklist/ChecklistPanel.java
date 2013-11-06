@@ -8,7 +8,7 @@
  * Author: Paulo Dias
  * 26/Jun/2005
  */
-package pt.up.fe.dceg.neptus.gui.checklist;
+package pt.lsts.neptus.gui.checklist;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -79,21 +79,21 @@ import org.apache.log4j.Level;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.BlockingGlassPane;
-import pt.up.fe.dceg.neptus.gui.checklist.exec.CheckListExe;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.types.checklist.CheckItem;
-import pt.up.fe.dceg.neptus.types.checklist.ChecklistType;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.SystemImcMsgCommInfo;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.output.OutputMonitor;
-import pt.up.fe.dceg.neptus.util.xsl.TransformFOP;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.BlockingGlassPane;
+import pt.lsts.neptus.gui.checklist.exec.CheckListExe;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.checklist.CheckItem;
+import pt.lsts.neptus.types.checklist.ChecklistType;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.comm.manager.imc.SystemImcMsgCommInfo;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.output.OutputMonitor;
+import pt.lsts.neptus.util.xsl.TransformFOP;
 
 /**
  * @author Paulo Dias

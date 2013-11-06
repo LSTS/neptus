@@ -29,7 +29,7 @@
  * Author: 
  * 5/Mar/2005
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -38,7 +38,7 @@ import java.awt.Image;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author Paulo Dias

@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.renderer2d;
+package pt.lsts.neptus.renderer2d;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -41,12 +41,12 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Loiter;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.maneuvers.Loiter;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.util.GuiUtils;
 
 public class LoiterPainter implements Renderer2DPainter {
 

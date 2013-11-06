@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 16/09/2011
  */
-package pt.up.fe.dceg.neptus.types.map;
+package pt.lsts.neptus.types.map;
 
 import java.text.NumberFormat;
 import java.util.Vector;
@@ -37,17 +37,17 @@ import java.util.Vector;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
-import pt.up.fe.dceg.neptus.mp.maneuvers.StatisticsProvider;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.StringUtils;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.mp.maneuvers.StatisticsProvider;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.StringUtils;
 
 /**
  * Initially moved from {@link pt.up.fe.dceg.neptus.plugins.planning.PlanStatistics}

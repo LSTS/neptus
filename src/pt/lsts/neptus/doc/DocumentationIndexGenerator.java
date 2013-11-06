@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Aug 29, 2011
  */
-package pt.up.fe.dceg.neptus.doc;
+package pt.lsts.neptus.doc;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -39,7 +39,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 
 /**

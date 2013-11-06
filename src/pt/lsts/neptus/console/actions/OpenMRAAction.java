@@ -29,15 +29,15 @@
  * Author: Paulo Dias
  * 17 de Dez de 2012
  */
-package pt.up.fe.dceg.neptus.console.actions;
+package pt.lsts.neptus.console.actions;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.JFrame;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mra.NeptusMRA;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author pdias

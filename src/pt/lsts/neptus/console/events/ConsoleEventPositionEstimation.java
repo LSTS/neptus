@@ -29,10 +29,10 @@
  * Author: José Pinto
  * Nov 26, 2012
  */
-package pt.up.fe.dceg.neptus.console.events;
+package pt.lsts.neptus.console.events;
 
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.EstimatedState;
 
 /**
  * @author zp

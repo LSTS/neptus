@@ -37,7 +37,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.plugins.MapTileProvider;
+import pt.lsts.neptus.plugins.MapTileProvider;
+import pt.lsts.neptus.renderer2d.tiles.Tile;
 
 /**
  * @author pdias

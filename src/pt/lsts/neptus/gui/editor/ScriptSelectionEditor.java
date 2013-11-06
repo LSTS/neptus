@@ -29,7 +29,7 @@
  * Author: 
  * 24/Jun/2005
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;

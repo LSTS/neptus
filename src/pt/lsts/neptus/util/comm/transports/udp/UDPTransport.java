@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/01/16
  */
-package pt.up.fe.dceg.neptus.util.comm.transports.udp;
+package pt.lsts.neptus.util.comm.transports.udp;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -47,10 +47,10 @@ import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.ByteUtil;
-import pt.up.fe.dceg.neptus.util.comm.transports.DeliveryListener;
-import pt.up.fe.dceg.neptus.util.comm.transports.DeliveryListener.ResultEnum;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.ByteUtil;
+import pt.lsts.neptus.util.comm.transports.DeliveryListener;
+import pt.lsts.neptus.util.comm.transports.DeliveryListener.ResultEnum;
 
 /**
  * @author pdias

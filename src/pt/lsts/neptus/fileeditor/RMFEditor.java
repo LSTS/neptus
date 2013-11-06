@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.fileeditor;
+package pt.lsts.neptus.fileeditor;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -44,10 +44,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import pt.up.fe.dceg.neptus.loader.FileHandler;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.loader.FileHandler;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 public class RMFEditor extends JPanel implements FileHandler {
 

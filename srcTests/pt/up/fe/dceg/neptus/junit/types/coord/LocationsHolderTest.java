@@ -32,9 +32,9 @@
 package pt.up.fe.dceg.neptus.junit.types.coord;
 
 import junit.framework.TestCase;
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.coord.LocationsHolder;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationsHolder;
 
 /**
  * @author Paulo

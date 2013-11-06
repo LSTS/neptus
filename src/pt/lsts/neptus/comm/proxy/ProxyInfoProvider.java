@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 10 de Mai de 2012
  */
-package pt.up.fe.dceg.neptus.comm.proxy;
+package pt.lsts.neptus.comm.proxy;
 
 import java.awt.Window;
 import java.io.File;
@@ -52,11 +52,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.util.comm.ssh.SSHConnectionDialog;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.util.comm.ssh.SSHConnectionDialog;
 
 /**
  * @author pdias

@@ -31,7 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.i18n.I18n;
 import vtk.vtkLODActor;
 import vtk.vtkLinearExtrusionFilter;
 import vtk.vtkPolyDataMapper;

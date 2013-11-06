@@ -29,16 +29,16 @@
  * Author: José Correia
  * Feb 5, 2013
  */
-package pt.up.fe.dceg.neptus.mra.api;
+package pt.lsts.neptus.mra.api;
 
 import java.util.ArrayList;
 
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
 
 /**

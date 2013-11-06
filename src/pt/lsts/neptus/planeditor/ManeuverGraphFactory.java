@@ -29,18 +29,18 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.planeditor;
+package pt.lsts.neptus.planeditor;
 
 import javax.swing.JOptionPane;
 
-import pt.up.fe.dceg.neptus.graph.GraphElementFactory;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.ManeuverFactory;
-import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.graph.GraphElementFactory;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverFactory;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 /**
  * 
  * @author ZP

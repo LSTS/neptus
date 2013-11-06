@@ -29,7 +29,7 @@
  * Author: José Correia
  * Jan 26, 2012
  */
-package pt.up.fe.dceg.neptus.alarms;
+package pt.lsts.neptus.alarms;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsoleLayout;
 
 /**
  * This class is responsible for gathering all the information about the alarms present in a given console

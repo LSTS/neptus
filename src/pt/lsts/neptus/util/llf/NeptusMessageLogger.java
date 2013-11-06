@@ -29,12 +29,12 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.util.llf;
+package pt.lsts.neptus.util.llf;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
-import pt.up.fe.dceg.neptus.util.conf.PreferencesListener;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.conf.PreferencesListener;
+import pt.lsts.imc.IMCMessage;
 
 
 /**

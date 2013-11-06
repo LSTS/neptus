@@ -29,9 +29,9 @@
  * Author: 
  * 2007/05/19
  */
-package pt.up.fe.dceg.neptus.util.comm.manager;
+package pt.lsts.neptus.util.comm.manager;
 
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 
 /**
  * @author pdias

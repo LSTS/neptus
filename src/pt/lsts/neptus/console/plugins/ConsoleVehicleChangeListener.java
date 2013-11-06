@@ -29,9 +29,9 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 
 /**
  * 

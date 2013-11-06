@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2005/10/12 refactored in 2012/11/10
  */
-package pt.up.fe.dceg.neptus.util.conf;
+package pt.lsts.neptus.util.conf;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -45,16 +45,16 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.PropertiesLoader;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.PropertiesLoader;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

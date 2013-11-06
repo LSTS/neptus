@@ -29,16 +29,16 @@
  * Author: José Pinto
  * Oct 11, 2011
  */
-package pt.up.fe.dceg.neptus.mp.preview;
+package pt.lsts.neptus.mp.preview;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.imc.EstimatedState;
 
 /**
  * This class simulates the execution of a plan (roughly)

@@ -29,7 +29,7 @@
  * Author: 
  * May 25, 2005
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Component;
 import java.awt.Image;
@@ -39,16 +39,16 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import pt.up.fe.dceg.neptus.types.map.CylinderElement;
-import pt.up.fe.dceg.neptus.types.map.EllipsoidElement;
-import pt.up.fe.dceg.neptus.types.map.HomeReferenceElement;
-import pt.up.fe.dceg.neptus.types.map.ImageElement;
-import pt.up.fe.dceg.neptus.types.map.MarkElement;
-import pt.up.fe.dceg.neptus.types.map.Model3DElement;
-import pt.up.fe.dceg.neptus.types.map.ParallelepipedElement;
-import pt.up.fe.dceg.neptus.types.map.PathElement;
-import pt.up.fe.dceg.neptus.types.map.TransponderElement;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.types.map.CylinderElement;
+import pt.lsts.neptus.types.map.EllipsoidElement;
+import pt.lsts.neptus.types.map.HomeReferenceElement;
+import pt.lsts.neptus.types.map.ImageElement;
+import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.types.map.Model3DElement;
+import pt.lsts.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.types.map.PathElement;
+import pt.lsts.neptus.types.map.TransponderElement;
+import pt.lsts.neptus.util.ImageUtils;
 
 
 /**

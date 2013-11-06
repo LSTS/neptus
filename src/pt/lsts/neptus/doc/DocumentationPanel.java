@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Aug 29, 2011
  */
-package pt.up.fe.dceg.neptus.doc;
+package pt.lsts.neptus.doc;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -46,10 +46,10 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 
+import pt.lsts.neptus.renderer2d.WorldRenderPainter;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.up.fe.dceg.neptus.plugins.oplimits.OperationLimitsSubPanel;
-import pt.up.fe.dceg.neptus.renderer2d.WorldRenderPainter;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 /**
  * This class provides a visualization of a given {@link DocumentationProvider}

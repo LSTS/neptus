@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui.objparams;
+package pt.lsts.neptus.gui.objparams;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -52,14 +52,14 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.ImageScaleAndLocationPanel;
-import pt.up.fe.dceg.neptus.gui.LocationPanel;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.coord.MapTileUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.ImageScaleAndLocationPanel;
+import pt.lsts.neptus.gui.LocationPanel;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
  * Use {@link ImageScaleAndLocationPanel} instead.

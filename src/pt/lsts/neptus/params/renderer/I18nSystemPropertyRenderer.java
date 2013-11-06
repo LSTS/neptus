@@ -29,7 +29,7 @@
  * Author: pdias
  * Aug 11, 2013
  */
-package pt.up.fe.dceg.neptus.params.renderer;
+package pt.lsts.neptus.params.renderer;
 
 import java.awt.Component;
 import java.util.HashMap;

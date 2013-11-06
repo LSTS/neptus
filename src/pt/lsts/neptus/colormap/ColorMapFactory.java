@@ -29,16 +29,16 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.colormap;
+package pt.lsts.neptus.colormap;
 
 import java.awt.Color;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
 
 public class ColorMapFactory {
 

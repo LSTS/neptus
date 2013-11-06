@@ -29,9 +29,9 @@
  * Author: José Pinto
  * Nov 26, 2012
  */
-package pt.up.fe.dceg.neptus.mp.preview;
+package pt.lsts.neptus.mp.preview;
 
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 
 
 /**

@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 21/Jul/2005
  */
-package pt.up.fe.dceg.neptus.types.texture;
+package pt.lsts.neptus.types.texture;
 
 import java.awt.Image;
 
@@ -38,8 +38,8 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author Paulo Dias

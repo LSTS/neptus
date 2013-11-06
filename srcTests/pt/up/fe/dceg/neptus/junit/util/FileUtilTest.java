@@ -35,7 +35,7 @@ import java.io.File;
 import java.io.IOException;
 
 import junit.framework.TestCase;
-import pt.up.fe.dceg.neptus.util.FileUtil;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author Paulo

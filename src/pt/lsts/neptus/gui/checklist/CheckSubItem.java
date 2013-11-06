@@ -29,12 +29,12 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui.checklist;
+package pt.lsts.neptus.gui.checklist;
 
 import javax.swing.ImageIcon;
 
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoSubItem;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
+import pt.lsts.neptus.util.ImageUtils;
 
 public interface CheckSubItem {
 	public static final ImageIcon ICON_CLOSE = new ImageIcon(ImageUtils.getScaledImage(

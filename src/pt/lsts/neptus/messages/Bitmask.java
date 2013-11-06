@@ -7,11 +7,11 @@
 // ---------------------------------------------------------------------------- 
 
 
-package pt.up.fe.dceg.neptus.messages;
+package pt.lsts.neptus.messages;
 
 import java.util.LinkedHashMap;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * Utility class to wrap bitmask values.

@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2008/04/13
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 

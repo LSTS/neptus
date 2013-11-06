@@ -34,7 +34,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk.io;
 import java.io.File;
 import java.nio.file.Path;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 import vtk.vtk3DSImporter;
 import vtk.vtkDataSetReader;
 import vtk.vtkLODActor;

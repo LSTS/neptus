@@ -29,14 +29,14 @@
  * Author: zp
  * May 15, 2013
  */
-package pt.up.fe.dceg.neptus.mra.plots;
+package pt.lsts.neptus.mra.plots;
 
 import java.io.File;
 import java.util.Date;
 
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.util.bathymetry.LocalData;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.util.bathymetry.LocalData;
+import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp

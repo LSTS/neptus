@@ -40,13 +40,13 @@ import javax.swing.JComponent;
 import javax.swing.JSplitPane;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.ContainerSubPanel;
-import pt.up.fe.dceg.neptus.console.SubPanel;
-import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ContainerSubPanel;
+import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.lsts.neptus.plugins.PluginDescription;
 
 /**
  * @author ZP

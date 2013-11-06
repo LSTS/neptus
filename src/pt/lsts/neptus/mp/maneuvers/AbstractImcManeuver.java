@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Nov 15, 2011
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 import java.util.Arrays;
 import java.util.Vector;
@@ -39,15 +39,15 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.plugins.PluginProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.plugins.PluginProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.util.comm.IMCUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

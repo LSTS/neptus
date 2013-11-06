@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui.checklist.exec;
+package pt.lsts.neptus.gui.checklist.exec;
 
 import java.util.Vector;
 

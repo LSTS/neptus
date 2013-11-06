@@ -29,7 +29,7 @@
  * Author: 
  * 15/Jan/2005
  */
-package pt.up.fe.dceg.neptus.types.map;
+package pt.lsts.neptus.types.map;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -48,17 +48,17 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
-import pt.up.fe.dceg.neptus.gui.objparams.TransponderParameters;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.Identifiable;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.misc.FileType;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.PropertiesLoader;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.objparams.ParametersPanel;
+import pt.lsts.neptus.gui.objparams.TransponderParameters;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.Identifiable;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.misc.FileType;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.PropertiesLoader;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * Refactored in 06/11/2006.

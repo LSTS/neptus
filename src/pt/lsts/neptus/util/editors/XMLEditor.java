@@ -29,7 +29,7 @@
  * Author: 
  * 22/Jan/2005
  */
-package pt.up.fe.dceg.neptus.util.editors;
+package pt.lsts.neptus.util.editors;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;

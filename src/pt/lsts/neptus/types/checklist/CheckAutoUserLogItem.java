@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.types.checklist;
+package pt.lsts.neptus.types.checklist;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -37,7 +37,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 public class CheckAutoUserLogItem extends CheckAutoSubItem{
 

@@ -29,11 +29,11 @@
  * Author: 
  * 5/Mar/2005
  */
-package pt.up.fe.dceg.neptus.test;
+package pt.lsts.neptus.test;
 
 import java.io.IOException;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author Paulo

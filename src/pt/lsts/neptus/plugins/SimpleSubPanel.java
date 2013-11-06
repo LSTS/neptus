@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.plugins;
+package pt.lsts.neptus.plugins;
 
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -54,28 +54,28 @@ import javax.swing.WindowConstants;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.SubPanel;
-import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
-import pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener;
-import pt.up.fe.dceg.neptus.console.plugins.PlanChangeListener;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.state.ImcSysState;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
-import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.console.plugins.MissionChangeListener;
+import pt.lsts.neptus.console.plugins.PlanChangeListener;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
+import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRendererInteraction;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.up.fe.dceg.neptus.plugins.planning.MapPanel;
-import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
-import pt.up.fe.dceg.neptus.plugins.update.PeriodicUpdatesService;
-import pt.up.fe.dceg.neptus.renderer2d.CustomInteractionSupport;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.ReflectionUtil;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2009/10/28
  */
-package pt.up.fe.dceg.neptus.types.comm.protocol;
+package pt.lsts.neptus.types.comm.protocol;
 
 import java.net.URL;
 import java.util.Vector;
@@ -39,7 +39,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author zp

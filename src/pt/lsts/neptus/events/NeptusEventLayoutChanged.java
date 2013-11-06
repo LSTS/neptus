@@ -29,7 +29,7 @@
  * Author: Hugo
  * 24 de Set de 2013
  */
-package pt.up.fe.dceg.neptus.events;
+package pt.lsts.neptus.events;
 
 /**
  * @author Hugo

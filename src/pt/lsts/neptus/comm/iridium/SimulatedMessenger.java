@@ -29,18 +29,18 @@
  * Author: zp
  * Jul 3, 2013
  */
-package pt.up.fe.dceg.neptus.comm.iridium;
+package pt.lsts.neptus.comm.iridium;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Vector;
 
-import com.google.common.eventbus.Subscribe;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.IridiumMsgRx;
+import pt.lsts.imc.IridiumMsgTx;
 
-import pt.up.fe.dceg.neptus.imc.IridiumMsgRx;
-import pt.up.fe.dceg.neptus.imc.IridiumMsgTx;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp

@@ -39,11 +39,11 @@ import java.util.Hashtable;
 
 import javax.swing.JLabel;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.plugins.NeptusMessageListener;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.NeptusMessageListener;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.plugins.uavs.UavPaintersBag;
 import pt.up.fe.dceg.neptus.plugins.uavs.interfaces.IUavPainter;
 import pt.up.fe.dceg.neptus.plugins.uavs.painters.background.UavAirspeedCoverLayerPainter;

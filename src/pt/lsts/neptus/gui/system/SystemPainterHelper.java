@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 29/Jul/2012
  */
-package pt.up.fe.dceg.neptus.gui.system;
+package pt.lsts.neptus.gui.system;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -42,15 +42,15 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.RoundRectangle2D;
 
-import pt.up.fe.dceg.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolIconEnum;
-import pt.up.fe.dceg.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolOperationalConditionEnum;
-import pt.up.fe.dceg.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolShapeEnum;
-import pt.up.fe.dceg.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolTypeEnum;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolIconEnum;
+import pt.lsts.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolOperationalConditionEnum;
+import pt.lsts.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolShapeEnum;
+import pt.lsts.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolTypeEnum;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
 
 /**
  * @author pdias

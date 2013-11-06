@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Nov 17, 2011
  */
-package pt.up.fe.dceg.neptus.types.map;
+package pt.lsts.neptus.types.map;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -39,12 +39,12 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author zp

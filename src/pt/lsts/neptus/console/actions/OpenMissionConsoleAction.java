@@ -29,7 +29,7 @@
  * Author: Hugo Dias
  * Oct 17, 2012
  */
-package pt.up.fe.dceg.neptus.console.actions;
+package pt.lsts.neptus.console.actions;
 
 import java.awt.event.ActionEvent;
 
@@ -37,12 +37,12 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mystate.MyState;
-import pt.up.fe.dceg.neptus.types.mission.HomeReference;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mystate.MyState;
+import pt.lsts.neptus.types.mission.HomeReference;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author Hugo

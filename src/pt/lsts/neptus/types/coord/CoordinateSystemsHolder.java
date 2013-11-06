@@ -29,7 +29,7 @@
  * Author: 
  * 15/Jan/2005
  */
-package pt.up.fe.dceg.neptus.types.coord;
+package pt.lsts.neptus.types.coord;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -41,10 +41,10 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.XMLValidator;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.XMLValidator;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author Paulo Dias

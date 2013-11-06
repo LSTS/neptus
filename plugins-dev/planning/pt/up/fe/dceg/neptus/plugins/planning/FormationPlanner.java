@@ -45,18 +45,18 @@ import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
-import pt.up.fe.dceg.neptus.mp.maneuvers.VehicleFormation;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.renderer2d.CustomInteractionSupport;
-import pt.up.fe.dceg.neptus.renderer2d.InteractionAdapter;
-import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.mp.maneuvers.VehicleFormation;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
+import pt.lsts.neptus.renderer2d.InteractionAdapter;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 
 /**
  * This Neptus plugin provides an interface for Vehicle Formation (cooperative) plans<br/>

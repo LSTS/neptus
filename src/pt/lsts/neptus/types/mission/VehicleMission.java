@@ -29,10 +29,10 @@
  * Author: Paulo Dias
  * 14/Jan/2005
  */
-package pt.up.fe.dceg.neptus.types.mission;
+package pt.lsts.neptus.types.mission;
 
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 
 /**
  * @author Paulo Dias

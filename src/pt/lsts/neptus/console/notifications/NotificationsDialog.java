@@ -29,7 +29,7 @@
  * Author: Hugo Dias
  * Nov 12, 2012
  */
-package pt.up.fe.dceg.neptus.console.notifications;
+package pt.lsts.neptus.console.notifications;
 
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
@@ -63,10 +63,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventNewNotification;
-import pt.up.fe.dceg.neptus.events.NeptusEvents;
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.events.ConsoleEventNewNotification;
+import pt.lsts.neptus.events.NeptusEvents;
+import pt.lsts.neptus.i18n.I18n;
 
 import com.google.common.eventbus.Subscribe;
 

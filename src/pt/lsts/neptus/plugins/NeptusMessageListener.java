@@ -29,9 +29,9 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.plugins;
+package pt.lsts.neptus.plugins;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.lsts.imc.IMCMessage;
 
 public interface NeptusMessageListener {
 

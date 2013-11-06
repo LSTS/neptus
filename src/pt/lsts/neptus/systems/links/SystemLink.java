@@ -29,11 +29,11 @@
  * Author: Hugo Dias
  * Oct 31, 2012
  */
-package pt.up.fe.dceg.neptus.systems.links;
+package pt.lsts.neptus.systems.links;
 
 import java.net.InetAddress;
 
-import pt.up.fe.dceg.neptus.systems.SystemsManager.SystemLinkType;
+import pt.lsts.neptus.systems.SystemsManager.SystemLinkType;
 
 /**
  * @author Hugo

@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 5/10/2011
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Component;
 
@@ -38,8 +38,8 @@ import javax.swing.JMenuItem;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
-import pt.up.fe.dceg.neptus.events.NeptusEventHiddenMenus;
-import pt.up.fe.dceg.neptus.events.NeptusEvents;
+import pt.lsts.neptus.events.NeptusEventHiddenMenus;
+import pt.lsts.neptus.events.NeptusEvents;
 
 import com.google.common.eventbus.Subscribe;
 

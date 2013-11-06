@@ -29,17 +29,17 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.loader;
+package pt.lsts.neptus.loader;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 
-import pt.up.fe.dceg.neptus.gui.Loader;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.viewer3d.Viewer3D;
+import pt.lsts.neptus.gui.Loader;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.viewer3d.Viewer3D;
 
 /** 
  * @author RJPG

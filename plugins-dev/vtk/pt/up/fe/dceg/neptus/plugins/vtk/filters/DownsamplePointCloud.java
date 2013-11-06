@@ -33,7 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk.filters;
 
 import java.util.Date;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCleanPolyData;

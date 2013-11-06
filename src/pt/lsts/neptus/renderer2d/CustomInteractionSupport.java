@@ -29,7 +29,7 @@
  * Author: José Pinto
  * May 13, 2010
  */
-package pt.up.fe.dceg.neptus.renderer2d;
+package pt.lsts.neptus.renderer2d;
 
 import java.util.Collection;
 

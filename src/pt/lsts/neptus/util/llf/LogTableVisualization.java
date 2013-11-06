@@ -29,7 +29,7 @@
  * Author: José Correia
  * Sep 21, 2012
  */
-package pt.up.fe.dceg.neptus.util.llf;
+package pt.lsts.neptus.util.llf;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -57,14 +57,14 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import pt.up.fe.dceg.neptus.gui.swing.RangeSlider;
-import pt.up.fe.dceg.neptus.mra.LogMarker;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
-import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.gui.swing.RangeSlider;
+import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.plots.LogMarkerListener;
+import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.util.ImageUtils;
 
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 

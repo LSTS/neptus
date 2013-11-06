@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2005/06/22
  */
-package pt.up.fe.dceg.neptus.util.comm;
+package pt.lsts.neptus.util.comm;
 
 import gnu.io.CommPortIdentifier;
 
@@ -45,12 +45,12 @@ import java.util.LinkedList;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.comm.CommMean;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.conf.PortRangeValidator;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.comm.CommMean;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.conf.PortRangeValidator;
 
 /**
  * @author Paulo Dias

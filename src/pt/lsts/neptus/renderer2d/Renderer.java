@@ -29,16 +29,16 @@
  * Author: 
  * 11/Out/2004
  */
-package pt.up.fe.dceg.neptus.renderer2d;
+package pt.lsts.neptus.renderer2d;
 
 import java.awt.Color;
 
 import javax.swing.event.ChangeListener;
 
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.AbstractElement;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.MapGroup;
 
 /**
  * @author ZP

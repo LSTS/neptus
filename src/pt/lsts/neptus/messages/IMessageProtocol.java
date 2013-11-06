@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.messages;
+package pt.lsts.neptus.messages;
 
 import java.io.InputStream;
 import java.io.OutputStream;

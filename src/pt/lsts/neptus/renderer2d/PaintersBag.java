@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Oct 7, 2011
  */
-package pt.up.fe.dceg.neptus.renderer2d;
+package pt.lsts.neptus.renderer2d;
 
 import java.awt.BorderLayout;
 import java.awt.Window;
@@ -47,9 +47,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ReflectionUtil;
 
 /**
  * This class holds a set of Renderer2D painters (layers)

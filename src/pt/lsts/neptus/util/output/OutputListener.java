@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.util.output;
+package pt.lsts.neptus.util.output;
 
 public interface OutputListener {
 	public void addOut(String text);

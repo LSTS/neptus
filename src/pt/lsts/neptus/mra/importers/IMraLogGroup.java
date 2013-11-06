@@ -29,14 +29,14 @@
  * Author: José Pinto
  * 2009/10/20
  */
-package pt.up.fe.dceg.neptus.mra.importers;
+package pt.lsts.neptus.mra.importers;
 
 import java.io.File;
 import java.net.URI;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
+import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * This interface is used to represent a logical group of log files. For instance, in a mission several log files are produced. 

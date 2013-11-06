@@ -29,7 +29,7 @@
  * Author: 
  * Mar 15, 2005
  */
-package pt.up.fe.dceg.neptus.types.map;
+package pt.lsts.neptus.types.map;
 
 import java.awt.Color;
 import java.awt.Image;
@@ -39,13 +39,13 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.objparams.ParallelepipedParameters;
-import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.texture.TextureType;
-import pt.up.fe.dceg.neptus.types.texture.TexturesHolder;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.objparams.ParallelepipedParameters;
+import pt.lsts.neptus.gui.objparams.ParametersPanel;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.texture.TextureType;
+import pt.lsts.neptus.types.texture.TexturesHolder;
 
 /**
  * Refactored in 06/11/2006.

@@ -29,7 +29,7 @@
  * Author: Margarida Faria
  * Mar 15, 2013
  */
-package pt.up.fe.dceg.neptus.types;
+package pt.lsts.neptus.types;
 
 /**
  * @author Margarida Faria

@@ -29,7 +29,7 @@
  * Author: 
  * 19/Jan/2005
  */
-package pt.up.fe.dceg.neptus.util.xsl.xalan;
+package pt.lsts.neptus.util.xsl.xalan;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -42,8 +42,8 @@ import org.apache.xalan.templates.ElemExtensionCall;
 import org.apache.xml.dtm.DTM;
 import org.apache.xpath.XPathContext;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.FileUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * Implements one extension elements and function to allow

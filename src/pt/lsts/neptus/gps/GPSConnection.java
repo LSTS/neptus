@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2005/07/29
  */
-package pt.up.fe.dceg.neptus.gps;
+package pt.lsts.neptus.gps;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
@@ -57,8 +57,8 @@ import org.dinopolis.gpstool.gpsinput.GPSPositionError;
 import org.dinopolis.gpstool.gpsinput.GPSSerialDevice;
 import org.dinopolis.gpstool.gpsinput.nmea.GPSNmeaDataProcessor;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.GuiUtils;
 /**
  * This class provides a way for connecting to a GPS device and start listening for GPS events
  * @author ZP

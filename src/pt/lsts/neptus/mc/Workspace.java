@@ -9,7 +9,7 @@
  * Author: Paulo Dias
  * 2005/03/06
  */
-package pt.up.fe.dceg.neptus.mc;
+package pt.lsts.neptus.mc;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -61,46 +61,46 @@ import javax.swing.event.InternalFrameEvent;
 
 import org.jdesktop.swingx.JXStatusBar;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.actions.ExitAction;
-import pt.up.fe.dceg.neptus.events.NeptusEventHiddenMenus;
-import pt.up.fe.dceg.neptus.events.NeptusEvents;
-import pt.up.fe.dceg.neptus.gui.AboutPanel;
-import pt.up.fe.dceg.neptus.gui.ChronometerPanel;
-import pt.up.fe.dceg.neptus.gui.ConsoleFileChooser;
-import pt.up.fe.dceg.neptus.gui.DesktopIcon;
-import pt.up.fe.dceg.neptus.gui.HideMenusListener;
-import pt.up.fe.dceg.neptus.gui.IFrameOpener;
-import pt.up.fe.dceg.neptus.gui.LatLonConv;
-import pt.up.fe.dceg.neptus.gui.MenuScroller;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.StatusLed;
-import pt.up.fe.dceg.neptus.gui.VehicleInfo;
-import pt.up.fe.dceg.neptus.gui.checklist.ChecklistFileChooser;
-import pt.up.fe.dceg.neptus.gui.checklist.ChecklistPanel;
-import pt.up.fe.dceg.neptus.gui.swing.NeptusFileView;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.loader.FileHandler;
-import pt.up.fe.dceg.neptus.mra.NeptusMRA;
-import pt.up.fe.dceg.neptus.types.checklist.ChecklistType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.RecentlyOpenedFilesUtil;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMessageSenderPanel;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.MonitorIMCComms;
-import pt.up.fe.dceg.neptus.util.comm.ssh.SshShellPannel;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
-import pt.up.fe.dceg.neptus.util.editors.EditorLauncher;
-import pt.up.fe.dceg.neptus.util.gui.MouseRecorder;
-import pt.up.fe.dceg.neptus.util.output.OutputMonitor;
-import pt.up.fe.dceg.neptus.util.output.OutputPanel;
-import pt.up.fe.dceg.neptus.viewer3d.Viewer3D;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.actions.ExitAction;
+import pt.lsts.neptus.events.NeptusEventHiddenMenus;
+import pt.lsts.neptus.events.NeptusEvents;
+import pt.lsts.neptus.gui.AboutPanel;
+import pt.lsts.neptus.gui.ChronometerPanel;
+import pt.lsts.neptus.gui.ConsoleFileChooser;
+import pt.lsts.neptus.gui.DesktopIcon;
+import pt.lsts.neptus.gui.HideMenusListener;
+import pt.lsts.neptus.gui.IFrameOpener;
+import pt.lsts.neptus.gui.LatLonConv;
+import pt.lsts.neptus.gui.MenuScroller;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.StatusLed;
+import pt.lsts.neptus.gui.VehicleInfo;
+import pt.lsts.neptus.gui.checklist.ChecklistFileChooser;
+import pt.lsts.neptus.gui.checklist.ChecklistPanel;
+import pt.lsts.neptus.gui.swing.NeptusFileView;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.loader.FileHandler;
+import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.types.checklist.ChecklistType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMessageSenderPanel;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.comm.manager.imc.MonitorIMCComms;
+import pt.lsts.neptus.util.comm.ssh.SshShellPannel;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.editors.EditorLauncher;
+import pt.lsts.neptus.util.gui.MouseRecorder;
+import pt.lsts.neptus.util.output.OutputMonitor;
+import pt.lsts.neptus.util.output.OutputPanel;
+import pt.lsts.neptus.viewer3d.Viewer3D;
 
 /**
  * @author Paulo Dias

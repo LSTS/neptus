@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2009/03/14
  */
-package pt.up.fe.dceg.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.util.comm.manager.imc;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -40,20 +40,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.comm.CommMean;
+import pt.lsts.neptus.types.comm.protocol.IMCArgs;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.comm.CommUtil;
+import pt.lsts.neptus.util.comm.IMCUtils;
 import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBControl;
-import pt.up.fe.dceg.neptus.types.comm.CommMean;
-import pt.up.fe.dceg.neptus.types.comm.protocol.IMCArgs;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.comm.CommUtil;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
 
 /**
  * @author pdias

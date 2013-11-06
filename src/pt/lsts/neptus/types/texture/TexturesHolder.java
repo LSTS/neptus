@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 21/Jul/2005
  */
-package pt.up.fe.dceg.neptus.types.texture;
+package pt.lsts.neptus.types.texture;
 
 import java.io.InputStream;
 import java.util.Iterator;
@@ -43,10 +43,10 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.TextureComboChooser;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.StreamUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.TextureComboChooser;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.StreamUtil;
 
 /**
  * @author Paulo Dias

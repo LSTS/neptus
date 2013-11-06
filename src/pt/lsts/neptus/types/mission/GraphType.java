@@ -29,7 +29,7 @@
  * Author: 
  * 16/Jan/2005
  */
-package pt.up.fe.dceg.neptus.types.mission;
+package pt.lsts.neptus.types.mission;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -41,11 +41,11 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.maneuvers.FollowPath;
-import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
-import pt.up.fe.dceg.neptus.util.NameNormalizer;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.maneuvers.FollowPath;
+import pt.lsts.neptus.types.XmlOutputMethods;
+import pt.lsts.neptus.util.NameNormalizer;
 
 /**
  * @author Paulo Dias

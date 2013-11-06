@@ -29,21 +29,21 @@
  * Author: José Pinto
  * Dec 14, 2012
  */
-package pt.up.fe.dceg.neptus.params;
+package pt.lsts.neptus.params;
 
 import java.awt.BorderLayout;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.params.SystemProperty.Scope;
-import pt.up.fe.dceg.neptus.params.SystemProperty.Visibility;
-import pt.up.fe.dceg.neptus.plugins.NeptusMessageListener;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.Popup;
-import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.params.SystemProperty.Scope;
+import pt.lsts.neptus.params.SystemProperty.Visibility;
+import pt.lsts.neptus.plugins.NeptusMessageListener;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author zp

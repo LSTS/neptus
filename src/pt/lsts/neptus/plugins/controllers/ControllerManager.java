@@ -29,7 +29,7 @@
  * Author: zp
  * Oct 6, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.controllers;
+package pt.lsts.neptus.plugins.controllers;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -39,24 +39,24 @@ import java.util.Vector;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.AcousticOperation;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.FollowRefState;
-import pt.up.fe.dceg.neptus.imc.FollowReference;
-import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
-import pt.up.fe.dceg.neptus.imc.PlanControl;
-import pt.up.fe.dceg.neptus.imc.PlanControl.OP;
-import pt.up.fe.dceg.neptus.imc.PlanControl.TYPE;
-import pt.up.fe.dceg.neptus.imc.PlanManeuver;
-import pt.up.fe.dceg.neptus.imc.PlanSpecification;
-import pt.up.fe.dceg.neptus.imc.Reference;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.imc.AcousticOperation;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.FollowRefState;
+import pt.lsts.imc.FollowReference;
+import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanControl.OP;
+import pt.lsts.imc.PlanControl.TYPE;
+import pt.lsts.imc.PlanManeuver;
+import pt.lsts.imc.PlanSpecification;
+import pt.lsts.imc.Reference;
 
 /**
  * This class is used to associate external controllers with existing vehicles and manage their control loops

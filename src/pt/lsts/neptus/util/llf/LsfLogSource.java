@@ -29,7 +29,7 @@
  * Author: José Correia
  * May 4, 2012
  */
-package pt.up.fe.dceg.neptus.util.llf;
+package pt.lsts.neptus.util.llf;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,14 +41,14 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.gz.MultiMemberGZIPInputStream;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndexListener;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.importers.lsf.LsfMraLog;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.lsf.LsfMraLog;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.gz.MultiMemberGZIPInputStream;
+import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.imc.lsf.LsfIndexListener;
 
 /**
  * @author jqcorreia

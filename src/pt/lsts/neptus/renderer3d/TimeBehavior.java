@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.renderer3d;
+package pt.lsts.neptus.renderer3d;
 
 import java.util.Enumeration;
 

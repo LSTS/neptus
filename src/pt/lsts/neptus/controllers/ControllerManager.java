@@ -1,11 +1,11 @@
-package pt.up.fe.dceg.neptus.controllers;
+package pt.lsts.neptus.controllers;
 
 import java.util.LinkedHashMap;
 
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.JoyEnvironment;
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * ControllerManager class 

@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.util.output;
+package pt.lsts.neptus.util.output;
 
 import java.awt.BorderLayout;
 import java.io.BufferedWriter;
@@ -44,9 +44,9 @@ import java.util.Vector;
 
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 public class OutputMonitor {
 

@@ -29,17 +29,17 @@
  * Author: José Correia
  * Jun 22, 2012
  */
-package pt.up.fe.dceg.neptus.mra.exporters;
+package pt.lsts.neptus.mra.exporters;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.util.llf.LsfLogSource;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.util.llf.LsfLogSource;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * Class to extract data from a LogSource and generate Imagenex .872 file from data acquired from YellowFin Sidescan Sonar

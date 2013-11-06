@@ -32,7 +32,7 @@
  * ====================================================================
  */
 
-package pt.up.fe.dceg.neptus.gui.tablelayout;
+package pt.lsts.neptus.gui.tablelayout;
 
 import java.awt.Component;
 import java.awt.ComponentOrientation;
@@ -255,8 +255,7 @@ import java.util.ListIterator;
  * @author Daniel E. Barbalace
  */
 
-public class TableLayout implements java.awt.LayoutManager2, java.io.Serializable,
-        pt.up.fe.dceg.neptus.gui.tablelayout.TableLayoutConstants {
+public class TableLayout implements java.awt.LayoutManager2, java.io.Serializable, TableLayoutConstants {
 
     /*
      * Note: In this file, a cr refers to either a column or a row. cr[C] always means column and cr[R] always means

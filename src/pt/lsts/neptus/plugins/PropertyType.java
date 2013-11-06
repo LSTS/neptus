@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2009/05/28
  */
-package pt.up.fe.dceg.neptus.plugins;
+package pt.lsts.neptus.plugins;
 
 import java.beans.PropertyEditor;
 

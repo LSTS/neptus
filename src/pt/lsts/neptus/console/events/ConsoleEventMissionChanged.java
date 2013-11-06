@@ -29,10 +29,10 @@
  * Author: Hugo Dias
  * Nov 23, 2012
  */
-package pt.up.fe.dceg.neptus.console.events;
+package pt.lsts.neptus.console.events;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.types.mission.MissionType;
 
 /**
  * @author Hugo

@@ -8,7 +8,7 @@
  * Author: Paulo Dias
  * Created in 26/02/2011
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -17,7 +17,7 @@ import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;

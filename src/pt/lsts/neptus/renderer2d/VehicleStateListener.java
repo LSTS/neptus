@@ -29,10 +29,10 @@
  * Author: José Pinto
  * May 25, 2010
  */
-package pt.up.fe.dceg.neptus.renderer2d;
+package pt.lsts.neptus.renderer2d;
 
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 
 /**
  * @author zp

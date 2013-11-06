@@ -8,7 +8,7 @@
  * Author: Paulo Dias
  * Created in 26/Jun/2005
  */
-package pt.up.fe.dceg.neptus.gui.checklist;
+package pt.lsts.neptus.gui.checklist;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -41,13 +41,13 @@ import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoSubItem;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoUserActionItem;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoUserLogItem;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoVarIntervalItem;
-import pt.up.fe.dceg.neptus.types.checklist.CheckItem;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
+import pt.lsts.neptus.types.checklist.CheckAutoUserActionItem;
+import pt.lsts.neptus.types.checklist.CheckAutoUserLogItem;
+import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
+import pt.lsts.neptus.types.checklist.CheckItem;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author Paulo Dias

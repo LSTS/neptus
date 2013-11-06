@@ -29,14 +29,14 @@
  * Author: Paulo Dias
  * 2009/03/14
  */
-package pt.up.fe.dceg.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.util.comm.manager.imc;
 
 import java.util.Hashtable;
 import java.util.LinkedList;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 
 /**
  * @author pdias

@@ -29,7 +29,7 @@
  * Author: José Correia
  * Jan 8, 2013
  */
-package pt.up.fe.dceg.neptus.mra.exporters;
+package pt.lsts.neptus.mra.exporters;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,13 +44,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.llf.LsfLogSource;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.llf.LsfLogSource;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * 83P to Point Cloud Data exporter

@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Dec 23, 2011
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 /**
  * @author zp
@@ -91,7 +91,7 @@ import javax.swing.plaf.ColorUIResource;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 public class UIManagerDefaults implements ActionListener, ItemListener {
     private final static String[] COLUMN_NAMES = { "Key", "Value", "Sample" };

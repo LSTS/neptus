@@ -29,7 +29,7 @@
  * Author: Hugo Dias
  * Oct 12, 2012
  */
-package pt.up.fe.dceg.neptus.events;
+package pt.lsts.neptus.events;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,10 +38,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.SubPanel;
-import pt.up.fe.dceg.neptus.renderer2d.InteractionAdapter;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.renderer2d.InteractionAdapter;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.DeadEvent;

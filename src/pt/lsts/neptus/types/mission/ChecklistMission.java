@@ -29,9 +29,9 @@
  * Author: Paulo Dias
  * 3/Set/2005
  */
-package pt.up.fe.dceg.neptus.types.mission;
+package pt.lsts.neptus.types.mission;
 
-import pt.up.fe.dceg.neptus.types.checklist.ChecklistType;
+import pt.lsts.neptus.types.checklist.ChecklistType;
 
 /**
  * @author Paulo Dias

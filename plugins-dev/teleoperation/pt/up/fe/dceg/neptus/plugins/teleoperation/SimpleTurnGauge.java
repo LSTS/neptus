@@ -39,10 +39,10 @@ import java.awt.geom.Ellipse2D;
 
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.colormap.InterpolationColorMap;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.InterpolationColorMap;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author ZP

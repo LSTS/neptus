@@ -29,7 +29,7 @@
  * Author: Hugo Dias
  * Nov 10, 2012
  */
-package pt.up.fe.dceg.neptus.console.actions;
+package pt.lsts.neptus.console.actions;
 
 import java.awt.BorderLayout;
 import java.awt.Event;
@@ -47,13 +47,13 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.ConsoleSystem;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.gui.ImcStatePanel;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsoleSystem;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.gui.ImcStatePanel;
 
 /**
  * @author Hugo

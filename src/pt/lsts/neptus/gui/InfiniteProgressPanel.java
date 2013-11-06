@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * ????/??/??
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -47,8 +47,8 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.icon.EmptyIcon;
 import org.jdesktop.swingx.painter.BusyPainter;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author pdias

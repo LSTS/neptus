@@ -15,11 +15,11 @@
  * ====================================================================
  * Created on 2/Mar/2005
  */
-package pt.up.fe.dceg.neptus.loader;
+package pt.lsts.neptus.loader;
 
-import pt.up.fe.dceg.neptus.gui.Loader;
-import pt.up.fe.dceg.neptus.mc.Workspace;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.gui.Loader;
+import pt.lsts.neptus.mc.Workspace;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author Paulo Dias

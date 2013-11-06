@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.util.comm;
+package pt.lsts.neptus.util.comm;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -50,9 +50,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.ProgressMonitor;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 public class HTTPUtils {
 

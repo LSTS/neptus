@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Nov 13, 2012
  */
-package pt.up.fe.dceg.neptus.mra.plots;
+package pt.lsts.neptus.mra.plots;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -50,16 +50,16 @@ import org.jfree.data.gantt.TaskSeriesCollection;
 import org.jfree.data.time.SimpleTimePeriod;
 import org.jfree.data.time.TimePeriod;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.mra.LogMarker;
-import pt.up.fe.dceg.neptus.mra.LogStatisticsItem;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.MraChartPanel;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.llf.chart.LLFChart;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.LogStatisticsItem;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.MraChartPanel;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.llf.chart.LLFChart;
+import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp

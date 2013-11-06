@@ -29,15 +29,15 @@
  * Author: zp
  * Oct 6, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.controllers;
+package pt.lsts.neptus.plugins.controllers;
 
-import pt.up.fe.dceg.neptus.imc.DesiredZ;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.FollowRefState;
-import pt.up.fe.dceg.neptus.imc.Reference;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.comm.IMCUtils;
+import pt.lsts.imc.DesiredZ;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.FollowRefState;
+import pt.lsts.imc.Reference;
 
 /**
  * @author zp

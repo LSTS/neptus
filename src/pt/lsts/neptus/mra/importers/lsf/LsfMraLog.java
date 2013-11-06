@@ -29,7 +29,7 @@
  * Author: José Correia
  * May 4, 2012
  */
-package pt.up.fe.dceg.neptus.mra.importers.lsf;
+package pt.lsts.neptus.mra.importers.lsf;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,12 +37,12 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IMCMessageType;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCMessageType;
+import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author ZP

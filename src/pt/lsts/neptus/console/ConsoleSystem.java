@@ -29,33 +29,33 @@
  * Author: Rui Gonçalves
  * 200?/??/??
  */
-package pt.up.fe.dceg.neptus.console;
+package pt.lsts.neptus.console;
 
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
-import pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener;
-import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeEvent;
-import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeListener;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.renderer2d.VehicleStateListener;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
-import pt.up.fe.dceg.neptus.types.map.MapType;
-import pt.up.fe.dceg.neptus.types.map.ScatterPointsElement;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
-import pt.up.fe.dceg.neptus.util.conf.PreferencesListener;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
+import pt.lsts.neptus.console.plugins.MissionChangeListener;
+import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
+import pt.lsts.neptus.console.plugins.SubPanelChangeListener;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.renderer2d.VehicleStateListener;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.ScatterPointsElement;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.conf.PreferencesListener;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
 
 /**
  * This class centralize vehicles info and it's trees for the console panels variables feed and external render.

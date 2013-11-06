@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 14/10/2006
  */
-package pt.up.fe.dceg.neptus.gui.swing;
+package pt.lsts.neptus.gui.swing;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -53,7 +53,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author Paulo Dias

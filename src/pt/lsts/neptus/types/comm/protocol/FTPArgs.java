@@ -29,14 +29,14 @@
  * Author: 
  * 19/Jun/2005
  */
-package pt.up.fe.dceg.neptus.types.comm.protocol;
+package pt.lsts.neptus.types.comm.protocol;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author Paulo Dias

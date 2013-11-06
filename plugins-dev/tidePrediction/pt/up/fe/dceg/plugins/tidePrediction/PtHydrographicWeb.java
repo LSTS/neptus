@@ -44,10 +44,10 @@ import java.util.List;
 
 import org.apache.commons.logging.LogFactory;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.bathymetry.TidePrediction;
-import pt.up.fe.dceg.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
-import pt.up.fe.dceg.neptus.util.bathymetry.TidePredictionFinder;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.bathymetry.TidePrediction;
+import pt.lsts.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 import pt.up.fe.dceg.plugins.tidePrediction.util.DateUtils;
 
 import com.gargoylesoftware.htmlunit.AlertHandler;

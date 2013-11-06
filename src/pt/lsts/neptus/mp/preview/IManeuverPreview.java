@@ -29,10 +29,10 @@
  * Author: José Pinto
  * Oct 11, 2011
  */
-package pt.up.fe.dceg.neptus.mp.preview;
+package pt.lsts.neptus.mp.preview;
 
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 
 /**
  * @author zp

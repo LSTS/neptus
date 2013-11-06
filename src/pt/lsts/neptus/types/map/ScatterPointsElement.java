@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.types.map;
+package pt.lsts.neptus.types.map;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -51,15 +51,15 @@ import javax.media.j3d.TransformGroup;
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.colormap.InterpolationColorMap;
-import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
-import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.renderer3d.Obj3D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.InterpolationColorMap;
+import pt.lsts.neptus.gui.objparams.ParametersPanel;
+import pt.lsts.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer3d.Obj3D;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * 

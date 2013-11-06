@@ -29,12 +29,12 @@
  * Author: Paulo Dias
  * 24 de Jun de 2012
  */
-package pt.up.fe.dceg.neptus.systems.external;
+package pt.lsts.neptus.systems.external;
 
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 
 /**
  * @author pdias

@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 12/Abr/2005
  */
-package pt.up.fe.dceg.neptus.types.coord;
+package pt.lsts.neptus.types.coord;
 
 import java.util.HashMap;
 import java.util.Iterator;

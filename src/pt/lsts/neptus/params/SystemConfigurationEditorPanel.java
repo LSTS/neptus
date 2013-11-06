@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * Mar 2, 2013
  */
-package pt.up.fe.dceg.neptus.params;
+package pt.lsts.neptus.params;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -54,24 +54,24 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.EntityParameter;
-import pt.up.fe.dceg.neptus.imc.EntityParameters;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.QueryEntityParameters;
-import pt.up.fe.dceg.neptus.imc.SaveEntityParameters;
-import pt.up.fe.dceg.neptus.imc.SetEntityParameters;
-import pt.up.fe.dceg.neptus.params.SystemProperty.Scope;
-import pt.up.fe.dceg.neptus.params.SystemProperty.Visibility;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.MessageDeliveryListener;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.params.SystemProperty.Scope;
+import pt.lsts.neptus.params.SystemProperty.Visibility;
+import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.util.comm.manager.imc.MessageDeliveryListener;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.EntityParameters;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.QueryEntityParameters;
+import pt.lsts.imc.SaveEntityParameters;
+import pt.lsts.imc.SetEntityParameters;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertyEditorRegistry;

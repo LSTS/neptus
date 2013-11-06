@@ -31,13 +31,13 @@
  */
 package pt.up.fe.dceg.neptus.plugins.followref;
 
-import pt.up.fe.dceg.neptus.imc.DesiredSpeed;
-import pt.up.fe.dceg.neptus.imc.DesiredSpeed.SPEED_UNITS;
-import pt.up.fe.dceg.neptus.imc.DesiredZ;
-import pt.up.fe.dceg.neptus.imc.DesiredZ.Z_UNITS;
-import pt.up.fe.dceg.neptus.imc.Reference;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.DesiredSpeed;
+import pt.lsts.imc.DesiredSpeed.SPEED_UNITS;
+import pt.lsts.imc.DesiredZ;
+import pt.lsts.imc.DesiredZ.Z_UNITS;
+import pt.lsts.imc.Reference;
 
 /**
  * @author zp
@@ -71,7 +71,7 @@ public class ReferenceWaypoint {
         loc.setLatitudeRads(ref.getLat());
         loc.setLongitudeRads(ref.getLon());
         loc.setZ(ref.getZ().getValue());
-        loc.setZUnits(pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(ref.getZ().getZUnits().name()));        
+        loc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(ref.getZ().getZUnits().name()));        
     }
 
     public void setHorizontalLocation(LocationType newLoc) {
@@ -92,7 +92,7 @@ public class ReferenceWaypoint {
             reference.setZ(new DesiredZ((float)desiredZ.getValue(), desiredZ.getZUnits()));
             reference.setFlags((short)(reference.getFlags() | Reference.FLAG_Z));
             loc.setZ(desiredZ.getValue());
-            loc.setZUnits(pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(desiredZ.getZUnits().name()));
+            loc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(desiredZ.getZUnits().name()));
         }
     }
     

@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2005/03/10
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -68,26 +68,26 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.dom4j.Document;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.renderer3d.Object3DCreationHelper;
-import pt.up.fe.dceg.neptus.types.comm.CommMean;
-import pt.up.fe.dceg.neptus.types.comm.protocol.AdjustTimeShellArgs;
-import pt.up.fe.dceg.neptus.types.comm.protocol.FTPArgs;
-import pt.up.fe.dceg.neptus.types.comm.protocol.IMCArgs;
-import pt.up.fe.dceg.neptus.types.comm.protocol.ProtocolArgs;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.misc.FileType;
-import pt.up.fe.dceg.neptus.types.mission.VehicleMission;
-import pt.up.fe.dceg.neptus.types.vehicle.TemplateFileVehicle;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.JTreeUtils;
-import pt.up.fe.dceg.neptus.util.comm.CommUtil;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.editors.EditorLauncher;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.renderer3d.Object3DCreationHelper;
+import pt.lsts.neptus.types.comm.CommMean;
+import pt.lsts.neptus.types.comm.protocol.AdjustTimeShellArgs;
+import pt.lsts.neptus.types.comm.protocol.FTPArgs;
+import pt.lsts.neptus.types.comm.protocol.IMCArgs;
+import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.misc.FileType;
+import pt.lsts.neptus.types.mission.VehicleMission;
+import pt.lsts.neptus.types.vehicle.TemplateFileVehicle;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.JTreeUtils;
+import pt.lsts.neptus.util.comm.CommUtil;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.editors.EditorLauncher;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

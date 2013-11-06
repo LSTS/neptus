@@ -29,11 +29,11 @@
  * Author: Paulo Dias
  * 2010/01/16
  */
-package pt.up.fe.dceg.neptus.util.comm.transports.udp;
+package pt.lsts.neptus.util.comm.transports.udp;
 
 import java.net.InetSocketAddress;
 
-import pt.up.fe.dceg.neptus.util.comm.transports.Notification;
+import pt.lsts.neptus.util.comm.transports.Notification;
 
 /**
  * @author pdias

@@ -43,18 +43,18 @@ import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.ConsoleParse;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.plugins.planning.UavPiccoloControl.PiccoloControlConfiguration;
 import pt.up.fe.dceg.neptus.plugins.planning.UavPiccoloControl.WaypointColors;
-import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.ColorUtils;
-import pt.up.fe.dceg.neptus.util.ConsoleParse;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp

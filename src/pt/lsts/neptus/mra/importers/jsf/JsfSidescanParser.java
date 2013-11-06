@@ -29,14 +29,14 @@
  * Author: José Correia
  * Feb 7, 2013
  */
-package pt.up.fe.dceg.neptus.mra.importers.jsf;
+package pt.lsts.neptus.mra.importers.jsf;
 
 import java.io.File;
 import java.util.ArrayList;
 
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.mra.api.SidescanLine;
-import pt.up.fe.dceg.neptus.mra.api.SidescanParser;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.api.SidescanLine;
+import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
 
 /**

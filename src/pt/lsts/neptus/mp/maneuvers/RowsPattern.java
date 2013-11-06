@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 15/09/2011
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
@@ -41,18 +41,18 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
-import pt.up.fe.dceg.neptus.gui.editor.renderer.I18nCellRenderer;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
-import pt.up.fe.dceg.neptus.types.map.PlanElement;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
+import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.GuiUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

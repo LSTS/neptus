@@ -29,15 +29,15 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.graph;
+package pt.lsts.neptus.graph;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.ImageObserver;
 
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.ImageUtils;
 
 public class VehiclePainter implements GraphPainter {
 

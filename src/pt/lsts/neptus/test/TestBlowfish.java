@@ -29,13 +29,13 @@
  * Author: Paulo Dias
  * 2010/05/01
  */
-package pt.up.fe.dceg.neptus.test;
+package pt.lsts.neptus.test;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.ByteUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.ByteUtil;
 
 /**
  * @author pdias

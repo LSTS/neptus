@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2008/11/26
  */
-package pt.up.fe.dceg.neptus.util.comm.manager;
+package pt.lsts.neptus.util.comm.manager;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -63,19 +63,19 @@ import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.StatusLed;
-import pt.up.fe.dceg.neptus.gui.swing.JRoundButton;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.messages.IMessage;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
-import pt.up.fe.dceg.neptus.util.conf.PreferencesListener;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.StatusLed;
+import pt.lsts.neptus.gui.swing.JRoundButton;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.messages.IMessage;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.conf.PreferencesListener;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
 
 import com.l2fprod.common.swing.JOutlookBar;
 

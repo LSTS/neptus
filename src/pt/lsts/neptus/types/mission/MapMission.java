@@ -29,9 +29,9 @@
  * Author: Paulo Dias
  * 14/Jan/2005
  */
-package pt.up.fe.dceg.neptus.types.mission;
+package pt.lsts.neptus.types.mission;
 
-import pt.up.fe.dceg.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.MapType;
 
 /**
  * @author Paulo Dias

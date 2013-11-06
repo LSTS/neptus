@@ -29,7 +29,7 @@
  * Author: 
  * 27/Dez/2004
  */
-package pt.up.fe.dceg.neptus.renderer2d;
+package pt.lsts.neptus.renderer2d;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -56,25 +56,25 @@ import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.ToolbarButton;
-import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
-import pt.up.fe.dceg.neptus.renderer3d.Camera3D;
-import pt.up.fe.dceg.neptus.renderer3d.Obj3D;
-import pt.up.fe.dceg.neptus.renderer3d.Object3DCreationHelper;
-import pt.up.fe.dceg.neptus.renderer3d.Renderer3D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.DynamicElement;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
-import pt.up.fe.dceg.neptus.types.map.MapType;
-import pt.up.fe.dceg.neptus.types.map.PlanElement;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.ToolbarButton;
+import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.renderer3d.Camera3D;
+import pt.lsts.neptus.renderer3d.Obj3D;
+import pt.lsts.neptus.renderer3d.Object3DCreationHelper;
+import pt.lsts.neptus.renderer3d.Renderer3D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.DynamicElement;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * This class creates a component that will allow the user to preview the 

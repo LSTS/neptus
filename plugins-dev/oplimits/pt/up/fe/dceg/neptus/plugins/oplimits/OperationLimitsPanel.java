@@ -43,12 +43,12 @@ import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
-import pt.up.fe.dceg.neptus.types.map.ParallelepipedElement;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp

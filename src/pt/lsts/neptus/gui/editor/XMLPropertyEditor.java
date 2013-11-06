@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 5/10/2010
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -58,12 +58,12 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import pt.up.fe.dceg.neptus.fileeditor.SyntaxDocument;
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.fileeditor.SyntaxDocument;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.StreamUtil;
+import pt.lsts.neptus.util.XMLUtil;
 import pt.up.fe.dceg.neptus.plugins.containers.GroupLayoutContainer;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.StreamUtil;
-import pt.up.fe.dceg.neptus.util.XMLUtil;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 

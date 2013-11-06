@@ -29,7 +29,7 @@
  * Author: 
  * Mar 10, 2005
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
@@ -54,20 +54,20 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
-import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.AbstractElement;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
-import pt.up.fe.dceg.neptus.types.map.MapType;
-import pt.up.fe.dceg.neptus.types.mission.HomeReference;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.objparams.ParametersPanel;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.mission.HomeReference;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.GuiUtils;
 /**
  * @author zecarlos
  */

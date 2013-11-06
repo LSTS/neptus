@@ -29,7 +29,7 @@
  * Author: 
  * Mar 16, 2005
  */
-package pt.up.fe.dceg.neptus.renderer3d;
+package pt.lsts.neptus.renderer3d;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -95,36 +95,37 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.plugins.JVideoPanelConsole;
-import pt.up.fe.dceg.neptus.gui.Grid3D;
-import pt.up.fe.dceg.neptus.gui.Properties3D;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.mme.wms.FetcherWMS;
-import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
-import pt.up.fe.dceg.neptus.mp.MapChangeListener;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.AbstractElement;
-import pt.up.fe.dceg.neptus.types.map.DynamicElement;
-import pt.up.fe.dceg.neptus.types.map.EllipsoidElement;
-import pt.up.fe.dceg.neptus.types.map.HomeReferenceElement;
-import pt.up.fe.dceg.neptus.types.map.ImageElement;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
-import pt.up.fe.dceg.neptus.types.map.MapType;
-import pt.up.fe.dceg.neptus.types.map.ParallelepipedElement;
-import pt.up.fe.dceg.neptus.types.map.PathElement;
-import pt.up.fe.dceg.neptus.types.map.ScatterPointsElement;
-import pt.up.fe.dceg.neptus.types.map.VehicleTailElement;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
-import pt.up.fe.dceg.neptus.util.conf.PreferencesListener;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.plugins.JVideoPanelConsole;
+import pt.lsts.neptus.gui.Grid3D;
+import pt.lsts.neptus.gui.Properties3D;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.mme.wms.FetcherWMS;
+import pt.lsts.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.mp.MapChangeListener;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.renderer2d.Renderer;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.CylinderElement;
+import pt.lsts.neptus.types.map.DynamicElement;
+import pt.lsts.neptus.types.map.EllipsoidElement;
+import pt.lsts.neptus.types.map.HomeReferenceElement;
+import pt.lsts.neptus.types.map.ImageElement;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.types.map.PathElement;
+import pt.lsts.neptus.types.map.ScatterPointsElement;
+import pt.lsts.neptus.types.map.VehicleTailElement;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.conf.PreferencesListener;
 
 import com.sun.j3d.utils.geometry.Box;
 import com.sun.j3d.utils.geometry.Cylinder;
@@ -2884,7 +2885,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 				shape.setAppearance(appearance3);
 			}
-			if (key instanceof pt.up.fe.dceg.neptus.types.map.CylinderElement) {
+			if (key instanceof CylinderElement) {
 				TransformGroup model = obj.getModel3D();
 				Cylinder shape = foundCylinder(model);
 				// NeptusLog.pub().info("<###> "+shape);
@@ -2935,7 +2936,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 				shape.setAppearance(appearance3);
 			}
-			if (key instanceof pt.up.fe.dceg.neptus.types.map.CylinderElement) {
+			if (key instanceof CylinderElement) {
 				TransformGroup model = obj.getModel3D();
 				Cylinder shape = foundCylinder(model);
 				// NeptusLog.pub().info("<###> "+shape);
@@ -3005,7 +3006,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 					// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 					shape.setAppearance(appearance3);
 				}
-				if (key instanceof pt.up.fe.dceg.neptus.types.map.CylinderElement) {
+				if (key instanceof CylinderElement) {
 					TransformGroup model = obj.getModel3D();
 					Cylinder shape = foundCylinder(model);
 					// NeptusLog.pub().info("<###> "+shape);
@@ -3100,7 +3101,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 					// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 					shape.setAppearance(appearance3);
 				}
-				if (key instanceof pt.up.fe.dceg.neptus.types.map.CylinderElement) {
+				if (key instanceof CylinderElement) {
 					TransformGroup model = obj.getModel3D();
 					Cylinder shape = foundCylinder(model);
 					// NeptusLog.pub().info("<###> "+shape);
@@ -3172,7 +3173,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 					// NeptusLog.pub().info("<###> "+shape.getCapability(Shape3D.ALLOW_APPEARANCE_WRITE));
 					// shape.setAppearance(appearance3);
 				}
-				if (key instanceof pt.up.fe.dceg.neptus.types.map.CylinderElement) {
+				if (key instanceof CylinderElement) {
 					TransformGroup model = obj.getModel3D();
 					Cylinder shape = foundCylinder(model);
 					// NeptusLog.pub().info("<###> "+shape);

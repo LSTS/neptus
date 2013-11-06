@@ -29,12 +29,12 @@
  * Author: 
  * 25/Jun/2005
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
-import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
+import pt.lsts.neptus.gui.objparams.ParametersPanel;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertyEditorFactory;

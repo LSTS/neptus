@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.colormap;
+package pt.lsts.neptus.colormap;
 
 
 public class DataPoint {

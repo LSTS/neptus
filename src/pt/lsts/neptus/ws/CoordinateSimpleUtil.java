@@ -29,11 +29,11 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.ws;
+package pt.lsts.neptus.ws;
 
 import java.awt.geom.Point2D;
 
-import pt.up.fe.dceg.neptus.types.coord.UTMCoordinates;
+import pt.lsts.neptus.types.coord.UTMCoordinates;
 
 public class CoordinateSimpleUtil {
 

@@ -29,10 +29,10 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.planeditor;
+package pt.lsts.neptus.planeditor;
 
-import pt.up.fe.dceg.neptus.graph.DefaultEdge;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.graph.DefaultEdge;
+import pt.lsts.neptus.gui.PropertiesEditor;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

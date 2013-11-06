@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.graph;
+package pt.lsts.neptus.graph;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;

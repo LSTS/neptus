@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Component;
 import java.io.File;
@@ -38,11 +38,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.swing.NeptusFileView;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.swing.NeptusFileView;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 public class ConsoleFileChooser extends JFileChooser {
 

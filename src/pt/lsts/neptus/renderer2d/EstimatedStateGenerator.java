@@ -29,17 +29,17 @@
  * Author: José Pinto and pdias
  * 2007/05/30
  */
-package pt.up.fe.dceg.neptus.renderer2d;
+package pt.lsts.neptus.renderer2d;
 
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.renderer3d.Camera3D;
-import pt.up.fe.dceg.neptus.renderer3d.Renderer3D;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.renderer3d.Camera3D;
+import pt.lsts.neptus.renderer3d.Renderer3D;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zepinto

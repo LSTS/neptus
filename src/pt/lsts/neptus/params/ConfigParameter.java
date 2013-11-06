@@ -1,4 +1,4 @@
-package pt.up.fe.dceg.neptus.params;
+package pt.lsts.neptus.params;
 /*
  * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
@@ -32,8 +32,8 @@ package pt.up.fe.dceg.neptus.params;
  */
 
 
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.imc.Parameter;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.imc.Parameter;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 

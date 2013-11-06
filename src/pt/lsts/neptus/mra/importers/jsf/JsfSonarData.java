@@ -29,11 +29,11 @@
  * Author: José Correia
  * Feb 5, 2013
  */
-package pt.up.fe.dceg.neptus.mra.importers.jsf;
+package pt.lsts.neptus.mra.importers.jsf;
 
 import java.nio.ByteBuffer;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author jqcorreia

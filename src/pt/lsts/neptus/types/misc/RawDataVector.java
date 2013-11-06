@@ -1,11 +1,11 @@
 /*
  * Created in 12/Abr/2006
  */
-package pt.up.fe.dceg.neptus.types.misc;
+package pt.lsts.neptus.types.misc;
 
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.messages.RawData;
+import pt.lsts.neptus.messages.RawData;
 
 /**
  * @author Paulo Dias

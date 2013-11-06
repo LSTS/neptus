@@ -29,7 +29,7 @@
  * Author: 
  * 15/Jan/2005
  */
-package pt.up.fe.dceg.neptus.test;
+package pt.lsts.neptus.test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -38,19 +38,19 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystemsHolder;
-import pt.up.fe.dceg.neptus.types.map.MapType;
-import pt.up.fe.dceg.neptus.types.mission.MapMission;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.types.vehicle.TemplateFileVehicle;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.xsl.TransformDocument;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.coord.CoordinateSystemsHolder;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.mission.MapMission;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.TemplateFileVehicle;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.xsl.TransformDocument;
 
 /**
  * @author Paulo Dias

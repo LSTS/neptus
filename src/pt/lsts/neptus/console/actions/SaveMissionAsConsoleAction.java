@@ -29,7 +29,7 @@
  * Author: Hugo Dias
  * Oct 17, 2012
  */
-package pt.up.fe.dceg.neptus.console.actions;
+package pt.lsts.neptus.console.actions;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -40,12 +40,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.NameNormalizer;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.NameNormalizer;
 
 /**
  * @author Hugo

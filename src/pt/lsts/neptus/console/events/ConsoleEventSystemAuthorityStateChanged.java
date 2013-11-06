@@ -29,11 +29,11 @@
  * Author: José Pinto
  * Nov 22, 2012
  */
-package pt.up.fe.dceg.neptus.console.events;
+package pt.lsts.neptus.console.events;
 
-import pt.up.fe.dceg.neptus.console.plugins.SystemsList;
-import pt.up.fe.dceg.neptus.console.plugins.VehicleStateMonitor;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem.IMCAuthorityState;
+import pt.lsts.neptus.console.plugins.SystemsList;
+import pt.lsts.neptus.console.plugins.VehicleStateMonitor;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem.IMCAuthorityState;
 
 /**
  * This event is triggered whenever the authority over a vehicle changes

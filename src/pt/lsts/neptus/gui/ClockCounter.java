@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2009/04/30
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -46,8 +46,8 @@ import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author pdias

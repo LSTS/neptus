@@ -29,9 +29,9 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.ManeuverLocation;
 
 public interface LocatedManeuver {
 

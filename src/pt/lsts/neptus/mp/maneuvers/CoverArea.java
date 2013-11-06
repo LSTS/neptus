@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -48,22 +48,22 @@ import java.util.Vector;
 
 import javax.swing.JPopupMenu;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.PolygonVertex;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.renderer2d.InteractionAdapter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.PlanElement;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PolygonVertex;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.renderer2d.InteractionAdapter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.StateRendererInteraction;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanElement;
 
 /**
  * @author zp
  * 
  */
-public class CoverArea extends AbstractImcManeuver<pt.up.fe.dceg.neptus.imc.CoverArea> implements StateRendererInteraction, IMCSerialization {
+public class CoverArea extends AbstractImcManeuver<pt.lsts.imc.CoverArea> implements StateRendererInteraction, IMCSerialization {
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
 
@@ -73,7 +73,7 @@ public class CoverArea extends AbstractImcManeuver<pt.up.fe.dceg.neptus.imc.Cove
     protected Vector<LocationType> points = new Vector<LocationType>();
 
     public CoverArea() {
-        super(new pt.up.fe.dceg.neptus.imc.CoverArea());
+        super(new pt.lsts.imc.CoverArea());
     }
 
     @Override

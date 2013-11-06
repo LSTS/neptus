@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 15/10/2011
  */
-package pt.up.fe.dceg.neptus.plugins;
+package pt.lsts.neptus.plugins;
 
 import java.awt.Dialog.ModalityType;
 import java.lang.annotation.ElementType;
@@ -40,11 +40,11 @@ import java.util.Map;
 
 import javax.swing.JDialog;
 
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.renderer2d.WorldRenderPainter;
-import pt.up.fe.dceg.neptus.renderer2d.tiles.MapPainterProvider;
-import pt.up.fe.dceg.neptus.renderer2d.tiles.Tile;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.WorldRenderPainter;
+import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
+import pt.lsts.neptus.renderer2d.tiles.Tile;
 
 /**
  * This annotation will flag the {@link WorldRenderPainter} that is a map 

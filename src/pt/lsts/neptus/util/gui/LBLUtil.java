@@ -29,12 +29,12 @@
  * Author: Margarida Faria
  * Feb 19, 2013
  */
-package pt.up.fe.dceg.neptus.util.gui;
+package pt.lsts.neptus.util.gui;
 
 import java.util.Date;
 
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author Margarida Faria

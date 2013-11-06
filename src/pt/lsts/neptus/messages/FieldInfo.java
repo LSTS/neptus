@@ -6,7 +6,7 @@
 //  http://whale.fe.up.pt
 // ---------------------------------------------------------------------------- 
 
-package pt.up.fe.dceg.neptus.messages;
+package pt.lsts.neptus.messages;
 
 /**
  * Class to encode meta-information for a message field.

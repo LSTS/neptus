@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2009/06/02
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.awt.Color;
 import java.awt.LayoutManager;
@@ -38,7 +38,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JToolBar;
 import javax.swing.border.BevelBorder;
 
-import pt.up.fe.dceg.neptus.gui.ToolbarButton;
+import pt.lsts.neptus.gui.ToolbarButton;
 
 /**
  * @author zp

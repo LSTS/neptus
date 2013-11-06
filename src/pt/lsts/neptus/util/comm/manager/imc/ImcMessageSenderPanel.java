@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2008/04/13
  */
-package pt.up.fe.dceg.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.util.comm.manager.imc;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -63,18 +63,18 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.LocationCopyPastePanel;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.ByteUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.LocationCopyPastePanel;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ByteUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
 
 /**
  * @author pdias

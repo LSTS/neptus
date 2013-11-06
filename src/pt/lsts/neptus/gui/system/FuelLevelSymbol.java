@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 17 de Nov de 2012
  */
-package pt.up.fe.dceg.neptus.gui.system;
+package pt.lsts.neptus.gui.system;
 
 import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
@@ -42,8 +42,8 @@ import java.awt.geom.RoundRectangle2D;
 
 import org.jdesktop.swingx.JXPanel;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author pdias

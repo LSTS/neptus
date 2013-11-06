@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2008/04/13
  */
-package pt.up.fe.dceg.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.util.comm.manager.imc;
 
 import java.awt.Window;
 import java.util.Vector;
@@ -37,14 +37,14 @@ import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.plugins.PluginProperty;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.plugins.PluginProperty;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.comm.IMCUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Aug 27, 2011
  */
-package pt.up.fe.dceg.neptus.mra;
+package pt.lsts.neptus.mra;
 
 /**
  * @author zp

@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 18 de Nov de 2011
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -43,19 +43,19 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.PlanElement;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanElement;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -273,7 +273,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
     public IMCMessage serializeToIMC() {
         getManeuverLocation().convertToAbsoluteLatLonDepth();
 
-        pt.up.fe.dceg.neptus.imc.Elevator elevator = new pt.up.fe.dceg.neptus.imc.Elevator();
+        pt.lsts.imc.Elevator elevator = new pt.lsts.imc.Elevator();
 
         elevator.setTimeout(getMaxTime());
         elevator.setLat(getManeuverLocation().getLatitudeAsDoubleValueRads());
@@ -288,18 +288,18 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
         
         switch (getSpeedUnits()) {
             case "m/s":
-                elevator.setSpeedUnits(pt.up.fe.dceg.neptus.imc.Elevator.SPEED_UNITS.METERS_PS);
+                elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.METERS_PS);
                 break;
             case "RPM":
-                elevator.setSpeedUnits(pt.up.fe.dceg.neptus.imc.Elevator.SPEED_UNITS.RPM);
+                elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.RPM);
                 break;
             default:
-                elevator.setSpeedUnits(pt.up.fe.dceg.neptus.imc.Elevator.SPEED_UNITS.PERCENTAGE);
+                elevator.setSpeedUnits(pt.lsts.imc.Elevator.SPEED_UNITS.PERCENTAGE);
                 break;
         }
 
         if (isStartFromCurrentPosition())
-            elevator.setFlags(pt.up.fe.dceg.neptus.imc.Elevator.FLG_CURR_POS);
+            elevator.setFlags(pt.lsts.imc.Elevator.FLG_CURR_POS);
         else
             elevator.setFlags((short)0);
 
@@ -309,9 +309,9 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
     public void parseIMCMessage(IMCMessage message) {
         if (!DEFAULT_ROOT_ELEMENT.equalsIgnoreCase(message.getAbbrev()))
             return;
-        pt.up.fe.dceg.neptus.imc.Elevator elev = null;
+        pt.lsts.imc.Elevator elev = null;
         try {
-             elev = pt.up.fe.dceg.neptus.imc.Elevator.clone(message);
+             elev = pt.lsts.imc.Elevator.clone(message);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -331,7 +331,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
         startZUnits = ManeuverLocation.Z_UNITS.valueOf(message.getString("start_z_units").toString());
         setRadius((float)elev.getRadius());
         setSpeed(elev.getSpeed());
-        setStartFromCurrentPosition((elev.getFlags() & pt.up.fe.dceg.neptus.imc.Elevator.FLG_CURR_POS) != 0);
+        setStartFromCurrentPosition((elev.getFlags() & pt.lsts.imc.Elevator.FLG_CURR_POS) != 0);
         setCustomSettings(elev.getCustom());
         
         switch (elev.getSpeedUnits()) {

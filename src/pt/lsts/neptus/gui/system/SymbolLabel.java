@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/05/28
  */
-package pt.up.fe.dceg.neptus.gui.system;
+package pt.lsts.neptus.gui.system;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -50,9 +50,9 @@ import javax.swing.BorderFactory;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.painter.Painter;
 
-import pt.up.fe.dceg.neptus.gui.system.SystemDisplay.BlinkingStateEnum;
-import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.gui.system.SystemDisplay.BlinkingStateEnum;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author pdias

@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 200?/??/??
  */
-package pt.up.fe.dceg.neptus.mra;
+package pt.lsts.neptus.mra;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -62,21 +62,21 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.colormap.ColorBar;
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.colormap.ColorMapUtils;
-import pt.up.fe.dceg.neptus.colormap.DataDiscretizer;
-import pt.up.fe.dceg.neptus.colormap.DataDiscretizer.DataPoint;
-import pt.up.fe.dceg.neptus.gui.ColorMapListRenderer;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorBar;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.ColorMapUtils;
+import pt.lsts.neptus.colormap.DataDiscretizer;
+import pt.lsts.neptus.colormap.DataDiscretizer.DataPoint;
+import pt.lsts.neptus.gui.ColorMapListRenderer;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.imc.IMCMessage;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.PageSize;

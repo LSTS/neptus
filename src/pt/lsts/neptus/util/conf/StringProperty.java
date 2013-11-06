@@ -29,12 +29,12 @@
  * Author: José Pinto
  * Feb 25, 2010
  */
-package pt.up.fe.dceg.neptus.util.conf;
+package pt.lsts.neptus.util.conf;
 
 import java.beans.PropertyEditor;
 
-import pt.up.fe.dceg.neptus.gui.editor.LongStringPropertyEditor;
-import pt.up.fe.dceg.neptus.plugins.PropertyType;
+import pt.lsts.neptus.gui.editor.LongStringPropertyEditor;
+import pt.lsts.neptus.plugins.PropertyType;
 
 /**
  * @author zp

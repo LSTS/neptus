@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,8 +39,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * Classe que permite consultar as <i>properties </i>. <br>

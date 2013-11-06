@@ -29,14 +29,14 @@
  * Author: José Correia
  * Jan 28, 2013
  */
-package pt.up.fe.dceg.neptus.params;
+package pt.lsts.neptus.params;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.params.editor.custom.CustomSystemPropertyEditor;
-import pt.up.fe.dceg.neptus.params.renderer.SystemPropertyRenderer;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.params.editor.custom.CustomSystemPropertyEditor;
+import pt.lsts.neptus.params.renderer.SystemPropertyRenderer;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.propertysheet.DefaultProperty;

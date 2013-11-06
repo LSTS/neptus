@@ -29,17 +29,17 @@
  * Author: Hugo Dias
  * Nov 12, 2012
  */
-package pt.up.fe.dceg.neptus.console.notifications;
+package pt.lsts.neptus.console.notifications;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventNewNotification;
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged;
-import pt.up.fe.dceg.neptus.events.NeptusEventHiddenMenus;
-import pt.up.fe.dceg.neptus.events.NeptusEvents;
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.events.ConsoleEventNewNotification;
+import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
+import pt.lsts.neptus.events.NeptusEventHiddenMenus;
+import pt.lsts.neptus.events.NeptusEvents;
+import pt.lsts.neptus.i18n.I18n;
 
 import com.google.common.eventbus.Subscribe;
 

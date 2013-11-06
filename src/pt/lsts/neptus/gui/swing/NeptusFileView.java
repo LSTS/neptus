@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2008/05/17
  */
-package pt.up.fe.dceg.neptus.gui.swing;
+package pt.lsts.neptus.gui.swing;
 
 import java.awt.Image;
 import java.io.File;
@@ -42,10 +42,10 @@ import javax.swing.UIManager;
 import javax.swing.filechooser.FileView;
 import javax.swing.plaf.FileChooserUI;
 
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author pdias

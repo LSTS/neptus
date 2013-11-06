@@ -40,9 +40,12 @@ import java.util.Vector;
 import org.apache.http.HttpHost;
 import org.apache.http.conn.routing.HttpRoute;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.plugins.MapTileProvider;
-import pt.up.fe.dceg.neptus.util.coord.MapTileUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.plugins.MapTileProvider;
+import pt.lsts.neptus.renderer2d.tiles.Tile;
+import pt.lsts.neptus.renderer2d.tiles.TileHttpFetcher;
+import pt.lsts.neptus.util.coord.MapTileUtil;
+
 
 /**
  * @author pdias

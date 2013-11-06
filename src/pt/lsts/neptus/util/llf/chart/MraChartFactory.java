@@ -29,26 +29,26 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.util.llf.chart;
+package pt.lsts.neptus.util.llf.chart;
 
 import java.io.File;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.plots.CtdPlot;
-import pt.up.fe.dceg.neptus.mra.plots.EstimatedStatePlot;
-import pt.up.fe.dceg.neptus.mra.plots.EulerAnglesPlot;
-import pt.up.fe.dceg.neptus.mra.plots.LblRangesPlot;
-import pt.up.fe.dceg.neptus.mra.plots.SalinityVsDepthPlot;
-import pt.up.fe.dceg.neptus.mra.plots.ScriptedPlot;
-import pt.up.fe.dceg.neptus.mra.plots.StatisticsPlot;
-import pt.up.fe.dceg.neptus.mra.plots.TemperatureVsDepthPlot;
-import pt.up.fe.dceg.neptus.mra.plots.TidePlot;
-import pt.up.fe.dceg.neptus.mra.plots.VehicleGanttPlot;
-import pt.up.fe.dceg.neptus.mra.plots.XYPlot;
-import pt.up.fe.dceg.neptus.mra.plots.ZPlot;
-import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.plots.CtdPlot;
+import pt.lsts.neptus.mra.plots.EstimatedStatePlot;
+import pt.lsts.neptus.mra.plots.EulerAnglesPlot;
+import pt.lsts.neptus.mra.plots.LblRangesPlot;
+import pt.lsts.neptus.mra.plots.SalinityVsDepthPlot;
+import pt.lsts.neptus.mra.plots.ScriptedPlot;
+import pt.lsts.neptus.mra.plots.StatisticsPlot;
+import pt.lsts.neptus.mra.plots.TemperatureVsDepthPlot;
+import pt.lsts.neptus.mra.plots.TidePlot;
+import pt.lsts.neptus.mra.plots.VehicleGanttPlot;
+import pt.lsts.neptus.mra.plots.XYPlot;
+import pt.lsts.neptus.mra.plots.ZPlot;
+import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.up.fe.dceg.neptus.plugins.actualstate.ActualPosition;
 
 /**

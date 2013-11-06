@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/05/01
  */
-package pt.up.fe.dceg.neptus.util.comm.transports.tcp;
+package pt.lsts.neptus.util.comm.transports.tcp;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -54,14 +54,14 @@ import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
-import pt.up.fe.dceg.neptus.util.ByteUtil;
-import pt.up.fe.dceg.neptus.util.comm.transports.DeliveryListener;
-import pt.up.fe.dceg.neptus.util.comm.transports.DeliveryListener.ResultEnum;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.ByteUtil;
+import pt.lsts.neptus.util.comm.transports.DeliveryListener;
+import pt.lsts.neptus.util.comm.transports.DeliveryListener.ResultEnum;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
 import vrml.eai.ConnectionException;
 
 /**

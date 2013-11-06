@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,14 +43,14 @@ import java.util.List;
 import java.util.Vector;
 import java.util.jar.JarFile;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.plugins.SubPanelProvider;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.templates.AbstractPlanTemplate;
-import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.MapTileProvider;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.renderer2d.tiles.Tile;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.plugins.SubPanelProvider;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.templates.AbstractPlanTemplate;
+import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.plugins.MapTileProvider;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.renderer2d.tiles.Tile;
 
 public class ReflectionUtil {
 

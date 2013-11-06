@@ -29,7 +29,7 @@
  * Author: Paulo Dias, Ze Pinto
  * 2005/03/05
  */
-package pt.up.fe.dceg.neptus.types.coord;
+package pt.lsts.neptus.types.coord;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -42,14 +42,14 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
-import pt.up.fe.dceg.neptus.util.AngleCalc;
-import pt.up.fe.dceg.neptus.util.Dom4JUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.NameNormalizer;
-import pt.up.fe.dceg.neptus.util.coord.MapTileUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.XmlOutputMethods;
+import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.Dom4JUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.NameNormalizer;
+import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
  * The base for the definition of this coordinate system

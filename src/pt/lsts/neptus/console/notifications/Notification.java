@@ -29,11 +29,11 @@
  * Author: guga
  * 10 de Nov de 2012
  */
-package pt.up.fe.dceg.neptus.console.notifications;
+package pt.lsts.neptus.console.notifications;
 
 import java.text.SimpleDateFormat;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.i18n.I18n;
 
 /**
  * @author Hugo Dias

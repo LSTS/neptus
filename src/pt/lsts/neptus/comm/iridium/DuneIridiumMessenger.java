@@ -29,24 +29,24 @@
  * Author: zp
  * Jun 28, 2013
  */
-package pt.up.fe.dceg.neptus.comm.iridium;
+package pt.lsts.neptus.comm.iridium;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IridiumMsgRx;
-import pt.up.fe.dceg.neptus.imc.IridiumMsgTx;
-import pt.up.fe.dceg.neptus.imc.IridiumTxStatus;
-import pt.up.fe.dceg.neptus.messages.TypedMessageFilter;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IridiumMsgRx;
+import pt.lsts.imc.IridiumMsgTx;
+import pt.lsts.imc.IridiumTxStatus;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.messages.TypedMessageFilter;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp

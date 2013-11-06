@@ -32,7 +32,7 @@
  * ====================================================================
  */
 
-package pt.up.fe.dceg.neptus.gui.tablelayout;
+package pt.lsts.neptus.gui.tablelayout;
 
 
 

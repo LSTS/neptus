@@ -29,11 +29,11 @@
  * Author: Paulo Dias
  * 2009/09/13
  */
-package pt.up.fe.dceg.neptus.util.logdownload;
+package pt.lsts.neptus.util.logdownload;
 
 import org.apache.commons.net.ftp.FTPFile;
 
-import pt.up.fe.dceg.neptus.util.logdownload.LogFolderInfo.State;
+import pt.lsts.neptus.util.logdownload.LogFolderInfo.State;
 
 /**
  * @author pdias

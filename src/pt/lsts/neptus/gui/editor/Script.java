@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -46,8 +46,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import pt.up.fe.dceg.neptus.fileeditor.SyntaxDocument;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.fileeditor.SyntaxDocument;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * 

@@ -29,10 +29,10 @@
  * Author: Hugo Dias
  * Nov 21, 2012
  */
-package pt.up.fe.dceg.neptus.console.events;
+package pt.lsts.neptus.console.events;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * Console Event for changes to the active plan <br>

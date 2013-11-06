@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.ws;
+package pt.lsts.neptus.ws;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

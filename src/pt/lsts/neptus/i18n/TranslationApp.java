@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Sep 5, 2012
  */
-package pt.up.fe.dceg.neptus.i18n;
+package pt.lsts.neptus.i18n;
 
 import javax.swing.JPanel;
 

@@ -39,7 +39,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
  * @author Hugo Dias

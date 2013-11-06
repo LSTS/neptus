@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.ws;
+package pt.lsts.neptus.ws;
 
 import java.util.StringTokenizer;
 
@@ -38,7 +38,7 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.w3c.dom.NodeList;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 public class Location {
 

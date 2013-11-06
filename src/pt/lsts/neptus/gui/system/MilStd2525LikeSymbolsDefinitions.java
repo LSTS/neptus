@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 3 de Fev de 2012
  */
-package pt.up.fe.dceg.neptus.gui.system;
+package pt.lsts.neptus.gui.system;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -50,8 +50,8 @@ import java.awt.geom.RoundRectangle2D;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import pt.up.fe.dceg.neptus.util.ColorUtils;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * MIL-STD-2525C (17 November 2008) superseding MIL-STD-2525B w/change 27 March 2007.

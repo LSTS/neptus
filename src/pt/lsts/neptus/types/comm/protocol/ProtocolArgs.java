@@ -29,13 +29,13 @@
  * Author: 
  * 19/Jun/2005
  */
-package pt.up.fe.dceg.neptus.types.comm.protocol;
+package pt.lsts.neptus.types.comm.protocol;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
 
-import pt.up.fe.dceg.neptus.types.XmlInputMethods;
-import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
+import pt.lsts.neptus.types.XmlInputMethods;
+import pt.lsts.neptus.types.XmlOutputMethods;
 
 /**
  * @author Paulo Dias

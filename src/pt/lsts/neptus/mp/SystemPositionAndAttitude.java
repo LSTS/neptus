@@ -29,10 +29,10 @@
  * Author: 
  * 14/Set/2004
  */
-package pt.up.fe.dceg.neptus.mp;
+package pt.lsts.neptus.mp;
 
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.EstimatedState;
 
 /**
  * @author Ze Carlos This class represents a vehicle state in a single moment

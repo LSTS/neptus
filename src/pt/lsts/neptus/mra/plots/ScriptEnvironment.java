@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Nov 29, 2012
  */
-package pt.up.fe.dceg.neptus.mra.plots;
+package pt.lsts.neptus.mra.plots;
 
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;

@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2008/09/20
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 
 /**

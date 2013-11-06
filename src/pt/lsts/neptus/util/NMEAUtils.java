@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,13 +40,13 @@ import java.util.List;
 
 import org.dinopolis.gpstool.gpsinput.nmea.NMEA0183Sentence;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IMCMessageType;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
-import pt.up.fe.dceg.neptus.util.llf.NeptusMessageLogger;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.util.llf.NeptusMessageLogger;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCMessageType;
 
 /**
  * @author ZP

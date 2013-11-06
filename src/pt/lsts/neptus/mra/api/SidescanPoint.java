@@ -29,9 +29,9 @@
  * Author: José Correia
  * Oct 26, 2012
  */
-package pt.up.fe.dceg.neptus.mra.api;
+package pt.lsts.neptus.mra.api;
 
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author jqcorreia

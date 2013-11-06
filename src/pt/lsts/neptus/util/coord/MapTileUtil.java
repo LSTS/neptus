@@ -29,12 +29,12 @@
  * Author: Paulo Dias
  * 30 de Set de 2011
  */
-package pt.up.fe.dceg.neptus.util.coord;
+package pt.lsts.neptus.util.coord;
 
 import java.awt.geom.Point2D;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * See http://msdn.microsoft.com/en-us/library/bb259689.aspx

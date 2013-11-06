@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 import java.awt.Color;
 import java.awt.event.FocusAdapter;
@@ -43,11 +43,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.SelectAllFocusListener;
-import pt.up.fe.dceg.neptus.gui.tablelayout.TableLayout;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.SelectAllFocusListener;
+import pt.lsts.neptus.gui.tablelayout.TableLayout;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 

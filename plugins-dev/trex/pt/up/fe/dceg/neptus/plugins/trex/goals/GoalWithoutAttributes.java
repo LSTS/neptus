@@ -34,7 +34,7 @@ package pt.up.fe.dceg.neptus.plugins.trex.goals;
 import java.util.Collection;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.imc.TrexAttribute;
+import pt.lsts.imc.TrexAttribute;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

@@ -29,9 +29,9 @@
  * Author: Hugo Dias
  * Nov 21, 2012
  */
-package pt.up.fe.dceg.neptus.console.events;
+package pt.lsts.neptus.console.events;
 
-import pt.up.fe.dceg.neptus.console.notifications.Notification;
+import pt.lsts.neptus.console.notifications.Notification;
 
 /**
  * @author Hugo

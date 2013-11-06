@@ -29,20 +29,20 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.mp;
+package pt.lsts.neptus.mp;
 
 import java.awt.Color;
 import java.util.LinkedHashMap;
 
 import javax.swing.ImageIcon;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.mp.maneuvers.DefaultManeuver;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
-import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.maneuvers.DefaultManeuver;
+import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * This class returns maneuver instances of various types. It is used to load the maneuver implementations relative to

@@ -29,7 +29,7 @@
  * Author: jqcorreia
  * Apr 2, 2013
  */
-package pt.up.fe.dceg.neptus.mra.importers.deltat;
+package pt.lsts.neptus.mra.importers.deltat;
 
 import java.nio.ByteBuffer;
 import java.util.Calendar;

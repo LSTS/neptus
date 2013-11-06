@@ -29,7 +29,7 @@
  * Author: jqcorreia
  * May 10, 2013
  */
-package pt.up.fe.dceg.neptus.mra.plots;
+package pt.lsts.neptus.mra.plots;
 
 import java.util.LinkedHashMap;
 
@@ -41,11 +41,11 @@ import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
-import pt.up.fe.dceg.neptus.util.llf.LogUtils;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
  * @author jqcorreia

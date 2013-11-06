@@ -29,7 +29,7 @@
  * Author: Hugo Dias
  * Oct 16, 2012
  */
-package pt.up.fe.dceg.neptus.console.actions;
+package pt.lsts.neptus.console.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -37,8 +37,8 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.KeyStroke;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.i18n.I18n;
 
 /**
  * @author Hugo

@@ -29,10 +29,10 @@
  * Author: José Pinto
  * Dec 14, 2012
  */
-package pt.up.fe.dceg.neptus.params;
+package pt.lsts.neptus.params;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
 
 /**
  * @author zp

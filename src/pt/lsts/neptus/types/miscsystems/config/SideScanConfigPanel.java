@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/06/29
  */
-package pt.up.fe.dceg.neptus.types.miscsystems.config;
+package pt.lsts.neptus.types.miscsystems.config;
 
 import java.awt.Frame;
 import java.awt.Window;
@@ -44,8 +44,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author pdias

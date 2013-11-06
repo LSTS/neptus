@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.graph;
+package pt.lsts.neptus.graph;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -58,12 +58,12 @@ import javax.swing.event.UndoableEditListener;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEditSupport;
 
-import pt.up.fe.dceg.neptus.graph.edit.AddEdgeEdit;
-import pt.up.fe.dceg.neptus.graph.edit.AddNodeEdit;
-import pt.up.fe.dceg.neptus.graph.edit.MoveSelectionEdit;
-import pt.up.fe.dceg.neptus.graph.edit.RemoveSelectionEdit;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.graph.edit.AddEdgeEdit;
+import pt.lsts.neptus.graph.edit.AddNodeEdit;
+import pt.lsts.neptus.graph.edit.MoveSelectionEdit;
+import pt.lsts.neptus.graph.edit.RemoveSelectionEdit;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp

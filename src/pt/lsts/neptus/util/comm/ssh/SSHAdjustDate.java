@@ -29,9 +29,9 @@
  * Author: 
  * 26/Out/2005
  */
-package pt.up.fe.dceg.neptus.util.comm.ssh;
+package pt.lsts.neptus.util.comm.ssh;
 
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 
 /**

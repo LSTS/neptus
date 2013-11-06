@@ -29,7 +29,7 @@
  * Author: 
  * 24/Fev/2005
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.awt.AWTException;
 import java.awt.AlphaComposite;
@@ -102,9 +102,9 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.filechooser.FileFilter;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.ErrorMessageBox;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.ErrorMessageBox;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.jgoodies.looks.LookUtils;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;

@@ -29,13 +29,13 @@
  * Author: José Pinto
  * 2009/10/20
  */
-package pt.up.fe.dceg.neptus.mra.importers;
+package pt.lsts.neptus.mra.importers;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IMCMessageType;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCMessageType;
 
 /**
  * This interface represents a Log File full of data that was generated / received as messages

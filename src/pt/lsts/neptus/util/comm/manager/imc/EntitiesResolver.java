@@ -29,11 +29,11 @@
  * Author: José Pinto
  * 2009/10/22
  */
-package pt.up.fe.dceg.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.util.comm.manager.imc;
 
 import java.util.LinkedHashMap;
 
-import pt.up.fe.dceg.neptus.imc.EntityList;
+import pt.lsts.imc.EntityList;
 
 /**
  * @author zp

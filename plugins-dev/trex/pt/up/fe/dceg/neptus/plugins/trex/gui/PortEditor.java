@@ -35,7 +35,7 @@ import java.text.DecimalFormat;
 
 import javax.swing.JTextField;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.swing.LookAndFeelTweaks;

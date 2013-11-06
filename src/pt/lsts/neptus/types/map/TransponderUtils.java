@@ -29,11 +29,11 @@
  * Author: Paulo Dias
  * 26 de Jan de 2013
  */
-package pt.up.fe.dceg.neptus.types.map;
+package pt.lsts.neptus.types.map;
 
-import pt.up.fe.dceg.neptus.imc.LblBeacon;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.PropertiesLoader;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.PropertiesLoader;
+import pt.lsts.imc.LblBeacon;
 
 /**
  * @author pdias

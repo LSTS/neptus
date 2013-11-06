@@ -29,14 +29,14 @@
  * Author: pdias
  * May 21, 2013
  */
-package pt.up.fe.dceg.neptus.params.editor.custom;
+package pt.lsts.neptus.params.editor.custom;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import pt.up.fe.dceg.neptus.params.SystemProperty;
+import pt.lsts.neptus.params.SystemProperty;
 
 /**
  * @author pdias

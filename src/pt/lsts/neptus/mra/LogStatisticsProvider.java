@@ -29,11 +29,11 @@
  * Author: José Pinto
  * Aug 27, 2011
  */
-package pt.up.fe.dceg.neptus.mra;
+package pt.lsts.neptus.mra;
 
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 
 /**
  * @author zp

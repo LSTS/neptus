@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2005/01/17 (came from VIDOP Project)
  */
-package pt.up.fe.dceg.neptus.util.conf;
+package pt.lsts.neptus.util.conf;
 
 import java.awt.Component;
 import java.awt.Frame;
@@ -72,16 +72,16 @@ import org.dom4j.Node;
 import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.NameNormalizer;
-import pt.up.fe.dceg.neptus.util.ReflectionUtil;
-import pt.up.fe.dceg.neptus.util.StreamUtil;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
-import pt.up.fe.dceg.neptus.util.output.OutputMonitor;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.NameNormalizer;
+import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.util.StreamUtil;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.util.output.OutputMonitor;
 
 /**
  * @author Paulo Dias <pdias@fe.up.pt>

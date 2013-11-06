@@ -29,7 +29,7 @@
  * Author: José Correia
  * Feb 8, 2013
  */
-package pt.up.fe.dceg.neptus.mra.importers.jsf;
+package pt.lsts.neptus.mra.importers.jsf;
 
 import java.io.Serializable;
 import java.util.ArrayList;

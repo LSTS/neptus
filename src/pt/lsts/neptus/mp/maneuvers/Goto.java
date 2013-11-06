@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2004/09/21
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 import java.text.NumberFormat;
 import java.util.LinkedHashMap;
@@ -40,18 +40,18 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.GotoParameters;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
-import pt.up.fe.dceg.neptus.gui.editor.renderer.I18nCellRenderer;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.NameNormalizer;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.GotoParameters;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
+import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.NameNormalizer;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -347,7 +347,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     @Override
     public void parseIMCMessage(IMCMessage message) {
         try {
-            pt.up.fe.dceg.neptus.imc.Goto msg = pt.up.fe.dceg.neptus.imc.Goto.clone(message);
+            pt.lsts.imc.Goto msg = pt.lsts.imc.Goto.clone(message);
             
             setMaxTime(msg.getTimeout());
             setSpeed(msg.getSpeed());
@@ -381,7 +381,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     }
     
 	public IMCMessage serializeToIMC() {
-		pt.up.fe.dceg.neptus.imc.Goto gotoManeuver = new pt.up.fe.dceg.neptus.imc.Goto();
+		pt.lsts.imc.Goto gotoManeuver = new pt.lsts.imc.Goto();
 		gotoManeuver.setTimeout(this.getMaxTime());
 		
 		double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
@@ -394,16 +394,16 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
        
 		switch (this.getUnits()) {
             case "m/s":
-                gotoManeuver.setSpeedUnits(pt.up.fe.dceg.neptus.imc.Goto.SPEED_UNITS.METERS_PS);
+                gotoManeuver.setSpeedUnits(pt.lsts.imc.Goto.SPEED_UNITS.METERS_PS);
                 break;
             case "RPM":
-                gotoManeuver.setSpeedUnits(pt.up.fe.dceg.neptus.imc.Goto.SPEED_UNITS.RPM);
+                gotoManeuver.setSpeedUnits(pt.lsts.imc.Goto.SPEED_UNITS.RPM);
                 break;
             case "%":
-                gotoManeuver.setSpeedUnits(pt.up.fe.dceg.neptus.imc.Goto.SPEED_UNITS.PERCENTAGE);
+                gotoManeuver.setSpeedUnits(pt.lsts.imc.Goto.SPEED_UNITS.PERCENTAGE);
                 break;
             default:
-                gotoManeuver.setSpeedUnits(pt.up.fe.dceg.neptus.imc.Goto.SPEED_UNITS.RPM);
+                gotoManeuver.setSpeedUnits(pt.lsts.imc.Goto.SPEED_UNITS.RPM);
                 break;
         }
 		

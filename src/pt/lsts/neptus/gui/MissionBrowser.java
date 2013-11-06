@@ -9,7 +9,7 @@
  * Author: José Pinto, Margarida Faria
  * 22/03/2005, 19/03/2013
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.BorderLayout;
 import java.awt.datatransfer.DataFlavor;
@@ -47,36 +47,36 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.plugins.PlanChangeListener;
-import pt.up.fe.dceg.neptus.gui.tree.ExtendedTreeNode;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.LblBeacon;
-import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.plugins.PlanChangeListener;
+import pt.lsts.neptus.gui.tree.ExtendedTreeNode;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.types.Identifiable;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.HomeReferenceElement;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.types.map.TransponderElement;
+import pt.lsts.neptus.types.map.TransponderUtils;
+import pt.lsts.neptus.types.misc.LBLRangesTimer;
+import pt.lsts.neptus.types.mission.HomeReference;
+import pt.lsts.neptus.types.mission.MapMission;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.ByteUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.comm.HTTPUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.imc.LblBeacon;
 import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBInfo;
 import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBState;
-import pt.up.fe.dceg.neptus.types.Identifiable;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.AbstractElement;
-import pt.up.fe.dceg.neptus.types.map.HomeReferenceElement;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
-import pt.up.fe.dceg.neptus.types.map.MapType;
-import pt.up.fe.dceg.neptus.types.map.MarkElement;
-import pt.up.fe.dceg.neptus.types.map.TransponderElement;
-import pt.up.fe.dceg.neptus.types.map.TransponderUtils;
-import pt.up.fe.dceg.neptus.types.misc.LBLRangesTimer;
-import pt.up.fe.dceg.neptus.types.mission.HomeReference;
-import pt.up.fe.dceg.neptus.types.mission.MapMission;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.ByteUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.comm.HTTPUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 /**
  * This is a visual class that displays the various items contained in a mission like maps, vehicles and plans...

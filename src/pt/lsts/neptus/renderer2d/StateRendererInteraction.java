@@ -29,7 +29,7 @@
  * Author: José Pinto
  * May 11, 2010
  */
-package pt.up.fe.dceg.neptus.renderer2d;
+package pt.lsts.neptus.renderer2d;
 
 import java.awt.Cursor;
 import java.awt.Image;
@@ -37,7 +37,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 
-import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.gui.ToolbarSwitch;
 
 /**
  * @author zp

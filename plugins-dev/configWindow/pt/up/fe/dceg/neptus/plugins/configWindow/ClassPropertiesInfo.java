@@ -33,9 +33,9 @@ package pt.up.fe.dceg.neptus.plugins.configWindow;
 
 import javax.swing.ImageIcon;
 
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.util.ImageUtils;
 
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
 

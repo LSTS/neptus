@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2005/10/09
  */
-package pt.up.fe.dceg.neptus.types.miscsystems;
+package pt.lsts.neptus.types.miscsystems;
 
 import javax.media.j3d.TransformGroup;
 
@@ -39,13 +39,13 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.XmlInputMethods;
-import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
-import pt.up.fe.dceg.neptus.types.miscsystems.config.OptionsConfiguration;
-import pt.up.fe.dceg.neptus.util.Dom4JUtil;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.XmlInputMethods;
+import pt.lsts.neptus.types.XmlOutputMethods;
+import pt.lsts.neptus.types.miscsystems.config.OptionsConfiguration;
+import pt.lsts.neptus.util.Dom4JUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.mnstarfire.loaders3d.Inspector3DS;
 

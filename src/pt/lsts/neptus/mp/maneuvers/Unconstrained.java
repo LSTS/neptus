@@ -29,7 +29,7 @@
  * Author: 
  * May 11, 2005
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -38,11 +38,11 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.Teleoperation;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.Teleoperation;
+import pt.lsts.neptus.gui.objparams.ParametersPanel;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 
 
 /**

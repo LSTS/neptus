@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.messages;
+package pt.lsts.neptus.messages;
 
 public interface IMessage extends Cloneable {
 

@@ -1,4 +1,4 @@
- package pt.up.fe.dceg.neptus.serial;
+ package pt.lsts.neptus.serial;
 
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
@@ -19,8 +19,8 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.GuiUtils;
 
 @SuppressWarnings("serial")
 public class PortSelector extends JDialog {

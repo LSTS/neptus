@@ -29,7 +29,7 @@
  * Author: 
  * 8/Fev/2005
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -43,8 +43,8 @@ import javax.swing.ImageIcon;
 
 import org.jdesktop.swingx.JXButton;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * A WindowsXP style button (the margins only appear when the mouse is over it) Also has a convenient contructor that

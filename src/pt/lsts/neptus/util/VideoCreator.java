@@ -1,4 +1,4 @@
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

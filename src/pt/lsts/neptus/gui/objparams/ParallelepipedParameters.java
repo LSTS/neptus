@@ -29,7 +29,7 @@
  * Author: 
  * 9/Fev/2005
  */
-package pt.up.fe.dceg.neptus.gui.objparams;
+package pt.lsts.neptus.gui.objparams;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -48,15 +48,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import pt.up.fe.dceg.neptus.gui.LocationPanel;
-import pt.up.fe.dceg.neptus.gui.SelectAllFocusListener;
-import pt.up.fe.dceg.neptus.gui.TextureComboChooser;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.ParallelepipedElement;
-import pt.up.fe.dceg.neptus.types.texture.TextureType;
-import pt.up.fe.dceg.neptus.types.texture.TexturesHolder;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.gui.LocationPanel;
+import pt.lsts.neptus.gui.SelectAllFocusListener;
+import pt.lsts.neptus.gui.TextureComboChooser;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.types.texture.TextureType;
+import pt.lsts.neptus.types.texture.TexturesHolder;
+import pt.lsts.neptus.util.GuiUtils;
 /**
  * @author Ze Carlos
  */

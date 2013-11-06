@@ -29,7 +29,7 @@
  * Author: Hugo
  * 14 de Mai de 2013
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -58,17 +58,17 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.ContainerSubPanel;
-import pt.up.fe.dceg.neptus.console.SubPanel;
-import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
-import pt.up.fe.dceg.neptus.plugins.Popup;
-import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ContainerSubPanel;
+import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.PluginsRepository;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
 
 import com.l2fprod.common.swing.StatusBar;
 import com.sun.java.swing.plaf.windows.WindowsButtonUI;

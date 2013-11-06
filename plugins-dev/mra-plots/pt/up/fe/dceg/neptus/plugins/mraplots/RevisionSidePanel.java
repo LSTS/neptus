@@ -52,18 +52,18 @@ import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndexListener;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.replay.BathymetryReplay;
-import pt.up.fe.dceg.neptus.mra.replay.EstimatedStateReplay;
-import pt.up.fe.dceg.neptus.mra.replay.GPSFixReplay;
-import pt.up.fe.dceg.neptus.mra.replay.LBLRangesReplay;
-import pt.up.fe.dceg.neptus.mra.replay.LogMarkersReplay;
-import pt.up.fe.dceg.neptus.mra.replay.LogReplayLayer;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.llf.LsfLogSource;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.replay.BathymetryReplay;
+import pt.lsts.neptus.mra.replay.EstimatedStateReplay;
+import pt.lsts.neptus.mra.replay.GPSFixReplay;
+import pt.lsts.neptus.mra.replay.LBLRangesReplay;
+import pt.lsts.neptus.mra.replay.LogMarkersReplay;
+import pt.lsts.neptus.mra.replay.LogReplayLayer;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.llf.LsfLogSource;
+import pt.lsts.imc.lsf.LsfIndexListener;
 
 /**
  * @author zp

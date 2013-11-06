@@ -29,7 +29,7 @@
  * Author: Hugo Dias
  * Oct 12, 2012
  */
-package pt.up.fe.dceg.neptus.events;
+package pt.lsts.neptus.events;
 
 /**
  * @author Hugo

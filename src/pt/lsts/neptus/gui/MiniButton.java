@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Insets;
@@ -41,7 +41,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 public class MiniButton extends JPanel {
 

@@ -37,7 +37,7 @@ import java.util.Vector;
 
 import javax.swing.JFileChooser;
 
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author noptilus

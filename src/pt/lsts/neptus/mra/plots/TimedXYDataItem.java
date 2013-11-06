@@ -29,7 +29,7 @@
  * Author: José Correia
  * Dec 3, 2012
  */
-package pt.up.fe.dceg.neptus.mra.plots;
+package pt.lsts.neptus.mra.plots;
 
 import org.jfree.data.xy.XYDataItem;
 

@@ -29,13 +29,13 @@
  * Author: José Pinto
  * 2009/09/04
  */
-package pt.up.fe.dceg.neptus.mra.visualizations;
+package pt.lsts.neptus.mra.visualizations;
 
 import java.awt.Component;
 
 import javax.swing.ImageIcon;
 
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 
 /**
  * @author zp

@@ -29,7 +29,7 @@
  * Author: rasm
  * Apr 1, 2013
  */
-package pt.up.fe.dceg.neptus.params;
+package pt.lsts.neptus.params;
 
 /**
  * @author rasm

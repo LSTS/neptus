@@ -29,22 +29,22 @@
  * Author: Paulo Dias
  * 17/04/2011
  */
-package pt.up.fe.dceg.neptus.util.comm.manager;
+package pt.lsts.neptus.util.comm.manager;
 
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.messages.IMessage;
-import pt.up.fe.dceg.neptus.messages.MessageFilter;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
-import pt.up.fe.dceg.neptus.util.conf.PreferencesListener;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.messages.IMessage;
+import pt.lsts.neptus.messages.MessageFilter;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.conf.PreferencesListener;
 
 /**
  * This is an helper implementation for the {@link CommBaseManager} and {@link SystemCommBaseInfo}. Don't use it

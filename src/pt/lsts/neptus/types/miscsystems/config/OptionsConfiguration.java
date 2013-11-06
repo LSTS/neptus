@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/06/25
  */
-package pt.up.fe.dceg.neptus.types.miscsystems.config;
+package pt.lsts.neptus.types.miscsystems.config;
 
 import java.awt.Window;
 
@@ -37,10 +37,10 @@ import javax.swing.SwingUtilities;
 
 import org.dom4j.Element;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.MessageEditorImc;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.util.comm.manager.imc.MessageEditorImc;
+import pt.lsts.imc.IMCMessage;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

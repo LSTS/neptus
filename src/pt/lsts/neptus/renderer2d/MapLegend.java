@@ -29,7 +29,7 @@
  * Author: 
  * Apr 29, 2005
  */
-package pt.up.fe.dceg.neptus.renderer2d;
+package pt.lsts.neptus.renderer2d;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -40,7 +40,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zecarlos

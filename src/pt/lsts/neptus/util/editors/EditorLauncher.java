@@ -29,7 +29,7 @@
  * Author: 
  * 5/Mar/2005
  */
-package pt.up.fe.dceg.neptus.util.editors;
+package pt.lsts.neptus.util.editors;
 
 import java.awt.BorderLayout;
 import java.awt.Toolkit;
@@ -42,9 +42,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.loader.FileHandler;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.loader.FileHandler;
+import pt.lsts.neptus.util.GuiUtils;
 /**
  * @author Paulo Dias
  *

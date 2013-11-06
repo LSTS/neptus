@@ -29,14 +29,14 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMap;
 
 public class DataColorizer extends JPanel {
 

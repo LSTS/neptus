@@ -29,13 +29,13 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui.properties;
+package pt.lsts.neptus.gui.properties;
 
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.types.coord.LocationType;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

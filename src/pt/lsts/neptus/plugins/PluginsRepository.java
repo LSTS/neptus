@@ -29,18 +29,18 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.plugins;
+package pt.lsts.neptus.plugins;
 
 import java.util.LinkedHashMap;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.SubPanel;
-import pt.up.fe.dceg.neptus.console.plugins.SubPanelProvider;
-import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
-import pt.up.fe.dceg.neptus.renderer2d.tiles.MapPainterProvider;
-import pt.up.fe.dceg.neptus.renderer2d.tiles.Tile;
-import pt.up.fe.dceg.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.plugins.SubPanelProvider;
+import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
+import pt.lsts.neptus.renderer2d.tiles.Tile;
+import pt.lsts.neptus.util.ReflectionUtil;
 
 public class PluginsRepository {
 

@@ -36,8 +36,8 @@ import java.util.GregorianCalendar;
 import java.util.Random;
 
 import junit.framework.TestCase;
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 
 /**
  * @author Paulo Dias

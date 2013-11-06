@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Aug 8, 2012
  */
-package pt.up.fe.dceg.neptus.i18n;
+package pt.lsts.neptus.i18n;
 
 import java.awt.Color;
 import java.io.File;
@@ -46,8 +46,8 @@ import javax.swing.plaf.ColorUIResource;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 
 /**

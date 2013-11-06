@@ -29,17 +29,17 @@
  * Author: zp
  * Jun 28, 2013
  */
-package pt.up.fe.dceg.neptus.comm.iridium;
+package pt.lsts.neptus.comm.iridium;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCInputStream;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
-import pt.up.fe.dceg.neptus.imc.RemoteSensorInfo;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCInputStream;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.RemoteSensorInfo;
 
 /**
  * @author zp

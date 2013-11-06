@@ -29,9 +29,9 @@
  * Author: zp
  * Oct 6, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.controllers;
+package pt.lsts.neptus.plugins.controllers;
 
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 
 /**
  * This class is used to hold information about an existing control loop

@@ -29,15 +29,15 @@
  * Author: Hugo Dias
  * Oct 29, 2012
  */
-package pt.up.fe.dceg.neptus.systems;
+package pt.lsts.neptus.systems;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import pt.up.fe.dceg.neptus.systems.SystemsManager.SystemClass;
-import pt.up.fe.dceg.neptus.systems.SystemsManager.SystemLinkType;
-import pt.up.fe.dceg.neptus.systems.links.SystemLink;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.systems.SystemsManager.SystemClass;
+import pt.lsts.neptus.systems.SystemsManager.SystemLinkType;
+import pt.lsts.neptus.systems.links.SystemLink;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author Hugo

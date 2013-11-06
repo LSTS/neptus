@@ -31,7 +31,7 @@
  *
  */
 
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,7 +47,7 @@ import org.apache.tools.ant.taskdefs.ExpandStriped;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipOutputStream;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author Paulo Dias

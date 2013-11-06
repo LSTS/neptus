@@ -29,17 +29,17 @@
  * Author: zp
  * Aug 7, 2013
  */
-package pt.up.fe.dceg.neptus.mp.preview.payloads;
+package pt.lsts.neptus.mp.preview.payloads;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.imc.EntityParameter;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.SetEntityParameters;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.SetEntityParameters;
 
 /**
  * @author zp

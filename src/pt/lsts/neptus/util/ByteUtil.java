@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2008/04/13
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -39,7 +39,7 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author pdias

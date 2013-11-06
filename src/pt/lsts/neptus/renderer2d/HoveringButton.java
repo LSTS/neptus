@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 18 de Dez de 2011
  */
-package pt.up.fe.dceg.neptus.renderer2d;
+package pt.lsts.neptus.renderer2d;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -38,7 +38,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.Rectangle2D;
 
-import pt.up.fe.dceg.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.ColorUtils;
 
 /**
  * Hovering button to be used on a {@link StateRenderer2D}. 

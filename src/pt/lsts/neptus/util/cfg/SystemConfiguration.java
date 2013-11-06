@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Dec 14, 2012
  */
-package pt.up.fe.dceg.neptus.util.cfg;
+package pt.lsts.neptus.util.cfg;
 
 import java.io.File;
 import java.util.Collection;
@@ -42,12 +42,12 @@ import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 import org.ini4j.Wini;
 
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.imc.IMCUtil;
-import pt.up.fe.dceg.neptus.imc.Parameter;
-import pt.up.fe.dceg.neptus.imc.ParameterControl;
-import pt.up.fe.dceg.neptus.util.cfg.ConfigParameter.TYPE;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.util.cfg.ConfigParameter.TYPE;
+import pt.lsts.imc.IMCUtil;
+import pt.lsts.imc.Parameter;
+import pt.lsts.imc.ParameterControl;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

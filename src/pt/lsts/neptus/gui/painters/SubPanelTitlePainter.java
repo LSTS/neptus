@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 6/3/2011
  */
-package pt.up.fe.dceg.neptus.gui.painters;
+package pt.lsts.neptus.gui.painters;
 
 import java.awt.Color;
 import java.awt.Font;

@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 12/10/2011
  */
-package pt.up.fe.dceg.neptus.renderer2d.tiles;
+package pt.lsts.neptus.renderer2d.tiles;
 
 import java.awt.image.BufferedImage;
 import java.util.Collections;
@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.plugins.MapTileProvider;
+import pt.lsts.neptus.plugins.MapTileProvider;
 
 /**
  * @author pdias

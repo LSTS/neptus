@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/07/14
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -42,18 +42,18 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
-import pt.up.fe.dceg.neptus.gui.editor.renderer.I18nCellRenderer;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.PlanElement;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
+import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanElement;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -316,7 +316,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
     	pos.setZ(message.getDouble("z"));
     	String zunits = message.getString("z_units");
     	if (zunits != null)
-    	    pos.setZUnits(pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(zunits));
+    	    pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(zunits));
     	setManeuverLocation(pos);
     	
     	String speed_units = message.getString("speed_units");
@@ -334,7 +334,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 	
 	@Override
 	public IMCMessage serializeToIMC() {
-	    pt.up.fe.dceg.neptus.imc.StationKeeping message = new pt.up.fe.dceg.neptus.imc.StationKeeping();
+	    pt.lsts.imc.StationKeeping message = new pt.lsts.imc.StationKeeping();
 		double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
 		message.setLat(Math.toRadians(latLonDepth[0]));
 		message.setLon(Math.toRadians(latLonDepth[1]));
@@ -346,13 +346,13 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
         
 		try {
             if ("m/s".equalsIgnoreCase(speedU))
-                message.setSpeedUnits(pt.up.fe.dceg.neptus.imc.StationKeeping.SPEED_UNITS.METERS_PS);
+                message.setSpeedUnits(pt.lsts.imc.StationKeeping.SPEED_UNITS.METERS_PS);
             else if ("RPM".equalsIgnoreCase(speedU))
-                message.setSpeedUnits(pt.up.fe.dceg.neptus.imc.StationKeeping.SPEED_UNITS.RPM);
+                message.setSpeedUnits(pt.lsts.imc.StationKeeping.SPEED_UNITS.RPM);
             else if ("%".equalsIgnoreCase(speedU))
-                message.setSpeedUnits(pt.up.fe.dceg.neptus.imc.StationKeeping.SPEED_UNITS.PERCENTAGE);
+                message.setSpeedUnits(pt.lsts.imc.StationKeeping.SPEED_UNITS.PERCENTAGE);
             else if ("percentage".equalsIgnoreCase(speedU))
-                message.setSpeedUnits(pt.up.fe.dceg.neptus.imc.StationKeeping.SPEED_UNITS.PERCENTAGE);
+                message.setSpeedUnits(pt.lsts.imc.StationKeeping.SPEED_UNITS.PERCENTAGE);
         }
         catch (Exception ex) {
             NeptusLog.pub().error(this, ex);                        

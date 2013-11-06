@@ -29,7 +29,7 @@
  * Author: 
  * 24/Jun/2005
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 import java.awt.BorderLayout;
 import java.awt.event.FocusAdapter;
@@ -40,7 +40,7 @@ import java.util.Locale;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.swing.LookAndFeelTweaks;

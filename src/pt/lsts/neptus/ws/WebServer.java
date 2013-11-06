@@ -29,16 +29,16 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.ws;
+package pt.lsts.neptus.ws;
 
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.logdb.SQLiteSerialization;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.logdb.SQLiteSerialization;
+import pt.lsts.imc.IMCDefinition;
 
 public class WebServer {
 	

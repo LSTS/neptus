@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Dec 5, 2012
  */
-package pt.up.fe.dceg.neptus.mra.replay;
+package pt.lsts.neptus.mra.replay;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -41,12 +41,12 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mra.LogMarker;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author zp

@@ -33,12 +33,12 @@ package pt.up.fe.dceg.neptus.plugins.trex;
 
 import java.util.LinkedHashSet;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfGenericIterator;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.plots.MraGanttPlot;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.plots.MraGanttPlot;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfGenericIterator;
+import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp

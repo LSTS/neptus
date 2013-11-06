@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Aug 23, 2012
  */
-package pt.up.fe.dceg.neptus.util.llf;
+package pt.lsts.neptus.util.llf;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,9 +38,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
-import pt.up.fe.dceg.neptus.util.FileUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
 
 /**
  * @author zp

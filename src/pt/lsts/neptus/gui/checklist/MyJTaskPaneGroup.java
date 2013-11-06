@@ -8,7 +8,7 @@
  * Author: Paulo Dias
  * Created in 4/Out/2005
  */
-package pt.up.fe.dceg.neptus.gui.checklist;
+package pt.lsts.neptus.gui.checklist;
 
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;

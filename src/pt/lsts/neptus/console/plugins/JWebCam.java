@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -78,7 +78,7 @@ import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 //import com.sun.image.codec.jpeg.JPEGCodec;
 //import com.sun.image.codec.jpeg.JPEGEncodeParam;

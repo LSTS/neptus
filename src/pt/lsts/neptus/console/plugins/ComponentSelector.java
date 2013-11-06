@@ -29,7 +29,7 @@
  * Author: José Correia
  * Oct 3, 2012
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.awt.Component;
 import java.awt.event.ItemEvent;
@@ -46,12 +46,12 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.console.MainPanel;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.console.MainPanel;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.PluginsRepository;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.ReflectionUtil;
 
 /**
  * @author jqcorreia

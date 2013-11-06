@@ -29,7 +29,7 @@
  * Author: zp
  * Aug 21, 2013
  */
-package pt.up.fe.dceg.neptus.mra.replay;
+package pt.lsts.neptus.mra.replay;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -37,10 +37,10 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedHashMap;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author zp

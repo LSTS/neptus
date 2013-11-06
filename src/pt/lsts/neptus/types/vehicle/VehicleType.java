@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2005/01/14
  */
-package pt.up.fe.dceg.neptus.types.vehicle;
+package pt.lsts.neptus.types.vehicle;
 
 import java.awt.Color;
 import java.awt.Image;
@@ -51,27 +51,27 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.ManeuverFactory;
-import pt.up.fe.dceg.neptus.types.XmlInputMethods;
-import pt.up.fe.dceg.neptus.types.XmlInputMethodsFromFile;
-import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
-import pt.up.fe.dceg.neptus.types.comm.CommMean;
-import pt.up.fe.dceg.neptus.types.comm.protocol.AdjustTimeShellArgs;
-import pt.up.fe.dceg.neptus.types.comm.protocol.FTPArgs;
-import pt.up.fe.dceg.neptus.types.comm.protocol.IMCArgs;
-import pt.up.fe.dceg.neptus.types.comm.protocol.ProtocolArgs;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.misc.FileType;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.Dom4JUtil;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.XMLValidator;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverFactory;
+import pt.lsts.neptus.types.XmlInputMethods;
+import pt.lsts.neptus.types.XmlInputMethodsFromFile;
+import pt.lsts.neptus.types.XmlOutputMethods;
+import pt.lsts.neptus.types.comm.CommMean;
+import pt.lsts.neptus.types.comm.protocol.AdjustTimeShellArgs;
+import pt.lsts.neptus.types.comm.protocol.FTPArgs;
+import pt.lsts.neptus.types.comm.protocol.IMCArgs;
+import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.misc.FileType;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.Dom4JUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.XMLValidator;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author Paulo Dias

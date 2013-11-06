@@ -29,19 +29,19 @@
  * Author: Paulo Dias
  * 2007/05/19
  */
-package pt.up.fe.dceg.neptus.util.comm.manager;
+package pt.lsts.neptus.util.comm.manager;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.messages.IMessage;
-import pt.up.fe.dceg.neptus.messages.MessageFilter;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.messages.IMessage;
+import pt.lsts.neptus.messages.MessageFilter;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * Every Comm. Manager should be a singleton. So it MUST be a method called getManager() which SOULD BE public and

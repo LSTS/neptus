@@ -29,7 +29,7 @@
  * Author: 
  * 24/Jun/2005
  */
-package pt.up.fe.dceg.neptus.mp;
+package pt.lsts.neptus.mp;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -39,10 +39,10 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import pt.up.fe.dceg.neptus.gui.SimpleLocationPanel;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.gui.SimpleLocationPanel;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.types.coord.LocationType;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.beans.editor.FixedButton;

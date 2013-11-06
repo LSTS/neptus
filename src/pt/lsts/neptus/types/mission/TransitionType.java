@@ -29,14 +29,14 @@
  * Author: 
  * Mar 23, 2005
  */
-package pt.up.fe.dceg.neptus.types.mission;
+package pt.lsts.neptus.types.mission;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
-import pt.up.fe.dceg.neptus.util.NameNormalizer;
+import pt.lsts.neptus.types.XmlOutputMethods;
+import pt.lsts.neptus.util.NameNormalizer;
 
 /**
  * This class holds information about a transition (in a plan graph)

@@ -10,7 +10,7 @@
  * Author: José Pinto
  * 2007/09/25
  */
-package pt.up.fe.dceg.neptus.mra;
+package pt.lsts.neptus.mra;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -41,36 +41,36 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXStatusBar;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.InfiniteProgressPanel;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfGenericIterator;
-import pt.up.fe.dceg.neptus.mra.exporters.CSVExporter;
-import pt.up.fe.dceg.neptus.mra.exporters.ImcTo837;
-import pt.up.fe.dceg.neptus.mra.exporters.KMLExporter;
-import pt.up.fe.dceg.neptus.mra.exporters.MatExporter;
-import pt.up.fe.dceg.neptus.mra.exporters.MraExporter;
-import pt.up.fe.dceg.neptus.mra.exporters.PCDExporter;
-import pt.up.fe.dceg.neptus.mra.exporters.XtfExporter;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
-import pt.up.fe.dceg.neptus.mra.replay.LogReplay;
-import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.exporters.CSVExporter;
+import pt.lsts.neptus.mra.exporters.ImcTo837;
+import pt.lsts.neptus.mra.exporters.KMLExporter;
+import pt.lsts.neptus.mra.exporters.MatExporter;
+import pt.lsts.neptus.mra.exporters.MraExporter;
+import pt.lsts.neptus.mra.exporters.PCDExporter;
+import pt.lsts.neptus.mra.exporters.XtfExporter;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.plots.LogMarkerListener;
+import pt.lsts.neptus.mra.replay.LogReplay;
+import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.PluginsRepository;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.llf.LogTree;
+import pt.lsts.neptus.util.llf.LogUtils;
+import pt.lsts.neptus.util.llf.LsfTree;
+import pt.lsts.neptus.util.llf.LsfTreeMouseAdapter;
+import pt.lsts.neptus.util.llf.chart.MraChartFactory;
+import pt.lsts.neptus.util.llf.replay.LLFMsgReplay;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.up.fe.dceg.neptus.plugins.noptilus.NoptilusMapExporter;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.llf.LogTree;
-import pt.up.fe.dceg.neptus.util.llf.LogUtils;
-import pt.up.fe.dceg.neptus.util.llf.LsfTree;
-import pt.up.fe.dceg.neptus.util.llf.LsfTreeMouseAdapter;
-import pt.up.fe.dceg.neptus.util.llf.chart.MraChartFactory;
-import pt.up.fe.dceg.neptus.util.llf.replay.LLFMsgReplay;
 
 /**
  * @author ZP

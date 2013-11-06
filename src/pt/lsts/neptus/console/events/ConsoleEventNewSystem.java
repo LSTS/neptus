@@ -29,9 +29,9 @@
  * Author: Hugo Dias
  * Nov 26, 2012
  */
-package pt.up.fe.dceg.neptus.console.events;
+package pt.lsts.neptus.console.events;
 
-import pt.up.fe.dceg.neptus.console.ConsoleSystem;
+import pt.lsts.neptus.console.ConsoleSystem;
 
 /**
  * @author Hugo

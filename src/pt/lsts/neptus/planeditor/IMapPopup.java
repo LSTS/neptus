@@ -29,11 +29,11 @@
  * Author: José Pinto
  * 2010/04/25
  */
-package pt.up.fe.dceg.neptus.planeditor;
+package pt.lsts.neptus.planeditor;
 
 import java.util.Collection;
 
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 
 /**
  * @author ZP

@@ -29,14 +29,14 @@
  * Author: José Pinto
  * Jun 4, 2010
  */
-package pt.up.fe.dceg.neptus.util.lsf.gz;
+package pt.lsts.neptus.util.lsf.gz;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * An input stream which reads sequentially from multiple sources.

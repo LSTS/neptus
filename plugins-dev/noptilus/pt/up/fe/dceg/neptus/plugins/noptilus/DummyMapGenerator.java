@@ -43,10 +43,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.vecmath.Point3d;
 
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.colormap.ColorMapUtils;
-import pt.up.fe.dceg.neptus.colormap.DataDiscretizer;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.ColorMapUtils;
+import pt.lsts.neptus.colormap.DataDiscretizer;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp

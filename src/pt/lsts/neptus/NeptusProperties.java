@@ -29,7 +29,7 @@
  * Author: Hugo Dias
  * Oct 22, 2012
  */
-package pt.up.fe.dceg.neptus;
+package pt.lsts.neptus;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

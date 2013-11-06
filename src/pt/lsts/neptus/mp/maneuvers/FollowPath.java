@@ -29,16 +29,16 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 import java.util.LinkedHashMap;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.mission.GraphType;
-import pt.up.fe.dceg.neptus.util.FileUtil;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.GraphType;
+import pt.lsts.neptus.util.FileUtil;
 
 
 /**

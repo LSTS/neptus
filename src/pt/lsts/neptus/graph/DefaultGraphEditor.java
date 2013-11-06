@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.graph;
+package pt.lsts.neptus.graph;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -43,9 +43,9 @@ import javax.swing.JToolBar;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 
-import pt.up.fe.dceg.neptus.gui.PropertiesTable;
-import pt.up.fe.dceg.neptus.gui.tablelayout.TableLayout;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.gui.PropertiesTable;
+import pt.lsts.neptus.gui.tablelayout.TableLayout;
+import pt.lsts.neptus.util.GuiUtils;
 /**
  * @author zp
  */

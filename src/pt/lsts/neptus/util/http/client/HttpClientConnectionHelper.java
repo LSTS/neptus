@@ -29,7 +29,7 @@
  * Author: pdias
  * Jun 22, 2013
  */
-package pt.up.fe.dceg.neptus.util.http.client;
+package pt.lsts.neptus.util.http.client;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -43,7 +43,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
-import pt.up.fe.dceg.neptus.comm.proxy.ProxyInfoProvider;
+import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 
 /**
  * This helper class encapsulates the use of Apache's HttpComponents.

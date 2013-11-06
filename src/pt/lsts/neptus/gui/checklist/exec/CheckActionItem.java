@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui.checklist.exec;
+package pt.lsts.neptus.gui.checklist.exec;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -41,9 +41,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
-import pt.up.fe.dceg.neptus.gui.checklist.CheckItemPanel;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoUserActionItem;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.gui.checklist.CheckItemPanel;
+import pt.lsts.neptus.types.checklist.CheckAutoUserActionItem;
+import pt.lsts.neptus.util.ImageUtils;
 
 
 public class CheckActionItem extends CheckSubItemExe 

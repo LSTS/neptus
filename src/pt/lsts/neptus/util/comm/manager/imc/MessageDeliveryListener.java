@@ -29,9 +29,9 @@
  * Author: José Pinto
  * 2009/10/23
  */
-package pt.up.fe.dceg.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.util.comm.manager.imc;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * This interface is used by clients that wish to send messages reliably.

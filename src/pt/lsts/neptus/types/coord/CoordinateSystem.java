@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2005/01/15
  */
-package pt.up.fe.dceg.neptus.types.coord;
+package pt.lsts.neptus.types.coord;
 
 import java.util.StringTokenizer;
 
@@ -39,8 +39,8 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * The base for the definition of this coordinate system

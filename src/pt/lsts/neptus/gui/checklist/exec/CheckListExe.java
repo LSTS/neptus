@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui.checklist.exec;
+package pt.lsts.neptus.gui.checklist.exec;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -60,25 +60,25 @@ import javax.swing.JTextPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.ChronometerPanel;
-import pt.up.fe.dceg.neptus.gui.checklist.CheckItemPanel;
-import pt.up.fe.dceg.neptus.gui.checklist.GeneratorChecklistPDF;
-import pt.up.fe.dceg.neptus.gui.checklist.UserActionItem;
-import pt.up.fe.dceg.neptus.gui.checklist.UserCommentItem;
-import pt.up.fe.dceg.neptus.gui.checklist.VariableIntervalItem;
-import pt.up.fe.dceg.neptus.gui.swing.JRoundButton;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoSubItem;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoUserActionItem;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoUserLogItem;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoVarIntervalItem;
-import pt.up.fe.dceg.neptus.types.checklist.CheckItem;
-import pt.up.fe.dceg.neptus.types.checklist.ChecklistType;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.ChronometerPanel;
+import pt.lsts.neptus.gui.checklist.CheckItemPanel;
+import pt.lsts.neptus.gui.checklist.GeneratorChecklistPDF;
+import pt.lsts.neptus.gui.checklist.UserActionItem;
+import pt.lsts.neptus.gui.checklist.UserCommentItem;
+import pt.lsts.neptus.gui.checklist.VariableIntervalItem;
+import pt.lsts.neptus.gui.swing.JRoundButton;
+import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
+import pt.lsts.neptus.types.checklist.CheckAutoUserActionItem;
+import pt.lsts.neptus.types.checklist.CheckAutoUserLogItem;
+import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
+import pt.lsts.neptus.types.checklist.CheckItem;
+import pt.lsts.neptus.types.checklist.ChecklistType;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 public class CheckListExe extends JDialog implements CheckSubItemProvider {
 

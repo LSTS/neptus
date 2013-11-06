@@ -29,9 +29,9 @@
  * Author: jqcorreia
  * Apr 2, 2013
  */
-package pt.up.fe.dceg.neptus.mra.api;
+package pt.lsts.neptus.mra.api;
 
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 
 /**
  * @author jqcorreia

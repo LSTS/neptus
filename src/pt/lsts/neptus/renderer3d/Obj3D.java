@@ -29,7 +29,7 @@
  * Author: 
  * 18/Mar/2002
  */
-package pt.up.fe.dceg.neptus.renderer3d;
+package pt.lsts.neptus.renderer3d;
 
 import java.awt.Color;
 import java.util.Vector;

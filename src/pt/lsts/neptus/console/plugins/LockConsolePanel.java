@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2009/03/25
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -38,11 +38,11 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.SubPanel;
-import pt.up.fe.dceg.neptus.gui.MiniButton;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.gui.MiniButton;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author pdias

@@ -29,13 +29,13 @@
  * Author: zp
  * Aug 7, 2013
  */
-package pt.up.fe.dceg.neptus.mp.preview.payloads;
+package pt.lsts.neptus.mp.preview.payloads;
 
 import java.awt.Color;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 
 /**
  * @author zp

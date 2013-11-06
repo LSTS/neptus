@@ -37,11 +37,11 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import junit.framework.TestCase;
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 public class CommunicationsTest extends TestCase {
 

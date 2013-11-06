@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.mp;
+package pt.lsts.neptus.mp;
 
 public interface MissionChangeListener {
 

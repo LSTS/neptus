@@ -43,11 +43,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mortbay.jetty.security.Credential.MD5;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.StreamUtil;
-import pt.up.fe.dceg.neptus.util.ZipUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.StreamUtil;
+import pt.lsts.neptus.util.ZipUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author ZP

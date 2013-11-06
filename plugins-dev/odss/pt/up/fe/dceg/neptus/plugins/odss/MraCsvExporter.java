@@ -37,18 +37,18 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 
-import pt.up.fe.dceg.neptus.imc.Conductivity;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.Salinity;
-import pt.up.fe.dceg.neptus.imc.Temperature;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.importers.ImcLogUtils;
-import pt.up.fe.dceg.neptus.mra.visualizations.SimpleMRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.ImcLogUtils;
+import pt.lsts.neptus.mra.visualizations.SimpleMRAVisualization;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.comm.IMCUtils;
+import pt.lsts.imc.Conductivity;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.Salinity;
+import pt.lsts.imc.Temperature;
+import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp

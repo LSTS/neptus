@@ -29,7 +29,7 @@
  * Author: 
  * 9/Abr/2006
  */
-package pt.up.fe.dceg.neptus.util.comm.ssh;
+package pt.lsts.neptus.util.comm.ssh;
 
 import java.awt.BorderLayout;
 import java.awt.Window;
@@ -40,10 +40,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.SubPanel;
-import pt.up.fe.dceg.neptus.gui.ShellPanel;
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.gui.ShellPanel;
+import pt.lsts.neptus.i18n.I18n;
 
 /**
  * @author Paulo Dias

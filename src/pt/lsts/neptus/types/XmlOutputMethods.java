@@ -29,7 +29,7 @@
  * Author: 
  * 19/Fev/2005
  */
-package pt.up.fe.dceg.neptus.types;
+package pt.lsts.neptus.types;
 
 import org.dom4j.Document;
 import org.dom4j.Element;

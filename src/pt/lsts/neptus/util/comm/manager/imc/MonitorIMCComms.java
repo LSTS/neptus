@@ -30,7 +30,7 @@
  * Created in 2006/12/08
  * Reworked in 2008/12/01
  */
-package pt.up.fe.dceg.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.util.comm.manager.imc;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -63,34 +63,34 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.plugins.SystemsList;
-import pt.up.fe.dceg.neptus.gui.editor.ImcId16Editor;
-import pt.up.fe.dceg.neptus.gui.swing.JRoundButton;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.gui.ImcStatePanel;
-import pt.up.fe.dceg.neptus.imc.state.ImcSysState;
-import pt.up.fe.dceg.neptus.messages.MessageFilter;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
-import pt.up.fe.dceg.neptus.mystate.MyState;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.plugins.SystemsList;
+import pt.lsts.neptus.gui.editor.ImcId16Editor;
+import pt.lsts.neptus.gui.swing.JRoundButton;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.messages.MessageFilter;
+import pt.lsts.neptus.mystate.MyState;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.ByteUtil;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.StringUtils;
+import pt.lsts.neptus.util.comm.manager.BaseAbstractCommsMonitorPanel;
+import pt.lsts.neptus.util.comm.manager.MessageFrequencyCalculator;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.gui.ImcStatePanel;
+import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBInfo;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.ByteUtil;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.StringUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.BaseAbstractCommsMonitorPanel;
-import pt.up.fe.dceg.neptus.util.comm.manager.MessageFrequencyCalculator;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author Paulo Dias

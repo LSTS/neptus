@@ -29,16 +29,16 @@
  * Author: Paulo Dias
  * 16 de Mai de 2012
  */
-package pt.up.fe.dceg.neptus.util.lbl;
+package pt.lsts.neptus.util.lbl;
 
 import java.util.LinkedList;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.TransponderElement;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.TransponderElement;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author pdias

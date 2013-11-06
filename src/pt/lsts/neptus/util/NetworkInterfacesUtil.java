@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 26 de Out de 2010
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -43,7 +43,7 @@ import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author pdias

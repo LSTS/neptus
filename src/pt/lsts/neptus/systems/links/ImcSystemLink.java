@@ -29,15 +29,15 @@
  * Author: Hugo Dias
  * Oct 31, 2012
  */
-package pt.up.fe.dceg.neptus.systems.links;
+package pt.lsts.neptus.systems.links;
 
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import pt.up.fe.dceg.neptus.imc.Announce;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.lsts.imc.Announce;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author Hugo

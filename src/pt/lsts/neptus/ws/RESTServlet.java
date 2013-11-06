@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2009/10/19
  */
-package pt.up.fe.dceg.neptus.ws;
+package pt.lsts.neptus.ws;
 
 import java.io.IOException;
 import java.util.Vector;
@@ -39,14 +39,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfoImpl;
-import pt.up.fe.dceg.neptus.util.StreamUtil;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.logdb.SQLiteSerialization;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageInfoImpl;
+import pt.lsts.neptus.util.StreamUtil;
+import pt.lsts.neptus.util.comm.IMCUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.logdb.SQLiteSerialization;
 
 /**
  * @author zp

@@ -29,14 +29,13 @@
  * Author: zp
  * Oct 5, 2013
  */
-package pt.up.fe.dceg.neptus.plugins.controllers;
+package pt.lsts.neptus.plugins.controllers;
 
 
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.FollowRefState;
-import pt.up.fe.dceg.neptus.imc.FollowReference;
-import pt.up.fe.dceg.neptus.imc.Reference;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.FollowRefState;
+import pt.lsts.imc.Reference;
 
 /**
  * This interface is implemented by agents that control vehicles

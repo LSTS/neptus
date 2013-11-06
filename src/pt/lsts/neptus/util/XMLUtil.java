@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 7 de Jul de 2011
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -59,7 +59,7 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author pdias

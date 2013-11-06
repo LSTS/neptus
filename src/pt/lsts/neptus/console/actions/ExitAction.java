@@ -29,7 +29,7 @@
  * Author: Hugo Dias
  * Oct 4, 2012
  */
-package pt.up.fe.dceg.neptus.console.actions;
+package pt.lsts.neptus.console.actions;
 
 import java.awt.Event;
 import java.awt.Frame;
@@ -39,8 +39,8 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.KeyStroke;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author Hugo

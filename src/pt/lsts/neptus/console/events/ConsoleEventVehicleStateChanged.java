@@ -29,9 +29,9 @@
  * Author: José Pinto
  * Nov 22, 2012
  */
-package pt.up.fe.dceg.neptus.console.events;
+package pt.lsts.neptus.console.events;
 
-import pt.up.fe.dceg.neptus.console.plugins.VehicleStateMonitor;
+import pt.lsts.neptus.console.plugins.VehicleStateMonitor;
 
 /**
  * This event is triggered whenever a vehicle changes its mode or gets disconnected.

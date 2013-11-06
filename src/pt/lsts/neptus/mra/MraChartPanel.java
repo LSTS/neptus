@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.mra;
+package pt.lsts.neptus.mra;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -68,15 +68,15 @@ import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import pt.up.fe.dceg.neptus.gui.SelectAllFocusListener;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.plots.Mra2DPlot;
-import pt.up.fe.dceg.neptus.mra.plots.MraTimeSeriesPlot;
-import pt.up.fe.dceg.neptus.mra.plots.TimedXYDataItem;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.llf.LsfReport;
-import pt.up.fe.dceg.neptus.util.llf.chart.LLFChart;
+import pt.lsts.neptus.gui.SelectAllFocusListener;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.plots.Mra2DPlot;
+import pt.lsts.neptus.mra.plots.MraTimeSeriesPlot;
+import pt.lsts.neptus.mra.plots.TimedXYDataItem;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.llf.LsfReport;
+import pt.lsts.neptus.util.llf.chart.LLFChart;
 
 /**
  * 

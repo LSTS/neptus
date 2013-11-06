@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Dec 20, 2012
  */
-package pt.up.fe.dceg.neptus.mp.preview;
+package pt.lsts.neptus.mp.preview;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -58,17 +58,17 @@ import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.legends.colorbars.ColorbarLegend;
 
-import pt.up.fe.dceg.neptus.colormap.DataDiscretizer;
-import pt.up.fe.dceg.neptus.colormap.DataDiscretizer.DataPoint;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.colormap.DataDiscretizer;
+import pt.lsts.neptus.colormap.DataDiscretizer.DataPoint;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.up.fe.dceg.neptus.plugins.mra3d.Marker3d;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
 
 /**
  * @author zp

@@ -29,7 +29,7 @@
  * Author: 
  * 24/Out/2005
  */
-package pt.up.fe.dceg.neptus.util.comm.ssh;
+package pt.lsts.neptus.util.comm.ssh;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;

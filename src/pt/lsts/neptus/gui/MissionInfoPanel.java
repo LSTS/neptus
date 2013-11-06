@@ -29,7 +29,7 @@
  * Author: 
  * Mar 10, 2005
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -48,12 +48,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.NameNormalizer;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.objparams.ParametersPanel;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.NameNormalizer;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 /**
  * @author zecarlos
  *

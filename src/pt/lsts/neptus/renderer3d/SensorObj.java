@@ -29,10 +29,10 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.renderer3d;
+package pt.lsts.neptus.renderer3d;
 
-import pt.up.fe.dceg.neptus.console.plugins.JVideoPanelConsole;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.console.plugins.JVideoPanelConsole;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 
 public class SensorObj {
 	

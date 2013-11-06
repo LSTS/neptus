@@ -29,7 +29,7 @@
  * Author: 
  * 2007/08/23
  */
-package pt.up.fe.dceg.neptus.mc.lauvconsole;
+package pt.lsts.neptus.mc.lauvconsole;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -44,16 +44,16 @@ import javax.swing.JTextField;
 
 import org.dom4j.Document;
 
-import pt.up.fe.dceg.neptus.gui.SelectAllFocusListener;
-import pt.up.fe.dceg.neptus.gui.tablelayout.TableLayout;
-import pt.up.fe.dceg.neptus.types.comm.CommMean;
-import pt.up.fe.dceg.neptus.types.comm.protocol.IMCArgs;
-import pt.up.fe.dceg.neptus.types.comm.protocol.ProtocolArgs;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.gui.SelectAllFocusListener;
+import pt.lsts.neptus.gui.tablelayout.TableLayout;
+import pt.lsts.neptus.types.comm.CommMean;
+import pt.lsts.neptus.types.comm.protocol.IMCArgs;
+import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 
 /**

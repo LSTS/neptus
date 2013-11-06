@@ -29,18 +29,18 @@
  * Author: José Pinto
  * Nov 13, 2012
  */
-package pt.up.fe.dceg.neptus.mra.plots;
+package pt.lsts.neptus.mra.plots;
 
 import java.util.Arrays;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp

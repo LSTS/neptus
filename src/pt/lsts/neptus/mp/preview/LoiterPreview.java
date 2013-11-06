@@ -29,12 +29,12 @@
  * Author: José Pinto
  * Oct 11, 2011
  */
-package pt.up.fe.dceg.neptus.mp.preview;
+package pt.lsts.neptus.mp.preview;
 
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Loiter;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.maneuvers.Loiter;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp

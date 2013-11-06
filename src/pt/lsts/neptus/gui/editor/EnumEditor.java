@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2009/06/02
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 import java.awt.Component;
 import java.awt.event.KeyAdapter;
@@ -43,7 +43,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.i18n.I18n;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 

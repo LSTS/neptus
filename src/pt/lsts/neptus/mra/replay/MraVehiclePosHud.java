@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Dec 4, 2012
  */
-package pt.up.fe.dceg.neptus.mra.replay;
+package pt.lsts.neptus.mra.replay;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -44,11 +44,11 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp

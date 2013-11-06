@@ -29,14 +29,14 @@
  * Created by: Paulo Dias
  * 13-04-2008
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.awt.Dimension;
 
 import javax.swing.ImageIcon;
 
-import pt.up.fe.dceg.neptus.console.SubPanel;
-import pt.up.fe.dceg.neptus.gui.ToolbarButton;
+import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.gui.ToolbarButton;
 
 /**
  * @author pdias

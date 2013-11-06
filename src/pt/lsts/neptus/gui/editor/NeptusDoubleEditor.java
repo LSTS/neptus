@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Nov 16, 2012
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;

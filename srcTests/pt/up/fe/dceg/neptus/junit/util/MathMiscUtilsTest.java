@@ -32,7 +32,7 @@
 package pt.up.fe.dceg.neptus.junit.util;
 
 import junit.framework.TestCase;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 public class MathMiscUtilsTest extends TestCase
 {

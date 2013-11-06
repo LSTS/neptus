@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2009/09/26
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.awt.AlphaComposite;
 import java.awt.Graphics;
@@ -57,7 +57,7 @@ import java.net.URL;
 
 import javax.swing.ImageIcon;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 import com.jhlabs.image.ContrastFilter;
 

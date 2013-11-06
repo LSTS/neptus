@@ -48,9 +48,9 @@ import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
 
 /**
  * @author Christian Fuchs

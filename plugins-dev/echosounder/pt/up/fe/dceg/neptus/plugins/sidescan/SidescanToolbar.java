@@ -43,8 +43,8 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanPanel.InteractionMode;
 
 /**

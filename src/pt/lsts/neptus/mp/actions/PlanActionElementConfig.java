@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/06/27
  */
-package pt.up.fe.dceg.neptus.mp.actions;
+package pt.lsts.neptus.mp.actions;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -45,8 +45,8 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.MessageEditorImc;
+import pt.lsts.neptus.util.comm.manager.imc.MessageEditorImc;
+import pt.lsts.imc.IMCMessage;
 
 import com.l2fprod.common.beans.editor.FixedButton;
 import com.l2fprod.common.swing.LookAndFeelTweaks;

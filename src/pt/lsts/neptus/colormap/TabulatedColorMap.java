@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.colormap;
+package pt.lsts.neptus.colormap;
 
 import java.awt.Color;
 import java.io.IOException;

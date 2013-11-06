@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/05/02
  */
-package pt.up.fe.dceg.neptus.mystate;
+package pt.lsts.neptus.mystate;
 
 import java.io.File;
 import java.io.StringReader;
@@ -38,10 +38,10 @@ import java.io.StringWriter;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlElement;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.FileUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author pdias

@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2009/09/13
  */
-package pt.up.fe.dceg.neptus.util.logdownload;
+package pt.lsts.neptus.util.logdownload;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -48,8 +48,8 @@ import javax.swing.SortOrder;
 
 import org.jdesktop.swingx.JXList;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author pdias

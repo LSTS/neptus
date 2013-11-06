@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Aug 8, 2012
  */
-package pt.up.fe.dceg.neptus.util.gui;
+package pt.lsts.neptus.util.gui;
 
 import java.awt.AWTEvent;
 import java.awt.Color;
@@ -52,7 +52,7 @@ import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author zp

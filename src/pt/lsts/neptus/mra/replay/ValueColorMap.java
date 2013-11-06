@@ -29,17 +29,17 @@
  * Author: José Pinto
  * Dec 5, 2012
  */
-package pt.up.fe.dceg.neptus.mra.replay;
+package pt.lsts.neptus.mra.replay;
 
 import java.awt.Graphics2D;
 
-import pt.up.fe.dceg.neptus.colormap.ColormapOverlay;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.colormap.ColormapOverlay;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp

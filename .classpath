@@ -28,7 +28,6 @@
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/ipcam"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/web"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/teleoperation"/>
-	<classpathentry excluding="*.jar|plugins.lst" kind="src" path="plugins-dev/s57"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/s57-client"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/oplimits"/>
 	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/uavs"/>

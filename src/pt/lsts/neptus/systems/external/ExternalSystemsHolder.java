@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 24 de Jun de 2012
  */
-package pt.up.fe.dceg.neptus.systems.external;
+package pt.lsts.neptus.systems.external;
 
 import java.util.Collections;
 import java.util.Hashtable;
@@ -38,10 +38,10 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author pdias

@@ -8,7 +8,7 @@
  * Author: Rui Gonçalves
  * 200?/??/??
  */
-package pt.up.fe.dceg.neptus.gui.checklist;
+package pt.lsts.neptus.gui.checklist;
 
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -29,9 +29,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoSubItem;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoVarIntervalItem;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
+import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
+import pt.lsts.neptus.util.GuiUtils;
 
 @SuppressWarnings("serial")
 public class VariableIntervalItem extends JPanel implements CheckSubItem{

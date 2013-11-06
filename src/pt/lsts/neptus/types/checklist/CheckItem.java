@@ -29,7 +29,7 @@
  * Author: 
  * 26/Jun/2005
  */
-package pt.up.fe.dceg.neptus.types.checklist;
+package pt.lsts.neptus.types.checklist;
 
 import java.util.Iterator;
 import java.util.List;
@@ -41,8 +41,8 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.XmlOutputMethods;
 
 /**
  * @author Paulo Dias

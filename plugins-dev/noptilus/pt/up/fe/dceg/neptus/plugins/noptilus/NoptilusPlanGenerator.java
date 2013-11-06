@@ -41,22 +41,22 @@ import java.util.Vector;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.imc.Goto;
-import pt.up.fe.dceg.neptus.imc.Goto.SPEED_UNITS;
-import pt.up.fe.dceg.neptus.imc.IMCUtil;
-import pt.up.fe.dceg.neptus.imc.PlanSpecification;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
+import pt.lsts.imc.Goto;
+import pt.lsts.imc.Goto.SPEED_UNITS;
+import pt.lsts.imc.IMCUtil;
+import pt.lsts.imc.PlanSpecification;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.comm.IMCUtils;
 
 /**
  * @author noptilus
@@ -136,7 +136,7 @@ public class NoptilusPlanGenerator extends SimpleSubPanel implements Renderer2DP
 
                         if (useFollowPath)
                             spec = PlanUtils.trajectoryPlan(plan_id, waypoints, speed,
-                                    pt.up.fe.dceg.neptus.imc.FollowPath.SPEED_UNITS.valueOf(units.toString()));
+                                    pt.lsts.imc.FollowPath.SPEED_UNITS.valueOf(units.toString()));
                         else
                             spec = PlanUtils.planFromWaypoints(plan_id, waypoints, speed, units);
                         if (showMessage)

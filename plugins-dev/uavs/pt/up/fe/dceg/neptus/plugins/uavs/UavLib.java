@@ -36,9 +36,9 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.geom.Point2D;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.ContainerSubPanel;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ContainerSubPanel;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
 
 /**
  * @author canasta

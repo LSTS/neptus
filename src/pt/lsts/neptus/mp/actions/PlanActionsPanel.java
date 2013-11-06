@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/06/27
  */
-package pt.up.fe.dceg.neptus.mp.actions;
+package pt.lsts.neptus.mp.actions;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -63,15 +63,15 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.ToolbarButton;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.types.miscsystems.MiscSystems;
-import pt.up.fe.dceg.neptus.types.miscsystems.MiscSystemsHolder;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.ToolbarButton;
+import pt.lsts.neptus.types.miscsystems.MiscSystems;
+import pt.lsts.neptus.types.miscsystems.MiscSystemsHolder;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author pdias

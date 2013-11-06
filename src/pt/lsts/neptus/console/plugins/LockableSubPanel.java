@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2009/03/25
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 /**
  * @author pdias

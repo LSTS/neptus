@@ -29,13 +29,13 @@
  * Author: José Pinto
  * Sep 5, 2012
  */
-package pt.up.fe.dceg.neptus.i18n;
+package pt.lsts.neptus.i18n;
 
 import java.io.File;
 
 import org.jdesktop.swingx.JXTable;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp

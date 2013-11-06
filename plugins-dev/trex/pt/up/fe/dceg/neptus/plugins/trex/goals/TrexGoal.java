@@ -36,14 +36,14 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.gui.editor.UnixTimeEditor;
-import pt.up.fe.dceg.neptus.imc.TrexAttribute;
-import pt.up.fe.dceg.neptus.imc.TrexAttribute.ATTR_TYPE;
-import pt.up.fe.dceg.neptus.imc.TrexOperation;
-import pt.up.fe.dceg.neptus.imc.TrexOperation.OP;
-import pt.up.fe.dceg.neptus.imc.TrexToken;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.gui.editor.UnixTimeEditor;
+import pt.lsts.imc.TrexAttribute;
+import pt.lsts.imc.TrexAttribute.ATTR_TYPE;
+import pt.lsts.imc.TrexOperation;
+import pt.lsts.imc.TrexOperation.OP;
+import pt.lsts.imc.TrexToken;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

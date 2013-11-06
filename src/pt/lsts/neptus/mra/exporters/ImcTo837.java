@@ -29,7 +29,7 @@
  * Author: José Correia
  * Jun 19, 2012
  */
-package pt.up.fe.dceg.neptus.mra.exporters;
+package pt.lsts.neptus.mra.exporters;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -38,13 +38,13 @@ import java.io.FileOutputStream;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.SonarData;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.SonarData;
 
 /**
  * Class to extract data from a LogSource and generate Imagenex .837 file from data acquired from Delta T Multibeam 

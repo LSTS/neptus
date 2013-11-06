@@ -1,4 +1,4 @@
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 public interface TimelineChangeListener {
 	public void timelineChanged(int value);

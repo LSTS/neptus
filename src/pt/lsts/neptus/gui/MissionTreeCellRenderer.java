@@ -29,7 +29,7 @@
  * Author: 
  * May 25, 2005
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -44,26 +44,26 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.MissionBrowser.NodeInfoKey;
-import pt.up.fe.dceg.neptus.gui.MissionBrowser.State;
-import pt.up.fe.dceg.neptus.gui.tree.ExtendedTreeNode;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.MissionBrowser.NodeInfoKey;
+import pt.lsts.neptus.gui.MissionBrowser.State;
+import pt.lsts.neptus.gui.tree.ExtendedTreeNode;
+import pt.lsts.neptus.types.checklist.ChecklistType;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.types.map.TransponderElement;
+import pt.lsts.neptus.types.misc.LBLRangesTimer;
+import pt.lsts.neptus.types.mission.ChecklistMission;
+import pt.lsts.neptus.types.mission.HomeReference;
+import pt.lsts.neptus.types.mission.MapMission;
+import pt.lsts.neptus.types.mission.VehicleMission;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBInfo;
-import pt.up.fe.dceg.neptus.types.checklist.ChecklistType;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.MapType;
-import pt.up.fe.dceg.neptus.types.map.MarkElement;
-import pt.up.fe.dceg.neptus.types.map.TransponderElement;
-import pt.up.fe.dceg.neptus.types.misc.LBLRangesTimer;
-import pt.up.fe.dceg.neptus.types.mission.ChecklistMission;
-import pt.up.fe.dceg.neptus.types.mission.HomeReference;
-import pt.up.fe.dceg.neptus.types.mission.MapMission;
-import pt.up.fe.dceg.neptus.types.mission.VehicleMission;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.ColorUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp

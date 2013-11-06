@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.plugins;
+package pt.lsts.neptus.plugins;
 
 import java.beans.PropertyEditor;
 import java.io.ByteArrayInputStream;
@@ -55,14 +55,14 @@ import java.util.Vector;
 
 import javax.imageio.spi.ServiceRegistry;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.gui.editor.EnumEditor;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.ReflectionUtil;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.gui.editor.EnumEditor;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

@@ -29,7 +29,7 @@
  * Author: 
  * 5/7/2005
  */
-package pt.up.fe.dceg.neptus.util.xsl;
+package pt.lsts.neptus.util.xsl;
 
 // Java
 import java.io.File;
@@ -51,8 +51,8 @@ import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author Paulo Dias

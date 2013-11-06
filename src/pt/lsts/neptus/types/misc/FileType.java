@@ -29,7 +29,7 @@
  * Author: 
  * 15/Jan/2005
  */
-package pt.up.fe.dceg.neptus.types.misc;
+package pt.lsts.neptus.types.misc;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -37,11 +37,11 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.NameNormalizer;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.XmlOutputMethods;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.NameNormalizer;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author Paulo Dias

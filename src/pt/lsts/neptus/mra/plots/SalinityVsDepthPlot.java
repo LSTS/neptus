@@ -29,14 +29,15 @@
  * Author: zp
  * Jul 15, 2013
  */
-package pt.up.fe.dceg.neptus.mra.plots;
+package pt.lsts.neptus.mra.plots;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.Salinity;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIterator;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.Salinity;
+import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.imc.lsf.LsfIterator;
 
 /**
  * @author zp
@@ -70,9 +71,9 @@ public class SalinityVsDepthPlot extends XYPlot {
         }
     }
 
-    public void addLogMarker(pt.up.fe.dceg.neptus.mra.LogMarker marker) {};
+    public void addLogMarker(LogMarker marker) {};
 
-    public boolean canBeApplied(pt.up.fe.dceg.neptus.imc.lsf.LsfIndex index) {        
+    public boolean canBeApplied(pt.lsts.imc.lsf.LsfIndex index) {        
         return true;
     };
 }

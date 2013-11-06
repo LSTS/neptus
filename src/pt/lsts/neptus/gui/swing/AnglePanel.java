@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui.swing;
+package pt.lsts.neptus.gui.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -62,9 +62,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import pt.up.fe.dceg.neptus.gui.SelectAllFocusListener;
-import pt.up.fe.dceg.neptus.gui.tablelayout.TableLayout;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.gui.SelectAllFocusListener;
+import pt.lsts.neptus.gui.tablelayout.TableLayout;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zepinto

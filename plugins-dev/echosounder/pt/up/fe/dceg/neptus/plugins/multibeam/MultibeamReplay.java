@@ -41,20 +41,20 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
-import pt.up.fe.dceg.neptus.mra.api.BathymetryParserFactory;
-import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
-import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
-import pt.up.fe.dceg.neptus.mra.replay.LogReplayLayer;
-import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.mra.api.BathymetryParser;
+import pt.lsts.neptus.mra.api.BathymetryParserFactory;
+import pt.lsts.neptus.mra.api.BathymetryPoint;
+import pt.lsts.neptus.mra.api.BathymetrySwath;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
+import pt.lsts.neptus.mra.replay.LogReplayLayer;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author jqcorreia

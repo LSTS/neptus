@@ -29,9 +29,9 @@
  * Author: Hugo Dias
  * Oct 18, 2012
  */
-package pt.up.fe.dceg.neptus;
+package pt.lsts.neptus;
 
-import pt.up.fe.dceg.neptus.systems.SystemsManager;
+import pt.lsts.neptus.systems.SystemsManager;
 
 /**
  * @author Hugo

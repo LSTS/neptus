@@ -29,11 +29,11 @@
  * Author: Paulo Dias
  * 2010/05/30
  */
-package pt.up.fe.dceg.neptus.gui.system;
+package pt.lsts.neptus.gui.system;
 
 import java.util.Comparator;
 
-import pt.up.fe.dceg.neptus.console.plugins.SystemsList;
+import pt.lsts.neptus.console.plugins.SystemsList;
 
 /**
  * Comparator to be used to order the {@link SystemDisplay}s in the {@link SystemsList}.

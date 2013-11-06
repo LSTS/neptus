@@ -29,25 +29,25 @@
  * Author: José Pinto
  * Apr 22, 2010
  */
-package pt.up.fe.dceg.neptus.mp.templates;
+package pt.lsts.neptus.mp.templates;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.Maneuver.SPEED_UNITS;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
-import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Loiter;
-import pt.up.fe.dceg.neptus.mp.maneuvers.PopUp;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Unconstrained;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.mp.maneuvers.Loiter;
+import pt.lsts.neptus.mp.maneuvers.PopUp;
+import pt.lsts.neptus.mp.maneuvers.Unconstrained;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.ReflectionUtil;
 
 /**
  * @author zp

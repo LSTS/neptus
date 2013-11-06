@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 8/10/2011
  */
-package pt.up.fe.dceg.neptus.renderer2d.tiles;
+package pt.lsts.neptus.renderer2d.tiles;
 
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -59,8 +59,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.comm.proxy.ProxyInfoProvider;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 
 
 /**

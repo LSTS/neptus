@@ -29,7 +29,7 @@
  * Author: 
  * 2007/09/22
  */
-package pt.up.fe.dceg.neptus.types.map;
+package pt.lsts.neptus.types.map;
 
 import java.awt.Color;
 

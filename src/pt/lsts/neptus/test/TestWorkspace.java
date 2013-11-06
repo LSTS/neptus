@@ -29,13 +29,13 @@
  * Author: 
  * 1/Mar/2005
  */
-package pt.up.fe.dceg.neptus.test;
+package pt.lsts.neptus.test;
 
 import java.io.File;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.ZipUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.ZipUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author Paulo Dias

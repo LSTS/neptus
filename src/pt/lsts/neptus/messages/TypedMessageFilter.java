@@ -29,12 +29,12 @@
  * Author: zp
  * Jun 29, 2013
  */
-package pt.up.fe.dceg.neptus.messages;
+package pt.lsts.neptus.messages;
 
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.messages.listener.MessageInfo;
 
 /**
  * @author zp

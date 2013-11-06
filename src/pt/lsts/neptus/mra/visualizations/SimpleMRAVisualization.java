@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2009/09/17
  */
-package pt.up.fe.dceg.neptus.mra.visualizations;
+package pt.lsts.neptus.mra.visualizations;
 
 import java.awt.Component;
 
@@ -37,12 +37,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.NeptusMRA;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author ZP

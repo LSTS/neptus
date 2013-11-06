@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.mc.lauvconsole;
+package pt.lsts.neptus.mc.lauvconsole;
 
 /**
  * @author ZP
@@ -40,14 +40,14 @@ import java.util.LinkedList;
 
 import org.dom4j.Document;
 
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.types.comm.CommMean;
-import pt.up.fe.dceg.neptus.types.comm.protocol.IMCArgs;
-import pt.up.fe.dceg.neptus.types.comm.protocol.ProtocolArgs;
-import pt.up.fe.dceg.neptus.types.vehicle.TemplateFileVehicle;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.util.FileUtil;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.types.comm.CommMean;
+import pt.lsts.neptus.types.comm.protocol.IMCArgs;
+import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
+import pt.lsts.neptus.types.vehicle.TemplateFileVehicle;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.FileUtil;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

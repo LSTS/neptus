@@ -53,19 +53,19 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mra.LogMarker;
-import pt.up.fe.dceg.neptus.mra.SidescanLogMarker;
-import pt.up.fe.dceg.neptus.mra.api.SidescanLine;
-import pt.up.fe.dceg.neptus.mra.api.SidescanParser;
-import pt.up.fe.dceg.neptus.mra.api.SidescanPoint;
-import pt.up.fe.dceg.neptus.mra.replay.MraVehiclePosHud;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.VideoCreator;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.SidescanLogMarker;
+import pt.lsts.neptus.mra.api.SidescanLine;
+import pt.lsts.neptus.mra.api.SidescanParser;
+import pt.lsts.neptus.mra.api.SidescanPoint;
+import pt.lsts.neptus.mra.replay.MraVehiclePosHud;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.VideoCreator;
 
 /**
  * @author jqcorreia

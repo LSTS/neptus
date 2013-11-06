@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gps;
+package pt.lsts.neptus.gps;
 
 public interface GPSListener {
 	/**

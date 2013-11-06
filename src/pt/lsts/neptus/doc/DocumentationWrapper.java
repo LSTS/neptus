@@ -29,9 +29,9 @@
  * Author: José Pinto
  * Aug 29, 2011
  */
-package pt.up.fe.dceg.neptus.doc;
+package pt.lsts.neptus.doc;
 
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginDescription;
 
 /**
  * @author zp

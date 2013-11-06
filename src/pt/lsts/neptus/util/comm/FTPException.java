@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 22/Jun/2005
  */
-package pt.up.fe.dceg.neptus.util.comm;
+package pt.lsts.neptus.util.comm;
 
 import java.io.IOException;
 

@@ -29,19 +29,19 @@
  * Author: José Pinto
  * Oct 11, 2011
  */
-package pt.up.fe.dceg.neptus.mp.preview;
+package pt.lsts.neptus.mp.preview;
 
 import java.util.LinkedHashMap;
 
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Elevator;
-import pt.up.fe.dceg.neptus.mp.maneuvers.FollowTrajectory;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Loiter;
-import pt.up.fe.dceg.neptus.mp.maneuvers.PopUp;
-import pt.up.fe.dceg.neptus.mp.maneuvers.RowsManeuver;
-import pt.up.fe.dceg.neptus.mp.maneuvers.StationKeeping;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.maneuvers.Elevator;
+import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
+import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.mp.maneuvers.Loiter;
+import pt.lsts.neptus.mp.maneuvers.PopUp;
+import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
+import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 
 /**
  * @author zp

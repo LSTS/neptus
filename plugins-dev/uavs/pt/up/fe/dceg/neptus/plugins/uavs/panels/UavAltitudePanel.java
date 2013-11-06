@@ -39,22 +39,22 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.LinkedHashMap;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.plugins.MultiSystemIMCMessageListener;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.plugins.containers.MigLayoutContainer;
 import pt.up.fe.dceg.neptus.plugins.uavs.interfaces.IUavPainter;
 import pt.up.fe.dceg.neptus.plugins.uavs.painters.background.UavCoverLayerPainter;
 import pt.up.fe.dceg.neptus.plugins.uavs.painters.elements.UavLabelPainter;
 import pt.up.fe.dceg.neptus.plugins.uavs.painters.elements.UavMissionElementPainter;
 import pt.up.fe.dceg.neptus.plugins.uavs.painters.foreground.UavRulerPainter;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * Neptus panel which allows the console operator to see the current altitudes of all active vehicles, detected by the console, and filtered by the selected type.

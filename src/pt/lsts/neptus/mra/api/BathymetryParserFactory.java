@@ -29,12 +29,12 @@
  * Author: jqcorreia
  * May 28, 2013
  */
-package pt.up.fe.dceg.neptus.mra.api;
+package pt.lsts.neptus.mra.api;
 
 import java.io.File;
 
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 
 /**
  * @author jqcorreia

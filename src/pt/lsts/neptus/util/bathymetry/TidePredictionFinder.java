@@ -29,13 +29,13 @@
  * Author: mfaria
  * ??/??/???
  */
-package pt.up.fe.dceg.neptus.util.bathymetry;
+package pt.lsts.neptus.util.bathymetry;
 
 import java.util.ArrayList;
 import java.util.Date;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
 
 public abstract class TidePredictionFinder {
     protected ArrayList<TidePrediction> predictions;

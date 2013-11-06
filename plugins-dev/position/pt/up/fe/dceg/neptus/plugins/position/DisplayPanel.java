@@ -46,8 +46,8 @@ import javax.swing.JPanel;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.painter.Painter;
 
-import pt.up.fe.dceg.neptus.gui.painters.SubPanelTitlePainter;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.gui.painters.SubPanelTitlePainter;
+import pt.lsts.neptus.util.GuiUtils;
 
 
 @SuppressWarnings("serial")

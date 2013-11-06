@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.renderer3d;
+package pt.lsts.neptus.renderer3d;
 
 import java.awt.image.BufferedImage;
 
@@ -51,9 +51,9 @@ import javax.vecmath.Point3d;
 import javax.vecmath.TexCoord2f;
 import javax.vecmath.Vector3d;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.plugins.JVideoPanelConsole;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.plugins.JVideoPanelConsole;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 
 import com.sun.j3d.utils.geometry.GeometryInfo;
 

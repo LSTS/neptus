@@ -8,7 +8,7 @@
  * Author: Paulo Dias
  * Created in 12/Oct/2008
  */
-package pt.up.fe.dceg.neptus.gui.checklist;
+package pt.lsts.neptus.gui.checklist;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -22,18 +22,18 @@ import java.util.LinkedList;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
 
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoSubItem;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoUserActionItem;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoUserLogItem;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoVarIntervalItem;
-import pt.up.fe.dceg.neptus.types.checklist.CheckItem;
-import pt.up.fe.dceg.neptus.types.checklist.ChecklistType;
-import pt.up.fe.dceg.neptus.util.BarCodesUtil;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.SvgUtil;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
+import pt.lsts.neptus.types.checklist.CheckAutoUserActionItem;
+import pt.lsts.neptus.types.checklist.CheckAutoUserLogItem;
+import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
+import pt.lsts.neptus.types.checklist.CheckItem;
+import pt.lsts.neptus.types.checklist.ChecklistType;
+import pt.lsts.neptus.util.BarCodesUtil;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.SvgUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;

@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 24/06/2011
  */
-package pt.up.fe.dceg.neptus.gui.system.btn;
+package pt.lsts.neptus.gui.system.btn;
 
 import java.awt.event.ActionEvent;
 import java.util.Hashtable;
@@ -38,10 +38,10 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JButton;
 
-import pt.up.fe.dceg.neptus.gui.system.img.MainIcon;
-import pt.up.fe.dceg.neptus.gui.system.img.SelectionIcon;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.gui.system.img.MainIcon;
+import pt.lsts.neptus.gui.system.img.SelectionIcon;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author pdias

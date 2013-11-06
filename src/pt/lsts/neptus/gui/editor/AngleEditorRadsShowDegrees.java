@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 18 de Nov de 2011
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 
 /**

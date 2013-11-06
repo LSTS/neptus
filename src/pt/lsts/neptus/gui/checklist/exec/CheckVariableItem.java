@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui.checklist.exec;
+package pt.lsts.neptus.gui.checklist.exec;
 
 import java.awt.Dimension;
 
@@ -37,13 +37,13 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
-import pt.up.fe.dceg.neptus.gui.checklist.CheckItemPanel;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoVarIntervalItem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.EntitiesResolver;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.gui.checklist.CheckItemPanel;
+import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
+import pt.lsts.neptus.util.comm.manager.imc.EntitiesResolver;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
 
 public class CheckVariableItem extends CheckSubItemExe implements MessageListener<MessageInfo, IMCMessage> {
     private static final long serialVersionUID = 1L;

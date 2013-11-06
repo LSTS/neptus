@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 12 de Fev de 2013
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -51,11 +51,11 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.params.SystemProperty;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.params.SystemProperty;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 import com.l2fprod.common.beans.editor.StringConverterPropertyEditor;
 import com.l2fprod.common.propertysheet.Property;

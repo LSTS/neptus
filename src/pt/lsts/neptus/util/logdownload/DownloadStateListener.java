@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2009/09/16
  */
-package pt.up.fe.dceg.neptus.util.logdownload;
+package pt.lsts.neptus.util.logdownload;
 
 /**
  * @author pdias

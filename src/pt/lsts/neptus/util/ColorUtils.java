@@ -30,7 +30,7 @@
  * 2010/05/19
  */
 
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.awt.Color;
 

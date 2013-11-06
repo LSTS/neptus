@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2009/09/13
  */
-package pt.up.fe.dceg.neptus.util.logdownload;
+package pt.lsts.neptus.util.logdownload;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -50,10 +50,10 @@ import javax.swing.event.ListSelectionListener;
 
 import org.jdesktop.swingx.JXList;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author pdias

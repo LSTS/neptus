@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2005/06/16
  */
-package pt.up.fe.dceg.neptus.gui.objparams;
+package pt.lsts.neptus.gui.objparams;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -51,15 +51,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.ImageFileChooser;
-import pt.up.fe.dceg.neptus.gui.ImageScaleAndLocationPanel;
-import pt.up.fe.dceg.neptus.gui.LocationPanel;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.ImageElement;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.ImageFileChooser;
+import pt.lsts.neptus.gui.ImageScaleAndLocationPanel;
+import pt.lsts.neptus.gui.LocationPanel;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.ImageElement;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author zp

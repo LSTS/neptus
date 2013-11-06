@@ -29,7 +29,7 @@
  * Author: 
  * Mar 15, 2005
  */
-package pt.up.fe.dceg.neptus.gui.objparams;
+package pt.lsts.neptus.gui.objparams;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -49,18 +49,18 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.LocationPanel;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
-import pt.up.fe.dceg.neptus.types.map.MapType;
-import pt.up.fe.dceg.neptus.types.map.TransponderElement;
-import pt.up.fe.dceg.neptus.types.mission.MapMission;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.editors.EditorLauncher;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.LocationPanel;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.TransponderElement;
+import pt.lsts.neptus.types.mission.MapMission;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.editors.EditorLauncher;
 /**
  * @author zecarlos
  *

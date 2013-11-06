@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Nov 17, 2011
  */
-package pt.up.fe.dceg.neptus.types.map;
+package pt.lsts.neptus.types.map;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -40,12 +40,12 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.gui.objparams.CustomParametersPanel;
-import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
-import pt.up.fe.dceg.neptus.plugins.PluginProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.gui.objparams.CustomParametersPanel;
+import pt.lsts.neptus.gui.objparams.ParametersPanel;
+import pt.lsts.neptus.plugins.PluginProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
 
 import com.l2fprod.common.propertysheet.Property;
 

@@ -29,11 +29,11 @@
  * Author: Paulo Dias
  * 2009/??/??
  */
-package pt.up.fe.dceg.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.util.comm.manager.imc;
 
 import java.util.StringTokenizer;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * This class manages IMC 16 bits IDs of the form xx:xx (hexadecimal)

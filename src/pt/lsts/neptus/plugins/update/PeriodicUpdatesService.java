@@ -29,14 +29,14 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.plugins.update;
+package pt.lsts.neptus.plugins.update;
 
 import java.util.LinkedHashMap;
 import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.ReflectionUtil;
 
 public class PeriodicUpdatesService {
 

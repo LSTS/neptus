@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.types.map;
+package pt.lsts.neptus.types.map;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
@@ -42,21 +42,21 @@ import java.util.TimerTask;
 
 import javax.swing.JLabel;
 
-import pt.up.fe.dceg.neptus.colormap.InterpolationColorMap;
-import pt.up.fe.dceg.neptus.gui.ParametersSheetPanel;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
-import pt.up.fe.dceg.neptus.messages.TupleList;
-import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
-import pt.up.fe.dceg.neptus.mp.MapChangeListener;
-import pt.up.fe.dceg.neptus.renderer2d.MissionRenderer;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.colormap.InterpolationColorMap;
+import pt.lsts.neptus.gui.ParametersSheetPanel;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.gui.objparams.ParametersPanel;
+import pt.lsts.neptus.messages.TupleList;
+import pt.lsts.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.mp.MapChangeListener;
+import pt.lsts.neptus.renderer2d.MissionRenderer;
+import pt.lsts.neptus.renderer2d.Renderer;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

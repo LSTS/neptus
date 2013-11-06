@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.console;
+package pt.lsts.neptus.console;
 
 import java.awt.Dimension;
 
@@ -41,14 +41,14 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.plugins.SubPanelProvider;
-import pt.up.fe.dceg.neptus.events.NeptusEvents;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.gui.ToolbarButton;
-import pt.up.fe.dceg.neptus.types.XmlInOutMethods;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.ListenerManager;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.plugins.SubPanelProvider;
+import pt.lsts.neptus.events.NeptusEvents;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.gui.ToolbarButton;
+import pt.lsts.neptus.types.XmlInOutMethods;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.ListenerManager;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

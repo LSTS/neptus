@@ -29,9 +29,9 @@
  * Author: José Correia
  * Jan 26, 2012
  */
-package pt.up.fe.dceg.neptus.alarms;
+package pt.lsts.neptus.alarms;
 
-import pt.up.fe.dceg.neptus.alarms.AlarmManager.AlarmLevel;
+import pt.lsts.neptus.alarms.AlarmManager.AlarmLevel;
 
 /**
  * The Interface AlarmProvider.

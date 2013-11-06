@@ -29,14 +29,14 @@
  * Author: Paulo Dias
  * 2010/05/03
  */
-package pt.up.fe.dceg.neptus.util.coord.egm96;
+package pt.lsts.neptus.util.coord.egm96;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * This is a Java implementation of C translation by D.Ineiev.

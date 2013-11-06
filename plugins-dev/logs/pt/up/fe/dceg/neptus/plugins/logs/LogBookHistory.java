@@ -49,10 +49,10 @@ import javax.swing.ListCellRenderer;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 import pt.up.fe.dceg.neptus.plugins.logs.HistoryMessage.msg_type;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
 
 /**
  * @author zp

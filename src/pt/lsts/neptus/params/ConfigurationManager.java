@@ -29,7 +29,7 @@
  * Author: José Correia
  * Jan 28, 2013
  */
-package pt.up.fe.dceg.neptus.params;
+package pt.lsts.neptus.params;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,23 +44,23 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.editor.ArrayListEditor;
-import pt.up.fe.dceg.neptus.gui.editor.ComboEditor;
-import pt.up.fe.dceg.neptus.gui.editor.NumberEditor;
-import pt.up.fe.dceg.neptus.gui.editor.StringPatternEditor;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.params.SystemProperty.Scope;
-import pt.up.fe.dceg.neptus.params.SystemProperty.ValueTypeEnum;
-import pt.up.fe.dceg.neptus.params.SystemProperty.Visibility;
-import pt.up.fe.dceg.neptus.params.editor.ComboEditorWithDependancy;
-import pt.up.fe.dceg.neptus.params.editor.PropertyEditorChangeValuesIfDependancyAdapter;
-import pt.up.fe.dceg.neptus.params.editor.custom.CustomSystemPropertyEditor;
-import pt.up.fe.dceg.neptus.params.renderer.BooleanSystemPropertyRenderer;
-import pt.up.fe.dceg.neptus.params.renderer.I18nSystemPropertyRenderer;
-import pt.up.fe.dceg.neptus.params.renderer.SystemPropertyRenderer;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.editor.ArrayListEditor;
+import pt.lsts.neptus.gui.editor.ComboEditor;
+import pt.lsts.neptus.gui.editor.NumberEditor;
+import pt.lsts.neptus.gui.editor.StringPatternEditor;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.params.SystemProperty.Scope;
+import pt.lsts.neptus.params.SystemProperty.ValueTypeEnum;
+import pt.lsts.neptus.params.SystemProperty.Visibility;
+import pt.lsts.neptus.params.editor.ComboEditorWithDependancy;
+import pt.lsts.neptus.params.editor.PropertyEditorChangeValuesIfDependancyAdapter;
+import pt.lsts.neptus.params.editor.custom.CustomSystemPropertyEditor;
+import pt.lsts.neptus.params.renderer.BooleanSystemPropertyRenderer;
+import pt.lsts.neptus.params.renderer.I18nSystemPropertyRenderer;
+import pt.lsts.neptus.params.renderer.SystemPropertyRenderer;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.beans.editor.BooleanAsCheckBoxPropertyEditor;

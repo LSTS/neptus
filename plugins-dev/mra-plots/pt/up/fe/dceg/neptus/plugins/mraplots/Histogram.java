@@ -39,7 +39,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp

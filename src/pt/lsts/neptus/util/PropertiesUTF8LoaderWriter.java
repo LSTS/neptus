@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 4 de Set de 2012
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -45,7 +45,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Properties;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author pdias

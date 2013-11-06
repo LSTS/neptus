@@ -29,7 +29,7 @@
  * Author: 
  * 21/Fev/2005
  */
-package pt.up.fe.dceg.neptus.mme;
+package pt.lsts.neptus.mme;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,11 +41,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.MapType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.objparams.ParametersPanel;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.util.GuiUtils;
 /**
  * @author Ze Carlos
  */

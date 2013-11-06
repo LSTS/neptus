@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.planeditor;
+package pt.lsts.neptus.planeditor;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -38,11 +38,11 @@ import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.graph.DefaultNode;
-import pt.up.fe.dceg.neptus.graph.NeptusEdgeElement;
-import pt.up.fe.dceg.neptus.graph.NeptusGraph;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
+import pt.lsts.neptus.graph.DefaultNode;
+import pt.lsts.neptus.graph.NeptusEdgeElement;
+import pt.lsts.neptus.graph.NeptusGraph;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.mp.Maneuver;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

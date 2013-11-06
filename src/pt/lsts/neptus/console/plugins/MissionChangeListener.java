@@ -29,9 +29,9 @@
  * Author: Rui Gonçalves
  * 2006/06/02
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.MissionType;
 
 public interface MissionChangeListener {    
 	public void missionReplaced(MissionType mission);

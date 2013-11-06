@@ -29,7 +29,7 @@
  * Author: 
  * 13/Jun/2005
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.awt.Point;
 import java.awt.geom.Line2D;
@@ -38,7 +38,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author Paulo Dias

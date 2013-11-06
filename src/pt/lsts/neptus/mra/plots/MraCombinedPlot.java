@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Nov 13, 2012
  */
-package pt.up.fe.dceg.neptus.mra.plots;
+package pt.lsts.neptus.mra.plots;
 
 import java.util.LinkedHashMap;
 
@@ -40,9 +40,9 @@ import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.data.time.TimeSeriesCollection;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mra.LogMarker;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.MRAPanel;
 
 /**
  * @author zp

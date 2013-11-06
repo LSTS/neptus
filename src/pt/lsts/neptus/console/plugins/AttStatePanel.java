@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.awt.GridLayout;
 import java.text.NumberFormat;
@@ -37,7 +37,7 @@ import java.text.NumberFormat;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.GuiUtils;
 /**
  * 
  * @author RJPG

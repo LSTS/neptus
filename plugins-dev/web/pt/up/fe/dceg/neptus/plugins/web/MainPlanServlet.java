@@ -40,7 +40,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsoleLayout;
 
 /**
  * @author ZP

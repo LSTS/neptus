@@ -1,4 +1,4 @@
-package pt.up.fe.dceg.neptus.gui.swing;
+package pt.lsts.neptus.gui.swing;
 
 import javax.swing.JSlider;
 

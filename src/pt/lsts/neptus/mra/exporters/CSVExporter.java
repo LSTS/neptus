@@ -29,7 +29,7 @@
  * Author: zp
  * Jun 28, 2013
  */
-package pt.up.fe.dceg.neptus.mra.exporters;
+package pt.lsts.neptus.mra.exporters;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -39,14 +39,14 @@ import java.util.LinkedHashMap;
 
 import javax.swing.ProgressMonitor;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.EntityInfo;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IMCMessageType;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIterator;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.imc.EntityInfo;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCMessageType;
+import pt.lsts.imc.lsf.LsfIterator;
 
 /**
  * @author zp

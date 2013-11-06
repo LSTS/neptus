@@ -29,7 +29,7 @@
  * Author: 
  * 31/Mai/2005
  */
-package pt.up.fe.dceg.neptus.util.comm;
+package pt.lsts.neptus.util.comm;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -39,11 +39,11 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.comm.CommMean;
-import pt.up.fe.dceg.neptus.types.comm.protocol.FTPArgs;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.comm.CommMean;
+import pt.lsts.neptus.types.comm.protocol.FTPArgs;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
 /**
  * @author Paulo Dias

@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 14/10/2006
  */
-package pt.up.fe.dceg.neptus.gui.swing;
+package pt.lsts.neptus.gui.swing;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -60,7 +60,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author Paulo Dias

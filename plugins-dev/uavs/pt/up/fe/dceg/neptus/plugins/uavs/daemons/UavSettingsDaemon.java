@@ -34,15 +34,15 @@ package pt.up.fe.dceg.neptus.plugins.uavs.daemons;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.plugins.SystemsList;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.plugins.SystemsList;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.up.fe.dceg.neptus.plugins.containers.MigLayoutContainer;
 import pt.up.fe.dceg.neptus.plugins.planning.UavPiccoloControl;
 import pt.up.fe.dceg.neptus.plugins.uavs.painters.elements.UavCameraFootprint;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 
 /**
  * @author Christian Fuchs

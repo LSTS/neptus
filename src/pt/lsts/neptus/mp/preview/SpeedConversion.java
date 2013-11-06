@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Oct 24, 2011
  */
-package pt.up.fe.dceg.neptus.mp.preview;
+package pt.lsts.neptus.mp.preview;
 
 /**
  * @see https://whale.fe.up.pt/svn/dune/trunk/programs/yoyocalc.cpp

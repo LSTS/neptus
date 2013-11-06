@@ -29,7 +29,7 @@
  * Author: José Correia
  * Dec 21, 2012
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Color;
 import java.awt.Component;

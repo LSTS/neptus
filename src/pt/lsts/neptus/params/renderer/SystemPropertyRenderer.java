@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 18/02/2013
  */
-package pt.up.fe.dceg.neptus.params.renderer;
+package pt.lsts.neptus.params.renderer;
 
 import java.awt.Color;
 import java.awt.Component;

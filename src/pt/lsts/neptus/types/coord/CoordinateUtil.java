@@ -29,7 +29,7 @@
  * Author: Zé Pinto, Paulo Dias
  * 2005/01/15
  */
-package pt.up.fe.dceg.neptus.types.coord;
+package pt.lsts.neptus.types.coord;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.ClipboardOwner;
@@ -41,8 +41,8 @@ import java.util.StringTokenizer;
 
 import javax.vecmath.Matrix3d;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.coord.MapTileUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
  * @author Zé Pinto

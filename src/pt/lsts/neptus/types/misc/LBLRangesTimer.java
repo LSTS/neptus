@@ -29,7 +29,7 @@
  * Author: Margarida Faria
  * Feb 19, 2013
  */
-package pt.up.fe.dceg.neptus.types.misc;
+package pt.lsts.neptus.types.misc;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

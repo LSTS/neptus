@@ -29,7 +29,7 @@
  * Author: 
  * Jun 17, 2005
  */
-package pt.up.fe.dceg.neptus.mme.wms;
+package pt.lsts.neptus.mme.wms;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -41,9 +41,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
 
 import com.vividsolutions.wms.BoundingBox;
 import com.vividsolutions.wms.MapRequest;

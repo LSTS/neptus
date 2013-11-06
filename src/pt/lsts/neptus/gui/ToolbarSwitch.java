@@ -29,7 +29,7 @@
  * Author: 
  * 8/Fev/2005
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;

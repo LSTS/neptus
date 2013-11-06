@@ -29,7 +29,7 @@
  * Author: 
  * 2006/11/11
  */
-package pt.up.fe.dceg.neptus.types;
+package pt.lsts.neptus.types;
 
 import java.io.File;
 

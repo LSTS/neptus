@@ -29,14 +29,14 @@
  * Author: José Pinto
  * Nov 20, 2012
  */
-package pt.up.fe.dceg.neptus.mp.preview;
+package pt.lsts.neptus.mp.preview;
 
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.mp.maneuvers.RowsManeuver;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp

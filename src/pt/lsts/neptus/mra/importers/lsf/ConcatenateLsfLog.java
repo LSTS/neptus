@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Jul 17, 2012
  */
-package pt.up.fe.dceg.neptus.mra.importers.lsf;
+package pt.lsts.neptus.mra.importers.lsf;
 
 import java.awt.Component;
 import java.io.File;
@@ -40,9 +40,9 @@ import java.util.zip.GZIPInputStream;
 
 import javax.swing.JFileChooser;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.FileUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author zp

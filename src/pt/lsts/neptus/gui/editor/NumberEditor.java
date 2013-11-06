@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * Feb 16, 2013
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 import java.awt.Color;
 import java.awt.event.FocusAdapter;

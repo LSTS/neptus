@@ -29,9 +29,9 @@
  * Author: Paulo Dias
  * 26/11/2011
  */
-package pt.up.fe.dceg.neptus.renderer2d.tiles;
+package pt.lsts.neptus.renderer2d.tiles;
 
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 
 /**
  * @author pdias

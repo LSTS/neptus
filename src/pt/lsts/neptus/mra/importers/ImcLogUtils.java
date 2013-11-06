@@ -29,11 +29,11 @@
  * Author: José Pinto
  * Oct 30, 2011
  */
-package pt.up.fe.dceg.neptus.mra.importers;
+package pt.lsts.neptus.mra.importers;
 
 import java.util.LinkedHashMap;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author zp

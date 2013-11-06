@@ -29,7 +29,7 @@
  * Author: 
  * 14/Set/2004
  */
-package pt.up.fe.dceg.neptus.mp;
+package pt.lsts.neptus.mp;
 
 /**
  * @author Zé Carlos (DCEG-FEUP)

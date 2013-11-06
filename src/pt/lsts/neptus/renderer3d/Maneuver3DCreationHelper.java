@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 1 de Fev de 2013
  */
-package pt.up.fe.dceg.neptus.renderer3d;
+package pt.lsts.neptus.renderer3d;
 
 import java.awt.Color;
 import java.util.List;
@@ -45,11 +45,11 @@ import javax.media.j3d.TransformGroup;
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.maneuvers.FollowTrajectory;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Loiter;
-import pt.up.fe.dceg.neptus.mp.maneuvers.RowsManeuver;
-import pt.up.fe.dceg.neptus.mp.maneuvers.StationKeeping;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
+import pt.lsts.neptus.mp.maneuvers.Loiter;
+import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
+import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 
 /**
  * @author pdias

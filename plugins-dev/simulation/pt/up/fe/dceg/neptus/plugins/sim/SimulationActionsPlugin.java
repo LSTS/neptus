@@ -37,14 +37,14 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.GpsFix;
-import pt.up.fe.dceg.neptus.imc.ManeuverControlState;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.imc.GpsFix;
+import pt.lsts.imc.ManeuverControlState;
 import pt.up.fe.dceg.neptus.plugins.planning.MapPanel;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 /**
  * @author zp

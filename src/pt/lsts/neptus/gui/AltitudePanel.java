@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 200?/??/??
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -45,7 +45,7 @@ import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.GuiUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

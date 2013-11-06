@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.renderer3d;
+package pt.lsts.neptus.renderer3d;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -54,18 +54,18 @@ import javax.vecmath.Vector2f;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.AbstractElement;
-import pt.up.fe.dceg.neptus.types.map.DynamicElement;
-import pt.up.fe.dceg.neptus.types.map.HomeReferenceElement;
-import pt.up.fe.dceg.neptus.types.map.MarkElement;
-import pt.up.fe.dceg.neptus.types.map.TransponderElement;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.util.AngleCalc;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.DynamicElement;
+import pt.lsts.neptus.types.map.HomeReferenceElement;
+import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.types.map.TransponderElement;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author Rui

@@ -29,13 +29,13 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.types.checklist;
+package pt.lsts.neptus.types.checklist;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
 
-import pt.up.fe.dceg.neptus.types.XmlInputMethods;
-import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
+import pt.lsts.neptus.types.XmlInputMethods;
+import pt.lsts.neptus.types.XmlOutputMethods;
 
 public abstract class CheckAutoSubItem implements XmlOutputMethods,
 		XmlInputMethods {

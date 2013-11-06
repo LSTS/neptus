@@ -31,7 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.filters;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 import vtk.vtkIdList;
 import vtk.vtkKdTree;
 import vtk.vtkPoints;

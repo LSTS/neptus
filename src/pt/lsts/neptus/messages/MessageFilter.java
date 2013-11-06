@@ -29,9 +29,10 @@
  * Author: Paulo Dias
  * 13 de Mar de 2011
  */
-package pt.up.fe.dceg.neptus.messages;
+package pt.lsts.neptus.messages;
 
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+
 
 /**
  * @author pdias

@@ -33,14 +33,14 @@ package pt.up.fe.dceg.neptus.plugins.actualstate;
 
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIterator;
-import pt.up.fe.dceg.neptus.mra.LogMarker;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.plots.Mra2DPlot;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.plots.Mra2DPlot;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.imc.lsf.LsfIterator;
 
 /**
  * @author zp

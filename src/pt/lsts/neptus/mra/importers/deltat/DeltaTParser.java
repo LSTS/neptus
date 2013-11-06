@@ -29,7 +29,7 @@
  * Author: jqcorreia
  * Apr 2, 2013
  */
-package pt.up.fe.dceg.neptus.mra.importers.deltat;
+package pt.lsts.neptus.mra.importers.deltat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,18 +42,18 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.mra.NeptusMRA;
-import pt.up.fe.dceg.neptus.mra.api.BathymetryInfo;
-import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
-import pt.up.fe.dceg.neptus.mra.api.BathymetryPoint;
-import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.llf.LsfLogSource;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.api.BathymetryInfo;
+import pt.lsts.neptus.mra.api.BathymetryParser;
+import pt.lsts.neptus.mra.api.BathymetryPoint;
+import pt.lsts.neptus.mra.api.BathymetrySwath;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.llf.LsfLogSource;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author jqcorreia

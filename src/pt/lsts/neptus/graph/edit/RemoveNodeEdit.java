@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.graph.edit;
+package pt.lsts.neptus.graph.edit;
 
 import java.util.Vector;
 
@@ -37,10 +37,10 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.graph.NeptusEdgeElement;
-import pt.up.fe.dceg.neptus.graph.NeptusGraph;
-import pt.up.fe.dceg.neptus.graph.NeptusNodeElement;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.graph.NeptusEdgeElement;
+import pt.lsts.neptus.graph.NeptusGraph;
+import pt.lsts.neptus.graph.NeptusNodeElement;
 
 /**
  * @author zp

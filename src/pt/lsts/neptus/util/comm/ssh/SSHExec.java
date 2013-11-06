@@ -29,7 +29,7 @@
  * Author: 
  * 24/Out/2005
  */
-package pt.up.fe.dceg.neptus.util.comm.ssh;
+package pt.lsts.neptus.util.comm.ssh;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,10 +37,10 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.comm.protocol.AdjustTimeShellArgs;
-import pt.up.fe.dceg.neptus.types.comm.protocol.ProtocolArgs;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.comm.protocol.AdjustTimeShellArgs;
+import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;

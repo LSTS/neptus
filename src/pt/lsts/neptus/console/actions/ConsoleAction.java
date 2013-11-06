@@ -29,7 +29,7 @@
  * Author: Hugo Dias
  * Oct 16, 2012
  */
-package pt.up.fe.dceg.neptus.console.actions;
+package pt.lsts.neptus.console.actions;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;

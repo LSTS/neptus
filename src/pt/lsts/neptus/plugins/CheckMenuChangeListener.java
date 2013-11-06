@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2009/09/24
  */
-package pt.up.fe.dceg.neptus.plugins;
+package pt.lsts.neptus.plugins;
 
 import java.awt.event.ActionEvent;
 

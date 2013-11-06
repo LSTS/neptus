@@ -29,15 +29,15 @@
  * Author: 
  * 30/Mar/2006
  */
-package pt.up.fe.dceg.neptus.util.xsl.xalan;
+package pt.lsts.neptus.util.xsl.xalan;
 
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.io.DOMReader;
 import org.dom4j.io.DOMWriter;
 
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.AngleCalc;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AngleCalc;
 
 /**
  * @author Paulo Dias

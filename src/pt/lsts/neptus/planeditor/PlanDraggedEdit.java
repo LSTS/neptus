@@ -29,14 +29,14 @@
  * Author: José Pinto
  * 12 de Ago de 2011
  */
-package pt.up.fe.dceg.neptus.planeditor;
+package pt.lsts.neptus.planeditor;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 
-import pt.up.fe.dceg.neptus.types.map.PlanElement;
+import pt.lsts.neptus.types.map.PlanElement;
 
 /**
  * @author ZP

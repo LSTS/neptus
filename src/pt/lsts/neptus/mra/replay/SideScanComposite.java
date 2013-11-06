@@ -29,7 +29,7 @@
  * Author: José Correia
  * May 22, 2012
  */
-package pt.up.fe.dceg.neptus.mra.replay;
+package pt.lsts.neptus.mra.replay;
 
 import java.awt.Composite;
 import java.awt.CompositeContext;

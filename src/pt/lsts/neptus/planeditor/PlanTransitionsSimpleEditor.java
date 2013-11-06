@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 5/06/2011
  */
-package pt.up.fe.dceg.neptus.planeditor;
+package pt.lsts.neptus.planeditor;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -72,15 +72,15 @@ import javax.swing.text.Utilities;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.types.mission.ActionType;
-import pt.up.fe.dceg.neptus.types.mission.ConditionType;
-import pt.up.fe.dceg.neptus.types.mission.TransitionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.ConsoleParse;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.NameNormalizer;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.types.mission.ActionType;
+import pt.lsts.neptus.types.mission.ConditionType;
+import pt.lsts.neptus.types.mission.TransitionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.ConsoleParse;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.NameNormalizer;
 
 /**
  * @author pdias

@@ -29,11 +29,11 @@
  * Author: José Pinto
  * Nov 22, 2012
  */
-package pt.up.fe.dceg.neptus.console.events;
+package pt.lsts.neptus.console.events;
 
-import pt.up.fe.dceg.neptus.console.plugins.VehicleStateMonitor;
-import pt.up.fe.dceg.neptus.imc.EntityState;
-import pt.up.fe.dceg.neptus.imc.EntityState.STATE;
+import pt.lsts.neptus.console.plugins.VehicleStateMonitor;
+import pt.lsts.imc.EntityState;
+import pt.lsts.imc.EntityState.STATE;
 
 /**
  * This event is triggered whenever a Entity state has changed

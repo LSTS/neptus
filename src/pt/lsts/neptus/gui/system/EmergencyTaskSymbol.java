@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 8 de Dez de 2010
  */
-package pt.up.fe.dceg.neptus.gui.system;
+package pt.lsts.neptus.gui.system;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -39,7 +39,7 @@ import java.awt.RenderingHints;
 
 import org.jdesktop.swingx.JXPanel;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author pdias

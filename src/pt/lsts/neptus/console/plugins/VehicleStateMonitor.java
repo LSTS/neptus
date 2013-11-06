@@ -29,25 +29,25 @@
  * Author: José Pinto
  * Nov 22, 2012
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.ConsoleSystem;
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged;
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.Teleoperation;
-import pt.up.fe.dceg.neptus.imc.VehicleState;
-import pt.up.fe.dceg.neptus.imc.VehicleState.OP_MODE;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsoleSystem;
+import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
+import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.imc.Teleoperation;
+import pt.lsts.imc.VehicleState;
+import pt.lsts.imc.VehicleState.OP_MODE;
 
 import com.google.common.eventbus.Subscribe;
 

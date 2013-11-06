@@ -29,7 +29,7 @@
  * Author: Hugo Dias
  * Oct 18, 2012
  */
-package pt.up.fe.dceg.neptus;
+package pt.lsts.neptus;
 
 import java.io.File;
 
@@ -38,7 +38,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.xml.DOMConfigurator;
 
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author Hugo

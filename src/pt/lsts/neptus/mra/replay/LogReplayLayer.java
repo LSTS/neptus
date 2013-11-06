@@ -29,11 +29,11 @@
  * Author: José Pinto
  * Dec 12, 2011
  */
-package pt.up.fe.dceg.neptus.mra.replay;
+package pt.lsts.neptus.mra.replay;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author zp

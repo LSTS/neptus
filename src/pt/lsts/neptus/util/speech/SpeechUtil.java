@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2007/06/03
  */
-package pt.up.fe.dceg.neptus.util.speech;
+package pt.lsts.neptus.util.speech;
 
 import java.util.LinkedList;
 import java.util.Locale;
@@ -44,11 +44,11 @@ import javax.speech.synthesis.Synthesizer;
 import javax.speech.synthesis.SynthesizerModeDesc;
 import javax.speech.synthesis.Voice;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
-import pt.up.fe.dceg.neptus.util.conf.PreferencesListener;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.conf.PreferencesListener;
 
 /**
  * @author Paulo Dias

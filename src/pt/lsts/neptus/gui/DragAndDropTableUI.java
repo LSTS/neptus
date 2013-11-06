@@ -29,7 +29,7 @@
  * Author: José Pinto
  * May 30, 2009
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Graphics;
 import java.awt.Rectangle;

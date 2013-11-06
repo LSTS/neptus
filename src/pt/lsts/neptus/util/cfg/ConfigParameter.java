@@ -29,14 +29,14 @@
  * Author: José Pinto
  * Dec 14, 2012
  */
-package pt.up.fe.dceg.neptus.util.cfg;
+package pt.lsts.neptus.util.cfg;
 
 import java.util.Collection;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.imc.Parameter;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.imc.Parameter;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 

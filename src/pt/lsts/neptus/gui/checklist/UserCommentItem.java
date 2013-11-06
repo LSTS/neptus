@@ -8,7 +8,7 @@
  * Author: Rui Gonçalves
  * 200?/??/??
  */
-package pt.up.fe.dceg.neptus.gui.checklist;
+package pt.lsts.neptus.gui.checklist;
 
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -24,8 +24,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoSubItem;
-import pt.up.fe.dceg.neptus.types.checklist.CheckAutoUserLogItem;
+import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
+import pt.lsts.neptus.types.checklist.CheckAutoUserLogItem;
 
 public class UserCommentItem extends JPanel implements CheckSubItem {
 	

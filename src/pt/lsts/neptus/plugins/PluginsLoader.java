@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.plugins;
+package pt.lsts.neptus.plugins;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -53,10 +53,10 @@ import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.ReflectionUtil;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch.ENVIROMENT;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.ConfigFetch.ENVIROMENT;
 
 /**
  * This class has static methods to load Neptus plugins

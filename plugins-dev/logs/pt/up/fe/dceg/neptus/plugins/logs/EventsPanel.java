@@ -39,7 +39,7 @@ import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.plugins.logs.HistoryMessage.msg_type;
 
 /**

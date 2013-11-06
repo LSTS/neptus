@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2009/05/01
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Color;
 import java.awt.Dialog.ModalityType;
@@ -64,10 +64,10 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultFormatter;
 
-import pt.up.fe.dceg.neptus.gui.ClockCounter.ClockState;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.gui.ClockCounter.ClockState;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author pdias

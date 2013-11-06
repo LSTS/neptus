@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Aug 29, 2011
  */
-package pt.up.fe.dceg.neptus.doc;
+package pt.lsts.neptus.doc;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

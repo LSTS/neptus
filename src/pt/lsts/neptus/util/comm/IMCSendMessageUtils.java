@@ -29,25 +29,25 @@
  * Author: Paulo Dias
  * 5/10/2011
  */
-package pt.up.fe.dceg.neptus.util.comm;
+package pt.lsts.neptus.util.comm;
 
 import java.awt.Component;
 
 import javax.swing.JOptionPane;
 
-import pt.up.fe.dceg.neptus.console.SubPanel;
-import pt.up.fe.dceg.neptus.console.notifications.Notification;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.AcousticSystems;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.StringUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.MessageDeliveryListener;
+import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.notifications.Notification;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.StringUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.util.comm.manager.imc.MessageDeliveryListener;
+import pt.lsts.imc.AcousticSystems;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author pdias

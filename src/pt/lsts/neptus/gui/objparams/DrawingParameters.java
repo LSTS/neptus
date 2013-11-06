@@ -29,7 +29,7 @@
  * Author: 
  * 9/Fev/2005
  */
-package pt.up.fe.dceg.neptus.gui.objparams;
+package pt.lsts.neptus.gui.objparams;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -44,7 +44,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.i18n.I18n;
 
 /**
  * @author Zé Carlos

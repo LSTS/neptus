@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.mra.replay;
+package pt.lsts.neptus.mra.replay;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -51,32 +51,32 @@ import javax.swing.JToolBar;
 import javax.swing.tree.TreePath;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.InfiniteProgressPanel;
-import pt.up.fe.dceg.neptus.gui.Timeline;
-import pt.up.fe.dceg.neptus.gui.TimelineChangeListener;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.mra.LogMarker;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
-import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
+import pt.lsts.neptus.gui.Timeline;
+import pt.lsts.neptus.gui.TimelineChangeListener;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.plots.LogMarkerListener;
+import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.renderer2d.MissionRenderer;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.util.llf.LogUtils;
+import pt.lsts.neptus.util.llf.LsfTree;
+import pt.lsts.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.plugins.mraplots.ReplayPlot;
 import pt.up.fe.dceg.neptus.plugins.multibeam.MultibeamReplay;
 import pt.up.fe.dceg.neptus.plugins.oplimits.OperationLimits;
-import pt.up.fe.dceg.neptus.renderer2d.MissionRenderer;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
-import pt.up.fe.dceg.neptus.util.llf.LogUtils;
-import pt.up.fe.dceg.neptus.util.llf.LsfTree;
 
 /**
  * @author ZP

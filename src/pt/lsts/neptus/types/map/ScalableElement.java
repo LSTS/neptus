@@ -29,7 +29,7 @@
  * Author: 
  * 28/Jun/2005
  */
-package pt.up.fe.dceg.neptus.types.map;
+package pt.lsts.neptus.types.map;
 
 /**
  * @author ZP

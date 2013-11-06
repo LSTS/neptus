@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 17 de Dez de 2012
  */
-package pt.up.fe.dceg.neptus.console.actions;
+package pt.lsts.neptus.console.actions;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -38,12 +38,12 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.MonitorIMCComms;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.comm.manager.imc.MonitorIMCComms;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author pdias

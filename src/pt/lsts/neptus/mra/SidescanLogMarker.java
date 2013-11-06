@@ -29,7 +29,7 @@
  * Author: jqcorreia
  * Aug 26, 2013
  */
-package pt.up.fe.dceg.neptus.mra;
+package pt.lsts.neptus.mra;
 
 /**
  * @author jqcorreia

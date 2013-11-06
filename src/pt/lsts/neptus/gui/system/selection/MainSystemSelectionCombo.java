@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 18 de Nov de 2012
  */
-package pt.up.fe.dceg.neptus.gui.system.selection;
+package pt.lsts.neptus.gui.system.selection;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -46,14 +46,14 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventMainSystemChange;
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventNewSystem;
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged;
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
-import pt.up.fe.dceg.neptus.events.NeptusEvents;
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.events.ConsoleEventNewSystem;
+import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
+import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
+import pt.lsts.neptus.events.NeptusEvents;
+import pt.lsts.neptus.i18n.I18n;
 
 import com.google.common.eventbus.Subscribe;
 import com.sun.java.swing.plaf.windows.WindowsComboBoxUI;

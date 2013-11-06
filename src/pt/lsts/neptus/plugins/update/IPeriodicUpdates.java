@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.plugins.update;
+package pt.lsts.neptus.plugins.update;
 
 public interface IPeriodicUpdates {
 

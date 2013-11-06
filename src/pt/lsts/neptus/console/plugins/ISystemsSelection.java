@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 4/12/2011
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.util.Collection;
 

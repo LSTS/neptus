@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2005/06/15
  */
-package pt.up.fe.dceg.neptus.comm;
+package pt.lsts.neptus.comm;
 
 import java.awt.Component;
 import java.util.Timer;
@@ -38,11 +38,11 @@ import java.util.TimerTask;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import pt.up.fe.dceg.neptus.gui.WaitPanel;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.util.comm.ApacheAdjustDate;
-import pt.up.fe.dceg.neptus.util.comm.CommUtil;
-import pt.up.fe.dceg.neptus.util.comm.ssh.SSHAdjustDate;
+import pt.lsts.neptus.gui.WaitPanel;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.comm.ApacheAdjustDate;
+import pt.lsts.neptus.util.comm.CommUtil;
+import pt.lsts.neptus.util.comm.ssh.SSHAdjustDate;
 
 /**
  * This will sync the the remote clock either by Telnet or SSH connection.

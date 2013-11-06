@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.serial;
+package pt.lsts.neptus.serial;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -38,7 +38,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.GuiUtils;
 
 public class SerialPortParameters extends JPanel {
 

@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.fileeditor;
+package pt.lsts.neptus.fileeditor;
 
 import java.awt.Color;
 import java.awt.Event;
@@ -59,7 +59,7 @@ import org.apache.batik.util.gui.xmleditor.XMLContext;
 import org.apache.batik.util.gui.xmleditor.XMLEditorKit;
 import org.apache.batik.util.gui.xmleditor.XMLTextEditor;
 
-import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 
 @SuppressWarnings("serial")
 public class SyntaxDocument extends DefaultStyledDocument

@@ -29,7 +29,7 @@
  * Author: 
  * 22/Jul/2005
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -43,10 +43,10 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.types.texture.TextureType;
-import pt.up.fe.dceg.neptus.types.texture.TexturesHolder;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.texture.TextureType;
+import pt.lsts.neptus.types.texture.TexturesHolder;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author Paulo Dias

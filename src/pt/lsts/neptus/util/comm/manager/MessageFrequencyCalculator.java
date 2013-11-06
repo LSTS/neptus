@@ -10,7 +10,7 @@
  * Author: Paulo Dias
  * Jun 2, 2012
  */
-package pt.up.fe.dceg.neptus.util.comm.manager;
+package pt.lsts.neptus.util.comm.manager;
 
 /**
  * @author pdias

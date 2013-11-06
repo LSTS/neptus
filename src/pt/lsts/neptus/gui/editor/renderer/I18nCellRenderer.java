@@ -29,14 +29,14 @@
  * Author: pdias
  * Aug 11, 2013
  */
-package pt.up.fe.dceg.neptus.gui.editor.renderer;
+package pt.lsts.neptus.gui.editor.renderer;
 
 import java.awt.Component;
 import java.util.HashMap;
 
 import javax.swing.JTable;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.i18n.I18n;
 
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 

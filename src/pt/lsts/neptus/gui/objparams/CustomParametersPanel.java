@@ -29,11 +29,11 @@
  * Author: José Pinto
  * Nov 17, 2011
  */
-package pt.up.fe.dceg.neptus.gui.objparams;
+package pt.lsts.neptus.gui.objparams;
 
 import java.awt.BorderLayout;
 
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesEditor;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertySheet;

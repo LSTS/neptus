@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2009/09/19
  */
-package pt.up.fe.dceg.neptus.util.logdownload;
+package pt.lsts.neptus.util.logdownload;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -52,7 +52,7 @@ import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.i18n.I18n;
 
 /**
  * @author pdias

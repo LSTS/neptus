@@ -29,7 +29,7 @@
  * Author: 
  * 24/Jun/2005
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -39,8 +39,8 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import pt.up.fe.dceg.neptus.gui.LocationPanel;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.gui.LocationPanel;
+import pt.lsts.neptus.types.coord.LocationType;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.beans.editor.FixedButton;

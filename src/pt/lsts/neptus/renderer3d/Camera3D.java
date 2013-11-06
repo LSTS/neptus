@@ -29,7 +29,7 @@
  * Author: 
  * Mar 24, 2005
  */
-package pt.up.fe.dceg.neptus.renderer3d;
+package pt.lsts.neptus.renderer3d;
 
 import java.awt.BorderLayout;
 import java.awt.GraphicsConfiguration;
@@ -50,8 +50,8 @@ import javax.swing.JPanel;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-import pt.up.fe.dceg.neptus.types.map.AbstractElement;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 
 import com.sun.j3d.exp.swing.JCanvas3D;
 

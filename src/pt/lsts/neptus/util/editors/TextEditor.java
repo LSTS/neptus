@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.util.editors;
+package pt.lsts.neptus.util.editors;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -69,8 +69,8 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.swing.NeptusFileView;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.swing.NeptusFileView;
 
 /**
  * @version 0.1

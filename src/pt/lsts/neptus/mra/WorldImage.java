@@ -29,15 +29,15 @@
  * Author: zp
  * May 19, 2013
  */
-package pt.up.fe.dceg.neptus.mra;
+package pt.lsts.neptus.mra;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapUtils;
-import pt.up.fe.dceg.neptus.colormap.DataDiscretizer;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapUtils;
+import pt.lsts.neptus.colormap.DataDiscretizer;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp

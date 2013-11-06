@@ -29,16 +29,16 @@
  * Author: Paulo Dias
  * 13 de Mar de 2011
  */
-package pt.up.fe.dceg.neptus.util.comm.manager;
+package pt.lsts.neptus.util.comm.manager;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.messages.IMessage;
-import pt.up.fe.dceg.neptus.messages.MessageFilter;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.messages.IMessage;
+import pt.lsts.neptus.messages.MessageFilter;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
 
 /**
  * This class implements a queue of messages used to provide a private queue

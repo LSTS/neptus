@@ -27,7 +27,7 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  */
-package pt.up.fe.dceg.neptus.console;
+package pt.lsts.neptus.console;
 
 import java.awt.Component;
 import java.awt.Cursor;
@@ -52,16 +52,16 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.plugins.AlarmListener;
-import pt.up.fe.dceg.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
-import pt.up.fe.dceg.neptus.gui.MenuScroller;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.plugins.AlarmListener;
+import pt.lsts.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
+import pt.lsts.neptus.gui.MenuScroller;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.PluginsRepository;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * 

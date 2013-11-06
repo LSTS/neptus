@@ -29,11 +29,11 @@
  * Author: Paulo Dias
  * Feb 2, 2013
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.util.ArrayList;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author pdias (taken from DUNE, by Ricardo Martins)

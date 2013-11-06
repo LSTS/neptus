@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 15/05/2012
  */
-package pt.up.fe.dceg.neptus.mra.replay;
+package pt.lsts.neptus.mra.replay;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -38,17 +38,17 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.TransponderElement;
+import pt.lsts.neptus.util.lbl.LBLTriangulationHelper;
+import pt.lsts.neptus.util.llf.LogUtils;
+import pt.lsts.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.plugins.acoustic.RangePainter;
-import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.TransponderElement;
-import pt.up.fe.dceg.neptus.util.lbl.LBLTriangulationHelper;
-import pt.up.fe.dceg.neptus.util.llf.LogUtils;
 
 /**
  * @author pdias

@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Nov 9, 2011
  */
-package pt.up.fe.dceg.neptus.renderer2d;
+package pt.lsts.neptus.renderer2d;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,22 +42,22 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import pt.up.fe.dceg.neptus.gui.MenuScroller;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mystate.MyState;
-import pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension;
-import pt.up.fe.dceg.neptus.planeditor.IMapPopup;
-import pt.up.fe.dceg.neptus.systems.external.ExternalSystem;
-import pt.up.fe.dceg.neptus.systems.external.ExternalSystemsHolder;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
-import pt.up.fe.dceg.neptus.types.map.MarkElement;
-import pt.up.fe.dceg.neptus.types.map.TransponderElement;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.gui.MenuScroller;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mystate.MyState;
+import pt.lsts.neptus.planeditor.IEditorMenuExtension;
+import pt.lsts.neptus.planeditor.IMapPopup;
+import pt.lsts.neptus.systems.external.ExternalSystem;
+import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.types.map.TransponderElement;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp

@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.graph;
+package pt.lsts.neptus.graph;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
@@ -40,7 +40,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedHashMap;
 
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesEditor;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

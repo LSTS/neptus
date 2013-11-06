@@ -29,17 +29,17 @@
  * Author: Hugo Dias
  * Oct 18, 2012
  */
-package pt.up.fe.dceg.neptus;
+package pt.lsts.neptus;
 
 import java.io.File;
 import java.io.FileInputStream;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.systems.SystemsManager;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.systems.SystemsManager;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.imc.IMCDefinition;
 
 /**
  * @author Hugo

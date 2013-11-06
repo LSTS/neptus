@@ -34,18 +34,18 @@ package pt.up.fe.dceg.neptus.plugins.uavs.daemons;
 import java.awt.Graphics;
 import java.util.Hashtable;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.plugins.NeptusMessageListener;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.NeptusMessageListener;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.plugins.containers.MigLayoutContainer;
 import pt.up.fe.dceg.neptus.plugins.planning.MapPanel;
 import pt.up.fe.dceg.neptus.plugins.uavs.UavLib;
 import pt.up.fe.dceg.neptus.plugins.uavs.UavVehicleIcon;
 import pt.up.fe.dceg.neptus.plugins.uavs.painters.elements.UavVehiclePainter;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author sergioferreira

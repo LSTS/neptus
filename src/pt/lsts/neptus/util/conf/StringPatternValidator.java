@@ -29,12 +29,12 @@
  * Author: Paulo Dias
  * 2008/12/17
  */
-package pt.up.fe.dceg.neptus.util.conf;
+package pt.lsts.neptus.util.conf;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author pdias

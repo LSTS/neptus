@@ -29,7 +29,7 @@
  * Author: Rui Gonçalves
  * 200?/??/??
  */
-package pt.up.fe.dceg.neptus.viewer3d;
+package pt.lsts.neptus.viewer3d;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -56,19 +56,19 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.WaitPanel;
-import pt.up.fe.dceg.neptus.gui.swing.NeptusFileView;
-import pt.up.fe.dceg.neptus.renderer3d.Camera3D;
-import pt.up.fe.dceg.neptus.renderer3d.Obj3D;
-import pt.up.fe.dceg.neptus.renderer3d.Renderer3D;
-import pt.up.fe.dceg.neptus.renderer3d.Util3D;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.RecentlyOpenedFilesUtil;
-import pt.up.fe.dceg.neptus.util.X3dParse;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.WaitPanel;
+import pt.lsts.neptus.gui.swing.NeptusFileView;
+import pt.lsts.neptus.renderer3d.Camera3D;
+import pt.lsts.neptus.renderer3d.Obj3D;
+import pt.lsts.neptus.renderer3d.Renderer3D;
+import pt.lsts.neptus.renderer3d.Util3D;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
+import pt.lsts.neptus.util.X3dParse;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.mnstarfire.loaders3d.Inspector3DS;
 import com.sun.j3d.loaders.Loader;

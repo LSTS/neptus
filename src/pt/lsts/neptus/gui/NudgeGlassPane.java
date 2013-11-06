@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -46,7 +46,7 @@ import javax.swing.SwingUtilities;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.painter.PinstripePainter;
 
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 @SuppressWarnings("serial")
 public class NudgeGlassPane extends JPanel {

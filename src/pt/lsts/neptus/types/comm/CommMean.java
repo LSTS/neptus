@@ -29,7 +29,7 @@
  * Author: 
  * 19/Jun/2005
  */
-package pt.up.fe.dceg.neptus.types.comm;
+package pt.lsts.neptus.types.comm;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -43,13 +43,13 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.PasswordPanel;
-import pt.up.fe.dceg.neptus.types.XmlOutputMethods;
-import pt.up.fe.dceg.neptus.types.comm.protocol.AdjustTimeShellArgs;
-import pt.up.fe.dceg.neptus.types.comm.protocol.FTPArgs;
-import pt.up.fe.dceg.neptus.types.comm.protocol.IMCArgs;
-import pt.up.fe.dceg.neptus.types.comm.protocol.ProtocolArgs;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PasswordPanel;
+import pt.lsts.neptus.types.XmlOutputMethods;
+import pt.lsts.neptus.types.comm.protocol.AdjustTimeShellArgs;
+import pt.lsts.neptus.types.comm.protocol.FTPArgs;
+import pt.lsts.neptus.types.comm.protocol.IMCArgs;
+import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
 
 /**
  * @author Paulo Dias

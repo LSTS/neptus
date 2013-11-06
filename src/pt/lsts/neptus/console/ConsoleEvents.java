@@ -29,20 +29,20 @@
  * Author: José Pinto
  * Nov 18, 2012
  */
-package pt.up.fe.dceg.neptus.console;
+package pt.lsts.neptus.console;
 
-import pt.up.fe.dceg.neptus.imc.CcuEvent;
-import pt.up.fe.dceg.neptus.imc.LogBookEntry;
-import pt.up.fe.dceg.neptus.imc.MapFeature;
-import pt.up.fe.dceg.neptus.imc.MapPoint;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.MapGroup;
-import pt.up.fe.dceg.neptus.types.map.MarkElement;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.comm.IMCUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.CcuEvent;
+import pt.lsts.imc.LogBookEntry;
+import pt.lsts.imc.MapFeature;
+import pt.lsts.imc.MapPoint;
 
 import com.google.common.eventbus.Subscribe;
 

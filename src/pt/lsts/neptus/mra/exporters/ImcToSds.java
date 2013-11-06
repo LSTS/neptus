@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2012/0?/??
  */
-package pt.up.fe.dceg.neptus.mra.exporters;
+package pt.lsts.neptus.mra.exporters;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -38,11 +38,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCInputStream;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCInputStream;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * Class responsible for converting IMC lsf files containing sidescan data to Sonar Data Stream (SDS) format used

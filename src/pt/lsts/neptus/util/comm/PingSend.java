@@ -29,7 +29,7 @@
  * Author: 
  * 28/Jun/2005
  */
-package pt.up.fe.dceg.neptus.util.comm;
+package pt.lsts.neptus.util.comm;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -39,8 +39,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.comm.CommMean;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.comm.CommMean;
 
 /**
  * @author Paulo Dias

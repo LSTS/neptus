@@ -29,7 +29,7 @@
  * Author: Darryl from http://tips4java.wordpress.com/2009/02/01/menu-scroller/
  * 14/09/2010
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 /**
  * http://tips4java.wordpress.com/2009/02/01/menu-scroller/
@@ -61,7 +61,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * A class that provides scrolling capabilities to a long menu dropdown or popup menu. A number of items can optionally

@@ -29,16 +29,16 @@
  * Author: jqcorreia
  * May 15, 2013
  */
-package pt.up.fe.dceg.neptus.util.bathymetry;
+package pt.lsts.neptus.util.bathymetry;
 
 import java.io.File;
 import java.util.ArrayList;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
-import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.llf.LsfLogSource;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.api.BathymetrySwath;
+import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
  * @author jqcorreia

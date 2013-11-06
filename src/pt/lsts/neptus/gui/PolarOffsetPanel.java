@@ -29,17 +29,17 @@
  * Author: 
  * 9/03/2005
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Font;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-import pt.up.fe.dceg.neptus.gui.objparams.ParametersPanel;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.gui.objparams.ParametersPanel;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zecarlos

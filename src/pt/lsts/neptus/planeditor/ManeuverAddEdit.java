@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 12 de Ago de 2011
  */
-package pt.up.fe.dceg.neptus.planeditor;
+package pt.lsts.neptus.planeditor;
 
 import java.util.Vector;
 
@@ -37,9 +37,9 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.types.mission.TransitionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.types.mission.TransitionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author ZP

@@ -29,7 +29,7 @@
  * Author: José Correia
  * Sep 20, 2012
  */
-package pt.up.fe.dceg.neptus.util.llf;
+package pt.lsts.neptus.util.llf;
 
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -40,19 +40,19 @@ import javax.swing.JDialog;
 import javax.swing.JPopupMenu;
 import javax.swing.tree.TreePath;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.CloseTabbedPane;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mra.ColorMapVisualization;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.MraChartPanel;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.plots.GenericPlot;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.CloseTabbedPane;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.ColorMapVisualization;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.MraChartPanel;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.plots.GenericPlot;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.llf.chart.LLFChart;
 import pt.up.fe.dceg.neptus.plugins.mraplots.ReplayPlot;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.llf.chart.LLFChart;
 
 /**
  * This class deals with all the instatiation logic associated with LLFTree interaction

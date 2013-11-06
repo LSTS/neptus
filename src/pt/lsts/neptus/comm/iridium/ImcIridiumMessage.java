@@ -29,16 +29,16 @@
  * Author: zp
  * Jun 28, 2013
  */
-package pt.up.fe.dceg.neptus.comm.iridium;
+package pt.lsts.neptus.comm.iridium;
 
 import java.util.Collection;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.imc.Abort;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCInputStream;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
+import pt.lsts.imc.Abort;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCInputStream;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
 
 /**
  * @author zp

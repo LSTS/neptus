@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2009/09/12
  */
-package pt.up.fe.dceg.neptus.util.logdownload;
+package pt.lsts.neptus.util.logdownload;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -80,26 +80,26 @@ import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.colormap.InterpolationColorMap;
-import pt.up.fe.dceg.neptus.doc.NeptusDoc;
-import pt.up.fe.dceg.neptus.ftp.FtpDownloader;
-import pt.up.fe.dceg.neptus.gui.MiniButton;
-import pt.up.fe.dceg.neptus.gui.NudgeGlassPane;
-import pt.up.fe.dceg.neptus.gui.swing.MessagePanel;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
-import pt.up.fe.dceg.neptus.mra.NeptusMRA;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.EntitiesResolver;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.InterpolationColorMap;
+import pt.lsts.neptus.doc.NeptusDoc;
+import pt.lsts.neptus.ftp.FtpDownloader;
+import pt.lsts.neptus.gui.MiniButton;
+import pt.lsts.neptus.gui.NudgeGlassPane;
+import pt.lsts.neptus.gui.swing.MessagePanel;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.comm.manager.imc.EntitiesResolver;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
 

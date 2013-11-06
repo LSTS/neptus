@@ -29,7 +29,7 @@
  * Author: José Correia
  * Dec 21, 2012
  */
-package pt.up.fe.dceg.neptus.ftp;
+package pt.lsts.neptus.ftp;
 
 import java.awt.Color;
 import java.io.File;
@@ -43,8 +43,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.ProgressPanel;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.ProgressPanel;
 
 /**
  * @author jqcorreia

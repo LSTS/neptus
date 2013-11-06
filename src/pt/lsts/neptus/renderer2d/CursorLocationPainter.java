@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2006/06/13
  */
-package pt.up.fe.dceg.neptus.renderer2d;
+package pt.lsts.neptus.renderer2d;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -42,8 +42,8 @@ import java.awt.geom.Point2D;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
-import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.LocationType;
 /**
  * 
  * @author ZP

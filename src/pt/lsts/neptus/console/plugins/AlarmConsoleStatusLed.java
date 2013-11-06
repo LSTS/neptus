@@ -29,11 +29,11 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.console.plugins;
+package pt.lsts.neptus.console.plugins;
 
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.gui.StatusLed;
+import pt.lsts.neptus.gui.StatusLed;
 
 public class AlarmConsoleStatusLed 
 extends StatusLed

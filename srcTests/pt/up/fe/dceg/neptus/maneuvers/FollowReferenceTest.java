@@ -33,19 +33,19 @@ package pt.up.fe.dceg.neptus.maneuvers;
 
 import java.util.Arrays;
 
-import pt.up.fe.dceg.neptus.imc.DesiredSpeed;
-import pt.up.fe.dceg.neptus.imc.DesiredSpeed.SPEED_UNITS;
-import pt.up.fe.dceg.neptus.imc.DesiredZ;
-import pt.up.fe.dceg.neptus.imc.DesiredZ.Z_UNITS;
-import pt.up.fe.dceg.neptus.imc.FollowReference;
-import pt.up.fe.dceg.neptus.imc.PlanControl;
-import pt.up.fe.dceg.neptus.imc.PlanControl.OP;
-import pt.up.fe.dceg.neptus.imc.PlanControl.TYPE;
-import pt.up.fe.dceg.neptus.imc.PlanManeuver;
-import pt.up.fe.dceg.neptus.imc.PlanSpecification;
-import pt.up.fe.dceg.neptus.imc.Reference;
-import pt.up.fe.dceg.neptus.imc.net.UDPTransport;
-import pt.up.fe.dceg.neptus.util.comm.IMCSendMessageUtils;
+import pt.lsts.imc.DesiredSpeed;
+import pt.lsts.imc.DesiredSpeed.SPEED_UNITS;
+import pt.lsts.imc.DesiredZ;
+import pt.lsts.imc.DesiredZ.Z_UNITS;
+import pt.lsts.imc.FollowReference;
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanControl.OP;
+import pt.lsts.imc.PlanControl.TYPE;
+import pt.lsts.imc.PlanManeuver;
+import pt.lsts.imc.PlanSpecification;
+import pt.lsts.imc.Reference;
+import pt.lsts.imc.net.UDPTransport;
+import pt.lsts.neptus.util.comm.IMCSendMessageUtils;
 
 /**
  * This program sends a PlanControl message containing a (quick) plan with a FollowReference maneuver

@@ -29,7 +29,7 @@
  * Author: José Pinto
  * May 30, 2011
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 import java.awt.BorderLayout;
 import java.awt.Dialog.ModalityType;
@@ -56,19 +56,19 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.SelectAllFocusListener;
-import pt.up.fe.dceg.neptus.gui.VehicleChooser;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.TrajectoryPoint;
-import pt.up.fe.dceg.neptus.imc.VehicleFormationParticipant;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.TrajectoryPoint;
+import pt.lsts.imc.VehicleFormationParticipant;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.SelectAllFocusListener;
+import pt.lsts.neptus.gui.VehicleChooser;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 
 /**
  * @author zp
@@ -191,7 +191,7 @@ public class VehicleFormation extends FollowTrajectory {
     public IMCMessage serializeToIMC() {
         double[] lld = getManeuverLocation().getAbsoluteLatLonDepth();
 
-        pt.up.fe.dceg.neptus.imc.VehicleFormation vfMessage = new pt.up.fe.dceg.neptus.imc.VehicleFormation();
+        pt.lsts.imc.VehicleFormation vfMessage = new pt.lsts.imc.VehicleFormation();
         vfMessage.setLat(Math.toRadians(lld[0]));
         vfMessage.setLon(Math.toRadians(lld[1]));
         vfMessage.setZ(getManeuverLocation().getZ());
@@ -201,11 +201,11 @@ public class VehicleFormation extends FollowTrajectory {
         vfMessage.setSpeed(speed);
         String s_units = speed_units;
         if (s_units.equalsIgnoreCase("%"))
-            vfMessage.setSpeedUnits(pt.up.fe.dceg.neptus.imc.VehicleFormation.SPEED_UNITS.PERCENTAGE);
+            vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.PERCENTAGE);
         else if (s_units.equalsIgnoreCase("m/s"))
-            vfMessage.setSpeedUnits(pt.up.fe.dceg.neptus.imc.VehicleFormation.SPEED_UNITS.METERS_PS);
+            vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.METERS_PS);
         else
-            vfMessage.setSpeedUnits(pt.up.fe.dceg.neptus.imc.VehicleFormation.SPEED_UNITS.RPM);      
+            vfMessage.setSpeedUnits(pt.lsts.imc.VehicleFormation.SPEED_UNITS.RPM);      
 
 
         // conversion into absolute times
@@ -238,9 +238,9 @@ public class VehicleFormation extends FollowTrajectory {
      */
     public void parseIMCMessage(IMCMessage msg) {
 
-        pt.up.fe.dceg.neptus.imc.VehicleFormation formation = null;
+        pt.lsts.imc.VehicleFormation formation = null;
         try {
-            formation = pt.up.fe.dceg.neptus.imc.VehicleFormation.clone(msg);
+            formation = pt.lsts.imc.VehicleFormation.clone(msg);
         }
         catch (Exception e) {
             e.printStackTrace();

@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/06/27
  */
-package pt.up.fe.dceg.neptus.mp.actions;
+package pt.lsts.neptus.mp.actions;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -40,9 +40,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.types.miscsystems.MiscSystems;
-import pt.up.fe.dceg.neptus.types.miscsystems.MiscSystemsHolder;
+import pt.lsts.neptus.types.miscsystems.MiscSystems;
+import pt.lsts.neptus.types.miscsystems.MiscSystemsHolder;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author pdias

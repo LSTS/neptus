@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2011/01/17
  */
-package pt.up.fe.dceg.neptus.util.comm.transports;
+package pt.lsts.neptus.util.comm.transports;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,19 +38,19 @@ import java.io.PipedOutputStream;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
-import pt.up.fe.dceg.neptus.messages.listener.MessageInfoImpl;
-import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.MessageDeliveryListener;
-import pt.up.fe.dceg.neptus.util.comm.transports.DeliveryListener.ResultEnum;
-import pt.up.fe.dceg.neptus.util.comm.transports.tcp.TCPMessageListener;
-import pt.up.fe.dceg.neptus.util.comm.transports.tcp.TCPNotification;
-import pt.up.fe.dceg.neptus.util.comm.transports.tcp.TCPTransport;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageInfoImpl;
+import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.util.comm.manager.imc.MessageDeliveryListener;
+import pt.lsts.neptus.util.comm.transports.DeliveryListener.ResultEnum;
+import pt.lsts.neptus.util.comm.transports.tcp.TCPMessageListener;
+import pt.lsts.neptus.util.comm.transports.tcp.TCPNotification;
+import pt.lsts.neptus.util.comm.transports.tcp.TCPTransport;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author pdias

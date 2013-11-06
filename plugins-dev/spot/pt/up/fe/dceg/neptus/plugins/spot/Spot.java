@@ -39,7 +39,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationType;
 
 
 /**

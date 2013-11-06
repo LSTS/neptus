@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2011/05/30
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 import java.util.Vector;
 
@@ -38,18 +38,18 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
-import pt.up.fe.dceg.neptus.gui.editor.renderer.I18nCellRenderer;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.NameNormalizer;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
+import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.NameNormalizer;
+import pt.lsts.neptus.util.comm.IMCUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -314,7 +314,7 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
 
     public IMCMessage serializeToIMC() {
         
-        pt.up.fe.dceg.neptus.imc.CommsRelay msg = new pt.up.fe.dceg.neptus.imc.CommsRelay();
+        pt.lsts.imc.CommsRelay msg = new pt.lsts.imc.CommsRelay();
         
         msg.setDuration(getDuration());
         
@@ -351,13 +351,13 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
 
 		msg.setSpeed(this.getSpeed());
 		if ("m/s".equalsIgnoreCase(getUnits()))
-            msg.setSpeedUnits(pt.up.fe.dceg.neptus.imc.CommsRelay.SPEED_UNITS.METERS_PS);
+            msg.setSpeedUnits(pt.lsts.imc.CommsRelay.SPEED_UNITS.METERS_PS);
         else if ("RPM".equalsIgnoreCase(getUnits()))
-            msg.setSpeedUnits(pt.up.fe.dceg.neptus.imc.CommsRelay.SPEED_UNITS.RPM);
+            msg.setSpeedUnits(pt.lsts.imc.CommsRelay.SPEED_UNITS.RPM);
         else if ("%".equalsIgnoreCase(getUnits()))
-            msg.setSpeedUnits(pt.up.fe.dceg.neptus.imc.CommsRelay.SPEED_UNITS.PERCENTAGE);
+            msg.setSpeedUnits(pt.lsts.imc.CommsRelay.SPEED_UNITS.PERCENTAGE);
         else if ("percentage".equalsIgnoreCase(getUnits()))
-            msg.setSpeedUnits(pt.up.fe.dceg.neptus.imc.CommsRelay.SPEED_UNITS.PERCENTAGE);
+            msg.setSpeedUnits(pt.lsts.imc.CommsRelay.SPEED_UNITS.PERCENTAGE);
 		
 		msg.setMoveThreshold(getMoveThreshold());
 		

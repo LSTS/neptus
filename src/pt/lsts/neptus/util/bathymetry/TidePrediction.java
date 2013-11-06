@@ -29,7 +29,7 @@
  * Author: mfaria
  * ??/??/???
  */
-package pt.up.fe.dceg.neptus.util.bathymetry;
+package pt.lsts.neptus.util.bathymetry;
 import java.util.Date;
 
 /**

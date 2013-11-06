@@ -29,7 +29,7 @@
  * Author: 
  * Mar 23, 2005
  */
-package pt.up.fe.dceg.neptus.types.mission;
+package pt.lsts.neptus.types.mission;
 
 /**
  * @deprecated

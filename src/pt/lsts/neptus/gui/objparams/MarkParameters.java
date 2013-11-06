@@ -29,16 +29,16 @@
  * Author: 
  * Mar 15, 2005
  */
-package pt.up.fe.dceg.neptus.gui.objparams;
+package pt.lsts.neptus.gui.objparams;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
 
-import pt.up.fe.dceg.neptus.gui.LocationPanel;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.TransponderElement;
+import pt.lsts.neptus.gui.LocationPanel;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.TransponderElement;
 
 /**
  * @author zecarlos

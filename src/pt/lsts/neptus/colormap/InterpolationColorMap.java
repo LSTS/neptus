@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.colormap;
+package pt.lsts.neptus.colormap;
 
 import java.awt.Color;
 import java.beans.PropertyEditor;
@@ -41,9 +41,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.editor.ColorMapPropertyEditor;
-import pt.up.fe.dceg.neptus.plugins.PropertyType;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.editor.ColorMapPropertyEditor;
+import pt.lsts.neptus.plugins.PropertyType;
 
 public class InterpolationColorMap implements ColorMap, PropertyType {
 

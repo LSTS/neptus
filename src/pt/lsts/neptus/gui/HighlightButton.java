@@ -29,7 +29,7 @@
  * Author: 
  * May 23, 2005
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -47,7 +47,7 @@ import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 import com.jgoodies.looks.LookUtils;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;

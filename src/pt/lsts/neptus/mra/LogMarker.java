@@ -29,11 +29,11 @@
  * Author: José Correia
  * Nov 16, 2012
  */
-package pt.up.fe.dceg.neptus.mra;
+package pt.lsts.neptus.mra;
 
 import java.io.Serializable;
 
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author jqcorreia

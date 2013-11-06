@@ -29,9 +29,9 @@
  * Author: José Pinto
  * 2006/02/23
  */
-package pt.up.fe.dceg.neptus.types.coord;
+package pt.lsts.neptus.types.coord;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * Code from http://www.gpsy.com/gpsinfo/geotoutm/gantz/LatLong-UTMconversion.cpp

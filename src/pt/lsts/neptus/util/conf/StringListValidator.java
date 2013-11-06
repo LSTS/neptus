@@ -29,7 +29,7 @@
  * Author: 
  * 2007/07/11
  */
-package pt.up.fe.dceg.neptus.util.conf;
+package pt.lsts.neptus.util.conf;
 
 
 /**

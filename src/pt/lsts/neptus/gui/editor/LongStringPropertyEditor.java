@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Feb 25, 2010
  */
-package pt.up.fe.dceg.neptus.gui.editor;
+package pt.lsts.neptus.gui.editor;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -46,9 +46,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import pt.up.fe.dceg.neptus.fileeditor.SyntaxDocument;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.conf.StringProperty;
+import pt.lsts.neptus.fileeditor.SyntaxDocument;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.StringProperty;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.beans.editor.FixedButton;

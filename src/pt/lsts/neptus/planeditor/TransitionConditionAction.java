@@ -29,10 +29,10 @@
  * Author: Paulo Dias
  * 5 de Jun de 2011
  */
-package pt.up.fe.dceg.neptus.planeditor;
+package pt.lsts.neptus.planeditor;
 
-import pt.up.fe.dceg.neptus.types.mission.ActionType;
-import pt.up.fe.dceg.neptus.types.mission.ConditionType;
+import pt.lsts.neptus.types.mission.ActionType;
+import pt.lsts.neptus.types.mission.ConditionType;
 
 /**
  * @author pdias

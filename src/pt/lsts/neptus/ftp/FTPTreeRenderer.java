@@ -29,7 +29,7 @@
  * Author: José Correia
  * Dec 18, 2012
  */
-package pt.up.fe.dceg.neptus.ftp;
+package pt.lsts.neptus.ftp;
 
 import java.awt.Component;
 

@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 1 de Fev de 2013
  */
-package pt.up.fe.dceg.neptus.renderer3d;
+package pt.lsts.neptus.renderer3d;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -69,34 +69,34 @@ import javax.vecmath.Vector3f;
 
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.maneuvers.LocatedManeuver;
-import pt.up.fe.dceg.neptus.types.map.AbstractElement;
-import pt.up.fe.dceg.neptus.types.map.CylinderElement;
-import pt.up.fe.dceg.neptus.types.map.DynamicElement;
-import pt.up.fe.dceg.neptus.types.map.EllipsoidElement;
-import pt.up.fe.dceg.neptus.types.map.HomeReferenceElement;
-import pt.up.fe.dceg.neptus.types.map.ImageElement;
-import pt.up.fe.dceg.neptus.types.map.MarkElement;
-import pt.up.fe.dceg.neptus.types.map.Model3DElement;
-import pt.up.fe.dceg.neptus.types.map.ParallelepipedElement;
-import pt.up.fe.dceg.neptus.types.map.PathElement;
-import pt.up.fe.dceg.neptus.types.map.PlanElement;
-import pt.up.fe.dceg.neptus.types.map.ScatterPointsElement;
-import pt.up.fe.dceg.neptus.types.map.SimpleMapElement;
-import pt.up.fe.dceg.neptus.types.map.TransponderElement;
-import pt.up.fe.dceg.neptus.types.mission.GraphType;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.StreamUtil;
-import pt.up.fe.dceg.neptus.util.X3dParse;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.viewer3d.Viewer3D;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.CylinderElement;
+import pt.lsts.neptus.types.map.DynamicElement;
+import pt.lsts.neptus.types.map.EllipsoidElement;
+import pt.lsts.neptus.types.map.HomeReferenceElement;
+import pt.lsts.neptus.types.map.ImageElement;
+import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.types.map.Model3DElement;
+import pt.lsts.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.types.map.PathElement;
+import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.types.map.ScatterPointsElement;
+import pt.lsts.neptus.types.map.SimpleMapElement;
+import pt.lsts.neptus.types.map.TransponderElement;
+import pt.lsts.neptus.types.mission.GraphType;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.StreamUtil;
+import pt.lsts.neptus.util.X3dParse;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.viewer3d.Viewer3D;
 
 import com.mnstarfire.loaders3d.Inspector3DS;
 import com.sun.j3d.loaders.Loader;

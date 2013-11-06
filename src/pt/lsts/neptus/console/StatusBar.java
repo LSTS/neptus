@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.up.fe.dceg.neptus.console;
+package pt.lsts.neptus.console;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -47,13 +47,13 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventMainSystemChange;
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventNewNotification;
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventPlanChange;
-import pt.up.fe.dceg.neptus.console.notifications.NotificationsDialog;
-import pt.up.fe.dceg.neptus.events.NeptusEvents;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.events.ConsoleEventNewNotification;
+import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
+import pt.lsts.neptus.console.notifications.NotificationsDialog;
+import pt.lsts.neptus.events.NeptusEvents;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.DateTimeUtil;
 
 import com.google.common.eventbus.Subscribe;
 

@@ -29,7 +29,7 @@
  * Author: zp
  * Jul 1, 2013
  */
-package pt.up.fe.dceg.neptus.comm.iridium;
+package pt.lsts.neptus.comm.iridium;
 
 /**
  * @author zp

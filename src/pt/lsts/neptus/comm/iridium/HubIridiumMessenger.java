@@ -29,7 +29,7 @@
  * Author: zp
  * Jun 28, 2013
  */
-package pt.up.fe.dceg.neptus.comm.iridium;
+package pt.lsts.neptus.comm.iridium;
 
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -45,7 +45,7 @@ import java.util.Vector;
 
 import org.apache.commons.codec.binary.Hex;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 import com.google.gson.Gson;
 

@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 15/03/2011
  */
-package pt.up.fe.dceg.neptus.mp.maneuvers;
+package pt.lsts.neptus.mp.maneuvers;
 
 
 import java.awt.BorderLayout;
@@ -65,26 +65,26 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
-import pt.up.fe.dceg.neptus.gui.editor.SpeedUnitsEditor;
-import pt.up.fe.dceg.neptus.gui.editor.renderer.I18nCellRenderer;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.PathPoint;
-import pt.up.fe.dceg.neptus.imc.TrajectoryPoint;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.ManeuverLocation;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.renderer2d.InteractionAdapter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.PlanElement;
-import pt.up.fe.dceg.neptus.util.AngleCalc;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PathPoint;
+import pt.lsts.imc.TrajectoryPoint;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
+import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.renderer2d.InteractionAdapter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.StateRendererInteraction;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -575,7 +575,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
                 point.setT(absoluteTimes[i]);
                 pointMessages.add(point);
             }
-            pt.up.fe.dceg.neptus.imc.FollowTrajectory trajMessage = new pt.up.fe.dceg.neptus.imc.FollowTrajectory();
+            pt.lsts.imc.FollowTrajectory trajMessage = new pt.lsts.imc.FollowTrajectory();
             trajMessage.setPoints(pointMessages);
             trajMessage.setLat(Math.toRadians(lld[0]));
             trajMessage.setLon(Math.toRadians(lld[1]));
@@ -585,13 +585,13 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             try {
                 String speedU = this.getUnits();
                 if ("m/s".equalsIgnoreCase(speedU))
-                    trajMessage.setSpeedUnits(pt.up.fe.dceg.neptus.imc.FollowTrajectory.SPEED_UNITS.METERS_PS);
+                    trajMessage.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.METERS_PS);
                 else if ("RPM".equalsIgnoreCase(speedU))
-                    trajMessage.setSpeedUnits(pt.up.fe.dceg.neptus.imc.FollowTrajectory.SPEED_UNITS.RPM);
+                    trajMessage.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.RPM);
                 else if ("%".equalsIgnoreCase(speedU) )
-                    trajMessage.setSpeedUnits(pt.up.fe.dceg.neptus.imc.FollowTrajectory.SPEED_UNITS.PERCENTAGE);
+                    trajMessage.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.PERCENTAGE);
                 else if ("percentage".equalsIgnoreCase(speedU))
-                    trajMessage.setSpeedUnits(pt.up.fe.dceg.neptus.imc.FollowTrajectory.SPEED_UNITS.PERCENTAGE);
+                    trajMessage.setSpeedUnits(pt.lsts.imc.FollowTrajectory.SPEED_UNITS.PERCENTAGE);
             }
             catch (Exception ex) {
                 NeptusLog.pub().error(this, ex);                     
@@ -611,7 +611,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
                 point.setZ(p[Z]);
                 pointMessages.add(point);
             }
-            pt.up.fe.dceg.neptus.imc.FollowPath pathMessage = new pt.up.fe.dceg.neptus.imc.FollowPath();
+            pt.lsts.imc.FollowPath pathMessage = new pt.lsts.imc.FollowPath();
             pathMessage.setPoints(pointMessages);
             pathMessage.setLat(Math.toRadians(lld[0]));
             pathMessage.setLon(Math.toRadians(lld[1]));
@@ -621,13 +621,13 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             try {
                 String speedU = this.getUnits();
                 if ("m/s".equalsIgnoreCase(speedU))
-                    pathMessage.setSpeedUnits(pt.up.fe.dceg.neptus.imc.FollowPath.SPEED_UNITS.METERS_PS);
+                    pathMessage.setSpeedUnits(pt.lsts.imc.FollowPath.SPEED_UNITS.METERS_PS);
                 else if ("RPM".equalsIgnoreCase(speedU))
-                    pathMessage.setSpeedUnits(pt.up.fe.dceg.neptus.imc.FollowPath.SPEED_UNITS.RPM);
+                    pathMessage.setSpeedUnits(pt.lsts.imc.FollowPath.SPEED_UNITS.RPM);
                 else if ("%".equalsIgnoreCase(speedU))
-                    pathMessage.setSpeedUnits(pt.up.fe.dceg.neptus.imc.FollowPath.SPEED_UNITS.PERCENTAGE);
+                    pathMessage.setSpeedUnits(pt.lsts.imc.FollowPath.SPEED_UNITS.PERCENTAGE);
                 else if ("percentage".equalsIgnoreCase(speedU))
-                    pathMessage.setSpeedUnits(pt.up.fe.dceg.neptus.imc.FollowPath.SPEED_UNITS.PERCENTAGE);
+                    pathMessage.setSpeedUnits(pt.lsts.imc.FollowPath.SPEED_UNITS.PERCENTAGE);
             }
             catch (Exception ex) {
                 NeptusLog.pub().error(this, ex);                     
@@ -646,7 +646,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         startLoc.setZ(message.getDouble("z"));
         String units = message.getString("z_units");
         if (units != null)
-            startLoc.setZUnits(pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(units));
+            startLoc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(units));
         speed = message.getDouble("speed");
         customSettings = message.getTupleList("custom");
         String speed_units = message.getString("speed_units");

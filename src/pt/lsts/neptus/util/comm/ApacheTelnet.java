@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 22/Jun/2005
  */
-package pt.up.fe.dceg.neptus.util.comm;
+package pt.lsts.neptus.util.comm;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,7 +45,7 @@ import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
 import org.apache.commons.net.telnet.TerminalTypeOptionHandler;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author Paulo Dias

@@ -6,7 +6,7 @@
 //  http://whale.fe.up.pt
 // ---------------------------------------------------------------------------- 
 
-package pt.up.fe.dceg.neptus.messages;
+package pt.lsts.neptus.messages;
 
 /**
  * Utility class to wrap "raw data" values.

@@ -29,7 +29,7 @@
  * Author: jqcorreia
  * Mar 26, 2013
  */
-package pt.up.fe.dceg.neptus.mra.exporters;
+package pt.lsts.neptus.mra.exporters;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,11 +39,11 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mra.api.BathymetryParser;
-import pt.up.fe.dceg.neptus.mra.api.BathymetryParserFactory;
-import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.api.BathymetryParser;
+import pt.lsts.neptus.mra.api.BathymetryParserFactory;
+import pt.lsts.neptus.mra.api.BathymetrySwath;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 
 /**
  * Exporter from log data do XTF format

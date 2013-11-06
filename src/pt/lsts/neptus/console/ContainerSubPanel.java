@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2009/09/16
  */
-package pt.up.fe.dceg.neptus.console;
+package pt.lsts.neptus.console;
 
 import java.awt.Component;
 import java.util.ArrayList;
@@ -42,14 +42,14 @@ import org.dom4j.Attribute;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.plugins.LockableSubPanel;
-import pt.up.fe.dceg.neptus.console.plugins.SubPanelProvider;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.plugins.LockableSubPanel;
+import pt.lsts.neptus.console.plugins.SubPanelProvider;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

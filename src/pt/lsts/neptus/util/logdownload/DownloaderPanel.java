@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2009/09/12
  */
-package pt.up.fe.dceg.neptus.util.logdownload;
+package pt.lsts.neptus.util.logdownload;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -39,7 +39,6 @@ import java.io.File;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.SocketException;
 import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -70,17 +69,17 @@ import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.ftp.FtpDownloader;
-import pt.up.fe.dceg.neptus.gui.MiniButton;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.MovingAverage;
-import pt.up.fe.dceg.neptus.util.StreamUtil;
-import pt.up.fe.dceg.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.ftp.FtpDownloader;
+import pt.lsts.neptus.gui.MiniButton;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.MovingAverage;
+import pt.lsts.neptus.util.StreamUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
 

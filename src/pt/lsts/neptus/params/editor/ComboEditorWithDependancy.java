@@ -29,14 +29,14 @@
  * Author: Paulo Dias
  * 18/02/2013
  */
-package pt.up.fe.dceg.neptus.params.editor;
+package pt.lsts.neptus.params.editor;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import pt.up.fe.dceg.neptus.gui.editor.ComboEditor;
-import pt.up.fe.dceg.neptus.params.SystemProperty;
-import pt.up.fe.dceg.neptus.params.editor.PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf;
+import pt.lsts.neptus.gui.editor.ComboEditor;
+import pt.lsts.neptus.params.SystemProperty;
+import pt.lsts.neptus.params.editor.PropertyEditorChangeValuesIfDependancyAdapter.ValuesIf;
 
 public class ComboEditorWithDependancy<T extends Object> extends ComboEditor<T> implements PropertyChangeListener {
 

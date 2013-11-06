@@ -29,7 +29,7 @@
  * Author: 
  * Feb 21, 2005
  */
-package pt.up.fe.dceg.neptus.util;
+package pt.lsts.neptus.util;
 
 import java.util.GregorianCalendar;
 import java.util.Random;
