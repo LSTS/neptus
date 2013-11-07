@@ -1331,13 +1331,14 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 short idCounter = 0;
                 while (transIt.hasNext()) {
                     currNode = transIt.next();
-                    State state = (State) currNode.getUserInfo().get(NodeInfoKey.SYNC.name());
+                    HashMap<String, Object> userInfo = currNode.getUserInfo();
+                    State state = (State) userInfo.get(NodeInfoKey.SYNC.name());
                     if (state.equals(State.SYNC) || state.equals(State.NOT_SYNC)) {
-                        currNode.getUserInfo().put(NodeInfoKey.ID.name(), idCounter);
+                        userInfo.put(NodeInfoKey.ID.name(), idCounter);
                         idCounter++;
                     }
                     else {
-                        currNode.getUserInfo().put(NodeInfoKey.ID.name(), (short) -1);
+                        userInfo.put(NodeInfoKey.ID.name(), (short) -1);
                     }
                 }
             }
