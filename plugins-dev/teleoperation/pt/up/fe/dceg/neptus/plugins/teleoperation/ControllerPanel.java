@@ -83,6 +83,7 @@ import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
 import pt.up.fe.dceg.neptus.plugins.update.PeriodicUpdatesService;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import visad.RemoteAction;
 
 /**
  * Controller Panel This panel is responsible for providing a away to teleoperate the vehicle, as well as edit the
@@ -426,7 +427,15 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
     }
     
     public void consume(RemoteActionsRequest message) {
-        actions = message.getActions();
+        if(actions == null) {
+            actions = new LinkedHashMap<String, String>();
+        }
+        for(String k: message.getActions().keySet()) {
+            actions.put(k, message.getActions().get(k));
+        }
+        
+//        actions = message.getActions();
+        System.out.println(message);
         mappedActions = getMappedActions(console.getMainSystem(), currentController);
         buildDialog();
     }
