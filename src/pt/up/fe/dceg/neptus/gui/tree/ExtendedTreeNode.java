@@ -136,7 +136,8 @@ public class ExtendedTreeNode extends DefaultMutableTreeNode {
         @Override
         public ExtendedTreeNode next() {
             index++;
-            return (ExtendedTreeNode) childLocalTrans.getNextSibling();
+            childLocalTrans = (ExtendedTreeNode) childLocalTrans.getNextSibling();
+            return childLocalTrans;
         }
 
         @Override
