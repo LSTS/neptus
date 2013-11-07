@@ -798,6 +798,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     /**
      * Go through remote LblBeacon configurations and alphabetically merge into nextModel.
      * <p>
+     * This is where the synchronization state is decided.
+     * <p>
      * Unable to use the same method as for plan because of the differences between LblBeacons, PlanDBInfo and PlanType.
      * 
      * @param sysName the main vehicle
@@ -826,9 +828,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             }
             else {
                 // Check if existing trans is remote (TODO check is remote is ever set as a state!)
-                Object existingTrans = target.getUserObject();
+                TransponderElement existingTrans = (TransponderElement) target.getUserObject();
                 if (target.getUserInfo().get(NodeInfoKey.SYNC.name()) == State.REMOTE) {
-                    treeModel.removeById(((TransponderElement) existingTrans).getIdentification(),
+                    treeModel.removeById(existingTrans.getIdentification(),
                             ParentNodes.TRANSPONDERS);
                     newTrans = new TransponderElement(remoteItem);
                     target = new ExtendedTreeNode(newTrans);
@@ -839,7 +841,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 }
                 else {
                     // If there is already a config use md5 to find out if it is sync
-                    if (target.equals(remoteItem)) {
+                    if (existingTrans.equals(remoteItem)) {
                         target.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
                         System.out.println(" in tree mission. == fields,  >> Sync.");
                     }
@@ -1311,9 +1313,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     // revalidate();
     // }
 
-    public void updateTransStateEDT(MissionType mission, final String sysName) {
+    public void updateTransStateEDT(MissionType mission, final String sysName,
+            final LinkedHashMap<String, LblBeacon> remoteTrans) {
         final LinkedHashMap<String, TransponderElement> localTrans = getLocalTrans(mission);
-        final LinkedHashMap<String, LblBeacon> remoteTrans = getRemoteTrans(sysName);
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override
@@ -1343,6 +1345,11 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 }
             }
         });
+    }
+
+    public void updateTransStateEDT(MissionType mission, final String sysName) {
+        final LinkedHashMap<String, LblBeacon> remoteTrans = getRemoteTrans(sysName);
+        updateTransStateEDT(mission, sysName, remoteTrans);
     }
 
     /**

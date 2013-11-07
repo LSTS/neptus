@@ -49,6 +49,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -79,6 +80,9 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
+import pt.up.fe.dceg.neptus.imc.LblBeacon;
+import pt.up.fe.dceg.neptus.imc.LblConfig;
+import pt.up.fe.dceg.neptus.imc.LblConfig.OP;
 import pt.up.fe.dceg.neptus.imc.LblRangeAcceptance;
 import pt.up.fe.dceg.neptus.imc.PlanControlState;
 import pt.up.fe.dceg.neptus.imc.PlanControlState.STATE;
@@ -517,15 +521,20 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     NeptusLog.pub().error("Problem cloning a message.", e);
                 }
              break;
-            // // Beacons list and state management
-            // case LblConfig.ID_STATIC:
-            // LblConfig lblConfig = (LblConfig) message;
-            // if (((LblConfig) message).getOp() == OP.CUR_CFG) {
-            // @SuppressWarnings("unchecked")
-            // final Vector<LblBeacon> beacons = (Vector<LblBeacon>) lblConfig.getBeacons().clone();
-            // browser.transSyncConfig(beacons, getMainVehicleId());
-            // }
-            // break;
+            // Beacons list and state management
+            case LblConfig.ID_STATIC:
+                LblConfig lblConfig = (LblConfig) message;
+                if (((LblConfig) message).getOp() == OP.CUR_CFG) {
+                    @SuppressWarnings("unchecked")
+                    final Vector<LblBeacon> beacons = (Vector<LblBeacon>) lblConfig.getBeacons().clone();
+                    // browser.transSyncConfig(beacons, getMainVehicleId());
+                    LinkedHashMap<String, LblBeacon> remoteTrans = new LinkedHashMap<String, LblBeacon>();
+                    for (LblBeacon lblBeacon : beacons) {
+                        remoteTrans.put(lblBeacon.getBeacon(), lblBeacon);
+                    }
+                    browser.updateTransStateEDT(getConsole().getMission(), getMainVehicleId(), remoteTrans);
+                }
+                break;
 
             default:
                 NeptusLog.pub().error("Unknown message " + mgid);
