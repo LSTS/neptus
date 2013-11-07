@@ -188,7 +188,13 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @return The currently selected object
      */
     public Object getSelectedItem() {
-        return getSelectedTreeNode().getUserObject();
+        ExtendedTreeNode node = getSelectedTreeNode();
+        if (node == null) {
+            return null;
+        }
+        else {
+            return node.getUserObject();
+        }
     }
 
 
@@ -917,7 +923,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 newNode.getUserInfo().put(NodeInfoKey.ID.name(), (short) -1);
                 treeModel.insertAlphabetically(newNode, itemType);
                 target = newNode;
-                System.out.print(itemType.name() + " not found in mission tree. Creating with mission plan.");
+                System.out.print(" not found in mission tree. Creating with mission.");
             }
             else {
                 target.setUserObject(item);
@@ -1043,6 +1049,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         boolean reval = false;
         while (transIt.hasNext()) {
             transNode = transIt.next();
+            System.out.println(transNode);
             userInfo = transNode.getUserInfo();
             nodeId = (short) userInfo.get(NodeInfoKey.ID.name());
             transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
@@ -1313,7 +1320,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             public void run() {
                 HashSet<String> existingTrans = mergeLocal(localTrans, sysName, treeModel, ParentNodes.TRANSPONDERS);
                 existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans);
-                // treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
+                treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
                 cleanUpIds();
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
             }
@@ -1321,7 +1328,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             private void cleanUpIds() {
                 ChildIterator transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
                 ExtendedTreeNode currNode;
-                int idCounter = 0;
+                short idCounter = 0;
                 while (transIt.hasNext()) {
                     currNode = transIt.next();
                     State state = (State) currNode.getUserInfo().get(NodeInfoKey.SYNC.name());
@@ -1332,9 +1339,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     else {
                         currNode.getUserInfo().put(NodeInfoKey.ID.name(), (short) -1);
                     }
-                    NeptusLog.pub().error(
-                            ((TransponderElement) currNode.getUserObject()).getIdentification() + " ["
-                                    + currNode.getUserInfo().get(NodeInfoKey.ID.name()) + "] is " + state);
                 }
             }
         });

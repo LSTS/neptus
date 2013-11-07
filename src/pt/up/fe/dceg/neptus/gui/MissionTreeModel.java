@@ -34,7 +34,6 @@ package pt.up.fe.dceg.neptus.gui;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -166,7 +165,7 @@ public class MissionTreeModel extends DefaultTreeModel {
     public ExtendedTreeNode addTransponderNode(TransponderElement elem) {
         ExtendedTreeNode node = new ExtendedTreeNode(elem);
         HashMap<String, Object> transInfo = node.getUserInfo();
-        transInfo.put(NodeInfoKey.ID.name(), -1);
+        transInfo.put(NodeInfoKey.ID.name(), (short) -1);
         transInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
         transInfo.put(NodeInfoKey.VEHICLE.name(), "");
 //        addToParents(node, ParentNodes.TRANSPONDERS);
@@ -221,8 +220,6 @@ public class MissionTreeModel extends DefaultTreeModel {
                 return true;
             }
         }
-        System.out.print(" [insertAlphabetically] "
-                + ((SwingUtilities.isEventDispatchThread() ? " is EDT " : " out of EDT ")));
         // Add to the end (this ensures that if the parent wasn't visible in the tree before it is now
         addToParents(newNode, parentType, nodeChildCount);
         return true;
@@ -232,17 +229,29 @@ public class MissionTreeModel extends DefaultTreeModel {
     private void addToParents(ExtendedTreeNode node, ParentNodes parentType, int index) {
         ExtendedTreeNode parent = getParent(parentType);
         insertNodeInto(node, parent, index);
-        if (parent.getChildCount() == 1) {
+        // check if the parent is in the tree at this time
+        boolean inTree = parent.getParent() != null;
+        System.out.print("parent " + ((inTree) ? ("is") : ("not")) + " in tree ");
+        if (!inTree) {
+            int parentIndex = 0;
+            if (homeR.getParent() != null)
+                parentIndex++;
             switch (parentType) {
                 case PLANS:
-                    insertNodeInto(parent, (MutableTreeNode) root, 2);
+                    // insert after transponder's node
+                    if (trans.getParent() != null)
+                        parentIndex++;
                     break;
                 case TRANSPONDERS:
-                    insertNodeInto(parent, (MutableTreeNode) root, 1);
+                    // if there is a home ref insert at 1
                     break;
                 default:
+                    NeptusLog.pub().error(
+                            "There is no support for " + parentType.name() + " in MissionTreeModel.addToParents()");
                     break;
             }
+            System.out.print("  Gonna insert " + parentType + " at " + parentIndex);
+            insertNodeInto(parent, (MutableTreeNode) root, parentIndex);
         }
     }
 
