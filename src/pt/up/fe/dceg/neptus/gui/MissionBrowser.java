@@ -214,27 +214,28 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
 
         MissionType mt = console2.getMission();
-        MapType pivot;
-        Vector<TransponderElement> ts = MapGroup.getMapGroupInstance(mt).getAllObjectsOfType(TransponderElement.class);
+        MapType map;
+        MapGroup mapGroupInstance = MapGroup.getMapGroupInstance(mt);
+        Vector<TransponderElement> ts = mapGroupInstance.getAllObjectsOfType(TransponderElement.class);
         if (ts.size() > 0) {
-            pivot = ts.firstElement().getParentMap();
+            map = ts.firstElement().getParentMap();
         }
         else {
             if (mt.getMapsList().size() > 0)
-                pivot = mt.getMapsList().values().iterator().next().getMap();
+                map = mt.getMapsList().values().iterator().next().getMap();
             else {
-                MapType map = new MapType(new LocationType(mt.getHomeRef()));
+                MapType newMap = new MapType(new LocationType(mt.getHomeRef()));
                 MapMission mm = new MapMission();
-                mm.setMap(map);
+                mm.setMap(newMap);
                 mt.addMap(mm);
-                MapGroup.getMapGroupInstance(mt).addMap(map);
-                pivot = map;
+                mapGroupInstance.addMap(newMap);
+                map = newMap;
             }
         }
 
-        TransponderElement te = new TransponderElement(MapGroup.getMapGroupInstance(mt), pivot);
+        TransponderElement te = new TransponderElement(mapGroupInstance, map);
         te = SimpleTransponderPanel.showTransponderDialog(te, I18n.text("New transponder properties"), true, true,
-                pivot.getObjectNames(), MissionBrowser.this);
+                map.getObjectNames(), MissionBrowser.this);
         if (te != null) {
             te.getParentMap().addObject(te);
             te.getParentMap().saveFile(te.getParentMap().getHref());
