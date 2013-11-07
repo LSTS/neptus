@@ -282,13 +282,13 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public void missionReplaced(MissionType mission) {
-        browser.refreshBrowser_(getConsole().getPlan(), getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
     }
 
     @Override
     public void missionUpdated(MissionType mission) {
         // it is called (among others) when the specs for a remote plan have just been received
-        browser.refreshBrowser_(getConsole().getPlan(), getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
     }
 
     @Override
@@ -298,7 +298,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         inited = true;
         updatePlanDBListener(getMainVehicleId());
 
-        browser.refreshBrowser_(getConsole().getPlan(), getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
 
         addMenuItem(I18n.text("Advanced") + ">" + I18n.text("Clear remote PlanDB for main system"), new ImageIcon(
                 PluginUtils.getPluginIcon(getClass())), new ActionListener() {
@@ -393,6 +393,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         // browser.transStopTimers();
         running = false;
         updatePlanDBListener(id);
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
     }
 
     /**
@@ -929,7 +930,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
                                 if (console != null)
                                     console.setPlan(null);
-                                browser.refreshBrowser_(getConsole().getPlan(), getConsole().getMission(),
+                                browser.refreshBrowser(getConsole().getMission(),
                                         getMainVehicleId());
                             }
                         }
@@ -941,7 +942,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             popupMenu.add(I18n.text("Reload Panel")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    browser.refreshBrowser_(getConsole().getPlan(), getConsole().getMission(), getMainVehicleId());
+                    browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
                 }
             });
 

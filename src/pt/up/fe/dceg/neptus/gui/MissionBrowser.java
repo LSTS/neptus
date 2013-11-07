@@ -329,7 +329,10 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
 
-    public void refreshBrowser_(final PlanType selectedPlan, final MissionType mission, final String mainVehicleId) {
+    public void refreshBrowser(final MissionType mission,
+            final String mainVehicleId) {
+        // Selected nodes
+        TreePath[] selectedNodes = getSelectedNodes();
         // Home ref
         treeModel.setHomeRef(mission.getHomeRef());
         // Plans
@@ -344,18 +347,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         updatePlansStateEDT(localPlans, mainVehicleId);
         // Transponders
         updateTransStateEDT(mission, mainVehicleId);
-        // final Vector<TransponderElement> trans = MapGroup.getMapGroupInstance(mission).getAllObjectsOfType(
-        // TransponderElement.class);
-        // Collections.sort(trans);
-        // SwingUtilities.invokeLater(new Runnable() {
-        //
-        // @Override
-        // public void run() {
-        // transElemSyncConfig(trans, mainVehicleId);
-        // JTreeUtils.expandAll(elementTree);
-        // }
-        //
-        // });
+        // Set the right nodes as selected
+        setSelectedNodes(selectedNodes);
     }
 
     @Override
@@ -738,7 +731,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 HashSet<String> existingPlans = mergeLocalPlans(localPlans, sysName, treeModel);
                 existingPlans = mergeRemotePlans(sysName, remotePlans, treeModel, existingPlans);
                 treeModel.removeSet(existingPlans, ParentNodes.PLANS);
-                // deleteDiscontinued(existingPlans, ParentNodes.PLANS);
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.PLANS));
             }
         });
@@ -1326,6 +1318,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
                 cleanUpIds();
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
+                revalidate();
             }
 
             private void cleanUpIds() {
