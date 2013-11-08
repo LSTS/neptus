@@ -434,8 +434,6 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
             actions.put(k, message.getActions().get(k));
         }
         
-//        actions = message.getActions();
-        System.out.println(message);
         mappedActions = getMappedActions(console.getMainSystem(), currentController);
         buildDialog();
     }
