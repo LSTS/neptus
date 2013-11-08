@@ -66,7 +66,6 @@ import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.console.ConsoleLayout;
 import pt.up.fe.dceg.neptus.console.events.ConsoleEventPlanChange;
 import pt.up.fe.dceg.neptus.console.plugins.IPlanSelection;
-import pt.up.fe.dceg.neptus.console.plugins.ISystemsSelection;
 import pt.up.fe.dceg.neptus.console.plugins.ITransponderSelection;
 import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
 import pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener;
@@ -560,19 +559,19 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         browser.setSelectedPlan(event.getCurrent());
     }
 
-    private ImcSystem[] convertToImcSystemsArray(Vector<ISystemsSelection> sys) {
-        Collection<String> asys = sys.firstElement().getAvailableSelectedSystems();
-        Vector<ImcSystem> imcSystems = new Vector<ImcSystem>();
-        for (String id : asys) {
-            ImcSystem tsys = ImcSystemsHolder.lookupSystemByName(id);
-            if (tsys != null) {
-                if (!imcSystems.contains(tsys))
-                    imcSystems.add(tsys);
-            }
-        }
-        ImcSystem[] imcSystemsArray = imcSystems.toArray(new ImcSystem[imcSystems.size()]);
-        return imcSystemsArray;
-    }
+    // private ImcSystem[] convertToImcSystemsArray(Vector<ISystemsSelection> sys) {
+    // Collection<String> asys = sys.firstElement().getAvailableSelectedSystems();
+    // Vector<ImcSystem> imcSystems = new Vector<ImcSystem>();
+    // for (String id : asys) {
+    // ImcSystem tsys = ImcSystemsHolder.lookupSystemByName(id);
+    // if (tsys != null) {
+    // if (!imcSystems.contains(tsys))
+    // imcSystems.add(tsys);
+    // }
+    // }
+    // ImcSystem[] imcSystemsArray = imcSystems.toArray(new ImcSystem[imcSystems.size()]);
+    // return imcSystemsArray;
+    // }
 
     /**
      * Called every time a property is changed
