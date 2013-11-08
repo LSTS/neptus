@@ -724,47 +724,26 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     }
                 }
             }
-
             if (multiSel == null || multiSel.length <= 1) {
-
                 browser.setMultiSelect(e);
             }
-
             final Object selection = browser.getSelectedItem();
             DefaultMutableTreeNode selectionNode = browser.getSelectedTreeNode();
-
             JPopupMenu popupMenu = new JPopupMenu();
             JMenu dissemination = new JMenu(I18n.text("Dissemination"));
-
             if (Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null) != null) {
-                dissemination.add(I18n.text("Paste URL")).addActionListener(new ActionListener() {
-
-                    @Override
-                    public void actionPerformed(ActionEvent arg0) {
-                        if (browser.setContent(Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null),
-                                console.getMission())) {
-                            console.updateMissionListeners();
-                        }
-                    }
-                });
+                addActionPasteUrl(dissemination);
                 dissemination.addSeparator();
             }
-
             if (selection == null) {
                 popupMenu.addSeparator();
-                popupMenu.add(I18n.text("Add a new transponder")).addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        browser.addTransponderElement(console);
-                    }
-                });
+                addActionAddNewTrans(popupMenu);
             }
             else if (selection instanceof PlanType) {
                 // if (plansCount == 1) {
                 popupMenu.addSeparator();
                 addActionSendPlan(console, pdbControl, selection, popupMenu);
                 addActionRemovePlanLocally(console, (Identifiable) selection, popupMenu);
-
                 State syncState = (State) ((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.SYNC.name());
                 if (syncState == null)
                     syncState = State.LOCAL;
@@ -772,31 +751,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     addActionRemovePlanRemotely(console, pdbControl, (Identifiable) selection, popupMenu);
                     addActionGetRemotePlan(console, pdbControl, selection, popupMenu);
                 }
-
-                dissemination.add(I18n.textf("Share '%planName'", selection)).addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        // disseminate((XmlOutputMethods) selection, "Plan");
-                        console.getImcMsgManager().broadcastToCCUs(((PlanType) selection).asIMCPlan());
-                    }
-                });
-
-                popupMenu.add(I18n.text("Change plan vehicles")).addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (selection != null) {
-                            PlanType sel = (PlanType) selection;
-
-                            String[] vehicles = VehicleSelectionDialog.showSelectionDialog(console, sel.getVehicles()
-                                    .toArray(new VehicleType[0]));
-                            Vector<VehicleType> vts = new Vector<VehicleType>();
-                            for (String v : vehicles) {
-                                vts.add(VehiclesHolder.getVehicleById(v));
-                            }
-                            sel.setVehicles(vts);
-                        }
-                    }
-                });
+                addActionShare(selection, dissemination);
+                addActionChangePlanVehicles(selection, popupMenu);
                 // }
                 ActionItem actionItem;
                 for (int a = 0; a < extraPlanActions.size(); a++) {
@@ -809,12 +765,9 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                         .getUserInfo().get(NodeInfoKey.SYNC.name()) : null;
                 if (syncState == null)
                     syncState = State.LOCAL;
-
                 else if (syncState == State.REMOTE) {
                     addActionGetRemotePlan(console, pdbControl, selection, popupMenu);
-
                     addActionRemovePlanRemotely(console, pdbControl, (Identifiable) selection, popupMenu);
-
                     // popupMenu.add(
                     // I18n.textf("bug Remove '%planName' from %system", selection, console2.getMainSystem()))
                     // .addActionListener(new ActionListener() {
@@ -830,53 +783,18 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 }
             }
             else if (selection instanceof TransponderElement) {
-
                 popupMenu.addSeparator();
-
-                popupMenu.add(I18n.textf("View/Edit '%transponderName'", selection)).addActionListener(
-                        new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                browser.editTransponder((TransponderElement) selection, console.getMission());
-                            }
-                        });
-
-                popupMenu.add(I18n.textf("Remove '%transponderName'", selection)).addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        browser.removeTransponder((TransponderElement) selection, console);
-                    }
-                });
-
+                addActionEditTrans(selection, popupMenu);
+                addActionRemoveTrans(selection, popupMenu);
                 Vector<TransponderElement> allTransponderElements = MapGroup.getMapGroupInstance(console.getMission())
                         .getAllObjectsOfType(TransponderElement.class);
                 for (final AbstractElement tel : allTransponderElements) {
                     if ((TransponderElement) selection != (TransponderElement) tel) {
-                        popupMenu.add(I18n.textf("Switch '%transponderName1' with '%transponderName2'", selection, tel))
-                                .addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        new Thread() {
-                                            @Override
-                                            public void run() {
-                                                browser.swithLocationsTransponder((TransponderElement) selection,
-                                                        (TransponderElement) tel, console);
-                                            };
-                                        }.start();
-                                    }
-                                });
+                        addActionSwitchTrans(selection, popupMenu, tel);
                     }
                 }
-
                 addActionShare((Identifiable) selection, dissemination, "Transponder");
-
-                popupMenu.add(I18n.text("Add a new transponder")).addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        browser.addTransponderElement(console);
-                    }
-                });
-
+                addActionAddNewTrans(popupMenu);
             }
             //
             // else if (selection instanceof MarkElement) {
@@ -891,64 +809,158 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             // });
             // }
             else if (selection instanceof HomeReference) {
-                popupMenu.add(I18n.text("View/Edit home reference")).addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent arg0) {
-                        LocationType loc = new LocationType((HomeReference) selection);
-                        LocationType after = LocationPanel.showLocationDialog(console, I18n.text("Set home reference"),
-                                loc, console.getMission(), true);
-                        if (after == null)
-                            return;
-
-                        console.getMission().getHomeRef().setLocation(after);
-
-                        Vector<HomeReferenceElement> hrefElems = MapGroup.getMapGroupInstance(console.getMission())
-                                .getAllObjectsOfType(HomeReferenceElement.class);
-                        hrefElems.get(0).setCoordinateSystem(console.getMission().getHomeRef());
-                        console.getMission().save(false);
-                        console.updateMissionListeners();
-                    }
-                });
+                addActionEditHomeRef(selection, popupMenu);
             }
-
             if (plansCount > 1) {
                 popupMenu.addSeparator();
-
-                popupMenu.add(I18n.text("Remove selected plans")).addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (selection != null) {
-                            int resp = JOptionPane.showConfirmDialog(console,
-                                    I18n.textf("Remove all selected plans (%numberOfPlans)?", multiSel.length));
-
-                            if (resp == JOptionPane.YES_OPTION) {
-                                for (Object o : multiSel) {
-                                    PlanType sel = (PlanType) o;
-                                    console.getMission().getIndividualPlansList().remove(sel.getId());
-                                }
-                                console.getMission().save(false);
-
-                                if (console != null)
-                                    console.setPlan(null);
-                                browser.refreshBrowser(getConsole().getMission(),
-                                        getMainVehicleId());
-                            }
-                        }
-                    }
-                });
+                addActionRemoveSelectedPlans(multiSel, selection, popupMenu);
             }
-
             popupMenu.addSeparator();
+            addActionReloadPanel(popupMenu);
+            popupMenu.add(dissemination);
+            popupMenu.show((Component) e.getSource(), e.getX(), e.getY());
+        }
+
+        private void addActionReloadPanel(JPopupMenu popupMenu) {
             popupMenu.add(I18n.text("Reload Panel")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
                 }
             });
+        }
 
-            popupMenu.add(dissemination);
+        private void addActionRemoveSelectedPlans(final Object[] multiSel, final Object selection, JPopupMenu popupMenu) {
+            popupMenu.add(I18n.text("Remove selected plans")).addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (selection != null) {
+                        int resp = JOptionPane.showConfirmDialog(console,
+                                I18n.textf("Remove all selected plans (%numberOfPlans)?", multiSel.length));
 
-            popupMenu.show((Component) e.getSource(), e.getX(), e.getY());
+                        if (resp == JOptionPane.YES_OPTION) {
+                            for (Object o : multiSel) {
+                                PlanType sel = (PlanType) o;
+                                console.getMission().getIndividualPlansList().remove(sel.getId());
+                            }
+                            console.getMission().save(false);
+
+                            if (console != null)
+                                console.setPlan(null);
+                            browser.refreshBrowser(getConsole().getMission(),
+                                    getMainVehicleId());
+                        }
+                    }
+                }
+            });
+        }
+
+        private void addActionEditHomeRef(final Object selection, JPopupMenu popupMenu) {
+            popupMenu.add(I18n.text("View/Edit home reference")).addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+                    LocationType loc = new LocationType((HomeReference) selection);
+                    LocationType after = LocationPanel.showLocationDialog(console, I18n.text("Set home reference"),
+                            loc, console.getMission(), true);
+                    if (after == null)
+                        return;
+
+                    console.getMission().getHomeRef().setLocation(after);
+
+                    Vector<HomeReferenceElement> hrefElems = MapGroup.getMapGroupInstance(console.getMission())
+                            .getAllObjectsOfType(HomeReferenceElement.class);
+                    hrefElems.get(0).setCoordinateSystem(console.getMission().getHomeRef());
+                    console.getMission().save(false);
+                    console.updateMissionListeners();
+                }
+            });
+        }
+
+        private void addActionSwitchTrans(final Object selection, JPopupMenu popupMenu, final AbstractElement tel) {
+            popupMenu.add(I18n.textf("Switch '%transponderName1' with '%transponderName2'", selection, tel))
+                    .addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    browser.swithLocationsTransponder((TransponderElement) selection,
+                                            (TransponderElement) tel, console);
+                                };
+                            }.start();
+                        }
+                    });
+        }
+
+        private void addActionRemoveTrans(final Object selection, JPopupMenu popupMenu) {
+            popupMenu.add(I18n.textf("Remove '%transponderName'", selection)).addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    browser.removeTransponder((TransponderElement) selection, console);
+                }
+            });
+        }
+
+        private void addActionEditTrans(final Object selection, JPopupMenu popupMenu) {
+            popupMenu.add(I18n.textf("View/Edit '%transponderName'", selection)).addActionListener(
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            browser.editTransponder((TransponderElement) selection, console.getMission(),
+                                    getMainVehicleId());
+                        }
+                    });
+        }
+
+        private void addActionChangePlanVehicles(final Object selection, JPopupMenu popupMenu) {
+            popupMenu.add(I18n.text("Change plan vehicles")).addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (selection != null) {
+                        PlanType sel = (PlanType) selection;
+
+                        String[] vehicles = VehicleSelectionDialog.showSelectionDialog(console, sel.getVehicles()
+                                .toArray(new VehicleType[0]));
+                        Vector<VehicleType> vts = new Vector<VehicleType>();
+                        for (String v : vehicles) {
+                            vts.add(VehiclesHolder.getVehicleById(v));
+                        }
+                        sel.setVehicles(vts);
+                    }
+                }
+            });
+        }
+
+        private void addActionShare(final Object selection, JMenu dissemination) {
+            dissemination.add(I18n.textf("Share '%planName'", selection)).addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // disseminate((XmlOutputMethods) selection, "Plan");
+                    console.getImcMsgManager().broadcastToCCUs(((PlanType) selection).asIMCPlan());
+                }
+            });
+        }
+
+        private void addActionAddNewTrans(JPopupMenu popupMenu) {
+            popupMenu.add(I18n.text("Add a new transponder")).addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    browser.addTransponderElement(console);
+                }
+            });
+        }
+
+        private void addActionPasteUrl(JMenu dissemination) {
+            dissemination.add(I18n.text("Paste URL")).addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+                    if (browser.setContent(Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null),
+                            console.getMission())) {
+                        console.updateMissionListeners();
+                    }
+                }
+            });
         }
     }
 
