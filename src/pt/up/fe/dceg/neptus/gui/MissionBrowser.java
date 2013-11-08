@@ -1118,27 +1118,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             }
         }
 
-        // ExtendedTreeNode trans = treeModel.trans;
-        // int childCount = trans.getChildCount();
-        // for (int c = 0; c < childCount; c++) {
-        // ExtendedTreeNode transNode = (ExtendedTreeNode) trans.getChildAt(c);
-        // HashMap<String, Object> userInfo = transNode.getUserInfo();
-        // String transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
-        // // only looks at synchronized transponders that are linked to the designated vehicle
-        // State nodeSync = (State) userInfo.get(NodeInfoKey.SYNC.name());
-        // if (nodeSync == State.SYNC && transVehicle.equals(mainVehicle)) {
-        // ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
-        // if (imcSystems != null) {
-        // String name = ((TransponderElement) transNode.getUserObject()).getName();
-        // LBLRangesTimer timer = (LBLRangesTimer) imcSystems.retrieveData(name);
-        // if (timer == null) {
-        // timer = new LBLRangesTimer();
-        // imcSystems.storeData(name, timer);
-        // }
-        // timer.resetTime();
-        // }
-        // }
-        // }
         revalidate(); // call EDT
     }
 
@@ -1168,144 +1147,28 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 }
             }
         }
-
-        // ExtendedTreeNode trans = treeModel.trans;
-        // int childCount = trans.getChildCount();
-        // ExtendedTreeNode transNode;
-        // HashMap<String, Object> transInfo;
-        // ImcSystem imcSystems;
-        // String name;
-        // LBLRangesTimer timer;
-        // For every transponder node, get the vehicle associated with it
-        // Then retrieve the timer with the node's name in that vehicle's imcSystem hashmap.
-        // for (int c = 0; c < childCount; c++) {
-        // transNode = (ExtendedTreeNode) trans.getChildAt(c);
-        // transInfo = transNode.getUserInfo();
-        // String transVehicle = (String) transInfo.get(NodeInfoKey.VEHICLE.name());
-        // imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
-        // if (imcSystems != null) {
-        // name = ((TransponderElement) transNode.getUserObject()).getName();
-        // timer = (LBLRangesTimer) imcSystems.retrieveData(name);
-        // if (timer != null) {
-        // NeptusLog.pub().info("<###>Stoping timer for " + trans + " of " + transVehicle);
-        // timer.stopTimer();
-        // }
-        // }
-        // }
         revalidate();
     }
 
-    // /**
-    // * Compare current beacons with incoming beacons from vehicle. If there is a transponder configuration in the
-    // * vehicle equal to a configuration in the console, it becomes SYNc. If there is none it becomes LOCAL. No
-    // * transponder nodes are added.
-    // *
-    // * @param vehicleBeacons the incoming configuration
-    // * @param vehicle
-    // */
-    // public void transSyncConfig(Vector<LblBeacon> vehicleBeacons, String vehicle) {
-    // ExtendedTreeNode trans = treeModel.trans;
-    // // Doesn't add nodes, only updates state of existing ones
-    // if (trans != null && trans.getChildCount() != 0) {
-    // ExtendedTreeNode childTrans = (ExtendedTreeNode) trans.getFirstChild();
-    // int id = 0;
-    // TransponderElement transE;
-    // LblBeacon childBeacon;
-    // HashMap<String, Object> userInfo;
-    // byte[] localMD5, remoteMD5;
-    // boolean sync;
-    // while (childTrans != null) {
-    // transE = (TransponderElement) childTrans.getUserObject();
-    // childBeacon = TransponderUtils.getTransponderAsLblBeaconMessage(transE);
-    // localMD5 = childBeacon.payloadMD5();
-    // sync = false;
-    // // If there is a MD5 match between the child and any incoming transponder configuration that child
-    // // becomes SYNC
-    // LblBeacon beacon;
-    // Iterator<LblBeacon> beaconsIt = vehicleBeacons.iterator();
-    // while(beaconsIt.hasNext()){
-    // beacon = beaconsIt.next();
-    // remoteMD5 = beacon.payloadMD5();
-    // if (ByteUtil.equal(localMD5, remoteMD5)) {
-    // userInfo = childTrans.getUserInfo();
-    // userInfo.put(NodeInfoKey.SYNC.name(), State.SYNC);
-    // userInfo.put(NodeInfoKey.ID.name(), id);
-    // userInfo.put(NodeInfoKey.VEHICLE.name(), vehicle);
-    // treeModel.nodeStructureChanged(childTrans);
-    // beaconsIt.remove();
-    // sync = true;
-    // }
-    // }
-    // // If no match is found the child becomes LOCAL
-    // if (!sync) {
-    // userInfo = childTrans.getUserInfo();
-    // userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
-    // }
-    // id++;
-    // childTrans = (ExtendedTreeNode) childTrans.getNextSibling();
-    // }
-    // revalidate();
-    // }
-    // }
-    //
-    // /**
-    // * This is duplicate with update from IMC Message because of the difference between TransponderElement (which has
-    // no
-    // * md5) and LblBeacon (which has). This is duplicate with plan update because data types are not uniform
-    // * (PlanDBInfo, PlanType, TransElement, LblConfig)
-    // *
-    // * @param remoteTrans
-    // * @param vehicle
-    // */
-    // public void transElemSyncConfig(Vector<TransponderElement> remoteTrans, String vehicle) {
-    // ExtendedTreeNode transParentNode = treeModel.trans;
-    // TransponderElement remoteBeacon;
-    // byte[] localMD5, remoteMD5;
-    // HashMap<String, Object> userInfo;
-    // Iterator<TransponderElement> remoteBeaconsIt = remoteTrans.iterator();
-    // if (transParentNode != null && transParentNode.getChildCount() != 0) {
-    // TransponderElement localTransElem;
-    // int id = 0;
-    // ExtendedTreeNode childLocalTrans = (ExtendedTreeNode) transParentNode.getFirstChild();
-    // while (childLocalTrans != null) {
-    // localTransElem = (TransponderElement) childLocalTrans.getUserObject();
-    // localMD5 = localTransElem.getMd5();
-    // userInfo = childLocalTrans.getUserInfo();
-    // userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
-    // System.out.print(localTransElem.getIdentification());
-    // // If there is a MD5 match between the child and any incoming transponder configuration that child
-    // // becomes SYNC
-    // while(remoteBeaconsIt.hasNext()){
-    // remoteBeacon = remoteBeaconsIt.next();
-    // remoteMD5 = remoteBeacon.getMd5();
-    // if (ByteUtil.equal(localMD5, remoteMD5)) {
-    // userInfo.put(NodeInfoKey.SYNC.name(), State.SYNC);
-    // userInfo.put(NodeInfoKey.ID.name(), id);
-    // userInfo.put(NodeInfoKey.VEHICLE.name(), vehicle);
-    // treeModel.nodeStructureChanged(childLocalTrans);
-    // remoteBeaconsIt.remove();
-    // System.out.print(" is sync.");
-    // break;
-    // }
-    // }
-    // System.out.println();
-    // id++;
-    // childLocalTrans = (ExtendedTreeNode) childLocalTrans.getNextSibling();
-    // }
-    // }
-    // ExtendedTreeNode newNode;
-    // while (remoteBeaconsIt.hasNext()) {
-    // remoteBeacon = remoteBeaconsIt.next();
-    // newNode = treeModel.addTransponderNode(remoteBeacon);
-    // userInfo = newNode.getUserInfo();
-    // userInfo.put(NodeInfoKey.SYNC.name(), State.LOCAL);
-    // userInfo.put(NodeInfoKey.ID.name(), remoteBeacon.getIdentification());
-    // userInfo.put(NodeInfoKey.VEHICLE.name(), vehicle);
-    // System.out.println("Adding " + remoteBeacon.getIdentification());
-    // }
-    // revalidate();
-    // }
 
+    /**
+     * This method gets the transponders in the mission file and sets them as local in the mission tree.
+     * <p>
+     * Then he compares the mission tree with the transponder configuration last received from the vehicle (LblConfing
+     * stored in associated ImcSystem). Every LblBeacon in the configuration with the same name and same parameters is
+     * set as synchronized (because of the known approximation bug, the equality is not recognized sometimes). Every
+     * LblBeacon in the configuration with the same name but some differing parameters is set as not synchronized.
+     * <p>
+     * If a transponder in the mission tree is not referenced in either mission file or ImcSystem it is deleted.
+     * <p>
+     * All synchronized or not synchronized transponders regenerate their id based on their alphabetical order (this
+     * replicates the order they are sent to the vehicle and that Dune creates for them based on that). The other get an
+     * id of -1.
+     * 
+     * @param mission
+     * @param sysName
+     * @param remoteTrans
+     */
     public void updateTransStateEDT(MissionType mission, final String sysName,
             final LinkedHashMap<String, LblBeacon> remoteTrans) {
         final LinkedHashMap<String, TransponderElement> localTrans = getLocalTrans(mission);
@@ -1318,7 +1181,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
                 cleanUpIds();
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
-                revalidate();
+                // revalidate();
+                repaint();
             }
 
             private void cleanUpIds() {
@@ -1341,6 +1205,13 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         });
     }
 
+    /**
+     * Convenience method for when the source of the remote files is the ImcSystem associated with the current main
+     * vehicle.
+     * 
+     * @param mission
+     * @param sysName
+     */
     public void updateTransStateEDT(MissionType mission, final String sysName) {
         final LinkedHashMap<String, LblBeacon> remoteTrans = getRemoteTrans(sysName);
         updateTransStateEDT(mission, sysName, remoteTrans);
