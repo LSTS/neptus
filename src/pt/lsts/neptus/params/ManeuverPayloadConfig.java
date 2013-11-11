@@ -110,6 +110,7 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
    }
    
 
+    @SuppressWarnings("deprecation")
     @Override
     public DefaultProperty[] getProperties() {
         if (props == null) {

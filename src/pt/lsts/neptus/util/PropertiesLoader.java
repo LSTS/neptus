@@ -99,8 +99,8 @@ public class PropertiesLoader extends Properties {
         catch (FileNotFoundException e) {
             NeptusLog.pub().error(e.getMessage());
             try {
-                setFile("pt.up.fe.dceg.neptus.properties");
-                this.workingFile = "pt.up.fe.dceg.neptus.properties";
+                setFile("pt.lsts.neptus.properties");
+                this.workingFile = "pt.lsts.neptus.properties";
             }
             catch (FileNotFoundException e1) {
                 NeptusLog.pub().error("File not found. " + e1.getMessage());
@@ -112,8 +112,8 @@ public class PropertiesLoader extends Properties {
         catch (IOException e) {
             NeptusLog.pub().error(e.getMessage());
             try {
-                setFile("pt.up.fe.dceg.neptus.properties");
-                this.workingFile = "pt.up.fe.dceg.neptus.properties";
+                setFile("pt.lsts.neptus.properties");
+                this.workingFile = "pt.lsts.neptus.properties";
             }
             catch (FileNotFoundException e1) {
                 NeptusLog.pub().error("File not found. " + e1.getMessage());

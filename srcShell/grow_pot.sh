@@ -36,7 +36,7 @@ PROGNAME=$0
 NEPTUS_HOME=`dirname $PROGNAME`/..
 cd $NEPTUS_HOME
 
-PROG="pt.up.fe.dceg.neptus.i18n.PluginsPotGenerator"
+PROG="pt.lsts.neptus.i18n.PluginsPotGenerator"
       
 CLASSPATH="./build/classes:./build/plugins@NEPTUS_LIBS@":dev-utils/junit-3.8.2.jar:$CLASSPATH
 

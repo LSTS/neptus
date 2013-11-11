@@ -3,13 +3,13 @@ PROGNAME=$0
 NEPTUS_HOME=`dirname $PROGNAME`
 cd $NEPTUS_HOME
 
-WORKSPACE="pt.up.fe.dceg.neptus.loader.NeptusMain ws"
-VIEWER3D="pt.up.fe.dceg.neptus.loader.Viewer3DLoader"
-MRA="pt.up.fe.dceg.neptus.loader.NeptusMain mra"
-LAUVCONSOLE="pt.up.fe.dceg.neptus.mc.lauvconsole.LAUVConsole"
-WORLDMAPPANEL="pt.up.fe.dceg.neptus.app.tiles.WorldMapPanel"
+WORKSPACE="pt.lsts.neptus.loader.NeptusMain ws"
+VIEWER3D="pt.lsts.neptus.loader.Viewer3DLoader"
+MRA="pt.lsts.neptus.loader.NeptusMain mra"
+LAUVCONSOLE="pt.lsts.neptus.mc.lauvconsole.LAUVConsole"
+WORLDMAPPANEL="pt.lsts.neptus.app.tiles.WorldMapPanel"
 
-DEFAULT="pt.up.fe.dceg.neptus.loader.NeptusMain"
+DEFAULT="pt.lsts.neptus.loader.NeptusMain"
 
 CLASSPATH=".:bin/neptus.jar:conf@NEPTUS_LIBS@":$CLASSPATH
 
@@ -30,7 +30,7 @@ LIBS=".:libJNI"
 
 if test -d jre/bin; then JAVA_BIN_FOLDER="jre/bin/"; else JAVA_BIN_FOLDER=""; fi
 
-JAVA_MACHINE_TYPE=$($JAVA_BIN_FOLDER"java" -cp bin/neptus.jar pt.up.fe.dceg.neptus.loader.helper.CheckJavaOSArch)
+JAVA_MACHINE_TYPE=$($JAVA_BIN_FOLDER"java" -cp bin/neptus.jar pt.lsts.neptus.loader.helper.CheckJavaOSArch)
 if [ ${JAVA_MACHINE_TYPE} == 'x64' ]; then
  LIBS=".:libJNI/x64:libJNI:/usr/lib/jni:/usr/lib/vtk-5.10"
 else

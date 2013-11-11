@@ -44,7 +44,7 @@
         </trajectoryTolerance>
         <annotation>
           <documentation>No documentation available</documentation>
-          <implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.Goto</implementation-class>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Goto</implementation-class>
         </annotation>
       </Goto>
     </maneuver>
@@ -74,7 +74,7 @@
         <velocity type="float" unit="RPM" tolerance="5">900</velocity>
         <annotation>
           <documentation>Loiter over a point</documentation>
-          <implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.Loiter</implementation-class>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Loiter</implementation-class>
         </annotation>
       </Loiter>
     </maneuver>
@@ -96,7 +96,7 @@
         <speed type="float" unit="RPM">900</speed>
         <annotation>
           <documentation>No documentation available</documentation>
-          <implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.YoYo</implementation-class>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.YoYo</implementation-class>
         </annotation>
       </YoYo>
     </maneuver>
@@ -121,7 +121,7 @@
         <speed type="float" unit="RPM" tolerance="5">900</speed>
         <annotation>
           <documentation>Station Keeping</documentation>
-          <implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.StationKeeping</implementation-class>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.StationKeeping</implementation-class>
         </annotation>
       </StationKeeping>
     </maneuver>    
@@ -129,7 +129,7 @@
       <Unconstrained kind="manual">
         <annotation>
           <documentation>No documentation available</documentation>
-          <implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.Unconstrained</implementation-class>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Unconstrained</implementation-class>
         </annotation>
       </Unconstrained>
     </maneuver>
@@ -150,7 +150,7 @@
 	    	<speed unit="RPM">1000.0</speed>
 	    	<annotation>
           		<documentation>No documentation available</documentation>
-          		<implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.FollowPath</implementation-class>
+          		<implementation-class>pt.lsts.neptus.mp.maneuvers.FollowPath</implementation-class>
         	</annotation>
 	    </FollowPath>
     </maneuver>
@@ -171,7 +171,7 @@
 	    	<speed unit="RPM">1000.0</speed>
 	    	<annotation>
           		<documentation>No documentation available</documentation>
-          		<implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.FollowTrajectory</implementation-class>
+          		<implementation-class>pt.lsts.neptus.mp.maneuvers.FollowTrajectory</implementation-class>
         	</annotation>
 	    </FollowTrajectory>
     </maneuver>
@@ -194,7 +194,7 @@
   			<participants/>
   			<annotation>
           		<documentation>No documentation available</documentation>
-          		<implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.VehicleFormation</implementation-class>
+          		<implementation-class>pt.lsts.neptus.mp.maneuvers.VehicleFormation</implementation-class>
         	</annotation>
 		</VehicleFormation>
     </maneuver>
@@ -220,7 +220,7 @@
   			<speed unit="RPM">1000.0</speed>
   			<annotation>
           		<documentation>No documentation available</documentation>
-          		<implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.RowsManeuver</implementation-class>
+          		<implementation-class>pt.lsts.neptus.mp.maneuvers.RowsManeuver</implementation-class>
         	</annotation>
 		</RowsManeuver>
 	</maneuver>           
@@ -244,7 +244,7 @@
   			<speed unit="RPM">1000.0</speed>
   			<annotation>
           		<documentation>No documentation available</documentation>
-          		<implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.RIPattern</implementation-class>
+          		<implementation-class>pt.lsts.neptus.mp.maneuvers.RIPattern</implementation-class>
         	</annotation>
 		</RIPattern>
 	</maneuver>           
@@ -268,7 +268,7 @@
   			<speed unit="RPM">1000.0</speed>
   			<annotation>
           		<documentation>No documentation available</documentation>
-          		<implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.CrossHatchPattern</implementation-class>
+          		<implementation-class>pt.lsts.neptus.mp.maneuvers.CrossHatchPattern</implementation-class>
         	</annotation>
 		</CrossHatchPattern>
 	</maneuver>           
@@ -292,7 +292,7 @@
   			<speed unit="RPM">1000.0</speed>
   			<annotation>
           		<documentation>No documentation available</documentation>
-          		<implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.Elevator</implementation-class>
+          		<implementation-class>pt.lsts.neptus.mp.maneuvers.Elevator</implementation-class>
         	</annotation>
 		</Elevator>
 	</maneuver>
@@ -315,7 +315,7 @@
 			<speed unit="RPM">1000.0</speed>
 			<annotation>
           		<documentation>No documentation available</documentation>
-          		<implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.CommsRelay</implementation-class>
+          		<implementation-class>pt.lsts.neptus.mp.maneuvers.CommsRelay</implementation-class>
         	</annotation>
 		</CommsRelay>
 	</maneuver>	

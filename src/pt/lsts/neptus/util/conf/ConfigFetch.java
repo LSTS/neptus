@@ -130,7 +130,7 @@ public class ConfigFetch {
     private static final String VERSION_FILE_NAME = "/version.txt";
     private static final String VERSION__EXTENDED_FILE_NAME = "/info";
 
-    protected static final String classPackage = "pt/up/fe/dceg/neptus/util/conf";
+    protected static final String classPackage = "pt/lsts/neptus/util/conf";
     protected static final String className = "ConfigFetch.class";
 
     private static final String CONFIG_FILE_NAME = "neptus-config.xml";

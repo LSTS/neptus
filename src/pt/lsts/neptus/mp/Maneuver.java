@@ -384,7 +384,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
                 String manType = element.getName();
 
                 try {
-                    man = (Maneuver) cl.loadClass("pt.up.fe.dceg.neptus.mp.maneuvers." + manType).newInstance();
+                    man = (Maneuver) cl.loadClass("pt.lsts.neptus.mp.maneuvers." + manType).newInstance();
                 }
                 catch (Exception e) {
                     NeptusLog.pub().error("maneuver not found: " + manType + " (" + e.getMessage() + ")");

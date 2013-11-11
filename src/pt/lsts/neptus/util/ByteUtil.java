@@ -186,7 +186,7 @@ public class ByteUtil {
 	 * @return
 	 */
 	public static String encodeAsString(byte[] source) {
-	    return Hex.encodeHexString(source);
+	    return new String(Hex.encodeHex(source));
 	}
 
 	/**

@@ -28,7 +28,7 @@
       <Unconstrained kind="manual">
         <annotation>
           <documentation>Tele-Operation</documentation>
-          <implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.Unconstrained</implementation-class>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Unconstrained</implementation-class>
         </annotation>
       </Unconstrained>
     </maneuver>
@@ -58,7 +58,7 @@
         <velocity type="float" unit="m/s" tolerance="5">20</velocity>
         <annotation>
           <documentation>Loiter over a point</documentation>
-          <implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.Loiter</implementation-class>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Loiter</implementation-class>
         </annotation>
       </Loiter>
     </maneuver>
@@ -82,7 +82,7 @@
         </trajectoryTolerance>
         <annotation>
           <documentation>Move to a given point</documentation>
-          <implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.Goto</implementation-class>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.Goto</implementation-class>
         </annotation>
       </Goto>
     </maneuver>

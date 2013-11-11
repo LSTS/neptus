@@ -627,7 +627,7 @@ public class LogUtils {
             maneuver = new YoYo();
         else {
             try {
-                maneuver = ManeuverFactory.createManeuver(manType, "pt.up.fe.dceg.neptus.mp.maneuvers." + manType);
+                maneuver = ManeuverFactory.createManeuver(manType, "pt.lsts.neptus.mp.maneuvers." + manType);
             }
             catch (Exception e) {
                 e.printStackTrace();

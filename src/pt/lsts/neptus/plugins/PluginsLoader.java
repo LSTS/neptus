@@ -133,7 +133,7 @@ public class PluginsLoader {
 
         List<Class<?>> classes;
         try {
-            classes = ReflectionUtil.getClassesForPackage("pt.up.fe.dceg.neptus.console.plugins");
+            classes = ReflectionUtil.getClassesForPackage("pt.lsts.neptus.console.plugins");
             for (Class<?> clazz : classes) {
 
                 if (clazz.isAnnotationPresent(PluginDescription.class)) {
@@ -202,9 +202,11 @@ public class PluginsLoader {
         Charset charset = Charset.forName("UTF-8");
         try (BufferedReader reader = Files.newBufferedReader(file, charset)) {
             String line = null;
+            
+            System.out.println("Loading plugins from: " + file.toAbsolutePath());
             while ((line = reader.readLine()) != null) {
                 if (line.length() > 0 && line.charAt(0) != '#') {
-                    // System.out.println(line);
+                    System.out.println(line);
                     PluginsRepository.addPlugin(line);
                 }
             }

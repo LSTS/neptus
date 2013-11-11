@@ -49,7 +49,6 @@ import javax.swing.event.HyperlinkListener;
 import pt.lsts.neptus.renderer2d.WorldRenderPainter;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.plugins.oplimits.OperationLimitsSubPanel;
 
 /**
  * This class provides a visualization of a given {@link DocumentationProvider}
@@ -218,7 +217,6 @@ public class DocumentationPanel extends JPanel implements HyperlinkListener {
      */
     public static void main(String[] args) {
         ConfigFetch.initialize();
-        DocumentationPanel.showDocumentation(OperationLimitsSubPanel.class);
         DocumentationPanel.showDocumentation(WorldRenderPainter.class);
     }
 }

@@ -730,10 +730,10 @@ For simple use the main targets are:
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
-				<attribute name="Main-Class" value="pt.up.fe.dceg.neptus.loader.NeptusMain" />
+				<attribute name="Main-Class" value="pt.lsts.neptus.loader.NeptusMain" />
 				<!--
 				<attribute name="Class-Path" value="${class.path.jar}"/>
-				<attribute name="Main-Class" value="pt.up.fe.dceg.neptus.loader.MissionConsoleLoader"/>
+				<attribute name="Main-Class" value="pt.lsts.neptus.loader.MissionConsoleLoader"/>
 				-->
 				<section name="${Name}">
 					<attribute name="Specification-Title" value="${Name}" />
@@ -762,10 +762,10 @@ For simple use the main targets are:
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
-				<attribute name="Main-Class" value="pt.up.fe.dceg.neptus.loader.NeptusMain" />
+				<attribute name="Main-Class" value="pt.lsts.neptus.loader.NeptusMain" />
 				<!--
 				<attribute name="Class-Path" value="${class.path.jar}"/>
-				<attribute name="Main-Class" value="pt.up.fe.dceg.neptus.loader.MissionConsoleLoader"/>
+				<attribute name="Main-Class" value="pt.lsts.neptus.loader.MissionConsoleLoader"/>
 				-->
 				<section name="${Name}">
 					<attribute name="Specification-Title" value="${Name}" />
@@ -781,40 +781,51 @@ For simple use the main targets are:
 				index="false" update="true" excludes="${exclude-defaults}, *.class">
 			<include name="version.*" />
 			<include name="info*" />
-        	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
-			<include name="pt/up/fe/dceg/neptus/types/coord/*.class" />
-			<include name="pt/up/fe/dceg/neptus/types/**/*.class" />
-			<include name="pt/up/fe/dceg/neptus/util/*.class" />
-			<include name="pt/up/fe/dceg/neptus/util/conf/*.class" />
-			<include name="pt/up/fe/dceg/neptus/util/coord/*.class" />
-			<include name="pt/up/fe/dceg/neptus/util/comm/manager/imc/ImcId16*.class" />
-			<include name="pt/up/fe/dceg/neptus/gps/**.class" />
-			<include name="pt/up/fe/dceg/neptus/gui/Properties*.class" />
-			<include name="pt/up/fe/dceg/neptus/mp/MapChangeEvent*.class" />
-			<include name="pt/up/fe/dceg/neptus/mp/MapChangeListener*.class" />
-			<include name="pt/up/fe/dceg/neptus/mp/Vehicle*.class" />
-			<include name="pt/up/fe/dceg/neptus/mp/SystemPosi*.class" />
-			<include name="pt/up/fe/dceg/neptus/mp/MapChangeEvent.class" />
-			<exclude name="pt/up/fe/dceg/neptus/mp/MissionPlanner*.class" />
-			<include name="pt/up/fe/dceg/neptus/renderer2d/**/*.class" />
-			<include name="pt/up/fe/dceg/neptus/messages/stanag4586/AVP*.class" />
-			<include name="pt/up/fe/dceg/neptus/messages/stanag4586/ProtocolIm*.class" />
-			<include name="pt/up/fe/dceg/neptus/messages/*.class" />
-			<include name="pt/up/fe/dceg/neptus/gui/objparams/**/*.class" />
-			<include name="pt/up/fe/dceg/neptus/gui/CoordinateSystemPanel*.class" />
-			<include name="pt/up/fe/dceg/neptus/gui/Vehicle*.class" />
-			<include name="pt/up/fe/dceg/neptus/gui/editor/**/*.class" />
-			<!--include name="pt/up/fe/dceg/neptus/plugins/*.class" /-->
+        	<include name="pt/lsts/neptus/i18n/**/*.class" />
+			<include name="pt/lsts/neptus/types/coord/*.class" />
+			<include name="pt/lsts/neptus/types/**/*.class" />
+			<include name="pt/lsts/neptus/util/*.class" />
+			<include name="pt/lsts/neptus/util/conf/*.class" />
+			<include name="pt/lsts/neptus/util/coord/*.class" />
+			<include name="pt/lsts/neptus/util/comm/manager/imc/ImcId16*.class" />
+			<include name="pt/lsts/neptus/gps/**.class" />
+			<include name="pt/lsts/neptus/gui/Properties*.class" />
+			<include name="pt/lsts/neptus/gui/InfiniteProgressPanel.class" />
+			<include name="pt/lsts/neptus/mp/MapChangeEvent*.class" />
+			<include name="pt/lsts/neptus/mp/MapChangeListener*.class" />
+			<include name="pt/lsts/neptus/mp/Vehicle*.class" />
+			<include name="pt/lsts/neptus/mp/SystemPosi*.class" />
+			<include name="pt/lsts/neptus/mp/MapChangeEvent.class" />
+			<exclude name="pt/lsts/neptus/mp/MissionPlanner*.class" />
+			<include name="pt/lsts/neptus/renderer2d/**/*.class" />
+			<include name="pt/lsts/neptus/messages/stanag4586/AVP*.class" />
+			<include name="pt/lsts/neptus/messages/stanag4586/ProtocolIm*.class" />
+			<include name="pt/lsts/neptus/messages/*.class" />
+			<include name="pt/lsts/neptus/gui/objparams/**/*.class" />
+			<include name="pt/lsts/neptus/gui/CoordinateSystemPanel*.class" />
+			<include name="pt/lsts/neptus/gui/Vehicle*.class" />
+			<include name="pt/lsts/neptus/gui/editor/**/*.class" />
+			<!--include name="pt/lsts/neptus/plugins/*.class" /-->
 			<include name="images/cursors/*.png" />
 			<include name="images/menus/*.png" />
 			<include name="/images/World_Blank_Map_Mercator_projection.svg" />
 			<!-- Needed by the Serializable interface of LocationType -->
-			<include name="pt/up/fe/dceg/neptus/messages/stanag4586/Stanag4586Message.class" />
-			<include name="pt/up/fe/dceg/messages/Message*.class" />
-        	<include name="pt/up/fe/dceg/neptus/comm/proxy/ProxyInfoProvider*.class" />
-        	<include name="pt/up/fe/dceg/neptus/util/comm/ssh/SSHConnectionDialog*.class" />
-        	<include name="pt/up/fe/dceg/neptus/util/comm/ssh/IntFormat*.class" />
-        	<include name="pt/up/fe/dceg/neptus/gui/ImagePanel*.class" />
+			<include name="pt/lsts/neptus/messages/stanag4586/Stanag4586Message.class" />
+			<include name="pt/lsts/messages/Message*.class" />
+        	<include name="pt/lsts/neptus/comm/proxy/ProxyInfoProvider*.class" />
+        	<include name="pt/lsts/neptus/util/comm/ssh/SSHConnectionDialog*.class" />
+        	<include name="pt/lsts/neptus/util/comm/ssh/IntFormat*.class" />
+        	<include name="pt/lsts/neptus/gui/ImagePanel*.class" />
+			<include name="pt/lsts/neptus/NeptusLog.class" />
+			<include name="pt/lsts/neptus/planeditor/*.class" />
+			<include name="pt/lsts/neptus/comm/proxy/*.class" />
+			<include name="pt/lsts/neptus/doc/NeptusDoc.class" />
+			<include name="pt/lsts/neptus/doc/NeptusDoc.class" />
+			<include name="pt/lsts/neptus/console/ConsoleLayout.class" />
+			<include name="pt/lsts/neptus/console/SubPanel.class" />
+			<include name="pt/lsts/neptus/console/plugins/SubPanelProvider.class" />
+			<include name="pt/lsts/neptus/mra/visualizations/MRAVisualization.class" />
+			<include name="pt/lsts/neptus/plugins/*.class" />
         	<include name="images/ssh-connect.png"/>
 		</jar>
 	</target>
@@ -829,44 +840,44 @@ For simple use the main targets are:
                excludes="${exclude-defaults}" includes="LICENSE">
 			<include name="version.*" />
 			<include name="info*" />
-        	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
-        	<include name="pt/up/fe/dceg/neptus/NeptusLog*.class" />
-            <include name="pt/up/fe/dceg/neptus/gui/checklist/**/*.class"/>
-            <include name="pt/up/fe/dceg/neptus/messages/listener/**/*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/messages/*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/util/conf/*.class"/>    
-        	<!-- include name="pt/up/fe/dceg/neptus/util/*.class"/ -->
-            <include name="pt/up/fe/dceg/neptus/util/GuiUtils*.class"/>
-            <include name="pt/up/fe/dceg/neptus/util/ImageUtils*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/util/ImageLoader.class"/>
-        	<include name="pt/up/fe/dceg/neptus/util/FileUtil.class"/>
-        	<include name="pt/up/fe/dceg/neptus/util/NameNormalizer.class"/>
-        	<include name="pt/up/fe/dceg/neptus/util/DateTimeUtil*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/util/PropertiesLoader*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/util/BarCodesUtil*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/util/output/*.class"/>
-            <include name="pt/up/fe/dceg/neptus/util/xsl/*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/gui/ModalFrame.class"/>
-            <include name="pt/up/fe/dceg/neptus/gui/PropertiesProvider.class"/>
-        	<include name="pt/up/fe/dceg/neptus/gui/swing/NeptusFileView.class"/>
-        	<include name="pt/up/fe/dceg/neptus/gui/editor/*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/types/checklist/**/*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/types/Xml*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/types/nativetypes/*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/util/comm/vehicle/*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/util/comm/transports/ImcUdpTransport*.class"/>
-            <include name="pt/up/fe/dceg/neptus/util/comm/manager/imc/ImcId16*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/util/comm/middleware/**.class"/>
-        	<include name="pt/up/fe/dceg/neptus/gui/BlockingGlassPane*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/gui/InfiniteProgressPanel*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/gui/ClockCounter*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/gui/ChronometerPanel*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/vartree/*.class"/>
-        	<include name="pt/up/fe/dceg/vartree/*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/plugins/PluginProperty.class"/>
-        	<include name="pt/up/fe/dceg/neptus/plugins/NeptusProperty*.class"/>
-        	<include name="pt/up/fe/dceg/neptus/types/Identifiable*.class"/>
-        	<!--include name="pt/up/fe/dceg/neptus/types/**/*.class"/ -->
+        	<include name="pt/lsts/neptus/i18n/**/*.class" />
+        	<include name="pt/lsts/neptus/NeptusLog*.class" />
+            <include name="pt/lsts/neptus/gui/checklist/**/*.class"/>
+            <include name="pt/lsts/neptus/messages/listener/**/*.class"/>
+        	<include name="pt/lsts/neptus/messages/*.class"/>
+        	<include name="pt/lsts/neptus/util/conf/*.class"/>    
+        	<!-- include name="pt/lsts/neptus/util/*.class"/ -->
+            <include name="pt/lsts/neptus/util/GuiUtils*.class"/>
+            <include name="pt/lsts/neptus/util/ImageUtils*.class"/>
+        	<include name="pt/lsts/neptus/util/ImageLoader.class"/>
+        	<include name="pt/lsts/neptus/util/FileUtil.class"/>
+        	<include name="pt/lsts/neptus/util/NameNormalizer.class"/>
+        	<include name="pt/lsts/neptus/util/DateTimeUtil*.class"/>
+        	<include name="pt/lsts/neptus/util/PropertiesLoader*.class"/>
+        	<include name="pt/lsts/neptus/util/BarCodesUtil*.class"/>
+        	<include name="pt/lsts/neptus/util/output/*.class"/>
+            <include name="pt/lsts/neptus/util/xsl/*.class"/>
+        	<include name="pt/lsts/neptus/gui/ModalFrame.class"/>
+            <include name="pt/lsts/neptus/gui/PropertiesProvider.class"/>
+        	<include name="pt/lsts/neptus/gui/swing/NeptusFileView.class"/>
+        	<include name="pt/lsts/neptus/gui/editor/*.class"/>
+        	<include name="pt/lsts/neptus/types/checklist/**/*.class"/>
+        	<include name="pt/lsts/neptus/types/Xml*.class"/>
+        	<include name="pt/lsts/neptus/types/nativetypes/*.class"/>
+        	<include name="pt/lsts/neptus/util/comm/vehicle/*.class"/>
+        	<include name="pt/lsts/neptus/util/comm/transports/ImcUdpTransport*.class"/>
+            <include name="pt/lsts/neptus/util/comm/manager/imc/ImcId16*.class"/>
+        	<include name="pt/lsts/neptus/util/comm/middleware/**.class"/>
+        	<include name="pt/lsts/neptus/gui/BlockingGlassPane*.class"/>
+        	<include name="pt/lsts/neptus/gui/InfiniteProgressPanel*.class"/>
+        	<include name="pt/lsts/neptus/gui/ClockCounter*.class"/>
+        	<include name="pt/lsts/neptus/gui/ChronometerPanel*.class"/>
+        	<include name="pt/lsts/neptus/vartree/*.class"/>
+        	<include name="pt/lsts/vartree/*.class"/>
+        	<include name="pt/lsts/neptus/plugins/PluginProperty.class"/>
+        	<include name="pt/lsts/neptus/plugins/NeptusProperty*.class"/>
+        	<include name="pt/lsts/neptus/types/Identifiable*.class"/>
+        	<!--include name="pt/lsts/neptus/types/**/*.class"/ -->
         	<!-- include name="images/**/*.*" / -->
         	<include name="images/neptus-icon.png"/>
         	<include name="images/neptus-icon1.png"/>
@@ -886,7 +897,7 @@ For simple use the main targets are:
             <manifest>
                  <attribute name="Built-By" value="${user.name}" />
                  <attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
-                 <attribute name="Main-Class" value="pt.up.fe.dceg.neptus.gui.checklist.ChecklistPanel" />
+                 <attribute name="Main-Class" value="pt.lsts.neptus.gui.checklist.ChecklistPanel" />
                  <section name="${Name}">
                      <attribute name="Specification-Title" value="${Name}" />
                      <attribute name="Specification-Version" value="${version}" />
@@ -898,9 +909,9 @@ For simple use the main targets are:
              </manifest>
        </jar>
        <!--
-       java  -cp .;bin/neptus-check.jar;lib;lib\standby.jar;lib\log4j-1.2.15.jar;lib\l2fprod-common-all.jar;lib\looks-2.2.1.jar;lib\foxtrot.jar;lib\dom4j\dom4j-1.6.1.jar;lib\dom4j\jaxen-1.1.1.jar;lib\middleware.jar;lib\commons-io-1.4.jar;lib\commons-codec-1.3.jar;lib\swingx.jar;lib\jfreechart-1.0.6.jar;lib\jcommon-1.0.10.jar;lib\ini4j.jar;lib\iText-2.1.5.jar;lib\fop\batik.jar;lib\fop\xml-apis-ext.jar pt.up.fe.dceg.neptus.mra.NeptusMRA
+       java  -cp .;bin/neptus-check.jar;lib;lib\standby.jar;lib\log4j-1.2.15.jar;lib\l2fprod-common-all.jar;lib\looks-2.2.1.jar;lib\foxtrot.jar;lib\dom4j\dom4j-1.6.1.jar;lib\dom4j\jaxen-1.1.1.jar;lib\middleware.jar;lib\commons-io-1.4.jar;lib\commons-codec-1.3.jar;lib\swingx.jar;lib\jfreechart-1.0.6.jar;lib\jcommon-1.0.10.jar;lib\ini4j.jar;lib\iText-2.1.5.jar;lib\fop\batik.jar;lib\fop\xml-apis-ext.jar pt.lsts.neptus.mra.NeptusMRA
        
-       java  -cp .;bin/neptus-check.jar;lib\dom4j\dom4j-1.6.1.jar;lib\dom4j\jaxen-1.1.1.jar;lib\l2fprod-common-all.jar;lib\swingx.jar;lib/looks-2.2.1.jar;lib\standby.jar;lib\log4j-1.2.15.jar;lib\iText-2.1.5.jar;lib\fop\fop.jar;lib\fop\batik.jar;lib\fop\xml-apis-ext.jar; pt.up.fe.dceg.neptus.gui.checklist.ChecklistPanel
+       java  -cp .;bin/neptus-check.jar;lib\dom4j\dom4j-1.6.1.jar;lib\dom4j\jaxen-1.1.1.jar;lib\l2fprod-common-all.jar;lib\swingx.jar;lib/looks-2.2.1.jar;lib\standby.jar;lib\log4j-1.2.15.jar;lib\iText-2.1.5.jar;lib\fop\fop.jar;lib\fop\batik.jar;lib\fop\xml-apis-ext.jar; pt.lsts.neptus.gui.checklist.ChecklistPanel
        -->
         <mkdir dir="${tmp.bundle.dir}"/>
         <unzip dest="${tmp.bundle.dir}" src="lib/dom4j/dom4j-1.6.1.jar"/>
@@ -926,7 +937,7 @@ For simple use the main targets are:
             <manifest>
                  <attribute name="Built-By" value="${user.name}" />
                  <attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
-                 <attribute name="Main-Class" value="pt.up.fe.dceg.neptus.gui.checklist.ChecklistPanel" />
+                 <attribute name="Main-Class" value="pt.lsts.neptus.gui.checklist.ChecklistPanel" />
                  <section name="${Name}">
                      <attribute name="Specification-Title" value="${Name}" />
                      <attribute name="Specification-Version" value="${version}" />
@@ -950,55 +961,55 @@ For simple use the main targets are:
                excludes="${exclude-defaults}" includes="LICENSE">
 			<include name="version.*" />
 			<include name="info*" />
-        	<include name="pt/up/fe/dceg/neptus/i18n/**/*.class" />
-        	<include name="pt/up/fe/dceg/neptus/NeptusLog*.class" />
-			<include name="pt/up/fe/dceg/neptus/app/tiles/**/*.class" />
-			<include name="pt/up/fe/dceg/neptus/types/coord/*.class" />
-			<include name="pt/up/fe/dceg/neptus/types/**/*.class" />
-			<include name="pt/up/fe/dceg/neptus/util/*.class" />
-			<include name="pt/up/fe/dceg/neptus/util/conf/*.class" />
-			<include name="pt/up/fe/dceg/neptus/util/coord/*.class" />
-			<include name="pt/up/fe/dceg/neptus/util/comm/manager/imc/ImcId16*.class" />
-			<include name="pt/up/fe/dceg/neptus/gps/**.class" />
-			<include name="pt/up/fe/dceg/neptus/gui/Properties*.class" />
-			<include name="pt/up/fe/dceg/neptus/mp/MapChangeEvent*.class" />
-			<include name="pt/up/fe/dceg/neptus/mp/MapChangeListener*.class" />
-			<include name="pt/up/fe/dceg/neptus/mp/Vehicle*.class" />
-			<include name="pt/up/fe/dceg/neptus/mp/SystemPos*.class" />
-			<include name="pt/up/fe/dceg/neptus/mp/MapChangeEvent.class" />
-			<exclude name="pt/up/fe/dceg/neptus/mp/MissionPlanner*.class" />
-			<include name="pt/up/fe/dceg/neptus/renderer2d/**/*.class" />
-			<include name="pt/up/fe/dceg/neptus/messages/stanag4586/AVP*.class" />
-			<include name="pt/up/fe/dceg/neptus/messages/stanag4586/ProtocolIm*.class" />
-			<include name="pt/up/fe/dceg/neptus/messages/*.class" />
-			<include name="pt/up/fe/dceg/neptus/gui/objparams/**/*.class" />
-			<include name="pt/up/fe/dceg/neptus/gui/CoordinateSystemPanel*.class" />
-			<include name="pt/up/fe/dceg/neptus/gui/Vehicle*.class" />
-			<include name="pt/up/fe/dceg/neptus/gui/editor/**/*.class" />
-			<!--include name="pt/up/fe/dceg/neptus/plugins/*.class" /-->
+        	<include name="pt/lsts/neptus/i18n/**/*.class" />
+        	<include name="pt/lsts/neptus/NeptusLog*.class" />
+			<include name="pt/lsts/neptus/app/tiles/**/*.class" />
+			<include name="pt/lsts/neptus/types/coord/*.class" />
+			<include name="pt/lsts/neptus/types/**/*.class" />
+			<include name="pt/lsts/neptus/util/*.class" />
+			<include name="pt/lsts/neptus/util/conf/*.class" />
+			<include name="pt/lsts/neptus/util/coord/*.class" />
+			<include name="pt/lsts/neptus/util/comm/manager/imc/ImcId16*.class" />
+			<include name="pt/lsts/neptus/gps/**.class" />
+			<include name="pt/lsts/neptus/gui/Properties*.class" />
+			<include name="pt/lsts/neptus/mp/MapChangeEvent*.class" />
+			<include name="pt/lsts/neptus/mp/MapChangeListener*.class" />
+			<include name="pt/lsts/neptus/mp/Vehicle*.class" />
+			<include name="pt/lsts/neptus/mp/SystemPos*.class" />
+			<include name="pt/lsts/neptus/mp/MapChangeEvent.class" />
+			<exclude name="pt/lsts/neptus/mp/MissionPlanner*.class" />
+			<include name="pt/lsts/neptus/renderer2d/**/*.class" />
+			<include name="pt/lsts/neptus/messages/stanag4586/AVP*.class" />
+			<include name="pt/lsts/neptus/messages/stanag4586/ProtocolIm*.class" />
+			<include name="pt/lsts/neptus/messages/*.class" />
+			<include name="pt/lsts/neptus/gui/objparams/**/*.class" />
+			<include name="pt/lsts/neptus/gui/CoordinateSystemPanel*.class" />
+			<include name="pt/lsts/neptus/gui/Vehicle*.class" />
+			<include name="pt/lsts/neptus/gui/editor/**/*.class" />
+			<!--include name="pt/lsts/neptus/plugins/*.class" /-->
 			<include name="images/cursors/*.png" />
 			<include name="images/menus/*.png" />
 			<include name="images/World_Blank_Map_Mercator_projection.svg" />
 			<!-- Needed by the Serializable interface of LocationType -->
-			<include name="pt/up/fe/dceg/neptus/messages/stanag4586/Stanag4586Message.class" />
-			<include name="pt/up/fe/dceg/messages/Message*.class" />
+			<include name="pt/lsts/neptus/messages/stanag4586/Stanag4586Message.class" />
+			<include name="pt/lsts/messages/Message*.class" />
         	<include name="images/neptus-icon.png"/>
         	<include name="images/neptus-icon1.png"/>
         	<include name="images/neptus-icon2.png"/>
         	<include name="images/files-icons/*.png"/>
         	<include name="images/world/*.png"/>
-          	<include name="pt/up/fe/dceg/neptus/util/output/*.class"/>
-          	<include name="pt/up/fe/dceg/neptus/plugins/*.class" />
-          	<include name="pt/up/fe/dceg/neptus/gui/InfiniteProgressPanel*.class" />
-          	<include name="pt/up/fe/dceg/neptus/console/plugins/SubPanelProvider*.class" />
-          	<include name="pt/up/fe/dceg/neptus/mra/visualizations/MRAVisualization*.class" />
-        	<include name="pt/up/fe/dceg/neptus/comm/proxy/ProxyInfoProvider*.class" />
-        	<include name="pt/up/fe/dceg/neptus/util/comm/ssh/SSHConnectionDialog*.class" />
-        	<include name="pt/up/fe/dceg/neptus/util/comm/ssh/IntFormat*.class" />
-        	<include name="pt/up/fe/dceg/neptus/gui/ImagePanel*.class" />
-        	<include name="pt/up/fe/dceg/neptus/planeditor/I*.class" />
-			<include name="pt/up/fe/dceg/neptus/gui/system/**/*.class" />
-			<include name="pt/up/fe/dceg/neptus/util/comm/manager/imc/ImcSystem*.class" />
+          	<include name="pt/lsts/neptus/util/output/*.class"/>
+          	<include name="pt/lsts/neptus/plugins/*.class" />
+          	<include name="pt/lsts/neptus/gui/InfiniteProgressPanel*.class" />
+          	<include name="pt/lsts/neptus/console/plugins/SubPanelProvider*.class" />
+          	<include name="pt/lsts/neptus/mra/visualizations/MRAVisualization*.class" />
+        	<include name="pt/lsts/neptus/comm/proxy/ProxyInfoProvider*.class" />
+        	<include name="pt/lsts/neptus/util/comm/ssh/SSHConnectionDialog*.class" />
+        	<include name="pt/lsts/neptus/util/comm/ssh/IntFormat*.class" />
+        	<include name="pt/lsts/neptus/gui/ImagePanel*.class" />
+        	<include name="pt/lsts/neptus/planeditor/I*.class" />
+			<include name="pt/lsts/neptus/gui/system/**/*.class" />
+			<include name="pt/lsts/neptus/util/comm/manager/imc/ImcSystem*.class" />
         	<include name="images/ssh-connect.png"/>
         </jar>
         <mkdir dir="${tmp.bundle.dir}"/>
@@ -1036,7 +1047,7 @@ For simple use the main targets are:
             <manifest>
                  <attribute name="Built-By" value="${user.name}" />
                  <attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
-                 <attribute name="Main-Class" value="pt.up.fe.dceg.neptus.app.tiles.WorldMapPanel" />
+                 <attribute name="Main-Class" value="pt.lsts.neptus.app.tiles.WorldMapPanel" />
                  <section name="${Name}">
                      <attribute name="Specification-Title" value="${Name}" />
                      <attribute name="Specification-Version" value="${version}" />
@@ -1291,15 +1302,15 @@ For simple use the main targets are:
 				doctitle="${Name} Package&lt;div align='center'>&lt;img src='neptus_logo_font_500x193.png' border='0'>&lt;/div>" 
 				bottom="&lt;font size='-1' color='#3399CC'>${legal.copy.html}&lt;/font>" 
 				header="${Name}" footer="FEUP-LSTS" destdir="${tmp.plugin.dir}" docencoding="UTF-8" overview="${javadoc.overview.path}" 
-				packagenames="pt.up.fe.dceg.neptus.plugins*,pt.up.fe.dceg.neptus.console*,pt.up.fe.dceg.neptus.mra*,pt.up.fe.dceg*.vartree*,pt.up.fe.dceg.neptus.util*"
+				packagenames="pt.lsts.neptus.plugins*,pt.lsts.neptus.console*,pt.lsts.neptus.mra*,pt.up.fe.dceg*.vartree*,pt.lsts.neptus.util*"
 			 	locale="en_US" charset="UTF-8" encoding="${compile-encoding}">
-			<group title="Plugins" packages="pt.up.fe.dceg.neptus.plugins*" />
-			<group title="Consoles" packages="pt.up.fe.dceg.neptus.console*" />								
-			<group title="Types" packages="pt.up.fe.dceg.neptus.types*" />
-			<group title="Mission Review &amp; Analysis" packages="pt.up.fe.dceg.neptus.mra*" />
-			<group title="GUI" packages="pt.up.fe.dceg.neptus.gui*" />
-			<group title="Util" packages="pt.up.fe.dceg.neptus.util*" />
-			<group title="Var Tree" packages="pt.up.fe.dceg.neptus.vartree*,pt.up.fe.dceg.vartree*" />
+			<group title="Plugins" packages="pt.lsts.neptus.plugins*" />
+			<group title="Consoles" packages="pt.lsts.neptus.console*" />								
+			<group title="Types" packages="pt.lsts.neptus.types*" />
+			<group title="Mission Review &amp; Analysis" packages="pt.lsts.neptus.mra*" />
+			<group title="GUI" packages="pt.lsts.neptus.gui*" />
+			<group title="Util" packages="pt.lsts.neptus.util*" />
+			<group title="Var Tree" packages="pt.lsts.neptus.vartree*,pt.lsts.vartree*" />
 		</javadoc>
 		<copy todir="${tmp.plugin.dir}">
 			<fileset dir="${javadoc.src}" includes="neptus_logo_font_500x193.png" />
@@ -1323,11 +1334,11 @@ For simple use the main targets are:
 					bottom="&lt;font size='-1' color='#3399CC'>${legal.copy.html}&lt;/font>" 
 					header="${Name}" footer="FEUP-LSTS" destdir="${tmp.plugin.dir}" docencoding="UTF-8" 
 					overview="${javadoc.overview.path}" 
-					packagenames="pt.up.fe.dceg.neptus.types.coord*,pt.up.fe.dceg.neptus.renderer2d*,pt.up.fe.dceg.neptus.util.s52*"
+					packagenames="pt.lsts.neptus.types.coord*,pt.lsts.neptus.renderer2d*,pt.lsts.neptus.util.s52*"
 				 	locale="en_US" charset="UTF-8" encoding="${compile-encoding}">
-				<group title="Types" packages="pt.up.fe.dceg.neptus.types*" />
-				<group title="Util" packages="pt.up.fe.dceg.neptus.util*" />
-				<group title="StateRender2D" packages="pt.up.fe.dceg.neptus.renderer2d*" />
+				<group title="Types" packages="pt.lsts.neptus.types*" />
+				<group title="Util" packages="pt.lsts.neptus.util*" />
+				<group title="StateRender2D" packages="pt.lsts.neptus.renderer2d*" />
 			</javadoc>
 			<copy todir="${tmp.plugin.dir}">
 				<fileset dir="${javadoc.src}" includes="neptus_logo_font_500x193.png" />
@@ -1352,7 +1363,7 @@ For simple use the main targets are:
 		<!-- sourcepath="${src.dir}" -->		
 		<delete dir="${build.apidocs}" failonerror="false" />
 		<javadoc classpath="${java.class.path}:${class.path}" protected="false" 
-				packagenames="pt.up.fe.dceg.neptus.*,pt.up.fe.dceg.vartree.*" 
+				packagenames="pt.lsts.neptus.*,pt.lsts.vartree.*" 
 				additionalparam="-J-Xmx1024m -breakiterator" author="true" version="true" 
 				use="true" windowtitle="${Name} Package API" 
 				doctitle="${Name} Package&lt;div align='center'>&lt;img src='neptus_logo_font_500x193.png' border='0'>&lt;/div>" 
@@ -1364,17 +1375,17 @@ For simple use the main targets are:
 			      <include name="**/*.java"/>
 			</fileset-->
 			<!--sourcepath path="${plugin-dev.dir.base}" /-->
-			<group title="Types" packages="pt.up.fe.dceg.neptus.types*" />
-			<group title="Workspace" packages="pt.up.fe.dceg.neptus.mc*" />
-			<group title="Mission Review &amp; Analysis" packages="pt.up.fe.dceg.neptus.mra*" />
-			<group title="2D and 3D Renderer" packages="pt.up.fe.dceg.neptus.renderer*" />
-			<group title="GUI" packages="pt.up.fe.dceg.neptus.gui*" />
-			<group title="Util" packages="pt.up.fe.dceg.neptus.util*" />
-			<group title="Aplications Loaders" packages="pt.up.fe.dceg.neptus.loader*" />
-			<group title="Plugins" packages="pt.up.fe.dceg.neptus.plugins*" />
-			<group title="I18n" packages="pt.up.fe.dceg.neptus.i18n*" />
-			<group title="JUnit" packages="pt.up.fe.dceg.neptus.junit*" />
-			<group title="Tests" packages="pt.up.fe.dceg.neptus.test*" />
+			<group title="Types" packages="pt.lsts.neptus.types*" />
+			<group title="Workspace" packages="pt.lsts.neptus.mc*" />
+			<group title="Mission Review &amp; Analysis" packages="pt.lsts.neptus.mra*" />
+			<group title="2D and 3D Renderer" packages="pt.lsts.neptus.renderer*" />
+			<group title="GUI" packages="pt.lsts.neptus.gui*" />
+			<group title="Util" packages="pt.lsts.neptus.util*" />
+			<group title="Aplications Loaders" packages="pt.lsts.neptus.loader*" />
+			<group title="Plugins" packages="pt.lsts.neptus.plugins*" />
+			<group title="I18n" packages="pt.lsts.neptus.i18n*" />
+			<group title="JUnit" packages="pt.lsts.neptus.junit*" />
+			<group title="Tests" packages="pt.lsts.neptus.test*" />
 		</javadoc>
 		<copy todir="${build.apidocs}">
 			<fileset dir="${javadoc.src}" includes="neptus_logo_font_500x193.png" />
@@ -1402,7 +1413,7 @@ For simple use the main targets are:
 			</classpath>
 			<formatter type="xml" />
 
-			<!-- test name="pt.up.fe.dceg.neptus.junit.AllTests" haltonfailure="no"
+			<!-- test name="pt.lsts.neptus.junit.AllTests" haltonfailure="no"
 		  	outfile="${reports.tests}/result">
 		    <formatter type="xml"/>
 		  </test -->
@@ -2025,99 +2036,99 @@ For simple use the main targets are:
 			<externalclasses>
 				<pathelement path="${class.path}" />
 			</externalclasses>
-			<rename mainclass="pt.up.fe.dceg.neptus.mc.lauvconsole.LAUVConsole" 
+			<rename mainclass="pt.lsts.neptus.mc.lauvconsole.LAUVConsole" 
 				logfile="${dist.installer.basename.le}}-obf_lauv-obfuscation-log.xml.gz">
 				<keep>
-					<class name="pt.up.fe.dceg.neptus.util.conf.GeneralPreferences" methods="private" fields="private" />
-					<class name="pt.up.fe.dceg.neptus.util.conf.ConfigFetch" methods="private" fields="private" />
-					<class name="pt.up.fe.dceg.neptus.mc.loader.NeptusMain" methods="public" fields="private" />
-					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.Goto" methods="private" fields="private" />
-					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.Unconstrained" methods="private" fields="private" />
-					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.Dive" methods="private" fields="private" />
-					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.PopUp" methods="private" fields="private" />
-					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.HeadingVelocityDepth" methods="private" fields="private" />
-					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.Loiter" methods="private" fields="private" />
-					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.*" methods="private" fields="private" />
+					<class name="pt.lsts.neptus.util.conf.GeneralPreferences" methods="private" fields="private" />
+					<class name="pt.lsts.neptus.util.conf.ConfigFetch" methods="private" fields="private" />
+					<class name="pt.lsts.neptus.mc.loader.NeptusMain" methods="public" fields="private" />
+					<class name="pt.lsts.neptus.mp.maneuvers.Goto" methods="private" fields="private" />
+					<class name="pt.lsts.neptus.mp.maneuvers.Unconstrained" methods="private" fields="private" />
+					<class name="pt.lsts.neptus.mp.maneuvers.Dive" methods="private" fields="private" />
+					<class name="pt.lsts.neptus.mp.maneuvers.PopUp" methods="private" fields="private" />
+					<class name="pt.lsts.neptus.mp.maneuvers.HeadingVelocityDepth" methods="private" fields="private" />
+					<class name="pt.lsts.neptus.mp.maneuvers.Loiter" methods="private" fields="private" />
+					<class name="pt.lsts.neptus.mp.maneuvers.*" methods="private" fields="private" />
 					<class classes="private" methods="private" fields="private">
 						<patternset>
-							<!--exclude name="pt.up.fe.dceg.neptus.console.ConsoleLayout" /-->
-							<include name="pt.up.fe.dceg.neptus.console." />
-							<!--<include name="pt.up.fe.dceg.neptus.types.map."/>-->
-							<!--include name="pt.up.fe.dceg.neptus.messages."/-->
-							<!--include name="pt.up.fe.dceg.messages."/-->
-							<include name="pt.up.fe.dceg.neptus.util.comm.middleware." />
-							<include name="pt.up.fe.dceg.neptus.util.comm.vehicle." />
-							<!--include name="pt.up.fe.dceg.neptus.messages.stanag4586." /-->
-							<!--include name="pt.up.fe.dceg.neptus.messages.im." /-->
-							<include name="pt.up.fe.dceg.neptus.messages.**" />
-							<include name="pt.up.fe.dceg.neptus.plugins." />
-							<include name="pt.up.fe.dceg.neptus.mra.visualizations." />
-							<include name="pt.up.fe.dceg.neptus.util.llf.LogSource" />
-							<include name="pt.up.fe.dceg.neptus.gui." />
-							<include name="pt.up.fe.dceg.neptus.util.*Utils" />
-							<include name="pt.up.fe.dceg.neptus.util.*Util" />
-							<include name="pt.up.fe.dceg.neptus.util.AngleCalc" />
-							<include name="pt.up.fe.dceg.neptus.util.NameNormalizer" />
-							<include name="pt.up.fe.dceg.neptus.util.logdownload.Log*" />
-							<!--include name="pt.up.fe.dceg.vartree.VarTree" /-->
-							<include name="pt.up.fe.dceg.neptus.types.coord."/>
-							<include name="pt.up.fe.dceg.neptus.types."/>
-							<include name="pt.up.fe.dceg.neptus.colormap." />
-							<include name="pt.up.fe.dceg.neptus.planeditor.I*" />
-							<include name="pt.up.fe.dceg.neptus.mc.consoletracker.I*" />
-							<include name="pt.up.fe.dceg.neptus.messages.listener.MessageListener" />
-							<include name="pt.up.fe.dceg.neptus.renderer2d.Worl*" />
-							<include name="pt.up.fe.dceg.neptus.renderer2d.tiles/**" />
-							<include name="pt.up.fe.dceg.neptus.planeditor.**" />
-							<include name="pt.up.fe.dceg.neptus.mra.importers.**" />
-							<include name="pt.up.fe.dceg.neptus.mra.exporters.**" />
-							<include name="pt.up.fe.dceg.neptus.mra.NeptusMRA*" />
-							<include name="pt.up.fe.dceg.neptus.util.llf.**" />
-							<include name="pt.up.fe.dceg.neptus.util.comm.IMC*" />
+							<!--exclude name="pt.lsts.neptus.console.ConsoleLayout" /-->
+							<include name="pt.lsts.neptus.console." />
+							<!--<include name="pt.lsts.neptus.types.map."/>-->
+							<!--include name="pt.lsts.neptus.messages."/-->
+							<!--include name="pt.lsts.messages."/-->
+							<include name="pt.lsts.neptus.util.comm.middleware." />
+							<include name="pt.lsts.neptus.util.comm.vehicle." />
+							<!--include name="pt.lsts.neptus.messages.stanag4586." /-->
+							<!--include name="pt.lsts.neptus.messages.im." /-->
+							<include name="pt.lsts.neptus.messages.**" />
+							<include name="pt.lsts.neptus.plugins." />
+							<include name="pt.lsts.neptus.mra.visualizations." />
+							<include name="pt.lsts.neptus.util.llf.LogSource" />
+							<include name="pt.lsts.neptus.gui." />
+							<include name="pt.lsts.neptus.util.*Utils" />
+							<include name="pt.lsts.neptus.util.*Util" />
+							<include name="pt.lsts.neptus.util.AngleCalc" />
+							<include name="pt.lsts.neptus.util.NameNormalizer" />
+							<include name="pt.lsts.neptus.util.logdownload.Log*" />
+							<!--include name="pt.lsts.vartree.VarTree" /-->
+							<include name="pt.lsts.neptus.types.coord."/>
+							<include name="pt.lsts.neptus.types."/>
+							<include name="pt.lsts.neptus.colormap." />
+							<include name="pt.lsts.neptus.planeditor.I*" />
+							<include name="pt.lsts.neptus.mc.consoletracker.I*" />
+							<include name="pt.lsts.neptus.messages.listener.MessageListener" />
+							<include name="pt.lsts.neptus.renderer2d.Worl*" />
+							<include name="pt.lsts.neptus.renderer2d.tiles/**" />
+							<include name="pt.lsts.neptus.planeditor.**" />
+							<include name="pt.lsts.neptus.mra.importers.**" />
+							<include name="pt.lsts.neptus.mra.exporters.**" />
+							<include name="pt.lsts.neptus.mra.NeptusMRA*" />
+							<include name="pt.lsts.neptus.util.llf.**" />
+							<include name="pt.lsts.neptus.util.comm.IMC*" />
 
-							<include name="pt.up.fe.dceg.neptus.util.comm.manager.imc.*" />
-							<include name="pt.up.fe.dceg.neptus.util.**" />
-							<include name="pt.up.fe.dceg.neptus.planning.**" />
+							<include name="pt.lsts.neptus.util.comm.manager.imc.*" />
+							<include name="pt.lsts.neptus.util.**" />
+							<include name="pt.lsts.neptus.planning.**" />
 
 							<!-- Legacy -->
-							<include name="pt.up.fe.dceg.neptus.mc.console." />
+							<include name="pt.lsts.neptus.mc.console." />
 						</patternset>
 					</class>
 					<class classes="private" methods="private" fields="private">
 						<patternset>
-							<include name="pt.up.fe.dceg.neptus.mc.consoletracker.TrackerCommControl" />
-							<include name="pt.up.fe.dceg.neptus.mc.consoletracker.LBLListener" />
+							<include name="pt.lsts.neptus.mc.consoletracker.TrackerCommControl" />
+							<include name="pt.lsts.neptus.mc.consoletracker.LBLListener" />
 						</patternset>
 					</class>
 					<class classes="public" methods="public" fields="public">
 						<patternset>
-							<include name="pt.up.fe.dceg.neptus.vartree.*" />
-							<include name="pt.up.fe.dceg.vartree.*" />
-							<include name="pt.up.fe.dceg.neptus.comm.serial.lucl.**" />
-							<include name="pt.up.fe.dceg.neptus.renderer3d.Renderer3D" />
-							<!--include name="pt.up.fe.dceg.neptus.planeditor.MapPlanEditor" /-->
-							<include name="pt.up.fe.dceg.neptus.renderer2d.**" />
-							<include name="pt.up.fe.dceg.neptus.mp.VehicleState*" />
-							<include name="pt.up.fe.dceg.neptus.mp.**" />
-							<include name="pt.up.fe.dceg.neptus.messages.*" />
-							<include name="pt.up.fe.dceg.messages.*" />
-							<include name="pt.up.fe.dceg.neptus.mystate.*" />
-							<!--include name="pt.up.fe.dceg.neptus.util.comm.manager.imc.*" /-->
-							<include name="pt.up.fe.dceg.neptus.util.comm.*Util" />
-							<include name="pt.up.fe.dceg.neptus.util.comm.*Utils" />
+							<include name="pt.lsts.neptus.vartree.*" />
+							<include name="pt.lsts.vartree.*" />
+							<include name="pt.lsts.neptus.comm.serial.lucl.**" />
+							<include name="pt.lsts.neptus.renderer3d.Renderer3D" />
+							<!--include name="pt.lsts.neptus.planeditor.MapPlanEditor" /-->
+							<include name="pt.lsts.neptus.renderer2d.**" />
+							<include name="pt.lsts.neptus.mp.VehicleState*" />
+							<include name="pt.lsts.neptus.mp.**" />
+							<include name="pt.lsts.neptus.messages.*" />
+							<include name="pt.lsts.messages.*" />
+							<include name="pt.lsts.neptus.mystate.*" />
+							<!--include name="pt.lsts.neptus.util.comm.manager.imc.*" /-->
+							<include name="pt.lsts.neptus.util.comm.*Util" />
+							<include name="pt.lsts.neptus.util.comm.*Utils" />
 							<include name="net.java.games.input.*" />
-							<include name="pt.up.fe.dceg.neptus.gui.tablelayout.*" />
-							<include name="pt.up.fe.dceg.neptus.alarms.**" />
-							<include name="pt.up.fe.dceg.neptus.doc.**" />
-                            <include name="pt.up.fe.dceg.neptus.i18n.**" />
+							<include name="pt.lsts.neptus.gui.tablelayout.*" />
+							<include name="pt.lsts.neptus.alarms.**" />
+							<include name="pt.lsts.neptus.doc.**" />
+                            <include name="pt.lsts.neptus.i18n.**" />
 						</patternset>
 					</class>
 					<method name="boolean updateMissionFilesOpened(java.io.File)">
 						<patternset id="datapatternset">
-							<include name="pt.up.fe.dceg.neptus.mc.Workspace" />
-							<include name="pt.up.fe.dceg.neptus.mra.NeptusMRA" />
-							<include name="pt.up.fe.dceg.neptus.mp.MissionPlanner" />
-							<include name="pt.up.fe.dceg.neptus.viewer3d.Viewer3D" />
+							<include name="pt.lsts.neptus.mc.Workspace" />
+							<include name="pt.lsts.neptus.mra.NeptusMRA" />
+							<include name="pt.lsts.neptus.mp.MissionPlanner" />
+							<include name="pt.lsts.neptus.viewer3d.Viewer3D" />
 						</patternset>
 					</method>
 					<method name="boolean updateMapFilesOpened(java.io.File)">
@@ -2171,57 +2182,57 @@ For simple use the main targets are:
 				<pathelement path="${class.path}" />
 			</externalclasses>
 
-			<rename mainclass="pt.up.fe.dceg.neptus.loader.NeptusMain" logfile="${dist.installer.name.full}-obfuscation-log-full.xml.gz">
+			<rename mainclass="pt.lsts.neptus.loader.NeptusMain" logfile="${dist.installer.name.full}-obfuscation-log-full.xml.gz">
 				<keep>
-					<class name="pt.up.fe.dceg.neptus.util.conf.GeneralPreferences" methods="private" fields="private" />
-					<class name="pt.up.fe.dceg.neptus.util.conf.ConfigFetch" methods="private" fields="private" />
-					<class name="pt.up.fe.dceg.neptus.mc.loader.NeptusMain" methods="public" fields="private" />
-					<class name="pt.up.fe.dceg.neptus.mp.maneuvers.*" methods="private" fields="private" />
+					<class name="pt.lsts.neptus.util.conf.GeneralPreferences" methods="private" fields="private" />
+					<class name="pt.lsts.neptus.util.conf.ConfigFetch" methods="private" fields="private" />
+					<class name="pt.lsts.neptus.mc.loader.NeptusMain" methods="public" fields="private" />
+					<class name="pt.lsts.neptus.mp.maneuvers.*" methods="private" fields="private" />
 					<class classes="private" methods="private" fields="private">
 						<patternset>
-							<!--exclude name="pt.up.fe.dceg.neptus.console.ConsoleLayout" /-->
-							<include name="pt.up.fe.dceg.neptus.console." />
-							<!--<include name="pt.up.fe.dceg.neptus.types.map."/>-->
-							<!--include name="pt.up.fe.dceg.neptus.messages."/-->
-							<!--include name="pt.up.fe.dceg.messages."/-->
-							<include name="pt.up.fe.dceg.neptus.util.comm.middleware." />
-							<include name="pt.up.fe.dceg.neptus.util.comm.vehicle." />
-							<include name="pt.up.fe.dceg.neptus.messages.stanag4586." />
-							<include name="pt.up.fe.dceg.neptus.messages.im." />
-							<include name="pt.up.fe.dceg.neptus.plugins." />
-							<include name="pt.up.fe.dceg.neptus.mra.visualizations." />
-							<include name="pt.up.fe.dceg.neptus.util.llf.LogSource" />
-							<include name="pt.up.fe.dceg.neptus.gui." />
-							<include name="pt.up.fe.dceg.neptus.util.*Utils" />
-							<include name="pt.up.fe.dceg.neptus.util.*Util" />
-							<include name="pt.up.fe.dceg.neptus.util.AngleCalc" />
-							<include name="pt.up.fe.dceg.neptus.util.NameNormalizer" />
-							<include name="pt.up.fe.dceg.neptus.util.logdownload.Log*" />
-							<include name="pt.up.fe.dceg.vartree.VarTree" />
-							<include name="pt.up.fe.dceg.neptus.types.coord."/>
-							<include name="pt.up.fe.dceg.neptus.types."/>
-							<include name="pt.up.fe.dceg.neptus.colormap." />
+							<!--exclude name="pt.lsts.neptus.console.ConsoleLayout" /-->
+							<include name="pt.lsts.neptus.console." />
+							<!--<include name="pt.lsts.neptus.types.map."/>-->
+							<!--include name="pt.lsts.neptus.messages."/-->
+							<!--include name="pt.lsts.messages."/-->
+							<include name="pt.lsts.neptus.util.comm.middleware." />
+							<include name="pt.lsts.neptus.util.comm.vehicle." />
+							<include name="pt.lsts.neptus.messages.stanag4586." />
+							<include name="pt.lsts.neptus.messages.im." />
+							<include name="pt.lsts.neptus.plugins." />
+							<include name="pt.lsts.neptus.mra.visualizations." />
+							<include name="pt.lsts.neptus.util.llf.LogSource" />
+							<include name="pt.lsts.neptus.gui." />
+							<include name="pt.lsts.neptus.util.*Utils" />
+							<include name="pt.lsts.neptus.util.*Util" />
+							<include name="pt.lsts.neptus.util.AngleCalc" />
+							<include name="pt.lsts.neptus.util.NameNormalizer" />
+							<include name="pt.lsts.neptus.util.logdownload.Log*" />
+							<include name="pt.lsts.vartree.VarTree" />
+							<include name="pt.lsts.neptus.types.coord."/>
+							<include name="pt.lsts.neptus.types."/>
+							<include name="pt.lsts.neptus.colormap." />
 							<!-- Legacy -->
-							<include name="pt.up.fe.dceg.neptus.mc.console." />
+							<include name="pt.lsts.neptus.mc.console." />
 						</patternset>
 					</class>
 					<class classes="private" methods="private" fields="private">
 						<patternset>
-							<include name="pt.up.fe.dceg.neptus.mc.consoletracker.TrackerCommControl" />
+							<include name="pt.lsts.neptus.mc.consoletracker.TrackerCommControl" />
 						</patternset>
 					</class>
 					<class classes="public" methods="public" fields="public">
 						<patternset>
-							<include name="pt.up.fe.dceg.neptus.vartree.VariableTree" />
+							<include name="pt.lsts.neptus.vartree.VariableTree" />
 						</patternset>
 					</class>
 					<method name="boolean updateMissionFilesOpened(java.io.File)">
 						<patternset id="datapatternset">
-							<include name="pt.up.fe.dceg.neptus.mc.Workspace" />
-							<include name="pt.up.fe.dceg.neptus.mra.NeptusMRA" />
-							<include name="pt.up.fe.dceg.neptus.mp.MissionPlanner" />
-							<include name="pt.up.fe.dceg.neptus.viewer3d.Viewer3D" />
-							<include name="pt.up.fe.dceg.neptus.i18n.**" />
+							<include name="pt.lsts.neptus.mc.Workspace" />
+							<include name="pt.lsts.neptus.mra.NeptusMRA" />
+							<include name="pt.lsts.neptus.mp.MissionPlanner" />
+							<include name="pt.lsts.neptus.viewer3d.Viewer3D" />
+							<include name="pt.lsts.neptus.i18n.**" />
 						</patternset>
 					</method>
 					<method name="boolean updateMapFilesOpened(java.io.File)">
@@ -2257,7 +2268,7 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<target name="generate-manual-index" description="Deprecated! Generator of manual index">
 		<java classpath=".;${jar.file.path};${class.path}" fork="true"
-        classname="pt.up.fe.dceg.neptus.doc.DocumentationIndexGenerator" />		
+        classname="pt.lsts.neptus.doc.DocumentationIndexGenerator" />		
 	</target>
 
 	<!-- =================================================================== -->
@@ -2265,7 +2276,7 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<target name="run" depends="jar" description="Test run of Neptus">
 		<java classpath=".;${jar.file.path};${class.path.run}"  fork="true" 
-				classname="pt.up.fe.dceg.neptus.loader.NeptusMain">
+				classname="pt.lsts.neptus.loader.NeptusMain">
 			<jvmarg value="-Xms10m -Xmx980m -Djava.library.path='.;libJNI\' -Dj3d.rend=d3d -Dsun.java2d.d3d=true" />
 		</java>
 	</target>

@@ -108,6 +108,9 @@ public class TransponderElement extends AbstractElement implements Identifiable{
 
     private TransponderParameters params = null;
 
+    String transponderID;
+    double transponderDelay, responderLockout, interrogationChannel, replyChannel;
+    
     /**
      * The config file format is like the following:
      * 

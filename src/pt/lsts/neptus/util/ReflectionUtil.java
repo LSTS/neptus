@@ -178,7 +178,7 @@ public class ReflectionUtil {
 
         Vector<Class<?>> subpanels = new Vector<Class<?>>();
         try {
-            List<Class<?>> classes = ReflectionUtil.getClassesForPackage("pt.up.fe.dceg.neptus.console.plugins");
+            List<Class<?>> classes = ReflectionUtil.getClassesForPackage("pt.lsts.neptus.console.plugins");
             System.out.println("list plugins");
             for (Class<?> clazz : classes) {
                 System.out.println(clazz.toString());

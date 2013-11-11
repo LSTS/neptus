@@ -148,8 +148,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     public void sendMessage(IridiumMessage msg) throws Exception {
      
         byte[] data = msg.serialize();
-        
-        data = Hex.encodeHexString(data).getBytes();
+        data = new String(Hex.encodeHex(data)).getBytes();
         
         URL u = new URL(messagesUrl);
         HttpURLConnection conn = (HttpURLConnection) u.openConnection();
