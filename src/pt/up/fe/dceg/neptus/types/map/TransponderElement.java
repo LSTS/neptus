@@ -145,10 +145,10 @@ public class TransponderElement extends AbstractElement implements Identifiable{
     }
 
     public TransponderElement(LblBeacon lblBeacon) {
-        String beacon = lblBeacon.getString("beacon");
-        double lat = Math.toDegrees(lblBeacon.getDouble("lat"));
-        double lon = Math.toDegrees(lblBeacon.getDouble("lon"));
-        double depth = lblBeacon.getDouble("depth");
+        String beacon = lblBeacon.getBeacon();
+        double lat = Math.toDegrees(lblBeacon.getLat());
+        double lon = Math.toDegrees(lblBeacon.getLon());
+        double depth = lblBeacon.getDepth();
         LocationType lt = new LocationType();
         lt.setLatitude(lat);
         lt.setLongitude(lon);
@@ -156,9 +156,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
         setId(beacon);
         setName(beacon);
         setCenterLocation(lt);
-        propConf.setProperty("interrogation channel", lblBeacon.getQueryChannel() + "");
-        propConf.setProperty("reply channel", lblBeacon.getReplyChannel() + "");
-        propConf.setProperty("transponder delay (msecs.)", lblBeacon.getTransponderDelay() + "");
+        generateConf(beacon + ".conf");
     }
 
     /**
@@ -237,8 +235,17 @@ public class TransponderElement extends AbstractElement implements Identifiable{
     public void setFile(FileType file) {
         this.file = file;
 
+        generateConf(file.getHref());
+    }
+
+    /**
+     * The input must be equal to one of the existing configuration files (example benthos3.conf).
+     * 
+     * @param confFileName
+     */
+    private void generateConf(String confFileName) {
         try {
-            propConf = new PropertiesLoader(ConfigFetch.resolvePath("maps/" + file.getHref()),
+            propConf = new PropertiesLoader(ConfigFetch.resolvePath("maps/" + confFileName),
                     PropertiesLoader.PROPERTIES);
             fixPropertiesConfFormat();
         }
