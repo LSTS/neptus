@@ -812,6 +812,16 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         ChildIterator transIt;
         ExtendedTreeNode tempNode;
         TransponderElement tempTrans;
+
+        HashMap<String, Short> idMap = new HashMap<String, Short>();
+        transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
+        // Make a list of all the nodes with a link to their id to keep track of which ids to reset in the end
+        while (transIt.hasNext()) {
+            tempNode = transIt.next();
+            idMap.put(((TransponderElement) tempNode.getUserObject()).getIdentification(), 
+                    (Short) tempNode.getUserInfo().get(NodeInfoKey.ID.name()));
+        }
+
         short id = 0; // the id inside DUNE is the index in the vector
         transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
         for (LblBeacon lblBeacon : remoteList) {
@@ -826,8 +836,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     node = tempNode;
                     trans = tempTrans;
                     existing.add(tempTrans.getIdentification());
+                    idMap.remove(trans.getIdentification());
                     System.out.print(tempTrans.getIdentification() + "\t");
-                    transIt.remove();
                     break;
                 }
             }
@@ -852,6 +862,15 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             }
             node.getUserInfo().put(NodeInfoKey.VEHICLE.name(), sysName);
             id++;
+        }
+        // reset id of transponders not in vehicle
+        transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
+        while(transIt.hasNext()){
+            tempNode = transIt.next();
+            String tempId = ((TransponderElement) tempNode.getUserObject()).getIdentification();
+            if (idMap.containsKey(tempId)) {
+                tempNode.getUserInfo().put(NodeInfoKey.ID.name(), (short) -1);
+            }
         }
         return existing;
     }
@@ -1181,29 +1200,11 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 HashSet<String> existingTrans = mergeLocal(localTrans, sysName, treeModel, ParentNodes.TRANSPONDERS);
                 existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans);
                 treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
-                cleanUpIds();
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
                 // revalidate();
                 repaint();
             }
 
-            private void cleanUpIds() {
-                ChildIterator transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
-                ExtendedTreeNode currNode;
-                short idCounter = 0;
-                while (transIt.hasNext()) {
-                    currNode = transIt.next();
-                    HashMap<String, Object> userInfo = currNode.getUserInfo();
-                    State state = (State) userInfo.get(NodeInfoKey.SYNC.name());
-                    if (state.equals(State.SYNC) || state.equals(State.NOT_SYNC)) {
-                        userInfo.put(NodeInfoKey.ID.name(), idCounter);
-                        idCounter++;
-                    }
-                    else {
-                        userInfo.put(NodeInfoKey.ID.name(), (short) -1);
-                    }
-                }
-            }
         });
     }
 

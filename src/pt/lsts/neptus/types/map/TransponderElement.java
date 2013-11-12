@@ -161,7 +161,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
         setId(beacon);
         setName(beacon);
         setCenterLocation(lt);
-        generateConf(beacon + ".conf");
+        setConfiguration(beacon + ".conf");
     }
 
     /**
@@ -187,6 +187,9 @@ public class TransponderElement extends AbstractElement implements Identifiable{
         }
         // Configuration
         String[] split = file.getHref().split(".");
+        if (split.length == 0) {
+            System.out.print(" No conf name!");
+        }
         if (!split[0].equals(lblBeacon.getBeacon())) {
             return false;
         }
@@ -234,17 +237,8 @@ public class TransponderElement extends AbstractElement implements Identifiable{
     public void setFile(FileType file) {
         this.file = file;
 
-        generateConf(file.getHref());
-    }
-
-    /**
-     * The input must be equal to one of the existing configuration files (example benthos3.conf).
-     * 
-     * @param confFileName
-     */
-    private void generateConf(String confFileName) {
         try {
-            propConf = new PropertiesLoader(ConfigFetch.resolvePath("maps/" + confFileName),
+            propConf = new PropertiesLoader(ConfigFetch.resolvePath("maps/" + file.getHref()),
                     PropertiesLoader.PROPERTIES);
             fixPropertiesConfFormat();
         }
@@ -253,6 +247,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
             e.printStackTrace();
         }
     }
+
 
     /**
      * To fix the fact that the property value can not have a space in the key.
