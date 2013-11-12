@@ -186,16 +186,10 @@ public class TransponderElement extends AbstractElement implements Identifiable{
             return false;
         }
         // Configuration
-        if (propConf.get("interrogation channel").equals(lblBeacon.getQueryChannel())) {
+        String[] split = file.getHref().split(".");
+        if (!split[0].equals(lblBeacon.getBeacon())) {
             return false;
         }
-        if (propConf.get("reply channel").equals(lblBeacon.getReplyChannel())) {
-            return false;
-        }
-        if (propConf.get("transponder delay (msecs.)").equals(lblBeacon.getTransponderDelay())) {
-            return false;
-        }
-        // Id is independently generated on both sides so it's irrelevant
         return true;
     }
 
