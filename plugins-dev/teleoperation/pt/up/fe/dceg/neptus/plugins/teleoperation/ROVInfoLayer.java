@@ -44,6 +44,7 @@ import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
 import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
 import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
 import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
+import pt.up.fe.dceg.neptus.util.MathMiscUtils;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -59,10 +60,10 @@ public class ROVInfoLayer extends SimpleSubPanel implements Renderer2DPainter
      * @param console
      */
     
-    private double desiredDepth;
-    private double desiredHeading;
-    private double depth;
-    private double heading;
+    private double desiredDepth = 0;
+    private double desiredHeading = 0;
+    private double depth = 0;
+    private double heading = 0;
     
     public ROVInfoLayer(ConsoleLayout console) {
         super(console);
@@ -70,12 +71,13 @@ public class ROVInfoLayer extends SimpleSubPanel implements Renderer2DPainter
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        int y = getHeight() - 50;
+        System.out.println();
         g.setColor(Color.BLACK);
-        g.drawString("Desired Heading: " + desiredHeading, 10, y);
-        g.drawString("Heading: " + heading, 10, y + 10);
-        g.drawString("Desired Depth: " + desiredDepth, 10, y + 20);
-        g.drawString("Depth: " + depth, 10, y + 30);
+        g.translate(0, renderer.getHeight() - 100);
+        g.drawString("Desired Heading: " + desiredHeading, 10, 0);
+        g.drawString("Heading: " + heading, 10, 10);
+        g.drawString("Desired Depth: " + desiredDepth, 10, 20);
+        g.drawString("Depth: " + depth, 10, 30);
         
     }
 
@@ -91,17 +93,23 @@ public class ROVInfoLayer extends SimpleSubPanel implements Renderer2DPainter
     
     @Subscribe
     public void onMessage(EstimatedState state) {
-        depth = state.getDepth();
-        heading = state.getPsi();
+        if(state.getSourceName().equals(getMainVehicleId())) {
+            depth = MathMiscUtils.round(state.getDepth(), 3);
+            heading =MathMiscUtils.round(state.getPsi(), 3);
+        }
     }
     
     @Subscribe
     public void onMessage(DesiredZ dz) {
-        desiredDepth = dz.getValue();
+        if(dz.getSourceName().equals(getMainVehicleId())) {
+            desiredDepth = MathMiscUtils.round(dz.getValue(), 3);
+        }
     }
     
     @Subscribe
     public void onMessage(DesiredHeading dh) {
-        desiredHeading = dh.getValue();
+        if(dh.getSourceName().equals(getMainVehicleId())) {
+            desiredHeading = MathMiscUtils.round(dh.getValue(), 3);
+        }
     }
 }
