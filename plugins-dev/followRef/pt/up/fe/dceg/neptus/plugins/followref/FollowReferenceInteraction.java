@@ -48,22 +48,6 @@ import java.util.Vector;
 
 import javax.swing.JPopupMenu;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.gui.PropertiesEditor;
-import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleRendererInteraction;
-import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
-import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.DesiredSpeed;
 import pt.lsts.imc.DesiredZ;
@@ -77,6 +61,23 @@ import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanManeuver;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.Reference;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleRendererInteraction;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.comm.IMCUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -110,7 +111,9 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     @NeptusProperty
     public long controlLoopLatencySecs = 3;
     
-
+    @NeptusProperty
+    public long referenceTimeout = 30;
+        
     public FollowReferenceInteraction(ConsoleLayout cl) {
         super(cl);
     }
@@ -122,19 +125,26 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
     @Override
     public boolean update() {
-
         Vector<String> copy = new Vector<>();
         copy.addAll(activeVehicles);
 
         for (String v : copy) {
-            if (frefStates.containsKey(v)) {
+            if (useAcousticCommunications) {
+                if (states.containsKey(v)) {
+                    boolean prox = false;
+                    LocationType loc = IMCUtils.getLocation(states.get(v));
+                    prox = plans.get(v).currentWaypoint().getManeuverLocation().getDistanceInMeters(loc) < radius + 4;
+                    if (prox)
+                        plans.get(v).popFirstWaypoint();
+                }
+            }
+            else if (frefStates.containsKey(v)) {
                 int prox = frefStates.get(v).getProximity();
                 if ((prox & FollowRefState.PROX_XY_NEAR) != 0 &&
                         (prox & FollowRefState.PROX_Z_NEAR) != 0)
                     plans.get(v).popFirstWaypoint();                
             }
             if (plans.containsKey(v)) {
-                
                 if (useAcousticCommunications) {
                     AcousticOperation op = new AcousticOperation();
                     op.setOp(AcousticOperation.OP.MSG);
@@ -162,21 +172,9 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                     }
                 }
                 else {
+                    System.out.println("send reference");
                     send(v, plans.get(v).currentWaypoint().getReference());
-                    //ImcMsgManager.getManager().sendMessageToSystem(ref, vehicle.getId());
                 }
-                
-//                
-//                
-//                if (!useAcousticCommunications)
-//                    send(v, plans.get(v).currentWaypoint().getReference());
-//                else {
-//                    AcousticOperation op = new AcousticOperation();
-//                    op.setOp(AcousticOperation.OP.MSG);
-//                    op.setMsg(plans.get(v).currentWaypoint().getReference());
-//                    op.setSystem(v);
-//                    send(v, op);
-//                }
             }
         }
         return true;
@@ -313,11 +311,9 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 if (event.isControlDown() && event.getButton() == MouseEvent.BUTTON1) {
                     for (ReferencePlan p : plans.values()) {
                         if (p.getWaypoints().contains(wpt)) {
-                            System.out.println("cloned waypoint");
                             ReferenceWaypoint newWaypoint = p.cloneWaypoint(wpt);
                             newWaypoint.setHorizontalLocation(pressed);
                             movingWaypoint = newWaypoint;   
-                            System.out.println(wpt+" -> "+newWaypoint);
                         }
                     }
                 }
@@ -386,7 +382,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                             man.setControlEnt((short)255);
                             man.setControlSrc(65535);
                             man.setAltitudeInterval(2);
-                            man.setTimeout(5);
+                            man.setTimeout(referenceTimeout);
 
                             PlanSpecification spec = new PlanSpecification();
                             spec.setPlanId("follow_neptus");
@@ -445,3 +441,4 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
     }
 }
+

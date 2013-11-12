@@ -61,6 +61,12 @@ import javax.swing.JToggleButton;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
+import pt.lsts.imc.AcousticOperation;
+import pt.lsts.imc.AcousticSystems;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.TextMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.VehicleChooser;
@@ -88,11 +94,6 @@ import pt.lsts.neptus.util.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.imc.AcousticOperation;
-import pt.lsts.imc.AcousticSystems;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.PlanControl;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -121,7 +122,7 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
     protected LinkedHashMap<Integer, PlanControl> pendingRequests = new LinkedHashMap<>();
 
     @NeptusProperty(name = "Systems listing", description = "Use commas to separate system identifiers")
-    public String sysListing = "benthos-1,benthos-2,benthos-3,benthos-4.lauv-xtreme-2,lauv-noptilus-1,lauv-noptilus-2,lauv-noptilus-3";
+    public String sysListing = "benthos-1,benthos-2,benthos-3,benthos-4,lauv-xtreme-2,lauv-noptilus-1,lauv-noptilus-2,lauv-noptilus-3";
 
     public HashSet<String> knownSystems = new HashSet<>();
 
@@ -145,6 +146,49 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
 
     protected boolean initialized = false;
 
+    private boolean sendAcoustically(IMCMessage msg) {
+        ImcSystem[] sysLst;
+
+        if (gateway.equals("any"))                    
+            sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
+                    SystemTypeEnum.ALL, true);
+        else {
+            ImcSystem sys = ImcSystemsHolder.lookupSystemByName(gateway);
+            if (sys != null)
+                sysLst = new ImcSystem[]{sys};
+            else 
+                sysLst = new ImcSystem[]{};
+        }
+
+        if (sysLst.length == 0) {
+            post(Notification.error(I18n.text("Send message"),
+                    I18n.text("No acoustic device is capable of sending this message")).src(
+                            I18n.text("Console")));
+            return false;
+        }
+        
+        AcousticOperation op = new AcousticOperation(AcousticOperation.OP.MSG, selectedSystem, 0, msg);
+
+        int successCount = 0;
+        for (ImcSystem sys : sysLst)
+            if (ImcMsgManager.getManager().sendMessage(op, sys.getId(), null))
+                successCount++;
+
+        if (successCount > 0) {
+            bottomPane.setText(I18n.textf(
+                    "Message sent to %systemName via %systemCount acoustic gateways", selectedSystem,
+                    successCount));
+            
+            return true;
+        }
+        else {
+            post(Notification.error(I18n.text("Send message"),
+                    I18n.text("Unable to send message to selected system")).src(I18n.text("Console")));
+            return false;
+        }
+    }
+    
+    
     @Override
     public void initSubPanel() {
         if (initialized)
@@ -323,6 +367,26 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
         });
         toggle.setSelected(showRanges);
         ctrlPanel.add(toggle);
+        
+        btn = new JButton(I18n.text("Send command"));
+        btn.setActionCommand("text");
+        cmdButtons.put("text", btn);
+        btn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                if (selectedSystem == null)
+                    return;
+                String cmd = JOptionPane.showInputDialog(getConsole(), I18n.textf("Enter command to send to %vehicle", selectedSystem));
+                if (cmd == null)
+                    return;
+                if (cmd.length() > 64) {
+                    GuiUtils.errorMessage(getConsole(), I18n.text("Send command"), I18n.text("Cannot send command because it has more than 64 characters."));
+                    return;
+                }
+                TextMessage msg = new TextMessage("", cmd);
+                sendAcoustically(msg);
+            }
+        });
+        ctrlPanel.add(btn);
 
         listPanel.setBackground(Color.white);
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.PAGE_AXIS));
