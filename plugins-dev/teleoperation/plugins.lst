@@ -7,3 +7,4 @@
 
 pt.up.fe.dceg.neptus.plugins.teleoperation.ServoControlPanel
 pt.up.fe.dceg.neptus.plugins.teleoperation.ControllerPanel
+pt.up.fe.dceg.neptus.plugins.teleoperation.ROVInfoLayer

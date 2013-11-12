@@ -68,6 +68,7 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.controllers.ControllerManager;
@@ -426,7 +427,13 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
     }
     
     public void consume(RemoteActionsRequest message) {
-        actions = message.getActions();
+        if(actions == null) {
+            actions = new LinkedHashMap<String, String>();
+        }
+        for(String k: message.getActions().keySet()) {
+            actions.put(k, message.getActions().get(k));
+        }
+        
         mappedActions = getMappedActions(console.getMainSystem(), currentController);
         buildDialog();
     }

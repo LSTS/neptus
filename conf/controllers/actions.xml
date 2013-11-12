@@ -10,13 +10,23 @@
       <entry component="" action="Heading" inverted="false"/>  
       <entry component="" action="Thrust" inverted="false"/> 
     </controller>  
+    <controller name="Logitech Logitech Dual Action"> 
+      <entry component="" action="Exit" inverted="false"/>  
+      <entry component="" action="Accelerate" inverted="false"/>  
+      <entry component="" action="Decelerate" inverted="false"/>  
+      <entry component="" action="Stop" inverted="false"/>  
+      <entry component="" action="Heading" inverted="false"/>  
+      <entry component="" action="Thrust" inverted="false"/> 
+    </controller> 
+  </system>  
+  <system name="lauv-noptilus-1">
     <controller name="Logitech Logitech Dual Action">
-      <entry component="" action="Exit" inverted="false"/>
+      <entry component="Top" action="Exit" inverted="false"/>
       <entry component="" action="Accelerate" inverted="false"/>
       <entry component="" action="Decelerate" inverted="false"/>
       <entry component="" action="Stop" inverted="false"/>
-      <entry component="" action="Heading" inverted="false"/>
+      <entry component="z" action="Heading" inverted="false"/>
       <entry component="" action="Thrust" inverted="false"/>
     </controller>
-  </system> 
+  </system>
 </systems>
