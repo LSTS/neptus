@@ -44,9 +44,12 @@ import java.util.TimeZone;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.TableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
@@ -82,7 +85,6 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     RangeSlider rangeSlider;
     
     JButton btnFilter = new JButton(new AbstractAction("Filter") {
-        
         @Override
         public void actionPerformed(ActionEvent e) {
             long initTime = log.firstLogEntry().getTimestampMillis();
@@ -92,6 +94,12 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
             table.repaint();
        }
     });
+    
+    private long finalTime;
+    private long initTime;
+
+    JLabel lblInitTime = new JLabel();
+    JLabel lblFinalTime = new JLabel();
     
     public LogTableVisualization(IMraLog source, MRAPanel panel) {
         this.log = source;
@@ -148,15 +156,27 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         });
         table.setAutoResizeMode(JXTable.AUTO_RESIZE_OFF);
 
-        // Build Range slider for time
+        finalTime = log.getLastEntry().getTimestampMillis();
+        initTime = log.firstLogEntry().getTimestampMillis();  
         
-        rangeSlider = new RangeSlider(0,  (int)(log.getLastEntry().getTimestampMillis() - log.firstLogEntry().getTimestampMillis()));
-        rangeSlider.setValue(0);
-        rangeSlider.setUpperValue((int)(log.getLastEntry().getTimestampMillis() - log.firstLogEntry().getTimestampMillis()));
+        rangeSlider = new RangeSlider(0,  (int)(finalTime - initTime));
+        rangeSlider.setUpperValue((int)(finalTime - initTime));
+        rangeSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                lblInitTime.setText(fmt.format(new Date(rangeSlider.getValue() + initTime)));
+                lblFinalTime.setText(fmt.format(new Date(rangeSlider.getUpperValue() + initTime)));
+            }
+        });
 
+        rangeSlider.setValue(0); // This also initializes the time labels for the filter
+        
+        
         // Build Panel
         panel.add(new JScrollPane(table), "w 100%, h 100%, wrap");
-        panel.add(rangeSlider, "w 100%, split");
+        panel.add(lblInitTime, "split");
+        panel.add(rangeSlider, "w 100%");
+        panel.add(lblFinalTime, "");
         panel.add(btnFilter, "wrap");
         
         return  panel;

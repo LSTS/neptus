@@ -45,6 +45,8 @@ import pt.up.fe.dceg.neptus.messages.TypedMessageFilter;
 import pt.up.fe.dceg.neptus.messages.listener.MessageInfo;
 import pt.up.fe.dceg.neptus.messages.listener.MessageListener;
 import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
+import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp
@@ -99,6 +101,14 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
 
     @Override
     public void sendMessage(IridiumMessage msg) throws Exception {
+        
+        // Activate and deactivate subscriptions should use the id of the used gateway
+        if (msg instanceof ActivateSubscription || msg instanceof DeactivateSubscription) {
+            ImcSystem system = ImcSystemsHolder.lookupSystemByName(messengerName);
+            if (system != null)
+                msg.setSource(system.getId().intValue());
+        }
+        
         IridiumMsgTx tx = new IridiumMsgTx();
         tx.setReqId((++req_id % 65535));
         tx.setTtl(3600);

@@ -69,7 +69,7 @@ public class TileGEBCO extends TileHttpFetcher {
 
     private static final int MAX_LEVEL_OF_DETAIL = 20;
     
-    static {
+    {
         httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost("www.gebco.net")), 4); // was setMaxForRoute
     }
 

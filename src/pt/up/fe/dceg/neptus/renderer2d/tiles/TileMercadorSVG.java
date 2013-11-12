@@ -75,7 +75,7 @@ public class TileMercadorSVG extends Tile {
     protected static final double w = 634.26801, h = 476.7276;
     
     protected static final LocationType centerOfImage = new LocationType();
-    static {
+    {
         centerOfImage.setLatitude(-1.5);
         centerOfImage.translatePosition(-227E3, -12E3, 0);
         centerOfImage.setLongitude(10);
@@ -89,7 +89,7 @@ public class TileMercadorSVG extends Tile {
     private static PrintTranscoder prm;
     private static PageFormat page;
 
-    static {
+    {
         prm = loadWorld(fxWM, w, h);
         Paper paper = new Paper();
         paper.setSize(w, h);

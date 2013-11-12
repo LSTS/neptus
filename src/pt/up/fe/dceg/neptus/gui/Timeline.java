@@ -113,13 +113,7 @@ public class Timeline extends JPanel implements ChangeListener {
                 }
             }
         };
-        ScheduledFuture<?> future = service.scheduleAtFixedRate(updater, 0, 1000 / Timeline.this.frequency, TimeUnit.MILLISECONDS);
-//        try {
-//            future.get();
-//        } catch(Exception e) {
-//            Throwable t = e.getCause();
-//            t.printStackTrace();
-//        }
+        service.scheduleAtFixedRate(updater, 0, 1000 / Timeline.this.frequency, TimeUnit.MILLISECONDS);
     }
 
     public AbstractAction getPlayAction() {

@@ -48,7 +48,6 @@
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/simulation"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/netcdf"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/configWindow"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/params"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/mra-jzy3d"/>
 	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/vrp"/>
 	<classpathentry kind="src" path="plugins-dev/dev-calibration"/>

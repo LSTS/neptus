@@ -53,7 +53,6 @@ import pt.up.fe.dceg.neptus.mra.api.BathymetrySwath;
 import pt.up.fe.dceg.neptus.mra.exporters.MraExporter;
 import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
 import pt.up.fe.dceg.neptus.mra.importers.deltat.DeltaTParser;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
 import pt.up.fe.dceg.neptus.plugins.PluginUtils;
 import pt.up.fe.dceg.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
@@ -61,24 +60,16 @@ import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
+import convcao.com.caoAgent.NoptilusCoords;
+
 /**
  * @author zp
  *
  */
 public class NoptilusMapExporter implements MraExporter, PropertiesProvider {
 
-    @NeptusProperty(name="Map center location")
-    public LocationType mapCenter = new LocationType();
-
-    @NeptusProperty(name="Map width in meters")
-    public double mapWidth = 100;
-
-    @NeptusProperty(name="Map height in meters")
-    public double mapHeight = 100;
-
-    @NeptusProperty(name="Cell size in meters")
-    public double cellSize = 1;
-
+    NoptilusCoords coords = new NoptilusCoords();
+    
     protected IMraLogGroup source = null;
 
     public NoptilusMapExporter(IMraLogGroup source) {
@@ -94,9 +85,12 @@ public class NoptilusMapExporter implements MraExporter, PropertiesProvider {
     @Override
     public String process() {
         PropertiesEditor.editProperties(NoptilusMapExporter.this, true);
-        mapCenter.convertToAbsoluteLatLonDepth();
+        coords.squareCenter.convertToAbsoluteLatLonDepth();
         PluginUtils.saveProperties(this, "default");
-        LocationType sw = new LocationType(mapCenter);
+        double mapWidth = coords.numCols * coords.cellWidth;
+        double mapHeight = coords.numRows * coords.cellWidth;
+        double cellSize = coords.cellWidth;
+        LocationType sw = new LocationType(coords.squareCenter);
         sw.translatePosition(-mapWidth/2, -mapHeight/2, 0);
 
         DataDiscretizer highRes = new DataDiscretizer(cellSize);
@@ -134,9 +128,9 @@ public class NoptilusMapExporter implements MraExporter, PropertiesProvider {
             DeltaTParser parser = new DeltaTParser(source);
             parser.rewind();
             
-            LocationType topLeft = new LocationType(mapCenter);
+            LocationType topLeft = new LocationType(coords.squareCenter);
             topLeft.translatePosition(mapHeight/2, -mapWidth/2, 0);
-            LocationType bottomRight = new LocationType(mapCenter);
+            LocationType bottomRight = new LocationType(coords.squareCenter);
             bottomRight.translatePosition(-mapHeight/2, mapWidth/2, 0);
             
             BathymetrySwath swath;
@@ -174,7 +168,7 @@ public class NoptilusMapExporter implements MraExporter, PropertiesProvider {
         ColorMapUtils.generateColorMap(lowRes.getDataPoints(), imgLow.createGraphics(), numRows/10, numCols/10, 0, ColorMapFactory.createGrayScaleColorMap());
         
         try {            
-            String desc = "Map centered in "+mapCenter.getLatitudeAsPrettyString()+" / "+mapCenter.getLongitudeAsPrettyString();
+            String desc = "Map centered in "+coords.squareCenter.getLatitudeAsPrettyString()+" / "+coords.squareCenter.getLongitudeAsPrettyString();
             pathToFile(pathHigh, (float)cellSize, new File(dirOut+"/path_highres.txt"), desc);
             pathToFile(pathLow, (float)cellSize*10, new File(dirOut+"/path_lowres.txt"), desc);
             ImageToFile(imgHigh, (float)cellSize, new File(dirOut+"/highres.txt"), desc);
@@ -237,12 +231,12 @@ public class NoptilusMapExporter implements MraExporter, PropertiesProvider {
 
     @Override
     public DefaultProperty[] getProperties() {
-        return PluginUtils.getPluginProperties(this);
+        return coords.getProperties();
     }
 
     @Override
     public String getPropertiesDialogTitle() {
-        return "Normalized map export settings";
+        return coords.getPropertiesDialogTitle();
     }
 
 
@@ -253,7 +247,7 @@ public class NoptilusMapExporter implements MraExporter, PropertiesProvider {
 
     @Override
     public void setProperties(Property[] properties) {
-        PluginUtils.setPluginProperties(this, properties);
+        PluginUtils.setPluginProperties(coords, properties);
     }
 
     @Override

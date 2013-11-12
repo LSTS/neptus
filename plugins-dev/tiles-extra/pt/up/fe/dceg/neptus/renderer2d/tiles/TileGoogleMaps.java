@@ -69,7 +69,7 @@ public class TileGoogleMaps extends TileHttpFetcher {
     
     private static Map<String, TileGoogleMaps> tilesMap = Collections.synchronizedMap(new HashMap<String, TileGoogleMaps>());
 
-    static {
+    {
         httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost(HOST)), 1); // was setMaxForRoute
     }
     

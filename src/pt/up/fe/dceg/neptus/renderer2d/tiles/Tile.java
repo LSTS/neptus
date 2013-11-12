@@ -74,13 +74,15 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     
     private static final ReentrantReadWriteLock tileCacheDiskClearOrTileSaveLock = new ReentrantReadWriteLock();
     
-    protected static final String TILE_BASE_CACHE_DIR;
-    static {
+    protected static String TILE_BASE_CACHE_DIR;
+    
+    {
         if (new File("../" + ".cache/wmcache").exists())
             TILE_BASE_CACHE_DIR = "../" + ".cache/wmcache";
         else
             TILE_BASE_CACHE_DIR = ".cache/wmcache";
     }
+    
     protected static final String TILE_FX_EXTENSION = "png";
     
     public static final long MILISECONDS_TO_TILE_MEM_REMOVAL = 20000;

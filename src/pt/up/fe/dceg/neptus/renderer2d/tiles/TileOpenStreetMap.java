@@ -76,6 +76,16 @@ public class TileOpenStreetMap extends TileHttpFetcher {
 
     private static final int MAX_LEVEL_OF_DETAIL = 18;
 
+//    public class TileModeEditor extends ComboEditor<String> {
+//
+//        public TileModeEditor() {
+//            super(new String[] {"Standard", "Cycle"});
+//        }
+//    }
+    
+//    @NeptusProperty(name = "Tile Mode", editorClass = SpeedUnitsEditor.class)
+//    public String tileMode = "RPM";
+    
     public TileOpenStreetMap(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
         super(levelOfDetail, tileX, tileY, image);
     }
@@ -101,8 +111,16 @@ public class TileOpenStreetMap extends TileHttpFetcher {
         // http://c.tile.openstreetmap.org/14/7801/6129.png
         int server = (int) (3 * rnd.nextFloat());
         char sv = (char) ('a' + server); // server a, b, and c
+        
+        // TileMode property 
+//        String urlGet;
+//        if(tileMode.equalsIgnoreCase("cycle"))
+//            urlGet = "http://" + sv + "." + "tile.opencyclemap.org/cycle/" + levelOfDetail + "/"
+//                    + tileX + "/" + tileY + ".png";
+//        else
         String urlGet = "http://" + sv + "." + "tile.openstreetmap.org/" + levelOfDetail + "/"
-                + tileX + "/" + tileY + ".png";
+                    + tileX + "/" + tileY + ".png";
+        
         return urlGet;
         
 //        MapQuest tile

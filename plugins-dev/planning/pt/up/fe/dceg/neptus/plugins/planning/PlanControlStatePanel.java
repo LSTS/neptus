@@ -45,6 +45,7 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.imc.IMCDefinition;
 import pt.up.fe.dceg.neptus.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.imc.PlanControlState;
+import pt.up.fe.dceg.neptus.imc.PlanControlState.STATE;
 import pt.up.fe.dceg.neptus.plugins.NeptusMessageListener;
 import pt.up.fe.dceg.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
@@ -133,10 +134,17 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
     public void consume(PlanControlState message) {
         try {
             state = message.getState();
-            planId = message.getPlanId();
-            nodeId = message.getManId();
+            if (message.getState() == STATE.EXECUTING && message.getPlanId() == "") {
+                planId = nodeId = "underwater";
+            }
+            else {
+                planId = message.getPlanId();                
+                nodeId = message.getManId();
+            }
+            
             nodeTypeImcId = message.getManType();
             nodeEtaSec = message.getManEta();
+                
             double progress = -1;
             switch (message.getState()) {
                 case READY:
@@ -156,6 +164,7 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
                     break;                    
                 case EXECUTING:
                     progress = message.getPlanProgress();
+                    
                 case INITIALIZING:                        
                     outcomeTitleLabel.setText("<html><b>" + I18n.text("Progress") + ": ");
                     if (progress != -1)

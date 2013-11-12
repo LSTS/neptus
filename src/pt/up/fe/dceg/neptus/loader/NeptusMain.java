@@ -54,8 +54,8 @@ import pt.up.fe.dceg.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.mc.Workspace;
 import pt.up.fe.dceg.neptus.mc.lauvconsole.LAUVConsole;
 import pt.up.fe.dceg.neptus.mra.NeptusMRA;
+import pt.up.fe.dceg.neptus.params.ConfigurationManager;
 import pt.up.fe.dceg.neptus.plugins.PluginsLoader;
-import pt.up.fe.dceg.neptus.plugins.params.ConfigurationManager;
 import pt.up.fe.dceg.neptus.types.miscsystems.MiscSystemsHolder;
 import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
 import pt.up.fe.dceg.neptus.util.ConsoleParse;
@@ -112,8 +112,9 @@ public class NeptusMain {
         // benchmark
         long start = System.currentTimeMillis();
         NeptusMain.loader =  loader;
-        ConfigFetch.initialize();
-       
+        
+        //ConfigFetch.initialize(); // Why call this here again?
+        
         String app = appargs[0];
         loader.start();
         ConfigFetch.setSuperParentFrameForced(loader);
@@ -156,20 +157,23 @@ public class NeptusMain {
             loader = null;
             return;
         }
-
+        
         String appName = appNames.get(app);
         loader.setText(I18n.textf("Starting %appname...", appName != null ? appName : ""));
 
+        // Workspace 
         if (app.equalsIgnoreCase("ws") || app.equalsIgnoreCase("mc")) {
             Workspace ws = new Workspace();
             ws.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             wrapMainApplicationWindowWithCloseActionWindowAdapter(ws);
-            NeptusLog.pub().debug("workspace load finished in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
+            NeptusLog.pub().info("workspace load finished in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
         }
+        // MRA 
         else if (app.equalsIgnoreCase("mra")) {
             NeptusMRA mra = NeptusMRA.showApplication();
             wrapMainApplicationWindowWithCloseActionWindowAdapter(mra);
         }
+        // Empty Console
         else if (app.equalsIgnoreCase("cl")) {
             ConfigFetch.initialize();
             ConsoleLayout appC = new ConsoleLayout();
@@ -177,6 +181,7 @@ public class NeptusMain {
             appC.setVisible(true);
             wrapMainApplicationWindowWithCloseActionWindowAdapter(appC);
         }
+        // LAUV Console
         else if (app.equalsIgnoreCase("console")) {
             ConfigFetch.initialize();
             ConsoleLayout appC = ConsoleLayout.forge("conf/consoles/lauv.ncon", loader);
@@ -184,6 +189,7 @@ public class NeptusMain {
             appC.setVisible(true);
             wrapMainApplicationWindowWithCloseActionWindowAdapter(appC);
         }
+        // LAUV Navy Console(!!!!!!??????)
         else if (app.equalsIgnoreCase("la")) {
             try {
                 LAUVConsole.setLoader(loader);
@@ -194,13 +200,13 @@ public class NeptusMain {
                 e.printStackTrace();
             }
         }
+        // File loading
         else {
             loader.setText(I18n.text("Opening file..."));
             handleFile(appargs[0]);
             loader.end();
             return;
         }
-
         loader.setText(I18n.text("Application started"));
         loader.end();
     }
@@ -241,7 +247,7 @@ public class NeptusMain {
         
         Thread bg = new Thread("System parameters files loader") {
             public void run() {                
-                ConfigurationManager.getInstance().toString();                
+                ConfigurationManager.getInstance();                
             };
         };
         bg.setDaemon(true);

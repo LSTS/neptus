@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,cb1e7ef)" system="lauv-noptilus-1" i18n="pt_PT">
+<config format="1" version="2.4.0-rc1 (master,027f14b)" system="lauv-noptilus-1" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -6728,15 +6728,6 @@
       <default>false</default>
       <units/>
       <desc>Set to true to enable raw data output</desc>
-    </param>
-    <param name="Calibration Maneuver - Entity Label">
-      <name-i18n>Calibration Maneuver - Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Compass Calibration Maneuver</default>
-      <units/>
-      <desc>Entity label of maneuver responsible for compass calibration</desc>
     </param>
   </section>
   <section name="DVL" name-i18n="DVL">

@@ -88,7 +88,7 @@ public abstract class TileHttpFetcher extends Tile {
     protected static DefaultHttpClient client;
     protected static PoolingClientConnectionManager httpConnectionManager; // was ThreadSafeClientConnManager
 
-    static {
+    {
         SchemeRegistry schemeRegistry = new SchemeRegistry();
         schemeRegistry.register(
                 new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));

@@ -53,7 +53,7 @@ import javax.swing.border.Border;
 import net.miginfocom.swing.MigLayout;
 import pt.up.fe.dceg.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.plugins.params.SystemProperty;
+import pt.up.fe.dceg.neptus.params.SystemProperty;
 import pt.up.fe.dceg.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.util.MathMiscUtils;
 
