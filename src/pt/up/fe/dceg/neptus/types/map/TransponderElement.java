@@ -153,6 +153,8 @@ public class TransponderElement extends AbstractElement implements Identifiable{
         lt.setLatitude(lat);
         lt.setLongitude(lon);
         lt.setDepth(depth);
+        StringBuilder nameBuilder = new StringBuilder(beacon);
+        nameBuilder.append(" ");
         setId(beacon);
         setName(beacon);
         setCenterLocation(lt);
