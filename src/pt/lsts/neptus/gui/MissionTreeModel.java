@@ -399,7 +399,7 @@ public class MissionTreeModel extends DefaultTreeModel {
         ExtendedTreeNode parent = getParent(parentType);
         if (parent == null)
             return null;
-        return parent.childIterator();
+        return parent.iterator();
     }
 
     // public TransNodeIterator iterator(){

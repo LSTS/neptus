@@ -40,7 +40,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * @author pdias
  *
  */
-public class ExtendedTreeNode extends DefaultMutableTreeNode {
+public class ExtendedTreeNode extends DefaultMutableTreeNode implements Iterable<ExtendedTreeNode> {
 
     private static final long serialVersionUID = -8215761874801749660L;
 
@@ -113,10 +113,15 @@ public class ExtendedTreeNode extends DefaultMutableTreeNode {
         }
     }
 
-    public ChildIterator childIterator() {
+    public ChildIterator iterator() {
         return new ChildIterator();
     }
 
+    /**
+     * 
+     * @author Margarida
+     * 
+     */
     public class ChildIterator implements Iterator<ExtendedTreeNode> {
         int index;
         ExtendedTreeNode childLocalTrans;
