@@ -29,7 +29,7 @@
  * Author: meg
  * Oct 31, 2013
  */
-package pt.up.fe.dceg.neptus.gui;
+package pt.lsts.neptus.gui;
 
 import java.util.HashMap;
 import java.util.HashSet;

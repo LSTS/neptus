@@ -44,6 +44,8 @@ import pt.lsts.imc.LblConfig;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
+import pt.lsts.neptus.gui.MissionTreeModel.NodeInfoKey;
+import pt.lsts.neptus.gui.MissionTreeModel.ParentNodes;
 import pt.lsts.neptus.gui.tree.ExtendedTreeNode;
 import pt.lsts.neptus.gui.tree.ExtendedTreeNode.ChildIterator;
 import pt.lsts.neptus.i18n.I18n;
@@ -68,9 +70,6 @@ import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.gui.MissionTreeModel;
-import pt.up.fe.dceg.neptus.gui.MissionTreeModel.NodeInfoKey;
-import pt.up.fe.dceg.neptus.gui.MissionTreeModel.ParentNodes;
 import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBInfo;
 
 
