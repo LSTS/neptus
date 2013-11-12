@@ -49,7 +49,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -477,6 +476,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         return trans;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void messageArrived(IMCMessage message) {
         int mgid = message.getMgid();
@@ -524,14 +524,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             case LblConfig.ID_STATIC:
                 LblConfig lblConfig = (LblConfig) message;
                 if (((LblConfig) message).getOp() == OP.CUR_CFG) {
-                    @SuppressWarnings("unchecked")
-                    final Vector<LblBeacon> beacons = (Vector<LblBeacon>) lblConfig.getBeacons().clone();
-                    // browser.transSyncConfig(beacons, getMainVehicleId());
-                    LinkedHashMap<String, LblBeacon> remoteTrans = new LinkedHashMap<String, LblBeacon>();
-                    for (LblBeacon lblBeacon : beacons) {
-                        remoteTrans.put(lblBeacon.getBeacon(), lblBeacon);
-                    }
-                    browser.updateTransStateEDT(getConsole().getMission(), getMainVehicleId(), remoteTrans);
+                    browser.updateTransStateEDT(getConsole().getMission(), getMainVehicleId(), (Vector<LblBeacon>) lblConfig.getBeacons().clone());
                 }
                 break;
 
