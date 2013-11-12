@@ -54,21 +54,21 @@ import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.InputSource;
 
-import com.google.common.eventbus.Subscribe;
-
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.ContainerSubPanel;
-import pt.up.fe.dceg.neptus.console.SubPanel;
-import pt.up.fe.dceg.neptus.events.NeptusEventLayoutChanged;
-import pt.up.fe.dceg.neptus.events.NeptusEvents;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ContainerSubPanel;
+import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.events.NeptusEventLayoutChanged;
+import pt.lsts.neptus.events.NeptusEvents;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.up.fe.dceg.neptus.plugins.containers.propeditor.MiGLayoutXmlPropertyEditor;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * @author jqcorreia

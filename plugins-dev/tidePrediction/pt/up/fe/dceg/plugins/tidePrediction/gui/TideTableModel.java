@@ -37,9 +37,9 @@ import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.bathymetry.TidePrediction;
-import pt.up.fe.dceg.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.bathymetry.TidePrediction;
+import pt.lsts.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
 
 
 /**

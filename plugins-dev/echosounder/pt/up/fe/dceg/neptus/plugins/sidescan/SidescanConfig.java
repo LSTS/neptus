@@ -33,12 +33,12 @@ package pt.up.fe.dceg.neptus.plugins.sidescan;
 
 import java.awt.Color;
 
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

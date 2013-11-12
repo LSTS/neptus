@@ -39,10 +39,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.ConsoleSystem;
-import pt.up.fe.dceg.neptus.imc.state.ImcSysState;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsoleSystem;
+import pt.lsts.neptus.util.comm.IMCUtils;
+import pt.lsts.imc.state.ImcSysState;
 
 /**
  * @author ZP

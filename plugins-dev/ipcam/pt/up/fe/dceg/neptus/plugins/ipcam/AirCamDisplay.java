@@ -46,17 +46,17 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.JPopupMenu;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.Popup;
-import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.util.GuiUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 

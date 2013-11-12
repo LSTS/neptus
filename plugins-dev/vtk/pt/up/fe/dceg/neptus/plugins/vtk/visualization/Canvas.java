@@ -36,7 +36,7 @@ import java.awt.Graphics;
 
 import javax.swing.SwingUtilities;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.Utils;
 import vtk.vtkActorCollection;
 import vtk.vtkCanvas;

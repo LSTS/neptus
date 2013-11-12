@@ -39,13 +39,13 @@ import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.plugins.CheckMenuChangeListener;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.util.ConsoleParse;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.CheckMenuChangeListener;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.util.ConsoleParse;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * This class eases the creation of menu actions in the console

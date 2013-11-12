@@ -38,15 +38,15 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.MissionBrowser.State;
-import pt.up.fe.dceg.neptus.gui.tree.ExtendedTreeNode;
-import pt.up.fe.dceg.neptus.gui.tree.ExtendedTreeNode.ChildIterator;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.types.Identifiable;
-import pt.up.fe.dceg.neptus.types.map.TransponderElement;
-import pt.up.fe.dceg.neptus.types.mission.HomeReference;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.MissionBrowser.State;
+import pt.lsts.neptus.gui.tree.ExtendedTreeNode;
+import pt.lsts.neptus.gui.tree.ExtendedTreeNode.ChildIterator;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.types.Identifiable;
+import pt.lsts.neptus.types.map.TransponderElement;
+import pt.lsts.neptus.types.mission.HomeReference;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * Handles major changes in node structure.

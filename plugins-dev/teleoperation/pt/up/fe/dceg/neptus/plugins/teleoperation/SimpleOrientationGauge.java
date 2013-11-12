@@ -41,8 +41,8 @@ import java.text.NumberFormat;
 
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author ZP

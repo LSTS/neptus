@@ -43,15 +43,15 @@ import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 import javax.swing.undo.UndoManager;
 
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
-import pt.up.fe.dceg.neptus.params.ManeuverPayloadConfig;
-import pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.params.ManeuverPayloadConfig;
+import pt.lsts.neptus.renderer2d.StateRendererInteraction;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

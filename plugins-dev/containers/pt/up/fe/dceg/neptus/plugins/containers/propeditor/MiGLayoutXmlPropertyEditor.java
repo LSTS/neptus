@@ -45,13 +45,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
-import pt.up.fe.dceg.neptus.events.NeptusEventLayoutChanged;
-import pt.up.fe.dceg.neptus.events.NeptusEvents;
-import pt.up.fe.dceg.neptus.fileeditor.SyntaxDocument;
-import pt.up.fe.dceg.neptus.gui.editor.XMLPropertyEditor;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.XMLUtil;
+import pt.lsts.neptus.events.NeptusEventLayoutChanged;
+import pt.lsts.neptus.events.NeptusEvents;
+import pt.lsts.neptus.fileeditor.SyntaxDocument;
+import pt.lsts.neptus.gui.editor.XMLPropertyEditor;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.XMLUtil;
 
 /**
  * @author pdias

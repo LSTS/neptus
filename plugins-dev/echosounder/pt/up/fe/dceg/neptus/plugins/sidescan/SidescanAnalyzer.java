@@ -43,20 +43,20 @@ import javax.swing.JPanel;
 import javax.swing.plaf.basic.BasicSliderUI;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.gui.Timeline;
-import pt.up.fe.dceg.neptus.gui.TimelineChangeListener;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mra.LogMarker;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.api.SidescanParser;
-import pt.up.fe.dceg.neptus.mra.api.SidescanParserFactory;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
-import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.llf.LogUtils;
+import pt.lsts.neptus.gui.Timeline;
+import pt.lsts.neptus.gui.TimelineChangeListener;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.api.SidescanParser;
+import pt.lsts.neptus.mra.api.SidescanParserFactory;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.plots.LogMarkerListener;
+import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
  * @author jqcorreia

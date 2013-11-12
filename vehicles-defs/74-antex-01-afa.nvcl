@@ -24,7 +24,7 @@
 				<Unconstrained kind="manual">
 					<annotation>
 						<documentation>Tele-Operation</documentation>
-						<implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.Unconstrained</implementation-class>
+						<implementation-class>pt.lsts.neptus.mp.maneuvers.Unconstrained</implementation-class>
 					</annotation>
 				</Unconstrained>
 			</maneuver-->
@@ -54,7 +54,7 @@
 					<velocity type="float" unit="m/s" tolerance="5">20</velocity>
 					<annotation>
 						<documentation>Loiter over a point</documentation>
-						<implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.Loiter</implementation-class>
+						<implementation-class>pt.lsts.neptus.mp.maneuvers.Loiter</implementation-class>
 					</annotation>
 				</Loiter>
 			</maneuver>
@@ -78,7 +78,7 @@
 					</trajectoryTolerance>
 					<annotation>
 						<documentation>Move to a given point</documentation>
-						<implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.Goto</implementation-class>
+						<implementation-class>pt.lsts.neptus.mp.maneuvers.Goto</implementation-class>
 					</annotation>
 				</Goto>
 			</maneuver>
@@ -145,11 +145,11 @@
 		</console>
 		<console name="APV Console">
 			<xml-file>../conf/consoles/apv-console.ncon</xml-file>
-			<!-- <classname>pt.up.fe.dceg.neptus.mc.consoleapv.ApvConsole</classname> -->
+			<!-- <classname>pt.lsts.neptus.mc.consoleapv.ApvConsole</classname> -->
 		</console>
 		<console name="Monitor Console">
 					<xml-file>../conf/consoles/UAV-monitor-console.ncon</xml-file>
-					<!-- <classname>pt.up.fe.dceg.neptus.mc.consoleapv.ApvConsole</classname> -->
+					<!-- <classname>pt.lsts.neptus.mc.consoleapv.ApvConsole</classname> -->
 		</console>
 	</consoles>
 </system>

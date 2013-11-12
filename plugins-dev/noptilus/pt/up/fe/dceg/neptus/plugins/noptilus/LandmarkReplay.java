@@ -39,11 +39,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.up.fe.dceg.neptus.plugins.noptilus.LandmarkUtils.LANDMARK;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
 /**
  * @author noptilus

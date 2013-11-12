@@ -45,9 +45,9 @@ import java.util.LinkedHashMap;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.plugins.MultiSystemIMCMessageListener;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author jqcorreia

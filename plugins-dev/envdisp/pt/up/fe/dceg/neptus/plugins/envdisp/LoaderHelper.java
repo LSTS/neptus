@@ -42,8 +42,8 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.DateTimeUtil;
 import ucar.ma2.ArrayFloat;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;

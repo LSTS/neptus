@@ -44,8 +44,8 @@ import javax.swing.JColorChooser;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author zp

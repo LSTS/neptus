@@ -44,21 +44,21 @@ import java.util.Iterator;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.Distance;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.SonarData;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.NeptusMRA;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.imc.Distance;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.SonarData;
 
 /**
  * @author zp

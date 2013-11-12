@@ -39,7 +39,7 @@ import java.util.Vector;
 
 import javax.vecmath.Point2d;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 import drasys.or.graph.DuplicateVertexException;
 import drasys.or.graph.EdgeI;
 import drasys.or.graph.GraphI;

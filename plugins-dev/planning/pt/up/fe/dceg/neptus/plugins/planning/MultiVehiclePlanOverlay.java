@@ -42,20 +42,20 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener;
-import pt.up.fe.dceg.neptus.imc.PlanControlState;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.mission.MissionType;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehicleType;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.plugins.MissionChangeListener;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.imc.PlanControlState;
 
 import com.google.common.eventbus.Subscribe;
 

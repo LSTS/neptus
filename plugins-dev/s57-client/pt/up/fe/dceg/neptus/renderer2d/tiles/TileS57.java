@@ -45,15 +45,17 @@ import java.util.Vector;
 import org.apache.http.HttpHost;
 import org.apache.http.conn.routing.HttpRoute;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.plugins.MapTileProvider;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.coord.MapTileUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.plugins.MapTileProvider;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.renderer2d.tiles.Tile;
+import pt.lsts.neptus.renderer2d.tiles.TileHttpFetcher;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.coord.MapTileUtil;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

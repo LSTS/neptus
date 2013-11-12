@@ -33,7 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.leds;
 
 import javax.swing.ImageIcon;
 
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author hfq

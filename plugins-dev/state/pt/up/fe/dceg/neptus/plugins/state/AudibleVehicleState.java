@@ -38,19 +38,19 @@ import java.util.LinkedHashMap;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.Teleoperation;
-import pt.up.fe.dceg.neptus.imc.VehicleState;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
-import pt.up.fe.dceg.neptus.util.speech.SpeechUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.util.speech.SpeechUtil;
+import pt.lsts.imc.Teleoperation;
+import pt.lsts.imc.VehicleState;
 
 import com.google.common.eventbus.Subscribe;
 

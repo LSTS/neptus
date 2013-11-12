@@ -52,7 +52,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zepinto

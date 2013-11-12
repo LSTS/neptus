@@ -45,16 +45,16 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.gui.ToolbarButton;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.gui.ToolbarButton;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author zepinto

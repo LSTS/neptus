@@ -34,11 +34,11 @@ package pt.up.fe.dceg.neptus.plugins.planning.plandb;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mp.maneuvers.IMCSerialization;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
-import pt.up.fe.dceg.neptus.util.ByteUtil;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
+import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.ByteUtil;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author zp

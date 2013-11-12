@@ -37,8 +37,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author Hugo Dias

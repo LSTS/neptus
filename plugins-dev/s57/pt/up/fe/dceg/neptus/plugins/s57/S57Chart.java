@@ -37,16 +37,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JDialog;
 
-import pt.up.fe.dceg.neptus.plugins.MapTileProvider;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.renderer2d.tiles.MapPainterProvider;
-import pt.up.fe.dceg.neptus.s57.ApplicationFactory;
-import pt.up.fe.dceg.neptus.s57.S57;
-import pt.up.fe.dceg.neptus.s57.S57Painter;
-import pt.up.fe.dceg.neptus.s57.mc.MarinerControls;
-import pt.up.fe.dceg.neptus.s57.ui.OptionsDialog;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.util.coord.MapTileUtil;
+import pt.lsts.neptus.plugins.MapTileProvider;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
+import pt.lsts.neptus.s57.S57;
+import pt.lsts.neptus.s57.S57Factory;
+import pt.lsts.neptus.s57.S57Painter;
+import pt.lsts.neptus.s57.mc.MarinerControls;
+import pt.lsts.neptus.s57.ui.OptionsDialog;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
  * @author Hugo Dias
@@ -62,8 +62,8 @@ public class S57Chart implements MapPainterProvider {
     private final Map<StateRenderer2D, S57Painter> painterList = new ConcurrentHashMap<StateRenderer2D, S57Painter>();
     
     public S57Chart() {
-        this.s57 = ApplicationFactory.build(true, true);
-        this.mc = this.s57.newMarinerControls();
+        this.s57 = S57Factory.build();
+        this.mc = MarinerControls.forge();
     }
     
     /*

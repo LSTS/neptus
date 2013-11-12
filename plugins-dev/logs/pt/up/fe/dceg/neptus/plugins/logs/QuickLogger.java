@@ -37,20 +37,20 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.plugins.ConsoleScript;
-import pt.up.fe.dceg.neptus.console.plugins.LogBookPanel;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.util.ConsoleParse;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.conf.StringProperty;
-import pt.up.fe.dceg.neptus.util.llf.NeptusMessageLogger;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.plugins.ConsoleScript;
+import pt.lsts.neptus.console.plugins.LogBookPanel;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.util.ConsoleParse;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.conf.StringProperty;
+import pt.lsts.neptus.util.llf.NeptusMessageLogger;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author zp

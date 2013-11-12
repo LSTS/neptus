@@ -47,9 +47,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ReflectionUtil;
 import pt.up.fe.dceg.neptus.plugins.uavs.interfaces.IUavPainter;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.ReflectionUtil;
 
 /**
  * @author zp

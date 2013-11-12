@@ -41,9 +41,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.bathymetry.TidePrediction;
-import pt.up.fe.dceg.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.bathymetry.TidePrediction;
+import pt.lsts.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
 import pt.up.fe.dceg.plugins.tidePrediction.Harbors;
 import pt.up.fe.dceg.plugins.tidePrediction.PtHydrographicWeb;
 

@@ -38,20 +38,20 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.PlanControlState;
-import pt.up.fe.dceg.neptus.imc.PlanControlState.STATE;
-import pt.up.fe.dceg.neptus.plugins.NeptusMessageListener;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusMessageListener;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.PlanControlState.STATE;
 
 /**
  * @author pdias

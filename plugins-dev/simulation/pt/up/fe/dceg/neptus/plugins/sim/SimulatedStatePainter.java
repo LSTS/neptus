@@ -37,15 +37,15 @@ import java.awt.Graphics2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.imc.SimulatedState;
-import pt.up.fe.dceg.neptus.mp.SystemPositionAndAttitude;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.SimulatedState;
 
 import com.google.common.eventbus.Subscribe;
 

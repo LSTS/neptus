@@ -41,8 +41,8 @@ import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.NeptusMRA;
 import vtk.vtkCanvas;
 import vtk.vtkNativeLibrary;
 import vtk.vtkObjectBase;

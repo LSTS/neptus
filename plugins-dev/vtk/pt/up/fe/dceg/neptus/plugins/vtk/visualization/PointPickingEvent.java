@@ -33,7 +33,7 @@ package pt.up.fe.dceg.neptus.plugins.vtk.visualization;
 
 import java.awt.event.MouseEvent;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCommand;
 import vtk.vtkPointPicker;

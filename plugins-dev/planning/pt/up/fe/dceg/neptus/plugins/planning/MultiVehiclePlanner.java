@@ -44,23 +44,23 @@ import java.util.concurrent.PriorityBlockingQueue;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
+import pt.lsts.neptus.renderer2d.ILayerPainter;
+import pt.lsts.neptus.renderer2d.InteractionAdapter;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.StateRendererInteraction;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ConsoleParse;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.up.fe.dceg.neptus.plugins.planning.MultiVehicleTask.TASK_STATE;
 import pt.up.fe.dceg.neptus.plugins.planning.MultiVehicleTask.TASK_TYPE;
-import pt.up.fe.dceg.neptus.renderer2d.CustomInteractionSupport;
-import pt.up.fe.dceg.neptus.renderer2d.ILayerPainter;
-import pt.up.fe.dceg.neptus.renderer2d.InteractionAdapter;
-import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.ConsoleParse;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp

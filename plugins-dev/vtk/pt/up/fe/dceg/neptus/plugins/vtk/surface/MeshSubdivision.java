@@ -31,7 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.surface;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 import vtk.vtkButterflySubdivisionFilter;
 import vtk.vtkLinearSubdivisionFilter;
 import vtk.vtkLoopSubdivisionFilter;

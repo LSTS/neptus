@@ -33,8 +33,8 @@ package pt.up.fe.dceg.neptus.plugins.odss.track;
 
 import java.util.Date;
 
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.DateTimeUtil;
 
 /**
  * @author pdias

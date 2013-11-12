@@ -31,7 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.vtk.surface;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCleanPolyData;

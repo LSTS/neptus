@@ -34,9 +34,9 @@ package pt.up.fe.dceg.neptus.plugins.trex.goals;
 import java.awt.Graphics2D;
 import java.util.Collection;
 
-import pt.up.fe.dceg.neptus.imc.TrexAttribute;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.imc.TrexAttribute;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

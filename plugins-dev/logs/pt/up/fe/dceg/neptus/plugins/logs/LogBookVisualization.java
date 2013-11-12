@@ -35,11 +35,11 @@ import java.util.Vector;
 
 import javax.swing.JComponent;
 
-import pt.up.fe.dceg.neptus.imc.LogBookEntry;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.visualizations.SimpleMRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.lsts.imc.LogBookEntry;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.visualizations.SimpleMRAVisualization;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.logs.HistoryMessage.msg_type;
 
 /**

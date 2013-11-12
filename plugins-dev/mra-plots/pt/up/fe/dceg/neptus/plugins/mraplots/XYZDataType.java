@@ -31,7 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.mraplots;
 
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author pdias

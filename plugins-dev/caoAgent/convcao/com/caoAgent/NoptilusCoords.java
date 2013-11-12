@@ -31,13 +31,13 @@
  */
 package convcao.com.caoAgent;
 
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.types.coord.LocationType;
+
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
-
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
 
 /**
  * This class is used to translate between noptilus-specific world coordinates and real-world coordinates

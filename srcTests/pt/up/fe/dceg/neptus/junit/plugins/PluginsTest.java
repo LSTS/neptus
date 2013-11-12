@@ -34,12 +34,12 @@ package pt.up.fe.dceg.neptus.junit.plugins;
 import java.util.LinkedHashMap;
 
 import junit.framework.TestCase;
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.plugins.SubPanelProvider;
-import pt.up.fe.dceg.neptus.mra.visualizations.MRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.PluginsLoader;
-import pt.up.fe.dceg.neptus.plugins.PluginsRepository;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.plugins.SubPanelProvider;
+import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.plugins.PluginsLoader;
+import pt.lsts.neptus.plugins.PluginsRepository;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp

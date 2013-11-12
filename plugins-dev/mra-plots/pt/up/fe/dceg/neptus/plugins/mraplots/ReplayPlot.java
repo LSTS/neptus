@@ -38,14 +38,14 @@ import java.util.LinkedHashMap;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.gui.Timeline;
-import pt.up.fe.dceg.neptus.gui.TimelineChangeListener;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLog;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.importers.lsf.LsfMraLog;
-import pt.up.fe.dceg.neptus.mra.plots.MraTimeSeriesPlot;
+import pt.lsts.neptus.gui.Timeline;
+import pt.lsts.neptus.gui.TimelineChangeListener;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.lsf.LsfMraLog;
+import pt.lsts.neptus.mra.plots.MraTimeSeriesPlot;
+import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author jqcorreia

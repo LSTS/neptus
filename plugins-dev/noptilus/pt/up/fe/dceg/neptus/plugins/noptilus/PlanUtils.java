@@ -36,14 +36,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.imc.FollowPath;
-import pt.up.fe.dceg.neptus.imc.Goto;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.Maneuver;
-import pt.up.fe.dceg.neptus.imc.PathPoint;
-import pt.up.fe.dceg.neptus.imc.PlanSpecification;
-import pt.up.fe.dceg.neptus.imc.types.PlanSpecificationAdapter;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.FollowPath;
+import pt.lsts.imc.Goto;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.Maneuver;
+import pt.lsts.imc.PathPoint;
+import pt.lsts.imc.PlanSpecification;
+import pt.lsts.imc.types.PlanSpecificationAdapter;
 
 /**
  * This class provides a set of utilitary methods for generating IMC plans from waypoints lists

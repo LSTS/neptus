@@ -32,8 +32,8 @@
 package pt.up.fe.dceg.neptus.junit.util.conf;
 
 import junit.framework.TestCase;
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author Paulo Dias

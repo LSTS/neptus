@@ -41,12 +41,12 @@ import java.io.StringWriter;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.ParallelepipedElement;
 
 
 /**

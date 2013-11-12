@@ -40,7 +40,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
 
 /**
  * @author Paulo

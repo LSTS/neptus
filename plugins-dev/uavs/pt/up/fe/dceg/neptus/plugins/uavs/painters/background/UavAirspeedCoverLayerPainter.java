@@ -35,9 +35,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.up.fe.dceg.neptus.plugins.uavs.interfaces.IUavPainter;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
 
 /**
  * @author Christian Fuchs

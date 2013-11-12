@@ -57,19 +57,19 @@ import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.legends.colorbars.ColorbarLegend;
 
-import pt.up.fe.dceg.neptus.colormap.DataDiscretizer;
-import pt.up.fe.dceg.neptus.colormap.DataDiscretizer.DataPoint;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mra.LogMarker;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.NeptusMRA;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.plots.LogMarkerListener;
-import pt.up.fe.dceg.neptus.mra.visualizations.SimpleMRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
+import pt.lsts.neptus.colormap.DataDiscretizer;
+import pt.lsts.neptus.colormap.DataDiscretizer.DataPoint;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.plots.LogMarkerListener;
+import pt.lsts.neptus.mra.visualizations.SimpleMRAVisualization;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.comm.IMCUtils;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author zp

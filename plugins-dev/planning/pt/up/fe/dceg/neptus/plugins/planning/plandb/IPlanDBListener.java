@@ -31,7 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.planning.plandb;
 
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author zp

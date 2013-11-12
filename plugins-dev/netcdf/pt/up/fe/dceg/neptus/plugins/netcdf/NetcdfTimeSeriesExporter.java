@@ -35,10 +35,10 @@ import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfIndex;
 import ucar.ma2.DataType;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFileWriteable;

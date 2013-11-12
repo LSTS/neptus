@@ -34,17 +34,17 @@ package pt.up.fe.dceg.neptus.plugins.teleoperation;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.imc.DesiredHeading;
-import pt.up.fe.dceg.neptus.imc.DesiredZ;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.lsts.imc.DesiredHeading;
+import pt.lsts.imc.DesiredZ;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 import com.google.common.eventbus.Subscribe;
 

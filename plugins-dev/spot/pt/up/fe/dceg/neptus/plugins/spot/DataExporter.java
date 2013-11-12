@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author meg

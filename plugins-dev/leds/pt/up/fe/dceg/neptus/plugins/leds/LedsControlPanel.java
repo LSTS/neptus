@@ -49,19 +49,19 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.imc.LedBrightness;
-import pt.up.fe.dceg.neptus.imc.QueryLedBrightness;
-import pt.up.fe.dceg.neptus.imc.SetLedBrightness;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.Popup;
-import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.LedBrightness;
+import pt.lsts.imc.QueryLedBrightness;
+import pt.lsts.imc.SetLedBrightness;
 
 import com.google.common.eventbus.Subscribe;
 

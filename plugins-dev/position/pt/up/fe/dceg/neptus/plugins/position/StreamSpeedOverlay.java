@@ -33,14 +33,14 @@ package pt.up.fe.dceg.neptus.plugins.position;
 
 import java.awt.Graphics2D;
 
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.imc.GpsFix;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.imc.GpsFix;
 
 import com.google.common.eventbus.Subscribe;
 

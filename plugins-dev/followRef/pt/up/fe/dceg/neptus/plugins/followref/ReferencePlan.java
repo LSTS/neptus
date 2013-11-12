@@ -34,7 +34,7 @@ package pt.up.fe.dceg.neptus.plugins.followref;
 import java.util.Collection;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.imc.Reference;
+import pt.lsts.imc.Reference;
 
 /**
  * @author zp

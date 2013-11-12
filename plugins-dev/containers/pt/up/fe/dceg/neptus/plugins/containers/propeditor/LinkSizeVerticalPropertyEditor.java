@@ -31,7 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.containers.propeditor;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.i18n.I18n;
 
 /**
  * @author pdias

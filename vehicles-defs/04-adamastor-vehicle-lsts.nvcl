@@ -20,7 +20,7 @@
 			<Unconstrained kind="manual">
 			       <annotation>
 					<documentation>No documentation available</documentation>
-					<implementation-class>pt.up.fe.dceg.neptus.mp.maneuvers.Unconstrained</implementation-class>
+					<implementation-class>pt.lsts.neptus.mp.maneuvers.Unconstrained</implementation-class>
 				</annotation>
 			</Unconstrained>
 		</maneuver>

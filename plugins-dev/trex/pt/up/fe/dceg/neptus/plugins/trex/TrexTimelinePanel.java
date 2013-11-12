@@ -50,13 +50,13 @@ import org.jfree.data.gantt.TaskSeriesCollection;
 import org.jfree.data.time.SimpleTimePeriod;
 import org.jfree.data.time.TimePeriod;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.imc.TrexToken;
-import pt.up.fe.dceg.neptus.imc.VehicleState;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.Popup;
-import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.imc.TrexToken;
+import pt.lsts.imc.VehicleState;
 
 import com.google.common.eventbus.Subscribe;
 import com.jogamp.newt.event.KeyEvent;

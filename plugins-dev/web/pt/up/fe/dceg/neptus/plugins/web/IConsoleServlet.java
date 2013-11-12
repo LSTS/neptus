@@ -31,7 +31,7 @@
  */
 package pt.up.fe.dceg.neptus.plugins.web;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsoleLayout;
 
 /**
  * @author ZP

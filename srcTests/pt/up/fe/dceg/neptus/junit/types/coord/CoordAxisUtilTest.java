@@ -34,8 +34,8 @@ package pt.up.fe.dceg.neptus.junit.types.coord;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
-import pt.up.fe.dceg.neptus.types.coord.CoordAxisUtil;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateSystem;
+import pt.lsts.neptus.types.coord.CoordAxisUtil;
+import pt.lsts.neptus.types.coord.CoordinateSystem;
 
 /**
  * @author Paulo

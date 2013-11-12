@@ -41,8 +41,8 @@ import java.util.GregorianCalendar;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.bathymetry.LocalData;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.bathymetry.LocalData;
 
 /**
  * @author meg

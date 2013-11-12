@@ -55,22 +55,22 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.LblBeacon;
-import pt.up.fe.dceg.neptus.imc.LblConfig;
-import pt.up.fe.dceg.neptus.imc.LblRange;
-import pt.up.fe.dceg.neptus.imc.lsf.LsfIndex;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.LblBeacon;
+import pt.lsts.imc.LblConfig;
+import pt.lsts.imc.LblRange;
+import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author noptilus

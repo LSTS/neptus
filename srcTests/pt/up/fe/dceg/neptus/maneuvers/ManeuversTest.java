@@ -36,14 +36,14 @@ import java.util.LinkedHashMap;
 import org.junit.Assert;
 import org.junit.Test;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.imc.IMCUtil;
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.ManeuverFactory;
-import pt.up.fe.dceg.neptus.mp.maneuvers.IMCSerialization;
-import pt.up.fe.dceg.neptus.types.vehicle.VehiclesHolder;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCUtil;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverFactory;
+import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author ZP

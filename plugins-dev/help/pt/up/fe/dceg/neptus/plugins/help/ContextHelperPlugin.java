@@ -40,11 +40,11 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.JPanel;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.SubPanel;
-import pt.up.fe.dceg.neptus.doc.DocumentationPanel;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.doc.DocumentationPanel;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.up.fe.dceg.neptus.plugins.actions.SimpleMenuAction;
 
 /**

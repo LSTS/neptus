@@ -66,27 +66,27 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.colormap.ColorMap;
-import pt.up.fe.dceg.neptus.colormap.ColorMapFactory;
-import pt.up.fe.dceg.neptus.colormap.ColormapOverlay;
-import pt.up.fe.dceg.neptus.colormap.InterpolationColorMap;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
-import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.ColorUtils;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
-import pt.up.fe.dceg.neptus.util.http.client.HttpClientConnectionHelper;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.ColormapOverlay;
+import pt.lsts.neptus.colormap.InterpolationColorMap;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
 /**
  * @author pdias

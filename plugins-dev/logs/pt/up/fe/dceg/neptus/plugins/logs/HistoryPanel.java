@@ -48,15 +48,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.gui.ToolbarButton;
-import pt.up.fe.dceg.neptus.gui.ToolbarSwitch;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.gui.ToolbarButton;
+import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
 import pt.up.fe.dceg.neptus.plugins.logs.HistoryMessage.msg_type;
-import pt.up.fe.dceg.neptus.util.ImageUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
 
 /**
  * @author ZP

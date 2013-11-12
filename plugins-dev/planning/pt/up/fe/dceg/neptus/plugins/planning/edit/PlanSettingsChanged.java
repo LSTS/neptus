@@ -37,7 +37,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 

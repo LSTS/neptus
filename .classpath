@@ -28,7 +28,6 @@
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/ipcam"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/web"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/teleoperation"/>
-	<classpathentry excluding="*.jar|plugins.lst" kind="src" path="plugins-dev/s57"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/s57-client"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/oplimits"/>
 	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/uavs"/>
@@ -61,6 +60,7 @@
 	<classpathentry kind="src" path="plugins-dev/leds"/>
 	<classpathentry kind="src" path="plugins-dev/caoAgent"/>
 	<classpathentry kind="src" path="plugins-dev/gige"/>
+	<classpathentry kind="src" path="plugins-dev/s57"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
@@ -163,7 +163,6 @@
 	<classpathentry kind="lib" path="plugins-dev/odss/lib/protobuf.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/odss/lib/rabbitmq-client.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.2.2.jar"/>
-	<classpathentry kind="lib" path="plugins-dev/s57/s57-package-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/wms.jar"/>
 	<classpathentry kind="lib" path="lib/toolsUI-4.3.jar"/>
 	<classpathentry kind="lib" path="lib/imgscalr-lib-4.2.jar"/>
@@ -184,7 +183,6 @@
 	<classpathentry kind="lib" path="lib/jogl2/jogl-all.jar"/>
 	<classpathentry kind="lib" path="lib/jogl2/org.jzy3d-0.9.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/vrp/lib/or124.jar"/>
-	<classpathentry kind="lib" path="lib/commons-codec-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/htmlUnit/htmlunit-2.11.jar"/>
@@ -199,6 +197,8 @@
 	<classpathentry kind="lib" path="lib/jakarta-oro-perl5-2.1-dev-1.jar"/>
 	<classpathentry kind="lib" path="lib/javassist.jar"/>
 	<classpathentry kind="lib" path="lib/guava-15.0.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/s57/s57-package-1.9.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.8.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>

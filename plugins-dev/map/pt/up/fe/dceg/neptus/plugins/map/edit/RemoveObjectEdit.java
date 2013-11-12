@@ -35,9 +35,9 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
-import pt.up.fe.dceg.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.types.map.AbstractElement;
 
 /**
  * @author zp

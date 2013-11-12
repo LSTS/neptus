@@ -40,7 +40,7 @@ import java.util.Enumeration;
 
 import org.junit.Test;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 /**
  * @author guga

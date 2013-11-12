@@ -36,17 +36,17 @@ import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.util.Map;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.ConsoleSystem;
-import pt.up.fe.dceg.neptus.mystate.MyState;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty.LEVEL;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsoleSystem;
+import pt.lsts.neptus.mystate.MyState;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author jqcorreia

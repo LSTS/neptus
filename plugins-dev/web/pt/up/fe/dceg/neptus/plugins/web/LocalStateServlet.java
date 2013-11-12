@@ -48,14 +48,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.JMenuItem;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mystate.MyState;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.FileUtil;
-import pt.up.fe.dceg.neptus.util.StreamUtil;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mystate.MyState;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.StreamUtil;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 
 /**
  * @author pdias

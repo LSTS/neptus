@@ -35,11 +35,11 @@ import java.awt.BorderLayout;
 
 import javax.swing.JComponent;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mra.MRAPanel;
-import pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup;
-import pt.up.fe.dceg.neptus.mra.visualizations.SimpleMRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.visualizations.SimpleMRAVisualization;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.imc.IMCMessage;
 
 
 /**

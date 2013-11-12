@@ -44,7 +44,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Vector;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 
 public class Device implements SerialPortEventListener {
     /** Frame type: 8 data bits, 1 stop bit, no parity. */

@@ -33,8 +33,8 @@ package pt.up.fe.dceg.neptus.plugins.containers.propeditor;
 
 import javax.xml.validation.Schema;
 
-import pt.up.fe.dceg.neptus.gui.editor.XMLPropertyEditor;
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.gui.editor.XMLPropertyEditor;
+import pt.lsts.neptus.i18n.I18n;
 import pt.up.fe.dceg.neptus.plugins.containers.GroupLayoutContainer;
 
 /**

@@ -2,17 +2,17 @@
 
 if "%OS%"=="Windows_NT" @setlocal
 
-set WORKSPACE=pt.up.fe.dceg.neptus.loader.NeptusMain ws
-set VIEWER3D=pt.up.fe.dceg.neptus.loader.Viewer3DLoader
-set MRA=pt.up.fe.dceg.neptus.loader.NeptusMain mra
-set BUOY_CONSOLE=pt.up.fe.dceg.neptus.mc.consoletracker.BuoyConsole
-set MODEMSHELL=pt.up.fe.dceg.middleware.amodem.AcousticModem %COMMPORT% 0 140
-set IMTEXTCONSOLE=pt.up.fe.dceg.neptus.im.IMTextConsole
-set LAUVCONSOLE=pt.up.fe.dceg.neptus.mc.lauvconsole.LAUVConsole
-set TELECONSOLE=pt.up.fe.dceg.neptus.loader.TeleOperationConsoleLoader
-set WORLDMAPPANEL=pt.up.fe.dceg.neptus.app.tiles.WorldMapPanel
+set WORKSPACE=pt.lsts.neptus.loader.NeptusMain ws
+set VIEWER3D=pt.lsts.neptus.loader.Viewer3DLoader
+set MRA=pt.lsts.neptus.loader.NeptusMain mra
+set BUOY_CONSOLE=pt.lsts.neptus.mc.consoletracker.BuoyConsole
+set MODEMSHELL=pt.lsts.middleware.amodem.AcousticModem %COMMPORT% 0 140
+set IMTEXTCONSOLE=pt.lsts.neptus.im.IMTextConsole
+set LAUVCONSOLE=pt.lsts.neptus.mc.lauvconsole.LAUVConsole
+set TELECONSOLE=pt.lsts.neptus.loader.TeleOperationConsoleLoader
+set WORLDMAPPANEL=pt.lsts.neptus.app.tiles.WorldMapPanel
 
-set DEFAULT=pt.up.fe.dceg.neptus.loader.NeptusMain
+set DEFAULT=pt.lsts.neptus.loader.NeptusMain
 
 set CLASSPATH=.;bin/neptus.jar;conf@NEPTUS_LIBS@
 
@@ -24,7 +24,7 @@ if exist jre\bin (
     set JAVA_BIN_FOLDER= 
 )
 
-for /f "delims=" %%a in ('%JAVA_BIN_FOLDER%java -cp bin/neptus.jar pt.up.fe.dceg.neptus.loader.helper.CheckJavaOSArch') do (@set JAVA_MACHINE_TYPE=%%a)
+for /f "delims=" %%a in ('%JAVA_BIN_FOLDER%java -cp bin/neptus.jar pt.lsts.neptus.loader.helper.CheckJavaOSArch') do (@set JAVA_MACHINE_TYPE=%%a)
 if %JAVA_MACHINE_TYPE%==x86 (
 	if %PROCESSOR_ARCHITECTURE%==x86 (
 		set LIBRARYPATH=.;libJNI/x86;libJNI;C:\Program^ Files\VTK\bin

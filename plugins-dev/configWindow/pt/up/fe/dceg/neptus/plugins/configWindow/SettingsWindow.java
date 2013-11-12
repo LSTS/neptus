@@ -45,17 +45,17 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.SubPanel;
-import pt.up.fe.dceg.neptus.gui.PropertiesProvider;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.up.fe.dceg.neptus.plugins.Popup;
-import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.up.fe.dceg.neptus.plugins.containers.MigLayoutContainer;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
-import pt.up.fe.dceg.neptus.util.conf.ConfigFetch;
 
 /**
  * Window to encapsulate settings panel.<br>

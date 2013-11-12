@@ -36,11 +36,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import pt.up.fe.dceg.neptus.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.imc.IMCDefinition;
-import pt.up.fe.dceg.neptus.imc.IMCOutputStream;
-import pt.up.fe.dceg.neptus.imc.SonarData;
-import pt.up.fe.dceg.neptus.util.FileUtil;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.SonarData;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author jqcorreia

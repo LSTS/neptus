@@ -31,10 +31,10 @@
  */
 package pt.up.fe.dceg.neptus.plugins.mavs;
 
-import pt.up.fe.dceg.neptus.mp.Maneuver;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Goto;
-import pt.up.fe.dceg.neptus.mp.maneuvers.Loiter;
-import pt.up.fe.dceg.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.mp.maneuvers.Loiter;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author zp

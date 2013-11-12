@@ -45,8 +45,8 @@ import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.util.FileUtil;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author monceaux, zp

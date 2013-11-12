@@ -33,7 +33,6 @@ package pt.up.fe.dceg.neptus.plugins.position;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -41,15 +40,14 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
-
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.imc.DeviceState;
-import pt.up.fe.dceg.neptus.imc.Distance;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.Popup;
-import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.imc.DeviceState;
+import pt.lsts.imc.Distance;
 
 import com.google.common.eventbus.Subscribe;
 

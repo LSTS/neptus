@@ -43,7 +43,7 @@ import javax.imageio.ImageIO;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Mode;
 
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp

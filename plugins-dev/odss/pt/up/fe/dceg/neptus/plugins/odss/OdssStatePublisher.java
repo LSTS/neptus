@@ -47,22 +47,22 @@ import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.gui.PropertiesEditor;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.plugins.CheckMenuChangeListener;
-import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription.CATEGORY;
-import pt.up.fe.dceg.neptus.plugins.PluginUtils;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.comm.IMCUtils;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.CheckMenuChangeListener;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.comm.IMCUtils;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp

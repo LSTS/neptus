@@ -45,7 +45,7 @@ import java.util.TimerTask;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author ZP

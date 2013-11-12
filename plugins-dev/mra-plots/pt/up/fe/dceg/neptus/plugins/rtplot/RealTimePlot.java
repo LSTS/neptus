@@ -56,18 +56,18 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.tools.shell.Global;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.events.ConsoleEventMainSystemChange;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mra.plots.ScriptEnvironment;
-import pt.up.fe.dceg.neptus.plugins.ConfigurationListener;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.Popup;
-import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.plots.ScriptEnvironment;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 
 import com.google.common.eventbus.Subscribe;
 

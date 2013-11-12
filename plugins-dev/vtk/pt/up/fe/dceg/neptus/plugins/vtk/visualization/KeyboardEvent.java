@@ -38,7 +38,7 @@ import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
+import pt.lsts.neptus.NeptusLog;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.up.fe.dceg.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.up.fe.dceg.neptus.plugins.vtk.utils.Utils;

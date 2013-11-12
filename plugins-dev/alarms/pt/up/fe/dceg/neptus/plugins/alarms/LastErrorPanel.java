@@ -45,18 +45,18 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXPanel;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.console.plugins.AlarmProviderOld;
-import pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener;
-import pt.up.fe.dceg.neptus.gui.painters.SubPanelTitlePainter;
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.plugins.NeptusMessageListener;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
-import pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates;
-import pt.up.fe.dceg.neptus.util.DateTimeUtil;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystem;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.plugins.AlarmProviderOld;
+import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.gui.painters.SubPanelTitlePainter;
+import pt.lsts.neptus.plugins.NeptusMessageListener;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.imc.IMCMessage;
 
 /**
  * @author pdias

@@ -47,9 +47,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.plugins.gps.device.Device;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 /**
  * Configuration Dialog to specify the configuration parameters of a serial port

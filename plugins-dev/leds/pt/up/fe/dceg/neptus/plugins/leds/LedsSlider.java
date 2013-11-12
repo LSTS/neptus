@@ -46,7 +46,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
+import pt.lsts.neptus.i18n.I18n;
 
 /**
  * This component has a label, a slider, a text representing the desired value for brightness, and a text with the value

@@ -54,8 +54,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
+import pt.lsts.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.plugins.planning.UavPiccoloControl.PiccoloControlConfiguration;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 /**
  * @author pdias

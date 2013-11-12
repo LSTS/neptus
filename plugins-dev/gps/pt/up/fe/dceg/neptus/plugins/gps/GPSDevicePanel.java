@@ -45,22 +45,22 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
-import pt.up.fe.dceg.neptus.NeptusLog;
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mystate.MyState;
-import pt.up.fe.dceg.neptus.plugins.NeptusProperty;
-import pt.up.fe.dceg.neptus.plugins.PluginsLoader;
-import pt.up.fe.dceg.neptus.plugins.PluginDescription;
-import pt.up.fe.dceg.neptus.plugins.Popup;
-import pt.up.fe.dceg.neptus.plugins.Popup.POSITION;
-import pt.up.fe.dceg.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mystate.MyState;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginsLoader;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ConsoleParse;
 import pt.up.fe.dceg.neptus.plugins.gps.device.Device;
 import pt.up.fe.dceg.neptus.plugins.gps.device.Fix;
 import pt.up.fe.dceg.neptus.plugins.gps.device.FixListener;
-import pt.up.fe.dceg.neptus.types.coord.CoordinateUtil;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.util.ConsoleParse;
 
 /**
  * Main class of the GPS Device Panel plugin. The main GUI elements are created

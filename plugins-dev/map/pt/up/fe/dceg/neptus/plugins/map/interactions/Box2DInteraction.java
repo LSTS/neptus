@@ -40,18 +40,18 @@ import java.awt.geom.Rectangle2D;
 
 import javax.swing.undo.UndoManager;
 
-import pt.up.fe.dceg.neptus.console.ConsoleLayout;
-import pt.up.fe.dceg.neptus.i18n.I18n;
-import pt.up.fe.dceg.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.renderer2d.InteractionAdapter;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.ParallelepipedElement;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.up.fe.dceg.neptus.plugins.map.edit.AddObjectEdit;
-import pt.up.fe.dceg.neptus.renderer2d.InteractionAdapter;
-import pt.up.fe.dceg.neptus.renderer2d.LayerPriority;
-import pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter;
-import pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D;
-import pt.up.fe.dceg.neptus.types.coord.LocationType;
-import pt.up.fe.dceg.neptus.types.map.MapType;
-import pt.up.fe.dceg.neptus.types.map.ParallelepipedElement;
-import pt.up.fe.dceg.neptus.util.GuiUtils;
 
 /**
  * @author zp

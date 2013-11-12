@@ -39,8 +39,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import pt.up.fe.dceg.neptus.console.plugins.LogBookPanel;
-import pt.up.fe.dceg.neptus.util.FileUtil;
+import pt.lsts.neptus.console.plugins.LogBookPanel;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author ZP

@@ -31,10 +31,10 @@
  */
 package pt.up.fe.dceg.neptus.plugins.planning.plandb;
 
-import pt.up.fe.dceg.neptus.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.mp.maneuvers.IMCSerialization;
-import pt.up.fe.dceg.neptus.types.Identifiable;
-import pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
+import pt.lsts.neptus.types.Identifiable;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 
 /**
  * @author zp

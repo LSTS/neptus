@@ -8,3 +8,4 @@
 pt.up.fe.dceg.neptus.plugins.actions.FullScreenAction
 pt.up.fe.dceg.neptus.plugins.actions.HTTPControls
 pt.up.fe.dceg.neptus.plugins.actions.ExecuteCommandPanel
+pt.up.fe.dceg.neptus.plugins.actions.SimpleMenuAction

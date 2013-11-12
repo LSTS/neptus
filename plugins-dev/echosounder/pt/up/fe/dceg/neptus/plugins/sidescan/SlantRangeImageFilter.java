@@ -41,7 +41,7 @@ import javax.swing.JTabbedPane;
 
 import org.imgscalr.Scalr;
 
-import pt.up.fe.dceg.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.GuiUtils;
 
 import com.jhlabs.image.TransformFilter;
 
