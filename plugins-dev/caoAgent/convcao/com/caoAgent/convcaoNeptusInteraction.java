@@ -473,11 +473,10 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
             LocationType auvPosition = IMCUtils.getLocation(state);
             positions.put(auvName, auvPosition);
             bathymetry.put(auvName, state.getDepth() + state.getAlt()); // FIXME tide offsets
-            double dist = auvPosition.getDistanceInMeters(destinations.get(auvName));
+            double dist = auvPosition.getHorizontalDistanceInMeters(destinations.get(auvName));
             if (dist < nearDistance)
                 arrived.put(auvName, true);    
             else {
-                System.out.println(auvName+" is "+dist+" meters away from destination");
                 arrived.put(auvName, false);
             }                
         }   
