@@ -39,7 +39,6 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -49,6 +48,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.util.NameNormalizer;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -353,93 +353,91 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	
 	@Override
 	public void parseIMCMessage(IMCMessage message) {
-	
-		setMaxTime((int)message.getDouble("timeout"));
-    	setSpeed(message.getDouble("speed"));
+	    
+	    pt.lsts.imc.PopUp msgPopup = null; 
+	    try {
+	        msgPopup = pt.lsts.imc.PopUp.clone(message);
+	    }
+	    catch (Exception e) {
+	        e.printStackTrace();
+	        return;
+	    }
+	    
+		setMaxTime(msgPopup.getTimeout());
+    	setSpeed(msgPopup.getSpeed());
 
-        setRadiusTolerance(Double.isNaN(message.getDouble("radius_tolerance")) ? 2 : message
-                .getDouble("radius_tolerance"));
+    	switch (msgPopup.getSpeedUnits()) {
+    	    case METERS_PS:
+    	        setUnits("m/s");
+    	        break;
+    	    case RPM:
+    	        setUnits("RPM");
+    	        break;
+    	    case PERCENTAGE:
+    	        setUnits("%");
+    	        break;
+    	    default:
+    	        break;
+    	}
     	
+        setRadiusTolerance(msgPopup.getRadius());
+    	setDuration(msgPopup.getDuration());
     	ManeuverLocation pos = new ManeuverLocation();
-    	pos.setLatitude(Math.toDegrees(message.getDouble("lat")));
-    	pos.setLongitude(Math.toDegrees(message.getDouble("lon")));
-    	pos.setZ(message.getDouble("z"));
-        pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(message.getString("z_units").toString()));
-    	setManeuverLocation(pos);
-    	
-    	String speed_units = message.getString("speed_units");
-		if (speed_units.equals("METERS_PS"))
-			setUnits("m/s");
-		else if (speed_units.equals("RPM"))
-			setUnits("RPM");
-		else
-			setUnits("%");
-		
+    	pos.setLatitude(Math.toDegrees(msgPopup.getLat()));
+    	pos.setLongitude(Math.toDegrees(msgPopup.getLon()));
+    	pos.setZ(msgPopup.getZ());
+        pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(msgPopup.getZUnits().toString()));
+        setManeuverLocation(pos);
 	}
 	
 	public IMCMessage serializeToIMC()
 	{
-		IMCMessage msgManeuver = IMCDefinition.getInstance().create(
-				"Popup");
-		msgManeuver.setValue("timeout", this.getMaxTime());
-
-		double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
-
-		msgManeuver.setValue("lat", Math.toRadians(latLonDepth[0]));
-		msgManeuver.setValue("lon", Math.toRadians(latLonDepth[1]));
-		msgManeuver.setValue("depth",latLonDepth[2]);
-
-		msgManeuver.setValue("duration", getDuration());
-
-		msgManeuver.setValue("velocity",this.getSpeed());
-		msgManeuver.setValue("speed", this.getSpeed());
-        String enumerated = "";
-		String speedU = this.getUnits();
-		try {
-			if ("m/s".equalsIgnoreCase(speedU))
-                enumerated= "METERS_PS";
-			else if ("RPM".equalsIgnoreCase(speedU))
-                enumerated= "RPM";
-			else if ("%".equalsIgnoreCase(speedU))
-                enumerated= "PERCENTAGE";
-			else if ("percentage".equalsIgnoreCase(speedU))
-                enumerated= "PERCENTAGE";
-		}
-		catch (Exception ex) {
-			NeptusLog.pub().error(this, ex);						
-		}
-		msgManeuver.setValue("speed_units", enumerated);
-
-//		msgManeuver.setValue("velocity", new NativeFLOAT(this.getSpeed()));
-//		Enumerated enumerated = (Enumerated) msgManeuver.getValueAsObject("velocity_units");
-//		String velU = this.getUnits();
-//		try {
-//			if ("m/s".equalsIgnoreCase(velU))
-//				enumerated.setCurrentValue("METERS_PS");
-//			else if ("RPM".equalsIgnoreCase(velU))
-//				enumerated.setCurrentValue("RPM");
-//			else if ("%".equalsIgnoreCase(velU))
-//				enumerated.setCurrentValue("PERCENTAGE");
-//			else if ("percentage".equalsIgnoreCase(velU))
-//				enumerated.setCurrentValue("PERCENTAGE");
-//		}
-//		catch (Exception ex) {
-//			NeptusLog.pub().error(this, ex);						
-//		}
-//		msgManeuver.setValue("velocity_units", enumerated);
+	    pt.lsts.imc.PopUp msg = new pt.lsts.imc.PopUp();
+	    msg.setTimeout(getMaxTime());
+	    //double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
+	    getManeuverLocation().convertToAbsoluteLatLonDepth();
+	    msg.setLat(getManeuverLocation().getLatitudeAsDoubleValueRads());
+	    msg.setLon(getManeuverLocation().getLongitudeAsDoubleValueRads());
+		msg.setZ(getManeuverLocation().getZ());
+		msg.setZUnits(getManeuverLocation().getZUnits().toString());
+	    msg.setDuration(getDuration());
+	    msg.setSpeed(speed);
+	    switch (units) {
+            case "RPM":
+                msg.setSpeedUnits(pt.lsts.imc.PopUp.SPEED_UNITS.RPM);
+                break;
+            case "%":
+                msg.setSpeedUnits(pt.lsts.imc.PopUp.SPEED_UNITS.PERCENTAGE);
+                break;
+            case "m/s":
+                msg.setSpeedUnits(pt.lsts.imc.PopUp.SPEED_UNITS.METERS_PS);
+                break;
+            default:
+                break;
+        }
 		
-		msgManeuver.setValue("radius_tolerance", this.getRadiusTolerance());
+	    msg.setRadius(getRadiusTolerance());
 		
-        //NativeTupleList ntl = new NativeTupleList();
-        // TupleList tl = new TupleList();
-        //FIXME commented line above for translation to new Message TupleList format
-        LinkedHashMap<String, Object> tl = new LinkedHashMap<String, Object>();
+	    LinkedHashMap<String, Object> tl = new LinkedHashMap<String, Object>();
         
 		for (String key : getCustomSettings().keySet())
             tl.put(key, getCustomSettings().get(key));
-        msgManeuver.setValue("custom",IMCMessage.encodeTupleList(tl));
+        msg.setCustom(getCustomSettings());
 
-
-		return msgManeuver;
+		return msg;
 	}
+	
+	public static void main(String[] args) {
+        PopUp popup = new PopUp();
+        popup.setRadiusTolerance(10);
+        popup.setSpeed(1.2);
+        popup.setUnits("m/s");
+        popup.setDuration(300);
+        ManeuverLocation loc = new ManeuverLocation();
+        loc.setLatitude(0);
+        loc.setLongitude(0);
+        loc.setDepth(3);
+        popup.setManeuverLocation(loc);
+        System.out.println(popup.asXML());
+    }
 }
