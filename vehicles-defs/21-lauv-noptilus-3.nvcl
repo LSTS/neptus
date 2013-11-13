@@ -364,6 +364,7 @@
 	    </finalPoint>
 	    <duration>300</duration>
 	    <speed tolerance="100.0" type="float" unit="m/s">1.2</speed>
+	    <flags CurrPos="false" StationKeep="false" WaitAtSurface="false"/>
 	    <annotation>
           <documentation>No documentation available</documentation>
           <implementation-class>pt.lsts.neptus.mp.maneuvers.PopUp</implementation-class>
