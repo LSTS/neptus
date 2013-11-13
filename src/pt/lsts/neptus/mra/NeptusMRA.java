@@ -121,6 +121,7 @@ import foxtrot.AsyncWorker;
 /**
  * @author ZP
  * @author pdias (LSF)
+ * @author jqcorreia
  */
 @SuppressWarnings("serial")
 public class NeptusMRA extends JFrame implements PropertiesProvider {

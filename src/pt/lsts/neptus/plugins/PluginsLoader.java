@@ -203,10 +203,8 @@ public class PluginsLoader {
         try (BufferedReader reader = Files.newBufferedReader(file, charset)) {
             String line = null;
             
-            System.out.println("Loading plugins from: " + file.toAbsolutePath());
             while ((line = reader.readLine()) != null) {
                 if (line.length() > 0 && line.charAt(0) != '#') {
-                    System.out.println(line);
                     PluginsRepository.addPlugin(line);
                 }
             }
