@@ -158,7 +158,8 @@ public class TransponderElement extends AbstractElement implements Identifiable{
      * @param lblBeacon
      * @param id shared with Dune - order in LblConfig list
      */
-    public TransponderElement(LblBeacon lblBeacon, short id) {
+    public TransponderElement(LblBeacon lblBeacon, short id, MapGroup mg, MapType parentMap) {
+        super(mg, parentMap);
         String beacon = lblBeacon.getBeacon();
         double lat = Math.toDegrees(lblBeacon.getLat());
         double lon = Math.toDegrees(lblBeacon.getLon());

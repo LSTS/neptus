@@ -805,7 +805,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param treeModel the model where to merge
      */
     private HashSet<String> mergeRemoteTrans(String sysName, Vector<LblBeacon> remoteList,
-            MissionTreeModel treeModel, HashSet<String> existing) {
+            MissionTreeModel treeModel, HashSet<String> existing, MissionType mission) {
         ExtendedTreeNode node;
         // LblBeacon remoteItem;
         TransponderElement trans;
@@ -847,11 +847,18 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 }
             }
             if (remote) {
-                // Remote
-                // create new node with id as Remote
-                trans = new TransponderElement(lblBeacon, id);
+                // create new node with id as Sync
+                MapGroup mapGroup = MapGroup.getMapGroupInstance(mission);
+                MapType[] maps = mapGroup.getMaps();
+                trans = new TransponderElement(lblBeacon, id, mapGroup, maps[0]);
                 node = new ExtendedTreeNode(trans);
-                setSyncState(node, State.REMOTE);
+                setSyncState(node, State.SYNC);
+                // replicate transponder to mission file
+                trans.getParentMap().addObject(trans);
+                trans.getParentMap().saveFile(trans.getParentMap().getHref());
+                if (mission.getCompressedFilePath() != null) {
+                    mission.save(false);
+                }
                 treeModel.insertAlphabetically(node, ParentNodes.TRANSPONDERS);
                 // signal as existing
                 existing.add(trans.getIdentification());
@@ -859,6 +866,19 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 idMap.remove(trans.getIdentification());
                 System.out.println(trans.getIdentification()
                         + " trans from IMCSystem not found in mission tree  >> Remote.");
+
+                // // Remote
+                // // create new node with id as Remote
+                // trans = new TransponderElement(lblBeacon, id);
+                // node = new ExtendedTreeNode(trans);
+                // setSyncState(node, State.REMOTE);
+                // treeModel.insertAlphabetically(node, ParentNodes.TRANSPONDERS);
+                // // signal as existing
+                // existing.add(trans.getIdentification());
+                // // remove from id reset
+                // idMap.remove(trans.getIdentification());
+                // System.out.println(trans.getIdentification()
+                // + " trans from IMCSystem not found in mission tree  >> Remote.");
             }
             id++;
         }
@@ -1196,14 +1216,14 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param sysName
      * @param remoteTrans
      */
-    public void updateTransStateEDT(MissionType mission, final String sysName, final Vector<LblBeacon> remoteTrans) {
+    public void updateTransStateEDT(final MissionType mission, final String sysName, final Vector<LblBeacon> remoteTrans) {
         final LinkedHashMap<String, TransponderElement> localTrans = getLocalTrans(mission);
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override
             public void run() {
                 HashSet<String> existingTrans = mergeLocal(localTrans, sysName, treeModel, ParentNodes.TRANSPONDERS);
-                existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans);
+                existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans, mission);
                 treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
                 // revalidate();
