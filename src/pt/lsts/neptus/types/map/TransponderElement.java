@@ -71,6 +71,8 @@ public class TransponderElement extends AbstractElement implements Identifiable{
     protected static final String DEFAULT_ROOT_ELEMENT = "transponder";
     private static Image transponderImg = ImageUtils.getImage("images/transponder.png");
     private static String[] transpondersListArray;
+    // id shared with Dune - order in LblConfig list
+    public short id;
 
     static {
         final Vector<String> aTranspondersFiles = new Vector<String>();
@@ -131,6 +133,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
      */
     public TransponderElement() {
         super();
+        id = -1;
     }
 
     /**
@@ -139,15 +142,23 @@ public class TransponderElement extends AbstractElement implements Identifiable{
     public TransponderElement(String xml) {
         // super(xml);
         load(xml);
+        id = -1;
     }
 
     public TransponderElement(MapGroup mg, MapType parentMap) {
         super(mg, parentMap);
         if (mg != null)
             setCenterLocation(new LocationType(mg.getHomeRef().getCenterLocation()));
+        id = -1;
     }
 
-    public TransponderElement(LblBeacon lblBeacon) {
+    /**
+     * Creates a TransponderElement with the values on the beacon.
+     * 
+     * @param lblBeacon
+     * @param id shared with Dune - order in LblConfig list
+     */
+    public TransponderElement(LblBeacon lblBeacon, short id) {
         String beacon = lblBeacon.getBeacon();
         double lat = Math.toDegrees(lblBeacon.getLat());
         double lon = Math.toDegrees(lblBeacon.getLon());
@@ -156,12 +167,11 @@ public class TransponderElement extends AbstractElement implements Identifiable{
         lt.setLatitude(lat);
         lt.setLongitude(lon);
         lt.setDepth(depth);
-        StringBuilder nameBuilder = new StringBuilder(beacon);
-        nameBuilder.append(" ");
         setId(beacon);
         setName(beacon);
         setCenterLocation(lt);
         setConfiguration(beacon + ".conf");
+        this.id = id;
     }
 
     /**
@@ -186,7 +196,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
             return false;
         }
         // Configuration
-        String[] split = file.getHref().split(".");
+        String[] split = file.getHref().split("\\.");
         if (split.length == 0) {
             System.out.print(" No conf name!");
         }
@@ -450,7 +460,17 @@ public class TransponderElement extends AbstractElement implements Identifiable{
      */
     @Override
     public String getIdentification() {
-        return getName();
+        StringBuilder nameBuilder = new StringBuilder();
+        if (id != -1) {
+            nameBuilder.append("[");
+            nameBuilder.append(id);
+            nameBuilder.append("] ");
+            nameBuilder.append(name);
+            return nameBuilder.toString();
+        }
+        else {
+            return getName();
+        }
     }
 
     public byte[] getMd5() {
