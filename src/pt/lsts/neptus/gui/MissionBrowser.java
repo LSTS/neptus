@@ -822,56 +822,61 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     (Short) tempNode.getUserInfo().get(NodeInfoKey.ID.name()));
         }
 
+        boolean remote;
         short id = 0; // the id inside DUNE is the index in the vector
-        transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
         for (LblBeacon lblBeacon : remoteList) {
-            node = null;
-            trans = null;
-            tempTrans = null;
+            remote = true;
+            transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
             while (transIt.hasNext()) {
                 tempNode = transIt.next();
                 tempTrans = ((TransponderElement) tempNode.getUserObject());
-                Short localId = ((Short) tempNode.getUserInfo().get(NodeInfoKey.ID.name()));
-                if (localId.equals(id)) {
-                    node = tempNode;
-                    trans = tempTrans;
+                if (tempTrans.equals(lblBeacon)) {
+                    // SYNC
+                    remote = false;
+                    // set state
+                    setSyncState(tempNode, State.SYNC);
+                    // set id
+                    tempTrans.id = id;
+                    // signal as existing
                     existing.add(tempTrans.getIdentification());
-                    idMap.remove(trans.getIdentification());
-                    System.out.print(tempTrans.getIdentification() + "\t");
+                    // remove from id reset
+                    idMap.remove(tempTrans.getIdentification());
+                    System.out.println(tempTrans.getIdentification()
+                            + " from IMCSystem found in mission tree  >> Sync.");
                     break;
                 }
             }
-            if (node == null) {
-                // If no trans exits insert as sync
-                trans = new TransponderElement(lblBeacon);
+            if (remote) {
+                // Remote
+                // create new node with id as Remote
+                trans = new TransponderElement(lblBeacon, id);
                 node = new ExtendedTreeNode(trans);
-                node.getUserInfo().put(NodeInfoKey.ID.name(), id);
-                setSyncState(node, State.SYNC);
+                setSyncState(node, State.REMOTE);
                 treeModel.insertAlphabetically(node, ParentNodes.TRANSPONDERS);
-                System.out.println(" trans from IMCSystem not found in mission tree  >> Sync.");
+                // signal as existing
+                existing.add(trans.getIdentification());
+                // remove from id reset
+                idMap.remove(trans.getIdentification());
+                System.out.println(trans.getIdentification()
+                        + " trans from IMCSystem not found in mission tree  >> Remote.");
             }
-            else {
-                if (trans.equals(lblBeacon)) {
-                    setSyncState(node, State.SYNC);
-                    System.out.println(" in tree mission. == fields,  >> Sync.");
-                }
-                else {
-                    setSyncState(node, State.NOT_SYNC);
-                    System.out.println(" in tree mission. != fields,  >> Not_sync.");
-                }
-            }
-            node.getUserInfo().put(NodeInfoKey.VEHICLE.name(), sysName);
             id++;
         }
+
         // reset id of transponders not in vehicle
         transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
-        while(transIt.hasNext()){
+        System.out.print("Reseting id of:");
+        while (transIt.hasNext() && idMap.size() > 0) {
             tempNode = transIt.next();
-            String tempId = ((TransponderElement) tempNode.getUserObject()).getIdentification();
+            tempTrans = ((TransponderElement) tempNode.getUserObject());
+            String tempId = tempTrans.getIdentification();
             if (idMap.containsKey(tempId)) {
-                tempNode.getUserInfo().put(NodeInfoKey.ID.name(), (short) -1);
+                tempTrans.id = -1;
+                idMap.remove(tempId);
+                System.out.print(tempId + ", ");
             }
         }
+        System.out.println();
         return existing;
     }
 

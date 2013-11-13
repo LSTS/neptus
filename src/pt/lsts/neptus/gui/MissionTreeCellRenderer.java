@@ -297,13 +297,14 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
     }
 
     private void setBeaconLabel(TransponderElement nodeObj, ImcSystem imcSystem) {
+        setText(nodeObj.getIdentification());
         if (imcSystem != null) {
             LBLRangesTimer timer = (LBLRangesTimer) imcSystem.retrieveData(nodeObj.getName());
             if (timer != null) {
                 String color;
                 int time = timer.getTime();
                 if (time == -1) {
-                    setText(nodeObj.getName());
+                    setText(nodeObj.getIdentification());
                 }
                 else {
                     if (time <= maxAcceptableElapsedTime) {
@@ -315,7 +316,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
                     int minutes = time / 60;
                     int seconds = time % 60;
                     String formatedTime = (minutes > 0) ? (minutes + "min " + seconds + "s") : (seconds + "s");
-                    setText("<html>" + nodeObj.getName() + " (<span color='" + color + "'>&#916;t "
+                    setText("<html>" + nodeObj.getIdentification() + " (<span color='" + color + "'>&#916;t "
                             + formatedTime + "</span>)");
                 }
             }
