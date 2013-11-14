@@ -189,11 +189,13 @@ public class TransponderElement extends AbstractElement implements Identifiable{
         lt.setLongitude(Math.toDegrees(lblBeacon.getDouble("lon")));
         lt.setDepth(lblBeacon.getDouble("depth"));
         if(!getCenterLocation().equals(lt)){
+            System.out.println(lblBeacon.getBeacon() + " had different location that " + getIdentification());
             return false;
         }
         // Name
         String beaconName = lblBeacon.getString("beacon");
         if(!getName().equals(beaconName)){
+            System.out.println(lblBeacon.getBeacon() + " had different name that " + getIdentification());
             return false;
         }
         // Configuration
@@ -202,6 +204,8 @@ public class TransponderElement extends AbstractElement implements Identifiable{
             System.out.print(" No conf name!");
         }
         if (!split[0].equals(lblBeacon.getBeacon())) {
+            System.out.println(lblBeacon.getBeacon() + " had different conf name that " + getIdentification()
+                    + " trans:" + split[0]);
             return false;
         }
         return true;
