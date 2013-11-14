@@ -64,6 +64,7 @@ public class ROVInfoLayer extends SimpleSubPanel implements Renderer2DPainter
     private double desiredHeading = 0;
     private double depth = 0;
     private double heading = 0;
+    private double altitude = 0;
     
     public ROVInfoLayer(ConsoleLayout console) {
         super(console);
@@ -78,6 +79,7 @@ public class ROVInfoLayer extends SimpleSubPanel implements Renderer2DPainter
         g.drawString("Heading: " + heading, 10, 10);
         g.drawString("Desired Depth: " + desiredDepth, 10, 20);
         g.drawString("Depth: " + depth, 10, 30);
+        g.drawString("Altitude: " + altitude, 10, 40);
         
     }
 
@@ -95,7 +97,8 @@ public class ROVInfoLayer extends SimpleSubPanel implements Renderer2DPainter
     public void onMessage(EstimatedState state) {
         if(state.getSourceName().equals(getMainVehicleId())) {
             depth = MathMiscUtils.round(state.getDepth(), 3);
-            heading =MathMiscUtils.round(state.getPsi(), 3);
+            heading = MathMiscUtils.round(state.getPsi(), 3);
+            altitude = MathMiscUtils.round(state.getAlt(), 3);
         }
     }
     
