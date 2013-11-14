@@ -34,6 +34,7 @@ package pt.lsts.neptus.data;
 import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Vector;
 
 import pt.lsts.neptus.types.coord.LocationType;
@@ -316,7 +317,9 @@ public class GeoCollection<T> {
     @SuppressWarnings("unchecked")
     public LinkedHashMap<LocationType, T> nearestNPoints(int numberOfPoints, LocationType loc) {
         
-        Vector<Pair<double[], Object>> res = data.nearestNPoints(loc.getAbsoluteLatLonDepth(), numberOfPoints);
+        
+        
+        Vector<Pair<double[], Object>> res = data.nearestNPoints(loc.getOffsetFrom(center), numberOfPoints);
         LinkedHashMap<LocationType, T> ret = new LinkedHashMap<>();
         for (Pair<double[], Object> pair : res) {
             LocationType l = new LocationType(center);
@@ -327,16 +330,17 @@ public class GeoCollection<T> {
     }
 
     public static void main(String[] args) {
-        LocationType loc1 = new LocationType(41, -8.23);
-        LocationType loc2 = new LocationType(41.04, -8);
-        LocationType loc3 = new LocationType(41.07, -8.01);
-
-        GeoCollection<java.lang.Double> states = new GeoCollection.Generic<java.lang.Double>();
-        states.add(loc1, 10d);
-        states.add(loc2, 121d);
-        states.add(loc3, 34d);
-
-        System.out.println(states.nearestN(2, loc2));
-        System.out.println(states.valueAt(new LocationType(41, -8.1)));
+        
+        Random r = new Random(System.currentTimeMillis());
+        GeoCollection.Double col = new GeoCollection.Double();
+        long start = System.currentTimeMillis();
+        for (double i = 0; i < 1000000; i++) {
+            double val = 40.5 + r.nextDouble();            
+            col.add(new LocationType(val, r.nextDouble()-8.5), val * 10);
+        }
+        System.out.println("Insertion took "+(System.currentTimeMillis()-start)+" milliseconds");
+        start = System.currentTimeMillis();
+        System.out.println(col.valueAt(new LocationType(41.23, -8)));
+        System.out.println("Calculation took "+(System.currentTimeMillis()-start)+" milliseconds");
     }
 }
