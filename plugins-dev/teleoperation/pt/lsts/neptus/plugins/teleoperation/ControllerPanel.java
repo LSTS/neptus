@@ -457,6 +457,8 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         float value;
         boolean inverted;
         JButton edit;
+        JButton clear;
+        
         boolean editFlag = false;
         
         MapperComponent(final String action, String component, float value, boolean inverted) {
@@ -465,6 +467,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
             this.value = value;
             this.inverted = inverted;
             this.edit = new JButton(I18n.text("Edit"));
+            this.clear = new JButton(I18n.text("Clear"));
             
             edit.addMouseListener(new MouseAdapter() {
                 @Override
@@ -476,6 +479,15 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
                     }
                 } 
             });
+            clear.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    MapperComponent.this.component = "";
+                    MapperComponent.this.inverted = false;
+                } 
+            });
+
         }
     }
     
@@ -518,7 +530,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
 
         @Override
         public int getColumnCount() {
-            return 5;
+            return 6;
         }
 
         @Override
@@ -535,12 +547,14 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
                     return comp.inverted;
                 case 4:
                     return comp.edit;
+                case 5:
+                    return comp.clear;
             }
             return null;
         }
         
         public boolean isCellEditable(int row, int col) {
-            return col == 3 || col == 1 || col == 4; // Hard-coded for now
+            return col == 3 || col == 1 || col == 4 || col == 5; // Hard-coded for now
         }
 
         public void setValueAt(Object value, int row, int col) {
@@ -574,6 +588,9 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
             if(column == 4) {
                 JButton b = (JButton)model.getValueAt(row, column);
                 b.setEnabled(!editing); // Disable if we are editing
+                return (JButton)model.getValueAt(row, column);
+            }
+            if(column == 5) {
                 return (JButton)model.getValueAt(row, column);
             }
             return this;
