@@ -119,6 +119,10 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         return "FollowTrajectory";
     }
 
+    public void setOffsets(Vector<double[]> coordinates) {
+        this.points = coordinates;
+    }
+    
     @Override
     public void loadFromXML(String xml) {
         try {

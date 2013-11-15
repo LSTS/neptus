@@ -61,6 +61,7 @@
 	<classpathentry kind="src" path="plugins-dev/caoAgent"/>
 	<classpathentry kind="src" path="plugins-dev/gige"/>
 	<classpathentry kind="src" path="plugins-dev/s57"/>
+	<classpathentry kind="src" path="plugins-dev/blue-eye"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
