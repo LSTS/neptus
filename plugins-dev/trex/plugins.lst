@@ -5,6 +5,6 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.plugins.trex.TrexMapLayer
-pt.up.fe.dceg.neptus.plugins.trex.TrexTimeline
-pt.up.fe.dceg.neptus.plugins.trex.TrexTimelinePanel
+pt.lsts.neptus.plugins.trex.TrexMapLayer
+pt.lsts.neptus.plugins.trex.TrexTimeline
+pt.lsts.neptus.plugins.trex.TrexTimelinePanel

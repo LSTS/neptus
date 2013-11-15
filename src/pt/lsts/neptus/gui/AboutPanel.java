@@ -102,7 +102,7 @@ public class AboutPanel extends JFrame {
     /**
      * This method initializes imagePanel
      * 
-     * @return pt.up.fe.dceg.neptus.gui.ImagePanel
+     * @return pt.lsts.neptus.gui.ImagePanel
      */
     private ImagePanel getImagePanel() {
         if (imagePanel == null) {

@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParser;
-import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
+import pt.lsts.neptus.plugins.sidescan.SidescanConfig;
 
 /**
  * @author jqcorreia

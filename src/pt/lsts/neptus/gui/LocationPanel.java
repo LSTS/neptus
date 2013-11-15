@@ -255,7 +255,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	/**
 	 * This method initializes pointSelector
 	 *
-	 * @return pt.up.fe.dceg.neptus.gui.PointSelector
+	 * @return pt.lsts.neptus.gui.PointSelector
 	 */
 	public PointSelector getPointSelector() {
 		if (pointSelector == null) {
@@ -268,7 +268,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	/**
 	 * This method initializes markSelector
 	 *
-	 * @return pt.up.fe.dceg.neptus.gui.MarkSelector
+	 * @return pt.lsts.neptus.gui.MarkSelector
 	 */
 	private MarkSelector getMarkSelector() {
 		if (markSelector == null) {
@@ -293,7 +293,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	/**
 	 * This method initializes regularOffset
 	 *
-	 * @return pt.up.fe.dceg.neptus.gui.RegularOffset
+	 * @return pt.lsts.neptus.gui.RegularOffset
 	 */
 	private RegularOffset getRegularOffset() {
 		if (regularOffset == null) {
@@ -305,7 +305,7 @@ public class LocationPanel extends ParametersPanel implements ActionListener {
 	/**
 	 * This method initializes polarOffsetPanel1
 	 *
-	 * @return pt.up.fe.dceg.neptus.gui.PolarOffsetPanel
+	 * @return pt.lsts.neptus.gui.PolarOffsetPanel
 	 */
 	private PolarOffsetPanel getPolarOffsetPanel() {
 		if (polarOffsetPanel == null) {

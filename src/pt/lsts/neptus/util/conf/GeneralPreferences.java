@@ -299,7 +299,7 @@ public class GeneralPreferences implements PropertiesProvider {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.gui.PropertiesProvider#getProperties()
+     * @see pt.lsts.neptus.gui.PropertiesProvider#getProperties()
      */
     @Override
     public DefaultProperty[] getProperties() {
@@ -309,7 +309,7 @@ public class GeneralPreferences implements PropertiesProvider {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.gui.PropertiesProvider#setProperties(com.l2fprod.common.propertysheet.Property[])
+     * @see pt.lsts.neptus.gui.PropertiesProvider#setProperties(com.l2fprod.common.propertysheet.Property[])
      */
     @Override
     public void setProperties(Property[] properties) {
@@ -330,7 +330,7 @@ public class GeneralPreferences implements PropertiesProvider {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.gui.PropertiesProvider#getPropertiesDialogTitle()
+     * @see pt.lsts.neptus.gui.PropertiesProvider#getPropertiesDialogTitle()
      */
     @Override
     public String getPropertiesDialogTitle() {
@@ -340,7 +340,7 @@ public class GeneralPreferences implements PropertiesProvider {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.gui.PropertiesProvider#getPropertiesErrors(com.l2fprod.common.propertysheet.Property[])
+     * @see pt.lsts.neptus.gui.PropertiesProvider#getPropertiesErrors(com.l2fprod.common.propertysheet.Property[])
      */
     @Override
     public String[] getPropertiesErrors(Property[] properties) {

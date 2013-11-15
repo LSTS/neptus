@@ -106,7 +106,7 @@ public class Imagenex881SSConfig extends OptionsConfiguration {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * pt.up.fe.dceg.neptus.types.miscsystems.config.OptionsConfiguration#load
+	 * pt.lsts.neptus.types.miscsystems.config.OptionsConfiguration#load
 	 * (org.dom4j.Element)
 	 */
 	@Override

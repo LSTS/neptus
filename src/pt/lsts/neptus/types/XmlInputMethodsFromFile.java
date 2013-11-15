@@ -44,7 +44,7 @@ import java.io.File;
  * </ul>
  * This will serve to be called by the <i>load</i> method in order to
  *  validate the XML content again the their schema 
- *  (fetch from the {@link pt.up.fe.dceg.neptus.util.conf.ConfigFetch}).
+ *  (fetch from the {@link pt.lsts.neptus.util.conf.ConfigFetch}).
  *  
  * @author Paulo Dias
  */
@@ -58,7 +58,7 @@ public interface XmlInputMethodsFromFile
     /**
      * Should set {@link #isLoadOk()} return value.
      * You should also call the XSD validation(you can use 
-     * {@link pt.up.fe.dceg.neptus.util.XMLValidator}). 
+     * {@link pt.lsts.neptus.util.XMLValidator}). 
      * @param url
      * @return
      */
@@ -67,7 +67,7 @@ public interface XmlInputMethodsFromFile
     /**
      * Should set {@link #isLoadOk()} return value.
      * You should also call the XSD validation(you can use 
-     * {@link pt.up.fe.dceg.neptus.util.XMLValidator}). 
+     * {@link pt.lsts.neptus.util.XMLValidator}). 
      * @param file
      * @return
      */

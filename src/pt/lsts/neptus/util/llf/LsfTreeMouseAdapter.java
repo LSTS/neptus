@@ -49,10 +49,10 @@ import pt.lsts.neptus.mra.MraChartPanel;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.GenericPlot;
+import pt.lsts.neptus.plugins.mraplots.ReplayPlot;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.chart.LLFChart;
-import pt.up.fe.dceg.neptus.plugins.mraplots.ReplayPlot;
 
 /**
  * This class deals with all the instatiation logic associated with LLFTree interaction

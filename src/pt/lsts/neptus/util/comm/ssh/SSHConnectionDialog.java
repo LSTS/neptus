@@ -446,7 +446,7 @@ public class SSHConnectionDialog extends JPanel {
     /**
      * This method initializes imageConnectSSH
      * 
-     * @return pt.up.fe.dceg.neptus.gui.ImagePanel
+     * @return pt.lsts.neptus.gui.ImagePanel
      */
     private ImagePanel getImageConnectSSH() {
         if (imageConnectSSH == null) {

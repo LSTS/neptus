@@ -138,7 +138,7 @@ public class CheckAutoVarIntervalItem extends CheckAutoSubItem {
 
 
 	   /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
     public Document asDocument(String rootElementName)
     {

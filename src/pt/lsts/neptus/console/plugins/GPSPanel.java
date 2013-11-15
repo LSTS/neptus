@@ -153,7 +153,7 @@ public class GPSPanel extends SimpleSubPanel implements GPSListener,
 	}
 	
 	/* (non-Javadoc)
-	 * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#init()
+	 * @see pt.lsts.neptus.plugins.SimpleSubPanel#init()
 	 */
 	@Override
 	public void initSubPanel() {
@@ -166,7 +166,7 @@ public class GPSPanel extends SimpleSubPanel implements GPSListener,
 	}
 	
 	/* (non-Javadoc)
-	 * @see pt.up.fe.dceg.neptus.consolebase.SubPanelChangeListener#subPanelChanged(pt.up.fe.dceg.neptus.consolebase.SubPanelChangeEvent)
+	 * @see pt.lsts.neptus.consolebase.SubPanelChangeListener#subPanelChanged(pt.lsts.neptus.consolebase.SubPanelChangeEvent)
 	 */
 	@Override
 	public void subPanelChanged(SubPanelChangeEvent panelChange) {
@@ -240,7 +240,7 @@ public class GPSPanel extends SimpleSubPanel implements GPSListener,
 	}
 
 	/* (non-Javadoc)
-	 * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#clean()
+	 * @see pt.lsts.neptus.plugins.SimpleSubPanel#clean()
 	 */
 	@Override
 	public void cleanSubPanel() {
@@ -312,7 +312,7 @@ public class GPSPanel extends SimpleSubPanel implements GPSListener,
 	}
 
 	/* (non-Javadoc)
-	 * @see pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension#getApplicableItems(pt.up.fe.dceg.neptus.types.coord.LocationType, pt.up.fe.dceg.neptus.planeditor.IMapPopup)
+	 * @see pt.lsts.neptus.planeditor.IEditorMenuExtension#getApplicableItems(pt.lsts.neptus.types.coord.LocationType, pt.lsts.neptus.planeditor.IMapPopup)
 	 */
 	@Override
 	public Collection<JMenuItem> getApplicableItems(LocationType loc,

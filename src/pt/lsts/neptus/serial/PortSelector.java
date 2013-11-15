@@ -315,7 +315,7 @@ public class PortSelector extends JDialog {
 	/**
 	 * This method initializes serialPortParameters	
 	 * 	
-	 * @return pt.up.fe.dceg.neptus.util.transponders.SerialPortParameters	
+	 * @return pt.lsts.neptus.util.transponders.SerialPortParameters	
 	 */
 	public SerialPortParameters getSerialPortParameters() {
 		if (serialPortParameters == null) {

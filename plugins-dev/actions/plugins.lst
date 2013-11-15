@@ -5,7 +5,7 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.plugins.actions.FullScreenAction
-pt.up.fe.dceg.neptus.plugins.actions.HTTPControls
-pt.up.fe.dceg.neptus.plugins.actions.ExecuteCommandPanel
-pt.up.fe.dceg.neptus.plugins.actions.SimpleMenuAction
+pt.lsts.neptus.plugins.actions.FullScreenAction
+pt.lsts.neptus.plugins.actions.HTTPControls
+pt.lsts.neptus.plugins.actions.ExecuteCommandPanel
+pt.lsts.neptus.plugins.actions.SimpleMenuAction

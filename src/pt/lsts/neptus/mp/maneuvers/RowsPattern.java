@@ -110,7 +110,7 @@ public class RowsPattern extends FollowPath {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
+     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
      */
     @Override
     public ManeuverLocation getStartLocation() {
@@ -126,7 +126,7 @@ public class RowsPattern extends FollowPath {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.LocationProvider#getLastPosition()
+     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getLastPosition()
      */
     @Override
     public ManeuverLocation getEndLocation() {
@@ -142,7 +142,7 @@ public class RowsPattern extends FollowPath {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.LocationProvider#setPosition(pt.up.fe.dceg.neptus.types.coord.AbstractLocationPoint)
+     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#setPosition(pt.lsts.neptus.types.coord.AbstractLocationPoint)
      */
     @Override
     public void setManeuverLocation(ManeuverLocation location) {
@@ -176,7 +176,7 @@ public class RowsPattern extends FollowPath {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#mouseClicked(java.awt.event.MouseEvent, pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseClicked(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
@@ -184,7 +184,7 @@ public class RowsPattern extends FollowPath {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#mouseDragged(java.awt.event.MouseEvent, pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseDragged(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void mouseDragged(MouseEvent event, StateRenderer2D source) {
@@ -616,7 +616,7 @@ public class RowsPattern extends FollowPath {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.Maneuver#clone()
+     * @see pt.lsts.neptus.mp.Maneuver#clone()
      */
     @Override
     public Object clone() {

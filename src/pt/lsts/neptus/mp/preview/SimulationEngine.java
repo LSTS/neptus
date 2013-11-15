@@ -33,14 +33,14 @@ package pt.lsts.neptus.mp.preview;
 
 import java.util.Date;
 
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.plugins.planning.SimulatedBathymetry;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.imc.EstimatedState;
-import pt.up.fe.dceg.neptus.plugins.planning.SimulatedBathymetry;
 
 /**
  * @author zp

@@ -132,7 +132,7 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.Maneuver#loadFromXML(java.lang.String)
+     * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
     @Override
     public void loadFromXML(String xml) {
@@ -169,7 +169,7 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
 
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.Maneuver#ManeuverFunction(pt.up.fe.dceg.neptus.mp.VehicleState)
+     * @see pt.lsts.neptus.mp.Maneuver#ManeuverFunction(pt.lsts.neptus.mp.VehicleState)
      */
     @Override
     public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
@@ -287,7 +287,7 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
         loc.setLongitude(Math.toDegrees(man.getLon()));
         loc.setZ(man.getZ());
         NeptusLog.pub().info("<###> "+man.getZUnits());
-//        loc.setZUnits(pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(elev.getEndZUnits().toString()));
+//        loc.setZUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(elev.getEndZUnits().toString()));
         loc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(message.getString("end_z_units").toString()));
         setManeuverLocation(loc);
         pitchDegs = Math.toDegrees(man.getPitch());

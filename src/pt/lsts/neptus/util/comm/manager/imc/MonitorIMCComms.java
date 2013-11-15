@@ -63,13 +63,19 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.gui.ImcStatePanel;
+import pt.lsts.imc.state.ImcSysState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.SystemsList;
 import pt.lsts.neptus.gui.editor.ImcId16Editor;
 import pt.lsts.neptus.gui.swing.JRoundButton;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.MessageFilter;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.mystate.MyState;
+import pt.lsts.neptus.plugins.planning.plandb.PlanDBInfo;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -85,12 +91,6 @@ import pt.lsts.neptus.util.comm.manager.BaseAbstractCommsMonitorPanel;
 import pt.lsts.neptus.util.comm.manager.MessageFrequencyCalculator;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.gui.ImcStatePanel;
-import pt.lsts.imc.state.ImcSysState;
-import pt.lsts.neptus.messages.listener.MessageInfo;
-import pt.lsts.neptus.messages.listener.MessageListener;
-import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBInfo;
 
 /**
  * @author Paulo Dias
@@ -618,7 +618,7 @@ public class MonitorIMCComms extends
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.util.comm.manager.BaseAbstractCommsMonitorPanel#translateIdToStringId(java.lang.Object)
+     * @see pt.lsts.neptus.util.comm.manager.BaseAbstractCommsMonitorPanel#translateIdToStringId(java.lang.Object)
      */
     @Override
     protected String translateIdToStringId(ImcId16 id) {
@@ -675,7 +675,7 @@ public class MonitorIMCComms extends
     /**
      * This method initializes addNewVehRoundButton
      * 
-     * @return pt.up.fe.dceg.neptus.gui.swing.JRoundButton
+     * @return pt.lsts.neptus.gui.swing.JRoundButton
      */
     private JRoundButton getAddNewSystemRoundButton() {
         if (addNewSystemRoundButton == null) {
@@ -820,7 +820,7 @@ public class MonitorIMCComms extends
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.util.comm.manager.BaseAbstractCommsMonitorPanel#updateVehicleCommDataPeriodicCall()
+     * @see pt.lsts.neptus.util.comm.manager.BaseAbstractCommsMonitorPanel#updateVehicleCommDataPeriodicCall()
      */
     @Override
     protected void updateVehicleCommDataPeriodicCall() {

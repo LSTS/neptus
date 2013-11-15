@@ -43,7 +43,7 @@ import org.dom4j.Element;
  * </ul>
  * This will serve to be called by the <i>load</i> method in order to
  *  validate the XML content again the their schema 
- *  (fetch from the {@link pt.up.fe.dceg.neptus.util.conf.ConfigFetch}).
+ *  (fetch from the {@link pt.lsts.neptus.util.conf.ConfigFetch}).
  *  
  * @author Paulo Dias
  */

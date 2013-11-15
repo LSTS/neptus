@@ -414,7 +414,7 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
     /**
      * This method initializes imagePanel
      * 
-     * @return pt.up.fe.dceg.neptus.gui.ImagePanel
+     * @return pt.lsts.neptus.gui.ImagePanel
      */
     private ImagePanel getImagePanel() {
         if (imagePanel == null) {
@@ -762,7 +762,7 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
     /**
      * This method initializes coordinateSystemPanel
      * 
-     * @return pt.up.fe.dceg.neptus.gui.CoordinateSystemPanel
+     * @return pt.lsts.neptus.gui.CoordinateSystemPanel
      */
     private CoordinateSystemPanel getCoordinateSystemPanel() {
         if (coordinateSystemPanel == null) {

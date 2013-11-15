@@ -136,7 +136,7 @@ public class AbortPanel extends SimpleSubPanel implements MainVehicleChangeListe
     /**
      * This method initializes abortButton
      * 
-     * @return pt.up.fe.dceg.neptus.gui.swing.PanicButton
+     * @return pt.lsts.neptus.gui.swing.PanicButton
      */
     private PanicButton getAbortButton() {
         if (abortButton == null) {
@@ -339,14 +339,14 @@ public class AbortPanel extends SimpleSubPanel implements MainVehicleChangeListe
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#initSubPanel()
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#initSubPanel()
      */
     @Override
     public void initSubPanel() {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#cleanSubPanel()
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
      */
     @Override
     public void cleanSubPanel() {

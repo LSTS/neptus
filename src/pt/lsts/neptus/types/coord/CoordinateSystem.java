@@ -48,7 +48,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
  * and z down. The origin of the default coordinate system
  * is N0 E0 with height 0 meters. The axis are in degrees.
  * 
- * @see pt.up.fe.dceg.neptus.types.coord.CoordAxisUtil
+ * @see pt.lsts.neptus.types.coord.CoordAxisUtil
  * @version 0.3   2005-03-09
  * @author Paulo Dias
  */
@@ -400,7 +400,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
      */
     public Element asElement() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
@@ -411,7 +411,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
      * (non-Javadoc)
      * 
      * @see
-     * pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement(java.lang.String)
+     * pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
      */
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
@@ -420,7 +420,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
      */
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
@@ -431,7 +431,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
      * (non-Javadoc)
      * 
      * @see
-     * pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
+     * pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
@@ -512,7 +512,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.types.coord.LocationType#equals(java.lang.Object)
+     * @see pt.lsts.neptus.types.coord.LocationType#equals(java.lang.Object)
      */
     @Override
     public boolean equals(Object obj) {
@@ -548,7 +548,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     }
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.types.coord.LocationType#getNewAbsoluteLatLonDepth()
+     * @see pt.lsts.neptus.types.coord.LocationType#getNewAbsoluteLatLonDepth()
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -574,7 +574,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     }
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.types.coord.LocationType#getClipboardText()
+     * @see pt.lsts.neptus.types.coord.LocationType#getClipboardText()
      */
     @Override
     public String getClipboardText() {
@@ -582,7 +582,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
     }
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.types.coord.LocationType#fromClipboardText(java.lang.String)
+     * @see pt.lsts.neptus.types.coord.LocationType#fromClipboardText(java.lang.String)
      */
     @Override
     public boolean fromClipboardText(String text) {

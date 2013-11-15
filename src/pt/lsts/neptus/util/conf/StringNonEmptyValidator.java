@@ -40,7 +40,7 @@ import pt.lsts.neptus.NeptusLog;
 public class StringNonEmptyValidator implements Validator {
 
 	/* (non-Javadoc)
-	 * @see pt.up.fe.dceg.neptus.util.conf.Validator#validate(java.lang.Object)
+	 * @see pt.lsts.neptus.util.conf.Validator#validate(java.lang.Object)
 	 */
 	public String validate(Object newValue) {
         try

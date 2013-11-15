@@ -5,5 +5,5 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.plugins.sim.SimulationActionsPlugin
-pt.up.fe.dceg.neptus.plugins.sim.SimulatedStatePainter
+pt.lsts.neptus.plugins.sim.SimulationActionsPlugin
+pt.lsts.neptus.plugins.sim.SimulatedStatePainter

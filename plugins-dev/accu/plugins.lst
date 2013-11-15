@@ -5,4 +5,4 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.plugins.accu.AccuTools
+pt.lsts.neptus.plugins.accu.AccuTools

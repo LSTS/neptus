@@ -615,8 +615,8 @@ abstract class CommonCommBaseImplementation<M extends IMessage, Mi extends Messa
      * </p>
      * {@inheritDoc}
      * 
-     * @see pt.up.fe.dceg.neptus.messages.listener.MessageListener#onMessage(pt.up.fe.dceg.neptus.messages.listener.MessageInfo,
-     *      pt.up.fe.dceg.neptus.messages.IMessage)
+     * @see pt.lsts.neptus.messages.listener.MessageListener#onMessage(pt.lsts.neptus.messages.listener.MessageInfo,
+     *      pt.lsts.neptus.messages.IMessage)
      */
     @Override
     public final void onMessage(Mi info, M msg) {

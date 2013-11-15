@@ -95,7 +95,7 @@ import org.dom4j.Element;
 public interface XmlOutputMethods {
     /**
      * Este problema foi resolvido com a versão 1.6.1 do DOM4J. <div><i>Atenção ao usar este método com o método
-     * {@link pt.up.fe.dceg.neptus.util.FileUtil#saveToFile(String, String)} e afins. Isto porque ao gravar como UTF-8
+     * {@link pt.lsts.neptus.util.FileUtil#saveToFile(String, String)} e afins. Isto porque ao gravar como UTF-8
      * os caracteres são adulterados guardando por exemplo "é" em 2 caracteres (ou seja pega nos dois caracteres UTF-8 e
      * transforma-os em 2 UTF-8s).</i></div>
      * 
@@ -105,7 +105,7 @@ public interface XmlOutputMethods {
 
     /**
      * Este problema foi resolvido com a versão 1.6.1 do DOM4J. <div><i>Atenção ao usar este método com o método
-     * {@link pt.up.fe.dceg.neptus.util.FileUtil#saveToFile(String, String)} e afins. Isto porque ao gravar como UTF-8
+     * {@link pt.lsts.neptus.util.FileUtil#saveToFile(String, String)} e afins. Isto porque ao gravar como UTF-8
      * os caracteres são adulterados guardando por exemplo "é" em 2 caracteres (ou seja pega nos dois caracteres UTF-8 e
      * transforma-os em 2 UTF-8s).</i></div>
      * 

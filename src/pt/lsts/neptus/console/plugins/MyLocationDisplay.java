@@ -182,7 +182,7 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
+     * @see pt.lsts.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
      */
     @Override
     public long millisBetweenUpdates() {
@@ -192,7 +192,7 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#update()
+     * @see pt.lsts.neptus.plugins.update.IPeriodicUpdates#update()
      */
     @Override
     public boolean update() {
@@ -263,8 +263,8 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter#paint(java.awt.Graphics2D,
-     * pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.Renderer2DPainter#paint(java.awt.Graphics2D,
+     * pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void paint(Graphics2D g2, StateRenderer2D renderer) {
@@ -416,8 +416,8 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
      * (non-Javadoc)
      * 
      * @see
-     * pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension#getApplicableItems(pt.up.fe.dceg.neptus.types.coord.LocationType
-     * , pt.up.fe.dceg.neptus.planeditor.IMapPopup)
+     * pt.lsts.neptus.planeditor.IEditorMenuExtension#getApplicableItems(pt.lsts.neptus.types.coord.LocationType
+     * , pt.lsts.neptus.planeditor.IMapPopup)
      */
     @Override
     public Collection<JMenuItem> getApplicableItems(LocationType loc, IMapPopup source) {
@@ -682,7 +682,7 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.plugins.ConfigurationListener#propertiesChanged()
+     * @see pt.lsts.neptus.plugins.ConfigurationListener#propertiesChanged()
      */
     @Override
     public void propertiesChanged() {
@@ -696,7 +696,7 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.SubPanelChangeListener#subPanelChanged(pt.up.fe.dceg.neptus.consolebase.
+     * @see pt.lsts.neptus.consolebase.SubPanelChangeListener#subPanelChanged(pt.lsts.neptus.consolebase.
      * SubPanelChangeEvent)
      */
     @Override
@@ -753,7 +753,7 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#cleanSubPanel()
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
      */
     @Override
     public void cleanSubPanel() {
@@ -763,7 +763,7 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
      * (non-Javadoc)
      * 
      * @see
-     * pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener#missionReplaced(pt.up.fe.dceg.neptus.types.mission
+     * pt.lsts.neptus.console.plugins.MissionChangeListener#missionReplaced(pt.lsts.neptus.types.mission
      * .MissionType)
      */
     @Override
@@ -775,7 +775,7 @@ public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdate
      * (non-Javadoc)
      * 
      * @see
-     * pt.up.fe.dceg.neptus.console.plugins.MissionChangeListener#missionUpdated(pt.up.fe.dceg.neptus.types.mission.
+     * pt.lsts.neptus.console.plugins.MissionChangeListener#missionUpdated(pt.lsts.neptus.types.mission.
      * MissionType)
      */
     @Override

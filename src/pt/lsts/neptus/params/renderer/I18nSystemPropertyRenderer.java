@@ -64,7 +64,7 @@ public class I18nSystemPropertyRenderer extends SystemPropertyRenderer {
     }
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer#clone()
+     * @see pt.lsts.neptus.plugins.params.renderer.SystemPropertyRenderer#clone()
      */
     @Override
     public I18nSystemPropertyRenderer clone() throws CloneNotSupportedException {

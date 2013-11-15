@@ -81,7 +81,7 @@ public class SSHAdjustDate extends SSHExec
 	/**
 	 * Don't use this use the one without arguments, this only will work
 	 * with {@link SSHExec.ADJUST_DATE}, other wise return false;
-	 * @see pt.up.fe.dceg.neptus.util.comm.ssh.SSHExec#exec(java.lang.String)
+	 * @see pt.lsts.neptus.util.comm.ssh.SSHExec#exec(java.lang.String)
 	 */
 	@Override
 	public boolean exec(String command) {

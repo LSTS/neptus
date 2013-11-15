@@ -1544,7 +1544,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     /**
      * This method initializes statusLed
      * 
-     * @return pt.up.fe.dceg.neptus.gui.StatusLed
+     * @return pt.lsts.neptus.gui.StatusLed
      */
     private StatusLed getStatusLed() {
         if (statusLed == null) {
@@ -1760,7 +1760,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.loader.FileHandler#handleFile(java.io.File)
+     * @see pt.lsts.neptus.loader.FileHandler#handleFile(java.io.File)
      */
     @Override
     public void handleFile(File f) {

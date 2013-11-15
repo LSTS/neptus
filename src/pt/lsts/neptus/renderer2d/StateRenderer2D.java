@@ -2450,7 +2450,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     }
 
     /**
-     * @see pt.up.fe.dceg.neptus.util.conf.PreferencesListener#preferencesUpdated()
+     * @see pt.lsts.neptus.util.conf.PreferencesListener#preferencesUpdated()
      */
     public void preferencesUpdated() {
         int np = GeneralPreferences.numberOfShownPoints;

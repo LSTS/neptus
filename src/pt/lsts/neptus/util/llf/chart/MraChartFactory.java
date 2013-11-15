@@ -49,7 +49,7 @@ import pt.lsts.neptus.mra.plots.VehicleGanttPlot;
 import pt.lsts.neptus.mra.plots.XYPlot;
 import pt.lsts.neptus.mra.plots.ZPlot;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
-import pt.up.fe.dceg.neptus.plugins.actualstate.ActualPosition;
+import pt.lsts.neptus.plugins.actualstate.ActualPosition;
 
 /**
  * @author ZP

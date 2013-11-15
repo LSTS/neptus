@@ -70,7 +70,7 @@ public class TemplateFileVehicle extends FileType {
     }
 
     /**
-     * @see pt.up.fe.dceg.neptus.types.misc.FileType#load(java.lang.String)
+     * @see pt.lsts.neptus.types.misc.FileType#load(java.lang.String)
      */
     @SuppressWarnings("unchecked")
     public boolean load(String xml) {
@@ -139,7 +139,7 @@ public class TemplateFileVehicle extends FileType {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
      */
     public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
@@ -149,7 +149,7 @@ public class TemplateFileVehicle extends FileType {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
     public String asXML(String rootElementName) {
         String result = "";
@@ -161,7 +161,7 @@ public class TemplateFileVehicle extends FileType {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
     public Document asDocument(String rootElementName) {
         Document document = super.asDocument(rootElementName);

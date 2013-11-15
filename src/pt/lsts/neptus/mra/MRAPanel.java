@@ -41,6 +41,8 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXStatusBar;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
@@ -57,6 +59,7 @@ import pt.lsts.neptus.mra.replay.LogReplay;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
+import pt.lsts.neptus.plugins.noptilus.NoptilusMapExporter;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
@@ -68,9 +71,6 @@ import pt.lsts.neptus.util.llf.LsfTree;
 import pt.lsts.neptus.util.llf.LsfTreeMouseAdapter;
 import pt.lsts.neptus.util.llf.chart.MraChartFactory;
 import pt.lsts.neptus.util.llf.replay.LLFMsgReplay;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.lsf.LsfGenericIterator;
-import pt.up.fe.dceg.neptus.plugins.noptilus.NoptilusMapExporter;
 
 /**
  * @author ZP

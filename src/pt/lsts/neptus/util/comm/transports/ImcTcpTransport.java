@@ -359,7 +359,7 @@ public class ImcTcpTransport {
 	    }
 
 	    /* (non-Javadoc)
-	     * @see pt.up.fe.dceg.neptus.util.comm.transports.tcp.TCPMessageListener#onTCPMessageNotification(pt.up.fe.dceg.neptus.util.comm.transports.tcp.TCPNotification)
+	     * @see pt.lsts.neptus.util.comm.transports.tcp.TCPMessageListener#onTCPMessageNotification(pt.lsts.neptus.util.comm.transports.tcp.TCPNotification)
 	     */
 	    @Override
 	    public void onTCPMessageNotification(TCPNotification req) {
@@ -397,7 +397,7 @@ public class ImcTcpTransport {
         }
 	    
 //	    /* (non-Javadoc)
-//	     * @see pt.up.fe.dceg.neptus.util.lsf.gz.GzLsf2Llf.MessageListener#msgArrived(long, pt.up.fe.dceg.neptus.imc.IMCMessage)
+//	     * @see pt.lsts.neptus.util.lsf.gz.GzLsf2Llf.MessageListener#msgArrived(long, pt.lsts.neptus.imc.IMCMessage)
 //	     */
 //	    @Override
 	    public void msgArrived(/*long timeStampMillis,*/ IMCMessage msg) {

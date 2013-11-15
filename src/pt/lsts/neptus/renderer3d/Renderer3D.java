@@ -2717,7 +2717,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * pt.up.fe.dceg.neptus.renderer2d.Renderer#focusLocation(pt.up.fe.dceg.
+	 * pt.lsts.neptus.renderer2d.Renderer#focusLocation(pt.lsts.
 	 * neptus.types.coord.AbstractLocationPoint)
 	 */
 	public void focusLocation(LocationType location) {
@@ -2831,7 +2831,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * pt.up.fe.dceg.neptus.renderer2d.Renderer#focusObject(pt.up.fe.dceg.neptus
+	 * pt.lsts.neptus.renderer2d.Renderer#focusObject(pt.lsts.neptus
 	 * .mme.objects.MapObject)
 	 */
 	public void focusObject(AbstractElement mo) {
@@ -2844,7 +2844,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * pt.up.fe.dceg.neptus.mp.MapChangeListener#mapChanged(pt.up.fe.dceg.neptus
+	 * pt.lsts.neptus.mp.MapChangeListener#mapChanged(pt.lsts.neptus
 	 * .mp.MapChangeEvent)
 	 */
 

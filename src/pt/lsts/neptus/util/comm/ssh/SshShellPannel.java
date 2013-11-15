@@ -84,7 +84,7 @@ public class SshShellPannel extends SubPanel {
     /**
      * This method initializes shellPannel
      * 
-     * @return pt.up.fe.dceg.neptus.gui.ShellPannel
+     * @return pt.lsts.neptus.gui.ShellPannel
      */
     private ShellPanel getShellPannel() {
         if (shellPannel == null) {

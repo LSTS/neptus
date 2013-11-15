@@ -274,7 +274,7 @@ public class ConsoleParse implements FileHandler {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.loader.FileHandler#handleFile(java.io.File)
+     * @see pt.lsts.neptus.loader.FileHandler#handleFile(java.io.File)
      */
     @Override
     public void handleFile(File f) {

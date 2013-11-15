@@ -127,7 +127,7 @@ public class PluginsLoader {
     }
 
     /**
-     * Loads core plugins inside the src folder in the "pt.up.fe.dceg.neptus.console.plugins" package
+     * Loads core plugins inside the src folder in the "pt.lsts.neptus.console.plugins" package
      */
     private static void loadCorePlugins() {
 

@@ -5,6 +5,6 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.plugins.webupdate.RemotePositionFetcherUpdater
-pt.up.fe.dceg.neptus.plugins.webupdate.RemotePositionPublisherUpdater
-pt.up.fe.dceg.neptus.plugins.webupdate.RemotePlanControl
+pt.lsts.neptus.plugins.webupdate.RemotePositionFetcherUpdater
+pt.lsts.neptus.plugins.webupdate.RemotePositionPublisherUpdater
+pt.lsts.neptus.plugins.webupdate.RemotePlanControl

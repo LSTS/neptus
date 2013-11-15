@@ -33,6 +33,9 @@ package pt.lsts.neptus.mra.replay;
 
 import java.awt.Graphics2D;
 
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.ColormapOverlay;
 import pt.lsts.neptus.i18n.I18n;
@@ -41,9 +44,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp

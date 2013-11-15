@@ -5,7 +5,7 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.plugins.odss.OdssStatePublisher
-pt.up.fe.dceg.neptus.plugins.odss.MraCsvExporter
-pt.up.fe.dceg.neptus.plugins.odss.OdssStoqsTrackFetcher
-pt.up.fe.dceg.neptus.plugins.odss.OdssRabbitMQTrackFetcher
+pt.lsts.neptus.plugins.odss.OdssStatePublisher
+pt.lsts.neptus.plugins.odss.MraCsvExporter
+pt.lsts.neptus.plugins.odss.OdssStoqsTrackFetcher
+pt.lsts.neptus.plugins.odss.OdssRabbitMQTrackFetcher

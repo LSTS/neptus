@@ -209,7 +209,7 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 	}
 	
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
+     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
      */
     @Override
     public ManeuverLocation getStartLocation() {

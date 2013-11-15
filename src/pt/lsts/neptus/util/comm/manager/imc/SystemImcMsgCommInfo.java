@@ -130,8 +130,8 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.util.comm.manager.CommonCommBaseImplementation#triggerExtraActionOnSetActive(boolean,
-     * pt.up.fe.dceg.neptus.messages.listener.MessageInfo, pt.up.fe.dceg.neptus.messages.IMessage)
+     * @see pt.lsts.neptus.util.comm.manager.CommonCommBaseImplementation#triggerExtraActionOnSetActive(boolean,
+     * pt.lsts.neptus.messages.listener.MessageInfo, pt.lsts.neptus.messages.IMessage)
      */
     @Override
     protected void triggerExtraActionOnSetActive(boolean isActive, MessageInfo info, IMCMessage message) {

@@ -511,7 +511,7 @@ public abstract class BaseAbstractCommsMonitorPanel<W extends CommBaseManager<M,
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.util.comm.manager.CommManagerStatusChangeListener#managerStatusChanged(int,
+     * @see pt.lsts.neptus.util.comm.manager.CommManagerStatusChangeListener#managerStatusChanged(int,
      * java.lang.String)
      */
     public final void managerStatusChanged(int status, String msg) {
@@ -525,7 +525,7 @@ public abstract class BaseAbstractCommsMonitorPanel<W extends CommBaseManager<M,
      * (non-Javadoc)
      * 
      * @see
-     * pt.up.fe.dceg.neptus.util.comm.manager.CommManagerStatusChangeListener#managerVehicleAdded(pt.up.fe.dceg.neptus
+     * pt.lsts.neptus.util.comm.manager.CommManagerStatusChangeListener#managerVehicleAdded(pt.lsts.neptus
      * .types.vehicle.VehicleType)
      */
     public final void managerVehicleAdded(VehicleType vehicle) {
@@ -536,7 +536,7 @@ public abstract class BaseAbstractCommsMonitorPanel<W extends CommBaseManager<M,
      * (non-Javadoc)
      * 
      * @see
-     * pt.up.fe.dceg.neptus.util.comm.manager.CommManagerStatusChangeListener#managerVehicleRemoved(pt.up.fe.dceg.neptus
+     * pt.lsts.neptus.util.comm.manager.CommManagerStatusChangeListener#managerVehicleRemoved(pt.lsts.neptus
      * .types.vehicle.VehicleType)
      */
     public final void managerVehicleRemoved(VehicleType vehicle) {
@@ -547,7 +547,7 @@ public abstract class BaseAbstractCommsMonitorPanel<W extends CommBaseManager<M,
      * (non-Javadoc)
      * 
      * @see
-     * pt.up.fe.dceg.neptus.util.comm.manager.CommManagerStatusChangeListener#managerVehicleStatusChanged(pt.up.fe.dceg
+     * pt.lsts.neptus.util.comm.manager.CommManagerStatusChangeListener#managerVehicleStatusChanged(pt.lsts
      * .neptus.types.vehicle.VehicleType, int)
      */
     public final void managerVehicleStatusChanged(VehicleType vehicle, int status) {
@@ -814,7 +814,7 @@ public abstract class BaseAbstractCommsMonitorPanel<W extends CommBaseManager<M,
     /**
      * This method initializes statusLed
      * 
-     * @return pt.up.fe.dceg.neptus.gui.StatusLed
+     * @return pt.lsts.neptus.gui.StatusLed
      */
     private StatusLed getStatusLed() {
         if (statusLed == null) {
@@ -1055,7 +1055,7 @@ public abstract class BaseAbstractCommsMonitorPanel<W extends CommBaseManager<M,
     /**
      * This method initializes vehActiveLed
      * 
-     * @return pt.up.fe.dceg.neptus.gui.StatusLed
+     * @return pt.lsts.neptus.gui.StatusLed
      */
     private StatusLed getSysActiveLed() {
         if (sysActiveLed == null) {
@@ -1135,7 +1135,7 @@ public abstract class BaseAbstractCommsMonitorPanel<W extends CommBaseManager<M,
     /**
      * This method initializes startStanagButton
      * 
-     * @return pt.up.fe.dceg.neptus.gui.swing.JRoundButton
+     * @return pt.lsts.neptus.gui.swing.JRoundButton
      */
     private JRoundButton getStartCommButton() {
         if (startCommButton == null) {
@@ -1175,7 +1175,7 @@ public abstract class BaseAbstractCommsMonitorPanel<W extends CommBaseManager<M,
     /**
      * This method initializes stopStanagButton
      * 
-     * @return pt.up.fe.dceg.neptus.gui.swing.JRoundButton
+     * @return pt.lsts.neptus.gui.swing.JRoundButton
      */
     private JRoundButton getStopCommButton() {
         if (stopCommButton == null) {

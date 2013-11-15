@@ -75,6 +75,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
+import pt.lsts.imc.state.ImcSysState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.actions.AboutAction;
 import pt.lsts.neptus.console.actions.AutoSnapshotConsoleAction;
@@ -120,6 +121,8 @@ import pt.lsts.neptus.gui.system.selection.MainSystemSelectionCombo;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.plugins.configWindow.SettingsWindow;
+import pt.lsts.neptus.plugins.teleoperation.ControllerPanel;
 import pt.lsts.neptus.renderer2d.VehicleStateListener;
 import pt.lsts.neptus.types.XmlInOutMethods;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -139,9 +142,6 @@ import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.lsts.imc.state.ImcSysState;
-import pt.up.fe.dceg.neptus.plugins.configWindow.SettingsWindow;
-import pt.up.fe.dceg.neptus.plugins.teleoperation.ControllerPanel;
 
 /**
  * 

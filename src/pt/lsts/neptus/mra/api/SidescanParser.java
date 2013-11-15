@@ -33,7 +33,7 @@ package pt.lsts.neptus.mra.api;
 
 import java.util.ArrayList;
 
-import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
+import pt.lsts.neptus.plugins.sidescan.SidescanConfig;
 
 /**
  * @author jqcorreia

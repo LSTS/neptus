@@ -54,7 +54,7 @@ public class StringPatternValidator implements Validator {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.util.conf.Validator#validate(java.lang.Object)
+     * @see pt.lsts.neptus.util.conf.Validator#validate(java.lang.Object)
      */
     public String validate(Object newValue) {
         try {

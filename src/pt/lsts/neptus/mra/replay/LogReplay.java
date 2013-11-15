@@ -51,6 +51,7 @@ import javax.swing.JToolBar;
 import javax.swing.tree.TreePath;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.gui.Timeline;
@@ -63,6 +64,9 @@ import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.plugins.mraplots.ReplayPlot;
+import pt.lsts.neptus.plugins.multibeam.MultibeamReplay;
+import pt.lsts.neptus.plugins.oplimits.OperationLimits;
 import pt.lsts.neptus.renderer2d.MissionRenderer;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -73,10 +77,6 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LsfTree;
-import pt.lsts.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.plugins.mraplots.ReplayPlot;
-import pt.up.fe.dceg.neptus.plugins.multibeam.MultibeamReplay;
-import pt.up.fe.dceg.neptus.plugins.oplimits.OperationLimits;
 
 /**
  * @author ZP

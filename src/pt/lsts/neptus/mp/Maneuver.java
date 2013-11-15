@@ -593,7 +593,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
      */
     public String asXML() {
         String rootElementName = getType();
@@ -603,7 +603,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
     public String asXML(String rootElementName) {
         String result = "";
@@ -615,7 +615,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
      */
     public Element asElement() {
         String rootElementName = getType();
@@ -625,7 +625,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
      */
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
@@ -634,7 +634,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
      */
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
@@ -644,7 +644,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
 
     public Document asDocument(String rootElementName) {

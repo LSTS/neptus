@@ -42,6 +42,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
 
+import pt.lsts.imc.Announce;
+import pt.lsts.imc.Goto;
+import pt.lsts.imc.Loiter;
+import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.plugins.SystemsList;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -49,20 +53,16 @@ import pt.lsts.neptus.gui.system.SystemDisplayComparator;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.acoustic.LBLRangeDisplay.HideOrFadeRangeEnum;
+import pt.lsts.neptus.plugins.map.MapEditor;
+import pt.lsts.neptus.plugins.planning.MapPanel;
+import pt.lsts.neptus.plugins.web.NeptusServlet;
 import pt.lsts.neptus.renderer2d.tiles.Tile.TileState;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.imc.Announce;
-import pt.lsts.imc.Goto;
-import pt.lsts.imc.Loiter;
-import pt.lsts.imc.PlanControlState;
-import pt.up.fe.dceg.neptus.plugins.acoustic.LBLRangeDisplay.HideOrFadeRangeEnum;
-import pt.up.fe.dceg.neptus.plugins.map.MapEditor;
-import pt.up.fe.dceg.neptus.plugins.planning.MapPanel;
-import pt.up.fe.dceg.neptus.plugins.web.NeptusServlet;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 

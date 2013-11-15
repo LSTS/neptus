@@ -109,7 +109,7 @@ public class IMCSendMessageUtils {
 
     /**
      * @param msg
-     * @param sendProperties The same of {@link ImcMsgManager#sendMessage(IMCMessage, pt.up.fe.dceg.neptus.util.comm.manager.imc.ImcId16, String, pt.up.fe.dceg.neptus.util.comm.manager.imc.MessageDeliveryListener)},
+     * @param sendProperties The same of {@link ImcMsgManager#sendMessage(IMCMessage, pt.lsts.neptus.util.comm.manager.imc.ImcId16, String, pt.lsts.neptus.util.comm.manager.imc.MessageDeliveryListener)},
      *              use null if don't care.
      * @param parent The parent component for popup error message
      * @param errorTextForDialog

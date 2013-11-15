@@ -65,6 +65,7 @@ import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
+import pt.lsts.neptus.plugins.sidescan.SidescanConfig;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -72,7 +73,6 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.comm.IMCUtils;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.util.WGS84Utilities;
-import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
 
 /**
  * @author zp

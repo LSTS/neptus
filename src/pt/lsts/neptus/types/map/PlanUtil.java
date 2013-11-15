@@ -50,7 +50,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.StringUtils;
 
 /**
- * Initially moved from {@link pt.up.fe.dceg.neptus.plugins.planning.PlanStatistics}
+ * Initially moved from {@link pt.lsts.neptus.plugins.planning.PlanStatistics}
  * @author pdias
  *
  */

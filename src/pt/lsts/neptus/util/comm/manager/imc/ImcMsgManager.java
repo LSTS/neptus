@@ -242,7 +242,7 @@ public class ImcMsgManager extends
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.util.comm.manager.CommBaseManager#start()
+     * @see pt.lsts.neptus.util.comm.manager.CommBaseManager#start()
      */
     @Override
     public synchronized boolean start() {
@@ -265,7 +265,7 @@ public class ImcMsgManager extends
     }
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.util.comm.manager.CommBaseManager#stop()
+     * @see pt.lsts.neptus.util.comm.manager.CommBaseManager#stop()
      */
     @Override
     public synchronized boolean stop() {
@@ -1156,7 +1156,7 @@ public class ImcMsgManager extends
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.util.comm.manager.CommBaseManager#sendMessage(pt.up.fe.dceg.neptus.messages.IMessage,
+     * @see pt.lsts.neptus.util.comm.manager.CommBaseManager#sendMessage(pt.lsts.neptus.messages.IMessage,
      * java.lang.Object, java.lang.String)
      */
     @Override

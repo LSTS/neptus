@@ -80,7 +80,7 @@ public class SystemConfiguration extends SimpleSubPanel implements NeptusMessage
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#mainVehicleChangeNotification(java.lang.String)
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#mainVehicleChangeNotification(java.lang.String)
      */
     @Override
     public void mainVehicleChangeNotification(String id) {

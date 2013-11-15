@@ -134,7 +134,7 @@ public abstract class TileHttpFetcher extends Tile {
     }
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.tiles.Tile#retryLoadingTile()
+     * @see pt.lsts.neptus.renderer2d.tiles.Tile#retryLoadingTile()
      */
     @Override
     public void retryLoadingTile() {
@@ -173,7 +173,7 @@ public abstract class TileHttpFetcher extends Tile {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.WorldRenderPainter.Tile#createTileImage()
+     * @see pt.lsts.neptus.renderer2d.WorldRenderPainter.Tile#createTileImage()
      */
     @Override
     protected void createTileImage() {

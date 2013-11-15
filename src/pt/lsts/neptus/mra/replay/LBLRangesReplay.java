@@ -38,17 +38,17 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.acoustic.RangePainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.util.lbl.LBLTriangulationHelper;
 import pt.lsts.neptus.util.llf.LogUtils;
-import pt.lsts.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.plugins.acoustic.RangePainter;
 
 /**
  * @author pdias
@@ -85,7 +85,7 @@ public class LBLRangesReplay implements LogReplayLayer {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mra.replay.LLFReplayLayer#parse(pt.up.fe.dceg.neptus.mra.importers.IMraLogGroup)
+     * @see pt.lsts.neptus.mra.replay.LLFReplayLayer#parse(pt.lsts.neptus.mra.importers.IMraLogGroup)
      */
     @Override
     public void parse(IMraLogGroup source) {
@@ -168,7 +168,7 @@ public class LBLRangesReplay implements LogReplayLayer {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mra.replay.LLFReplayLayer#getObservedMessages()
+     * @see pt.lsts.neptus.mra.replay.LLFReplayLayer#getObservedMessages()
      */
     @Override
     public String[] getObservedMessages() {
@@ -176,7 +176,7 @@ public class LBLRangesReplay implements LogReplayLayer {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mra.replay.LLFReplayLayer#onMessage(pt.up.fe.dceg.neptus.imc.IMCMessage)
+     * @see pt.lsts.neptus.mra.replay.LLFReplayLayer#onMessage(pt.lsts.neptus.imc.IMCMessage)
      */
     @Override
     public void onMessage(IMCMessage message) {
@@ -200,7 +200,7 @@ public class LBLRangesReplay implements LogReplayLayer {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter#paint(java.awt.Graphics2D, pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.Renderer2DPainter#paint(java.awt.Graphics2D, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {

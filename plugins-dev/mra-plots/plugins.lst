@@ -5,10 +5,10 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.plugins.mraplots.BathymetryPlotter
-pt.up.fe.dceg.neptus.plugins.mraplots.LsfTable
-pt.up.fe.dceg.neptus.plugins.mraplots.MraPhotosVisualization
-pt.up.fe.dceg.neptus.plugins.mraplots.RevisionOverlays
-#pt.up.fe.dceg.neptus.plugins.mraplots.SidescanHistogram
-pt.up.fe.dceg.neptus.plugins.rtplot.RealTimePlot
-#pt.up.fe.dceg.neptus.plugins.mraplots.NetworkConnections
+pt.lsts.neptus.plugins.mraplots.BathymetryPlotter
+pt.lsts.neptus.plugins.mraplots.LsfTable
+pt.lsts.neptus.plugins.mraplots.MraPhotosVisualization
+pt.lsts.neptus.plugins.mraplots.RevisionOverlays
+#pt.lsts.neptus.plugins.mraplots.SidescanHistogram
+pt.lsts.neptus.plugins.rtplot.RealTimePlot
+#pt.lsts.neptus.plugins.mraplots.NetworkConnections

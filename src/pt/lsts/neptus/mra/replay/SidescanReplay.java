@@ -39,6 +39,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
@@ -50,8 +52,6 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.coord.MapTileUtil;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.SonarData;
 
 /**
  * @author jqcorreia

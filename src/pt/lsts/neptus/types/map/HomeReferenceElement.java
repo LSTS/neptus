@@ -140,7 +140,7 @@ public class HomeReferenceElement extends AbstractElement {
 	
 	
 	/* (non-Javadoc)
-	 * @see pt.up.fe.dceg.neptus.mme.objects.MapObject#getLayerPriority()
+	 * @see pt.lsts.neptus.mme.objects.MapObject#getLayerPriority()
 	 */
 	public int getLayerPriority() {
 		return 8;

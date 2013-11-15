@@ -294,7 +294,7 @@ public class SymbolLabel extends JXPanel implements Painter<JXPanel>, IPeriodicU
 	}
 
 	/* (non-Javadoc)
-	 * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
+	 * @see pt.lsts.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
 	 */
 	@Override
 	public long millisBetweenUpdates() {
@@ -318,7 +318,7 @@ public class SymbolLabel extends JXPanel implements Painter<JXPanel>, IPeriodicU
 	}
 
 	/* (non-Javadoc)
-	 * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#update()
+	 * @see pt.lsts.neptus.plugins.update.IPeriodicUpdates#update()
 	 */
 	@Override
 	public boolean update() {

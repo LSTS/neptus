@@ -71,7 +71,7 @@ public class Util3D {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.mp.MapChangeListener#mapChanged(pt.up.fe.dceg.neptus.mp.MapChangeEvent)
+     * @see pt.lsts.neptus.mp.MapChangeListener#mapChanged(pt.lsts.neptus.mp.MapChangeEvent)
      */
 
     public static float pickBug = 0.001f;

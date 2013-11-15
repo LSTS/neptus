@@ -733,7 +733,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter#paint(java.awt.Graphics2D, pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.Renderer2DPainter#paint(java.awt.Graphics2D, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {

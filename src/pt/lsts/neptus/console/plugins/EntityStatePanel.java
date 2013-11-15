@@ -281,7 +281,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.AlarmProvider#getAlarmState()
+     * @see pt.lsts.neptus.consolebase.AlarmProvider#getAlarmState()
      */
     public AlarmLevel getAlarmState() {
         return AlarmLevel.get(status.getLevel());
@@ -290,7 +290,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.AlarmProvider#getAlarmMessage()
+     * @see pt.lsts.neptus.consolebase.AlarmProvider#getAlarmMessage()
      */
     public String getAlarmMessage() {
         return status.getMessage();
@@ -303,7 +303,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.AlarmProvider#sourceState()
+     * @see pt.lsts.neptus.consolebase.AlarmProvider#sourceState()
      */
     public int sourceState() {
         return StatusLed.LEVEL_NONE;

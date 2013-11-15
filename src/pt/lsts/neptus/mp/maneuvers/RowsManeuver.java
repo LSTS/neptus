@@ -125,7 +125,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.Maneuver#loadFromXML(java.lang.String)
+     * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
     @Override
     public void loadFromXML(String xml) {
@@ -221,7 +221,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.Maneuver#clone()
+     * @see pt.lsts.neptus.mp.Maneuver#clone()
      */
     @Override
     public Object clone() {
@@ -248,7 +248,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.Maneuver#ManeuverFunction(pt.up.fe.dceg.neptus.mp.VehicleState)
+     * @see pt.lsts.neptus.mp.Maneuver#ManeuverFunction(pt.lsts.neptus.mp.VehicleState)
      */
     @Override
     public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
@@ -257,7 +257,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.Maneuver#getManeuverAsDocument(java.lang.String)
+     * @see pt.lsts.neptus.mp.Maneuver#getManeuverAsDocument(java.lang.String)
      */
     @Override
     public Document getManeuverAsDocument(String rootElementName) {
@@ -309,7 +309,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#getName()
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#getName()
      */
     @Override
     public String getName() {
@@ -317,7 +317,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#getIconImage()
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#getIconImage()
      */
     @Override
     public Image getIconImage() {
@@ -325,7 +325,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#getMouseCursor()
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#getMouseCursor()
      */
     @Override
     public Cursor getMouseCursor() {
@@ -333,7 +333,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#isExclusive()
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#isExclusive()
      */
     @Override
     public boolean isExclusive() {
@@ -341,7 +341,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#mouseClicked(java.awt.event.MouseEvent, pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseClicked(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
@@ -349,7 +349,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#mousePressed(java.awt.event.MouseEvent, pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mousePressed(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void mousePressed(MouseEvent event, StateRenderer2D source) {
@@ -358,7 +358,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#mouseDragged(java.awt.event.MouseEvent, pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseDragged(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void mouseDragged(MouseEvent event, StateRenderer2D source) {
@@ -394,7 +394,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#mouseMoved(java.awt.event.MouseEvent, pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseMoved(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void mouseMoved(MouseEvent event, StateRenderer2D source) {
@@ -402,7 +402,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#mouseReleased(java.awt.event.MouseEvent, pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseReleased(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void mouseReleased(MouseEvent event, StateRenderer2D source) {
@@ -411,7 +411,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#wheelMoved(java.awt.event.MouseWheelEvent, pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#wheelMoved(java.awt.event.MouseWheelEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void wheelMoved(MouseWheelEvent event, StateRenderer2D source) {
@@ -419,7 +419,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#keyPressed(java.awt.event.KeyEvent, pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#keyPressed(java.awt.event.KeyEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void keyPressed(KeyEvent event, StateRenderer2D source) {
@@ -427,7 +427,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#keyReleased(java.awt.event.KeyEvent, pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#keyReleased(java.awt.event.KeyEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void keyReleased(KeyEvent event, StateRenderer2D source) {
@@ -435,7 +435,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#keyTyped(java.awt.event.KeyEvent, pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#keyTyped(java.awt.event.KeyEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void keyTyped(KeyEvent event, StateRenderer2D source) {
@@ -443,7 +443,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.StateRendererInteraction#setActive(boolean, pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#setActive(boolean, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void setActive(boolean mode, StateRenderer2D source) {
@@ -452,7 +452,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.LocationProvider#getPosition()
+     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getPosition()
      */
     @Override
     public ManeuverLocation getManeuverLocation() {
@@ -460,7 +460,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
+     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
      */
     @Override
     public ManeuverLocation getStartLocation() {
@@ -476,7 +476,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.LocationProvider#getLastPosition()
+     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getLastPosition()
      */
     @Override
     public ManeuverLocation getEndLocation() {
@@ -492,7 +492,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.LocationProvider#setPosition(pt.up.fe.dceg.neptus.types.coord.AbstractLocationPoint)
+     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#setPosition(pt.lsts.neptus.types.coord.AbstractLocationPoint)
      */
     @Override
     public void setManeuverLocation(ManeuverLocation location) {
@@ -505,7 +505,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.LocationProvider#translate(double, double, double)
+     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#translate(double, double, double)
      */
     @Override
     public void translate(double offsetNorth, double offsetEast, double offsetDown) {
@@ -515,7 +515,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.PathProvider#getPathPoints()
+     * @see pt.lsts.neptus.mp.maneuvers.PathProvider#getPathPoints()
      */
     @Override
     public List<double[]> getPathPoints() {
@@ -523,7 +523,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.PathProvider#getPathLocations()
+     * @see pt.lsts.neptus.mp.maneuvers.PathProvider#getPathLocations()
      */
     @Override
     public List<LocationType> getPathLocations() {
@@ -767,7 +767,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.Maneuver#setProperties(com.l2fprod.common.propertysheet.Property[])
+     * @see pt.lsts.neptus.mp.Maneuver#setProperties(com.l2fprod.common.propertysheet.Property[])
      */
     @Override
     public void setProperties(Property[] properties) {
@@ -923,7 +923,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.StatisticsProvider#getCompletionTime(pt.up.fe.dceg.neptus.types.coord.LocationType, double)
+     * @see pt.lsts.neptus.mp.maneuvers.StatisticsProvider#getCompletionTime(pt.lsts.neptus.types.coord.LocationType, double)
      */
     @Override
     public double getCompletionTime(LocationType initialPosition) {
@@ -940,7 +940,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.StatisticsProvider#getDistanceTravelled(pt.up.fe.dceg.neptus.types.coord.LocationType)
+     * @see pt.lsts.neptus.mp.maneuvers.StatisticsProvider#getDistanceTravelled(pt.lsts.neptus.types.coord.LocationType)
      */
     @Override
     public double getDistanceTravelled(LocationType initialPosition) {
