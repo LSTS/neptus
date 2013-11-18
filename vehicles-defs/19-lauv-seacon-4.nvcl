@@ -343,6 +343,34 @@
         </annotation>
 	  </PopUp>
 	</maneuver>	
+	<maneuver>
+      <CompassCalibration>
+          <finalPoint type="pointType">
+              <point>
+                  <id>id_gokg2t</id>
+                  <name>id_gokg2t</name>
+                  <coordinate>
+                      <latitude>41N11'6.439280286471149''</latitude>
+                      <longitude>8W42'20.24864039631753''</longitude>
+                      <height>0.0</height>
+                  </coordinate>
+                  <z>2.0</z>
+                  <zunits>DEPTH</zunits>
+              </point>
+          </finalPoint>
+          <pitch>15.0</pitch>
+          <amplitude>1.0</amplitude>
+          <duration>300</duration>
+          <speed type="float" unit="m/s">1.3</speed>
+          <radius>15.0</radius>
+          <direction>CLOCKW</direction>
+          <custom></custom>
+          <annotation>
+              <documentation>No documentation available</documentation>
+              <implementation-class>pt.lsts.neptus.mp.maneuvers.CompassCalibration</implementation-class>
+           </annotation>
+      </CompassCalibration>
+    </maneuver>	
   </feasibleManeuvers>
   <protocols-supported>
     <protocols> time-shell</protocols>
