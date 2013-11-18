@@ -31,6 +31,11 @@
  */
 package pt.lsts.neptus.mp.maneuvers;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -48,6 +53,8 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.util.NameNormalizer;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -297,8 +304,11 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
     
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
     	properties.add(units);
-
-    	properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
+    	
+    	properties.add(PropertiesEditor.getPropertyInstance("Radius", Double.class, getRadiusTolerance(), true));
+        
+    	
+    	//properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
 
     	properties.add(PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true));
     	
@@ -322,13 +332,13 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
     		if (p.getName().equals("Speed units")) {
     			setUnits((String)p.getValue());
     		}
-    		if (p.getName().equals("Speed tolerance")) {
-    			setSpeedTolerance((Double)p.getValue());
-    		}
+    		//if (p.getName().equals("Speed tolerance")) {
+    		//	setSpeedTolerance((Double)p.getValue());
+    		//}
     		if (p.getName().equals("Speed")) {
     			setSpeed((Double)p.getValue());
     		}
-    		if (p.getName().equals("Radius tolerance")) {
+    		if (p.getName().equals("Radius")) {
     			setRadiusTolerance((Double)p.getValue());
     		}
     		if (p.getName().equals("Duration")) {
@@ -418,6 +428,24 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 		"<br>" + I18n.text("cruise depth") + ": <b>"+(int)destination.getDepth()+" " + I18n.textc("m", "meters") + "</b>"+
 		"<br>" + I18n.text("duration") + ": <b>"+getDuration()+" " + I18n.textc("s", "seconds") + "</b>";
 	}
+    
+    @Override
+    public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
+        super.paintOnMap(g2d, planElement, renderer);
+        AffineTransform at = g2d.getTransform();
+        // x marks the spot...
+        g2d.drawLine(-4, -4, 4, 4);
+        g2d.drawLine(-4, 4, 4, -4);
+        double radius = this.getRadiusTolerance() * renderer.getZoom();
+        g2d.setColor(new Color(255,255,255,100));
+        g2d.fill(new Ellipse2D.Double(-radius,-radius,radius*2, radius*2));
+        g2d.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 0, new float[] {3,3}, 0));
+        g2d.setColor(Color.blue.darker());
+        g2d.draw(new Ellipse2D.Double(-radius,-radius,radius*2, radius*2));
+        g2d.setStroke(new BasicStroke());
+        g2d.setTransform(at);
+    }
+
 	
 	@Override
 	public void parseIMCMessage(IMCMessage message) {

@@ -300,7 +300,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
     	double radius = this.getRadius() * renderer.getZoom();
 		g2d.setColor(new Color(255,255,255,100));
 		g2d.fill(new Ellipse2D.Double(-radius,-radius,radius*2, radius*2));
-		g2d.setColor(Color.RED);
+		g2d.setColor(Color.blue.darker());
 		g2d.draw(new Ellipse2D.Double(-radius,-radius,radius*2, radius*2));
     	g2d.setTransform(at);
 	}
