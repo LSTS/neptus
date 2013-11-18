@@ -36,12 +36,16 @@ import java.util.Vector;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp
@@ -50,9 +54,11 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 public class PlanBlueprint {
 
     private String planId;
+    private String systemId;
     private Vector<Waypoint> trajectory = new Vector<>();
 
-    public PlanBlueprint(String planId) {
+    public PlanBlueprint(int imcid, String planId) {
+        this.systemId = ImcSystemsHolder.lookupSystem(new ImcId16(imcid)).getName();
         this.planId = planId;
     }
 
@@ -71,10 +77,11 @@ public class PlanBlueprint {
         trajectory.add(new Waypoint(loc));
     }
 
-    public PlanType generate(String vehicleId) {
+    public PlanType generate() {
         PlanType plan = new PlanType(null);
         plan.setId(planId);
-        plan.setVehicle(vehicleId);
+        ImcSystem sys = ImcSystemsHolder.lookupSystemByName(systemId);
+        plan.setVehicle(sys.getName());
         
         Vector<Maneuver> maneuvers = new Vector<>();
         FollowPath current = null;
@@ -157,7 +164,9 @@ public class PlanBlueprint {
     }
 
     public static void main(String[] args) {
-        PlanBlueprint plan = new PlanBlueprint("test1");
+        NeptusLog.init();
+        int imcid = ImcSystemsHolder.getSystemWithName("lauv-xtreme-2").getId().intValue();        
+        PlanBlueprint plan = new PlanBlueprint(imcid, "test1");
         plan.addPoint(41.18547713427995, -8.70566725730896, 3);
         plan.addPoint(41.18456472894702, -8.704508543014526, 3);                
         plan.addPoint(41.18441131441246, -8.704723119735718, 3);
@@ -168,8 +177,7 @@ public class PlanBlueprint {
         plan.addPoint(41.1850330447767, -8.706353902816772, 3);
         plan.addPoint(41.18548117144345, -8.705696761608124, 3);
         
-        
-        IMCMessage msg = plan.generate("lauv-noptilus-1").asIMCPlan();
+        IMCMessage msg = plan.generate().asIMCPlan();
         IMCUtil.debug(msg);
     }
 }

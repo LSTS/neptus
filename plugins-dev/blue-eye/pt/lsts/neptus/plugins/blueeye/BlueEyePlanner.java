@@ -32,7 +32,6 @@
 package pt.lsts.neptus.plugins.blueeye;
 
 import java.awt.Dialog.ModalityType;
-import java.util.TimerTask;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -62,7 +61,7 @@ public class BlueEyePlanner extends SimpleSubPanel {
             NeptusLog.pub().warn("Received an event for an already existing PlanBluePrint: "+plan.getPlanId());
             return;
         }
-        PlanType pt = plan.generate(getConsole().getMainSystem());
+        PlanType pt = plan.generate();
         pt.setMissionType(getConsole().getMission());
         getConsole().getMission().addPlan(pt);
         getConsole().warnMissionListeners();
@@ -77,7 +76,7 @@ public class BlueEyePlanner extends SimpleSubPanel {
             
             @Override
             public void run() {
-                PlanBlueprint pbp = new PlanBlueprint("blueeye_plan");
+                PlanBlueprint pbp = new PlanBlueprint(26, "blueeye_plan");
                 
                 pbp.addPoint(41.18547713427995, -8.70566725730896, 3);
                 pbp.addPoint(41.18456472894702, -8.704508543014526, 3);                
