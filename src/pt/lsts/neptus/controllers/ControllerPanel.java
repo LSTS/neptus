@@ -29,7 +29,7 @@
  * Author: José Correia
  * Nov 9, 2012
  */
-package pt.lsts.neptus.plugins.teleoperation;
+package pt.lsts.neptus.controllers;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -109,6 +109,8 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
     // The current controller poll
     private LinkedHashMap<String, Component> poll;
 
+    private ArrayList<JComboBox<String>> controllerSelectors = new ArrayList<JComboBox<String>>();
+    
     @SuppressWarnings("serial")
     private JTable table = new JTable() {
         public javax.swing.table.TableCellRenderer getCellRenderer(int row, int column) {
@@ -123,7 +125,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
     private TableRenderer renderer = new TableRenderer();
     
     private ControllerManager manager;
-    private JComboBox<String> comboBox;
+    
     private JButton btnRefresh = new JButton(new AbstractAction(I18n.text("Refresh Controllers")) {
         private static final long serialVersionUID = 1L;
 
@@ -155,6 +157,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         ImcMsgManager.getManager().addListener(this);
     }
 
+    
     @Override
     public void initSubPanel() {
         SAXReader reader = new SAXReader();
@@ -175,21 +178,24 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
 
         manager = console.getControllerManager();
 
-        // Create a JComboBox with a list of controllers from the manager
-        comboBox = new JComboBox<String>(manager.getControllerList().keySet().toArray(new String[0]));
-        comboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                @SuppressWarnings("unchecked")
-                JComboBox<String> cb = (JComboBox<String>) e.getSource();
-                currentController = (String) cb.getSelectedItem();
-                mappedActions = getMappedActions(console.getMainSystem(), currentController);
-                buildDialog();
-            }
-        });
+//        // Create a JComboBox with a list of controllers from the manager
+//        comboBox = new JComboBox<String>(manager.getControllerList().keySet().toArray(new String[0]));
+//        comboBox.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                @SuppressWarnings("unchecked")
+//                JComboBox<String> cb = (JComboBox<String>) e.getSource();
+//                currentController = (String) cb.getSelectedItem();
+//                mappedActions = getMappedActions(console.getMainSystem(), currentController);
+//                buildDialog();
+//            }
+//        });
 
+        controllerSelectors .add(generateControllerSelector());
+        controllerSelectors .add(generateControllerSelector());
+        
         // Initialize current controller
-        currentController = (String) comboBox.getSelectedItem();
+        currentController = (String) controllerSelectors.get(0).getSelectedItem();
 
         dialog.addWindowListener(new WindowAdapter() {
             @Override
@@ -216,12 +222,32 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         table.addMouseListener(new JTableButtonMouseListener(table));
         
         add(new JScrollPane(table), "wrap");
-        add(comboBox, "w 200::, wrap");
+        
+        for(JComboBox<String> selector : controllerSelectors) { 
+            add(selector, "w 200::, wrap");
+        }
+        
         add(btnRefresh);
         
         dialog.pack();
     }
 
+    public JComboBox<String> generateControllerSelector() {
+        JComboBox<String> comboBox;
+        comboBox = new JComboBox<String>(manager.getControllerList().keySet().toArray(new String[0]));
+        comboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                @SuppressWarnings("unchecked")
+                JComboBox<String> cb = (JComboBox<String>) e.getSource();
+                currentController = (String) cb.getSelectedItem();
+                mappedActions = getMappedActions(console.getMainSystem(), currentController);
+                buildDialog();
+            }
+        });
+        return comboBox;
+    }
+    
     public ArrayList<MapperComponent> getMappedActions(String systemName, String controllerName) {
         ArrayList<MapperComponent> result = new ArrayList<MapperComponent>();
 
@@ -256,9 +282,12 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
     public void updateControllers() {
         manager.fetchControllers();
         String list[] = manager.getControllerList().keySet().toArray(new String[0]);
-        comboBox.removeAllItems();
-        for (String s : list) {
-            comboBox.addItem(s);
+        for (JComboBox<String> cb : controllerSelectors) {
+            cb.removeAllItems();
+            
+            for (String s : list) {
+                cb.addItem(s);
+            }
         }
     }
     
@@ -308,7 +337,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         }
         
         btnRefresh.setEnabled(!editing);
-        comboBox.setEnabled(!editing);
+//        comboBox.setEnabled(!editing);
         
         if (editing) {
             if (oldPoll.size() == poll.size()) {

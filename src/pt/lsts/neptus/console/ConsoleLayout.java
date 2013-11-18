@@ -122,7 +122,6 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.configWindow.SettingsWindow;
-import pt.lsts.neptus.plugins.teleoperation.ControllerPanel;
 import pt.lsts.neptus.renderer2d.VehicleStateListener;
 import pt.lsts.neptus.types.XmlInOutMethods;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -166,12 +165,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     protected CommManagerStatusChangeListener imcManagerStatus = null;
     private final ImcMsgManager imcMsgManager;
     private final ConcurrentMap<String, ConsoleSystem> consoleSystems = new ConcurrentHashMap<String, ConsoleSystem>();
-    // Controller logic and panel
-    private final ControllerManager controllerManager;
-    private ControllerPanel controllerPanel;
 
+    // Controller Manager to be used by every plugin that uses an external controller (Gamepad, etc...) 
+    private final ControllerManager controllerManager; 
+
+    
     private final List<SubPanel> subPanels = new ArrayList<>();
-
+    
     /*
      * UI stuff
      */
@@ -1222,8 +1222,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             consoleSystems.clear();
             mainPanel.clean();
             statusBar.clean();
-            if (controllerPanel != null)
-                controllerPanel.cleanup();
+
             this.cleanKeyBindings();
             this.imcOff();
             
