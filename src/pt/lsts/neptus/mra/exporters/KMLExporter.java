@@ -330,7 +330,7 @@ public class KMLExporter implements MraExporter {
     }
 
     public String multibeamOverlay(File dir) {
-        if (source.getFile("multibeam.83P") == null) {
+        if (source.getFile("data.83P") == null) {
             NeptusLog.pub().info(I18n.text("no multibeam data has been found."));
             return "";
         }

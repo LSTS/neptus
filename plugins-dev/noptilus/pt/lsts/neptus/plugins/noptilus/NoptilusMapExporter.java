@@ -102,7 +102,7 @@ public class NoptilusMapExporter implements MraExporter, PropertiesProvider {
         BufferedImage imgHigh = new BufferedImage(numRows, numCols, BufferedImage.TYPE_INT_ARGB);
         BufferedImage imgLow = new BufferedImage(numRows/10, numCols/10, BufferedImage.TYPE_INT_ARGB);
         BufferedImage pathImg = new BufferedImage(numRows, numCols, BufferedImage.TYPE_INT_ARGB);
-        if (source.getFile("multibeam.83P") == null) {
+        //if (source.getFile("data.83P") == null) {
             NeptusLog.pub().info(I18n.text("no multibeam data has been found... using DVL"));
             LsfIterator<EstimatedState> it = source.getLsfIndex().getIterator(EstimatedState.class);
 
@@ -123,8 +123,9 @@ public class NoptilusMapExporter implements MraExporter, PropertiesProvider {
                 lowRes.addPoint(offsets[1], offsets[0], state.getAlt()+state.getDepth());      
                 pathImg.setRGB(col, row, Color.blue.darker().getRGB());
             }
-        }
-        else {
+        //}
+        if (source.getFile("data.83P") != null) {
+            highRes = new DataDiscretizer(cellSize);
             DeltaTParser parser = new DeltaTParser(source);
             parser.rewind();
             
@@ -153,11 +154,11 @@ public class NoptilusMapExporter implements MraExporter, PropertiesProvider {
 
                     int col = (int)(offsets[1] / cellSize);
                     int row = (int)(offsets[0] / cellSize);
-                    pathHigh[col][row] = true;            
-                    pathLow[col/10][row/10] = true;
+                    //pathHigh[col][row] = true;            
+                    //pathLow[col/10][row/10] = true;
                     highRes.addPoint(offsets[1], offsets[0], bp.depth);
-                    lowRes.addPoint(offsets[1], offsets[0], bp.depth); 
-                    pathImg.setRGB(col, row, Color.red.darker().getRGB());
+                    //lowRes.addPoint(offsets[1], offsets[0], bp.depth); 
+                    //pathImg.setRGB(col, row, Color.red.darker().getRGB());
                 }
             }
         }
