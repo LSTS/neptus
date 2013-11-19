@@ -584,7 +584,7 @@ public class AnnounceWorker {
             if (!sys.isServiceProvided("acoustic"))
                 return;
                 
-            NeptusLog.pub().info("Sending '" + sys.name + " | "
+            NeptusLog.pub().debug("Sending '" + sys.name + " | "
                     + sys.getId() + "' AcousticSystemsQuery request...");
             IMCMessage msg = new AcousticSystemsQuery(imcDefinition);
             imcManager.sendMessage(msg, sys.getId(), null);
