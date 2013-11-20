@@ -45,7 +45,7 @@ import pt.lsts.imc.PlanManeuver;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.Reference;
 import pt.lsts.imc.net.UDPTransport;
-import pt.lsts.neptus.util.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 
 /**
  * This program sends a PlanControl message containing a (quick) plan with a FollowReference maneuver
