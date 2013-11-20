@@ -27,58 +27,55 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: jqcorreia
- * May 28, 2013
+ * Nov 20, 2013
  */
 package pt.lsts.neptus.mra.api;
 
-import java.io.File;
-
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 
 /**
  * @author jqcorreia
  *
  */
-public class BathymetryParserFactory {
-    static File dir;
-    static File file;
-    static IMraLogGroup source;
+public class SidescanParameters {
+    private double normalization = 0.2;
+    private double tvgGain = 75;
     
-    public static BathymetryParser build(IMraLogGroup log) {
-        file = null;
-        dir = log.getFile("Data.lsf").getParentFile();
-        source = log;
-        
-        return getParser();
-    }
-    
-    public static BathymetryParser build(File fileOrDir) {
-        source = null;
-        if(fileOrDir.isDirectory())
-            dir = file;
-        else {
-            file = fileOrDir;
-        }
-        return getParser();
-    }
-    
-    private static BathymetryParser getParser() {
-        if(file != null) {
-            return null; //FIXME for now only directories are supported 
-        }
-        else if(dir != null) {
-            if (new File(dir.getAbsolutePath()+"/data.83P").exists()) {
-                return new DeltaTParser(source);
-            }
-            else if (new File(dir.getAbsolutePath()+"/multibeam.83P").exists()) {
-                return new DeltaTParser(source);
-            }
-            
-            // Next cases should be file = new File(...) and check for existence
-            // TODO
-        }
-        return null;
+    /**
+     * @param normalization
+     * @param tvgGain
+     */
+    public SidescanParameters(double normalization, double tvgGain) {
+        this.normalization = normalization;
+        this.tvgGain = tvgGain;
     }
 
+    /**
+     * @return the normalization
+     */
+    public double getNormalization() {
+        return normalization;
+    }
+
+    /**
+     * @param normalization the normalization to set
+     */
+    public void setNormalization(double normalization) {
+        this.normalization = normalization;
+    }
+
+    /**
+     * @return the tvgGainpublic
+     */
+    public double getTvgGain() {
+        return tvgGain;
+    }
+
+    /**
+     * @param tvgGain the tvgGain to set
+     */
+    public void setTvgGain(double tvgGain) {
+        this.tvgGain = tvgGain;
+    }
+    
+    
 }

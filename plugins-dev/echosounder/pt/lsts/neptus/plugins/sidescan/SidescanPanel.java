@@ -57,6 +57,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.SidescanLogMarker;
 import pt.lsts.neptus.mra.api.SidescanLine;
+import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanPoint;
 import pt.lsts.neptus.mra.replay.MraVehiclePosHud;
@@ -78,6 +79,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     SidescanAnalyzer parent;
     SidescanConfig config = new SidescanConfig();
     SidescanToolbar toolbar = new SidescanToolbar(this);
+    
+    SidescanParameters sidescanParams = new SidescanParameters(0, 0); // Initialize it to zero for now
     
     enum InteractionMode {
         NONE, ZOOM, INFO, MARK, MEASURE;
@@ -109,9 +112,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     if (measure) {
                         drawMeasure(layer.getGraphics());
                     }
-                    // layer.getGraphics().setColor(Color.GREEN.brighter());
-                    // layer.getGraphics().drawString(""+subsystem, 10, 10);
-         
+
                     drawMarks(layer.getGraphics());
                     drawRuler(layer.getGraphics());
                     
@@ -258,7 +259,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     public void updateImage(long currentTime, long lastUpdateTime) {
         int yref = 0;
         this.currentTime = currentTime;
-        ArrayList<SidescanLine> list = ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime + currentTime, subsystem, config);
+        
+        sidescanParams.setNormalization(config.normalization);
+        sidescanParams.setTvgGain(config.tvgGain);
+        
+        ArrayList<SidescanLine> list = ssParser.getLinesBetween(firstPingTime + lastUpdateTime, firstPingTime + currentTime, subsystem, sidescanParams);
         
         drawList.addAll(list);
         

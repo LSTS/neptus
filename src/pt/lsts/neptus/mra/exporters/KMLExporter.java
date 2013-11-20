@@ -61,11 +61,11 @@ import pt.lsts.neptus.mra.WorldImage;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.api.SidescanLine;
+import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
-import pt.lsts.neptus.plugins.sidescan.SidescanConfig;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -212,14 +212,14 @@ public class KMLExporter implements MraExporter {
         long start = ssParser.firstPingTimestamp();
         long end = ssParser.lastPingTimestamp();
         int sys = ssParser.getSubsystemList().get(0);
-        SidescanConfig cfg = new SidescanConfig();
-        cfg.normalization = 0.4;
+        SidescanParameters params = new SidescanParameters(0.4, 75.0);
+        
         BufferedImage swath = null;
         ColorMap cmap = ColorMapFactory.createBronzeColormap();
         for (long time = start; time < end - 1000; time += 1000) {
             ArrayList<SidescanLine> lines;
             try {
-                lines = ssParser.getLinesBetween(time, time + 1000, sys, cfg);
+                lines = ssParser.getLinesBetween(time, time + 1000, sys, params);
             }
             catch (Exception e) {
                 e.printStackTrace();

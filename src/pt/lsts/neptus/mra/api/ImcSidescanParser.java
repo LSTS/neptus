@@ -38,7 +38,6 @@ import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.sidescan.SidescanConfig;
 
 /**
  * @author jqcorreia
@@ -94,7 +93,7 @@ public class ImcSidescanParser implements SidescanParser {
         return l;
     };
 
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanConfig config) {
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanParameters params) {
         
         // Preparation
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();

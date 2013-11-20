@@ -36,8 +36,8 @@ import java.util.ArrayList;
 
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.SidescanLine;
+import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
-import pt.lsts.neptus.plugins.sidescan.SidescanConfig;
 
 /**
  * @author jqcorreia
@@ -67,7 +67,7 @@ public class JsfSidescanParser implements SidescanParser {
     }
 
     @Override
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanConfig config) {
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanParameters params) {
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         
         ArrayList<JsfSonarData> ping = parser.getPingAt(timestamp1, subsystem);
@@ -108,8 +108,8 @@ public class JsfSidescanParser implements SidescanParser {
                 avgSboard += r;
             }
             
-            avgPboard /= (double)pboard.getNumberOfSamples() * config.normalization;
-            avgSboard /= (double)sboard.getNumberOfSamples() * config.normalization;
+            avgPboard /= (double)pboard.getNumberOfSamples() * params.getNormalization();
+            avgSboard /= (double)sboard.getNumberOfSamples() * params.getNormalization();
             
             // Calculate Portboard
             for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
@@ -117,7 +117,7 @@ public class JsfSidescanParser implements SidescanParser {
                 double gain;
                 gain = Math.abs(30.0 * Math.log(r));
                 
-                double pb = pboard.getData()[i] * Math.pow(10, gain / config.tvgGain);
+                double pb = pboard.getData()[i] * Math.pow(10, gain / params.getTvgGain());
                 fData[i] = pb / avgPboard;
             }
             
@@ -127,7 +127,7 @@ public class JsfSidescanParser implements SidescanParser {
                 double gain;
                 
                 gain = Math.abs(30.0 * Math.log(r));
-                double sb = sboard.getData()[i] * Math.pow(10, gain / config.tvgGain);
+                double sb = sboard.getData()[i] * Math.pow(10, gain / params.getTvgGain());
                 fData[i + pboard.getNumberOfSamples()] = sb / avgSboard;
             }
             
