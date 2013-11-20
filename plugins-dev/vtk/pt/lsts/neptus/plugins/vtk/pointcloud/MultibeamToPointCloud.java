@@ -118,7 +118,7 @@ public class MultibeamToPointCloud {
             double tideOffset = getTideOffset(bs.getTimestamp());
             
             if (!NeptusMRA.approachToIgnorePts) {
-                for (int c = 0; c < bs.numBeams; c += NeptusMRA.ptsToIgnore) {
+                for (int c = 0; c < bs.getNumBeams(); c += NeptusMRA.ptsToIgnore) {
                     BathymetryPoint p = bs.getData()[c];
                     if (p == null)
                         continue;
@@ -144,7 +144,7 @@ public class MultibeamToPointCloud {
                 }
             }
             else {
-                for (int c = 0; c < bs.numBeams; c++) {
+                for (int c = 0; c < bs.getNumBeams(); c++) {
                     if (Math.random() > 1.0 / NeptusMRA.ptsToIgnore)
                         continue;
 
