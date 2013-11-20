@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 15/Abr/2006
  */
-package pt.lsts.neptus.util.comm.ssh;
+package pt.lsts.neptus.comm.ssh;
 
 import java.awt.BorderLayout;
 import java.awt.Component;

@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.lsts.neptus.util.comm.ssh;
+package pt.lsts.neptus.comm.ssh;
 
 import java.io.File;
 import java.io.FileInputStream;

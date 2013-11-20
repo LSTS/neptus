@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/05/01
  */
-package pt.lsts.neptus.util.comm.transports.tcp;
+package pt.lsts.neptus.comm.transports.tcp;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,9 +55,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.transports.DeliveryListener;
+import pt.lsts.neptus.comm.transports.DeliveryListener.ResultEnum;
 import pt.lsts.neptus.util.ByteUtil;
-import pt.lsts.neptus.util.comm.transports.DeliveryListener;
-import pt.lsts.neptus.util.comm.transports.DeliveryListener.ResultEnum;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;

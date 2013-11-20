@@ -27,17 +27,65 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: Paulo Dias
- * 10/02/2011
+ * 2010/05/09
  */
-package pt.lsts.neptus.util.comm.transports;
+package pt.lsts.neptus.comm.transports.tcp;
 
+import java.net.InetSocketAddress;
+
+import pt.lsts.neptus.comm.transports.Notification;
 
 /**
  * @author pdias
  *
  */
-public interface DeliveryListener {
-    public enum ResultEnum {UnFinished, Success, TimeOut, Unreacheable, Error}
+public class TCPNotification extends Notification {
 
-    public void deliveryResult(ResultEnum result, Exception error);
+	private boolean eosReceived = false;
+	
+	/**
+	 * @param isReception
+	 * @param address
+	 * @param buffer
+	 */
+	public TCPNotification(boolean isReception, InetSocketAddress address, byte[] buffer) {
+		super(isReception, address, buffer);
+	}
+	
+	/**
+	 * @param reception
+	 * @param socketAddress
+	 * @param recBytes
+	 * @param currentTimeMillis
+	 */
+	public TCPNotification(boolean isReception, InetSocketAddress address,
+			byte[] buffer, long timeMillis) {
+		super(isReception, address, buffer, timeMillis);
+	}
+
+	/**
+	 * @param isReception
+	 * @param address
+	 * @param eos
+	 * @param timeMillis
+	 */
+	public TCPNotification(boolean isReception, InetSocketAddress address,
+			boolean eos, long timeMillis) {
+		super(isReception, address, new byte[0], timeMillis);
+		this.eosReceived = eos;
+	}
+
+	/**
+	 * @return the eosReceived
+	 */
+	public boolean isEosReceived() {
+		return eosReceived;
+	}
+	
+	/**
+	 * @param eosReceived the eosReceived to set
+	 */
+	public void setEosReceived(boolean eosReceived) {
+		this.eosReceived = eosReceived;
+	}
 }

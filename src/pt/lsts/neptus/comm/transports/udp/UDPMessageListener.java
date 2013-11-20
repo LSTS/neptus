@@ -29,36 +29,17 @@
  * Author: Paulo Dias
  * 2010/01/16
  */
-package pt.lsts.neptus.util.comm.transports.udp;
-
-import java.net.InetSocketAddress;
-
-import pt.lsts.neptus.util.comm.transports.Notification;
+package pt.lsts.neptus.comm.transports.udp;
 
 /**
  * @author pdias
  *
  */
-public class UDPNotification extends Notification{
+public interface UDPMessageListener {
 
 	/**
-	 * @param isReception
-	 * @param address
-	 * @param buffer
+	 * @param req
 	 */
-	public UDPNotification(boolean isReception, InetSocketAddress address, byte[] buffer) {
-		super(isReception, address, buffer);
-	}
+	public void onUDPMessageNotification(UDPNotification req);
 	
-
-	/**
-	 * @param reception
-	 * @param socketAddress
-	 * @param recBytes
-	 * @param currentTimeMillis
-	 */
-	public UDPNotification(boolean isReception, InetSocketAddress address,
-			byte[] buffer, long timeMillis) {
-		super(isReception, address, buffer, timeMillis);
-	}
 }

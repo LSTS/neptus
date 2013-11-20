@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2011/01/17
  */
-package pt.lsts.neptus.util.comm.transports;
+package pt.lsts.neptus.comm.transports;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,13 +43,13 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
+import pt.lsts.neptus.comm.transports.DeliveryListener.ResultEnum;
+import pt.lsts.neptus.comm.transports.tcp.TCPMessageListener;
+import pt.lsts.neptus.comm.transports.tcp.TCPNotification;
+import pt.lsts.neptus.comm.transports.tcp.TCPTransport;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageInfoImpl;
 import pt.lsts.neptus.messages.listener.MessageListener;
-import pt.lsts.neptus.util.comm.transports.DeliveryListener.ResultEnum;
-import pt.lsts.neptus.util.comm.transports.tcp.TCPMessageListener;
-import pt.lsts.neptus.util.comm.transports.tcp.TCPNotification;
-import pt.lsts.neptus.util.comm.transports.tcp.TCPTransport;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**

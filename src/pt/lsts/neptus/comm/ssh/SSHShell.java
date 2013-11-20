@@ -29,7 +29,7 @@
  * Author: 
  * 9/Abr/2006
  */
-package pt.lsts.neptus.util.comm.ssh;
+package pt.lsts.neptus.comm.ssh;
 
 import java.io.IOException;
 import java.io.InputStream;

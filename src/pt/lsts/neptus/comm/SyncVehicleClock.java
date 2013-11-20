@@ -38,9 +38,9 @@ import java.util.TimerTask;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import pt.lsts.neptus.comm.ssh.SSHAdjustDate;
 import pt.lsts.neptus.gui.WaitPanel;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.util.comm.ssh.SSHAdjustDate;
 
 /**
  * This will sync the the remote clock either by Telnet or SSH connection.

@@ -27,19 +27,19 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: Paulo Dias
- * 2010/01/16
+ * 2010/05/09
  */
-package pt.lsts.neptus.util.comm.transports.udp;
+package pt.lsts.neptus.comm.transports.tcp;
 
 /**
  * @author pdias
  *
  */
-public interface UDPMessageListener {
+public interface TCPMessageListener {
 
 	/**
 	 * @param req
 	 */
-	public void onUDPMessageNotification(UDPNotification req);
+	public void onTCPMessageNotification(TCPNotification req);
 	
 }

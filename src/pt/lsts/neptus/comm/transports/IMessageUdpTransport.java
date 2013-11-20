@@ -28,7 +28,7 @@
  *
  * 2009/03/29 by pdias
  */
-package pt.lsts.neptus.util.comm.transports;
+package pt.lsts.neptus.comm.transports;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,15 +36,15 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.transports.udp.UDPMessageListener;
+import pt.lsts.neptus.comm.transports.udp.UDPNotification;
+import pt.lsts.neptus.comm.transports.udp.UDPTransport;
 import pt.lsts.neptus.messages.IMessage;
 import pt.lsts.neptus.messages.IMessageProtocol;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageInfoImpl;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.util.ByteUtil;
-import pt.lsts.neptus.util.comm.transports.udp.UDPMessageListener;
-import pt.lsts.neptus.util.comm.transports.udp.UDPNotification;
-import pt.lsts.neptus.util.comm.transports.udp.UDPTransport;
 
 /**
  * @author pdias

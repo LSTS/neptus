@@ -27,19 +27,38 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: Paulo Dias
- * 2010/05/09
+ * 2010/01/16
  */
-package pt.lsts.neptus.util.comm.transports.tcp;
+package pt.lsts.neptus.comm.transports.udp;
+
+import java.net.InetSocketAddress;
+
+import pt.lsts.neptus.comm.transports.Notification;
 
 /**
  * @author pdias
  *
  */
-public interface TCPMessageListener {
+public class UDPNotification extends Notification{
 
 	/**
-	 * @param req
+	 * @param isReception
+	 * @param address
+	 * @param buffer
 	 */
-	public void onTCPMessageNotification(TCPNotification req);
+	public UDPNotification(boolean isReception, InetSocketAddress address, byte[] buffer) {
+		super(isReception, address, buffer);
+	}
 	
+
+	/**
+	 * @param reception
+	 * @param socketAddress
+	 * @param recBytes
+	 * @param currentTimeMillis
+	 */
+	public UDPNotification(boolean isReception, InetSocketAddress address,
+			byte[] buffer, long timeMillis) {
+		super(isReception, address, buffer, timeMillis);
+	}
 }
