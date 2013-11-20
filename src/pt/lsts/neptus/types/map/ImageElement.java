@@ -80,8 +80,6 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
     private Image heightImage = null; // depth image
 
     private ImageObjectParameters params = new ImageObjectParameters();
-    private boolean fastRendering = false;
-
     /**
      * 
      */
@@ -279,20 +277,6 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
      */
     public void setBathymetric(boolean isBatimetric) {
         this.isBathymetric = isBatimetric;
-    }
-
-    /**
-     * @return Returns the fastRendering.
-     */
-    public boolean isFastRendering() {
-        return fastRendering;
-    }
-
-    /**
-     * @param fastRendering The fastRendering to set.
-     */
-    public void setFastRendering(boolean fastRendering) {
-        this.fastRendering = fastRendering;
     }
 
     /**
@@ -505,9 +489,6 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
-
-        setFastRendering(renderer.isFastRendering());
-
         if (getImage() == null) {
             NeptusLog.pub().error(this + ": Tried to draw a null image: " + getImageFileName());
             return;

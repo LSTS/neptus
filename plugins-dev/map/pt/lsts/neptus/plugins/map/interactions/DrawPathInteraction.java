@@ -74,7 +74,6 @@ public class DrawPathInteraction extends InteractionAdapter {
         curDrawing = new PathElement(pivot.getMapGroup(), pivot, lt);
         curDrawing.addPoint(0, 0, 0, false);
         pivot.addObject(curDrawing);
-        source.setFastRendering(true);
         MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_ADDED);
         changeEvent.setChangedObject(curDrawing);
         changeEvent.setSourceMap(pivot);
@@ -91,7 +90,6 @@ public class DrawPathInteraction extends InteractionAdapter {
         }
 
         curDrawing.setFinished(true);
-        source.setFastRendering(false);
         MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
         changeEvent.setChangedObject(curDrawing);
         changeEvent.setSourceMap(pivot);
@@ -131,7 +129,6 @@ public class DrawPathInteraction extends InteractionAdapter {
     public void setActive(boolean mode, StateRenderer2D source) {
         if (!mode && curDrawing != null) {
             curDrawing.setFinished(true);
-            source.setFastRendering(false);
             MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
             changeEvent.setChangedObject(curDrawing);
             changeEvent.setSourceMap(pivot);

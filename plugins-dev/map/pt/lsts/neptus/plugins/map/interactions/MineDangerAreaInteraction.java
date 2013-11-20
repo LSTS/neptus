@@ -85,7 +85,6 @@ public class MineDangerAreaInteraction extends InteractionAdapter implements Ren
         element.radius = 0;
 
         pivot.addObject(element);
-        source.setFastRendering(true);
         MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_ADDED);
         changeEvent.setChangedObject(element);
         changeEvent.setSourceMap(pivot);
@@ -100,7 +99,6 @@ public class MineDangerAreaInteraction extends InteractionAdapter implements Ren
             return;
         }
 
-        source.setFastRendering(false);
         MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
         changeEvent.setChangedObject(element);
         changeEvent.setSourceMap(pivot);
@@ -138,7 +136,6 @@ public class MineDangerAreaInteraction extends InteractionAdapter implements Ren
     @Override
     public void setActive(boolean mode, StateRenderer2D source) {
         if (!mode && element != null) {
-            source.setFastRendering(false);
             MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
             changeEvent.setChangedObject(element);
             changeEvent.setSourceMap(pivot);

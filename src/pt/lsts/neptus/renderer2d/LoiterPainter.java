@@ -60,7 +60,7 @@ public class LoiterPainter implements Renderer2DPainter {
 		setLoiterManeuver(loiterManeuver);
 	}
 	
-	public static void paint(Loiter loiterManeuver, Graphics2D g, double zoom, double rotation, boolean fastRendering) {
+	public static void paint(Loiter loiterManeuver, Graphics2D g, double zoom, double rotation) {
 //		 x marks the spot...
 		g.drawLine(-4, -4, 4, 4);
 		g.drawLine(-4, 4, 4, -4);
@@ -78,16 +78,15 @@ public class LoiterPainter implements Renderer2DPainter {
 		if (loiterManeuver.getLoiterType().equalsIgnoreCase("circular")) {	
 			double rt = loiterManeuver.getRadiusTolerance() * zoom;
 			
-			
-			if (!fastRendering) {
-				g.setColor(new Color(255,255,255,100));
-				Area outer = new Area(new Ellipse2D.Double(-radius-rt, -radius-rt, (radius+rt)*2, (radius+rt)*2));
-				Area inner = new Area(new Ellipse2D.Double(-radius+rt, -radius+rt, (radius-rt)*2, (radius-rt)*2));
-				
-				outer.subtract(inner);
-				
-				g.fill(outer);
-			}
+            g.setColor(new Color(255, 255, 255, 100));
+            Area outer = new Area(
+                    new Ellipse2D.Double(-radius - rt, -radius - rt, (radius + rt) * 2, (radius + rt) * 2));
+            Area inner = new Area(
+                    new Ellipse2D.Double(-radius + rt, -radius + rt, (radius - rt) * 2, (radius - rt) * 2));
+
+            outer.subtract(inner);
+
+            g.fill(outer);
 			g.setColor(Color.RED);
 			
 			g.draw(new Ellipse2D.Double(-radius,-radius,radius*2, radius*2));
@@ -230,7 +229,7 @@ public class LoiterPainter implements Renderer2DPainter {
 		//g.setTransform(new AffineTransform());
 		//Point2D pt = renderer.getScreenPosition(loiterManeuver.getLocation());
 		//g.translate(pt.getX(), pt.getY());
-		paint(loiterManeuver, g, renderer.getZoom(), renderer.getRotation(), renderer.isFastRendering());		
+		paint(loiterManeuver, g, renderer.getZoom(), renderer.getRotation());		
 	}
 
 	public void setLoiterManeuver(Loiter loiterManeuver) {
@@ -244,7 +243,7 @@ public class LoiterPainter implements Renderer2DPainter {
 		NeptusLog.pub().info("<###>width="+width);
 		Graphics2D g = (Graphics2D) bi.getGraphics();
 		g.translate(width/2.0, height/2.0);		
-		paint(loiter, g, 1.0, 0.0, false);
+		paint(loiter, g, 1.0, 0.0);
 		
 		g.setTransform(new AffineTransform());		
 		legend.paint(g, width, height, true);
