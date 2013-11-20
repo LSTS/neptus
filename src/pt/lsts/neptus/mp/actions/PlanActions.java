@@ -40,8 +40,6 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.lsts.neptus.types.miscsystems.MiscSystems;
-import pt.lsts.neptus.types.miscsystems.MiscSystemsHolder;
 import pt.lsts.imc.IMCMessage;
 
 /**
@@ -49,21 +47,12 @@ import pt.lsts.imc.IMCMessage;
  *
  */
 public class PlanActions {
-
-	protected LinkedList<PayloadConfig> payloadConfigs = new LinkedList<PayloadConfig>();
 	protected LinkedList<PlanActionElementConfig> actionMsgs = new LinkedList<PlanActionElementConfig>();
-	
+
 	/**
 	 * 
 	 */
 	public PlanActions() {
-	}
-	
-	/**
-	 * @return the payloadConfigs
-	 */
-	public LinkedList<PayloadConfig> getPayloadConfigs() {
-		return payloadConfigs;
 	}
 	
 	/**
@@ -78,38 +67,17 @@ public class PlanActions {
 	 * @param nd
 	 */
 	public boolean load(Element nd) {
-		payloadConfigs.clear();
-		List<?> lst = nd.selectNodes("./payload-config/payload");
-		for (Object obj : lst) {
-			Element pl = (Element) obj;
-			PayloadConfig plcfg = new PayloadConfig();
-            Node idNd = pl.selectSingleNode("./@id");
-            if (idNd != null) {
-                MiscSystems ms = MiscSystemsHolder.getMiscSystemsList().get(idNd.getText());
-                plcfg.setBaseSystem(ms);
-                plcfg.setXmlImcNode((Element) pl.selectSingleNode("child::*"));
-                payloadConfigs.add(plcfg);
-            }
-            else { // FIXME Plan Actions: If no config use as message for now
-                PlanActionElementConfig msgcfg = new PlanActionElementConfig();
-                msgcfg.setXmlImcNode((Element) pl.selectSingleNode("child::*"));
-                if (plcfg.message != null)
-                    actionMsgs.add(msgcfg);
-            }
-		}
+        List<?> lst = nd.selectNodes("./messages/child::*");
+        for (Object obj : lst) {
+            Element pl = (Element) obj;
+            PlanActionElementConfig plcfg = new PlanActionElementConfig();
+            plcfg.setXmlImcNode(pl);
+            if (plcfg.message != null)
+                actionMsgs.add(plcfg);
+        }
 
-		lst = nd.selectNodes("./messages/child::*");
-		for (Object obj : lst) {
-			Element pl = (Element) obj;
-			PlanActionElementConfig plcfg = new PlanActionElementConfig();
-			plcfg.setXmlImcNode(pl);
-			if (plcfg.message != null)
-				actionMsgs.add(plcfg);
-		}
-
-		return true;
-	}
-
+        return true;
+    }
 	
 
     public Element asElement(String rootElementName) {
@@ -120,20 +88,6 @@ public class PlanActions {
         Document document = DocumentHelper.createDocument();
 		Element root = document.addElement(rootElementName);
         
-		if (payloadConfigs.size() > 0) {
-			Element pldcfgElement = root.addElement("payload-config");
-			for (PayloadConfig plcfg : payloadConfigs) {
-				Element ndcf = plcfg.getXmlNode();
-//				NeptusLog.pub().info("<###>PayloadConfig _________________\n"+ndcf.asXML());
-				if (ndcf != null) {
-					//ndcf.setName("payload");
-					//pldcfgElement.add(ndcf.detach());
-					Element payloadHolderElement = pldcfgElement.addElement("payload");
-					payloadHolderElement.addAttribute("id", plcfg.getBaseSystem().getId());
-					payloadHolderElement.add(((Node) ndcf.clone()).detach());
-				}
-			}
-		}
 		if (actionMsgs.size() > 0) {
 			Element plActionsElement = root.addElement("messages");
 			for (PlanActionElementConfig plcfg : actionMsgs) {
@@ -155,12 +109,11 @@ public class PlanActions {
 	 */
 	public IMCMessage[] getAllMessages() {
 		LinkedList<IMCMessage> msgs = new LinkedList<IMCMessage>();
-		for (PayloadConfig plCfg : payloadConfigs) {
-			msgs.add(plCfg.message);
-		}
+
 		for (PlanActionElementConfig msgConfig : actionMsgs) {
 			msgs.add(msgConfig.message);
 		}
+		
 		return msgs.toArray(new IMCMessage[msgs.size()]);
 	}
 
@@ -170,10 +123,7 @@ public class PlanActions {
 	@Override
 	public String toString() {
 		String actStr =  "Plan Actions: ";
-		for (PayloadConfig pc : payloadConfigs) {
-			actStr += " P[" + pc.message.getAbbrev() +
-					"]";
-		}
+
 		for (PlanActionElementConfig nm : actionMsgs) {
 			actStr += " M[" + nm.message.getAbbrev() +
 					"]";
@@ -186,7 +136,7 @@ public class PlanActions {
 	 * @return
 	 */
 	public boolean isEmpty() {
-		long count = getPayloadConfigs().size() + getActionMsgs().size(); 
+		long count = getActionMsgs().size(); 
 		return (count == 0);
 	}
     
@@ -202,8 +152,6 @@ public class PlanActions {
 	@Override
 	public Object clone() {
 	    PlanActions clone = new PlanActions();
-	    for (PayloadConfig pc : payloadConfigs)
-            clone.payloadConfigs.add((PayloadConfig) pc.clone());
         for (PlanActionElementConfig am : actionMsgs)
             clone.actionMsgs.add((PlanActionElementConfig) am.clone());
 	    return clone;
@@ -214,7 +162,6 @@ public class PlanActions {
      */
     public void parseMessages(Vector<IMCMessage> actionsMessages) {
         // For now all are actionMsgs
-        payloadConfigs.clear();
         actionMsgs.clear();
         for (IMCMessage msg : actionsMessages) {
             PlanActionElementConfig paec = new PlanActionElementConfig();

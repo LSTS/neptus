@@ -56,7 +56,6 @@ import pt.lsts.neptus.mc.lauvconsole.LAUVConsole;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.plugins.PluginsLoader;
-import pt.lsts.neptus.types.miscsystems.MiscSystemsHolder;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.FileUtil;
@@ -239,10 +238,6 @@ public class NeptusMain {
             GuiUtils.errorMessage(loader, I18n.text("Loading Systems"), I18n.text("Error loading systems!"));
         }
 
-        if (!MiscSystemsHolder.loadMiscSystems()) {
-            GuiUtils.errorMessage(loader, I18n.text("Loading Misc Systems"), I18n.text("Error loading misc systems!"));
-        }
-        
         loader.setText(I18n.text("Loading Systems Parameters Files..."));
         
         Thread bg = new Thread("System parameters files loader") {
