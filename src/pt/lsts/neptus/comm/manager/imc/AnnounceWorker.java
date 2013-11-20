@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2010/01/24
  */
-package pt.lsts.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.comm.manager.imc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -50,12 +50,12 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.NetworkInterfacesUtil;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.imc.AcousticSystemsQuery;

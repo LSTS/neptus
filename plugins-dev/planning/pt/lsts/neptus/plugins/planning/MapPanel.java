@@ -55,6 +55,7 @@ import javax.swing.JToolBar;
 
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.console.MainPanel;
@@ -100,7 +101,6 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 
 import com.google.common.eventbus.Subscribe;
 

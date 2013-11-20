@@ -70,6 +70,8 @@ import org.dom4j.Document;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.renderer3d.Object3DCreationHelper;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.comm.protocol.AdjustTimeShellArgs;
@@ -85,8 +87,6 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.JTreeUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.util.editors.EditorLauncher;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;

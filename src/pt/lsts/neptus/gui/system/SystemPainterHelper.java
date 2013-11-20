@@ -42,6 +42,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.RoundRectangle2D;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolIconEnum;
 import pt.lsts.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolOperationalConditionEnum;
 import pt.lsts.neptus.gui.system.MilStd2525LikeSymbolsDefinitions.SymbolShapeEnum;
@@ -50,7 +51,6 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
 
 /**
  * @author pdias

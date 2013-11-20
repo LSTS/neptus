@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2008/11/26
  */
-package pt.lsts.neptus.util.comm.manager;
+package pt.lsts.neptus.comm.manager;
 
 import java.awt.BorderLayout;
 import java.awt.Component;

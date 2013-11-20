@@ -28,7 +28,7 @@
  *
  * 2007/05/25 pdias
  */
-package pt.lsts.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.comm.manager.imc;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,6 +52,8 @@ import pt.lsts.imc.TrueSpeed;
 import pt.lsts.imc.VehicleState;
 import pt.lsts.imc.state.ImcSysState;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
+import pt.lsts.neptus.comm.manager.SystemCommBaseInfo;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.types.comm.CommMean;
@@ -63,8 +65,6 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.StringUtils;
-import pt.lsts.neptus.util.comm.manager.MessageFrequencyCalculator;
-import pt.lsts.neptus.util.comm.manager.SystemCommBaseInfo;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
 import pt.lsts.neptus.util.llf.NeptusMessageLogger;

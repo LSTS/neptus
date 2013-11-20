@@ -38,8 +38,8 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.util.Dom4JUtil;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 
 /**
  * @author Paulo Dias

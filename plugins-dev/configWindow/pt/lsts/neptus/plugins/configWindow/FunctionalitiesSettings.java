@@ -64,6 +64,7 @@ import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.gui.editor.BitmaskPropertyEditor;
 import pt.lsts.neptus.gui.editor.ColorMapPropertyEditor;
@@ -93,7 +94,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;

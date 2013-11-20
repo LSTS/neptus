@@ -53,6 +53,7 @@ import pt.lsts.imc.LedBrightness;
 import pt.lsts.imc.QueryLedBrightness;
 import pt.lsts.imc.SetLedBrightness;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -61,7 +62,6 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 
 import com.google.common.eventbus.Subscribe;
 

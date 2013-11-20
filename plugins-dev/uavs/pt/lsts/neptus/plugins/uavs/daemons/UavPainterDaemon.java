@@ -35,6 +35,8 @@ import java.awt.Graphics;
 import java.util.Hashtable;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -44,8 +46,6 @@ import pt.lsts.neptus.plugins.planning.MapPanel;
 import pt.lsts.neptus.plugins.uavs.UavLib;
 import pt.lsts.neptus.plugins.uavs.UavVehicleIcon;
 import pt.lsts.neptus.plugins.uavs.painters.elements.UavVehiclePainter;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author sergioferreira

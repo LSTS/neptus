@@ -61,6 +61,8 @@ import pt.lsts.neptus.comm.iridium.IridiumFacade;
 import pt.lsts.neptus.comm.iridium.IridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumMessageListener;
 import pt.lsts.neptus.comm.iridium.TargetAssetPosition;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -77,8 +79,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 import com.google.common.eventbus.Subscribe;
 

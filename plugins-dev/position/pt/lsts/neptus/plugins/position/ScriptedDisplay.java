@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.position;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.AlarmProviderOld;
 import pt.lsts.neptus.console.plugins.ConsoleScript;
@@ -43,7 +44,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 
 /**
  * @author zp

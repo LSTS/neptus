@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2009/03/14
  */
-package pt.lsts.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.comm.manager.imc;
 
 import java.net.InetSocketAddress;
 import java.net.URI;

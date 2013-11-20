@@ -45,6 +45,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.alarms.AlarmChangeListener;
 import pt.lsts.neptus.alarms.AlarmManager.AlarmLevel;
 import pt.lsts.neptus.alarms.AlarmProvider;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
@@ -60,7 +61,6 @@ import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
-import pt.lsts.neptus.util.comm.manager.imc.EntitiesResolver;
 
 /**
  * @author jqcorreia

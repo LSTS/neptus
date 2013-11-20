@@ -68,6 +68,7 @@ import pt.lsts.imc.TrexCommand;
 import pt.lsts.imc.TrexOperation;
 import pt.lsts.imc.TrexOperation.OP;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.fileeditor.SyntaxDocument;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -87,7 +88,6 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 
 /**
  * @author zp

@@ -26,47 +26,34 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: José Pinto
- * 2009/10/23
+ * Author: 
+ * 2007/05/19
  */
-package pt.lsts.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.comm.manager;
 
-import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 
 /**
- * This interface is used by clients that wish to send messages reliably.
- * @author zp
+ * @author pdias
+ *
  */
-public interface MessageDeliveryListener {
-	
-	/**
-	 * Message has been successfully delivered to target
-	 * @param message The message that was sent for reliable delivery
-	 */
-	public void deliverySuccess(IMCMessage message);
-	
-	/**
-	 * Delivery time out after some time. End point may be disconnected or network conditions are poor 
-	 * @param message The message that was sent for reliable delivery
-	 */
-	public void deliveryTimeOut(IMCMessage message);
-	
-	/**
-	 * Unable to reach end point. The end point may have disconnected or destination is invalid. 
-	 * @param message The message that was sent for reliable delivery
-	 */
-	public void deliveryUnreacheable(IMCMessage message);
-	
-	/**
-	 * Unexpected error while trying to deliver message
-	 * @param message The message that was sent for reliable delivery
-	 * @param error The error that was found or returned by the end point.
-	 */
-	public void deliveryError(IMCMessage message, Object error);
+public interface CommManagerStatusChangeListener
+{
 
-    /**
-     * @param message
-     * @param string
-     */
-    public void deliveryUncertain(IMCMessage message, Object msg);	
+	public abstract void managerStatusChanged(int status, String msg);
+
+	public abstract void managerVehicleAdded(VehicleType vehicle);
+
+	public abstract void managerVehicleRemoved(VehicleType vehicle);
+
+	public abstract void managerVehicleStatusChanged(VehicleType vehicle,
+			int status);
+
+	public abstract void managerSystemAdded(String systemId);
+
+	public abstract void managerSystemRemoved(String systemId);
+
+	public abstract void managerSystemStatusChanged(String systemId,
+			int status);
+	
 }

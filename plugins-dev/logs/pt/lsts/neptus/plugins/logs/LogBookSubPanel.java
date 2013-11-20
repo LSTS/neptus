@@ -41,6 +41,9 @@ import java.util.Vector;
 import pt.lsts.imc.LogBookControl;
 import pt.lsts.imc.LogBookControl.COMMAND;
 import pt.lsts.imc.LogBookEntry;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventSystemAuthorityStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
@@ -55,9 +58,6 @@ import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.logs.HistoryMessage.msg_type;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem.IMCAuthorityState;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 import com.google.common.eventbus.Subscribe;
 

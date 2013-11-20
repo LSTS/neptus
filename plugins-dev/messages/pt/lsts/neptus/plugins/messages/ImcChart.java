@@ -46,8 +46,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 
 /**
  * @author jqcorreia

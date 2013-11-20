@@ -67,6 +67,8 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LblRangeAcceptance;
 import pt.lsts.imc.LblRangeAcceptance.ACCEPTANCE;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.SubPanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
@@ -101,8 +103,6 @@ import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.lbl.LBLTriangulationHelper;
 

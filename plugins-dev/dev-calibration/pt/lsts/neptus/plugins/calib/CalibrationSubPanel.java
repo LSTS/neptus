@@ -51,13 +51,13 @@ import pt.lsts.imc.DevCalibrationControl.OP;
 import pt.lsts.imc.DevCalibrationState;
 import pt.lsts.imc.EntityList;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
-import pt.lsts.neptus.util.comm.manager.imc.EntitiesResolver;
 
 import com.google.common.eventbus.Subscribe;
 import com.jogamp.newt.event.KeyEvent;

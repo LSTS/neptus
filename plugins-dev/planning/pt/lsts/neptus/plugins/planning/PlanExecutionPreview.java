@@ -49,6 +49,7 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventPositionEstimation;
 import pt.lsts.neptus.i18n.I18n;
@@ -70,7 +71,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 
 import com.google.common.eventbus.Subscribe;
 import com.l2fprod.common.propertysheet.Property;

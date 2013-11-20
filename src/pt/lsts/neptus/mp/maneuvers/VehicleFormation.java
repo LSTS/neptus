@@ -60,6 +60,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.TrajectoryPoint;
 import pt.lsts.imc.VehicleFormationParticipant;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.gui.SelectAllFocusListener;
 import pt.lsts.neptus.gui.VehicleChooser;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -68,7 +69,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 
 /**
  * @author zp

@@ -72,6 +72,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.RemoteActionsRequest;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.controllers.ControllerManager;
 import pt.lsts.neptus.i18n.I18n;
@@ -82,7 +83,6 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 
 /**
  * Controller Panel This panel is responsible for providing a away to teleoperate the vehicle, as well as edit the

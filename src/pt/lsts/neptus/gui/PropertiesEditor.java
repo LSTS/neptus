@@ -50,6 +50,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
 import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.editor.BitmaskPropertyEditor;
 import pt.lsts.neptus.gui.editor.ColorMapPropertyEditor;
@@ -74,7 +75,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;

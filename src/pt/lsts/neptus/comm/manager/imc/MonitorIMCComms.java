@@ -30,7 +30,7 @@
  * Created in 2006/12/08
  * Reworked in 2008/12/01
  */
-package pt.lsts.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.comm.manager.imc;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -67,6 +67,8 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.gui.ImcStatePanel;
 import pt.lsts.imc.state.ImcSysState;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.BaseAbstractCommsMonitorPanel;
+import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
 import pt.lsts.neptus.console.plugins.SystemsList;
 import pt.lsts.neptus.gui.editor.ImcId16Editor;
 import pt.lsts.neptus.gui.swing.JRoundButton;
@@ -87,8 +89,6 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.StringUtils;
-import pt.lsts.neptus.util.comm.manager.BaseAbstractCommsMonitorPanel;
-import pt.lsts.neptus.util.comm.manager.MessageFrequencyCalculator;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 

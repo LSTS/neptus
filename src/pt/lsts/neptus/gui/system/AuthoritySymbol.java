@@ -44,9 +44,9 @@ import java.awt.geom.RoundRectangle2D;
 
 import org.jdesktop.swingx.JXPanel;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem.IMCAuthorityState;
 
 /**
  * @author pdias

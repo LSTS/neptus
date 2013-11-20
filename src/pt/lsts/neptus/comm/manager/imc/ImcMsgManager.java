@@ -28,7 +28,7 @@
  *
  * 2007/05/25 pdias
  */
-package pt.lsts.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.comm.manager.imc;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -57,6 +57,9 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.manager.CommBaseManager;
+import pt.lsts.neptus.comm.manager.CommManagerStatusChangeListener;
+import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.MessageFilter;
 import pt.lsts.neptus.messages.listener.MessageInfo;
@@ -72,9 +75,6 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NetworkInterfacesUtil;
 import pt.lsts.neptus.util.NetworkInterfacesUtil.NInterface;
 import pt.lsts.neptus.util.StringUtils;
-import pt.lsts.neptus.util.comm.manager.CommBaseManager;
-import pt.lsts.neptus.util.comm.manager.CommManagerStatusChangeListener;
-import pt.lsts.neptus.util.comm.manager.MessageFrequencyCalculator;
 import pt.lsts.neptus.util.comm.transports.ImcTcpTransport;
 import pt.lsts.neptus.util.comm.transports.ImcUdpTransport;
 import pt.lsts.neptus.util.conf.ConfigFetch;

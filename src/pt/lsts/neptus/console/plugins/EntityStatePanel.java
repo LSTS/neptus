@@ -56,6 +56,7 @@ import javax.swing.table.TableColumn;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.alarms.AlarmManager.AlarmLevel;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.StatusLed;
 import pt.lsts.neptus.gui.ToolbarButton;
@@ -68,7 +69,6 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.comm.manager.imc.EntitiesResolver;
 import pt.lsts.imc.IMCMessage;
 
 /**

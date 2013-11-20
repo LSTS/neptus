@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 13 de Mar de 2011
  */
-package pt.lsts.neptus.util.comm.manager;
+package pt.lsts.neptus.comm.manager;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;

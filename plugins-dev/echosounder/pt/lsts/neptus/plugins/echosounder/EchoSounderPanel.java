@@ -48,6 +48,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.comm.manager.imc.MessageEditorImc;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.ColorMapListRenderer;
 import pt.lsts.neptus.gui.ToolbarButton;
@@ -58,7 +59,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.comm.manager.imc.MessageEditorImc;
 
 /**
  * @author zp

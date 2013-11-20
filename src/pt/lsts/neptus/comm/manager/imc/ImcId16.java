@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2009/??/??
  */
-package pt.lsts.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.comm.manager.imc;
 
 import java.util.StringTokenizer;
 

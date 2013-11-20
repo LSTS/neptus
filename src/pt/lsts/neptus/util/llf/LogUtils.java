@@ -59,6 +59,7 @@ import pt.lsts.imc.types.PlanSpecificationAdapter;
 import pt.lsts.imc.types.PlanSpecificationAdapter.Transition;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverFactory;
@@ -93,7 +94,6 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.Rectangle;

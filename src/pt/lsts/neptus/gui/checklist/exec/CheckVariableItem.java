@@ -37,10 +37,10 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.gui.checklist.CheckItemPanel;
 import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
-import pt.lsts.neptus.util.comm.manager.imc.EntitiesResolver;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;

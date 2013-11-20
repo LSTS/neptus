@@ -32,9 +32,9 @@
 package pt.lsts.neptus.plugins.planning.plandb;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
 import pt.lsts.neptus.types.Identifiable;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 
 /**
  * @author zp

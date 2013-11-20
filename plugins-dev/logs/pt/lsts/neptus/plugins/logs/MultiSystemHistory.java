@@ -52,9 +52,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import pt.lsts.imc.LogBookControl;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 
 /**
  * @author zp

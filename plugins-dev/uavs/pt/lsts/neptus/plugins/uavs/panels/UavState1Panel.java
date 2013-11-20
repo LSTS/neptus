@@ -40,6 +40,9 @@ import java.util.Hashtable;
 import javax.swing.Timer;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
@@ -49,9 +52,6 @@ import pt.lsts.neptus.plugins.uavs.IndicatorButton;
 import pt.lsts.neptus.plugins.uavs.UavPaintersBag;
 import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
 import pt.lsts.neptus.plugins.uavs.painters.elements.UavStateIndicatorPainter;
-import pt.lsts.neptus.util.comm.manager.imc.EntitiesResolver;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 import com.google.common.eventbus.Subscribe;
 

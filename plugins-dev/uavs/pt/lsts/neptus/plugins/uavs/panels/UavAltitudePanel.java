@@ -40,6 +40,8 @@ import java.awt.event.ComponentListener;
 import java.util.LinkedHashMap;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -53,8 +55,6 @@ import pt.lsts.neptus.plugins.uavs.painters.background.UavCoverLayerPainter;
 import pt.lsts.neptus.plugins.uavs.painters.elements.UavLabelPainter;
 import pt.lsts.neptus.plugins.uavs.painters.elements.UavMissionElementPainter;
 import pt.lsts.neptus.plugins.uavs.painters.foreground.UavRulerPainter;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * Neptus panel which allows the console operator to see the current altitudes of all active vehicles, detected by the console, and filtered by the selected type.

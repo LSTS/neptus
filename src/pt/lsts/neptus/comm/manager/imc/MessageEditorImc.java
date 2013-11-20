@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2008/04/13
  */
-package pt.lsts.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.comm.manager.imc;
 
 import java.awt.Window;
 import java.util.Vector;

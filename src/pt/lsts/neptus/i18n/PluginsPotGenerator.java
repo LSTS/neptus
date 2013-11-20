@@ -46,6 +46,7 @@ import pt.lsts.imc.Announce;
 import pt.lsts.imc.Goto;
 import pt.lsts.imc.Loiter;
 import pt.lsts.imc.PlanControlState;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.plugins.SystemsList;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -62,7 +63,6 @@ import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.util.FileUtil;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 

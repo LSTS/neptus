@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2007/05/19
  */
-package pt.lsts.neptus.util.comm.manager;
+package pt.lsts.neptus.comm.manager;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;

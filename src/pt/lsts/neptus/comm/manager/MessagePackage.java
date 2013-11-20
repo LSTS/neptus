@@ -26,34 +26,39 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: 
- * 2007/05/19
+ * Author: Paulo Dias
+ * 24/06/2011
  */
-package pt.lsts.neptus.util.comm.manager;
-
-import pt.lsts.neptus.types.vehicle.VehicleType;
+package pt.lsts.neptus.comm.manager;
 
 /**
  * @author pdias
  *
  */
-public interface CommManagerStatusChangeListener
-{
-
-	public abstract void managerStatusChanged(int status, String msg);
-
-	public abstract void managerVehicleAdded(VehicleType vehicle);
-
-	public abstract void managerVehicleRemoved(VehicleType vehicle);
-
-	public abstract void managerVehicleStatusChanged(VehicleType vehicle,
-			int status);
-
-	public abstract void managerSystemAdded(String systemId);
-
-	public abstract void managerSystemRemoved(String systemId);
-
-	public abstract void managerSystemStatusChanged(String systemId,
-			int status);
-	
+public class MessagePackage<Mi, M> {
+    private Mi info;
+    private M message;
+    
+    /**
+     * 
+     */
+    public MessagePackage(Mi info, M message) {
+        this.info = info;
+        this.message = message;
+    }
+    
+    /**
+     * @return the info
+     */
+    public Mi getInfo() {
+        return info;
+    }
+    
+    /**
+     * @return the message
+     */
+    public M getMessage() {
+        return message;
+    }
 }
+

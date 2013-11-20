@@ -26,39 +26,47 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Paulo Dias
- * 24/06/2011
+ * Author: José Pinto
+ * 2009/10/23
  */
-package pt.lsts.neptus.util.comm.manager;
+package pt.lsts.neptus.comm.manager.imc;
+
+import pt.lsts.imc.IMCMessage;
 
 /**
- * @author pdias
- *
+ * This interface is used by clients that wish to send messages reliably.
+ * @author zp
  */
-public class MessagePackage<Mi, M> {
-    private Mi info;
-    private M message;
-    
-    /**
-     * 
-     */
-    public MessagePackage(Mi info, M message) {
-        this.info = info;
-        this.message = message;
-    }
-    
-    /**
-     * @return the info
-     */
-    public Mi getInfo() {
-        return info;
-    }
-    
-    /**
-     * @return the message
-     */
-    public M getMessage() {
-        return message;
-    }
-}
+public interface MessageDeliveryListener {
+	
+	/**
+	 * Message has been successfully delivered to target
+	 * @param message The message that was sent for reliable delivery
+	 */
+	public void deliverySuccess(IMCMessage message);
+	
+	/**
+	 * Delivery time out after some time. End point may be disconnected or network conditions are poor 
+	 * @param message The message that was sent for reliable delivery
+	 */
+	public void deliveryTimeOut(IMCMessage message);
+	
+	/**
+	 * Unable to reach end point. The end point may have disconnected or destination is invalid. 
+	 * @param message The message that was sent for reliable delivery
+	 */
+	public void deliveryUnreacheable(IMCMessage message);
+	
+	/**
+	 * Unexpected error while trying to deliver message
+	 * @param message The message that was sent for reliable delivery
+	 * @param error The error that was found or returned by the end point.
+	 */
+	public void deliveryError(IMCMessage message, Object error);
 
+    /**
+     * @param message
+     * @param string
+     */
+    public void deliveryUncertain(IMCMessage message, Object msg);	
+}

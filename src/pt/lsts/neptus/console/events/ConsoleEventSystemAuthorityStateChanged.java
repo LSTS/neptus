@@ -31,9 +31,9 @@
  */
 package pt.lsts.neptus.console.events;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.console.plugins.SystemsList;
 import pt.lsts.neptus.console.plugins.VehicleStateMonitor;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem.IMCAuthorityState;
 
 /**
  * This event is triggered whenever the authority over a vehicle changes

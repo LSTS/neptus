@@ -35,10 +35,10 @@ import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ByteUtil;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 
 /**
  * @author zp

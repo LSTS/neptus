@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2009/10/22
  */
-package pt.lsts.neptus.util.comm.manager.imc;
+package pt.lsts.neptus.comm.manager.imc;
 
 import java.util.LinkedHashMap;
 

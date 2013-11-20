@@ -41,8 +41,8 @@ import java.util.List;
 import org.dinopolis.gpstool.gpsinput.nmea.NMEA0183Sentence;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.util.llf.NeptusMessageLogger;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;

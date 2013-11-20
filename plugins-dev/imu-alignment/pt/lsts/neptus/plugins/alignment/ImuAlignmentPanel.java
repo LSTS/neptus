@@ -52,6 +52,7 @@ import pt.lsts.imc.EntityState;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.QueryEntityActivationState;
 import pt.lsts.imc.SetEntityParameters;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.i18n.I18n;
@@ -68,7 +69,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.comm.manager.imc.EntitiesResolver;
 
 import com.google.common.eventbus.Subscribe;
 
