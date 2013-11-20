@@ -39,9 +39,11 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
  */
 public class BathymetrySwath {
     long timestamp;
+    private int numBeams;
+    
     SystemPositionAndAttitude pose;
     BathymetryPoint data[];
-    public int numBeams;
+    
     
     /**
      * @param timestamp
@@ -95,5 +97,21 @@ public class BathymetrySwath {
     public void setData(BathymetryPoint[] data) {
         this.data = data;
     }
+
+    /**
+     * @return the numBeams
+     */
+    public int getNumBeams() {
+        return numBeams;
+    }
+
+    /**
+     * @param numBeams the numBeams to set
+     */
+    public void setNumBeams(int numBeams) {
+        this.numBeams = numBeams;
+    }
+    
+    
     
 }

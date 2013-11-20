@@ -42,6 +42,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.NeptusMRA;
@@ -53,7 +54,6 @@ import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.llf.LsfLogSource;
-import pt.lsts.imc.IMCMessage;
 
 /**
  * @author jqcorreia
@@ -130,14 +130,14 @@ public class DeltaTParser implements BathymetryParser {
                 minLat = Math.min(lat, minLat);
                 minLon = Math.min(lon, minLon);
                 
-                for(int c = 0; c < bs.numBeams; c++) {
+                for(int c = 0; c < bs.getNumBeams(); c++) {
                     BathymetryPoint p = bs.getData()[c];
                     
                     info.minDepth = Math.min(info.minDepth, p.depth);
                     info.maxDepth = Math.max(info.maxDepth, p.depth);
                 }
                               
-                totalNumberPoints = totalNumberPoints + bs.numBeams;
+                totalNumberPoints = totalNumberPoints + bs.getNumBeams();
                 realNumberOfBeams = 0;
             }
             
@@ -154,7 +154,6 @@ public class DeltaTParser implements BathymetryParser {
                 e.printStackTrace();
             }
             catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             curPos = 0;
@@ -224,7 +223,10 @@ public class DeltaTParser implements BathymetryParser {
                 buf = channel.map(MapMode.READ_ONLY, curPos + 256, header.numBeams * 2);
             
             data = new BathymetryPoint[header.numBeams];
+            
+            // FIXME this must be known by reading only the 83P file. This way we are depending on a a 83P <-> IMC coupling
             state = stateParser.getEntryAtOrAfter(header.timestamp + NeptusMRA.timestampMultibeamIncrement);
+            
             if (state == null)
                 return null;
             
@@ -249,8 +251,8 @@ public class DeltaTParser implements BathymetryParser {
                     continue;
                 }
                                
-                    // range corrected with soundVelocity 1516 !?
-                    // FIXME está a dar galhada - nos de cadiz dão direito
+                // range corrected with soundVelocity 1516 !?
+                // FIXME está a dar galhada - nos de cadiz dão direito
                 //NeptusLog.pub().info("header soundVelocity: " + header.soundVelocity);
                 //range = range * header.soundVelocity / 1500;
                            
@@ -283,7 +285,7 @@ public class DeltaTParser implements BathymetryParser {
             curPos += header.numBytes; // Advance current position
             
             BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, data);
-            swath.numBeams = realNumberOfBeams;
+            swath.setNumBeams(realNumberOfBeams);
             
             return swath;
         }
@@ -316,7 +318,7 @@ public class DeltaTParser implements BathymetryParser {
             curPos += header.numBytes; // Advance current position
             
             BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, null);
-            swath.numBeams = realNumberOfBeams;
+            swath.setNumBeams(realNumberOfBeams);
             
             return swath;
         }
