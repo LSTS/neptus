@@ -40,9 +40,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsoleSystem;
-import pt.lsts.neptus.util.comm.IMCUtils;
 
 /**
  * @author ZP

@@ -51,6 +51,7 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.XmlInputMethods;
 import pt.lsts.neptus.types.XmlInputMethodsFromFile;
@@ -67,7 +68,6 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NameNormalizer;
 import pt.lsts.neptus.util.XMLValidator;
 import pt.lsts.neptus.util.ZipUtils;
-import pt.lsts.neptus.util.comm.IMCUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**

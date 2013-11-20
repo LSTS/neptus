@@ -33,12 +33,12 @@ package pt.lsts.neptus.console.plugins;
 
 import java.util.Vector;
 
+import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.types.comm.CommMean;
-import pt.lsts.neptus.util.comm.CommUtil;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;

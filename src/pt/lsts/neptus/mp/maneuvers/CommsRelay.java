@@ -40,6 +40,7 @@ import org.dom4j.Node;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
 import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
@@ -48,7 +49,6 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.NameNormalizer;
-import pt.lsts.neptus.util.comm.IMCUtils;
 import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;

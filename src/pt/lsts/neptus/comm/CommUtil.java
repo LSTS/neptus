@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2005/06/22
  */
-package pt.lsts.neptus.util.comm;
+package pt.lsts.neptus.comm;
 
 import gnu.io.CommPortIdentifier;
 

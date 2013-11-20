@@ -49,6 +49,7 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.lsts.imc.LblBeacon;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.HTTPUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.gui.tree.ExtendedTreeNode;
@@ -72,7 +73,6 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.comm.HTTPUtils;
 import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;

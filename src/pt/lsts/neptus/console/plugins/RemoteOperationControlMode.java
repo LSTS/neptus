@@ -47,6 +47,7 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.StatusLed;
 import pt.lsts.neptus.i18n.I18n;
@@ -57,7 +58,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.comm.IMCSendMessageUtils;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.Teleoperation;

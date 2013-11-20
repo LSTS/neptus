@@ -29,7 +29,7 @@
  * Author: 
  * 20??/??/??
  */
-package pt.lsts.neptus.util.comm;
+package pt.lsts.neptus.comm;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

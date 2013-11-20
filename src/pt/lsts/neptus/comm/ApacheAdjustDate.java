@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 22/Jun/2005
  */
-package pt.lsts.neptus.util.comm;
+package pt.lsts.neptus.comm;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

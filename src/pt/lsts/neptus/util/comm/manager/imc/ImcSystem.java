@@ -41,6 +41,8 @@ import java.util.Map;
 import java.util.Vector;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.CommUtil;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.plugins.planning.plandb.PlanDBControl;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.comm.protocol.IMCArgs;
@@ -52,8 +54,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
-import pt.lsts.neptus.util.comm.CommUtil;
-import pt.lsts.neptus.util.comm.IMCUtils;
 
 /**
  * @author pdias

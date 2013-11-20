@@ -40,8 +40,6 @@ import javax.swing.JOptionPane;
 
 import pt.lsts.neptus.gui.WaitPanel;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.util.comm.ApacheAdjustDate;
-import pt.lsts.neptus.util.comm.CommUtil;
 import pt.lsts.neptus.util.comm.ssh.SSHAdjustDate;
 
 /**

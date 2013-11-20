@@ -73,6 +73,7 @@ import org.w3c.dom.Document;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
@@ -102,7 +103,6 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.StreamUtil;
-import pt.lsts.neptus.util.comm.IMCUtils;
 import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;

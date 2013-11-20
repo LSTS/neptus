@@ -54,6 +54,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.NeptusMRA;
@@ -76,7 +77,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.comm.IMCUtils;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.util.WGS84Utilities;
 

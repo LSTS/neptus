@@ -60,6 +60,7 @@ import org.jzy3d.plot3d.rendering.legends.colorbars.ColorbarLegend;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.colormap.DataDiscretizer;
 import pt.lsts.neptus.colormap.DataDiscretizer.DataPoint;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -69,7 +70,6 @@ import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.visualizations.SimpleMRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.comm.IMCUtils;
 
 /**
  * @author zp

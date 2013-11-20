@@ -37,11 +37,11 @@ import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.comm.IMCUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;

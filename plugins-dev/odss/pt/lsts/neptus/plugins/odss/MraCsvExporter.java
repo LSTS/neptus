@@ -42,13 +42,13 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Salinity;
 import pt.lsts.imc.Temperature;
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.ImcLogUtils;
 import pt.lsts.neptus.mra.visualizations.SimpleMRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.comm.IMCUtils;
 
 /**
  * @author zp

@@ -6,12 +6,12 @@ import javax.vecmath.Point3d;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.types.mission.MissionType;
-import pt.lsts.neptus.util.comm.IMCUtils;
 
 /*
  * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia

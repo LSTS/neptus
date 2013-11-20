@@ -31,9 +31,9 @@
  */
 package pt.lsts.neptus.plugins.controllers;
 
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.util.comm.IMCUtils;
 import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowRefState;

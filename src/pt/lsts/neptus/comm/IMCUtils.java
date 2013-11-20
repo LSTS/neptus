@@ -29,7 +29,7 @@
  * Author: José Pinto and pdias
  * 2007/07/05
  */
-package pt.lsts.neptus.util.comm;
+package pt.lsts.neptus.comm;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

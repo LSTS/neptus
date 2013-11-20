@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 5/10/2011
  */
-package pt.lsts.neptus.util.comm;
+package pt.lsts.neptus.comm;
 
 import java.awt.Component;
 

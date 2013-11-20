@@ -31,13 +31,13 @@
  */
 package pt.lsts.neptus.console;
 
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.util.comm.IMCUtils;
 import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.lsts.imc.CcuEvent;
 import pt.lsts.imc.LogBookEntry;

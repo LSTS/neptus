@@ -36,10 +36,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.util.comm.CommUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.jcraft.jsch.JSch;
