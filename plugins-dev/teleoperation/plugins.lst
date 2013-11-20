@@ -6,5 +6,4 @@
 # SVN_PATH=@SVN_PATH@
 
 pt.lsts.neptus.plugins.teleoperation.ServoControlPanel
-pt.lsts.neptus.plugins.teleoperation.ControllerPanel
 pt.lsts.neptus.plugins.teleoperation.ROVInfoLayer
