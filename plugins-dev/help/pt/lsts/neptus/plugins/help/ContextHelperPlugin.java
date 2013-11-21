@@ -45,7 +45,7 @@ import pt.lsts.neptus.console.SubPanel;
 import pt.lsts.neptus.doc.DocumentationPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.actions.SimpleMenuAction;
+import pt.lsts.neptus.plugins.SimpleMenuAction;
 
 /**
  * @author zp

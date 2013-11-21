@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2009/09/24
  */
-package pt.lsts.neptus.plugins.actions;
+package pt.lsts.neptus.plugins;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -41,9 +41,6 @@ import javax.swing.JMenuItem;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.plugins.CheckMenuChangeListener;
-import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.ImageUtils;
 

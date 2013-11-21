@@ -36,6 +36,7 @@ import java.awt.event.ActionEvent;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleMenuAction;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**

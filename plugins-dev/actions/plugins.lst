@@ -8,4 +8,4 @@
 pt.lsts.neptus.plugins.actions.FullScreenAction
 pt.lsts.neptus.plugins.actions.HTTPControls
 pt.lsts.neptus.plugins.actions.ExecuteCommandPanel
-# pt.lsts.neptus.plugins.actions.SimpleMenuAction
+pt.lsts.neptus.plugins.actions.SimpleAction
