@@ -29,7 +29,7 @@
  * Author: jqcorreia
  * Jun 4, 2013
  */
-package pt.lsts.neptus.plugins.mraplots;
+package pt.lsts.neptus.mra.plots;
 
 import java.awt.Component;
 import java.util.Arrays;
@@ -45,7 +45,6 @@ import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.LsfMraLog;
-import pt.lsts.neptus.mra.plots.MraTimeSeriesPlot;
 
 /**
  * @author jqcorreia

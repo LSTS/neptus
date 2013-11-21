@@ -9,6 +9,3 @@ pt.lsts.neptus.plugins.mraplots.BathymetryPlotter
 pt.lsts.neptus.plugins.mraplots.LsfTable
 pt.lsts.neptus.plugins.mraplots.MraPhotosVisualization
 pt.lsts.neptus.plugins.mraplots.RevisionOverlays
-#pt.lsts.neptus.plugins.mraplots.SidescanHistogram
-pt.lsts.neptus.plugins.rtplot.RealTimePlot
-#pt.lsts.neptus.plugins.mraplots.NetworkConnections
