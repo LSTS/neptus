@@ -31,7 +31,6 @@
  */
 package pt.lsts.neptus.plugins.position.painter;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -42,9 +41,6 @@ import javax.swing.ImageIcon;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.alarms.AlarmChangeListener;
-import pt.lsts.neptus.alarms.AlarmManager.AlarmLevel;
-import pt.lsts.neptus.alarms.AlarmProvider;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.i18n.I18n;
@@ -71,7 +67,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
 @PluginDescription(name = "System Information On Map", icon = "pt/lsts/neptus/plugins/position/position.png", description = "System Information display on map", documentation = "system-info/system-info.html", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 70)
 public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPainter, NeptusMessageListener,
-        IPeriodicUpdates, ConfigurationListener, AlarmChangeListener {
+        IPeriodicUpdates, ConfigurationListener {
 
     private static final int ICON_SIZE = 24;
     private final ImageIcon CPU_ICON = ImageUtils.getScaledIcon(
@@ -111,8 +107,6 @@ public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPaint
 
     private Font textFont;
 
-    private AlarmLevel alarmLevel = AlarmLevel.NORMAL;
-
     public SystemInfoPainter(ConsoleLayout console) {
         super(console);
     }
@@ -147,15 +141,6 @@ public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPaint
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if (!enablePainter || mainSysName == null)
             return;
-
-        // Red alarm border
-        if (paintBorder) {
-            if (alarmLevel.getValue() > AlarmLevel.NORMAL.getValue()) {
-                g.setStroke(new BasicStroke(3));
-                g.setColor(getAlarmColor());
-                g.drawRect(0, 0, renderer.getWidth() - 2, renderer.getHeight() - 2);
-            }
-        }
 
         // System Info
         if (paintInfo) {
@@ -256,44 +241,6 @@ public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPaint
     @Override
     public void propertiesChanged() {
 
-    }
-
-    /**
-     * Return the color of the border to paint in StateRenderer2D
-     * 
-     * @return the color based on general alarm level
-     */
-    Color getAlarmColor() {
-        switch (alarmLevel) {
-            case INFO:
-                return Color.BLUE.brighter();
-            case FAULT:
-                return Color.yellow;
-            case ERROR:
-                return Color.orange;
-            case FAILURE:
-                return Color.red;
-            default:
-                return null;
-        }
-    }
-
-    @Override
-    public void alarmStateChanged(AlarmProvider provider) {
-
-    }
-
-    @Override
-    public void maxAlarmStateChanged(AlarmLevel maxlevel) {
-        alarmLevel = maxlevel;
-    }
-
-    @Override
-    public void alarmAdded(AlarmProvider provider) {
-    }
-
-    @Override
-    public void alarmRemoved(AlarmProvider provider) {
     }
 
     @Override
