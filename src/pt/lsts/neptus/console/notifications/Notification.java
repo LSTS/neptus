@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: guga
+ * Author: Hugo Dias
  * 10 de Nov de 2012
  */
 package pt.lsts.neptus.console.notifications;
