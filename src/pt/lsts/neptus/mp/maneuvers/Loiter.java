@@ -587,7 +587,7 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 
         double time = getDistanceTravelled(initialPosition) / speed;
 
-        return getLoiterDuration() == 0 ? Double.POSITIVE_INFINITY : getLoiterDuration() + time;
+        return /*getLoiterDuration() == 0 ? Double.POSITIVE_INFINITY :*/ getLoiterDuration() + time;
     }
 
     @Override

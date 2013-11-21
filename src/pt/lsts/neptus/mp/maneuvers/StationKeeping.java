@@ -199,10 +199,6 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 		radius.setShortDescription("Sets the radius of the trajectory");
 		props.add(radius);
 		
-		for (DefaultProperty p : props) {
-			NeptusLog.pub().info("<###>* "+p.getName()+"="+p.getValue());
-		}
-		
 		return props;
 	}
 	
@@ -379,7 +375,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 
         double time = getDistanceTravelled(initialPosition) / speed;
 
-        return getDuration() == 0 ? Double.POSITIVE_INFINITY : getDuration() + time;
+        return /*getDuration() == 0 ? Double.POSITIVE_INFINITY :*/ getDuration() + time;
     }
 
     /* (non-Javadoc)
