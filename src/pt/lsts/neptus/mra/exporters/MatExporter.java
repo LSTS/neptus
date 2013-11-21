@@ -52,7 +52,7 @@ import com.jmatio.types.MLStructure;
  * @author jqcorreia
  *
  */
-public class MatExporter implements MraExporter {
+public class MatExporter implements MRAExporter {
     IMraLogGroup source;
     
     

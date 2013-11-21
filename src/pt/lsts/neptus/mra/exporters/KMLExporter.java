@@ -83,7 +83,7 @@ import pt.lsts.util.WGS84Utilities;
 /**
  * @author zp
  */
-public class KMLExporter implements MraExporter {
+public class KMLExporter implements MRAExporter {
     public double minLat = 180;
     public double maxLat = -180;
     public double minLon = 360;

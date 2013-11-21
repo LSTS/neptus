@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 200?/??/??
  */
-package pt.lsts.neptus.mra;
+package pt.lsts.neptus.mra.visualizations;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -71,9 +71,9 @@ import pt.lsts.neptus.colormap.DataDiscretizer;
 import pt.lsts.neptus.colormap.DataDiscretizer.DataPoint;
 import pt.lsts.neptus.gui.ColorMapListRenderer;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.imc.IMCMessage;

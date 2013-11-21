@@ -116,7 +116,6 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
         layers.add(markersReplay);
         layers.add(new BathymetryReplay());
         layers.add(new AnnouncesReplay());
-//        layers.add(new DeltaTReplayLayer());
     }
     
     protected LinkedHashMap<String, IMraLog> replayParsers = new LinkedHashMap<String, IMraLog>();
@@ -363,7 +362,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
                     }
                 });
                 
-                // As this is modal execution stops here.
+                // As fieldDialog is modal execution pauses here.
                 fieldDialog.setVisible(true);
                 
                 ReplayPlot plot = new ReplayPlot(panel, fields.toArray(new String[0]));

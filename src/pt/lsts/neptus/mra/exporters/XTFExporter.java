@@ -51,7 +51,7 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
  *
  */
 
-public class XtfExporter implements MraExporter {
+public class XTFExporter implements MRAExporter {
     IMraLogGroup source;
     BathymetryParser parser;
     File outFile;
@@ -60,17 +60,10 @@ public class XtfExporter implements MraExporter {
     ByteBuffer buf;
     
     
-    public XtfExporter(IMraLogGroup source) {
+    public XTFExporter(IMraLogGroup source) {
         this.source = source;
         parser = BathymetryParserFactory.build(source);
-        outFile = new File(source.getFile("Data.lsf").getParent() + "/mra/Data.xtf");
-        try {
-            raf = new RandomAccessFile(outFile, "rw");
-            chan = raf.getChannel();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+    
     }
     
     @Override
@@ -81,6 +74,9 @@ public class XtfExporter implements MraExporter {
     @Override
     public String process() {
         try {
+            outFile = new File(source.getFile("Data.lsf").getParent() + "/mra/Data.xtf");
+            raf = new RandomAccessFile(outFile, "rw");
+            chan = raf.getChannel();
             buf = chan.map(MapMode.READ_WRITE, 0, 1024);
             buf.order(ByteOrder.LITTLE_ENDIAN);
             

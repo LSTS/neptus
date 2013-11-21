@@ -56,7 +56,7 @@ import pt.lsts.imc.IMCMessage;
  * 83P to Point Cloud Data exporter
  * @author jqcorreia
  */
-public class PCDExporter implements MraExporter{
+public class PCDExporter implements MRAExporter{
     public double minLat = 180;
     public double maxLat = -180;
     public double minLon = 360;

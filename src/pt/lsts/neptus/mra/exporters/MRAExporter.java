@@ -37,7 +37,7 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
  * @author jqcorreia
  *
  */
-public interface MraExporter {
+public interface MRAExporter {
     /**
      * This method must return true for the implementing Exporter to be added to MRA
      * @param source
