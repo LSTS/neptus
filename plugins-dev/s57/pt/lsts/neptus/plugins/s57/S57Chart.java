@@ -32,7 +32,6 @@
 package pt.lsts.neptus.plugins.s57;
 
 import java.awt.Graphics2D;
-import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
