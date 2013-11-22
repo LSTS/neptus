@@ -186,14 +186,14 @@ public class AnnounceWorker {
 
 	public String getAllServices() {
 		return getNeptusInstanceUniqueID() + ";"
-				+ "neptus:///version/" + (ConfigFetch.getNeptusVersion() + "_" 
+				+ "neptus://0.0.0.0/version/" + (ConfigFetch.getNeptusVersion() + "_" 
 				+ ConfigFetch.getCompilationDate()) + "_r" + ConfigFetch.getScmRev() + "/;"
-				+ "imc+info///version/" + imcDefinition.getVersion() + "/;"
+				+ "imc+info//0.0.0.0/version/" + imcDefinition.getVersion() + "/;"
 				+ imcManager.getAnnounceServicesList();
 	}
 	
 	public String getNeptusInstanceUniqueID() {
-	    return "neptus:///uid/" + DateTimeUtil.getUID() + "/";
+	    return "neptus://0.0.0.0/uid/" + DateTimeUtil.getUID() + "/";
 	}
 	
 	/**
