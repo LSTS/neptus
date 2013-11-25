@@ -80,13 +80,13 @@ public class DeltaTParser implements BathymetryParser {
     
     public DeltaTParser(IMraLogGroup source) {
         this.source = source;
-        if (source.getFile("data.83P") != null) {
-            file = source.getFile("data.83P"); 
-        }
-        else if (source.getFile("multibeam.83P") != null) {
+        if (source.getFile("data.83P") != null)
+            file = source.getFile("data.83P");
+        else if (source.getFile("Data.83P") != null)
+            file = source.getFile("Data.83P");
+        else if (source.getFile("multibeam.83P") != null)
             file = source.getFile("multibeam.83P");
-        }
-        
+
         try {
             fis = new FileInputStream(file);
         }
