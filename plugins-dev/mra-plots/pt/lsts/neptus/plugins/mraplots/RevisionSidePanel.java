@@ -61,7 +61,9 @@ import pt.lsts.neptus.mra.replay.GPSFixReplay;
 import pt.lsts.neptus.mra.replay.LBLRangesReplay;
 import pt.lsts.neptus.mra.replay.LogMarkersReplay;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
+import pt.lsts.neptus.renderer2d.ImageLayer;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
@@ -163,6 +165,20 @@ public class RevisionSidePanel extends JPanel {
                 if (layer.canBeApplied(source)) {
                     layer.parse(source);
                     addOverlay(layer.getName(), layer);
+                }
+            }
+            
+            File dir = source.getFile("mra");
+            File[] files = dir.listFiles();
+            for (File f : files) {
+                System.out.println(f);
+                if (FileUtil.getFileExtension(f).equals("layer")) {
+                    try {
+                        addOverlay(f.getName(), ImageLayer.read(f));
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
