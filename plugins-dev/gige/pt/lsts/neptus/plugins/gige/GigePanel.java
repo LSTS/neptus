@@ -92,6 +92,11 @@ public class GigePanel extends SimpleSubPanel implements GigeDatagramListener{
     
     private JButton start = new JButton(new AbstractAction("Start") {
 
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -6416906682002548227L;
+
         @Override
         public void actionPerformed(ActionEvent e) {
             manager.startStream();
@@ -100,6 +105,11 @@ public class GigePanel extends SimpleSubPanel implements GigeDatagramListener{
 
     private JButton stop = new JButton(new AbstractAction("Stop") {
 
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 6761584339646110219L;
+
         @Override
         public void actionPerformed(ActionEvent e) {
             manager.stopStream();
@@ -107,6 +117,11 @@ public class GigePanel extends SimpleSubPanel implements GigeDatagramListener{
     });
     
     private JButton connect = new JButton(new AbstractAction("Connect") {
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -4026628689363444940L;
 
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -121,6 +136,11 @@ public class GigePanel extends SimpleSubPanel implements GigeDatagramListener{
     JTextField ipField = new JTextField();
     
     private JButton record = new JButton(new AbstractAction("Record") {
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 791901689647495239L;
 
         @Override
         public void actionPerformed(ActionEvent e) {
