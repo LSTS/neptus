@@ -257,8 +257,13 @@ public class KMLExporter implements MRAExporter {
             
             BufferedImage previous = new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB);
             for (SidescanLine sl : lines) {
+                
                 int widthPixels = (int)(sl.range * resolution * 2);
-                //System.out.println(Math.toDegrees(sl.state.getP()));
+                
+                // Calculate nadir pixel range to be zero-alpha (transparent)
+                int nadirStartPixel = (int) ((widthPixels / 2) - (sl.state.getAltitude() * resolution));
+                int nadirFinalPixel = (int) ((widthPixels / 2) + (sl.state.getAltitude() * resolution));
+                
                 if (swath == null || swath.getWidth() != widthPixels)
                     swath = new BufferedImage(widthPixels, 3, BufferedImage.TYPE_INT_ARGB);
                 
@@ -273,9 +278,15 @@ public class KMLExporter implements MRAExporter {
                 
                 for (int i = 0; i < sl.data.length; i++) {
                     if (i != 0 && i % samplesPerPixel == 0) {
+                        int alpha = (int)(swathTransparency * 255);
+
+                        if(i / samplesPerPixel >= nadirStartPixel || i / samplesPerPixel <= nadirFinalPixel) {
+                            alpha = 0;
+                        }
+                        
                         double val = sum / count;
                         if ((i/samplesPerPixel-1)<widthPixels)
-                            swath.setRGB(i/samplesPerPixel-1, 0, cmap.getColor(val).getRGB() + ((int)(swathTransparency * 255) << 24));
+                            swath.setRGB(i/samplesPerPixel-1, 0, cmap.getColor(val).getRGB() | (alpha << 24));
                         sum = count = 0;
                     }
                     else {

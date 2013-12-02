@@ -34,8 +34,6 @@ package pt.lsts.neptus.mra.api;
 import java.util.ArrayList;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.colormap.ColorMap;
-import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -48,8 +46,6 @@ public class LegacyImcSidescanParser implements SidescanParser {
     IMraLog pingParser;
     IMraLog stateParser;
     
-    ColorMap colormap = ColorMapFactory.createBronzeColormap();
-
     long firstTimestamp = -1;
     long lastTimestamp = -1;
     
