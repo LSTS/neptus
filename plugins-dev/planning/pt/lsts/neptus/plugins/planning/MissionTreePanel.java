@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2009/09/22
  */
-package pt.up.fe.dceg.neptus.plugins.planning;
+package pt.lsts.neptus.plugins.planning;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -72,6 +72,10 @@ import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.plugins.IPlanSelection;
@@ -94,6 +98,10 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.plugins.planning.plandb.PlanDBAdapter;
+import pt.lsts.neptus.plugins.planning.plandb.PlanDBControl;
+import pt.lsts.neptus.plugins.planning.plandb.PlanDBInfo;
+import pt.lsts.neptus.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.Identifiable;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -108,14 +116,6 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ByteUtil;
-import pt.lsts.neptus.util.comm.IMCUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
-import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBAdapter;
-import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBControl;
-import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBInfo;
-import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBState;
 
 import com.google.common.eventbus.Subscribe;
 

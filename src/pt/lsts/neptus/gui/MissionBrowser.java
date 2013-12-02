@@ -42,6 +42,10 @@ import org.dom4j.DocumentHelper;
 import pt.lsts.imc.LblBeacon;
 import pt.lsts.imc.LblConfig;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.HTTPUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.gui.MissionTreeModel.NodeInfoKey;
@@ -50,6 +54,7 @@ import pt.lsts.neptus.gui.tree.ExtendedTreeNode;
 import pt.lsts.neptus.gui.tree.ExtendedTreeNode.ChildIterator;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.MapChangeEvent;
+import pt.lsts.neptus.plugins.planning.plandb.PlanDBInfo;
 import pt.lsts.neptus.types.Identifiable;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
@@ -65,12 +70,7 @@ import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.comm.HTTPUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.up.fe.dceg.neptus.plugins.planning.plandb.PlanDBInfo;
 
 
 /**
@@ -998,7 +998,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         Identifiable item;
         for (String id : localIds) {
             existing.add(id);
-            // TODO target = treeModel.findNode(id, itemType); --> Identification will be different
+            // TODO
+            target = treeModel.findNode(id, itemType);// --> Identification will be different
 
             item = local.get(id);
             System.out.print(id + " \t");
