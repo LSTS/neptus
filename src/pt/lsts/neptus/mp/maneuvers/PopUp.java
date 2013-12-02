@@ -31,6 +31,11 @@
  */
 package pt.lsts.neptus.mp.maneuvers;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -39,7 +44,6 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -49,6 +53,8 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.util.NameNormalizer;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -66,14 +72,16 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
     ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "PopUp";
 	
-	private final int ANGLE_CALCULATION = -1 ;
-	private final int FIRST_ROTATE = 0 ;
-	private final int HORIZONTAL_MOVE = 1 ;
+	private final int ANGLE_CALCULATION = -1;
+	private final int FIRST_ROTATE = 0;
+	private final int HORIZONTAL_MOVE = 1;
 	int current_state = ANGLE_CALCULATION;
 	
 	private double targetAngle, rotateIncrement;
+	private boolean currPos = false, waitAtSurface = false, stationKeep = false;
 	
 	public String id = NameNormalizer.getRandomID();
+	
 	
 	public String getType() {
 		return "PopUp";
@@ -101,6 +109,11 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    velocity.addAttribute("unit", getUnits());
 	    velocity.setText(String.valueOf(getSpeed()));
 	    
+	    Element flags = root.addElement("flags");
+	    flags.addAttribute("CurrPos", ""+isCurrPos());
+	    flags.addAttribute("StationKeep", ""+isStationKeep());
+	    flags.addAttribute("WaitAtSurface", ""+isWaitAtSurface());        
+	    
 	    return document;
     }
 	
@@ -123,6 +136,10 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	        setUnits(speedNode.valueOf("@unit"));
 	        setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
 	        
+	        Node flagsNode = doc.selectSingleNode("PopUp/flags");
+	        setCurrPos(Boolean.parseBoolean(flagsNode.valueOf("@CurrPos")));
+	        setWaitAtSurface(Boolean.parseBoolean(flagsNode.valueOf("@WaitAtSurface")));
+	        setStationKeep(Boolean.parseBoolean(flagsNode.valueOf("@StationKeep")));
 	    }
 	    catch (Exception e) {
 	        NeptusLog.pub().error(this, e);
@@ -210,6 +227,9 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    clone.setUnits(getUnits());
 	    clone.setSpeed(getSpeed());
 	    clone.setSpeedTolerance(getSpeedTolerance());
+	    clone.setCurrPos(isCurrPos());
+	    clone.setStationKeep(isStationKeep());
+	    clone.setWaitAtSurface(isWaitAtSurface());
 	    return clone;
 	}
 
@@ -284,10 +304,17 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
     
     	properties.add(PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true));
     	properties.add(units);
-
-    	properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
+    	
+    	properties.add(PropertiesEditor.getPropertyInstance("Radius", Double.class, getRadiusTolerance(), true));
+        
+    	
+    	//properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
 
     	properties.add(PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true));
+    	
+    	properties.add(PropertiesEditor.getPropertyInstance("CURR_POS", "Flags", Boolean.class, isCurrPos(), true));
+    	properties.add(PropertiesEditor.getPropertyInstance("STATION_KEEP", "Flags", Boolean.class, isStationKeep(), true));
+    	properties.add(PropertiesEditor.getPropertyInstance("WAIT_AT_SURFACE", "Flags", Boolean.class, isWaitAtSurface(), true));
     	
     	return properties;
     }
@@ -305,18 +332,27 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
     		if (p.getName().equals("Speed units")) {
     			setUnits((String)p.getValue());
     		}
-    		if (p.getName().equals("Speed tolerance")) {
-    			setSpeedTolerance((Double)p.getValue());
-    		}
+    		//if (p.getName().equals("Speed tolerance")) {
+    		//	setSpeedTolerance((Double)p.getValue());
+    		//}
     		if (p.getName().equals("Speed")) {
     			setSpeed((Double)p.getValue());
     		}
-    		if (p.getName().equals("Radius tolerance")) {
+    		if (p.getName().equals("Radius")) {
     			setRadiusTolerance((Double)p.getValue());
     		}
     		if (p.getName().equals("Duration")) {
     			setDuration((Integer)p.getValue());
     		}
+    		if (p.getName().equals("CURR_POS")) {
+    		    setCurrPos((Boolean)p.getValue());
+    		}
+            if (p.getName().equals("STATION_KEEP")) {
+                setStationKeep((Boolean)p.getValue());
+            }
+            if (p.getName().equals("WAIT_AT_SURFACE")) {
+                setWaitAtSurface((Boolean)p.getValue());
+            }
     	}
     }
     
@@ -343,103 +379,189 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
     	destination = location.clone();
     }
     
-	@Override
+	/**
+     * @return the currPos
+     */
+    public boolean isCurrPos() {
+        return currPos;
+    }
+
+    /**
+     * @param currPos the currPos to set
+     */
+    public void setCurrPos(boolean currPos) {
+        this.currPos = currPos;
+    }
+
+    /**
+     * @return the waitAtSurface
+     */
+    public boolean isWaitAtSurface() {
+        return waitAtSurface;
+    }
+
+    /**
+     * @param waitAtSurface the waitAtSurface to set
+     */
+    public void setWaitAtSurface(boolean waitAtSurface) {
+        this.waitAtSurface = waitAtSurface;
+    }
+
+    /**
+     * @return the stationKeep
+     */
+    public boolean isStationKeep() {
+        return stationKeep;
+    }
+
+    /**
+     * @param stationKeep the stationKeep to set
+     */
+    public void setStationKeep(boolean stationKeep) {
+        this.stationKeep = stationKeep;
+    }
+
+    @Override
 	public String getTooltipText() {
 		return super.getTooltipText()+"<hr>"+
 		I18n.text("speed") + ": <b>"+getSpeed()+" "+I18n.text(getUnits())+"</b>"+
 		"<br>" + I18n.text("cruise depth") + ": <b>"+(int)destination.getDepth()+" " + I18n.textc("m", "meters") + "</b>"+
 		"<br>" + I18n.text("duration") + ": <b>"+getDuration()+" " + I18n.textc("s", "seconds") + "</b>";
 	}
+    
+    @Override
+    public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
+        super.paintOnMap(g2d, planElement, renderer);
+        AffineTransform at = g2d.getTransform();
+        // x marks the spot...
+        g2d.drawLine(-4, -4, 4, 4);
+        g2d.drawLine(-4, 4, 4, -4);
+        double radius = this.getRadiusTolerance() * renderer.getZoom();
+        g2d.setColor(new Color(255,255,255,100));
+        g2d.fill(new Ellipse2D.Double(-radius,-radius,radius*2, radius*2));
+        g2d.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 0, new float[] {3,3}, 0));
+        g2d.setColor(Color.blue.darker());
+        g2d.draw(new Ellipse2D.Double(-radius,-radius,radius*2, radius*2));
+        g2d.setStroke(new BasicStroke());
+        g2d.setTransform(at);
+    }
+
 	
 	@Override
 	public void parseIMCMessage(IMCMessage message) {
-	
-		setMaxTime((int)message.getDouble("timeout"));
-    	setSpeed(message.getDouble("speed"));
+	    
+	    pt.lsts.imc.PopUp msgPopup = null; 
+	    try {
+	        msgPopup = pt.lsts.imc.PopUp.clone(message);
+	    }
+	    catch (Exception e) {
+	        e.printStackTrace();
+	        return;
+	    }
+	    
+		setMaxTime(msgPopup.getTimeout());
+    	setSpeed(msgPopup.getSpeed());
 
-        setRadiusTolerance(Double.isNaN(message.getDouble("radius_tolerance")) ? 2 : message
-                .getDouble("radius_tolerance"));
+    	switch (msgPopup.getSpeedUnits()) {
+    	    case METERS_PS:
+    	        setUnits("m/s");
+    	        break;
+    	    case RPM:
+    	        setUnits("RPM");
+    	        break;
+    	    case PERCENTAGE:
+    	        setUnits("%");
+    	        break;
+    	    default:
+    	        break;
+    	}
     	
+        setRadiusTolerance(msgPopup.getRadius());
+    	setDuration(msgPopup.getDuration());
     	ManeuverLocation pos = new ManeuverLocation();
-    	pos.setLatitude(Math.toDegrees(message.getDouble("lat")));
-    	pos.setLongitude(Math.toDegrees(message.getDouble("lon")));
-    	pos.setZ(message.getDouble("z"));
-        pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(message.getString("z_units").toString()));
-    	setManeuverLocation(pos);
-    	
-    	String speed_units = message.getString("speed_units");
-		if (speed_units.equals("METERS_PS"))
-			setUnits("m/s");
-		else if (speed_units.equals("RPM"))
-			setUnits("RPM");
-		else
-			setUnits("%");
-		
+    	pos.setLatitude(Math.toDegrees(msgPopup.getLat()));
+    	pos.setLongitude(Math.toDegrees(msgPopup.getLon()));
+    	pos.setZ(msgPopup.getZ());
+        pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(msgPopup.getZUnits().toString()));
+        setManeuverLocation(pos);
+        
+        // flags
+        setCurrPos((msgPopup.getFlags() & pt.lsts.imc.PopUp.FLG_CURR_POS) == pt.lsts.imc.PopUp.FLG_CURR_POS);
+        setWaitAtSurface((msgPopup.getFlags() & pt.lsts.imc.PopUp.FLG_WAIT_AT_SURFACE) == pt.lsts.imc.PopUp.FLG_WAIT_AT_SURFACE);
+        setStationKeep((msgPopup.getFlags() & pt.lsts.imc.PopUp.FLG_STATION_KEEP) == pt.lsts.imc.PopUp.FLG_STATION_KEEP);
+        
 	}
 	
 	public IMCMessage serializeToIMC()
 	{
-		IMCMessage msgManeuver = IMCDefinition.getInstance().create(
-				"Popup");
-		msgManeuver.setValue("timeout", this.getMaxTime());
-
-		double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
-
-		msgManeuver.setValue("lat", Math.toRadians(latLonDepth[0]));
-		msgManeuver.setValue("lon", Math.toRadians(latLonDepth[1]));
-		msgManeuver.setValue("depth",latLonDepth[2]);
-
-		msgManeuver.setValue("duration", getDuration());
-
-		msgManeuver.setValue("velocity",this.getSpeed());
-		msgManeuver.setValue("speed", this.getSpeed());
-        String enumerated = "";
-		String speedU = this.getUnits();
-		try {
-			if ("m/s".equalsIgnoreCase(speedU))
-                enumerated= "METERS_PS";
-			else if ("RPM".equalsIgnoreCase(speedU))
-                enumerated= "RPM";
-			else if ("%".equalsIgnoreCase(speedU))
-                enumerated= "PERCENTAGE";
-			else if ("percentage".equalsIgnoreCase(speedU))
-                enumerated= "PERCENTAGE";
-		}
-		catch (Exception ex) {
-			NeptusLog.pub().error(this, ex);						
-		}
-		msgManeuver.setValue("speed_units", enumerated);
-
-//		msgManeuver.setValue("velocity", new NativeFLOAT(this.getSpeed()));
-//		Enumerated enumerated = (Enumerated) msgManeuver.getValueAsObject("velocity_units");
-//		String velU = this.getUnits();
-//		try {
-//			if ("m/s".equalsIgnoreCase(velU))
-//				enumerated.setCurrentValue("METERS_PS");
-//			else if ("RPM".equalsIgnoreCase(velU))
-//				enumerated.setCurrentValue("RPM");
-//			else if ("%".equalsIgnoreCase(velU))
-//				enumerated.setCurrentValue("PERCENTAGE");
-//			else if ("percentage".equalsIgnoreCase(velU))
-//				enumerated.setCurrentValue("PERCENTAGE");
-//		}
-//		catch (Exception ex) {
-//			NeptusLog.pub().error(this, ex);						
-//		}
-//		msgManeuver.setValue("velocity_units", enumerated);
+	    pt.lsts.imc.PopUp msg = new pt.lsts.imc.PopUp();
+	    msg.setTimeout(getMaxTime());
+	    //double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
+	    getManeuverLocation().convertToAbsoluteLatLonDepth();
+	    msg.setLat(getManeuverLocation().getLatitudeAsDoubleValueRads());
+	    msg.setLon(getManeuverLocation().getLongitudeAsDoubleValueRads());
+		msg.setZ(getManeuverLocation().getZ());
+		msg.setZUnits(getManeuverLocation().getZUnits().toString());
+	    msg.setDuration(getDuration());
+	    msg.setSpeed(speed);
+	    switch (units) {
+            case "RPM":
+                msg.setSpeedUnits(pt.lsts.imc.PopUp.SPEED_UNITS.RPM);
+                break;
+            case "%":
+                msg.setSpeedUnits(pt.lsts.imc.PopUp.SPEED_UNITS.PERCENTAGE);
+                break;
+            case "m/s":
+                msg.setSpeedUnits(pt.lsts.imc.PopUp.SPEED_UNITS.METERS_PS);
+                break;
+            default:
+                break;
+        }
 		
-		msgManeuver.setValue("radius_tolerance", this.getRadiusTolerance());
+	    msg.setRadius(getRadiusTolerance());
 		
-        //NativeTupleList ntl = new NativeTupleList();
-        // TupleList tl = new TupleList();
-        //FIXME commented line above for translation to new Message TupleList format
-        LinkedHashMap<String, Object> tl = new LinkedHashMap<String, Object>();
+	    LinkedHashMap<String, Object> tl = new LinkedHashMap<String, Object>();
         
 		for (String key : getCustomSettings().keySet())
             tl.put(key, getCustomSettings().get(key));
-        msgManeuver.setValue("custom",IMCMessage.encodeTupleList(tl));
+        msg.setCustom(getCustomSettings());
 
-
-		return msgManeuver;
+        short flags = 0;
+        if (isStationKeep())
+            flags |= pt.lsts.imc.PopUp.FLG_STATION_KEEP;
+        if (isCurrPos())
+            flags |= pt.lsts.imc.PopUp.FLG_CURR_POS;
+        if (isWaitAtSurface())
+            flags |= pt.lsts.imc.PopUp.FLG_WAIT_AT_SURFACE;
+        
+        msg.setFlags(flags);
+        
+		return msg;
 	}
+	
+	public static void main(String[] args) {
+        PopUp popup = new PopUp();
+        popup.setRadiusTolerance(10);
+        popup.setSpeed(1.2);
+        popup.setUnits("m/s");
+        popup.setDuration(300);
+        
+        popup.setCurrPos(true);
+        popup.setWaitAtSurface(true);
+        ManeuverLocation loc = new ManeuverLocation();
+        loc.setLatitude(0);
+        loc.setLongitude(0);
+        loc.setDepth(3);
+        popup.setManeuverLocation(loc);
+        String xml1 = popup.asXML();
+        IMCMessage msg1 = popup.serializeToIMC();
+        msg1.dump(System.out);
+        popup.parseIMCMessage(msg1);
+        String xml2 = popup.asXML();
+        popup.loadFromXML(xml2);
+        popup.serializeToIMC().dump(System.out);
+        System.out.println(xml1);
+        System.out.println(xml2);
+        System.out.println(popup.asXML());        
+    }
 }

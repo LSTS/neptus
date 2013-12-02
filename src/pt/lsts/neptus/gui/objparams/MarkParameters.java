@@ -85,7 +85,7 @@ public class MarkParameters extends ParametersPanel {
 	/**
 	 * This method initializes locationPanel	
 	 * 	
-	 * @return pt.up.fe.dceg.neptus.gui.LocationPanel	
+	 * @return pt.lsts.neptus.gui.LocationPanel	
 	 */    
 	public LocationPanel getLocationPanel() {
 		if (locationPanel == null) {

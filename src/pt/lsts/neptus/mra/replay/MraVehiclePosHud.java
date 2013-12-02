@@ -44,11 +44,11 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp

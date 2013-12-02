@@ -66,7 +66,14 @@ import javax.swing.JOptionPane;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 
+import pt.lsts.imc.DesiredZ;
+import pt.lsts.imc.DesiredZ.Z_UNITS;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.FollowRefState;
+import pt.lsts.imc.Reference;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -84,13 +91,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.comm.IMCUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.lsts.imc.DesiredZ;
-import pt.lsts.imc.DesiredZ.Z_UNITS;
-import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.FollowRefState;
-import pt.lsts.imc.Reference;
 
 import com.google.gson.Gson;
 
@@ -473,11 +473,10 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
             LocationType auvPosition = IMCUtils.getLocation(state);
             positions.put(auvName, auvPosition);
             bathymetry.put(auvName, state.getDepth() + state.getAlt()); // FIXME tide offsets
-            double dist = auvPosition.getDistanceInMeters(destinations.get(auvName));
+            double dist = auvPosition.getHorizontalDistanceInMeters(destinations.get(auvName));
             if (dist < nearDistance)
                 arrived.put(auvName, true);    
             else {
-                System.out.println(auvName+" is "+dist+" meters away from destination");
                 arrived.put(auvName, false);
             }                
         }   
@@ -677,7 +676,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
 
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#initSubPanel()
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#initSubPanel()
      */
     @Override
     public void initSubPanel() {
@@ -1003,7 +1002,7 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#cleanSubPanel()
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
      */
     @Override
     public void cleanSubPanel() {

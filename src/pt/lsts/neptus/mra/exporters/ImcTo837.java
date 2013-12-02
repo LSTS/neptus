@@ -51,7 +51,7 @@ import pt.lsts.imc.SonarData;
  * @author jqcorreia
  * 
  */
-public class ImcTo837 implements MraExporter {
+public class ImcTo837 implements MRAExporter {
     DataOutputStream os;
     IMraLog pingLog;
     IMraLog esLog;

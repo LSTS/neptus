@@ -42,7 +42,7 @@ public class BooleanSystemPropertyRenderer extends SystemPropertyRenderer {
     private JCheckBox checkBox = new JCheckBox();
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.params.ConfigurationManager.PropertyRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+     * @see pt.lsts.neptus.plugins.params.ConfigurationManager.PropertyRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
      */
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
@@ -54,7 +54,7 @@ public class BooleanSystemPropertyRenderer extends SystemPropertyRenderer {
     }
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.params.renderer.SystemPropertyRenderer#clone()
+     * @see pt.lsts.neptus.plugins.params.renderer.SystemPropertyRenderer#clone()
      */
     @Override
     public BooleanSystemPropertyRenderer clone() throws CloneNotSupportedException {

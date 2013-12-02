@@ -157,7 +157,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 	}
 	
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
+     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
      */
     @Override
     public ManeuverLocation getStartLocation() {
@@ -198,10 +198,6 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 		DefaultProperty radius = PropertiesEditor.getPropertyInstance("Radius", Double.class, this.radius, true);
 		radius.setShortDescription("Sets the radius of the trajectory");
 		props.add(radius);
-		
-		for (DefaultProperty p : props) {
-			NeptusLog.pub().info("<###>* "+p.getName()+"="+p.getValue());
-		}
 		
 		return props;
 	}
@@ -300,7 +296,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
     	double radius = this.getRadius() * renderer.getZoom();
 		g2d.setColor(new Color(255,255,255,100));
 		g2d.fill(new Ellipse2D.Double(-radius,-radius,radius*2, radius*2));
-		g2d.setColor(Color.RED);
+		g2d.setColor(Color.blue.darker());
 		g2d.draw(new Ellipse2D.Double(-radius,-radius,radius*2, radius*2));
     	g2d.setTransform(at);
 	}
@@ -365,7 +361,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 	}
 	  
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.StatisticsProvider#getCompletionTime(pt.up.fe.dceg.neptus.types.coord.LocationType)
+     * @see pt.lsts.neptus.mp.maneuvers.StatisticsProvider#getCompletionTime(pt.lsts.neptus.types.coord.LocationType)
      */
     @Override
     public double getCompletionTime(LocationType initialPosition) {
@@ -379,11 +375,11 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 
         double time = getDistanceTravelled(initialPosition) / speed;
 
-        return getDuration() == 0 ? Double.POSITIVE_INFINITY : getDuration() + time;
+        return /*getDuration() == 0 ? Double.POSITIVE_INFINITY :*/ getDuration() + time;
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.StatisticsProvider#getDistanceTravelled(pt.up.fe.dceg.neptus.types.coord.LocationType)
+     * @see pt.lsts.neptus.mp.maneuvers.StatisticsProvider#getDistanceTravelled(pt.lsts.neptus.types.coord.LocationType)
      */
     @Override
     public double getDistanceTravelled(LocationType initialPosition) {
@@ -392,7 +388,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.StatisticsProvider#getMaxDepth()
+     * @see pt.lsts.neptus.mp.maneuvers.StatisticsProvider#getMaxDepth()
      */
     @Override
     public double getMaxDepth() {
@@ -400,7 +396,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.StatisticsProvider#getMinDepth()
+     * @see pt.lsts.neptus.mp.maneuvers.StatisticsProvider#getMinDepth()
      */
     @Override
     public double getMinDepth() {

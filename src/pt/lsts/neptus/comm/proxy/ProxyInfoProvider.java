@@ -53,10 +53,10 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.ssh.SSHConnectionDialog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.util.comm.ssh.SSHConnectionDialog;
 
 /**
  * @author pdias

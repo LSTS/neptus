@@ -36,8 +36,8 @@ import java.io.FileInputStream;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.systems.SystemsManager;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.imc.IMCDefinition;
 

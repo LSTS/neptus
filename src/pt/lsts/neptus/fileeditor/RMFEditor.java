@@ -168,7 +168,7 @@ public class RMFEditor extends JPanel implements FileHandler {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.loader.FileHandler#handleFile(java.io.File)
+     * @see pt.lsts.neptus.loader.FileHandler#handleFile(java.io.File)
      */
     public void handleFile(File f) {
         final JFrame frame = new JFrame("RMF Editor - " + f.getName());

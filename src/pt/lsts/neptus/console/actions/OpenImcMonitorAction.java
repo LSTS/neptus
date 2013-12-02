@@ -38,11 +38,11 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.MonitorIMCComms;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.util.comm.manager.imc.MonitorIMCComms;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**

@@ -46,6 +46,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
@@ -54,7 +55,6 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.PropertiesLoader;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -299,7 +299,7 @@ public class GeneralPreferences implements PropertiesProvider {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.gui.PropertiesProvider#getProperties()
+     * @see pt.lsts.neptus.gui.PropertiesProvider#getProperties()
      */
     @Override
     public DefaultProperty[] getProperties() {
@@ -309,7 +309,7 @@ public class GeneralPreferences implements PropertiesProvider {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.gui.PropertiesProvider#setProperties(com.l2fprod.common.propertysheet.Property[])
+     * @see pt.lsts.neptus.gui.PropertiesProvider#setProperties(com.l2fprod.common.propertysheet.Property[])
      */
     @Override
     public void setProperties(Property[] properties) {
@@ -330,7 +330,7 @@ public class GeneralPreferences implements PropertiesProvider {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.gui.PropertiesProvider#getPropertiesDialogTitle()
+     * @see pt.lsts.neptus.gui.PropertiesProvider#getPropertiesDialogTitle()
      */
     @Override
     public String getPropertiesDialogTitle() {
@@ -340,7 +340,7 @@ public class GeneralPreferences implements PropertiesProvider {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.gui.PropertiesProvider#getPropertiesErrors(com.l2fprod.common.propertysheet.Property[])
+     * @see pt.lsts.neptus.gui.PropertiesProvider#getPropertiesErrors(com.l2fprod.common.propertysheet.Property[])
      */
     @Override
     public String[] getPropertiesErrors(Property[] properties) {

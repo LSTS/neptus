@@ -55,6 +55,8 @@ import javax.swing.SwingWorker;
 import org.jdesktop.swingx.JXButton;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.swing.PanicButton;
@@ -68,8 +70,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.ColorUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.imc.Abort;
 import pt.lsts.imc.IMCMessage;
 
@@ -136,7 +136,7 @@ public class AbortPanel extends SimpleSubPanel implements MainVehicleChangeListe
     /**
      * This method initializes abortButton
      * 
-     * @return pt.up.fe.dceg.neptus.gui.swing.PanicButton
+     * @return pt.lsts.neptus.gui.swing.PanicButton
      */
     private PanicButton getAbortButton() {
         if (abortButton == null) {
@@ -339,14 +339,14 @@ public class AbortPanel extends SimpleSubPanel implements MainVehicleChangeListe
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#initSubPanel()
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#initSubPanel()
      */
     @Override
     public void initSubPanel() {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#cleanSubPanel()
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
      */
     @Override
     public void cleanSubPanel() {

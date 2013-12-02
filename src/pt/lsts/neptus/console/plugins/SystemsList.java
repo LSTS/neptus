@@ -72,6 +72,13 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.manager.imc.MonitorIMCComms;
+import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.console.SubPanel;
@@ -133,13 +140,6 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.StringUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem.IMCAuthorityState;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.util.comm.manager.imc.MonitorIMCComms;
-import pt.lsts.neptus.util.comm.manager.imc.SystemImcMsgCommInfo;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.imc.FuelLevel;
 
@@ -542,7 +542,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.SubPanel#postLoadInit()
+     * @see pt.lsts.neptus.consolebase.SubPanel#postLoadInit()
      */
     @Override
     public void initSubPanel() {
@@ -575,7 +575,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#cleanSubPanel()
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
      */
     @Override
     public void cleanSubPanel() {
@@ -714,7 +714,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.renderer2d.SystemPainterProvider#isSystemPainterEnabled()
+     * @see pt.lsts.neptus.renderer2d.SystemPainterProvider#isSystemPainterEnabled()
      */
     @Override
     public boolean isSystemPainterEnabled() {
@@ -724,7 +724,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.SubPanelChangeListener#subPanelChanged(pt.up.fe.dceg.neptus.consolebase.
+     * @see pt.lsts.neptus.consolebase.SubPanelChangeListener#subPanelChanged(pt.lsts.neptus.consolebase.
      * SubPanelChangeEvent)
      */
     @Override
@@ -804,7 +804,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#mainVehicleChange(java.lang.String)
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#mainVehicleChange(java.lang.String)
      */
     @Override
     public void mainVehicleChangeNotification(String id) {
@@ -849,7 +849,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
+     * @see pt.lsts.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
      */
     @Override
     public long millisBetweenUpdates() {
@@ -859,7 +859,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#update()
+     * @see pt.lsts.neptus.plugins.update.IPeriodicUpdates#update()
      */
     @Override
     public boolean update() {
@@ -1343,8 +1343,8 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.renderer2d.Renderer2DPainter#paint(java.awt.Graphics2D,
-     * pt.up.fe.dceg.neptus.renderer2d.StateRenderer2D)
+     * @see pt.lsts.neptus.renderer2d.Renderer2DPainter#paint(java.awt.Graphics2D,
+     * pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
@@ -1950,8 +1950,8 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
      * (non-Javadoc)
      * 
      * @see
-     * pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension#getApplicableItems(pt.up.fe.dceg.neptus.types.coord.LocationType
-     * , pt.up.fe.dceg.neptus.planeditor.IMapPopup)
+     * pt.lsts.neptus.planeditor.IEditorMenuExtension#getApplicableItems(pt.lsts.neptus.types.coord.LocationType
+     * , pt.lsts.neptus.planeditor.IMapPopup)
      */
     @Override
     public Collection<JMenuItem> getApplicableItems(LocationType loc, IMapPopup source) {
@@ -1989,7 +1989,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.plugins.ConfigurationListener#propertiesChanged()
+     * @see pt.lsts.neptus.plugins.ConfigurationListener#propertiesChanged()
      */
     @Override
     public void propertiesChanged() {
@@ -2026,7 +2026,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.ISystemsSelection#getSelectedSystems(boolean)
+     * @see pt.lsts.neptus.consolebase.ISystemsSelection#getSelectedSystems(boolean)
      */
     @Override
     public Collection<String> getSelectedSystems(boolean clearSelection) {
@@ -2043,7 +2043,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.ISystemsSelection#getAvailableSelectedSystems()
+     * @see pt.lsts.neptus.consolebase.ISystemsSelection#getAvailableSelectedSystems()
      */
     @Override
     public Collection<String> getAvailableSelectedSystems() {
@@ -2056,7 +2056,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.ISystemsSelection#getSelectedVehicles(boolean)
+     * @see pt.lsts.neptus.consolebase.ISystemsSelection#getSelectedVehicles(boolean)
      */
     @Override
     public Collection<String> getSelectedVehicles(boolean clearSelection) {
@@ -2077,7 +2077,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.ISystemsSelection#getAvailableVehicles()
+     * @see pt.lsts.neptus.consolebase.ISystemsSelection#getAvailableVehicles()
      */
     @Override
     public Collection<String> getAvailableVehicles() {

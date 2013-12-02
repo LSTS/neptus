@@ -5,4 +5,4 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.plugins.oplimits.OperationLimitsSubPanel
+pt.lsts.neptus.plugins.oplimits.OperationLimitsSubPanel

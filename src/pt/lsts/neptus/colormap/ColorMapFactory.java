@@ -222,9 +222,9 @@ public class ColorMapFactory {
 
     public static ColorMap createJetColorMap() {
         if (jet == null) {
-            InputStreamReader isr = new InputStreamReader(
-                    ClassLoader.getSystemResourceAsStream("colormaps/jet.colormap"));
             try {
+                InputStreamReader isr = new InputStreamReader(
+                        ClassLoader.getSystemResourceAsStream("colormaps/jet.colormap"));
                 jet = new TabulatedColorMap(isr);
             }
             catch (Exception e) {

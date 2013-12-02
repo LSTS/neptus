@@ -38,10 +38,10 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author pdias

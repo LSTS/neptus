@@ -41,12 +41,12 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.imc.IMCMessage;
 
 /**
  * @author zp

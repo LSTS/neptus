@@ -68,6 +68,7 @@ public class LogTableModel extends AbstractTableModel {
             int dst = msg.getInteger("dst");
             int dst_ent = msg.getInteger("dst_ent");
 
+            // Order must be kept for header values (src, src_ent, dst, dst_ent)
             values.add(source.getSystemName(src));
             values.add(source.getEntityName(src, src_ent));
             values.add(source.getSystemName(dst));

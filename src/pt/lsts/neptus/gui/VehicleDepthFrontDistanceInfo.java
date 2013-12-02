@@ -73,7 +73,7 @@ public class VehicleDepthFrontDistanceInfo extends JPanel
 	/**
 	 * This method initializes imagePanel	
 	 * 	
-	 * @return pt.up.fe.dceg.neptus.gui.ImagePanel	
+	 * @return pt.lsts.neptus.gui.ImagePanel	
 	 */    
 	private ImagePanel getBeanImage() {
 		if (beanImage == null) {
@@ -134,7 +134,7 @@ public class VehicleDepthFrontDistanceInfo extends JPanel
 	/**
 	 * This method initializes imagePanel	
 	 * 	
-	 * @return pt.up.fe.dceg.neptus.gui.ImagePanel	
+	 * @return pt.lsts.neptus.gui.ImagePanel	
 	 */    
 	private ImagePanel getUpSetaImage() {
 		if (upSetaImage == null) {
@@ -151,7 +151,7 @@ public class VehicleDepthFrontDistanceInfo extends JPanel
 	/**
 	 * This method initializes imagePanel	
 	 * 	
-	 * @return pt.up.fe.dceg.neptus.gui.ImagePanel	
+	 * @return pt.lsts.neptus.gui.ImagePanel	
 	 */    
 	private ImagePanel getVehicleImage() {
 		if (vehicleImage == null) {
@@ -176,7 +176,7 @@ public class VehicleDepthFrontDistanceInfo extends JPanel
 	/**
 	 * This method initializes imagePanel	
 	 * 	
-	 * @return pt.up.fe.dceg.neptus.gui.ImagePanel	
+	 * @return pt.lsts.neptus.gui.ImagePanel	
 	 */    
 	private ImagePanel getDownSetaImage() {
 		if (downSetaImage == null) {

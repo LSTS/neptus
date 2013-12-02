@@ -76,7 +76,14 @@ import javax.swing.ToolTipManager;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.lsf.LsfIndexListener;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
 import pt.lsts.neptus.gui.BlockingGlassPane;
 import pt.lsts.neptus.gui.MissionFileChooser;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -98,19 +105,12 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
 import pt.lsts.neptus.util.StreamUtil;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.util.comm.manager.imc.SystemImcMsgCommInfo;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LogUtils.LogValidity;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 import pt.lsts.neptus.util.llf.LsfReport;
 import pt.lsts.neptus.util.logdownload.LogsDownloaderWorker;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.lsf.LsfIndexListener;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -121,6 +121,7 @@ import foxtrot.AsyncWorker;
 /**
  * @author ZP
  * @author pdias (LSF)
+ * @author jqcorreia
  */
 @SuppressWarnings("serial")
 public class NeptusMRA extends JFrame implements PropertiesProvider {

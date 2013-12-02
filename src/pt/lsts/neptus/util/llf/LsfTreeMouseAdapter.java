@@ -43,16 +43,16 @@ import javax.swing.tree.TreePath;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.CloseTabbedPane;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.ColorMapVisualization;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.MraChartPanel;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.GenericPlot;
+import pt.lsts.neptus.mra.plots.ReplayPlot;
+import pt.lsts.neptus.mra.visualizations.ColorMapVisualization;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.chart.LLFChart;
-import pt.up.fe.dceg.neptus.plugins.mraplots.ReplayPlot;
 
 /**
  * This class deals with all the instatiation logic associated with LLFTree interaction

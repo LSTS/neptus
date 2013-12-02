@@ -336,7 +336,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
     }
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
+     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
      */
     @Override
     public ManeuverLocation getStartLocation() {

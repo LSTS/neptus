@@ -75,7 +75,12 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
+import pt.lsts.imc.state.ImcSysState;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.CommManagerStatusChangeListener;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.actions.AboutAction;
 import pt.lsts.neptus.console.actions.AutoSnapshotConsoleAction;
 import pt.lsts.neptus.console.actions.ConsoleAction;
@@ -120,6 +125,7 @@ import pt.lsts.neptus.gui.system.selection.MainSystemSelectionCombo;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.plugins.configWindow.SettingsWindow;
 import pt.lsts.neptus.renderer2d.VehicleStateListener;
 import pt.lsts.neptus.types.XmlInOutMethods;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -134,14 +140,7 @@ import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
-import pt.lsts.neptus.util.comm.manager.CommManagerStatusChangeListener;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.lsts.imc.state.ImcSysState;
-import pt.up.fe.dceg.neptus.plugins.configWindow.SettingsWindow;
-import pt.up.fe.dceg.neptus.plugins.teleoperation.ControllerPanel;
 
 /**
  * 
@@ -166,12 +165,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     protected CommManagerStatusChangeListener imcManagerStatus = null;
     private final ImcMsgManager imcMsgManager;
     private final ConcurrentMap<String, ConsoleSystem> consoleSystems = new ConcurrentHashMap<String, ConsoleSystem>();
-    // Controller logic and panel
-    private final ControllerManager controllerManager;
-    private ControllerPanel controllerPanel;
 
+    // Controller Manager to be used by every plugin that uses an external controller (Gamepad, etc...) 
+    private final ControllerManager controllerManager; 
+
+    
     private final List<SubPanel> subPanels = new ArrayList<>();
-
+    
     /*
      * UI stuff
      */
@@ -1222,8 +1222,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             consoleSystems.clear();
             mainPanel.clean();
             statusBar.clean();
-            if (controllerPanel != null)
-                controllerPanel.cleanup();
+
             this.cleanKeyBindings();
             this.imcOff();
             

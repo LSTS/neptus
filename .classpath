@@ -61,6 +61,7 @@
 	<classpathentry kind="src" path="plugins-dev/caoAgent"/>
 	<classpathentry kind="src" path="plugins-dev/gige"/>
 	<classpathentry kind="src" path="plugins-dev/s57"/>
+	<classpathentry kind="src" path="plugins-dev/blue-eye"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
@@ -190,15 +191,15 @@
 	<classpathentry kind="lib" path="lib/htmlUnit/httpmime-4.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/htmlUnit/cssparser-0.9.8.jar"/>
 	<classpathentry kind="lib" path="lib/htmlUnit/nekohtml-1.9.17.jar"/>
-	<classpathentry kind="lib" path="lib/commons-configuration-1.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jmatio.jar"/>
 	<classpathentry kind="lib" path="lib/libimc.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-oro-core-2.1-dev-1.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-oro-perl5-2.1-dev-1.jar"/>
 	<classpathentry kind="lib" path="lib/javassist.jar"/>
 	<classpathentry kind="lib" path="lib/guava-15.0.jar"/>
-	<classpathentry kind="lib" path="plugins-dev/s57/s57-package-1.9.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/s57/s57-package-1.9.jar" sourcepath="/s57"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.8.jar"/>
+	<classpathentry kind="lib" path="lib/commons-configuration-1.10.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>

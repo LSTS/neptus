@@ -42,11 +42,11 @@ import org.dom4j.Node;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.util.comm.IMCUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -129,7 +129,7 @@ public abstract class AbstractImcManeuver<T extends IMCMessage> extends DefaultM
     }
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.DefaultManeuver#loadFromXML(java.lang.String)
+     * @see pt.lsts.neptus.mp.maneuvers.DefaultManeuver#loadFromXML(java.lang.String)
      */
     @Override
     public void loadFromXML(String XML) {

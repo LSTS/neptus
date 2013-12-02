@@ -193,8 +193,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     protected boolean worldMapShown = true, worldBondariesShown = false;
     protected String worldMapStyle = TileMercadorSVG.getTileStyleID();
 
-    protected boolean gridShown = false, showDots = false, fastRendering = false, neverRenderFast = false,
-            alwaysRenderFast = false, legendShown = false;
+    protected boolean gridShown = false, showDots = false, legendShown = false;
     // protected boolean vehicleSymbolShown = true;
     protected boolean vehicleImageShown = true;
     protected boolean mapCenterShown = true;
@@ -1755,21 +1754,6 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     }
 
     /**
-     * @return Returns the fastRendering.
-     */
-    public boolean isFastRendering() {
-        return (fastRendering || alwaysRenderFast) && !neverRenderFast;
-    }
-
-    /**
-     * @param fastRendering The fastRendering to set.
-     */
-    public void setFastRendering(boolean fastRendering) {
-        this.fastRendering = fastRendering;
-        repaint();
-    }
-
-    /**
      * @return the worldMapShown
      */
     public boolean isWorldMapShown() {
@@ -1874,37 +1858,6 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
                 g.draw(new Line2D.Double(0, i, getWidth(), i));
             }
         }
-    }
-
-    /**
-     * Retrieve the current rendering quality as a String for external properties editors
-     * 
-     * @return The current rendering quality as a String
-     */
-    public String getRenderingQuality() {
-        if (neverRenderFast)
-            return "Quality";
-        if (alwaysRenderFast)
-            return "Fast";
-        return "Default";
-    }
-
-    /**
-     * Change the current rendering quality. Valid values are "Quality", "Fast" and "Default"
-     * 
-     * @param quality the intended rendering quality
-     */
-    public void setRenderingQuality(String quality) {
-
-        neverRenderFast = false;
-        alwaysRenderFast = false;
-
-        if ("Quality".equals(quality))
-            neverRenderFast = true;
-
-        if ("Fast".equals(quality))
-            alwaysRenderFast = true;
-
     }
 
     /**
@@ -2180,16 +2133,11 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      * {@link PropertiesProvider} implementation.
      */
     public DefaultProperty[] getProperties() {
-        DefaultProperty p1 = PropertiesEditor.getPropertyInstance("Fast Rendering", Boolean.class, new Boolean(
-                isFastRendering()), true);
-        DefaultProperty p2 = PropertiesEditor.getPropertyInstance("World Bondaries Shown", Boolean.class, new Boolean(
+        DefaultProperty p1 = PropertiesEditor.getPropertyInstance("World Bondaries Shown", Boolean.class, new Boolean(
                 isWorldBondariesShown()), true);
-        DefaultProperty p3 = PropertiesEditor.getPropertyInstance("WorldMap Shown", Boolean.class, new Boolean(
+        DefaultProperty p2 = PropertiesEditor.getPropertyInstance("WorldMap Shown", Boolean.class, new Boolean(
                 isWorldMapShown()), true);
-        // DefaultProperty p4 = PropertiesEditor.getPropertyInstance("WorldMap Style", WorldRenderPainter.class,
-        // getWorldMapStyle(), true);
-
-        return new DefaultProperty[] { p1, p2, p3 /* , p4 */};
+        return new DefaultProperty[] {  p1, p2 };
     }
 
     /**
@@ -2204,9 +2152,6 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      */
     public void setProperties(Property[] properties) {
         for (Property p : properties) {
-            if (p.getName().equals("Fast Rendering")) {
-                setFastRendering((Boolean) p.getValue());
-            }
             if (p.getName().equals("Show Grid")) {
                 setGridShown((Boolean) p.getValue());
             }
@@ -2450,7 +2395,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     }
 
     /**
-     * @see pt.up.fe.dceg.neptus.util.conf.PreferencesListener#preferencesUpdated()
+     * @see pt.lsts.neptus.util.conf.PreferencesListener#preferencesUpdated()
      */
     public void preferencesUpdated() {
         int np = GeneralPreferences.numberOfShownPoints;

@@ -6,5 +6,5 @@
 # SVN_PATH=@SVN_PATH@
 
 #Simple Plugin:
-pt.up.fe.dceg.neptus.plugins.alarms.ExceptionAlarm
-pt.up.fe.dceg.neptus.plugins.alarms.LastErrorPanel
+pt.lsts.neptus.plugins.alarms.ExceptionAlarm
+pt.lsts.neptus.plugins.alarms.LastErrorPanel

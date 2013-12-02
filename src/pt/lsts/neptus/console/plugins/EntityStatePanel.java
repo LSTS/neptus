@@ -54,8 +54,9 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.alarms.AlarmManager.AlarmLevel;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.StatusLed;
 import pt.lsts.neptus.gui.ToolbarButton;
@@ -68,8 +69,6 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.comm.manager.imc.EntitiesResolver;
-import pt.lsts.imc.IMCMessage;
 
 /**
  * @author pdias
@@ -96,7 +95,6 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
     private EntityStateTableModel etmodel = new EntityStateTableModel();
     private HashMap<Long, Color> eColor = new HashMap<Long, Color>();
     private HashMap<Long, Short> eLevel = new HashMap<Long, Short>();
-    private LinkedHashMap<Integer, AlarmLevel> convTable = new LinkedHashMap<Integer, AlarmLevel>();
     private Timer timer = null;
     private TimerTask ttask = null;
 
@@ -197,12 +195,6 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
         eLevel.put(5L, StatusLed.LEVEL_4);
         eLevel.put(6L, StatusLed.LEVEL_NONE);
         eLevel.put(7L, StatusLed.LEVEL_OFF);
-
-        convTable.put(0, AlarmLevel.INFO);
-        convTable.put(1, AlarmLevel.NORMAL);
-        convTable.put(2, AlarmLevel.FAULT);
-        convTable.put(3, AlarmLevel.ERROR);
-        convTable.put(4, AlarmLevel.FAILURE);
     }
 
     @Override
@@ -281,16 +273,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.AlarmProvider#getAlarmState()
-     */
-    public AlarmLevel getAlarmState() {
-        return AlarmLevel.get(status.getLevel());
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.up.fe.dceg.neptus.consolebase.AlarmProvider#getAlarmMessage()
+     * @see pt.lsts.neptus.consolebase.AlarmProvider#getAlarmMessage()
      */
     public String getAlarmMessage() {
         return status.getMessage();
@@ -303,7 +286,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.AlarmProvider#sourceState()
+     * @see pt.lsts.neptus.consolebase.AlarmProvider#sourceState()
      */
     public int sourceState() {
         return StatusLed.LEVEL_NONE;
@@ -318,7 +301,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
             Enumerated evt = en.getState();
             Short value;
             try {
-                value = ((Integer) convTable.get(evt.intValue()).getValue()).shortValue();
+                value = (short) evt.intValue();
             }
             catch (Exception e) {
                 NeptusLog.pub().error(EntityStatePanel.class.getSimpleName() + "calcTotalState: " + e.getMessage());

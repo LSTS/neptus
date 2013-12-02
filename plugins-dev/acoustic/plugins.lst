@@ -5,8 +5,8 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.plugins.acoustic.LBLRangeDisplay
-pt.up.fe.dceg.neptus.plugins.acoustic.ModemRanger
-pt.up.fe.dceg.neptus.plugins.acoustic.SimpleAbortModemRequest
-pt.up.fe.dceg.neptus.plugins.acoustic.MantaOperations
-pt.up.fe.dceg.neptus.plugins.acoustic.LblEstimateOverlay
+pt.lsts.neptus.plugins.acoustic.LBLRangeDisplay
+pt.lsts.neptus.plugins.acoustic.ModemRanger
+pt.lsts.neptus.plugins.acoustic.SimpleAbortModemRequest
+pt.lsts.neptus.plugins.acoustic.MantaOperations
+pt.lsts.neptus.plugins.acoustic.LblEstimateOverlay

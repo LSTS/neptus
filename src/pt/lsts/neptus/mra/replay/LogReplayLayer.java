@@ -31,9 +31,9 @@
  */
 package pt.lsts.neptus.mra.replay;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
-import pt.lsts.imc.IMCMessage;
 
 /**
  * @author zp

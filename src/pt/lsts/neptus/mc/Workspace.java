@@ -62,6 +62,10 @@ import javax.swing.event.InternalFrameEvent;
 import org.jdesktop.swingx.JXStatusBar;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMessageSenderPanel;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.MonitorIMCComms;
+import pt.lsts.neptus.comm.ssh.SshShellPannel;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.actions.ExitAction;
 import pt.lsts.neptus.events.NeptusEventHiddenMenus;
@@ -90,10 +94,6 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMessageSenderPanel;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.util.comm.manager.imc.MonitorIMCComms;
-import pt.lsts.neptus.util.comm.ssh.SshShellPannel;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.editors.EditorLauncher;
@@ -1544,7 +1544,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     /**
      * This method initializes statusLed
      * 
-     * @return pt.up.fe.dceg.neptus.gui.StatusLed
+     * @return pt.lsts.neptus.gui.StatusLed
      */
     private StatusLed getStatusLed() {
         if (statusLed == null) {
@@ -1760,7 +1760,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.loader.FileHandler#handleFile(java.io.File)
+     * @see pt.lsts.neptus.loader.FileHandler#handleFile(java.io.File)
      */
     @Override
     public void handleFile(File f) {

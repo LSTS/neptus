@@ -5,6 +5,6 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.plugins.echosounder.EchoSounderPanel
-pt.up.fe.dceg.neptus.plugins.echosounder.EchoSounderMRA
-pt.up.fe.dceg.neptus.plugins.sidescan.SidescanAnalyzer
+pt.lsts.neptus.plugins.echosounder.EchoSounderPanel
+pt.lsts.neptus.plugins.echosounder.EchoSounderMRA
+pt.lsts.neptus.plugins.sidescan.SidescanAnalyzer

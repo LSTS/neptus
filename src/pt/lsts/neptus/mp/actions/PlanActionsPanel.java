@@ -42,7 +42,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -63,15 +62,13 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.ToolbarButton;
-import pt.lsts.neptus.types.miscsystems.MiscSystems;
-import pt.lsts.neptus.types.miscsystems.MiscSystemsHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
 
 /**
  * @author pdias
@@ -89,20 +86,12 @@ public class PlanActionsPanel extends JPanel {
 	
 	//private JPanel holderPanel;
 	
-	private JPanel holderPayload;
-	private JScrollPane scrollPanePayload;
-	private JPanel controlsPayload;
-	private ToolbarButton addPayload;
-	private ToolbarButton removePayload;
-
 	private JPanel holderMessages;
 	private JScrollPane scrollPaneMessages;
 	private JPanel controlsMessages;
 	private ToolbarButton addMessages;
 	private ToolbarButton removeMessages;
 
-	private AbstractAction actionAddPayload;
-	private AbstractAction actionRemovePayload;
 	private AbstractAction actionAddMessages;
 	private AbstractAction actionRemoveMessages;
     private boolean userCanceled = false;
@@ -120,31 +109,6 @@ public class PlanActionsPanel extends JPanel {
 		removeAll();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
-//		add(new JLabel("<html><b>Payload Configurations"));
-		
-		holderPayload = new JPanel(true);
-		holderPayload.setLayout(new BoxLayout(holderPayload, BoxLayout.Y_AXIS));
-		
-		scrollPanePayload = new JScrollPane();
-		scrollPanePayload.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		scrollPanePayload.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollPanePayload.setBorder(BorderFactory.createEmptyBorder(3,3,3,3));
-		scrollPanePayload.setPreferredSize(new Dimension(600,200));
-		scrollPanePayload.setViewportView(holderPayload);
-//		add(scrollPanePayload);
-		
-		controlsPayload = new JPanel();
-		controlsPayload.setLayout(new BoxLayout(controlsPayload, BoxLayout.X_AXIS));
-
-		addPayload = new ToolbarButton(actionAddPayload);
-		removePayload = new ToolbarButton(actionRemovePayload);
-		
-		controlsPayload.add(addPayload);
-		controlsPayload.add(removePayload);
-
-//		add(controlsPayload);
-//		add(new JSeparator(JSeparator.HORIZONTAL));
-
 		add(new JLabel("<html><b>Messages"));
 
 		holderMessages = new JPanel(true);
@@ -175,10 +139,6 @@ public class PlanActionsPanel extends JPanel {
 	}
 	
 	private void refreshGUILists() {
-	    holderPayload.removeAll();
-	    for (PayloadConfig plCfg : actions.getPayloadConfigs()) {
-            holderPayload.add(plCfg);
-        }
 	    
 	    holderMessages.removeAll();
         for (PlanActionElementConfig plCfg : actions.getActionMsgs()) {
@@ -187,79 +147,7 @@ public class PlanActionsPanel extends JPanel {
 	}
 	
 	private void initializeActions() {
-		actionAddPayload = new AbstractAction("add payload", ADD_ICON) {
-			/* (non-Javadoc)
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-			 */
-			@Override
-			public void actionPerformed(ActionEvent e) {
-//				MiscSystems ms = MiscSystemsHolder.getMiscSystemsList().get("imagenex-881ss");
-//				if (ms != null) {
-//					PayloadConfig plCfg = new PayloadConfig();
-//					plCfg.setBaseSystem(ms);
-//					plCfg.load();
-//					actions.payloadConfigs.add(plCfg);
-//					holderPayload.add(plCfg);
-//					holderPayload.repaint();
-//				}
-			    
-			    final LinkedHashMap<String, MiscSystems> pldl = MiscSystemsHolder.getPayloadList();
-			    if (pldl.size() == 0) {
-			        GuiUtils.infoMessage(PlanActionsPanel.this, "Payload", 
-			                "No payload configurations available!");
-			    }
-			    else {
-			        MiscSystems ms = null;
-			        if (pldl.size() == 1) {
-			            ms = pldl.values().toArray(new MiscSystems[1])[0];
-			        }
-			        else {
-                        JComboBox<?> payloadComboBox = new JComboBox<Object>(pldl.values().toArray(new MiscSystems[pldl.size()]));
-                        final JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(PlanActionsPanel.this));
-                        dialog.setLayout(new BorderLayout());
-                        dialog.add(payloadComboBox, BorderLayout.CENTER);
-                        JButton okButton = new JButton("ok");
-                        okButton.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                dialog.setVisible(false);
-                                dialog.dispose();
-                            }
-                        });
-                        dialog.add(okButton, BorderLayout.SOUTH);
-                        dialog.setSize(300, 100);
-                        dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
-                        GuiUtils.centerOnScreen(dialog);
-                        dialog.setVisible(true);
-                        ms = (MiscSystems) payloadComboBox.getSelectedItem();
-			        }
-			        if (ms != null) {
-			            PayloadConfig plCfg = new PayloadConfig();
-			            plCfg.setBaseSystem(ms);
-			            plCfg.load();
-			            actions.payloadConfigs.add(plCfg);
-			            holderPayload.add(plCfg);
-			            holderPayload.repaint();
-			        }
-			    }
-			}
-		};
-
-		actionRemovePayload = new AbstractAction("remove payload", REMOVE_ICON) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					if (holderPayload.getComponentCount() > 0) {
-						PayloadConfig rem = actions.payloadConfigs.removeLast();
-						holderPayload.remove(rem);
-						holderPayload.repaint();
-					}
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-			}
-		};
-
+		
 		actionAddMessages = new AbstractAction("add message", ADD_ICON) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -334,8 +222,6 @@ public class PlanActionsPanel extends JPanel {
 				dialog.setVisible(false);
 				dialog.dispose();
 				setUserCanceled(false);
-				orig.getPayloadConfigs().clear();
-				orig.getPayloadConfigs().addAll(changed.getPayloadConfigs());
                 orig.getActionMsgs().clear();
                 orig.getActionMsgs().addAll(changed.getActionMsgs());
                 actions = orig;
@@ -405,7 +291,6 @@ public class PlanActionsPanel extends JPanel {
 	
 	public static void main(String[] args) {
 		ConfigFetch.initialize();
-		MiscSystemsHolder.loadMiscSystems();
 		PlanActions pa = new PlanActions();
 		PlanActionsPanel pap = new PlanActionsPanel(pa);
 		pap.getDialog(new JFrame(), "eeeeeeeeeeee");

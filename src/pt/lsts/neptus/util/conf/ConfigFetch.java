@@ -73,6 +73,7 @@ import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.util.DateTimeUtil;
@@ -80,7 +81,6 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.NameNormalizer;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.StreamUtil;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.util.output.OutputMonitor;
 
 /**

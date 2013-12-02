@@ -60,7 +60,7 @@ import pt.lsts.neptus.util.FileUtil;
  *
  * 	&lt;xsl:output method="text" encoding="UTF-8" indent="no" media-type="text/plain" />
  *	&lt;xalan:component prefix="fileutil" elements="init" functions="getFileAsString">
- *		&lt;xalan:script lang="javaclass" src="pt.up.fe.dceg.neptus.util.xsl.xalan.FileUtilForXalan"/>
+ *		&lt;xalan:script lang="javaclass" src="pt.lsts.neptus.util.xsl.xalan.FileUtilForXalan"/>
  *	&lt;/xalan:component>
  *
  *   &ltxsl:param name="prelude-file">../conf/isurus-preludio.conf&lt/xsl:param>

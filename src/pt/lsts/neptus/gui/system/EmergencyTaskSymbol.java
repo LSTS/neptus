@@ -70,7 +70,7 @@ public class EmergencyTaskSymbol extends TaskSymbol {
 	}
 	
 	/* (non-Javadoc)
-	 * @see pt.up.fe.dceg.neptus.gui.system.TaskSymbol#paint(java.awt.Graphics2D, org.jdesktop.swingx.JXPanel, int, int)
+	 * @see pt.lsts.neptus.gui.system.TaskSymbol#paint(java.awt.Graphics2D, org.jdesktop.swingx.JXPanel, int, int)
 	 */
 	@Override
 	public void paint(Graphics2D g, JXPanel c, int width, int height) {

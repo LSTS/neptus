@@ -141,7 +141,7 @@ public class CoordinateSystemPanel extends ParametersPanel implements ActionList
 
 	}
 	/* (non-Javadoc)
-	 * @see pt.up.fe.dceg.neptus.mme.objects.ParametersPanel#getErrors()
+	 * @see pt.lsts.neptus.mme.objects.ParametersPanel#getErrors()
 	 */
 	@Override
     public String getErrors() {

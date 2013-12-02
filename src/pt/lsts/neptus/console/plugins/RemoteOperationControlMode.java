@@ -47,6 +47,7 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.StatusLed;
 import pt.lsts.neptus.i18n.I18n;
@@ -57,7 +58,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.comm.IMCSendMessageUtils;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.Teleoperation;
@@ -221,7 +221,7 @@ public class RemoteOperationControlMode extends SimpleSubPanel implements MainVe
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.plugins.ConfigurationListener#propertiesChanged()
+     * @see pt.lsts.neptus.plugins.ConfigurationListener#propertiesChanged()
      */
     @Override
     public void propertiesChanged() {
@@ -247,7 +247,7 @@ public class RemoteOperationControlMode extends SimpleSubPanel implements MainVe
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#mainVehicleChange(java.lang.String)
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#mainVehicleChange(java.lang.String)
      */
     @Override
     public void mainVehicleChangeNotification(String id) {
@@ -320,7 +320,7 @@ public class RemoteOperationControlMode extends SimpleSubPanel implements MainVe
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
+     * @see pt.lsts.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
      */
 
     @Override
@@ -331,7 +331,7 @@ public class RemoteOperationControlMode extends SimpleSubPanel implements MainVe
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#update()
+     * @see pt.lsts.neptus.plugins.update.IPeriodicUpdates#update()
      */
     @Override
     public boolean update() {
@@ -346,7 +346,7 @@ public class RemoteOperationControlMode extends SimpleSubPanel implements MainVe
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.LockableSubPanel#lock()
+     * @see pt.lsts.neptus.consolebase.LockableSubPanel#lock()
      */
     @Override
     public void lock() {
@@ -356,7 +356,7 @@ public class RemoteOperationControlMode extends SimpleSubPanel implements MainVe
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.LockableSubPanel#unLock()
+     * @see pt.lsts.neptus.consolebase.LockableSubPanel#unLock()
      */
     @Override
     public void unLock() {
@@ -366,7 +366,7 @@ public class RemoteOperationControlMode extends SimpleSubPanel implements MainVe
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.consolebase.LockableSubPanel#isLocked()
+     * @see pt.lsts.neptus.consolebase.LockableSubPanel#isLocked()
      */
     @Override
     public boolean isLocked() {
@@ -374,7 +374,7 @@ public class RemoteOperationControlMode extends SimpleSubPanel implements MainVe
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#initSubPanel()
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#initSubPanel()
      */
     @Override
     public void initSubPanel() {
@@ -383,7 +383,7 @@ public class RemoteOperationControlMode extends SimpleSubPanel implements MainVe
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#cleanSubPanel()
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
      */
     @Override
     public void cleanSubPanel() {

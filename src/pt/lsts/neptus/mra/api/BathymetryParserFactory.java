@@ -68,17 +68,15 @@ public class BathymetryParserFactory {
             return null; //FIXME for now only directories are supported 
         }
         else if(dir != null) {
-            if (new File(dir.getAbsolutePath()+"/data.83P").exists()) {
+            if (new File(dir.getAbsolutePath()+"/data.83P").exists())
                 return new DeltaTParser(source);
-            }
-            else if (new File(dir.getAbsolutePath()+"/multibeam.83P").exists()) {
+            else if (new File(dir.getAbsolutePath()+"/Data.83P").exists())
                 return new DeltaTParser(source);
-            }
+            else if (new File(dir.getAbsolutePath()+"/multibeam.83P").exists())
+                return new DeltaTParser(source);
             
             // Next cases should be file = new File(...) and check for existence
             // TODO
-
-            // Defaults to using IMC (in case of sidescan data existence)
         }
         return null;
     }

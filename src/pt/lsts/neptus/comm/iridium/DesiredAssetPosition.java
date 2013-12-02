@@ -34,8 +34,8 @@ package pt.lsts.neptus.comm.iridium;
 import java.util.Collection;
 import java.util.Vector;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;

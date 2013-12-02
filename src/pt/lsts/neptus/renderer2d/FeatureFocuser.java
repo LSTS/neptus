@@ -42,6 +42,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.gui.MenuScroller;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mystate.MyState;
@@ -56,8 +58,6 @@ import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp
@@ -71,7 +71,7 @@ public class FeatureFocuser implements IEditorMenuExtension {
     protected static final ImageIcon myLocIcon = ImageUtils.getScaledIcon("images/myloc.png", 24, 24);
     
     /**
-     * @see pt.up.fe.dceg.neptus.planeditor.IEditorMenuExtension#getApplicableItems(pt.up.fe.dceg.neptus.types.coord.LocationType, pt.up.fe.dceg.neptus.planeditor.IMapPopup)
+     * @see pt.lsts.neptus.planeditor.IEditorMenuExtension#getApplicableItems(pt.lsts.neptus.types.coord.LocationType, pt.lsts.neptus.planeditor.IMapPopup)
      */
     @Override
     public Collection<JMenuItem> getApplicableItems(LocationType loc, IMapPopup source) {

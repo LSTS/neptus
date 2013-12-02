@@ -5,5 +5,5 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.plugins.ipcam.IPCameraDisplay
-pt.up.fe.dceg.neptus.plugins.ipcam.AirCamDisplay
+pt.lsts.neptus.plugins.ipcam.IPCameraDisplay
+pt.lsts.neptus.plugins.ipcam.AirCamDisplay

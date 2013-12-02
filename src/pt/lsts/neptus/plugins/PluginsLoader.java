@@ -127,7 +127,7 @@ public class PluginsLoader {
     }
 
     /**
-     * Loads core plugins inside the src folder in the "pt.up.fe.dceg.neptus.console.plugins" package
+     * Loads core plugins inside the src folder in the "pt.lsts.neptus.console.plugins" package
      */
     private static void loadCorePlugins() {
 
@@ -203,10 +203,8 @@ public class PluginsLoader {
         try (BufferedReader reader = Files.newBufferedReader(file, charset)) {
             String line = null;
             
-            System.out.println("Loading plugins from: " + file.toAbsolutePath());
             while ((line = reader.readLine()) != null) {
                 if (line.length() > 0 && line.charAt(0) != '#') {
-                    System.out.println(line);
                     PluginsRepository.addPlugin(line);
                 }
             }

@@ -69,6 +69,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.dom4j.Document;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.CommUtil;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.renderer3d.Object3DCreationHelper;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.comm.protocol.AdjustTimeShellArgs;
@@ -84,9 +87,6 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.JTreeUtils;
-import pt.lsts.neptus.util.comm.CommUtil;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.util.editors.EditorLauncher;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -414,7 +414,7 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
     /**
      * This method initializes imagePanel
      * 
-     * @return pt.up.fe.dceg.neptus.gui.ImagePanel
+     * @return pt.lsts.neptus.gui.ImagePanel
      */
     private ImagePanel getImagePanel() {
         if (imagePanel == null) {
@@ -762,7 +762,7 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
     /**
      * This method initializes coordinateSystemPanel
      * 
-     * @return pt.up.fe.dceg.neptus.gui.CoordinateSystemPanel
+     * @return pt.lsts.neptus.gui.CoordinateSystemPanel
      */
     private CoordinateSystemPanel getCoordinateSystemPanel() {
         if (coordinateSystemPanel == null) {

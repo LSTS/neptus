@@ -60,10 +60,10 @@ import org.xml.sax.SAXParseException;
 
 import pt.lsts.neptus.fileeditor.SyntaxDocument;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.containers.GroupLayoutContainer;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.XMLUtil;
-import pt.up.fe.dceg.neptus.plugins.containers.GroupLayoutContainer;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 

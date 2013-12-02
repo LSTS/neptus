@@ -59,7 +59,7 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
  * 
  * 
  * <b>Important note: </b> you should always implement all the methods in the
- * interface {@link pt.up.fe.dceg.neptus.types.XmlOutputMethods} and the
+ * interface {@link pt.lsts.neptus.types.XmlOutputMethods} and the
  * variable {@link #DEFAULT_ROOT_ELEMENT}. If not the root element of the output
  * XML will be the one of the parent class.<br/>
  * You should also implement the constructors and the {@link #load(String)} to
@@ -736,7 +736,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
      */
     @Override
     public String asXML() {
@@ -747,7 +747,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
     @Override
     public String asXML(String rootElementName) {
@@ -760,7 +760,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
      */
     @Override
     public Element asElement() {
@@ -772,7 +772,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * (non-Javadoc)
      * 
      * @see
-     * pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement(java.lang.String)
+     * pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
      */
     @Override
     public Element asElement(String rootElementName) {

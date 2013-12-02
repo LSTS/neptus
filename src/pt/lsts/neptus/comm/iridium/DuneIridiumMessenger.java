@@ -41,12 +41,12 @@ import pt.lsts.imc.IridiumMsgRx;
 import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.imc.IridiumTxStatus;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.messages.TypedMessageFilter;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp

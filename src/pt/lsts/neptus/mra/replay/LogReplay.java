@@ -51,7 +51,9 @@ import javax.swing.JToolBar;
 import javax.swing.tree.TreePath;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.gui.Timeline;
 import pt.lsts.neptus.gui.TimelineChangeListener;
@@ -62,7 +64,10 @@ import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
+import pt.lsts.neptus.mra.plots.ReplayPlot;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.plugins.multibeam.MultibeamReplay;
+import pt.lsts.neptus.plugins.oplimits.OperationLimits;
 import pt.lsts.neptus.renderer2d.MissionRenderer;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -70,13 +75,8 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LsfTree;
-import pt.lsts.imc.IMCMessage;
-import pt.up.fe.dceg.neptus.plugins.mraplots.ReplayPlot;
-import pt.up.fe.dceg.neptus.plugins.multibeam.MultibeamReplay;
-import pt.up.fe.dceg.neptus.plugins.oplimits.OperationLimits;
 
 /**
  * @author ZP
@@ -116,7 +116,6 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
         layers.add(markersReplay);
         layers.add(new BathymetryReplay());
         layers.add(new AnnouncesReplay());
-//        layers.add(new DeltaTReplayLayer());
     }
     
     protected LinkedHashMap<String, IMraLog> replayParsers = new LinkedHashMap<String, IMraLog>();
@@ -363,7 +362,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
                     }
                 });
                 
-                // As this is modal execution stops here.
+                // As fieldDialog is modal execution pauses here.
                 fieldDialog.setVisible(true);
                 
                 ReplayPlot plot = new ReplayPlot(panel, fields.toArray(new String[0]));

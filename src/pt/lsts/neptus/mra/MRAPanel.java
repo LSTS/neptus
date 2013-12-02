@@ -41,6 +41,8 @@ import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXStatusBar;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
@@ -48,15 +50,16 @@ import pt.lsts.neptus.mra.exporters.CSVExporter;
 import pt.lsts.neptus.mra.exporters.ImcTo837;
 import pt.lsts.neptus.mra.exporters.KMLExporter;
 import pt.lsts.neptus.mra.exporters.MatExporter;
-import pt.lsts.neptus.mra.exporters.MraExporter;
+import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.exporters.PCDExporter;
-import pt.lsts.neptus.mra.exporters.XtfExporter;
+import pt.lsts.neptus.mra.exporters.XTFExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.replay.LogReplay;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
+import pt.lsts.neptus.plugins.noptilus.NoptilusMapExporter;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
@@ -68,9 +71,6 @@ import pt.lsts.neptus.util.llf.LsfTree;
 import pt.lsts.neptus.util.llf.LsfTreeMouseAdapter;
 import pt.lsts.neptus.util.llf.chart.MraChartFactory;
 import pt.lsts.neptus.util.llf.replay.LLFMsgReplay;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.lsf.LsfGenericIterator;
-import pt.up.fe.dceg.neptus.plugins.noptilus.NoptilusMapExporter;
 
 /**
  * @author ZP
@@ -109,10 +109,7 @@ public class MRAPanel extends JPanel {
     public MRAPanel(final IMraLogGroup source, NeptusMRA mra) {
         this.source = source;
         
-        
-        
         MRAVisualization[] automaticCharts = MraChartFactory.getAutomaticCharts(this);
-
         
         if (new File("conf/tides.txt").canRead() && source.getFile("tides.txt") == null) {
             FileUtil.copyFile("conf/tides.txt",new File(source.getFile("."), "tides.txt").getAbsolutePath());
@@ -224,13 +221,13 @@ public class MRAPanel extends JPanel {
         
         // Load exporters
         // Exporters list, this will be moved in the future
-        MraExporter exporterList[] = new MraExporter[] { 
+        MRAExporter exporterList[] = new MRAExporter[] { 
                 new ImcTo837(source),
                 new PCDExporter(source),
                 new MatExporter(source),
                 new KMLExporter(this, source),
                 new CSVExporter(source),
-                new XtfExporter(source),
+                new XTFExporter(source),
                 new NoptilusMapExporter(source)
         }; 
         
@@ -242,7 +239,7 @@ public class MRAPanel extends JPanel {
         }
         
         exporters = new JMenu(I18n.text("Exporters"));
-        for(final MraExporter exp : exporterList) {
+        for(final MRAExporter exp : exporterList) {
             if(exp.canBeApplied(source)) {
                 JMenuItem item = new JMenuItem(new AbstractAction(exp.getName()) {
                     @Override

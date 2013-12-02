@@ -37,6 +37,7 @@ import java.awt.GridLayout;
 
 import javax.swing.JPanel;
 
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -46,7 +47,6 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.ConsoleParse;
-import pt.lsts.neptus.util.comm.IMCUtils;
 import pt.lsts.imc.EstimatedState;
 
 import com.rickyclarkson.java.awt.layout.PercentLayout;
@@ -407,7 +407,7 @@ public class SideState2DPanelConsole extends SimpleSubPanel implements Configura
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#cleanSubPanel()
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
      */
     @Override
     public void cleanSubPanel() {

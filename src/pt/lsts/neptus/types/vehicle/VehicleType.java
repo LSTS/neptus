@@ -52,6 +52,7 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverFactory;
 import pt.lsts.neptus.types.XmlInputMethods;
@@ -70,7 +71,6 @@ import pt.lsts.neptus.util.Dom4JUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.XMLValidator;
-import pt.lsts.neptus.util.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
@@ -190,7 +190,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlInputMethods#load(org.dom4j.Element)
+     * @see pt.lsts.neptus.types.XmlInputMethods#load(org.dom4j.Element)
      */
     public boolean load(Element elem) {
         doc = Dom4JUtil.elementToDocument(elem);
@@ -204,7 +204,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlInputMethods#load(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlInputMethods#load(java.lang.String)
      */
     public boolean load(String xml) {
         try {
@@ -800,7 +800,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
      */
     public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
@@ -810,7 +810,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
     public String asXML(String rootElementName) {
         String result = "";
@@ -822,7 +822,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
      */
     public Element asElement() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
@@ -832,7 +832,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
      */
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
@@ -841,7 +841,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
      */
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
@@ -851,7 +851,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();

@@ -5,12 +5,12 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.plugins.containers.BoxLayoutContainer
-pt.up.fe.dceg.neptus.plugins.containers.TabContainer
-pt.up.fe.dceg.neptus.plugins.containers.SplitContainer
-pt.up.fe.dceg.neptus.plugins.containers.GridContainer
-pt.up.fe.dceg.neptus.plugins.containers.CollapsibleContainer
-pt.up.fe.dceg.neptus.plugins.containers.DummySubPanel
-pt.up.fe.dceg.neptus.plugins.containers.GroupLayoutContainer
-pt.up.fe.dceg.neptus.plugins.containers.MigLayoutContainer
+pt.lsts.neptus.plugins.containers.BoxLayoutContainer
+pt.lsts.neptus.plugins.containers.TabContainer
+pt.lsts.neptus.plugins.containers.SplitContainer
+pt.lsts.neptus.plugins.containers.GridContainer
+pt.lsts.neptus.plugins.containers.CollapsibleContainer
+pt.lsts.neptus.plugins.containers.DummySubPanel
+pt.lsts.neptus.plugins.containers.GroupLayoutContainer
+pt.lsts.neptus.plugins.containers.MigLayoutContainer
 

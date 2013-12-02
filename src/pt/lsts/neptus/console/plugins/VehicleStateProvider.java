@@ -33,8 +33,8 @@ package pt.lsts.neptus.console.plugins;
 
 import java.util.LinkedHashMap;
 
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 

@@ -323,7 +323,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
      */
     @Override
     public String asXML() {
@@ -334,7 +334,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
     @Override
     public String asXML(String rootElementName) {
@@ -347,7 +347,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
      */
     @Override
     public Element asElement() {
@@ -358,7 +358,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
      */
     @Override
     public Element asElement(String rootElementName) {
@@ -368,7 +368,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
      */
     @Override
     public Document asDocument() {
@@ -379,7 +379,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
     @Override
     public Document asDocument(String rootElementName) {
@@ -461,7 +461,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.types.Identifiable#getIdentification()
+     * @see pt.lsts.neptus.types.Identifiable#getIdentification()
      */
     @Override
     public String getIdentification() {

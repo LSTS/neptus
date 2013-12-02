@@ -5,6 +5,5 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.plugins.teleoperation.ServoControlPanel
-pt.up.fe.dceg.neptus.plugins.teleoperation.ControllerPanel
-pt.up.fe.dceg.neptus.plugins.teleoperation.ROVInfoLayer
+pt.lsts.neptus.plugins.teleoperation.ServoControlPanel
+pt.lsts.neptus.plugins.teleoperation.ROVInfoLayer

@@ -51,7 +51,6 @@ public class SidescanLine {
     public float range;
     public SystemPositionAndAttitude state;
     
-    
     public BufferedImage image;
     public double data[];
 

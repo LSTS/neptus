@@ -37,10 +37,10 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedHashMap;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.imc.IMCMessage;
 
 /**
  * @author zp

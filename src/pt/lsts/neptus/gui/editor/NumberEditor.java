@@ -326,7 +326,7 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.gui.editor.ValidationEnableInterface#isEnableValidation()
+     * @see pt.lsts.neptus.gui.editor.ValidationEnableInterface#isEnableValidation()
      */
     @Override
     public boolean isEnableValidation() {
@@ -334,7 +334,7 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
     }
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.gui.editor.ValidationEnableInterface#setEnableValidation(boolean)
+     * @see pt.lsts.neptus.gui.editor.ValidationEnableInterface#setEnableValidation(boolean)
      */
     @Override
     public void setEnableValidation(boolean enableValidation) {

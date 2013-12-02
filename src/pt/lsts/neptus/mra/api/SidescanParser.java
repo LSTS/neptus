@@ -33,8 +33,6 @@ package pt.lsts.neptus.mra.api;
 
 import java.util.ArrayList;
 
-import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
-
 /**
  * @author jqcorreia
  *
@@ -42,7 +40,7 @@ import pt.up.fe.dceg.neptus.plugins.sidescan.SidescanConfig;
 public interface SidescanParser {
     public long firstPingTimestamp();
     public long lastPingTimestamp();
-    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanConfig config);
+    public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanParameters config);
     
     public ArrayList<Integer> getSubsystemList();
 }

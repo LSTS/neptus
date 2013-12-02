@@ -86,7 +86,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
     @NeptusProperty(name="Start Z Units")
     public ManeuverLocation.Z_UNITS startZUnits = ManeuverLocation.Z_UNITS.NONE;
 
-//    protected ManeuverLocation.Z_UNITS startZUnits = pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS.NONE;
+//    protected ManeuverLocation.Z_UNITS startZUnits = pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.NONE;
     
     @NeptusProperty(name="Radius (m)")
     public float radius = 5;
@@ -134,7 +134,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.Maneuver#loadFromXML(java.lang.String)
+     * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
      */
     @Override
     public void loadFromXML(String xml) {
@@ -177,7 +177,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.Maneuver#ManeuverFunction(pt.up.fe.dceg.neptus.mp.VehicleState)
+     * @see pt.lsts.neptus.mp.Maneuver#ManeuverFunction(pt.lsts.neptus.mp.VehicleState)
      */
     @Override
     public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
@@ -324,7 +324,7 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
         loc.setLongitude(Math.toDegrees(elev.getLon()));
         loc.setZ(elev.getEndZ());
         NeptusLog.pub().info("<###> "+elev.getEndZUnits());
-//        loc.setZUnits(pt.up.fe.dceg.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(elev.getEndZUnits().toString()));
+//        loc.setZUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(elev.getEndZUnits().toString()));
         loc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(message.getString("end_z_units").toString()));
         setManeuverLocation(loc);
         startZ = (float)elev.getStartZ();

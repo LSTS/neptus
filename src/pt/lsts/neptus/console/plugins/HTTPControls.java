@@ -76,7 +76,7 @@ public class HTTPControls extends SimpleSubPanel implements ConfigurationListene
 	}
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#initSubPanel()
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#initSubPanel()
      */
     @Override
     public void initSubPanel() {
@@ -85,7 +85,7 @@ public class HTTPControls extends SimpleSubPanel implements ConfigurationListene
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#cleanSubPanel()
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
      */
     @Override
     public void cleanSubPanel() {

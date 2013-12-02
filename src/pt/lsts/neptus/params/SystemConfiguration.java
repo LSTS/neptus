@@ -33,6 +33,7 @@ package pt.lsts.neptus.params;
 
 import java.awt.BorderLayout;
 
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.params.SystemProperty.Scope;
@@ -42,7 +43,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
 import pt.lsts.imc.IMCMessage;
 
 /**
@@ -80,7 +80,7 @@ public class SystemConfiguration extends SimpleSubPanel implements NeptusMessage
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.plugins.SimpleSubPanel#mainVehicleChangeNotification(java.lang.String)
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#mainVehicleChangeNotification(java.lang.String)
      */
     @Override
     public void mainVehicleChangeNotification(String id) {

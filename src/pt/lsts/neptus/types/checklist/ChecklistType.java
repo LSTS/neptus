@@ -94,7 +94,7 @@ public class ChecklistType
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlInputMethods#load(org.dom4j.Element)
+     * @see pt.lsts.neptus.types.XmlInputMethods#load(org.dom4j.Element)
      */
     @Override
     public boolean load(Element elem) {
@@ -109,7 +109,7 @@ public class ChecklistType
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlInputMethods#load(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlInputMethods#load(java.lang.String)
      */
     @Override
     public boolean load(String xml) {
@@ -310,7 +310,7 @@ public class ChecklistType
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
      */
     @Override
     public String asXML() {
@@ -321,7 +321,7 @@ public class ChecklistType
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
     @Override
     public String asXML(String rootElementName) {
@@ -334,7 +334,7 @@ public class ChecklistType
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
      */
     @Override
     public Element asElement() {
@@ -346,7 +346,7 @@ public class ChecklistType
      * (non-Javadoc)
      * 
      * @see
-     * pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement(java.lang.String)
+     * pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
      */
     @Override
     public Element asElement(String rootElementName) {
@@ -356,7 +356,7 @@ public class ChecklistType
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
      */
     @Override
     public Document asDocument() {
@@ -368,7 +368,7 @@ public class ChecklistType
      * (non-Javadoc)
      * 
      * @see
-     * pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
+     * pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
     @Override
     public Document asDocument(String rootElementName) {
@@ -491,7 +491,7 @@ public class ChecklistType
     /*
      * (non-Javadoc)
      * 
-     * @see pt.up.fe.dceg.neptus.types.Identifiable#getIdentification()
+     * @see pt.lsts.neptus.types.Identifiable#getIdentification()
      */
     @Override
     public String getIdentification() {

@@ -52,7 +52,7 @@ import pt.lsts.imc.lsf.LsfIterator;
  * @author zp
  * 
  */
-public class CSVExporter implements MraExporter {
+public class CSVExporter implements MRAExporter {
 
     IMraLogGroup source;
     ProgressMonitor pmonitor;

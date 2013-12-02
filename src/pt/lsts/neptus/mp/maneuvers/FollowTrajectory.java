@@ -119,6 +119,10 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         return "FollowTrajectory";
     }
 
+    public void setOffsets(Vector<double[]> coordinates) {
+        this.points = coordinates;
+    }
+    
     @Override
     public void loadFromXML(String xml) {
         try {
@@ -487,7 +491,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
+     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
      */
     @Override
     public ManeuverLocation getStartLocation() {
@@ -513,7 +517,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.PathProvider#getPathPoints()
+     * @see pt.lsts.neptus.mp.maneuvers.PathProvider#getPathPoints()
      */
     @Override
     public List<double[]> getPathPoints() {
@@ -521,7 +525,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.mp.maneuvers.PathProvider#getPathLocations()
+     * @see pt.lsts.neptus.mp.maneuvers.PathProvider#getPathLocations()
      */
     @Override
     public List<LocationType> getPathLocations() {

@@ -156,7 +156,7 @@ public class LatLonConv extends JPanel {
 	/**
 	 * This method initializes latLongSelector
 	 * 
-	 * @return pt.up.fe.dceg.neptus.gui.LatLongSelector
+	 * @return pt.lsts.neptus.gui.LatLongSelector
 	 */
 	private LatLongSelector getLatLongSelector() {
 		if (latLongSelector == null) {

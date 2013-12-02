@@ -71,6 +71,9 @@ import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.gui.system.ConnectionSymbol.ConnectionStrengthEnum;
 import pt.lsts.neptus.gui.system.EmergencyTaskSymbol.EmergencyStatus;
 import pt.lsts.neptus.i18n.I18n;
@@ -82,9 +85,6 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystem.IMCAuthorityState;
-import pt.lsts.neptus.util.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author pdias
@@ -1170,7 +1170,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
 	}
 
 	/*
-	 * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
+	 * @see pt.lsts.neptus.plugins.update.IPeriodicUpdates#millisBetweenUpdates()
 	 */
 	@Override
 	public long millisBetweenUpdates() {
@@ -1188,7 +1188,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
 
 
 	/* (non-Javadoc)
-	 * @see pt.up.fe.dceg.neptus.plugins.update.IPeriodicUpdates#update()
+	 * @see pt.lsts.neptus.plugins.update.IPeriodicUpdates#update()
 	 */
 	@Override
 	public boolean update() {

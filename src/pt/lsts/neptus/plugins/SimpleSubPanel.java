@@ -58,6 +58,7 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.state.ImcSysState;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.SubPanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
@@ -67,6 +68,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.planning.MapPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
@@ -74,8 +76,6 @@ import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
-import pt.lsts.neptus.util.comm.manager.imc.ImcMsgManager;
-import pt.up.fe.dceg.neptus.plugins.planning.MapPanel;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -106,7 +106,7 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
     /**
      * If you need to react to main vehicle change override {@link #mainVehicleChangeNotification(String)} instead.
      * 
-     * @see pt.up.fe.dceg.neptus.console.plugins.MainVehicleChangeListener#mainVehicleChange(java.lang.String) The
+     * @see pt.lsts.neptus.console.plugins.MainVehicleChangeListener#mainVehicleChange(java.lang.String) The
      *      {@link #mainVehicleChangeNotification(String)} is called between the removal and addition of the new vehicle
      *      listener The {@link #mainVehicleId} is changed before this call.
      */
@@ -526,7 +526,7 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
     /**
      * If you want to perform cleanups, use {@link #cleanSubPanel()}
      * 
-     * @see pt.up.fe.dceg.neptus.console.SubPanel#clean()
+     * @see pt.lsts.neptus.console.SubPanel#clean()
      */
     @Override
     public final void clean() {
@@ -584,8 +584,8 @@ abstract public class SimpleSubPanel extends SubPanel implements MessageListener
     /**
      * Don't override this method. (Implement NeptusMessageListener instead.)
      * 
-     * @see pt.up.fe.dceg.neptus.messages.listener.MessageListener#onMessage(pt.up.fe.dceg.neptus.messages.listener.MessageInfo,
-     *      pt.up.fe.dceg.neptus.messages.IMessage)
+     * @see pt.lsts.neptus.messages.listener.MessageListener#onMessage(pt.lsts.neptus.messages.listener.MessageInfo,
+     *      pt.lsts.neptus.messages.IMessage)
      */
     @Override
     public void onMessage(MessageInfo arg0, IMCMessage arg1) {

@@ -139,7 +139,7 @@ public class TileMercadorSVG extends Tile {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.tiles.Tile#retryLoadingTile()
+     * @see pt.lsts.neptus.renderer2d.tiles.Tile#retryLoadingTile()
      */
     @Override
     public void retryLoadingTile() {
@@ -151,7 +151,7 @@ public class TileMercadorSVG extends Tile {
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.tiles.Tile#createTileImage()
+     * @see pt.lsts.neptus.renderer2d.tiles.Tile#createTileImage()
      */
     @Override
     protected void createTileImage() {
@@ -214,7 +214,7 @@ public class TileMercadorSVG extends Tile {
     }
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.tiles.Tile#testForAlfaOnLoaddImage(java.awt.image.BufferedImage)
+     * @see pt.lsts.neptus.renderer2d.tiles.Tile#testForAlfaOnLoaddImage(java.awt.image.BufferedImage)
      */
     @Override
     protected void testForAlfaOnLoaddImage(BufferedImage img) {
@@ -222,7 +222,7 @@ public class TileMercadorSVG extends Tile {
     }
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.renderer2d.tiles.Tile#getTransparencyToApplyToImage()
+     * @see pt.lsts.neptus.renderer2d.tiles.Tile#getTransparencyToApplyToImage()
      */
     @Override
     protected float getTransparencyToApplyToImage() {

@@ -5,17 +5,17 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.plugins.planning.MapPanel
-pt.up.fe.dceg.neptus.plugins.planning.MissionTreePanel
-pt.up.fe.dceg.neptus.plugins.planning.AreaCoveragePlanner
-pt.up.fe.dceg.neptus.plugins.planning.CommandPlanner
-pt.up.fe.dceg.neptus.plugins.planning.PlanStatistics
-pt.up.fe.dceg.neptus.plugins.planning.EmergencyControlPanel
-pt.up.fe.dceg.neptus.plugins.planning.UavPiccoloControl
-pt.up.fe.dceg.neptus.plugins.planning.PlanControlPanel
-pt.up.fe.dceg.neptus.plugins.planning.PlanControlStatePanel
-pt.up.fe.dceg.neptus.plugins.planning.PlanExecutionPreview
-pt.up.fe.dceg.neptus.plugins.planning.PlanEditor
-pt.up.fe.dceg.neptus.plugins.planning.PathControlLayer
-pt.up.fe.dceg.neptus.plugins.planning.MultiVehiclePlanOverlay
-pt.up.fe.dceg.neptus.plugins.planning.DistancesLayer
+pt.lsts.neptus.plugins.planning.MapPanel
+pt.lsts.neptus.plugins.planning.MissionTreePanel
+pt.lsts.neptus.plugins.planning.AreaCoveragePlanner
+pt.lsts.neptus.plugins.planning.CommandPlanner
+pt.lsts.neptus.plugins.planning.PlanStatistics
+pt.lsts.neptus.plugins.planning.EmergencyControlPanel
+pt.lsts.neptus.plugins.planning.UavPiccoloControl
+pt.lsts.neptus.plugins.planning.PlanControlPanel
+pt.lsts.neptus.plugins.planning.PlanControlStatePanel
+pt.lsts.neptus.plugins.planning.PlanExecutionPreview
+pt.lsts.neptus.plugins.planning.PlanEditor
+pt.lsts.neptus.plugins.planning.PathControlLayer
+pt.lsts.neptus.plugins.planning.MultiVehiclePlanOverlay
+pt.lsts.neptus.plugins.planning.DistancesLayer

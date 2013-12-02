@@ -55,7 +55,7 @@ public class PointSelector extends ParametersPanel {
 	/**
 	 * This method initializes heightDepthSelector	
 	 * 	
-	 * @return pt.up.fe.dceg.neptus.gui.HeightDepthSelector	
+	 * @return pt.lsts.neptus.gui.HeightDepthSelector	
 	 */    
 	public HeightDepthSelector getHeightDepthSelector() {
 		if (heightDepthSelector == null) {
@@ -71,7 +71,7 @@ public class PointSelector extends ParametersPanel {
 	/**
 	 * This method initializes latLongSelector	
 	 * 	
-	 * @return pt.up.fe.dceg.neptus.gui.LatLongSelector	
+	 * @return pt.lsts.neptus.gui.LatLongSelector	
 	 */    
 	public LatLongSelector getLatLongSelector() {
 		if (latLongSelector == null) {

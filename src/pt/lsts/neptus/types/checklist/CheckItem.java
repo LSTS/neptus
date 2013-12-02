@@ -258,7 +258,7 @@ implements XmlOutputMethods
     
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
      */
     public String asXML()
     {
@@ -268,7 +268,7 @@ implements XmlOutputMethods
 
     
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asXML(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
     public String asXML(String rootElementName)
     {
@@ -279,7 +279,7 @@ implements XmlOutputMethods
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
      */
     public Element asElement()
     {
@@ -288,7 +288,7 @@ implements XmlOutputMethods
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asElement(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
      */
     public Element asElement(String rootElementName)
     {
@@ -296,7 +296,7 @@ implements XmlOutputMethods
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument()
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
      */
     public Document asDocument()
     {
@@ -305,7 +305,7 @@ implements XmlOutputMethods
     }
 
     /* (non-Javadoc)
-     * @see pt.up.fe.dceg.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
+     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
     public Document asDocument(String rootElementName)
     {

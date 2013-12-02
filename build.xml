@@ -38,7 +38,7 @@ Copyright:
 ==================================================================== -->
 <?xml-stylesheet type="text/xsl" href="ant2html.xsl"?>
 <project name="Neptus" default="default" basedir=".">
-	
+
 	<description>
 For simple use the main targets are:
     - "info" for project information
@@ -51,7 +51,7 @@ For simple use the main targets are:
 		"distribution-seacon", or "distribution-le")
 	
 </description>
-	
+
 	<!-- =================================================================== -->
 	<!-- Defines variables used by the other targets                         -->
 	<!-- =================================================================== -->
@@ -68,7 +68,7 @@ For simple use the main targets are:
 	<property name="version" value="${version.MAJOR}.${version.MINOR}.${version.PATCH}${version.DEVELOPER}_${release.INFO}" />
 	<property name="version.numeric" value="${version.MAJOR}.${version.MINOR}.${version.PATCH}" />
 
-    <property name="full.release" value="${version}" />
+	<property name="full.release" value="${version}" />
 	<property name="light.release" value="${full.release}" />
 	<property name="seacon.release" value="${light.release}" />
 
@@ -90,9 +90,9 @@ For simple use the main targets are:
 
 	<property name="src.dir" value="./src" />
 	<property name="src.shell.dir" value="./srcShell" />
-	
+
 	<property name="lib.dir" value="./lib" />
-	
+
 	<property name="nsis_src.dir" value="./NSIS_release/static_files/" />
 	<property name="nsis_dst.dir" value="./NSIS_release/install_scripts/" />
 
@@ -105,12 +105,12 @@ For simple use the main targets are:
 	<property name="plugin.dir.dest" value="./plugins" />
 
 	<property name="tmp.dir" value="./.tmp" />
-    <property name="tmp.main.dir" value="${tmp.dir}/main-tmp" />
+	<property name="tmp.main.dir" value="${tmp.dir}/main-tmp" />
 	<property name="tmp.plugin.dir" value="${tmp.dir}/plugins-dev-tmp" />
 	<property name="tmp.bundle.dir" value="tmpBuild" />
 
 	<property name="exclude-defaults" value="**/Thumbs.db,**/thumbs.db,**/*~,**/#*#" />
-	
+
 	<property name="scm.info.file" value="scm.info.txt" />
 
 	<property name="dist.file" value="${name}-${version}" />
@@ -124,10 +124,10 @@ For simple use the main targets are:
 
 	<property name="reports.tests" value="${build.docs}/junit/xml_res" />
 	<property name="reports.outputs" value="${build.docs}/junit/html" />
-	
+
 	<property name="javadoc.src" value="javadoc" />
 	<property name="javadoc.overview" value="overview-and-developers-guide.html" />
-	<property name="javadoc.overview.path" value="${javadoc.src}/${javadoc.overview}" />	
+	<property name="javadoc.overview.path" value="${javadoc.src}/${javadoc.overview}" />
 
 	<!-- Where to put licences -->
 	<property name="legal.dir" value="./legal" />
@@ -145,7 +145,7 @@ For simple use the main targets are:
 	<property name="bundle.jar.checklist.path" value="${bin.bundle.dir}/${bundle.jar.checklist}" />
 	<property name="bundle.jar.worldmap" value="${name}-worldmap.jar" />
 	<property name="bundle.jar.worldmap.path" value="${bin.bundle.dir}/${bundle.jar.worldmap}" />
-	
+
 	<property name="dist.installer.basename.full" value="${Name}-${full.release}-x86-32bit-x64-64bit"/>
 	<property name="dist.installer.basename.le" value="${Name}LE-${light.release}-x86-32bit-x64-64bit"/>
 	<property name="dist.installer.basename.seacon" value="${Name}SC-${seacon.release}-x86-32bit-x64-64bit"/>
@@ -192,12 +192,12 @@ For simple use the main targets are:
 		<path refid="cp.lib.jars" />
 		<path refid="cp.junit" />
 	</path>
-	
+
 	<property name="class.path" refid="cp.path" />
 	<property name="class.path.compile" refid="cp.compile" />
 	<property name="class.path.compile.jar.main" refid="cp.compile.jar.main" />
 	<property name="class.path.run" refid="cp.run" />
-	
+
 	<property name="certs.build.file" value="./certs/ant-keys-genkeys.xml" />
 	<property name="neptus.cert" value="./certs/genKeys/LSTS_FEUP.keystore" />
 	<property name="login.cert" value="lsts" />
@@ -284,7 +284,7 @@ For simple use the main targets are:
 			</condition>
 		</fail>
 	</target>
-	
+
 
 	<!-- =================================================================== -->
 	<!-- Info                                                                -->
@@ -305,18 +305,22 @@ For simple use the main targets are:
 		<fail>
 			Ant version should be at least v1.8.0! Yours is ${ant.version}.
 			<condition>
-				<not><antversion atleast="1.8.0"/></not>
+				<not>
+					<antversion atleast="1.8.0"/>
+				</not>
 			</condition>
 		</fail>
 		<!--echo message=" ClassPath = ${class.path}" /-->
 		<echo message="-------------------------------------------------------------------" level="debug" />
 		<!--tstamp /-->
-		<path id="lpath"><pathelement path="${lib.dir}" /></path>
+		<path id="lpath">
+			<pathelement path="${lib.dir}" />
+		</path>
 		<property name="llpath" refid="lpath" />
 
 		<mkdir dir="${bin.dir}" />
 		<manifestclasspath property="manifest.classpath" jarfile="${jar.file.path}">
-		      <classpath refid="cp.path" />
+			<classpath refid="cp.path" />
 		</manifestclasspath>
 		<pathconvert dirsep="/" property="dist.classpath" refid="cp.lib.jars">
 			<map from="${llpath}" to="${lib.dir}" />
@@ -338,7 +342,7 @@ For simple use the main targets are:
 			<format property="time.time" pattern="HH':'mm" />
 		</tstamp>
 		<!-- echo message="${time.date} |  ${time.year}" / -->
-		
+
 		<property name="dist.installer.name.full" value="${dist.installer.basename.full}-${time.date}"/>
 		<property name="dist.installer.name.le" value="${dist.installer.basename.le}-${time.date}"/>
 		<property name="dist.installer.name.seacon" value="${dist.installer.basename.seacon}-${time.date}"/>
@@ -352,9 +356,9 @@ For simple use the main targets are:
 		<echo level="info" message="    last author: ${scm.last.changed.author}" />
 		<echo level="info" message="    wc ${scm.wc.dirty.string}" />
 		<echo message="-------------------------------------------------------------------" />
-		
+
 		<loadfile property="license-content" srcFile="${license.file}"/>
-		
+
 		<filterset id="neptus.filters">
 			<filter token="NEPTUS_NAME" value="${Name}" />
 			<filter token="VERSION" value="${version}" />
@@ -433,7 +437,7 @@ For simple use the main targets are:
 			</fileset>
 		</delete>
 	</target>
-	
+
 	<target name="clean-conf" description="Deletes locally changed configurations.">
 		<delete dir="log"/>
 		<delete>
@@ -442,7 +446,7 @@ For simple use the main targets are:
 				<include name="conf/mra_recent.xml"/>
 				<include name="conf/roconsoles.xml"/>
 				<include name="conf/romisc.xml"/>
-				<include name="conf/worldrenderpainter.properties"/>							
+				<include name="conf/worldrenderpainter.properties"/>
 			</fileset>
 		</delete>
 	</target>
@@ -468,17 +472,17 @@ For simple use the main targets are:
 			
 		-->
 		<local name="git.wc.status" />
-	    <exec executable="git" outputproperty="git.wc.status" failonerror="false">
-		  <arg value="status"/>
-		  <arg value="--short"/>
-		  <arg value="--untracked-files=no"/>
-	    </exec>
+		<exec executable="git" outputproperty="git.wc.status" failonerror="false">
+			<arg value="status"/>
+			<arg value="--short"/>
+			<arg value="--untracked-files=no"/>
+		</exec>
 		<local name="git.wc.dirty" />
 		<condition property="git.wc.dirty" value="true">
 			<and>
 				<isset property="git.wc.status" />
 				<not>
-				    <equals arg1="${git.wc.status}" arg2="" trim="true"/>
+					<equals arg1="${git.wc.status}" arg2="" trim="true"/>
 				</not>
 			</and>
 		</condition>
@@ -488,68 +492,68 @@ For simple use the main targets are:
 		</condition>
 
 		<local name="git.hash" />
-	    <exec executable="git" outputproperty="git.hash" failonerror="false">
-		  <arg value="log"/>
-		  <arg value="-1"/>
-		  <arg value="--pretty=format:%H"/>
-	    </exec>
+		<exec executable="git" outputproperty="git.hash" failonerror="false">
+			<arg value="log"/>
+			<arg value="-1"/>
+			<arg value="--pretty=format:%H"/>
+		</exec>
 		<local name="git.hash.abbrev" />
-	    <exec executable="git" outputproperty="git.hash.abbrev" failonerror="false">
-		  <arg value="log"/>
-		  <arg value="-1"/>
-		  <arg value="--pretty=format:%h"/>
-	    </exec>
+		<exec executable="git" outputproperty="git.hash.abbrev" failonerror="false">
+			<arg value="log"/>
+			<arg value="-1"/>
+			<arg value="--pretty=format:%h"/>
+		</exec>
 		<local name="git.date" />
-	    <exec executable="git" outputproperty="git.date" failonerror="false">
-		  <arg value="log"/>
-		  <arg value="-1"/>
-		  <arg value="--pretty=format:%ai"/>
-	    </exec>
+		<exec executable="git" outputproperty="git.date" failonerror="false">
+			<arg value="log"/>
+			<arg value="-1"/>
+			<arg value="--pretty=format:%ai"/>
+		</exec>
 		<local name="git.author" />
-	    <exec executable="git" outputproperty="git.author" failonerror="false">
-		  <arg value="log"/>
-		  <arg value="-1"/>
-		  <arg value="--pretty=format:%an"/>
-	    </exec>
+		<exec executable="git" outputproperty="git.author" failonerror="false">
+			<arg value="log"/>
+			<arg value="-1"/>
+			<arg value="--pretty=format:%an"/>
+		</exec>
 
 		<local name="git.tagstring" />
 		<exec executable="git" outputproperty="git.tagstring" failonerror="false">
-	      <arg value="describe"/>
+			<arg value="describe"/>
 			<arg value="--dirty"/>
-	    </exec>
+		</exec>
 		<local name="git.revision" />
-	    <exec executable="git" outputproperty="git.revision">
-	      <arg value="rev-parse"/>
-	      <arg value="HEAD"/>
-	    </exec>
+		<exec executable="git" outputproperty="git.revision">
+			<arg value="rev-parse"/>
+			<arg value="HEAD"/>
+		</exec>
 		<local name="git.tag" />
 		<condition property="git.tag" value="${git.revision}" else="${git.tagstring}">
-		    <equals arg1="${git.tagstring}" arg2="fatal: No names found, cannot describe anything."/>
+			<equals arg1="${git.tagstring}" arg2="fatal: No names found, cannot describe anything."/>
 		</condition>
 		<local name="git.repo.path" />
 		<exec executable="git" outputproperty="git.repo.path" failonerror="false">
-	    	<arg value="describe"/>
+			<arg value="describe"/>
 			<arg value="--all"/>
 			<arg value="--long"/>
 			<arg value="--dirty"/>
-	    </exec>
-		
-    	<!-- Lets recreate a clean scm.info.txt -->
-    	<echo file="${scm.info.file}" append="false">version=${version}
+		</exec>
+
+		<!-- Lets recreate a clean scm.info.txt -->
+		<echo file="${scm.info.file}" append="false">version=${version}
 </echo>
-    	<echo file="${scm.info.file}" append="true">scm.revision=${git.tag}
+		<echo file="${scm.info.file}" append="true">scm.revision=${git.tag}
 </echo>
-    	<echo file="${scm.info.file}" append="true">scm.revision.uid=${git.hash}
+		<echo file="${scm.info.file}" append="true">scm.revision.uid=${git.hash}
 </echo>
-    	<echo file="${scm.info.file}" append="true">scm.repository.path=${git.repo.path}
+		<echo file="${scm.info.file}" append="true">scm.repository.path=${git.repo.path}
 </echo>
-    	<echo file="${scm.info.file}" append="true">scm.last.changed.author=${git.author}
+		<echo file="${scm.info.file}" append="true">scm.last.changed.author=${git.author}
 </echo>
-    	<echo file="${scm.info.file}" append="true">scm.last.changed.date=${git.date}
+		<echo file="${scm.info.file}" append="true">scm.last.changed.date=${git.date}
 </echo>
-    	<echo file="${scm.info.file}" append="true">scm.wc.dirty.string=${git.wc.dirty.string}
+		<echo file="${scm.info.file}" append="true">scm.wc.dirty.string=${git.wc.dirty.string}
 </echo>
-    	<echo file="${scm.info.file}" append="true">scm.wc.dirty.status=${git.wc.dirty.status}
+		<echo file="${scm.info.file}" append="true">scm.wc.dirty.status=${git.wc.dirty.status}
 </echo>
 
 		<property name="scm.revision.uid.abbrev" value="${git.hash.abbrev}" />
@@ -559,17 +563,17 @@ For simple use the main targets are:
 		<property file="${scm.info.file}"/>
 
 		<!-- This should be after loading the properties from file because this addition will render this not loadable. -->
-    	<echo file="${scm.info.file}" append="true">scm.wc.status=${git.wc.status}
+		<echo file="${scm.info.file}" append="true">scm.wc.status=${git.wc.status}
 </echo>
-			
+
 		<property name="scm-props-set" value="true"/>
-    </target>
+	</target>
 
 	<!-- =================================================================== -->
 	<!-- Compile entire source tree                                          -->
 	<!-- =================================================================== -->
 	<target name="compile" depends="compile.all" description="Compile all src the normal way">
-    </target>
+	</target>
 
 	<!-- Compile entire source tree                                          -->
 	<target name="compile.all" depends="prepare" unless="already-compiled">
@@ -593,7 +597,7 @@ For simple use the main targets are:
 			</src>
 			<src>
 				<dirset dir="${plugin-dev.dir.base}">
-	                <depth min="0" max="0"/>
+					<depth min="0" max="0"/>
 				</dirset>
 			</src>
 		</javac>
@@ -617,7 +621,7 @@ For simple use the main targets are:
 			<filterset refid="neptus.filters" />
 		</copy>
 		<copy file="${scm.info.file}" tofile="${build.classes}/info" overwrite="yes" failonerror="false" />
-    	<copy file="${license.file}" todir="${build.classes}" />
+		<copy file="${license.file}" todir="${build.classes}" />
 		<copy todir="${build.classes}" overwrite="true">
 			<fileset dir="${src.dir}">
 				<include name="totd.xml" />
@@ -651,7 +655,7 @@ For simple use the main targets are:
 			  fork="false">
 			<compilerarg line="${extra-compile-args}" />
 		</javac>
-		
+
 		<copy todir="${tmp.main.dir}" overwrite="true">
 			<fileset dir="${src.dir}" excludes="${exclude-defaults},**/Thumbs.db,**/thumbs.db" 
 				includes="**/*.xml,**/*.properties,**/*.res,images/**/*.*,models/**/*.*,schemas/**/*.xsd" />
@@ -664,7 +668,7 @@ For simple use the main targets are:
 			<filterset refid="neptus.filters" />
 		</copy>
 		<copy file="${scm.info.file}" tofile="${tmp.main.dir}/info" overwrite="yes" failonerror="false" />
-	    <copy file="${license.file}" todir="${tmp.main.dir}" />
+		<copy file="${license.file}" todir="${tmp.main.dir}" />
 		<copy todir="${tmp.main.dir}" overwrite="true">
 			<fileset dir="${src.dir}">
 				<include name="totd.xml" />
@@ -677,7 +681,7 @@ For simple use the main targets are:
 			</fileset>
 		</copy>
 	</target>
-	
+
 
 	<!-- =================================================================== -->
 	<!-- Creates all Neptus jars.                                            -->
@@ -694,13 +698,13 @@ For simple use the main targets are:
 	<target name="jar-clean" description="Deletes the all Neptus jars files" depends="jar.main-clean">
 		<delete file="${plugin.dir.dest}/*.jar}" />
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Creates Neptus jar.                                                 -->
 	<!-- =================================================================== -->
 
 	<target name="jar.main-force" depends="jar.main-clean,jar.main" >
-	<!--		description="Creates the Neptus jar file forced even if no changes to srcs."-->
+		<!--		description="Creates the Neptus jar file forced even if no changes to srcs."-->
 	</target>
 
 	<target name="jar.main" depends="compile.main,jar.main.prep" unless="jar.build.not.required" 
@@ -715,9 +719,9 @@ For simple use the main targets are:
 	<target name="jar.main-clean" description="Deletes the jar file">
 		<delete file="${jar.file.path}" />
 	</target>
-	
-	<target name="jar.uptodate.test">		
-		<uptodate property="jar.build.not.required" targetfile="${jar.file.path}" >			
+
+	<target name="jar.uptodate.test">
+		<uptodate property="jar.build.not.required" targetfile="${jar.file.path}" >
 			<srcfiles dir= "${build.classes}" excludes="version.txt" />
 		</uptodate>
 		<echo message="JAR uptodate: ${jar.build.not.required}" level="warning" />
@@ -781,7 +785,7 @@ For simple use the main targets are:
 				index="false" update="true" excludes="${exclude-defaults}, *.class">
 			<include name="version.*" />
 			<include name="info*" />
-        	<include name="pt/lsts/neptus/i18n/**/*.class" />
+			<include name="pt/lsts/neptus/i18n/**/*.class" />
 			<include name="pt/lsts/neptus/types/coord/*.class" />
 			<include name="pt/lsts/neptus/types/**/*.class" />
 			<include name="pt/lsts/neptus/util/*.class" />
@@ -812,10 +816,10 @@ For simple use the main targets are:
 			<!-- Needed by the Serializable interface of LocationType -->
 			<include name="pt/lsts/neptus/messages/stanag4586/Stanag4586Message.class" />
 			<include name="pt/lsts/messages/Message*.class" />
-        	<include name="pt/lsts/neptus/comm/proxy/ProxyInfoProvider*.class" />
-        	<include name="pt/lsts/neptus/util/comm/ssh/SSHConnectionDialog*.class" />
-        	<include name="pt/lsts/neptus/util/comm/ssh/IntFormat*.class" />
-        	<include name="pt/lsts/neptus/gui/ImagePanel*.class" />
+			<include name="pt/lsts/neptus/comm/proxy/ProxyInfoProvider*.class" />
+			<include name="pt/lsts/neptus/util/comm/ssh/SSHConnectionDialog*.class" />
+			<include name="pt/lsts/neptus/util/comm/ssh/IntFormat*.class" />
+			<include name="pt/lsts/neptus/gui/ImagePanel*.class" />
 			<include name="pt/lsts/neptus/NeptusLog.class" />
 			<include name="pt/lsts/neptus/planeditor/*.class" />
 			<include name="pt/lsts/neptus/comm/proxy/*.class" />
@@ -826,143 +830,174 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/console/plugins/SubPanelProvider.class" />
 			<include name="pt/lsts/neptus/mra/visualizations/MRAVisualization.class" />
 			<include name="pt/lsts/neptus/plugins/*.class" />
-        	<include name="images/ssh-connect.png"/>
+			<include name="images/ssh-connect.png"/>
 		</jar>
 	</target>
 
-    <!-- =================================================================== -->
-    <!-- Creates bin-bundle/neptus-check.jar                                 -->
-    <!-- =================================================================== -->
-    <target name="jar-bundle-checklist" depends="compile" description="Creates bin-bundle/neptus-check.jar">
-    	<delete file="${bundle.jar.checklist.path}" failonerror="true"/>
-    	<delete dir="${tmp.bundle.dir}" failonerror="true"/>
-        <jar destfile="${bundle.jar.checklist.path}" basedir="${build.classes}" 
+	<target name="sonar-api-jar" depends="compile" unless="jar.build.not.required" 
+				description="Creates the Neptus sonar processing API.">
+		<echo message="Creating .jar file" />
+		<property name="sonar-api.file" value="sonar-api.jar" />
+
+		<delete file="${bin.dir}/${sonar-api.file}" />
+		<jar destfile="${bin.dir}/${sonar-api.file}" basedir="." update="true" excludes="${exclude-defaults}" includes="LICENSE">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
+
+				<section name="${Name}">
+					<attribute name="Specification-Title" value="${Name}" />
+					<attribute name="Specification-Version" value="${version}" />
+					<attribute name="Specification-Vendor" value="FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
+					<attribute name="Implementation-Title" value="${name}" />
+					<attribute name="Implementation-Version" value="${version} ${TODAY}" />
+					<attribute name="Implementation-Vendor" value="FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)" />
+				</section>
+			</manifest>
+		</jar>
+		
+		<jar destfile="${bin.dir}/${jar-api-justrender.file}" basedir="${build.classes}" index="false" update="true" excludes="${exclude-defaults}, *.class">
+			<include name="version.*" />
+			<include name="info*" />
+			<include name="pt.lsts.neptus.util.llf.LogUtils.class" />
+			<include name="pt.lsts.neptus.mp.SystemPositionAndAttitude.class" />
+			<include name="pt.lsts.neptus.mra.importers.**" />
+			<include name="pt.lsts.neptus.types.coords.LocationType.class" />
+		</jar>
+	</target>
+	<!-- =================================================================== -->
+	<!-- Creates bin-bundle/neptus-check.jar                                 -->
+	<!-- =================================================================== -->
+	<target name="jar-bundle-checklist" depends="compile" description="Creates bin-bundle/neptus-check.jar">
+		<delete file="${bundle.jar.checklist.path}" failonerror="true"/>
+		<delete dir="${tmp.bundle.dir}" failonerror="true"/>
+		<jar destfile="${bundle.jar.checklist.path}" basedir="${build.classes}" 
                excludes="${exclude-defaults}" includes="LICENSE">
 			<include name="version.*" />
 			<include name="info*" />
-        	<include name="pt/lsts/neptus/i18n/**/*.class" />
-        	<include name="pt/lsts/neptus/NeptusLog*.class" />
-            <include name="pt/lsts/neptus/gui/checklist/**/*.class"/>
-            <include name="pt/lsts/neptus/messages/listener/**/*.class"/>
-        	<include name="pt/lsts/neptus/messages/*.class"/>
-        	<include name="pt/lsts/neptus/util/conf/*.class"/>    
-        	<!-- include name="pt/lsts/neptus/util/*.class"/ -->
-            <include name="pt/lsts/neptus/util/GuiUtils*.class"/>
-            <include name="pt/lsts/neptus/util/ImageUtils*.class"/>
-        	<include name="pt/lsts/neptus/util/ImageLoader.class"/>
-        	<include name="pt/lsts/neptus/util/FileUtil.class"/>
-        	<include name="pt/lsts/neptus/util/NameNormalizer.class"/>
-        	<include name="pt/lsts/neptus/util/DateTimeUtil*.class"/>
-        	<include name="pt/lsts/neptus/util/PropertiesLoader*.class"/>
-        	<include name="pt/lsts/neptus/util/BarCodesUtil*.class"/>
-        	<include name="pt/lsts/neptus/util/output/*.class"/>
-            <include name="pt/lsts/neptus/util/xsl/*.class"/>
-        	<include name="pt/lsts/neptus/gui/ModalFrame.class"/>
-            <include name="pt/lsts/neptus/gui/PropertiesProvider.class"/>
-        	<include name="pt/lsts/neptus/gui/swing/NeptusFileView.class"/>
-        	<include name="pt/lsts/neptus/gui/editor/*.class"/>
-        	<include name="pt/lsts/neptus/types/checklist/**/*.class"/>
-        	<include name="pt/lsts/neptus/types/Xml*.class"/>
-        	<include name="pt/lsts/neptus/types/nativetypes/*.class"/>
-        	<include name="pt/lsts/neptus/util/comm/vehicle/*.class"/>
-        	<include name="pt/lsts/neptus/util/comm/transports/ImcUdpTransport*.class"/>
-            <include name="pt/lsts/neptus/util/comm/manager/imc/ImcId16*.class"/>
-        	<include name="pt/lsts/neptus/util/comm/middleware/**.class"/>
-        	<include name="pt/lsts/neptus/gui/BlockingGlassPane*.class"/>
-        	<include name="pt/lsts/neptus/gui/InfiniteProgressPanel*.class"/>
-        	<include name="pt/lsts/neptus/gui/ClockCounter*.class"/>
-        	<include name="pt/lsts/neptus/gui/ChronometerPanel*.class"/>
-        	<include name="pt/lsts/neptus/vartree/*.class"/>
-        	<include name="pt/lsts/vartree/*.class"/>
-        	<include name="pt/lsts/neptus/plugins/PluginProperty.class"/>
-        	<include name="pt/lsts/neptus/plugins/NeptusProperty*.class"/>
-        	<include name="pt/lsts/neptus/types/Identifiable*.class"/>
-        	<!--include name="pt/lsts/neptus/types/**/*.class"/ -->
-        	<!-- include name="images/**/*.*" / -->
-        	<include name="images/neptus-icon.png"/>
-        	<include name="images/neptus-icon1.png"/>
-        	<include name="images/neptus-icon2.png"/>
-        	<!-- include name="images/neptus_logo_ns.svg"/ -->
-        	<!--include name="images/box_checked.png"/>
+			<include name="pt/lsts/neptus/i18n/**/*.class" />
+			<include name="pt/lsts/neptus/NeptusLog*.class" />
+			<include name="pt/lsts/neptus/gui/checklist/**/*.class"/>
+			<include name="pt/lsts/neptus/messages/listener/**/*.class"/>
+			<include name="pt/lsts/neptus/messages/*.class"/>
+			<include name="pt/lsts/neptus/util/conf/*.class"/>
+			<!-- include name="pt/lsts/neptus/util/*.class"/ -->
+			<include name="pt/lsts/neptus/util/GuiUtils*.class"/>
+			<include name="pt/lsts/neptus/util/ImageUtils*.class"/>
+			<include name="pt/lsts/neptus/util/ImageLoader.class"/>
+			<include name="pt/lsts/neptus/util/FileUtil.class"/>
+			<include name="pt/lsts/neptus/util/NameNormalizer.class"/>
+			<include name="pt/lsts/neptus/util/DateTimeUtil*.class"/>
+			<include name="pt/lsts/neptus/util/PropertiesLoader*.class"/>
+			<include name="pt/lsts/neptus/util/BarCodesUtil*.class"/>
+			<include name="pt/lsts/neptus/util/output/*.class"/>
+			<include name="pt/lsts/neptus/util/xsl/*.class"/>
+			<include name="pt/lsts/neptus/gui/ModalFrame.class"/>
+			<include name="pt/lsts/neptus/gui/PropertiesProvider.class"/>
+			<include name="pt/lsts/neptus/gui/swing/NeptusFileView.class"/>
+			<include name="pt/lsts/neptus/gui/editor/*.class"/>
+			<include name="pt/lsts/neptus/types/checklist/**/*.class"/>
+			<include name="pt/lsts/neptus/types/Xml*.class"/>
+			<include name="pt/lsts/neptus/types/nativetypes/*.class"/>
+			<include name="pt/lsts/neptus/util/comm/vehicle/*.class"/>
+			<include name="pt/lsts/neptus/util/comm/transports/ImcUdpTransport*.class"/>
+			<include name="pt/lsts/neptus/util/comm/manager/imc/ImcId16*.class"/>
+			<include name="pt/lsts/neptus/util/comm/middleware/**.class"/>
+			<include name="pt/lsts/neptus/gui/BlockingGlassPane*.class"/>
+			<include name="pt/lsts/neptus/gui/InfiniteProgressPanel*.class"/>
+			<include name="pt/lsts/neptus/gui/ClockCounter*.class"/>
+			<include name="pt/lsts/neptus/gui/ChronometerPanel*.class"/>
+			<include name="pt/lsts/neptus/vartree/*.class"/>
+			<include name="pt/lsts/vartree/*.class"/>
+			<include name="pt/lsts/neptus/plugins/PluginProperty.class"/>
+			<include name="pt/lsts/neptus/plugins/NeptusProperty*.class"/>
+			<include name="pt/lsts/neptus/types/Identifiable*.class"/>
+			<!--include name="pt/lsts/neptus/types/**/*.class"/ -->
+			<!-- include name="images/**/*.*" / -->
+			<include name="images/neptus-icon.png"/>
+			<include name="images/neptus-icon1.png"/>
+			<include name="images/neptus-icon2.png"/>
+			<!-- include name="images/neptus_logo_ns.svg"/ -->
+			<!--include name="images/box_checked.png"/>
             <include name="images/box.png"/>
         	<include name="images/menus/edit.png"/>
         	<include name="images/buttons/add.png"/>
         	<include name="images/buttons/close.png"/-->
-            <!--include name="images/files-icons/*.*"/ -->
-        	<include name="images/files-icons/*.png"/>
-        	<include name="images/checklists/*.png"/>
-            <!-- include name="schemas/**/*.*"/ -->
-            <include name="schemas/neptus-checklist.xsd"/>
-            <include name="version.txt"/>
-            <manifest>
-                 <attribute name="Built-By" value="${user.name}" />
-                 <attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
-                 <attribute name="Main-Class" value="pt.lsts.neptus.gui.checklist.ChecklistPanel" />
-                 <section name="${Name}">
-                     <attribute name="Specification-Title" value="${Name}" />
-                     <attribute name="Specification-Version" value="${version}" />
-                     <attribute name="Specification-Vendor" value="FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
-                     <attribute name="Implementation-Title" value="${name}" />
-                     <attribute name="Implementation-Version" value="${version} ${TODAY}" />
+			<!--include name="images/files-icons/*.*"/ -->
+			<include name="images/files-icons/*.png"/>
+			<include name="images/checklists/*.png"/>
+			<!-- include name="schemas/**/*.*"/ -->
+			<include name="schemas/neptus-checklist.xsd"/>
+			<include name="version.txt"/>
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
+				<attribute name="Main-Class" value="pt.lsts.neptus.gui.checklist.ChecklistPanel" />
+				<section name="${Name}">
+					<attribute name="Specification-Title" value="${Name}" />
+					<attribute name="Specification-Version" value="${version}" />
+					<attribute name="Specification-Vendor" value="FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
+					<attribute name="Implementation-Title" value="${name}" />
+					<attribute name="Implementation-Version" value="${version} ${TODAY}" />
 					<attribute name="Implementation-Vendor" value="FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)" />
-                 </section>
-             </manifest>
-       </jar>
-       <!--
+				</section>
+			</manifest>
+		</jar>
+		<!--
        java  -cp .;bin/neptus-check.jar;lib;lib\standby.jar;lib\log4j-1.2.15.jar;lib\l2fprod-common-all.jar;lib\looks-2.2.1.jar;lib\foxtrot.jar;lib\dom4j\dom4j-1.6.1.jar;lib\dom4j\jaxen-1.1.1.jar;lib\middleware.jar;lib\commons-io-1.4.jar;lib\commons-codec-1.3.jar;lib\swingx.jar;lib\jfreechart-1.0.6.jar;lib\jcommon-1.0.10.jar;lib\ini4j.jar;lib\iText-2.1.5.jar;lib\fop\batik.jar;lib\fop\xml-apis-ext.jar pt.lsts.neptus.mra.NeptusMRA
        
        java  -cp .;bin/neptus-check.jar;lib\dom4j\dom4j-1.6.1.jar;lib\dom4j\jaxen-1.1.1.jar;lib\l2fprod-common-all.jar;lib\swingx.jar;lib/looks-2.2.1.jar;lib\standby.jar;lib\log4j-1.2.15.jar;lib\iText-2.1.5.jar;lib\fop\fop.jar;lib\fop\batik.jar;lib\fop\xml-apis-ext.jar; pt.lsts.neptus.gui.checklist.ChecklistPanel
        -->
-        <mkdir dir="${tmp.bundle.dir}"/>
-        <unzip dest="${tmp.bundle.dir}" src="lib/dom4j/dom4j-1.6.1.jar"/>
-        <unzip dest="${tmp.bundle.dir}" src="lib/dom4j/jaxen-1.1.1.jar"/>
-        <unzip dest="${tmp.bundle.dir}" src="lib/l2fprod-common-all.jar"/>
-        <unzip dest="${tmp.bundle.dir}" src="lib/swingx.jar"/>
-    	<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-looks-2.5.2.jar"/>
-       	<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-common-1.4.0.jar"/>
-    	<unzip dest="${tmp.bundle.dir}" src="lib/standby.jar"/>
-        <unzip dest="${tmp.bundle.dir}" src="lib/log4j-1.2.17.jar"/>
-        <unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/>
-    	<unzip dest="${tmp.bundle.dir}" src="lib/zxing-bin.jar"/>
-    	<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
-    	<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-1.4.jar"/-->
-    	
-    	<unzip dest="${tmp.bundle.dir}" src="${bundle.jar.checklist.path}" overwrite="yes"/>
-    	<copy flatten="false" todir="${tmp.bundle.dir}/legal">
-    		<fileset dir="${legal.dir}"/>
-    	</copy>
-    	<copy file="${license.file}" todir="${tmp.bundle.dir}" />
-        <jar destfile="${bundle.jar.checklist.path}" basedir="${tmp.bundle.dir}" 
+		<mkdir dir="${tmp.bundle.dir}"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/dom4j/dom4j-1.6.1.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/dom4j/jaxen-1.1.1.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/l2fprod-common-all.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/swingx.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-looks-2.5.2.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-common-1.4.0.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/standby.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/log4j-1.2.17.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/zxing-bin.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
+		<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-1.4.jar"/-->
+
+		<unzip dest="${tmp.bundle.dir}" src="${bundle.jar.checklist.path}" overwrite="yes"/>
+		<copy flatten="false" todir="${tmp.bundle.dir}/legal">
+			<fileset dir="${legal.dir}"/>
+		</copy>
+		<copy file="${license.file}" todir="${tmp.bundle.dir}" />
+		<jar destfile="${bundle.jar.checklist.path}" basedir="${tmp.bundle.dir}" 
         		index="false">
-            <manifest>
-                 <attribute name="Built-By" value="${user.name}" />
-                 <attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
-                 <attribute name="Main-Class" value="pt.lsts.neptus.gui.checklist.ChecklistPanel" />
-                 <section name="${Name}">
-                     <attribute name="Specification-Title" value="${Name}" />
-                     <attribute name="Specification-Version" value="${version}" />
-                     <attribute name="Specification-Vendor" value="FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
-                     <attribute name="Implementation-Title" value="${name}" />
-                     <attribute name="Implementation-Version" value="${version} ${TODAY}" />
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
+				<attribute name="Main-Class" value="pt.lsts.neptus.gui.checklist.ChecklistPanel" />
+				<section name="${Name}">
+					<attribute name="Specification-Title" value="${Name}" />
+					<attribute name="Specification-Version" value="${version}" />
+					<attribute name="Specification-Vendor" value="FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
+					<attribute name="Implementation-Title" value="${name}" />
+					<attribute name="Implementation-Version" value="${version} ${TODAY}" />
 					<attribute name="Implementation-Vendor" value="FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)" />
-                 </section>
-             </manifest>
-        </jar>  
-    	<delete dir="${tmp.bundle.dir}" failonerror="false"/>
-    </target>
-	
-    <!-- =================================================================== -->
-    <!-- Creates bin-bundle/neptus-worldmap.jar                                 -->
-    <!-- =================================================================== -->
-    <target name="jar-bundle-worldmap" depends="compile" description="Creates bin-bundle/neptus-worldmap.jar">
-    	<delete file="${bundle.jar.worldmap.path}" failonerror="true"/>
-    	<delete dir="${tmp.bundle.dir}" failonerror="true"/>
-        <jar destfile="${bundle.jar.worldmap.path}" basedir="${build.classes}" 
+				</section>
+			</manifest>
+		</jar>
+		<delete dir="${tmp.bundle.dir}" failonerror="false"/>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Creates bin-bundle/neptus-worldmap.jar                                 -->
+	<!-- =================================================================== -->
+	<target name="jar-bundle-worldmap" depends="compile" description="Creates bin-bundle/neptus-worldmap.jar">
+		<delete file="${bundle.jar.worldmap.path}" failonerror="true"/>
+		<delete dir="${tmp.bundle.dir}" failonerror="true"/>
+		<jar destfile="${bundle.jar.worldmap.path}" basedir="${build.classes}" 
                excludes="${exclude-defaults}" includes="LICENSE">
 			<include name="version.*" />
 			<include name="info*" />
-        	<include name="pt/lsts/neptus/i18n/**/*.class" />
-        	<include name="pt/lsts/neptus/NeptusLog*.class" />
+			<include name="pt/lsts/neptus/i18n/**/*.class" />
+			<include name="pt/lsts/neptus/NeptusLog*.class" />
 			<include name="pt/lsts/neptus/app/tiles/**/*.class" />
 			<include name="pt/lsts/neptus/types/coord/*.class" />
 			<include name="pt/lsts/neptus/types/**/*.class" />
@@ -993,82 +1028,82 @@ For simple use the main targets are:
 			<!-- Needed by the Serializable interface of LocationType -->
 			<include name="pt/lsts/neptus/messages/stanag4586/Stanag4586Message.class" />
 			<include name="pt/lsts/messages/Message*.class" />
-        	<include name="images/neptus-icon.png"/>
-        	<include name="images/neptus-icon1.png"/>
-        	<include name="images/neptus-icon2.png"/>
-        	<include name="images/files-icons/*.png"/>
-        	<include name="images/world/*.png"/>
-          	<include name="pt/lsts/neptus/util/output/*.class"/>
-          	<include name="pt/lsts/neptus/plugins/*.class" />
-          	<include name="pt/lsts/neptus/gui/InfiniteProgressPanel*.class" />
-          	<include name="pt/lsts/neptus/console/plugins/SubPanelProvider*.class" />
-          	<include name="pt/lsts/neptus/mra/visualizations/MRAVisualization*.class" />
-        	<include name="pt/lsts/neptus/comm/proxy/ProxyInfoProvider*.class" />
-        	<include name="pt/lsts/neptus/util/comm/ssh/SSHConnectionDialog*.class" />
-        	<include name="pt/lsts/neptus/util/comm/ssh/IntFormat*.class" />
-        	<include name="pt/lsts/neptus/gui/ImagePanel*.class" />
-        	<include name="pt/lsts/neptus/planeditor/I*.class" />
+			<include name="images/neptus-icon.png"/>
+			<include name="images/neptus-icon1.png"/>
+			<include name="images/neptus-icon2.png"/>
+			<include name="images/files-icons/*.png"/>
+			<include name="images/world/*.png"/>
+			<include name="pt/lsts/neptus/util/output/*.class"/>
+			<include name="pt/lsts/neptus/plugins/*.class" />
+			<include name="pt/lsts/neptus/gui/InfiniteProgressPanel*.class" />
+			<include name="pt/lsts/neptus/console/plugins/SubPanelProvider*.class" />
+			<include name="pt/lsts/neptus/mra/visualizations/MRAVisualization*.class" />
+			<include name="pt/lsts/neptus/comm/proxy/ProxyInfoProvider*.class" />
+			<include name="pt/lsts/neptus/util/comm/ssh/SSHConnectionDialog*.class" />
+			<include name="pt/lsts/neptus/util/comm/ssh/IntFormat*.class" />
+			<include name="pt/lsts/neptus/gui/ImagePanel*.class" />
+			<include name="pt/lsts/neptus/planeditor/I*.class" />
 			<include name="pt/lsts/neptus/gui/system/**/*.class" />
 			<include name="pt/lsts/neptus/util/comm/manager/imc/ImcSystem*.class" />
-        	<include name="images/ssh-connect.png"/>
-        </jar>
-        <mkdir dir="${tmp.bundle.dir}"/>
-        <unzip dest="${tmp.bundle.dir}" src="lib/dom4j/dom4j-1.6.1.jar"/>
-        <unzip dest="${tmp.bundle.dir}" src="lib/dom4j/jaxen-1.1.1.jar"/>
-        <unzip dest="${tmp.bundle.dir}" src="lib/l2fprod-common-all.jar"/>
-        <unzip dest="${tmp.bundle.dir}" src="lib/swingx.jar"/>
-    	<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-looks-2.5.2.jar"/>
-       	<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-common-1.4.0.jar"/>
-    	<unzip dest="${tmp.bundle.dir}" src="lib/standby.jar"/>
-        <unzip dest="${tmp.bundle.dir}" src="lib/log4j-1.2.17.jar"/>
-        <!--unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/-->
-    	<!--unzip dest="${tmp.bundle.dir}" src="lib/zxing-bin.jar"/-->
-    	<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
-    	<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-1.4.jar"/-->
-    	<unzip dest="${tmp.bundle.dir}" src="lib/foxtrot.jar"/>
-    	<unzip dest="${tmp.bundle.dir}" src="lib/httpclient-4.2.2.jar"/>
-    	<unzip dest="${tmp.bundle.dir}" src="lib/httpcore-4.2.2.jar"/>
-    	<unzip dest="${tmp.bundle.dir}" src="lib/commons-codec-1.7.jar"/>
-      	<unzip dest="${tmp.bundle.dir}" src="lib/fop/batik.jar"/>
-      	<unzip dest="${tmp.bundle.dir}" src="lib/fop/xml-apis-ext.jar"/>
-      	<unzip dest="${tmp.bundle.dir}" src="lib/fop/xmlgraphics-commons-1.3.1.jar"/>
-      	<unzip dest="${tmp.bundle.dir}" src="lib/commons-logging-1.1.1.jar"/>
-    	<unzip dest="${tmp.bundle.dir}" src="plugins/tiles-extra.jar"/>
-    	<unzip dest="${tmp.bundle.dir}" src="lib/libimc.jar"/>
-    	<unzip dest="${tmp.bundle.dir}" src="lib/miglayout-4.0-swing.jar"/>
-    	
-    	<unzip dest="${tmp.bundle.dir}" src="${bundle.jar.worldmap.path}" overwrite="yes"/>
-    	<copy flatten="false" todir="${tmp.bundle.dir}/legal">
-    		<fileset dir="${legal.dir}"/>
-    	</copy>
-    	<copy file="${license.file}" todir="${tmp.bundle.dir}" />
-        <jar destfile="${bundle.jar.worldmap.path}" basedir="${tmp.bundle.dir}" 
+			<include name="images/ssh-connect.png"/>
+		</jar>
+		<mkdir dir="${tmp.bundle.dir}"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/dom4j/dom4j-1.6.1.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/dom4j/jaxen-1.1.1.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/l2fprod-common-all.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/swingx.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-looks-2.5.2.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-common-1.4.0.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/standby.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/log4j-1.2.17.jar"/>
+		<!--unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/-->
+		<!--unzip dest="${tmp.bundle.dir}" src="lib/zxing-bin.jar"/-->
+		<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
+		<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-1.4.jar"/-->
+		<unzip dest="${tmp.bundle.dir}" src="lib/foxtrot.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/httpclient-4.2.2.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/httpcore-4.2.2.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/commons-codec-1.8.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/fop/batik.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/fop/xml-apis-ext.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/fop/xmlgraphics-commons-1.3.1.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/commons-logging-1.1.1.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="plugins/tiles-extra.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/libimc.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/miglayout-4.0-swing.jar"/>
+
+		<unzip dest="${tmp.bundle.dir}" src="${bundle.jar.worldmap.path}" overwrite="yes"/>
+		<copy flatten="false" todir="${tmp.bundle.dir}/legal">
+			<fileset dir="${legal.dir}"/>
+		</copy>
+		<copy file="${license.file}" todir="${tmp.bundle.dir}" />
+		<jar destfile="${bundle.jar.worldmap.path}" basedir="${tmp.bundle.dir}" 
         		index="false">
-            <manifest>
-                 <attribute name="Built-By" value="${user.name}" />
-                 <attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
-                 <attribute name="Main-Class" value="pt.lsts.neptus.app.tiles.WorldMapPanel" />
-                 <section name="${Name}">
-                     <attribute name="Specification-Title" value="${Name}" />
-                     <attribute name="Specification-Version" value="${version}" />
-                     <attribute name="Specification-Vendor" value="FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
-                     <attribute name="Implementation-Title" value="${name}" />
-                     <attribute name="Implementation-Version" value="${version} ${TODAY}" />
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
+				<attribute name="Main-Class" value="pt.lsts.neptus.app.tiles.WorldMapPanel" />
+				<section name="${Name}">
+					<attribute name="Specification-Title" value="${Name}" />
+					<attribute name="Specification-Version" value="${version}" />
+					<attribute name="Specification-Vendor" value="FEUP   USTL/LSTS (http://www.fe.up.pt/lsts)  Neptus (http://whale.fe.up.pt/neptus)" />
+					<attribute name="Implementation-Title" value="${name}" />
+					<attribute name="Implementation-Version" value="${version} ${TODAY}" />
 					<attribute name="Implementation-Vendor" value="FEUP  USTL/LSTS (http://www.fe.up.pt/lsts)" />
-                 </section>
-             </manifest>
-        </jar>
-      	<!--signjar storetype="jceks" keystore="${neptus.cert}" alias="${login.cert}" 
+				</section>
+			</manifest>
+		</jar>
+		<!--signjar storetype="jceks" keystore="${neptus.cert}" alias="${login.cert}" 
            storepass="${pass.cert}" jar="${bundle.jar.worldmap.path}" /-->
-    	<delete dir="${tmp.bundle.dir}" failonerror="false"/>
-    </target>
- 
+		<delete dir="${tmp.bundle.dir}" failonerror="false"/>
+	</target>
+
 	<!-- =================================================================== -->
 	<!-- Creates the Neptus plugin jar file.                                 -->
 	<!-- =================================================================== -->
 	<target name="plugin-create-jar" depends="prepare, compile.all, plugin-list, plugin-request-jar-list" 
 			description="Target to generate the plugins jars (user input). (Does not create the neptus.jar but uses it instead of the compile files.)" >
-		
+
 		<!-- plugins comes from task plugin-request-jar-list or commandline -Dplugins=x -->
 		<property name="plugin-name.list.input" value="${plugins}"/>
 		<echo message="Creating plugin jar for plugins: ${plugin-name.list.input}" />
@@ -1095,7 +1130,7 @@ For simple use the main targets are:
 				antcall.perform();
             }
 			]]>
-      	</script>
+		</script>
 	</target>
 
 	<target name="plugin-create-all-jars" depends="prepare, compile.all, plugin-list" 
@@ -1116,13 +1151,13 @@ For simple use the main targets are:
 				antcall.perform();
             }
 			]]>
-      	</script>
+		</script>
 	</target>
 
 	<target name="plugin-request-jar-list" unless="plugins">
 		<input message="Please enter plugin names (coma separated values, or * to build all):" addproperty="plugins" />
 	</target>
-	
+
 	<target name="plugin-list">
 		<path id="cp.plg">
 			<dirset dir="${plugin-dev.dir.base}" casesensitive="false">
@@ -1130,31 +1165,34 @@ For simple use the main targets are:
 				<exclude name="${exclude-defaults}" />
 			</dirset>
 		</path>
-		<path id="plgpath"><pathelement path="${plugin-dev.dir.base}" /></path>
+		<path id="plgpath">
+			<pathelement path="${plugin-dev.dir.base}" />
+		</path>
 		<property name="llplgpath" refid="plgpath" />
 
 		<pathconvert dirsep="/" pathsep="," property="pluginlist" refid="cp.plg">
 			<map from="${llplgpath}/" to="" />
 		</pathconvert>
-		<echo message="${pluginlist}"></echo>
+		<echo message="${pluginlist}">
+		</echo>
 	</target>
 
 	<target name="plugin-prop-private-jars-worker" unless="plugin.private.jars.cp">
 		<fail>
 		  Give plugin name (prop: plugin-name.input)
 		  <condition>
-		  	<not>
-		    	<isset property="plugin-name.input"/>
-		  	</not>
-		  </condition>
+				<not>
+					<isset property="plugin-name.input"/>
+				</not>
+			</condition>
 		</fail>
 		<fail>
 		  Give valid plugin name
 		  <condition>
-		  	<not>
-		    	<available file="${plugin-dev.dir.base}/${plugin-name.input}"/>
-		  	</not>
-		  </condition>
+				<not>
+					<available file="${plugin-dev.dir.base}/${plugin-name.input}"/>
+				</not>
+			</condition>
 		</fail>
 
 		<path id="plugin.private.jars">
@@ -1171,13 +1209,14 @@ For simple use the main targets are:
 			</fileset>
 		</path>
 		<property name="plugin.private.jars.cp" refid="plugin.private.jars" />
-		
+
 		<echo message="Collecting ${plugin-name.input} plugin private jars: ${plugin.private.jars.cp}" />
 	</target>
 
 	<target name="plugin-compile-worker" depends="plugin-prop-private-jars-worker,compile.all">
 		<local name="local.output.build.dir" />
-		<property name="local.output.build.dir" value="${build.plugins}"/> <!-- plugin.dir.tmp -->
+		<property name="local.output.build.dir" value="${build.plugins}"/>
+		<!-- plugin.dir.tmp -->
 
 		<mkdir dir="${local.output.build.dir}" />
 
@@ -1243,7 +1282,7 @@ For simple use the main targets are:
 		<jar destfile="${plugin.dir.dest}/${plugin-name.input}.jar" 
 				basedir="tmpjars" 
 				index="false" update="false" includes="**" />
-		
+
 		<echo message="Creating ${plugin-name.input}.jar file" />
 		<jar destfile="${plugin.dir.dest}/${plugin-name.input}.jar" 
 				basedir="${tmp.plugin.dir}" 
@@ -1261,12 +1300,12 @@ For simple use the main targets are:
 				</section>
 			</manifest>
 		</jar>
-		
+
 		<delete dir="tmpjars"/>
 		<delete dir="${tmp.plugin.dir}" failonerror="true" />
 	</target>
 
-	
+
 	<!-- =================================================================== -->
 	<!-- Signs the jars used in Neptus                                       -->
 	<!-- =================================================================== -->
@@ -1305,7 +1344,7 @@ For simple use the main targets are:
 				packagenames="pt.lsts.neptus.plugins*,pt.lsts.neptus.console*,pt.lsts.neptus.mra*,pt.up.fe.dceg*.vartree*,pt.lsts.neptus.util*"
 			 	locale="en_US" charset="UTF-8" encoding="${compile-encoding}">
 			<group title="Plugins" packages="pt.lsts.neptus.plugins*" />
-			<group title="Consoles" packages="pt.lsts.neptus.console*" />								
+			<group title="Consoles" packages="pt.lsts.neptus.console*" />
 			<group title="Types" packages="pt.lsts.neptus.types*" />
 			<group title="Mission Review &amp; Analysis" packages="pt.lsts.neptus.mra*" />
 			<group title="GUI" packages="pt.lsts.neptus.gui*" />
@@ -1314,19 +1353,19 @@ For simple use the main targets are:
 		</javadoc>
 		<copy todir="${tmp.plugin.dir}">
 			<fileset dir="${javadoc.src}" includes="neptus_logo_font_500x193.png" />
-		</copy>				
+		</copy>
 		<zip destfile="${javadoc.src}/javadoc.zip" basedir="${tmp.plugin.dir}" />
-	
+
 		<delete dir="${tmp.plugin.dir}" failonerror="true"/>
-	</target>	
-					
+	</target>
+
 
 	<target name="javadoc-render">
-			<echo message="Render javadocs" />
-			<delete dir="${tmp.plugin.dir}" failonerror="true"/>
-			<mkdir dir="${tmp.plugin.dir}"/>
+		<echo message="Render javadocs" />
+		<delete dir="${tmp.plugin.dir}" failonerror="true"/>
+		<mkdir dir="${tmp.plugin.dir}"/>
 
-			<javadoc classpath="${java.class.path}:${class.path}" protected="false" private="false"
+		<javadoc classpath="${java.class.path}:${class.path}" protected="false" private="false"
 					sourcepath="${src.dir}" 
 					additionalparam="-J-Xmx1024m -breakiterator" author="true" version="true" 
 					use="true" windowtitle="${Name} Package" 
@@ -1336,19 +1375,19 @@ For simple use the main targets are:
 					overview="${javadoc.overview.path}" 
 					packagenames="pt.lsts.neptus.types.coord*,pt.lsts.neptus.renderer2d*,pt.lsts.neptus.util.s52*"
 				 	locale="en_US" charset="UTF-8" encoding="${compile-encoding}">
-				<group title="Types" packages="pt.lsts.neptus.types*" />
-				<group title="Util" packages="pt.lsts.neptus.util*" />
-				<group title="StateRender2D" packages="pt.lsts.neptus.renderer2d*" />
-			</javadoc>
-			<copy todir="${tmp.plugin.dir}">
-				<fileset dir="${javadoc.src}" includes="neptus_logo_font_500x193.png" />
-			</copy>
-    		<copy file="${license.file}" todir="${tmp.plugin.dir}" />
-			<zip destfile="${javadoc.src}/javadoc-render.zip" basedir="${tmp.plugin.dir}" />
-		
-			<delete dir="${tmp.plugin.dir}" failonerror="true"/>
+			<group title="Types" packages="pt.lsts.neptus.types*" />
+			<group title="Util" packages="pt.lsts.neptus.util*" />
+			<group title="StateRender2D" packages="pt.lsts.neptus.renderer2d*" />
+		</javadoc>
+		<copy todir="${tmp.plugin.dir}">
+			<fileset dir="${javadoc.src}" includes="neptus_logo_font_500x193.png" />
+		</copy>
+		<copy file="${license.file}" todir="${tmp.plugin.dir}" />
+		<zip destfile="${javadoc.src}/javadoc-render.zip" basedir="${tmp.plugin.dir}" />
 
-		</target>	
+		<delete dir="${tmp.plugin.dir}" failonerror="true"/>
+
+	</target>
 
 	<!-- =================================================================== -->
 	<!-- Creates the API documentation                                       -->
@@ -1360,7 +1399,7 @@ For simple use the main targets are:
 	<target name="javadocs-auto">
 		<echo message="javadocs-auto is for automated build process, without dependencies" />
 		<!--splash/-->
-		<!-- sourcepath="${src.dir}" -->		
+		<!-- sourcepath="${src.dir}" -->
 		<delete dir="${build.apidocs}" failonerror="false" />
 		<javadoc classpath="${java.class.path}:${class.path}" protected="false" 
 				packagenames="pt.lsts.neptus.*,pt.lsts.vartree.*" 
@@ -1454,7 +1493,7 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<target name="generate-launchers" depends="create-sh-bat-filters"
 			description="Generates the files neptus.bat and neptus.sh for launching Neptus placing new jar libs in classpath">
-			
+
 		<copy todir="." overwrite="true">
 			<fileset dir="${src.shell.dir}">
 				<include name="*.bat" />
@@ -1470,13 +1509,13 @@ For simple use the main targets are:
 			</fileset>
 			<filterset refid="sh.filters" />
 		</copy>
-		
+
 		<chmod perm="a+x">
 			<fileset dir=".">
 				<include name="*.sh"/>
 			</fileset>
 		</chmod>
-		
+
 		<copy todir="dev-scripts" overwrite="true">
 			<fileset dir="${src.shell.dir}">
 				<include name="grow_pot.sh" />
@@ -1486,7 +1525,7 @@ For simple use the main targets are:
 		</copy>
 		<fixcrlf preservelastmodified="true" srcdir="dev-scripts" eol="lf" eof="remove" includes="*.sh" />
 		<chmod file="dev-scripts/grow_pot.sh" perm="a+x" />
-		
+
 		<!-- generate the installers bat and sh files -->
 		<mkdir dir="NSIS_release/static_files/batch_files"/>
 		<copy todir="./NSIS_release/static_files/batch_files" overwrite="true">
@@ -1512,8 +1551,10 @@ For simple use the main targets are:
 	</target>
 
 	<!-- Prepare the filters for Neptus libs for sh and bat files copy       -->
-    <target name="create-sh-bat-filters">
-		<path id="lpath"><pathelement path="${lib.dir}" /></path>
+	<target name="create-sh-bat-filters">
+		<path id="lpath">
+			<pathelement path="${lib.dir}" />
+		</path>
 		<property name="llpath" refid="lpath" />
 
 		<pathconvert dirsep="/" pathsep=";" property="classpath.win" refid="cp.lib.jars">
@@ -1522,7 +1563,7 @@ For simple use the main targets are:
 		<pathconvert dirsep="/" pathsep=":" property="classpath.linux" refid="cp.lib.jars">
 			<map from="${llpath}" to="${lib.dir}" />
 		</pathconvert>
-		
+
 		<echo level="debug" message=" lib Abs dir = ${llpath}" />
 		<echo level="debug" message=" Windows ClassPath = ${classpath.win}" />
 		<echo level="debug" message=" Linux ClassPath = ${classpath.linux}" />
@@ -1533,9 +1574,9 @@ For simple use the main targets are:
 		<filterset id="sh.filters">
 			<filter token="NEPTUS_LIBS" value=":${classpath.linux}" />
 		</filterset>
-    </target>
+	</target>
 
-	
+
 
 	<!-- =================================================================== -->
 	<!-- Copy Windows JRE to Distribution Dir		                         -->
@@ -1554,27 +1595,27 @@ For simple use the main targets are:
 		       jre-base-url = <URL> // URL (with ending /) where to find the tgz jres
 		-->
 		<condition property="os-jre-java-cmd-sufix" value=".exe" else="">
-		    <contains string="${jre-os}" substring="windows" casesensitive="false" />
+			<contains string="${jre-os}" substring="windows" casesensitive="false" />
 		</condition>
 		<condition property="jre-dir-sufix" value="64" else="">
-		    <contains string="${jre-os}" substring="64" casesensitive="false" />
+			<contains string="${jre-os}" substring="64" casesensitive="false" />
 		</condition>
-	    <fail message="Missing ${jre-os} Java VM in dir ${os.jre.version.dir}">
-	    	<condition>
-	    		<not>
-    	    		<and>
-    	    			<available file="${os.jre.version.dir}/bin/java${os-jre-java-cmd-sufix}" />
-    	    			<available file="${os.jre.version.dir}/lib/rt.jar" />
-    	    		</and>
-    	    	</not>
-    	    </condition>
-	    </fail>
+		<fail message="Missing ${jre-os} Java VM in dir ${os.jre.version.dir}">
+			<condition>
+				<not>
+					<and>
+						<available file="${os.jre.version.dir}/bin/java${os-jre-java-cmd-sufix}" />
+						<available file="${os.jre.version.dir}/lib/rt.jar" />
+					</and>
+				</not>
+			</condition>
+		</fail>
 		<copy todir="${os.dist.dir}/jre${jre-dir-sufix}" verbose="true" preservelastmodified="true">
 			<fileset dir="${os.jre.version.dir}" excludes="**/.svn" />
 		</copy>
 		<antcall target="delete-jre-os-dir-worker" />
 	</target>
-	
+
 	<!-- Don't call it directly -->
 	<target name="delete-jre-os-dir-worker">
 		<delete includeemptydirs="true" failonerror="false">
@@ -1584,36 +1625,37 @@ For simple use the main targets are:
 
 	<!-- Don't call it directly -->
 	<target name="jre-os-get-from-server-worker">
-    	<mkdir dir="${os.jre.version.dir}"/>
-    	<!--available file="${os.jre.version.dir}/../${jre-os-tgz}" 
+		<mkdir dir="${os.jre.version.dir}"/>
+		<!--available file="${os.jre.version.dir}/../${jre-os-tgz}" 
     			type="file" property="jre-os-tgz-exists">
     	</available-->
-    	<antcall target="jre-os-download-worker" />
-    	<available file="${os.jre.version.dir}/../${jre-os-tgz}" 
+		<antcall target="jre-os-download-worker" />
+		<available file="${os.jre.version.dir}/../${jre-os-tgz}" 
     			type="file" property="jre-os-downloaded">
-    	</available>
-    	<antcall target="jre-os-untar-downloaded-worker" />
-    </target>
+		</available>
+		<antcall target="jre-os-untar-downloaded-worker" />
+	</target>
 
 	<!-- Don't call it directly -->
-    <target name="jre_os_url-reachable_test_worker">
-        <condition property="jre-os-url-available">
-    		<http url="${jre-base-url}${jre-os-tgz}" />
-        </condition>
-    </target>
+	<target name="jre_os_url-reachable_test_worker">
+		<condition property="jre-os-url-available">
+			<http url="${jre-base-url}${jre-os-tgz}" />
+		</condition>
+	</target>
 
 	<!-- Don't call it directly -->
-	<target name="jre-os-download-worker" depends="jre_os_url-reachable_test_worker" if="jre-os-url-available"> <!-- unless="jre-os-tgz-exists" -->
-    	<get src="${jre-base-url}${jre-os-tgz}" ignoreerrors="true"
+	<target name="jre-os-download-worker" depends="jre_os_url-reachable_test_worker" if="jre-os-url-available">
+		<!-- unless="jre-os-tgz-exists" -->
+		<get src="${jre-base-url}${jre-os-tgz}" ignoreerrors="true"
     			dest="${os.jre.version.dir}/../${jre-os-tgz}" 
     			usetimestamp="true" verbose="true" />
 	</target>
 
 	<!-- Don't call it directly -->
 	<target name="jre-os-untar-downloaded-worker" if="jre-os-downloaded">
-    	<mkdir dir="${os.jre.version.dir}"/>
-		<antcall target="delete-jre-os-dir-worker" />		
-    	<untar compression="gzip" overwrite="true" dest="${os.jre.version.dir}"
+		<mkdir dir="${os.jre.version.dir}"/>
+		<antcall target="delete-jre-os-dir-worker" />
+		<untar compression="gzip" overwrite="true" dest="${os.jre.version.dir}"
     			src="${os.jre.version.dir}/../${jre-os-tgz}" />
 	</target>
 
@@ -1627,7 +1669,7 @@ For simple use the main targets are:
 			<param name="os.dist.dir" value="${windows.dist.dir}" />
 			<param name="jre-os-tgz" value="${jre-windows-tgz-url}" />
 			<param name="jre-base-url" value="${jre-base-url}" />
-		</antcall>		
+		</antcall>
 	</target>
 
 	<target name="jre64-windows-copy-to-dist">
@@ -1637,7 +1679,7 @@ For simple use the main targets are:
 			<param name="os.dist.dir" value="${windows.dist.dir}" />
 			<param name="jre-os-tgz" value="${jre64-windows-tgz-url}" />
 			<param name="jre-base-url" value="${jre-base-url}" />
-		</antcall>		
+		</antcall>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -1650,7 +1692,7 @@ For simple use the main targets are:
 			<param name="os.dist.dir" value="${linux.dist.dir}" />
 			<param name="jre-os-tgz" value="${jre-linux-tgz-url}" />
 			<param name="jre-base-url" value="${jre-base-url}" />
-		</antcall>		
+		</antcall>
 	</target>
 
 	<target name="jre64-linux-copy-to-dist">
@@ -1660,7 +1702,7 @@ For simple use the main targets are:
 			<param name="os.dist.dir" value="${linux.dist.dir}" />
 			<param name="jre-os-tgz" value="${jre64-linux-tgz-url}" />
 			<param name="jre-base-url" value="${jre-base-url}" />
-		</antcall>		
+		</antcall>
 	</target>
 
 
@@ -1682,7 +1724,7 @@ For simple use the main targets are:
 	-->
 
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-	<!-- Prepares nsis version file for windows installer                    -->  
+	<!-- Prepares nsis version file for windows installer                    -->
 	<!-- Don't call it directly                                              -->
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 	<target name="nsisversion.worker">
@@ -1699,12 +1741,12 @@ For simple use the main targets are:
 
 	<target name="dist_os.worker">
 		<delete dir="${dist.tmp.dir}" />
-		
+
 		<condition property="exclude-win" value=",**/*.sh,**/*.so" else="">
-		    <contains string="${jre-os}" substring="windows" casesensitive="false" />
+			<contains string="${jre-os}" substring="windows" casesensitive="false" />
 		</condition>
 		<condition property="exclude-linux" value=",**/*.dll,**/*.exe,**/*.bat" else="">
-		    <contains string="${jre-os}" substring="linux" casesensitive="false" />
+			<contains string="${jre-os}" substring="linux" casesensitive="false" />
 		</condition>
 		<condition property="copy-laucher-bat" value="true">
 			<or>
@@ -1743,7 +1785,7 @@ For simple use the main targets are:
 	<target name="copy-laucher-bat.worker" if="copy-laucher-bat">
 		<copy file="${nsis_src.dir}/batch_files/${sh-bash-basename}.bat" tofile="${dist.tmp.dir}/neptus.bat" 
 				overwrite="yes" failonerror="yes" preservelastmodified="true">
-		</copy>	
+		</copy>
 	</target>
 	<target name="copy-laucher-sh.worker" if="copy-laucher-sh">
 		<copy file="${nsis_src.dir}/batch_files/${sh-bash-basename}.sh" tofile="${dist.tmp.dir}/neptus.sh" 
@@ -1755,28 +1797,28 @@ For simple use the main targets are:
 				overwrite="yes" failonerror="yes" preservelastmodified="true">
 		</copy>
 	</target>
-		
+
 	<target name="installer-checksum-worker">
 		<delete dir="${dist.installer.name}.MD5SUM" />
 
 		<checksum format="MD5SUM" algorithm="MD5" fileext="MD5TMP">
-		  <fileset dir=".">
-		    <include name="${dist.installer.name}*" />
-		  	<exclude name="*MD5SUM" />
-		  	<exclude name="*MD5TMP" />
-		  </fileset>
+			<fileset dir=".">
+				<include name="${dist.installer.name}*" />
+				<exclude name="*MD5SUM" />
+				<exclude name="*MD5TMP" />
+			</fileset>
 		</checksum>
 		<concat destfile="${dist.installer.name}.MD5SUM">
-		  <fileset dir=".">
-		  	<include name="*MD5TMP" />
-		  </fileset>
+			<fileset dir=".">
+				<include name="*MD5TMP" />
+			</fileset>
 		</concat>
 		<fixcrlf srcdir="." eol="lf" eof="remove" 
 			includes="${dist.installer.name}.MD5SUM" />
 		<delete>
-		  <fileset dir=".">
-		  	<include name="*MD5TMP" />
-		  </fileset>
+			<fileset dir=".">
+				<include name="*MD5TMP" />
+			</fileset>
 		</delete>
 	</target>
 
@@ -1797,12 +1839,14 @@ For simple use the main targets are:
 	</target>
 
 	<!-- depends="nsisversion,dist_windows" -->
-	<target name="create-installer-windows.worker" depends="nsisversion.worker"> 
+	<target name="create-installer-windows.worker" depends="nsisversion.worker">
 		<!-- description="Create Windows installer" -->
-		<antcall target="jre-windows-copy-to-dist" /> <!-- not on depends to allow calling multiple installers -->
+		<antcall target="jre-windows-copy-to-dist" />
+		<!-- not on depends to allow calling multiple installers -->
 		<antcall target="jre64-windows-copy-to-dist" />
 
-		<delete file="${dist.tmp.dir}/neptus.bat" /> <!-- this will be copies by the nsis script -->
+		<delete file="${dist.tmp.dir}/neptus.bat" />
+		<!-- this will be copies by the nsis script -->
 		<nsis script="NSIS_release/install_scripts/neptus.nsi">
 			<define name="BASEDIR" value="..\..\${dist.tmp.dir}" />
 		</nsis>
@@ -1812,9 +1856,10 @@ For simple use the main targets are:
 	<!-- depends="dist_linux" -->
 	<target name="create-installer-linux.worker">
 		<!-- description="Create a self extracting tar file" -->
-		<antcall target="jre-linux-copy-to-dist" /> <!-- not on depends to allow calling multiple installers -->
+		<antcall target="jre-linux-copy-to-dist" />
+		<!-- not on depends to allow calling multiple installers -->
 		<antcall target="jre64-linux-copy-to-dist" />
-		
+
 		<delete file="neptus.tgz" />
 		<delete file="${dist.installer.name}.sh" />
 		<echo message="Compressing ${dist.tmp.dir} to neptus.tgz...">
@@ -1856,13 +1901,13 @@ For simple use the main targets are:
 		</antcall>
 	</target>
 
-	
+
 	<!-- =================================================================== -->
 	<!-- All Distributions Builders                                          -->
 	<!-- =================================================================== -->
 
 	<target name="distribution-all" depends="prepare, test-and-fail-for-generated-all-necessary-missing-files, distribution-full, distribution-seacon, distribution-le"
-			description="Distribution generation for all flavors.">		
+			description="Distribution generation for all flavors.">
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -2020,15 +2065,15 @@ For simple use the main targets are:
 			<reference refid="neptus.filters" torefid="common.filters" />
 		</antcall>
 	</target>
-	
-	
+
+
 	<!-- =================================================================== -->
 	<!-- Run Neptus obfuscator                                               -->
 	<!-- =================================================================== -->
 	<target name="obf.lauv">
 		<echo>The jar was not refreshed!</echo>
 		<!--echoproperties></echoproperties-->
-	    <copy file="${jar.file.path}" tofile="${bin.dir}/neptus_clear.jar"  overwrite="true" />
+		<copy file="${jar.file.path}" tofile="${bin.dir}/neptus_clear.jar"  overwrite="true" />
 		<yguard>
 			<inoutpair in="${jar.file.path}" out="${bin.dir}/neptus_obf.jar" />
 			<!--inoutpair in="bin/neptus.jar" out="bin/neptus_obf.jar" resources="auto"/-->
@@ -2120,7 +2165,7 @@ For simple use the main targets are:
 							<include name="pt.lsts.neptus.gui.tablelayout.*" />
 							<include name="pt.lsts.neptus.alarms.**" />
 							<include name="pt.lsts.neptus.doc.**" />
-                            <include name="pt.lsts.neptus.i18n.**" />
+							<include name="pt.lsts.neptus.i18n.**" />
 						</patternset>
 					</class>
 					<method name="boolean updateMissionFilesOpened(java.io.File)">
@@ -2157,7 +2202,8 @@ For simple use the main targets are:
 		</yguard>
 		<copy file="${bin.dir}/neptus_obf.jar" tofile="${jar.file.path}"  overwrite="true" />
 		<!--delete file="${bin.dir}/neptus_obf.jar" /-->
-		<!--antcall target="jar.main.signer"></antcall--> <!-- Convém não assinar devido a net.java.games.input.* -->
+		<!--antcall target="jar.main.signer"></antcall-->
+		<!-- Convém não assinar devido a net.java.games.input.* -->
 	</target>
 
 	<target name="obf.lauv.pack.restore">
@@ -2168,12 +2214,12 @@ For simple use the main targets are:
 		</zip>
 		<copy file="${bin.dir}/neptus_clear.jar" tofile="${jar.file.path}" overwrite="true"/>
 	</target>
-	
+
 	<target name="obf.full">
 		<!-- As of now is not updated 30Mai2012 -->
 		<echo>The jar was not refreshed!</echo>
 		<!--echoproperties></echoproperties-->
-	    <copy file="${jar.file.path}" tofile="${bin.dir}/neptus_clear.jar" />
+		<copy file="${jar.file.path}" tofile="${bin.dir}/neptus_clear.jar" />
 		<yguard>
 			<inoutpair in="${jar.file.path}" out="${bin.dir}/neptus_obf.jar" />
 			<!--inoutpair in="bin/neptus.jar" out="bin/neptus_obf.jar" resources="auto"/-->
@@ -2268,7 +2314,7 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<target name="generate-manual-index" description="Deprecated! Generator of manual index">
 		<java classpath=".;${jar.file.path};${class.path}" fork="true"
-        classname="pt.lsts.neptus.doc.DocumentationIndexGenerator" />		
+        classname="pt.lsts.neptus.doc.DocumentationIndexGenerator" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -2280,14 +2326,14 @@ For simple use the main targets are:
 			<jvmarg value="-Xms10m -Xmx980m -Djava.library.path='.;libJNI\' -Dj3d.rend=d3d -Dsun.java2d.d3d=true" />
 		</java>
 	</target>
-	
+
 	<target name="nightly-build" depends="distribution-full-all-os">
 		<tstamp>
 			<format property="datef" pattern="yyyy-MM-dd" />
 		</tstamp>
 		<exec outputproperty="git.branch" command="git rev-parse --abbrev-ref HEAD"/>
 		<exec outputproperty="git.hash" command="git rev-parse HEAD"/>
-		
+
 		<property name="original.filename" value="${Name}-${full.release}-x86-32bit-x64-64bit-${datef}.tar.gz"/>
 		<property name="new.filename" value="${Name}-${git.branch}-${datef}.tar.gz"/>
 		<rename dest="${new.filename}" src="${original.filename}"/>
@@ -2300,7 +2346,7 @@ For simple use the main targets are:
 }
 </echo>
 
-		
+
 	</target>
-	
+
 </project>

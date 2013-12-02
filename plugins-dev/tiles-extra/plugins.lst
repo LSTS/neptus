@@ -5,7 +5,7 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-pt.up.fe.dceg.neptus.renderer2d.tiles.TileGoogleMaps
-pt.up.fe.dceg.neptus.renderer2d.tiles.TileVirtualEarth
-pt.up.fe.dceg.neptus.renderer2d.tiles.TileVirtualEarthHybrid
-pt.up.fe.dceg.neptus.renderer2d.tiles.TileOpenPtMap
+pt.lsts.neptus.renderer2d.tiles.TileGoogleMaps
+pt.lsts.neptus.renderer2d.tiles.TileVirtualEarth
+pt.lsts.neptus.renderer2d.tiles.TileVirtualEarthHybrid
+pt.lsts.neptus.renderer2d.tiles.TileOpenPtMap
