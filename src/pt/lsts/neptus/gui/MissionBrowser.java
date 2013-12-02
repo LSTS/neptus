@@ -808,7 +808,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             MissionTreeModel treeModel, HashSet<String> existing, MissionType mission) {
         ExtendedTreeNode node;
         // LblBeacon remoteItem;
-        TransponderElement trans;
         ChildIterator transIt;
         ExtendedTreeNode tempNode;
         TransponderElement tempTrans;
@@ -822,66 +821,104 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     (Short) tempNode.getUserInfo().get(NodeInfoKey.ID.name()));
         }
 
-        boolean remote;
+        // NEW //
+        boolean found;
         short id = 0; // the id inside DUNE is the index in the vector
         for (LblBeacon lblBeacon : remoteList) {
-            remote = true;
+            found = false;
             transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
+            tempTrans = null;
             while (transIt.hasNext()) {
                 tempNode = transIt.next();
                 tempTrans = ((TransponderElement) tempNode.getUserObject());
-                if (tempTrans.equals(lblBeacon)) {
-                    // SYNC
-                    remote = false;
-                    // set state
-                    setSyncState(tempNode, State.SYNC);
+                if (tempTrans.getName().equals(lblBeacon.getBeacon())) {
+                    System.out.print(tempTrans.getName() + " from IMCSystem found in mission tree  ");
+                    // Counts as the same beacon
+                    if (tempTrans.equals(lblBeacon)) {
+                        // Sync
+                        // set state
+                        setSyncState(tempNode, State.SYNC);
+                        System.out.println(" >> Sync.");
+                    }
+                    else {
+                        // Not sync
+                        // set state
+                        setSyncState(tempNode, State.NOT_SYNC);
+                        System.out.println(" >> Not Sync.");
+                    }
                     // set id
                     tempTrans.id = id;
-                    // signal as existing
-                    existing.add(tempTrans.getIdentification());
-                    // remove from id reset
-                    idMap.remove(tempTrans.getIdentification());
-                    System.out.println(tempTrans.getIdentification()
-                            + " from IMCSystem found in mission tree  >> Sync.");
+                    found = true;
                     break;
                 }
             }
-            if (remote) {
-                // create new node with id as Sync
+            if (!found) {
+                // Remote => create one
                 MapGroup mapGroup = MapGroup.getMapGroupInstance(mission);
                 MapType[] maps = mapGroup.getMaps();
-                trans = new TransponderElement(lblBeacon, id, mapGroup, maps[0]);
-                node = new ExtendedTreeNode(trans);
-                setSyncState(node, State.SYNC);
-                // replicate transponder to mission file
-                trans.getParentMap().addObject(trans);
-                trans.getParentMap().saveFile(trans.getParentMap().getHref());
-                if (mission.getCompressedFilePath() != null) {
-                    mission.save(false);
-                }
+                tempTrans = new TransponderElement(lblBeacon, id, mapGroup, maps[0]);
+                node = new ExtendedTreeNode(tempTrans);
+                setSyncState(node, State.REMOTE);
                 treeModel.insertAlphabetically(node, ParentNodes.TRANSPONDERS);
-                // signal as existing
-                existing.add(trans.getIdentification());
-                // remove from id reset
-                idMap.remove(trans.getIdentification());
-                System.out.println(trans.getIdentification()
+                System.out.println(tempTrans.getIdentification()
                         + " trans from IMCSystem not found in mission tree  >> Remote.");
-
-                // // Remote
-                // // create new node with id as Remote
-                // trans = new TransponderElement(lblBeacon, id);
-                // node = new ExtendedTreeNode(trans);
-                // setSyncState(node, State.REMOTE);
-                // treeModel.insertAlphabetically(node, ParentNodes.TRANSPONDERS);
-                // // signal as existing
-                // existing.add(trans.getIdentification());
-                // // remove from id reset
-                // idMap.remove(trans.getIdentification());
-                // System.out.println(trans.getIdentification()
-                // + " trans from IMCSystem not found in mission tree  >> Remote.");
             }
+            // signal as existing
+            existing.add(tempTrans.getIdentification());
+            // remove from id reset is done by change the id
+            // idMap.remove(tempTrans.getIdentification());
             id++;
         }
+
+        // --- //
+
+//        boolean remote;
+//        short id = 0; // the id inside DUNE is the index in the vector
+//        for (LblBeacon lblBeacon : remoteList) {
+//            remote = true;
+//            transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
+//            while (transIt.hasNext()) {
+//                tempNode = transIt.next();
+//                tempTrans = ((TransponderElement) tempNode.getUserObject());
+//                if (tempTrans.equals(lblBeacon)) {
+//                    // SYNC
+//                    remote = false;
+//                    // set state
+//                    setSyncState(tempNode, State.SYNC);
+//                    // set id
+//                    tempTrans.id = id;
+//                    // signal as existing
+//                    existing.add(tempTrans.getIdentification());
+//                    // remove from id reset
+//                    idMap.remove(tempTrans.getIdentification());
+//                    System.out.println(tempTrans.getIdentification()
+//                            + " from IMCSystem found in mission tree  >> Sync.");
+//                    break;
+//                }
+//            }
+//            if (remote) {
+//                // create new node with id as Sync
+//                MapGroup mapGroup = MapGroup.getMapGroupInstance(mission);
+//                MapType[] maps = mapGroup.getMaps();
+//                trans = new TransponderElement(lblBeacon, id, mapGroup, maps[0]);
+//                node = new ExtendedTreeNode(trans);
+//                setSyncState(node, State.SYNC);
+//                treeModel.insertAlphabetically(node, ParentNodes.TRANSPONDERS);
+//                // replicate transponder to mission file
+//                trans.getParentMap().addObject(trans);
+//                trans.getParentMap().saveFile(trans.getParentMap().getHref());
+//                if (mission.getCompressedFilePath() != null) {
+//                    mission.save(false);
+//                }
+//                // signal as existing
+//                existing.add(trans.getIdentification());
+//                // remove from id reset
+//                idMap.remove(trans.getIdentification());
+//                System.out.println(trans.getIdentification()
+//                        + " trans from IMCSystem not found in mission tree  >> Remote.");
+//            }
+//            id++;
+        // }
 
         // reset id of transponders not in vehicle
         transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
@@ -899,6 +936,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         System.out.println();
         return existing;
     }
+
 
     /**
      * Go through remote plans and alphabetically merge into model. Make a list of all seen plans so discontinued ones
@@ -960,7 +998,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         Identifiable item;
         for (String id : localIds) {
             existing.add(id);
-            target = treeModel.findNode(id, itemType);
+            // TODO target = treeModel.findNode(id, itemType); --> Identification will be different
+
             item = local.get(id);
             System.out.print(id + " \t");
             if (target == null) {
@@ -969,7 +1008,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 newNode.getUserInfo().put(NodeInfoKey.ID.name(), (short) -1);
                 treeModel.insertAlphabetically(newNode, itemType);
                 target = newNode;
-                System.out.print(" not found in mission tree. Creating with mission.");
+                System.out.print(" not found in mission tree.");
             }
             else {
                 target.setUserObject(item);
@@ -1222,9 +1261,30 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
             @Override
             public void run() {
+                NeptusLog.pub().error(localTrans.size() + " in mission: " + localTrans.values().toString());
                 HashSet<String> existingTrans = mergeLocal(localTrans, sysName, treeModel, ParentNodes.TRANSPONDERS);
+                treeModel.printTree();
+                short id = 0;
+                StringBuilder remotes = new StringBuilder(remoteTrans.size() + " in ImcSystem: ");
+                for (LblBeacon lblBeacon : remoteTrans) {
+                    remotes.append("[");
+                    remotes.append(id);
+                    remotes.append("] ");
+                    remotes.append(lblBeacon.getBeacon());
+                    remotes.append(" ( query: ");
+                    remotes.append(lblBeacon.getQueryChannel());
+                    remotes.append(", reply: ");
+                    remotes.append(lblBeacon.getReplyChannel());
+                    remotes.append(", delay:");
+                    remotes.append(lblBeacon.getTransponderDelay());
+                    remotes.append(")");
+                    id++;
+                }
+                NeptusLog.pub().error(remotes.toString());
                 existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans, mission);
+                treeModel.printTree();
                 treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
+                treeModel.printTree();
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
                 // revalidate();
                 repaint();
@@ -1263,6 +1323,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         catch (NullPointerException e) {
             NeptusLog.pub().warn("I cannot find local trans for main vehicle");
         }
+        NeptusLog.pub().debug("Got " + map.size() + " local transponders.");
         return map;
     }
 

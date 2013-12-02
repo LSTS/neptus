@@ -231,7 +231,7 @@ public class MissionTreeModel extends DefaultTreeModel {
         insertNodeInto(node, parent, index);
         // check if the parent is in the tree at this time
         boolean inTree = parent.getParent() != null;
-        System.out.print("parent " + ((inTree) ? ("is") : ("not")) + " in tree ");
+        // System.out.print("parent " + ((inTree) ? ("is") : ("not")) + " in tree ");
         if (!inTree) {
             int parentIndex = 0;
             if (homeR.getParent() != null)
@@ -400,6 +400,21 @@ public class MissionTreeModel extends DefaultTreeModel {
         if (parent == null)
             return null;
         return parent.iterator();
+    }
+
+    public void printTree() {
+        ChildIterator transIt;
+        ExtendedTreeNode tempNode;
+        TransponderElement tempTrans;
+        transIt = getIterator(ParentNodes.TRANSPONDERS);
+        StringBuilder msg = new StringBuilder("Tree: ");
+        while (transIt.hasNext()) {
+            tempNode = transIt.next();
+            tempTrans = ((TransponderElement) tempNode.getUserObject());
+            msg.append(tempTrans.toString());
+            msg.append(", ");
+        }
+        NeptusLog.pub().error(msg);
     }
 
     // public TransNodeIterator iterator(){

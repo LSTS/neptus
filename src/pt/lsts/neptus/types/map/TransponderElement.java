@@ -56,6 +56,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.Identifiable;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.misc.BeaconsConfig;
 import pt.lsts.neptus.types.misc.FileType;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.PropertiesLoader;
@@ -171,7 +172,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
         setId(beacon);
         setName(beacon);
         setCenterLocation(lt);
-        setConfiguration(beacon + ".conf");
+        propConf = BeaconsConfig.getMatchingConf(lblBeacon);
         this.id = id;
     }
 
@@ -198,7 +199,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
             System.out.println(lblBeacon.getBeacon() + " had different name that " + getIdentification());
             return false;
         }
-        // Configuration
+        // TODO Configuration
         String[] split = file.getHref().split("\\.");
         if (split.length == 0) {
             System.out.print(" No conf name!");
@@ -262,7 +263,6 @@ public class TransponderElement extends AbstractElement implements Identifiable{
             e.printStackTrace();
         }
     }
-
 
     /**
      * To fix the fact that the property value can not have a space in the key.
@@ -481,5 +481,13 @@ public class TransponderElement extends AbstractElement implements Identifiable{
     public byte[] getMd5() {
         LblBeacon beacon = TransponderUtils.getTransponderAsLblBeaconMessage(this);
         return beacon.payloadMD5();
+    }
+
+    @Override
+    public String toString() {
+        String queryCh = propConf.getProperty("interrogation channel");
+        String replyCh = propConf.getProperty("reply channel");
+        String delay = propConf.getProperty("transponder delay (msecs.)");
+        return getIdentification() + " ( query: " + queryCh + ", reply: " + replyCh + ", delay:" + delay + ")";
     }
 }
