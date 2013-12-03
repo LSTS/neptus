@@ -30,8 +30,7 @@
 /pthreadGCE2.dll
 /pthreadVC2.dll
 /resources
-/s52*
-/s57*
+
 /svn.info.txt
 /tmpjars
 /tmpdist
@@ -167,8 +166,8 @@
 /conf/mystate.xml
 /*.so
 /log/
-/resources/
-/*.session
+
+
 /svn.info.txt
 /scm.info.txt
 *.pdf
@@ -200,4 +199,3 @@ NSIS_release/static_files/batch_files/
 dev-scripts/grow_pot.sh
 
 /IHData/
-.s57
