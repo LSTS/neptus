@@ -113,6 +113,7 @@ public class ExtendedTreeNode extends DefaultMutableTreeNode implements Iterable
         }
     }
 
+    @Override
     public ChildIterator iterator() {
         return new ChildIterator();
     }
@@ -124,13 +125,14 @@ public class ExtendedTreeNode extends DefaultMutableTreeNode implements Iterable
      */
     public class ChildIterator implements Iterator<ExtendedTreeNode> {
         int index;
-        ExtendedTreeNode childLocalTrans;
+        ExtendedTreeNode childLocalTrans = null;
         int elemNum;
 
         public ChildIterator() {
             index = 0;
             elemNum = getChildCount();
-            childLocalTrans = (ExtendedTreeNode) getFirstChild();
+            if (elemNum != 0)
+                childLocalTrans = (ExtendedTreeNode) getFirstChild();
         }
 
         @Override
