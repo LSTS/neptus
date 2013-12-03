@@ -386,8 +386,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
             while (lstIt.hasNext()) {
                 Element elem = (Element) lstIt.next();
                 // TransponderElement mm = new TransponderElement(elem.asXML());
-                TransponderElement mm = new TransponderElement();
-                mm.load(elem);
+                TransponderElement mm = new TransponderElement(elem);
                 elements.put(mm.getId(), mm);
             }
 

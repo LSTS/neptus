@@ -295,13 +295,14 @@ public class MissionTreeModel extends DefaultTreeModel {
         int p = 0;
         ExtendedTreeNode child;
         NameId childObj;
+        System.out.println("Removing ");
         while (p < count) {
             child = (ExtendedTreeNode) parent.getChildAt(p);
             childObj = (NameId) child.getUserObject();
-            String id = childObj.getIdentification();
+            String id = childObj.getDisplayName();
             if (!toDelete.contains(id)) {
                 removeById(childObj, parent);
-                System.out.println("Removing " + id);
+                System.out.print(id);
                 count--;
                 p--;
             }
@@ -402,19 +403,20 @@ public class MissionTreeModel extends DefaultTreeModel {
         return parent.iterator();
     }
 
-    public void printTree() {
+    public void printTree(String msg) {
         ChildIterator transIt;
         ExtendedTreeNode tempNode;
         TransponderElement tempTrans;
         transIt = getIterator(ParentNodes.TRANSPONDERS);
-        StringBuilder msg = new StringBuilder("Tree: ");
+        StringBuilder treeString = new StringBuilder(msg);
+        treeString.append("Tree: ");
         while (transIt.hasNext()) {
             tempNode = transIt.next();
             tempTrans = ((TransponderElement) tempNode.getUserObject());
-            msg.append(tempTrans.toString());
-            msg.append(", ");
+            treeString.append(tempTrans.toString());
+            treeString.append(", ");
         }
-        NeptusLog.pub().error(msg);
+        NeptusLog.pub().error(treeString);
     }
 
     // public TransNodeIterator iterator(){
