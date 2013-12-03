@@ -146,6 +146,12 @@ public class TransponderElement extends AbstractElement implements NameId{
         id = -1;
     }
 
+    public TransponderElement(Element elem) {
+        // super(xml);
+        load(elem);
+        id = -1;
+    }
+
     public TransponderElement(MapGroup mg, MapType parentMap) {
         super(mg, parentMap);
         if (mg != null)
@@ -173,8 +179,11 @@ public class TransponderElement extends AbstractElement implements NameId{
         setName(beacon);
         setCenterLocation(lt);
         propConf = BeaconsConfig.getMatchingConf(lblBeacon);
+        file = new FileType();
+        file.setHref(propConf.getWorkingFile());
         this.id = id;
     }
+
 
     /**
      * Compare contents (interrogation channel, querry channel, transponder delay, lat, lon, depth and name) of this
@@ -493,7 +502,16 @@ public class TransponderElement extends AbstractElement implements NameId{
         String queryCh = propConf.getProperty("interrogation channel");
         String replyCh = propConf.getProperty("reply channel");
         String delay = propConf.getProperty("transponder delay (msecs.)");
-        return getDisplayName() + " ( query: " + queryCh + ", reply: " + replyCh + ", delay:" + delay + ")";
+        StringBuilder string = new StringBuilder();
+        string.append(getDisplayName());
+        string.append(" ( query: ");
+        string.append(queryCh);
+        string.append(", reply: ");
+        string.append(replyCh);
+        string.append(", delay:");
+        string.append(delay);
+        string.append(")");
+        return string.toString();
     }
 
 }

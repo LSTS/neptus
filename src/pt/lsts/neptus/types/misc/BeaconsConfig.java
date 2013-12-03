@@ -79,13 +79,17 @@ public class BeaconsConfig {
     }
 
     static public PropertiesLoader getMatchingConf(LblBeacon beacon) {
-        int countMatching = 0;
+        int countMatching;
         for (PropertiesLoader propConf : confsInFile) {
-            if (propConf.getProperty("interrogation channel").equals(beacon.getQueryChannel()))
+            countMatching = 0;
+            short prop = Short.parseShort(propConf.getProperty("interrogation channel"));
+            if (prop == beacon.getQueryChannel())
                 countMatching++;
-            if (propConf.getProperty("reply channel").equals(beacon.getReplyChannel()))
+            prop = Short.parseShort(propConf.getProperty("reply channel"));
+            if (prop == beacon.getReplyChannel())
                 countMatching++;
-            if (propConf.getProperty("transponder delay (msecs.)").equals(beacon.getTransponderDelay()))
+            prop = Short.parseShort(propConf.getProperty("transponder delay (msecs.)"));
+            if (prop == beacon.getTransponderDelay())
                 countMatching++;
             if (countMatching == 3) {
                 return propConf;
