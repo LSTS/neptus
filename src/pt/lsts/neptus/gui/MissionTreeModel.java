@@ -299,15 +299,16 @@ public class MissionTreeModel extends DefaultTreeModel {
         while (p < count) {
             child = (ExtendedTreeNode) parent.getChildAt(p);
             childObj = (NameId) child.getUserObject();
-            String id = childObj.getDisplayName();
+            String id = childObj.getIdentification();
             if (!toDelete.contains(id)) {
                 removeById(childObj, parent);
-                System.out.print(id);
+                System.out.print(childObj.getDisplayName());
                 count--;
                 p--;
             }
             p++;
         }
+        System.out.println();
     }
 
     private ExtendedTreeNode getParent(ParentNodes parentType) {

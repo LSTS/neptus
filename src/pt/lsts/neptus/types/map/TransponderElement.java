@@ -73,7 +73,7 @@ public class TransponderElement extends AbstractElement implements NameId{
     private static Image transponderImg = ImageUtils.getImage("images/transponder.png");
     private static String[] transpondersListArray;
     // id shared with Dune - order in LblConfig list
-    public short id;
+    public short duneId;
 
     static {
         final Vector<String> aTranspondersFiles = new Vector<String>();
@@ -134,7 +134,7 @@ public class TransponderElement extends AbstractElement implements NameId{
      */
     public TransponderElement() {
         super();
-        id = -1;
+        duneId = -1;
     }
 
     /**
@@ -143,29 +143,31 @@ public class TransponderElement extends AbstractElement implements NameId{
     public TransponderElement(String xml) {
         // super(xml);
         load(xml);
-        id = -1;
+        duneId = -1;
     }
 
     public TransponderElement(Element elem) {
         // super(xml);
         load(elem);
-        id = -1;
+        duneId = -1;
     }
 
     public TransponderElement(MapGroup mg, MapType parentMap) {
         super(mg, parentMap);
         if (mg != null)
             setCenterLocation(new LocationType(mg.getHomeRef().getCenterLocation()));
-        id = -1;
+        duneId = -1;
     }
 
     /**
      * Creates a TransponderElement with the values on the beacon.
      * 
      * @param lblBeacon
-     * @param id shared with Dune - order in LblConfig list
+     * @param duneId
+     * @param mg
+     * @param parentMap
      */
-    public TransponderElement(LblBeacon lblBeacon, short id, MapGroup mg, MapType parentMap) {
+    public TransponderElement(LblBeacon lblBeacon, short duneId, MapGroup mg, MapType parentMap) {
         super(mg, parentMap);
         String beacon = lblBeacon.getBeacon();
         double lat = Math.toDegrees(lblBeacon.getLat());
@@ -181,7 +183,7 @@ public class TransponderElement extends AbstractElement implements NameId{
         propConf = BeaconsConfig.getMatchingConf(lblBeacon);
         file = new FileType();
         file.setHref(propConf.getWorkingFile());
-        this.id = id;
+        this.duneId = duneId;
     }
 
 
@@ -475,21 +477,21 @@ public class TransponderElement extends AbstractElement implements NameId{
     @Override
     public String getDisplayName() {
         StringBuilder nameBuilder = new StringBuilder();
-        if (id != -1) {
+        if (duneId != -1) {
             nameBuilder.append("[");
-            nameBuilder.append(id);
+            nameBuilder.append(duneId);
             nameBuilder.append("] ");
-            nameBuilder.append(name);
+            nameBuilder.append(getIdentification());
             return nameBuilder.toString();
         }
         else {
-            return getName();
+            return getIdentification();
         }
     }
 
     @Override
     public String getIdentification() {
-        return id + "";
+        return name;
     }
 
     public byte[] getMd5() {
@@ -512,6 +514,15 @@ public class TransponderElement extends AbstractElement implements NameId{
         string.append(delay);
         string.append(")");
         return string.toString();
+    }
+
+    /**
+     * 
+     * @param id
+     */
+    public void setDuneId(short id) {
+        duneId = id;
+
     }
 
 }
