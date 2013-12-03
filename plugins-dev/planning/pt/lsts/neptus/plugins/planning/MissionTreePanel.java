@@ -103,7 +103,7 @@ import pt.lsts.neptus.plugins.planning.plandb.PlanDBControl;
 import pt.lsts.neptus.plugins.planning.plandb.PlanDBInfo;
 import pt.lsts.neptus.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
-import pt.lsts.neptus.types.Identifiable;
+import pt.lsts.neptus.types.NameId;
 import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
@@ -638,7 +638,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
          * @param selection
          * @param popupMenu
          */
-        private <T extends Identifiable> void addActionRemovePlanLocally(final ConsoleLayout console2,
+        private <T extends NameId> void addActionRemovePlanLocally(final ConsoleLayout console2,
                 final T selection, JPopupMenu popupMenu) {
 
             popupMenu.add(I18n.textf("Delete '%planName' locally", selection)).addActionListener(new ActionListener() {
@@ -668,13 +668,13 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                         public void actionPerformed(ActionEvent e) {
                             if (selection != null) {
                                 // pdbControl.setRemoteSystemId(console2.getMainSystem());
-                                pdbControl.requestPlan(((Identifiable) selection).getIdentification());
+                                pdbControl.requestPlan(((NameId) selection).getIdentification());
                             }
                         }
                     });
         }
 
-        private <T extends Identifiable> void addActionRemovePlanRemotely(final ConsoleLayout console2,
+        private <T extends NameId> void addActionRemovePlanRemotely(final ConsoleLayout console2,
                 final PlanDBControl pdbControl, final T selection, JPopupMenu popupMenu) {
             popupMenu.add(I18n.textf("Remove '%planName' from %system", selection, console2.getMainSystem()))
                     .addActionListener(new ActionListener() {
@@ -683,14 +683,14 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                             if (selection != null) {
                                 // PlanType sel = (PlanType) selection;
                                 pdbControl.setRemoteSystemId(console2.getMainSystem());
-                                pdbControl.deletePlan(((Identifiable) selection).getIdentification());
+                                pdbControl.deletePlan(((NameId) selection).getIdentification());
                             }
                         }
 
                     });
         }
 
-        private <T extends Identifiable> void addActionShare(final T selection, JMenu dissemination,
+        private <T extends NameId> void addActionShare(final T selection, JMenu dissemination,
                 final String objectTypeName) {
             dissemination.add(I18n.textf("Share '%transponderName'", selection.getIdentification())).addActionListener(
                     new ActionListener() {
@@ -734,12 +734,12 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 // if (plansCount == 1) {
                 popupMenu.addSeparator();
                 addActionSendPlan(console, pdbControl, selection, popupMenu);
-                addActionRemovePlanLocally(console, (Identifiable) selection, popupMenu);
+                addActionRemovePlanLocally(console, (NameId) selection, popupMenu);
                 State syncState = (State) ((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.SYNC.name());
                 if (syncState == null)
                     syncState = State.LOCAL;
                 else if (syncState == State.SYNC || syncState == State.NOT_SYNC) {
-                    addActionRemovePlanRemotely(console, pdbControl, (Identifiable) selection, popupMenu);
+                    addActionRemovePlanRemotely(console, pdbControl, (NameId) selection, popupMenu);
                     addActionGetRemotePlan(console, pdbControl, selection, popupMenu);
                 }
                 addActionShare(selection, dissemination);
@@ -758,7 +758,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     syncState = State.LOCAL;
                 else if (syncState == State.REMOTE) {
                     addActionGetRemotePlan(console, pdbControl, selection, popupMenu);
-                    addActionRemovePlanRemotely(console, pdbControl, (Identifiable) selection, popupMenu);
+                    addActionRemovePlanRemotely(console, pdbControl, (NameId) selection, popupMenu);
                     // popupMenu.add(
                     // I18n.textf("bug Remove '%planName' from %system", selection, console2.getMainSystem()))
                     // .addActionListener(new ActionListener() {
@@ -784,7 +784,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                         addActionSwitchTrans(selection, popupMenu, tel);
                     }
                 }
-                addActionShare((Identifiable) selection, dissemination, "Transponder");
+                addActionShare((NameId) selection, dissemination, "Transponder");
                 addActionAddNewTrans(popupMenu);
             }
             //

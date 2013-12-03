@@ -46,6 +46,12 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.PlanManeuver;
+import pt.lsts.imc.PlanSpecification;
+import pt.lsts.imc.PlanTransition;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -60,7 +66,7 @@ import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.PathProvider;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.types.Identifiable;
+import pt.lsts.neptus.types.NameId;
 import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
@@ -74,12 +80,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.NameNormalizer;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCOutputStream;
-import pt.lsts.imc.PlanManeuver;
-import pt.lsts.imc.PlanSpecification;
-import pt.lsts.imc.PlanTransition;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -88,7 +88,7 @@ import com.l2fprod.common.propertysheet.Property;
  * @author Paulo Dias
  * @author ZP
  */
-public class PlanType implements XmlOutputMethods, PropertiesProvider, Identifiable {
+public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
     public static final int INIT_HOMEREF = 0, INIT_START_WPT = 1, INIT_NONE = 2;
     protected static final String DEFAULT_ROOT_ELEMENT = "plan";
 
@@ -854,14 +854,13 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, Identifia
         return true;
     }
 
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.Identifiable#getIdentification()
-     */
     @Override
     public String getIdentification() {
+        return getId();
+    }
+
+    @Override
+    public String getDisplayName() {
         return getId();
     }
 }

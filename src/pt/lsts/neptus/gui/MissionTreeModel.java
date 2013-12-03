@@ -43,7 +43,7 @@ import pt.lsts.neptus.gui.MissionBrowser.State;
 import pt.lsts.neptus.gui.tree.ExtendedTreeNode;
 import pt.lsts.neptus.gui.tree.ExtendedTreeNode.ChildIterator;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.types.Identifiable;
+import pt.lsts.neptus.types.NameId;
 import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.mission.HomeReference;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -154,7 +154,7 @@ public class MissionTreeModel extends DefaultTreeModel {
         int nodeChildCount = getChildCount(parent);
         for (int c = 0; c < nodeChildCount; c++) {
             ExtendedTreeNode childAt = (ExtendedTreeNode) parent.getChildAt(c);
-            Identifiable temp = (Identifiable) childAt.getUserObject();
+            NameId temp = (NameId) childAt.getUserObject();
             if (temp.getIdentification().equals(id)) {
                 return childAt;
             }
@@ -208,13 +208,13 @@ public class MissionTreeModel extends DefaultTreeModel {
         ExtendedTreeNode parent = getParent(parentType);
         if (parent == null)
             return false;
-        Identifiable plan = (Identifiable) newNode.getUserObject();
+        NameId plan = (NameId) newNode.getUserObject();
         int nodeChildCount = getChildCount(parent);
         ExtendedTreeNode childAt;
-        Identifiable temp;
+        NameId temp;
         for (int c = 0; c < nodeChildCount; c++) {
             childAt = (ExtendedTreeNode) parent.getChildAt(c);
-            temp = (Identifiable) childAt.getUserObject();
+            temp = (NameId) childAt.getUserObject();
             if (temp.getIdentification().compareToIgnoreCase(plan.getIdentification()) > 0) {
                 addToParents(newNode, parentType, c);
                 return true;
@@ -263,7 +263,7 @@ public class MissionTreeModel extends DefaultTreeModel {
      * @param parent node in tree
      * @return true changes have been made
      */
-    public <E extends Identifiable> boolean removeById(E item, ExtendedTreeNode parent) {
+    public <E extends NameId> boolean removeById(E item, ExtendedTreeNode parent) {
         int childCount = parent.getChildCount();
         for (int i = 0; i < childCount; i++) {
             @SuppressWarnings("unchecked")
@@ -294,10 +294,10 @@ public class MissionTreeModel extends DefaultTreeModel {
         int count = parent.getChildCount();
         int p = 0;
         ExtendedTreeNode child;
-        Identifiable childObj;
+        NameId childObj;
         while (p < count) {
             child = (ExtendedTreeNode) parent.getChildAt(p);
-            childObj = (Identifiable) child.getUserObject();
+            childObj = (NameId) child.getUserObject();
             String id = childObj.getIdentification();
             if (!toDelete.contains(id)) {
                 removeById(childObj, parent);
@@ -332,7 +332,7 @@ public class MissionTreeModel extends DefaultTreeModel {
      * @param parentType
      * @return true if the item was found and removed, false otherwise.
      */
-    public <E extends Identifiable> boolean removeById(String id, ParentNodes parentType) {
+    public <E extends NameId> boolean removeById(String id, ParentNodes parentType) {
         ExtendedTreeNode parent;
         switch (parentType) {
             case PLANS:

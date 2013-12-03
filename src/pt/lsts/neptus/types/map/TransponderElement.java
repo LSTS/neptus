@@ -53,7 +53,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.gui.objparams.TransponderParameters;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.types.Identifiable;
+import pt.lsts.neptus.types.NameId;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.misc.BeaconsConfig;
@@ -68,7 +68,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * @author Paulo Dias
  * @author Ze Carlos
  */
-public class TransponderElement extends AbstractElement implements Identifiable{
+public class TransponderElement extends AbstractElement implements NameId{
     protected static final String DEFAULT_ROOT_ELEMENT = "transponder";
     private static Image transponderImg = ImageUtils.getImage("images/transponder.png");
     private static String[] transpondersListArray;
@@ -464,7 +464,7 @@ public class TransponderElement extends AbstractElement implements Identifiable{
      * @see pt.lsts.neptus.types.Identifiable#getIdentification()
      */
     @Override
-    public String getIdentification() {
+    public String getDisplayName() {
         StringBuilder nameBuilder = new StringBuilder();
         if (id != -1) {
             nameBuilder.append("[");
@@ -476,6 +476,11 @@ public class TransponderElement extends AbstractElement implements Identifiable{
         else {
             return getName();
         }
+    }
+
+    @Override
+    public String getIdentification() {
+        return id + "";
     }
 
     public byte[] getMd5() {
@@ -490,4 +495,5 @@ public class TransponderElement extends AbstractElement implements Identifiable{
         String delay = propConf.getProperty("transponder delay (msecs.)");
         return getIdentification() + " ( query: " + queryCh + ", reply: " + replyCh + ", delay:" + delay + ")";
     }
+
 }

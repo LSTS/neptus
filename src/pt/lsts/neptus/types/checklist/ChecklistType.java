@@ -44,7 +44,6 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.types.Identifiable;
 import pt.lsts.neptus.types.XmlInputMethods;
 import pt.lsts.neptus.types.XmlInputMethodsFromFile;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -59,7 +58,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * @author Paulo Dias
  */
 public class ChecklistType 
- implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile, Identifiable {
+ implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
     protected static final String DEFAULT_ROOT_ELEMENT = "checklist";
 
     public static final String FLAT_ID = "flat";
@@ -486,15 +485,5 @@ public class ChecklistType
     	
     	tmpChc.setOriginalFilePath("");
     	return tmpChc;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.Identifiable#getIdentification()
-     */
-    @Override
-    public String getIdentification() {
-        return getName();
     }
 }

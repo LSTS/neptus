@@ -34,13 +34,13 @@ package pt.lsts.neptus.plugins.planning.plandb;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
-import pt.lsts.neptus.types.Identifiable;
+import pt.lsts.neptus.types.NameId;
 
 /**
  * @author zp
  *
  */
-public class PlanDBInfo implements IMCSerialization, Identifiable {
+public class PlanDBInfo implements IMCSerialization, NameId {
 
     protected String planId;
     protected int planSize;
@@ -125,13 +125,13 @@ public class PlanDBInfo implements IMCSerialization, Identifiable {
         return planId;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.Identifiable#getIdentification()
-     */
     @Override
     public String getIdentification() {
+        return planId;
+    }
+
+    @Override
+    public String getDisplayName() {
         return planId;
     }
 }

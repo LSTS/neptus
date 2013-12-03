@@ -35,6 +35,8 @@ package pt.lsts.neptus.types;
  * @author Margarida Faria
  *
  */
-public interface Identifiable {
+public interface NameId {
     public abstract String getIdentification();
+
+    public abstract String getDisplayName();
 }

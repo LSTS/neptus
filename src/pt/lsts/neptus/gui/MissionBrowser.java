@@ -55,7 +55,7 @@ import pt.lsts.neptus.gui.tree.ExtendedTreeNode.ChildIterator;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.plugins.planning.plandb.PlanDBInfo;
-import pt.lsts.neptus.types.Identifiable;
+import pt.lsts.neptus.types.NameId;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.HomeReferenceElement;
@@ -540,19 +540,16 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      */
     public void removeItem(Object item) {
         boolean isChanged = false;
-        if (item instanceof MapType) {
-            treeModel.removeById(((MapType) item).getIdentification(), ParentNodes.MAP);
-        }
-        else if (item instanceof PlanType) {
+        if (item instanceof PlanType) {
             treeModel.removeById(((PlanType) item).getIdentification(), ParentNodes.PLANS);
             if(!isChanged){
-                NeptusLog.pub().error("Could not find " + ((Identifiable) item).getIdentification());
+                NeptusLog.pub().error("Could not find " + ((NameId) item).getIdentification());
             }
         }
         else if (item instanceof PlanDBInfo) {
             treeModel.removeById(((PlanDBInfo) item).getIdentification(), ParentNodes.PLANS);
             if (!isChanged) {
-                NeptusLog.pub().error("Could not find " + ((Identifiable) item).getIdentification());
+                NeptusLog.pub().error("Could not find " + ((NameId) item).getIdentification());
             }
         }
         else {
@@ -989,13 +986,13 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param treeModel the model where to merge
      * @return the list of seen items.
      */
-    private HashSet<String> mergeLocal(LinkedHashMap<String, ? extends Identifiable> local, String sysName,
+    private HashSet<String> mergeLocal(LinkedHashMap<String, ? extends NameId> local, String sysName,
             MissionTreeModel treeModel,
             ParentNodes itemType) {
         Set<String> localIds = local.keySet();
         HashSet<String> existing = new HashSet<String>();
         ExtendedTreeNode target, newNode;
-        Identifiable item;
+        NameId item;
         for (String id : localIds) {
             existing.add(id);
             // TODO
@@ -1312,7 +1309,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @return the found elements
      */
     @SuppressWarnings("unchecked")
-    private <T extends Identifiable> LinkedHashMap<String, T> getLocalTrans(MissionType mission) {
+    private <T extends NameId> LinkedHashMap<String, T> getLocalTrans(MissionType mission) {
         LinkedHashMap<String, T> map = new LinkedHashMap<String, T>();
         Vector<T> vector;
         try {
@@ -1333,7 +1330,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         repaint();
     }
 
-    public <T extends Identifiable> void removeCurrSelectedNodeRemotely() {
+    public <T extends NameId> void removeCurrSelectedNodeRemotely() {
         ExtendedTreeNode selectionNode = getSelectedTreeNode();
 
         // This is triggered twice, on the second one check for null
@@ -1362,7 +1359,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
     }
 
-    public <T extends Identifiable> void deleteCurrSelectedNodeLocally() {
+    public <T extends NameId> void deleteCurrSelectedNodeLocally() {
         ExtendedTreeNode selectionNode = getSelectedTreeNode();
         State syncState = (State) selectionNode.getUserInfo().get(NodeInfoKey.SYNC.name());
         switch (syncState) {

@@ -55,7 +55,6 @@ import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.mp.Dimension;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.mp.MapChangeListener;
-import pt.lsts.neptus.types.Identifiable;
 import pt.lsts.neptus.types.XmlInputMethods;
 import pt.lsts.neptus.types.XmlInputMethodsFromFile;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -74,7 +73,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * @author Zé Carlos (DCEG-FEUP)
  * @author Paulo Dias
  */
-public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile, Identifiable {
+public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
 
     // <FROM Map>
     protected static final String DEFAULT_ROOT_ELEMENT = "map";
@@ -801,15 +800,5 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
 
     public void setMission(MissionType mission) {
         this.mission = mission;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.Identifiable#getIdentification()
-     */
-    @Override
-    public String getIdentification() {
-        return getId();
     }
 }
