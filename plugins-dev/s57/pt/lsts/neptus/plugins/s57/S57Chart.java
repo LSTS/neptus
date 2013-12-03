@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.s57;
 
 import java.awt.Graphics2D;
+import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,6 +45,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.coord.MapTileUtil;
 import pt.lsts.s57.S57;
 import pt.lsts.s57.S57Factory;
+import pt.lsts.s57.S57Utils;
 import pt.lsts.s57.mc.MarinerControls;
 import pt.lsts.s57.painters.NeptusS57Painter;
 import pt.lsts.s57.ui.OptionsDialog;
@@ -64,8 +66,8 @@ public class S57Chart implements MapPainterProvider {
     private final Map<StateRenderer2D, NeptusS57Painter> painterList = new ConcurrentHashMap<StateRenderer2D, NeptusS57Painter>();
 
     public S57Chart() {
-        this.s57 = S57Factory.build();
-        this.s63 = S63.forge(S57Factory.resources(), this.s57);
+        this.s57 = S57Factory.build(new File(System.getProperty("user.dir")), new File("libJNI/gdal/" + S57Utils.getPlatformPath()));
+        this.s63 = S63.forge(s57.getResources(), this.s57);
         this.mc = MarinerControls.forge();
     }
 
@@ -73,7 +75,7 @@ public class S57Chart implements MapPainterProvider {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         NeptusS57Painter painterToUse = painterList.get(renderer);
         if (painterToUse == null) {
-            painterToUse = NeptusS57Painter.forge(S57Factory.resources(), s57, mc);
+            painterToUse = NeptusS57Painter.forge(s57.getResources(), s57, mc);
             painterList.put(renderer, painterToUse);
         }
         painterToUse.paint(g, renderer);
@@ -93,7 +95,7 @@ public class S57Chart implements MapPainterProvider {
         dialog.setIconImages(ConfigFetch.getIconImagesForFrames());
         if (renderer != null) {
             dialog.setSrend(renderer);
-            painterList.put(renderer, NeptusS57Painter.forge(S57Factory.resources(), s57, mc));
+            painterList.put(renderer, NeptusS57Painter.forge(s57.getResources(), s57, mc));
         }
         return dialog;
     }
