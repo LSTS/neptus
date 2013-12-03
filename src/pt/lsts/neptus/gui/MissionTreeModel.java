@@ -208,14 +208,14 @@ public class MissionTreeModel extends DefaultTreeModel {
         ExtendedTreeNode parent = getParent(parentType);
         if (parent == null)
             return false;
-        NameId plan = (NameId) newNode.getUserObject();
+        NameId missionElem = (NameId) newNode.getUserObject();
         int nodeChildCount = getChildCount(parent);
         ExtendedTreeNode childAt;
         NameId temp;
         for (int c = 0; c < nodeChildCount; c++) {
             childAt = (ExtendedTreeNode) parent.getChildAt(c);
             temp = (NameId) childAt.getUserObject();
-            if (temp.getIdentification().compareToIgnoreCase(plan.getIdentification()) > 0) {
+            if (temp.getIdentification().compareToIgnoreCase(missionElem.getIdentification()) > 0) {
                 addToParents(newNode, parentType, c);
                 return true;
             }

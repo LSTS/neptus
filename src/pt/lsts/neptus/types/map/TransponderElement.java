@@ -493,7 +493,7 @@ public class TransponderElement extends AbstractElement implements NameId{
         String queryCh = propConf.getProperty("interrogation channel");
         String replyCh = propConf.getProperty("reply channel");
         String delay = propConf.getProperty("transponder delay (msecs.)");
-        return getIdentification() + " ( query: " + queryCh + ", reply: " + replyCh + ", delay:" + delay + ")";
+        return getDisplayName() + " ( query: " + queryCh + ", reply: " + replyCh + ", delay:" + delay + ")";
     }
 
 }
