@@ -198,13 +198,13 @@ public class TransponderElement extends AbstractElement implements NameId{
         lt.setLongitude(Math.toDegrees(lblBeacon.getDouble("lon")));
         lt.setDepth(lblBeacon.getDouble("depth"));
         if(!getCenterLocation().equals(lt)){
-            System.out.println(lblBeacon.getBeacon() + " has different location that " + getIdentification());
+            System.out.print(lblBeacon.getBeacon() + " has different location that " + getIdentification());
             return false;
         }
         // Name
         String beaconName = lblBeacon.getString("beacon");
         if(!getName().equals(beaconName)){
-            System.out.println(lblBeacon.getBeacon() + " has different name that " + getIdentification());
+            System.out.print(lblBeacon.getBeacon() + " has different name that " + getIdentification());
             return false;
         }
         // Configuration
@@ -212,18 +212,18 @@ public class TransponderElement extends AbstractElement implements NameId{
         short replyChannel = Short.parseShort(propConf.getProperty("reply channel"));
         short transponderDelay = Short.parseShort(propConf.getProperty("transponder delay (msecs.)"));
         if(replyChannel != lblBeacon.getReplyChannel() ){
-            System.out.println("they have different reply channels ("
+            System.out.print("they have different reply channels ("
                     + replyChannel + "/" + lblBeacon.getReplyChannel() + ")");
             return false;
         }
         if (transponderDelay != lblBeacon.getTransponderDelay()) {
-            System.out.println("they have different transponder delays (" + transponderDelay + "/"
+            System.out.print("they have different transponder delays (" + transponderDelay + "/"
                     + lblBeacon.getTransponderDelay()
                     + ")");
             return false;
         }
         if (interrogationChannel != lblBeacon.getQueryChannel()) {
-            System.out.println("they have different interrogation channels (" + interrogationChannel + "/"
+            System.out.print("they have different interrogation channels (" + interrogationChannel + "/"
                     + lblBeacon.getQueryChannel() + ")");
             return false;
         }

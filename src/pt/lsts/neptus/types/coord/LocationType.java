@@ -1273,7 +1273,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         // System.out.println();
 
         if (Double.compare(loc1LatDouble, loc2LatDouble) == 0 && Double.compare(loc1LonDouble, loc2LonDouble) == 0
-                && Double.compare(loc1.getDepth(),loc2.getDepth()) == 0)
+                && (loc1.getDepth()) == (loc2.getDepth())) // Double.compare(loc1.getDepth(),loc2.getDepth()) == 0)
             return true;
         else
             return false;
