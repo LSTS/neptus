@@ -56,6 +56,21 @@ public class CachedData extends TidePredictionFinder {
     private boolean loading = true;
     private SortedSet<TidePeak> cachedData = null;
 
+    
+    public CachedData(File f) {
+        try {
+            loadFile(f);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        loading = false;
+    }
+    
+    public CachedData() {
+        this(GeneralPreferences.tidesFile);
+    }
+    
     public void loadFile(File f) throws Exception {
         cachedData = new TreeSet<>();
         if (f == null || ! f.canRead())
