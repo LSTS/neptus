@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.TreeMap;
@@ -215,25 +216,26 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
 
         MissionType mt = console2.getMission();
-        MapType map;
         MapGroup mapGroupInstance = MapGroup.getMapGroupInstance(mt);
-        Vector<TransponderElement> ts = mapGroupInstance.getAllObjectsOfType(TransponderElement.class);
-        if (ts.size() > 0) {
-            map = ts.firstElement().getParentMap();
-        }
-        else {
-            if (mt.getMapsList().size() > 0)
-                map = mt.getMapsList().values().iterator().next().getMap();
-            else {
-                NeptusLog.pub().error("No maps in mission. Creating a new map.");
-                MapType newMap = new MapType(new LocationType(mt.getHomeRef()));
-                MapMission mm = new MapMission();
-                mm.setMap(newMap);
-                mt.addMap(mm);
-                mapGroupInstance.addMap(newMap);
-                map = newMap;
-            }
-        }
+        MapType map = getMap(mt, mapGroupInstance);
+
+        // Vector<TransponderElement> ts = mapGroupInstance.getAllObjectsOfType(TransponderElement.class);
+        // if (ts.size() > 0) {
+        // map = ts.firstElement().getParentMap();
+        // }
+        // else {
+        // if (mt.getMapsList().size() > 0)
+        // map = mt.getMapsList().values().iterator().next().getMap();
+        // else {
+        // NeptusLog.pub().error("No maps in mission. Creating a new map.");
+        // MapType newMap = new MapType(new LocationType(mt.getHomeRef()));
+        // MapMission mm = new MapMission();
+        // mm.setMap(newMap);
+        // mt.addMap(mm);
+        // mapGroupInstance.addMap(newMap);
+        // map = newMap;
+        // }
+        // }
 
         NeptusLog.pub().error("Adding transponder to map " + map.getId());
         TransponderElement te = new TransponderElement(mapGroupInstance, map);
@@ -249,6 +251,22 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             treeModel.addTransponderNode(te);
             ImcMsgManager.disseminate(te, "Transponder");
         }
+    }
+
+    private MapType getMap(MissionType mt, MapGroup mapGroupInstance) {
+        MapType map;
+        Set<String> mapsKeys = mapGroupInstance.maps.keySet();
+        Iterator<String> mapsKeysIt = mapsKeys.iterator();
+        if (mapsKeysIt.hasNext()) {
+            map = mapGroupInstance.maps.get(mapsKeysIt.next());
+        }
+        else {
+            NeptusLog.pub().error("No maps in mission. Creating a new map.");
+            MapType newMap = new MapType(new LocationType(mt.getHomeRef()));
+            mapGroupInstance.addMap(newMap);
+            map = newMap;
+        }
+        return map;
     }
 
     public void editTransponder(TransponderElement elem, MissionType mission, String vehicleId) {
@@ -856,6 +874,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 tempTrans = new TransponderElement(lblBeacon, id, mapGroup, maps[0]);
                 node = new ExtendedTreeNode(tempTrans);
                 setSyncState(node, State.SYNC);
+                maps[0].addObject(tempTrans);
+                maps[0].saveFile(maps[0].getHref());
                 treeModel.insertAlphabetically(node, ParentNodes.TRANSPONDERS);
                 System.out.println(" " + tempTrans.getDisplayName()
                         + " from IMCSystem not found in mission tree  >> Sync.");

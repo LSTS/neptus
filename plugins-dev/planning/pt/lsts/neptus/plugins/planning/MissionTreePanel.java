@@ -762,9 +762,10 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             else if (selection instanceof TransponderElement) {
                 TransponderElement transSel = (TransponderElement) selection;
                 popupMenu.addSeparator();
-                addActionEditTrans(selection, popupMenu);
-                if (((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.ID.name()) == State.LOCAL) {
-                    addActionRemoveTrans(selection, popupMenu);
+                addActionEditTrans(transSel, popupMenu);
+                Object state = ((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.SYNC.name());
+                if (state == State.LOCAL) {
+                    addActionRemoveTrans(transSel, popupMenu);
                 }
                 Vector<TransponderElement> allTransponderElements = MapGroup.getMapGroupInstance(console.getMission())
                         .getAllObjectsOfType(TransponderElement.class);
@@ -863,21 +864,22 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     });
         }
 
-        private void addActionRemoveTrans(final Object selection, JPopupMenu popupMenu) {
-            popupMenu.add(I18n.textf("Remove '%transponderName'", selection)).addActionListener(new ActionListener() {
+        private void addActionRemoveTrans(final TransponderElement selection, JPopupMenu popupMenu) {
+            popupMenu.add(I18n.textf("Remove '%transponderName'", selection.getDisplayName())).addActionListener(
+                    new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    browser.removeTransponder((TransponderElement) selection, console);
+                            browser.removeTransponder(selection, console);
                 }
             });
         }
 
-        private void addActionEditTrans(final Object selection, JPopupMenu popupMenu) {
-            popupMenu.add(I18n.textf("View/Edit '%transponderName'", selection)).addActionListener(
+        private void addActionEditTrans(final TransponderElement selection, JPopupMenu popupMenu) {
+            popupMenu.add(I18n.textf("View/Edit '%transponderName'", selection.getDisplayName())).addActionListener(
                     new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            browser.editTransponder((TransponderElement) selection, console.getMission(),
+                            browser.editTransponder(selection, console.getMission(),
                                     getMainVehicleId());
                         }
                     });
