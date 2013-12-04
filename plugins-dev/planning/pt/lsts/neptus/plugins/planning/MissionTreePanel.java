@@ -524,6 +524,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             case LblConfig.ID_STATIC:
                 LblConfig lblConfig = (LblConfig) message;
                 if (((LblConfig) message).getOp() == OP.CUR_CFG) {
+                    NeptusLog.pub().error("LblConfig message arrived");
                     browser.updateTransStateEDT(getConsole().getMission(), getMainVehicleId(), (Vector<LblBeacon>) lblConfig.getBeacons().clone());
                 }
                 break;
@@ -759,24 +760,14 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 else if (syncState == State.REMOTE) {
                     addActionGetRemotePlan(console, pdbControl, selection, popupMenu);
                     addActionRemovePlanRemotely(console, pdbControl, (NameId) selection, popupMenu);
-                    // popupMenu.add(
-                    // I18n.textf("bug Remove '%planName' from %system", selection, console2.getMainSystem()))
-                    // .addActionListener(new ActionListener() {
-                    // @Override
-                    // public void actionPerformed(ActionEvent e) {
-                    // if (selection != null) {
-                    // pdbControl.setRemoteSystemId(console2.getMainSystem());
-                    // PlanDBInfo sel = (PlanDBInfo) selection;
-                    // pdbControl.deletePlan(sel.getPlanId());
-                    // }
-                    // }
-                    // });
                 }
             }
             else if (selection instanceof TransponderElement) {
                 popupMenu.addSeparator();
                 addActionEditTrans(selection, popupMenu);
-                addActionRemoveTrans(selection, popupMenu);
+                if (((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.ID.name()) != State.SYNC) {
+                    addActionRemoveTrans(selection, popupMenu);
+                }
                 Vector<TransponderElement> allTransponderElements = MapGroup.getMapGroupInstance(console.getMission())
                         .getAllObjectsOfType(TransponderElement.class);
                 for (final AbstractElement tel : allTransponderElements) {
@@ -787,18 +778,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 addActionShare((NameId) selection, dissemination, "Transponder");
                 addActionAddNewTrans(popupMenu);
             }
-            //
-            // else if (selection instanceof MarkElement) {
-            //
-            // popupMenu.addSeparator();
-            //
-            // dissemination.add(I18n.text("Share startup position")).addActionListener(new ActionListener() {
-            // @Override
-            // public void actionPerformed(ActionEvent e) {
-            // ImcMsgManager.disseminate((XmlOutputMethods) selection, "StartLocation");
-            // }
-            // });
-            // }
             else if (selection instanceof HomeReference) {
                 addActionEditHomeRef(selection, popupMenu);
             }
@@ -971,6 +950,4 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
          */
         public ActionListener action;
     }
-
-
 }

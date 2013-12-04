@@ -340,6 +340,9 @@ public class MissionTreeModel extends DefaultTreeModel {
             case PLANS:
                 parent = plans;
                 break;
+            case TRANSPONDERS:
+                parent = trans;
+                break;
             default:
                 NeptusLog.pub().error("ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.removeById()");
                 return false;
@@ -358,6 +361,7 @@ public class MissionTreeModel extends DefaultTreeModel {
                 return true;
             }
         }
+        NeptusLog.pub().error("Could not find " + id);
         return false;
     }
 

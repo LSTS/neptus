@@ -283,7 +283,12 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
             LinkedHashMap<String, MapMission> mapsList = mission.getMapsList();
             MapMission mm = mapsList.get(pivot.getId());
-            mm.setMap(pivot);
+            if (mm != null) {
+                mm.setMap(pivot);
+            }
+            else {
+                mm = mapsList.values().iterator().next();
+            }
             pivot.saveFile(mm.getHref());
 
             if (mission != null && mission.getCompressedFilePath() != null) {
@@ -298,6 +303,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         int ret = JOptionPane.showConfirmDialog(this, I18n.textf("Delete '%transponderName'?", elem.getId()),
                 I18n.text("Delete"), JOptionPane.YES_NO_OPTION);
         if (ret == JOptionPane.YES_OPTION) {
+            treeModel.removeById(elem.getIdentification(), ParentNodes.TRANSPONDERS);
             elem.getParentMap().remove(elem.getIdentification());
             // elem.getParentMap().warnChangeListeners(new MapChangeEvent(MapChangeEvent.OBJECT_REMOVED));
             elem.getParentMap().saveFile(elem.getParentMap().getHref());
@@ -307,7 +313,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     console2.getMission().save(false);
                 console2.updateMissionListeners();
             }
-            removeItem(elem);
             // repaint();
         }
     }
@@ -547,31 +552,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
 
-    /**
-     * Removes the given item from the mission browser
-     * 
-     * @param item The item to be removed from this component
-     */
-    public void removeItem(Object item) {
-        boolean isChanged = false;
-        if (item instanceof PlanType) {
-            treeModel.removeById(((PlanType) item).getIdentification(), ParentNodes.PLANS);
-            if(!isChanged){
-                NeptusLog.pub().error("Could not find " + ((NameId) item).getIdentification());
-            }
-        }
-        else if (item instanceof PlanDBInfo) {
-            treeModel.removeById(((PlanDBInfo) item).getIdentification(), ParentNodes.PLANS);
-            if (!isChanged) {
-                NeptusLog.pub().error("Could not find " + ((NameId) item).getIdentification());
-            }
-        }
-        else {
-            NeptusLog.pub().error(
-                    "Missing support for " + item.getClass().getCanonicalName() + " in "
-                            + MissionBrowser.class.getCanonicalName() + ".removeItem()");
-        }
-    }
 
     public void removeplanById(String planId) {
         treeModel.removeById(planId, ParentNodes.PLANS);
@@ -1315,7 +1295,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             case REMOTE:
                 // Disappear
                 Object selectedItem = getSelectedItem();
-                    removeItem(selectedItem);
+                treeModel.removeById(((NameId) selectedItem).getIdentification(), ParentNodes.PLANS);
                 break;
             case LOCAL:
                 // Invalid
@@ -1341,7 +1321,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 treeModel.insertAlphabetically(node, ParentNodes.PLANS);
             case LOCAL:
                 // Disappear
-                removeItem(getSelectedItem());
+                treeModel.removeById(((NameId) getSelectedItem()).getIdentification(), ParentNodes.PLANS);
                 break;
             case REMOTE:
                 // Invalid
