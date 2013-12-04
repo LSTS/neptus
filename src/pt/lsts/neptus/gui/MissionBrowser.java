@@ -281,21 +281,25 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             mce.setChangedObject(elem);
             pivot.warnChangeListeners(mce);
 
-            LinkedHashMap<String, MapMission> mapsList = mission.getMapsList();
-            MapMission mm = mapsList.get(pivot.getId());
-            if (mm != null) {
-                mm.setMap(pivot);
-            }
-            else {
-                mm = mapsList.values().iterator().next();
-            }
-            pivot.saveFile(mm.getHref());
-
-            if (mission != null && mission.getCompressedFilePath() != null) {
-                mission.save(false);
-            }
+            saveMapAndMission(mission, pivot);
 
             treeModel.nodeChanged(selectedTreeNode);
+        }
+    }
+
+    private void saveMapAndMission(MissionType mission, MapType pivot) {
+        LinkedHashMap<String, MapMission> mapsList = mission.getMapsList();
+        MapMission mm = mapsList.get(pivot.getId());
+        if (mm != null) {
+            mm.setMap(pivot);
+        }
+        else {
+            mm = mapsList.values().iterator().next();
+        }
+        pivot.saveFile(mm.getHref());
+
+        if (mission != null && mission.getCompressedFilePath() != null) {
+            mission.save(false);
         }
     }
 

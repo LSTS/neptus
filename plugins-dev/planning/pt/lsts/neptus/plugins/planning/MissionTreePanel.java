@@ -106,7 +106,6 @@ import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.NameId;
 import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.HomeReferenceElement;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.TransponderElement;
@@ -732,7 +731,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 addActionAddNewTrans(popupMenu);
             }
             else if (selection instanceof PlanType) {
-                // if (plansCount == 1) {
                 popupMenu.addSeparator();
                 addActionSendPlan(console, pdbControl, selection, popupMenu);
                 addActionRemovePlanLocally(console, (NameId) selection, popupMenu);
@@ -745,7 +743,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 }
                 addActionShare(selection, dissemination);
                 addActionChangePlanVehicles(selection, popupMenu);
-                // }
                 ActionItem actionItem;
                 for (int a = 0; a < extraPlanActions.size(); a++) {
                     actionItem = extraPlanActions.get(a);
@@ -763,16 +760,17 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 }
             }
             else if (selection instanceof TransponderElement) {
+                TransponderElement transSel = (TransponderElement) selection;
                 popupMenu.addSeparator();
                 addActionEditTrans(selection, popupMenu);
-                if (((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.ID.name()) != State.SYNC) {
+                if (((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.ID.name()) == State.LOCAL) {
                     addActionRemoveTrans(selection, popupMenu);
                 }
                 Vector<TransponderElement> allTransponderElements = MapGroup.getMapGroupInstance(console.getMission())
                         .getAllObjectsOfType(TransponderElement.class);
-                for (final AbstractElement tel : allTransponderElements) {
-                    if ((TransponderElement) selection != (TransponderElement) tel) {
-                        addActionSwitchTrans(selection, popupMenu, tel);
+                for (final TransponderElement tempTrans : allTransponderElements) {
+                    if (!transSel.getDisplayName().equals(tempTrans.getDisplayName())) {
+                        addActionSwitchTrans(transSel, popupMenu, tempTrans);
                     }
                 }
                 addActionShare((NameId) selection, dissemination, "Transponder");
@@ -846,16 +844,19 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             });
         }
 
-        private void addActionSwitchTrans(final Object selection, JPopupMenu popupMenu, final AbstractElement tel) {
-            popupMenu.add(I18n.textf("Switch '%transponderName1' with '%transponderName2'", selection, tel))
+        private void addActionSwitchTrans(final TransponderElement selection, JPopupMenu popupMenu,
+                final TransponderElement tel) {
+            popupMenu.add(
+                    I18n.textf("Switch '%transponderName1' with '%transponderName2'", selection.getDisplayName(),
+                            tel.getDisplayName()))
                     .addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             new Thread() {
                                 @Override
                                 public void run() {
-                                    browser.swithLocationsTransponder((TransponderElement) selection,
-                                            (TransponderElement) tel, console);
+                                    browser.swithLocationsTransponder(selection,
+                                            tel, console);
                                 };
                             }.start();
                         }
