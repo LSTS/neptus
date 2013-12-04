@@ -112,9 +112,6 @@ public class TransponderElement extends AbstractElement implements NameId{
 
     private TransponderParameters params = null;
 
-    String transponderID;
-    double transponderDelay, responderLockout, interrogationChannel, replyChannel;
-    
     /**
      * The config file format is like the following:
      * 
@@ -201,25 +198,36 @@ public class TransponderElement extends AbstractElement implements NameId{
         lt.setLongitude(Math.toDegrees(lblBeacon.getDouble("lon")));
         lt.setDepth(lblBeacon.getDouble("depth"));
         if(!getCenterLocation().equals(lt)){
-            System.out.println(lblBeacon.getBeacon() + " had different location that " + getIdentification());
+            System.out.println(lblBeacon.getBeacon() + " has different location that " + getIdentification());
             return false;
         }
         // Name
         String beaconName = lblBeacon.getString("beacon");
         if(!getName().equals(beaconName)){
-            System.out.println(lblBeacon.getBeacon() + " had different name that " + getIdentification());
+            System.out.println(lblBeacon.getBeacon() + " has different name that " + getIdentification());
             return false;
         }
-        // TODO Configuration
-        String[] split = file.getHref().split("\\.");
-        if (split.length == 0) {
-            System.out.print(" No conf name!");
-        }
-        if (!split[0].equals(lblBeacon.getBeacon())) {
-            System.out.println(lblBeacon.getBeacon() + " had different conf name that " + getIdentification()
-                    + " trans:" + split[0]);
+        // Configuration
+        short interrogationChannel = Short.parseShort(propConf.getProperty("interrogation channel"));
+        short replyChannel = Short.parseShort(propConf.getProperty("reply channel"));
+        short transponderDelay = Short.parseShort(propConf.getProperty("transponder delay (msecs.)"));
+        if(replyChannel != lblBeacon.getReplyChannel() ){
+            System.out.println("they have different reply channels ("
+                    + replyChannel + "/" + lblBeacon.getReplyChannel() + ")");
             return false;
         }
+        if (transponderDelay != lblBeacon.getTransponderDelay()) {
+            System.out.println("they have different transponder delays (" + transponderDelay + "/"
+                    + lblBeacon.getTransponderDelay()
+                    + ")");
+            return false;
+        }
+        if (interrogationChannel != lblBeacon.getQueryChannel()) {
+            System.out.println("they have different interrogation channels (" + interrogationChannel + "/"
+                    + lblBeacon.getQueryChannel() + ")");
+            return false;
+        }
+        // All is equal
         return true;
     }
 
