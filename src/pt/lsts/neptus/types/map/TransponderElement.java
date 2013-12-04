@@ -67,6 +67,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * 
  * @author Paulo Dias
  * @author Ze Carlos
+ * @author Margarida Faria
  */
 public class TransponderElement extends AbstractElement implements NameId{
     protected static final String DEFAULT_ROOT_ELEMENT = "transponder";
@@ -178,6 +179,18 @@ public class TransponderElement extends AbstractElement implements NameId{
         setName(beacon);
         setCenterLocation(lt);
         propConf = BeaconsConfig.getMatchingConf(lblBeacon);
+        file = new FileType();
+        file.setHref(propConf.getWorkingFile());
+        this.duneId = duneId;
+    }
+
+    private TransponderElement(short duneId, MapGroup mg, MapType parentMap, LocationType centerLocation,
+            String identification, PropertiesLoader propConf) {
+        super(mg, parentMap);
+        this.centerLocation = centerLocation;
+        this.id = identification;
+        this.name = identification;
+        this.propConf = propConf;
         file = new FileType();
         file.setHref(propConf.getWorkingFile());
         this.duneId = duneId;
@@ -531,6 +544,12 @@ public class TransponderElement extends AbstractElement implements NameId{
     public void setDuneId(short id) {
         duneId = id;
 
+    }
+
+    @Override
+    public TransponderElement clone() {
+        return new TransponderElement(duneId, getMapGroup(), getParentMap(), new LocationType(centerLocation),
+                getIdentification(), propConf);
     }
 
 }

@@ -225,6 +225,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             if (mt.getMapsList().size() > 0)
                 map = mt.getMapsList().values().iterator().next().getMap();
             else {
+                NeptusLog.pub().error("No maps in mission. Creating a new map.");
                 MapType newMap = new MapType(new LocationType(mt.getHomeRef()));
                 MapMission mm = new MapMission();
                 mm.setMap(newMap);
@@ -234,6 +235,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             }
         }
 
+        NeptusLog.pub().error("Adding transponder to map " + map.getId());
         TransponderElement te = new TransponderElement(mapGroupInstance, map);
         te = SimpleTransponderPanel.showTransponderDialog(te, I18n.text("New transponder properties"), true, true,
                 map.getObjectNames(), MissionBrowser.this);
@@ -244,7 +246,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     && console2.getMission().getCompressedFilePath() != null) {
                 console2.getMission().save(false);
             }
-            // TODO refreshBrowser(console2.getPlan(), console2.getMission());
             treeModel.addTransponderNode(te);
             ImcMsgManager.disseminate(te, "Transponder");
         }
@@ -252,12 +253,27 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
     public void editTransponder(TransponderElement elem, MissionType mission, String vehicleId) {
         ExtendedTreeNode selectedTreeNode = getSelectedTreeNode();
+        TransponderElement elemBefore = elem.clone();
+
         State state = (State) selectedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
         TransponderElement res = SimpleTransponderPanel.showTransponderDialog(elem,
                 I18n.text("Transponder properties"), true, true, elem.getParentMap().getObjectNames(),
                 MissionBrowser.this);
 
         if (res != null) {
+            // see if the id was changed
+            String idAfter = elem.getIdentification();
+            if (!idAfter.equals(elemBefore.getIdentification())) {
+                // create a new synced one with original
+                ExtendedTreeNode newNode = treeModel.addTransponderNode(elemBefore);
+                newNode.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
+                // set modifications as local
+                selectedTreeNode.getUserInfo().put(NodeInfoKey.SYNC.name(), State.LOCAL);
+            }
+            else if (state == State.SYNC) {
+                setSyncState(selectedTreeNode, State.NOT_SYNC);
+            }
+
             MapType pivot = elem.getParentMap();
             MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
             mce.setSourceMap(pivot);
@@ -273,9 +289,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             if (mission != null && mission.getCompressedFilePath() != null) {
                 mission.save(false);
             }
-            if(state == State.SYNC){
-                setSyncState(selectedTreeNode, State.NOT_SYNC);
-            }
 
             treeModel.nodeChanged(selectedTreeNode);
         }
@@ -285,8 +298,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         int ret = JOptionPane.showConfirmDialog(this, I18n.textf("Delete '%transponderName'?", elem.getId()),
                 I18n.text("Delete"), JOptionPane.YES_NO_OPTION);
         if (ret == JOptionPane.YES_OPTION) {
-            elem.getParentMap().remove(elem.getId());
-            elem.getParentMap().warnChangeListeners(new MapChangeEvent(MapChangeEvent.OBJECT_REMOVED));
+            elem.getParentMap().remove(elem.getIdentification());
+            // elem.getParentMap().warnChangeListeners(new MapChangeEvent(MapChangeEvent.OBJECT_REMOVED));
             elem.getParentMap().saveFile(elem.getParentMap().getHref());
 
             if (console2.getMission() != null) {
@@ -295,6 +308,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 console2.updateMissionListeners();
             }
             removeItem(elem);
+            // repaint();
         }
     }
 
@@ -876,7 +890,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             String tempId = tempTrans.getIdentification();
             if (idMap.containsKey(tempId)) {
                 System.out.print(tempId + ", ");
-                tempNode.getUserInfo().put(NodeInfoKey.ID.name(), -1);
+                ((TransponderElement) tempNode.getUserObject()).setDuneId((short) -1);
                 idMap.remove(tempId);
             }
         }
@@ -1079,7 +1093,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             transNode = transIt.next();
             System.out.println(transNode);
             userInfo = transNode.getUserInfo();
-            nodeId = (short) userInfo.get(NodeInfoKey.ID.name());
+            nodeId = (short) userInfo.get(NodeInfoKey.ID.name()); // TODO change to getIdentification
             transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
             if (nodeId == id && transVehicle.equals(mainVehicle)) {
                 imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
@@ -1174,6 +1188,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 name = ((TransponderElement) transNode.getUserObject()).getName();
                 timer = (LBLRangesTimer) imcSystems.retrieveData(name);
                 if (timer != null) {
+                    // TODO change to getIdentification
                     NeptusLog.pub().info(
                             "<###>Stoping timer for " + transInfo.get(NodeInfoKey.ID) + " of " + transVehicle);
                     timer.stopTimer();
@@ -1261,13 +1276,12 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param mission current mission
      * @return the found elements
      */
-    @SuppressWarnings("unchecked")
-    private <T extends NameId> LinkedHashMap<String, T> getLocalTrans(MissionType mission) {
-        LinkedHashMap<String, T> map = new LinkedHashMap<String, T>();
-        Vector<T> vector;
+    private LinkedHashMap<String, TransponderElement> getLocalTrans(MissionType mission) {
+        LinkedHashMap<String, TransponderElement> map = new LinkedHashMap<String, TransponderElement>();
+        Vector<TransponderElement> vector;
         try {
-            vector = (Vector<T>) MapGroup.getMapGroupInstance(mission).getAllObjectsOfType(TransponderElement.class);
-            for (T transponderElement : vector) {
+            vector = MapGroup.getMapGroupInstance(mission).getAllObjectsOfType(TransponderElement.class);
+            for (TransponderElement transponderElement : vector) {
                 map.put(transponderElement.getIdentification(), transponderElement);
             }
         }
