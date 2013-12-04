@@ -33,6 +33,8 @@ package pt.lsts.neptus.mra.plots;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 
@@ -59,6 +61,8 @@ public class ZPlot extends MraTimeSeriesPlot {
     @Override
     public void process(LsfIndex source) {
 
+        TidePredictionFinder tide = TidePredictionFactory.create(source);
+        
         if (source.getDefinitions().getVersion().compareTo("5.0.0") >= 0) {
             for (IMCMessage es : source.getIterator("EstimatedState", 0, (long)(timestep * 1000))) {
                 double depth = es.getDouble("depth");
@@ -71,7 +75,20 @@ public class ZPlot extends MraTimeSeriesPlot {
                     addValue(es.getTimestampMillis(), es.getSourceName()+"."  + I18n.text("Altitude"), alt);
                 }
                 if(depth != -1 && alt != -1) {
-                    addValue(es.getTimestampMillis(), es.getSourceName()+"."  + I18n.text("Bathymetry"), Math.max(0, depth) + Math.max(0,alt));
+                    if (tide == null)
+                        addValue(es.getTimestampMillis(), es.getSourceName()+"."  + I18n.text("Bathymetry"), Math.max(0, depth) + Math.max(0,alt));
+                    else {
+                        double tHeight = 0;
+                        
+                        try {
+                            tHeight = tide.getTidePrediction(es.getDate(), false);  
+                            addValue(es.getTimestampMillis(), I18n.text("Tide Level"), tHeight);
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        addValue(es.getTimestampMillis(), es.getSourceName()+"."+ I18n.text("Bathymetry"), Math.max(0, depth) + Math.max(0,alt) - tHeight);
+                    }                        
                 }
             }    
         }

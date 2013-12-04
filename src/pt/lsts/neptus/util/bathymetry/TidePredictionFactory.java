@@ -27,43 +27,49 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: zp
- * May 15, 2013
+ * Dec 4, 2013
  */
-package pt.lsts.neptus.mra.plots;
+package pt.lsts.neptus.util.bathymetry;
 
+import java.io.File;
 import java.util.Date;
 
 import pt.lsts.imc.lsf.LsfIndex;
-import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
-import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
+import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
  * @author zp
  *
  */
-public class TidePlot extends MraTimeSeriesPlot {
+public class TidePredictionFactory {
 
-    public TidePlot(MRAPanel mp) {
-        super(mp);
-    }
-
-    @Override
-    public boolean canBeApplied(LsfIndex index) {
-        return TidePredictionFactory.create(index) != null;
-    }
-
-    @Override
-    public void process(LsfIndex source) {
-        TidePredictionFinder finder = TidePredictionFactory.create(source);
-        try {
-            for (double i = source.getStartTime(); i < source.getEndTime(); i+= 60) {
-                long time = (long)(i * 1000);
-                addValue(time, "Tide height", finder.getTidePrediction(new Date(time), false));
-            }
-        }   
-        catch (Exception e) {
-            e.printStackTrace();
+    public static TidePredictionFinder create(LsfLogSource source) {
+        TidePredictionFinder finder = null;
+        File f = source.getFile("mra/tides.txt");
+        if (f.canRead())
+            finder = new LocalData(f);
+        else {
+            CachedData data = new CachedData();
+            if (data.contains(new Date((long)(source.getLsfIndex().getStartTime())* 1000)))
+                finder = data;
+            else
+                finder = null;                    
         }
+        return finder;
+    }
+    
+    public static TidePredictionFinder create(LsfIndex source) {
+        TidePredictionFinder finder = null;
+        File f = new File(source.getLsfFile().getParentFile(), ("mra/tides.txt"));
+        if (f.canRead())
+            finder = new LocalData(f);
+        else {
+            CachedData data = new CachedData();
+            if (data.contains(new Date((long)(source.getStartTime())* 1000)))
+                finder = data;
+            else
+                finder = null;                    
+        }
+        return finder;
     }
 }

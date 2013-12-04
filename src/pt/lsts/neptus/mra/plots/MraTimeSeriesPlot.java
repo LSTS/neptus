@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.mra.plots;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,10 +46,13 @@ import javax.swing.ImageIcon;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.ValueMarker;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
+import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.LogStatisticsItem;
@@ -58,7 +62,6 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.chart.LLFChart;
-import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp
@@ -74,7 +77,25 @@ public abstract class MraTimeSeriesPlot implements LLFChart, LogMarkerListener {
 
     protected JFreeChart chart;
     protected MRAPanel mraPanel;
-
+    
+    protected static Color[] seriesColors = new Color[] {
+        Color.red.darker(),
+        Color.blue.darker(),
+        Color.green.darker(),
+        Color.orange,
+        Color.cyan.darker(),
+        Color.gray.darker(),
+        Color.magenta.darker(),
+        Color.blue.brighter().brighter(),
+        Color.red.brighter().brighter(),
+        Color.green.brighter().brighter(),
+        Color.black,
+        Color.pink,
+        Color.yellow.darker(),
+        Color.cyan,
+        Color.magenta
+    };
+ 
     /**
      * 
      */
@@ -167,8 +188,12 @@ public abstract class MraTimeSeriesPlot implements LLFChart, LogMarkerListener {
         series.clear();
         process(index);
         chart = createChart();
-        
-        // Do this here to make sure we have a built chart.. //FIXME FIXME FIXME
+        XYItemRenderer r = chart.getXYPlot().getRenderer();
+        if (r != null) {
+            for (int i = 0; i < tsc.getSeriesCount(); i++) {
+                r.setSeriesPaint(i, seriesColors[i%seriesColors.length]);
+            }
+        }
         for(LogMarker marker : mraPanel.getMarkers()) {
            addLogMarker(marker);
         }
