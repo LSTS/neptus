@@ -1253,12 +1253,39 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         LocationType loc1 = this.getNewAbsoluteLatLonDepth();
         LocationType loc2 = location.getNewAbsoluteLatLonDepth();
 
-        if (Double.compare(loc1.getLatitudeAsDoubleValue(),loc2.getLatitudeAsDoubleValue()) == 0
-                && Double.compare(loc1.getLongitudeAsDoubleValue(), loc2.getLongitudeAsDoubleValue()) == 0
+        if (loc2.getLatitudeAsDoubleValue() == 0.0) {
+            if (loc1.getLatitudeAsDoubleValue() == 0.0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        double loc1LatDouble = cropDecimalDigits(13, loc1.getLatitudeAsDoubleValue());
+        double loc2LatDouble = cropDecimalDigits(13, loc2.getLatitudeAsDoubleValue());
+        double loc1LonDouble = cropDecimalDigits(13, loc1.getLongitudeAsDoubleValue());
+        double loc2LonDouble = cropDecimalDigits(13, loc2.getLongitudeAsDoubleValue());
+
+        // System.out.println();
+        // System.out.println("Lat:" + loc1LatDouble + " Lon:" + loc1LonDouble);
+        // System.out.println("Lat:" + loc2LatDouble + " Lon:" + loc2LonDouble);
+        // System.out.println();
+
+        if (Double.compare(loc1LatDouble, loc2LatDouble) == 0 && Double.compare(loc1LonDouble, loc2LonDouble) == 0
                 && Double.compare(loc1.getDepth(),loc2.getDepth()) == 0)
             return true;
         else
             return false;
+    }
+
+    private double cropDecimalDigits(int digit, double value) {
+        String string = value + "";
+        String[] tokens = string.split("\\.");
+        StringBuilder res = new StringBuilder(tokens[0]);
+        res.append(".");
+        res.append(tokens[1].substring(0, digit));
+        return new Double(res.toString());
     }
 
     /* (non-Javadoc)
