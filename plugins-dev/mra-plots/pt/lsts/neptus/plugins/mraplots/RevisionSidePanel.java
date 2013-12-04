@@ -171,7 +171,6 @@ public class RevisionSidePanel extends JPanel {
             File dir = source.getFile("mra");
             File[] files = dir.listFiles();
             for (File f : files) {
-                System.out.println(f);
                 if (FileUtil.getFileExtension(f).equals("layer")) {
                     try {
                         addOverlay(f.getName(), ImageLayer.read(f));

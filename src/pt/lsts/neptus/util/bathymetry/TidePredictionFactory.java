@@ -35,7 +35,7 @@ import java.io.File;
 import java.util.Date;
 
 import pt.lsts.imc.lsf.LsfIndex;
-import pt.lsts.neptus.util.llf.LsfLogSource;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 
 /**
  * @author zp
@@ -43,7 +43,7 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
  */
 public class TidePredictionFactory {
 
-    public static TidePredictionFinder create(LsfLogSource source) {
+    public static TidePredictionFinder create(IMraLogGroup source) {
         TidePredictionFinder finder = null;
         File f = source.getFile("mra/tides.txt");
         if (f.canRead())

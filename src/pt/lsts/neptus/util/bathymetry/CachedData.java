@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.util.bathymetry;
 
+import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -42,9 +43,14 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import javax.swing.JOptionPane;
+
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
@@ -64,6 +70,7 @@ public class CachedData extends TidePredictionFinder {
         catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("loading finished");
         loading = false;
     }
     
@@ -73,8 +80,10 @@ public class CachedData extends TidePredictionFinder {
     
     public void loadFile(File f) throws Exception {
         cachedData = new TreeSet<>();
-        if (f == null || ! f.canRead())
-            throw new Exception("Tides file is not valid: "+f); 
+        if (f == null || ! f.canRead()) {
+            NeptusLog.pub().error(new Exception("Tides file is not valid: "+f));
+            return;
+        }
         BufferedReader br = new BufferedReader(new FileReader(f));
         String line = br.readLine();
 
@@ -195,27 +204,95 @@ public class CachedData extends TidePredictionFinder {
         }
     }
     
-    public void fetchData(String portName, Date aroundDate) throws Exception {
+    public Date fetchData(String portName, Date aroundDate) throws Exception {
         try {
             Vector<TidePeak> newData = TideDataFetcher.fetchData(portName, aroundDate);
             System.out.println("Retrieved "+newData.size()+" new tide points.");
+            if (newData.size() == 0) {
+                Thread.sleep(3000);
+                return null;
+            }
             update(newData);
-            saveFile(portName, new File(GeneralPreferences.tidesFile.getParentFile(), portName+".txt"));            
+            saveFile(portName, new File(GeneralPreferences.tidesFile.getParentFile(), portName+".txt"));
+            return newData.lastElement().date;
         }
         catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
+    }
+    
+    public static void fetchData(Component parent) {
+        Vector<String> harbors = new Vector<>();
+        for (TideDataFetcher.Harbor h : TideDataFetcher.Harbor.values()) {
+            harbors.add(h.toString());
+        }
+        
+        String harbor = (String) JOptionPane.showInputDialog(parent,
+                I18n.text("Please select harbor"), I18n.text("Fetch data"),
+                JOptionPane.QUESTION_MESSAGE, null, harbors.toArray(new String[0]), I18n.text(harbors.get(0)));
+        
+        if (harbor == null)
+            return;
+        
+        Date start = null, end = null;
+        while (start == null) {
+            String startStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the past"), 365);
+            try {
+                if (startStr == null)
+                    return;
+                long days = Integer.parseInt(startStr);
+                if (days < 0)
+                    continue;
+                start = new Date(System.currentTimeMillis() - days * 24l * 3600l * 1000l);
+                System.out.println(start);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        while (end == null) {
+            String endStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the future"), 365);
+            try {
+                if (endStr == null)
+                    return;
+                long days = Integer.parseInt(endStr);
+                if (days < 0)
+                    continue;
+                end = new Date(System.currentTimeMillis() + days * 24l * 3600l * 1000l);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        CachedData data = new CachedData(new File("conf/tides/"+harbor+".txt"));
+        
+        Date current = new Date(start.getTime());
+
+        while (current.getTime() < end.getTime()) {
+            try {
+                Date d = data.fetchData(harbor, current);
+                if (d != null)
+                    current = new Date(current.getTime() + 1000 * 3600 * 24 * 5);                
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println(current);
+        }
+        try {
+            data.saveFile(harbor, new File("conf/tides/"+harbor+".txt"));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
     
     public static void main(String[] args) throws Exception {
-        CachedData data = new CachedData();
-        data.showSettings();
-        data.fetchData("Leixoes", new Date());
-        data.saveFile("Leixoes", new File("/home/zp/Desktop/leixoes.txt"));
-        while (true) {
-            Date d = new Date();
-            System.out.println(d+": "+data.getTidePrediction(d, true));
-            Thread.sleep(1000);
-        }
+        GuiUtils.setLookAndFeel();
+        fetchData(null);
     }
 }

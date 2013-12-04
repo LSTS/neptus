@@ -32,6 +32,7 @@
 package pt.lsts.neptus.mra.replay;
 
 import java.awt.Graphics2D;
+import java.io.File;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
@@ -39,11 +40,15 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.ColormapOverlay;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.renderer2d.ImageLayer;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 
 /**
  * @author zp
@@ -108,17 +113,37 @@ public class BathymetryReplay extends ColormapOverlay implements LogReplayLayer 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    
+                    TidePredictionFinder finder = TidePredictionFactory.create(index);
+                    
                     if (index.getDefinitions().getVersion().compareTo("5.0.0") >= 0) {
                         for (EstimatedState state : index.getIterator(EstimatedState.class)) {
-                            if (state.getAlt() < 0 || state.getDepth() < 1 || Math.abs(state.getTheta()) > Math.toDegrees(10))
+                            if (state.getAlt() < 0 || state.getDepth() < NeptusMRA.minDepthForBathymetry || Math.abs(state.getTheta()) > Math.toDegrees(10))
                                 continue;
                             LocationType loc = new LocationType(Math.toDegrees(state.getLat()), Math.toDegrees(state.getLon()));
                             loc.translatePosition(state.getX(), state.getY(), 0);
-                            addSample(loc, state.getAlt() + state.getDepth());
+                            if (finder == null)
+                                addSample(loc, state.getAlt() + state.getDepth());
+                            else {
+                                try {
+                                    addSample(loc, state.getAlt() + state.getDepth() - finder.getTidePrediction(state.getDate(), false));
+                                }
+                                catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
                     }
                     generated = generateImage(ColorMapFactory.createJetColorMap());
+                    ImageLayer il = getImageLayer();
+                    try {
+                        il.saveToFile(new File(index.getLsfFile().getParentFile(),"mra/dvl.layer"));
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     parsing = false;
+                    
                 }
             }, "Bathymetry overlay").start();
         }
