@@ -1262,10 +1262,10 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
             }
         }
 
-        double loc1LatDouble = cropDecimalDigits(13, loc1.getLatitudeAsDoubleValue());
-        double loc2LatDouble = cropDecimalDigits(13, loc2.getLatitudeAsDoubleValue());
-        double loc1LonDouble = cropDecimalDigits(13, loc1.getLongitudeAsDoubleValue());
-        double loc2LonDouble = cropDecimalDigits(13, loc2.getLongitudeAsDoubleValue());
+        double loc1LatDouble = cropDecimalDigits(10, loc1.getLatitudeAsDoubleValue());
+        double loc2LatDouble = cropDecimalDigits(10, loc2.getLatitudeAsDoubleValue());
+        double loc1LonDouble = cropDecimalDigits(10, loc1.getLongitudeAsDoubleValue());
+        double loc2LonDouble = cropDecimalDigits(10, loc2.getLongitudeAsDoubleValue());
 
         // System.out.println();
         // System.out.println("Lat:" + loc1LatDouble + " Lon:" + loc1LonDouble);
@@ -1284,7 +1284,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         String[] tokens = string.split("\\.");
         StringBuilder res = new StringBuilder(tokens[0]);
         res.append(".");
-        res.append(tokens[1].substring(0, digit));
+        res.append(tokens[1].substring(0, (tokens[1].length() > digit) ? digit : tokens[1].length()));
         return new Double(res.toString());
     }
 
