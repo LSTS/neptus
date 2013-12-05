@@ -198,8 +198,6 @@ public class MissionTreeModel extends DefaultTreeModel {
     // }
 
     /**
-     * TODO remove need for treeModel attribute. \n
-     * TODO check why it is not needed to add if outside the last for
      * 
      * @param newNode
      * @param treeModel
