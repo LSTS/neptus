@@ -219,11 +219,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         TransponderElement te = transponderDialog(mt, null);
         if (!te.userCancel) {
             te.getParentMap().addObject(te);
-            te.getParentMap().saveFile(te.getParentMap().getHref());
-            if (console2 != null && console2.getMission() != null
-                    && console2.getMission().getCompressedFilePath() != null) {
-                console2.getMission().save(false);
-            }
+            saveMapAndMission(mt, null);
             treeModel.addTransponderNode(te);
             ImcMsgManager.disseminate(te, "Transponder");
         }
@@ -307,17 +303,17 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     private void saveMapAndMission(MissionType mission, MapType pivot) {
-        LinkedHashMap<String, MapMission> mapsList = mission.getMapsList();
-        MapMission mm = mapsList.get(pivot.getId());
-        if (mm != null) {
-            mm.setMap(pivot);
-        }
-        else {
-            mm = mapsList.values().iterator().next();
-        }
-        pivot.saveFile(mm.getHref());
+        // LinkedHashMap<String, MapMission> mapsList = mission.getMapsList();
+        // MapMission mm = mapsList.get(pivot.getId());
+        // if (mm != null) {
+        // mm.setMap(pivot);
+        // }
+        // else {
+        // mm = mapsList.values().iterator().next();
+        // }
+        // pivot.saveFile(mm.getHref());
 
-        if (mission != null && mission.getCompressedFilePath() != null) {
+        if (mission.getCompressedFilePath() != null) {
             mission.save(false);
         }
     }
