@@ -216,9 +216,23 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
 
         MissionType mt = console2.getMission();
+        TransponderElement te = transponderDialog(mt, null);
+        if (!te.userCancel) {
+            te.getParentMap().addObject(te);
+            te.getParentMap().saveFile(te.getParentMap().getHref());
+            if (console2 != null && console2.getMission() != null
+                    && console2.getMission().getCompressedFilePath() != null) {
+                console2.getMission().save(false);
+            }
+            treeModel.addTransponderNode(te);
+            ImcMsgManager.disseminate(te, "Transponder");
+        }
+    }
+
+    private TransponderElement transponderDialog(MissionType mt, TransponderElement te) {
+        String transNames[];
         MapGroup mapGroupInstance = MapGroup.getMapGroupInstance(mt);
         MapType map = getMap(mt, mapGroupInstance);
-        String transNames[];
         try {
             Vector<TransponderElement> vector = MapGroup.getMapGroupInstance(mt).getAllObjectsOfType(
                     TransponderElement.class);
@@ -233,21 +247,11 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             NeptusLog.pub().warn("I cannot find local trans for main vehicle");
             transNames = new String[0];
         }
-
         NeptusLog.pub().error("Adding transponder to map " + map.getId());
-        TransponderElement te = new TransponderElement(mapGroupInstance, map);
-
+        if (te == null)
+            te = new TransponderElement(mapGroupInstance, map);
         te.showParametersDialog(MissionBrowser.this, transNames, map, true);
-        if (!te.userCancel) {
-            te.getParentMap().addObject(te);
-            te.getParentMap().saveFile(te.getParentMap().getHref());
-            if (console2 != null && console2.getMission() != null
-                    && console2.getMission().getCompressedFilePath() != null) {
-                console2.getMission().save(false);
-            }
-            treeModel.addTransponderNode(te);
-            ImcMsgManager.disseminate(te, "Transponder");
-        }
+        return te;
     }
 
     private MapType getMap(MissionType mt, MapGroup mapGroupInstance) {
@@ -271,11 +275,11 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         TransponderElement elemBefore = elem.clone();
 
         State state = (State) selectedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
-        TransponderElement res = SimpleTransponderPanel.showTransponderDialog(elem,
-                I18n.text("Transponder properties"), true, true, elem.getParentMap().getObjectNames(),
-                MissionBrowser.this);
-
-        if (res != null) {
+        // TransponderElement res = SimpleTransponderPanel.showTransponderDialog(elem,
+        // I18n.text("Transponder properties"), true, true, elem.getParentMap().getObjectNames(),
+        // MissionBrowser.this);
+        transponderDialog(mission, elem);
+        if (!elem.userCancel) {
             // see if the id was changed
             String idAfter = elem.getIdentification();
             if (!idAfter.equals(elemBefore.getIdentification())) {
