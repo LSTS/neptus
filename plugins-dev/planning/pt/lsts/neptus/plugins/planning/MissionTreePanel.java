@@ -58,6 +58,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
@@ -72,6 +73,7 @@ import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -390,7 +392,28 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         // browser.transStopTimers();
         running = false;
         updatePlanDBListener(id);
+        askForBeaconConfig();
         browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+    }
+
+    private void askForBeaconConfig() {
+        SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                try {
+                    LblConfig msgLBLConfiguration = new LblConfig();
+                    msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
+                    IMCSendMessageUtils.sendMessage(msgLBLConfiguration,
+                            I18n.text("Could not ask " + getMainVehicleId() + " for it's accoustic beacons."),
+                            getMainVehicleId());
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        };
+        sw.run();
     }
 
     /**
