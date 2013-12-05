@@ -152,6 +152,7 @@ public abstract class AbstractElement
         this.parentMap = parentMap;     
     }
 
+    @Override
     public boolean isLoadOk() {
         return isLoadOk;
     }
@@ -160,6 +161,7 @@ public abstract class AbstractElement
      * @param xml
      * @return
      */
+    @Override
     public boolean load(String xml) {
         try {
             doc = DocumentHelper.parseText(xml);
@@ -175,6 +177,7 @@ public abstract class AbstractElement
      * @param elem
      * @return
      */
+    @Override
     public boolean load(Element elem) {
         doc = Dom4JUtil.elementToDocument(elem);
         if (doc == null) {
@@ -265,6 +268,7 @@ public abstract class AbstractElement
     /* (non-Javadoc)
      * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
      */
+    @Override
     public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asXML(rootElementName);
@@ -273,6 +277,7 @@ public abstract class AbstractElement
     /* (non-Javadoc)
      * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
+    @Override
     public String asXML(String rootElementName) {
         String result = "";        
         Document document = asDocument(rootElementName);
@@ -283,6 +288,7 @@ public abstract class AbstractElement
     /* (non-Javadoc)
      * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
      */
+    @Override
     public Element asElement() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asElement(rootElementName);
@@ -291,6 +297,7 @@ public abstract class AbstractElement
     /* (non-Javadoc)
      * @see pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
      */
+    @Override
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
     }
@@ -298,6 +305,7 @@ public abstract class AbstractElement
     /* (non-Javadoc)
      * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
      */
+    @Override
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
@@ -306,6 +314,7 @@ public abstract class AbstractElement
     /* (non-Javadoc)
      * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
+    @Override
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
         //Element root = document.addElement( rootElementName );
@@ -577,9 +586,10 @@ public abstract class AbstractElement
     /* (non-Javadoc)
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
+    @Override
     public int compareTo(AbstractElement anotherMapObject) {
 //        if (anotherMapObject instanceof AbstractElement) {
-        	AbstractElement tmp = (AbstractElement) anotherMapObject;
+        	AbstractElement tmp = anotherMapObject;
         	int diff = getLayerPriority() - tmp.getLayerPriority();
         	
         	if (diff != 0)
@@ -610,6 +620,7 @@ public abstract class AbstractElement
     @SuppressWarnings("rawtypes")
     public static Comparator getIDComparator() {
         Comparator cmp = new Comparator() {
+            @Override
             public int compare(Object o1, Object o2) {
                 if (! (o1 instanceof AbstractElement) || ! (o2 instanceof AbstractElement))
                     return 0;
@@ -650,6 +661,7 @@ public abstract class AbstractElement
      * Returns the result of getName() - the default implementation returns the
      * field <b>name</b>
      */
+    @Override
     public String toString() {
         return getName();
     }
@@ -668,6 +680,7 @@ public abstract class AbstractElement
      * The actions are triggered by the dialog created 
      * for the object parameters
      */
+    @Override
     public void actionPerformed(ActionEvent action) {
         
         if ("add".equals(action.getActionCommand())) {
@@ -693,7 +706,7 @@ public abstract class AbstractElement
             
             if (takenNames != null) {
                 for (int i = 0; i < takenNames.length; i++) {
-                    if (((String)takenNames[i]).equals(objID.getText())) {
+                    if (takenNames[i].equals(objID.getText())) {
                         JOptionPane.showMessageDialog(paramsPanel, I18n.text("The entered identifier is already in use"));
                         return;
                     }
@@ -755,6 +768,7 @@ public abstract class AbstractElement
         objName = new JTextField(8);
         objName.setEditable(editable);
         objName.addKeyListener(new KeyAdapter() {
+            @Override
             public void keyTyped(KeyEvent e) {
                 super.keyTyped(e);
                 copyChars = false;
@@ -764,13 +778,13 @@ public abstract class AbstractElement
         objID = new JTextField(8);
         objID.setEditable(editable);
         
-        if (getParentMap() != null) {
-            int i = 1;
-            while(getParentMap().getObject(getClass().getSimpleName()+i) != null)
-                i++;
-            objID.setText(getType()+i);
-            objName.setText(getType()+i);
-        }
+        // int i = 1;
+        // while (getParentMap().getObject(getClass().getSimpleName() + i) != null)
+        // i++;
+        // objID.setText(getType() + i);
+        // objName.setText(getType() + i);
+        objName.setText(this.getName());
+        objID.setText(this.getId());
         
         transp = new JTextField(3);
         transp.setEditable(editable);
@@ -794,6 +808,7 @@ public abstract class AbstractElement
         }
         
         objID.addKeyListener(new KeyAdapter() {
+            @Override
             public void keyTyped(KeyEvent e) {
                 super.keyTyped(e);
                 if (copyChars) {
@@ -838,6 +853,7 @@ public abstract class AbstractElement
         dialog.setSize(Math.max(pSize.width, 480), pSize.height + 12*2);
         GuiUtils.centerOnScreen(dialog);
         dialog.addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 userCancel = true;
                 dialog.setVisible(false);
