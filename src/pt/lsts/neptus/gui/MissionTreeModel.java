@@ -215,7 +215,7 @@ public class MissionTreeModel extends DefaultTreeModel {
         for (int c = 0; c < nodeChildCount; c++) {
             childAt = (ExtendedTreeNode) parent.getChildAt(c);
             temp = (NameId) childAt.getUserObject();
-            if (temp.getIdentification().compareToIgnoreCase(missionElem.getIdentification()) > 0) {
+            if (temp.getDisplayName().compareToIgnoreCase(missionElem.getDisplayName()) > 0) {
                 addToParents(newNode, parentType, c);
                 return true;
             }
