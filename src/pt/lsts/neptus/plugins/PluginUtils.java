@@ -46,6 +46,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -68,11 +69,6 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
 
-/**
- * This class provides various utilities related to Neptus plugins
- * 
- * @author ZP
- */
 public class PluginUtils {
 
     public static String DEFAULT_ICON = "images/plugin.png";
@@ -173,7 +169,9 @@ public class PluginUtils {
 
         Map<String, PluginProperty> defaults = getDefaultsValues(obj);
 
-        for (Field f : (obj instanceof Class<?> ? (Class<?>) obj : obj.getClass()).getFields()) {
+        //Class<?> c = obj instanceof Class<?> ? (Class<?>) obj : obj.getClass();
+        
+        for (Field f : getFields(obj)) {
             String defaultStr = null;
             
             if (defaults.containsKey(f.getName()))
@@ -214,7 +212,9 @@ public class PluginUtils {
         NeptusProperty a = f.getAnnotation(NeptusProperty.class);
 
         if (a != null) {
-
+            //if (Modifier.isPrivate(f.getModifiers())) {
+                f.setAccessible(true);
+            //}
             String name = a.name();
             String desc = a.description();
             String defaultStr = "";
@@ -245,7 +245,6 @@ public class PluginUtils {
             Object o = null;
             try {
                 o = f.get(null);
-
             }
             catch (Exception e) {
             }
@@ -364,7 +363,7 @@ public class PluginUtils {
 
         Class<? extends Object> providerClass = obj.getClass();
 
-        for (Field f : providerClass.getFields()) {
+        for (Field f : getFields(providerClass)) {
             NeptusProperty a = f.getAnnotation(NeptusProperty.class);
             if (a != null) {
                 // Find field name
@@ -427,6 +426,23 @@ public class PluginUtils {
 
         return errors.toArray(new String[0]);
     }
+    
+    private static Field[] getFields(Object o) {
+        Class<?> c;
+        if (o instanceof Class<?>)
+            c = (Class<?>)o;
+        else
+            c = o.getClass();
+        
+        HashSet<Field> fields = new HashSet<>(); 
+        for (Field f : c.getFields())
+            fields.add(f);
+        for (Field f : c.getDeclaredFields()) {
+            f.setAccessible(true);
+            fields.add(f);
+        }
+        return fields.toArray(new Field[0]);
+    }
 
     /**
      * @see {@link #setPluginProperties(Object, Property[])}
@@ -436,7 +452,7 @@ public class PluginUtils {
         String name;
         PluginProperty property;
         Object propertyValue;
-        for (Field f : providerClass.getFields()) {
+        for (Field f : getFields(providerClass)) {
             NeptusProperty a = f.getAnnotation(NeptusProperty.class);
 
             if (a != null) {
@@ -556,7 +572,7 @@ public class PluginUtils {
         if (!defaultValuesProperties.containsKey(clazz)) {
             LinkedHashMap<String, PluginProperty> defPs = new LinkedHashMap<>();
             LinkedHashMap<String, PluginProperty> vl = new LinkedHashMap<>();
-            for (Field f : (obj instanceof Class<?> ? (Class<?>) obj : obj.getClass()).getFields()) {
+            for (Field f : getFields(obj)) {
                 PluginProperty pp = createPluginProperty(obj, f, null, false);
                 if (pp != null)
                     vl.put(f.getName(), pp);
