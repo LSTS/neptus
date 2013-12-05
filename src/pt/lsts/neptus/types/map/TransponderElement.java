@@ -497,17 +497,17 @@ public class TransponderElement extends AbstractElement implements NameId{
      */
     @Override
     public String getDisplayName() {
-        StringBuilder nameBuilder = new StringBuilder();
-        if (duneId != -1) {
-            nameBuilder.append("[");
-            nameBuilder.append(duneId);
-            nameBuilder.append("] ");
-            nameBuilder.append(getIdentification());
-            return nameBuilder.toString();
-        }
-        else {
+        // StringBuilder nameBuilder = new StringBuilder();
+        // if (duneId != -1) {
+        // nameBuilder.append("[");
+        // nameBuilder.append(duneId);
+        // nameBuilder.append("] ");
+        // nameBuilder.append(getIdentification());
+        // return nameBuilder.toString();
+        // }
+        // else {
             return getIdentification();
-        }
+        // }
     }
 
     @Override
