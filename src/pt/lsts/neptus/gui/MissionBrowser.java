@@ -218,30 +218,27 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         MissionType mt = console2.getMission();
         MapGroup mapGroupInstance = MapGroup.getMapGroupInstance(mt);
         MapType map = getMap(mt, mapGroupInstance);
-
-        // Vector<TransponderElement> ts = mapGroupInstance.getAllObjectsOfType(TransponderElement.class);
-        // if (ts.size() > 0) {
-        // map = ts.firstElement().getParentMap();
-        // }
-        // else {
-        // if (mt.getMapsList().size() > 0)
-        // map = mt.getMapsList().values().iterator().next().getMap();
-        // else {
-        // NeptusLog.pub().error("No maps in mission. Creating a new map.");
-        // MapType newMap = new MapType(new LocationType(mt.getHomeRef()));
-        // MapMission mm = new MapMission();
-        // mm.setMap(newMap);
-        // mt.addMap(mm);
-        // mapGroupInstance.addMap(newMap);
-        // map = newMap;
-        // }
-        // }
+        String transNames[];
+        try {
+            Vector<TransponderElement> vector = MapGroup.getMapGroupInstance(mt).getAllObjectsOfType(
+                    TransponderElement.class);
+            transNames = new String[vector.size()];
+            int i = 0;
+            for (TransponderElement transponderElement : vector) {
+                transNames[i] = transponderElement.getIdentification();
+                i++;
+            }
+        }
+        catch (NullPointerException e) {
+            NeptusLog.pub().warn("I cannot find local trans for main vehicle");
+            transNames = new String[0];
+        }
 
         NeptusLog.pub().error("Adding transponder to map " + map.getId());
         TransponderElement te = new TransponderElement(mapGroupInstance, map);
-        te = SimpleTransponderPanel.showTransponderDialog(te, I18n.text("New transponder properties"), true, true,
-                map.getObjectNames(), MissionBrowser.this);
-        if (te != null) {
+
+        te.showParametersDialog(MissionBrowser.this, transNames, map, true);
+        if (!te.userCancel) {
             te.getParentMap().addObject(te);
             te.getParentMap().saveFile(te.getParentMap().getHref());
             if (console2 != null && console2.getMission() != null
