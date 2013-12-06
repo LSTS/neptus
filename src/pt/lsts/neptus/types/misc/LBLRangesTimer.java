@@ -54,12 +54,9 @@ public class LBLRangesTimer {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 incrementTime();
-                // if (getTime() > maxTime) { // after 10 minutes with no reset it stops
-                // stopTimer();
-                // }
             }
         };
-        int delay = 2000; // milliseconds
+        int delay = 1000; // milliseconds
         timer = new Timer(delay, taskPerformer);
     }
 
@@ -76,7 +73,8 @@ public class LBLRangesTimer {
     private void incrementTime() {
         // it's the only one not using setTime (SwingUtilities.invokeLater) because is only called in an ActionListener,
         // so it's already on ETD
-        time += 2;
+        time += 1;
+        // NeptusLog.pub().error("time is now " + time);
     }
 
     public void resetTime(){

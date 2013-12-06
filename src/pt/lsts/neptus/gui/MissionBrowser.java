@@ -199,9 +199,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
     }
 
-
-
-
     public void addTransponderElement(ConsoleLayout console2) {
         if (console2 == null) {
             GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(), I18n.text("Add transponder"),
@@ -271,9 +268,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         TransponderElement elemBefore = elem.clone();
 
         State state = (State) selectedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
-        // TransponderElement res = SimpleTransponderPanel.showTransponderDialog(elem,
-        // I18n.text("Transponder properties"), true, true, elem.getParentMap().getObjectNames(),
-        // MissionBrowser.this);
         transponderDialog(mission, elem);
         if (!elem.userCancel) {
             // see if the id was changed
@@ -303,16 +297,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     private void saveMapAndMission(MissionType mission, MapType pivot) {
-        // LinkedHashMap<String, MapMission> mapsList = mission.getMapsList();
-        // MapMission mm = mapsList.get(pivot.getId());
-        // if (mm != null) {
-        // mm.setMap(pivot);
-        // }
-        // else {
-        // mm = mapsList.values().iterator().next();
-        // }
-        // pivot.saveFile(mm.getHref());
-
         if (mission.getCompressedFilePath() != null) {
             mission.save(false);
         }
@@ -659,66 +643,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         elementTree.setSelectionPaths(selectedNodes);
     }
 
-    // /**
-    // * Delete all plans not in the set.
-    // *
-    // * @param existingPlans the set of existing plans.
-    // */
-    // private void deleteDiscontinuedPlans(HashSet<String> existingPlans){
-    // int planNumber = treeModel.plans.getChildCount();
-    // int p = 0;
-    // ExtendedTreeNode child;
-    // while (p < planNumber) {
-    // child = (ExtendedTreeNode) treeModel.plans.getChildAt(p);
-    // Identifiable plan = (Identifiable) child.getUserObject();
-    // String planId = plan.getIdentification();
-    // if(!existingPlans.contains(planId)){
-    // treeModel.removeById(plan, treeModel.plans);
-    // System.out.println("Removing " + planId);
-    // planNumber--;
-    // p--;
-    // }
-    // p++;
-    // }
-    // }
-
-    // /**
-    // * Delete all items not in the set.
-    // *
-    // * @param existing the set of existing items.
-    // */
-    // private void deleteDiscontinued(HashSet<String> existing, ParentNodes parentType) {
-    // ExtendedTreeNode parent;
-    // switch (parentType) {
-    // case PLANS:
-    // parent = treeModel.plans;
-    // break;
-    // case TRANSPONDERS:
-    // parent = treeModel.trans;
-    // break;
-    // default:
-    // NeptusLog.pub().error(
-    // "ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.deleteDiscontinued()");
-    // return;
-    // }
-    // int count = parent.getChildCount();
-    // int p = 0;
-    // ExtendedTreeNode child;
-    // Identifiable childObj;
-    // while (p < count) {
-    // child = (ExtendedTreeNode) parent.getChildAt(p);
-    // childObj = (Identifiable) child.getUserObject();
-    // String id = childObj.getIdentification();
-    // if (!existing.contains(id)) {
-    // treeModel.removeById(childObj, parent);
-    // System.out.println("Removing " + id);
-    // count--;
-    // p--;
-    // }
-    // p++;
-    // }
-    // }
-
     /**
      * Takes the local plans and gets the remote ones stored in the PlanDBState associated with the system and merges
      * with the current tree. The following rules are applied: - insert plans not previouly in the tree - if a plan with
@@ -1044,42 +968,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                         + MissionBrowser.class.getCanonicalName());
     }
 
-    // public void transUpdateElapsedTime() {
-    // try {
-    // ExtendedTreeNode trans = treeModel.trans;
-    // if (trans != null && trans.getChildCount() != 0) {
-    // ExtendedTreeNode childTrans = (ExtendedTreeNode) trans.getFirstChild();
-    // while (childTrans != null) {
-    // if (childTrans.getUserObject() instanceof TransponderElement) {
-    // HashMap<String, Object> userInfo = childTrans.getUserInfo();
-    //
-    // updateTimeElapsed(childTrans, userInfo);// NEEDS to run!!!
-    //
-    // }
-    // childTrans = (ExtendedTreeNode) childTrans.getNextSibling();
-    // }
-    // }
-    // treeModel.nodeStructureChanged(trans);// --> has twitches
-    // }
-    // catch (Exception e) {
-    // e.printStackTrace();
-    // }
-    //
-    // }
-
-    private void updateTimeElapsed(ExtendedTreeNode childTrans, HashMap<String, Object> userInfo) {
-        ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName((String) userInfo.get(NodeInfoKey.VEHICLE.name()));
-        if (imcSystems != null) {
-            LBLRangesTimer timer = (LBLRangesTimer) imcSystems.retrieveData(((TransponderElement) childTrans
-                    .getUserObject()).getName());
-            if (timer != null) {
-                if (timer.isRunning()) {
-                    treeModel.nodeChanged(childTrans);
-                }
-            }
-        }
-    }
-
     /**
      * If at surface, stop timer. Otherwise reset timer to 0.
      * 
@@ -1092,19 +980,21 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         String transVehicle, name;
         ImcSystem imcSystems;
         LBLRangesTimer timer;
+        TransponderElement trans;
         ChildIterator transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
         ExtendedTreeNode transNode;
         boolean reval = false;
         while (transIt.hasNext()) {
             transNode = transIt.next();
-            System.out.println(transNode);
+            trans = (TransponderElement) transNode.getUserObject();
+            System.out.println(trans.getDisplayName());
             userInfo = transNode.getUserInfo();
-            nodeId = (short) userInfo.get(NodeInfoKey.ID.name()); // TODO change to getIdentification
+            nodeId = trans.duneId;
             transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
             if (nodeId == id && transVehicle.equals(mainVehicle)) {
                 imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
                 if (imcSystems != null) {
-                    name = ((TransponderElement) transNode.getUserObject()).getName();
+                    name = trans.getIdentification();
                     timer = (LBLRangesTimer) imcSystems.retrieveData(name);
                     if (timer == null) {
                         timer = new LBLRangesTimer();
@@ -1118,29 +1008,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
         if (reval)
             revalidate();
-
-        // ExtendedTreeNode trans = treeModel.trans;
-        // int childCount = trans.getChildCount();
-        // for (int c = 0; c < childCount; c++) {
-        // ExtendedTreeNode transNode = (ExtendedTreeNode) trans.getChildAt(c);
-        // HashMap<String, Object> userInfo = transNode.getUserInfo();
-        // int nodeId = (int) userInfo.get(NodeInfoKey.ID.name());
-        // String transVehicle = (String) userInfo.get(NodeInfoKey.VEHICLE.name());
-        // if (nodeId == id && transVehicle.equals(mainVehicle)) {
-        // ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
-        // if (imcSystems != null) {
-        // String name = ((TransponderElement) transNode.getUserObject()).getName();
-        // LBLRangesTimer timer = (LBLRangesTimer) imcSystems.retrieveData(name);
-        // if (timer == null) {
-        // timer = new LBLRangesTimer();
-        // imcSystems.storeData(name, timer);
-        // }
-        // timer.resetTime();
-        // }
-        // revalidate();
-        // break;
-        // }
-        // }
     }
 
     /**
@@ -1160,13 +1027,14 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             if (nodeSync == State.SYNC && transVehicle.equals(mainVehicle)) {
                 ImcSystem imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
                 if (imcSystems != null) {
-                    String name = ((TransponderElement) transNode.getUserObject()).getName();
+                    String name = ((TransponderElement) transNode.getUserObject()).getIdentification();
                     LBLRangesTimer timer = (LBLRangesTimer) imcSystems.retrieveData(name);
                     if (timer == null) {
                         timer = new LBLRangesTimer();
                         imcSystems.storeData(name, timer);
                     }
                     timer.resetTime();
+                    NeptusLog.pub().error(name + " Stated timer");
                 }
             }
         }
@@ -1191,7 +1059,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             String transVehicle = (String) transInfo.get(NodeInfoKey.VEHICLE.name());
             imcSystems = ImcSystemsHolder.lookupSystemByName(transVehicle);
             if (imcSystems != null) {
-                name = ((TransponderElement) transNode.getUserObject()).getName();
+                name = ((TransponderElement) transNode.getUserObject()).getIdentification();
                 timer = (LBLRangesTimer) imcSystems.retrieveData(name);
                 if (timer != null) {
                     // TODO change to getIdentification

@@ -564,7 +564,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public boolean update() {
-
+        repaint();
         return true;
     }
 

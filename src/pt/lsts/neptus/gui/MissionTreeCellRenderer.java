@@ -299,7 +299,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
     private void setBeaconLabel(TransponderElement nodeObj, ImcSystem imcSystem) {
         setText(nodeObj.getDisplayName());
         if (imcSystem != null) {
-            LBLRangesTimer timer = (LBLRangesTimer) imcSystem.retrieveData(nodeObj.getName());
+            LBLRangesTimer timer = (LBLRangesTimer) imcSystem.retrieveData(nodeObj.getIdentification());
             if (timer != null) {
                 String color;
                 int time = timer.getTime();
