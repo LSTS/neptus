@@ -804,6 +804,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         IMCSendMessageUtils.sendMessage(msgLBLConfiguration, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP
                 : null), createDefaultMessageDeliveryListener(), this, I18n.text("Error sending acoustic beacons"),
                 DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+        // NeptusLog.pub().error("Sending beacons to vehicle: " + lblBeaconsList.toString());
         
         final String[] dest = systems;
         SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {

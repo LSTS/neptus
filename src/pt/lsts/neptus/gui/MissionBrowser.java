@@ -225,7 +225,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     private TransponderElement transponderDialog(MissionType mt, TransponderElement te) {
         String transNames[];
         MapGroup mapGroupInstance = MapGroup.getMapGroupInstance(mt);
-        MapType map = getMap(mt, mapGroupInstance);
+
+        MapType map = mt.getMapsList().values().iterator().next().getMap();// getMap(mt, mapGroupInstance);
         try {
             Vector<TransponderElement> vector = MapGroup.getMapGroupInstance(mt).getAllObjectsOfType(
                     TransponderElement.class);
