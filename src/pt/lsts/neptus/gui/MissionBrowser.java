@@ -665,8 +665,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             @Override
             public void run() {
                 HashSet<String> existingPlans = mergeLocalPlans(localPlans, sysName, treeModel);
-                existingPlans = mergeRemotePlans(sysName, remotePlans, treeModel, existingPlans);
                 treeModel.removeSet(existingPlans, ParentNodes.PLANS);
+                existingPlans = mergeRemotePlans(sysName, remotePlans, treeModel, existingPlans);
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.PLANS));
             }
         });
@@ -687,14 +687,14 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             existingPlans.add(planId);
             target = treeModel.findNode(planId, ParentNodes.PLANS);
             PlanDBInfo remotePlan = remotePlans.get(planId);
-            // System.out.print(planId + "\t");
+            System.out.print(planId + "\t");
             if (target == null) {
                 // If no plan exits insert as remote
                 target = new ExtendedTreeNode(remotePlan);
                 target.getUserInfo().put(NodeInfoKey.ID.name(), planId);
                 setSyncState(target, State.REMOTE);
                 treeModel.insertAlphabetically(target, ParentNodes.PLANS);
-                // System.out.println(" plan from IMCSystem not found in mission tree  >> Remote.");
+                System.out.println(" plan from IMCSystem not found in mission tree  >> Remote.");
             }
             else {
                 // Check if existing plan is PlanDBInfo
@@ -702,7 +702,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 if (existingPlan instanceof PlanDBInfo) {
                     setSyncState(target, State.REMOTE);
                     target.setUserObject(remotePlan);
-                    // System.out.println(" in tree mission is PlanDBInfo (remote type)  >> Remote.");
+                    System.out.println(" in tree mission is PlanDBInfo (remote type)  >> Remote.");
                 }
                 else if (existingPlan instanceof PlanType) {
                     PlanType existingLocalPlan = (PlanType) existingPlan;
@@ -711,11 +711,11 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     byte[] remoteMD5 = remotePlan.getMd5();
                     if (ByteUtil.equal(localMD5, remoteMD5)) {
                         setSyncState(target, State.SYNC);
-                        // System.out.println(" in tree mission is PlanType (local type). Md5 ==,  >> Sync.");
+                        System.out.println(" in tree mission is PlanType (local type). Md5 ==,  >> Sync.");
                     }
                     else {
                         setSyncState(target, State.NOT_SYNC);
-                        // System.out.println(" in tree mission is PlanType (local type). Md5 !=,  >> Not_sync.");
+                        System.out.println(" in tree mission is PlanType (local type). Md5 !=,  >> Not_sync.");
                     }
                 }
             }
@@ -742,7 +742,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         ExtendedTreeNode tempNode;
         TransponderElement tempTrans;
 
-        System.out.println("mergeRemoteTrans");
+        // System.out.println("mergeRemoteTrans");
         HashMap<String, TransponderElement> idMap = new HashMap<String, TransponderElement>();
         transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
         // Make a list of all the nodes with a link to their id to keep track of which ids to reset in the end
@@ -768,18 +768,18 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                         // Sync
                         // set state
                         setSyncState(tempNode, State.SYNC);
-                        System.out.println(" >> Sync.");
+                        // System.out.println(" >> Sync.");
                     }
                     else {
                         // Not sync
                         // set state
                         setSyncState(tempNode, State.NOT_SYNC);
-                        System.out.println(" >> Not Sync.");
+                        // System.out.println(" >> Not Sync.");
                     }
                     // set id
                     tempTrans.setDuneId(id);
-                    System.out.print("[" + tempTrans.duneId + "] " + tempTrans.getDisplayName()
-                            + " from IMCSystem found in mission tree  ");
+                    // System.out.print("[" + tempTrans.duneId + "] " + tempTrans.getDisplayName()
+                    // + " from IMCSystem found in mission tree  ");
                     // remove from reset id list
                     idMap.remove(tempTrans.getIdentification());
                     found = true;
@@ -796,8 +796,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 maps[0].addObject(tempTrans);
                 maps[0].saveFile(maps[0].getHref());
                 treeModel.insertAlphabetically(node, ParentNodes.TRANSPONDERS);
-                System.out.println(" [" + tempTrans.duneId + "] " + tempTrans.getDisplayName()
-                        + " from IMCSystem not found in mission tree  >> Sync.");
+                // System.out.println(" [" + tempTrans.duneId + "] " + tempTrans.getDisplayName()
+                // + " from IMCSystem not found in mission tree  >> Sync.");
             }
             // signal as existing
             existing.add(tempTrans.getIdentification());
@@ -806,18 +806,18 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
         // reset id of transponders not in vehicle
         transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
-        System.out.print("Reseting id of:");
+        // System.out.print("Reseting id of:");
         while (transIt.hasNext() && idMap.size() > 0) {
             tempNode = transIt.next();
             tempTrans = (TransponderElement) tempNode.getUserObject();
             String tempId = tempTrans.getIdentification();
             if (idMap.containsKey(tempId)) {
-                System.out.print(tempId + ", ");
+                // System.out.print(tempId + ", ");
                 ((TransponderElement) tempNode.getUserObject()).setDuneId((short) -1);
                 idMap.remove(tempId);
             }
         }
-        System.out.println();
+        // System.out.println();
         return existing;
     }
 
@@ -841,25 +841,25 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             existingPlans.add(planId);
             target = treeModel.findNode(planId, ParentNodes.PLANS);
             plan = localPlans.get(planId);
-            // System.out.print(planId + " \t");
+            System.out.print(planId + " \t");
             if (target == null) {
                 // If no plan exits insert as local
                 newNode = new ExtendedTreeNode(plan);
                 newNode.getUserInfo().put(NodeInfoKey.ID.name(), planId);
                 treeModel.insertAlphabetically(newNode, ParentNodes.PLANS);
                 target = newNode;
-                // System.out.print(" mission plan not found in mission tree. Creating with mission plan.");
+                System.out.print(" mission plan not found in mission tree. Creating with mission plan.");
             }
             else {
                 target.setUserObject(plan);
-                // System.out.print(" updated plan object.");
+                System.out.print(" updated plan object.");
                 // not worth the troubele of checking if it is different
             }
             // Set the node to local regardless.
             // It will be checked when processing remote states.
             setSyncState(target, State.LOCAL);
             target.getUserInfo().put(NodeInfoKey.VEHICLE.name(), sysName);
-            // System.out.println(" Setting as local.");
+            System.out.println(" Setting as local.");
         }
         return existingPlans;
     }
@@ -880,38 +880,38 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         HashSet<String> existing = new HashSet<String>();
         ExtendedTreeNode target, newNode;
         TransponderElement localTrans;
-        System.out.println("Merge local " + itemType.nodeName);
-        System.out.println(local.size() + " trans in Maps: ");
-        StringBuilder remotes;
+        // System.out.println("Merge local " + itemType.nodeName);
+        // System.out.println(local.size() + " trans in Maps: ");
+        // StringBuilder remotes;
         for (String id : localIds) {
             existing.add(id);
             target = treeModel.findNode(id, itemType);
             localTrans = local.get(id);
-            remotes = new StringBuilder();
-            remotes.append("[");
-            remotes.append(localTrans.duneId);
-            remotes.append("] ");
-            remotes.append(localTrans.getDisplayName());
-            remotes.append(" \t");
-            System.out.print(remotes.toString());
+            // remotes = new StringBuilder();
+            // remotes.append("[");
+            // remotes.append(localTrans.duneId);
+            // remotes.append("] ");
+            // remotes.append(localTrans.getDisplayName());
+            // remotes.append(" \t");
+            // System.out.print(remotes.toString());
             if (target == null) {
                 // If no trans exits insert as local
                 localTrans.setDuneId((short) -1);
                 newNode = new ExtendedTreeNode(localTrans);
                 treeModel.insertAlphabetically(newNode, itemType);
                 target = newNode;
-                System.out.print(localTrans.getDisplayName() + " not found in mission tree.");
+                // System.out.print(localTrans.getDisplayName() + " not found in mission tree.");
             }
             else {
                 target.setUserObject(localTrans);
-                System.out.print(" updated object.");
+                // System.out.print(" updated object.");
                 // not worth the troubele of checking if it is different
             }
             // Set the node to local regardless.
             // It will be checked when processing remote states.
             setSyncState(target, State.LOCAL);
             target.getUserInfo().put(NodeInfoKey.VEHICLE.name(), sysName);
-            System.out.println(" Setting as local.");
+            // System.out.println(" Setting as local.");
         }
         return existing;
     }
@@ -1103,11 +1103,11 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 treeModel.printTree("1. ");
                 HashSet<String> existingTrans = mergeLocalTrans(localTrans, sysName, treeModel,
                         ParentNodes.TRANSPONDERS);
-                treeModel.printTree("2. ");
-                String remotes = printBeacons(remoteTrans);
-                NeptusLog.pub().error(remotes);
+                // treeModel.printTree("2. ");
+                // String remotes = printBeacons(remoteTrans);
+                // NeptusLog.pub().error(remotes);
                 existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans, mission);
-                treeModel.printTree("3. ");
+                // treeModel.printTree("3. ");
                 treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
                 treeModel.printTree("4. ");
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));

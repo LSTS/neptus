@@ -833,9 +833,11 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                                 I18n.textf("Remove all selected plans (%numberOfPlans)?", multiSel.length));
 
                         if (resp == JOptionPane.YES_OPTION) {
+                            TreeMap<String, PlanType> individualPlansList = console.getMission()
+                                    .getIndividualPlansList();
                             for (Object o : multiSel) {
-                                PlanType sel = (PlanType) o;
-                                console.getMission().getIndividualPlansList().remove(sel.getId());
+                                NameId sel = (NameId) o;
+                                PlanType res = individualPlansList.remove(sel.getIdentification());
                             }
                             console.getMission().save(false);
 
