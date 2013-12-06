@@ -620,11 +620,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     public void setSelectedPlan(PlanType plan) {
-        if (getSelectedItem() == plan) {
-            return;
-        }
-
-        if (plan == null) {
+        if (getSelectedItem() == null || plan == null || getSelectedItem() == plan) {
             return;
         }
 
