@@ -38,8 +38,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -764,14 +762,12 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                         I18n.text("LBL Beacons"),
                         I18n.textf("Are you sure you want to send only %beaconsToSend?",
                         beaconsToSend));
-                if (resp == JOptionPane.YES_OPTION) {
-                    transpondersList.clear();
-                    transpondersList.addAll(Arrays.asList(selTransponders));
-                }
-                else {
+                if (resp == JOptionPane.NO_OPTION) {
                     return false;
                 }
             }
+            transpondersList.clear();
+            transpondersList.addAll(Arrays.asList(selTransponders));
         }
 
         // For new LBL Beacon Configuration
@@ -790,15 +786,15 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             }
         }
 
-        if (lblBeaconsList.size() > 0) {
-            // Let us order the beacons in alphabetic order (case insensitive)
-            Collections.sort(lblBeaconsList, new Comparator<LblBeacon>() {
-                @Override
-                public int compare(LblBeacon o1, LblBeacon o2) {
-                    return o1.getBeacon().compareTo(o2.getBeacon());
-                }
-            });
-        }
+        // if (lblBeaconsList.size() > 0) {
+        // // Let us order the beacons in alphabetic order (case insensitive)
+        // Collections.sort(lblBeaconsList, new Comparator<LblBeacon>() {
+        // @Override
+        // public int compare(LblBeacon o1, LblBeacon o2) {
+        // return o1.getBeacon().compareTo(o2.getBeacon());
+        // }
+        // });
+        // }
         LblConfig msgLBLConfiguration = new LblConfig();
         msgLBLConfiguration.setOp(LblConfig.OP.SET_CFG);
         msgLBLConfiguration.setBeacons(lblBeaconsList);

@@ -842,7 +842,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 tempNode = transIt.next();
                 tempTrans = (TransponderElement) tempNode.getUserObject();
                 if (tempTrans.getIdentification().equals(lblBeacon.getBeacon())) {
-                    System.out.print(tempTrans.getDisplayName() + " from IMCSystem found in mission tree  ");
                     // Counts as the same beacon
                     if (tempTrans.equals(lblBeacon)) {
                         // Sync
@@ -858,6 +857,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     }
                     // set id
                     tempTrans.setDuneId(id);
+                    System.out.print("[" + tempTrans.duneId + "] " + tempTrans.getDisplayName()
+                            + " from IMCSystem found in mission tree  ");
                     // remove from reset id list
                     idMap.remove(tempTrans.getIdentification());
                     found = true;
@@ -874,7 +875,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 maps[0].addObject(tempTrans);
                 maps[0].saveFile(maps[0].getHref());
                 treeModel.insertAlphabetically(node, ParentNodes.TRANSPONDERS);
-                System.out.println(" " + tempTrans.getDisplayName()
+                System.out.println(" [" + tempTrans.duneId + "] " + tempTrans.getDisplayName()
                         + " from IMCSystem not found in mission tree  >> Sync.");
             }
             // signal as existing
@@ -959,11 +960,19 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         ExtendedTreeNode target, newNode;
         TransponderElement localTrans;
         System.out.println("Merge local " + itemType.nodeName);
+        System.out.println(local.size() + " trans in Maps: ");
+        StringBuilder remotes;
         for (String id : localIds) {
             existing.add(id);
             target = treeModel.findNode(id, itemType);
             localTrans = local.get(id);
-            System.out.print(id + " \t");
+            remotes = new StringBuilder();
+            remotes.append("[");
+            remotes.append(localTrans.duneId);
+            remotes.append("] ");
+            remotes.append(localTrans.getDisplayName());
+            remotes.append(" \t");
+            System.out.print(remotes.toString());
             if (target == null) {
                 // If no trans exits insert as local
                 localTrans.setDuneId((short) -1);
@@ -1230,6 +1239,19 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 HashSet<String> existingTrans = mergeLocalTrans(localTrans, sysName, treeModel,
                         ParentNodes.TRANSPONDERS);
                 treeModel.printTree("2. ");
+                String remotes = printBeacons(remoteTrans);
+                NeptusLog.pub().error(remotes);
+                existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans, mission);
+                treeModel.printTree("3. ");
+                treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
+                treeModel.printTree("4. ");
+                elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
+                NeptusLog.pub().error(" --- ");
+                // revalidate();
+                repaint();
+            }
+
+            private String printBeacons(final Vector<LblBeacon> remoteTrans) {
                 short id = 0;
                 StringBuilder remotes = new StringBuilder(remoteTrans.size() + " trans in ImcSystem: ");
                 for (LblBeacon lblBeacon : remoteTrans) {
@@ -1246,15 +1268,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     remotes.append(")\n         ");
                     id++;
                 }
-                NeptusLog.pub().error(remotes.toString());
-                existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans, mission);
-                treeModel.printTree("3. ");
-                treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
-                treeModel.printTree("4. ");
-                elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
-                NeptusLog.pub().error(" --- ");
-                // revalidate();
-                repaint();
+                return remotes.toString();
             }
 
         });
