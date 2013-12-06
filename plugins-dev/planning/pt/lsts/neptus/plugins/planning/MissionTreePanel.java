@@ -173,7 +173,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             }
             browser.updatePlansStateEDT(localPlans, getMainVehicleId());
             browser.setSelectedNodes(selectedNodes);
-            System.out.println("dbInfoUpdated");
+            // System.out.println("dbInfoUpdated");
         }
 
         @Override
@@ -546,7 +546,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             case LblConfig.ID_STATIC:
                 LblConfig lblConfig = (LblConfig) message;
                 if (((LblConfig) message).getOp() == OP.CUR_CFG) {
-                    NeptusLog.pub().error("LblConfig message arrived");
+                    // NeptusLog.pub().error("LblConfig message arrived");
                     browser.updateTransStateEDT(getConsole().getMission(), getMainVehicleId(), (Vector<LblBeacon>) lblConfig.getBeacons().clone());
                 }
                 break;

@@ -248,7 +248,7 @@ public class MissionTreeModel extends DefaultTreeModel {
                             "There is no support for " + parentType.name() + " in MissionTreeModel.addToParents()");
                     break;
             }
-            System.out.print("  Gonna insert " + parentType + " at " + parentIndex);
+            // System.out.print("  Gonna insert " + parentType + " at " + parentIndex);
             insertNodeInto(parent, (MutableTreeNode) root, parentIndex);
         }
     }
@@ -293,20 +293,20 @@ public class MissionTreeModel extends DefaultTreeModel {
         int p = 0;
         ExtendedTreeNode child;
         NameId childObj;
-        System.out.println("Removing ");
+        // System.out.println("Removing ");
         while (p < count) {
             child = (ExtendedTreeNode) parent.getChildAt(p);
             childObj = (NameId) child.getUserObject();
             String id = childObj.getIdentification();
             if (!toDelete.contains(id)) {
                 removeById(childObj, parent);
-                System.out.print(childObj.getDisplayName());
+                // System.out.print(childObj.getDisplayName());
                 count--;
                 p--;
             }
             p++;
         }
-        System.out.println();
+        // System.out.println();
     }
 
     private ExtendedTreeNode getParent(ParentNodes parentType) {
