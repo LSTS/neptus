@@ -47,6 +47,7 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.renderer2d.ImageLayer;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -249,15 +250,26 @@ public class ColormapOverlay implements Renderer2DPainter {
             generated = generateImage(ColorMapFactory.createJetColorMap());
 
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         Point2D corner = renderer.getScreenPosition(topLeft);
         g.translate(corner.getX(), corner.getY());
+        g.scale(cellWidth * renderer.getZoom(), cellWidth * renderer.getZoom());
         g.rotate(-renderer.getRotation());
-            g.drawImage(generated, 0, 0, (int)(generated.getWidth()*cellWidth * renderer.getZoom()), (int)(generated.getHeight()*cellWidth*renderer.getZoom()),  0, 0, generated.getWidth(), generated.getHeight(),renderer);        
+            g.drawImage(generated, 0, 0, generated.getWidth(), generated.getHeight(),  0, 0, generated.getWidth(), generated.getHeight(),renderer);        
         g.rotate(renderer.getRotation());
         g.translate(-corner.getX(), -corner.getY());
         
         drawLegend(g);        
         
+    }
+    
+    public ImageLayer getImageLayer() {
+        LocationType bottomRight = new LocationType(topLeft);
+        if (generated == null)
+            generated = generateImage(ColorMapFactory.createJetColorMap());
+        bottomRight.translatePosition(- generated.getHeight() * cellWidth, generated.getWidth() * cellWidth, 0);
+        return new ImageLayer(name, generated, topLeft, bottomRight);        
     }
     
     protected void drawLegend(Graphics2D g) {

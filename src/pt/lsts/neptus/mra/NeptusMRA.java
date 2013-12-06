@@ -1029,7 +1029,6 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
         Thread t = new Thread("startup") {
             public void run() {
                 PluginsLoader.load();
-                //ConfigFetch.initialize();
             };
         };
         t.start();

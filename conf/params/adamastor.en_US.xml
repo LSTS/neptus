@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,027f14b)" system="adamastor" i18n="en_US">
+<config format="1" version="2.4.0-rc1 (master,d6cde71)" system="adamastor" i18n="en_US">
   <section name="LED Driver" name-i18n="LED Driver">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -589,17 +589,26 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0, 0.0, 0.0</default>
+      <default>1.0, 0.1, 0.0</default>
       <units/>
       <desc>Proportional gain for depth controller</desc>
       <size>3</size>
+    </param>
+    <param name="Depth Integral Limit">
+      <name-i18n>Depth Integral Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.2</default>
+      <units>m/s</units>
+      <desc>Integral limit for depth controller</desc>
     </param>
     <param name="Maximum Heave Reference">
       <name-i18n>Maximum Heave Reference</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2.0</default>
+      <default>0.2</default>
       <units/>
       <desc>Maximum admissible heave reference for depth controller</desc>
     </param>
@@ -608,7 +617,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0, 0.0, 0.0</default>
+      <default>7.0, 0.5, 0.0</default>
       <units/>
       <desc>Proportional gain for heave controller</desc>
       <size>3</size>
@@ -621,6 +630,15 @@
       <default>1.0</default>
       <units/>
       <desc>Maximum admissible thrust command for heave controller</desc>
+    </param>
+    <param name="Log PID Parcels">
+      <name-i18n>Log PID Parcels</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Log the size of each PID parcel</desc>
     </param>
   </section>
   <section name="Horizontal Plane Control" name-i18n="Horizontal Plane Control">
@@ -689,15 +707,63 @@
       <units>m</units>
       <desc>Maximum admissible depth that the vehicle may sustain</desc>
     </param>
+    <param name="Heading Rate PID Gains">
+      <name-i18n>Heading Rate PID Gains</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0, 0.0, 0.0</default>
+      <units/>
+      <desc>PID gains for Heading Rate controller</desc>
+      <size>3</size>
+    </param>
     <param name="Heading PID Gains">
       <name-i18n>Heading PID Gains</name-i18n>
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.5, 0.0, 0.1</default>
+      <default>1.0, 0.1, 0.0</default>
       <units/>
-      <desc>PID gains for heading controller</desc>
+      <desc>PID gains for Heading controller</desc>
       <size>3</size>
+    </param>
+    <param name="Surge PID Gains">
+      <name-i18n>Surge PID Gains</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4.0, 0.0, 0.0</default>
+      <units/>
+      <desc>PID gains for Surge controller</desc>
+      <size>3</size>
+    </param>
+    <param name="Sway PID Gains">
+      <name-i18n>Sway PID Gains</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4.0, 0.0, 0.0</default>
+      <units/>
+      <desc>PID gains for Sway controller</desc>
+      <size>3</size>
+    </param>
+    <param name="Heading Integral Limit">
+      <name-i18n>Heading Integral Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5.0</default>
+      <units>°/s</units>
+      <desc>Integral limit for heading controller</desc>
+    </param>
+    <param name="Heading Rate Integral Limit">
+      <name-i18n>Heading Rate Integral Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-1.0</default>
+      <units/>
+      <desc>Integral limit for heading rate controller</desc>
     </param>
     <param name="Maximum Thrust Actuation">
       <name-i18n>Maximum Thrust Actuation</name-i18n>
@@ -726,16 +792,6 @@
       <units>°/s</units>
       <desc>Maximum admissible heading rate reference for heading controller</desc>
     </param>
-    <param name="Heading Rate PID Gains">
-      <name-i18n>Heading Rate PID Gains</name-i18n>
-      <type>list:real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0, 0.0, 0.0</default>
-      <units/>
-      <desc>PID gains for heading rate controller</desc>
-      <size>3</size>
-    </param>
     <param name="Heading Rate Bypass">
       <name-i18n>Heading Rate Bypass</name-i18n>
       <type>boolean</type>
@@ -750,36 +806,16 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0</default>
+      <default>4.0</default>
       <units/>
       <desc>Maximum admissible surge speed reference</desc>
-    </param>
-    <param name="Surge PID Gains">
-      <name-i18n>Surge PID Gains</name-i18n>
-      <type>list:real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0, 0.0, 0.0</default>
-      <units/>
-      <desc>Surge speed controller PID gains</desc>
-      <size>3</size>
-    </param>
-    <param name="Sway PID Gains">
-      <name-i18n>Sway PID Gains</name-i18n>
-      <type>list:real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0, 0.0, 0.0</default>
-      <units/>
-      <desc>Sway speed controller PID gains</desc>
-      <size>3</size>
     </param>
     <param name="Maximum Sway Reference">
       <name-i18n>Maximum Sway Reference</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0</default>
+      <default>4.0</default>
       <units/>
       <desc>Maximum admissible sway speed reference</desc>
     </param>
@@ -792,6 +828,24 @@
       <units/>
       <desc>Thrust allocation pseudo inverse matrix</desc>
       <size>12</size>
+    </param>
+    <param name="Stabilize Ground Speeds">
+      <name-i18n>Stabilize Ground Speeds</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>If speed reference is zero, control thrusters to keep it zero</desc>
+    </param>
+    <param name="Log PID Parcels">
+      <name-i18n>Log PID Parcels</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Log the size of each PID parcel</desc>
     </param>
   </section>
   <section name="Remote Operation" name-i18n="Remote Operation">
@@ -836,7 +890,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>None</default>
+      <default>Spew</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
@@ -870,32 +924,59 @@
       <desc>Actuation Inverse Matrix</desc>
       <size>30</size>
     </param>
-    <param name="Use Speed Control">
-      <name-i18n>Use Speed Control</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Use speed control instead of force control</desc>
-    </param>
-    <param name="Acceleration Step">
-      <name-i18n>Acceleration Step</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.1</default>
-      <units>m/s</units>
-      <desc>Acceleration step to be used when speed control is enabled</desc>
-    </param>
     <param name="Maximum Speed Allowed">
       <name-i18n>Maximum Speed Allowed</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.5</default>
+      <default>0.8</default>
       <units>m/s</units>
       <desc>Maximum speed allowed for remote operation</desc>
+    </param>
+    <param name="Depth and Heading Control">
+      <name-i18n>Depth and Heading Control</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Turn on actively control of depth and heading</desc>
+    </param>
+    <param name="Angular Speed Control">
+      <name-i18n>Angular Speed Control</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Control the angular speed instead of heading.</desc>
+    </param>
+    <param name="Depth Rate">
+      <name-i18n>Depth Rate</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.01</default>
+      <units>m/s</units>
+      <desc>Rate of increase or decrease of depth with control enabled.</desc>
+    </param>
+    <param name="Depth Action Dead Zone">
+      <name-i18n>Depth Action Dead Zone</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20</default>
+      <units/>
+      <desc>Remote action deadzone for the depth rate.</desc>
+    </param>
+    <param name="Heading Rate">
+      <name-i18n>Heading Rate</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30.0</default>
+      <units>°/s</units>
+      <desc>Rate of increase or decrease of heading with control enabled.</desc>
     </param>
   </section>
   <section name="Idle Maneuver" name-i18n="Idle Maneuver">
@@ -2431,7 +2512,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AHRS</default>
+      <default>AHRS (LIMU)</default>
       <units/>
       <desc/>
     </param>
@@ -2557,7 +2638,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C</default>
+      <default>N/C (+5V_3)</default>
       <units/>
       <desc/>
     </param>
@@ -2575,7 +2656,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C</default>
+      <default>N/C (+5V_4)</default>
       <units/>
       <desc/>
     </param>
@@ -2593,7 +2674,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C</default>
+      <default>N/C (+5V_5)</default>
       <units/>
       <desc/>
     </param>
@@ -2611,7 +2692,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C</default>
+      <default>N/C (+5V_6)</default>
       <units/>
       <desc/>
     </param>
@@ -2647,7 +2728,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Blueview</default>
+      <default>Camera</default>
       <units/>
       <desc/>
     </param>
@@ -2656,7 +2737,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -2665,7 +2746,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C</default>
+      <default>N/C (IMU)</default>
       <units/>
       <desc/>
     </param>
@@ -2683,7 +2764,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C</default>
+      <default>N/C (DVL)</default>
       <units/>
       <desc/>
     </param>
@@ -2701,7 +2782,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Leak Sensor - Bottom</default>
+      <default>Leak Sensor - N/C</default>
       <units/>
       <desc/>
     </param>
@@ -2710,7 +2791,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Leak Sensor - Antenna</default>
+      <default>Leak Sensor - CPU</default>
       <units/>
       <desc/>
     </param>
@@ -4022,6 +4103,15 @@
       <units/>
       <desc>Relevant entities when performing a safe plan</desc>
     </param>
+    <param name="Allows External Control">
+      <name-i18n>Allows External Control</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Allow for the vehicle to be externally controlled</desc>
+    </param>
   </section>
   <section name="Service Announcer" name-i18n="Service Announcer">
     <param name="Entity Label">
@@ -4586,7 +4676,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, EntityList, AngularVelocity, Announce, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, EmergencyControl, EmergencyControlState, EntityActivationState, EntityControl, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowRefState, FuelLevel, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblDetection, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, ManeuverControlState, MagneticField, PathControlState, PlanSpecification, PlanControl, PlanControlState, PlanDB, PathControlState, PopEntityParameters, PowerChannelControl, PowerChannelState, PushEntityParameters, Pressure, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, Rpm, RSSI, Salinity, SaveEntityParameters, Sms, SetEntityParameters, SetThrusterActuation, SonarData, SimulatedState, StopManeuver, SoundSpeed, TeleoperationDone, Temperature, VehicleCommand, VehicleMedium, VehicleState, VehicleState, Voltage, WaterDensity, WaterVelocity</default>
+      <default>Abort, Acceleration, EntityList, AngularVelocity, Announce, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, EmergencyControl, EmergencyControlState, EntityActivationState, EntityControl, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowRefState, FuelLevel, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblDetection, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, ManeuverControlState, MagneticField, PathControlState, PlanSpecification, PlanControl, PlanControlState, PlanDB, PathControlState, PopEntityParameters, PowerChannelControl, PowerChannelState, PushEntityParameters, Pressure, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, Rpm, RSSI, Salinity, SaveEntityParameters, Sms, SetEntityParameters, SetThrusterActuation, SonarData, SimulatedState, StopManeuver, SoundSpeed, TeleoperationDone, Temperature, VehicleCommand, VehicleMedium, VehicleState, VehicleState, Voltage, WaterDensity, WaterVelocity</default>
       <units/>
       <desc/>
     </param>
@@ -4734,7 +4824,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CpuUsage, Current, DevCalibrationControl, DevCalibrationState, Distance, EmergencyControlState, EntityActivationState, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, GpsFix, GpsFixRejection, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRange, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, Parameter, ParameterControl, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, QueryEntityParameters, RemoteActions, RemoteActionsRequest, Rpm, SaveEntityParameters, SetEntityParameters, SimulatedState, StorageUsage, Temperature, VehicleState, Voltage</default>
+      <default>CpuUsage, Current, DesiredHeading, DesiredZ, DevCalibrationControl, DevCalibrationState, Distance, EmergencyControlState, EntityActivationState, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, GpsFix, GpsFixRejection, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRange, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, Parameter, ParameterControl, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, QueryEntityParameters, RemoteActions, RemoteActionsRequest, Rpm, SaveEntityParameters, SetEntityParameters, SimulatedState, StorageUsage, Temperature, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

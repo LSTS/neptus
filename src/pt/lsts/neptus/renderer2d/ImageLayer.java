@@ -65,6 +65,7 @@ public class ImageLayer implements Serializable, Renderer2DPainter {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         Point2D tl = renderer.getScreenPosition(topLeft);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
         g.translate(tl.getX(), tl.getY());
         g.draw(new Line2D.Double(-3, -3, 3, 3));
         g.draw(new Line2D.Double(-3, 3, 3, -3));
@@ -82,6 +83,26 @@ public class ImageLayer implements Serializable, Renderer2DPainter {
     }
     
     
+    /**
+     * @return the image
+     */
+    public BufferedImage getImage() {
+        return image;
+    }
+
+    /**
+     * @return the topLeft
+     */
+    public LocationType getTopLeft() {
+        return new LocationType(topLeft);
+    }
+    
+    public LocationType getBottomRight() {
+        LocationType loc = new LocationType(topLeft);
+        loc.translatePosition( - image.getHeight() * zoom, image.getWidth() * zoom, 0);
+        return loc;
+    }
+
     public static ImageLayer read(File f) throws Exception {
         ObjectInputStream is = new ObjectInputStream(new FileInputStream(f));
         return (ImageLayer) is.readObject();        

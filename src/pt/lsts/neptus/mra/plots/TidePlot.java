@@ -31,39 +31,35 @@
  */
 package pt.lsts.neptus.mra.plots;
 
-import java.io.File;
 import java.util.Date;
 
-import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.util.bathymetry.LocalData;
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 
 /**
  * @author zp
  *
  */
 public class TidePlot extends MraTimeSeriesPlot {
-    private final String tidesPath = "mra/tides.txt";
 
     public TidePlot(MRAPanel mp) {
         super(mp);
     }
-    
+
     @Override
     public boolean canBeApplied(LsfIndex index) {
-        File f = new File(index.getLsfFile().getParent(), tidesPath);
-        // System.out.println(f.getAbsolutePath());
-        return f.canRead();
+        return TidePredictionFactory.create(index) != null;
     }
 
     @Override
     public void process(LsfIndex source) {
-        LocalData ld = new LocalData(new File(index.getLsfFile().getParent(), tidesPath));
+        TidePredictionFinder finder = TidePredictionFactory.create(source);
         try {
-        for (double i = source.getStartTime(); i < source.getEndTime(); i+= 60) {
-            long time = (long)(i * 1000);
-                // System.out.println(new Date(time));
-                addValue(time, "Tide height", ld.getTidePrediction(new Date(time), false));
+            for (double i = source.getStartTime(); i < source.getEndTime(); i+= 60) {
+                long time = (long)(i * 1000);
+                addValue(time, "Tide height", finder.getTidePrediction(new Date(time), false));
             }
         }   
         catch (Exception e) {

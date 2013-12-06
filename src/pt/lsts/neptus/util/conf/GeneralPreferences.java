@@ -33,6 +33,7 @@ package pt.lsts.neptus.util.conf;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -204,6 +205,8 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "If true, the program output will be augmented with more info (mainly for problem solving).")
     public static boolean programLogExtendedLog = false;
 
+    @NeptusProperty(name = "Tides file", category = "Tides", userLevel = LEVEL.REGULAR)
+    public static File tidesFile = new File("conf/tides/Leixoes.txt");
     
     // -------------------------------------------------------------------------
     // Constructor and initialize

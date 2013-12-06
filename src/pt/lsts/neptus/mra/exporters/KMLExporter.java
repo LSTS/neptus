@@ -48,12 +48,14 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.ColormapOverlay;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -77,6 +79,8 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.util.WGS84Utilities;
 
@@ -206,6 +210,53 @@ public class KMLExporter implements MRAExporter {
         return "\t</Document>\n</kml>\n";
     }
     
+    public String dvlOverlay(File dir, int resolution) {
+        ColormapOverlay overlay = new ColormapOverlay("dvlBathymetry", 1, false, 0);
+        TidePredictionFinder finder = TidePredictionFactory.create(source);
+        
+        for (EstimatedState state : source.getLsfIndex().getIterator(EstimatedState.class, 100)) {
+            if (state.getAlt() < 0 || state.getDepth() < NeptusMRA.minDepthForBathymetry || Math.abs(state.getTheta()) > Math.toDegrees(10))
+                continue;
+            
+            LocationType loc = new LocationType(Math.toDegrees(state.getLat()), Math.toDegrees(state.getLon()));
+            loc.translatePosition(state.getX(), state.getY(), 0);
+            
+            if (finder == null)
+                overlay.addSample(loc, state.getAlt() + state.getDepth());
+            else {
+                try {
+                    overlay.addSample(loc, state.getAlt() + state.getDepth() - finder.getTidePrediction(state.getDate(), false));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
+        ImageLayer il = overlay.getImageLayer();
+        try {
+            ImageIO.write(il.getImage(), "PNG", new File(dir, "dvl.png"));
+            
+            il.setTransparency(layerTransparency);
+            il.saveToFile(new File(dir.getParentFile(), "sidescan.layer"));
+            LocationType sw = new LocationType();
+            LocationType ne = new LocationType();
+            sw.setLatitude(il.getBottomRight().getLatitude());
+            sw.setLongitude(il.getTopLeft().getLongitude());
+            
+            ne.setLatitude(il.getTopLeft().getLatitude());
+            ne.setLongitude(il.getBottomRight().getLongitude());
+            
+            return overlay(new File(dir, "dvn.png"), "DVL Bathymetry mosaic",
+                    sw, ne);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+        
+    }
+    
     public String sidescanOverlay(File dir, double resolution, LocationType topLeft, LocationType bottomRight) {
         SidescanParser ssParser = SidescanParserFactory.build(source);
         
@@ -320,7 +371,6 @@ public class KMLExporter implements MRAExporter {
         frm.dispose();
 
         try {
-            ImageIO.write(img, "PNG", new File(dir, "sidescan.png"));
             ImageLayer il = new ImageLayer("Sidescan mosaic from "+source.name(), img, topLeft, bottomRight);
             il.setTransparency(layerTransparency);
             il.saveToFile(new File(dir.getParentFile(), "sidescan.layer"));
