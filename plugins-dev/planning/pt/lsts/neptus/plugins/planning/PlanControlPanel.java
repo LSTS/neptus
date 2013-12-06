@@ -744,10 +744,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         if (!sendBlancTranspondersList) {
             LinkedHashMap<String, MapMission> mapList = miss.getMapsList();
             for (MapMission mpm : mapList.values()) {
-                LinkedHashMap<String, TransponderElement> transList = mpm.getMap().getTranspondersList();
-                for (TransponderElement tmp : transList.values()) {
-                    transpondersList.add(tmp);
-                }
+                transpondersList.addAll(mpm.getMap().getTranspondersList().values());
             }
             
             TransponderElement[] selTransponders = getSelectedTransponderElementsFromExternalComponents();
@@ -761,13 +758,18 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                 int resp = GuiUtils.confirmDialog(SwingUtilities.windowForComponent(this),
                         I18n.text("LBL Beacons"),
                         I18n.textf("Are you sure you want to send only %beaconsToSend?",
-                        beaconsToSend));
-                if (resp == JOptionPane.NO_OPTION) {
-                    return false;
+                                beaconsToSend));
+
+                if (resp == JOptionPane.YES_OPTION) {
+                    transpondersList.clear();
+                    transpondersList.addAll(Arrays.asList(selTransponders));
+                }
+                else {
+                    if (resp == JOptionPane.NO_OPTION) {
+                        return false;
+                    }
                 }
             }
-            transpondersList.clear();
-            transpondersList.addAll(Arrays.asList(selTransponders));
         }
 
         // For new LBL Beacon Configuration
@@ -812,11 +814,11 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                     LblConfig msgLBLConfiguration = new LblConfig();
                     msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
 
-                    for (String sysName : dest) {
-                        ImcSystem sys = ImcSystemsHolder.getSystemWithName(sysName);
-                        if (sys != null)
-                            sys.removeData(ImcSystem.LBL_CONFIG_KEY);
-                    }
+                    // for (String sysName : dest) {
+                    // ImcSystem sys = ImcSystemsHolder.getSystemWithName(sysName);
+                    // if (sys != null)
+                    // sys.removeData(ImcSystem.LBL_CONFIG_KEY);
+                    // }
                     
                     IMCSendMessageUtils.sendMessage(msgLBLConfiguration, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP
                             : null), createDefaultMessageDeliveryListener(), PlanControlPanel.this, I18n.text("Error sending acoustic beacons"),
