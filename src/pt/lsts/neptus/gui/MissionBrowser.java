@@ -668,6 +668,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 treeModel.removeSet(existingPlans, ParentNodes.PLANS);
                 existingPlans = mergeRemotePlans(sysName, remotePlans, treeModel, existingPlans);
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.PLANS));
+                revalidate();
+                repaint();
             }
         });
     }
@@ -681,6 +683,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      */
     private HashSet<String> mergeRemotePlans(String sysName, LinkedHashMap<String, PlanDBInfo> remotePlans,
             MissionTreeModel treeModel, HashSet<String> existingPlans) {
+        System.out.println("Merging " + remotePlans.size() + " remote plans");
         ExtendedTreeNode target;
         Set<String> remotePlansIds = remotePlans.keySet();
         for (String planId : remotePlansIds) {
