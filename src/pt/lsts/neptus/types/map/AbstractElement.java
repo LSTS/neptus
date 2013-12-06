@@ -704,7 +704,12 @@ public abstract class AbstractElement
             	return;
 			}
             
-            if (takenNames != null) {
+            if (objName.getText().length() == 0) {
+                JOptionPane.showMessageDialog(paramsPanel, I18n.text("The object has to have a name"));
+                return;
+            }
+
+            if (!objName.getText().equals(name) && takenNames != null) {
                 for (int i = 0; i < takenNames.length; i++) {
                     if (takenNames[i].equals(objID.getText())) {
                         JOptionPane.showMessageDialog(paramsPanel, I18n.text("The entered identifier is already in use"));
@@ -713,10 +718,6 @@ public abstract class AbstractElement
                 }
             }
         
-            if (objName.getText().length() == 0) {
-                JOptionPane.showMessageDialog(paramsPanel, I18n.text("The object has to have a name"));
-                return;
-            }
                         
             if (paramsPanel.getErrors() != null) {
                 JOptionPane.showMessageDialog(paramsPanel, paramsPanel.getErrors());
