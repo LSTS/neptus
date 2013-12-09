@@ -711,7 +711,7 @@ public abstract class AbstractElement
 
             if (!objName.getText().equals(name) && takenNames != null) {
                 for (int i = 0; i < takenNames.length; i++) {
-                    if (takenNames[i].equals(objID.getText())) {
+                    if (takenNames[i].equals(name)) {
                         JOptionPane.showMessageDialog(paramsPanel, I18n.text("The entered identifier is already in use"));
                         return;
                     }
@@ -772,7 +772,13 @@ public abstract class AbstractElement
             @Override
             public void keyTyped(KeyEvent e) {
                 super.keyTyped(e);
-                copyChars = false;
+                // if (copyChars) {
+                    if (Character.isLetterOrDigit(e.getKeyChar()))
+                        objID.setText(objName.getText() + e.getKeyChar());
+                    else
+                        objID.setText(objName.getText());
+                // }
+                // copyChars = false;
             }
         });
         
@@ -805,19 +811,19 @@ public abstract class AbstractElement
             objName.setText(this.getName());
             objID.setEnabled(false);
             objID.setText(this.getId());
-            copyChars = false;
+            // copyChars = false;
         }
         
         objID.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
                 super.keyTyped(e);
-                if (copyChars) {
+                // if (copyChars) {
                     if (Character.isLetterOrDigit(e.getKeyChar()))
                         objName.setText(objID.getText()+e.getKeyChar());
                     else
                         objName.setText(objID.getText());
-                }
+                // }
             }
         });
         
