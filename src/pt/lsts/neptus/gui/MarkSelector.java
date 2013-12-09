@@ -109,8 +109,8 @@ public class MarkSelector extends JPanel {
 //	        marksCombo.addItem("");
 		for (int i = 0; i < objs.length; i++) {		    
 			AbstractElement obj = (AbstractElement) objs[i];
-            NeptusLog.pub().error(this + "Testing the object " + obj.getId()
-                    + "which is a " + obj.getType());
+            // NeptusLog.pub().error(this + "Testing the object " + obj.getId()
+            // + "which is a " + obj.getType());
 			
 			if (obj.getType().equals("Mark")) {
 			    marksCombo.addItem(obj);
@@ -145,7 +145,8 @@ public class MarkSelector extends JPanel {
 	public void addMarksComboListener(MarksComboListener mcl) {
 		final MarksComboListener markListener = mcl;
 		marksCombo.addActionListener(new ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent arg0) {
+			@Override
+            public void actionPerformed(java.awt.event.ActionEvent arg0) {
 				try {
                     MarkElement mobj = (MarkElement) marksCombo.getSelectedItem(); 
                     markListener.MarkComboChanged(mobj);
