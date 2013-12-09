@@ -553,7 +553,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public long millisBetweenUpdates() {
-        return 1500;
+        return 900;
     }
 
     @Override
