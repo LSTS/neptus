@@ -20,7 +20,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.TreeMap;
@@ -216,7 +215,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         TransponderElement te = transponderDialog(mt, null);
         if (!te.userCancel) {
             te.getParentMap().addObject(te);
-            saveMapAndMission(mt, null);
+            saveMission(mt);
             treeModel.addTransponderNode(te);
             ImcMsgManager.disseminate(te, "Transponder");
         }
@@ -226,7 +225,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         String transNames[];
         MapGroup mapGroupInstance = MapGroup.getMapGroupInstance(mt);
 
-        MapType map = mt.getMapsList().values().iterator().next().getMap();// getMap(mt, mapGroupInstance);
+        MapType map = getMap(mt);
         try {
             Vector<TransponderElement> vector = MapGroup.getMapGroupInstance(mt).getAllObjectsOfType(
                     TransponderElement.class);
@@ -248,20 +247,21 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         return te;
     }
 
-    private MapType getMap(MissionType mt, MapGroup mapGroupInstance) {
-        MapType map;
-        Set<String> mapsKeys = mapGroupInstance.maps.keySet();
-        Iterator<String> mapsKeysIt = mapsKeys.iterator();
-        if (mapsKeysIt.hasNext()) {
-            map = mapGroupInstance.maps.get(mapsKeysIt.next());
-        }
-        else {
-            // NeptusLog.pub().error("No maps in mission. Creating a new map.");
-            MapType newMap = new MapType(new LocationType(mt.getHomeRef()));
-            mapGroupInstance.addMap(newMap);
-            map = newMap;
-        }
-        return map;
+    private MapType getMap(MissionType mt) {
+        // MapType map;
+        // Set<String> mapsKeys = mapGroupInstance.maps.keySet();
+        // Iterator<String> mapsKeysIt = mapsKeys.iterator();
+        // if (mapsKeysIt.hasNext()) {
+        // map = mapGroupInstance.maps.get(mapsKeysIt.next());
+        // }
+        // else {
+        // // NeptusLog.pub().error("No maps in mission. Creating a new map.");
+        // MapType newMap = new MapType(new LocationType(mt.getHomeRef()));
+        // mapGroupInstance.addMap(newMap);
+        // map = newMap;
+        // }
+        // return map;
+        return mt.getMapsList().values().iterator().next().getMap();
     }
 
     public void editTransponder(TransponderElement elem, MissionType mission, String vehicleId) {
@@ -291,13 +291,13 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             mce.setChangedObject(elem);
             pivot.warnChangeListeners(mce);
 
-            saveMapAndMission(mission, pivot);
+            saveMission(mission);
 
             treeModel.nodeChanged(selectedTreeNode);
         }
     }
 
-    private void saveMapAndMission(MissionType mission, MapType pivot) {
+    private void saveMission(MissionType mission) {
         if (mission.getCompressedFilePath() != null) {
             mission.save(false);
         }
@@ -310,13 +310,14 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             treeModel.removeById(elem.getIdentification(), ParentNodes.TRANSPONDERS);
             elem.getParentMap().remove(elem.getIdentification());
             // elem.getParentMap().warnChangeListeners(new MapChangeEvent(MapChangeEvent.OBJECT_REMOVED));
-            elem.getParentMap().saveFile(elem.getParentMap().getHref());
+//            elem.getParentMap().saveFile(elem.getParentMap().getHref());
 
-            if (console2.getMission() != null) {
-                if (console2.getMission().getCompressedFilePath() != null)
-                    console2.getMission().save(false);
-                console2.updateMissionListeners();
-            }
+            // if (console2.getMission() != null) {
+            // if (console2.getMission().getCompressedFilePath() != null)
+            // console2.getMission().save(false);
+            // console2.updateMissionListeners();
+            // }
+            saveMission(console2.getMission());
             // repaint();
         }
     }
@@ -482,7 +483,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 }
                 else if (startLocs.length == 0) {
                     try {
-                        pivot = mission.getMapsList().values().iterator().next().getMap();
+                        pivot = getMap(mission);
                         start.setId("start");
                         start.setName("start");
                         start.setParentMap(pivot);
@@ -520,7 +521,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 }
                 else if (sameId.length == 0) {
                     try {
-                        pivot = mission.getMapsList().values().iterator().next().getMap();
+                        pivot = getMap(mission);
                         transponder.setParentMap(pivot);
                         transponder.setMapGroup(pivot.getMapGroup());
                         pivot.addObject(transponder);
@@ -792,12 +793,14 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             if (!found) {
                 // Remote => create one
                 MapGroup mapGroup = MapGroup.getMapGroupInstance(mission);
-                MapType[] maps = mapGroup.getMaps();
-                tempTrans = new TransponderElement(lblBeacon, id, mapGroup, maps[0]);
+                // MapType[] maps = mapGroup.getMaps();
+                MapType map = getMap(mission);
+                tempTrans = new TransponderElement(lblBeacon, id, mapGroup, map);
                 node = new ExtendedTreeNode(tempTrans);
                 setSyncState(node, State.SYNC);
-                maps[0].addObject(tempTrans);
-                maps[0].saveFile(maps[0].getHref());
+                // maps[0].addObject(tempTrans);
+                // maps[0].saveFile(maps[0].getHref());
+                saveMission(mission);
                 treeModel.insertAlphabetically(node, ParentNodes.TRANSPONDERS);
                 // System.out.println(" [" + tempTrans.duneId + "] " + tempTrans.getDisplayName()
                 // + " from IMCSystem not found in mission tree  >> Sync.");
