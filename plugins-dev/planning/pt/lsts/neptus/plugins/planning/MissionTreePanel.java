@@ -511,10 +511,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 PlanControlState planState = (PlanControlState) message;
                 // If vehicle stops, the timers stop as well
                 if (planState.getState() == STATE.READY || planState.getState() == STATE.BLOCKED) {
-                    if (running) {
                         browser.transStopTimers();
                         this.running = false;
-                    }
                 }
                 // If vehicle starts, the timers start
                 else if (!running) {

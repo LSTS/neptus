@@ -558,11 +558,17 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         ExtendedTreeNode planNode = null;
         for (ChildIterator planIt = treeModel.getIterator(ParentNodes.PLANS); 
                 planIt.hasNext(); planNode = planIt.next()) {
-            if (planNode.getUserObject() == plan) {
-                TreePath selPath = new TreePath(treeModel.getPathToRoot(planNode));
-                elementTree.setSelectionPath(selPath);
-                elementTree.scrollPathToVisible(selPath);
-                return;
+            try {
+                if (planNode.getUserObject() == plan) {
+                    TreePath selPath = new TreePath(treeModel.getPathToRoot(planNode));
+                    elementTree.setSelectionPath(selPath);
+                    elementTree.scrollPathToVisible(selPath);
+                    return;
+                }
+            }
+            catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
     }
@@ -990,9 +996,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 name = ((TransponderElement) transNode.getUserObject()).getIdentification();
                 timer = (LBLRangesTimer) imcSystems.retrieveData(name);
                 if (timer != null) {
-                    // TODO change to getIdentification
-                    NeptusLog.pub().info(
-                            "<###>Stoping timer for " + transInfo.get(NodeInfoKey.ID) + " of " + transVehicle);
                     timer.stopTimer();
                 }
             }
@@ -1043,25 +1046,25 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 repaint();
             }
 
-            private String printBeacons(final Vector<LblBeacon> remoteTrans) {
-                short id = 0;
-                StringBuilder remotes = new StringBuilder(remoteTrans.size() + " trans in ImcSystem: ");
-                for (LblBeacon lblBeacon : remoteTrans) {
-                    remotes.append("[");
-                    remotes.append(id);
-                    remotes.append("] ");
-                    remotes.append(lblBeacon.getBeacon());
-                    remotes.append(" ( query: ");
-                    remotes.append(lblBeacon.getQueryChannel());
-                    remotes.append(", reply: ");
-                    remotes.append(lblBeacon.getReplyChannel());
-                    remotes.append(", delay:");
-                    remotes.append(lblBeacon.getTransponderDelay());
-                    remotes.append(")\n         ");
-                    id++;
-                }
-                return remotes.toString();
-            }
+            // private String printBeacons(final Vector<LblBeacon> remoteTrans) {
+            // short id = 0;
+            // StringBuilder remotes = new StringBuilder(remoteTrans.size() + " trans in ImcSystem: ");
+            // for (LblBeacon lblBeacon : remoteTrans) {
+            // remotes.append("[");
+            // remotes.append(id);
+            // remotes.append("] ");
+            // remotes.append(lblBeacon.getBeacon());
+            // remotes.append(" ( query: ");
+            // remotes.append(lblBeacon.getQueryChannel());
+            // remotes.append(", reply: ");
+            // remotes.append(lblBeacon.getReplyChannel());
+            // remotes.append(", delay:");
+            // remotes.append(lblBeacon.getTransponderDelay());
+            // remotes.append(")\n         ");
+            // id++;
+            // }
+            // return remotes.toString();
+            // }
 
         });
     }
