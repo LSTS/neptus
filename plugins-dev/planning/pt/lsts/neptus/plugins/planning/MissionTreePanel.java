@@ -122,6 +122,8 @@ import com.google.common.eventbus.Subscribe;
 
 
 /**
+ * Panel that holds mission objects namely plans and accustic beacons.
+ * 
  * @author ZP
  * @author pdias
  * @author Margarida
@@ -146,6 +148,11 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
     boolean inited = false;
     protected MissionBrowser browser = new MissionBrowser();
     protected PlanDBControl pdbControl;
+
+    /**
+     * This adapter is called by a class monitoring PlanDB messages. It is only called if a PlanDB message with field
+     * type set to success is received.
+     */
     protected PlanDBAdapter planDBListener = new PlanDBAdapter() {
         // Called only if Type == SUCCESS in received PlanDB message
         @Override
@@ -290,15 +297,20 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
     }
 
+    /**
+     * 
+     */
     @Override
     public void initSubPanel() {
         if (inited)
             return;
         inited = true;
         updatePlanDBListener(getMainVehicleId());
-
         browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+        addClearPlanDbMenuItem();
+    }
 
+    private void addClearPlanDbMenuItem() {
         addMenuItem(I18n.text("Advanced") + ">" + I18n.text("Clear remote PlanDB for main system"), new ImageIcon(
                 PluginUtils.getPluginIcon(getClass())), new ActionListener() {
             @Override
@@ -380,22 +392,20 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         if (IMCDefinition.getInstance().getMessageId("PlanSpecification") != -1) {
             messages[3] = "PlanSpecification";
         }
-        // else {
-        // messages[3] = "MissionSpecification";
-        // }
-        // messages[4] = "PlanDB";
         return messages;
     }
 
     @Override
     public void mainVehicleChangeNotification(String id) {
-        // browser.transStopTimers();
         running = false;
         updatePlanDBListener(id);
         askForBeaconConfig();
         browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
     }
 
+    /**
+     * Ask vehicle for configurations of vehicles in use.
+     */
     private void askForBeaconConfig() {
         SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
             @Override
@@ -417,6 +427,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
     }
 
     /**
+     * Initializes the vehicle whose plan changes we are listening to.
+     * <p>
      * Remove current PlanDB listener. Fetch the running PlanDB listener from IMCSystemsHolder or create a new one if
      * none is found. Set the designeted PlanDB listener.
      * 
@@ -425,8 +437,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
     private void updatePlanDBListener(String id) {
         removePlanDBListener();
         ImcSystem sys = ImcSystemsHolder.lookupSystemByName(id);
-
-        // pdbControl = sys.getPlanDBControl();
         if (sys == null) {
             pdbControl = null;
             NeptusLog.pub().error(
@@ -458,30 +468,11 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     plans.add((PlanType) o);
             }
         }
-
         if (plans.isEmpty() && getConsole().getPlan() != null)
             plans.add(getConsole().getPlan());
-
         return plans;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.up.fe.dceg.neptus.console.plugins.ITransponderSelection#getSelectedTransponders()
-     */
-    // @Override
-    // public Collection<TransponderElement> getSelectedTransponders() {
-    // final Object[] multiSel = browser.getSelectedItems();
-    // ArrayList<TransponderElement> trans = new ArrayList<>();
-    // if (multiSel != null) {
-    // for (Object o : multiSel) {
-    // if (o instanceof TransponderElement)
-    // trans.add((TransponderElement) o);
-    // }
-    // }
-    // return trans;
-    // }
     @Override
     public Collection<TransponderElement> getSelectedTransponders() {
         final TreePath[] multiSel = browser.getSelectedNodes();
@@ -490,6 +481,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             for (TreePath path : multiSel) {
                 ExtendedTreeNode node = ((ExtendedTreeNode) path.getLastPathComponent());
                 Object userObject = node.getUserObject();
+
                 if (userObject instanceof TransponderElement
                         && node.getUserInfo().get(NodeInfoKey.SYNC) != State.REMOTE)
                     trans.add((TransponderElement) userObject);
@@ -504,26 +496,27 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         int mgid = message.getMgid();
         // pdbControl.onMessage(null, message);
         switch (mgid) {
-            // Plan state and list management
+        // If new plan arrives add it to mission
             case PlanSpecification.ID_STATIC:
                 PlanType plan = IMCUtils.parsePlanSpecification(getConsole().getMission(), message);
-                if (getConsole().getMission().getIndividualPlansList().containsKey(plan.getId())) {
-                }
-                else {
+                if (!getConsole().getMission().getIndividualPlansList().containsKey(plan.getId())) {
                     getConsole().getMission().getIndividualPlansList().put(plan.getId(), plan);
                     getConsole().updateMissionListeners();
                     getConsole().getMission().save(true);
                 }
                 break;
             // Timer management
+            // Update the state of timers for last received LblRangeAcceptance
             case PlanControlState.ID_STATIC:
                 PlanControlState planState = (PlanControlState) message;
+                // If vehicle stops, the timers stop as well
                 if (planState.getState() == STATE.READY || planState.getState() == STATE.BLOCKED) {
                     if (running) {
                         browser.transStopTimers();
                         this.running = false;
                     }
                 }
+                // If vehicle starts, the timers start
                 else if (!running) {
                     browser.transStartVehicleTimers(getMainVehicleId());
                     this.running = true;
@@ -531,6 +524,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
                 break;
             // Timer management
+            // Reset the timer corresponding to the message
             case LblRangeAcceptance.ID_STATIC:
                 LblRangeAcceptance acceptance;
                 try {
@@ -542,7 +536,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     NeptusLog.pub().error("Problem cloning a message.", e);
                 }
              break;
-            // Beacons list and state management
+            // Update beacons list and state
             case LblConfig.ID_STATIC:
                 LblConfig lblConfig = (LblConfig) message;
                 if (((LblConfig) message).getOp() == OP.CUR_CFG) {
@@ -564,6 +558,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public boolean update() {
+        // only for timers so only repaint if they are running
         if (running) {
             repaint();
         }
@@ -572,23 +567,9 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Subscribe
     public void on(ConsoleEventPlanChange event) {
-        // removed runnable
         browser.setSelectedPlan(event.getCurrent());
     }
 
-    // private ImcSystem[] convertToImcSystemsArray(Vector<ISystemsSelection> sys) {
-    // Collection<String> asys = sys.firstElement().getAvailableSelectedSystems();
-    // Vector<ImcSystem> imcSystems = new Vector<ImcSystem>();
-    // for (String id : asys) {
-    // ImcSystem tsys = ImcSystemsHolder.lookupSystemByName(id);
-    // if (tsys != null) {
-    // if (!imcSystems.contains(tsys))
-    // imcSystems.add(tsys);
-    // }
-    // }
-    // ImcSystem[] imcSystemsArray = imcSystems.toArray(new ImcSystem[imcSystems.size()]);
-    // return imcSystemsArray;
-    // }
 
     /**
      * Called every time a property is changed
