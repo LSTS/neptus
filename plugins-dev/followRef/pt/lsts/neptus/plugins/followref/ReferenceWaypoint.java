@@ -53,8 +53,8 @@ public class ReferenceWaypoint implements ConfigurationListener {
     
     protected double latitude, longitude;
     
-    @NeptusProperty(name="Specify Z", category="Z")
-    private boolean defineZ = true;
+    //@NeptusProperty(name="Specify Z", category="Z")
+    //private boolean defineZ = true;
 
     @NeptusProperty(name="Z Reference", category="Z")
     private pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS zUnits = ManeuverLocation.Z_UNITS.DEPTH;
@@ -93,13 +93,13 @@ public class ReferenceWaypoint implements ConfigurationListener {
         
         reference.setLat(loc.getLatitudeAsDoubleValueRads());
         reference.setLon(loc.getLongitudeAsDoubleValueRads());
-        if (defineZ)
+        if (loc.getZUnits() != ManeuverLocation.Z_UNITS.NONE)
             reference.setZ(new DesiredZ((float)loc.getZ(), Z_UNITS.valueOf(loc.getZUnits().name())));
         if (defineSpeed)
             reference.setSpeed(new DesiredSpeed(speed, speedUnits));
         reference.setFlags((short)(Reference.FLAG_LOCATION | 
                 (defineSpeed?   Reference.FLAG_SPEED : 0) | 
-                (defineZ?       Reference.FLAG_Z : 0) |
+                (loc.getZUnits() != ManeuverLocation.Z_UNITS.NONE?       Reference.FLAG_Z : 0) |
                 (loiter?       Reference.FLAG_RADIUS : 0)));
     }
     
@@ -146,7 +146,10 @@ public class ReferenceWaypoint implements ConfigurationListener {
             loc.setZ(ref.getZ().getValue());
             loc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(ref.getZ().getZUnits().name()));
         }    
-        defineZ = (ref.getFlags() & Reference.FLAG_Z) != 0;
+        boolean defineZ = (ref.getFlags() & Reference.FLAG_Z) != 0;
+        if (!defineZ)
+            loc.setZUnits(ManeuverLocation.Z_UNITS.NONE);
+        
         loiter = (ref.getFlags() & Reference.FLAG_RADIUS) != 0;
         this.loiterRadius = ref.getRadius();
         
@@ -177,7 +180,6 @@ public class ReferenceWaypoint implements ConfigurationListener {
             reference.setFlags((short)(reference.getFlags() ^ Reference.FLAG_Z));
             reference.setZ(null);
             loc.setZUnits(ManeuverLocation.Z_UNITS.NONE);
-            defineZ = false;
             zUnits = ManeuverLocation.Z_UNITS.NONE;
         }
         else {

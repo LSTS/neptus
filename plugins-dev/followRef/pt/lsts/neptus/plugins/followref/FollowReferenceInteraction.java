@@ -49,8 +49,6 @@ import java.util.Vector;
 import javax.swing.JPopupMenu;
 
 import pt.lsts.imc.AcousticOperation;
-import pt.lsts.imc.DesiredSpeed;
-import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowRefState;
 import pt.lsts.imc.FollowReference;
@@ -68,12 +66,12 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.PropertiesEditor;
-import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
+import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -88,7 +86,7 @@ import com.google.common.eventbus.Subscribe;
  * @author zp
  * 
  */
-@PluginDescription(name = "FollowReference Interaction")
+@PluginDescription(name = "FollowReference Interaction", category = CATEGORY.PLANNING, icon="pt/lsts/neptus/plugins/followref/target.png")
 public class FollowReferenceInteraction extends SimpleRendererInteraction implements IPeriodicUpdates,
         ConfigurationListener {
 
@@ -101,22 +99,22 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     protected ReferenceWaypoint focusedWaypoint = null;
     protected double radius = 8;
 
-    //@NeptusProperty
-    //public ManeuverLocation.Z_UNITS z_units = ManeuverLocation.Z_UNITS.DEPTH;
+    // @NeptusProperty
+    // public ManeuverLocation.Z_UNITS z_units = ManeuverLocation.Z_UNITS.DEPTH;
 
-    //@NeptusProperty
-    //public double z = 0;
+    // @NeptusProperty
+    // public double z = 0;
 
-    //@NeptusProperty
-    //public double speed = 1.1;
+    // @NeptusProperty
+    // public double speed = 1.1;
 
-    @NeptusProperty
+    @NeptusProperty(name = "Use acoustic communications", description = "Setting to true will make all communications go through acoustic modem")
     public boolean useAcousticCommunications = false;
 
-    @NeptusProperty
-    public long controlLoopLatencySecs = 3;
+    @NeptusProperty(name = "Control loop latency", description = "Ammount of seconds between reference transmissions (per controller vehicle)")
+    public long controlLoopLatencySecs = 1;
 
-    @NeptusProperty
+    @NeptusProperty(name = "Control timeout", description = "Ammount of seconds after which the controlled vehicle will timeout if no new reference updates are received")
     public long referenceTimeout = 30;
 
     public FollowReferenceInteraction(ConsoleLayout cl) {
@@ -216,6 +214,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
             if (newActivation) {
                 Reference ref = new Reference();
                 EstimatedState lastState = states.get(controlState.getSourceName());
+                if (lastState == null)
+                    return;
                 LocationType loc = new LocationType(Math.toDegrees(lastState.getLat()), Math.toDegrees(lastState
                         .getLon()));
                 loc.translatePosition(lastState.getX(), lastState.getY(), 0);
@@ -223,9 +223,9 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 loc.convertToAbsoluteLatLonDepth();
                 ref.setLat(loc.getLatitudeAsDoubleValueRads());
                 ref.setLon(loc.getLongitudeAsDoubleValueRads());
-                //ref.setZ(new DesiredZ((float) z, DesiredZ.Z_UNITS.valueOf(z_units.name())));
-                //ref.setSpeed(new DesiredSpeed(speed, DesiredSpeed.SPEED_UNITS.METERS_PS));
-                ref.setFlags((short) (Reference.FLAG_LOCATION /*| Reference.FLAG_SPEED | Reference.FLAG_Z*/));
+                // ref.setZ(new DesiredZ((float) z, DesiredZ.Z_UNITS.valueOf(z_units.name())));
+                // ref.setSpeed(new DesiredSpeed(speed, DesiredSpeed.SPEED_UNITS.METERS_PS));
+                ref.setFlags((short) (Reference.FLAG_LOCATION /* | Reference.FLAG_SPEED | Reference.FLAG_Z */));
 
                 ReferencePlan plan = new ReferencePlan(controlState.getSourceName());
                 plan.addWaypointAtEnd(ref);
