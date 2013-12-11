@@ -71,6 +71,7 @@ public class ReferencePlan {
             return null;
         int index = waypoints.indexOf(wpt);
         ReferenceWaypoint clone = new ReferenceWaypoint(wpt.getReference());
+        clone.time = wpt.time;
         waypoints.add(index+1, clone);
         return clone;
     }

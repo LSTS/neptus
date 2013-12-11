@@ -271,7 +271,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
             }
             
             for (ReferencePlan p : plans.values()) {
-                Reference ref = p.currentWaypoint().getReference();
+                ReferenceWaypoint wpt = p.currentWaypoint();
+                Reference ref = wpt.getReference();
                 FollowRefState lastFrefState = frefStates.get(p.system_id);
                 if (ref != null && lastFrefState != null) {
                     Color c = Color.red;
@@ -300,6 +301,12 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                                 break;
                         }
                     }
+                    if (wpt.loiter) {
+                        g.setStroke(new BasicStroke(1.5f));
+                        g.setColor(new Color(255,255,255,128));
+                        double radius = wpt.loiterRadius * renderer.getZoom();
+                        g.draw(new Ellipse2D.Double(pt.getX() - radius, pt.getY() - radius, radius * 2, radius * 2));
+                    }
                 }
             }
             
@@ -320,6 +327,13 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 if (ref.getSpeed() != null) {
                     g.drawString("speed: "+ref.getSpeed().getValue(), (int)pt.getX()+15, (int)pt.getY()+pos);
                     
+                }
+                
+                if (focusedWaypoint.loiter) {
+                    g.setStroke(new BasicStroke(2f));
+                    g.setColor(new Color(255,255,255,128));
+                    double radius = focusedWaypoint.loiterRadius * renderer.getZoom();
+                    g.draw(new Ellipse2D.Double(pt.getX() - radius, pt.getY() - radius, radius * 2, radius * 2));
                 }
             }
         }
