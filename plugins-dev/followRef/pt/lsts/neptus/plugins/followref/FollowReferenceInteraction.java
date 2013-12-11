@@ -69,8 +69,10 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -86,7 +88,7 @@ import com.google.common.eventbus.Subscribe;
  *
  */
 @PluginDescription(name="FollowReference Interaction")
-public class FollowReferenceInteraction extends SimpleRendererInteraction implements IPeriodicUpdates {
+public class FollowReferenceInteraction extends SimpleRendererInteraction implements IPeriodicUpdates, ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
     protected LinkedHashMap<String, FollowRefState> frefStates = new LinkedHashMap<>();
@@ -94,8 +96,9 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     protected LinkedHashMap<String, EstimatedState> states = new LinkedHashMap<>();
     protected HashSet<String> activeVehicles = new HashSet<>();
     protected ReferenceWaypoint movingWaypoint = null;
+    protected ReferenceWaypoint focusedWaypoint = null;
     protected double radius = 8;
-    
+
     @NeptusProperty
     public ManeuverLocation.Z_UNITS z_units = ManeuverLocation.Z_UNITS.DEPTH;
 
@@ -104,16 +107,16 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
     @NeptusProperty
     public double speed = 1.1;
-    
+
     @NeptusProperty
     public boolean useAcousticCommunications = false;
-    
+
     @NeptusProperty
     public long controlLoopLatencySecs = 3;
-    
+
     @NeptusProperty
     public long referenceTimeout = 30;
-        
+
     public FollowReferenceInteraction(ConsoleLayout cl) {
         super(cl);
     }
@@ -121,6 +124,11 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     @Override
     public long millisBetweenUpdates() {
         return controlLoopLatencySecs * 1000;
+    }
+
+    @Override
+    public void propertiesChanged() {
+
     }
 
     @Override
@@ -158,7 +166,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                         NeptusLog.pub().error("Cannot send reference acoustically because no system is capable of it");
                         return true;
                     }
-                    
+
                     int successCount = 0;
 
                     for (ImcSystem sys : sysLst) {
@@ -172,7 +180,6 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                     }
                 }
                 else {
-                    System.out.println("send reference");
                     send(v, plans.get(v).currentWaypoint().getReference());
                 }
             }
@@ -226,64 +233,95 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
         super.paint(g, renderer);
 
         try {
-        Vector<ReferenceWaypoint> wpts = new Vector<>();
-        for (ReferencePlan p : plans.values()) {
-            wpts.clear();
-            wpts.addAll(p.getWaypoints());
+            Vector<ReferenceWaypoint> wpts = new Vector<>();
             
-            for (int i = 1; i < wpts.size(); i++) {
-                Reference prevRef = wpts.get(i-1).getReference();
-                LocationType prevLoc = new LocationType(Math.toDegrees(prevRef.getLat()), Math.toDegrees(prevRef.getLon()));
-                Point2D prevPt = renderer.getScreenPosition(prevLoc);
-                Reference ref = wpts.get(i).getReference();
+            for (ReferencePlan p : plans.values()) {
+                wpts.clear();
+                wpts.addAll(p.getWaypoints());
+
+                for (int i = 1; i < wpts.size(); i++) {
+                    Reference prevRef = wpts.get(i-1).getReference();
+                    LocationType prevLoc = new LocationType(Math.toDegrees(prevRef.getLat()), Math.toDegrees(prevRef.getLon()));
+                    Point2D prevPt = renderer.getScreenPosition(prevLoc);
+                    Reference ref = wpts.get(i).getReference();
+                    LocationType loc = new LocationType(Math.toDegrees(ref.getLat()), Math.toDegrees(ref.getLon()));
+                    Point2D pt = renderer.getScreenPosition(loc);
+                    Ellipse2D ellis = new Ellipse2D.Double(pt.getX()-radius, pt.getY()-radius, radius * 2, radius * 2);
+                    g.setColor(Color.blue);
+                    g.setStroke(new BasicStroke(3f));
+                    g.draw(new Line2D.Double(prevPt, pt));
+                    g.fill(ellis);
+                    if (ref.getZ() != null) {
+                        g.setStroke(new BasicStroke(2f));
+                        g.setColor(Color.white);
+                        switch (ref.getZ().getZUnits()) {
+                            case DEPTH:
+                                g.draw(new Line2D.Double(pt.getX()-radius, pt.getY()-radius, pt.getX()+radius, pt.getY()-radius));
+                                break;
+                            case ALTITUDE:
+                            case HEIGHT:
+                                g.draw(new Line2D.Double(pt.getX()-radius, pt.getY()+radius, pt.getX()+radius, pt.getY()+radius));
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    g.setColor(Color.black);                   
+                }
+            }
+            
+            for (ReferencePlan p : plans.values()) {
+                Reference ref = p.currentWaypoint().getReference();
+                FollowRefState lastFrefState = frefStates.get(p.system_id);
+                if (ref != null && lastFrefState != null) {
+                    Color c = Color.red;
+
+                    if (lastFrefState != null) {
+                        if (ref.getLat() == lastFrefState.getReference().getLat() && ref.getLon() == lastFrefState.getReference().getLon())
+                            c = Color.green;                    
+                    }
+                    LocationType loc = new LocationType( Math.toDegrees(ref.getLat()), Math.toDegrees(ref.getLon()));
+                    Point2D pt = renderer.getScreenPosition(loc);
+                    Ellipse2D ellis = new Ellipse2D.Double(pt.getX()-radius, pt.getY()-radius, radius * 2, radius * 2);
+                    g.setColor(c);
+                    g.fill(ellis);
+                    if (ref.getZ() != null) {
+                        g.setStroke(new BasicStroke(2f));
+                        g.setColor(Color.white);
+                        switch (ref.getZ().getZUnits()) {
+                            case DEPTH:
+                                g.draw(new Line2D.Double(pt.getX()-radius, pt.getY()-radius, pt.getX()+radius, pt.getY()-radius));
+                                break;
+                            case ALTITUDE:
+                            case HEIGHT:
+                                g.draw(new Line2D.Double(pt.getX()-radius, pt.getY()+radius, pt.getX()+radius, pt.getY()+radius));
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+            
+            if (focusedWaypoint != null) {
+                g.setStroke(new BasicStroke(2f));
+                
+                Reference ref = focusedWaypoint.getReference();
                 LocationType loc = new LocationType(Math.toDegrees(ref.getLat()), Math.toDegrees(ref.getLon()));
                 Point2D pt = renderer.getScreenPosition(loc);
                 Ellipse2D ellis = new Ellipse2D.Double(pt.getX()-radius, pt.getY()-radius, radius * 2, radius * 2);
-                g.setColor(Color.blue);
-                
-                g.setStroke(new BasicStroke(3f));
-                g.draw(new Line2D.Double(prevPt, pt));
-                g.fill(ellis);
-            }
-        }
-         
-        
-        for (ReferencePlan p : plans.values()) {
-            Reference ref = p.currentWaypoint().getReference();
-            FollowRefState lastFrefState = frefStates.get(p.system_id);
-            if (ref != null && lastFrefState != null) {
-                Color c = Color.red;
-
-                if (lastFrefState != null) {
-                    if (ref.getLat() == lastFrefState.getReference().getLat() && ref.getLon() == lastFrefState.getReference().getLon())
-                        c = Color.green;                    
+                g.setColor(Color.white);
+                g.draw(ellis);
+                int pos = 5;
+                if (ref.getZ() != null) {
+                    g.drawString(ref.getZ().getZUnits().toString().toLowerCase()+": "+ref.getZ().getValue()+" m", (int)pt.getX()+15, (int)pt.getY()+pos);
+                    pos += 15;
                 }
-                LocationType loc = new LocationType( Math.toDegrees(ref.getLat()), Math.toDegrees(ref.getLon()));
-                Point2D pt = renderer.getScreenPosition(loc);
-                Ellipse2D ellis = new Ellipse2D.Double(pt.getX()-radius, pt.getY()-radius, radius * 2, radius * 2);
-                g.setColor(c);
-                g.fill(ellis);
-            }
-        }
-
-        
-        for (ReferencePlan p : plans.values()) {
-            Reference ref = p.currentWaypoint().getReference();
-            FollowRefState lastFrefState = frefStates.get(p.system_id);
-            if (ref != null) {
-                Color c = Color.red;
-
-                if (lastFrefState != null) {
-                    if (ref.getLat() == lastFrefState.getReference().getLat() && ref.getLon() == lastFrefState.getReference().getLon())
-                        c = Color.green;                    
+                if (ref.getSpeed() != null) {
+                    g.drawString("speed: "+ref.getSpeed().getValue(), (int)pt.getX()+15, (int)pt.getY()+pos);
+                    
                 }
-                LocationType loc = new LocationType( Math.toDegrees(ref.getLat()), Math.toDegrees(ref.getLon()));
-                Point2D pt = renderer.getScreenPosition(loc);
-                Ellipse2D ellis = new Ellipse2D.Double(pt.getX()-radius, pt.getY()-radius, radius * 2, radius * 2);
-                g.setColor(c);
-                g.fill(ellis);
             }
-        }
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -301,37 +339,27 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
         for (ReferencePlan p : plans.values())
             wpts.addAll(p.getWaypoints());
 
-        boolean gotOne = false;
-        for (ReferenceWaypoint wpt : wpts) {
-            Reference ref = wpt.getReference();
-            LocationType refLoc = new LocationType(Math.toDegrees(ref.getLat()), Math.toDegrees(ref.getLon()));
-            double dist = pressed.getPixelDistanceTo(refLoc, source.getLevelOfDetail());
-            if (dist < radius) {
-                movingWaypoint = wpt;
-                if (event.isControlDown() && event.getButton() == MouseEvent.BUTTON1) {
-                    for (ReferencePlan p : plans.values()) {
-                        if (p.getWaypoints().contains(wpt)) {
-                            ReferenceWaypoint newWaypoint = p.cloneWaypoint(wpt);
-                            newWaypoint.setHorizontalLocation(pressed);
-                            movingWaypoint = newWaypoint;   
-                        }
+        ReferenceWaypoint wpt = waypointUnder(event.getPoint(), source);
+        
+        if (wpt != null) {
+            if (event.isControlDown() && event.getButton() == MouseEvent.BUTTON1) {
+                for (ReferencePlan p : plans.values()) {
+                    if (p.getWaypoints().contains(wpt)) {
+                        ReferenceWaypoint newWaypoint = p.cloneWaypoint(wpt);
+                        newWaypoint.setHorizontalLocation(pressed);
+                        movingWaypoint = newWaypoint;   
                     }
                 }
-                else if (event.getButton() == MouseEvent.BUTTON1) {
-                    wpt.setHorizontalLocation(pressed);
-                }
-                else if (event.getButton() == MouseEvent.BUTTON3) {
-                    for (ReferencePlan p : plans.values())
-                        p.removeWaypoint(wpt);
-                }
-                source.repaint();
-                gotOne = true;                    
-                break;
             }
+            else if (event.getButton() == MouseEvent.BUTTON1) {
+                wpt.setHorizontalLocation(pressed);
+                movingWaypoint = wpt;
+            }
+            source.repaint();
         }
-        if (!gotOne) {
+        else {
             super.mousePressed(event, source);
-        }
+        }       
     }
 
     @Override
@@ -351,11 +379,41 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
             source.repaint();
         }
     }
+    
+    public ReferenceWaypoint waypointUnder(Point2D pt, StateRenderer2D source) {
+        Vector<ReferenceWaypoint> wpts = new Vector<>();
+        for (ReferencePlan p : plans.values())
+            wpts.addAll(p.getWaypoints());
+
+        LocationType pressed = source.getRealWorldLocation(pt);
+        pressed.convertToAbsoluteLatLonDepth();
+
+        for (ReferenceWaypoint wpt : wpts) {
+            Reference ref = wpt.getReference();
+            LocationType refLoc = new LocationType(Math.toDegrees(ref.getLat()), Math.toDegrees(ref.getLon()));
+            double dist = pressed.getPixelDistanceTo(refLoc, source.getLevelOfDetail());
+            if (dist < radius) {
+                return wpt;
+            }
+        }
+        return null;
+    }
+    
+    @Override
+    public void mouseMoved(MouseEvent event, StateRenderer2D source) {
+        focusedWaypoint = waypointUnder(event.getPoint(), source);        
+    }
 
     @Override
     public void mouseClicked(final MouseEvent event, final StateRenderer2D source) {
         super.mouseClicked(event, source);
 
+        ReferenceWaypoint wpt = waypointUnder(event.getPoint(), source);
+        
+        if (wpt != null && event.getButton() == MouseEvent.BUTTON1 && event.getClickCount() >= 2) {
+            PluginUtils.editPluginProperties(wpt, true);
+        }
+        
         if (event.getButton() == MouseEvent.BUTTON3) {
             JPopupMenu popup = new JPopupMenu();
 

@@ -37,20 +37,71 @@ import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.DesiredZ.Z_UNITS;
 import pt.lsts.imc.Reference;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
  *
  */
-public class ReferenceWaypoint {
+public class ReferenceWaypoint implements ConfigurationListener {
 
     private Reference reference;
+    
     private ManeuverLocation loc;
+    
+    protected double latitude, longitude;
+    
+    @NeptusProperty(name="Specify Z", category="Z")
+    private boolean defineZ = true;
+
+    @NeptusProperty(name="Z Reference", category="Z")
+    private pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS zUnits;
+    
+    @NeptusProperty(name="Z value", category="Z")
+    private double z;
+    
+    @NeptusProperty(name="Specify speed", category="Speed")
+    private boolean defineSpeed = true;
+
+    @NeptusProperty(name="Speed units", category="Speed")
+    private SPEED_UNITS speedUnits;
+
+    @NeptusProperty(name="Speed value", category="Speed")
+    private double speed;
+    
+    //@NeptusProperty(name="Time (s)", category="Time")
+    //private double time;
+    
+    
+    @Override
+    public void propertiesChanged() {
+        loc.setZ(z);
+        loc.setZUnits(zUnits);
+     
+        reference = new Reference();
+        reference.setLat(loc.getLatitudeAsDoubleValueRads());
+        reference.setLon(loc.getLongitudeAsDoubleValueRads());
+        if (defineZ)
+            reference.setZ(new DesiredZ((float)loc.getZ(), Z_UNITS.valueOf(loc.getZUnits().name())));
+        if (defineSpeed)
+            reference.setSpeed(new DesiredSpeed(speed, speedUnits));
+        reference.setFlags((short)(Reference.FLAG_LOCATION | 
+                (defineSpeed?   Reference.FLAG_SPEED : 0) | 
+                (defineZ?       Reference.FLAG_Z : 0)));
+    }
     
     public ReferenceWaypoint(ManeuverLocation loc, double speed) {
         loc.convertToAbsoluteLatLonDepth();
         this.loc = loc.clone();
+        this.latitude = loc.getLatitudeAsDoubleValue();
+        this.longitude = loc.getLongitudeAsDoubleValue();
+        this.speed = speed;
+        this.speedUnits = SPEED_UNITS.METERS_PS;
+        this.z = loc.getZ();
+        this.zUnits = loc.getZUnits();
+        
         reference = new Reference();        
         reference.setLat(loc.getLatitudeAsDoubleValueRads());
         reference.setLon(loc.getLongitudeAsDoubleValueRads());
@@ -72,6 +123,14 @@ public class ReferenceWaypoint {
         loc.setLongitudeRads(ref.getLon());
         loc.setZ(ref.getZ().getValue());
         loc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(ref.getZ().getZUnits().name()));        
+        
+        this.latitude = loc.getLatitudeAsDoubleValue();
+        this.longitude = loc.getLongitudeAsDoubleValue();
+        this.z = loc.getZ();
+        this.zUnits = loc.getZUnits();
+        
+        this.speedUnits = ref.getSpeed().getSpeedUnits();
+        this.speed = ref.getSpeed().getValue();
     }
 
     public void setHorizontalLocation(LocationType newLoc) {
@@ -80,6 +139,8 @@ public class ReferenceWaypoint {
         loc.setLongitude(newLoc.getLongitudeAsDoubleValue());
         reference.setLat(newLoc.getLatitudeAsDoubleValueRads());
         reference.setLon(newLoc.getLongitudeAsDoubleValueRads());
+        latitude = newLoc.getLatitudeAsDoubleValue();
+        longitude = newLoc.getLongitudeAsDoubleValue();
     }
     
     public void setZ(DesiredZ desiredZ) {        
@@ -87,23 +148,31 @@ public class ReferenceWaypoint {
             reference.setFlags((short)(reference.getFlags() ^ Reference.FLAG_Z));
             reference.setZ(null);
             loc.setZUnits(ManeuverLocation.Z_UNITS.NONE);
+            defineZ = false;
+            zUnits = ManeuverLocation.Z_UNITS.NONE;
         }
         else {
             reference.setZ(new DesiredZ((float)desiredZ.getValue(), desiredZ.getZUnits()));
             reference.setFlags((short)(reference.getFlags() | Reference.FLAG_Z));
             loc.setZ(desiredZ.getValue());
             loc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(desiredZ.getZUnits().name()));
+            zUnits = loc.getZUnits();
+            z = loc.getZ();
         }
     }
     
     public void setSpeed(DesiredSpeed speed) {
         if (speed == null) {
             reference.setFlags((short)(reference.getFlags() ^ Reference.FLAG_SPEED));
-            reference.setSpeed(null);            
+            reference.setSpeed(null);  
+            defineSpeed = false;
         }
         else {
             reference.setFlags((short)(reference.getFlags() | Reference.FLAG_SPEED));
             reference.setSpeed(new DesiredSpeed(speed.getValue(), speed.getSpeedUnits()));
+            defineSpeed = true;
+            this.speed = speed.getValue();
+            this.speedUnits = speed.getSpeedUnits();
         }
     }
     
