@@ -57,19 +57,19 @@ public class ReferenceWaypoint implements ConfigurationListener {
     private boolean defineZ = true;
 
     @NeptusProperty(name="Z Reference", category="Z")
-    private pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS zUnits;
+    private pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS zUnits = ManeuverLocation.Z_UNITS.DEPTH;
     
     @NeptusProperty(name="Z value", category="Z")
-    private double z;
+    private double z = 0;
     
     @NeptusProperty(name="Specify speed", category="Speed")
     private boolean defineSpeed = true;
 
     @NeptusProperty(name="Speed units", category="Speed")
-    private SPEED_UNITS speedUnits;
+    private SPEED_UNITS speedUnits = SPEED_UNITS.METERS_PS;
 
     @NeptusProperty(name="Speed value", category="Speed")
-    private double speed;
+    private double speed = 1.3;
     
     @NeptusProperty(name="Loiter radius (m)", category="Loiter")
     public double loiterRadius = 15;
@@ -77,7 +77,7 @@ public class ReferenceWaypoint implements ConfigurationListener {
     @NeptusProperty(name="Loiter", category="Loiter")
     public boolean loiter = false;
     
-    //@NeptusProperty(name="Time (seconds)", description="Time to stay at this location", category="Time")
+    @NeptusProperty(name="Time (seconds)", description="Time to stay at this location", category="Time")
     public double time = 0;
     
     private double startTime = Double.NaN;
@@ -106,7 +106,7 @@ public class ReferenceWaypoint implements ConfigurationListener {
     public double timeLeft() {
         if (time == 0 || Double.isNaN(startTime))
             return Double.NaN;
-        return System.currentTimeMillis() / 1000.0 - startTime;
+        return time - (System.currentTimeMillis() / 1000.0 - startTime);
     }
     
     public void setStartTime(double startTime) {
@@ -142,10 +142,11 @@ public class ReferenceWaypoint implements ConfigurationListener {
         loc = new ManeuverLocation();
         loc.setLatitudeRads(ref.getLat());
         loc.setLongitudeRads(ref.getLon());
-        loc.setZ(ref.getZ().getValue());
-        loc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(ref.getZ().getZUnits().name()));        
+        if (ref.getZ() != null) {
+            loc.setZ(ref.getZ().getValue());
+            loc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(ref.getZ().getZUnits().name()));
+        }    
         defineZ = (ref.getFlags() & Reference.FLAG_Z) != 0;
-        defineSpeed = (ref.getFlags() & Reference.FLAG_SPEED) != 0;
         loiter = (ref.getFlags() & Reference.FLAG_RADIUS) != 0;
         this.loiterRadius = ref.getRadius();
         
@@ -153,8 +154,12 @@ public class ReferenceWaypoint implements ConfigurationListener {
         this.longitude = loc.getLongitudeAsDoubleValue();
         this.z = loc.getZ();
         this.zUnits = loc.getZUnits();
-        this.speedUnits = ref.getSpeed().getSpeedUnits();
-        this.speed = ref.getSpeed().getValue();
+        if (ref.getSpeed() != null) {
+            this.speedUnits = ref.getSpeed().getSpeedUnits();
+            this.speed = ref.getSpeed().getValue();
+        }
+        defineSpeed = (ref.getFlags() & Reference.FLAG_SPEED) != 0;
+        
     }
 
     public void setHorizontalLocation(LocationType newLoc) {
