@@ -99,15 +99,6 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     protected ReferenceWaypoint focusedWaypoint = null;
     protected double radius = 8;
 
-    // @NeptusProperty
-    // public ManeuverLocation.Z_UNITS z_units = ManeuverLocation.Z_UNITS.DEPTH;
-
-    // @NeptusProperty
-    // public double z = 0;
-
-    // @NeptusProperty
-    // public double speed = 1.1;
-
     @NeptusProperty(name = "Use acoustic communications", description = "Setting to true will make all communications go through acoustic modem")
     public boolean useAcousticCommunications = false;
 
@@ -326,7 +317,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                     if (wpt.loiter) {
                         g.setStroke(new BasicStroke(1.5f));
                         g.setColor(new Color(255, 255, 255, 128));
-                        double radius = wpt.loiterRadius * renderer.getZoom();
+                        double radius = Math.abs(wpt.loiterRadius * renderer.getZoom());
                         g.draw(new Ellipse2D.Double(pt.getX() - radius, pt.getY() - radius, radius * 2, radius * 2));
                     }
                 }
@@ -368,7 +359,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 if (focusedWaypoint.loiter) {
                     g.setStroke(new BasicStroke(2f));
                     g.setColor(new Color(255, 255, 255, 128));
-                    double radius = focusedWaypoint.loiterRadius * renderer.getZoom();
+                    double radius = Math.abs(focusedWaypoint.loiterRadius * renderer.getZoom());
                     g.draw(new Ellipse2D.Double(pt.getX() - radius, pt.getY() - radius, radius * 2, radius * 2));
                 }
 
