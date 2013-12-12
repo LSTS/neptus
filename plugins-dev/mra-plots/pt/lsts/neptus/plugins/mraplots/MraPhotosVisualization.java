@@ -469,7 +469,11 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                         @Override
                         public void run() {
                             fullRes = true;
-                            Image watermark = ImageUtils.getImage("pt/lsts/neptus/plugins/mraplots/lsts-watermark.png");
+                            Image watermark = null;//ImageUtils.getImage("pt/lsts/neptus/plugins/mraplots/lsts-watermark.png");
+                            
+                            if (new File("conf/mra-watermark.png").canRead()) {
+                                watermark = ImageUtils.getImage(new File("conf/mra-watermark.png").getPath());
+                            }
 
                             BufferedImage tmp = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
                             Graphics2D g = tmp.createGraphics();
@@ -485,7 +489,8 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                                     if (showLegend) {
                                         drawLegend(g, f);
                                         g.drawImage(hud.getImage(timestampOf(f)), 10, tmp.getHeight()-160, null);
-                                        g.drawImage(watermark, tmp.getWidth()-55, tmp.getHeight()-55, null);
+                                        if (watermark != null)
+                                            g.drawImage(watermark, tmp.getWidth()-55, tmp.getHeight()-55, null);
                                     }
                                     monitor.setNote("Processing "+f.getName());
                                     monitor.setProgress(count++);
