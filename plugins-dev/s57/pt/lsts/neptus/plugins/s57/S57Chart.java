@@ -83,9 +83,11 @@ public class S57Chart implements MapPainterProvider {
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         NeptusS57Painter painterToUse = painterList.get(renderer);
-        if (painterToUse != null) {
-            painterToUse.paint(g, renderer);
+        if (painterToUse == null) {
+            painterToUse = NeptusS57Painter.forge(s57, mc);
+            painterList.put(renderer, painterToUse);
         }
+        painterToUse.paint(g, renderer);
     }
 
     public JDialog getOptionsDialog(JDialog parent, final StateRenderer2D renderer) {
@@ -105,7 +107,11 @@ public class S57Chart implements MapPainterProvider {
             dialog.addTab("S63", dialog.getIconMedium("icons/location2.png"), new S63OptionsPanel(s57, s63, dialog), "Settings for S63 Maps");
         dialog.addTab("Mariner Controls", dialog.getIconMedium("icons/cog2.png"), new MarinerControlsOptionsPanel(mc,dialog), "Mariner Controls");
         dialog.setRenderer(renderer);
-        painterList.put(renderer, NeptusS57Painter.forge(s57, mc));
+        // painter for this renderer
+        NeptusS57Painter painterToUse = painterList.get(renderer);
+        if(painterToUse == null){
+            painterList.put(renderer, NeptusS57Painter.forge(s57, mc));
+        }
 
         return dialog;
     }
