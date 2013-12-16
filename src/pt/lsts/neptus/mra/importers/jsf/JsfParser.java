@@ -60,23 +60,23 @@ public class JsfParser {
     private FileChannel channel;
     private long curPosition = 0;
     private JsfIndex index = new JsfIndex();    
-    
+
     private String indexPath;
-    
+
     private LinkedHashMap<Integer, Long[]> tslist = new LinkedHashMap<Integer, Long[]>();
     private LinkedHashMap<Integer, Long> nextTimestamp = new LinkedHashMap<Integer, Long>();
-    
+
     final static int SUBSYS_LOW = 20;
     final static int SUBSYS_HIGH = 21;
-    
+
     public JsfParser(File file) {
         try {
             this.file = file;
             fis = new FileInputStream(file);
             channel = fis.getChannel();
-            
+
             indexPath = file.getParent() + "/mra/jsf.index";
-            
+
             if (!new File(indexPath).exists()) {
                 NeptusLog.pub().info("Generating JSF index for " + file.getAbsolutePath());
                 generateIndex();
@@ -101,19 +101,19 @@ public class JsfParser {
     public JsfIndex getIndex() {
         return index;
     }
-    
+
     public void generateIndex() {
         JsfHeader header = new JsfHeader();
         JsfSonarData ping = new JsfSonarData();
 
         long count = 0;
         long pos = 0;
-        
+
         long maxTimestampHigh = 0;
         long maxTimestampLow = 0;
         long minTimestampHigh = Long.MAX_VALUE;
         long minTimestampLow = Long.MAX_VALUE;
-        
+
         try {
             while (true) {
                 // Read ONLY the header
@@ -128,33 +128,33 @@ public class JsfParser {
                     buf.order(ByteOrder.LITTLE_ENDIAN);
                     ping.parseHeader(buf);
                     curPosition += header.getMessageSize();
-//                     NeptusLog.pub().info("<###> "+ping.getPingNumber() + " " + ping.getTimestamp() + " " +
-//                     ping.getNumberOfSamples() + " " +
-//                     ping.getFrequency() + " "
-//                     + ping.getHeader().getSubsystem() + " " + ping.getHeader().getChannel());
+                    //                     NeptusLog.pub().info("<###> "+ping.getPingNumber() + " " + ping.getTimestamp() + " " +
+                    //                     ping.getNumberOfSamples() + " " +
+                    //                     ping.getFrequency() + " "
+                    //                     + ping.getHeader().getSubsystem() + " " + ping.getHeader().getChannel());
                 }
                 else { // Ignore other messages;
                     curPosition += header.getMessageSize();
                     pos = curPosition;
                     continue;
                 }
-                
+
                 // Common processing to both subsystems
                 long t = ping.getTimestamp(); // Timestamp
                 float f = ping.getFrequency(); // Frequency
                 int subsystem = ping.getHeader().getSubsystem();
-                
+
                 if (!index.frequenciesList.contains(f)) {
                     index.frequenciesList.add(f);
                 }
-                
+
                 if (!index.subSystemsList.contains(subsystem)) {
                     index.subSystemsList.add(subsystem);
                 }
-                
+
                 if(subsystem == SUBSYS_LOW) {
                     if(!index.hasLow) index.hasLow = true;
-                    
+
                     ArrayList<Long> l = index.positionMapLow.get(t);
                     if (l == null) {
                         l = new ArrayList<Long>();
@@ -167,10 +167,10 @@ public class JsfParser {
                     minTimestampLow = Math.min(minTimestampLow, t);
                     maxTimestampLow = Math.max(maxTimestampLow, t);
                 }
-                
+
                 if(subsystem == SUBSYS_HIGH) {
                     if(!index.hasHigh) index.hasHigh = true;
-                    
+
                     ArrayList<Long> l = index.positionMapHigh.get(t);
                     if (l == null) {
                         l = new ArrayList<Long>();
@@ -195,17 +195,17 @@ public class JsfParser {
             System.out.println(JsfParser.class.getSimpleName() + " :: " + maxTimestampHigh);
             System.out.println(JsfParser.class.getSimpleName() + " :: " + minTimestampLow);
             System.out.println(JsfParser.class.getSimpleName() + " :: " + maxTimestampLow);
-            
+
             index.firstTimestampHigh = minTimestampHigh;
             index.firstTimestampLow = minTimestampLow;
-            
+
             index.lastTimestampHigh = maxTimestampHigh;
             index.lastTimestampLow = maxTimestampLow;
-            
+
             // Save timestamp list
             Long[] tslisthigh;
             Long[] tslistlow;
-            
+
             tslisthigh = index.positionMapHigh.keySet().toArray(new Long[] {});
             tslistlow = index.positionMapLow.keySet().toArray(new Long[] {});
 
@@ -214,7 +214,7 @@ public class JsfParser {
 
             tslist.put(SUBSYS_LOW, tslistlow);
             tslist.put(SUBSYS_HIGH, tslisthigh);
-            
+
             index.numberOfPackets = count;
 
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indexPath));
@@ -230,19 +230,19 @@ public class JsfParser {
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(indexPath));
             index = (JsfIndex) in.readObject();
-            
+
             Long[] tslisthigh;
             Long[] tslistlow;
-            
+
             tslisthigh = index.positionMapHigh.keySet().toArray(new Long[] {});
             tslistlow = index.positionMapLow.keySet().toArray(new Long[] {});
-            
+
             Arrays.sort(tslisthigh);
             Arrays.sort(tslistlow);
-            
+
             tslist.put(SUBSYS_LOW, tslistlow);
             tslist.put(SUBSYS_HIGH, tslisthigh);
-            
+
             in.close();
         }
         catch (Exception e) {
@@ -268,7 +268,7 @@ public class JsfParser {
             buf.order(ByteOrder.LITTLE_ENDIAN);
             header.parse(buf);
             pos += 16;
-            
+
             if(header.getSubsystem() != subsystem) 
                 return null;
 
@@ -296,12 +296,12 @@ public class JsfParser {
     public ArrayList<JsfSonarData> getPingAt(Long timestamp, int subsystem) {
         curPosition = 0;
         ArrayList<JsfSonarData> ping = new ArrayList<JsfSonarData>();
-        
+
         LinkedHashMap<Long, ArrayList<Long>> positionMap = ( subsystem == SUBSYS_LOW ? index.positionMapLow : index.positionMapHigh);
-        
+
         long ts = 0;
         int c = 0;
-        
+
         for (Long time : tslist.get(subsystem)) {
             if (time >= timestamp) {
                 ts = time;
@@ -309,9 +309,9 @@ public class JsfParser {
             }
             c++;
         }
-        
+
         nextTimestamp.put(subsystem, tslist.get(subsystem)[c+1]);
-        
+
         for(Long pos : positionMap.get(ts)) {
             ping.add(getPingAtPosition(pos, subsystem));
         }
@@ -319,29 +319,29 @@ public class JsfParser {
         return ping;
     }
 
-        public static void main(String[] args) throws IOException {
-            JsfParser parser = new JsfParser(new File("/home/jqcorreia/lsts/logs/lauv-dolphin-1/20130626/133827_rows_a1.5m/Data.jsf"));
-//            ArrayList<JsfSonarData> ping = parser.getPingAt(parser.index.firstTimestampHigh, parser.index.subSystemsList.get(0));
-            
-            System.out.println();
-            System.out.println();
-            System.out.println(parser.index.firstTimestampHigh);
-            System.out.println(parser.index.firstTimestampLow);
-            System.out.println(parser.index.lastTimestampHigh);
-            System.out.println(parser.index.lastTimestampLow);
-            System.out.println();
-            System.out.println(parser.getFirstTimeStamp());
-            System.out.println(parser.getLastTimeStamp());
-            
-//            while(true) {
-//                if(ping == null)
-//                    break;
-//                ping = parser.nextPing(parser.index.subSystemsList.get(0));
-//                System.out.println(ping.get(0).getTimestamp());
-//            }
-//            
-//            for(Integer i : parser.index.subSystemsList) {
-//                NeptusLog.pub().info("<###> "+i);
-//            }
-        }
+    public static void main(String[] args) throws IOException {
+        JsfParser parser = new JsfParser(new File("/home/jqcorreia/lsts/logs/lauv-dolphin-1/20130626/133827_rows_a1.5m/Data.jsf"));
+        //            ArrayList<JsfSonarData> ping = parser.getPingAt(parser.index.firstTimestampHigh, parser.index.subSystemsList.get(0));
+
+        System.out.println();
+        System.out.println();
+        System.out.println(parser.index.firstTimestampHigh);
+        System.out.println(parser.index.firstTimestampLow);
+        System.out.println(parser.index.lastTimestampHigh);
+        System.out.println(parser.index.lastTimestampLow);
+        System.out.println();
+        System.out.println(parser.getFirstTimeStamp());
+        System.out.println(parser.getLastTimeStamp());
+
+        //            while(true) {
+        //                if(ping == null)
+        //                    break;
+        //                ping = parser.nextPing(parser.index.subSystemsList.get(0));
+        //                System.out.println(ping.get(0).getTimestamp());
+        //            }
+        //            
+        //            for(Integer i : parser.index.subSystemsList) {
+        //                NeptusLog.pub().info("<###> "+i);
+        //            }
+    }
 }

@@ -64,7 +64,7 @@ import pt.lsts.neptus.util.llf.LogUtils;
  */
 @PluginDescription(author = "jqcorreia", name = "Sidescan Analyzer")
 public class SidescanAnalyzer extends JPanel implements MRAVisualization, TimelineChangeListener,
-        LogMarkerListener {
+LogMarkerListener {
     private static final long serialVersionUID = 1L;
 
     protected MRAPanel mraPanel;
@@ -80,7 +80,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
     // List of different frequencies on this log
     //private ArrayList<Double> freqList = new ArrayList<Double>();
-    
+
     // Processing flags
     @NeptusProperty(name="Vertical Blending")
     public boolean verticalBlending = false;
@@ -90,38 +90,38 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     public boolean timeVariableGain = false;
 
     private ArrayList<SidescanPanel> sidescanPanels = new ArrayList<SidescanPanel>();
-    
+
     private ArrayList<LogMarker> markerList = new ArrayList<LogMarker>();
-    
+
     private SidescanParser ssParser;
-    
+
     public SidescanAnalyzer(MRAPanel panel) {
         this.mraPanel = panel;
     }
-    
+
     protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
-    
+
     public void initialize(IMraLogGroup source) {
         ssParser = SidescanParserFactory.build(source);
 
         firstPingTime = ssParser.firstPingTimestamp();
         lastPingTime = ssParser.lastPingTimestamp();
-        
+
         lastUpdateTime = firstPingTime;
-        
+
         for(Integer subsys : ssParser.getSubsystemList()) {
             System.out.println(subsys);
             sidescanPanels.add(new SidescanPanel(this, ssParser, subsys));
         }
-        
+
         fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
-        
+
         System.out.println(fmt.format(new Date(firstPingTime)) + " " + fmt.format(new Date(lastPingTime)) + " " + (lastPingTime - firstPingTime));
-        
+
         timeline = new Timeline(0, (int) (lastPingTime - firstPingTime), 30, 1000, false);
         timeline.getSlider().setValue(0);
         timeline.addTimelineChangeListener(this);
-        
+
         timeline.getSlider().setUI(new BasicSliderUI(timeline.getSlider()) {
             @Override
             public void paintTicks(Graphics g) {
@@ -129,14 +129,14 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
                 for(LogMarker m : markerList) {
                     long mtime = new Double(m.timestamp).longValue();
                     g.drawLine(xPositionForValue((int)(mtime-firstPingTime)), 0, xPositionForValue((int)(mtime-firstPingTime)),timeline.getSlider().getHeight()/2);
-//                    g.drawString(m.label, xPositionForValue((int)(mtime-firstPingTime))-10, 22);
+                    //                    g.drawString(m.label, xPositionForValue((int)(mtime-firstPingTime))-10, 22);
                 }
             } 
         });
-        
+
         // Layout building
         setLayout(new MigLayout());
-        
+
         for(SidescanPanel p : sidescanPanels) {
             add(p, "w 100%, h 100%, wrap");
         }
@@ -176,23 +176,28 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
                 // this means it dragged
                 for(SidescanPanel p : sidescanPanels)
                     p.clearLines();
-                
+
                 lastUpdateTime = value;
             }
             else
                 lastUpdateTime = currentTime;
-            
+
             currentTime = value;
-            
+
             if (currentTime + firstPingTime >= lastPingTime) {
                 timeline.pause();
             }
-            
+
             for (SidescanPanel p : sidescanPanels) {
-                p.updateImage(currentTime, lastUpdateTime);
-                p.repaint();
+                try {
+                    p.updateImage(currentTime, lastUpdateTime);
+                    p.repaint();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-            
+
             timeline.setTime(firstPingTime + currentTime);
         }
         catch (Exception e) {
@@ -225,6 +230,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         return false;
     }
 
+    @Override
     public Type getType() {
         return Type.VISUALIZATION;
     }
@@ -232,20 +238,22 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     public ArrayList<LogMarker> getMarkerList() {
         return markerList;
     }
+    @Override
     public void onCleanup() {
         sidescanPanels.clear();
         removeAll();
         mraPanel = null;
         markerList.clear();
     }
-    
+
     @Override
     public void onHide() {
         timeline.pause();
     }
-    
+
+    @Override
     public void onShow() {
-        
+
     }
 
 
@@ -261,7 +269,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
     @Override
     public void GotoMarker(LogMarker marker) {
-        
+
     }
 
 
