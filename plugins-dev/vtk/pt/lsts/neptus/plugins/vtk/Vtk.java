@@ -142,6 +142,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
     //private DownsamplePointCloud performDownsample;
     //private Boolean isDownsampleDone = false;
+    private Boolean isFirstRender = true;
 
 
     /**
@@ -317,17 +318,21 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     @Override
     public void onShow() {
         //canvas.lock();
-        try {
-            Thread.sleep(1000);
+        //        try {
+        //            Thread.sleep(1000);
+        //        }
+        //        catch (InterruptedException e) {
+        //            e.printStackTrace();
+        //        }
+        if(isFirstRender) {
+            canvas.RenderSecured();
+            // canvas.GetRenderWindow().SetCurrentCursor(9);    
+            canvas.GetRenderer().ResetCamera();
+            // canvas.Report();
+            //canvas.unlock();
+            isFirstRender = false;
         }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        canvas.RenderSecured();
-        // canvas.GetRenderWindow().SetCurrentCursor(9);    
-        canvas.GetRenderer().ResetCamera();
-        // canvas.Report();
-        //canvas.unlock();
+
     }
 
     @Override
