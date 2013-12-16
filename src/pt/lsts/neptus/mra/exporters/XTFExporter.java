@@ -39,6 +39,7 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryParserFactory;
@@ -53,7 +54,7 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 
 public class XTFExporter implements MRAExporter {
     IMraLogGroup source;
-    BathymetryParser parser;
+    BathymetryParser parser = null;
     File outFile;
     RandomAccessFile raf;
     FileChannel chan;
@@ -62,7 +63,12 @@ public class XTFExporter implements MRAExporter {
     
     public XTFExporter(IMraLogGroup source) {
         this.source = source;
-        parser = BathymetryParserFactory.build(source);
+        try {
+            parser = BathymetryParserFactory.build(source);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
     
     }
     

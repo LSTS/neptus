@@ -47,7 +47,7 @@ public class BathymetryParserFactory {
     
     public static BathymetryParser build(IMraLogGroup log) {
         file = null;
-        dir = log.getFile("Data.lsf").getParentFile();
+        dir = log.getFile(".").getParentFile();
         source = log;
         
         return getParser();
