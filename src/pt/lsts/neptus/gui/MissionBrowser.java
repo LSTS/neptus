@@ -246,6 +246,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             String idAfter = elem.getIdentification();
             if (!idAfter.equals(elemBefore.getIdentification())) {
                 // create a new synced one with original
+                elemBefore.duneId = -1;
                 ExtendedTreeNode newNode = treeModel.addTransponderNode(elemBefore);
                 newNode.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
                 // set modifications as local
@@ -263,6 +264,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             pivot.warnChangeListeners(mce);
             saveMission(mission);
             treeModel.nodeChanged(selectedTreeNode);
+            repaint();
         }
     }
 
