@@ -144,14 +144,16 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 int prox = frefStates.get(v).getProximity();
                 ReferenceWaypoint wpt = plans.get(v).currentWaypoint();
                 if ((prox & FollowRefState.PROX_XY_NEAR) != 0 && (prox & FollowRefState.PROX_Z_NEAR) != 0) {
-                    if (wpt.time > 0) {
-                        if (Double.isNaN(wpt.timeLeft()))
-                            wpt.setStartTime(System.currentTimeMillis() / 1000.0);
-                        else if (wpt.timeLeft() <= 0)
+                    if (wpt.time != -1) {
+                        if (wpt.time > 0) {
+                            if (Double.isNaN(wpt.timeLeft()))
+                                wpt.setStartTime(System.currentTimeMillis() / 1000.0);
+                            else if (wpt.timeLeft() <= 0)
+                                plans.get(v).popFirstWaypoint();
+                        }
+                        else
                             plans.get(v).popFirstWaypoint();
                     }
-                    else
-                        plans.get(v).popFirstWaypoint();
                 }
                 else {
                     wpt.setStartTime(Double.NaN);
@@ -355,6 +357,11 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 }
                 else if (focusedWaypoint.time > 0) {
                     g.drawString("time: " + GuiUtils.getNeptusDecimalFormat(0).format(focusedWaypoint.time),
+                            (int) pt.getX() + 15, (int) pt.getY() + pos);
+                    pos += 15;
+                }
+                else if (focusedWaypoint.time == -1) {
+                    g.drawString("time: \u221e",
                             (int) pt.getX() + 15, (int) pt.getY() + pos);
                     pos += 15;
                 }

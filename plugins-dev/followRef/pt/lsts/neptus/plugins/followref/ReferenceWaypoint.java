@@ -77,7 +77,7 @@ public class ReferenceWaypoint implements ConfigurationListener {
     @NeptusProperty(name="Loiter", category="Loiter")
     public boolean loiter = false;
     
-    @NeptusProperty(name="Time (seconds)", description="Time to stay at this location", category="Time")
+    @NeptusProperty(name="Time (seconds)", description="Time to stay at this location. -1 for infinity.", category="Time")
     public double time = 0;
     
     private double startTime = Double.NaN;
