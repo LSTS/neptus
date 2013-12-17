@@ -133,8 +133,11 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                     boolean prox = false;
                     LocationType loc = IMCUtils.getLocation(states.get(v));
                     prox = plans.get(v).currentWaypoint().getManeuverLocation().getDistanceInMeters(loc) < radius + 4;
-                    if (prox)
-                        plans.get(v).popFirstWaypoint();
+                    if (prox) {
+                        ReferenceWaypoint wpt = plans.get(v).popFirstWaypoint();
+                        if (focusedWaypoint.equals(wpt))
+                            focusedWaypoint = null;
+                    }
                 }
             }
             else if (frefStates.containsKey(v)) {
@@ -450,15 +453,34 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     public void mouseClicked(final MouseEvent event, final StateRenderer2D source) {
         super.mouseClicked(event, source);
 
-        ReferenceWaypoint wpt = waypointUnder(event.getPoint(), source);
+        final ReferenceWaypoint wpt = waypointUnder(event.getPoint(), source);
 
         if (wpt != null && event.getButton() == MouseEvent.BUTTON1 && event.getClickCount() >= 2) {
             PluginUtils.editPluginProperties(wpt, true);
+            if (focusedWaypoint.equals(wpt))
+                focusedWaypoint = null;
         }
 
         if (event.getButton() == MouseEvent.BUTTON3) {
             JPopupMenu popup = new JPopupMenu();
 
+            if (wpt != null) {
+                popup.add("Remove waypoint").addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        for (ReferencePlan p : plans.values())
+                            p.removeWaypoint(wpt);
+                        if (focusedWaypoint.equals(wpt))
+                            focusedWaypoint = null;
+                    }
+                });
+                popup.add("Waypoint parameters").addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        PluginUtils.editPluginProperties(wpt, true);
+                    }
+                });
+                popup.addSeparator();
+            }            
+            
             Vector<VehicleType> avVehicles = new Vector<VehicleType>();
 
             ImcSystem[] veh = ImcSystemsHolder.lookupActiveSystemVehicles();
@@ -512,7 +534,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                     });
                 }
             }
-            popup.addSeparator();
+            if (veh.length > 0)
+                popup.addSeparator();
 
             popup.add("Follow Reference Settings").addActionListener(new ActionListener() {
                 @Override
@@ -531,13 +554,11 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void initSubPanel() {
-        // TODO Auto-generated method stub
 
     }
 }
