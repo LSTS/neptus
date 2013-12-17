@@ -31,13 +31,14 @@
  */
 package pt.lsts.neptus.types.mission;
 
+import pt.lsts.neptus.types.NameId;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 
 /**
  * @author Paulo
  *
  */
-public class HomeReference extends CoordinateSystem
+public class HomeReference extends CoordinateSystem implements NameId
 {
 
 	/**
@@ -71,5 +72,15 @@ public class HomeReference extends CoordinateSystem
 	public void setMission(MissionType mission) {
 		this.mission = mission;
 	}
+
+    @Override
+    public String getIdentification() {
+        return toString();
+    }
+
+    @Override
+    public String getDisplayName() {
+        return toString();
+    }
 
 }

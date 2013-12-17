@@ -320,12 +320,12 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
 
                     @Override
                     protected void done() {
-                        try {
-                            get();
-                        }
-                        catch (Exception e) {
-                            NeptusLog.pub().error(e);
-                        }
+                        // try {
+                        // get();
+                        // }
+                        // catch (Exception e) {
+                        // NeptusLog.pub().error(e);
+                        // }
                         sendAcousticsButton.setEnabled(true);
                     }
                 };
@@ -852,48 +852,47 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             return false;
 
         PlanType[] plans = getSelectedPlansFromExternalComponents();
-        PlanType plan = plans[0];
+        PlanType plan;
+        int iSent = 0;
 
-        try {
-            if (verifyAllManeuversUsed)
-                plan.validatePlan();
+        for (int i = 0; i < plans.length; i++) {
+            plan = plans[i];
+            try {
+                if (verifyAllManeuversUsed)
+                    plan.validatePlan();
+            }
+            catch (Exception e) {
+                // GuiUtils.errorMessage(getConsole(), e);
+                post(Notification.error(I18n.text("Send Plan"), e.getMessage()));
+                return false;
+            }
+            IMCMessage planSpecificationMessage = IMCUtils.generatePlanSpecification(plan);
+            if (planSpecificationMessage == null) {
+                // GuiUtils.errorMessage(this, I18n.text("Send Plan"),
+                // I18n.text("Error sending plan message!\nNo plan spec. valid!"));
+                post(Notification.error(I18n.text("Send Plan"),
+                        I18n.text("Error sending plan message!\nNo plan spec. valid!")));
+            }
+            int reqId = IMCSendMessageUtils.getNextRequestId();
+            PlanDB pdb = new PlanDB();
+            pdb.setType(PlanDB.TYPE.REQUEST);
+            pdb.setOp(OP.SET);
+            pdb.setRequestId(reqId);
+            pdb.setPlanId(plan.getId());
+            pdb.setArg(planSpecificationMessage);
+            pdb.setInfo("Plan sent by Neptus version " + ConfigFetch.getNeptusVersion());
+            registerPlanControlRequest(reqId);
+            boolean ret = IMCSendMessageUtils.sendMessage(pdb, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP
+                    : null), createDefaultMessageDeliveryListener(), this, I18n.text("Error sending plan"),
+                    DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+            if (ret) {
+                iSent++;
+            }
         }
-        catch (Exception e) {
-//            GuiUtils.errorMessage(getConsole(), e);
-            post(Notification.error(I18n.text("Send Plan"),
-                    e.getMessage()));
-            return false;
-        }
-
-        IMCMessage planSpecificationMessage = IMCUtils.generatePlanSpecification(plan);
-        if (planSpecificationMessage == null) {
-//            GuiUtils.errorMessage(this, I18n.text("Send Plan"),
-//                    I18n.text("Error sending plan message!\nNo plan spec. valid!"));
-            post(Notification.error(I18n.text("Send Plan"),
-                    I18n.text("Error sending plan message!\nNo plan spec. valid!")));
-        }
-
-        int reqId = IMCSendMessageUtils.getNextRequestId();
-
-        PlanDB pdb = new PlanDB();
-        pdb.setType(PlanDB.TYPE.REQUEST);
-        pdb.setOp(OP.SET);
-        pdb.setRequestId(reqId);
-        pdb.setPlanId(plan.getId());
-        pdb.setArg(planSpecificationMessage);
-
-        pdb.setInfo("Plan sent by Neptus version " + ConfigFetch.getNeptusVersion());
-        registerPlanControlRequest(reqId);
-
-        boolean ret = IMCSendMessageUtils.sendMessage(pdb, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null),
-                createDefaultMessageDeliveryListener(), this, I18n.text("Error sending plan"), DONT_USE_ACOUSTICS,
-                acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
-
-        if (ret) {
+        if (iSent > 0) {
             String missionlog = GuiUtils.getLogFileName("mission_state", "zip");
             getConsole().getMission().asZipFile(missionlog, true);
         }
-
         return true;
     }
 
