@@ -899,10 +899,10 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/types/checklist/**/*.class"/>
 			<include name="pt/lsts/neptus/types/Xml*.class"/>
 			<include name="pt/lsts/neptus/types/nativetypes/*.class"/>
-			<include name="pt/lsts/neptus/util/comm/vehicle/*.class"/>
-			<include name="pt/lsts/neptus/util/comm/transports/ImcUdpTransport*.class"/>
-			<include name="pt/lsts/neptus/util/comm/manager/imc/ImcId16*.class"/>
-			<include name="pt/lsts/neptus/util/comm/middleware/**.class"/>
+			<include name="pt/lsts/neptus/comm/vehicle/*.class"/>
+			<include name="pt/lsts/neptus/comm/transports/ImcUdpTransport*.class"/>
+			<include name="pt/lsts/neptus/comm/manager/imc/ImcId16*.class"/>
+			<!--include name="pt/lsts/neptus/util/comm/middleware/**.class"/-->
 			<include name="pt/lsts/neptus/gui/BlockingGlassPane*.class"/>
 			<include name="pt/lsts/neptus/gui/InfiniteProgressPanel*.class"/>
 			<include name="pt/lsts/neptus/gui/ClockCounter*.class"/>
@@ -1004,7 +1004,7 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/util/*.class" />
 			<include name="pt/lsts/neptus/util/conf/*.class" />
 			<include name="pt/lsts/neptus/util/coord/*.class" />
-			<include name="pt/lsts/neptus/util/comm/manager/imc/ImcId16*.class" />
+			<include name="pt/lsts/neptus/comm/manager/imc/ImcId16*.class" />
 			<include name="pt/lsts/neptus/gps/**.class" />
 			<include name="pt/lsts/neptus/gui/Properties*.class" />
 			<include name="pt/lsts/neptus/mp/MapChangeEvent*.class" />
@@ -1044,7 +1044,7 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/gui/ImagePanel*.class" />
 			<include name="pt/lsts/neptus/planeditor/I*.class" />
 			<include name="pt/lsts/neptus/gui/system/**/*.class" />
-			<include name="pt/lsts/neptus/util/comm/manager/imc/ImcSystem*.class" />
+			<include name="pt/lsts/neptus/comm/manager/imc/ImcSystem*.class" />
 			<include name="images/ssh-connect.png"/>
 		</jar>
 		<mkdir dir="${tmp.bundle.dir}"/>
