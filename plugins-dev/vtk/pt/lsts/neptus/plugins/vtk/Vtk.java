@@ -73,19 +73,6 @@ import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author hfq
- *
- *#define VTK_CURSOR_DEFAULT   0
-   76 #define VTK_CURSOR_ARROW     1
-   77 #define VTK_CURSOR_SIZENE    2
-   78 #define VTK_CURSOR_SIZENW    3
-   79 #define VTK_CURSOR_SIZESW    4
-   80 #define VTK_CURSOR_SIZESE    5
-   81 #define VTK_CURSOR_SIZENS    6
-   82 #define VTK_CURSOR_SIZEWE    7
-   83 #define VTK_CURSOR_SIZEALL   8
-   84 #define VTK_CURSOR_HAND      9
-   85 #define VTK_CURSOR_CROSSHAIR 10
- *
  */
 @PluginDescription(author = "hfq", name = "Vtk")
 public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider, ComponentListener {
@@ -172,8 +159,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
             winCanvas = new Window(canvas, linkedHashMapCloud);
 
-            canvas.GetRenderer().ResetCamera();
-            canvas.LightFollowCameraOn();
+            // canvas.GetRenderer().ResetCamera();
+            // canvas.LightFollowCameraOn();
 
             // add vtkCanvas to Layout
             add(canvas,  "W 100%, H 100%");
@@ -218,20 +205,20 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 else 
                     pointCloud.setPoints(multibeamToPointCloud.getPoints());
 
-                pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());               
+//                pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());               
                 // create an actor from parsed beams
-                if (pointCloud.isHasIntensities()) {
-                    multibeamToPointCloud.showIntensities();
-                    pointCloud.setIntensities(multibeamToPointCloud.getIntensities());
-
-                    pointCloud.createLODActorFromPoints(multibeamToPointCloud.getIntensities());
-                    NeptusLog.pub().info("create LOD actor with intensities");
-                }
-
-                else {
+//                if (pointCloud.isHasIntensities()) {
+//                    multibeamToPointCloud.showIntensities();
+//                    pointCloud.setIntensities(multibeamToPointCloud.getIntensities());
+//
+//                    pointCloud.createLODActorFromPoints(multibeamToPointCloud.getIntensities());
+//                    NeptusLog.pub().info("create LOD actor with intensities");
+//                }
+//
+//                else {
                     pointCloud.createLODActorFromPoints();
                     NeptusLog.pub().info("create LOD actor without intensities");
-                }
+//                }
 
 
                 Utils.delete(multibeamToPointCloud.getPoints());
@@ -240,16 +227,16 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 // add parsed beams stored on pointcloud to canvas
                 canvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
                 // set Up scalar Bar look up table
-                winCanvas.getInteractorStyle().getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
-                canvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
+//                winCanvas.getInteractorStyle().getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
+//                canvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
 
                 // set up camera to +z viewpoint looking down
                 double[] center = new double[3]; 
                 center = PointCloudUtils.computeCenter(pointCloud);
-
+//
                 //canvas.GetRenderer().GetActiveCamera().SetPosition(pointCloud.getPoly().GetCenter()[0] ,pointCloud.getPoly().GetCenter()[1] , pointCloud.getPoly().GetCenter()[2] - 200);
                 canvas.GetRenderer().GetActiveCamera().SetPosition(center[0], center[1], center[2] - 200);
-
+//
                 canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
                 //canvas.Report();
             }
@@ -325,6 +312,18 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
         //            e.printStackTrace();
         //        }
         if(isFirstRender) {
+//            vtkSphereSource sphere = new vtkSphereSource();
+//            sphere.SetRadius(1.0);
+//            sphere.SetPhiResolution(12);
+//            sphere.SetThetaResolution(12);
+//            
+//            sphere.Update();
+//            vtkPolyDataMapper mapper = new vtkPolyDataMapper();
+//            mapper.SetInputConnection(sphere.GetOutputPort());
+//            vtkActor actor = new vtkActor();
+//            actor.SetMapper(mapper);
+//            canvas.GetRenderer().AddActor(actor);
+            
             canvas.RenderSecured();
             // canvas.GetRenderWindow().SetCurrentCursor(9);    
             canvas.GetRenderer().ResetCamera();
