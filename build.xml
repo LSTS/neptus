@@ -55,8 +55,8 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<!-- Defines variables used by the other targets                         -->
 	<!-- =================================================================== -->
-	<property name="version.MAJOR" value="2" />
-	<property name="version.MINOR" value="4" />
+	<property name="version.MAJOR" value="3" />
+	<property name="version.MINOR" value="0" />
 	<property name="version.PATCH" value="0" />
 	<!-- Set this to '.dev' if a developer release; blank "" if maintenance release -->
 	<property name="version.DEVELOPER" value="rc1" />
