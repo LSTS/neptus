@@ -44,6 +44,7 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Random;
 import java.util.Vector;
 
 import javax.swing.JPopupMenu;
@@ -98,7 +99,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     protected ReferenceWaypoint movingWaypoint = null;
     protected ReferenceWaypoint focusedWaypoint = null;
     protected double radius = 8;
-
+    protected int entity = 255;
     @NeptusProperty(name = "Use acoustic communications", description = "Setting to true will make all communications go through acoustic modem")
     public boolean useAcousticCommunications = false;
 
@@ -110,6 +111,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
     public FollowReferenceInteraction(ConsoleLayout cl) {
         super(cl);
+        Random r = new Random(System.currentTimeMillis());
+        //entity = r.nextInt(255);
     }
 
     @Override
@@ -508,8 +511,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                             startPlan.setOp(OP.START);
                             startPlan.setPlanId("follow_neptus");
                             FollowReference man = new FollowReference();
-                            man.setControlEnt((short) 255);
-                            man.setControlSrc(65535);
+                            man.setControlEnt((short) entity);
+                            man.setControlSrc(ImcMsgManager.getManager().getLocalId().intValue());
                             man.setAltitudeInterval(2);
                             man.setTimeout(referenceTimeout);
 
