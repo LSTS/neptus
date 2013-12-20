@@ -929,6 +929,7 @@ For simple use the main targets are:
 			<!-- include name="schemas/**/*.*"/ -->
 			<include name="schemas/neptus-checklist.xsd"/>
 			<include name="version.txt"/>
+			<include name="pt/lsts/neptus/util/**/*.class"/>
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
@@ -960,7 +961,7 @@ For simple use the main targets are:
 		<unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/zxing-bin.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
-		<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-1.4.jar"/-->
+		<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-2.4.jar"/-->
 
 		<unzip dest="${tmp.bundle.dir}" src="${bundle.jar.checklist.path}" overwrite="yes"/>
 		<copy flatten="false" todir="${tmp.bundle.dir}/legal">
