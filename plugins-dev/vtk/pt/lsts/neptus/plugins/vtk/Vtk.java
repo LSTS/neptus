@@ -407,6 +407,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
         Rectangle newToolbarBounds = new Rectangle();
         newToolbarBounds.setBounds(toolbarBounds.x, (canvas.getY() + canvas.getHeight()), toolbarBounds.width, toolbarBounds.height);
         toolbar.getToolbar().setBounds(newToolbarBounds);
+        
+        canvas.RenderSecured();
     }
 
     /* (non-Javadoc)

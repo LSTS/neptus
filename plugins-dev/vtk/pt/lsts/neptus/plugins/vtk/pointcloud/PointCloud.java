@@ -50,7 +50,7 @@ public class PointCloud<T extends PointXYZ> {
 
     private String cloudName;
     private vtkPoints points;
-    private vtkCellArray verts;
+    // private vtkCellArray verts;
     private vtkPolyData poly;
     // private vtkLODActor cloudLODActor;
     private vtkLODActor cloudLODActor;
@@ -68,7 +68,7 @@ public class PointCloud<T extends PointXYZ> {
     public PointCloud() {
         setPoints(new vtkPoints());
         // getPoints().SetDataTypeToFloat();
-        setVerts(new vtkCellArray());
+        // setVerts(new vtkCellArray());
         setPoly(new vtkPolyData());
         setCloudLODActor(new vtkLODActor());
         setBounds(new double[6]);
@@ -138,14 +138,6 @@ public class PointCloud<T extends PointXYZ> {
 
             // setMemorySize(map.GetInput().GetActualMemorySize());
             setMemorySize(100);
-                
-            NeptusLog.pub().info("Number of points: " + getPoints().GetNumberOfPoints());
-            NeptusLog.pub().info("Number: " + getPoints().GetDataType());
-            NeptusLog.pub().info("Number of cells: " + getVerts().GetNumberOfCells());
-            NeptusLog.pub().info("Print Points: " + getPoints().Print());
-            NeptusLog.pub().info("Print Verts: " + getVerts().Print());
-//            NeptusLog.pub().info("Print Map: " + map.Print());
-            NeptusLog.pub().info("Print PolyData: " + getPoly().Print());
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -191,6 +183,12 @@ public class PointCloud<T extends PointXYZ> {
     // }
     // }
 
+    public String toString() {
+        String info = getPoints().Print();
+        info += getPoly().Print();
+        return info;
+    }
+    
     /**
      * @return the cloudName
      */
@@ -247,19 +245,19 @@ public class PointCloud<T extends PointXYZ> {
         this.points = points;
     }
 
-    /**
-     * @return the verts
-     */
-    public vtkCellArray getVerts() {
-        return verts;
-    }
-
-    /**
-     * @param verts the verts to set
-     */
-    public void setVerts(vtkCellArray verts) {
-        this.verts = verts;
-    }
+//    /**
+//     * @return the verts
+//     */
+//    public vtkCellArray getVerts() {
+//        return verts;
+//    }
+//
+//    /**
+//     * @param verts the verts to set
+//     */
+//    public void setVerts(vtkCellArray verts) {
+//        this.verts = verts;
+//    }
 
     /**
      * @return the poly

@@ -89,9 +89,9 @@ public class DownsamplePointCloud {
             vtkPoints points = outputDownsampledCloud.getPoints();
 
             for (int i = 0; i < outputDownsampledCloud.getNumberOfPoints(); ++i) {
-                outputDownsampledCloud.getVerts().InsertNextCell(1);
-                outputDownsampledCloud.getVerts().InsertCellPoint(
-                        pointCloud.getPoints().InsertNextPoint(points.GetPoint(i)));
+//                outputDownsampledCloud.getVerts().InsertNextCell(1);
+//                outputDownsampledCloud.getVerts().InsertCellPoint(
+//                        pointCloud.getPoints().InsertNextPoint(points.GetPoint(i)));
             }
 
             // outputDownsampledCloud.setVerts()
