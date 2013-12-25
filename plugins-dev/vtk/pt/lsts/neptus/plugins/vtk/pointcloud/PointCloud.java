@@ -150,7 +150,6 @@ public class PointCloud<T extends PointXYZ> {
 
     public String toString() {
         String info = "Class PointCloud:\n";
-        // dcx String info = this.getClass().toString(); 
         info += getPoints().Print();
         info += getPoly().Print();
         return info;
@@ -211,20 +210,6 @@ public class PointCloud<T extends PointXYZ> {
     public void setPoints(vtkPoints points) {
         this.points = points;
     }
-
-//    /**
-//     * @return the verts
-//     */
-//    public vtkCellArray getVerts() {
-//        return verts;
-//    }
-//
-//    /**
-//     * @param verts the verts to set
-//     */
-//    public void setVerts(vtkCellArray verts) {
-//        this.verts = verts;
-//    }
 
     /**
      * @return the poly
