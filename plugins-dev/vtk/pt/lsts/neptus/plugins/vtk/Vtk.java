@@ -238,7 +238,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
     @Override
     public ImageIcon getIcon() {
-        return ImageUtils.getIcon("images/buttons/model3d.png");
+        // return ImageUtils.getIcon("images/buttons/model3d.png");
+        return ImageUtils.getIcon("images/menus/3d.png");
     }
 
     @Override
