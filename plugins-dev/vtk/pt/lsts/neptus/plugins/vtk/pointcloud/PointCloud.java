@@ -31,10 +31,8 @@
  */
 package pt.lsts.neptus.plugins.vtk.pointcloud;
 
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.utils.PointCloudUtils;
-import vtk.vtkCellArray;
 import vtk.vtkLODActor;
 import vtk.vtkPoints;
 import vtk.vtkPolyData;
@@ -50,9 +48,7 @@ public class PointCloud<T extends PointXYZ> {
 
     private String cloudName;
     private vtkPoints points;
-    // private vtkCellArray verts;
     private vtkPolyData poly;
-    // private vtkLODActor cloudLODActor;
     private vtkLODActor cloudLODActor;
     private int numberOfPoints;
     private double[] bounds;
@@ -68,17 +64,16 @@ public class PointCloud<T extends PointXYZ> {
     public PointCloud() {
         setPoints(new vtkPoints());
         // getPoints().SetDataTypeToFloat();
-        // setVerts(new vtkCellArray());
         setPoly(new vtkPolyData());
         setCloudLODActor(new vtkLODActor());
         setBounds(new double[6]);
         // setIntensities(new vtkShortArray());
 
-        // setColorHandler(new PointCloudHandlers<>());
+        setColorHandler(new PointCloudHandlers<>());
     }
 
     /**
-     * Create a Pointcloud Actor from loaded points and verts
+     * Create a Pointcloud Actor from loaded points
      * 
      */
     public void createLODActorFromPoints() {
@@ -87,57 +82,27 @@ public class PointCloud<T extends PointXYZ> {
             getPoints().Modified();
             getPoly().Allocate(getNumberOfPoints(), getNumberOfPoints());
             getPoly().SetPoints(getPoints());
-
-//            getVerts().Allocate(getNumberOfPoints(), getNumberOfPoints());
-//            // for (int i = 0; i < getNumberOfPoints(); ++i) {
-//            // getVerts().InsertNextCell(i);
-//            // }
-//
-//            getVerts().SetNumberOfCells(getNumberOfPoints());
-//
-//            //getVerts().Modified();
-//
-//            for (int i = 0; i < getNumberOfPoints(); ++i) {
-//                //getVerts().InsertNextCell(i);
-//                //getVerts().InsertCellPoint(i);
-//                getVerts().InsertNextCell(i);
-//            }
-//            getVerts().Squeeze();
-//            getVerts().DebugOn();
-//
-//
-//            getPoly().SetVerts(getVerts());
-//            // getPoly().SetLines(getVerts());
-//            getPoly().BuildCells();
-//            getPoly().DebugOn();
-//            getPoly().Squeeze();
-//            getPoly().Modified();
-//            getPoly().Update();
             
             vtkVertexGlyphFilter vertex = new vtkVertexGlyphFilter();
             vertex.AddInput(poly);
             vertex.Update();
             
             getPoly().ShallowCopy(vertex.GetOutput());
+            getPoly().Squeeze();
             getPoly().Update();
 
-            // setBounds(getPoly().GetBounds()); <- subs by core dump crash
             setBounds(PointCloudUtils.computeBounds(getPoints()));
-
-//            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds);
-//
-//            getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
+            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds);
+            getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
 
             vtkPolyDataMapper map = new vtkPolyDataMapper();
             map.SetInputConnection(getPoly().GetProducerPort());
-            // map.SetInput(getPoly().);
 
             getCloudLODActor().SetMapper(map);
             getCloudLODActor().GetProperty().SetPointSize(1.0);
             getCloudLODActor().GetProperty().SetRepresentationToPoints();
 
-            // setMemorySize(map.GetInput().GetActualMemorySize());
-            setMemorySize(100);
+            setMemorySize(map.GetInput().GetActualMemorySize());
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -145,7 +110,7 @@ public class PointCloud<T extends PointXYZ> {
     }
 
     // /**
-    // * Create a Pointcloud Actor from loaded points and verts
+    // * Create a Pointcloud Actor from loaded points
     // * @param intensities
     // */
     // public void createLODActorFromPoints(vtkShortArray intensities) {
@@ -184,7 +149,9 @@ public class PointCloud<T extends PointXYZ> {
     // }
 
     public String toString() {
-        String info = getPoints().Print();
+        String info = "Class PointCloud:\n";
+        // dcx String info = this.getClass().toString(); 
+        info += getPoints().Print();
         info += getPoly().Print();
         return info;
     }

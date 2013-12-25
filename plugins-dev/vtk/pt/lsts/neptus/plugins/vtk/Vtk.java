@@ -102,7 +102,6 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     //public vtkCanvas vtkCanvas;
     public Canvas canvas;
 
-
     public Window winCanvas;
 
     public vtkLODActor noBeamsTxtActor;
@@ -118,8 +117,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
     public LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh = new LinkedHashMap<>();
 
-    //private Vector<Marker3d> markers = new Vector<>();
-
+    // private Vector<Marker3d> markers = new Vector<>();
     public IMraLogGroup mraVtkLogGroup;
     public File file;
 
@@ -130,7 +128,6 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     //private DownsamplePointCloud performDownsample;
     //private Boolean isDownsampleDone = false;
     private Boolean isFirstRender = true;
-
 
     /**
      * @param panel
@@ -160,8 +157,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             winCanvas = new Window(canvas, linkedHashMapCloud);
 
             // canvas.GetRenderer().ResetCamera();
-            // canvas.LightFollowCameraOn();
-
+            canvas.LightFollowCameraOn();
+            
             // add vtkCanvas to Layout
             add(canvas,  "W 100%, H 100%");
 
@@ -177,7 +174,6 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             // for resizing porpuses
             canvas.getParent().addComponentListener(this);
 
-            //vtkCanvas.setEnabled(true);
             canvas.setEnabled(true);
 
             // add axesWidget to vtk canvas fixed to a screen position
@@ -200,7 +196,6 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                     statOutRem.setStdMul(0.2);
                     statOutRem.applyFilter(multibeamToPointCloud.getPoints());
                     pointCloud.setPoints(statOutRem.getOutputPoints());
-
                 }
                 else 
                     pointCloud.setPoints(multibeamToPointCloud.getPoints());
@@ -220,25 +215,20 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                     NeptusLog.pub().info("create LOD actor without intensities");
 //                }
 
-
                 Utils.delete(multibeamToPointCloud.getPoints());
                 //canvas.unlock();
 
                 // add parsed beams stored on pointcloud to canvas
                 canvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
                 // set Up scalar Bar look up table
-//                winCanvas.getInteractorStyle().getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
-//                canvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
+                winCanvas.getInteractorStyle().getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
+                canvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
 
                 // set up camera to +z viewpoint looking down
                 double[] center = new double[3]; 
                 center = PointCloudUtils.computeCenter(pointCloud);
-//
-                //canvas.GetRenderer().GetActiveCamera().SetPosition(pointCloud.getPoly().GetCenter()[0] ,pointCloud.getPoly().GetCenter()[1] , pointCloud.getPoly().GetCenter()[2] - 200);
                 canvas.GetRenderer().GetActiveCamera().SetPosition(center[0], center[1], center[2] - 200);
-//
                 canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
-                //canvas.Report();
             }
             else {  // if no beams were parsed
                 String msgErrorMultibeam;
@@ -277,7 +267,6 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
         return beApplied;
     }
 
-
     @Override
     public ImageIcon getIcon() {
         return ImageUtils.getIcon("images/buttons/model3d.png");
@@ -304,44 +293,18 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
     @Override
     public void onShow() {
-        //canvas.lock();
-        //        try {
-        //            Thread.sleep(1000);
-        //        }
-        //        catch (InterruptedException e) {
-        //            e.printStackTrace();
-        //        }
-        if(isFirstRender) {
-//            vtkSphereSource sphere = new vtkSphereSource();
-//            sphere.SetRadius(1.0);
-//            sphere.SetPhiResolution(12);
-//            sphere.SetThetaResolution(12);
-//            
-//            sphere.Update();
-//            vtkPolyDataMapper mapper = new vtkPolyDataMapper();
-//            mapper.SetInputConnection(sphere.GetOutputPort());
-//            vtkActor actor = new vtkActor();
-//            actor.SetMapper(mapper);
-//            canvas.GetRenderer().AddActor(actor);
-            
+        if(isFirstRender) {            
             canvas.RenderSecured();
-            // canvas.GetRenderWindow().SetCurrentCursor(9);    
+            canvas.GetRenderWindow().SetCurrentCursor(9);    
             canvas.GetRenderer().ResetCamera();
-            // canvas.Report();
-            //canvas.unlock();
+
             isFirstRender = false;
         }
-
+        canvas.Report();
     }
 
     @Override
     public void onCleanup() {        
-        /*
-         * [xcb] Unknown sequence number while processing queue
-         * [xcb] Most likely this is a multi-threaded client and XInitThreads has not been called
-         * [xcb] Aborting, sorry about that.
-         * java: ../../src/xcb_io.c:274: poll_for_event: Assertion `!xcb_xlib_threads_sequence_lost' failed.
-         */
         //VTKMemoryManager.deleteAll();
     }
 
@@ -434,6 +397,4 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     public void componentHidden(ComponentEvent e) {
 
     }
-
-
 }
