@@ -114,7 +114,17 @@ public class ManeuverPropertiesPanel extends JPanel {
         
         String before = maneuver.getManeuverXml();        
         payloadConfig.setProperties(propsPanel.getProperties());
+        boolean wasInitialManeuver = maneuver.isInitialManeuver();
         maneuver.setProperties(propsPanel.getProperties());
+        if (maneuver.isInitialManeuver())
+            plan.getGraph().setInitialManeuver(maneuver.getId());
+        else {
+            if (wasInitialManeuver) {
+                maneuver.setInitialManeuver(true);
+                setManeuver(maneuver);
+                return;
+            }
+        }
         propsPanel.removePropertyChangeListener(payloadConfig);
         
         if (manager != null)
