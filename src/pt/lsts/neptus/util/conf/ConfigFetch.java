@@ -777,22 +777,6 @@ public class ConfigFetch {
     /**
      * @return
      */
-    public static String getDefaultIMCDefinitionsLocation() {
-        String loc = getElementTextByXPath("//imc-default-defs", confDoc);
-        if (loc != null) {
-            String loc1 = resolvePath(loc);
-            if (loc1 != null)
-                return loc1;
-            return loc;
-        }
-        else {
-            return "conf/messages/IMC.xml";
-        }
-    }
-
-    /**
-     * @return
-     */
     public static String getMiscSystemsConfigLocation() {
         String loc = getElementTextByXPath("//misc-systems-file", confDoc);
         if (loc != null) {

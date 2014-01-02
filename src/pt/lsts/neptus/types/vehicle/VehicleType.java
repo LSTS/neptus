@@ -148,8 +148,6 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     protected LinkedList<String> protocols = new LinkedList<String>();
     protected LinkedHashMap<String, ProtocolArgs> protocolsArgs = new LinkedHashMap<String, ProtocolArgs>();
 
-    private String messageDefinitionsFile = "conf/messages-defs.xml";
-
     private LinkedHashMap<String, String> consoles = new LinkedHashMap<String, String>();
     private LinkedHashMap<String, String> consolesType = new LinkedHashMap<String, String>();
 
@@ -1010,20 +1008,6 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
         }
 
         return document;
-    }
-
-    /**
-     * @return
-     */
-    public String getMessageDefinitionsFile() {
-        return messageDefinitionsFile;
-    }
-
-    /**
-     * @param messageDefinitionsFile
-     */
-    public void setMessageDefinitionsFile(String messageDefinitionsFile) {
-        this.messageDefinitionsFile = messageDefinitionsFile;
     }
 
     public static VehicleType valueOf(String value) {

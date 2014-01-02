@@ -76,7 +76,6 @@ import javax.swing.ToolTipManager;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
-import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.lsf.LsfIndexListener;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -393,7 +392,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
         bgp.setText(I18n.text("Loading LSF Data"));
         final File lsfDir = f.getParentFile();
 
-        IMCDefinition.pathToDefaults = ConfigFetch.getDefaultIMCDefinitionsLocation();
+        //IMCDefinition.pathToDefaults = ConfigFetch.getDefaultIMCDefinitionsLocation();
 
         boolean alreadyConverted = false;
         if (lsfDir.isDirectory()) {

@@ -50,6 +50,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import pt.lsts.imc.ImcStringDefs;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
@@ -875,31 +876,18 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             String href = clist.getHref();
             href = ConfigFetch.resolvePathWithParent(missionDir, href);
             String clName = href.substring(href.lastIndexOf(sep), href.length());
-            // FileUtil.saveToFile(outDir+sep+clName, clist.getChecklist().asXML());
             FileUtil.saveToFile(outDir + sep + "checklists" + sep + clName,
                     FileUtil.getAsPrettyPrintFormatedXMLString(clist.getChecklist().asDocument()));
         }
 
-        // FileUtil.saveToFile(outDir.getAbsolutePath()+sep+"mission.nmis", myDoc.asXML());
         FileUtil.saveToFile(outDir.getAbsolutePath() + sep + "mission.nmis",
                 FileUtil.getAsPrettyPrintFormatedXMLString(FileUtil.getAsCompactFormatedXMLString(myDoc)));
-        // NeptusLog.pub().info("<###>Mission ziiiiiiiiiiiiiiiiiiiiiiiiiiiiiiip " + myDoc.asXML());
 
         if (saveNeptusConfigurations) {
             FileUtil.copyFile(ConfigFetch.resolvePath("conf/general-properties.xml"), outDir + sep
                     + "general-properties.xml");
 
-            // FileUtil.copyFile(ConfigFetch.resolvePath("conf/messages-defs.xml"), outDir+sep+"messages-defs.xml");
-            // FileUtil.copyFile(ConfigFetch.resolvePath("conf/messages-defs-V2.xml"),
-            // outDir+sep+"messages-defs-V2.xml");
-            File[] files = new File(ConfigFetch.resolvePath("conf/messages")).listFiles();
-            for (File f : files) {
-                if (FileUtil.getFileExtension(f).toLowerCase().endsWith("xml"))
-                    FileUtil.copyFile(f.getAbsolutePath(), outDir + sep + f.getName());
-            }
-
-            // FileUtil.copyFile(ConfigFetch.resolvePath("conf/middleware.xml"), outDir+sep+"middleware.xml");
-            // FileUtil.copyFile(ConfigFetch.resolvePath("conf/seaware-imc-v2.xml"), outDir+sep+"seaware-imc-v2.xml");
+            FileUtil.saveToFile(outDir + sep + "IMC.xml", ImcStringDefs.getDefinitions());
         }
 
         try {
