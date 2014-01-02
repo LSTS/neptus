@@ -387,6 +387,55 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
             }
         });
         ctrlPanel.add(btn);
+        
+        btn = new JButton(I18n.text("Abort"));
+        //btn.setForeground(Color.red);
+        btn.setBackground(Color.red);
+        btn.setActionCommand("abort");
+        cmdButtons.put("abort", btn);
+        btn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+
+
+                ImcSystem[] sysLst;
+
+                if (gateway.equals("any"))                    
+                    sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
+                            SystemTypeEnum.ALL, true);
+                else {
+                    ImcSystem sys = ImcSystemsHolder.lookupSystemByName(gateway);
+                    if (sys != null)
+                        sysLst = new ImcSystem[]{sys};
+                    else 
+                        sysLst = new ImcSystem[]{};
+                }
+
+                if (sysLst.length == 0) {
+                    post(Notification.error(I18n.text("Abort"),
+                            I18n.text("No acoustic device is capable of sending this request")).src(
+                                    I18n.text("Console")));
+                }
+
+                IMCMessage m = IMCDefinition.getInstance().create("AcousticOperation", "op", "ABORT",
+                        "system", selectedSystem);
+
+                int successCount = 0;
+                for (ImcSystem sys : sysLst)
+                    if (ImcMsgManager.getManager().sendMessage(m, sys.getId(), null))
+                        successCount++;
+
+                if (successCount > 0) {
+                    bottomPane.setText(I18n.textf(
+                            "Abort %systemName commanded to %systemCount systems", selectedSystem,
+                            successCount));
+                }
+                else {
+                    post(Notification.error(I18n.text("Abort"),
+                            I18n.text("Unable to abort selected system")).src(I18n.text("Console")));
+                }
+            }
+        });
+        ctrlPanel.add(btn);
 
         listPanel.setBackground(Color.white);
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.PAGE_AXIS));

@@ -1749,8 +1749,8 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             chronometerPanelMenuItem.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-//                    ChronometerPanel chronometerPanel = new ChronometerPanel();
-//                    createFrame(I18n.text("Chronometer"), I18n.text("Chronometer"), chronometerPanel);
+                    ChronometerPanel chronometerPanel = new ChronometerPanel();
+                    createFrame(I18n.text("Chronometer"), I18n.text("Chronometer"), chronometerPanel);
                 }
             });
         }

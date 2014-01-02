@@ -45,6 +45,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
@@ -85,7 +86,7 @@ public class StatisticsPlot extends JPanel implements MRAVisualization {
 
     @Override
     public ImageIcon getIcon() {
-        return null;
+        return ImageUtils.getIcon("images/menus/changelog.png");
     }
 
     @Override
