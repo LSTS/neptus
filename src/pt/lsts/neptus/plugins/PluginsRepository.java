@@ -76,6 +76,7 @@ public class PluginsRepository {
 
             if (ReflectionUtil.hasInterface(c, MRAVisualization.class)) {
                 visualizations.put(PluginUtils.getPluginName(c), (Class<MRAVisualization>) c);
+                System.out.println(c.getSimpleName());
                 added = true;
             }
 

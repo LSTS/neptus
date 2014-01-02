@@ -33,6 +33,7 @@ package pt.lsts.neptus.mra.plots;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.imc.IMCFieldType;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfGenericIterator;
@@ -42,6 +43,7 @@ import pt.lsts.imc.lsf.LsfIndex;
  * @author zp
  * 
  */
+@PluginDescription
 public class VehicleGanttPlot extends MraGanttPlot {
 
     @Override

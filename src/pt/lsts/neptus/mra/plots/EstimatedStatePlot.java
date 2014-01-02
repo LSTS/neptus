@@ -36,6 +36,7 @@ import org.jfree.data.xy.XYSeries;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
@@ -44,6 +45,7 @@ import pt.lsts.imc.lsf.LsfIndex;
  * @author zp
  * 
  */
+@PluginDescription
 public class EstimatedStatePlot extends Mra2DPlot implements LogMarkerListener {
     
     /**

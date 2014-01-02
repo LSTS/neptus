@@ -35,30 +35,16 @@ import java.io.File;
 import java.util.Vector;
 
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.mra.plots.CtdPlot;
-import pt.lsts.neptus.mra.plots.EstimatedStatePlot;
-import pt.lsts.neptus.mra.plots.EulerAnglesPlot;
-import pt.lsts.neptus.mra.plots.LblRangesPlot;
-import pt.lsts.neptus.mra.plots.SalinityVsDepthPlot;
 import pt.lsts.neptus.mra.plots.ScriptedPlot;
-import pt.lsts.neptus.mra.plots.StatisticsPlot;
-import pt.lsts.neptus.mra.plots.TemperatureVsDepthPlot;
-import pt.lsts.neptus.mra.plots.TidePlot;
-import pt.lsts.neptus.mra.plots.VehicleGanttPlot;
-import pt.lsts.neptus.mra.plots.XYPlot;
-import pt.lsts.neptus.mra.plots.ZPlot;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
-import pt.lsts.neptus.plugins.actualstate.ActualPosition;
+import pt.lsts.neptus.plugins.PluginsRepository;
 
 /**
  * @author ZP
  */
 public class MraChartFactory {
 
-    private static Class<?>[] automaticCharts = new Class<?>[] { EstimatedStatePlot.class, XYPlot.class, ZPlot.class,
-            LblRangesPlot.class, EulerAnglesPlot.class, CtdPlot.class, TemperatureVsDepthPlot.class, SalinityVsDepthPlot.class, VehicleGanttPlot.class, TidePlot.class, ActualPosition.class, StatisticsPlot.class
-    };
+    private static Class<?>[] automaticCharts = null;
 
     /**
      * Given a LLFSource, returns all predefined charts that can be applied to that source
@@ -67,6 +53,10 @@ public class MraChartFactory {
      * @return A list of LLFCharts that can be successfully applied to the given source
      */
     public static MRAVisualization[] getAutomaticCharts(MRAPanel panel) {
+        
+        if (automaticCharts == null)
+            automaticCharts = PluginsRepository.getMraVisualizations().values().toArray(new Class<?>[0]);
+        
         Vector<MRAVisualization> charts = new Vector<MRAVisualization>();
 
         
@@ -104,16 +94,5 @@ public class MraChartFactory {
         }
         
         return plots;
-    }
-
-    /**
-     * 
-     * @param title
-     * @param source
-     * @param fieldsToPlot
-     * @return
-     */
-    public static LLFChart createTimeSeriesChart(String title, IMraLogGroup source, String[] fieldsToPlot) {
-        return null;
     }
 }
