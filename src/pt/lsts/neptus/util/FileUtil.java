@@ -109,8 +109,8 @@ public class FileUtil {
     }
 
     public static String getFileExtension(String path) {
-        int lastDotPostion = path.lastIndexOf('.');
-        return (lastDotPostion != -1) ? (path.substring(lastDotPostion + 1)) : "";
+        int firstDotPostion = path.indexOf('.');
+        return (firstDotPostion != -1) ? (path.substring(firstDotPostion + 1)) : "";
     }
     
     public static String getFileNameWithoutExtension(File fx) {

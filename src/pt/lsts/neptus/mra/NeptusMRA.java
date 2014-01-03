@@ -90,6 +90,7 @@ import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.gui.WaitPanel;
 import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.loader.FileHandler;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.ConcatenateLsfLog;
 import pt.lsts.neptus.mra.replay.LogReplay;
@@ -123,7 +124,7 @@ import foxtrot.AsyncWorker;
  * @author jqcorreia
  */
 @SuppressWarnings("serial")
-public class NeptusMRA extends JFrame implements PropertiesProvider {
+public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler {
     public final static String RECENTLY_OPENED_LOGS = "conf/mra_recent.xml";
     
     public static boolean vtkEnabled = true;
@@ -1018,6 +1019,11 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
         }
 
         public abstract void updateValueInMessagePanel();
+    }
+    
+    @Override
+    public void handleFile(File f) {
+        openLog(f);
     }
 
     public static void main(String[] args) {
