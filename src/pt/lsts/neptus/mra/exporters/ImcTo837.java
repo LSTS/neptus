@@ -41,6 +41,7 @@ import java.util.TimeZone;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.imc.IMCMessage;
@@ -51,6 +52,7 @@ import pt.lsts.imc.SonarData;
  * @author jqcorreia
  * 
  */
+@PluginDescription
 public class ImcTo837 implements MRAExporter {
     DataOutputStream os;
     IMraLog pingLog;

@@ -37,6 +37,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.SubPanel;
 import pt.lsts.neptus.console.plugins.SubPanelProvider;
+import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
@@ -51,7 +52,8 @@ public class PluginsRepository {
             SubPanelProvider.class,
             NeptusMessageListener.class,
             MRAVisualization.class,
-            LogReplayLayer.class
+            LogReplayLayer.class,
+            MRAExporter.class
             );
       
     private static LinkedHashMap<String, Class<? extends MapTileProvider>> tileProviders = new LinkedHashMap<String, Class<? extends MapTileProvider>>();
@@ -94,6 +96,10 @@ public class PluginsRepository {
             NeptusLog.pub().error("loading panel plugin ", e);
             return null;
         }
+    }
+    
+    public static <T> LinkedHashMap<String, Class<? extends T>> listExtensions(Class<T> type) {
+        return extensions.listExtensions(type);
     }
 
     public static <T> T getPlugin(String name, Class<T> type, Object... initParams) {

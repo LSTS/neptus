@@ -58,7 +58,6 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.ColormapOverlay;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.mra.WorldImage;
 import pt.lsts.neptus.mra.api.BathymetryParser;
@@ -73,6 +72,7 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParser;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.ImageLayer;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -87,6 +87,7 @@ import pt.lsts.util.WGS84Utilities;
 /**
  * @author zp
  */
+@PluginDescription
 public class KMLExporter implements MRAExporter {
     public double minLat = 180;
     public double maxLat = -180;
@@ -101,7 +102,6 @@ public class KMLExporter implements MRAExporter {
 
     File f, output;
     IMraLogGroup source;
-    MRAPanel panel;
 
     @NeptusProperty
     public double timeVariableGain = 300;
@@ -120,9 +120,8 @@ public class KMLExporter implements MRAExporter {
     
     
     
-    public KMLExporter(MRAPanel panel, IMraLogGroup source) {
-        this.source = source;
-        this.panel = panel;
+    public KMLExporter(IMraLogGroup source) {
+        this.source = source;        
     }
 
     @Override

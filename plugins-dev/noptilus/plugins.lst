@@ -7,3 +7,4 @@
 
 pt.lsts.neptus.plugins.noptilus.NoptilusPlanGenerator
 pt.lsts.neptus.plugins.noptilus.TransponderEstimation
+pt.lsts.neptus.plugins.noptilus.NoptilusMapExporter

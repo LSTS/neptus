@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -46,20 +47,13 @@ import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.exporters.CSVExporter;
-import pt.lsts.neptus.mra.exporters.ImcTo837;
-import pt.lsts.neptus.mra.exporters.KMLExporter;
-import pt.lsts.neptus.mra.exporters.MatExporter;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
-import pt.lsts.neptus.mra.exporters.PCDExporter;
-import pt.lsts.neptus.mra.exporters.XTFExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.replay.LogReplay;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
-import pt.lsts.neptus.plugins.noptilus.NoptilusMapExporter;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
@@ -217,19 +211,30 @@ public class MRAPanel extends JPanel {
         // Load markers
         loadMarkers();
 
+        LinkedHashMap<String, Class<? extends MRAExporter>> exporterMap =  PluginsRepository.listExtensions(MRAExporter.class);
+        Vector<MRAExporter> exporterList = new Vector<>();
+        
+        for (Class<? extends MRAExporter> clazz : exporterMap.values()) {
+            try {
+                exporterList.add(clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] {source}));
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+        }
         
         // Load exporters
-        // Exporters list, this will be moved in the future
-        MRAExporter exporterList[] = new MRAExporter[] { 
-                new ImcTo837(source),
-                new PCDExporter(source),
-                new MatExporter(source),
-                new KMLExporter(this, source),
-                new CSVExporter(source),
-                new XTFExporter(source),
-                new NoptilusMapExporter(source)
-        }; 
-        
+//        // Exporters list, this will be moved in the future
+//        MRAExporter exporterList[] = new MRAExporter[] { 
+//                new ImcTo837(source),
+//                new PCDExporter(source),
+//                new MatExporter(source),
+//                new KMLExporter(this, source),
+//                new CSVExporter(source),
+//                new XTFExporter(source),
+//                new NoptilusMapExporter(source)
+//        }; 
+//        
         // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
         JMenuBar bar = mra.getMRAMenuBar();
         JMenu previousMenu = GuiUtils.getJMenuByName(bar, I18n.text("Exporters"));

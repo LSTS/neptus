@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 import pt.lsts.imc.IMCMessage;
 
@@ -52,6 +53,7 @@ import com.jmatio.types.MLStructure;
  * @author jqcorreia
  *
  */
+@PluginDescription
 public class MatExporter implements MRAExporter {
     IMraLogGroup source;
     

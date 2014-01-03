@@ -41,6 +41,7 @@ import javax.swing.ProgressMonitor;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.imc.EntityInfo;
@@ -52,6 +53,7 @@ import pt.lsts.imc.lsf.LsfIterator;
  * @author zp
  * 
  */
+@PluginDescription
 public class CSVExporter implements MRAExporter {
 
     IMraLogGroup source;
