@@ -6,22 +6,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" output="build/tests" path="srcTests"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/help"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/state"/>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/acoustic">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="neptus/libJNI"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/alarms"/>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/actions">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="neptus/libJNI"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/echosounder"/>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/gauges"/>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/containers"/>
 	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/logs"/>
 	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/planning"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/position"/>
@@ -62,6 +46,13 @@
 	<classpathentry kind="src" path="plugins-dev/gige"/>
 	<classpathentry kind="src" path="plugins-dev/s57"/>
 	<classpathentry kind="src" path="plugins-dev/blue-eye"/>
+	<classpathentry kind="src" path="plugins-dev/help"/>
+	<classpathentry kind="src" path="plugins-dev/state"/>
+	<classpathentry kind="src" path="plugins-dev/acoustic"/>
+	<classpathentry kind="src" path="plugins-dev/alarms"/>
+	<classpathentry kind="src" path="plugins-dev/actions"/>
+	<classpathentry kind="src" path="plugins-dev/echosounder"/>
+	<classpathentry kind="src" path="plugins-dev/gauges"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>

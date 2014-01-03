@@ -47,13 +47,13 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
-import pt.lsts.neptus.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 

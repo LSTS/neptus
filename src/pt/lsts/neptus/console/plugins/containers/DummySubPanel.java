@@ -27,45 +27,46 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: José Pinto
- * 2009/09/16
+ * 4 de Ago de 2010
  */
-package pt.lsts.neptus.plugins.containers;
+package pt.lsts.neptus.console.plugins.containers;
 
-import javax.swing.BoxLayout;
+import java.awt.BorderLayout;
+
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ContainerSubPanel;
-import pt.lsts.neptus.plugins.ConfigurationListener;
-import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.util.ReflectionUtil;
 
 /**
- * @author ZP
+ * @author zepinto
  *
  */
-@PluginDescription(author="ZP", name="Console Layout: Axis", description="Lays out inner components along the horizontal or vertical axis", icon="pt/lsts/neptus/plugins/containers/layout.png")
-public class BoxLayoutContainer extends ContainerSubPanel implements ConfigurationListener {
+@PluginDescription(name="Dummy sub Panel")
+public class DummySubPanel extends SimpleSubPanel {
 
     private static final long serialVersionUID = 1L;
-
-    public enum AxisEnum {Horizontal, Vertical};
-    
-	@NeptusProperty(name="Layout Axis", description="The axis to follow when laying out components", distribution = DistributionEnum.DEVELOPER)
-	public AxisEnum axis = AxisEnum.Horizontal;
-		
-	public BoxLayoutContainer(ConsoleLayout console) {
-		super(console);
-		int a = (axis == AxisEnum.Horizontal)? BoxLayout.LINE_AXIS : BoxLayout.PAGE_AXIS;
-		setLayout(new BoxLayout(this, a));		
+    protected JTextArea text = new JTextArea();
+	
+	public DummySubPanel(ConsoleLayout console) {
+	    super(console);
+		removeAll();
+		setLayout(new BorderLayout());
+		add(new JScrollPane(text), BorderLayout.CENTER);
 	}
 	
 	@Override
-	public void propertiesChanged() {
-		int a = (axis == AxisEnum.Horizontal)? BoxLayout.LINE_AXIS : BoxLayout.PAGE_AXIS;
-		setLayout(new BoxLayout(this, a));
-		doLayout();
-		invalidate();
-		revalidate();
-	}	
+	public void initSubPanel() {
+		text.setText(text.getText()+System.nanoTime()+" initSubPanel() called from "+ReflectionUtil.getCallerStamp()+"\n");
+	}
+	
+	
+	@Override
+	public void cleanSubPanel() {
+		text.setText(text.getText()+System.nanoTime()+" clean() called from "+ReflectionUtil.getCallerStamp()+"\n");		
+	}
+	
 }

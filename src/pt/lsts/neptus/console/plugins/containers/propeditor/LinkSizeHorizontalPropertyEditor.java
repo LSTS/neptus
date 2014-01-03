@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 5 de Out de 2010
  */
-package pt.lsts.neptus.plugins.containers.propeditor;
+package pt.lsts.neptus.console.plugins.containers.propeditor;
 
 import pt.lsts.neptus.i18n.I18n;
 
@@ -37,17 +37,17 @@ import pt.lsts.neptus.i18n.I18n;
  * @author pdias
  *
  */
-public class LinkSizeVerticalPropertyEditor extends HorizontalGroupPropertyEditor {
+public class LinkSizeHorizontalPropertyEditor extends HorizontalGroupPropertyEditor {
 
 	/**
 	 * 
 	 */
-	public LinkSizeVerticalPropertyEditor() {
+	public LinkSizeHorizontalPropertyEditor() {
 		super();
-		rootElement = "LinkSizeVertical";
-		title = I18n.text("Link size for vertical axis:") + " <" + rootElement + "></" + rootElement + ">";
+		rootElement = "LinkSizeHorizontal";
+		title = I18n.text("Link size for horizontal axis:") + " <" + rootElement + "></" + rootElement + ">";
 		helpText += "<!-- " + I18n.text("Don't use this top element (this is informative)") + " -->\n" +
-					"<!ELEMENT LinkSizeVertical (LinkSizeGroup)*>\n\n" +
+					"<!ELEMENT LinkSizeHorizontal (LinkSizeGroup)*>\n\n" +
 					"<!ELEMENT LinkSizeGroup ((Component), (Component)+)>\n" +
 					"<!ELEMENT Component ANY>\n" +
 					"<!ATTLIST Component\n" +

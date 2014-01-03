@@ -58,9 +58,9 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import pt.lsts.neptus.console.plugins.containers.GroupLayoutContainer;
 import pt.lsts.neptus.fileeditor.SyntaxDocument;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.containers.GroupLayoutContainer;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.XMLUtil;

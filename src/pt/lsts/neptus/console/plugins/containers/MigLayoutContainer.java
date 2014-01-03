@@ -29,7 +29,7 @@
  * Author: José Correia
  * 29/11/2011
  */
-package pt.lsts.neptus.plugins.containers;
+package pt.lsts.neptus.console.plugins.containers;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -58,6 +58,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.plugins.containers.propeditor.MiGLayoutXmlPropertyEditor;
 import pt.lsts.neptus.events.NeptusEventLayoutChanged;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.i18n.I18n;
@@ -66,7 +67,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-import pt.lsts.neptus.plugins.containers.propeditor.MiGLayoutXmlPropertyEditor;
 
 import com.google.common.eventbus.Subscribe;
 

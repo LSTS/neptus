@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 31/10/2010
  */
-package pt.lsts.neptus.plugins.containers.propeditor;
+package pt.lsts.neptus.console.plugins.containers.propeditor;
 
 /**
  * @author pdias

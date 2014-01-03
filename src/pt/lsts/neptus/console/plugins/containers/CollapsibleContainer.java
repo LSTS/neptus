@@ -29,7 +29,7 @@
  * Author: José Pinto
  * 2009/09/23
  */
-package pt.lsts.neptus.plugins.containers;
+package pt.lsts.neptus.console.plugins.containers;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

@@ -27,32 +27,46 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: Paulo Dias
- * 5 de Out de 2010
+ * 1/09/2011
  */
-package pt.lsts.neptus.plugins.containers.propeditor;
+package pt.lsts.neptus.console.plugins.containers;
 
-import pt.lsts.neptus.i18n.I18n;
+import java.awt.Component;
 
 /**
  * @author pdias
  *
  */
-public class LinkSizeHorizontalPropertyEditor extends HorizontalGroupPropertyEditor {
-
-	/**
-	 * 
-	 */
-	public LinkSizeHorizontalPropertyEditor() {
-		super();
-		rootElement = "LinkSizeHorizontal";
-		title = I18n.text("Link size for horizontal axis:") + " <" + rootElement + "></" + rootElement + ">";
-		helpText += "<!-- " + I18n.text("Don't use this top element (this is informative)") + " -->\n" +
-					"<!ELEMENT LinkSizeHorizontal (LinkSizeGroup)*>\n\n" +
-					"<!ELEMENT LinkSizeGroup ((Component), (Component)+)>\n" +
-					"<!ELEMENT Component ANY>\n" +
-					"<!ATTLIST Component\n" +
-					"	id CDATA #REQUIRED\n" +
-					">";
-	}
+public interface LayoutProfileProvider {
+    /**
+     * If the LayoutProfileProvider child's have a different profile
+     * is acceptable to only inform the own profile.
+     * @return
+     */
+    public String getActiveProfile();
+    
+    /**
+     * To activate a profile. Empty restores the full view.
+     * (It is necessary to propagate the profile change.)
+     * @param name
+     * @return
+     */
+    public boolean setActiveProfile(String name);
+    
+//    /**
+//     * It the same as calling {@link #setActiveProfile(String)} with empty string.
+//     * @return
+//     */
+//    public boolean resetActiveProfile();
+//    
+//    public String getDefaultProfile();
+//    
+//    public boolean setDefaultProfile();
+    
+    public String[] listProfileNames();
+    
+    public boolean supportsMaximizePanelOnContainer();
+    
+    public boolean maximizePanelOnContainer(Component comp);
 
 }

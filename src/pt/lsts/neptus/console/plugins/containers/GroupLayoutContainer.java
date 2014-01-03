@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 2/10/2010
  */
-package pt.lsts.neptus.plugins.containers;
+package pt.lsts.neptus.console.plugins.containers;
 
 import java.awt.Component;
 import java.awt.Rectangle;
@@ -82,6 +82,11 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.MainPanel;
 import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.plugins.containers.propeditor.HorizontalGroupPropertyEditor;
+import pt.lsts.neptus.console.plugins.containers.propeditor.LinkSizeHorizontalPropertyEditor;
+import pt.lsts.neptus.console.plugins.containers.propeditor.LinkSizeVerticalPropertyEditor;
+import pt.lsts.neptus.console.plugins.containers.propeditor.ProfilesPropertyEditor;
+import pt.lsts.neptus.console.plugins.containers.propeditor.VerticalGroupPropertyEditor;
 import pt.lsts.neptus.gui.MenuScroller;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
@@ -91,11 +96,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsLoader;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
-import pt.lsts.neptus.plugins.containers.propeditor.HorizontalGroupPropertyEditor;
-import pt.lsts.neptus.plugins.containers.propeditor.LinkSizeHorizontalPropertyEditor;
-import pt.lsts.neptus.plugins.containers.propeditor.LinkSizeVerticalPropertyEditor;
-import pt.lsts.neptus.plugins.containers.propeditor.ProfilesPropertyEditor;
-import pt.lsts.neptus.plugins.containers.propeditor.VerticalGroupPropertyEditor;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
@@ -1245,7 +1245,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
     /**
      * @return
      *
-     * @see pt.lsts.neptus.plugins.containers.LayoutProfileProvider#getActiveProfile()
+     * @see pt.lsts.neptus.console.plugins.containers.LayoutProfileProvider#getActiveProfile()
      */
     @Override
     public String getActiveProfile() {
@@ -1258,7 +1258,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
      * @param name
      * @return
      *
-     * @see pt.lsts.neptus.plugins.containers.LayoutProfileProvider#setActiveProfile(java.lang.String)
+     * @see pt.lsts.neptus.console.plugins.containers.LayoutProfileProvider#setActiveProfile(java.lang.String)
      */
     @Override
     public boolean setActiveProfile(String name) {

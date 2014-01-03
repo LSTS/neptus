@@ -29,29 +29,25 @@
  * Author: Paulo Dias
  * 5 de Out de 2010
  */
-package pt.lsts.neptus.plugins.containers.propeditor;
+package pt.lsts.neptus.console.plugins.containers.propeditor;
 
-import javax.xml.validation.Schema;
-
-import pt.lsts.neptus.gui.editor.XMLPropertyEditor;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.containers.GroupLayoutContainer;
 
 /**
  * @author pdias
  *
  */
-public class HorizontalGroupPropertyEditor extends XMLPropertyEditor {
+public class VerticalGroupPropertyEditor extends HorizontalGroupPropertyEditor { // Extends HorizontalGroupPropertyEditor in order not to repeat code (getSchema())
 
 	/**
 	 * 
 	 */
-	public HorizontalGroupPropertyEditor() {
+	public VerticalGroupPropertyEditor() {
 		super();
-		rootElement = "HorizontalGroup";
-		title = I18n.text("Layout for horizontal axis:") + " <" + rootElement + "></" + rootElement + ">";
+		rootElement = "VerticalGroup";
+		title = I18n.text("Layout for vertical axis:") + " <" + rootElement + "></" + rootElement + ">";
 		helpText += "<!-- " + I18n.text("Don't use this top element (this is informative)") + " -->\n" +
-					"<!ELEMENT HorizontalGroup (Sequence | Parallel)?>\n\n" +
+					"<!ELEMENT VerticalGroup (Sequence | Parallel)?>\n\n" +
 					"<!ELEMENT Sequence (Component | (Gap | GapComponents | PreferredGap) | Sequence | Parallel)+>\n" +
 					"<!ELEMENT Parallel (Component | Gap | Sequence | Parallel)+>\n" +
 					"<!ATTLIST Parallel\n" +
@@ -87,8 +83,5 @@ public class HorizontalGroupPropertyEditor extends XMLPropertyEditor {
 					"	max NMTOKEN \"-2\" <!-- DEFAULT_SIZE=-1;PREFERRED_SIZE=-2 -->\n" +
 					">";
 	}
-	
-	public Schema getSchema() {
-	        return GroupLayoutContainer.schema;
-	}
+
 }

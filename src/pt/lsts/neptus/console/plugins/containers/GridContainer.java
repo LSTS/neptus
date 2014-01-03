@@ -26,47 +26,47 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Paulo Dias
- * 1/09/2011
+ * Author: José Pinto
+ * 2009/09/16
  */
-package pt.lsts.neptus.plugins.containers;
+package pt.lsts.neptus.console.plugins.containers;
 
-import java.awt.Component;
+import java.awt.GridLayout;
+
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ContainerSubPanel;
+import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.lsts.neptus.plugins.PluginDescription;
 
 /**
- * @author pdias
+ * @author ZP
  *
  */
-public interface LayoutProfileProvider {
-    /**
-     * If the LayoutProfileProvider child's have a different profile
-     * is acceptable to only inform the own profile.
-     * @return
-     */
-    public String getActiveProfile();
-    
-    /**
-     * To activate a profile. Empty restores the full view.
-     * (It is necessary to propagate the profile change.)
-     * @param name
-     * @return
-     */
-    public boolean setActiveProfile(String name);
-    
-//    /**
-//     * It the same as calling {@link #setActiveProfile(String)} with empty string.
-//     * @return
-//     */
-//    public boolean resetActiveProfile();
-//    
-//    public String getDefaultProfile();
-//    
-//    public boolean setDefaultProfile();
-    
-    public String[] listProfileNames();
-    
-    public boolean supportsMaximizePanelOnContainer();
-    
-    public boolean maximizePanelOnContainer(Component comp);
+@PluginDescription(name="Console Layout: Grid", description="A container that lays out components in a grid", author="ZP", icon="pt/lsts/neptus/plugins/containers/layout.png")
+public class GridContainer extends ContainerSubPanel implements ConfigurationListener {
 
+    private static final long serialVersionUID = 1L;
+
+    @NeptusProperty(name="Number of cols", description="The number of cols in the grid. Use 0 for infinite.",
+            distribution = DistributionEnum.DEVELOPER)
+	public int numCols = 2;
+	
+	@NeptusProperty(name="Number of rows", description="The number of rows in the grid. Use 0 for infinite.",
+	        distribution = DistributionEnum.DEVELOPER)
+	public int numRows = 0;
+	
+	public GridContainer(ConsoleLayout console) {
+		super(console);
+		setLayout(new GridLayout(numRows, numCols));		
+	}
+	
+	@Override
+	public void propertiesChanged() {
+		setLayout(new GridLayout(numRows, numCols));
+		doLayout();
+		invalidate();
+		revalidate();
+	}
 }

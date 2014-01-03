@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 5 de Out de 2010
  */
-package pt.lsts.neptus.plugins.containers.propeditor;
+package pt.lsts.neptus.console.plugins.containers.propeditor;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

@@ -26,47 +26,33 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: José Pinto
- * 4 de Ago de 2010
+ * Author: Paulo Dias
+ * 5 de Out de 2010
  */
-package pt.lsts.neptus.plugins.containers;
+package pt.lsts.neptus.console.plugins.containers.propeditor;
 
-import java.awt.BorderLayout;
-
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-
-import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
-import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.i18n.I18n;
 
 /**
- * @author zepinto
+ * @author pdias
  *
  */
-@PluginDescription(name="Dummy sub Panel")
-public class DummySubPanel extends SimpleSubPanel {
+public class LinkSizeVerticalPropertyEditor extends HorizontalGroupPropertyEditor {
 
-    private static final long serialVersionUID = 1L;
-    protected JTextArea text = new JTextArea();
-	
-	public DummySubPanel(ConsoleLayout console) {
-	    super(console);
-		removeAll();
-		setLayout(new BorderLayout());
-		add(new JScrollPane(text), BorderLayout.CENTER);
+	/**
+	 * 
+	 */
+	public LinkSizeVerticalPropertyEditor() {
+		super();
+		rootElement = "LinkSizeVertical";
+		title = I18n.text("Link size for vertical axis:") + " <" + rootElement + "></" + rootElement + ">";
+		helpText += "<!-- " + I18n.text("Don't use this top element (this is informative)") + " -->\n" +
+					"<!ELEMENT LinkSizeVertical (LinkSizeGroup)*>\n\n" +
+					"<!ELEMENT LinkSizeGroup ((Component), (Component)+)>\n" +
+					"<!ELEMENT Component ANY>\n" +
+					"<!ATTLIST Component\n" +
+					"	id CDATA #REQUIRED\n" +
+					">";
 	}
-	
-	@Override
-	public void initSubPanel() {
-		text.setText(text.getText()+System.nanoTime()+" initSubPanel() called from "+ReflectionUtil.getCallerStamp()+"\n");
-	}
-	
-	
-	@Override
-	public void cleanSubPanel() {
-		text.setText(text.getText()+System.nanoTime()+" clean() called from "+ReflectionUtil.getCallerStamp()+"\n");		
-	}
-	
+
 }

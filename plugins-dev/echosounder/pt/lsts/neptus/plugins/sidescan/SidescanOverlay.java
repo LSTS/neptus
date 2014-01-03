@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Dec 13, 2012
  */
-package pt.lsts.neptus.plugins.sss;
+package pt.lsts.neptus.plugins.sidescan;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -52,7 +52,6 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
-import pt.lsts.neptus.plugins.sidescan.SlantRangeImageFilter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 

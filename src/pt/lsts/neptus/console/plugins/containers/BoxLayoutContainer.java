@@ -29,9 +29,9 @@
  * Author: José Pinto
  * 2009/09/16
  */
-package pt.lsts.neptus.plugins.containers;
+package pt.lsts.neptus.console.plugins.containers;
 
-import java.awt.GridLayout;
+import javax.swing.BoxLayout;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ContainerSubPanel;
@@ -44,29 +44,28 @@ import pt.lsts.neptus.plugins.PluginDescription;
  * @author ZP
  *
  */
-@PluginDescription(name="Console Layout: Grid", description="A container that lays out components in a grid", author="ZP", icon="pt/lsts/neptus/plugins/containers/layout.png")
-public class GridContainer extends ContainerSubPanel implements ConfigurationListener {
+@PluginDescription(author="ZP", name="Console Layout: Axis", description="Lays out inner components along the horizontal or vertical axis", icon="pt/lsts/neptus/plugins/containers/layout.png")
+public class BoxLayoutContainer extends ContainerSubPanel implements ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
 
-    @NeptusProperty(name="Number of cols", description="The number of cols in the grid. Use 0 for infinite.",
-            distribution = DistributionEnum.DEVELOPER)
-	public int numCols = 2;
-	
-	@NeptusProperty(name="Number of rows", description="The number of rows in the grid. Use 0 for infinite.",
-	        distribution = DistributionEnum.DEVELOPER)
-	public int numRows = 0;
-	
-	public GridContainer(ConsoleLayout console) {
+    public enum AxisEnum {Horizontal, Vertical};
+    
+	@NeptusProperty(name="Layout Axis", description="The axis to follow when laying out components", distribution = DistributionEnum.DEVELOPER)
+	public AxisEnum axis = AxisEnum.Horizontal;
+		
+	public BoxLayoutContainer(ConsoleLayout console) {
 		super(console);
-		setLayout(new GridLayout(numRows, numCols));		
+		int a = (axis == AxisEnum.Horizontal)? BoxLayout.LINE_AXIS : BoxLayout.PAGE_AXIS;
+		setLayout(new BoxLayout(this, a));		
 	}
 	
 	@Override
 	public void propertiesChanged() {
-		setLayout(new GridLayout(numRows, numCols));
+		int a = (axis == AxisEnum.Horizontal)? BoxLayout.LINE_AXIS : BoxLayout.PAGE_AXIS;
+		setLayout(new BoxLayout(this, a));
 		doLayout();
 		invalidate();
 		revalidate();
-	}
+	}	
 }

@@ -36,9 +36,9 @@ import java.awt.event.ContainerListener;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.SystemsList;
+import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
-import pt.lsts.neptus.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.plugins.planning.UavPiccoloControl;
 import pt.lsts.neptus.plugins.uavs.painters.elements.UavCameraFootprint;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
