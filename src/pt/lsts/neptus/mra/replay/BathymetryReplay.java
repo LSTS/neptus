@@ -43,6 +43,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.ImageLayer;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -55,6 +56,7 @@ import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
  *
  */
 @LayerPriority(priority=-60)
+@PluginDescription
 public class BathymetryReplay extends ColormapOverlay implements LogReplayLayer {
 
     @NeptusProperty(name="Cell width")

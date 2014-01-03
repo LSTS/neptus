@@ -45,7 +45,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author zp
  *
  */
-public class ValueColorMap extends ColormapOverlay implements LogReplayLayer {
+public abstract class ValueColorMap extends ColormapOverlay implements LogReplayLayer {
 
     @NeptusProperty(name="Cell width")
     public int cellWidth = 20;

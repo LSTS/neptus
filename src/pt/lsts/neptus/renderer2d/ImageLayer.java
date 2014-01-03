@@ -105,7 +105,9 @@ public class ImageLayer implements Serializable, Renderer2DPainter {
 
     public static ImageLayer read(File f) throws Exception {
         ObjectInputStream is = new ObjectInputStream(new FileInputStream(f));
-        return (ImageLayer) is.readObject();        
+        ImageLayer il = (ImageLayer) is.readObject();
+        is.close();
+        return il;
     }
     
     public void saveToFile(File f) throws Exception {

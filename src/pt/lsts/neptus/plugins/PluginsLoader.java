@@ -55,7 +55,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.reflections.Reflections;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.ConfigFetch.ENVIROMENT;
 
