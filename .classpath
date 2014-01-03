@@ -6,10 +6,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" output="build/tests" path="srcTests"/>
-	<classpathentry kind="src" path="plugins-dev/gige"/>
-	<classpathentry kind="src" path="plugins-dev/s57"/>
-	<classpathentry kind="src" path="plugins-dev/blue-eye"/>
-	<classpathentry kind="src" path="plugins-dev/help"/>
 	<classpathentry kind="src" path="plugins-dev/state"/>
 	<classpathentry kind="src" path="plugins-dev/acoustic"/>
 	<classpathentry kind="src" path="plugins-dev/alarms"/>
@@ -24,7 +20,6 @@
 	<classpathentry kind="src" path="plugins-dev/s57-client"/>
 	<classpathentry kind="src" path="plugins-dev/oplimits"/>
 	<classpathentry kind="src" path="plugins-dev/uavs"/>
-	<classpathentry kind="src" path="plugins-dev/planning"/>
 	<classpathentry kind="src" path="plugins-dev/accu"/>
 	<classpathentry kind="src" path="plugins-dev/gps"/>
 	<classpathentry kind="src" path="plugins-dev/mavs"/>
@@ -50,6 +45,10 @@
 	<classpathentry kind="src" path="plugins-dev/sunfish"/>
 	<classpathentry kind="src" path="plugins-dev/leds"/>
 	<classpathentry kind="src" path="plugins-dev/noptilus"/>
+	<classpathentry kind="src" path="plugins-dev/gige"/>
+	<classpathentry kind="src" path="plugins-dev/s57"/>
+	<classpathentry kind="src" path="plugins-dev/blue-eye"/>
+	<classpathentry kind="src" path="plugins-dev/help"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>

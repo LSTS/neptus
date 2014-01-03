@@ -40,9 +40,9 @@ import java.util.Vector;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.ManeuverControlState;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
-import pt.lsts.neptus.plugins.planning.MapPanel;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 

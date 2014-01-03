@@ -305,6 +305,7 @@ public class ImageUtils {
         ImageLoader loader = new ImageLoader(imageURL);
         if (loader.getImage() == null) {
             NeptusLog.pub().error("Image " + imageURL + " was not found!");
+            new Exception().printStackTrace();
         }
         return loader.getImage();
     }

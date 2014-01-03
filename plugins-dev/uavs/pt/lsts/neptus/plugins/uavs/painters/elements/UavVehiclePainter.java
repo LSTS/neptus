@@ -44,8 +44,8 @@ import java.awt.geom.Point2D;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.plugins.planning.MapPanel;
 import pt.lsts.neptus.plugins.uavs.UavVehicleIcon;
 import pt.lsts.neptus.plugins.uavs.daemons.UavPainterDaemon;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;

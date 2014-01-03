@@ -43,7 +43,7 @@ import java.util.Vector;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.plugins.planning.plandb.PlanDBControl;
+import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBControl;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.comm.protocol.IMCArgs;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
