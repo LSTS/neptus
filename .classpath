@@ -6,17 +6,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" output="build/tests" path="srcTests"/>
-	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/vrp"/>
-	<classpathentry kind="src" path="plugins-dev/dev-calibration"/>
-	<classpathentry kind="src" path="plugins-dev/tidePrediction"/>
-	<classpathentry kind="src" path="plugins-dev/spot"/>
-	<classpathentry excluding="pt/up/fe/dceg/neptus/plugins/vtk/utils/MultibeamDeltaTParser.java" kind="src" path="plugins-dev/vtk"/>
-	<classpathentry kind="src" path="plugins-dev/followRef"/>
-	<classpathentry kind="src" path="plugins-dev/imu-alignment"/>
-	<classpathentry kind="src" path="plugins-dev/envdisp"/>
-	<classpathentry kind="src" path="plugins-dev/sunfish"/>
-	<classpathentry kind="src" path="plugins-dev/leds"/>
-	<classpathentry kind="src" path="plugins-dev/caoAgent"/>
 	<classpathentry kind="src" path="plugins-dev/gige"/>
 	<classpathentry kind="src" path="plugins-dev/s57"/>
 	<classpathentry kind="src" path="plugins-dev/blue-eye"/>
@@ -48,9 +37,19 @@
 	<classpathentry kind="src" path="plugins-dev/messages"/>
 	<classpathentry kind="src" path="plugins-dev/odss"/>
 	<classpathentry kind="src" path="plugins-dev/trex"/>
-	<classpathentry kind="src" path="plugins-dev/noptilus"/>
 	<classpathentry kind="src" path="plugins-dev/simulation"/>
 	<classpathentry kind="src" path="plugins-dev/netcdf"/>
+	<classpathentry kind="src" path="plugins-dev/vrp"/>
+	<classpathentry kind="src" path="plugins-dev/dev-calibration"/>
+	<classpathentry kind="src" path="plugins-dev/tidePrediction"/>
+	<classpathentry kind="src" path="plugins-dev/spot"/>
+	<classpathentry kind="src" path="plugins-dev/vtk"/>
+	<classpathentry kind="src" path="plugins-dev/followRef"/>
+	<classpathentry kind="src" path="plugins-dev/imu-alignment"/>
+	<classpathentry kind="src" path="plugins-dev/envdisp"/>
+	<classpathentry kind="src" path="plugins-dev/sunfish"/>
+	<classpathentry kind="src" path="plugins-dev/leds"/>
+	<classpathentry kind="src" path="plugins-dev/noptilus"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
