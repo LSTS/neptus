@@ -58,7 +58,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.map.MapEditor;
 import pt.lsts.neptus.plugins.planning.MapPanel;
-import pt.lsts.neptus.plugins.web.NeptusServlet;
 import pt.lsts.neptus.renderer2d.tiles.Tile.TileState;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
@@ -212,23 +211,6 @@ public class PluginsPotGenerator {
                 }
                 if (!pd.description().isEmpty()) {
                     writer.write("#: Description of plugin " + c.getName() + "\n");
-                    writer.write("msgid \"" + escapeQuotes(pd.description()) + "\"\n");
-                    writer.write("msgstr \"\"\n\n");
-                }
-            }
-            catch (Exception e) {
-                // e.printStackTrace();
-            }
-
-            try {
-                NeptusServlet pd = c.getAnnotation(NeptusServlet.class);
-                if (!pd.name().isEmpty()) {
-                    writer.write("#: Name of servlet " + c.getName() + "\n");
-                    writer.write("msgid \"" + escapeQuotes(pd.name()) + "\"\n");
-                    writer.write("msgstr \"\"\n\n");
-                }
-                if (!pd.description().isEmpty()) {
-                    writer.write("#: Description of servlet " + c.getName() + "\n");
                     writer.write("msgid \"" + escapeQuotes(pd.description()) + "\"\n");
                     writer.write("msgstr \"\"\n\n");
                 }
