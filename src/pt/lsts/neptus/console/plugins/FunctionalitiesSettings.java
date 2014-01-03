@@ -29,7 +29,7 @@
  * Author: Margarida Faria
  * Jan 9, 2013
  */
-package pt.lsts.neptus.plugins.configWindow;
+package pt.lsts.neptus.console.plugins;
 
 import java.awt.Component;
 import java.beans.PropertyEditor;

@@ -29,7 +29,7 @@
  * Author: Margarida Faria
  * Jan 10, 2013
  */
-package pt.lsts.neptus.plugins.configWindow;
+package pt.lsts.neptus.console.plugins;
 
 import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;

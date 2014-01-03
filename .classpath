@@ -6,24 +6,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" output="build/tests" path="srcTests"/>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/planning"/>
-	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/uavs"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/gps"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/mavs"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/accu"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/mra-plots"/>
-	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/webupdate"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/tiles-extra"/>
-	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/odss"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/map"/>
-	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/messages"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/trex"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/matlab-planning"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/ais"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/noptilus"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/simulation"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/netcdf"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/configWindow"/>
 	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/mra-jzy3d"/>
 	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/vrp"/>
 	<classpathentry kind="src" path="plugins-dev/dev-calibration"/>
@@ -53,6 +35,23 @@
 	<classpathentry kind="src" path="plugins-dev/teleoperation"/>
 	<classpathentry kind="src" path="plugins-dev/s57-client"/>
 	<classpathentry kind="src" path="plugins-dev/oplimits"/>
+	<classpathentry kind="src" path="plugins-dev/uavs"/>
+	<classpathentry kind="src" path="plugins-dev/planning"/>
+	<classpathentry kind="src" path="plugins-dev/accu"/>
+	<classpathentry kind="src" path="plugins-dev/gps"/>
+	<classpathentry kind="src" path="plugins-dev/mavs"/>
+	<classpathentry kind="src" path="plugins-dev/mra-plots"/>
+	<classpathentry kind="src" path="plugins-dev/tiles-extra"/>
+	<classpathentry kind="src" path="plugins-dev/webupdate"/>
+	<classpathentry kind="src" path="plugins-dev/ais"/>
+	<classpathentry kind="src" path="plugins-dev/map"/>
+	<classpathentry kind="src" path="plugins-dev/matlab-planning"/>
+	<classpathentry kind="src" path="plugins-dev/messages"/>
+	<classpathentry kind="src" path="plugins-dev/odss"/>
+	<classpathentry kind="src" path="plugins-dev/trex"/>
+	<classpathentry kind="src" path="plugins-dev/noptilus"/>
+	<classpathentry kind="src" path="plugins-dev/simulation"/>
+	<classpathentry kind="src" path="plugins-dev/netcdf"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>

@@ -29,7 +29,7 @@
  * Author: Margarida Faria
  * Nov 30, 2012
  */
-package pt.lsts.neptus.plugins.configWindow;
+package pt.lsts.neptus.console.plugins;
 
 import javax.swing.ImageIcon;
 
