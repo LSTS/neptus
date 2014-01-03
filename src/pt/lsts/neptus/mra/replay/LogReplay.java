@@ -128,13 +128,10 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
         
         this.tree = new LsfTree(this.source);
         for (String replay : PluginsRepository.getReplayLayers().keySet()) {
-            System.out.println("adding "+replay);
             try {
                 layers.add(PluginsRepository.getPlugin(replay, LogReplayLayer.class));
-                System.out.println(layers.size());
             }
             catch (Exception e) {
-                e.printStackTrace();
                 NeptusLog.pub().error(e);
             }
         }
