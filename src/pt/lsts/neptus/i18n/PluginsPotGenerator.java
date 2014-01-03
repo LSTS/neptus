@@ -56,10 +56,10 @@ import pt.lsts.neptus.gui.system.SystemDisplayComparator;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.map.MapEditor;
 import pt.lsts.neptus.plugins.planning.MapPanel;
 import pt.lsts.neptus.renderer2d.tiles.Tile.TileState;
 import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.util.FileUtil;
@@ -76,13 +76,7 @@ public class PluginsPotGenerator {
     protected static final String inFile = "dev-scripts/i18n/empty.pot";
 
     public static Vector<AbstractElement> mapElements() {
-        try {
-            return new MapEditor(null).getElements();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return new Vector<>();
-        }
+        return MapType.getMapElements();
     }
 
     // add here more enumerations that are used in the GUI
