@@ -29,7 +29,7 @@
  * Author: Paulo Dias
  * 15/05/2012
  */
-package pt.lsts.neptus.mra.replay;
+package pt.lsts.neptus.plugins.acoustic;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -42,8 +42,8 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.replay.LogReplayLayer;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.acoustic.RangePainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;

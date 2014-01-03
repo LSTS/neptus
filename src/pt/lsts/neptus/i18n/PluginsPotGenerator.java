@@ -42,6 +42,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
 
+import org.reflections.Reflections;
+
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.Goto;
 import pt.lsts.imc.Loiter;
@@ -54,7 +56,6 @@ import pt.lsts.neptus.gui.system.SystemDisplayComparator;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.acoustic.LBLRangeDisplay.HideOrFadeRangeEnum;
 import pt.lsts.neptus.plugins.map.MapEditor;
 import pt.lsts.neptus.plugins.planning.MapPanel;
 import pt.lsts.neptus.plugins.web.NeptusServlet;
@@ -101,7 +102,6 @@ public class PluginsPotGenerator {
         enums.add(SystemTypeEnum.class);
         enums.add(VehicleTypeEnum.class);
         enums.add(Z_UNITS.class);
-        enums.add(HideOrFadeRangeEnum.class);
         enums.add(TileState.class);
         return enums;
     }
@@ -267,7 +267,15 @@ public class PluginsPotGenerator {
             writer.write("msgstr \"\"\n\n");
         }
 
-        for (Class<?> enumClass : enums()) {
+        Vector<Class<?>> enums = enums();
+        Reflections ref = new Reflections("pt.lsts.neptus.plugins");
+        
+        for (Class<?> c : ref.getTypesAnnotatedWith(Translate.class)) {
+            if (c.getEnumConstants() != null)
+                enums.add(c);
+        }        
+        
+        for (Class<?> enumClass : enums) {
             for (Object o : enumClass.getEnumConstants()) {
                 String name = enumClass.getSimpleName();
                 if (enumClass.getEnclosingClass() != null) {

@@ -63,6 +63,8 @@ import javax.swing.JScrollPane;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
+import com.google.common.annotations.Beta;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LblRangeAcceptance;
 import pt.lsts.imc.LblRangeAcceptance.ACCEPTANCE;
@@ -78,6 +80,7 @@ import pt.lsts.neptus.console.plugins.SubPanelChangeListener;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.i18n.Translate;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.mp.MapChangeListener;
@@ -126,6 +129,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
     private static final Icon ICON_SETTINGS = ImageUtils.getScaledIcon(
             ImageUtils.getImage("pt/lsts/neptus/plugins/acoustic/settings.png"), 24, 24);
 
+    @Translate
     public enum HideOrFadeRangeEnum {
         HIDE,
         FADE

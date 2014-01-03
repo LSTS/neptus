@@ -106,20 +106,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
     private JButton plotButton;
     
     private Vector<LogReplayLayer> layers = new Vector<LogReplayLayer>();
-//    {
-//        layers.add(new GPSFixReplay());
-//        layers.add(new EstimatedStateReplay());
-//        layers.add(new SimulatedStateReplay());
-//        layers.add(new LBLRangesReplay());
-////        layers.add(new SidescanOverlay());
-////        layers.add(new SidescanReplay());
-//        layers.add(new MultibeamReplay());
-//        layers.add(new TrexReplay());
-//        layers.add(markersReplay);
-//        layers.add(new BathymetryReplay());
-//        layers.add(new AnnouncesReplay());
-//    }
-    
+
     protected LinkedHashMap<String, IMraLog> replayParsers = new LinkedHashMap<String, IMraLog>();
     private Vector<LogReplayLayer> renderedLayers = new Vector<LogReplayLayer>();
     private Vector<LogReplayLayer> replayLayers = new Vector<LogReplayLayer>();

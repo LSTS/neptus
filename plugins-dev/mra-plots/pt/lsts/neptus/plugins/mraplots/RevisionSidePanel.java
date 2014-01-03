@@ -55,12 +55,8 @@ import javax.swing.border.BevelBorder;
 import pt.lsts.imc.lsf.LsfIndexListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.mra.replay.BathymetryReplay;
-import pt.lsts.neptus.mra.replay.EstimatedStateReplay;
-import pt.lsts.neptus.mra.replay.GPSFixReplay;
-import pt.lsts.neptus.mra.replay.LBLRangesReplay;
-import pt.lsts.neptus.mra.replay.LogMarkersReplay;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
+import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.renderer2d.ImageLayer;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.util.FileUtil;
@@ -152,14 +148,12 @@ public class RevisionSidePanel extends JPanel {
         }
 
         private void loadOverlays(LsfLogSource source) {
-            LogReplayLayer[] layers = new LogReplayLayer[] {
-                    new EstimatedStateReplay(),
-                    new GPSFixReplay(),
-                    new LBLRangesReplay(),
-                    new LogMarkersReplay(),
-                    new BathymetryReplay()
-//                    new SidescanOverlay()
-            };
+            
+            Vector<LogReplayLayer> layers = new Vector<>();
+            
+            for (String name : PluginsRepository.getReplayLayers().keySet()) {
+                layers.add(PluginsRepository.getPlugin(name, LogReplayLayer.class));
+            }
            
             for (LogReplayLayer layer : layers) {                         
                 if (layer.canBeApplied(source)) {
