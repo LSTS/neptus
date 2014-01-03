@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Dec 15, 2012
  */
-package pt.lsts.neptus.plugins.mra3d;
+package pt.lsts.neptus.mra.plots;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -66,7 +66,6 @@ import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.visualizations.SimpleMRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -74,7 +73,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 /**
  * @author zp
  */
-@PluginDescription(name = "3D Plot", icon = "pt/lsts/neptus/plugins/mra3d/3d.png")
+@PluginDescription(name = "3D Plot", icon = "pt/lsts/neptus/mra/plots/3d.png")
 public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener {
 
     /**

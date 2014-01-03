@@ -63,8 +63,6 @@ import javax.swing.JScrollPane;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
-import com.google.common.annotations.Beta;
-
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LblRangeAcceptance;
 import pt.lsts.imc.LblRangeAcceptance.ACCEPTANCE;

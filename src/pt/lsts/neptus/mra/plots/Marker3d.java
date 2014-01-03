@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Dec 16, 2012
  */
-package pt.lsts.neptus.plugins.mra3d;
+package pt.lsts.neptus.mra.plots;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;

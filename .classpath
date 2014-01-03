@@ -6,7 +6,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" output="build/tests" path="srcTests"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/mra-jzy3d"/>
 	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/vrp"/>
 	<classpathentry kind="src" path="plugins-dev/dev-calibration"/>
 	<classpathentry kind="src" path="plugins-dev/tidePrediction"/>
