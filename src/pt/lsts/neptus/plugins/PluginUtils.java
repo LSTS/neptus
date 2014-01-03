@@ -90,7 +90,7 @@ public class PluginUtils {
     public static String getPluginName(Class<?> clazz) {
         PluginDescription pd = clazz.getAnnotation(PluginDescription.class);
         String name;
-        if (pd != null)
+        if (pd != null && !pd.name().isEmpty())
             name = pd.name();
         else
             name = clazz.getSimpleName();
