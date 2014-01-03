@@ -139,7 +139,7 @@ import com.l2fprod.common.propertysheet.PropertySheetPanel;
  * @author ZP
  * @author pdias
  */
-@PluginDescription(name = "Plan Edition", icon = "images/planning/images/plan_editor.png", author = "José Pinto, Paulo Dias", version = "1.5", category = CATEGORY.INTERFACE)
+@PluginDescription(name = "Plan Edition", icon = "images/planning//plan_editor.png", author = "José Pinto, Paulo Dias", version = "1.5", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 100)
 public class PlanEditor extends InteractionAdapter implements Renderer2DPainter, IPeriodicUpdates,
 MissionChangeListener {
@@ -417,7 +417,7 @@ MissionChangeListener {
 
     protected AbstractAction getSettingsAction() {
         return new AbstractAction(I18n.text("Statistics"), ImageUtils.getScaledIcon(
-                "images/planning/images/edit_settings.png", 16, 16)) {
+                "images/planning//edit_settings.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -485,7 +485,7 @@ MissionChangeListener {
 
     protected AbstractAction getNewAction() {
         return new AbstractAction(I18n.textc("New", "Plan"), ImageUtils.getScaledIcon(
-                "images/planning/images/edit_new.png", 16, 16)) {
+                "images/planning//edit_new.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -522,7 +522,7 @@ MissionChangeListener {
     protected AbstractAction getUndoAction() {
         if (undoAction == null)
             undoAction = new AbstractAction(I18n.text("Undo"), ImageUtils.getScaledIcon(
-                    "images/planning/images/undo.png", 16, 16)) {
+                    "images/planning//undo.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -538,7 +538,7 @@ MissionChangeListener {
 
         if (redoAction == null)
             redoAction = new AbstractAction(I18n.text("Redo"), ImageUtils.getScaledIcon(
-                    "images/planning/images/redo.png", 16, 16)) {
+                    "images/planning//redo.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -552,7 +552,7 @@ MissionChangeListener {
 
     protected AbstractAction getSaveAction() {
         return new AbstractAction(I18n.text("Save"), ImageUtils.getScaledIcon(
-                "images/planning/images/edit_save.png", 16, 16)) {
+                "images/planning//edit_save.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -609,7 +609,7 @@ MissionChangeListener {
 
     protected AbstractAction getCloseAction() {
         return new AbstractAction(I18n.text("Close"), ImageUtils.getScaledIcon(
-                "images/planning/images/edit_close.png", 16, 16)) {
+                "images/planning//edit_close.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
