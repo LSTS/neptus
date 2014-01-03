@@ -44,6 +44,7 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.OperationLimits;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
@@ -108,14 +109,14 @@ public class OperationLimitsPanel extends JPanel {
 		b.addActionListener(new ActionListener() {			
 			public void actionPerformed(ActionEvent e) {				
 				RectangleEditor editor = new RectangleEditor(OperationLimitsPanel.this.mt);
-				if (limits.opAreaLat != null) {
+				if (limits.getOpAreaLat() != null) {
 					editor.pp = new ParallelepipedElement(MapGroup.getMapGroupInstance(OperationLimitsPanel.this.mt), null);
-					editor.pp.setWidth(limits.opAreaWidth);
-					editor.pp.setLength(limits.opAreaLength);
-					editor.pp.setYawDeg(Math.toDegrees(limits.opRotationRads));
+					editor.pp.setWidth(limits.getOpAreaWidth());
+					editor.pp.setLength(limits.getOpAreaLength());
+					editor.pp.setYawDeg(Math.toDegrees(limits.getOpRotationRads()));
 					LocationType lt = new LocationType();
-					lt.setLatitude(limits.opAreaLat);
-					lt.setLongitude(limits.opAreaLon);
+					lt.setLatitude(limits.getOpAreaLat());
+					lt.setLongitude(limits.getOpAreaLon());
 					editor.pp.setCenterLocation(lt);
 					editor.pp.setMyColor(Color.red);
 					editor.btnOk.setEnabled(true);
@@ -123,11 +124,11 @@ public class OperationLimitsPanel extends JPanel {
 				ParallelepipedElement rectangle = editor.showDialog(OperationLimitsPanel.this);
 				if (rectangle != null) {
 					double lld[] = rectangle.getCenterLocation().getAbsoluteLatLonDepth();
-					limits.opAreaLat = lld[0];
-					limits.opAreaLon = lld[1];
-					limits.opAreaLength = rectangle.getLength();
-					limits.opAreaWidth = rectangle.getWidth();
-					limits.opRotationRads = rectangle.getYawRad();
+					limits.setOpAreaLat(lld[0]);
+					limits.setOpAreaLon(lld[1]);
+					limits.setOpAreaLength(rectangle.getLength());					
+					limits.setOpAreaWidth(rectangle.getWidth());
+					limits.setOpRotationRads(rectangle.getYawRad());
 				}				
 			}
 		});
@@ -186,8 +187,13 @@ public class OperationLimitsPanel extends JPanel {
 		else
 			limits.setMaxDepth(null);
 		
-		if (!areaCheck.isSelected())
-			limits.opAreaLat = limits.opAreaLon = limits.opAreaLength = limits.opAreaWidth = limits.opRotationRads = null;
+		if (!areaCheck.isSelected()) {
+		    limits.setOpAreaLat(null);
+		    limits.setOpAreaLon(null);
+		    limits.setOpAreaLength(null);
+		    limits.setOpAreaWidth(null);
+		    limits.setOpRotationRads(null);
+		}
 		
 		return limits;
 	}

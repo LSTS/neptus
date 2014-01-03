@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Sep 24, 2010
  */
-package pt.lsts.neptus.plugins.oplimits;
+package pt.lsts.neptus.mp;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
