@@ -102,6 +102,6 @@ public class SoundPlayer extends Thread {
 	}
 	
 	public static void main(String[] args) {
-		new SoundPlayer(Thread.currentThread().getContextClassLoader().getResourceAsStream("images/planning/alarm.wav")).start();
+		new SoundPlayer(Thread.currentThread().getContextClassLoader().getResourceAsStream("sounds/alarm.wav")).start();
 	}
 }
