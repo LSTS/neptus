@@ -1,7 +1,8 @@
 Changes
 =======
 
-Neptus 3.0.1
+Neptus 3.1.0
 ------------
- * No changes since 3.0.0
+ * All MRA visualizations and replay layers are now plug-ins.
+ * 
  
