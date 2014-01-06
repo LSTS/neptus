@@ -2428,7 +2428,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         HelpFormatter formatter = new HelpFormatter();
         // formatter.printHelp(NeptusLeaves.class.getCanonicalName(), options);
         formatter.printHelp("java -jar neptus-check.jar", "Neptus Checklist v" + ConfigFetch.getVersionSimpleString()
-                + "\nCopyright (c) 2004-2013 - Universidade do Porto - LSTS. All rights reserved.\n\nOptions:\n",
+                + "\nCopyright (c) 2004-2014 - Universidade do Porto - LSTS. All rights reserved.\n\nOptions:\n",
                 options, "Report bugs to Paulo Dias <pdias@fe.up.pt>", true);
     }
 

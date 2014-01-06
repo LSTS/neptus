@@ -2,7 +2,7 @@
 <!-- ===================================================================
    Build file for Neptus
 
-Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
 Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
 All rights reserved.
 Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,7 +34,7 @@ Authors:
   José Pinto <zepinto@fe.up.pt>
 
 Copyright:
-  (c) 2004-2013 FEUP-LSTS, Neptus Team.
+  (c) 2004-2014 FEUP-LSTS, Neptus Team.
 ==================================================================== -->
 <?xml-stylesheet type="text/xsl" href="ant2html.xsl"?>
 <project name="Neptus" default="default" basedir=".">
@@ -74,7 +74,7 @@ For simple use the main targets are:
 
 	<property name="name" value="neptus" />
 	<property name="Name" value="Neptus" />
-	<property name="years" value="2004-2013" />
+	<property name="years" value="2004-2014" />
 	<property name="legal.copy" value="(c)${years} LSTS-FEUP and Neptus developers. All Rights Reserved."/>
 	<property name="legal.copy.html" value="Copyright &#169; ${years} FEUP-LSTS and Neptus developers. All Rights Reserved."/>
 
