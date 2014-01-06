@@ -490,22 +490,25 @@ public class LogUtils {
 
         short lsfFx = 0, lsfGzFx = 0, lsfBZip2Fx = 0, defXmlFx = 0;
         for (File f : dir.listFiles()) {
-            if (FileUtil.getFileExtension(f).equalsIgnoreCase("lsf"))
-                lsfFx++;
-            if (FileUtil.getFileExtension(f).equalsIgnoreCase("xml"))
-                defXmlFx++;
-            if (FileUtil.getFileExtension(f).equalsIgnoreCase("gz")) {
-                String fex = FileUtil.getFileExtension(f.getName().substring(0, f.getName().length() - 3)) + ".gz";
-                if (fex.equalsIgnoreCase("lsf.gz"))
-                    lsfGzFx++;
-                if (fex.equalsIgnoreCase("xml.gz"))
-                    defXmlFx++;
-            }
             
-            if (FileUtil.getFileExtension(f).equalsIgnoreCase("bz2")) {
-                String fex = FileUtil.getFileExtension(f.getName().substring(0, f.getName().length() - 4)) + ".bz2";
-                if (fex.equalsIgnoreCase("lsf.bz2"))
+            switch (FileUtil.getFileExtension(f)) {
+                case "lsf":
+                    lsfFx++;    
+                    break;
+                case "lsf.gz":
+                    lsfGzFx++;
+                    break;
+                case "xml":
+                    defXmlFx++;
+                    break;
+                case "xml.gz":
+                    defXmlFx++;
+                    break;
+                case "lsf.bz2":
                     lsfBZip2Fx++;
+                    break;
+                default:
+                    break;
             }
         }
         if ((lsfFx + lsfGzFx + lsfBZip2Fx) > 0 && defXmlFx > 0)
