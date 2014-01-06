@@ -1,9 +1,30 @@
 /*
- * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
- * Faculdade de Engenharia da Universidade do Porto
- * Departamento de Engenharia Electrotécnica e de Computadores
- * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
+ *
+ * This file is part of Neptus, Command and Control Framework.
+ *
+ * Commercial Licence Usage
+ * Licencees holding valid commercial Neptus licences may use this file
+ * in accordance with the commercial licence agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in a
+ * written agreement between you and Universidade do Porto. For licensing
+ * terms, conditions, and further information contact lsts@fe.up.pt.
+ *
+ * European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the EUPL,
+ * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * included in the packaging of this file. You may not use this work
+ * except in compliance with the Licence. Unless required by applicable
+ * law or agreed to in writing, software distributed under the Licence is
+ * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ * ANY KIND, either express or implied. See the Licence for the specific
+ * language governing permissions and limitations at
+ * https://www.lsts.pt/neptus/licence.
+ *
+ * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: Paulo Dias
  * 26/Jun/2005
@@ -407,8 +428,8 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     }
 
     /**
-	 * 
-	 */
+     * 
+     */
     private void checkForChecklistChangeForSave() {
         if (ChecklistPanel.this.isChanged()) {
             // Check for empty Check List
@@ -453,6 +474,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         jFrame.setSize(getWidth() + 5, getHeight() + 80);
         jFrame.setAlwaysOnTop(true);
         jFrame.addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 checkForChecklistChangeForSave();
                 hideFrame();
@@ -471,6 +493,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     public void setJInternalFrame(JInternalFrame internalFrame) {
         jInternalFrame = internalFrame;
         jInternalFrame.addInternalFrameListener(new InternalFrameAdapter() {
+            @Override
             public void internalFrameClosed(InternalFrameEvent e) {
             }
         });
@@ -484,6 +507,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         changeListeners.remove(cl);
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent e) {
         String prop = e.getPropertyName();
         if (prop.equals(DIRTY_PROPERTY)) {
@@ -517,6 +541,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             checkTaskPane = new JXTaskPaneContainer();
             checkTaskPane.setBackground(java.awt.Color.white);
             checkTaskPane.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
                 public void mouseClicked(java.awt.event.MouseEvent e) {
                     // NeptusLog.pub().info("<###>mouseClicked()");
                     if (e.getButton() == MouseEvent.BUTTON3 & e.getClickCount() == 1) {
@@ -525,6 +550,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                 }
             });
             checkTaskPane.addPropertyChangeListener(DIRTY_PROPERTY, new PropertyChangeListener() {
+                @Override
                 public void propertyChange(PropertyChangeEvent arg0) {
                     // NeptusLog.pub().info(checkTaskPane
                     // + ": user change");
@@ -553,7 +579,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                     LinkedList<CheckItem> lli = it.next();
                     Iterator<CheckItem> it1 = lli.iterator();
                     while (it1.hasNext()) {
-                        CheckItem ci = (CheckItem) it1.next();
+                        CheckItem ci = it1.next();
                         CheckItemPanel cip = new CheckItemPanel(ci);
                         addCheckItemMouseAdapter(cip);
                         tpg.add(cip);
@@ -569,7 +595,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                 LinkedHashMap<String, LinkedList<CheckItem>> cits = checklist.getGroupList();
                 Iterator<String> it = cits.keySet().iterator();
                 while (it.hasNext()) {
-                    String group = (String) it.next();
+                    String group = it.next();
                     MyJTaskPaneGroup tpg = createTemplateTaskPaneGroup();
                     tpg.setGroupName(group);
                     tpg.setCollapsed(true);
@@ -619,6 +645,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             descTextArea.setLineWrap(true);
             descTextArea.setText(checklist.getDescription());
             descTextArea.addKeyListener(new KeyAdapter() {
+                @Override
                 public void keyTyped(KeyEvent e) {
                     // FIXME Ver melhor como fazer isto
                     // NeptusLog.pub().info("<###>keyTyped()");
@@ -653,6 +680,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     public void makeNameEditable() {
         nameText.setToolTipText("Right click to change (if edit mode).");
         nameText.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 // NeptusLog.pub().info("<###>mouseClicked()");
                 if (e.getButton() == MouseEvent.BUTTON3) {
@@ -683,6 +711,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             versionText.setText(checklist.getVersion());
             versionText.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
             versionText.addKeyListener(new KeyAdapter() {
+                @Override
                 public void keyTyped(KeyEvent e) {
                     // FIXME Ver melhor como fazer isto
                     // NeptusLog.pub().info("<###>keyTyped()");
@@ -770,6 +799,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             saveButton = new JButton();
             saveButton.setText("Save");
             saveButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>Ok actionPerformed()");
                     userCancel = false;
@@ -858,6 +888,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             newButton.setText("New");
             newButton.setPreferredSize(new Dimension(73, 26));
             newButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>Cancel actionPerformed()");
                     if (ChecklistPanel.this.isChanged()) {
@@ -893,6 +924,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             openButton.setVisible(false);
             openButton.setPreferredSize(new Dimension(73, 26));
             openButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
 
                     // NeptusLog.pub().info("<###>Cancel actionPerformed()");
@@ -929,6 +961,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                                 return null;
                             }
 
+                            @Override
                             protected void process(List<ChecklistType> chunks) {
                                 ChecklistPanel.this.changeChecklist(chunks.get(0));
                             };
@@ -972,6 +1005,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             cancelButton = new JButton();
             cancelButton.setText("Cancel");
             cancelButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>Cancel actionPerformed()");
                     userCancel = true;
@@ -988,6 +1022,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             runButton = new JButton();
             runButton.setText("Run");
             runButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     if (ChecklistPanel.this.isChanged()) {
                         ChecklistPanel.this.checkForChecklistChangeForSave();
@@ -1004,7 +1039,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                     SystemImcMsgCommInfo mv = (SystemImcMsgCommInfo) JOptionPane.showInputDialog(ChecklistPanel.this,
                             "Choose one of the available Systems", "Select System", JOptionPane.QUESTION_MESSAGE,
                             new ImageIcon(), list.values().toArray(new SystemImcMsgCommInfo[0]), list.values()
-                                    .toArray(new SystemImcMsgCommInfo[0]));
+                            .toArray(new SystemImcMsgCommInfo[0]));
                     system = mv.toString();
 
                     CheckListExe.showCheckListExeDialog(system, ChecklistPanel.this.getChecklistType().createCopy(),
@@ -1031,6 +1066,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         templateTaskPaneGroup.setIcon(OK_IMAGE_ICON);
         templateTaskPaneGroup.setScrollOnExpand(true);
         templateTaskPaneGroup.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 // NeptusLog.pub().info("<###>mouseClicked()" + e.isControlDown());
                 MyJTaskPaneGroup mtpg = (MyJTaskPaneGroup) e.getSource();
@@ -1043,8 +1079,8 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                     editNameCheckGroupActionWorker(mtpg);
                 }
                 else if (e.getButton() == MouseEvent.BUTTON3) { // &
-                                                                // e.getClickCount()
-                                                                // == 1 )
+                    // e.getClickCount()
+                    // == 1 )
                     // JPopupMenu jpm = getCheckGroupPopupMenu();
                     // jpm.setInvoker((Component) e.getSource());
                     // MyJTaskPaneGroup mtpg = (MyJTaskPaneGroup) e.getSource();
@@ -1271,6 +1307,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             generatePDFButton.setPreferredSize(new java.awt.Dimension(73, 26));
             generatePDFButton.setEnabled(true);
             generatePDFButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>To PDF actionPerformed()");
                     boolean ret = false;
@@ -1355,6 +1392,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
 
                                         final String pdfF = pdf;
                                         new Thread() {
+                                            @Override
                                             public void run() {
                                                 openPDFInExternalViewer(pdfF);
                                             };
@@ -1372,7 +1410,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                             catch (Exception e) {
                                 JOptionPane.showMessageDialog(ChecklistPanel.this,
                                         "<html>PDF <b>was not</b> created to file." + "<br>Error: " + e.getMessage()
-                                                + "</html>", "PDF Creation", JOptionPane.ERROR_MESSAGE);
+                                        + "</html>", "PDF Creation", JOptionPane.ERROR_MESSAGE);
                                 e.printStackTrace();
                             }
                             bgp.block(false);
@@ -1443,6 +1481,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             saveAsButton.setText(I18n.text("Save as"));
             saveAsButton.setEnabled(true);
             saveAsButton.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     // NeptusLog.pub().info("<###>Save as actionPerformed()");
                     saveAsFile();
@@ -1462,6 +1501,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         if (checklistPopupMenu == null) {
             checklistPopupMenu = new JPopupMenu();
             checklistPopupMenu.addPopupMenuListener(new PopupMenuListener() {
+                @Override
                 public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
                     // if (isVisible())
                     if (isFlat()) {
@@ -1476,9 +1516,11 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                     }
                 }
 
+                @Override
                 public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
                 }
 
+                @Override
                 public void popupMenuCanceled(PopupMenuEvent e) {
                 }
             });
@@ -1509,6 +1551,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             checkGroupPopupMenu.addSeparator();
             checkGroupPopupMenu.add(getUnCheckAllGroupItemsMenuItem());
             checkGroupPopupMenu.addPopupMenuListener(new PopupMenuListener() {
+                @Override
                 public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent e) {
                     // JMenuItem jmi = (JMenuItem) e.getSource();
                     JPopupMenu jpm = (JPopupMenu) e.getSource();
@@ -1534,9 +1577,11 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                     }
                 }
 
+                @Override
                 public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
                 }
 
+                @Override
                 public void popupMenuCanceled(PopupMenuEvent e) {
                 }
             });
@@ -1554,6 +1599,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             addChecklistMenuItem = new JMenuItem();
             addChecklistMenuItem.setText("Append New Group");
             addChecklistMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformed()");
                     addNewChecklistGroupActionWorker(false, null);
@@ -1579,7 +1625,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                 return null;
             }
             MyJTaskPaneGroup tpg = createTemplateTaskPaneGroup(); // new
-                                                                  // JTaskPaneGroup();
+            // JTaskPaneGroup();
             // tpg.setTitle(inputValue); //deprecated tpg.setText(inputValue);
             tpg.setGroupName(inputValue);
             // tpg.setExpanded(false);
@@ -1633,6 +1679,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             editNameCheckGroupMenuItem = new JMenuItem();
             editNameCheckGroupMenuItem.setText("Edit Name (Ctrl + Right click)");
             editNameCheckGroupMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformedName()" +
                     // e.getSource().getClass());
@@ -1692,6 +1739,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             addCheckItemMenuItem = new JMenuItem();
             addCheckItemMenuItem.setText("Append New Item (Double Click on the Bottom of the Group)");
             addCheckItemMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformedAdd()");
                     JMenuItem jmi = (JMenuItem) e.getSource();
@@ -1770,6 +1818,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             removeCheckGroupMenuItem = new JMenuItem();
             removeCheckGroupMenuItem.setText("Remove Group");
             removeCheckGroupMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformedRem()");
                     JMenuItem jmi = (JMenuItem) e.getSource();
@@ -1784,7 +1833,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                     // "</i> group and all it's content?<html>");
                     int option = JOptionPane.showConfirmDialog(checkTaskPane,
                             "<html>Are you sure you want to <b>delete</b><br>" + "<i>" + mtpg.getGroupName()
-                                    + "</i> group and all it's content?<html>");
+                            + "</i> group and all it's content?<html>");
                     if (option == JOptionPane.YES_OPTION) {
                         JXTaskPaneContainer jtp = (JXTaskPaneContainer) mtpg.getParent();
                         jtp.remove(mtpg);
@@ -1809,6 +1858,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             makeFlatChecklistCheckBoxMenuItem = new JCheckBoxMenuItem();
             makeFlatChecklistCheckBoxMenuItem.setText("Flat Checklist");
             makeFlatChecklistCheckBoxMenuItem.addItemListener(new ItemListener() {
+                @Override
                 public void itemStateChanged(ItemEvent e) {
                     // NeptusLog.pub().info("<###>itemStateChanged()");
                     JCheckBoxMenuItem jmi = (JCheckBoxMenuItem) e.getSource();
@@ -1867,6 +1917,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             checkItemPopupMenu.addSeparator();
             checkItemPopupMenu.add(getInsertCheckItemMenuItem());
             checkItemPopupMenu.addPopupMenuListener(new PopupMenuListener() {
+                @Override
                 public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent e) {
                     // JMenuItem jmi = (JMenuItem) e.getSource();
                     JPopupMenu jpm = (JPopupMenu) e.getSource();
@@ -1893,9 +1944,11 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                     }
                 }
 
+                @Override
                 public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent e) {
                 }
 
+                @Override
                 public void popupMenuCanceled(javax.swing.event.PopupMenuEvent e) {
                 }
             });
@@ -1913,6 +1966,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             removeCheckItemMenuItem = new JMenuItem();
             removeCheckItemMenuItem.setText("Remove Item");
             removeCheckItemMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformed()");
                     JMenuItem jmi = (JMenuItem) e.getSource();
@@ -1936,6 +1990,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
      */
     private void addCheckItemMouseAdapter(CheckItemPanel cip) {
         cip.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 // NeptusLog.pub().info("<###>mouseClickedItemCI()" +
                 // e.isControlDown());
@@ -1964,6 +2019,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             moveUpCheckItemMenuItem = new JMenuItem();
             moveUpCheckItemMenuItem.setText("Move Item Up");
             moveUpCheckItemMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformed()");
                     JMenuItem jmi = (JMenuItem) e.getSource();
@@ -1995,6 +2051,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             moveDownCheckItemMenuItem = new JMenuItem();
             moveDownCheckItemMenuItem.setText("Move Item Down");
             moveDownCheckItemMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformed()");
                     JMenuItem jmi = (JMenuItem) e.getSource();
@@ -2026,6 +2083,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             moveUpCheckGroupMenuItem = new JMenuItem();
             moveUpCheckGroupMenuItem.setText("Move Group Up");
             moveUpCheckGroupMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformed()");
                     JMenuItem jmi = (JMenuItem) e.getSource();
@@ -2055,6 +2113,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             moveDownCheckGroupMenuItem = new JMenuItem();
             moveDownCheckGroupMenuItem.setText("Move Group Down");
             moveDownCheckGroupMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformed()");
                     JMenuItem jmi = (JMenuItem) e.getSource();
@@ -2084,6 +2143,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             insertCheckItemMenuItem = new JMenuItem();
             insertCheckItemMenuItem.setText("Insert New Item Before");
             insertCheckItemMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformed()");
                     JMenuItem jmi = (JMenuItem) e.getSource();
@@ -2108,6 +2168,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             insertCheckGroupMenuItem = new JMenuItem();
             insertCheckGroupMenuItem.setText("Insert New Group Before");
             insertCheckGroupMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformed()");
                     JMenuItem jmi = (JMenuItem) e.getSource();
@@ -2130,6 +2191,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             editNameCheckItemMenuItem = new JMenuItem();
             editNameCheckItemMenuItem.setText("Edit Item Name");
             editNameCheckItemMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformed()");
                     JMenuItem jmi = (JMenuItem) e.getSource();
@@ -2190,6 +2252,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             unCheckAllChecklistGroupsMenuItem = new JMenuItem();
             unCheckAllChecklistGroupsMenuItem.setText("Uncheck All Checklist");
             unCheckAllChecklistGroupsMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformed()");
                     // JMenuItem jmi = (JMenuItem) e.getSource();
@@ -2225,6 +2288,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             unCheckAllGroupItemsMenuItem = new JMenuItem();
             unCheckAllGroupItemsMenuItem.setText("Uncheck All Group");
             unCheckAllGroupItemsMenuItem.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformed()");
                     JMenuItem jmi = (JMenuItem) e.getSource();
@@ -2278,6 +2342,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             appendGroupButton.setText("append group");
             appendGroupButton.setToolTipText("Append group");
             appendGroupButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>appendGroupButton actionPerformed()");
                     addNewChecklistGroupActionWorker(false, null);
@@ -2298,6 +2363,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             appendItemButton.setText("append item");
             appendItemButton.setToolTipText("Append item");
             appendItemButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>appendItemButton actionPerformed()");
                     if (getSelectedGroup() != null)
