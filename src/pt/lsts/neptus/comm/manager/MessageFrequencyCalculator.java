@@ -1,11 +1,30 @@
 /*
- * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
- * Faculdade de Engenharia da Universidade do Porto
- * Departamento de Engenharia Electrot?cnica e de Computadores
- * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
  *
- * For more information please see <http://whale.fe.up.pt/neptus>.
+ * This file is part of Neptus, Command and Control Framework.
+ *
+ * Commercial Licence Usage
+ * Licencees holding valid commercial Neptus licences may use this file
+ * in accordance with the commercial licence agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in a
+ * written agreement between you and Universidade do Porto. For licensing
+ * terms, conditions, and further information contact lsts@fe.up.pt.
+ *
+ * European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the EUPL,
+ * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * included in the packaging of this file. You may not use this work
+ * except in compliance with the Licence. Unless required by applicable
+ * law or agreed to in writing, software distributed under the Licence is
+ * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ * ANY KIND, either express or implied. See the Licence for the specific
+ * language governing permissions and limitations at
+ * https://www.lsts.pt/neptus/licence.
+ *
+ * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: Paulo Dias
  * Jun 2, 2012
@@ -19,7 +38,7 @@ package pt.lsts.neptus.comm.manager;
 public class MessageFrequencyCalculator {
 
     private long msgCount = 0;
-    
+
     // Processing Freq. variables
     protected double timeMillisLastMsg = -1;
     protected long msgsInLastSec = 0;
@@ -50,14 +69,14 @@ public class MessageFrequencyCalculator {
      */
     public final void setTimeMillisLastMsg(double timeMillisLastMsgReceived) {
         this.timeMillisLastMsg = timeMillisLastMsgReceived;
-        
+
         msgCount++;
         if (msgCount < 0)
             msgCount = 0;
 
         long time = System.currentTimeMillis();
         if (time - lastSecondMsgTime > 1000) {
-            double hz = ((double) msgsInLastSec) * ((time - lastSecondMsgTime) / 1000.0);
+            double hz = (msgsInLastSec) * ((time - lastSecondMsgTime) / 1000.0);
             if (lastSecondMsgTime > 0)
                 messageFreq = hz;
             lastSecondMsgTime = time;
@@ -74,7 +93,7 @@ public class MessageFrequencyCalculator {
     public long getMsgCount() {
         return msgCount;
     }
-    
+
     /**
      * @return the processDeltaTxRxTimeNanosLastMsg
      */

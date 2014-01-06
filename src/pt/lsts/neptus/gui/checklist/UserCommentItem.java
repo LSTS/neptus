@@ -1,9 +1,30 @@
 /*
- * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
- * Faculdade de Engenharia da Universidade do Porto
- * Departamento de Engenharia Electrotécnica e de Computadores
- * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
+ *
+ * This file is part of Neptus, Command and Control Framework.
+ *
+ * Commercial Licence Usage
+ * Licencees holding valid commercial Neptus licences may use this file
+ * in accordance with the commercial licence agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in a
+ * written agreement between you and Universidade do Porto. For licensing
+ * terms, conditions, and further information contact lsts@fe.up.pt.
+ *
+ * European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the EUPL,
+ * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * included in the packaging of this file. You may not use this work
+ * except in compliance with the Licence. Unless required by applicable
+ * law or agreed to in writing, software distributed under the Licence is
+ * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ * ANY KIND, either express or implied. See the Licence for the specific
+ * language governing permissions and limitations at
+ * https://www.lsts.pt/neptus/licence.
+ *
+ * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: Rui Gonçalves
  * 200?/??/??
@@ -28,104 +49,105 @@ import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
 import pt.lsts.neptus.types.checklist.CheckAutoUserLogItem;
 
 public class UserCommentItem extends JPanel implements CheckSubItem {
-	
-	private static final long serialVersionUID = 4053699765892712805L;
 
-	public static final String TYPE_ID = "userLog";
+    private static final long serialVersionUID = 4053699765892712805L;
 
-	private AutoItemsList parent = null;
+    public static final String TYPE_ID = "userLog";
 
-	private JTextField logRequest = null;
-	private JTextField logMessage = null;
+    private AutoItemsList parent = null;
 
-	private JButton remove = null;
+    private JTextField logRequest = null;
+    private JTextField logMessage = null;
 
-	private JCheckBox check = null;
-	
-	
-	public UserCommentItem(AutoItemsList p, CheckAutoUserLogItem cauli) 	{
-		this(p);
-		fillFromCheckAutoUserLogItem(cauli);
-	}
-	
-	public UserCommentItem(AutoItemsList p) {
-		super();
-		parent = p;
-		initialize();
-	}
-	
-	private void initialize() {
-		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		this.setOpaque(false);
-		logRequest = new JTextField();
-		logRequest.setColumns(20);
-		logRequest.addKeyListener(new KeyAdapter() {
-	        @Override
-	        public void keyReleased(KeyEvent e) {
+    private JButton remove = null;
+
+    private JCheckBox check = null;
+
+
+    public UserCommentItem(AutoItemsList p, CheckAutoUserLogItem cauli) 	{
+        this(p);
+        fillFromCheckAutoUserLogItem(cauli);
+    }
+
+    public UserCommentItem(AutoItemsList p) {
+        super();
+        parent = p;
+        initialize();
+    }
+
+    private void initialize() {
+        this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        this.setOpaque(false);
+        logRequest = new JTextField();
+        logRequest.setColumns(20);
+        logRequest.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
                 parent.fireChangeEvent(UserCommentItem.this);
-	        }
-	    });
-		
-		this.add(new JLabel("User Comment: "));
-		this.add(logRequest);
-		
-		logMessage = new JTextField();
-		logMessage.setColumns(20);
-		logMessage.addKeyListener(new KeyAdapter() {
-	        @Override
-	        public void keyReleased(KeyEvent e) {
-                parent.fireChangeEvent(UserCommentItem.this);
-	        }
-	    });
+            }
+        });
 
-		
-		this.add(new JLabel(" Comment: "));
-		this.add(logMessage);
-	
-		remove = new JButton(ICON_CLOSE);
-		remove.setMargin(new Insets(0,0,0,0));
-		remove.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+        this.add(new JLabel("User Comment: "));
+        this.add(logRequest);
+
+        logMessage = new JTextField();
+        logMessage.setColumns(20);
+        logMessage.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                parent.fireChangeEvent(UserCommentItem.this);
+            }
+        });
+
+
+        this.add(new JLabel(" Comment: "));
+        this.add(logMessage);
+
+        remove = new JButton(ICON_CLOSE);
+        remove.setMargin(new Insets(0,0,0,0));
+        remove.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 parent.removeUserCommentItem(UserCommentItem.this);
-			}
-		});
-		
-		this.add(new JLabel(" Checked:"));
-		this.add(getCheck());
-		
-		this.add(remove);
-	}
-	
-	private JCheckBox getCheck()
-	{
-		if (check == null) {
-			check = new JCheckBox("check");
-			check.setOpaque(false);
-			check.setText(" ");
-			check.addItemListener(new java.awt.event.ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					parent.fireChangeEvent(UserCommentItem.this);
-				} 
-			});
-		}
-		return	check; 
-	}
-	
-	private void fillFromCheckAutoUserLogItem(CheckAutoUserLogItem cauli) {
-		check.setSelected(cauli.isChecked());
-		logRequest.setText(cauli.getLogRequest());
-		logMessage.setText(cauli.getLogMessage());
-		
-	}
+            }
+        });
 
-	@Override
-	public CheckAutoSubItem getCheckAutoSubItem() {
-		CheckAutoUserLogItem ret=new CheckAutoUserLogItem();
-		ret.setChecked(getCheck().isSelected());
-		ret.setLogMessage(logMessage.getText());
-		ret.setLogRequest(logRequest.getText());
-		return ret;
-	}
-	
+        this.add(new JLabel(" Checked:"));
+        this.add(getCheck());
+
+        this.add(remove);
+    }
+
+    private JCheckBox getCheck()
+    {
+        if (check == null) {
+            check = new JCheckBox("check");
+            check.setOpaque(false);
+            check.setText(" ");
+            check.addItemListener(new java.awt.event.ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    parent.fireChangeEvent(UserCommentItem.this);
+                } 
+            });
+        }
+        return	check; 
+    }
+
+    private void fillFromCheckAutoUserLogItem(CheckAutoUserLogItem cauli) {
+        check.setSelected(cauli.isChecked());
+        logRequest.setText(cauli.getLogRequest());
+        logMessage.setText(cauli.getLogMessage());
+
+    }
+
+    @Override
+    public CheckAutoSubItem getCheckAutoSubItem() {
+        CheckAutoUserLogItem ret=new CheckAutoUserLogItem();
+        ret.setChecked(getCheck().isSelected());
+        ret.setLogMessage(logMessage.getText());
+        ret.setLogRequest(logRequest.getText());
+        return ret;
+    }
+
 }

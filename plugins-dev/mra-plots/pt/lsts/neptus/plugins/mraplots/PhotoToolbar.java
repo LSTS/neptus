@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013Ph Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -56,7 +56,7 @@ public class PhotoToolbar extends JPanel {
     private static final long serialVersionUID = 1L;
     protected MraPhotosVisualization display;
     protected JToggleButton grayToggle, sharpenToggle, wbalanceToggle,
-            contrastToggle, brightToggle, legendToggle;
+    contrastToggle, brightToggle, legendToggle;
 
     protected JButton nextButton, prevButton;
     protected File[] allFiles;
@@ -109,7 +109,7 @@ public class PhotoToolbar extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 display.grayscale = grayToggle.isSelected();
-                    display.setCurFile(display.getCurFile());
+                display.setCurFile(display.getCurFile());
             }
         });
         grayToggle.setToolTipText(I18n.text("Toggle grayscale filter"));
@@ -125,7 +125,7 @@ public class PhotoToolbar extends JPanel {
                     display.brighten = true;
                 else
                     display.brighten = false;
-                
+
                 display.setCurFile(display.getCurFile());
             }
         });
