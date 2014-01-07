@@ -490,22 +490,24 @@ public class LogUtils {
 
         short lsfFx = 0, lsfGzFx = 0, lsfBZip2Fx = 0, defXmlFx = 0;
         for (File f : dir.listFiles()) {
-            
             switch (FileUtil.getFileExtension(f)) {
                 case "lsf":
-                    lsfFx++;    
+                    lsfFx++;
                     break;
-                case "lsf.gz":
-                    lsfGzFx++;
+                case "gz":
+                    String fex = FileUtil.getFileNameWithoutExtension(f.getName());
+                    if (FileUtil.getFileExtension(fex).equalsIgnoreCase("lsf"))
+                        lsfGzFx++;
+                    else if (FileUtil.getFileExtension(fex).equalsIgnoreCase("xml"))
+                        defXmlFx++;
                     break;
                 case "xml":
                     defXmlFx++;
                     break;
-                case "xml.gz":
-                    defXmlFx++;
-                    break;
-                case "lsf.bz2":
-                    lsfBZip2Fx++;
+                case "bz2":
+                    fex = FileUtil.getFileNameWithoutExtension(f.getName());
+                    if (FileUtil.getFileExtension(fex).equalsIgnoreCase("lsf"))
+                        lsfBZip2Fx++;
                     break;
                 default:
                     break;
