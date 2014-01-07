@@ -49,7 +49,7 @@
 	<classpathentry kind="src" path="plugins-dev/vtk"/>
 	<classpathentry kind="src" path="plugins-dev/web"/>
 	<classpathentry kind="src" path="plugins-dev/webupdate"/>
-	<classpathentry kind="src" path="plugins-dev/src-fbt"/>
+	<classpathentry kind="src" path="plugins-dev/fbt"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
