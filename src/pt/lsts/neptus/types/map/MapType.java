@@ -189,7 +189,8 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
     public void remove(String objectName) {
 
         MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_REMOVED);
-        changeEvent.setChangedObject(elements.get(objectName));
+        AbstractElement changedObject = elements.get(objectName);
+        changeEvent.setChangedObject(changedObject);
         changeEvent.setSourceMap(this);
         elements.remove(objectName);
         warnChangeListeners(changeEvent);

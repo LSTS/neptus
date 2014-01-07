@@ -210,7 +210,7 @@ public class TransponderElement extends AbstractElement implements NameId{
             return false;
         }
         // Name
-        if(!getName().equals(externalTrans.getName())){
+        if (!getId().equals(externalTrans.getId())) {
             return false;
         }
         // Configuration
@@ -249,7 +249,7 @@ public class TransponderElement extends AbstractElement implements NameId{
         }
         // Name
         String beaconName = lblBeacon.getString("beacon");
-        if(!getName().equals(beaconName)){
+        if (!getId().equals(beaconName)) {
             // System.out.print(lblBeacon.getBeacon() + " has different name that " + getIdentification());
             return false;
         }
@@ -539,13 +539,13 @@ public class TransponderElement extends AbstractElement implements NameId{
         // return nameBuilder.toString();
         // }
         // else {
-            return getIdentification();
+        return name;
         // }
     }
 
     @Override
     public String getIdentification() {
-        return name;
+        return id;
     }
 
     public byte[] getMd5() {
@@ -559,6 +559,10 @@ public class TransponderElement extends AbstractElement implements NameId{
         String replyCh = propConf.getProperty("reply channel");
         String delay = propConf.getProperty("transponder delay (msecs.)");
         StringBuilder string = new StringBuilder();
+        string.append(getDisplayName());
+        string.append("[");
+        string.append(getIdentification());
+        string.append("]");
         string.append(getDisplayName());
         string.append(" ( query: ");
         string.append(queryCh);
@@ -583,6 +587,12 @@ public class TransponderElement extends AbstractElement implements NameId{
     public TransponderElement clone() {
         return new TransponderElement(duneId, getMapGroup(), getParentMap(), new LocationType(centerLocation),
                 getIdentification(), propConf);
+    }
+
+    @Override
+    public void setId(String id) {
+
+        super.setId(id);
     }
 
 }

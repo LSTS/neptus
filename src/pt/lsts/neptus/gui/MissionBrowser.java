@@ -77,7 +77,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 
 
 /**
- * This is a visual class that displays the various items contained in a mission like maps, vehicles and plans...
+ * This is a visual class that displays the various items contained in a mission like transponders and plans.
  * 
  * @author Jose Pinto
  * @author Paulo Dias
@@ -213,7 +213,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
         MapType map = getMap(mt);
         try {
-            Vector<TransponderElement> vector = MapGroup.getMapGroupInstance(mt).getAllObjectsOfType(
+            Vector<TransponderElement> vector = mapGroupInstance.getAllObjectsOfType(
                     TransponderElement.class);
             transNames = new String[vector.size()];
             int i = 0;
@@ -230,7 +230,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         if (te == null)
             te = new TransponderElement(mapGroupInstance, map);
         te.showParametersDialog(MissionBrowser.this, transNames, map, true);
-        te.setName(te.getId());
+        // te.setName(te.getId());
         return te;
     }
 
@@ -756,7 +756,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                         // Not sync
                         // set state
                         setNodeSyncState(tempNode, State.NOT_SYNC);
-                        // System.out.println(" >> Not Sync.");
+                        System.out.println(" >> Not Sync.");
                     }
                     // set id
                     tempTrans.setDuneId(id);
@@ -796,12 +796,12 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             tempTrans = (TransponderElement) tempNode.getUserObject();
             String tempId = tempTrans.getIdentification();
             if (idMap.containsKey(tempId)) {
-                // System.out.print(tempId + ", ");
+                System.out.print(tempId + ", ");
                 ((TransponderElement) tempNode.getUserObject()).setDuneId((short) -1);
                 idMap.remove(tempId);
             }
         }
-        // System.out.println();
+        System.out.println();
         return existing;
     }
 
@@ -1077,29 +1077,28 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 // treeModel.printTree("4. ");
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
                 // NeptusLog.pub().error(" --- ");
-                // revalidate();
                 repaint();
             }
 
-            // private String printBeacons(final Vector<LblBeacon> remoteTrans) {
-            // short id = 0;
-            // StringBuilder remotes = new StringBuilder(remoteTrans.size() + " trans in ImcSystem: ");
-            // for (LblBeacon lblBeacon : remoteTrans) {
-            // remotes.append("[");
-            // remotes.append(id);
-            // remotes.append("] ");
-            // remotes.append(lblBeacon.getBeacon());
-            // remotes.append(" ( query: ");
-            // remotes.append(lblBeacon.getQueryChannel());
-            // remotes.append(", reply: ");
-            // remotes.append(lblBeacon.getReplyChannel());
-            // remotes.append(", delay:");
-            // remotes.append(lblBeacon.getTransponderDelay());
-            // remotes.append(")\n         ");
-            // id++;
-            // }
-            // return remotes.toString();
-            // }
+            private String printBeacons(final Vector<LblBeacon> remoteTrans) {
+                short id = 0;
+                StringBuilder remotes = new StringBuilder(remoteTrans.size() + " trans in ImcSystem: ");
+                for (LblBeacon lblBeacon : remoteTrans) {
+                    remotes.append("[");
+                    remotes.append(id);
+                    remotes.append("] ");
+                    remotes.append(lblBeacon.getBeacon());
+                    remotes.append(" ( query: ");
+                    remotes.append(lblBeacon.getQueryChannel());
+                    remotes.append(", reply: ");
+                    remotes.append(lblBeacon.getReplyChannel());
+                    remotes.append(", delay:");
+                    remotes.append(lblBeacon.getTransponderDelay());
+                    remotes.append(")\n         ");
+                    id++;
+                }
+                return remotes.toString();
+            }
 
         });
     }
@@ -1225,8 +1224,14 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     public ArrayList<TransponderElement> getTransponders(){
         ChildIterator transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
         ArrayList<TransponderElement> trans = new ArrayList<TransponderElement>();
-        for (ExtendedTreeNode transNode = transIt.next(); transIt.hasNext(); transNode = transIt.next()) {
-            trans.add((TransponderElement) transNode.getUserObject());
+        ExtendedTreeNode transNode = null;
+        while (transIt.hasNext()) {
+            transNode = transIt.next();
+//        }
+            // for (; transIt.hasNext(); transNode = transIt.next()) {
+            TransponderElement t = (TransponderElement)transNode.getUserObject();
+            System.out.println(t.getName() + " ");
+            trans.add(t);
         }
         return trans;
     }
