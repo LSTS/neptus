@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -76,7 +76,6 @@ import javax.swing.ToolTipManager;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
-import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.lsf.LsfIndexListener;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -91,6 +90,7 @@ import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.gui.WaitPanel;
 import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.loader.FileHandler;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.ConcatenateLsfLog;
 import pt.lsts.neptus.mra.replay.LogReplay;
@@ -124,7 +124,7 @@ import foxtrot.AsyncWorker;
  * @author jqcorreia
  */
 @SuppressWarnings("serial")
-public class NeptusMRA extends JFrame implements PropertiesProvider {
+public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler {
     public final static String RECENTLY_OPENED_LOGS = "conf/mra_recent.xml";
     
     public static boolean vtkEnabled = true;
@@ -393,7 +393,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
         bgp.setText(I18n.text("Loading LSF Data"));
         final File lsfDir = f.getParentFile();
 
-        IMCDefinition.pathToDefaults = ConfigFetch.getDefaultIMCDefinitionsLocation();
+        //IMCDefinition.pathToDefaults = ConfigFetch.getDefaultIMCDefinitionsLocation();
 
         boolean alreadyConverted = false;
         if (lsfDir.isDirectory()) {
@@ -1019,6 +1019,11 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
         }
 
         public abstract void updateValueInMessagePanel();
+    }
+    
+    @Override
+    public void handleFile(File f) {
+        openLog(f);
     }
 
     public static void main(String[] args) {

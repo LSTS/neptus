@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -315,8 +315,6 @@ public class ImcTcpTransport {
 	        new Thread(ImcTcpTransport.class.getSimpleName() + " :: " + TCPMessageProcessor.class.getSimpleName() + "(" + TCPMessageProcessor.this.hashCode() + ")") {
 	            @Override
 	            public void run() {
-//	                GzLsf2Llf.transformLSFStream("./conf/messages/IMC.xml", 
-//	                        pis, TCPMessageProcessor.this, null);
 	                try {
 	                    //IMCInputStream iis = new IMCInputStream(pis);
 	                    

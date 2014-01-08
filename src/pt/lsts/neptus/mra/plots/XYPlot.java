@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -36,6 +36,7 @@ import org.jfree.data.xy.XYSeries;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
@@ -44,6 +45,7 @@ import pt.lsts.imc.lsf.LsfIndex;
  * @author zp
  * 
  */
+@PluginDescription
 public class XYPlot extends Mra2DPlot {
 
     /**

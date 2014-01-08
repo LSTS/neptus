@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -42,6 +42,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
 
+import org.reflections.Reflections;
+
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.Goto;
 import pt.lsts.imc.Loiter;
@@ -49,17 +51,15 @@ import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.plugins.SystemsList;
+import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.system.SystemDisplayComparator;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.acoustic.LBLRangeDisplay.HideOrFadeRangeEnum;
-import pt.lsts.neptus.plugins.map.MapEditor;
-import pt.lsts.neptus.plugins.planning.MapPanel;
-import pt.lsts.neptus.plugins.web.NeptusServlet;
 import pt.lsts.neptus.renderer2d.tiles.Tile.TileState;
 import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.util.FileUtil;
@@ -76,13 +76,7 @@ public class PluginsPotGenerator {
     protected static final String inFile = "dev-scripts/i18n/empty.pot";
 
     public static Vector<AbstractElement> mapElements() {
-        try {
-            return new MapEditor(null).getElements();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return new Vector<>();
-        }
+        return MapType.getMapElements();
     }
 
     // add here more enumerations that are used in the GUI
@@ -101,7 +95,6 @@ public class PluginsPotGenerator {
         enums.add(SystemTypeEnum.class);
         enums.add(VehicleTypeEnum.class);
         enums.add(Z_UNITS.class);
-        enums.add(HideOrFadeRangeEnum.class);
         enums.add(TileState.class);
         return enums;
     }
@@ -221,23 +214,6 @@ public class PluginsPotGenerator {
             }
 
             try {
-                NeptusServlet pd = c.getAnnotation(NeptusServlet.class);
-                if (!pd.name().isEmpty()) {
-                    writer.write("#: Name of servlet " + c.getName() + "\n");
-                    writer.write("msgid \"" + escapeQuotes(pd.name()) + "\"\n");
-                    writer.write("msgstr \"\"\n\n");
-                }
-                if (!pd.description().isEmpty()) {
-                    writer.write("#: Description of servlet " + c.getName() + "\n");
-                    writer.write("msgid \"" + escapeQuotes(pd.description()) + "\"\n");
-                    writer.write("msgstr \"\"\n\n");
-                }
-            }
-            catch (Exception e) {
-                // e.printStackTrace();
-            }
-
-            try {
                 LinkedHashMap<String, DefaultProperty> props = getProperties(c);
 
                 for (DefaultProperty dp : props.values()) {
@@ -267,7 +243,15 @@ public class PluginsPotGenerator {
             writer.write("msgstr \"\"\n\n");
         }
 
-        for (Class<?> enumClass : enums()) {
+        Vector<Class<?>> enums = enums();
+        Reflections ref = new Reflections("pt.lsts.neptus.plugins");
+        
+        for (Class<?> c : ref.getTypesAnnotatedWith(Translate.class)) {
+            if (c.getEnumConstants() != null)
+                enums.add(c);
+        }        
+        
+        for (Class<?> enumClass : enums) {
             for (Object o : enumClass.getEnumConstants()) {
                 String name = enumClass.getSimpleName();
                 if (enumClass.getEnclosingClass() != null) {

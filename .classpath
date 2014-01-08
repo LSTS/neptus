@@ -6,62 +6,49 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" output="build/tests" path="srcTests"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/help"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/state"/>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/acoustic">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="neptus/libJNI"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/alarms"/>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/actions">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="neptus/libJNI"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/echosounder"/>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/gauges"/>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/containers"/>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/logs"/>
-	<classpathentry excluding="**/.svn/*|plugins.lst" kind="src" path="plugins-dev/planning"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/position"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/ipcam"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/web"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/teleoperation"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/s57-client"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/oplimits"/>
-	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/uavs"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/gps"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/mavs"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/accu"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/mra-plots"/>
-	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/webupdate"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/tiles-extra"/>
-	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/odss"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/map"/>
-	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/messages"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/trex"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/matlab-planning"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/ais"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/noptilus"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/simulation"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/netcdf"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/configWindow"/>
-	<classpathentry excluding="plugins.lst" kind="src" path="plugins-dev/mra-jzy3d"/>
-	<classpathentry excluding="**/*.jar|plugins.lst" kind="src" path="plugins-dev/vrp"/>
-	<classpathentry kind="src" path="plugins-dev/dev-calibration"/>
-	<classpathentry kind="src" path="plugins-dev/tidePrediction"/>
-	<classpathentry kind="src" path="plugins-dev/spot"/>
-	<classpathentry excluding="pt/up/fe/dceg/neptus/plugins/vtk/utils/MultibeamDeltaTParser.java" kind="src" path="plugins-dev/vtk"/>
-	<classpathentry kind="src" path="plugins-dev/followRef"/>
-	<classpathentry kind="src" path="plugins-dev/imu-alignment"/>
-	<classpathentry kind="src" path="plugins-dev/envdisp"/>
-	<classpathentry kind="src" path="plugins-dev/sunfish"/>
-	<classpathentry kind="src" path="plugins-dev/leds"/>
-	<classpathentry kind="src" path="plugins-dev/caoAgent"/>
-	<classpathentry kind="src" path="plugins-dev/gige"/>
-	<classpathentry kind="src" path="plugins-dev/s57"/>
+	<classpathentry kind="src" path="plugins-dev/accu"/>
+	<classpathentry kind="src" path="plugins-dev/acoustic"/>
+	<classpathentry kind="src" path="plugins-dev/actions"/>
+	<classpathentry kind="src" path="plugins-dev/ais"/>
+	<classpathentry kind="src" path="plugins-dev/alarms"/>
 	<classpathentry kind="src" path="plugins-dev/blue-eye"/>
+	<classpathentry kind="src" path="plugins-dev/dev-calibration"/>
+	<classpathentry kind="src" path="plugins-dev/echosounder"/>
+	<classpathentry kind="src" path="plugins-dev/envdisp"/>
+	<classpathentry kind="src" path="plugins-dev/followRef"/>
+	<classpathentry kind="src" path="plugins-dev/gauges"/>
+	<classpathentry kind="src" path="plugins-dev/gige"/>
+	<classpathentry kind="src" path="plugins-dev/gps"/>
+	<classpathentry kind="src" path="plugins-dev/help"/>
+	<classpathentry kind="src" path="plugins-dev/imu-alignment"/>
+	<classpathentry kind="src" path="plugins-dev/ipcam"/>
+	<classpathentry kind="src" path="plugins-dev/leds"/>
+	<classpathentry kind="src" path="plugins-dev/logs"/>
+	<classpathentry kind="src" path="plugins-dev/map"/>
+	<classpathentry kind="src" path="plugins-dev/matlab-planning"/>
+	<classpathentry kind="src" path="plugins-dev/mavs"/>
+	<classpathentry kind="src" path="plugins-dev/messages"/>
+	<classpathentry kind="src" path="plugins-dev/mra-plots"/>
+	<classpathentry kind="src" path="plugins-dev/netcdf"/>
+	<classpathentry kind="src" path="plugins-dev/noptilus"/>
+	<classpathentry kind="src" path="plugins-dev/odss"/>
+	<classpathentry kind="src" path="plugins-dev/oplimits"/>
+	<classpathentry kind="src" path="plugins-dev/position"/>
+	<classpathentry kind="src" path="plugins-dev/s57"/>
+	<classpathentry kind="src" path="plugins-dev/s57-client"/>
+	<classpathentry kind="src" path="plugins-dev/simulation"/>
+	<classpathentry kind="src" path="plugins-dev/spot"/>
+	<classpathentry kind="src" path="plugins-dev/state"/>
+	<classpathentry kind="src" path="plugins-dev/sunfish"/>
+	<classpathentry kind="src" path="plugins-dev/teleoperation"/>
+	<classpathentry kind="src" path="plugins-dev/tidePrediction"/>
+	<classpathentry kind="src" path="plugins-dev/tiles-extra"/>
+	<classpathentry kind="src" path="plugins-dev/trex"/>
+	<classpathentry kind="src" path="plugins-dev/uavs"/>
+	<classpathentry kind="src" path="plugins-dev/vrp"/>
+	<classpathentry kind="src" path="plugins-dev/vtk"/>
+	<classpathentry kind="src" path="plugins-dev/web"/>
+	<classpathentry kind="src" path="plugins-dev/webupdate"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
@@ -200,13 +187,14 @@
 	<classpathentry kind="lib" path="lib/commons-codec-1.8.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.10.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/s57/s57-package-2.0.jar"/>
+	<classpathentry kind="lib" path="lib/reflections-0.9.9-RC1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/vtk.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/usr/lib/jni"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Program Files/VTK/bin"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="build/classes"/>

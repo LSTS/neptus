@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -74,6 +74,7 @@ import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.OperationLimits;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -175,11 +176,11 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
 
                 }
                 else {
-                    limits.opAreaLat = before.opAreaLat;
-                    limits.opAreaLon = before.opAreaLon;
-                    limits.opAreaLength = before.opAreaLength;
-                    limits.opAreaWidth = before.opAreaWidth;
-                    limits.opRotationRads = before.opRotationRads;
+                    limits.setOpAreaLat(before.getOpAreaLat());
+                    limits.setOpAreaLon(before.getOpAreaLon());
+                    limits.setOpAreaLength(before.getOpAreaLength());
+                    limits.setOpAreaWidth(before.getOpAreaWidth());
+                    limits.setOpRotationRads(before.getOpRotationRads());
                 }
             }
         };
@@ -671,16 +672,16 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
                 StringBuilder sb = new StringBuilder("<html><h3>" + I18n.text("Operational Limits")
                         + "</h3><font color='red'>");
 
-                if (limits.maxDepth != null && !limits.maxDepth.isNaN())
-                    sb.append(I18n.text("Max Depth") + ": <b>" + nf.format(limits.maxDepth) + " m</b><br>");
-                if (limits.maxAltitude != null && !limits.maxAltitude.isNaN())
-                    sb.append(I18n.text("Max Altitude") + ": <b>" + nf.format(limits.maxAltitude) + " m</b><br>");
-                if (limits.minAltitude != null && !limits.minAltitude.isNaN())
-                    sb.append(I18n.text("Min Altitude") + ": <b>" + nf.format(limits.minAltitude) + " m</b><br>");
-                if (limits.minSpeed != null && !limits.minSpeed.isNaN())
-                    sb.append(I18n.text("Min Speed") + ": <b>" + nf.format(limits.minSpeed) + " m/s</b><br>");
-                if (limits.maxSpeed != null && !limits.maxSpeed.isNaN())
-                    sb.append(I18n.text("Max Speed") + ": <b>" + nf.format(limits.maxSpeed) + " m/s</b><br>");
+                if (limits.getMaxDepth() != null && !limits.getMaxDepth().isNaN())
+                    sb.append(I18n.text("Max Depth") + ": <b>" + nf.format(limits.getMaxDepth()) + " m</b><br>");
+                if (limits.getMaxAltitude() != null && !limits.getMaxAltitude().isNaN())
+                    sb.append(I18n.text("Max Altitude") + ": <b>" + nf.format(limits.getMaxAltitude()) + " m</b><br>");
+                if (limits.getMinAltitude() != null && !limits.getMinAltitude().isNaN())
+                    sb.append(I18n.text("Min Altitude") + ": <b>" + nf.format(limits.getMinAltitude()) + " m</b><br>");
+                if (limits.getMinSpeed() != null && !limits.getMinSpeed().isNaN())
+                    sb.append(I18n.text("Min Speed") + ": <b>" + nf.format(limits.getMinSpeed()) + " m/s</b><br>");
+                if (limits.getMaxSpeed() != null && !limits.getMaxSpeed().isNaN())
+                    sb.append(I18n.text("Max Speed") + ": <b>" + nf.format(limits.getMaxSpeed()) + " m/s</b><br>");
                 sb.append("</font></html>");
 
                 label.setText(sb.toString());
@@ -714,16 +715,20 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
     public OperationLimits setLimitsFromSelection(ParallelepipedElement selection) {
 
         if (selection == null) {
-            limits.opAreaLat = limits.opAreaLon = limits.opRotationRads = limits.opAreaWidth = limits.opAreaLength = null;
+            limits.setOpAreaLat(null);
+            limits.setOpAreaLon(null);
+            limits.setOpRotationRads(null);
+            limits.setOpAreaWidth(null);
+            limits.setOpAreaLength(null);
         }
         else {
             double lld[] = selection.getCenterLocation().getAbsoluteLatLonDepth();
 
-            limits.opAreaLat = lld[0];
-            limits.opAreaLon = lld[1];
-            limits.opAreaLength = selection.getLength();
-            limits.opAreaWidth = selection.getWidth();
-            limits.opRotationRads = selection.getYawRad();
+            limits.setOpAreaLat(lld[0]);
+            limits.setOpAreaLon(lld[1]);
+            limits.setOpAreaLength(selection.getLength());
+            limits.setOpAreaWidth(selection.getWidth());
+            limits.setOpRotationRads(selection.getYawRad());
         }
         byte[] newMD5 = getLimitsMessage().payloadMD5();
         if (lastMD5 == null || !ByteUtil.equal(newMD5, lastMD5)) {
@@ -737,16 +742,16 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
     }
 
     public ParallelepipedElement getSelectionFromLimits(OperationLimits limits) {
-        if (limits.opAreaLat == null)
+        if (limits.getOpAreaLat() == null)
             pp = null;
         else {
             pp = new ParallelepipedElement(null, null);
-            pp.setWidth(limits.opAreaWidth);
-            pp.setLength(limits.opAreaLength);
-            pp.setYawDeg(Math.toDegrees(limits.opRotationRads));
+            pp.setWidth(limits.getOpAreaWidth());
+            pp.setLength(limits.getOpAreaLength());
+            pp.setYawDeg(Math.toDegrees(limits.getOpRotationRads()));
             LocationType lt = new LocationType();
-            lt.setLatitude(limits.opAreaLat);
-            lt.setLongitude(limits.opAreaLon);
+            lt.setLatitude(limits.getOpAreaLat());
+            lt.setLongitude(limits.getOpAreaLon());
             pp.setCenterLocation(lt);
             pp.setMyColor(Color.red);
         }

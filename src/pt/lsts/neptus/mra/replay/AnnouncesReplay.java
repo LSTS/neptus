@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,7 @@ import java.util.LinkedHashMap;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -46,6 +47,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author zp
  *
  */
+@PluginDescription
 public class AnnouncesReplay implements LogReplayLayer {
 
     protected LinkedHashMap<String, LocationType> systemsPositions = new LinkedHashMap<>();

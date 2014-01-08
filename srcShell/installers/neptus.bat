@@ -1,4 +1,34 @@
 @echo off
+rem #############################################################################
+rem # Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia   #
+rem # Laborat�rio de Sistemas e Tecnologia Subaqu�tica (LSTS)                   #
+rem # All rights reserved.                                                      #
+rem # Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal            #
+rem #                                                                           #
+rem # This file is part of Neptus, Command and Control Framework.               #
+rem #                                                                           #
+rem # Commercial Licence Usage                                                  #
+rem # Licencees holding valid commercial Neptus licences may use this file      #
+rem # in accordance with the commercial licence agreement provided with the     #
+rem # Software or, alternatively, in accordance with the terms contained in a   #
+rem # written agreement between you and Universidade do Porto. For licensing    #
+rem # terms, conditions, and further information contact lsts@fe.up.pt.         #
+rem #                                                                           #
+rem # European Union Public Licence - EUPL v.1.1 Usage                          #
+rem # Alternatively, this file may be used under the terms of the EUPL,         #
+rem # Version 1.1 only (the "Licence"), appearing in the file LICENCE.md        #
+rem # included in the packaging of this file. You may not use this  work        #
+rem # except in compliance with the Licence. Unless required by  applicable     #
+rem # law or agreed to in writing, software distributed under the Licence  is   #
+rem # distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF      #
+rem # ANY KIND, either express or implied. See the Licence for the specific     #
+rem # language governing permissions and limitations at                         #
+rem # https://www.lsts.pt/neptus/licence.                                       #
+rem #                                                                           #
+rem # For more information please see <http://lsts.fe.up.pt/neptus>.            #
+rem #############################################################################
+rem # Author: Paulo Dias, Jos� Pinto                                            #
+rem #############################################################################
 
 set CLASSPATH=.;bin/neptus.jar;conf@NEPTUS_LIBS@
 set LIBRARYPATH=.;libJNI

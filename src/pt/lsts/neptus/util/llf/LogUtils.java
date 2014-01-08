@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -63,6 +63,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverFactory;
+import pt.lsts.neptus.mp.OperationLimits;
 import pt.lsts.neptus.mp.maneuvers.Elevator;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
@@ -77,7 +78,6 @@ import pt.lsts.neptus.mp.maneuvers.YoYo;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.oplimits.OperationLimits;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -490,22 +490,27 @@ public class LogUtils {
 
         short lsfFx = 0, lsfGzFx = 0, lsfBZip2Fx = 0, defXmlFx = 0;
         for (File f : dir.listFiles()) {
-            if (FileUtil.getFileExtension(f).equalsIgnoreCase("lsf"))
-                lsfFx++;
-            if (FileUtil.getFileExtension(f).equalsIgnoreCase("xml"))
-                defXmlFx++;
-            if (FileUtil.getFileExtension(f).equalsIgnoreCase("gz")) {
-                String fex = FileUtil.getFileExtension(f.getName().substring(0, f.getName().length() - 3)) + ".gz";
-                if (fex.equalsIgnoreCase("lsf.gz"))
-                    lsfGzFx++;
-                if (fex.equalsIgnoreCase("xml.gz"))
+            switch (FileUtil.getFileExtension(f)) {
+                case "lsf":
+                    lsfFx++;
+                    break;
+                case "gz":
+                    String fex = FileUtil.getFileNameWithoutExtension(f.getName());
+                    if (FileUtil.getFileExtension(fex).equalsIgnoreCase("lsf"))
+                        lsfGzFx++;
+                    else if (FileUtil.getFileExtension(fex).equalsIgnoreCase("xml"))
+                        defXmlFx++;
+                    break;
+                case "xml":
                     defXmlFx++;
-            }
-            
-            if (FileUtil.getFileExtension(f).equalsIgnoreCase("bz2")) {
-                String fex = FileUtil.getFileExtension(f.getName().substring(0, f.getName().length() - 4)) + ".bz2";
-                if (fex.equalsIgnoreCase("lsf.bz2"))
-                    lsfBZip2Fx++;
+                    break;
+                case "bz2":
+                    fex = FileUtil.getFileNameWithoutExtension(f.getName());
+                    if (FileUtil.getFileExtension(fex).equalsIgnoreCase("lsf"))
+                        lsfBZip2Fx++;
+                    break;
+                default:
+                    break;
             }
         }
         if ((lsfFx + lsfGzFx + lsfBZip2Fx) > 0 && defXmlFx > 0)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -58,6 +58,7 @@ import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.gui.Timeline;
 import pt.lsts.neptus.gui.TimelineChangeListener;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.OperationLimits;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -66,8 +67,8 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.plots.ReplayPlot;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
-import pt.lsts.neptus.plugins.multibeam.MultibeamReplay;
-import pt.lsts.neptus.plugins.oplimits.OperationLimits;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.renderer2d.MissionRenderer;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -82,6 +83,7 @@ import pt.lsts.neptus.util.llf.LsfTree;
  * @author ZP
  */
 @SuppressWarnings("serial")
+@PluginDescription
 public class LogReplay extends JPanel implements MRAVisualization, LogMarkerListener {
     private MissionRenderer renderer;
 
@@ -104,20 +106,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
     private JButton plotButton;
     
     private Vector<LogReplayLayer> layers = new Vector<LogReplayLayer>();
-    {
-        layers.add(new GPSFixReplay());
-        layers.add(new EstimatedStateReplay());
-        layers.add(new SimulatedStateReplay());
-        layers.add(new LBLRangesReplay());
-//        layers.add(new SidescanOverlay());
-//        layers.add(new SidescanReplay());
-        layers.add(new MultibeamReplay());
-        layers.add(new TrexReplay());
-        layers.add(markersReplay);
-        layers.add(new BathymetryReplay());
-        layers.add(new AnnouncesReplay());
-    }
-    
+
     protected LinkedHashMap<String, IMraLog> replayParsers = new LinkedHashMap<String, IMraLog>();
     private Vector<LogReplayLayer> renderedLayers = new Vector<LogReplayLayer>();
     private Vector<LogReplayLayer> replayLayers = new Vector<LogReplayLayer>();
@@ -138,6 +127,14 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
         this.panel = panel;
         
         this.tree = new LsfTree(this.source);
+        for (String replay : PluginsRepository.getReplayLayers().keySet()) {
+            try {
+                layers.add(PluginsRepository.getPlugin(replay, LogReplayLayer.class));
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+        }
         
         setLayout(new MigLayout());
     }

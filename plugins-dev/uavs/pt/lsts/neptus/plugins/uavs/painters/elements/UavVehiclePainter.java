@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,8 +44,8 @@ import java.awt.geom.Point2D;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.plugins.planning.MapPanel;
 import pt.lsts.neptus.plugins.uavs.UavVehicleIcon;
 import pt.lsts.neptus.plugins.uavs.daemons.UavPainterDaemon;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;

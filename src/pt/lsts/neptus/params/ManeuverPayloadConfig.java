@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -125,19 +125,21 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
 
                 sp.addPropertyChangeListener(this);
 
-                if (sp.getEditor() != null) {
-                    psp.getEditorRegistry().registerEditor(sp, sp.getEditor());
-                }
-                if (sp.getRenderer() != null) {
-                    DefaultCellRenderer rend;                    
-                    if(sp.getRenderer() instanceof I18nSystemPropertyRenderer) {
-                        I18nSystemPropertyRenderer rendSProp = (I18nSystemPropertyRenderer) sp.getRenderer();
-                        I18nCellRenderer newRend = new I18nCellRenderer(rendSProp.getUnitsStr());
-                        newRend.setI18nMapper(rendSProp.getI18nMapper());
-                        rend = newRend;
-                        psp.getRendererRegistry().registerRenderer(sp, rend);
+                if (psp != null) {
+                    if (sp.getEditor() != null) {
+                        psp.getEditorRegistry().registerEditor(sp, sp.getEditor());
                     }
-                }
+                    if (sp.getRenderer() != null) {
+                        DefaultCellRenderer rend;                    
+                        if(sp.getRenderer() instanceof I18nSystemPropertyRenderer) {
+                            I18nSystemPropertyRenderer rendSProp = (I18nSystemPropertyRenderer) sp.getRenderer();
+                            I18nCellRenderer newRend = new I18nCellRenderer(rendSProp.getUnitsStr());
+                            newRend.setI18nMapper(rendSProp.getI18nMapper());
+                            rend = newRend;
+                            psp.getRendererRegistry().registerRenderer(sp, rend);
+                        }
+                    }
+                }                
             }
             
             updateFromActions(maneuver);
@@ -166,7 +168,8 @@ public class ManeuverPayloadConfig implements PropertiesProvider, PropertyChange
             }
             sp.propertyChange(evt);
         }
-        psp.repaint();
+        if (psp != null)
+            psp.repaint();
     }
 
     @Override

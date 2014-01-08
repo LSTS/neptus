@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -105,7 +105,9 @@ public class ImageLayer implements Serializable, Renderer2DPainter {
 
     public static ImageLayer read(File f) throws Exception {
         ObjectInputStream is = new ObjectInputStream(new FileInputStream(f));
-        return (ImageLayer) is.readObject();        
+        ImageLayer il = (ImageLayer) is.readObject();
+        is.close();
+        return il;
     }
     
     public void saveToFile(File f) throws Exception {

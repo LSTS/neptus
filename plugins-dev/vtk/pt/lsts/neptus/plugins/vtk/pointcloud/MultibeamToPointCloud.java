@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -162,29 +162,32 @@ public class MultibeamToPointCloud {
                             p.depth - tideOffset);
 
 
-                    if (multibeamDeltaTParser.getHasIntensity()) {
-                        ++countIntens;
-                        getIntensities().InsertValue(c, p.intensity);
-                        pointCloud.setHasIntensities(true);
-
-                        if (p.intensity == 0)
-                            ++countIntensZero;
-                        //NeptusLog.pub().info("intensity: " + p.intensity);
-                        //NeptusLog.pub().info("intensity from array: " + getIntensities().GetValue(c));
-                    }
+//                    if (multibeamDeltaTParser.getHasIntensity()) {
+//                        ++countIntens;
+//                        getIntensities().InsertValue(c, p.intensity);
+//                        pointCloud.setHasIntensities(true);
+//
+//                        if (p.intensity == 0)
+//                            ++countIntensZero;
+//                        //NeptusLog.pub().info("intensity: " + p.intensity);
+//                        //NeptusLog.pub().info("intensity from array: " + getIntensities().GetValue(c));
+//                    }
 
                     ++countPoints;
                 }
             }
         }
 
-        NeptusLog.pub().info("Number of intensity values: " + countIntens);
-        NeptusLog.pub().info("Number of intensity zero: " + countIntensZero);
+//        NeptusLog.pub().info("Number of intensity values: " + countIntens);
+//        NeptusLog.pub().info("Number of intensity zero: " + countIntensZero);
 
         multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints = countPoints;
         batInfo = multibeamDeltaTParser.getBathymetryInfo();
 
         pointCloud.setNumberOfPoints(multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
+        
+        NeptusLog.pub().info("Total number of points: " + multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
+        NeptusLog.pub().info("Number of points on multibeamtopointcloud" + getPoints().GetNumberOfPoints());
     }
 
     /**

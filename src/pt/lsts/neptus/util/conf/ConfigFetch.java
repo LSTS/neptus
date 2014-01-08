@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -772,22 +772,6 @@ public class ConfigFetch {
         else
             loc = "conf/neptus-coordinateSystems.xml";
         return loc;
-    }
-
-    /**
-     * @return
-     */
-    public static String getDefaultIMCDefinitionsLocation() {
-        String loc = getElementTextByXPath("//imc-default-defs", confDoc);
-        if (loc != null) {
-            String loc1 = resolvePath(loc);
-            if (loc1 != null)
-                return loc1;
-            return loc;
-        }
-        else {
-            return "conf/messages/IMC.xml";
-        }
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -384,6 +384,55 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                 }
                 TextMessage msg = new TextMessage("", cmd);
                 sendAcoustically(msg);
+            }
+        });
+        ctrlPanel.add(btn);
+        
+        btn = new JButton(I18n.text("Abort"));
+        //btn.setForeground(Color.red);
+        btn.setBackground(Color.red);
+        btn.setActionCommand("abort");
+        cmdButtons.put("abort", btn);
+        btn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+
+
+                ImcSystem[] sysLst;
+
+                if (gateway.equals("any"))                    
+                    sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
+                            SystemTypeEnum.ALL, true);
+                else {
+                    ImcSystem sys = ImcSystemsHolder.lookupSystemByName(gateway);
+                    if (sys != null)
+                        sysLst = new ImcSystem[]{sys};
+                    else 
+                        sysLst = new ImcSystem[]{};
+                }
+
+                if (sysLst.length == 0) {
+                    post(Notification.error(I18n.text("Abort"),
+                            I18n.text("No acoustic device is capable of sending this request")).src(
+                                    I18n.text("Console")));
+                }
+
+                IMCMessage m = IMCDefinition.getInstance().create("AcousticOperation", "op", "ABORT",
+                        "system", selectedSystem);
+
+                int successCount = 0;
+                for (ImcSystem sys : sysLst)
+                    if (ImcMsgManager.getManager().sendMessage(m, sys.getId(), null))
+                        successCount++;
+
+                if (successCount > 0) {
+                    bottomPane.setText(I18n.textf(
+                            "Abort %systemName commanded to %systemCount systems", selectedSystem,
+                            successCount));
+                }
+                else {
+                    post(Notification.error(I18n.text("Abort"),
+                            I18n.text("Unable to abort selected system")).src(I18n.text("Console")));
+                }
             }
         });
         ctrlPanel.add(btn);

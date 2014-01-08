@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -127,10 +127,10 @@ public class FileUtil {
     public static String getFileNameWithoutExtension(String path) {
         File f = new File(path);
         String fname = f.getName();
-        
+
         int lastDotPostion = fname.lastIndexOf('.');
-       String ret = (lastDotPostion != -1) ? (fname.substring(0, lastDotPostion)) : fname;
-       return ret;
+        String ret = (lastDotPostion != -1) ? (fname.substring(0, lastDotPostion)) : fname;
+        return ret;
     }
     
 

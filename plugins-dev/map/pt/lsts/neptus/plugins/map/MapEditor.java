@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -146,24 +146,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
     @NeptusProperty(name = "Toolbar location")
     public ControlsLocation toolbarLocation = ControlsLocation.Right;
 
-    protected Vector<AbstractElement> elements = null;
-
-    public final Vector<AbstractElement> getElements() {
-        if (elements == null) {
-            elements = new Vector<AbstractElement>();
-            elements.add(new MarkElement());
-            elements.add(new TransponderElement());
-            elements.add(new ParallelepipedElement());
-            elements.add(new CylinderElement());
-            elements.add(new EllipsoidElement());
-            elements.add(new Model3DElement());
-            elements.add(new ImageElement());
-            elements.add(new MineDangerAreaElement(null, null));
-            elements.add(new QRouteElement(null, null));
-        }
-
-        return elements;
-    }
+    
 
     public MapEditor(ConsoleLayout console) {
         super(console);
@@ -578,7 +561,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             }
 
             JMenu add = new JMenu(I18n.text("Add..."));
-            for (AbstractElement elem : getElements()) {
+            for (AbstractElement elem : MapType.getMapElements()) {
                 try {
                     final AbstractElement el = elem;
                     MapType m = null;

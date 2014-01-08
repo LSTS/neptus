@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,6 +44,7 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Random;
 import java.util.Vector;
 
 import javax.swing.JPopupMenu;
@@ -98,7 +99,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     protected ReferenceWaypoint movingWaypoint = null;
     protected ReferenceWaypoint focusedWaypoint = null;
     protected double radius = 8;
-
+    protected int entity = 255;
     @NeptusProperty(name = "Use acoustic communications", description = "Setting to true will make all communications go through acoustic modem")
     public boolean useAcousticCommunications = false;
 
@@ -110,6 +111,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
     public FollowReferenceInteraction(ConsoleLayout cl) {
         super(cl);
+        Random r = new Random(System.currentTimeMillis());
+        //entity = r.nextInt(255);
     }
 
     @Override
@@ -133,22 +136,27 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                     boolean prox = false;
                     LocationType loc = IMCUtils.getLocation(states.get(v));
                     prox = plans.get(v).currentWaypoint().getManeuverLocation().getDistanceInMeters(loc) < radius + 4;
-                    if (prox)
-                        plans.get(v).popFirstWaypoint();
+                    if (prox) {
+                        ReferenceWaypoint wpt = plans.get(v).popFirstWaypoint();
+                        if (focusedWaypoint.equals(wpt))
+                            focusedWaypoint = null;
+                    }
                 }
             }
             else if (frefStates.containsKey(v)) {
                 int prox = frefStates.get(v).getProximity();
                 ReferenceWaypoint wpt = plans.get(v).currentWaypoint();
                 if ((prox & FollowRefState.PROX_XY_NEAR) != 0 && (prox & FollowRefState.PROX_Z_NEAR) != 0) {
-                    if (wpt.time > 0) {
-                        if (Double.isNaN(wpt.timeLeft()))
-                            wpt.setStartTime(System.currentTimeMillis() / 1000.0);
-                        else if (wpt.timeLeft() <= 0)
+                    if (wpt.time != -1) {
+                        if (wpt.time > 0) {
+                            if (Double.isNaN(wpt.timeLeft()))
+                                wpt.setStartTime(System.currentTimeMillis() / 1000.0);
+                            else if (wpt.timeLeft() <= 0)
+                                plans.get(v).popFirstWaypoint();
+                        }
+                        else
                             plans.get(v).popFirstWaypoint();
                     }
-                    else
-                        plans.get(v).popFirstWaypoint();
                 }
                 else {
                     wpt.setStartTime(Double.NaN);
@@ -355,6 +363,11 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                             (int) pt.getX() + 15, (int) pt.getY() + pos);
                     pos += 15;
                 }
+                else if (focusedWaypoint.time == -1) {
+                    g.drawString("time: \u221e",
+                            (int) pt.getX() + 15, (int) pt.getY() + pos);
+                    pos += 15;
+                }
 
                 if (focusedWaypoint.loiter) {
                     g.setStroke(new BasicStroke(2f));
@@ -450,15 +463,34 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     public void mouseClicked(final MouseEvent event, final StateRenderer2D source) {
         super.mouseClicked(event, source);
 
-        ReferenceWaypoint wpt = waypointUnder(event.getPoint(), source);
+        final ReferenceWaypoint wpt = waypointUnder(event.getPoint(), source);
 
         if (wpt != null && event.getButton() == MouseEvent.BUTTON1 && event.getClickCount() >= 2) {
             PluginUtils.editPluginProperties(wpt, true);
+            if (focusedWaypoint.equals(wpt))
+                focusedWaypoint = null;
         }
 
         if (event.getButton() == MouseEvent.BUTTON3) {
             JPopupMenu popup = new JPopupMenu();
 
+            if (wpt != null) {
+                popup.add("Remove waypoint").addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        for (ReferencePlan p : plans.values())
+                            p.removeWaypoint(wpt);
+                        if (focusedWaypoint.equals(wpt))
+                            focusedWaypoint = null;
+                    }
+                });
+                popup.add("Waypoint parameters").addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        PluginUtils.editPluginProperties(wpt, true);
+                    }
+                });
+                popup.addSeparator();
+            }            
+            
             Vector<VehicleType> avVehicles = new Vector<VehicleType>();
 
             ImcSystem[] veh = ImcSystemsHolder.lookupActiveSystemVehicles();
@@ -479,8 +511,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                             startPlan.setOp(OP.START);
                             startPlan.setPlanId("follow_neptus");
                             FollowReference man = new FollowReference();
-                            man.setControlEnt((short) 255);
-                            man.setControlSrc(65535);
+                            man.setControlEnt((short) entity);
+                            man.setControlSrc(ImcMsgManager.getManager().getLocalId().intValue());
                             man.setAltitudeInterval(2);
                             man.setTimeout(referenceTimeout);
 
@@ -512,7 +544,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                     });
                 }
             }
-            popup.addSeparator();
+            if (veh.length > 0)
+                popup.addSeparator();
 
             popup.add("Follow Reference Settings").addActionListener(new ActionListener() {
                 @Override
@@ -531,13 +564,11 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void initSubPanel() {
-        // TODO Auto-generated method stub
 
     }
 }

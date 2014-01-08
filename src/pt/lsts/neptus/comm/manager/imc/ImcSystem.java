@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -43,7 +43,7 @@ import java.util.Vector;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.plugins.planning.plandb.PlanDBControl;
+import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBControl;
 import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.comm.protocol.IMCArgs;
 import pt.lsts.neptus.types.coord.CoordinateSystem;

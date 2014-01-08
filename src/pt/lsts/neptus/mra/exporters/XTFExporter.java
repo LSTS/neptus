@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,21 +39,23 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryParserFactory;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.PluginDescription;
 
 /**
  * Exporter from log data do XTF format
  * @author jqcorreia
  *
  */
-
+@PluginDescription
 public class XTFExporter implements MRAExporter {
     IMraLogGroup source;
-    BathymetryParser parser;
+    BathymetryParser parser = null;
     File outFile;
     RandomAccessFile raf;
     FileChannel chan;
@@ -62,7 +64,12 @@ public class XTFExporter implements MRAExporter {
     
     public XTFExporter(IMraLogGroup source) {
         this.source = source;
-        parser = BathymetryParserFactory.build(source);
+        try {
+            parser = BathymetryParserFactory.build(source);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
     
     }
     

@@ -1,9 +1,30 @@
 /*
- * Copyright (c) 2004-2013 Laboratório de Sistemas e Tecnologia Subaquática and Authors
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
- * Faculdade de Engenharia da Universidade do Porto
- * Departamento de Engenharia Electrotécnica e de Computadores
- * Rua Dr. Roberto Frias s/n, 4200-465 Porto, Portugal
+ * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
+ *
+ * This file is part of Neptus, Command and Control Framework.
+ *
+ * Commercial Licence Usage
+ * Licencees holding valid commercial Neptus licences may use this file
+ * in accordance with the commercial licence agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in a
+ * written agreement between you and Universidade do Porto. For licensing
+ * terms, conditions, and further information contact lsts@fe.up.pt.
+ *
+ * European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the EUPL,
+ * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * included in the packaging of this file. You may not use this work
+ * except in compliance with the Licence. Unless required by applicable
+ * law or agreed to in writing, software distributed under the Licence is
+ * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ * ANY KIND, either express or implied. See the Licence for the specific
+ * language governing permissions and limitations at
+ * https://www.lsts.pt/neptus/licence.
+ *
+ * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: Paulo Dias
  * Created in 26/Jun/2005
@@ -64,49 +85,49 @@ implements PropertyChangeListener
             "images/checklists/boxIcon.png", 18, 18));
     private static final Icon EDIT_IMAGE_ICON = new ImageIcon(ImageUtils.getScaledImage(
             "images/checklists/edit.png", 16, 16)); 
-	//private static final Icon SUB_ITEMS_IMAGE_ICON = new ImageIcon(CheckItemPanel.class.getResource("/images/menus/wizard.png"));
+    //private static final Icon SUB_ITEMS_IMAGE_ICON = new ImageIcon(CheckItemPanel.class.getResource("/images/menus/wizard.png"));
 
-	//private static final String CHANGED_PROPERTY = ChecklistPanel.CHANGED_PROPERTY;
-    
-	public static final Color CHECK_COLOR = new Color(190, 220, 240); // blue
+    //private static final String CHANGED_PROPERTY = ChecklistPanel.CHANGED_PROPERTY;
 
-	private JPanel infoPanel = null;
-	private JCheckBox checkBox = null;
-	private JLabel nameCheckItem = null;
-	private JPanel notesPanel = null;
-	
-	private JScrollPane noteScrollPane = null;
-	private JTextArea noteTextArea = null;
-	private JToggleButton noteToggleButton = null;
-	
-	private JPanel buttonsPanel = null;
-	private JLabel statesLabel = null;
-	private JPanel actionsPanel = null;
-	private AutoItemsList actionsListPanelHolder = null;
-	
+    public static final Color CHECK_COLOR = new Color(190, 220, 240); // blue
+
+    private JPanel infoPanel = null;
+    private JCheckBox checkBox = null;
+    private JLabel nameCheckItem = null;
+    private JPanel notesPanel = null;
+
+    private JScrollPane noteScrollPane = null;
+    private JTextArea noteTextArea = null;
+    private JToggleButton noteToggleButton = null;
+
+    private JPanel buttonsPanel = null;
+    private JLabel statesLabel = null;
+    private JPanel actionsPanel = null;
+    private AutoItemsList actionsListPanelHolder = null;
+
     private CheckItem checkItem = null;
     private JLabel dateChangedLabel = null;
     private JPanel datePanel = null;
     private JLabel dateLabLabel = null;
-    
+
     private Date trialTime = new Date();
-    
+
     private Color baseBackgroundColor = null;
-    
+
     /**
      * MMddHHmm[[[CC]yy][.ss]]
      * E.g.: 2002-12-17T09:30:47.0Z
      */
     public static final SimpleDateFormat dateXMLFormater = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.0Z'");
 
-    
-	/**
-	 * This is the default constructor
-	 */
-	public CheckItemPanel() {
-		super();
-		initialize();
-	}
+
+    /**
+     * This is the default constructor
+     */
+    public CheckItemPanel() {
+        super();
+        initialize();
+    }
 
     public CheckItemPanel(CheckItem ci) {
         super();
@@ -116,20 +137,20 @@ implements PropertyChangeListener
         nameCheckItem.setText(checkItem.getName());
         getNoteTextArea().setText(checkItem.getNote());
         dateChangedLabel.setText(checkItem.getDateChecked());
-        
+
         for(CheckAutoSubItem casi : checkItem.getAutoSubItems()) {
-        	if(casi.getSubItemType().equals(VariableIntervalItem.TYPE_ID))
-        		this.getActionsListPanelHolder().add(new VariableIntervalItem(this.getActionsListPanelHolder(),(CheckAutoVarIntervalItem) casi));
-        	if(casi.getSubItemType().equals(UserActionItem.TYPE_ID))
-    			this.getActionsListPanelHolder().add(new UserActionItem(this.getActionsListPanelHolder(),(CheckAutoUserActionItem) casi));
-        	if(casi.getSubItemType().equals(UserCommentItem.TYPE_ID))
-    			this.getActionsListPanelHolder().add(new UserCommentItem(this.getActionsListPanelHolder(),(CheckAutoUserLogItem) casi));
+            if(casi.getSubItemType().equals(VariableIntervalItem.TYPE_ID))
+                this.getActionsListPanelHolder().add(new VariableIntervalItem(this.getActionsListPanelHolder(),(CheckAutoVarIntervalItem) casi));
+            if(casi.getSubItemType().equals(UserActionItem.TYPE_ID))
+                this.getActionsListPanelHolder().add(new UserActionItem(this.getActionsListPanelHolder(),(CheckAutoUserActionItem) casi));
+            if(casi.getSubItemType().equals(UserCommentItem.TYPE_ID))
+                this.getActionsListPanelHolder().add(new UserCommentItem(this.getActionsListPanelHolder(),(CheckAutoUserLogItem) casi));
         }
         fixStateLabel();
     }
 
-    
-    
+
+
     /**
      * @return Returns the isChecked.
      */
@@ -143,26 +164,26 @@ implements PropertyChangeListener
      */
     public void setChecked(boolean isChecked) {
         //FIXME pdias test for subitems values
-    	getCheckBox().setSelected(isChecked);
+        getCheckBox().setSelected(isChecked);
         getCheckBox().revalidate();
         getCheckBox().repaint();
     }
 
     /**
-	 * This method initializes this
-	 * 
-	 * @return void
-	 */
-	private  void initialize() {
-		baseBackgroundColor = getBackground();
-		this.setInheritsPopupMenu(true);
-		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		//this.setSize(360, 200);
-		this.setBorder(BorderFactory.createLineBorder(Color.gray,1));
-		this.add(getInfoPanel(), null);
-		this.add(getNotesPanel(), null);
-		this.add(getActionsPanel(), null);
-        
+     * This method initializes this
+     * 
+     * @return void
+     */
+    private  void initialize() {
+        baseBackgroundColor = getBackground();
+        this.setInheritsPopupMenu(true);
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        //this.setSize(360, 200);
+        this.setBorder(BorderFactory.createLineBorder(Color.gray,1));
+        this.add(getInfoPanel(), null);
+        this.add(getNotesPanel(), null);
+        this.add(getActionsPanel(), null);
+
         this.addPropertyChangeListener(ChecklistPanel.DIRTY_PROPERTY, this);
         /*
         this.addMouseListener(new java.awt.event.MouseAdapter() { 
@@ -172,10 +193,10 @@ implements PropertyChangeListener
                 MyJTaskPaneGroup mjtpg = getMyJTaskPaneGroupFromItem((Component) e
                             .getSource()); 
                 }});
-        */
+         */
         fixStateLabel();
-	}
-    
+    }
+
     /**
      * @param itemPanel
      * @return
@@ -183,7 +204,7 @@ implements PropertyChangeListener
     public static MyJTaskPaneGroup getMyJTaskPaneGroupFromItem(Component itemPanel) {
         try {
             MyJTaskPaneGroup mjtpg = (MyJTaskPaneGroup) itemPanel.getParent()
-					.getParent().getParent().getParent();
+                    .getParent().getParent().getParent();
             return mjtpg;
         }
         catch (RuntimeException e) {            
@@ -191,78 +212,78 @@ implements PropertyChangeListener
             return null;
         }
     }
-    
-	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getInfoPanel() {
-		if (infoPanel == null) {
-			nameCheckItem = new JLabel();
-			infoPanel = new JPanel();
-			infoPanel.setLayout(new BorderLayout());
+
+    /**
+     * This method initializes jPanel	
+     * 	
+     * @return javax.swing.JPanel	
+     */    
+    private JPanel getInfoPanel() {
+        if (infoPanel == null) {
+            nameCheckItem = new JLabel();
+            infoPanel = new JPanel();
+            infoPanel.setLayout(new BorderLayout());
             infoPanel.setOpaque(false);
             infoPanel.setInheritsPopupMenu(true);
-			nameCheckItem.setText("JLabel");
-			nameCheckItem.setPreferredSize(new Dimension(300,16));
-			infoPanel.add(getCheckBox(), BorderLayout.WEST);
-			infoPanel.add(nameCheckItem, BorderLayout.CENTER);
-			infoPanel.add(getButtonsPanel(), BorderLayout.EAST);
-			infoPanel.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-				    if (e.getButton() != MouseEvent.BUTTON3) {
-				        getCheckBox().doClick();
-				    }
-				    else {
-				        e.setSource(CheckItemPanel.this);
+            nameCheckItem.setText("JLabel");
+            nameCheckItem.setPreferredSize(new Dimension(300,16));
+            infoPanel.add(getCheckBox(), BorderLayout.WEST);
+            infoPanel.add(nameCheckItem, BorderLayout.CENTER);
+            infoPanel.add(getButtonsPanel(), BorderLayout.EAST);
+            infoPanel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getButton() != MouseEvent.BUTTON3) {
+                        getCheckBox().doClick();
+                    }
+                    else {
+                        e.setSource(CheckItemPanel.this);
                         for (MouseListener ml : CheckItemPanel.this.getMouseListeners()) {
                             ml.mouseClicked(e);
                         }
-				    }
-				}
-			});
-		}
-		return infoPanel;
-	}
-    
-	private JPanel getButtonsPanel() {
-		if(buttonsPanel == null) {
-			buttonsPanel=new JPanel();
-			buttonsPanel.setLayout(new BorderLayout());
-			buttonsPanel.setOpaque(false);
-			buttonsPanel.setBorder(null);
-			buttonsPanel.add(getStatesLabel(), BorderLayout.WEST);
-			buttonsPanel.add(getNoteToggleButton(), BorderLayout.EAST);
-			//buttonsPanel.add(getActionsToggleButton(), BorderLayout.EAST);
-		}
-		return buttonsPanel;
-	}
-    
-	public JLabel getStatesLabel() {
-		if (statesLabel == null) {
-			statesLabel = new JLabel();
-			statesLabel.setForeground(CHECK_COLOR.darker().darker());
-		}
-		return statesLabel;
-	}
-    
-	private void fixStateLabel() {
-    	String lb = " ";
-    	if (!"".equalsIgnoreCase(getNoteTextArea().getText()))
-    		lb += "N ";
-    	if (getActionsListPanelHolder().numberOfSubItems() > 0)
-    		lb += "A ";
-    	getStatesLabel().setText(lb);
+                    }
+                }
+            });
+        }
+        return infoPanel;
     }
-    
 
-	
-	/* (non-Javadoc)
+    private JPanel getButtonsPanel() {
+        if(buttonsPanel == null) {
+            buttonsPanel=new JPanel();
+            buttonsPanel.setLayout(new BorderLayout());
+            buttonsPanel.setOpaque(false);
+            buttonsPanel.setBorder(null);
+            buttonsPanel.add(getStatesLabel(), BorderLayout.WEST);
+            buttonsPanel.add(getNoteToggleButton(), BorderLayout.EAST);
+            //buttonsPanel.add(getActionsToggleButton(), BorderLayout.EAST);
+        }
+        return buttonsPanel;
+    }
+
+    public JLabel getStatesLabel() {
+        if (statesLabel == null) {
+            statesLabel = new JLabel();
+            statesLabel.setForeground(CHECK_COLOR.darker().darker());
+        }
+        return statesLabel;
+    }
+
+    private void fixStateLabel() {
+        String lb = " ";
+        if (!"".equalsIgnoreCase(getNoteTextArea().getText()))
+            lb += "N ";
+        if (getActionsListPanelHolder().numberOfSubItems() > 0)
+            lb += "A ";
+        getStatesLabel().setText(lb);
+    }
+
+
+
+    /* (non-Javadoc)
      * @see java.awt.Component#setName(java.lang.String)
      */
-	@Override
+    @Override
     public void setName(String name) {
         nameCheckItem.setText(name);
         super.setName(name);
@@ -275,25 +296,26 @@ implements PropertyChangeListener
     public String getName()
     {
         if (nameCheckItem == null)
-             return "";
+            return "";
         return nameCheckItem.getText();
     }
 
     /**
-	 * This method initializes jCheckBox	
-	 * 	
-	 * @return javax.swing.JCheckBox	
-	 */    
-	private JCheckBox getCheckBox() {
-		if (checkBox == null) {
-			checkBox = new JCheckBox();
-			checkBox.setIcon(NOT_OK_IMAGE_ICON);
+     * This method initializes jCheckBox	
+     * 	
+     * @return javax.swing.JCheckBox	
+     */    
+    private JCheckBox getCheckBox() {
+        if (checkBox == null) {
+            checkBox = new JCheckBox();
+            checkBox.setIcon(NOT_OK_IMAGE_ICON);
             checkBox.setOpaque(false);
             checkBox.setText(" ");
             checkBox.setInheritsPopupMenu(true);
-			checkBox.addItemListener(new ItemListener() { 
-				public void itemStateChanged(ItemEvent e) {    
-					//NeptusLog.pub().info("<###>itemStateChanged()");
+            checkBox.addItemListener(new ItemListener() { 
+                @Override
+                public void itemStateChanged(ItemEvent e) {    
+                    //NeptusLog.pub().info("<###>itemStateChanged()");
                     MyJTaskPaneGroup mtpg = getMyJTaskPaneGroupFromItem(CheckItemPanel.this);
                     if (getCheckBox().isSelected()) {
                         setBackground(CHECK_COLOR);
@@ -304,10 +326,10 @@ implements PropertyChangeListener
                         String dateTime = dateXMLFormater.format(trialTime);
                         dateChangedLabel.setText(dateTime);
                         if (mtpg != null) {
-							mtpg.firePropertyChange(
-									MyJTaskPaneGroup.CHILD_ITEM_CHECKED_PROPERTY,
-									false, true);
-						}
+                            mtpg.firePropertyChange(
+                                    MyJTaskPaneGroup.CHILD_ITEM_CHECKED_PROPERTY,
+                                    false, true);
+                        }
                     }
                     else {
                         setBackground(baseBackgroundColor);
@@ -321,193 +343,195 @@ implements PropertyChangeListener
                     }
                     //CheckItemPanel.this.fireChangeEvent((Component) e.getSource());
                     if (mtpg != null) {
-                    	mtpg.firePropertyChange(
-                    			ChecklistPanel.DIRTY_PROPERTY,
-                    			false, true);
+                        mtpg.firePropertyChange(
+                                ChecklistPanel.DIRTY_PROPERTY,
+                                false, true);
                     }
-				}
-			});
-		}
-		return checkBox;
-	}
-	/**
-	 * This method initializes jPanel1	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getNotesPanel() {
-		if (notesPanel == null) {
-			notesPanel = new JPanel();
-			notesPanel.setLayout(new BorderLayout());
+                }
+            });
+        }
+        return checkBox;
+    }
+    /**
+     * This method initializes jPanel1	
+     * 	
+     * @return javax.swing.JPanel	
+     */    
+    private JPanel getNotesPanel() {
+        if (notesPanel == null) {
+            notesPanel = new JPanel();
+            notesPanel.setLayout(new BorderLayout());
             notesPanel.setOpaque(false);
-			notesPanel.setVisible(false);
-			notesPanel.add(getNoteScrollPane(), BorderLayout.CENTER);
-			notesPanel.add(getDatePanel(), BorderLayout.NORTH);
-		}
-		return notesPanel;
-	}
-	
-	
-	private JPanel getActionsPanel() {
-		if (actionsPanel == null) {
-			actionsPanel = new JPanel();
-			actionsPanel.setLayout(new BorderLayout());
-			actionsPanel.setBorder(new TitledBorder("Actions"));
+            notesPanel.setVisible(false);
+            notesPanel.add(getNoteScrollPane(), BorderLayout.CENTER);
+            notesPanel.add(getDatePanel(), BorderLayout.NORTH);
+        }
+        return notesPanel;
+    }
+
+
+    private JPanel getActionsPanel() {
+        if (actionsPanel == null) {
+            actionsPanel = new JPanel();
+            actionsPanel.setLayout(new BorderLayout());
+            actionsPanel.setBorder(new TitledBorder("Actions"));
             actionsPanel.setOpaque(false);
-			actionsPanel.setVisible(false);
-			//actionsPanel.setBorder(BorderFactory.createEmptyBorder(3,5,3,5));
-			//actionsPanel.add(new JLabel("wefwerfgew"));
-			//actionsPanel.add(getUserActionPanel());
-			actionsPanel.add(getActionsListPanelHolder(), BorderLayout.CENTER);
-		}
-		return actionsPanel;
-	}
-	
-//	private JPanel getUserActionPanel()
-//	{
-//		if(userActionsPanel==null)
-//		{
-//			userActionsPanel=new JPanel();
-//			userActionsPanel.setLayout(new BorderLayout());
-//            userActionsPanel.setOpaque(false);
-//			
-//			JPanel panelAux2=new JPanel();
-//			userActionCheckBox=new JCheckBox("Wait for user action");
-//			userConfirmationCheckBox=new JCheckBox("User confirmation");
-//			
-//			panelAux2.add(userActionCheckBox);
-//			panelAux2.add(userConfirmationCheckBox);
-//			userActionsPanel.add(panelAux2,java.awt.BorderLayout.NORTH);
-//			userMSGActionText = new JTextField();
-//			
-//			JPanel panelAux=new JPanel();
-//			userMSGActionText.setColumns(20);
-//			userMSGActionText.setEnabled(false);
-//			panelAux.add(new JLabel("Message:"));
-//			
-//			userActionCheckBox.addItemListener(new java.awt.event.ItemListener() { 
-//				public void itemStateChanged(java.awt.event.ItemEvent e) {    
-//                    if (userActionCheckBox.isSelected())
-//                    {
-//            			userMSGActionText.setEnabled(true);            
-//                    }
-//                    else
-//                    {
-//                    	userMSGActionText.setEnabled(false);
-//                    }
-//                }
-//			});
-//			//userMSGActionText.setSize(100, 15);
-//			//userMSGActionText.setMinimumSize(new Dimension(100, 15));
-//			//userMSGActionText.setMaximumSize(new Dimension(100, 15));
-//			panelAux.add(userMSGActionText);
-//			userActionsPanel.add(panelAux,java.awt.BorderLayout.CENTER);
-//		}
-//		return userActionsPanel;
-//	}
-	
-	private AutoItemsList getActionsListPanelHolder() {
-		if (actionsListPanelHolder == null) {
-			actionsListPanelHolder = new AutoItemsList(this);
-			// arCheckPanel.add(new
-			// JLabel("teste no centro"),java.awt.BorderLayout.CENTER);
-		}
-		return actionsListPanelHolder;
-	}
-	
-	/**
-	 * This method initializes jScrollPane	
-	 * 	
-	 * @return javax.swing.JScrollPane
-	 */    
-	private JScrollPane getNoteScrollPane() {
-		if (noteScrollPane == null) {
-			noteScrollPane = new JScrollPane();
+            actionsPanel.setVisible(false);
+            //actionsPanel.setBorder(BorderFactory.createEmptyBorder(3,5,3,5));
+            //actionsPanel.add(new JLabel("wefwerfgew"));
+            //actionsPanel.add(getUserActionPanel());
+            actionsPanel.add(getActionsListPanelHolder(), BorderLayout.CENTER);
+        }
+        return actionsPanel;
+    }
+
+    //	private JPanel getUserActionPanel()
+    //	{
+    //		if(userActionsPanel==null)
+    //		{
+    //			userActionsPanel=new JPanel();
+    //			userActionsPanel.setLayout(new BorderLayout());
+    //            userActionsPanel.setOpaque(false);
+    //			
+    //			JPanel panelAux2=new JPanel();
+    //			userActionCheckBox=new JCheckBox("Wait for user action");
+    //			userConfirmationCheckBox=new JCheckBox("User confirmation");
+    //			
+    //			panelAux2.add(userActionCheckBox);
+    //			panelAux2.add(userConfirmationCheckBox);
+    //			userActionsPanel.add(panelAux2,java.awt.BorderLayout.NORTH);
+    //			userMSGActionText = new JTextField();
+    //			
+    //			JPanel panelAux=new JPanel();
+    //			userMSGActionText.setColumns(20);
+    //			userMSGActionText.setEnabled(false);
+    //			panelAux.add(new JLabel("Message:"));
+    //			
+    //			userActionCheckBox.addItemListener(new java.awt.event.ItemListener() { 
+    //				public void itemStateChanged(java.awt.event.ItemEvent e) {    
+    //                    if (userActionCheckBox.isSelected())
+    //                    {
+    //            			userMSGActionText.setEnabled(true);            
+    //                    }
+    //                    else
+    //                    {
+    //                    	userMSGActionText.setEnabled(false);
+    //                    }
+    //                }
+    //			});
+    //			//userMSGActionText.setSize(100, 15);
+    //			//userMSGActionText.setMinimumSize(new Dimension(100, 15));
+    //			//userMSGActionText.setMaximumSize(new Dimension(100, 15));
+    //			panelAux.add(userMSGActionText);
+    //			userActionsPanel.add(panelAux,java.awt.BorderLayout.CENTER);
+    //		}
+    //		return userActionsPanel;
+    //	}
+
+    private AutoItemsList getActionsListPanelHolder() {
+        if (actionsListPanelHolder == null) {
+            actionsListPanelHolder = new AutoItemsList(this);
+            // arCheckPanel.add(new
+            // JLabel("teste no centro"),java.awt.BorderLayout.CENTER);
+        }
+        return actionsListPanelHolder;
+    }
+
+    /**
+     * This method initializes jScrollPane	
+     * 	
+     * @return javax.swing.JScrollPane
+     */    
+    private JScrollPane getNoteScrollPane() {
+        if (noteScrollPane == null) {
+            noteScrollPane = new JScrollPane();
             noteScrollPane.setOpaque(false);
-			noteScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-			noteScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-			noteScrollPane.setBorder(BorderFactory.createEmptyBorder(3,5,3,5));
-			noteScrollPane.setPreferredSize(new Dimension(300,50));
-			noteScrollPane.setViewportView(getNoteTextArea());
-		}
-		return noteScrollPane;
-	}
-	/**
-	 * This method initializes jTextArea	
-	 * 	
-	 * @return javax.swing.JTextArea	
-	 */    
-	private JTextArea getNoteTextArea() {
-		if (noteTextArea == null) {
-			noteTextArea = new JTextArea();
-			noteTextArea.setLineWrap(true);
-			noteTextArea.addKeyListener(new KeyAdapter() {
-					@Override
-			        public void keyTyped(KeyEvent e) {
-			            //NeptusLog.pub().info("<###>keyTyped()");
-                        CheckItemPanel.this.fireChangeEvent((Component) e.getSource());
-			        }
-			        
-			        @Override
-			        public void keyReleased(KeyEvent e) {
-				        fixStateLabel();
-			        }
-			    });
-		}
-		return noteTextArea;
-	}
-	/**
-	 * This method initializes jToggleButton	
-	 * 	
-	 * @return javax.swing.JToggleButton	
-	 */    
-	private JToggleButton getNoteToggleButton() {
-		if (noteToggleButton == null) {
-			noteToggleButton = new JToggleButton();
-			//jToggleButton.setText("set note");
+            noteScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            noteScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            noteScrollPane.setBorder(BorderFactory.createEmptyBorder(3,5,3,5));
+            noteScrollPane.setPreferredSize(new Dimension(300,50));
+            noteScrollPane.setViewportView(getNoteTextArea());
+        }
+        return noteScrollPane;
+    }
+    /**
+     * This method initializes jTextArea	
+     * 	
+     * @return javax.swing.JTextArea	
+     */    
+    private JTextArea getNoteTextArea() {
+        if (noteTextArea == null) {
+            noteTextArea = new JTextArea();
+            noteTextArea.setLineWrap(true);
+            noteTextArea.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyTyped(KeyEvent e) {
+                    //NeptusLog.pub().info("<###>keyTyped()");
+                    CheckItemPanel.this.fireChangeEvent((Component) e.getSource());
+                }
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    fixStateLabel();
+                }
+            });
+        }
+        return noteTextArea;
+    }
+    /**
+     * This method initializes jToggleButton	
+     * 	
+     * @return javax.swing.JToggleButton	
+     */    
+    private JToggleButton getNoteToggleButton() {
+        if (noteToggleButton == null) {
+            noteToggleButton = new JToggleButton();
+            //jToggleButton.setText("set note");
             noteToggleButton.setMargin(new Insets(0,0,0,0));
-			noteToggleButton.setIcon(EDIT_IMAGE_ICON);
-			noteToggleButton.setToolTipText("See Note & Actions");
-			noteToggleButton.setFont(new Font("Dialog", Font.BOLD, 10));
-			noteToggleButton.addItemListener(new ItemListener() { 
-				public void itemStateChanged(ItemEvent e) {    
-					//NeptusLog.pub().info("<###>itemStateChanged()");
-					if (getNoteToggleButton().isSelected()) {
-					    getNotesPanel().setVisible(true);
-					    getActionsPanel().setVisible(true);
-					}
-					else {
-					    getNotesPanel().setVisible(false);
-					    getActionsPanel().setVisible(false);
-					}
-					//NeptusLog.pub().info("<###>Text press");
-				}
-			});
-		}
-		return noteToggleButton;
-	}
+            noteToggleButton.setIcon(EDIT_IMAGE_ICON);
+            noteToggleButton.setToolTipText("See Note & Actions");
+            noteToggleButton.setFont(new Font("Dialog", Font.BOLD, 10));
+            noteToggleButton.addItemListener(new ItemListener() { 
+                @Override
+                public void itemStateChanged(ItemEvent e) {    
+                    //NeptusLog.pub().info("<###>itemStateChanged()");
+                    if (getNoteToggleButton().isSelected()) {
+                        getNotesPanel().setVisible(true);
+                        getActionsPanel().setVisible(true);
+                    }
+                    else {
+                        getNotesPanel().setVisible(false);
+                        getActionsPanel().setVisible(false);
+                    }
+                    //NeptusLog.pub().info("<###>Text press");
+                }
+            });
+        }
+        return noteToggleButton;
+    }
 
-	
 
-	
+
+
     /**
      * This method initializes dateChangedLabel	
      * 	
      * @return javax.swing.JLabel	
      */    
     private JLabel getDateChangedLabel() {
-    	if (dateChangedLabel == null) {
-    		dateChangedLabel = new JLabel();
-    		dateChangedLabel.setText("DateTime");
-    		dateChangedLabel.addPropertyChangeListener("text",
-    		        new PropertyChangeListener() {
-    		                public void propertyChange(PropertyChangeEvent e) {
-    		                    //NeptusLog.pub().info("<###>propertyChange(text)");
-                                // TODO Auto-generated property Event stub "text" 
-    		                }
-    		            });
-    	}
-    	return dateChangedLabel;
+        if (dateChangedLabel == null) {
+            dateChangedLabel = new JLabel();
+            dateChangedLabel.setText("DateTime");
+            dateChangedLabel.addPropertyChangeListener("text",
+                    new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent e) {
+                    //NeptusLog.pub().info("<###>propertyChange(text)");
+                    // TODO Auto-generated property Event stub "text" 
+                }
+            });
+        }
+        return dateChangedLabel;
     }
 
     /**
@@ -516,27 +540,27 @@ implements PropertyChangeListener
      * @return javax.swing.JPanel	
      */    
     private JPanel getDatePanel() {
-    	if (datePanel == null) {
-    		dateLabLabel = new JLabel();
-    		dateLabLabel.setText("Date checked:");
-    		datePanel = new JPanel();
+        if (datePanel == null) {
+            dateLabLabel = new JLabel();
+            dateLabLabel.setText("Date checked:");
+            datePanel = new JPanel();
             datePanel.setOpaque(false);
-    		datePanel.setVisible(false);
-    		datePanel.add(dateLabLabel, null);
-    		datePanel.add(getDateChangedLabel(), null);
-    	}
-    	return datePanel;
+            datePanel.setVisible(false);
+            datePanel.add(dateLabLabel, null);
+            datePanel.add(getDateChangedLabel(), null);
+        }
+        return datePanel;
     }
-    
-    
-    
+
+
+
     public Container getParentGroup() {
         return this.getParent().getParent().getParent().getParent();
     }
 
-    
-    
-    
+
+
+
     /* (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
      */
@@ -553,6 +577,7 @@ implements PropertyChangeListener
             return false;
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent e) {
         String prop = e.getPropertyName();
         if (prop.equals(ChecklistPanel.DIRTY_PROPERTY)) {
@@ -564,8 +589,8 @@ implements PropertyChangeListener
                     ChecklistPanel.DIRTY_PROPERTY, !newValue, newValue);
         }
     }
-    
-	void fireChangeEvent(Component source) {
+
+    void fireChangeEvent(Component source) {
         //NeptusLog.pub().warn("[" +
         //        source + "]fireChangeEvent Panel: " + true);
         Container parent = this.getParent();
@@ -586,19 +611,19 @@ implements PropertyChangeListener
         if (ci.isChecked())
             ci.setDateChecked(dateChangedLabel.getText());
         ci.setNote(noteTextArea.getText());
-        
+
         Component[] list = getActionsListPanelHolder().getComponents();
         //NeptusLog.pub().info("<###>num de elem: "+list.length);
         for(Component c : list) {
-        	//NeptusLog.pub().info("<###>antes de tentar");
-        	try {			
-        		//NeptusLog.pub().info("<###> "+c);
-        		ci.addAutoSubItem( ((CheckSubItem) c).getCheckAutoSubItem());
-        		//NeptusLog.pub().info("<###>adicionou");
-        	}
-        	catch (Exception e2) {
-        		//e2.printStackTrace();
-        	}
+            //NeptusLog.pub().info("<###>antes de tentar");
+            try {			
+                //NeptusLog.pub().info("<###> "+c);
+                ci.addAutoSubItem( ((CheckSubItem) c).getCheckAutoSubItem());
+                //NeptusLog.pub().info("<###>adicionou");
+            }
+            catch (Exception e2) {
+                //e2.printStackTrace();
+            }
         }
         return ci;
     }

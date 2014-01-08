@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -77,7 +77,7 @@ public class ReferenceWaypoint implements ConfigurationListener {
     @NeptusProperty(name="Loiter", category="Loiter")
     public boolean loiter = false;
     
-    @NeptusProperty(name="Time (seconds)", description="Time to stay at this location", category="Time")
+    @NeptusProperty(name="Time (seconds)", description="Time to stay at this location. -1 for infinity.", category="Time")
     public double time = 0;
     
     private double startTime = Double.NaN;
