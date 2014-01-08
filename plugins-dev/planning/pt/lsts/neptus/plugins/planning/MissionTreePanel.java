@@ -754,6 +754,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     ArrayList<NameId> synAndUnsyncPlans = new ArrayList<NameId>();
                     ArrayList<NameId> remotePlans = new ArrayList<NameId>();
                     State syncState;
+                    // Separate remote plans and local ones to give appropriated options to each
                     for (ExtendedTreeNode extendedTreeNode : selectedNodes) {
                         syncState = (State) extendedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
                         if (syncState != null) {
@@ -780,44 +781,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                         addActionRemovePlanRemotely(console, pdbControl, remotePlans, popupMenu);
                     }
                     break;
-
-                // case Plan:
-                // popupMenu.addSeparator();
-                // addActionSendPlan(console, pdbControl, selectedItems, popupMenu);
-                // addActionRemovePlanLocally(console, selectedItems, popupMenu);
-                // ArrayList<NameId> synAndUnsyncPlans = new ArrayList<NameId>();
-                // State syncState;
-                // for (ExtendedTreeNode extendedTreeNode : selectedNodes) {
-                // syncState = (State) extendedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
-                // if (syncState != null && (syncState == State.SYNC || syncState == State.NOT_SYNC)) {
-                // synAndUnsyncPlans.add((NameId) extendedTreeNode.getUserObject());
-                // }
-                // }
-                // if (synAndUnsyncPlans.size()>0) {
-                // addActionRemovePlanRemotely(console, pdbControl, synAndUnsyncPlans, popupMenu);
-                // addActionGetRemotePlan(console, pdbControl, synAndUnsyncPlans, popupMenu);
-                // }
-                // addActionShare(selectedItems, dissemination);
-                // // addActionChangePlanVehicles(selection, popupMenu); // Uncomment when multiple vehicles needs this
-                // ActionItem actionItem;
-                // for (int a = 0; a < extraPlanActions.size(); a++) {
-                // actionItem = extraPlanActions.get(a);
-                // popupMenu.add(I18n.text(actionItem.label)).addActionListener(actionItem.action);
-                // }
-                // break;
-                // case RemotePlan:
-                // ArrayList<NameId> remotePlans = new ArrayList<NameId>();
-                // for (ExtendedTreeNode extendedTreeNode : selectedNodes) {
-                // syncState = (State) extendedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
-                // if (syncState != null && (syncState == State.REMOTE)) {
-                // remotePlans.add((NameId) extendedTreeNode.getUserObject());
-                // }
-                // }
-                // if (remotePlans.size() > 0) {
-                // addActionGetRemotePlan(console, pdbControl, remotePlans, popupMenu);
-                // addActionRemovePlanRemotely(console, pdbControl, remotePlans, popupMenu);
-                // }
-                // break;
                 case Transponder:
                     if(selectedItems.size() == 1)
                         addActionEditTrans((TransponderElement)selectedItems.get(0), popupMenu);
