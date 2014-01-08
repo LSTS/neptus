@@ -536,18 +536,22 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     public void addTreeListener(final ConsoleLayout console2) {
         elementTree.addTreeSelectionListener(new TreeSelectionListener() {
 
-            protected Object lastSelection = null;
+            // protected Object lastSelection = null;
 
             @Override
             public void valueChanged(TreeSelectionEvent e) {
-                if (e.isAddedPath()) {
-                    ExtendedTreeNode node = (ExtendedTreeNode) elementTree.getSelectionPath()
-                            .getLastPathComponent();
-
-                    if (node.getUserObject() == lastSelection)
+                // if (e.isAddedPath()) {
+                    TreePath selPath = elementTree.getSelectionPath();
+                    if(selPath == null){
+                        NeptusLog.pub().error("Check this out, should not happen outside debug with break points in Mission Tree related classes.");
                         return;
+                    }
+                    ExtendedTreeNode node = (ExtendedTreeNode) selPath.getLastPathComponent();
 
-                    lastSelection = node.getUserObject();
+                // if (node.getUserObject() == lastSelection)
+                // return;
+
+                // lastSelection = node.getUserObject();
 
                     if (node.getUserObject() instanceof PlanType) {
                         PlanType selectedPlan = (PlanType) node.getUserObject();
@@ -556,9 +560,11 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     }
                     else if (console2 != null) {
                         console2.setPlan(null);
+                        NeptusLog.pub().error("Setting selected plan as null");
                     }
-                }
+                // }
             }
+
         });
     }
 
@@ -569,18 +575,28 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
         ExtendedTreeNode planNode = null;
         TreePath selPath;
+        NameId tmpPlan;
         ChildIterator planIt = treeModel.getIterator(ParentNodes.PLANS);
         try {
-            for (planNode = planIt.next(); planIt.hasNext(); planNode = planIt.next()) {
-                PlanType tmpPlan = (PlanType) planNode.getUserObject();
+            while (planIt.hasNext()) {
+                planNode = planIt.next();
+                tmpPlan = (NameId) planNode.getUserObject();
                 if (tmpPlan.getIdentification().equals(plan.getIdentification())) {
                     // planNode.setUserObject(plan);
                     // setNodeSyncState(planNode, State.SYNC);
                     break;
                 }
             }
+            // for (planNode = planIt.next(); planIt.hasNext(); planNode = planIt.next()) {
+            // NameId tmpPlan = (NameId) planNode.getUserObject();
+            // if (tmpPlan.getIdentification().equals(plan.getIdentification())) {
+            // // planNode.setUserObject(plan);
+            // // setNodeSyncState(planNode, State.SYNC);
+            // break;
+            // }
+            // }
             if (planNode == null) {
-                System.out.println("hasNext:" + planIt.hasNext());
+                // System.out.println("hasNext:" + planIt.hasNext());
                 NeptusLog.pub().error(
                         "Cannot find a plan with id " + plan.getIdentification() + ". It was not set as selected.");
                 return;
@@ -756,7 +772,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                         // Not sync
                         // set state
                         setNodeSyncState(tempNode, State.NOT_SYNC);
-                        System.out.println(" >> Not Sync.");
+                        // System.out.println(" >> Not Sync.");
                     }
                     // set id
                     tempTrans.setDuneId(id);
@@ -796,12 +812,12 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             tempTrans = (TransponderElement) tempNode.getUserObject();
             String tempId = tempTrans.getIdentification();
             if (idMap.containsKey(tempId)) {
-                System.out.print(tempId + ", ");
+                // System.out.print(tempId + ", ");
                 ((TransponderElement) tempNode.getUserObject()).setDuneId((short) -1);
                 idMap.remove(tempId);
             }
         }
-        System.out.println();
+        // System.out.println();
         return existing;
     }
 
@@ -1159,7 +1175,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 break;
             case LOCAL:
                 // Invalid
-                NeptusLog.pub().error("Invalid removal of local plan");
+                NeptusLog.pub()
+                        .error("Invalid removal of local plan, this is ok if it is triggered by duplicate sending of plan deletion.");
                 break;
             default:
                 NeptusLog.pub().error("Invalid local removal of plan with unkown state");
@@ -1230,7 +1247,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 //        }
             // for (; transIt.hasNext(); transNode = transIt.next()) {
             TransponderElement t = (TransponderElement)transNode.getUserObject();
-            System.out.println(t.getName() + " ");
+            // System.out.println(t.getName() + " ");
             trans.add(t);
         }
         return trans;

@@ -49,6 +49,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -74,7 +75,6 @@ import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -104,7 +104,6 @@ import pt.lsts.neptus.plugins.planning.plandb.PlanDBInfo;
 import pt.lsts.neptus.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.NameId;
-import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.HomeReferenceElement;
 import pt.lsts.neptus.types.map.MapGroup;
@@ -176,7 +175,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             }
             browser.updatePlansStateEDT(localPlans, getMainVehicleId());
             browser.setSelectedNodes(selectedNodes);
-            // System.out.println("dbInfoUpdated");
+            System.out.println("dbInfoUpdated");
         }
 
         @Override
@@ -268,9 +267,9 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         browser.addMouseAdapter(mouseAdapter);
     }
 
-    public void addPlanMenuItem(ActionItem item) {
-        mouseAdapter.addPlanMenuItem(item);
-    }
+    // public void addPlanMenuItem(ActionItem item) {
+    // mouseAdapter.addPlanMenuItem(item);
+    // }
 
     public boolean removePlanMenuItem(String label) {
         return mouseAdapter.removePlanMenuItem(label);
@@ -591,16 +590,17 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     class MissionTreeMouse extends MouseAdapter {
         private Container popupMenu;
-        private final Vector<ActionItem> extraPlanActions = new Vector<ActionItem>();
 
-        /**
-         * Item to be added to the menu in case selected item is a local plan.
-         * 
-         * @param item
-         */
-        public void addPlanMenuItem(ActionItem item) {
-            extraPlanActions.add(item);
-        }
+        // private final Vector<ActionItem> extraPlanActions = new Vector<ActionItem>();
+
+        // /**
+        // * Item to be added to the menu in case selected item is a local plan.
+        // *
+        // * @param item
+        // */
+        // public void addPlanMenuItem(ActionItem item) {
+        // extraPlanActions.add(item);
+        // }
 
         /**
          * 
@@ -624,8 +624,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
         private void addActionSendPlan(final ConsoleLayout console2, final PlanDBControl pdbControl,
                 final ArrayList<NameId> selectedItems, JPopupMenu popupMenu) {
-            StringBuilder planNames = getItemsInString(selectedItems);
-            popupMenu.add(I18n.textf("Send '%planName' to %system", planNames.toString(), console2.getMainSystem()))
+            popupMenu.add(I18n.textf("Send %planName to %system", getItemsInString(selectedItems), console2.getMainSystem()))
                     .addActionListener(
 
                     new ActionListener() {
@@ -646,12 +645,41 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
         private <T extends NameId> StringBuilder getItemsInString(final ArrayList<T> selectedItems) {
             StringBuilder planNames = new StringBuilder();
-            for (NameId nameId : selectedItems) {
-                planNames.append(nameId.getDisplayName());
-                planNames.append(" ");
+            Iterator<T> it = selectedItems.iterator();
+            if (!it.hasNext())
+                return planNames;
+            for (;;) {
+                T e = it.next();
+                planNames.append(e.getDisplayName());
+                if (!it.hasNext())
+                    return planNames;
+                planNames.append(',').append(' ');
             }
-            return planNames;
+
+            // StringBuilder planNames = new StringBuilder();
+            // for (NameId nameId : selectedItems) {
+            // planNames.append(nameId.getDisplayName());
+            // planNames.append(" ");
+            // }
+            // return planNames;
         }
+
+        // @Override
+        // public String toString() {
+        // Iterator<E> it = iterator();
+        // if (!it.hasNext())
+        // return "[]";
+        //
+        // StringBuilder sb = new StringBuilder();
+        // sb.append('[');
+        // for (;;) {
+        // E e = it.next();
+        // sb.append(e == this ? "(this Collection)" : e);
+        // if (!it.hasNext())
+        // return sb.append(']').toString();
+        // sb.append(',').append(' ');
+        // }
+        // }
 
         /**
          * @param console2
@@ -660,15 +688,14 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
          */
         private void addActionRemovePlanLocally(final ConsoleLayout console2, final ArrayList<NameId> selectedItems,
                 JPopupMenu popupMenu) {
-
             final StringBuilder itemsInString = getItemsInString(selectedItems);
-            popupMenu.add(I18n.textf("Delete '%planName' locally", itemsInString)).addActionListener(
+            popupMenu.add(I18n.textf("Delete %planName locally", itemsInString)).addActionListener(
                     new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             // if (selection != null) {
                             int resp = JOptionPane.showConfirmDialog(console2,
-                                    I18n.textf("Remove '%planName' from mission?", itemsInString));
+                                    I18n.textf("Remove %planName from mission?", itemsInString));
                             if (resp == JOptionPane.YES_OPTION) {
                                 for (NameId nameId : selectedItems) {
                                     console2.getMission().getIndividualPlansList().remove(nameId.getIdentification());
@@ -686,7 +713,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         private void addActionGetRemotePlan(final ConsoleLayout console2, final PlanDBControl pdbControl,
                 final ArrayList<NameId> remotePlans, JPopupMenu popupMenu) {
             StringBuilder itemsInString = getItemsInString(remotePlans);
-            popupMenu.add(I18n.textf("Get '%planName' from %system", itemsInString, console2.getMainSystem()))
+            popupMenu.add(I18n.textf("Get %planName from %system", itemsInString, console2.getMainSystem()))
                     .addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -702,8 +729,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
         private void addActionRemovePlanRemotely(final ConsoleLayout console2, final PlanDBControl pdbControl,
                 final ArrayList<NameId> synAndUnsyncPlans, JPopupMenu popupMenu) {
-            getItemsInString(synAndUnsyncPlans);
-            popupMenu.add(I18n.textf("Remove '%planName' from %system", synAndUnsyncPlans, console2.getMainSystem()))
+            popupMenu.add(I18n.textf("Remove '%planName' from %system", getItemsInString(synAndUnsyncPlans), console2.getMainSystem()))
                 .addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -718,19 +744,19 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             });
         }
 
-        private void addActionShare(final ArrayList<NameId> selectedItems, JMenu dissemination,
-                final String objectTypeName) {
-            StringBuilder itemsInString = getItemsInString(selectedItems);
-            dissemination.add(I18n.textf("Share '%transponderName'", itemsInString)).addActionListener(
-                    new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            for (NameId nameId : selectedItems) {
-                                ImcMsgManager.disseminate((XmlOutputMethods) nameId, objectTypeName);
-                            }
-                        }
-                    });
-        }
+        // private void addActionShare(final ArrayList<NameId> selectedItems, JMenu dissemination,
+        // final String objectTypeName) {
+        // StringBuilder itemsInString = getItemsInString(selectedItems);
+        // dissemination.add(I18n.textf("Share '%transponderName'", itemsInString)).addActionListener(
+        // new ActionListener() {
+        // @Override
+        // public void actionPerformed(ActionEvent e) {
+        // for (NameId nameId : selectedItems) {
+        // ImcMsgManager.disseminate((XmlOutputMethods) nameId, objectTypeName);
+        // }
+        // }
+        // });
+        // }
 
 
 
@@ -741,45 +767,84 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             ArrayList<NameId> selectedItems = browser.getSelectedItems();
             ArrayList<ExtendedTreeNode> selectedNodes = browser.getSelectedNodes();
             JPopupMenu popupMenu = new JPopupMenu();
-            JMenu dissemination = new JMenu(I18n.text("Dissemination"));
-            if (Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null) != null) {
-                addActionPasteUrl(dissemination);
-                dissemination.addSeparator();
-            }
-                addActionAddNewTrans(popupMenu);
+            // JMenu dissemination = new JMenu(I18n.text("Dissemination"));
+            addActionAddNewTrans(popupMenu);
+            ArrayList<NameId> toShare = new ArrayList<NameId>();
             ItemTypes selecType = findSelecType(selectedItems);
             switch (selecType) {
                 case Plans:
                     popupMenu.addSeparator();
-                    ArrayList<NameId> synAndUnsyncPlans = new ArrayList<NameId>();
-                    ArrayList<NameId> remotePlans = new ArrayList<NameId>();
+                    // ArrayList<NameId> synAndUnsyncPlans = new ArrayList<NameId>();
+                    // ArrayList<NameId> remotePlans = new ArrayList<NameId>();
+                    // New
+                    ArrayList<NameId> toRemoveLocally = new ArrayList<NameId>();
+                    ArrayList<NameId> toRemoveRemotely = new ArrayList<NameId>();
+                    ArrayList<NameId> toGetPlan = new ArrayList<NameId>();
+                    ArrayList<NameId> toSend = new ArrayList<NameId>();
+
                     State syncState;
-                    // Separate remote plans and local ones to give appropriated options to each
+                    // Separate plans by state to give appropriated options to each
+                    // addActionChangePlanVehicles(selection, popupMenu); // add appropriatly when multivehicles are
+                    // needed
                     for (ExtendedTreeNode extendedTreeNode : selectedNodes) {
                         syncState = (State) extendedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
                         if (syncState != null) {
-                            if (syncState == State.REMOTE)
-                                remotePlans.add((NameId) extendedTreeNode.getUserObject());
-                            else
-                                synAndUnsyncPlans.add((NameId) extendedTreeNode.getUserObject());
+                            switch (syncState) {
+                                case REMOTE:
+                                    toRemoveRemotely.add((NameId) extendedTreeNode.getUserObject());
+                                    toGetPlan.add((NameId) extendedTreeNode.getUserObject());
+                                    break;
+                                case SYNC:
+                                    toRemoveRemotely.add((NameId) extendedTreeNode.getUserObject());
+                                    toRemoveLocally.add((NameId) extendedTreeNode.getUserObject());
+                                    toShare.add((NameId) extendedTreeNode.getUserObject());
+                                    break;
+                                case NOT_SYNC:
+                                    toRemoveRemotely.add((NameId) extendedTreeNode.getUserObject());
+                                    toRemoveLocally.add((NameId) extendedTreeNode.getUserObject());
+                                    toSend.add((NameId) extendedTreeNode.getUserObject());
+                                    toGetPlan.add((NameId) extendedTreeNode.getUserObject());
+                                    toShare.add((NameId) extendedTreeNode.getUserObject());
+                                    break;
+                                case LOCAL:
+                                    toRemoveLocally.add((NameId) extendedTreeNode.getUserObject());
+                                    toSend.add((NameId) extendedTreeNode.getUserObject());
+                                    break;
+                            }
+                            // if (syncState == State.REMOTE)
+                            // remotePlans.add((NameId) extendedTreeNode.getUserObject());
+                            // else
+                            // synAndUnsyncPlans.add((NameId) extendedTreeNode.getUserObject());
+                        }
+                        else{
+                            NeptusLog.pub().error("The plan "+extendedTreeNode+" has no state.");
                         }
                     }
-                    if (synAndUnsyncPlans.size()>0) {
-                        addActionRemovePlanRemotely(console, pdbControl, synAndUnsyncPlans, popupMenu);
-                        addActionGetRemotePlan(console, pdbControl, synAndUnsyncPlans, popupMenu);
-                        addActionShare(selectedItems, dissemination);
-                        // addActionChangePlanVehicles(selection, popupMenu); // Uncomment when multiple vehicles needs
-                        // this
-                        ActionItem actionItem;
-                        for (int a = 0; a < extraPlanActions.size(); a++) {
-                            actionItem = extraPlanActions.get(a);
-                            popupMenu.add(I18n.text(actionItem.label)).addActionListener(actionItem.action);
-                        }
-                    }
-                    if (remotePlans.size() > 0) {
-                        addActionGetRemotePlan(console, pdbControl, remotePlans, popupMenu);
-                        addActionRemovePlanRemotely(console, pdbControl, remotePlans, popupMenu);
-                    }
+                    if (toRemoveRemotely.size() > 0)
+                        addActionRemovePlanRemotely(console, pdbControl, toRemoveRemotely, popupMenu);
+                    if (toRemoveLocally.size() > 0)
+                        addActionRemovePlanLocally(console, toRemoveLocally, popupMenu);
+                    if (toSend.size() > 0)
+                        addActionSendPlan(console, pdbControl, toSend, popupMenu);
+                    if (toGetPlan.size() > 0)
+                        addActionGetRemotePlan(console, pdbControl, toGetPlan, popupMenu);
+
+                    // if (synAndUnsyncPlans.size()>0) {
+                    // addActionRemovePlanRemotely(console, pdbControl, synAndUnsyncPlans, popupMenu);
+                    // addActionGetRemotePlan(console, pdbControl, synAndUnsyncPlans, popupMenu);
+                    // addActionShare(selectedItems, dissemination);
+                    // // addActionChangePlanVehicles(selection, popupMenu); // Uncomment when multiple vehicles needs
+                    // // this
+                    // // ActionItem actionItem;
+                    // // for (int a = 0; a < extraPlanActions.size(); a++) {
+                    // // actionItem = extraPlanActions.get(a);
+                    // // popupMenu.add(I18n.text(actionItem.label)).addActionListener(actionItem.action);
+                    // // }
+                    // }
+                    // if (remotePlans.size() > 0) {
+                    // addActionGetRemotePlan(console, pdbControl, remotePlans, popupMenu);
+                    // addActionRemovePlanRemotely(console, pdbControl, remotePlans, popupMenu);
+                    // }
                     break;
                 case Transponder:
                     if(selectedItems.size() == 1)
@@ -788,6 +853,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     State state;
                     for (ExtendedTreeNode extendedTreeNode : selectedNodes) {
                         state = (State) extendedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
+                        // addActionShare(selectedItems, dissemination, "Transponder");
+                        toShare.add((NameId) extendedTreeNode.getUserObject());
                         if(state==State.LOCAL)
                             localTrans.add((TransponderElement) extendedTreeNode.getUserObject());
                     }
@@ -810,7 +877,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                         }
                         popupMenu.add(switchM);
                     }
-                    addActionShare(selectedItems, dissemination, "Transponder");
                     break;
                 case HomeRef:
                     addActionEditHomeRef(selectedItems.get(0), popupMenu);
@@ -822,8 +888,13 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     break;
             }
             popupMenu.addSeparator();
+            if (toShare.size() > 0)
+                addActionShare(toShare, popupMenu);
+            // popupMenu.add(dissemination);
+            if (Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null) != null) {
+                addActionPasteUrl(popupMenu);
+            }
             addActionReloadPanel(popupMenu);
-            popupMenu.add(dissemination);
             popupMenu.show((Component) e.getSource(), e.getX(), e.getY());
         }
 
@@ -920,7 +991,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         private void addActionSwitchTrans(final TransponderElement selection, JMenu popupMenu,
                 final TransponderElement tel) {
             popupMenu.add(
-                    I18n.textf("Switch '%transponderName1' with '%transponderName2'", selection.getDisplayName(),
+                    I18n.textf("Switch %transponderName1 with %transponderName2", selection.getDisplayName(),
                             tel.getDisplayName()))
                     .addActionListener(new ActionListener() {
                         @Override
@@ -938,7 +1009,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
         private void addActionRemoveTrans(final ArrayList<TransponderElement> selectedTrans, JPopupMenu popupMenu) {
             StringBuilder itemsInString = getItemsInString(selectedTrans);
-            popupMenu.add(I18n.textf("Remove '%transponderName'", itemsInString)).addActionListener(
+            popupMenu.add(I18n.textf("Remove %transponderName", itemsInString)).addActionListener(
                     new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -950,7 +1021,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         }
 
         private void addActionEditTrans(final TransponderElement selection, JPopupMenu popupMenu) {
-            popupMenu.add(I18n.textf("View/Edit '%transponderName'", selection.getDisplayName())).addActionListener(
+            popupMenu.add(I18n.textf("View/Edit %transponderName", selection.getDisplayName())).addActionListener(
                     new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -980,9 +1051,9 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         // });
         // }
 
-        private void addActionShare(final ArrayList<NameId> selectedItems, JMenu dissemination) {
+        private void addActionShare(final ArrayList<NameId> selectedItems, JPopupMenu popupMenu2) {
             StringBuilder itemsInString = getItemsInString(selectedItems);
-            dissemination.add(I18n.textf("Share '%planName'", itemsInString)).addActionListener(new ActionListener() {
+            popupMenu2.add(I18n.textf("Share %planName", itemsInString)).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     // disseminate((XmlOutputMethods) selection, "Plan");
@@ -1002,8 +1073,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             });
         }
 
-        private void addActionPasteUrl(JMenu dissemination) {
-            dissemination.add(I18n.text("Paste URL")).addActionListener(new ActionListener() {
+        private void addActionPasteUrl(JPopupMenu popupMenu2) {
+            popupMenu2.add(I18n.text("Paste URL")).addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
