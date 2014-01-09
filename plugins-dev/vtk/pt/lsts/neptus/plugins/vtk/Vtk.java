@@ -59,7 +59,6 @@ import pt.lsts.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
-import pt.lsts.neptus.plugins.vtk.utils.PointCloudUtils;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
 import pt.lsts.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
@@ -190,14 +189,15 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 canvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
                 // set Up scalar Bar look up table
                 winCanvas.getInteractorStyle().getScalarBar()
-                        .setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
+                .setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
                 canvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
 
                 // set up camera to +z viewpoint looking down
-                double[] center = new double[3];
-                center = PointCloudUtils.computeCenter(pointCloud);
-                canvas.GetRenderer().GetActiveCamera().SetPosition(center[0], center[1], center[2] - 200);
-                canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+                //double[] center = new double[3];
+                //center = PointCloudUtils.computeCenter(pointCloud);
+                //canvas.GetRenderer().GetActiveCamera().SetPosition(center[0], center[1], center[2] - 200);
+                //canvas.GetRenderer().GetActiveCamera().SetPosition(0, 0, 0 - 200);
+                //canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
             }
             else { // if no beams were parsed
                 String msgErrorMultibeam;

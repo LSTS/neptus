@@ -194,7 +194,7 @@
 	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/vtk.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Program Files/VTK/bin"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/usr/lib/jni"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="build/classes"/>

@@ -32,7 +32,6 @@
 package pt.lsts.neptus.plugins.vtk.pointcloud;
 
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
-import pt.lsts.neptus.plugins.vtk.utils.PointCloudUtils;
 import vtk.vtkLODActor;
 import vtk.vtkPoints;
 import vtk.vtkPolyData;
@@ -82,16 +81,17 @@ public class PointCloud<T extends PointXYZ> {
             getPoints().Modified();
             getPoly().Allocate(getNumberOfPoints(), getNumberOfPoints());
             getPoly().SetPoints(getPoints());
-            
+
             vtkVertexGlyphFilter vertex = new vtkVertexGlyphFilter();
             vertex.AddInput(poly);
             vertex.Update();
-            
+
             getPoly().ShallowCopy(vertex.GetOutput());
             getPoly().Squeeze();
             getPoly().Update();
 
-            setBounds(PointCloudUtils.computeBounds(getPoints()));
+            //setBounds(PointCloudUtils.computeBounds(getPoints()));
+            setBounds(getPoly().GetBounds());
             getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds);
             getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
 
@@ -148,13 +148,14 @@ public class PointCloud<T extends PointXYZ> {
     // }
     // }
 
+    @Override
     public String toString() {
         String info = "Class PointCloud:\n";
         info += getPoints().Print();
         info += getPoly().Print();
         return info;
     }
-    
+
     /**
      * @return the cloudName
      */
