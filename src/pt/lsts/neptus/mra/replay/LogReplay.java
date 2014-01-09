@@ -35,6 +35,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Timer;
@@ -68,12 +69,14 @@ import pt.lsts.neptus.mra.plots.ReplayPlot;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.multibeam.MultibeamReplay;
 import pt.lsts.neptus.plugins.oplimits.OperationLimits;
+import pt.lsts.neptus.renderer2d.ImageLayer;
 import pt.lsts.neptus.renderer2d.MissionRenderer;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LsfTree;
@@ -213,6 +216,8 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
                     }
                 }
             }
+            
+            
 
             replayParsers.put("EstimatedState", parser);
             Thread t = new Thread("Replay updater") {
@@ -227,6 +232,22 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
                         }
                         catch (Exception e) {
                             e.printStackTrace();
+                        }
+                    }
+                    
+                    File dir = source.getFile("mra");
+                    File[] files = dir.listFiles();
+                    for (File f : files) {
+                        if (FileUtil.getFileExtension(f).equals("layer")) {
+                            try {
+                                ImageLayer layer = ImageLayer.read(f);
+                                renderer.getRenderer2d().addPostRenderPainter(layer, layer.getName());
+                                renderer.getRenderer2d().setPainterActive(layer.getName(), false);
+                                renderer.getRenderer2d().repaint();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                     renderer.getRenderer2d().repaint();                                        
