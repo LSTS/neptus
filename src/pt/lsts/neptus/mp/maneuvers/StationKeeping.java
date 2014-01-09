@@ -61,9 +61,10 @@ import com.l2fprod.common.propertysheet.Property;
 public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSerialization, StatisticsProvider {
 
 	public static final int INFINITY_DURATION = -1;
+	public static final double MINIMUM_SK_RADIUS = 20;
 	
 	private int duration = 60;
-	private double radius = 15, speed = 30;
+	private double radius = MINIMUM_SK_RADIUS, speed = 30;
 	private String speedUnits = "m/s";
 	private ManeuverLocation location = new ManeuverLocation();	 
 	
@@ -181,6 +182,9 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 	protected Vector<DefaultProperty> additionalProperties() {
 		Vector<DefaultProperty> props = new Vector<DefaultProperty>();
 		
+		if (radius < MINIMUM_SK_RADIUS)
+		    radius = MINIMUM_SK_RADIUS;
+		
 		DefaultProperty duration = PropertiesEditor.getPropertyInstance("Duration", Integer.class, this.duration, true);
 		duration.setShortDescription("The Station Keeping's duration, in seconds (0 means +Infinity)");		
 		props.add(duration);
@@ -196,7 +200,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 		props.add(speedUnits);
 		
 		DefaultProperty radius = PropertiesEditor.getPropertyInstance("Radius", Double.class, this.radius, true);
-		radius.setShortDescription("Sets the radius of the trajectory");
+		radius.setShortDescription("Radius of the Station Keeping circle. Lower values default to "+MINIMUM_SK_RADIUS+" meters.");
 		props.add(radius);
 		
 		return props;
@@ -224,7 +228,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 			}
 			
 			if (p.getName().equals("Radius")) {
-				setRadius((Double)p.getValue());
+				setRadius(Math.max(MINIMUM_SK_RADIUS, (Double)p.getValue()));
 				continue;
 			}
 		}
@@ -255,7 +259,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 	}
 
 	public void setRadius(double radius) {
-		this.radius = radius;
+		this.radius = Math.max(MINIMUM_SK_RADIUS, radius);
 	}
 
 	public double getSpeed() {
@@ -293,7 +297,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
     	// x marks the spot...
 		g2d.drawLine(-4, -4, 4, 4);
 		g2d.drawLine(-4, 4, 4, -4);
-    	double radius = this.getRadius() * renderer.getZoom();
+    	double radius = Math.max(MINIMUM_SK_RADIUS, this.getRadius()) * renderer.getZoom();
 		g2d.setColor(new Color(255,255,255,100));
 		g2d.fill(new Ellipse2D.Double(-radius,-radius,radius*2, radius*2));
 		g2d.setColor(Color.blue.darker());
