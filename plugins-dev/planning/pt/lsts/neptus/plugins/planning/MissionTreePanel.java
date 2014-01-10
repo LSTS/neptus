@@ -404,7 +404,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
     }
 
     /**
-     * Ask vehicle for configurations of vehicles in use.
+     * Ask vehicle for configurations of vehicles in use just by WiFi.
      */
     private void askForBeaconConfig() {
         SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
@@ -415,7 +415,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
                     IMCSendMessageUtils.sendMessage(msgLBLConfiguration,
                             I18n.text("Could not ask " + getMainVehicleId() + " for it's accoustic beacons."),
-                            getMainVehicleId());
+                            true, getMainVehicleId());
                 }
                 catch (Exception e) {
                     e.printStackTrace();
