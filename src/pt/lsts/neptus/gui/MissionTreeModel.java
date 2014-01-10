@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.gui;
 
+import java.text.Collator;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -210,10 +211,11 @@ public class MissionTreeModel extends DefaultTreeModel {
         int nodeChildCount = getChildCount(parent);
         ExtendedTreeNode childAt;
         NameId temp;
+        Collator collator = Collator.getInstance();
         for (int c = 0; c < nodeChildCount; c++) {
             childAt = (ExtendedTreeNode) parent.getChildAt(c);
             temp = (NameId) childAt.getUserObject();
-            if (temp.getDisplayName().compareToIgnoreCase(missionElem.getDisplayName()) > 0) {
+            if (collator.compare(temp.getDisplayName(), missionElem.getDisplayName()) > 0) {
                 addToParents(newNode, parentType, c);
                 return true;
             }
