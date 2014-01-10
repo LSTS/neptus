@@ -113,11 +113,17 @@ public class KMLExporter implements MRAExporter {
     public double swathLength = 1.0;
 
     @NeptusProperty
-    public double swathTransparency = 0.8;
+    public double swathTransparency = 0.25;
 
     @NeptusProperty
     public double layerTransparency = 0.5;
-
+    
+    @NeptusProperty
+    public boolean separate_transducers = false;
+    
+    @NeptusProperty
+    public boolean filterOutNadir = true;
+    
     public KMLExporter(IMraLogGroup source) {
         this.source = source;        
 
@@ -254,8 +260,14 @@ public class KMLExporter implements MRAExporter {
         }
 
     }
+    
+    enum Ducer {
+        starboard,
+        board,
+        both
+    }
 
-    public String sidescanOverlay(File dir, double resolution, LocationType topLeft, LocationType bottomRight) {
+    public String sidescanOverlay(File dir, double resolution, LocationType topLeft, LocationType bottomRight, Ducer ducer) {
         SidescanParser ssParser = SidescanParserFactory.build(source);
 
         //FIXME temporary fix
@@ -292,7 +304,8 @@ public class KMLExporter implements MRAExporter {
         long end = ssParser.lastPingTimestamp();
         int sys = ssParser.getSubsystemList().get(0);
         SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
-
+        String filename = "sidescan";
+        
         BufferedImage swath = null;
         ColorMap cmap = ColorMapFactory.createBronzeColormap();
         for (long time = start; time < end - 1000; time += 1000) {
@@ -311,8 +324,8 @@ public class KMLExporter implements MRAExporter {
                 int widthPixels = (int)(sl.range * resolution * 2);
 
                 // Calculate nadir pixel range to be zero-alpha (transparent)
-                int nadirStartPixel = (int) ((widthPixels / 2) - (sl.state.getAltitude() * resolution));
-                int nadirFinalPixel = (int) ((widthPixels / 2) + (sl.state.getAltitude() * resolution));
+                int nadirStartPixel = (int) ((widthPixels / 2) - (sl.state.getAltitude() * resolution * 1.25));
+                int nadirFinalPixel = (int) ((widthPixels / 2) + (sl.state.getAltitude() * resolution * 1.25));
 
                 if (swath == null || swath.getWidth() != widthPixels)
                     swath = new BufferedImage(widthPixels, 3, BufferedImage.TYPE_INT_ARGB);
@@ -326,17 +339,37 @@ public class KMLExporter implements MRAExporter {
                 double sum = 0;
                 int count = 0;
 
-                for (int i = 0; i < sl.data.length; i++) {
+                int startPixel, endPixel;
+                
+                switch (ducer) {
+                    case board:
+                        startPixel = 0;
+                        endPixel = sl.data.length/2;
+                        filename = "sidescan_board";
+                        break;
+                    case starboard:
+                        startPixel = sl.data.length/2;
+                        endPixel = sl.data.length;
+                        filename = "sidescan_starboard";
+                        break;
+                    default:
+                        startPixel = 0;
+                        endPixel = sl.data.length;
+                        filename = "sidescan";
+                        break;
+                }
+                
+                for (int i = startPixel; i < endPixel; i++) {
                     if (i != 0 && i % samplesPerPixel == 0) {
                         int alpha = (int)(swathTransparency * 255);
-
-                        if(i / samplesPerPixel >= nadirStartPixel || i / samplesPerPixel <= nadirFinalPixel) {
-                            alpha = 0;
+                        double val = sum / count;
+                        
+                        if(filterOutNadir && (double)i / samplesPerPixel >= nadirStartPixel && (double)i / samplesPerPixel <= nadirFinalPixel) {
+                            alpha = (int)((1.0-val)*(1.0-val) *255);
                         }
 
-                        double val = sum / count;
                         if ((i/samplesPerPixel-1)<widthPixels)
-                            swath.setRGB(i/samplesPerPixel-1, 0, cmap.getColor(val).getRGB() | (alpha << 24));
+                            swath.setRGB(i/samplesPerPixel-1, 0, cmap.getColor(val).getRGB() ^ ((alpha&0xFF)<<24));
                         sum = count = 0;
                     }
                     else {
@@ -368,13 +401,13 @@ public class KMLExporter implements MRAExporter {
 
         frm.setVisible(false);
         frm.dispose();
-
+        
         try {
-            ImageIO.write(img, "PNG", new File(dir, "sidescan.png"));
+            ImageIO.write(img, "PNG", new File(dir, filename+".png"));
             ImageLayer il = new ImageLayer("Sidescan mosaic from "+source.name(), img, topLeft, bottomRight);
             il.setTransparency(layerTransparency);
-            il.saveToFile(new File(dir.getParentFile(), "sidescan.layer"));
-            return overlay(new File(dir, "sidescan.png"), "Sidescan mosaic", 
+            il.saveToFile(new File(dir.getParentFile(), filename+".layer"));
+            return overlay(new File(dir, filename+".png"), "Sidescan mosaic", 
                     new LocationType(bottomRight.getLatitudeAsDoubleValue(), topLeft.getLongitudeAsDoubleValue()),
                     new LocationType(topLeft.getLatitudeAsDoubleValue(), bottomRight.getLongitudeAsDoubleValue()));
         }
@@ -615,7 +648,12 @@ public class KMLExporter implements MRAExporter {
             topLeft.convertToAbsoluteLatLonDepth();
             bottomRight.convertToAbsoluteLatLonDepth();
 
-            bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight));
+            bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.both));
+            if (separate_transducers) {
+                bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.board));
+                bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.starboard));                
+            }
+            
 
             String mb = multibeamOverlay(out.getParentFile()); 
             if (!mb.isEmpty())
