@@ -57,6 +57,7 @@ import java.util.zip.GZIPInputStream;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -83,6 +84,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
+import pt.lsts.neptus.gui.AboutPanel;
 import pt.lsts.neptus.gui.BlockingGlassPane;
 import pt.lsts.neptus.gui.MissionFileChooser;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -676,7 +678,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                PropertiesEditor.editProperties(NeptusMRA.this, true);
+                PropertiesEditor.editProperties(NeptusMRA.this, NeptusMRA.this, true);
                 try {
                     PluginUtils.saveProperties("conf/mra.properties", NeptusMRA.this);
                 }
@@ -839,10 +841,25 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
             }
         });
 
+        JMenu help = new JMenu(I18n.text("Help"));
+        JMenuItem aboutMenuItem = new JMenuItem();
+        aboutMenuItem.setText(I18n.text("About"));
+        aboutMenuItem.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/info.png")));
+        aboutMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AboutPanel ap = new AboutPanel();
+                ap.setVisible(true);
+            }
+        });
+        help.add(aboutMenuItem);
+        
         menuBar.add(file);
         menuBar.add(report);
         menuBar.add(settings);
         menuBar.add(tools);
+        
+        menuBar.add(help);
 
         return menuBar;
     }
