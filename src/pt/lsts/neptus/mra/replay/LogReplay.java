@@ -132,7 +132,11 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
         this.tree = new LsfTree(this.source);
         for (String replay : PluginsRepository.getReplayLayers().keySet()) {
             try {
-                layers.add(PluginsRepository.getPlugin(replay, LogReplayLayer.class));
+                LogReplayLayer l = PluginsRepository.getPlugin(replay, LogReplayLayer.class); 
+                layers.add(l);
+                if (l instanceof LogMarkersReplay)
+                    markersReplay = (LogMarkersReplay)l;
+                
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
@@ -164,15 +168,7 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
             parser.firstLogEntry();
 
             loader.setText(I18n.text("Starting renderers"));
-            // if (NeptusMRA.show3D) {
-            // try {
-            // renderer = new MissionRenderer(mt, MissionRenderer.R2D_AND_R3D1CAM);
-            // }
-            // catch (Exception e) {
-            // renderer = new MissionRenderer(mt, MissionRenderer.R2D_ONLY);
-            // }
-            // }
-            // else
+
             renderer = new MissionRenderer(mt, MissionRenderer.R2D_ONLY);
             renderer.getRenderer2d().setWorldMapShown(true);
             renderer.getRenderer2d().setShowWorldMapOnScreenControls(true);
