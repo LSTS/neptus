@@ -73,6 +73,7 @@ import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
@@ -81,10 +82,13 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
+ * FIXME - To be removed? futher implementations?
+ * 
  * @author pdias
  * @author ZP
  */
 @SuppressWarnings("serial")
+@PluginDescription(name = "Statistics/Replay Msg", author = "pdias, ZP", icon = "images/menus/replay.png")
 public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionListener {
 
     private VehicleType vehicle = null;
@@ -115,11 +119,11 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
 
     private boolean cleanCalled = false;
     InfiniteProgressPanel loader;
-    
+
     public LLFMsgReplay(MRAPanel panel) {
         this.source = panel.getSource();
         this.loader = panel.getLoader();
-        
+
         setLayout(new BorderLayout());
     }
 
@@ -193,9 +197,9 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
             // infoPanel.add(durationTimeLabel);
             deltaTimeText = new JLabel(
                     DateTimeUtil
-                            .milliSecondsToFormatedString((long) ((estStateMinMaxTimesSeconds != null ? estStateMinMaxTimesSeconds[1]
-                                    .getTime() - estStateMinMaxTimesSeconds[0].getTime()
-                                    : (maxTimeFull - startTimeFull) * 1000.0))));
+                    .milliSecondsToFormatedString((long) ((estStateMinMaxTimesSeconds != null ? estStateMinMaxTimesSeconds[1]
+                            .getTime() - estStateMinMaxTimesSeconds[0].getTime()
+                            : (maxTimeFull - startTimeFull) * 1000.0))));
             // infoPanel.add(deltaTimeText);
 
             LinkedHashMap<String, String> genInfoHT = LogUtils.generateStatistics(source);
@@ -217,41 +221,41 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
                     .createParallelGroup(GroupLayout.Alignment.CENTER)
                     .addGroup(
                             layout.createSequentialGroup()
-                                    .addComponent(vehicleImg)
+                            .addComponent(vehicleImg)
+                            .addGroup(
+                                    layout.createSequentialGroup()
                                     .addGroup(
-                                            layout.createSequentialGroup()
-                                                    .addGroup(
-                                                            layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                                                                    .addComponent(idVehicleLabel)
-                                                                    .addComponent(startTimeLabel)
-                                                                    .addComponent(endTimeLabel)
-                                                                    .addComponent(durationTimeLabel))
-                                                    .addGroup(
-                                                            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                                                    .addComponent(idVehicleText)
-                                                                    .addComponent(startTimeText)
-                                                                    .addComponent(endTimeText)
-                                                                    .addComponent(deltaTimeText))))
-                    .addComponent(genInfoLabel));
+                                            layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                                            .addComponent(idVehicleLabel)
+                                            .addComponent(startTimeLabel)
+                                            .addComponent(endTimeLabel)
+                                            .addComponent(durationTimeLabel))
+                                            .addGroup(
+                                                    layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                                    .addComponent(idVehicleText)
+                                                    .addComponent(startTimeText)
+                                                    .addComponent(endTimeText)
+                                                    .addComponent(deltaTimeText))))
+                                                    .addComponent(genInfoLabel));
 
             layout.setVerticalGroup(layout
                     .createSequentialGroup()
                     .addGroup(
                             layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                    .addComponent(vehicleImg)
+                            .addComponent(vehicleImg)
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.CENTER)
                                     .addGroup(
-                                            layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                                                    .addGroup(
-                                                            layout.createSequentialGroup().addComponent(idVehicleLabel)
-                                                                    .addComponent(startTimeLabel)
-                                                                    .addComponent(endTimeLabel)
-                                                                    .addComponent(durationTimeLabel))
-                                                    .addGroup(
-                                                            layout.createSequentialGroup().addComponent(idVehicleText)
-                                                                    .addComponent(startTimeText)
-                                                                    .addComponent(endTimeText)
-                                                                    .addComponent(deltaTimeText))))
-                    .addComponent(genInfoLabel));
+                                            layout.createSequentialGroup().addComponent(idVehicleLabel)
+                                            .addComponent(startTimeLabel)
+                                            .addComponent(endTimeLabel)
+                                            .addComponent(durationTimeLabel))
+                                            .addGroup(
+                                                    layout.createSequentialGroup().addComponent(idVehicleText)
+                                                    .addComponent(startTimeText)
+                                                    .addComponent(endTimeText)
+                                                    .addComponent(deltaTimeText))))
+                                                    .addComponent(genInfoLabel));
 
             infoPanel.setLayout(new FlowLayout());
             infoPanel.add(holder);
@@ -274,8 +278,8 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
 
                 IMCMessage lastEntry = parser.getLastEntry();
                 double startTime = 0; // Now the time is absolute : firstEntry.getTimestamp();
-                double minTime = ((Double) firstEntry.getDouble("timestamp"));
-                double maxTime = ((Double) lastEntry.getDouble("timestamp"));
+                double minTime = (firstEntry.getDouble("timestamp"));
+                double maxTime = (lastEntry.getDouble("timestamp"));
                 if (startTime + minTime < minTimeFull) {
                     minTimeFull = startTime + minTime;
                     startTimeFull = minTime; // startTime;
@@ -291,7 +295,8 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
         }
 
         Date date = new Date(Double.valueOf(startTimeFull * 1000).longValue());
-        NeptusLog.pub().info("<###> "+date + " [" + (minTimeFull - startTimeFull) + ":" + (maxTimeFull - startTimeFull) + "]");
+        NeptusLog.pub().info(
+                "<###> " + date + " [" + (minTimeFull - startTimeFull) + ":" + (maxTimeFull - startTimeFull) + "]");
 
         minTime = minTimeFull - startTimeFull;
         maxTime = maxTimeFull - startTimeFull;
@@ -332,6 +337,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
 
         timeline.addChangeListener(new ChangeListener() {
 
+            @Override
             public void stateChanged(ChangeEvent e) {
 
                 // if (timeline.getValue() != (int) currentTime) {
@@ -341,8 +347,8 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
                     else {
                         currentTime = timeline.getValue() + minTime; // currentTime = timeline.getValue();
                         updateCurTimeLabelText(); // curTimeLbl.setText((int) (timeline.getValue()) + ".0 s (" + speed +
-                                                  // "x)"); //curTimeLbl.setText(timeline.getValue() + ".0 s (" + speed
-                                                  // + "x)");
+                        // "x)"); //curTimeLbl.setText(timeline.getValue() + ".0 s (" + speed
+                        // + "x)");
                     }
                 }
             }
@@ -380,7 +386,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
     public TimerTask buildReplayTask() {
         TimerTask tt = new TimerTask() {
             // LLFEntry entry = parser.nextLogEntry();
-            double lastTimeFull = (double) System.currentTimeMillis() / 1000.0;
+            double lastTimeFull = System.currentTimeMillis() / 1000.0;
             double ellapsedTime = Math.max(currentTime, minTime);
 
             @Override
@@ -388,15 +394,15 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
                 if (ellapsedTime <= maxTime/* entry != null */) {
 
                     if (((int) (currentTime - minTime)) != timeline.getValue()) { // if (((int) currentTime) !=
-                                                                                  // timeline.getValue()) {
+                        // timeline.getValue()) {
                         timeline.setValue((int) (currentTime - minTime)); // timeline.setValue((int) currentTime);
                     }
                     updateCurTimeLabelText(); // curTimeLbl.setText(GuiUtils.getNeptusDecimalFormat(1).format(currentTime
-                                              // - minTime) + " s (" + speed + "x)");
-                                              // //curTimeLbl.setText(GuiUtils.getNeptusDecimalFormat(1).format(currentTime)
-                                              // + " s (" + speed + "x)");
+                    // - minTime) + " s (" + speed + "x)");
+                    // //curTimeLbl.setText(GuiUtils.getNeptusDecimalFormat(1).format(currentTime)
+                    // + " s (" + speed + "x)");
 
-                    double thisTimeFull = (double) System.currentTimeMillis() / 1000.0;
+                    double thisTimeFull = System.currentTimeMillis() / 1000.0;
 
                     double deltaPassedTime = speed * (thisTimeFull - lastTimeFull);
                     double maxCurrentTime = currentTime + deltaPassedTime;
@@ -410,7 +416,8 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
                         double dST = startTimeFull - logStartTime;
                         double curFixTime = currentTime - dST;
                         double curMaxFixTime = maxCurrentTime - dST;
-                        // NeptusLog.pub().info("<###> "+logStartTime + "\t" + startTimeFull + "  dt:" + dST + "  " + currentTime +
+                        // NeptusLog.pub().info("<###> "+logStartTime + "\t" + startTimeFull + "  dt:" + dST + "  " +
+                        // currentTime +
                         // " :: " +curFixTime +" till " + curMaxFixTime);
                         if (curFixTime < 0)
                             curFixTime = 0;
@@ -418,7 +425,8 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
                             continue;
                         while (true) {
                             double curET = parser.currentTimeMillis() / 1000.0;
-                            // NeptusLog.pub().info("<###>curET= " + curET + "   " + (curET > curFixTime + startTimeFull) +
+                            // NeptusLog.pub().info("<###>curET= " + curET + "   " + (curET > curFixTime +
+                            // startTimeFull) +
                             // " && " + (curET <= curMaxFixTime + startTimeFull));
                             if (curET > curFixTime + startTimeFull && curET <= curMaxFixTime + startTimeFull) {
                                 entriesVector.add(parser.getCurrentEntry()); // TODO check...
@@ -529,6 +537,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
         this.speed = speed;
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("ff")) {
             if (speed >= 16)
@@ -536,7 +545,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
 
             speed *= 2;
             updateCurTimeLabelText(); // curTimeLbl.setText(GuiUtils.getNeptusDecimalFormat(1).format(currentTime -
-                                      // minTime) + " s (" + speed + "x)");
+            // minTime) + " s (" + speed + "x)");
         }
         else if (e.getActionCommand().equals("rew")) {
             if (speed <= 0.125)
@@ -545,7 +554,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
             speed *= 0.5;
 
             updateCurTimeLabelText(); // curTimeLbl.setText(GuiUtils.getNeptusDecimalFormat(1).format(currentTime -
-                                      // minTime) + " s (" + speed + "x)");
+            // minTime) + " s (" + speed + "x)");
         }
         else if (e.getActionCommand().equals("pause")) {
             pause();
@@ -565,6 +574,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
 
     }
 
+    @Override
     public void onCleanup() {
         cleanCalled = true;
         if (timer != null)
@@ -586,7 +596,8 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return true;
+        // return true;
+        return false;
     }
 
     @Override
@@ -604,6 +615,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
         return false;
     }
 
+    @Override
     public Type getType() {
         return Type.VISUALIZATION;
     }
@@ -613,6 +625,7 @@ public class LLFMsgReplay extends JPanel implements MRAVisualization, ActionList
 
     }
 
+    @Override
     public void onShow() {
 
     }

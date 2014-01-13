@@ -89,14 +89,12 @@ import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LsfTree;
 import pt.lsts.neptus.util.llf.LsfTreeMouseAdapter;
 import pt.lsts.neptus.util.llf.chart.MraChartFactory;
-import pt.lsts.neptus.util.llf.replay.LLFMsgReplay;
 
 /**
  * @author ZP
  */
 @SuppressWarnings("serial")
 public class MRAPanel extends JPanel {
-
 
     private LsfTree tree;
     private LogTree logTree;
@@ -105,7 +103,6 @@ public class MRAPanel extends JPanel {
     private final JXStatusBar statusBar = new JXStatusBar();
 
     private final LogReplay replay;
-    private final LLFMsgReplay replayMsg;
 
     private final JPanel leftPanel = new JPanel(new MigLayout("ins 0"));
     private final JPanel mainPanel = new JPanel(new MigLayout());
@@ -131,7 +128,7 @@ public class MRAPanel extends JPanel {
         MRAVisualization[] automaticCharts = MraChartFactory.getAutomaticCharts(this);
 
         if (new File("conf/tides.txt").canRead() && source.getFile("tides.txt") == null) {
-            FileUtil.copyFile("conf/tides.txt",new File(source.getFile("."), "tides.txt").getAbsolutePath());
+            FileUtil.copyFile("conf/tides.txt", new File(source.getFile("."), "tides.txt").getAbsolutePath());
         }
 
         // Setup interface
@@ -220,9 +217,6 @@ public class MRAPanel extends JPanel {
                 replay = new LogReplay(this);
                 loadVisualization(replay, false);
 
-                replayMsg = new LLFMsgReplay(this);
-                loadVisualization(replayMsg, false);
-
                 monitor.setProgress(100);
                 monitor.setNote(I18n.text("Done!"));
 
@@ -236,33 +230,26 @@ public class MRAPanel extends JPanel {
                 // Load markers
                 loadMarkers();
 
-
                 // Load exporters
                 // Exporters list, this will be moved in the future
-                MRAExporter exporterList[] = new MRAExporter[] { 
-                        new ImcTo837(source),
-                        new PCDExporter(source),
-                        new MatExporter(source),
-                        new KMLExporter(this, source),
-                        new CSVExporter(source),
-                        new XTFExporter(source),
-                        new NoptilusMapExporter(source)
-                }; 
+                MRAExporter exporterList[] = new MRAExporter[] { new ImcTo837(source), new PCDExporter(source),
+                        new MatExporter(source), new KMLExporter(this, source), new CSVExporter(source),
+                        new XTFExporter(source), new NoptilusMapExporter(source) };
 
                 // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
                 JMenuBar bar = mra.getMRAMenuBar();
                 JMenu previousMenu = GuiUtils.getJMenuByName(bar, I18n.text("Exporters"));
-                if(previousMenu != null) {
+                if (previousMenu != null) {
                     bar.remove(previousMenu);
                 }
 
                 exporters = new JMenu(I18n.text("Exporters"));
-                for(final MRAExporter exp : exporterList) {
-                    if(exp.canBeApplied(source)) {
+                for (final MRAExporter exp : exporterList) {
+                    if (exp.canBeApplied(source)) {
                         JMenuItem item = new JMenuItem(new AbstractAction(exp.getName()) {
                             @Override
                             public void actionPerformed(ActionEvent e) {
-                                Thread t = new Thread(exp.getName()+" processing") {
+                                Thread t = new Thread(exp.getName() + " processing") {
                                     @Override
                                     public void run() {
                                         String res = exp.process();
@@ -280,7 +267,7 @@ public class MRAPanel extends JPanel {
                     }
                 }
 
-                if(exporters.getItemCount() > 0) {
+                if (exporters.getItemCount() > 0) {
                     bar.add(exporters);
                 }
 
@@ -375,7 +362,7 @@ public class MRAPanel extends JPanel {
             loc.translatePosition(state.getDouble("x"), state.getDouble("y"), 0);
 
             if (loc.getDistanceInMeters(l) <= distance) {
-                NeptusLog.pub().info("<###> "+marker.label + " --- " + state.getTimestampMillis());
+                NeptusLog.pub().info("<###> " + marker.label + " --- " + state.getTimestampMillis());
             }
         }
     }
@@ -467,7 +454,7 @@ public class MRAPanel extends JPanel {
             if (v instanceof LogMarkerListener)
                 ((LogMarkerListener) v).GotoMarker(marker);
         }
-    }    
+    }
 
     class LoadTask implements Runnable {
         MRAVisualization vis;
@@ -483,7 +470,7 @@ public class MRAPanel extends JPanel {
             if (openVisualizationList.containsKey(vis.getName())) {
                 c = openVisualizationList.get(vis.getName());
             }
-            else if(loadingVisualizations.contains(vis.getName())) {
+            else if (loadingVisualizations.contains(vis.getName())) {
                 loader.setText(I18n.textf("Loading %visName", vis.getName()));
                 loader.start();
                 c = loader;

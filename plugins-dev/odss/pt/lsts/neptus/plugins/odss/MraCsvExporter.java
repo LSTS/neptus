@@ -51,8 +51,10 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
+ * FIXME - Can be deleted?
+ * 
  * @author zp
- *
+ * 
  */
 @PluginDescription(name="CSV Data", author="ZP", icon="pt/lsts/neptus/plugins/odss/fileshare.png")
 public class MraCsvExporter extends SimpleMRAVisualization {
@@ -71,14 +73,13 @@ public class MraCsvExporter extends SimpleMRAVisualization {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return (source.getLog("EstimatedState") != null && ( 
-                source.getLog("Conductivity") != null ||
-                source.getLog("Temperature") != null ||
-                source.getLog("Salinity") != null)
-                //FIXME 
-                //                &&
-                //                ImcLogUtils.getEntityListReverse(source).get("CTD") != null
-                );
+        return false;
+        //        return (source.getLog("EstimatedState") != null && (source.getLog("Conductivity") != null
+        //                || source.getLog("Temperature") != null || source.getLog("Salinity") != null)
+        //                // FIXME
+        //                // &&
+        //                // ImcLogUtils.getEntityListReverse(source).get("CTD") != null
+        //                );
     }
 
     @Override
@@ -88,7 +89,7 @@ public class MraCsvExporter extends SimpleMRAVisualization {
         if (csvEditor.getText().length() == 0)
             startLoading(source);
 
-        return new JScrollPane(csvEditor);        
+        return new JScrollPane(csvEditor);
     }
 
     protected Thread startLoading(IMraLogGroup source) {
@@ -102,20 +103,21 @@ public class MraCsvExporter extends SimpleMRAVisualization {
         final int ctdId = ImcLogUtils.getEntityListReverse(source).get("CTD");
         final double start = index.getStartTime();
         final double end = index.getEndTime();
-        //        final IMraLog estimatedState = source.getLog("EstimatedState");
-        //        
-        //        final IMraLog[] logs = new IMraLog[] {
-        //                source.getLog("Conductivity"),
-        //                source.getLog("Temperature"),
-        //                source.getLog("Pressure"),
-        //                source.getLog("Salinity")
-        //        };
-        //        final int ctdId = ImcLogUtils.getEntityListReverse(source).get("CTD");
-        //        final long firstTime = (estimatedState.currentTimeMillis()/1000)*1000;
-        //        final long start = estimatedState.nextLogEntry().getHeader().getLong("timestamp");
+        // final IMraLog estimatedState = source.getLog("EstimatedState");
+        //
+        // final IMraLog[] logs = new IMraLog[] {
+        // source.getLog("Conductivity"),
+        // source.getLog("Temperature"),
+        // source.getLog("Pressure"),
+        // source.getLog("Salinity")
+        // };
+        // final int ctdId = ImcLogUtils.getEntityListReverse(source).get("CTD");
+        // final long firstTime = (estimatedState.currentTimeMillis()/1000)*1000;
+        // final long start = estimatedState.nextLogEntry().getHeader().getLong("timestamp");
         //
         loadingThread = new Thread() {
 
+            @Override
             public void run() {
                 DecimalFormat latFormat = new DecimalFormat("0.000000");
                 DecimalFormat valFormat = new DecimalFormat("0.000");
@@ -127,35 +129,38 @@ public class MraCsvExporter extends SimpleMRAVisualization {
                         continue;
                     LocationType loc = IMCUtils.getLocation(state);
                     loc.convertToAbsoluteLatLonDepth();
-                    line +=","+latFormat.format(loc.getLatitudeAsDoubleValue());
-                    line +=","+latFormat.format(loc.getLongitudeAsDoubleValue());
-                    line +=","+valFormat.format(state.getDouble("depth"));
-                    line +=","+latFormat.format(state.getDouble("alt"));
-                    int newCondIndex = index.getMessageAtOrAfer(Conductivity.ID_STATIC, ctdId, condIndex, state.getTimestamp());
+                    line += "," + latFormat.format(loc.getLatitudeAsDoubleValue());
+                    line += "," + latFormat.format(loc.getLongitudeAsDoubleValue());
+                    line += "," + valFormat.format(state.getDouble("depth"));
+                    line += "," + latFormat.format(state.getDouble("alt"));
+                    int newCondIndex = index.getMessageAtOrAfer(Conductivity.ID_STATIC, ctdId, condIndex,
+                            state.getTimestamp());
                     if (newCondIndex != -1) {
                         condIndex = newCondIndex;
-                        line += ","+valFormat.format(index.getMessage(condIndex).getDouble("value"));
+                        line += "," + valFormat.format(index.getMessage(condIndex).getDouble("value"));
                     }
                     else
                         line += ",-1";
-                    
-                    int newTempIndex = index.getMessageAtOrAfer(Temperature.ID_STATIC, ctdId, tempIndex, state.getTimestamp());
+
+                    int newTempIndex = index.getMessageAtOrAfer(Temperature.ID_STATIC, ctdId, tempIndex,
+                            state.getTimestamp());
                     if (newTempIndex != -1) {
                         tempIndex = newTempIndex;
-                        line += ","+valFormat.format(index.getMessage(tempIndex).getDouble("value"));
+                        line += "," + valFormat.format(index.getMessage(tempIndex).getDouble("value"));
                     }
                     else
                         line += ",-1";
-                    
-                    int newSalIndex = index.getMessageAtOrAfer(Salinity.ID_STATIC, ctdId, salIndex, state.getTimestamp());
+
+                    int newSalIndex = index.getMessageAtOrAfer(Salinity.ID_STATIC, ctdId, salIndex,
+                            state.getTimestamp());
                     if (newSalIndex != -1) {
                         salIndex = newSalIndex;
-                        line += ","+valFormat.format(index.getMessage(salIndex).getDouble("value"));
+                        line += "," + valFormat.format(index.getMessage(salIndex).getDouble("value"));
                     }
                     else
                         line += ",-1";
-                        
-                    csvEditor.setText(csvEditor.getText()+line+"\n");
+
+                    csvEditor.setText(csvEditor.getText() + line + "\n");
                 }
             };
         };
@@ -164,6 +169,7 @@ public class MraCsvExporter extends SimpleMRAVisualization {
         return loadingThread;
     }
 
+    @Override
     public Type getType() {
         return Type.VISUALIZATION;
     }
