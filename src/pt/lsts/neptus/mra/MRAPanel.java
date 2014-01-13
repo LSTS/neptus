@@ -35,13 +35,14 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -64,13 +65,20 @@ import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.exporters.CSVExporter;
+import pt.lsts.neptus.mra.exporters.ImcTo837;
+import pt.lsts.neptus.mra.exporters.KMLExporter;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
+import pt.lsts.neptus.mra.exporters.MatExporter;
+import pt.lsts.neptus.mra.exporters.PCDExporter;
+import pt.lsts.neptus.mra.exporters.XTFExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.replay.LogReplay;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
+import pt.lsts.neptus.plugins.noptilus.NoptilusMapExporter;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
@@ -120,7 +128,7 @@ public class MRAPanel extends JPanel {
     public MRAPanel(final IMraLogGroup source, NeptusMRA mra) {
         this.source = source;
 
-        //MRAVisualization[] automaticCharts = MraChartFactory.getAutomaticCharts(this);
+        MRAVisualization[] automaticCharts = MraChartFactory.getAutomaticCharts(this);
 
         if (new File("conf/tides.txt").canRead() && source.getFile("tides.txt") == null) {
             FileUtil.copyFile("conf/tides.txt",new File(source.getFile("."), "tides.txt").getAbsolutePath());
@@ -163,25 +171,25 @@ public class MRAPanel extends JPanel {
                 // The LogTreeMouseAdapter class deals with all the plot instantiation
                 tree.addMouseListener(new LsfTreeMouseAdapter(this));
 
-                monitor.setProgress(20);
-//                int curProgress = 10;
-//                int increaseProgress = 65;
-//                if (automaticCharts.length > 0)
-//                    increaseProgress = 65 / automaticCharts.length;
-//
-//                // Load Automatic Charts
-//                for (MRAVisualization chart : automaticCharts) {
-//
-//                    if (!chart.canBeApplied(MRAPanel.this.source))
-//                        continue;
-//
-//                    loadVisualization(chart, false);
-//                    curProgress += increaseProgress;
-//                    monitor.setNote(I18n.textf("loading %chartname", chart.getName()));
-//                    monitor.setProgress(curProgress);
-//                }
-                
-                Vector<MRAVisualization> visualizations = new Vector<>();
+                monitor.setProgress(10);
+                int curProgress = 10;
+                int increaseProgress = 65;
+                if (automaticCharts.length > 0)
+                    increaseProgress = 65 / automaticCharts.length;
+
+                // Load Automatic Charts
+                for (MRAVisualization chart : automaticCharts) {
+
+                    if (!chart.canBeApplied(MRAPanel.this.source))
+                        continue;
+
+                    loadVisualization(chart, false);
+                    curProgress += increaseProgress;
+                    monitor.setNote(I18n.textf("loading %chartname", chart.getName()));
+                    monitor.setProgress(curProgress);
+                }
+
+                // Load PluginVisualizations
                 for (String visName : PluginsRepository.getMraVisualizations().keySet()) {
                     try {
                         Class<?> vis = PluginsRepository.getMraVisualizations().get(visName);
@@ -189,45 +197,20 @@ public class MRAPanel extends JPanel {
                         MRAVisualization visualization = (MRAVisualization) vis.getDeclaredConstructor(MRAPanel.class)
                                 .newInstance(this);
                         PluginUtils.loadProperties(visualization, "mra");
-                        
+
                         if (visualization.canBeApplied(MRAPanel.this.source))
-                            visualizations.add(visualization);    
+                            loadVisualization(visualization, false);
                     }
                     catch (Exception e1) {
+                        // FIX (pdias) missing plugins jars or errors on load
                         NeptusLog.pub().error(
                                 I18n.text("MRA Visualization not loading properly") + ": " + visName + "  [" + e1.getMessage()
                                 + "]");
                     }
                     catch (Error e2) {
+                        // FIX (pdias) missing plugins jars or errors on load
                         NeptusLog.pub().error(
                                 I18n.text("MRA Visualization not loading properly") + ": " + visName + "  [" + e2.getMessage()
-                                + "]");
-                    }
-                }
-              
-                visualizations.addAll(MraChartFactory.getScriptedPlots(this));
-                
-                Collections.sort(visualizations, new Comparator<MRAVisualization>() {
-                    @Override
-                    public int compare(MRAVisualization o1, MRAVisualization o2) {
-                        return o1.getName().compareTo(o2.getName());
-                    }
-                });
-                
-                // Load PluginVisualizations
-                for (MRAVisualization viz : visualizations) {
-                    try {
-                        monitor.setNote(I18n.textf("loading %chartname", viz.getName()));
-                        loadVisualization(viz, false);
-                    }
-                    catch (Exception e1) {
-                        NeptusLog.pub().error(
-                                I18n.text("MRA Visualization not loading properly") + ": " + viz.getName() + "  [" + e1.getMessage()
-                                + "]");
-                    }
-                    catch (Error e2) {
-                        NeptusLog.pub().error(
-                                I18n.text("MRA Visualization not loading properly") + ": " + viz.getName() + "  [" + e2.getMessage()
                                 + "]");
                     }
                 }
@@ -250,8 +233,8 @@ public class MRAPanel extends JPanel {
                     logTree.expandRow(i);
                 }
 
-        // Load markers
-        loadMarkers();
+                // Load markers
+                loadMarkers();
 
         LinkedHashMap<String, Class<? extends MRAExporter>> exporterMap =  PluginsRepository.listExtensions(MRAExporter.class);
         Vector<MRAExporter> exporterList = new Vector<>();
@@ -289,16 +272,13 @@ public class MRAPanel extends JPanel {
                         t.setDaemon(true);
                         t.start();
                     }
-                });
-                exporters.add(item);
-            }
-        }
+                }
 
         if(exporters.getItemCount() > 0) {
             bar.add(exporters);
         }
 
-        monitor.close();
+                monitor.close();
     }
 
     public void loadVisualization(MRAVisualization vis, boolean open) {
@@ -324,7 +304,7 @@ public class MRAPanel extends JPanel {
     }
 
     public void openVisualization(MRAVisualization viz) {
-        new Thread(new LoadTask(viz), "Open viz "+viz.getName()).start();
+        new Thread(new LoadTask(viz)).start();
     }
 
     public void addMarker(LogMarker marker) {
@@ -342,7 +322,7 @@ public class MRAPanel extends JPanel {
         }
         logTree.addMarker(marker);
         logMarkers.add(marker);
-        
+
         // getTimestampsForMarker(marker, 2);
 
         for (MRAVisualization vis : visualizationList.values()) {
@@ -350,9 +330,6 @@ public class MRAPanel extends JPanel {
                 ((LogMarkerListener) vis).addLogMarker(marker);
             }
         }
-        
-        saveMarkers();
-        
     }
 
     public void removeMarker(LogMarker marker) {
@@ -451,16 +428,32 @@ public class MRAPanel extends JPanel {
         source = null;
     }
 
+    @SuppressWarnings("unchecked")
     public void loadMarkers() {
-        logMarkers.clear();
-        logMarkers.addAll(LogMarker.load(source));
-        Collections.sort(logMarkers);
-        for (LogMarker lm : logMarkers)
-            logTree.addMarker(lm);        
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(source.getFile("Data.lsf").getParent()
+                    + "/marks.dat"));
+            for (LogMarker marker : (ArrayList<LogMarker>) ois.readObject()) {
+                logMarkers.add(marker);
+                logTree.addMarker(marker);
+            }
+            ois.close();
+        }
+        catch (Exception e) {
+            NeptusLog.pub().info("No markers for this log, or erroneous mark file");
+        }
     }
 
     public void saveMarkers() {
-        LogMarker.save(logMarkers, source);
+        try {
+            ObjectOutputStream dos = new ObjectOutputStream(new FileOutputStream(source.getFile(".").getParent()
+                    + "/marks.dat"));
+            dos.writeObject(logMarkers);
+            dos.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void synchVisualizations(LogMarker marker) {
