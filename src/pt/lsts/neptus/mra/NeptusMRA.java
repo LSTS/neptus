@@ -676,7 +676,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                PropertiesEditor.editProperties(NeptusMRA.this, true);
+                PropertiesEditor.editProperties(NeptusMRA.this, NeptusMRA.this, true);
                 try {
                     PluginUtils.saveProperties("conf/mra.properties", NeptusMRA.this);
                 }
