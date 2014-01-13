@@ -804,19 +804,19 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         }
 
         private void addActionRemoveSelectedPlans(final Object[] multiSel, final Object selection, JPopupMenu popupMenu) {
-            popupMenu.add(I18n.text("Remove selected plans")).addActionListener(new ActionListener() {
+            popupMenu.add(I18n.text("Delete selected plans locally")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (selection != null) {
                         int resp = JOptionPane.showConfirmDialog(console,
-                                I18n.textf("Remove all selected plans (%numberOfPlans)?", multiSel.length));
+                                I18n.textf("Delete all selected plans (%numberOfPlans) locally?", multiSel.length));
 
                         if (resp == JOptionPane.YES_OPTION) {
                             TreeMap<String, PlanType> individualPlansList = console.getMission()
                                     .getIndividualPlansList();
                             for (Object o : multiSel) {
                                 NameId sel = (NameId) o;
-                                PlanType res = individualPlansList.remove(sel.getIdentification());
+                                individualPlansList.remove(sel.getIdentification());
                             }
                             console.getMission().save(false);
 
