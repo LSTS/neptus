@@ -347,7 +347,7 @@ public class MRAPanel extends JPanel {
         }
         logTree.addMarker(marker);
         logMarkers.add(marker);
-
+        
         // getTimestampsForMarker(marker, 2);
 
         for (MRAVisualization vis : visualizationList.values()) {
@@ -355,6 +355,9 @@ public class MRAPanel extends JPanel {
                 ((LogMarkerListener) vis).addLogMarker(marker);
             }
         }
+        
+        saveMarkers();
+        
     }
 
     public void removeMarker(LogMarker marker) {
