@@ -141,8 +141,8 @@ public class DeltaTParser implements BathymetryParser {
                 realNumberOfBeams = 0;
             }
 
-            info.topLeft = new LocationType(maxLat, minLon).translatePosition(30, -30, 0).convertToAbsoluteLatLonDepth();
-            info.bottomRight = new LocationType(minLat, maxLon).translatePosition(-30, 30, 0).convertToAbsoluteLatLonDepth();
+            info.topLeft = new LocationType(maxLat, minLon).translatePosition(info.maxDepth, -info.maxDepth, 0).convertToAbsoluteLatLonDepth();
+            info.bottomRight = new LocationType(minLat, maxLon).translatePosition(-info.maxDepth, info.maxDepth, 0).convertToAbsoluteLatLonDepth();
             info.totalNumberOfPoints = totalNumberPoints;
 
             try {

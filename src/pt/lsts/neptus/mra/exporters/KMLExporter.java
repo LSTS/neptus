@@ -124,6 +124,10 @@ public class KMLExporter implements MRAExporter {
     @NeptusProperty
     public boolean filterOutNadir = true;
     
+    @NeptusProperty
+    public double maximumSidescanRange = 50;
+    
+    
     public KMLExporter(IMraLogGroup source) {
         this.source = source;        
 
@@ -478,8 +482,8 @@ public class KMLExporter implements MRAExporter {
         LocationType topLeft = new LocationType(parser.getBathymetryInfo().topLeft);
         LocationType bottomRight = new LocationType(parser.getBathymetryInfo().bottomRight);
 
-        topLeft.translatePosition(50, -50, 0);
-        bottomRight.translatePosition(-50, 50, 0);
+        topLeft.translatePosition(maximumSidescanRange, -maximumSidescanRange, 0);
+        bottomRight.translatePosition(-maximumSidescanRange, maximumSidescanRange, 0);
         topLeft.convertToAbsoluteLatLonDepth();
         bottomRight.convertToAbsoluteLatLonDepth();
 
