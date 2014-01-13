@@ -399,7 +399,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
     }
 
     /**
-     * Ask vehicle for configurations of vehicles in use.
+     * Ask vehicle for configurations of vehicles in use just by WiFi.
      */
     private void askForBeaconConfig() {
         SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
@@ -410,7 +410,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
                     IMCSendMessageUtils.sendMessage(msgLBLConfiguration,
                             I18n.text("Could not ask " + getMainVehicleId() + " for it's accoustic beacons."),
-                            getMainVehicleId());
+                            true, getMainVehicleId());
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -941,12 +941,12 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
         // private void addActionRemoveSelectedPlans(final ArrayList<NameId> selectedItems, final Object selection,
         // JPopupMenu popupMenu) {
-        // popupMenu.add(I18n.text("Remove selected plans")).addActionListener(new ActionListener() {
+        // popupMenu.add(I18n.text("Delete selected plans locally")).addActionListener(new ActionListener() {
         // @Override
         // public void actionPerformed(ActionEvent e) {
         // if (selection != null) {
         // int resp = JOptionPane.showConfirmDialog(console,
-        // I18n.textf("Remove all selected plans (%numberOfPlans)?", selectedItems.size()));
+        // I18n.textf("Delete all selected plans (%numberOfPlans) locally?", selectedItems.size()));
         //
         // if (resp == JOptionPane.YES_OPTION) {
         // TreeMap<String, PlanType> individualPlansList = console.getMission()
