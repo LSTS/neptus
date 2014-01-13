@@ -31,8 +31,16 @@
  */
 package pt.lsts.neptus.mra;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -80,13 +88,37 @@ public class LogMarker implements Serializable, Comparable<LogMarker> {
             return 0;
     }
     
+    @SuppressWarnings("unchecked")
+    public static Collection<LogMarker> load(IMraLogGroup source) {
+        ArrayList<LogMarker> logMarkers = new ArrayList<LogMarker>();
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(source.getFile("Data.lsf").getParent()
+                    + "/marks.dat"));
+            for (LogMarker marker : (ArrayList<LogMarker>) ois.readObject()) {
+                logMarkers.add(marker);                
+            }
+            ois.close();
+            
+        }
+        catch (Exception e) {
+            NeptusLog.pub().info("No markers for this log, or erroneous mark file");
+        }
+        return logMarkers;
+    }
+    
+    public static void save(ArrayList<LogMarker> logMarkers, IMraLogGroup source) {
+        try {
+            ObjectOutputStream dos = new ObjectOutputStream(new FileOutputStream(source.getFile(".").getParent()
+                    + "/marks.dat"));
+            dos.writeObject(logMarkers);
+            dos.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     public LocationType getLocation() {
         return new LocationType(Math.toDegrees(lat), Math.toDegrees(lon));
     }
-
-//    @Override
-//    public boolean equals(Object obj) {
-//        return (obj instanceof LogMarker ? ((LogMarker)obj).label.equals(label): false);
-//    }
-//    
 }

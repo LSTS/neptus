@@ -39,6 +39,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Vector;
 
 import pt.lsts.imc.IMCMessage;
@@ -60,7 +61,7 @@ public class LogMarkersReplay implements LogReplayLayer {
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {        
-        
+
         for (int i = 0 ; i < markers.size(); i++) {
             Point2D pt = renderer.getScreenPosition(locations.get(i));
 
@@ -117,7 +118,10 @@ public class LogMarkersReplay implements LogReplayLayer {
 
     @Override
     public void parse(IMraLogGroup source) {
-        
+        Collection<LogMarker> sourceMarkers = LogMarker.load(source);
+        for (LogMarker lm : sourceMarkers) {
+            addMarker(lm); 
+        }        
     }
 
     @Override

@@ -35,10 +35,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,7 +67,6 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
-import pt.lsts.neptus.mra.plots.ScriptedPlot;
 import pt.lsts.neptus.mra.replay.LogReplay;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -456,32 +451,16 @@ public class MRAPanel extends JPanel {
         source = null;
     }
 
-    @SuppressWarnings("unchecked")
     public void loadMarkers() {
-        try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(source.getFile("Data.lsf").getParent()
-                    + "/marks.dat"));
-            for (LogMarker marker : (ArrayList<LogMarker>) ois.readObject()) {
-                logMarkers.add(marker);
-                logTree.addMarker(marker);
-            }
-            ois.close();
-        }
-        catch (Exception e) {
-            NeptusLog.pub().info("No markers for this log, or erroneous mark file");
-        }
+        logMarkers.clear();
+        logMarkers.addAll(LogMarker.load(source));
+        Collections.sort(logMarkers);
+        for (LogMarker lm : logMarkers)
+            logTree.addMarker(lm);        
     }
 
     public void saveMarkers() {
-        try {
-            ObjectOutputStream dos = new ObjectOutputStream(new FileOutputStream(source.getFile(".").getParent()
-                    + "/marks.dat"));
-            dos.writeObject(logMarkers);
-            dos.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        LogMarker.save(logMarkers, source);
     }
 
     public void synchVisualizations(LogMarker marker) {
