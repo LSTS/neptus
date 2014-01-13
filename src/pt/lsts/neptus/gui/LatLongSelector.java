@@ -65,9 +65,9 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final short DECIMAL_DEGREES_DISPLAY = 0;
-	private static final short DM_DISPLAY = 1;
-	private static final short DMS_DISPLAY = 2;
+	public static final short DECIMAL_DEGREES_DISPLAY = 0;
+	public static final short DM_DISPLAY = 1;
+	public static final short DMS_DISPLAY = 2;
 
 	private JPanel dmsPanel = null;
 	private JLabel jLabel = null;
@@ -167,6 +167,24 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		return dmsPanel;
 	}
 
+	/**
+	 * @param style Use one of {@link #DECIMAL_DEGREES_DISPLAY}, {@link #DM_DISPLAY}, or
+	 * {@link #DMS_DISPLAY}.
+	 */
+	public void setDMSStyleIndicatorTo(int style) {
+	    clearConvRadioButtons();
+	    switch (style) {
+            case DECIMAL_DEGREES_DISPLAY:
+                ddegreesRadioButton.setSelected(true);
+                break;
+            case DM_DISPLAY:
+                dmRadioButton.setSelected(true);
+                break;
+            default: // DMS_DISPLAY
+                dmsRadioButton.setSelected(true);
+                break;
+        }
+	}
 	
 	public String getLatitude() {
 		String latString =  CoordinateUtil.dmsToLatString(

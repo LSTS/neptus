@@ -104,6 +104,7 @@ public class PointSelector extends ParametersPanel {
 		getHeightDepthSelector().setZ(location.getDepth());		
 		getLatLongSelector().setLatitude(CoordinateUtil.parseLatitudeStringToDMS(location.getLatitude()));
 		getLatLongSelector().setLongitude(CoordinateUtil.parseLongitudeStringToDMS(location.getLongitude()));
+		getLatLongSelector().setDMSStyleIndicatorTo(LatLongSelector.DMS_DISPLAY);
 	}
 	
 	/**
