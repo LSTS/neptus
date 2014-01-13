@@ -43,6 +43,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -65,20 +66,13 @@ import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.exporters.CSVExporter;
-import pt.lsts.neptus.mra.exporters.ImcTo837;
-import pt.lsts.neptus.mra.exporters.KMLExporter;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
-import pt.lsts.neptus.mra.exporters.MatExporter;
-import pt.lsts.neptus.mra.exporters.PCDExporter;
-import pt.lsts.neptus.mra.exporters.XTFExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.replay.LogReplay;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
-import pt.lsts.neptus.plugins.noptilus.NoptilusMapExporter;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
@@ -236,47 +230,51 @@ public class MRAPanel extends JPanel {
                 // Load markers
                 loadMarkers();
 
-        LinkedHashMap<String, Class<? extends MRAExporter>> exporterMap =  PluginsRepository.listExtensions(MRAExporter.class);
-        Vector<MRAExporter> exporterList = new Vector<>();
-        
-        for (Class<? extends MRAExporter> clazz : exporterMap.values()) {
-            try {
-                exporterList.add(clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] {source}));
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-            }
-        }
-        
-        // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
-        JMenuBar bar = mra.getMRAMenuBar();
-        JMenu previousMenu = GuiUtils.getJMenuByName(bar, I18n.text("Exporters"));
-        if(previousMenu != null) {
-            bar.remove(previousMenu);
-        }
-        
-        exporters = new JMenu(I18n.text("Exporters"));
-        for(final MRAExporter exp : exporterList) {
-            if(exp.canBeApplied(source)) {
-                JMenuItem item = new JMenuItem(new AbstractAction(exp.getName()) {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Thread t = new Thread(exp.getName()+" processing") {
-                            public void run() {
-                                String res = exp.process();
-                                
-                                if (res != null)
-                                    GuiUtils.infoMessage(MRAPanel.this, exp.getName(), res);
-                            };
-                        };
-                        t.setDaemon(true);
-                        t.start();
+                LinkedHashMap<String, Class<? extends MRAExporter>> exporterMap =  PluginsRepository.listExtensions(MRAExporter.class);
+                Vector<MRAExporter> exporterList = new Vector<>();
+
+                for (Class<? extends MRAExporter> clazz : exporterMap.values()) {
+                    try {
+                        exporterList.add(clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] {source}));
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(e);
                     }
                 }
 
-        if(exporters.getItemCount() > 0) {
-            bar.add(exporters);
-        }
+                // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
+                JMenuBar bar = mra.getMRAMenuBar();
+                JMenu previousMenu = GuiUtils.getJMenuByName(bar, I18n.text("Exporters"));
+                if(previousMenu != null) {
+                    bar.remove(previousMenu);
+                }
+
+                exporters = new JMenu(I18n.text("Exporters"));
+                for(final MRAExporter exp : exporterList) {
+                    if(exp.canBeApplied(source)) {
+                        JMenuItem item = new JMenuItem(new AbstractAction(exp.getName()) {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                Thread t = new Thread(exp.getName()+" processing") {
+                                    @Override
+                                    public void run() {
+                                        String res = exp.process();
+
+                                        if (res != null)
+                                            GuiUtils.infoMessage(MRAPanel.this, exp.getName(), res);
+                                    };
+                                };
+                                t.setDaemon(true);
+                                t.start();
+                            }
+                        });
+                        exporters.add(item);
+                    }
+                }
+
+                if(exporters.getItemCount() > 0) {
+                    bar.add(exporters);
+                }
 
                 monitor.close();
     }
