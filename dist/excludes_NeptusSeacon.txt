@@ -1,1 +1,2 @@
+plugins/caoAgent.jar
 plugins/s57-client.jar
