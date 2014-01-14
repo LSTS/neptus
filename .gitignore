@@ -202,3 +202,5 @@ dev-scripts/grow_pot.sh
 
 /.s57
 /s57maps
+
+/*_dist
