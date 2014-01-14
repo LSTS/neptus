@@ -61,7 +61,7 @@
     display: none !important;
   }
   .htmladdcopy:after {
-    content: '© 2004-2013 Universidade do Porto - Faculdade de Engenharia';
+    content: '© 2004-2014 Universidade do Porto - Faculdade de Engenharia';
     display: block;
   }
 </style>
@@ -90,8 +90,7 @@
     good Git guide is available at <a href="http://git-scm.com/">http://git-scm.com/</a> or 
     <a href="https://help.github.com/">https://help.github.com/</a>.</p>
 	<p>
-    Neptus' Git repository is accessible at <a href="https://www.lsts.pt/">https://www.lsts.pt/</a> with a 
-    web-based interface for repository browsing at <a href="https://www.lsts.pt/gitweb/neptus">https://www.lsts.pt/gitweb/neptus</a>.
+    Neptus' Git repository is accessible at <a href="https://github.com/LSTS/neptus">https://github.com/LSTS/neptus/</a>.
   </p>
   <p>Take the following point into consideration:</p>
   <div>
@@ -101,6 +100,7 @@
         <li>Never keep files checked out for long periods;</li>
         <li>Document every commit meaningfully;</li>
         <li>Always update your working copy before starting work.</li>
+        <li>Don't just test it inside Eclipse, compile it using ant and test it.</li>
     </ul>
   </div>
 
@@ -130,7 +130,7 @@
   </p>
   <div class="fragment"><pre class="fragment">  
     <span class="comment">/*</span>
-    <span class="comment"> * Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia</span>
+    <span class="comment"> * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia</span>
     <span class="comment"> * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)</span>
     <span class="comment"> * All rights reserved.</span>
     <span class="comment"> * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal</span>
@@ -160,7 +160,7 @@
     <span class="comment"> * Author: Paulo Dias</span>
     <span class="comment"> * 2010/05/19</span>
     <span class="comment"> */</span>
-    <span class="comment">package pt.up.fe.dceg.neptus.util;</span>
+    <span class="comment">package pt.lsts.neptus.util;</span>
     <span class="comment"></span>
   </pre></div>
 
@@ -191,7 +191,7 @@
     Indentation should be spaces only with a tab size of 4 spaces.
   </p>
 
-  <p>Single line if statement: </p>
+  <p>Single line if statement (use it only if the next statement is onle line lenght): </p>
   <div class="fragment"><pre class="fragment">
   <span class="keywordflow">if</span> (<span class="keywordflow">if</span>-condition)
     <span class="keywordflow">if</span>-line;
@@ -210,7 +210,7 @@
   }
   </pre></div>
 
-  <p>Single line while statement: </p>
+  <p>Single line while statement (use it only if the next statement is onle line lenght): </p>
   <div class="fragment"><pre class="fragment">  <span class="keywordflow">while</span> (condition)
     <span class="keywordflow">while</span>-line;
   </pre></div>
@@ -221,7 +221,7 @@
   }
   </pre></div>
 
-  <p>Single line for statement: </p>
+  <p>Single line for statement (use it only if the next statement is onle line lenght): </p>
   <div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (initialization; stop-condition; increment)
     <span class="keywordflow">for</span>-line;      
   </pre></div>
