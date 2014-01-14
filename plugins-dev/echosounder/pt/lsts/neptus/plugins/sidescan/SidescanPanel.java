@@ -69,8 +69,9 @@ import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.VideoCreator;
 
 /**
+ * MRA sidescan panel
+ * 
  * @author jqcorreia
- *
  */
 public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener 
 {
@@ -106,11 +107,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight()); // Clear layer image
 
                     if (zoom)
-                        drawZoom(layer.getGraphics()); // UPdate layer with zoom information
+                        drawZoom(layer.getGraphics());                      // Update layer with zoom information
                     if (info)
-                        drawInfo(layer.getGraphics()); // update layer with location information
-                    if (measure) {
+                        drawInfo(layer.getGraphics());                      // update layer with location information
+                    if (measure && !parent.getTimeline().isRunning()) {
                         drawMeasure(layer.getGraphics());
+                    }
+                    else if (parent.getTimeline().isRunning()) {           // clear points list if sidescan is running
+                        pointList.clear();
                     }
 
                     drawMarks(layer.getGraphics());
@@ -199,7 +203,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     protected boolean record = false;
 
-
     public SidescanPanel(SidescanAnalyzer analyzer, SidescanParser parser, int subsystem) {
         this.parent = analyzer;
         ssParser = parser;
@@ -237,9 +240,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         add(view, "w 100%, h 100%");
     }
 
-    int tcount = 0;
-    int lcount = 0;
-
+    /**
+     * To record a *.mp4 video from sidescan panel
+     * @param r
+     */
     public void record(boolean r) {
         record = r;
         if(r) {
@@ -378,6 +382,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             else {
                 distance = prevPoint.location.getDistanceInMeters(point.location);
                 distance = (int)(distance * 1000) / 1000.0;
+                //NeptusLog.pub().info("Distance: " + distance);
 
                 g.drawLine(prevPoint.x, prevPoint.y, point.x, point.y);
                 g.drawRect(point.x - 3, point.y - 3, 6, 6);
@@ -385,7 +390,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 g.drawString(distance + "m", (prevPoint.x + point.x) / 2 + 3, (prevPoint.y + point.y) / 2 - 1);
                 g.setColor(Color.GREEN);
                 g.drawString(distance + "m", (prevPoint.x + point.x) / 2 + 4, (prevPoint.y + point.y) / 2);
-
             }
             prevPoint = point;
             c++;
@@ -557,6 +561,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             else if (imode == InteractionMode.MEASURE && !parent.getTimeline().isRunning()) {
                 measure = true;
                 pointList.add(mouseSidescanLine.calcPointForCoord(mouseX));
+                //NeptusLog.pub().info("mouse coord X: " + mouseSidescanLine.calcPointForCoord(mouseX).x);
+                //NeptusLog.pub().info("mouse coord Y: " + mouseSidescanLine.calcPointForCoord(mouseX).y);
+
+                //NeptusLog.pub().info("Size pointList.size() :" + pointList.size());
+                if (pointList.size() > 2) {
+                    pointList.clear();
+                }
+
             }
             else if (imode == InteractionMode.INFO){
                 info = true;

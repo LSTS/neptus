@@ -35,7 +35,6 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
@@ -62,15 +61,14 @@ import pt.lsts.neptus.util.llf.LogUtils;
  * @author jqcorreia
  * 
  */
-@PluginDescription(author = "jqcorreia", name = "Sidescan Analyzer")
-public class SidescanAnalyzer extends JPanel implements MRAVisualization, TimelineChangeListener,
-LogMarkerListener {
+@PluginDescription(author = "jqcorreia", name = "Sidescan Analyzer", icon = "pt/lsts/neptus/plugins/echosounder/echosounder.png")
+public class SidescanAnalyzer extends JPanel implements MRAVisualization, TimelineChangeListener, LogMarkerListener {
     private static final long serialVersionUID = 1L;
 
     protected MRAPanel mraPanel;
 
     private Timeline timeline;
-    //Histogram histogram;
+    // Histogram histogram;
 
     private long firstPingTime;
     private long lastPingTime;
@@ -79,14 +77,14 @@ LogMarkerListener {
     private long lastUpdateTime;
 
     // List of different frequencies on this log
-    //private ArrayList<Double> freqList = new ArrayList<Double>();
+    // private ArrayList<Double> freqList = new ArrayList<Double>();
 
     // Processing flags
-    @NeptusProperty(name="Vertical Blending")
+    @NeptusProperty(name = "vertical Blending")
     public boolean verticalBlending = false;
-    @NeptusProperty(name="Slant Range Correction")
+    @NeptusProperty(name = "Slant Range Correction")
     public boolean slantRangeCorrection = false;
-    @NeptusProperty(name="Time Variable Gain")
+    @NeptusProperty(name = "Time Variable Gain")
     public boolean timeVariableGain = false;
 
     private ArrayList<SidescanPanel> sidescanPanels = new ArrayList<SidescanPanel>();
@@ -109,14 +107,16 @@ LogMarkerListener {
 
         lastUpdateTime = firstPingTime;
 
-        for(Integer subsys : ssParser.getSubsystemList()) {
+        for (Integer subsys : ssParser.getSubsystemList()) {
             System.out.println(subsys);
             sidescanPanels.add(new SidescanPanel(this, ssParser, subsys));
         }
 
         fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        System.out.println(fmt.format(new Date(firstPingTime)) + " " + fmt.format(new Date(lastPingTime)) + " " + (lastPingTime - firstPingTime));
+        // NeptusLog.pub().info(
+        // fmt.format("First Ping time: " + new Date(firstPingTime)) + "\nLast Ping time: "
+        // + fmt.format(new Date(lastPingTime)) + " " + "\nTotal time: " + (lastPingTime - firstPingTime));
 
         timeline = new Timeline(0, (int) (lastPingTime - firstPingTime), 30, 1000, false);
         timeline.getSlider().setValue(0);
@@ -126,18 +126,19 @@ LogMarkerListener {
             @Override
             public void paintTicks(Graphics g) {
                 super.paintTicks(g);
-                for(LogMarker m : markerList) {
+                for (LogMarker m : markerList) {
                     long mtime = new Double(m.timestamp).longValue();
-                    g.drawLine(xPositionForValue((int)(mtime-firstPingTime)), 0, xPositionForValue((int)(mtime-firstPingTime)),timeline.getSlider().getHeight()/2);
-                    //                    g.drawString(m.label, xPositionForValue((int)(mtime-firstPingTime))-10, 22);
+                    g.drawLine(xPositionForValue((int) (mtime - firstPingTime)), 0,
+                            xPositionForValue((int) (mtime - firstPingTime)), timeline.getSlider().getHeight() / 2);
+                    // g.drawString(m.label, xPositionForValue((int)(mtime-firstPingTime))-10, 22);
                 }
-            } 
+            }
         });
 
         // Layout building
         setLayout(new MigLayout());
 
-        for(SidescanPanel p : sidescanPanels) {
+        for (SidescanPanel p : sidescanPanels) {
             add(p, "w 100%, h 100%, wrap");
         }
 
@@ -172,9 +173,9 @@ LogMarkerListener {
         try {
             // This distinguishes between a drag and normal execution
             // If this is true but currentTime and lastTime as the same value
-            if(Math.abs(value - currentTime) > 1000 / 15 * timeline.getSpeed() ) {
+            if (Math.abs(value - currentTime) > 1000 / 15 * timeline.getSpeed()) {
                 // this means it dragged
-                for(SidescanPanel p : sidescanPanels)
+                for (SidescanPanel p : sidescanPanels)
                     p.clearLines();
 
                 lastUpdateTime = value;
@@ -207,7 +208,8 @@ LogMarkerListener {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return LogUtils.hasIMCSidescan(source) || source.getFile("Data.jsf") != null || source.getLog("SidescanPing") != null;
+        return LogUtils.hasIMCSidescan(source) || source.getFile("Data.jsf") != null
+                || source.getLog("SidescanPing") != null;
     }
 
     @Override
@@ -238,6 +240,7 @@ LogMarkerListener {
     public ArrayList<LogMarker> getMarkerList() {
         return markerList;
     }
+
     @Override
     public void onCleanup() {
         sidescanPanels.clear();
@@ -256,7 +259,6 @@ LogMarkerListener {
 
     }
 
-
     @Override
     public void addLogMarker(LogMarker e) {
         markerList.add(e);
@@ -271,6 +273,5 @@ LogMarkerListener {
     public void GotoMarker(LogMarker marker) {
 
     }
-
 
 }
