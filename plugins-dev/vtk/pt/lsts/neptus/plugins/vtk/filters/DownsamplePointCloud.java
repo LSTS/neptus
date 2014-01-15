@@ -37,7 +37,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCleanPolyData;
-import vtk.vtkPoints;
 
 /**
  * @author hfq FIXME
@@ -86,12 +85,12 @@ public class DownsamplePointCloud {
             outputDownsampledCloud.setNumberOfPoints(outputDownsampledCloud.getPoints().GetNumberOfPoints());
             NeptusLog.pub().info("Number of points: " + outputDownsampledCloud.getNumberOfPoints());
 
-            vtkPoints points = outputDownsampledCloud.getPoints();
+            //vtkPoints points = outputDownsampledCloud.getPoints();
 
             for (int i = 0; i < outputDownsampledCloud.getNumberOfPoints(); ++i) {
-//                outputDownsampledCloud.getVerts().InsertNextCell(1);
-//                outputDownsampledCloud.getVerts().InsertCellPoint(
-//                        pointCloud.getPoints().InsertNextPoint(points.GetPoint(i)));
+                //                outputDownsampledCloud.getVerts().InsertNextCell(1);
+                //                outputDownsampledCloud.getVerts().InsertCellPoint(
+                //                        pointCloud.getPoints().InsertNextPoint(points.GetPoint(i)));
             }
 
             // outputDownsampledCloud.setVerts()

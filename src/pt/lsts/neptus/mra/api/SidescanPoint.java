@@ -40,16 +40,18 @@ import pt.lsts.neptus.types.coord.LocationType;
 public class SidescanPoint {
     public LocationType location;
     public int x,y;
+    public int xsize;
     
     /**
      * @param location
      * @param x
      * @param y
      */
-    public SidescanPoint(int x, int y, LocationType location) {
+    public SidescanPoint(int x, int y, int xsize, LocationType location) {
         super();
         this.location = location;
         this.x = x;
         this.y = y;
+        this.xsize = xsize;
     }
 }

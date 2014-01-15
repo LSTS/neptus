@@ -389,7 +389,7 @@ For simple use the main targets are:
 		<filterset id="neptusSeacon.filters">
 			<filter token="NEPTUS_NAME" value="${Name}SC" />
 			<filter token="EXTRA_DIST_NAME" value="Seacon Edition ${seacon.release}" />
-			<filter token="INSTALL_DIR" value="${install.dir.name}Seacon" />
+			<filter token="INSTALL_DIR" value="${install.dir.name}SC" />
 			<!--filter token="VERSION_SE" value="${seacon.release}" /-->
 			<filter token="DIST_EXE" value="${dist.installer.name.seacon}" />
 			<filter token="INSTALLER_NSIS_NEPTUS_BATCH_PATH" value="..\static_files\batch_files\neptusse.bat" />

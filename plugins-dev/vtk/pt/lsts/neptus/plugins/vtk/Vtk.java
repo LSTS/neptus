@@ -73,7 +73,7 @@ import com.l2fprod.common.propertysheet.Property;
 /**
  * @author hfq
  */
-@PluginDescription(author = "hfq", name = "Vtk")
+@PluginDescription(author = "hfq", name = "3D Visualization", icon = "images/menus/3d.png")
 public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider, ComponentListener {
     private static final long serialVersionUID = 8057825167454469065L;
 
@@ -238,7 +238,6 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
     @Override
     public ImageIcon getIcon() {
-        // return ImageUtils.getIcon("images/buttons/model3d.png");
         return ImageUtils.getIcon("images/menus/3d.png");
     }
 
@@ -269,8 +268,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             canvas.GetRenderer().ResetCamera();
 
             isFirstRender = false;
+            canvas.Report();
         }
-        canvas.Report();
     }
 
     @Override

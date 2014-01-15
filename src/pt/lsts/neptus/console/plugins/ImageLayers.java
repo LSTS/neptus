@@ -79,16 +79,16 @@ public class ImageLayers extends SimpleRendererInteraction {
 
     @NeptusProperty(editable=false)
     public String layerFiles = "";
-    
+
     @NeptusProperty(editable=false)
     public String lastDir = ".";
-    
+
     private Vector<ImageLayer> layers = new Vector<>();    
     private String note = "";
     private Vector<File> files = new Vector<>();
     private JPanel scroll = new JPanel(new GridLayout(0, 2, 3, 3));
-    
-    
+
+
     public ImageLayers(ConsoleLayout cl) {
         super(cl);
         removeAll();
@@ -96,10 +96,10 @@ public class ImageLayers extends SimpleRendererInteraction {
         add(scroll, BorderLayout.CENTER);
         //scroll.setLayout(new GridLayout(0, 2));        
     }
-    
+
     private void rebuildControls() {
         scroll.removeAll();
-        
+
         for (final ImageLayer il : layers) {
             scroll.add(new JLabel(il.getName()));
             final JSlider slider = new JSlider(0, 1000, (int)(il.getTransparency() * 1000));
@@ -115,13 +115,13 @@ public class ImageLayers extends SimpleRendererInteraction {
         scroll.doLayout();
         scroll.revalidate();        
     }
-    
+
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
         if (event.getButton() == MouseEvent.BUTTON3) {
             JPopupMenu popup  = new JPopupMenu();
             popup.add("Add layer from file").addActionListener(new ActionListener() {
-                
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JFileChooser chooser = new JFileChooser(lastDir);
@@ -139,13 +139,13 @@ public class ImageLayers extends SimpleRendererInteraction {
                     }
                 }
             });
-            
+
             if (!layers.isEmpty()) {
                 JMenu menu = new JMenu("Remove");
                 JMenu menu2 = new JMenu("Opacity");
                 for (final ImageLayer l : layers) {
                     menu.add(l.getName()).addActionListener(new ActionListener() {
-                        
+
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             layers.remove(l);
@@ -153,7 +153,7 @@ public class ImageLayers extends SimpleRendererInteraction {
                             rebuildControls();
                         }
                     });
-                    
+
                     menu2.add(l.getName()+"("+l.getTransparency()+")").addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -167,23 +167,23 @@ public class ImageLayers extends SimpleRendererInteraction {
                                 if (val > 1)
                                     throw new Exception("Value must be less or equal to 1");
                                 l.setTransparency(val);
-                                
+
                             }
                             catch (Exception ex) {
                                 GuiUtils.errorMessage(getConsole(), ex);
                             }
                         }
                     });
-                    
+
                 }
                 popup.add(menu);
                 popup.add(menu2);
             }
-            
+
             popup.show(source, event.getX(), event.getY());
         }
     }
-    
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         g.setColor(Color.orange);
@@ -191,7 +191,7 @@ public class ImageLayers extends SimpleRendererInteraction {
         for (ImageLayer il : layers)
             il.paint((Graphics2D)g.create(), renderer);    
     }
-    
+
     private Future<ImageLayer> addLayer(final File f) {
         final SwingWorker<ImageLayer, Object> worker = new SwingWorker<ImageLayer, Object>() {
             @Override
@@ -231,10 +231,10 @@ public class ImageLayers extends SimpleRendererInteraction {
         }
         rebuildControls();
     }
-    
+
     @Override
     public void cleanSubPanel() {
-        
+
     }
-    
+
 }
