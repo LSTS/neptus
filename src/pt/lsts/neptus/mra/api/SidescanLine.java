@@ -94,6 +94,6 @@ public class SidescanLine {
         location.setOffsetEast(state.getPosition().getOffsetEast() + offsetEast);
         
         // Return new absolute location        
-        return new SidescanPoint(x,ypos,location.getNewAbsoluteLatLonDepth());
+        return new SidescanPoint(x, ypos, xsize, location.getNewAbsoluteLatLonDepth());
     }
 }

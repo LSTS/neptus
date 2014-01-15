@@ -355,7 +355,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     private void drawInfo(Graphics g) {
         if (mouseSidescanLine != null) {
-            LocationType loc = mouseSidescanLine.calcPointForCoord((int)(mouseX * (mouseSidescanLine.xsize / (float)image.getWidth()))).location;
+            // LocationType loc = mouseSidescanLine.calcPointForCoord((int)(mouseX * (mouseSidescanLine.xsize / (float)image.getWidth()))).location;
+            LocationType loc = convertImagePointXToLocation(mouseX, mouseSidescanLine);
 
             Graphics2D location2d = (Graphics2D) mouseLocationImage.getGraphics();
             location2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -376,12 +377,16 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g.setColor(Color.GREEN);
 
         for (SidescanPoint point : pointList) {
-            int pointX = (int) (point.x / (mouseSidescanLine.xsize / (float)image.getWidth()));
+            //int pointX = (int) (point.x / (mouseSidescanLine.xsize / (float)image.getWidth()));
+            int pointX = convertSidescanLinePointXToImagePointX(point.x, mouseSidescanLine.xsize);
+            
             if (c == 0) {
                 g.drawRect(pointX - 3, point.y - 3, 6, 6);
             }
             else {
-                int prevPointX = (int) (prevPoint.x / (mouseSidescanLine.xsize / (float)image.getWidth()));
+                // int prevPointX = (int) (prevPoint.x / (mouseSidescanLine.xsize / (float)image.getWidth()));
+                int prevPointX = convertSidescanLinePointXToImagePointX(prevPoint.x, prevPoint.xsize);
+                
                 distance = prevPoint.location.getDistanceInMeters(point.location);
                 distance = (int)(distance * 1000) / 1000.0;
                 //NeptusLog.pub().info("Distance: " + distance);
@@ -474,6 +479,36 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     }
 
+    private int convertSidescanLinePointXToImagePointX(int sidescanLineX, SidescanLine sidescanLine) {
+        return convertSidescanLinePointXToImagePointX(sidescanLineX, sidescanLine.xsize);
+    }
+
+    private int convertSidescanLinePointXToImagePointX(int sidescanLineX, int sidescanLineXSize) {
+        return (int) (sidescanLineX / (sidescanLineXSize / (float) image.getWidth()));
+    }
+
+    private int convertImagePointXToSidescanLinePointX(int imageMouseX, SidescanLine sidescanLine) {
+        return convertImagePointXToSidescanLinePointX(imageMouseX, sidescanLine.xsize);
+    }
+
+    private int convertImagePointXToSidescanLinePointX(int imageMouseX, int sidescanLineXSize) {
+        return (int) (imageMouseX * (sidescanLineXSize / (float) image.getWidth()));
+    }
+
+    /**
+     * Method to convert from mouse click x point in the image to sidescan x point.
+     * @param imageMouseX
+     * @param sidescanLine
+     * @return
+     */
+    private SidescanPoint convertImagePointXToSidescanPoint(int imageMouseX, SidescanLine sidescanLine) {
+        return sidescanLine.calcPointForCoord(convertImagePointXToSidescanLinePointX(imageMouseX, sidescanLine));
+    }
+
+    private LocationType convertImagePointXToLocation(int imageMouseX, SidescanLine sidescanLine) {
+        return convertImagePointXToSidescanPoint(imageMouseX, sidescanLine).location;
+    }
+
     /**
      * @return the range
      */
@@ -495,7 +530,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     public void clearLines() {
         lineList.clear();
-
         image.getGraphics().clearRect(0, 0, image.getWidth(), image.getHeight());
     }
 
@@ -562,7 +596,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
             else if (imode == InteractionMode.MEASURE && !parent.getTimeline().isRunning()) {
                 measure = true;
-                int x = (int) (mouseX * (mouseSidescanLine.xsize / (float)image.getWidth()));
+                // int x = (int) (mouseX * (mouseSidescanLine.xsize / (float)image.getWidth()));
+                int x = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
+                
 //                System.out.println("------------" + mouseX + "       " + x);
 //                System.out.println("------------" + mouseSidescanLine.calcPointForCoord(mouseX) + "       " + mouseSidescanLine.calcPointForCoord(x));
                 pointList.add(mouseSidescanLine.calcPointForCoord(x));
@@ -594,7 +630,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             if(res != null) {
 
                 // Calc the center of the rectangle
-                int x = (int) (((mouseX + initialX) / 2) * (mouseSidescanLine.xsize / (float)image.getWidth()));
+                // int x = (int) (((mouseX + initialX) / 2) * (mouseSidescanLine.xsize / (float)image.getWidth()));
+                // FIXME
+                int x = convertImagePointXToSidescanLinePointX((mouseX + initialX) / 2, mouseSidescanLine);
                 int y = (mouseY + initialY) / 2;
 
                 // Find the corresponding SidescanLine object
@@ -628,16 +666,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {  
-
     }
 
     @Override
     public void mouseExited(MouseEvent e) {  
-
     }
 }
