@@ -42,20 +42,20 @@ import pt.lsts.neptus.types.coord.LocationType;
  */
 public class SidescanLine {
     public long timestampMillis;
-    
+
     public int xsize;
     public int ysize;
-    
+
     public int ypos;
-    
+
     public float range;
     public SystemPositionAndAttitude state;
-    
+
     public BufferedImage image;
     public double data[];
 
     public float frequency;
-    
+
     /**
      * @param xsize
      * @param ysize
@@ -72,27 +72,27 @@ public class SidescanLine {
         this.data = data;
         this.frequency = frequency;
     }
-    
+
     /**
      *  Based on a 'x' position within a scan line calculate the proper location
      * @param x the x position
      * @return a LocationType object containing the absolute GPS location of the point
      */
     public SidescanPoint calcPointForCoord(int x) {
-        
+
         LocationType location = new LocationType();
         // Set the System lat/lon as the center point
         location.setLatitude(state.getPosition().getLatitude());
         location.setLongitude(state.getPosition().getLongitude());
-        
-        double distance = x * (range * 2 / (float)xsize) - (range);
+
+        double distance = x * (range * 2. / xsize) - range;                     // (scaled x) * scale - range (to center) - calcs are done with range * 2
         double angle = -state.getYaw() + (x < (xsize / 2) ? Math.PI : 0);
         double offsetNorth = Math.abs(distance) * Math.sin(angle);
         double offsetEast = Math.abs(distance) * Math.cos(angle);
         // Add the original vehicle offset to the calculated offset
         location.setOffsetNorth(state.getPosition().getOffsetNorth() + offsetNorth);
         location.setOffsetEast(state.getPosition().getOffsetEast() + offsetEast);
-        
+
         // Return new absolute location        
         return new SidescanPoint(x, ypos, xsize, location.getNewAbsoluteLatLonDepth());
     }
