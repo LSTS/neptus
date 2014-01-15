@@ -52,7 +52,6 @@ import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
-import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LogUtils;
@@ -67,6 +66,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
     protected MRAPanel mraPanel;
 
+    // bottom toolbar for playing / pausing etc..
     private Timeline timeline;
     // Histogram histogram;
 
@@ -79,13 +79,13 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     // List of different frequencies on this log
     // private ArrayList<Double> freqList = new ArrayList<Double>();
 
-    // Processing flags
-    @NeptusProperty(name = "vertical Blending")
-    public boolean verticalBlending = false;
-    @NeptusProperty(name = "Slant Range Correction")
-    public boolean slantRangeCorrection = false;
-    @NeptusProperty(name = "Time Variable Gain")
-    public boolean timeVariableGain = false;
+    // Processing flags - not used ?!?!
+    //    @NeptusProperty(name = "vertical Blending")
+    //    public boolean verticalBlending = false;
+    //    @NeptusProperty(name = "Slant Range Correction")
+    //    public boolean slantRangeCorrection = false;
+    //    @NeptusProperty(name = "Time Variable Gain")
+    //    public boolean timeVariableGain = false;
 
     private ArrayList<SidescanPanel> sidescanPanels = new ArrayList<SidescanPanel>();
 
