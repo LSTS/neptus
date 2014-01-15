@@ -583,6 +583,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 if (mouseY >= line.ypos && mouseY <= (line.ypos + line.ysize)) {
                     mouseSidescanLine = line;
                     ((JPanel) e.getSource()).repaint();
+                    break;
                 }
             }
 
@@ -631,8 +632,17 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                 // Calc the center of the rectangle
                 // int x = (int) (((mouseX + initialX) / 2) * (mouseSidescanLine.xsize / (float)image.getWidth()));
-                // FIXME
-                int x = convertImagePointXToSidescanLinePointX((mouseX + initialX) / 2, mouseSidescanLine);
+                // Find the corresponding SidescanLine object
+                SidescanLine lInit = null;
+                for (SidescanLine line : lineList) {
+                    if (initialY >= line.ypos && initialY <= (line.ypos + line.ysize)) {
+                        lInit = line;
+                        break;
+                    }
+                }
+                int initialPointXSidescan = convertImagePointXToSidescanLinePointX(initialX, lInit);
+                int mousePointXSidescan = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
+                int x = (mousePointXSidescan + initialPointXSidescan) / 2;
                 int y = (mouseY + initialY) / 2;
 
                 // Find the corresponding SidescanLine object
@@ -640,6 +650,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 for (SidescanLine line : lineList) {
                     if (y >= line.ypos && y <= (line.ypos + line.ysize)) {
                         l = line;
+                        break;
                     }
                 }
 
