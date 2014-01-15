@@ -93,10 +93,14 @@ public class ConfigurationManager {
                 loading = false;
             }
         }
+        long timeS = System.currentTimeMillis();
         while (loading) {
             try {
                 Thread.sleep(100);
-                System.err.println("Waiting for parameters to be loaded...");
+                if (System.currentTimeMillis() - timeS > 3000) {
+                    timeS = System.currentTimeMillis();
+                    NeptusLog.pub().warn("Waiting for parameters to be loaded...");
+                }
             }
             catch (Exception e) {
                 e.printStackTrace();
