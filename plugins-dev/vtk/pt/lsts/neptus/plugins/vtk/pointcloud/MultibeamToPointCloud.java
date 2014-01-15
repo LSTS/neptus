@@ -42,6 +42,7 @@ import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.lsf.DVLBathymetryParser;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
@@ -93,35 +94,36 @@ public class MultibeamToPointCloud {
 
     public void parseMultibeamPointCloud () {
         multibeamDeltaTParser = BathymetryParserFactory.build(this.source);
-        finder = TidePredictionFactory.create(this.source.getLsfIndex());
 
-        multibeamDeltaTParser.rewind();
+        if (multibeamDeltaTParser instanceof DVLBathymetryParser) {
+            finder = TidePredictionFactory.create(this.source.getLsfIndex());
 
-        BathymetrySwath bs;
+            NeptusLog.pub().info("Parsing dvl points to vtk points");
 
-        setPoints(new vtkPoints());
-        setIntensities(new vtkShortArray());
+            multibeamDeltaTParser.rewind();
+            BathymetrySwath bs;
 
-        int countPoints = 0;
-        LocationType initLoc = null;
+            setPoints(new vtkPoints());
 
-        while ((bs = multibeamDeltaTParser.nextSwath()) != null) {                   
-            LocationType loc = bs.getPose().getPosition();
+            int countPoints = 0;
+            LocationType initLoc = null;
 
-            if(initLoc == null)
-                initLoc = new LocationType(loc);
+            int countSwaths = 0;
+            while ((bs = multibeamDeltaTParser.nextSwath()) != null)  {
+                NeptusLog.pub().info("CountSwaths: " + countSwaths);
+                ++countSwaths;
+                LocationType loc = bs.getPose().getPosition();
+                if(initLoc == null) {
+                    initLoc = new LocationType(loc);
+                }
 
-            //double tideOffset = getTideOffset(bs.getTimestamp());
-            //finder.getTidePrediction(state.getDate(), false)
-            double tideOffset = getTideOffset(bs.getTimestamp());
+                double tideOffset = getTideOffset(bs.getTimestamp());
 
-            if (!NeptusMRA.approachToIgnorePts) {
-                for (int c = 0; c < bs.getNumBeams(); c += NeptusMRA.ptsToIgnore) {
+                for (int c = 0; c < bs.getNumBeams(); ++c) {
                     BathymetryPoint p = bs.getData()[c];
                     if (p == null)
                         continue;
 
-                    // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
                     LocationType tempLoc = new LocationType(loc);
 
                     tempLoc.translatePosition(p.north, p.east, 0);
@@ -133,61 +135,115 @@ public class MultibeamToPointCloud {
                             offset[1], 
                             p.depth - tideOffset);
 
-                    if (multibeamDeltaTParser.getHasIntensity()) {
-                        getIntensities().InsertValue(c, p.intensity);
-                        pointCloud.setHasIntensities(true);
+                    ++countPoints;
+                }
+
+            }
+            NeptusLog.pub().info("number of points: " + countPoints);
+            multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints = countPoints;
+            batInfo = multibeamDeltaTParser.getBathymetryInfo();
+
+            pointCloud.setNumberOfPoints(multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
+
+        } else {
+            finder = TidePredictionFactory.create(this.source.getLsfIndex());
+
+            multibeamDeltaTParser.rewind();
+
+            BathymetrySwath bs;
+
+            setPoints(new vtkPoints());
+            setIntensities(new vtkShortArray());
+
+            int countPoints = 0;
+            LocationType initLoc = null;
+
+            while ((bs = multibeamDeltaTParser.nextSwath()) != null) {                   
+                LocationType loc = bs.getPose().getPosition();
+
+                if(initLoc == null)
+                    initLoc = new LocationType(loc);
+
+                //double tideOffset = getTideOffset(bs.getTimestamp());
+                //finder.getTidePrediction(state.getDate(), false)
+                double tideOffset = getTideOffset(bs.getTimestamp());
+
+                if (!NeptusMRA.approachToIgnorePts) {
+                    for (int c = 0; c < bs.getNumBeams(); c += NeptusMRA.ptsToIgnore) {
+                        BathymetryPoint p = bs.getData()[c];
+                        if (p == null)
+                            continue;
+
+                        // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
+                        LocationType tempLoc = new LocationType(loc);
+
+                        tempLoc.translatePosition(p.north, p.east, 0);
+
+                        // add data to pointcloud
+                        double offset[] = tempLoc.getOffsetFrom(initLoc);
+                        //System.out.println(offset[0] + " " + offset[1]);
+                        getPoints().InsertNextPoint(offset[0], 
+                                offset[1], 
+                                p.depth - tideOffset);
+
+                        if (multibeamDeltaTParser.getHasIntensity()) {
+                            getIntensities().InsertValue(c, p.intensity);
+                            pointCloud.setHasIntensities(true);
+                        }
+
+                        ++countPoints;
                     }
+                }
+                else {
+                    for (int c = 0; c < bs.getNumBeams(); c++) {
+                        if (Math.random() > 1.0 / NeptusMRA.ptsToIgnore)
+                            continue;
 
-                    ++countPoints;
+                        BathymetryPoint p = bs.getData()[c];
+                        if (p == null)
+                            continue;
+                        // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
+                        LocationType tempLoc = new LocationType(loc);                         
+
+                        tempLoc.translatePosition(p.north, p.east, 0);
+
+                        // add data to pointcloud
+                        double offset[] = tempLoc.getOffsetFrom(initLoc);
+                        //System.out.println(offset[0] + " " + offset[1]);
+                        getPoints().InsertNextPoint(offset[0], 
+                                offset[1], 
+                                p.depth - tideOffset);
+
+
+                        //                    if (multibeamDeltaTParser.getHasIntensity()) {
+                        //                        ++countIntens;
+                        //                        getIntensities().InsertValue(c, p.intensity);
+                        //                        pointCloud.setHasIntensities(true);
+                        //
+                        //                        if (p.intensity == 0)
+                        //                            ++countIntensZero;
+                        //                        //NeptusLog.pub().info("intensity: " + p.intensity);
+                        //                        //NeptusLog.pub().info("intensity from array: " + getIntensities().GetValue(c));
+                        //                    }
+
+                        ++countPoints;
+                    }
                 }
             }
-            else {
-                for (int c = 0; c < bs.getNumBeams(); c++) {
-                    if (Math.random() > 1.0 / NeptusMRA.ptsToIgnore)
-                        continue;
 
-                    BathymetryPoint p = bs.getData()[c];
-                    if (p == null)
-                        continue;
-                    // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
-                    LocationType tempLoc = new LocationType(loc);                         
+            //        NeptusLog.pub().info("Number of intensity values: " + countIntens);
+            //        NeptusLog.pub().info("Number of intensity zero: " + countIntensZero);
 
-                    tempLoc.translatePosition(p.north, p.east, 0);
+            multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints = countPoints;
+            batInfo = multibeamDeltaTParser.getBathymetryInfo();
 
-                    // add data to pointcloud
-                    double offset[] = tempLoc.getOffsetFrom(initLoc);
-                    //System.out.println(offset[0] + " " + offset[1]);
-                    getPoints().InsertNextPoint(offset[0], 
-                            offset[1], 
-                            p.depth - tideOffset);
+            pointCloud.setNumberOfPoints(multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
 
-
-//                    if (multibeamDeltaTParser.getHasIntensity()) {
-//                        ++countIntens;
-//                        getIntensities().InsertValue(c, p.intensity);
-//                        pointCloud.setHasIntensities(true);
-//
-//                        if (p.intensity == 0)
-//                            ++countIntensZero;
-//                        //NeptusLog.pub().info("intensity: " + p.intensity);
-//                        //NeptusLog.pub().info("intensity from array: " + getIntensities().GetValue(c));
-//                    }
-
-                    ++countPoints;
-                }
-            }
+            NeptusLog.pub().info("Total number of points: " + multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
+            NeptusLog.pub().info("Number of points on multibeamtopointcloud" + getPoints().GetNumberOfPoints());
         }
 
-//        NeptusLog.pub().info("Number of intensity values: " + countIntens);
-//        NeptusLog.pub().info("Number of intensity zero: " + countIntensZero);
 
-        multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints = countPoints;
-        batInfo = multibeamDeltaTParser.getBathymetryInfo();
-
-        pointCloud.setNumberOfPoints(multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
-        
-        NeptusLog.pub().info("Total number of points: " + multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
-        NeptusLog.pub().info("Number of points on multibeamtopointcloud" + getPoints().GetNumberOfPoints());
     }
 
     /**
