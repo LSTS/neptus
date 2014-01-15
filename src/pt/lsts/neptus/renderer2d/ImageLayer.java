@@ -74,15 +74,15 @@ public class ImageLayer implements Serializable, Renderer2DPainter {
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)transparency));
         g.drawImage(image, 0, 0, null);
     }
-    
+
     public ImageLayer(String name, BufferedImage img, LocationType topLeft, LocationType bottomRight) {
         this.name = name;
         this.topLeft = new LocationType(topLeft);
         this.image = img;
         this.zoom = topLeft.getOffsetFrom(bottomRight)[0] / img.getHeight();
     }
-    
-    
+
+
     /**
      * @return the image
      */
@@ -96,7 +96,7 @@ public class ImageLayer implements Serializable, Renderer2DPainter {
     public LocationType getTopLeft() {
         return new LocationType(topLeft);
     }
-    
+
     public LocationType getBottomRight() {
         LocationType loc = new LocationType(topLeft);
         loc.translatePosition( - image.getHeight() * zoom, image.getWidth() * zoom, 0);
@@ -105,16 +105,18 @@ public class ImageLayer implements Serializable, Renderer2DPainter {
 
     public static ImageLayer read(File f) throws Exception {
         ObjectInputStream is = new ObjectInputStream(new FileInputStream(f));
-        return (ImageLayer) is.readObject();        
+        ImageLayer imgLayer = (ImageLayer) is.readObject();
+        is.close();
+        return imgLayer;        
     }
-    
+
     public void saveToFile(File f) throws Exception {
         ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(f));
         os.writeObject(this);
         os.close();
     }
 
-    
+
     /**
      * @return the transparency
      */
