@@ -376,20 +376,22 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g.setColor(Color.GREEN);
 
         for (SidescanPoint point : pointList) {
+            int pointX = (int) (point.x / (mouseSidescanLine.xsize / (float)image.getWidth()));
             if (c == 0) {
-                g.drawRect(point.x - 3, point.y - 3, 6, 6);
+                g.drawRect(pointX - 3, point.y - 3, 6, 6);
             }
             else {
+                int prevPointX = (int) (prevPoint.x / (mouseSidescanLine.xsize / (float)image.getWidth()));
                 distance = prevPoint.location.getDistanceInMeters(point.location);
                 distance = (int)(distance * 1000) / 1000.0;
                 //NeptusLog.pub().info("Distance: " + distance);
 
-                g.drawLine(prevPoint.x, prevPoint.y, point.x, point.y);
-                g.drawRect(point.x - 3, point.y - 3, 6, 6);
+                g.drawLine(prevPointX, prevPoint.y, pointX, point.y);
+                g.drawRect(pointX - 3, point.y - 3, 6, 6);
                 g.setColor(Color.white);
-                g.drawString(distance + "m", (prevPoint.x + point.x) / 2 + 3, (prevPoint.y + point.y) / 2 - 1);
+                g.drawString(distance + "m", (prevPointX + pointX) / 2 + 3, (prevPoint.y + point.y) / 2 - 1);
                 g.setColor(Color.GREEN);
-                g.drawString(distance + "m", (prevPoint.x + point.x) / 2 + 4, (prevPoint.y + point.y) / 2);
+                g.drawString(distance + "m", (prevPointX + pointX) / 2 + 4, (prevPoint.y + point.y) / 2);
             }
             prevPoint = point;
             c++;
@@ -560,7 +562,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
             else if (imode == InteractionMode.MEASURE && !parent.getTimeline().isRunning()) {
                 measure = true;
-                pointList.add(mouseSidescanLine.calcPointForCoord(mouseX));
+                int x = (int) (mouseX * (mouseSidescanLine.xsize / (float)image.getWidth()));
+//                System.out.println("------------" + mouseX + "       " + x);
+//                System.out.println("------------" + mouseSidescanLine.calcPointForCoord(mouseX) + "       " + mouseSidescanLine.calcPointForCoord(x));
+                pointList.add(mouseSidescanLine.calcPointForCoord(x));
                 //NeptusLog.pub().info("mouse coord X: " + mouseSidescanLine.calcPointForCoord(mouseX).x);
                 //NeptusLog.pub().info("mouse coord Y: " + mouseSidescanLine.calcPointForCoord(mouseX).y);
 
