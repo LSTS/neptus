@@ -35,6 +35,7 @@ import java.io.File;
 
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
+import pt.lsts.neptus.mra.importers.lsf.DVLBathymetryParser;
 
 /**
  * @author jqcorreia
@@ -47,7 +48,7 @@ public class BathymetryParserFactory {
     
     public static BathymetryParser build(IMraLogGroup log) {
         file = null;
-        dir = log.getFile(".").getParentFile();
+        dir = log.getDir();
         source = log;
         
         return getParser();
@@ -78,6 +79,8 @@ public class BathymetryParserFactory {
             // Next cases should be file = new File(...) and check for existence
             // TODO
         }
+        if (source.getLsfIndex().containsMessagesOfType("Distance"))
+            return new DVLBathymetryParser(source);
         return null;
     }
 

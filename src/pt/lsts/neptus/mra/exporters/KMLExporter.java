@@ -301,6 +301,7 @@ public class KMLExporter implements MRAExporter {
         };
 
         JFrame frm = GuiUtils.testFrame(lbl, "Creating sidescan mosaic...");
+        frm.getContentPane().setBackground(Color.white);
         frm.setSize(800, 600);
         GuiUtils.centerOnScreen(frm);
         Graphics2D g = (Graphics2D) img.getGraphics();
@@ -493,13 +494,29 @@ public class KMLExporter implements MRAExporter {
         int width = (int) Math.abs(offsets[1]* mult) ;
         int height = (int) Math.abs(offsets[0] * mult);
 
-        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        final BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D)img.getGraphics();
         BathymetrySwath swath;
         long first = (long) (1000 * source.getLsfIndex().getStartTime());
         long time = (long) (1000 * source.getLsfIndex().getEndTime()) - first;
         long lastPercent = -1;
 
+        
+        JLabel lbl = new JLabel() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void paint(java.awt.Graphics g) {
+                g.drawImage(img, 0, 0, getWidth(), getHeight(), 0, 0, img.getWidth(), img.getHeight(), null);                
+            };
+        };
+        
+
+        JFrame frm = GuiUtils.testFrame(lbl, "Creating multibeam mosaic...");
+        frm.getContentPane().setBackground(Color.black);
+        frm.setSize(800, 600);
+        GuiUtils.centerOnScreen(frm);
+        
         ColorMap cmap = ColorMapFactory.createJetColorMap();
 
         while ((swath = parser.nextSwath(1)) != null) {
@@ -525,7 +542,20 @@ public class KMLExporter implements MRAExporter {
             if (percent != lastPercent)
                 NeptusLog.pub().info("MULTIBEAM: " + percent + "% done...");
             lastPercent = percent;
+            
+            lbl.repaint();
+            lbl.setBackground(Color.black);
+            try {
+                Thread.sleep(10);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+        
+        frm.setVisible(false);
+        frm.dispose();
+
 
         try {
             ImageIO.write(img, "PNG", new File(dir, "mb_bath2.png"));
@@ -638,12 +668,15 @@ public class KMLExporter implements MRAExporter {
                 throw new Exception("This log doesn't have required data (EstimatedState)");
             }
             bw.write(path(states, "Estimated State", "estate"));
-
-            // plan
             PlanType plan = null;
-            MissionType mt = LogUtils.generateMission(source);
-            if (mt != null)
-                plan = LogUtils.generatePlan(mt, source);
+            try {                
+                MissionType mt = LogUtils.generateMission(source);
+                if (mt != null)
+                    plan = LogUtils.generatePlan(mt, source);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
             if (plan != null)
                 bw.write(path(plan.planPath(), "Planned waypoints", "plan"));
 

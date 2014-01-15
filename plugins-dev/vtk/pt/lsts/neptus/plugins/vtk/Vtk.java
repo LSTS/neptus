@@ -135,7 +135,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             add(canvas, "W 100%, H 100%");
 
             // parse 83P data storing it on a pointcloud
-            multibeamToPointCloud = new MultibeamToPointCloud(getLog(), pointCloud);
+            multibeamToPointCloud = new MultibeamToPointCloud(source, pointCloud);
             multibeamToPointCloud.parseMultibeamPointCloud();
 
             // add toolbar to Layout
@@ -233,7 +233,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 e.printStackTrace();
             }
         }
-        return beApplied;
+        return beApplied || source.getLsfIndex().containsMessagesOfType("Distance");
     }
 
     @Override

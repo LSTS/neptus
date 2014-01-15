@@ -73,6 +73,7 @@ public interface IMraLogGroup {
 	public boolean parse(URI uri);
 	
 	public File getFile(String name);
+	public File getDir();
 	
 	public void cleanup();
 	

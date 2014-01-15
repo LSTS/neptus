@@ -190,6 +190,15 @@ public class LsfLogSource implements IMraLogGroup {
         return existingMessages;
     }
 
+    
+    @Override
+    public File getDir() {
+        if (lsfFile != null) {
+            return lsfFile.getParentFile();
+        }
+        return null;
+    }
+    
     @Override
     public File getFile(String name) {
         if (lsfFile != null) {
