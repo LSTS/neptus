@@ -53,6 +53,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.SidescanLogMarker;
@@ -73,25 +74,24 @@ import pt.lsts.neptus.util.VideoCreator;
  * 
  * @author jqcorreia
  */
-public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener 
-{
+public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener {
     private static final long serialVersionUID = 1L;
 
-    SidescanAnalyzer parent;
+    private SidescanAnalyzer parent;
     SidescanConfig config = new SidescanConfig();
-    SidescanToolbar toolbar = new SidescanToolbar(this);
+    private SidescanToolbar toolbar = new SidescanToolbar(this);
 
-    SidescanParameters sidescanParams = new SidescanParameters(0, 0); // Initialize it to zero for now
+    private SidescanParameters sidescanParams = new SidescanParameters(0, 0); // Initialize it to zero for now
 
     enum InteractionMode {
         NONE, ZOOM, INFO, MARK, MEASURE;
     }
 
-    InteractionMode imode = InteractionMode.INFO;
+    private InteractionMode imode = InteractionMode.INFO;
 
-    MraVehiclePosHud posHud;
+    private MraVehiclePosHud posHud;
 
-    JPanel view = new JPanel() {
+    private JPanel view = new JPanel() {
         private static final long serialVersionUID = 1L;
 
         @Override
@@ -138,68 +138,68 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
     };
 
-    BufferedImage image;
-    BufferedImage layer;
-    Graphics2D g2d;
+    private BufferedImage image;
+    private BufferedImage layer;
+    private Graphics2D g2d;
 
-    long firstPingTime;
-    long lastPingTime;
+    private long firstPingTime;
+    private long lastPingTime;
 
-    long currentTime;
+    private long currentTime;
 
-    long prevPingTime;
+    private long prevPingTime;
 
-    float range = 0;
+    private float range = 0;
 
     // Misc
-    BufferedImage bufferedCache;
-    byte[] prevData = null;
-    int[] iData = null;
+    private BufferedImage bufferedCache;
+    private byte[] prevData = null;
+    private int[] iData = null;
 
     // Zoom
-    boolean zoom = false;
+    private boolean zoom = false;
 
     // Measure
-    boolean measure = false;
+    private boolean measure = false;
 
     // Info
-    boolean info = false;
-    ArrayList<SidescanPoint> pointList = new ArrayList<SidescanPoint>();
+    private boolean info = false;
+    private ArrayList<SidescanPoint> pointList = new ArrayList<SidescanPoint>();
 
     // Marking
-    boolean marking = false;
-    int initialX;
-    int initialY;
+    private boolean marking = false;
+    private int initialX;
+    private int initialY;
 
     // Mouse related fields
-    boolean mousePressed = false;
-    boolean mouseEntered = false;
+    private boolean mousePressed = false;
+    private boolean mouseEntered = false;
 
-    int mouseX, mouseY;
-    SidescanPoint mouseSidescanPoint; // Mouse position geographical location
-    SidescanLine mouseSidescanLine;
+    private int mouseX, mouseY;
+    private SidescanPoint mouseSidescanPoint; // Mouse position geographical location
+    private SidescanLine mouseSidescanLine;
 
-    BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(110, 60, Transparency.BITMASK);
+    private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(110, 60, Transparency.BITMASK);
 
-    List<SidescanLine> lineList = Collections.synchronizedList(new ArrayList<SidescanLine>());
-    ArrayList<SidescanLine> drawList = new ArrayList<SidescanLine>();
-    ArrayList<SidescanLine> removeList = new ArrayList<SidescanLine>();
+    private List<SidescanLine> lineList = Collections.synchronizedList(new ArrayList<SidescanLine>());
+    private ArrayList<SidescanLine> drawList = new ArrayList<SidescanLine>();
+    private ArrayList<SidescanLine> removeList = new ArrayList<SidescanLine>();
 
-    NumberFormat altFormat = GuiUtils.getNeptusDecimalFormat(2);
+    private NumberFormat altFormat = GuiUtils.getNeptusDecimalFormat(2);
 
-    SidescanParser ssParser;
+    private SidescanParser ssParser;
 
-    String altStr = I18n.text("Altitude");
-    String depthStr = I18n.text("Depth");
-    String rollStr = I18n.text("Roll");
+    private String altStr = I18n.text("Altitude");
+    private String depthStr = I18n.text("Depth");
+    private String rollStr = I18n.text("Roll");
 
-    int rangeStep;
+    private int rangeStep;
 
-    SlantRangeImageFilter filter;
+    private SlantRangeImageFilter filter;
 
-    int subsystem;
+    private int subsystem;
 
-    VideoCreator creator;
+    private VideoCreator creator;
 
     protected boolean record = false;
 
@@ -212,7 +212,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         posHud = new MraVehiclePosHud(analyzer.mraPanel.getSource().getLsfIndex(), config.hudSize, config.hudSize);
     }
 
-    public void initialize() {
+    private void initialize() {
         firstPingTime = ssParser.firstPingTimestamp();
         prevPingTime = firstPingTime;
 
@@ -244,12 +244,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
      * To record a *.mp4 video from sidescan panel
      * @param r
      */
-    public void record(boolean r) {
+    void record(boolean r) {
         record = r;
         if(r) {
             try {
-                creator = new VideoCreator(new File(parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/Sidescan_" + subsystem + ".mp4"), 800, 600);
-                System.out.println("RECORDING TO Sidescan.mp4");
+                creator = new VideoCreator(new File(parent.mraPanel.getSource().getFile("Data.lsf").getParent()
+                        + "/mra/Sidescan_" + subsystem + ".mp4"), 800, 600);
+                NeptusLog.pub().info("RECORDING TO Sidescan.mp4");
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -260,7 +261,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
     }
 
-    public void updateImage(long currentTime, long lastUpdateTime) {
+    void updateImage(long currentTime, long lastUpdateTime) {
         int yref = 0;
         this.currentTime = currentTime;
 
@@ -343,7 +344,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         removeList.clear();
     }
 
-    void drawZoom(Graphics g) {
+    private void drawZoom(Graphics g) {
         mouseX = (int) MathMiscUtils.clamp(mouseX, 50, image.getWidth() - 50);
         mouseY = (int) MathMiscUtils.clamp(mouseY, 50, image.getHeight() - 50);
         BufferedImage zoomImage = image.getSubimage(mouseX - 50, mouseY - 50, 100, 100);
@@ -352,8 +353,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     }
 
 
-    void drawInfo(Graphics g) {
-
+    private void drawInfo(Graphics g) {
         if (mouseSidescanLine != null) {
             LocationType loc = mouseSidescanLine.calcPointForCoord((int)(mouseX * (mouseSidescanLine.xsize / (float)image.getWidth()))).location;
 
@@ -369,7 +369,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
     }
 
-    void drawMeasure(Graphics g) {
+    private void drawMeasure(Graphics g) {
         int c = 0;
         double distance;
         SidescanPoint prevPoint = null;
@@ -398,7 +398,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
     }
 
-    void drawMarks(Graphics g) {
+    private void drawMarks(Graphics g) {
         if (marking) {
             int x = Math.min(initialX, mouseX);
             int y = Math.min(initialY, mouseY);
@@ -442,7 +442,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
     }
 
-    void drawRuler(Graphics g) {
+    private void drawRuler(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
 
         // Draw Horizontal Line
