@@ -195,7 +195,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
 
     protected boolean gridShown = false, showDots = false, legendShown = false;
     // protected boolean vehicleSymbolShown = true;
-    protected boolean vehicleImageShown = true;
+    protected boolean vehicleImageShown = false;
     protected boolean mapCenterShown = true;
     protected boolean mapDragEnable = true;
     protected boolean isAllTailOn = false;
