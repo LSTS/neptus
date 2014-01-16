@@ -42,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.plaf.basic.BasicSliderUI;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.Timeline;
 import pt.lsts.neptus.gui.TimelineChangeListener;
 import pt.lsts.neptus.i18n.I18n;
@@ -108,7 +109,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         lastUpdateTime = firstPingTime;
 
         for (Integer subsys : ssParser.getSubsystemList()) {
-            System.out.println(subsys);
+            NeptusLog.pub().info(subsys);
             sidescanPanels.add(new SidescanPanel(this, ssParser, subsys));
         }
 

@@ -191,10 +191,10 @@ public class JsfParser {
                 if (curPosition >= channel.size())
                     break;
             }
-            System.out.println(JsfParser.class.getSimpleName() + " :: " + minTimestampHigh);
-            System.out.println(JsfParser.class.getSimpleName() + " :: " + maxTimestampHigh);
-            System.out.println(JsfParser.class.getSimpleName() + " :: " + minTimestampLow);
-            System.out.println(JsfParser.class.getSimpleName() + " :: " + maxTimestampLow);
+            //            System.out.println(JsfParser.class.getSimpleName() + " :: " + minTimestampHigh);
+            //            System.out.println(JsfParser.class.getSimpleName() + " :: " + maxTimestampHigh);
+            //            System.out.println(JsfParser.class.getSimpleName() + " :: " + minTimestampLow);
+            //            System.out.println(JsfParser.class.getSimpleName() + " :: " + maxTimestampLow);
 
             index.firstTimestampHigh = minTimestampHigh;
             index.firstTimestampLow = minTimestampLow;
