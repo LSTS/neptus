@@ -72,6 +72,9 @@ public class DistancesPanel extends SimpleSubPanel implements IPeriodicUpdates {
     ArrayList<Point2D> pointList = new ArrayList<>();
    
     JPanel panel = new JPanel() {
+        private static final long serialVersionUID = -7057170093044940039L;
+
+        @Override
         protected void paintComponent(java.awt.Graphics g) {
             Graphics2D g2d = (Graphics2D) g;
             
@@ -79,7 +82,7 @@ public class DistancesPanel extends SimpleSubPanel implements IPeriodicUpdates {
             g2d.clearRect(0, 0, w, h);
             
             g2d.setColor(Color.YELLOW);
-            g2d.drawOval((int)centerX-5, (int)centerY-5, 10, 10);
+            g2d.drawOval(centerX-5, centerY-5, 10, 10);
             synchronized (pointList) {
                 for(Point2D p : pointList) {
                     g2d.setColor(Color.RED);

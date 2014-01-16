@@ -68,8 +68,8 @@ public class MultibeamToPointCloud {
     private vtkShortArray intensities;
 
 
-    private int countIntens = 0;
-    private int countIntensZero = 0;
+    // private int countIntens = 0;
+    // private int countIntensZero = 0;
 
 
     /**

@@ -56,6 +56,7 @@ import com.google.common.eventbus.Subscribe;
 @LayerPriority(priority = 70)
 public class ROVInfoLayer extends SimpleSubPanel implements Renderer2DPainter
 {
+    private static final long serialVersionUID = 4624519156694623532L;
     /**
      * @param console
      */

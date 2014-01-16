@@ -164,7 +164,7 @@ class KDNode {
         // results in nearest and dist-sqd
         nnbr(nearer_kd, target, nearer_hr, max_dist_sqd, lev + 1, K, nnl);
 
-        KDNode nearest = (KDNode) nnl.getHighest();
+//        KDNode nearest = (KDNode) nnl.getHighest();
         double dist_sqd;
 
         if (!nnl.isCapacityReached()) {
@@ -186,7 +186,7 @@ class KDNode {
             if (pivot_to_target < dist_sqd) {
 
                 // 10.1.1 nearest := (pivot, range-elt field of kd)
-                nearest = kd;
+                // nearest = kd;
 
                 // 10.1.2 dist-sqd = (pivot-target)^2
                 dist_sqd = pivot_to_target;
@@ -209,21 +209,21 @@ class KDNode {
             // (further-kd, target, further-hr, max-dist_sqd),
             // storing results in temp-nearest and temp-dist-sqd
             nnbr(further_kd, target, further_hr, max_dist_sqd, lev + 1, K, nnl);
-            KDNode temp_nearest = (KDNode) nnl.getHighest();
+            // KDNode temp_nearest = (KDNode) nnl.getHighest();
             double temp_dist_sqd = nnl.getMaxPriority();
 
             // 10.3 If tmp-dist-sqd < dist-sqd then
             if (temp_dist_sqd < dist_sqd) {
 
                 // 10.3.1 nearest := temp_nearest and dist_sqd := temp_dist_sqd
-                nearest = temp_nearest;
+                // nearest = temp_nearest;
                 dist_sqd = temp_dist_sqd;
             }
         }
 
         // SDL: otherwise, current point is nearest
         else if (pivot_to_target < max_dist_sqd) {
-            nearest = kd;
+            // nearest = kd;
             dist_sqd = pivot_to_target;
         }
     }
@@ -257,14 +257,14 @@ class KDNode {
         return s;
     }
 
-    private static void hrcopy(HRect hr_src, HRect hr_dst) {
-        hpcopy(hr_src.min, hr_dst.min);
-        hpcopy(hr_src.max, hr_dst.max);
-    }
+    // private static void hrcopy(HRect hr_src, HRect hr_dst) {
+    // hpcopy(hr_src.min, hr_dst.min);
+    // hpcopy(hr_src.max, hr_dst.max);
+    // }
 
-    private static void hpcopy(HPoint hp_src, HPoint hp_dst) {
-        for (int i = 0; i < hp_dst.coord.length; ++i) {
-            hp_dst.coord[i] = hp_src.coord[i];
-        }
-    }
+    // private static void hpcopy(HPoint hp_src, HPoint hp_dst) {
+    // for (int i = 0; i < hp_dst.coord.length; ++i) {
+    // hp_dst.coord[i] = hp_src.coord[i];
+    // }
+    // }
 }

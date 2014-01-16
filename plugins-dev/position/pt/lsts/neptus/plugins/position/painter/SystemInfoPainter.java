@@ -37,8 +37,6 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.ImageIcon;
-
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
@@ -55,7 +53,6 @@ import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
@@ -69,15 +66,15 @@ import pt.lsts.neptus.util.MathMiscUtils;
 public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPainter, NeptusMessageListener,
         IPeriodicUpdates, ConfigurationListener {
 
-    private static final int ICON_SIZE = 24;
-    private final ImageIcon CPU_ICON = ImageUtils.getScaledIcon(
-            ImageUtils.getImage(getClass().getResource("images/cpu-icon.png")), ICON_SIZE, ICON_SIZE);
-    private final ImageIcon BATT_ICON = ImageUtils.getScaledIcon(
-            ImageUtils.getImage(getClass().getResource("images/battery-icon.png")), ICON_SIZE, ICON_SIZE);
-    private final ImageIcon DISK_ICON = ImageUtils.getScaledIcon(
-            ImageUtils.getImage(getClass().getResource("images/disk-icon.png")), ICON_SIZE, ICON_SIZE);
-    private final ImageIcon NET_ICON = ImageUtils.getScaledIcon(
-            ImageUtils.getImage(getClass().getResource("images/wifi-icon.png")), ICON_SIZE, ICON_SIZE);
+    // private static final int ICON_SIZE = 24;
+    // private final ImageIcon CPU_ICON = ImageUtils.getScaledIcon(
+    // ImageUtils.getImage(getClass().getResource("images/cpu-icon.png")), ICON_SIZE, ICON_SIZE);
+    // private final ImageIcon BATT_ICON = ImageUtils.getScaledIcon(
+    // ImageUtils.getImage(getClass().getResource("images/battery-icon.png")), ICON_SIZE, ICON_SIZE);
+    // private final ImageIcon DISK_ICON = ImageUtils.getScaledIcon(
+    // ImageUtils.getImage(getClass().getResource("images/disk-icon.png")), ICON_SIZE, ICON_SIZE);
+    // private final ImageIcon NET_ICON = ImageUtils.getScaledIcon(
+    // ImageUtils.getImage(getClass().getResource("images/wifi-icon.png")), ICON_SIZE, ICON_SIZE);
 
     private static final int RECT_WIDTH = 250;
     private static final int RECT_HEIGHT = 100;

@@ -234,7 +234,7 @@ public class GigeManager {
 
 		controlSocket.receive(receivePacket);
 
-		ByteBuffer buf = ByteBuffer.wrap(receiveData);
+            // ByteBuffer buf = ByteBuffer.wrap(receiveData);
 //		if (buf.getShort(10) > 0)
 //			return true;
 //		return false;

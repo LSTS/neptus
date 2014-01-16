@@ -44,7 +44,6 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.Random;
 import java.util.Vector;
 
 import javax.swing.JPopupMenu;
@@ -70,9 +69,9 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
-import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -111,7 +110,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
     public FollowReferenceInteraction(ConsoleLayout cl) {
         super(cl);
-        Random r = new Random(System.currentTimeMillis());
+        // Random r = new Random(System.currentTimeMillis());
         //entity = r.nextInt(255);
     }
 
@@ -224,7 +223,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 ref.setLon(loc.getLongitudeAsDoubleValueRads());
                 // ref.setZ(new DesiredZ((float) z, DesiredZ.Z_UNITS.valueOf(z_units.name())));
                 // ref.setSpeed(new DesiredSpeed(speed, DesiredSpeed.SPEED_UNITS.METERS_PS));
-                ref.setFlags((short) (Reference.FLAG_LOCATION /* | Reference.FLAG_SPEED | Reference.FLAG_Z */));
+                ref.setFlags((Reference.FLAG_LOCATION /* | Reference.FLAG_SPEED | Reference.FLAG_Z */));
 
                 ReferencePlan plan = new ReferencePlan(controlState.getSourceName());
                 plan.addWaypointAtEnd(ref);
@@ -476,6 +475,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
             if (wpt != null) {
                 popup.add("Remove waypoint").addActionListener(new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         for (ReferencePlan p : plans.values())
                             p.removeWaypoint(wpt);
@@ -484,6 +484,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                     }
                 });
                 popup.add("Waypoint parameters").addActionListener(new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         PluginUtils.editPluginProperties(wpt, true);
                     }

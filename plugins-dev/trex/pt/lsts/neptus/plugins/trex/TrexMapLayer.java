@@ -317,16 +317,16 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
         });
     }
 
-    private void addSurvveyAreaMenu(JPopupMenu popup) {
-        popup.add("Survey an area").addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surveyArea = new LocationType[4];
-                surveyEdit = true;
-                surveyPos = 0;
-            }
-        });
-    }
+    // private void addSurvveyAreaMenu(JPopupMenu popup) {
+    // popup.add("Survey an area").addActionListener(new ActionListener() {
+    // @Override
+    // public void actionPerformed(ActionEvent e) {
+    // surveyArea = new LocationType[4];
+    // surveyEdit = true;
+    // surveyPos = 0;
+    // }
+    // });
+    // }
 
     private void addVisitThisPointMenu(JPopupMenu popup, final LocationType loc) {
         popup.add("Visit this point").addActionListener(new ActionListener() {

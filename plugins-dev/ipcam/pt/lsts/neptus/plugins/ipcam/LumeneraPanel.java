@@ -59,7 +59,8 @@ public class LumeneraPanel extends JPanel {
     Thread refreshThread;
     
     public JButton btnRefresh = new JButton(new AbstractAction("Auto-refresh") {
-        
+        private static final long serialVersionUID = -1591503925037654541L;
+
         @Override
         public void actionPerformed(ActionEvent e) {
             if(refreshThread != null) {
