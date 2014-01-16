@@ -55,7 +55,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.vtk.filters.StatisticalOutlierRemoval;
 import pt.lsts.neptus.plugins.vtk.multibeampluginutils.MultibeamToolbar;
-import pt.lsts.neptus.plugins.vtk.pointcloud.MultibeamToPointCloud;
+import pt.lsts.neptus.plugins.vtk.pointcloud.LoadToPointCloud;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
@@ -98,7 +98,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
     private Boolean componentEnabled = false;
 
-    public MultibeamToPointCloud multibeamToPointCloud;
+    public LoadToPointCloud loadToPointCloud;
 
     private Boolean isFirstRender = true;
 
@@ -114,7 +114,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
     @Override
     public String getName() {
-        return I18n.text("Multibeam 3D");
+        return I18n.text("3D Visualization");
     }
 
     @Override
@@ -135,8 +135,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             add(canvas, "W 100%, H 100%");
 
             // parse 83P data storing it on a pointcloud
-            multibeamToPointCloud = new MultibeamToPointCloud(source, pointCloud);
-            multibeamToPointCloud.parseMultibeamPointCloud();
+            loadToPointCloud = new LoadToPointCloud(source, pointCloud);
+            loadToPointCloud.parseMultibeamPointCloud();
 
             // add toolbar to Layout
             toolbar = new MultibeamToolbar(this);
@@ -162,11 +162,11 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                     StatisticalOutlierRemoval statOutRem = new StatisticalOutlierRemoval();
                     statOutRem.setMeanK(20);
                     statOutRem.setStdMul(0.2);
-                    statOutRem.applyFilter(multibeamToPointCloud.getPoints());
+                    statOutRem.applyFilter(loadToPointCloud.getPoints());
                     pointCloud.setPoints(statOutRem.getOutputPoints());
                 }
                 else
-                    pointCloud.setPoints(multibeamToPointCloud.getPoints());
+                    pointCloud.setPoints(loadToPointCloud.getPoints());
 
                 // pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());
                 // create an actor from parsed beams
@@ -183,7 +183,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 NeptusLog.pub().info("create LOD actor without intensities");
                 // }
 
-                Utils.delete(multibeamToPointCloud.getPoints());
+                Utils.delete(loadToPointCloud.getPoints());
 
                 // add parsed beams stored on pointcloud to canvas
                 canvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
@@ -268,7 +268,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             canvas.GetRenderer().ResetCamera();
 
             isFirstRender = false;
-            canvas.Report();
+            // canvas.Report();
         }
     }
 

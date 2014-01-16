@@ -54,14 +54,14 @@ import vtk.vtkShortArray;
  * @author hfq
  *
  */
-public class MultibeamToPointCloud {
+public class LoadToPointCloud {
 
     public IMraLogGroup source;
     public IMraLog state;
 
     public BathymetryInfo batInfo;
 
-    public BathymetryParser multibeamDeltaTParser;
+    public BathymetryParser parser;
     public PointCloud<PointXYZ> pointCloud;    
     private TidePredictionFinder finder;
 
@@ -77,7 +77,7 @@ public class MultibeamToPointCloud {
      * @param log
      * @param pointCloud
      */
-    public MultibeamToPointCloud(IMraLogGroup log, PointCloud<PointXYZ> pointCloud) {
+    public LoadToPointCloud(IMraLogGroup log, PointCloud<PointXYZ> pointCloud) {
         this.source = log;
         this.pointCloud = pointCloud;
     }
@@ -93,14 +93,14 @@ public class MultibeamToPointCloud {
     }
 
     public void parseMultibeamPointCloud () {
-        multibeamDeltaTParser = BathymetryParserFactory.build(this.source);
+        parser = BathymetryParserFactory.build(this.source);
 
-        if (multibeamDeltaTParser instanceof DVLBathymetryParser) {
+        if (parser instanceof DVLBathymetryParser) {
             finder = TidePredictionFactory.create(this.source.getLsfIndex());
 
             NeptusLog.pub().info("Parsing dvl points to vtk points");
 
-            multibeamDeltaTParser.rewind();
+            parser.rewind();
             BathymetrySwath bs;
 
             setPoints(new vtkPoints());
@@ -109,8 +109,7 @@ public class MultibeamToPointCloud {
             LocationType initLoc = null;
 
             int countSwaths = 0;
-            while ((bs = multibeamDeltaTParser.nextSwath()) != null)  {
-                NeptusLog.pub().info("CountSwaths: " + countSwaths);
+            while ((bs = parser.nextSwath()) != null)  {
                 ++countSwaths;
                 LocationType loc = bs.getPose().getPosition();
                 if(initLoc == null) {
@@ -140,15 +139,15 @@ public class MultibeamToPointCloud {
 
             }
             NeptusLog.pub().info("number of points: " + countPoints);
-            multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints = countPoints;
-            batInfo = multibeamDeltaTParser.getBathymetryInfo();
+            parser.getBathymetryInfo().totalNumberOfPoints = countPoints;
+            batInfo = parser.getBathymetryInfo();
 
-            pointCloud.setNumberOfPoints(multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
+            pointCloud.setNumberOfPoints(parser.getBathymetryInfo().totalNumberOfPoints);
 
         } else {
             finder = TidePredictionFactory.create(this.source.getLsfIndex());
 
-            multibeamDeltaTParser.rewind();
+            parser.rewind();
 
             BathymetrySwath bs;
 
@@ -158,7 +157,7 @@ public class MultibeamToPointCloud {
             int countPoints = 0;
             LocationType initLoc = null;
 
-            while ((bs = multibeamDeltaTParser.nextSwath()) != null) {                   
+            while ((bs = parser.nextSwath()) != null) {                   
                 LocationType loc = bs.getPose().getPosition();
 
                 if(initLoc == null)
@@ -186,7 +185,7 @@ public class MultibeamToPointCloud {
                                 offset[1], 
                                 p.depth - tideOffset);
 
-                        if (multibeamDeltaTParser.getHasIntensity()) {
+                        if (parser.getHasIntensity()) {
                             getIntensities().InsertValue(c, p.intensity);
                             pointCloud.setHasIntensities(true);
                         }
@@ -234,12 +233,12 @@ public class MultibeamToPointCloud {
             //        NeptusLog.pub().info("Number of intensity values: " + countIntens);
             //        NeptusLog.pub().info("Number of intensity zero: " + countIntensZero);
 
-            multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints = countPoints;
-            batInfo = multibeamDeltaTParser.getBathymetryInfo();
+            parser.getBathymetryInfo().totalNumberOfPoints = countPoints;
+            batInfo = parser.getBathymetryInfo();
 
-            pointCloud.setNumberOfPoints(multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
+            pointCloud.setNumberOfPoints(parser.getBathymetryInfo().totalNumberOfPoints);
 
-            NeptusLog.pub().info("Total number of points: " + multibeamDeltaTParser.getBathymetryInfo().totalNumberOfPoints);
+            NeptusLog.pub().info("Total number of points: " + parser.getBathymetryInfo().totalNumberOfPoints);
             NeptusLog.pub().info("Number of points on multibeamtopointcloud" + getPoints().GetNumberOfPoints());
         }
 

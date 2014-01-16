@@ -614,13 +614,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 // int x = (int) (mouseX * (mouseSidescanLine.xsize / (float)image.getWidth()));
                 int x = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
 
-                //                System.out.println("------------" + mouseX + "       " + x);
-                //                System.out.println("------------" + mouseSidescanLine.calcPointForCoord(mouseX) + "       " + mouseSidescanLine.calcPointForCoord(x));
                 pointList.add(mouseSidescanLine.calcPointForCoord(x));
-                //NeptusLog.pub().info("mouse coord X: " + mouseSidescanLine.calcPointForCoord(mouseX).x);
-                //NeptusLog.pub().info("mouse coord Y: " + mouseSidescanLine.calcPointForCoord(mouseX).y);
 
-                //NeptusLog.pub().info("Size pointList.size() :" + pointList.size());
                 if (pointList.size() > 2) {
                     pointList.clear();
                 }
@@ -645,8 +640,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             if(res != null) {
 
                 if (initialX == mouseX && initialY == mouseY) {
-                    NeptusLog.pub().info("Point mark");
-
                     SidescanLine sl = null;
                     for (SidescanLine line : lineList) {
                         if (initialY >= line.ypos && initialY <= (line.ypos + line.ysize)) {
@@ -701,8 +694,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                             .getLatitudeAsDoubleValueRads(), point.location.getLongitudeAsDoubleValueRads(), distanceToNadir, y, Math
                             .abs(mouseX - initialX), Math.abs(mouseY - initialY)));
                 }
-
-
             }
             marking = false;
         }
