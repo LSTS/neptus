@@ -38,12 +38,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
+import java.awt.geom.RoundRectangle2D;
 import java.util.LinkedHashMap;
+import java.util.Vector;
 import java.util.Map.Entry;
 
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.PlanControlState;
@@ -442,28 +446,23 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
     public void paint(Graphics2D g2, StateRenderer2D renderer) {
         if (active)
             SimulationEngine.simBathym.paint((Graphics2D)g2.create(), renderer);
-
+    
         if (active && mainSimulator != null)
             mainSimulator.getSimulationOverlay().paint((Graphics2D)g2.create(), renderer);
-
-        int ypos = 15;
-
+    
+        Graphics2D g;
+        Vector<String> strs = new Vector<>();
+        
         for (PlanSimulator sim : simulators.values()) {
-            
-            Graphics2D g = (Graphics2D)g2.create();
+            g = (Graphics2D)g2.create();
             
             String vehicle = sim.getVehicleId();
             long simTime = System.currentTimeMillis() - lastStateTimes.get(vehicle);
             if (simTime > 1000) {
-                String str = "[" + I18n.textf("Simulating "+vehicle+" for %time",
-                        DateTimeUtil.milliSecondsToFormatedString(simTime)) + "]";
-                g.setColor(Color.gray.darker());
-                g.drawString(str, 6, ypos+1);
-                g.setColor(Color.red.darker());
-                g.drawString(str, 5, ypos);
-                ypos += 15;
+                strs.add("[" + I18n.textf("Simulating %vehicle for %time", vehicle,
+                        DateTimeUtil.milliSecondsToFormatedString(simTime)) + "]");                
             }
-
+    
             if (System.currentTimeMillis() - lastStateTimes.get(vehicle) < millisToWait) {
                 continue;
             }
@@ -488,6 +487,27 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                                 + " m)", 7, 5);
             }
         }
+        if (!strs.isEmpty()) {
+            Collections.sort(strs);
+            
+            g = (Graphics2D)g2.create();
+            int ypos = 20;
+            double maxWidth = 0;
+            for (String str : strs)
+                maxWidth = Math.max(maxWidth, g.getFontMetrics().getStringBounds(str, g).getWidth());
+            g.setColor(new Color(255,255,255,64));
+            g.fill(new RoundRectangle2D.Double(50, 5, maxWidth+10, strs.size() * 15 + 10, 10, 10));
+            
+            for (String str : strs) {
+                g.setColor(new Color(68,68,68,128));
+                g.drawString(str, 56, ypos);
+                g.setColor(Color.red.darker());
+                g.drawString(str, 55, ypos);
+                ypos += 15;
+            }
+        }
+        
+
     }
 
     @Override
