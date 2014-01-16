@@ -1495,14 +1495,14 @@ For simple use the main targets are:
 	<target name="generate-launchers" depends="create-sh-bat-filters"
 			description="Generates the files neptus.bat and neptus.sh for launching Neptus placing new jar libs in classpath">
 
-		<copy todir="." overwrite="true">
+		<copy todir="." overwrite="true" force="true">
 			<fileset dir="${src.shell.dir}">
 				<include name="*.bat" />
 				<exclude name="${exclude-defaults}" />
 			</fileset>
 			<filterset refid="bat.filters" />
 		</copy>
-		<copy todir="." overwrite="true">
+		<copy todir="." overwrite="true" force="true">
 			<fileset dir="${src.shell.dir}">
 				<include name="*.sh" />
 				<exclude name="grow_pot.sh" />
@@ -1517,7 +1517,7 @@ For simple use the main targets are:
 			</fileset>
 		</chmod>
 
-		<copy todir="dev-scripts" overwrite="true">
+		<copy todir="dev-scripts" overwrite="true" force="true">
 			<fileset dir="${src.shell.dir}">
 				<include name="grow_pot.sh" />
 				<exclude name="${exclude-defaults}" />
@@ -1529,14 +1529,14 @@ For simple use the main targets are:
 
 		<!-- generate the installers bat and sh files -->
 		<mkdir dir="NSIS_release/static_files/batch_files"/>
-		<copy todir="./NSIS_release/static_files/batch_files" overwrite="true">
+		<copy todir="./NSIS_release/static_files/batch_files" overwrite="true" force="true">
 			<fileset dir="${src.shell.dir}/installers">
 				<include name="*.bat" />
 				<exclude name="${exclude-defaults}" />
 			</fileset>
 			<filterset refid="bat.filters" />
 		</copy>
-		<copy todir="./NSIS_release/static_files/batch_files" overwrite="true">
+		<copy todir="./NSIS_release/static_files/batch_files" overwrite="true" force="true">
 			<fileset dir="${src.shell.dir}/installers">
 				<include name="*.sh" />
 				<exclude name="${exclude-defaults}" />
