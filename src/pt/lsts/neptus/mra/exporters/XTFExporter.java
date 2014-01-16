@@ -75,7 +75,7 @@ public class XTFExporter implements MRAExporter {
     
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return BathymetryParserFactory.build(source) != null;
+        return parser != null;
     }
 
     @Override

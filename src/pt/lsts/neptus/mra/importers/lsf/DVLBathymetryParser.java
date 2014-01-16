@@ -88,11 +88,15 @@ public class DVLBathymetryParser implements BathymetryParser {
     }
 
     @Override
-    public BathymetryInfo getBathymetryInfo() {
+    public synchronized BathymetryInfo getBathymetryInfo() {
+        
+        if (info.totalNumberOfPoints == -1) {
+            
+        }
         return info;
     }
 
-    private void initialize() {
+    private synchronized void initialize() {
         IMCMessage fstm = idx.getMessage(idx.getFirstMessageOfType("Distance"));
         IMCMessage lstm = idx.getMessage(idx.getLastMessageOfType("Distance"));
 
@@ -113,7 +117,7 @@ public class DVLBathymetryParser implements BathymetryParser {
         double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE, 
                minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
         double maxAlt = 0, maxDepth = 0;
-        int count = 0;
+        
         for (EstimatedState s : idx.getIterator(EstimatedState.class, 1000)) {
             LocationType loc = IMCUtils.parseLocation(s).convertToAbsoluteLatLonDepth();
             minLat = Math.min(minLat, loc.getLatitudeAsDoubleValue());
@@ -138,8 +142,11 @@ public class DVLBathymetryParser implements BathymetryParser {
         info.topLeft = topLeft.convertToAbsoluteLatLonDepth();
         info.bottomRight = bottomRight.convertToAbsoluteLatLonDepth();
         info.maxDepth = (float)maxDepth;
-        
-        // TODO
+        for (Distance d : idx.getIterator(Distance.class)) {
+            if (beamIds.contains((int)d.getSrcEnt()))
+                info.totalNumberOfPoints++;
+        }
+        System.out.println("#points: "+info.totalNumberOfPoints);
     }
 
     @Override
@@ -192,7 +199,7 @@ public class DVLBathymetryParser implements BathymetryParser {
             for (int i = 0; i < 4; i++) {
                 Distance d = idx.getMessage(msgs[i], Distance.class);
                 distances[i] = d.getValue();
-                angles[i] = Math.PI/2 * i;//d.getLocation().firstElement().getTheta();
+                angles[i] = Math.PI + Math.PI/2 * i;//d.getLocation().firstElement().getTheta();
             }
         }
         catch (Exception e) {

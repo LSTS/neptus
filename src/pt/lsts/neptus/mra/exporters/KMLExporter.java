@@ -35,7 +35,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.geom.Line2D;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -71,6 +71,7 @@ import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParser;
+import pt.lsts.neptus.mra.importers.lsf.DVLBathymetryParser;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -471,6 +472,11 @@ public class KMLExporter implements MRAExporter {
 
     public String multibeamOverlay(File dir) {
         BathymetryParser parser = BathymetryParserFactory.build(source);
+        double pixelWidth = 1.0;
+        
+        if (parser instanceof DVLBathymetryParser)
+            pixelWidth = 2.5;
+        
         if (parser == null) {
             NeptusLog.pub().info(I18n.text("no multibeam data has been found."));
             return "";
@@ -496,6 +502,7 @@ public class KMLExporter implements MRAExporter {
 
         final BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D)img.getGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         BathymetrySwath swath;
         long first = (long) (1000 * source.getLsfIndex().getStartTime());
         long time = (long) (1000 * source.getLsfIndex().getEndTime()) - first;
@@ -536,7 +543,7 @@ public class KMLExporter implements MRAExporter {
                 Color c = cmap.getColor(1-(bp.depth/NeptusMRA.maxBathymDepth));
 
                 g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 64));
-                g.draw(new Line2D.Double(pos[1] * mult, -pos[0] * mult, pos[1] * mult, -pos[0] * mult));
+                g.fill(new Ellipse2D.Double(pos[1] * mult - pixelWidth/2, -pos[0] * mult - pixelWidth/2, pixelWidth, pixelWidth));
             }
             long percent = ((swath.getTimestamp() - first) * 100) / time;
             if (percent != lastPercent)
