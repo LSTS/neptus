@@ -106,6 +106,37 @@ public class MraVehiclePosHud {
                 states.add(null);
         }
     }
+    
+    public BufferedImage getImage(double startTimestamp, double endTimestamp, double timestep) {
+        double desiredWidth = maxX - minX;
+        double desiredHeight = maxY - minY;
+        double zoom = (width-20) / desiredWidth;
+        zoom = Math.min(zoom, (height-20) / desiredHeight);
+        if (map == null) {
+            map = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            createMap();
+        }
+        img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        
+        Graphics2D g2 = img.createGraphics();
+        g2.drawImage(map, 0, 0, null);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        for (double timestamp = startTimestamp; timestamp < endTimestamp; timestamp += timestep) {
+            Graphics2D g = (Graphics2D)g2.create();
+            setTimestamp(timestamp);
+            SystemPositionAndAttitude state = states.get(currentPosition);
+        
+            
+            g.scale(zoom, zoom);
+            g.translate(-minX+10, -minY+10);
+            double offsets[] = state.getPosition().getOffsetFrom(ref);
+            g.setColor(Color.red);
+            Ellipse2D.Double tmp = new Ellipse2D.Double(offsets[1]-3/zoom, -offsets[0]-3/zoom, 6/zoom, 6/zoom); 
+            g.fill(tmp);            
+        }
+        return img;
+
+    }
 
     public BufferedImage getImage(double timestamp) {
         double desiredWidth = maxX - minX;

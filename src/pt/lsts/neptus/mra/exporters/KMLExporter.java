@@ -126,6 +126,9 @@ public class KMLExporter implements MRAExporter {
     public boolean filterOutNadir = true;
     
     @NeptusProperty
+    public boolean removeInfiniteShadows = true;
+    
+    @NeptusProperty
     public double maximumSidescanRange = 50;
     
     
@@ -365,6 +368,8 @@ public class KMLExporter implements MRAExporter {
                         break;
                 }
                 
+                
+                
                 for (int i = startPixel; i < endPixel; i++) {
                     if (i != 0 && i % samplesPerPixel == 0) {
                         int alpha = (int)(swathTransparency * 255);
@@ -553,7 +558,7 @@ public class KMLExporter implements MRAExporter {
             lbl.repaint();
             lbl.setBackground(Color.black);
             try {
-                Thread.sleep(10);
+                Thread.yield();
             }
             catch (Exception e) {
                 e.printStackTrace();
