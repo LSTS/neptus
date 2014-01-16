@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FileWriter;
 
 import javax.imageio.ImageIO;
+import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.lsf.LsfIterator;
@@ -85,7 +86,7 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
     }
 
     @Override
-    public String process() {
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         PropertiesEditor.editProperties(NoptilusMapExporter.this, true);
         coords.squareCenter.convertToAbsoluteLatLonDepth();
         PluginUtils.saveProperties(this, "default");

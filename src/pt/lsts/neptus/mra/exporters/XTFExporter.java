@@ -39,6 +39,8 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
+import javax.swing.ProgressMonitor;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.api.BathymetryParser;
@@ -79,7 +81,7 @@ public class XTFExporter implements MRAExporter {
     }
 
     @Override
-    public String process() {
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         try {
             outFile = new File(source.getFile("Data.lsf").getParent() + "/mra/Data.xtf");
             raf = new RandomAccessFile(outFile, "rw");

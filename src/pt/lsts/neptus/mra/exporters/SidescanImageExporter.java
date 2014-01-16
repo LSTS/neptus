@@ -37,6 +37,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
+import javax.swing.ProgressMonitor;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
@@ -50,7 +51,6 @@ import pt.lsts.neptus.mra.replay.MraVehiclePosHud;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author zp
@@ -91,7 +91,7 @@ public class SidescanImageExporter implements MRAExporter {
     }
     
     @Override
-    public String process() {
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         PluginUtils.editPluginProperties(this, true);
         MraVehiclePosHud hud = new MraVehiclePosHud(source.getLsfIndex(), hudSize, hudSize);
         hud.setPathColor(Color.white);
@@ -101,8 +101,13 @@ public class SidescanImageExporter implements MRAExporter {
         long start = parser.firstPingTimestamp();
         long end = parser.lastPingTimestamp();
         int sys = parser.getSubsystemList().get(0);
+        
+        pmonitor.setMinimum(0);
+        pmonitor.setMaximum((int)((end-start)/1000));
+        
         File out;
         try {
+            pmonitor.setNote("Creating output dir");
             out = new File(source.getFile("mra"), "sss_images");
             out.mkdirs();            
         }
@@ -117,6 +122,8 @@ public class SidescanImageExporter implements MRAExporter {
         int width = imageWidth, height = 1000;
         double startTime = start / 1000.0, endTime;
         for (long time = start; time < end - 1000; time += 1000) {
+            if (pmonitor.isCanceled())
+                return "Cancelled by the user";
             lines = parser.getLinesBetween(time, time + 1000, sys, params);
             if (img == null) {
                 width = Math.min(imageWidth, lines.get(0).xsize);
@@ -125,10 +132,16 @@ public class SidescanImageExporter implements MRAExporter {
             }
             BufferedImage tmp = new BufferedImage(lines.get(0).data.length, 1, BufferedImage.TYPE_INT_RGB);
             for (SidescanLine l : lines) {
+                //if (ypos % 200 == 0) {
+                    pmonitor.setNote("Generating image "+image_num);
+                    pmonitor.setProgress((int)((time - start)/1000));
+                //}
                 if (ypos >= height || time == end) {
                     endTime = time / 1000.0;
                     BufferedImage hudImg = hud.getImage(startTime, endTime, 1.0);
                     img.getGraphics().drawImage(hudImg, 10, height - hudSize-10, hudSize - 10, height-10, 0, 0, hudSize, hudSize, null);
+                    
+                    
                     try {
                         ImageIO.write(img, "PNG", new File(out, "sss_"+image_num+".png"));
                         ypos = 0;
@@ -140,8 +153,6 @@ public class SidescanImageExporter implements MRAExporter {
                     }
                     startTime = endTime;
                 }
-                
-                
 
                 // Apply colormap to data
                 for (int c = 0; c < l.data.length; c++)
@@ -151,11 +162,12 @@ public class SidescanImageExporter implements MRAExporter {
                 ypos++;
             }
             
-            System.out.println(ypos);
+            
         }
+        pmonitor.close();
         
         return "OK";
-    }
+    }    
 
     @Override
     public String getName() {

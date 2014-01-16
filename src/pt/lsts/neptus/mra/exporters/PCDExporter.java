@@ -44,6 +44,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.ProgressMonitor;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
@@ -83,7 +85,7 @@ public class PCDExporter implements MRAExporter{
     }
     
     @SuppressWarnings("unused")
-    public String process() {
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         RandomAccessFile buf;
         FileInputStream fis;
         FileChannel channel;
@@ -455,7 +457,7 @@ public class PCDExporter implements MRAExporter{
         try {
             IMraLogGroup source = new LsfLogSource(new File(args[0]+"/Data.lsf"), null);
             PCDExporter pcde = new PCDExporter(source);
-            pcde.process();
+            pcde.process(source, null);
         }
         
         catch (Exception e) {

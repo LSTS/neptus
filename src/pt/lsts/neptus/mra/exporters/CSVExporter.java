@@ -39,15 +39,14 @@ import java.util.LinkedHashMap;
 
 import javax.swing.ProgressMonitor;
 
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.imc.EntityInfo;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.lsf.LsfIterator;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp
@@ -108,9 +107,9 @@ public class CSVExporter implements MRAExporter {
     }
 
     @Override
-    public String process() {
-        pmonitor = new ProgressMonitor(ConfigFetch.getSuperParentFrame(), I18n.text("Exporting to CSV"),
-                I18n.text("Starting up"), 0, source.listLogs().length);
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
+        //pmonitor = new ProgressMonitor(ConfigFetch.getSuperParentFrame(), I18n.text("Exporting to CSV"),
+        //        I18n.text("Starting up"), 0, source.listLogs().length);
         File dir = new File(source.getFile("mra"), "csv");
 
         dir.mkdirs();
@@ -123,6 +122,9 @@ public class CSVExporter implements MRAExporter {
 
         int i = 0;
         for (String message : source.listLogs()) {
+            if (pmonitor.isCanceled())
+                return "Cancelled by the user";
+            
             try {
                 File out = new File(dir, message + ".csv");
                 BufferedWriter bw = new BufferedWriter(new FileWriter(out));
