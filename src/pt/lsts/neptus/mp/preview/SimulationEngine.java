@@ -149,7 +149,7 @@ public class SimulationEngine {
                 Maneuver next = plan.getGraph().getFollowingManeuver(m.getId());
                 if (next == null) {
                     finished = true;
-                    NeptusLog.pub().info("Plan finished at " + new Date());
+                    NeptusLog.pub().debug("Plan finished at " + new Date());
                 }
                 else{
                     manId = next.getId();
