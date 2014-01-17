@@ -50,6 +50,7 @@ import pt.lsts.neptus.gui.Loader;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
+import pt.lsts.neptus.plugins.configWindow.SettingsWindow;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -122,6 +123,10 @@ public class LAUVConsole extends ConsoleLayout {
         cls.imcOn();
         // ConsoleParse.loadConsole(cls, ConfigFetch.resolvePath(consoleURL));
         ConsoleParse.parseFile(ConfigFetch.resolvePath(consoleURL), cls);
+
+        SettingsWindow settings = new SettingsWindow(cls);
+        settings.init();
+
         cls.setConsoleChanged(false);
 
         GuiUtils.leftTopScreen(cls);

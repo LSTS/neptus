@@ -143,7 +143,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private Graphics2D g2d;
 
     private long firstPingTime;
-//    private long lastPingTime;
+    //    private long lastPingTime;
 
     private long currentTime;
 
@@ -153,8 +153,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     // Misc
     private BufferedImage bufferedCache;
-//    private byte[] prevData = null;
-//    private int[] iData = null;
+    //    private byte[] prevData = null;
+    //    private int[] iData = null;
 
     // Zoom
     private boolean zoom = false;
@@ -171,12 +171,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private int initialX;
     private int initialY;
 
-//    // Mouse related fields
-//    private boolean mousePressed = false;
-//    private boolean mouseEntered = false;
+    //    // Mouse related fields
+    //    private boolean mousePressed = false;
+    //    private boolean mouseEntered = false;
 
     private int mouseX, mouseY;
-//    private SidescanPoint mouseSidescanPoint; // Mouse position geographical location
+    //    private SidescanPoint mouseSidescanPoint; // Mouse position geographical location
     private SidescanLine mouseSidescanLine;
 
     private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(110, 60, Transparency.BITMASK);
@@ -190,12 +190,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private SidescanParser ssParser;
 
     private String altStr = I18n.text("Altitude");
-//    private String depthStr = I18n.text("Depth");
+    //    private String depthStr = I18n.text("Depth");
     private String rollStr = I18n.text("Roll");
 
     private int rangeStep;
 
-//    private SlantRangeImageFilter filter;
+    //    private SlantRangeImageFilter filter;
 
     private int subsystem;
 
@@ -379,14 +379,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         for (SidescanPoint point : pointList) {
             //int pointX = (int) (point.x / (mouseSidescanLine.xsize / (float)image.getWidth()));
             int pointX = convertSidescanLinePointXToImagePointX(point.x, mouseSidescanLine.xsize);
-            
+
             if (c == 0) {
                 g.drawRect(pointX - 3, point.y - 3, 6, 6);
             }
             else {
                 // int prevPointX = (int) (prevPoint.x / (mouseSidescanLine.xsize / (float)image.getWidth()));
                 int prevPointX = convertSidescanLinePointXToImagePointX(prevPoint.x, prevPoint.xsize);
-                
+
                 distance = prevPoint.location.getDistanceInMeters(point.location);
                 distance = (int)(distance * 1000) / 1000.0;
                 //NeptusLog.pub().info("Distance: " + distance);
@@ -419,7 +419,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
             Color color = Color.WHITE;
             Color colorConstrast = Color.BLACK;
-            
+
             SidescanLine line;
 
             synchronized (lineList) {
@@ -613,9 +613,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 measure = true;
                 // int x = (int) (mouseX * (mouseSidescanLine.xsize / (float)image.getWidth()));
                 int x = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
-                
-//                System.out.println("------------" + mouseX + "       " + x);
-//                System.out.println("------------" + mouseSidescanLine.calcPointForCoord(mouseX) + "       " + mouseSidescanLine.calcPointForCoord(x));
+
+                //                System.out.println("------------" + mouseX + "       " + x);
+                //                System.out.println("------------" + mouseSidescanLine.calcPointForCoord(mouseX) + "       " + mouseSidescanLine.calcPointForCoord(x));
                 pointList.add(mouseSidescanLine.calcPointForCoord(x));
                 //NeptusLog.pub().info("mouse coord X: " + mouseSidescanLine.calcPointForCoord(mouseX).x);
                 //NeptusLog.pub().info("mouse coord Y: " + mouseSidescanLine.calcPointForCoord(mouseX).y);
@@ -644,39 +644,65 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             // Check for a valid response 
             if(res != null) {
 
-                // Calc the center of the rectangle
-                // int x = (int) (((mouseX + initialX) / 2) * (mouseSidescanLine.xsize / (float)image.getWidth()));
-                // Find the corresponding SidescanLine object
-                SidescanLine lInit = null;
-                for (SidescanLine line : lineList) {
-                    if (initialY >= line.ypos && initialY <= (line.ypos + line.ysize)) {
-                        lInit = line;
-                        break;
+                if (initialX == mouseX && initialY == mouseY) {
+                    NeptusLog.pub().info("Point mark");
+
+                    SidescanLine sl = null;
+                    for (SidescanLine line : lineList) {
+                        if (initialY >= line.ypos && initialY <= (line.ypos + line.ysize)) {
+                            sl = line;
+                            break;
+                        }
                     }
-                }
-                int initialPointXSidescan = convertImagePointXToSidescanLinePointX(initialX, lInit);
-                int mousePointXSidescan = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
-                int x = (mousePointXSidescan + initialPointXSidescan) / 2;
-                int y = (mouseY + initialY) / 2;
+                    int x = convertImagePointXToSidescanLinePointX(initialX, sl);
+                    int y = convertImagePointXToSidescanLinePointX(initialY, sl);
 
-                // Find the corresponding SidescanLine object
-                SidescanLine l = null;
-                for (SidescanLine line : lineList) {
-                    if (y >= line.ypos && y <= (line.ypos + line.ysize)) {
-                        l = line;
-                        break;
+
+                    SidescanPoint point = sl.calcPointForCoord(x);
+
+                    double distanceToNadir = sl.state.getPosition().getDistanceInMeters(point.location);
+                    distanceToNadir *= (x > sl.xsize / 2 ? 1 : -1);
+
+                    parent.mraPanel.addMarker(new SidescanLogMarker(res, sl.timestampMillis, point.location
+                            .getLatitudeAsDoubleValueRads(), point.location.getLongitudeAsDoubleValueRads(), distanceToNadir, y, Math
+                            .abs(mouseX - initialX), Math.abs(mouseY - initialY)));
+                } else {
+                    // Calc the center of the rectangle
+                    // int x = (int) (((mouseX + initialX) / 2) * (mouseSidescanLine.xsize / (float)image.getWidth()));
+                    // Find the corresponding SidescanLine object
+                    SidescanLine lInit = null;
+                    for (SidescanLine line : lineList) {
+                        if (initialY >= line.ypos && initialY <= (line.ypos + line.ysize)) {
+                            lInit = line;
+                            break;
+                        }
                     }
+                    int initialPointXSidescan = convertImagePointXToSidescanLinePointX(initialX, lInit);
+                    int mousePointXSidescan = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
+                    int x = (mousePointXSidescan + initialPointXSidescan) / 2;
+                    int y = (mouseY + initialY) / 2;
+
+                    // Find the corresponding SidescanLine object
+                    SidescanLine l = null;
+                    for (SidescanLine line : lineList) {
+                        if (y >= line.ypos && y <= (line.ypos + line.ysize)) {
+                            l = line;
+                            break;
+                        }
+                    }
+
+                    SidescanPoint point = l.calcPointForCoord(x);
+
+                    // Distance to line center point, negative values mean portboard
+                    double distanceToNadir = l.state.getPosition().getDistanceInMeters(point.location); 
+                    distanceToNadir *= (x > l.xsize / 2 ? 1 : -1);
+
+                    parent.mraPanel.addMarker(new SidescanLogMarker(res, l.timestampMillis, point.location
+                            .getLatitudeAsDoubleValueRads(), point.location.getLongitudeAsDoubleValueRads(), distanceToNadir, y, Math
+                            .abs(mouseX - initialX), Math.abs(mouseY - initialY)));
                 }
 
-                SidescanPoint point = l.calcPointForCoord(x);
 
-                // Distance to line center point, negative values mean portboard
-                double distanceToNadir = l.state.getPosition().getDistanceInMeters(point.location); 
-                distanceToNadir *= (x > l.xsize / 2 ? 1 : -1);
-
-                parent.mraPanel.addMarker(new SidescanLogMarker(res, l.timestampMillis, point.location
-                        .getLatitudeAsDoubleValueRads(), point.location.getLongitudeAsDoubleValueRads(), distanceToNadir, y, Math
-                        .abs(mouseX - initialX), Math.abs(mouseY - initialY)));
             }
             marking = false;
         }
