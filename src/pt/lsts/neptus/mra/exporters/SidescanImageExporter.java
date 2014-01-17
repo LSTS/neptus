@@ -129,21 +129,20 @@ public class SidescanImageExporter implements MRAExporter {
                 width = Math.min(imageWidth, lines.get(0).xsize);
                 height = imageHeight;
                 img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+                img.getGraphics().clearRect(0, 0, img.getWidth(), img.getHeight());
             }
             BufferedImage tmp = new BufferedImage(lines.get(0).data.length, 1, BufferedImage.TYPE_INT_RGB);
             for (SidescanLine l : lines) {
-                //if (ypos % 200 == 0) {
-                    pmonitor.setNote("Generating image "+image_num);
-                    pmonitor.setProgress((int)((time - start)/1000));
-                //}
+                pmonitor.setNote("Generating image "+image_num);
+                pmonitor.setProgress((int)((time - start)/1000));
                 if (ypos >= height || time == end) {
                     endTime = time / 1000.0;
                     BufferedImage hudImg = hud.getImage(startTime, endTime, 1.0);
                     img.getGraphics().drawImage(hudImg, 10, height - hudSize-10, hudSize - 10, height-10, 0, 0, hudSize, hudSize, null);
                     
-                    
                     try {
                         ImageIO.write(img, "PNG", new File(out, "sss_"+image_num+".png"));
+                        img.getGraphics().clearRect(0, 0, img.getWidth(), img.getHeight());
                         ypos = 0;
                         image_num++;
                     }
@@ -161,8 +160,19 @@ public class SidescanImageExporter implements MRAExporter {
                 img.getGraphics().drawImage(tmp, 0, ypos, width-1, ypos+1, 0, 0, tmp.getWidth(), tmp.getHeight(), null);
                 ypos++;
             }
-            
-            
+        }
+        
+        BufferedImage hudImg = hud.getImage(startTime, end /1000.0, 1.0);
+        img.getGraphics().drawImage(hudImg, 10, height - hudSize-10, hudSize - 10, height-10, 0, 0, hudSize, hudSize, null);
+        
+        try {
+            ImageIO.write(img, "PNG", new File(out, "sss_"+image_num+".png"));
+            ypos = 0;
+            image_num++;
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+            return e.getMessage();
         }
         pmonitor.close();
         
