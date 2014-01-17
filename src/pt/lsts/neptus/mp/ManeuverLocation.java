@@ -127,6 +127,29 @@ public class ManeuverLocation extends LocationType {
         super.load(doc);
         Node node;
 
+        node = doc.selectSingleNode("//depth");
+        if (node != null) {
+            setZ(Double.parseDouble(node.getText()));
+            if (getZ() >= 0)
+                setZUnits(Z_UNITS.DEPTH);
+            else {
+                setZUnits(Z_UNITS.ALTITUDE);
+                setZ(-getZ());
+            }
+        }
+        
+        node = doc.selectSingleNode("//height");
+        if (node != null) {
+            setZUnits(Z_UNITS.HEIGHT);
+            setZ(Double.parseDouble(node.getText()));
+        }
+        
+        node = doc.selectSingleNode("//altitude");
+        if (node != null) {
+            setZUnits(Z_UNITS.ALTITUDE);
+            setZ(Double.parseDouble(node.getText()));
+        }
+        
         node = doc.selectSingleNode("//z");
         if (node != null)
             setZ(Double.parseDouble(node.getText()));
