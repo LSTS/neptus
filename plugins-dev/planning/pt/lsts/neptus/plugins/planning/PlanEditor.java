@@ -55,6 +55,7 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -78,6 +79,7 @@ import javax.swing.undo.UndoManager;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
@@ -795,10 +797,13 @@ MissionChangeListener {
         copy.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/editcopy.png")));
         actions.add(copy);
 
-        for (String manName : mf.getAvailableManeuversIDs()) {
+        List<String> names = Arrays.asList(mf.getAvailableManeuversIDs());
+        Collections.sort(names);
+        ImageIcon icon = ImageUtils.getIcon("images/led_none.png");
+        for (String manName : names) {
             final String manType = manName;
             AbstractAction act = new AbstractAction(I18n.textf("Add %maneuverName1 before %maneuverName2", manName, man.getId()),
-                    mf.getManeuverIcon(manName)) {
+                    icon) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -1116,9 +1121,13 @@ MissionChangeListener {
 
                 popup.addSeparator();
 
-                for (final String manName : mf.getAvailableManeuversIDs()) {
+                List<String> names = Arrays.asList(mf.getAvailableManeuversIDs());
+                Collections.sort(names);
+                
+                ImageIcon icon = ImageUtils.getIcon("images/led_none.png");
+                for (final String manName : names) {
                     String manNameStr = I18n.text(manName); 
-                    AbstractAction act = new AbstractAction(I18n.textf("Add %maneuverName", manNameStr), mf.getManeuverIcon(manName)) {
+                    AbstractAction act = new AbstractAction(I18n.textf("Add %maneuverName", manNameStr), icon) {
                         private static final long serialVersionUID = 1L;
 
                         private final Point2D mousePos = mousePoint;
