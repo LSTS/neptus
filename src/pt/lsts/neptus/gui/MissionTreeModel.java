@@ -34,6 +34,7 @@ package pt.lsts.neptus.gui;
 import java.text.Collator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
@@ -211,7 +212,7 @@ public class MissionTreeModel extends DefaultTreeModel {
         int nodeChildCount = getChildCount(parent);
         ExtendedTreeNode childAt;
         NameId temp;
-        Collator collator = Collator.getInstance();
+        Collator collator = Collator.getInstance(Locale.US);
         for (int c = 0; c < nodeChildCount; c++) {
             childAt = (ExtendedTreeNode) parent.getChildAt(c);
             temp = (NameId) childAt.getUserObject();

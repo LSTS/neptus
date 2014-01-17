@@ -52,9 +52,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.text.Collator;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -795,10 +800,19 @@ MissionChangeListener {
         copy.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/editcopy.png")));
         actions.add(copy);
 
-        for (String manName : mf.getAvailableManeuversIDs()) {
+        List<String> names = Arrays.asList(mf.getAvailableManeuversIDs());
+        Collections.sort(names, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                Collator collator = Collator.getInstance(Locale.US);
+                return collator.compare(o1, o2);
+            }
+        });
+        ImageIcon icon = ImageUtils.getIcon("images/led_none.png");
+        for (String manName : names) {
             final String manType = manName;
             AbstractAction act = new AbstractAction(I18n.textf("Add %maneuverName1 before %maneuverName2", manName, man.getId()),
-                    mf.getManeuverIcon(manName)) {
+                    icon) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -883,13 +897,12 @@ MissionChangeListener {
 
             final Maneuver[] mans = planElem.getAllInterceptedManeuvers(event.getPoint());
 
+            popup.addSeparator();
             if (mans.length == 1) {
-                popup.addSeparator();
                 for (AbstractAction act : getActionsForManeuver(mans[0], (Point) mousePoint))
                     popup.add(act);
             }
             else if (mans.length > 1) {
-                popup.addSeparator();
                 for (Maneuver m : mans) {
                     JMenu subMenu = new JMenu(m.getId());
                     if (m instanceof LocatedManeuver) {
@@ -907,183 +920,183 @@ MissionChangeListener {
                 }
             }
             else {
-                popup.addSeparator();
-                JMenu planSettings = new JMenu(I18n.text("Plan Settings"));
+                if (plan.hasInitialManeuver()) {
+                    JMenu planSettings = new JMenu(I18n.text("Change existing Maneuvers"));
+                    AbstractAction pDepth = new AbstractAction(I18n.text("Plan depth / altitude...")) {
+                        private static final long serialVersionUID = 1L;
 
-                AbstractAction pDepth = new AbstractAction(I18n.text("Plan depth / altitude...")) {
-                    private static final long serialVersionUID = 1L;
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
 
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
+                            ManeuverLocation loc = new ManeuverLocation();
 
-                        ManeuverLocation loc = new ManeuverLocation();
+                            for (Maneuver m : plan.getGraph().getAllManeuvers()) {
+                                if (m instanceof LocatedManeuver) {
+                                    loc = ((LocatedManeuver) m).getManeuverLocation().clone();
+                                    break;
+                                }
+                            }
 
-                        for (Maneuver m : plan.getGraph().getAllManeuvers()) {
-                            if (m instanceof LocatedManeuver) {
-                                loc = ((LocatedManeuver) m).getManeuverLocation().clone();
-                                break;
+                            boolean newZ = ZValueSelector.showHeightDepthDialog(getConsole().getMainPanel(), loc,
+                                    I18n.text("Plan depth / altitude"));
+                            if (newZ) {
+                                planElem.setPlanZ(loc.getZ(), loc.getZUnits());
+                                refreshPropertiesManeuver();
                             }
                         }
+                    };
 
-                        boolean newZ = ZValueSelector.showHeightDepthDialog(getConsole().getMainPanel(), loc,
-                                I18n.text("Plan depth / altitude"));
-                        if (newZ) {
-                            planElem.setPlanZ(loc.getZ(), loc.getZUnits());
+                    pDepth.putValue(AbstractAction.SMALL_ICON,
+                            new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+
+                    planSettings.add(pDepth);
+                    AbstractAction pVel = new AbstractAction(I18n.text("Plan speed...")) {
+                        private static final long serialVersionUID = 1L;
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+
+                            String[] optionsI18n = { I18n.text("m/s"), I18n.text("RPM"), "%" };
+                            String[] optionsNotI18n = { "m/s", "RPM", "%" };
+                            DefaultProperty dp = planElem.getLastSetProperties().get("Speed units");
+                            String curValueNotI18n = "m/s";
+                            if (dp != null)
+                                curValueNotI18n = dp.getValue().toString();
+
+                            Object resp = JOptionPane.showInputDialog(getConsole(),
+                                    I18n.text("Please choose the speed units"), I18n.text("Set plan speed"),
+                                    JOptionPane.QUESTION_MESSAGE, null, optionsI18n, I18n.text(curValueNotI18n));
+                            if (resp == null)
+                                return;
+
+                            String velUnitI18n = resp.toString();
+                            String velUnitNotI18n = "m/s";
+                            for (int i = 0; i < optionsI18n.length; i++) {
+                                if (velUnitI18n.equals(optionsI18n[i])) {
+                                    velUnitNotI18n = optionsNotI18n[i];
+                                    break;
+                                }
+                            }
+
+                            double velocity = 0;
+                            boolean validVel = false;
+                            while (!validVel) {
+                                double curSpeed = 1.3;
+                                dp = planElem.getLastSetProperties().get("Speed");
+                                if (dp != null)
+                                    curSpeed = (Double) dp.getValue();
+
+                                String res = JOptionPane.showInputDialog(getConsole(),
+                                        I18n.textf("Enter new speed (%speedUnit)", velUnitI18n), curSpeed);
+                                if (res == null)
+                                    return;
+                                try {
+                                    velocity = Double.parseDouble(res);
+                                    validVel = true;
+                                }
+                                catch (Exception ex) {
+                                    ex.printStackTrace();
+                                    GuiUtils.errorMessage(getConsole(), I18n.text("Set plan speed"),
+                                            I18n.text("Speed must be a numeric value"));
+                                }
+                            }
+
+                            DefaultProperty propVel = new DefaultProperty();
+                            propVel.setName("Speed");
+                            propVel.setValue(velocity);
+                            propVel.setType(Double.class);
+                            propVel.setDisplayName(I18n.text("Speed"));
+                            planElem.setPlanProperty(propVel);
+
+                            DefaultProperty propVelUnits = new DefaultProperty();
+                            propVelUnits.setName("Speed units");
+                            propVelUnits.setValue(velUnitNotI18n); // velUnitI18n
+                            propVelUnits.setType(String.class);
+                            propVelUnits.setDisplayName(I18n.text("Speed units"));
+                            planElem.setPlanProperty(propVelUnits);
+
                             refreshPropertiesManeuver();
                         }
-                    }
-                };
+                    };
+                    pVel.putValue(AbstractAction.SMALL_ICON,
+                            new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+                    planSettings.add(pVel);
 
-                pDepth.putValue(AbstractAction.SMALL_ICON,
-                        new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+                    AbstractAction pPayload = new AbstractAction(I18n.text("Payload settings...")) {
+                        private static final long serialVersionUID = 1L;
 
-                planSettings.add(pDepth);
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            // PropertiesEditor editor = new PropertiesEditor();
 
-                AbstractAction pVel = new AbstractAction(I18n.text("Plan speed...")) {
-                    private static final long serialVersionUID = 1L;
+                            Goto pivot = new Goto();
+                            PropertySheetPanel psp = new PropertySheetPanel();
+                            psp.setEditorFactory(PropertiesEditor.getPropertyEditorRegistry());
+                            psp.setRendererFactory(PropertiesEditor.getPropertyRendererRegistry());
+                            psp.setMode(PropertySheet.VIEW_AS_CATEGORIES);
+                            psp.setToolBarVisible(false);
+                            psp.setSortingCategories(true);
 
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
+                            psp.setDescriptionVisible(true);
 
-                        String[] optionsI18n = { I18n.text("m/s"), I18n.text("RPM"), "%" };
-                        String[] optionsNotI18n = { "m/s", "RPM", "%" };
-                        DefaultProperty dp = planElem.getLastSetProperties().get("Speed units");
-                        String curValueNotI18n = "m/s";
-                        if (dp != null)
-                            curValueNotI18n = dp.getValue().toString();
+                            ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(plan.getVehicle(), pivot,
+                                    psp);
+                            DefaultProperty[] properties = payloadConfig.getProperties();
 
-                        Object resp = JOptionPane.showInputDialog(getConsole(),
-                                I18n.text("Please choose the speed units"), I18n.text("Set plan speed"),
-                                JOptionPane.QUESTION_MESSAGE, null, optionsI18n, I18n.text(curValueNotI18n));
-                        if (resp == null)
-                            return;
+                            // FIXME localize these properties!
+                            // Vector<DefaultProperty> result = new Vector<DefaultProperty>();
+                            // PropertiesEditor.localizeProperties(Arrays.asList(properties), result);
+                            // DefaultProperty[] propertiesLocalized = properties;//result.toArray(new
+                            // DefaultProperty[0]);
 
-                        String velUnitI18n = resp.toString();
-                        String velUnitNotI18n = "m/s";
-                        for (int i = 0; i < optionsI18n.length; i++) {
-                            if (velUnitI18n.equals(optionsI18n[i])) {
-                                velUnitNotI18n = optionsNotI18n[i];
-                                break;
+                            psp.setProperties(properties);
+
+                            final PropertySheetDialog propertySheetDialog = PropertiesEditor.createWindow(getConsole(),
+                                    true, psp, "Payload Settings to apply to entire plan");
+                            if (propertySheetDialog.ask()) {
+                                // DefaultProperty[] propsUnlocalized = PropertiesEditor.unlocalizeProps(original,
+                                // psp.getProperties());
+                                payloadConfig.setProperties(properties);
+                                Vector<IMCMessage> startActions = new Vector<>();
+
+                                startActions.addAll(Arrays.asList(pivot.getStartActions().getAllMessages()));
+
+
+                                for (Maneuver m : plan.getGraph().getAllManeuvers()) {
+                                    m.getStartActions().parseMessages(startActions);
+                                    NeptusLog.pub().info("<###> " + m.getId());
+                                }
                             }
                         }
+                    };
+                    pPayload.putValue(AbstractAction.SMALL_ICON,
+                            new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+                    planSettings.add(pPayload);
 
-                        double velocity = 0;
-                        boolean validVel = false;
-                        while (!validVel) {
-                            double curSpeed = 1.3;
-                            dp = planElem.getLastSetProperties().get("Speed");
-                            if (dp != null)
-                                curSpeed = (Double) dp.getValue();
+                    AbstractAction pVehicle = new AbstractAction(I18n.text("Set plan vehicles...")) {
+                        private static final long serialVersionUID = 1L;
 
-                            String res = JOptionPane.showInputDialog(getConsole(),
-                                    I18n.textf("Enter new speed (%speedUnit)", velUnitI18n), curSpeed);
-                            if (res == null)
-                                return;
-                            try {
-                                velocity = Double.parseDouble(res);
-                                validVel = true;
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            Window parentW = SwingUtilities.getWindowAncestor(getConsole());
+                            String[] vehicles = VehicleSelectionDialog.showSelectionDialog(parentW, plan.getVehicles()
+                                    .toArray(new VehicleType[0]));
+                            Vector<VehicleType> vts = new Vector<VehicleType>();
+                            for (String v : vehicles) {
+                                vts.add(VehiclesHolder.getVehicleById(v));
                             }
-                            catch (Exception ex) {
-                                ex.printStackTrace();
-                                GuiUtils.errorMessage(getConsole(), I18n.text("Set plan speed"),
-                                        I18n.text("Speed must be a numeric value"));
-                            }
+                            plan.setVehicles(vts);
                         }
+                    };
+                    pVehicle.putValue(AbstractAction.SMALL_ICON,
+                            new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+                    planSettings.add(pVehicle);
 
-                        DefaultProperty propVel = new DefaultProperty();
-                        propVel.setName("Speed");
-                        propVel.setValue(velocity);
-                        propVel.setType(Double.class);
-                        propVel.setDisplayName(I18n.text("Speed"));
-                        planElem.setPlanProperty(propVel);
+                    planSettings.setIcon(new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
+                    popup.add(planSettings);
 
-                        DefaultProperty propVelUnits = new DefaultProperty();
-                        propVelUnits.setName("Speed units");
-                        propVelUnits.setValue(velUnitNotI18n); // velUnitI18n
-                        propVelUnits.setType(String.class);
-                        propVelUnits.setDisplayName(I18n.text("Speed units"));
-                        planElem.setPlanProperty(propVelUnits);
-
-                        refreshPropertiesManeuver();
-                    }
-                };
-                pVel.putValue(AbstractAction.SMALL_ICON,
-                        new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
-                planSettings.add(pVel);
-
-
-                AbstractAction pPayload = new AbstractAction(I18n.text("Payload settings...")) {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        //PropertiesEditor editor = new PropertiesEditor();
-
-                        Goto pivot = new Goto();
-                        PropertySheetPanel psp = new PropertySheetPanel();
-                        psp.setEditorFactory(PropertiesEditor.getPropertyEditorRegistry());    
-                        psp.setRendererFactory(PropertiesEditor.getPropertyRendererRegistry());    
-                        psp.setMode(PropertySheet.VIEW_AS_CATEGORIES);
-                        psp.setToolBarVisible(false);                        
-                        psp.setSortingCategories(true);
-
-                        psp.setDescriptionVisible(true);
-
-                        ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(plan.getVehicle(), pivot, psp);
-                        DefaultProperty[] properties = payloadConfig.getProperties();
-                      
-                        // FIXME localize these properties!
-                        //Vector<DefaultProperty> result = new Vector<DefaultProperty>();
-                        //PropertiesEditor.localizeProperties(Arrays.asList(properties), result);
-                       // DefaultProperty[] propertiesLocalized = properties;//result.toArray(new DefaultProperty[0]);
-
-                        psp.setProperties(properties);
-
-                        final PropertySheetDialog propertySheetDialog = PropertiesEditor.createWindow(getConsole(), true, psp,
-                                "Payload Settings to apply to entire plan");
-                        if (propertySheetDialog.ask()) {
-                           // DefaultProperty[] propsUnlocalized = PropertiesEditor.unlocalizeProps(original, psp.getProperties());                            
-                            payloadConfig.setProperties(properties);
-                            Vector<IMCMessage> startActions = new Vector<>();
-                            
-                            startActions.addAll(Arrays.asList(pivot.getStartActions().getAllMessages()));
-                            
-                            
-                            for (Maneuver m : plan.getGraph().getAllManeuvers()) {
-                                m.getStartActions().parseMessages(startActions);
-                                NeptusLog.pub().info("<###> "+m.getId());
-                            }
-                        }
-                    }                    
-                };
-                pPayload.putValue(AbstractAction.SMALL_ICON,
-                        new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
-                planSettings.add(pPayload);
-
-                AbstractAction pVehicle = new AbstractAction(I18n.text("Set plan vehicles...")) {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Window parentW = SwingUtilities.getWindowAncestor(getConsole());
-                        String[] vehicles = VehicleSelectionDialog.showSelectionDialog(
-                                parentW,
-                                plan.getVehicles().toArray(new VehicleType[0]));
-                        Vector<VehicleType> vts = new Vector<VehicleType>();
-                        for (String v : vehicles) {
-                            vts.add(VehiclesHolder.getVehicleById(v));
-                        }
-                        plan.setVehicles(vts);
-                    }
-                };
-                pVehicle.putValue(AbstractAction.SMALL_ICON,
-                        new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
-                planSettings.add(pVehicle);
-
-                planSettings.setIcon(new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
-                popup.add(planSettings);
-
-                popup.addSeparator();
+                    // popup.addSeparator();
+                }
                 AbstractAction pTransitions = new AbstractAction(I18n.text("Plan Transitions")) {
                     private static final long serialVersionUID = 1L;
 
@@ -1109,7 +1122,7 @@ MissionChangeListener {
                         new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
                 popup.add(pTransitions);
 
-                popup.addSeparator();
+                // popup.addSeparator();
 
                 JMenu pStatistics = PlanUtil.getPlanStatisticsAsJMenu(plan, I18n.text("Edited Plan Statistics"));
                 pStatistics.setIcon(new ImageIcon(ImageUtils.getScaledImage("images/buttons/wizard.png", 16, 16)));
@@ -1117,11 +1130,15 @@ MissionChangeListener {
 
                 popup.addSeparator();
 
-                for (final String manName : mf.getAvailableManeuversIDs()) {
+                List<String> names = Arrays.asList(mf.getAvailableManeuversIDs());
+                Collections.sort(names);
+                
+                ImageIcon icon = ImageUtils.getIcon("images/led_none.png");
+                for (final String manName : names) {
                     String manNameStr = I18n.text(manName); 
-                    AbstractAction act = new AbstractAction(I18n.textf("Add %maneuverName", manNameStr), mf.getManeuverIcon(manName)) {
+                    AbstractAction act = new AbstractAction(I18n.textf("Add %maneuverName", manNameStr), icon) {
                         private static final long serialVersionUID = 1L;
-                        
+
                         private final Point2D mousePos = mousePoint;
 
                         @Override

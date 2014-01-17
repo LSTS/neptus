@@ -49,5 +49,5 @@ fi
 
 export VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
 
-export LD_LIBRARY_PATH=".:libJNI"
-$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m $VMFLAGS -Djava.library.path=".:libJNI" -cp $CLASSPATH pt.lsts.neptus.loader.NeptusMain "$@"
+export LD_LIBRARY_PATH=$LIBS
+$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m $VMFLAGS -Djava.library.path=$LIBS -cp $CLASSPATH pt.lsts.neptus.loader.NeptusMain "$@"

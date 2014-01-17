@@ -293,16 +293,16 @@ public class LoaderHelper {
               }
           }
           
-          String uUnits = "cm/s";
-          Attribute uUnitsAtt = uVar.findAttribute("units");
-          if (uUnitsAtt != null)
-              uUnits = (String) uUnitsAtt.getValue(0);
-          String vUnits = "cm/s";
-          Attribute vUnitsAtt = uVar.findAttribute("units");
-          if (vUnitsAtt != null)
-              vUnits = (String) vUnitsAtt.getValue(0);
+            // String uUnits = "cm/s";
+            // Attribute uUnitsAtt = uVar.findAttribute("units");
+            // if (uUnitsAtt != null)
+            // uUnits = (String) uUnitsAtt.getValue(0);
+            // String vUnits = "cm/s";
+            // Attribute vUnitsAtt = uVar.findAttribute("units");
+            // if (vUnitsAtt != null)
+            // vUnits = (String) vUnitsAtt.getValue(0);
           
-          int count = 0;
+            // int count = 0;
           for (int timeIdx = 0; timeIdx < shape[0]; timeIdx++) {
               float timeVal = timeArray.get(timeIdx);
               Date dateValue = new Date((long) (timeVal * timeMultiplier + timeOffset));
@@ -367,7 +367,7 @@ public class LoaderHelper {
                               dpo.getHistoricalData().add(dp);
                           }
                       }
-                      count++;
+                        // count++;
                   }
              }
           }
@@ -518,7 +518,7 @@ public class LoaderHelper {
 //          if (vUnitsAtt != null)
 //              vUnits = (String) vUnitsAtt.getValue(0);
           
-          int count = 0;
+            // int count = 0;
           for (int timeIdx = 0; timeIdx < shape[0]; timeIdx++) {
               float timeVal = timeArray.get(timeIdx);
               Date dateValue = new Date((long) (timeVal * timeMultiplier + timeOffset));
@@ -561,7 +561,7 @@ public class LoaderHelper {
                               dpo.getHistoricalData().add(dp);
                           }
                       }
-                      count++;
+                        // count++;
                   }
              }
           }

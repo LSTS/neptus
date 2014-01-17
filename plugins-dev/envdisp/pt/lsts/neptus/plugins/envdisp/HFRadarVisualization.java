@@ -69,7 +69,6 @@ import org.apache.http.client.methods.HttpGet;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
-import pt.lsts.neptus.colormap.ColormapOverlay;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.ConfigurationListener;
@@ -167,9 +166,9 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     @NeptusProperty(name = "Base Folder For Waves NetCDF Files", userLevel = LEVEL.REGULAR, category="Data Update")
     public File baseFolderForWavesNetCDFFiles = new File("IHData/WAVES");
     
-    private String currentsFilePattern = "TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv";
-    private String meteoFilePattern = "meteo_\\d{8}\\.nc";
-    private String wavesFilePattern = "waves_[a-zA-Z]{1,2}_\\d{8}\\.nc";
+    private final String currentsFilePattern = "TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv";
+    private final String meteoFilePattern = "meteo_\\d{8}\\.nc";
+    private final String wavesFilePattern = "waves_[a-zA-Z]{1,2}_\\d{8}\\.nc";
 
     private boolean clearImgCachRqst = false;
 
@@ -259,35 +258,35 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
 
     //  http://hfradar.ndbc.noaa.gov/tab.php?from=2013-06-22%2015:00:00&to=2013-06-22%2015:00:00&p=1&lat=38.324420427006515&lng=-119.94323730468749&lat2=35.69299463209881&lng2=-124.33776855468749
     //  http://hfradar.ndbc.noaa.gov/tabdownload.php?from=2013-06-23%2009:34:00&to=2013-06-23%2021:34:00&lat=37.78799270017669&lng=-122.39269445535145&lat2=37.78781729434937&lng2=-122.39236722585163
-    private String noaaURL = "http://hfradar.ndbc.noaa.gov/tabdownload.php?" +
+    private final String noaaURL = "http://hfradar.ndbc.noaa.gov/tabdownload.php?" +
     		"from=#FROM_DATE#%20#FROM_TIME#:00&to=#TO_DATE#%20#TO_TIME#:00&lat=#LAT1#&lng=#LNG1#&lat2=#LAT2#&lng2=#LNG2#";
     // lat lon speed (cm/s)    degree  acquired    resolution (km) origin
     //private double noaaMaxLat=75.40885422846455, noaaMinLng=-42.1875, noaaMinLat=12.21118019150401, noaaMaxLng=177.1875;
-    private double noaaMaxLat=55.47885346331034, noaaMaxLng=-61.87500000000001, noaaMinLat=14.093957177836236, noaaMinLng=-132.1875;
+    private final double noaaMaxLat=55.47885346331034, noaaMaxLng=-61.87500000000001, noaaMinLat=14.093957177836236, noaaMinLng=-132.1875;
     
     private static final String sampleNoaaFile = "hfradar-noaa-sample1.txt";
-    private static final String sampleTuvFile = "TOTL_TRAD_2013_07_04_1100.tuv";
-    private static final String sampleMeteoFile = "meteo_20130705.nc";
-    private static final String sampleWavesFile = "waves_S_20130704.nc";
+    // private static final String sampleTuvFile = "TOTL_TRAD_2013_07_04_1100.tuv";
+    // private static final String sampleMeteoFile = "meteo_20130705.nc";
+    // private static final String sampleWavesFile = "waves_S_20130704.nc";
     
     protected final double m_sToKnotConv = 1.94384449244;
     
-    private ColorMap colorMapCurrents = new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
+    private final ColorMap colorMapCurrents = new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
             new Color(0, 0, 255), new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0), new Color(255, 0, 0) });
-    private double minCurrentCmS = 0;
-    private double maxCurrentCmS = 200;
+    // private final double minCurrentCmS = 0;
+    private final double maxCurrentCmS = 200;
 
-    private ColorMap colorMapSST = ColorMapFactory.createJetColorMap();
-    private double minSST = -10;
-    private double maxSST = 40;
+    private final ColorMap colorMapSST = ColorMapFactory.createJetColorMap();
+    private final double minSST = -10;
+    private final double maxSST = 40;
 
-    private ColorMap colorMapWind = colorMapCurrents;
-    private double minWind = 0;
-    private double maxWind = 65 / m_sToKnotConv;
+    private final ColorMap colorMapWind = colorMapCurrents;
+    // private final double minWind = 0;
+    private final double maxWind = 65 / m_sToKnotConv;
 
-    private ColorMap colorMapWaves = ColorMapFactory.createJetColorMap();
-    private double minWaves = 0;
-    private double maxWaves = 7;
+    private final ColorMap colorMapWaves = ColorMapFactory.createJetColorMap();
+    // private final double minWaves = 0;
+    private final double maxWaves = 7;
 
     private BufferedImage cacheImg = null;
     private Dimension dim = null;
@@ -295,14 +294,14 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     private LocationType lastCenter = null;
     private double lastRotation = Double.NaN;
     
-    private HttpClientConnectionHelper httpComm = new HttpClientConnectionHelper();
+    private final HttpClientConnectionHelper httpComm = new HttpClientConnectionHelper();
     private HttpGet getHttpRequest;
     
     // ID is lat/lon
-    private HashMap<String, HFRadarDataPoint> dataPointsCurrents = new HashMap<>();
-    private HashMap<String, SSTDataPoint> dataPointsSST = new HashMap<>();
-    private HashMap<String, WindDataPoint> dataPointsWind = new HashMap<>();
-    private HashMap<String, WavesDataPoint> dataPointsWaves = new HashMap<>();
+    private final HashMap<String, HFRadarDataPoint> dataPointsCurrents = new HashMap<>();
+    private final HashMap<String, SSTDataPoint> dataPointsSST = new HashMap<>();
+    private final HashMap<String, WindDataPoint> dataPointsWind = new HashMap<>();
+    private final HashMap<String, WavesDataPoint> dataPointsWaves = new HashMap<>();
     
     public HFRadarVisualization(ConsoleLayout console) {
         super(console);
@@ -385,6 +384,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     /* (non-Javadoc)
      * @see pt.lsts.neptus.plugins.ConfigurationListener#propertiesChanged()
      */
+    @Override
     public void propertiesChanged() {
         cleanDataPointsBeforeDate();
         updateValues();
@@ -909,7 +909,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      */
     private void paintSSTInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
         LocationType loc = new LocationType();
-        ColormapOverlay overlay = new ColormapOverlay("SST", 20, false, 0);
+        // ColormapOverlay overlay = new ColormapOverlay("SST", 20, false, 0);
         for (SSTDataPoint dp : dataPointsSST.values().toArray(new SSTDataPoint[0])) {
             if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
                 continue;
@@ -1119,19 +1119,19 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         return true;
     }
 
-    private HashMap<String, HFRadarDataPoint> processNoaaHFRadarTest() {
-        // InputStreamReader
-        String fxName = FileUtil.getResourceAsFileKeepName(sampleNoaaFile);
-        File fx = new File(fxName);
-        try {
-            FileReader freader = new FileReader(fx);
-            return processNoaaHFRadar(freader);
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return new HashMap<String, HFRadarDataPoint>(); 
-    }
+    // private HashMap<String, HFRadarDataPoint> processNoaaHFRadarTest() {
+    // // InputStreamReader
+    // String fxName = FileUtil.getResourceAsFileKeepName(sampleNoaaFile);
+    // File fx = new File(fxName);
+    // try {
+    // FileReader freader = new FileReader(fx);
+    // return processNoaaHFRadar(freader);
+    // }
+    // catch (FileNotFoundException e) {
+    // e.printStackTrace();
+    // }
+    // return new HashMap<String, HFRadarDataPoint>();
+    // }
 
     private FileReader getFileReaderForFile(String fileName) {
         // InputStreamReader
@@ -1200,7 +1200,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
         try {
             reader = new BufferedReader(readerInput);
             String line = reader.readLine();
-            for (int i = 0; line != null; i++) {
+            for (/* int i = 0 */; line != null; /* i++ */) {
                 if (line.startsWith("#")) {
                     line = reader.readLine();
                     continue;
@@ -1335,8 +1335,8 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     
     public static void main(String[] args) {
         String currentsFilePattern = "TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv";
-        String meteoFilePattern = "meteo_\\d{8}\\.nc";
-        String wavesFilePattern = "waves_[a-zA-Z]{1,2}_\\d{8}\\.nc";
+        // String meteoFilePattern = "meteo_\\d{8}\\.nc";
+        // String wavesFilePattern = "waves_[a-zA-Z]{1,2}_\\d{8}\\.nc";
 
         Pattern pat = Pattern.compile(currentsFilePattern);
         Matcher m = pat.matcher("TOTL_TRAD_2013_07_11_0800.tuv");

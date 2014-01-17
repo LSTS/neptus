@@ -105,7 +105,7 @@ public class TestLoadFromFile19112013 {
     }
 
     private float testDate(LocalData finder, long millis) throws Exception {
-        Date wantedDate;
+        // Date wantedDate;
         Float tidePredictions;
         NeptusLog.pub().info("<###>---------------------------------------------");
         Date date = new Date(millis);

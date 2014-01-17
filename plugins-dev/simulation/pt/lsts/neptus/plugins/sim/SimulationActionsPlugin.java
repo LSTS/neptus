@@ -38,7 +38,6 @@ import java.util.GregorianCalendar;
 import java.util.Vector;
 
 import pt.lsts.imc.GpsFix;
-import pt.lsts.imc.ManeuverControlState;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.i18n.I18n;
@@ -81,11 +80,11 @@ public class SimulationActionsPlugin extends SimpleSubPanel {
 //        });
     }
 
-    private void sendManeuverDone() {
-        ManeuverControlState mcs = new ManeuverControlState();
-        mcs.setState(ManeuverControlState.STATE.DONE);
-        send(mcs);
-    }
+    // private void sendManeuverDone() {
+    // ManeuverControlState mcs = new ManeuverControlState();
+    // mcs.setState(ManeuverControlState.STATE.DONE);
+    // send(mcs);
+    // }
     
     private void sendGpsFix() {
         Vector<MapPanel> pps = getConsole().getSubPanelsOfClass(MapPanel.class); 

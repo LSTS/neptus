@@ -155,8 +155,8 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
                     if (offsets[1] < 0 || offsets[1] > mapWidth)
                         continue;
 
-                    int col = (int)(offsets[1] / cellSize);
-                    int row = (int)(offsets[0] / cellSize);
+                    // int col = (int)(offsets[1] / cellSize);
+                    // int row = (int)(offsets[0] / cellSize);
                     //pathHigh[col][row] = true;            
                     //pathLow[col/10][row/10] = true;
                     highRes.addPoint(offsets[1], offsets[0], bp.depth);
