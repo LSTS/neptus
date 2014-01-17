@@ -604,7 +604,7 @@ For simple use the main targets are:
 
 		<!-- Copy plugins src resources -->
 		<copy todir="${build.classes}" overwrite="true" verbose="false">
-			<fileset dir="${plugin-dev.dir.base}" excludes="${exclude-defaults},**/Thumbs.db,**/thumbs.db,**/*.java,**/*.jar" />
+			<fileset dir="${plugin-dev.dir.base}" excludes="${exclude-defaults},**/Thumbs.db,**/thumbs.db,**/*.java,**/*.jar,**/*plugins.lst" />
 			<regexpmapper from="^([^/]+/)(.*)([^/]+\.[^/]+)$$" to="\2\3" handledirsep="true"/>
 		</copy>
 
