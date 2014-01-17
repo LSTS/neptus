@@ -52,10 +52,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.text.Collator;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -79,7 +83,6 @@ import javax.swing.undo.UndoManager;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
@@ -798,7 +801,13 @@ MissionChangeListener {
         actions.add(copy);
 
         List<String> names = Arrays.asList(mf.getAvailableManeuversIDs());
-        Collections.sort(names);
+        Collections.sort(names, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                Collator collator = Collator.getInstance(Locale.US);
+                return collator.compare(o1, o2);
+            }
+        });
         ImageIcon icon = ImageUtils.getIcon("images/led_none.png");
         for (String manName : names) {
             final String manType = manName;
