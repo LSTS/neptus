@@ -39,27 +39,26 @@ import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
+import com.google.common.eventbus.Subscribe;
+
 /**
  * @author pdias
  * 
  */
 @PluginDescription(name = "Plan Control State", author = "Paulo Dias", version = "0.7", documentation = "plan-control/plan-control.html#PlanControlState")
-public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicleChangeListener, IPeriodicUpdates,
-        NeptusMessageListener {
+public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicleChangeListener, IPeriodicUpdates {
     private static final long serialVersionUID = 1L;
 
     // GUI
@@ -82,7 +81,7 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
     private long nodeEtaSec = -1;
     private long lastUpdated = -1;
 
-    private final String[] messagesToObserve = new String[] { "PlanControlState" };
+    //private final String[] messagesToObserve = new String[] { "PlanControlState" };
 
     public PlanControlStatePanel(ConsoleLayout console) {
         super(console);
@@ -90,6 +89,7 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
         initialize();
     }
 
+    
     private void initialize() {
         setSize(200, 200);
         this.setLayout(new MigLayout("ins 0"));
@@ -126,12 +126,11 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
         this.add(outcomeLabel, "wrap");
     }
 
-    @Override
-    public String[] getObservedMessages() {
-        return messagesToObserve;
-    }
-
+    @Subscribe
     public void consume(PlanControlState message) {
+        if (!message.getSourceName().equals(getConsole().getMainSystem()))
+            return;
+        
         try {
             state = message.getState();
             if (message.getState() == STATE.EXECUTING && message.getPlanId() == "") {
@@ -185,12 +184,6 @@ public class PlanControlStatePanel extends SimpleSubPanel implements MainVehicle
         catch (Exception e) {
             NeptusLog.pub().error(e.getMessage(), e);
         }
-    }
-
-    @Override
-    public void messageArrived(IMCMessage message) {
-        if (message.getMgid() == PlanControlState.ID_STATIC)
-            consume((PlanControlState) message);
     }
 
     @Override
