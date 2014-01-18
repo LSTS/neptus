@@ -62,6 +62,7 @@ import javax.swing.undo.UndoManager;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.gui.MenuScroller;
 import pt.lsts.neptus.gui.ToolbarButton;
@@ -73,7 +74,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.map.edit.AddObjectEdit;
 import pt.lsts.neptus.plugins.map.edit.ObjectPropertiesEdit;
 import pt.lsts.neptus.plugins.map.edit.RemoveObjectEdit;
@@ -106,7 +106,7 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 @PluginDescription(author = "José Pinto, Paulo Dias", name = "Map Editor", icon = "pt/lsts/neptus/plugins/map/map.png", version = "1.5", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 90)
-public class MapEditor extends SimpleSubPanel implements StateRendererInteraction, Renderer2DPainter,
+public class MapEditor extends ConsolePanel implements StateRendererInteraction, Renderer2DPainter,
         MissionChangeListener, ConfigurationListener {
 
     private static final long serialVersionUID = 1L;

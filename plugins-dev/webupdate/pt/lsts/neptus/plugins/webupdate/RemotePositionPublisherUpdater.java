@@ -89,6 +89,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
@@ -100,7 +101,6 @@ import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
@@ -124,7 +124,7 @@ import pt.lsts.neptus.ws.PublishHelper;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "Remote Position Publisher Updater", author = "Paulo Dias", version = "1.0", icon = "pt/lsts/neptus/plugins/webupdate/webupdate-pub-on.png")
-public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IPeriodicUpdates, ConfigurationListener {
+public class RemotePositionPublisherUpdater extends ConsolePanel implements IPeriodicUpdates, ConfigurationListener {
 
     private final ImageIcon ICON_ENABLE = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/webupdate/webupdate-pub-on.png", 32, 32);

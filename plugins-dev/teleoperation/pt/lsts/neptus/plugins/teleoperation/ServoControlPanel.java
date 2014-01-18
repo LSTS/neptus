@@ -48,11 +48,11 @@ import javax.swing.SwingUtilities;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -61,7 +61,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * 
  */
 @PluginDescription(name = "Servo Control")
-public class ServoControlPanel extends SimpleSubPanel implements ConfigurationListener, ISliderPanelListener {
+public class ServoControlPanel extends ConsolePanel implements ConfigurationListener, ISliderPanelListener {
 
     private static final long serialVersionUID = 1L;
 

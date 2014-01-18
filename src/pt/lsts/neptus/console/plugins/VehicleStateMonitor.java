@@ -38,12 +38,12 @@ import java.util.concurrent.ConcurrentMap;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.imc.Teleoperation;
 import pt.lsts.imc.VehicleState;
@@ -56,7 +56,7 @@ import com.google.common.eventbus.Subscribe;
  * 
  */
 @PluginDescription(name = "Vehicle State Monitor")
-public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpdates {
+public class VehicleStateMonitor extends ConsolePanel implements IPeriodicUpdates {
 
     private static final long serialVersionUID = 1L;
     protected ConcurrentMap<String, VehicleState> systemStates = new ConcurrentHashMap<String, VehicleState>();

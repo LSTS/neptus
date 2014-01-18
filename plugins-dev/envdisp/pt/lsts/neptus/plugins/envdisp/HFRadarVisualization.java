@@ -71,11 +71,11 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -94,7 +94,7 @@ import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 @SuppressWarnings("serial")
 @PluginDescription(name="HF Radar Visualization", author="Paulo Dias", version="0.1")
 @LayerPriority(priority = -50)
-public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPainter, IPeriodicUpdates, ConfigurationListener {
+public class HFRadarVisualization extends ConsolePanel implements Renderer2DPainter, IPeriodicUpdates, ConfigurationListener {
 
     /*
      * Currents, wind, waves, SST 

@@ -126,7 +126,6 @@ import pt.lsts.neptus.gui.checklist.exec.CheckListExe;
 import pt.lsts.neptus.gui.system.selection.MainSystemSelectionCombo;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.VehicleStateListener;
 import pt.lsts.neptus.types.XmlInOutMethods;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -171,7 +170,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     // Controller Manager to be used by every plugin that uses an external controller (Gamepad, etc...)
     private final ControllerManager controllerManager;
 
-    private final List<SubPanel> subPanels = new ArrayList<>();
+    private final List<ConsolePanel> subPanels = new ArrayList<>();
 
     /*
      * UI stuff
@@ -836,7 +835,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     public void initSubPanels() {
-        for (SubPanel sp : subPanels) {
+        for (ConsolePanel sp : subPanels) {
             sp.init();
         }
     }
@@ -995,7 +994,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      * 
      * @return
      */
-    public List<SubPanel> getSubPanels() {
+    public List<ConsolePanel> getSubPanels() {
         return subPanels;
     }
 
@@ -1004,14 +1003,14 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      * @param subPanelType
      * @return
      */
-    public <T extends SubPanel> Vector<T> getSubPanelsOfClass(Class<T> subPanelType) {
+    public <T extends ConsolePanel> Vector<T> getSubPanelsOfClass(Class<T> subPanelType) {
         try {
             Vector<T> ret = new Vector<T>();
 
             if (subPanels.isEmpty())
                 return ret;
 
-            for (SubPanel sp : subPanels) {
+            for (ConsolePanel sp : subPanels) {
                 Vector<T> rSp = getSubPanelType(sp, subPanelType);
                 if (rSp.size() > 0)
                     ret.addAll(rSp);
@@ -1025,7 +1024,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends SubPanel> Vector<T> getSubPanelType(SubPanel sp, Class<T> superClass) {
+    private <T extends ConsolePanel> Vector<T> getSubPanelType(ConsolePanel sp, Class<T> superClass) {
         Vector<T> ret = new Vector<T>();
         if (sp == null)
             return ret;
@@ -1037,7 +1036,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             ret.add((T) sp);
 
         if (sp instanceof ContainerSubPanel) {
-            for (SubPanel s : ((ContainerSubPanel) sp).getSubPanels()) {
+            for (ConsolePanel s : ((ContainerSubPanel) sp).getSubPanels()) {
                 Vector<T> rSp = getSubPanelType(s, superClass);
                 if (rSp.size() > 0)
                     ret.addAll(rSp);
@@ -1065,13 +1064,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (subPanels.isEmpty())
             return ret;
 
-        for (SubPanel sp : subPanels) {
+        for (ConsolePanel sp : subPanels) {
 
             if (ReflectionUtil.hasInterface(sp.getClass(), interfaceType))
                 col.add((T) sp);
 
             else if (ReflectionUtil.isSubclass(sp.getClass(), ContainerSubPanel.class)) {
-                for (SubPanel s : ((ContainerSubPanel) sp).getSubPanels()) {
+                for (ConsolePanel s : ((ContainerSubPanel) sp).getSubPanels()) {
                     Vector<T> rSp = getSubPanelImplementations(s, interfaceType);
                     if (rSp.size() > 0)
                         col.addAll(rSp);
@@ -1083,14 +1082,14 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Vector<T> getSubPanelImplementations(SubPanel sp, Class<T> interfaceType) {
+    private <T> Vector<T> getSubPanelImplementations(ConsolePanel sp, Class<T> interfaceType) {
         Vector<T> ret = new Vector<T>();
 
         if (ReflectionUtil.hasInterface(sp.getClass(), interfaceType))
             ret.add((T) sp);
 
         if (ReflectionUtil.isSubclass(sp.getClass(), ContainerSubPanel.class)) {
-            for (SubPanel s : ((ContainerSubPanel) sp).getSubPanels()) {
+            for (ConsolePanel s : ((ContainerSubPanel) sp).getSubPanels()) {
                 Vector<T> rSp = getSubPanelImplementations(s, interfaceType);
                 if (rSp.size() > 0)
                     ret.addAll(rSp);
@@ -1154,7 +1153,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         subPanelListeners.remove(spl);
     }
 
-    public void informSubPanelListener(SubPanel sub, SubPanelChangeAction action) {
+    public void informSubPanelListener(ConsolePanel sub, SubPanelChangeAction action) {
         for (SubPanelChangeListener spcl : subPanelListeners)
             spcl.subPanelChanged(new SubPanelChangeEvent(sub, action));
     }
@@ -1238,9 +1237,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     private Rectangle2D minimizedBounds = null;
-    private SubPanel maximizedPanel = null;
+    private ConsolePanel maximizedPanel = null;
 
-    public void minimizePanel(SubPanel p) {
+    public void minimizePanel(ConsolePanel p) {
 
         p.setVisible(false);
 
@@ -1250,16 +1249,16 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return;
 
         if (subPanels.indexOf(p) == -1) {
-            for (SubPanel tmp : subPanels) {
-                for (SubPanel c : tmp.getChildren())
+            for (ConsolePanel tmp : subPanels) {
+                for (ConsolePanel c : tmp.getChildren())
                     if (c.equals(p))
                         p = tmp;
             }
         }
         else {
             p.setBounds(minimizedBounds.getBounds());
-            for (SubPanel tmp : subPanels) {
-                if (!(tmp instanceof SimpleSubPanel) || ((SimpleSubPanel) tmp).getVisibility())
+            for (ConsolePanel tmp : subPanels) {
+                if (!(tmp instanceof ConsolePanel) || ((ConsolePanel) tmp).getVisibility())
                     tmp.setVisible(true);
             }
 
@@ -1271,21 +1270,21 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         mainPanel.revalidate();
     }
 
-    public void maximizePanel(SubPanel p) {
+    public void maximizePanel(ConsolePanel p) {
 
         if (maximizedPanel != null)
             minimizePanel(maximizedPanel);
 
         if (subPanels.indexOf(p) == -1) {
-            for (SubPanel tmp : subPanels) {
-                for (SubPanel c : tmp.getChildren())
+            for (ConsolePanel tmp : subPanels) {
+                for (ConsolePanel c : tmp.getChildren())
                     if (c.equals(p))
                         p = tmp;
             }
         }
         else {
 
-            for (SubPanel tmp : subPanels) {
+            for (ConsolePanel tmp : subPanels) {
                 if (tmp.getRootPane() != null && tmp.getRootPane().equals(p.getRootPane()))
                     tmp.setVisible(false);
             }
@@ -1295,8 +1294,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                 tmp = tmp.getParent();
             }
 
-            if (tmp instanceof SubPanel)
-                p = (SubPanel) tmp;
+            if (tmp instanceof ConsolePanel)
+                p = (ConsolePanel) tmp;
             minimizedBounds = p.getBounds();
             maximizedPanel = p;
 
@@ -1309,11 +1308,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
     }
 
-    public SubPanel getMaximizedPanel() {
+    public ConsolePanel getMaximizedPanel() {
         return maximizedPanel;
     }
 
-    public void setMaximizedPanel(SubPanel maximizedPanel) {
+    public void setMaximizedPanel(ConsolePanel maximizedPanel) {
         if (maximizedPanel == this.maximizedPanel)
             return;
 

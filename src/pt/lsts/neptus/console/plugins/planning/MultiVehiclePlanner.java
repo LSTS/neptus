@@ -45,11 +45,11 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.planning.MultiVehicleTask.TASK_STATE;
 import pt.lsts.neptus.console.plugins.planning.MultiVehicleTask.TASK_TYPE;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
@@ -68,7 +68,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  */
 @PluginDescription(name="MultiVehicle Planner", icon="images/planning/stars.png")
 @LayerPriority(priority=90)
-public class MultiVehiclePlanner extends SimpleSubPanel implements StateRendererInteraction, Renderer2DPainter {
+public class MultiVehiclePlanner extends ConsolePanel implements StateRendererInteraction, Renderer2DPainter {
 
     private static final long serialVersionUID = -1620554331443024866L;
     protected InteractionAdapter adapter ;

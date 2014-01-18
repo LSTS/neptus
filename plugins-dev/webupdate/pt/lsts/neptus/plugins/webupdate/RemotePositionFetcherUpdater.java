@@ -81,6 +81,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
 import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
 import pt.lsts.neptus.console.plugins.SubPanelChangeListener;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -93,7 +94,6 @@ import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
@@ -117,7 +117,7 @@ import pt.lsts.neptus.util.StreamUtil;
 @PluginDescription(name = "Remote Position Fetcher Updater", author = "Paulo Dias", version = "0.2",
 icon="pt/lsts/neptus/plugins/webupdate/webupdate-fetch-on.png")
 @LayerPriority(priority = 178)
-public class RemotePositionFetcherUpdater extends SimpleSubPanel implements IPeriodicUpdates,
+public class RemotePositionFetcherUpdater extends ConsolePanel implements IPeriodicUpdates,
         ConfigurationListener, Renderer2DPainter, SubPanelChangeListener {
 
     private final ImageIcon ICON_ENABLE = ImageUtils.getScaledIcon(

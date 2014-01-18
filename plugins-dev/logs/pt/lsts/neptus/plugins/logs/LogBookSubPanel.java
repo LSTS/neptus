@@ -45,6 +45,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventSystemAuthorityStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
@@ -54,7 +55,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.logs.HistoryMessage.msg_type;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
@@ -68,7 +68,7 @@ import com.google.common.eventbus.Subscribe;
 @PluginDescription(name = "Logbook History")
 @Popup(accelerator = 'H', height = 400, width = 600, name = "Logbook History", pos = POSITION.CENTER,
 icon="pt/lsts/neptus/plugins/logs/queue.png")
-public class LogBookSubPanel extends SimpleSubPanel implements IPeriodicUpdates {
+public class LogBookSubPanel extends ConsolePanel implements IPeriodicUpdates {
 
     private static final long serialVersionUID = 1L;
 

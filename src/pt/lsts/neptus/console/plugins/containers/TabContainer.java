@@ -46,7 +46,7 @@ import org.dom4j.Element;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ContainerSubPanel;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.AlarmProviderOld;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -68,7 +68,7 @@ public class TabContainer extends ContainerSubPanel implements ConfigurationList
             distribution = DistributionEnum.DEVELOPER)
 	public String tabNames = "1,2,3,4,5,6,7,8,9";
 	
-	private LinkedHashMap<SubPanel, ArrayList<AlarmProviderOld>> subPanelList = new LinkedHashMap<SubPanel, ArrayList<AlarmProviderOld>>();
+	private LinkedHashMap<ConsolePanel, ArrayList<AlarmProviderOld>> subPanelList = new LinkedHashMap<ConsolePanel, ArrayList<AlarmProviderOld>>();
 	
 	public enum PlacementEnum {
 		Left, Right, Top, Bottom
@@ -86,9 +86,9 @@ public class TabContainer extends ContainerSubPanel implements ConfigurationList
 	
 	private JComponent pivot = null;
 	
-	public SubPanel getSelectedSubPanel() {
+	public ConsolePanel getSelectedSubPanel() {
 		try {
-			return (SubPanel)pivot.getComponent(((JTabbedPane)pivot).getSelectedIndex());
+			return (ConsolePanel)pivot.getComponent(((JTabbedPane)pivot).getSelectedIndex());
 		}
 		catch (Exception e) {
 		    e.printStackTrace();
@@ -144,7 +144,7 @@ public class TabContainer extends ContainerSubPanel implements ConfigurationList
 	}
 	
 	@Override
-	public void addSubPanel(SubPanel panel) {
+	public void addSubPanel(ConsolePanel panel) {
 		super.addSubPanel(panel);
 		ArrayList<AlarmProviderOld> l = new ArrayList<AlarmProviderOld>();
 		for(Component c : panel.getComponents())

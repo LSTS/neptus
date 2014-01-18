@@ -43,13 +43,13 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
 import pt.lsts.neptus.plugins.uavs.painters.background.UavCoverLayerPainter;
 import pt.lsts.neptus.plugins.uavs.painters.elements.UavLabelPainter;
@@ -65,7 +65,7 @@ import pt.lsts.neptus.plugins.uavs.painters.foreground.UavRulerPainter;
  * 
  */
 @PluginDescription(name = "Uav Altitude Panel", icon = "pt/lsts/neptus/plugins/uavs/planning.png", author = "sergioferreira",  version = "2.0", category = CATEGORY.INTERFACE)
-public class UavAltitudePanel extends SimpleSubPanel implements ComponentListener {
+public class UavAltitudePanel extends ConsolePanel implements ComponentListener {
 
     private static final long serialVersionUID = 1L;
 

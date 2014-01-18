@@ -64,6 +64,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
 import pt.lsts.neptus.console.plugins.SubPanelChangeListener;
@@ -74,7 +75,6 @@ import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
@@ -97,7 +97,7 @@ import pt.lsts.neptus.util.conf.StringProperty;
 @SuppressWarnings("serial")
 @PluginDescription(name = "UAV Piccolo Control", author = "Paulo Dias", version="1.0.0")
 @LayerPriority(priority=40)
-public class UavPiccoloControl extends SimpleSubPanel implements MainVehicleChangeListener,
+public class UavPiccoloControl extends ConsolePanel implements MainVehicleChangeListener,
         ConfigurationListener, IPeriodicUpdates, Renderer2DPainter, SubPanelChangeListener {
 
     private final Icon ICON_PICCOLO_WP_DOWNLOAD = ImageUtils.getScaledIcon(

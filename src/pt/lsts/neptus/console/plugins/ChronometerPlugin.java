@@ -34,11 +34,11 @@ package pt.lsts.neptus.console.plugins;
 import java.awt.BorderLayout;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.ChronometerPanel;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 
 /**
  * @author pdias
@@ -47,7 +47,7 @@ import pt.lsts.neptus.plugins.SimpleSubPanel;
 @SuppressWarnings("serial")
 @Popup(pos = POSITION.BOTTOM_LEFT, width = 300, height = 150, accelerator = 'K')
 @PluginDescription(name = "Chronometer", description = "This is a chronometer that counts up and down", author = "Paulo Dias", icon = "images/buttons/clocksync2.png", documentation = "chronometer/chronometer.html")
-public class ChronometerPlugin extends SimpleSubPanel {
+public class ChronometerPlugin extends ConsolePanel {
 
     private ChronometerPanel chronoPanel = null;
 

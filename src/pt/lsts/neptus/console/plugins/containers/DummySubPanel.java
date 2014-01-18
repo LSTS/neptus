@@ -37,8 +37,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.ReflectionUtil;
 
 /**
@@ -46,7 +46,7 @@ import pt.lsts.neptus.util.ReflectionUtil;
  *
  */
 @PluginDescription(name="Dummy sub Panel")
-public class DummySubPanel extends SimpleSubPanel {
+public class DummySubPanel extends ConsolePanel {
 
     private static final long serialVersionUID = 1L;
     protected JTextArea text = new JTextArea();

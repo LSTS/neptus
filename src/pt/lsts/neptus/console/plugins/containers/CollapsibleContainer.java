@@ -55,7 +55,7 @@ import org.jdesktop.swingx.painter.MattePainter;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ContainerSubPanel;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.ImageUtils;
@@ -72,8 +72,8 @@ public class CollapsibleContainer extends ContainerSubPanel {
     @NeptusProperty(editable = true)
     public String state = "";
 
-    protected LinkedHashMap<SubPanel, JXCollapsiblePane> colPanes = new LinkedHashMap<SubPanel, JXCollapsiblePane>();
-    protected LinkedHashMap<SubPanel, JPanel> auxPanels = new LinkedHashMap<SubPanel, JPanel>();
+    protected LinkedHashMap<ConsolePanel, JXCollapsiblePane> colPanes = new LinkedHashMap<ConsolePanel, JXCollapsiblePane>();
+    protected LinkedHashMap<ConsolePanel, JPanel> auxPanels = new LinkedHashMap<ConsolePanel, JPanel>();
 
     public CollapsibleContainer(ConsoleLayout console) {
         super(console);
@@ -82,7 +82,7 @@ public class CollapsibleContainer extends ContainerSubPanel {
     }
 
     @Override
-    public void addSubPanel(SubPanel panel) {
+    public void addSubPanel(ConsolePanel panel) {
         // panel.setBorder(BorderFactory.createEmptyBorder());
         int pos = panels.size();
         panels.add(panel);
@@ -99,7 +99,7 @@ public class CollapsibleContainer extends ContainerSubPanel {
     }
 
     @Override
-    public void removeSubPanel(SubPanel sp) {
+    public void removeSubPanel(ConsolePanel sp) {
         panels.remove(sp);
         remove(colPanes.get(sp));
         remove(auxPanels.get(sp));
@@ -111,7 +111,7 @@ public class CollapsibleContainer extends ContainerSubPanel {
         revalidate();
     }
 
-    private JXCollapsiblePane addCollapsiblePanel(SubPanel cmp, String label, boolean collapsed) {
+    private JXCollapsiblePane addCollapsiblePanel(ConsolePanel cmp, String label, boolean collapsed) {
         // JPanel tmp = new JPanel(new BorderLayout());
         // tmp.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2, 2, 1, 2),
         // BorderFactory.createLineBorder(Color.black)));

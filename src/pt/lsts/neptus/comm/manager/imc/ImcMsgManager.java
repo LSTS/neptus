@@ -62,12 +62,12 @@ import pt.lsts.neptus.comm.manager.CommManagerStatusChangeListener;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
 import pt.lsts.neptus.comm.transports.ImcTcpTransport;
 import pt.lsts.neptus.comm.transports.ImcUdpTransport;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.MessageFilter;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -183,7 +183,7 @@ public class ImcMsgManager extends
     protected Vector<String> ignoredClasses = new Vector<String>();
     {
         ignoredClasses.add(getClass().getName());
-        ignoredClasses.add(SimpleSubPanel.class.getName());
+        ignoredClasses.add(ConsolePanel.class.getName());
         ignoredClasses.add(Thread.class.getName());
         ignoredClasses.add(IMCSendMessageUtils.class.getName());
     }

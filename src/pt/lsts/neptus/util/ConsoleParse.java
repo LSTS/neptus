@@ -50,7 +50,7 @@ import org.dom4j.io.SAXReader;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.loader.FileHandler;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -198,14 +198,14 @@ public class ConsoleParse implements FileHandler {
         ConfigFetch.mark("construct container");
         for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
             Element element = (Element) iter.next();
-            SubPanel subpanel = null;
+            ConsolePanel subpanel = null;
             // process subpanel tag
             if ("subpanel".equals(element.getName())) {
                 Attribute attribute = element.attribute("class");
                 try {
                     Class<?> clazz = Class.forName(attribute.getValue());
                     try {
-                        subpanel = (SubPanel) clazz.getConstructor(ConsoleLayout.class).newInstance(console);
+                        subpanel = (ConsolePanel) clazz.getConstructor(ConsoleLayout.class).newInstance(console);
                         console.getMainPanel().addSubPanel(subpanel);
                         ConfigFetch.benchmark("construct container");
                         ConfigFetch.mark("in element of container");
@@ -307,7 +307,7 @@ public class ConsoleParse implements FileHandler {
         }
 
         try {
-            SubPanel panel = (SubPanel) subPanelClass.getConstructor(ConsoleLayout.class).newInstance(cl);
+            ConsolePanel panel = (ConsolePanel) subPanelClass.getConstructor(ConsoleLayout.class).newInstance(cl);
             panel.setBounds(5, 5, cl.getMainPanel().getWidth() - 10, cl.getMainPanel().getHeight() - 10);
             panel.setBounds(10, 10, (int) panel.getPreferredSize().getWidth(), (int) panel.getPreferredSize()
                     .getHeight());
@@ -322,7 +322,7 @@ public class ConsoleParse implements FileHandler {
     }
 
     // From GuiUtils 7/12/2008
-    public static ConsoleLayout dummyConsole(SubPanel... panelsToTest) {
+    public static ConsoleLayout dummyConsole(ConsolePanel... panelsToTest) {
         ConfigFetch.initialize();
         ConsoleLayout layout = new ConsoleLayout();
 

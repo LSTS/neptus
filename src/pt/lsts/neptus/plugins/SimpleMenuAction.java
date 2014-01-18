@@ -41,6 +41,7 @@ import javax.swing.JMenuItem;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -50,7 +51,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author ZP
  * 
  */
-public abstract class SimpleMenuAction extends SimpleSubPanel implements ActionListener {
+public abstract class SimpleMenuAction extends ConsolePanel implements ActionListener {
     private static final long serialVersionUID = 1L;
     protected AbstractAction action = null;
     protected boolean selectionState = false;
@@ -126,7 +127,7 @@ public abstract class SimpleMenuAction extends SimpleSubPanel implements ActionL
     }
 
     /**
-     * see {@link SimpleSubPanel#init()}
+     * see {@link ConsolePanel#init()}
      */
     @Override
     public void initSubPanel() {

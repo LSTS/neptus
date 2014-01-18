@@ -43,9 +43,9 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
@@ -55,7 +55,7 @@ import pt.lsts.neptus.util.ImageUtils;
  *
  */
 @PluginDescription(icon="pt/lsts/neptus/plugins/position/position.png",name="Vehicle Position Clipboard Transferer", author="zp")
-public class PositionClipboardTransferer extends SimpleSubPanel {
+public class PositionClipboardTransferer extends ConsolePanel {
 
     private static final long serialVersionUID = 1L;
     protected boolean initCalled = false;

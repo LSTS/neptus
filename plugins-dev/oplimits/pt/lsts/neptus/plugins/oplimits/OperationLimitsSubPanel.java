@@ -69,6 +69,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.OperationalLimits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
@@ -81,7 +82,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
@@ -102,7 +102,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
  * 
  */
 @PluginDescription(name = "Operation Limits", category = CATEGORY.PLANNING, icon = "pt/lsts/neptus/plugins/oplimits/limits.png", documentation = "oplimits/oplimits.html")
-public class OperationLimitsSubPanel extends SimpleSubPanel implements ConfigurationListener,
+public class OperationLimitsSubPanel extends ConsolePanel implements ConfigurationListener,
         MainVehicleChangeListener, NeptusMessageListener, Renderer2DPainter, StateRendererInteraction {
 
     private static final long serialVersionUID = 1L;

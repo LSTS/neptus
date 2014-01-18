@@ -57,6 +57,7 @@ import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.console.MainPanel;
 import pt.lsts.neptus.console.plugins.ConsoleVehicleChangeListener;
@@ -79,7 +80,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
 import pt.lsts.neptus.renderer2d.FeatureFocuser;
@@ -109,7 +109,7 @@ import com.google.common.eventbus.Subscribe;
  * @author Paulo Dias
  */
 @PluginDescription(name = "Map Panel", icon = "images/planning/planning.png", author = "ZP, Paulo Dias", documentation = "planning/planning_panel.html", category = CATEGORY.INTERFACE)
-public class MapPanel extends SimpleSubPanel implements MainVehicleChangeListener, MissionChangeListener,
+public class MapPanel extends ConsolePanel implements MainVehicleChangeListener, MissionChangeListener,
 PlanChangeListener, IPeriodicUpdates, ILayerPainter, ConfigurationListener, IMapPopup, 
 CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 

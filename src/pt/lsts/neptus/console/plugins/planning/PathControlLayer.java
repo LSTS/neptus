@@ -49,11 +49,11 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.messages.MessageFilter;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -65,7 +65,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  */
 @PluginDescription(name="PathControlLayer")
 @LayerPriority(priority=-5)
-public class PathControlLayer extends SimpleSubPanel implements Renderer2DPainter {
+public class PathControlLayer extends ConsolePanel implements Renderer2DPainter {
 
 
     private static final long serialVersionUID = 1L;

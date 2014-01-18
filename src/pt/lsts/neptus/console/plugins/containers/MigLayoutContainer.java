@@ -57,7 +57,7 @@ import org.xml.sax.InputSource;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ContainerSubPanel;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.containers.propeditor.MiGLayoutXmlPropertyEditor;
 import pt.lsts.neptus.events.NeptusEventLayoutChanged;
 import pt.lsts.neptus.events.NeptusEvents;
@@ -221,7 +221,7 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
         getConsole().repaint();
     }
 
-    public SubPanel parse(Node node, JComponent parent) {
+    public ConsolePanel parse(Node node, JComponent parent) {
         Element e = (Element) node;
         if (!node.hasContent()) {
             return null;
@@ -242,7 +242,7 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                         parse(element, tabbedPane);
                     }
                     else {
-                        SubPanel container = new SubPanel(getConsole()) {
+                        ConsolePanel container = new ConsolePanel(getConsole()) {
                             private static final long serialVersionUID = 8543725153078587308L;
                             @Override
                             public void cleanSubPanel() {}                
@@ -257,7 +257,7 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                 if ("child".equals(element.getName())) {
                     String name = element.attributeValue("name");
                     String param = element.attributeValue("param");
-                    SubPanel child = this.getSubPanelByName(name);
+                    ConsolePanel child = this.getSubPanelByName(name);
                     if (child != null) {
                         parent.add(child, param);
                     }
@@ -280,12 +280,12 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
     }
 
     @Override
-    public void addSubPanel(SubPanel panel) {
+    public void addSubPanel(ConsolePanel panel) {
         panels.add(panel);
     }
 
     @Override
-    public void removeSubPanel(SubPanel sp) {
+    public void removeSubPanel(ConsolePanel sp) {
         panels.remove(sp);
         this.remove(sp);
         applyLayout(this.xmlDef);

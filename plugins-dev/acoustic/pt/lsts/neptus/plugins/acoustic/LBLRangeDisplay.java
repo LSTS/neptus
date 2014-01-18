@@ -70,7 +70,8 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
@@ -90,7 +91,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -115,7 +115,7 @@ import pt.lsts.neptus.util.lbl.LBLTriangulationHelper;
 @Popup( pos = POSITION.RIGHT, width=300, height=250, accelerator='B')
 @PluginDescription(author = "Paulo Dias", name = "LBL Ranges", icon = "pt/lsts/neptus/plugins/acoustic/lbl.png", description = "Displays the LblRanges and LblRangeRejections.", documentation = "lbl-ranges/lbl-ranges.html", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 40)
-public class LBLRangeDisplay extends SimpleSubPanel implements MainVehicleChangeListener, Renderer2DPainter,
+public class LBLRangeDisplay extends ConsolePanel implements MainVehicleChangeListener, Renderer2DPainter,
 SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationListener, NeptusMessageListener {
 
     private static final Icon ICON_LBL_SHOW = ImageUtils.getIcon("pt/lsts/neptus/plugins/acoustic/lbl-show.png");
@@ -746,7 +746,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
                     @Override
                     public void callParentRepaint() {
                         for (ILayerPainter str2d : renderers) {
-                            ((SubPanel) str2d).repaint();
+                            ((ConsolePanel) str2d).repaint();
                         }
                     }
                 };

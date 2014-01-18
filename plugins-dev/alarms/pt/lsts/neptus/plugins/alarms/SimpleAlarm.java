@@ -36,16 +36,16 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.AlarmProviderOld;
 import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 
 /**
  * @author ZP
  * 
  */
-public abstract class SimpleAlarm extends SimpleSubPanel implements AlarmProviderOld, IPeriodicUpdates {
+public abstract class SimpleAlarm extends ConsolePanel implements AlarmProviderOld, IPeriodicUpdates {
 
     private static final long serialVersionUID = 1L;
 

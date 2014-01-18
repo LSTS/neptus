@@ -62,10 +62,10 @@ import pt.lsts.imc.LblConfig;
 import pt.lsts.imc.LblRange;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -76,7 +76,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * @author noptilus
  */
 @PluginDescription(name = "Transponder Location Estimation", author="Noptilus")
-public class TransponderEstimation extends SimpleSubPanel implements Renderer2DPainter {
+public class TransponderEstimation extends ConsolePanel implements Renderer2DPainter {
 
     private static final long serialVersionUID = 1L;
 

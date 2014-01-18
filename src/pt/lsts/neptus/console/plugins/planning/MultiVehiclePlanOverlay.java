@@ -46,9 +46,9 @@ import pt.lsts.imc.PlanControlState;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -64,7 +64,7 @@ import com.google.common.eventbus.Subscribe;
  *
  */
 @PluginDescription(name="Multi-Vehicle plan overlay")
-public class MultiVehiclePlanOverlay extends SimpleSubPanel implements Renderer2DPainter, MissionChangeListener {
+public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DPainter, MissionChangeListener {
 
     private static final long serialVersionUID = 1L;
     protected LinkedHashMap<String, String> vehicleToPlanIds = new LinkedHashMap<>();

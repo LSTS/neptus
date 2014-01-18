@@ -51,13 +51,13 @@ import pt.lsts.imc.LogBookControl;
 import pt.lsts.imc.LogBookControl.COMMAND;
 import pt.lsts.imc.LogBookEntry;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.logs.HistoryMessage.msg_type;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.ImageUtils;
@@ -69,7 +69,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "Remote History", icon = "pt/lsts/neptus/plugins/logs/queue.png", documentation = "entity-state/remotehistory.html")
-public class RemoteHistory extends SimpleSubPanel implements NeptusMessageListener, MainVehicleChangeListener {
+public class RemoteHistory extends ConsolePanel implements NeptusMessageListener, MainVehicleChangeListener {
 
     // @NeptusProperty(name = "Show popup messages when receiveing events")
     // private final boolean showPopups = true;

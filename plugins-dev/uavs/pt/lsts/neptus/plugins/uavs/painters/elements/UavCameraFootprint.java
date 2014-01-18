@@ -38,8 +38,8 @@ import java.awt.geom.Point2D;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -52,7 +52,7 @@ import com.google.common.eventbus.Subscribe;
  */
 
 @PluginDescription(name = "Uav Camera Footprint", author = "Christian Fuchs")
-public class UavCameraFootprint extends SimpleSubPanel implements Renderer2DPainter {
+public class UavCameraFootprint extends ConsolePanel implements Renderer2DPainter {
 
 //--------------declarations-----------------------------------//   
     private static final long serialVersionUID = 1L;

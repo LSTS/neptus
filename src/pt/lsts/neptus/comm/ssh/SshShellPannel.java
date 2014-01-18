@@ -41,16 +41,16 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.ShellPanel;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 
 /**
  * @author Paulo Dias
  * 
  */
 @SuppressWarnings("serial")
-public class SshShellPannel extends SimpleSubPanel {
+public class SshShellPannel extends ConsolePanel {
     private ShellPanel shellPannel = null;
     private JPanel contPanel = null;
     private JPanel connectPanel = null;

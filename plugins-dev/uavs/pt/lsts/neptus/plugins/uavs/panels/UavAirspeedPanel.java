@@ -41,9 +41,9 @@ import javax.swing.JLabel;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.uavs.UavPaintersBag;
 import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
 import pt.lsts.neptus.plugins.uavs.painters.background.UavAirspeedCoverLayerPainter;
@@ -58,7 +58,7 @@ import pt.lsts.neptus.plugins.uavs.painters.foreground.UavVehicleAirspeedPainter
  */
 
 @PluginDescription(name = "Uav Airspeed Panel", icon = "pt/lsts/neptus/plugins/uavs/planning.png", author = "Christian Fuchs")
-public class UavAirspeedPanel extends SimpleSubPanel implements NeptusMessageListener {
+public class UavAirspeedPanel extends ConsolePanel implements NeptusMessageListener {
 
     private static final long serialVersionUID = 1L;
 

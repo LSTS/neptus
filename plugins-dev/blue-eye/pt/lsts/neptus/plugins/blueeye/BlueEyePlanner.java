@@ -35,8 +35,8 @@ import java.awt.Dialog.ModalityType;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -47,7 +47,7 @@ import com.google.common.eventbus.Subscribe;
  *
  */
 @PluginDescription(name="Blue Eye Planning", description="This plugin listens for Plan Blueprints and generates respective Neptus plans")
-public class BlueEyePlanner extends SimpleSubPanel {
+public class BlueEyePlanner extends ConsolePanel {
 
     private static final long serialVersionUID = 1378142356540460721L;
 

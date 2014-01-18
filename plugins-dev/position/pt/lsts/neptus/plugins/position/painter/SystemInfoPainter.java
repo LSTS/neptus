@@ -41,6 +41,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
@@ -48,7 +49,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -63,7 +63,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
 // "Information On Map"
 @PluginDescription(name = "System Information On Map", icon = "pt/lsts/neptus/plugins/position/position.png", description = "System Information display on map", documentation = "system-info/system-info.html", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 70)
-public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPainter, NeptusMessageListener,
+public class SystemInfoPainter extends ConsolePanel implements Renderer2DPainter, NeptusMessageListener,
         IPeriodicUpdates, ConfigurationListener {
 
     // private static final int ICON_SIZE = 24;

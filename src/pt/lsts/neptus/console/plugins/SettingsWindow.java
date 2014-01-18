@@ -46,14 +46,14 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
@@ -65,7 +65,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * 
  */
 @Popup(icon = "images/menus/settings.png", name = "Console Settings", pos = POSITION.CENTER, accelerator = KeyEvent.VK_F3, height = 400, width = 600)
-public class SettingsWindow extends SimpleSubPanel {
+public class SettingsWindow extends ConsolePanel {
 
     private static final long serialVersionUID = 1L;
     private FunctionalitiesSettings settingsPanel;
@@ -82,11 +82,11 @@ public class SettingsWindow extends SimpleSubPanel {
         super(console);
 
         this.removeAll();
-        List<SubPanel> consolePlugins = console.getSubPanels();
-        for (SubPanel plugin : consolePlugins) {
+        List<ConsolePanel> consolePlugins = console.getSubPanels();
+        for (ConsolePanel plugin : consolePlugins) {
             if (plugin != null && plugin instanceof MigLayoutContainer) {
-                List<SubPanel> containerPlugins = ((MigLayoutContainer) plugin).getSubPanels();
-                for (SubPanel containerPlugin : containerPlugins) {
+                List<ConsolePanel> containerPlugins = ((MigLayoutContainer) plugin).getSubPanels();
+                for (ConsolePanel containerPlugin : containerPlugins) {
                     subPanels.add(containerPlugin);
                 }
                 

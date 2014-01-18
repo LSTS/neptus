@@ -55,11 +55,11 @@ import pt.lsts.imc.SetLedBrightness;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -76,7 +76,7 @@ import com.google.common.eventbus.Subscribe;
  */
 @Popup(pos = POSITION.TOP_LEFT, width = 300, height = 530, accelerator = 'D')
 @PluginDescription(author = "hfq", description = "Panel that enables setting up leds brightness", name = "Leds Control Panel", version = "0.1", icon = "images/menus/tip.png")
-public class LedsControlPanel extends SimpleSubPanel implements IPeriodicUpdates, ActionListener, ItemListener {
+public class LedsControlPanel extends ConsolePanel implements IPeriodicUpdates, ActionListener, ItemListener {
     private static final long serialVersionUID = 1L;
 
     @NeptusProperty(name = "Periodicity millis", description = "Set update periodicity in miliseconds", editable = true)

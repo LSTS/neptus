@@ -49,9 +49,9 @@ import javax.imageio.ImageIO;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.uavs.UavPaintersBag;
 import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
 import pt.lsts.neptus.plugins.uavs.painters.background.UavFramePainter;
@@ -63,7 +63,7 @@ import pt.lsts.neptus.plugins.uavs.painters.foreground.UavCameraOrientationPaint
  * @category UavPanel
  */
 @PluginDescription(name="Uav Video Panel", icon="pt/lsts/neptus/plugins/uavs/wbutt.png", author="sergioferreira")
-public class UavVideoPanel extends SimpleSubPanel implements NeptusMessageListener, MouseListener, MouseMotionListener, MouseWheelListener{
+public class UavVideoPanel extends ConsolePanel implements NeptusMessageListener, MouseListener, MouseMotionListener, MouseWheelListener{
 
     private static final long serialVersionUID = 1L;
     private byte[] frameBytes;

@@ -61,6 +61,7 @@ import javax.vecmath.Point2d;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.SystemsList;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarSwitch;
@@ -71,7 +72,6 @@ import pt.lsts.neptus.planeditor.IMapPopup;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.vrp.planning.VrpManager;
 import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
@@ -93,7 +93,7 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 @PluginDescription(author = "zp", name = "TSP Planner Daemon", version = "0.1", icon = "pt/lsts/neptus/plugins/vrp/stars.png")
 @LayerPriority(priority = 51)
-public class WaypointPlanner extends SimpleSubPanel implements Renderer2DPainter, IEditorMenuExtension,
+public class WaypointPlanner extends ConsolePanel implements Renderer2DPainter, IEditorMenuExtension,
         StateRendererInteraction {
 
     @NeptusProperty(name = "Depth", description = "Depth of the first generated plan")

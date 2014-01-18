@@ -51,6 +51,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.SystemsList;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarSwitch;
@@ -61,7 +62,6 @@ import pt.lsts.neptus.planeditor.IMapPopup;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -83,7 +83,7 @@ import pt.lsts.neptus.util.ImageUtils;
 @LayerPriority(priority = 50)
 @SuppressWarnings("serial")
 @PluginDescription(name = "Polygon Coverage Planner", icon = "images/planning/polyline.png")
-public class AreaCoveragePlanner extends SimpleSubPanel implements StateRendererInteraction, IEditorMenuExtension,
+public class AreaCoveragePlanner extends ConsolePanel implements StateRendererInteraction, IEditorMenuExtension,
         Renderer2DPainter {
 
     @NeptusProperty(name = "Depth")

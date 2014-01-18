@@ -98,7 +98,7 @@ import com.l2fprod.common.propertysheet.Property;
  * @author Rui Gonçalves, ZP
  * 
  */
-public abstract class SubPanel extends JPanel implements PropertiesProvider, XmlInOutMethods, SubPanelProvider, MessageListener<MessageInfo, IMCMessage>,
+public abstract class ConsolePanel extends JPanel implements PropertiesProvider, XmlInOutMethods, SubPanelProvider, MessageListener<MessageInfo, IMCMessage>,
 MainVehicleChangeListener {
 
     private static final long serialVersionUID = -2131046685846552482L;
@@ -122,7 +122,7 @@ MainVehicleChangeListener {
     protected JDialog dialog = null;
     private boolean popupPositionFlag = false;
 
-    public SubPanel(ConsoleLayout console) {
+    public ConsolePanel(ConsoleLayout console) {
         this.console = console;
         this.mainpanel = console == null ? null : console.getMainPanel();
         if (console != null)
@@ -484,8 +484,8 @@ MainVehicleChangeListener {
         this.fixedPosition = fixedPosition;
     }
 
-    protected final SubPanel[] getChildren() {
-        return new SubPanel[0];
+    protected final ConsolePanel[] getChildren() {
+        return new ConsolePanel[0];
     }
 
     @Override
@@ -682,7 +682,7 @@ MainVehicleChangeListener {
     }
 
     @Override
-    public SubPanel getSubPanel() {
+    public ConsolePanel getSubPanel() {
         return this;
     }
 

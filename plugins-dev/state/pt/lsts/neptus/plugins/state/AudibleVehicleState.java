@@ -43,12 +43,12 @@ import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.speech.SpeechUtil;
 
@@ -59,7 +59,7 @@ import com.google.common.eventbus.Subscribe;
  * 
  */
 @PluginDescription(name = "Audio Vehicle State Alerts", category = CATEGORY.INTERFACE)
-public class AudibleVehicleState extends SimpleSubPanel implements IPeriodicUpdates {
+public class AudibleVehicleState extends ConsolePanel implements IPeriodicUpdates {
     private static final long serialVersionUID = 1L;
     protected LinkedHashMap<String, VehicleState> vStatesImc = new LinkedHashMap<>();
     //protected LinkedHashMap<String, Long> lastUpdates = new LinkedHashMap<>();

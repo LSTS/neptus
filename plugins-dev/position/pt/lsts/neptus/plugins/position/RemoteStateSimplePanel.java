@@ -44,6 +44,7 @@ import java.util.Vector;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
 import pt.lsts.neptus.console.plugins.SubPanelChangeListener;
@@ -52,7 +53,6 @@ import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -68,7 +68,7 @@ import pt.lsts.neptus.util.ReflectionUtil;
 @SuppressWarnings("serial")
 @PluginDescription(author = "Paulo Dias", name = "RemoteState Simple Display", description = "Remote State simple display")
 @LayerPriority(priority = 60)
-public class RemoteStateSimplePanel extends SimpleSubPanel implements MainVehicleChangeListener, Renderer2DPainter,
+public class RemoteStateSimplePanel extends ConsolePanel implements MainVehicleChangeListener, Renderer2DPainter,
         SubPanelChangeListener, NeptusMessageListener {
 
     @NeptusProperty(name = "Show Icon")

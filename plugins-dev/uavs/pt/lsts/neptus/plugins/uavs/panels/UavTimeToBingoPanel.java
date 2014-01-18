@@ -49,8 +49,8 @@ import javax.swing.JTextField;
 import javax.swing.Timer;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 
 /**
  * @author Christian Fuchs
@@ -60,7 +60,7 @@ import pt.lsts.neptus.plugins.SimpleSubPanel;
  */
 
 @PluginDescription(name="Uav TimeToBingo Panel", icon="pt/lsts/neptus/plugins/uavs/planning.png", author="Christian Fuchs")
-public class UavTimeToBingoPanel extends SimpleSubPanel{
+public class UavTimeToBingoPanel extends ConsolePanel{
 
 //--------------declarations-----------------------------------//
     

@@ -74,7 +74,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     protected AlarmListener alarmlistener = null;
 
     protected String adding = "";
-    protected SubPanel hitPanel;
+    protected ConsolePanel hitPanel;
     private int deltaX, deltaY, oldX, oldY;
     private final int TOL = 3; // tolerance
     protected Class<?> subadd = null;
@@ -94,14 +94,14 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
      * 
      * @param panel
      */
-    public void addSubPanel(SubPanel panel) {
+    public void addSubPanel(ConsolePanel panel) {
         add(panel, "width 100%!, height 100%!");
         console.getSubPanels().add(panel);
         console.informSubPanelListener(panel, SubPanelChangeAction.ADDED);
 
     }
 
-    public void addSubPanel(SubPanel panel, int x, int y) {
+    public void addSubPanel(ConsolePanel panel, int x, int y) {
         add(panel);
         panel.setLocation(x, y);
         this.revalidate();
@@ -110,10 +110,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         console.informSubPanelListener(panel, SubPanelChangeAction.ADDED);
     }
 
-    public static void cleanPanels(Collection<SubPanel> panels) {
+    public static void cleanPanels(Collection<ConsolePanel> panels) {
         
         Vector<Thread> launched = new Vector<>();
-        for (final SubPanel panel : panels) {
+        for (final ConsolePanel panel : panels) {
             Thread t = new Thread(new Runnable() {
 
                 @Override
@@ -144,7 +144,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
     public void clean() {
         removeAll();
-        for (SubPanel panel : console.getSubPanels()) {
+        for (ConsolePanel panel : console.getSubPanels()) {
             panel.clean();
             System.out.println("cleaned " + panel.getName());
         }
@@ -156,7 +156,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         if (!relayoutOnResize || editFlag || getConsole().getMaximizedPanel() != null)
             return;
 
-        for (SubPanel p : getConsole().getSubPanels()) {
+        for (ConsolePanel p : getConsole().getSubPanels()) {
             if (p.getParent().equals(this)) {
                 if (!p.isFixedSize() || !p.isFixedPosition()) {
                     p.recalculateRelativePosAndSize();
@@ -168,15 +168,15 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
     @Override
     public void mousePressed(final MouseEvent e) {
         Component outerMostComponent = getComponentAt(e.getPoint());
-        SubPanel innerMostSubPanel = null;
+        ConsolePanel innerMostSubPanel = null;
         ContainerSubPanel innerMostContainer = null;
 
         Component comp = SwingUtilities.getDeepestComponentAt(this, e.getX(), e.getY());
 
-        while (comp != null && !(comp instanceof SubPanel))
+        while (comp != null && !(comp instanceof ConsolePanel))
             comp = comp.getParent();
 
-        innerMostSubPanel = (SubPanel) comp;
+        innerMostSubPanel = (ConsolePanel) comp;
 
         while (comp != null && !(comp instanceof ContainerSubPanel))
             comp = comp.getParent();
@@ -185,7 +185,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             setEditOff();
             setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
-            SubPanel sub = new SubPanel(this.getConsole()) {
+            ConsolePanel sub = new ConsolePanel(this.getConsole()) {
                 private static final long serialVersionUID = 8543725153078587308L;
                 @Override
                 public void cleanSubPanel() {}                
@@ -212,7 +212,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         }
         if (subadd != null) {
             try {
-                SubPanel sp = PluginsRepository.getPanelPlugin(PluginUtils.getPluginName(subadd), console);
+                ConsolePanel sp = PluginsRepository.getPanelPlugin(PluginUtils.getPluginName(subadd), console);
                 if (innerMostContainer != null) { // we found a containerSubPanel
                     // NeptusLog.pub().info("<###>found container " + innerMostContainer.getName());
                     innerMostContainer.addSubPanel(sp);
@@ -237,8 +237,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
         if (e.getButton() == MouseEvent.BUTTON1) {
             Component c = getComponentAt(e.getPoint());
-            if (c instanceof SubPanel) {
-                hitPanel = (SubPanel) c;
+            if (c instanceof ConsolePanel) {
+                hitPanel = (ConsolePanel) c;
                 oldX = hitPanel.getX();
                 oldY = hitPanel.getY();
                 deltaX = e.getX() - oldX;
@@ -260,8 +260,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
             final Component son = t;
 
-            if (c instanceof SubPanel) {
-                final SubPanel panel = (SubPanel) c;
+            if (c instanceof ConsolePanel) {
+                final ConsolePanel panel = (ConsolePanel) c;
                 JPopupMenu popup = new JPopupMenu();
                 popup.add(new JLabel(PluginUtils.i18nTranslate(PluginUtils.getPluginName(c.getClass())), ImageUtils
                         .getScaledIcon(PluginUtils.getPluginIcon(c.getClass()), 16, 16), JLabel.CENTER));
@@ -288,10 +288,10 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     itemProperties.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            PropertiesEditor.editProperties((SubPanel) son, getConsole(), true);
+                            PropertiesEditor.editProperties((ConsolePanel) son, getConsole(), true);
                         }
                     });
-                    if (((SubPanel) son).getProperties().length > 0)
+                    if (((ConsolePanel) son).getProperties().length > 0)
                         popup.add(itemProperties);
                     popup.addSeparator();
                     // item.addActionListener(this);
@@ -319,7 +319,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                     itemProps.addActionListener(new java.awt.event.ActionListener() {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
-                            PropertiesEditor.editProperties((SubPanel) c, true);
+                            PropertiesEditor.editProperties((ConsolePanel) c, true);
                         }
                     });
                     properties.add(itemProps);
@@ -342,13 +342,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                         }
                         final String spname = name;
                         final ContainerSubPanel cont = innerMostContainer;
-                        SubPanel sp = cont.getSubPanelByName(spname);
+                        ConsolePanel sp = cont.getSubPanelByName(spname);
                         itemRemove = new JMenuItem(PluginUtils.i18nTranslate(spname), ImageUtils.getScaledIcon(
                                 PluginUtils.getPluginIcon(sp.getClass()), 16, 16));
                         itemRemove.addActionListener(new java.awt.event.ActionListener() {
                             @Override
                             public void actionPerformed(java.awt.event.ActionEvent e) {
-                                SubPanel sp = cont.getSubPanelByName(spname);
+                                ConsolePanel sp = cont.getSubPanelByName(spname);
                                 if (sp != null)
                                     getConsole().getSubPanels().remove(sp);
                                 getConsole().informSubPanelListener(sp, SubPanelChangeAction.REMOVED);
@@ -365,7 +365,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
                         itemProps.addActionListener(new java.awt.event.ActionListener() {
                             @Override
                             public void actionPerformed(java.awt.event.ActionEvent e) {
-                                SubPanel sp = cont.getSubPanelByName(spname);
+                                ConsolePanel sp = cont.getSubPanelByName(spname);
                                 if (getConsole() != null) {
                                     PropertiesEditor.editProperties(sp, getConsole(), true);
                                 }
@@ -470,11 +470,11 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         if (!this.editFlag)
             return;
         Component c = getComponentAt(e.getPoint());
-        if (!(c instanceof SubPanel)) {
+        if (!(c instanceof ConsolePanel)) {
             c.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             return;
         }
-        if (c instanceof SubPanel) {
+        if (c instanceof ConsolePanel) {
 
             int x = e.getX();
             int y = e.getY();
@@ -510,7 +510,7 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             else {
                 c.setCursor(new Cursor(Cursor.MOVE_CURSOR));
             }
-            if (!((SubPanel) c).isResizable()) {
+            if (!((ConsolePanel) c).isResizable()) {
                 c.setCursor(new Cursor(Cursor.MOVE_CURSOR));
             }
         }
@@ -552,8 +552,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
         Component[] a = this.getComponents();
         for (Component c : a) {
-            if (c instanceof SubPanel) {
-                SubPanel panel = (SubPanel) c;
+            if (c instanceof ConsolePanel) {
+                ConsolePanel panel = (ConsolePanel) c;
                 panel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                 panel.deactivateComponents();
                 panel.setEditMode(true);
@@ -569,8 +569,8 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
 
         Component[] a = this.getComponents();
         for (Component c : a) {
-            if (c instanceof SubPanel) {
-                SubPanel panel = (SubPanel) c;
+            if (c instanceof ConsolePanel) {
+                ConsolePanel panel = (ConsolePanel) c;
                 panel.setEditMode(false);
                 panel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                 panel.activateComponents();

@@ -39,13 +39,13 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.planeditor.IEditorMenuExtension;
 import pt.lsts.neptus.planeditor.IMapPopup;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -57,7 +57,7 @@ import pt.lsts.neptus.util.GuiUtils;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "Plan Statistics", category = CATEGORY.PLANNING)
-public class PlanStatistics extends SimpleSubPanel implements IEditorMenuExtension {
+public class PlanStatistics extends ConsolePanel implements IEditorMenuExtension {
 
 
     NumberFormat format = GuiUtils.getNeptusDecimalFormat(0);

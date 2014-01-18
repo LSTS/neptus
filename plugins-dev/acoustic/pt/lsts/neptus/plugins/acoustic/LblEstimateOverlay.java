@@ -40,11 +40,11 @@ import java.util.Map.Entry;
 
 import pt.lsts.imc.LblEstimate;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -56,7 +56,7 @@ import com.google.common.eventbus.Subscribe;
  * 
  */
 @PluginDescription(author = "ZP", name = "LBL Estimates Overlay", icon = "pt/lsts/neptus/plugins/acoustic/lbl.png", description = "Displays LBL position estimations calculated by AUVs", category = CATEGORY.INTERFACE)
-public class LblEstimateOverlay extends SimpleSubPanel implements Renderer2DPainter {
+public class LblEstimateOverlay extends ConsolePanel implements Renderer2DPainter {
 
     private static final long serialVersionUID = -1669624418060388974L;
     protected LinkedHashMap<String, LblEstimate> lastEstimates = new LinkedHashMap<>();

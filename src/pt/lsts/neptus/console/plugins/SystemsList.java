@@ -80,8 +80,9 @@ import pt.lsts.neptus.comm.manager.imc.MonitorIMCComms;
 import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ConsoleSystem;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.gui.ToolbarSwitch;
@@ -113,7 +114,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
@@ -151,7 +151,7 @@ import pt.lsts.imc.FuelLevel;
 @Popup(pos = POSITION.RIGHT, width = 300, height = 600, accelerator = 'S')
 @PluginDescription(author = "Paulo Dias", version = "1.7.1", name = "Systems List", icon = "images/imc.png", documentation = "systems-list/systems-list.html")
 @LayerPriority(priority = 180)
-public class SystemsList extends SimpleSubPanel implements MainVehicleChangeListener, IPeriodicUpdates,
+public class SystemsList extends ConsolePanel implements MainVehicleChangeListener, IPeriodicUpdates,
         Renderer2DPainter, SystemPainterProvider, IEditorMenuExtension, ConfigurationListener, SubPanelChangeListener,
         ISystemsSelection {
 
@@ -2182,7 +2182,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
             // sys2.setIndicatorsSize(70);
 
             // GuiUtils.testFrame(sList);
-            ConsoleParse.dummyConsole(new SubPanel[] { sList });
+            ConsoleParse.dummyConsole(new ConsolePanel[] { sList });
 
             try {
                 Thread.sleep(5000);

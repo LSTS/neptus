@@ -58,6 +58,7 @@ import org.mozilla.javascript.tools.shell.Global;
 
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.plots.ScriptEnvironment;
@@ -66,7 +67,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 
 import com.google.common.eventbus.Subscribe;
@@ -77,7 +77,7 @@ import com.google.common.eventbus.Subscribe;
  */
 @PluginDescription(name="Real-Time plot", icon="pt/lsts/neptus/plugins/rtplot/rtplot.png")
 @Popup(accelerator='U',pos=POSITION.CENTER,height=300,width=300)
-public class RealTimePlot extends SimpleSubPanel implements IPeriodicUpdates, ConfigurationListener {
+public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
     private JFreeChart timeSeriesChart = null;

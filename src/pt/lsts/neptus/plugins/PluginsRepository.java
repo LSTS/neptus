@@ -35,7 +35,7 @@ import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.SubPanelProvider;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
@@ -87,7 +87,7 @@ public class PluginsRepository {
      * @param console
      * @return
      */
-    public static SubPanel getPanelPlugin(String pluginName, ConsoleLayout console) {
+    public static ConsolePanel getPanelPlugin(String pluginName, ConsoleLayout console) {
         try {
             SubPanelProvider spprov = extensions.getPlugin(pluginName, SubPanelProvider.class, console);
             return spprov.getSubPanel();

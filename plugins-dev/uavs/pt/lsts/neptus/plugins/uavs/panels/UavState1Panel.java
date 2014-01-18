@@ -44,10 +44,10 @@ import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.uavs.IndicatorButton;
 import pt.lsts.neptus.plugins.uavs.UavPaintersBag;
 import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
@@ -63,7 +63,7 @@ import com.google.common.eventbus.Subscribe;
  */
 
 @PluginDescription(name="Uav State 1 Panel", icon="pt/lsts/neptus/plugins/uavs/planning.png", author="Christian Fuchs")
-public class UavState1Panel extends SimpleSubPanel{
+public class UavState1Panel extends ConsolePanel{
     
 //--------------declarations-----------------------------------//
     

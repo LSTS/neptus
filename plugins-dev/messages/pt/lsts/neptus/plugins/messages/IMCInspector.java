@@ -59,9 +59,9 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
@@ -73,7 +73,7 @@ import com.google.common.eventbus.Subscribe;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "IMC Inspector", icon = "images/imc.png", documentation = "imc-inspector/imc-inspector.html")
-public class IMCInspector extends SimpleSubPanel implements KeyListener, IPeriodicUpdates {
+public class IMCInspector extends ConsolePanel implements KeyListener, IPeriodicUpdates {
 
 
     private final LinkedHashMap<Integer, InspectorMessagePanel> entities = new LinkedHashMap<Integer, InspectorMessagePanel>();

@@ -49,13 +49,13 @@ import org.jdesktop.swingx.JXPanel;
 
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.StatusLed;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.imc.IMCMessage;
@@ -69,7 +69,7 @@ import pt.lsts.imc.TeleoperationDone;
  */
 @SuppressWarnings("serial")
 @PluginDescription(author = "Paulo Dias", name = "Remote Operation Control Panel", icon = "images/control-mode/cmode.png", version = "1.3.0", description = "To enter and leave remote operation.", documentation = "plan-control/remoteoperationcontrolmode.html")
-public class RemoteOperationControlMode extends SimpleSubPanel implements MainVehicleChangeListener, IPeriodicUpdates,
+public class RemoteOperationControlMode extends ConsolePanel implements MainVehicleChangeListener, IPeriodicUpdates,
         LockableSubPanel, ConfigurationListener, NeptusMessageListener {
 
     public static final ImageIcon CM_ICON = new ImageIcon(ImageUtils.getImage("images/control-mode/cmode.png"));

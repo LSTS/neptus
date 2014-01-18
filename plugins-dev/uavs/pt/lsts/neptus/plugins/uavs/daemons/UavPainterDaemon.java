@@ -38,11 +38,11 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.uavs.UavLib;
 import pt.lsts.neptus.plugins.uavs.UavVehicleIcon;
 import pt.lsts.neptus.plugins.uavs.painters.elements.UavVehiclePainter;
@@ -53,7 +53,7 @@ import pt.lsts.neptus.plugins.uavs.painters.elements.UavVehiclePainter;
  * @category UavDaemon
  */
 @PluginDescription(name="Uav Painter Deamon", icon="pt/lsts/neptus/plugins/uavs/planning.png", author="sergiofereira")
-public class UavPainterDaemon extends SimpleSubPanel implements NeptusMessageListener{
+public class UavPainterDaemon extends ConsolePanel implements NeptusMessageListener{
 
     private static final long serialVersionUID = 1L;
     private MapPanel activePlanningPanel;

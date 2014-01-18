@@ -34,7 +34,6 @@ package pt.lsts.neptus.console;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MarkElement;
@@ -51,7 +50,7 @@ import com.google.common.eventbus.Subscribe;
  *
  */
 @PluginDescription(name="CCU Event Handler")
-public class ConsoleEvents extends SimpleSubPanel {
+public class ConsoleEvents extends ConsolePanel {
 
     private static final long serialVersionUID = 1L;
 

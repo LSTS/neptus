@@ -39,6 +39,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -50,7 +51,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author zp
  *
  */
-public abstract class SimpleRendererInteraction extends SimpleSubPanel implements StateRendererInteraction, Renderer2DPainter {
+public abstract class SimpleRendererInteraction extends ConsolePanel implements StateRendererInteraction, Renderer2DPainter {
 
     private static final long serialVersionUID = 1L;
     protected InteractionAdapter interactionAdapter;

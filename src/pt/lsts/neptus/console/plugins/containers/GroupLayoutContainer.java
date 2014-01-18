@@ -79,9 +79,10 @@ import org.xml.sax.SAXParseException;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.MainPanel;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.containers.propeditor.HorizontalGroupPropertyEditor;
 import pt.lsts.neptus.console.plugins.containers.propeditor.LinkSizeHorizontalPropertyEditor;
 import pt.lsts.neptus.console.plugins.containers.propeditor.LinkSizeVerticalPropertyEditor;
@@ -95,7 +96,6 @@ import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsLoader;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
@@ -278,7 +278,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
      * @see pt.lsts.neptus.consolebase.ContainerSubPanel#addSubPanel(pt.lsts.neptus.consolebase.SubPanel)
      */
     @Override
-    public void addSubPanel(SubPanel panel) {
+    public void addSubPanel(ConsolePanel panel) {
         super.addSubPanel(panel);
         panel.addMouseListener(getLayoutMouseListener());
     }
@@ -289,7 +289,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
      * @see pt.lsts.neptus.consolebase.ContainerSubPanel#removeSubPanel(pt.lsts.neptus.consolebase.SubPanel)
      */
     @Override
-    public void removeSubPanel(SubPanel sp) {
+    public void removeSubPanel(ConsolePanel sp) {
         super.removeSubPanel(sp);
         sp.removeMouseListener(getLayoutMouseListener());
     }
@@ -807,8 +807,8 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
         }
         try {
             if (isGapComponents) {
-                SubPanel comp1 = (firstComponent >= 0) ? panels.get(firstComponent) : getSubPanelByName(fcl1);
-                SubPanel comp2 = (secondComponent >= 0) ? panels.get(secondComponent) : getSubPanelByName(fcl2);
+                ConsolePanel comp1 = (firstComponent >= 0) ? panels.get(firstComponent) : getSubPanelByName(fcl1);
+                ConsolePanel comp2 = (secondComponent >= 0) ? panels.get(secondComponent) : getSubPanelByName(fcl2);
                 ((SequentialGroup) groupBase).addPreferredGap(comp1, comp2, type, pref, max);
             }
             else {
@@ -896,7 +896,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
             NeptusLog.pub().debug(ReflectionUtil.getCallerStamp() + e.getMessage());
         }
 
-        SubPanel comp = null;
+        ConsolePanel comp = null;
         String il = null;
         int id = -1;
         try {
@@ -954,7 +954,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                         catch (NumberFormatException e) {
                             e.printStackTrace();
                         }
-                        SubPanel comp = (idx >= 0) ? panels.get(idx) : getSubPanelByName(cil);
+                        ConsolePanel comp = (idx >= 0) ? panels.get(idx) : getSubPanelByName(cil);
                         if (comp != null)
                             compVec.add(comp);
                     }
@@ -1038,10 +1038,10 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                             JMenu addp = new JMenu("Maximize component");
                             int i = 0;
                             for (String spName : subPanelList()) {
-                                final SubPanel comp = getSubPanelByName(spName);
+                                final ConsolePanel comp = getSubPanelByName(spName);
                                 boolean hidden = false;
                                 try {
-                                    SimpleSubPanel ssp = (SimpleSubPanel) comp;
+                                    ConsolePanel ssp = (ConsolePanel) comp;
                                     hidden = ssp.getVisibility() ? false : true;
                                 }
                                 catch (Exception e1) {
@@ -1073,10 +1073,10 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                             JMenu addp2 = new JMenu("Hide component");
                             i = 0;
                             for (String spName : subPanelList()) {
-                                final SubPanel comp = getSubPanelByName(spName);
+                                final ConsolePanel comp = getSubPanelByName(spName);
                                 boolean hidden = false;
                                 try {
-                                    SimpleSubPanel ssp = (SimpleSubPanel) comp;
+                                    ConsolePanel ssp = (ConsolePanel) comp;
                                     hidden = ssp.getVisibility() ? false : true;
                                 }
                                 catch (Exception e1) {
@@ -1296,7 +1296,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
             if (plst.length <= 1 || "-".equalsIgnoreCase(plst[0].trim()))
                 exclude = true; // For the case of empty # of Components the exclude here will make all visible (as
                                 // wanted)
-            Vector<SubPanel> components = new Vector<SubPanel>();
+            Vector<ConsolePanel> components = new Vector<ConsolePanel>();
             for (int i = 1; i < plst.length; i++) {
                 int id = -1;
                 try {
@@ -1305,7 +1305,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
                 catch (Exception e) {
                     e.printStackTrace();
                 }
-                SubPanel comp = (id >= 0) ? panels.get(id) : getSubPanelByName(plst[i].trim());
+                ConsolePanel comp = (id >= 0) ? panels.get(id) : getSubPanelByName(plst[i].trim());
                 components.add(comp);
             }
             boolean aVi;
@@ -1398,7 +1398,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
             for (Component cp : panels) {
                 if (cp.equals(comp)) {
                     try {
-                        SimpleSubPanel ssp = (SimpleSubPanel) cp;
+                        ConsolePanel ssp = (ConsolePanel) cp;
                         if (visible && ssp.getVisibility())
                             cp.setVisible(visible);
                         else

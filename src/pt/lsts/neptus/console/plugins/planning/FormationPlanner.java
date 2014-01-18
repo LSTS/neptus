@@ -47,10 +47,10 @@ import javax.swing.JPopupMenu;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.mp.maneuvers.VehicleFormation;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
@@ -66,7 +66,7 @@ import pt.lsts.neptus.renderer2d.StateRendererInteraction;
  */
 @PluginDescription(author = "zp", name = "Formation Planner", description = "This Neptus plugin provides an interface for Vehicle Formation (cooperative) plans")
 @LayerPriority(priority = 50)
-public class FormationPlanner extends SimpleSubPanel implements Renderer2DPainter, StateRendererInteraction {
+public class FormationPlanner extends ConsolePanel implements Renderer2DPainter, StateRendererInteraction {
     private static final long serialVersionUID = 1L;
     protected InteractionAdapter adapter = new InteractionAdapter(null);
     

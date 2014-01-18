@@ -38,9 +38,9 @@ import java.io.File;
 import javax.swing.JFileChooser;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
@@ -51,7 +51,7 @@ import pt.lsts.neptus.util.ImageUtils;
  *
  */
 @PluginDescription(name="QGroundControl interface")
-public class QGCExporter extends SimpleSubPanel {
+public class QGCExporter extends ConsolePanel {
 
     /**
      * @param console

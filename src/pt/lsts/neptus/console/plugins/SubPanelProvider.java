@@ -35,7 +35,7 @@ import java.awt.Dimension;
 
 import javax.swing.ImageIcon;
 
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.ToolbarButton;
 
 /**
@@ -49,5 +49,5 @@ public interface SubPanelProvider {
 	public String getDescription();
 	public ToolbarButton getPaletteToolbarButton(Dimension dim);
 	public ToolbarButton getPaletteToolbarButton(int width, int height);
-	public SubPanel getSubPanel();
+	public ConsolePanel getSubPanel();
 }

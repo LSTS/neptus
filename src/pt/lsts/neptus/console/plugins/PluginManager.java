@@ -60,15 +60,15 @@ import javax.swing.JTextArea;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ContainerSubPanel;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 
 import com.l2fprod.common.swing.StatusBar;
 import com.sun.java.swing.plaf.windows.WindowsButtonUI;
@@ -79,7 +79,7 @@ import com.sun.java.swing.plaf.windows.WindowsButtonUI;
  */
 @Popup(name = "Plugin Manager", icon = "images/buttons/events.png",  pos = POSITION.CENTER, width = 500, height = 500, accelerator = 'P')
 //@PluginDescription(name = "Plugin Manager", icon = "images/buttons/events.png")
-public class PluginManager extends SimpleSubPanel {
+public class PluginManager extends ConsolePanel {
 
     private static final long serialVersionUID = 1L;
     private JPanel content;
@@ -88,7 +88,7 @@ public class PluginManager extends SimpleSubPanel {
     private JTextArea description;
     private JList<String> activePluginsList;
     private JList<String> availablePluginsList;
-    private Map<String, SubPanel> pluginsMap = new HashMap<String, SubPanel>();
+    private Map<String, ConsolePanel> pluginsMap = new HashMap<String, ConsolePanel>();
     private String activeSelected = null;
     private String availableSelected = null;
     private ContainerSubPanel container;
@@ -180,8 +180,8 @@ public class PluginManager extends SimpleSubPanel {
             public void actionPerformed(ActionEvent e) {
                 if (availableSelected == null)
                     return;
-                SubPanel sp = PluginsRepository.getPanelPlugin(availableSelected, getConsole());
-                if (sp instanceof SimpleSubPanel) {
+                ConsolePanel sp = PluginsRepository.getPanelPlugin(availableSelected, getConsole());
+                if (sp instanceof ConsolePanel) {
                     container.addSubPanel(sp);
                     sp.init();
                     getConsole().informSubPanelListener(sp, SubPanelChangeAction.ADDED);
@@ -205,8 +205,8 @@ public class PluginManager extends SimpleSubPanel {
             public void actionPerformed(ActionEvent e) {
                 if (activeSelected == null)
                     return;
-                SubPanel sp = pluginsMap.get(activeSelected);
-                if (sp instanceof SimpleSubPanel) {
+                ConsolePanel sp = pluginsMap.get(activeSelected);
+                if (sp instanceof ConsolePanel) {
                     container.removeSubPanel(sp);
                     getConsole().informSubPanelListener(sp, SubPanelChangeAction.REMOVED);
                     refreshActivePlugins();
@@ -286,23 +286,23 @@ public class PluginManager extends SimpleSubPanel {
     private void refreshActivePlugins() {
         pluginsMap.clear();
         List<String> names = new ArrayList<>();
-        for (SubPanel panel : getConsole().getSubPanels()) {
+        for (ConsolePanel panel : getConsole().getSubPanels()) {
             names.add(panel.getName());
             pluginsMap.put(panel.getName(), panel);
             if (panel instanceof ContainerSubPanel) {
                 container = (ContainerSubPanel) panel;
-                List<SubPanel> panels = ((ContainerSubPanel) panel).getSubPanels();
+                List<ConsolePanel> panels = ((ContainerSubPanel) panel).getSubPanels();
                 
-                Collections.sort(panels, new Comparator<SubPanel>() {
+                Collections.sort(panels, new Comparator<ConsolePanel>() {
                     @Override
-                    public int compare(SubPanel o1, SubPanel o2) {
+                    public int compare(ConsolePanel o1, ConsolePanel o2) {
                         final Collator collator = Collator.getInstance(Locale.US);
                         return collator.compare(PluginUtils.i18nTranslate(o1.getName()),
                                 PluginUtils.i18nTranslate(o2.getName()));
                     }
                 });
                
-                for (SubPanel panel2 : panels) {
+                for (ConsolePanel panel2 : panels) {
                     names.add(panel2.getName());
                     pluginsMap.put(panel2.getName(), panel2);
                 }

@@ -41,12 +41,12 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.ConsoleScript;
 import pt.lsts.neptus.console.plugins.LogBookPanel;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.conf.StringProperty;
@@ -57,7 +57,7 @@ import pt.lsts.neptus.util.llf.NeptusMessageLogger;
  * 
  */
 @PluginDescription(author = "zp", name = "Quick Logbook Panel")
-public class QuickLogger extends SimpleSubPanel implements ConfigurationListener {
+public class QuickLogger extends ConsolePanel implements ConfigurationListener {
     private ConsoleScript conScript = new ConsoleScript();
 
     private static final long serialVersionUID = 1L;

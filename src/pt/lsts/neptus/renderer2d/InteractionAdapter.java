@@ -41,9 +41,9 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -51,7 +51,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author zp
  *
  */
-public class InteractionAdapter extends SimpleSubPanel implements StateRendererInteraction {
+public class InteractionAdapter extends ConsolePanel implements StateRendererInteraction {
 
 
     private static final long serialVersionUID = 1L;

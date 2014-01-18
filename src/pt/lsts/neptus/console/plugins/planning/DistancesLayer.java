@@ -37,13 +37,13 @@ import java.awt.geom.Point2D;
 import java.util.Map;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.MathMiscUtils;
@@ -53,7 +53,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
  *
  */
 @PluginDescription(name = "Distances Layer", author = "José Quadrado", category = CATEGORY.PLANNING)
-public class DistancesLayer extends SimpleSubPanel implements Renderer2DPainter  {
+public class DistancesLayer extends ConsolePanel implements Renderer2DPainter  {
     private static final long serialVersionUID = 1L;
 
     @NeptusProperty(name = "Visible", category = "Visibility", userLevel = LEVEL.REGULAR)

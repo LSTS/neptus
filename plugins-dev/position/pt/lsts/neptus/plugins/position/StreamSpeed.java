@@ -40,11 +40,11 @@ import org.jdesktop.swingx.JXLabel;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -53,7 +53,7 @@ import pt.lsts.neptus.util.GuiUtils;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name="Stream Speed Display", author="zp", icon="pt/lsts/neptus/plugins/position/position.png")
-public class StreamSpeed extends SimpleSubPanel implements NeptusMessageListener, ConfigurationListener {
+public class StreamSpeed extends ConsolePanel implements NeptusMessageListener, ConfigurationListener {
 	
 	
 	@NeptusProperty(name="Font Size", description="The font size. Use '0' for automatic.")

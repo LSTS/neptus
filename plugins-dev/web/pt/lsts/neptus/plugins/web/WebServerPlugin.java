@@ -40,12 +40,12 @@ import javax.servlet.Servlet;
 import javax.swing.JMenuItem;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.web.IConsoleMenuItemServlet.ConsoleMenuItem;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
@@ -58,7 +58,7 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name="Web Server",author="zp",icon="pt/lsts/neptus/plugins/web/internet.png")
-public class WebServerPlugin extends SimpleSubPanel implements ConfigurationListener {
+public class WebServerPlugin extends ConsolePanel implements ConfigurationListener {
 
 	@NeptusProperty(name="Web Server Port")
 	public int port = WebServer.port;

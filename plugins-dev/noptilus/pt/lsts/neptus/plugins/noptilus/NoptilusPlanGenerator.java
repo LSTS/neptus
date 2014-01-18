@@ -48,10 +48,10 @@ import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -62,7 +62,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author noptilus
  */
 @PluginDescription(name = "Noptilus Plan Generation", author="Noptilus")
-public class NoptilusPlanGenerator extends SimpleSubPanel implements Renderer2DPainter {
+public class NoptilusPlanGenerator extends ConsolePanel implements Renderer2DPainter {
 
     private static final long serialVersionUID = 1L;
 

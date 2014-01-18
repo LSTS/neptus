@@ -47,7 +47,7 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
@@ -56,7 +56,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author ZP
  *
  */
-public class TeleoperationPanel extends SimpleSubPanel implements IPeriodicUpdates {
+public class TeleoperationPanel extends ConsolePanel implements IPeriodicUpdates {
 	
 	private static final long serialVersionUID = 1L;
     ColorMap normal = ColorMapFactory.createRedYellowGreenColorMap();

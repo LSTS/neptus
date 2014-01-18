@@ -39,9 +39,9 @@ import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.MiniButton;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -49,7 +49,7 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 @SuppressWarnings("serial")
 @PluginDescription(icon = "images/menus/lock.png", name = "Console Lock Button", documentation = "lock/lock-button.html")
-public class LockConsolePanel extends SimpleSubPanel implements ActionListener {
+public class LockConsolePanel extends ConsolePanel implements ActionListener {
 
     private static final ImageIcon DEFAULT_ICON = new ImageIcon(ImageUtils.getImage("images/menus/lock.png"));
     private static final ImageIcon LOCK_ICON_FILENAME = ImageUtils.getIcon("images/menus/lock.png");

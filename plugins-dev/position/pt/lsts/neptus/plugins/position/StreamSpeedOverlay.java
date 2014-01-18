@@ -37,8 +37,8 @@ import pt.lsts.imc.GpsFix;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 
@@ -48,7 +48,7 @@ import com.google.common.eventbus.Subscribe;
  * @author Margarida Faria
  */
 @PluginDescription(name="Stream Speed Overlay")
-public class StreamSpeedOverlay extends SimpleSubPanel implements Renderer2DPainter {
+public class StreamSpeedOverlay extends ConsolePanel implements Renderer2DPainter {
 
     private static final long serialVersionUID = 1L;
 

@@ -39,6 +39,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.i18n.I18n;
@@ -47,7 +48,6 @@ import pt.lsts.neptus.plugins.IAbortSenderProvider;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
@@ -61,7 +61,7 @@ import com.google.common.eventbus.Subscribe;
 @SuppressWarnings("serial")
 // Abort Request
 @PluginDescription(author = "Paulo Dias", name = "Abort Request", version = "0.9.0", icon = "pt/lsts/neptus/plugins/acoustic/lbl.png", description = "Simple Abort Modem Request by Manta Gateway", documentation = "abort/abort-button.html#SimpleAbortModemRequest", category = CATEGORY.COMMUNICATIONS)
-public class SimpleAbortModemRequest extends SimpleSubPanel implements IAbortSenderProvider, IPeriodicUpdates,
+public class SimpleAbortModemRequest extends ConsolePanel implements IAbortSenderProvider, IPeriodicUpdates,
         MainVehicleChangeListener, ConfigurationListener {
 
     // <message id="213" name="Acoustic Operation" abbrev="AcousticOperation">

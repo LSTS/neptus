@@ -36,9 +36,9 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 
 /**
  * @author sergioferreira
@@ -46,7 +46,7 @@ import pt.lsts.neptus.plugins.SimpleSubPanel;
  * @category UavPanel
  */
 @PluginDescription(name="Uav PTU Control Panel", icon="pt/lsts/neptus/plugins/uavs/wbutt.png", author="sergioferreira")
-public class UavPTUControlPanel extends SimpleSubPanel{
+public class UavPTUControlPanel extends ConsolePanel{
 
     private static final long serialVersionUID = 1L;
     

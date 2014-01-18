@@ -50,13 +50,13 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.comm.manager.imc.MessageEditorImc;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.ColorMapListRenderer;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -65,7 +65,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * 
  */
 @PluginDescription(author = "ZP", name = "Echo Sounder Panel", icon = "pt/lsts/neptus/plugins/echosounder/echosounder.png", description = "This panel is used to control and receive data from an Echo Sounder sensor")
-public class EchoSounderPanel extends SimpleSubPanel implements ConfigurationListener, NeptusMessageListener {
+public class EchoSounderPanel extends ConsolePanel implements ConfigurationListener, NeptusMessageListener {
 
     private static final long serialVersionUID = 1L;
 

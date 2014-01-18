@@ -45,6 +45,7 @@ import org.mbari.trex.Sensor.SensorMessage;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.CheckMenuChangeListener;
@@ -53,7 +54,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.odss.track.PlatformReportType;
 import pt.lsts.neptus.plugins.odss.track.PlatformReportType.PlatformType;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
@@ -75,7 +75,7 @@ import com.rabbitmq.client.ShutdownSignalException;
  */
 @PluginDescription(name = "ODSS RabbitMQ Track Fetcher", author = "Paulo Dias", version = "0.1",
  icon = "pt/lsts/neptus/plugins/odss/odss.png", category = CATEGORY.WEB_PUBLISHING)
-public class OdssRabbitMQTrackFetcher extends SimpleSubPanel implements IPeriodicUpdates, ConfigurationListener {
+public class OdssRabbitMQTrackFetcher extends ConsolePanel implements IPeriodicUpdates, ConfigurationListener {
     private static final long serialVersionUID = 1L;
 
     private static final String EXCHANGE_AUV = "auvs_pb";

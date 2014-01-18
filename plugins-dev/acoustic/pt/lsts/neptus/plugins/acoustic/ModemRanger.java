@@ -52,6 +52,7 @@ import javax.swing.JPanel;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.mystate.MyState;
@@ -61,7 +62,6 @@ import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -77,7 +77,7 @@ import pt.lsts.neptus.util.ImageUtils;
 @SuppressWarnings("serial")
 @PluginDescription(author = "zp", name = "Acoustic Modem Ranger", description = "Allows to query acoustic modem for ranges to other devices", icon = "pt/lsts/neptus/plugins/acoustic/lbl.png")
 @LayerPriority(priority = 40)
-public class ModemRanger extends SimpleSubPanel implements ConfigurationListener, ActionListener,
+public class ModemRanger extends ConsolePanel implements ConfigurationListener, ActionListener,
         NeptusMessageListener, Renderer2DPainter, IAbortSenderProvider {
 
     @NeptusProperty(editable = true)

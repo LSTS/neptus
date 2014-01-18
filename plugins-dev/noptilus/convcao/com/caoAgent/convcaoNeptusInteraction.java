@@ -75,13 +75,13 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.controllers.ControllerManager;
 import pt.lsts.neptus.plugins.controllers.IController;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -101,7 +101,7 @@ import com.google.gson.Gson;
  */
 @PluginDescription(author="thanasis", category=CATEGORY.UNSORTED, name="convcao Neptus Interaction")
 @Popup(accelerator=KeyEvent.VK_N, pos=Popup.POSITION.CENTER, height=500, width=510, name="convcao Neptus Interaction")
-public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer2DPainter, IController, ConfigurationListener {
+public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2DPainter, IController, ConfigurationListener {
 
     private static final long serialVersionUID = -1330079540844029305L;
 

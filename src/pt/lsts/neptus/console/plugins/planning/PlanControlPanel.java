@@ -73,6 +73,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.IPlanSelection;
 import pt.lsts.neptus.console.plugins.ITransponderSelection;
@@ -91,7 +92,6 @@ import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.map.TransponderUtils;
@@ -110,7 +110,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "Plan Control", author = "Paulo Dias", version = "1.2.3", documentation = "plan-control/plan-control.html#PlanControl", category = CATEGORY.INTERFACE)
-public class PlanControlPanel extends SimpleSubPanel implements ConfigurationListener, MainVehicleChangeListener,
+public class PlanControlPanel extends ConsolePanel implements ConfigurationListener, MainVehicleChangeListener,
         LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
 
     protected static final boolean DONT_USE_ACOUSTICS = true;

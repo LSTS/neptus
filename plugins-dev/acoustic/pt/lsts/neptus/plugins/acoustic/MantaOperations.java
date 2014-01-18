@@ -72,6 +72,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.VehicleChooser;
 import pt.lsts.neptus.i18n.I18n;
@@ -82,7 +83,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -104,7 +104,7 @@ import com.google.common.eventbus.Subscribe;
 @PluginDescription(name = "Acoustic Operations", author = "ZP", icon="pt/lsts/neptus/plugins/acoustic/manta.png")
 @LayerPriority(priority = 40)
 @Popup(name="Acoustic Operations", accelerator=KeyEvent.VK_M, width=350, height=250, pos=POSITION.BOTTOM_RIGHT, icon="pt/lsts/neptus/plugins/acoustic/manta.png")
-public class MantaOperations extends SimpleSubPanel implements ConfigurationListener, Renderer2DPainter {
+public class MantaOperations extends ConsolePanel implements ConfigurationListener, Renderer2DPainter {
 
     private static final long serialVersionUID = 1L;
 

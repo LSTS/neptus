@@ -42,7 +42,7 @@ import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ContainerSubPanel;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
@@ -86,7 +86,7 @@ public class SplitContainer extends ContainerSubPanel implements ConfigurationLi
 	}
 	
 	@Override
-	public void addSubPanel(SubPanel panel) {
+	public void addSubPanel(ConsolePanel panel) {
 		panel.setBorder(BorderFactory.createEmptyBorder());
 		panels.add(panel);
 		

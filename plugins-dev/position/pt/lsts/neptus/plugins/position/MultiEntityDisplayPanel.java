@@ -44,6 +44,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.SystemsList;
 import pt.lsts.neptus.gui.painters.SubPanelTitlePainter;
@@ -52,7 +53,6 @@ import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ConsoleParse;
@@ -66,7 +66,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @PluginDescription(name = "Multi Entity Display Panel", author="Paulo Dias", version="1.0",
         icon="pt/lsts/neptus/plugins/position/position.png")
 @SuppressWarnings("serial")
-public class MultiEntityDisplayPanel extends SimpleSubPanel implements ConfigurationListener,
+public class MultiEntityDisplayPanel extends ConsolePanel implements ConfigurationListener,
         NeptusMessageListener, MainVehicleChangeListener, IPeriodicUpdates {
 
     @NeptusProperty(name="Title")

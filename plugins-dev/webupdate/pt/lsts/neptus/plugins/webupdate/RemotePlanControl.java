@@ -77,6 +77,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.IPlanSelection;
 import pt.lsts.neptus.console.plugins.LockableSubPanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
@@ -87,7 +88,6 @@ import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -99,7 +99,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * 
  */
 @PluginDescription(name = "Remote Plan Control", author = "Paulo Dias", version = "0.1")
-public class RemotePlanControl extends SimpleSubPanel implements ConfigurationListener, MainVehicleChangeListener,
+public class RemotePlanControl extends ConsolePanel implements ConfigurationListener, MainVehicleChangeListener,
         LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
 
     private static final long serialVersionUID = 1L;

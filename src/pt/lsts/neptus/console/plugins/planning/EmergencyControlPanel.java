@@ -54,7 +54,8 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.LockableSubPanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
@@ -65,7 +66,6 @@ import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -79,7 +79,7 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "Emergency Control", description = "This panel controls the emergency plan for the vehicle.", version = "1.0.0", author = "Paulo Dias")
-public class EmergencyControlPanel extends SimpleSubPanel implements ConfigurationListener, MainVehicleChangeListener,
+public class EmergencyControlPanel extends ConsolePanel implements ConfigurationListener, MainVehicleChangeListener,
         LockableSubPanel, IPeriodicUpdates {
 
     // <message id="557" name="Emergency Control" abbrev="EmergencyControl" source="ccu">
@@ -719,6 +719,6 @@ public class EmergencyControlPanel extends SimpleSubPanel implements Configurati
 
     public static void main(String[] args) {
         GuiUtils.setLookAndFeel();
-        ConsoleParse.dummyConsole(new SubPanel[] { new EmergencyControlPanel(null) });
+        ConsoleParse.dummyConsole(new ConsolePanel[] { new EmergencyControlPanel(null) });
     }
 }

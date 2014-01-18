@@ -49,12 +49,12 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.AlarmProviderOld;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.painters.SubPanelTitlePainter;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.DateTimeUtil;
 
@@ -64,7 +64,7 @@ import pt.lsts.neptus.util.DateTimeUtil;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "Last Error Panel", author = "Paulo Dias", version = "0.1", documentation = "entity-state/lasterror.html")
-public class LastErrorPanel extends SimpleSubPanel implements MainVehicleChangeListener, IPeriodicUpdates,
+public class LastErrorPanel extends ConsolePanel implements MainVehicleChangeListener, IPeriodicUpdates,
         AlarmProviderOld, NeptusMessageListener {
 
     // GUI

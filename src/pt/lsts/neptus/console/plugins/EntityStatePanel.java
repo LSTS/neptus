@@ -58,6 +58,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.StatusLed;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
@@ -66,7 +67,6 @@ import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -75,7 +75,7 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 @Popup( pos = POSITION.TOP_LEFT, width=400, height=400, accelerator='E')
 @PluginDescription(name = "Entities", icon = "images/buttons/events.png", documentation = "entity-state/entity-state.html")
-public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageListener {
+public class EntityStatePanel extends ConsolePanel implements NeptusMessageListener {
 
     private static final long serialVersionUID = 5150530667334313096L;
 

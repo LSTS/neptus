@@ -35,11 +35,11 @@ import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.SystemsList;
 import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.console.plugins.planning.UavPiccoloControl;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.uavs.painters.elements.UavCameraFootprint;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
@@ -50,7 +50,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
  * Daemon that changes Neptus settings based on the current console profile
  */
 @PluginDescription(name="Uav Settings Deamon", icon="pt/lsts/neptus/plugins/uavs/planning.png", author="ChristianFuchs")
-public class UavSettingsDaemon extends SimpleSubPanel{
+public class UavSettingsDaemon extends ConsolePanel{
 
     private static final long serialVersionUID = 1L;
     private String profile;

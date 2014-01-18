@@ -39,9 +39,9 @@ import java.util.Vector;
 
 import pt.lsts.imc.GpsFix;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -49,7 +49,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  *
  */
-public class SimulationActionsPlugin extends SimpleSubPanel {
+public class SimulationActionsPlugin extends ConsolePanel {
 
     protected final String menuTools = I18n.text("Tools");
     protected final String menuSimulation = I18n.text("Simulation");

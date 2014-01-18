@@ -54,9 +54,9 @@ import pt.lsts.imc.EntityState;
 import pt.lsts.imc.EntityState.STATE;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.state.EntitiesModel.DataIndex;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -68,7 +68,7 @@ import com.google.common.eventbus.Subscribe;
  *
  */
 @PluginDescription(name = "Entity Sub Panel")
-public class EntitySubPanel extends SimpleSubPanel {
+public class EntitySubPanel extends ConsolePanel {
 
     /**
      * @param console

@@ -31,7 +31,7 @@
  */
 package pt.lsts.neptus.console.plugins;
 
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 
 public class SubPanelChangeEvent {
     public enum SubPanelChangeAction {
@@ -39,24 +39,24 @@ public class SubPanelChangeEvent {
         ADDED
     }
 
-    private SubPanel panel;
+    private ConsolePanel panel;
     private SubPanelChangeAction action;
 
-    public SubPanelChangeEvent(SubPanel p) {
+    public SubPanelChangeEvent(ConsolePanel p) {
         panel = p;
         action = SubPanelChangeAction.ADDED;
     }
 
-    public SubPanelChangeEvent(SubPanel p, SubPanelChangeAction a) {
+    public SubPanelChangeEvent(ConsolePanel p, SubPanelChangeAction a) {
         panel = p;
         action = a;
     }
 
-    public SubPanel getPanel() {
+    public ConsolePanel getPanel() {
         return panel;
     }
 
-    public void setPanel(SubPanel panel) {
+    public void setPanel(ConsolePanel panel) {
         this.panel = panel;
     }
 
