@@ -44,7 +44,6 @@ import org.dom4j.Element;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.LockableSubPanel;
-import pt.lsts.neptus.console.plugins.SubPanelProvider;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -58,7 +57,7 @@ import com.l2fprod.common.propertysheet.Property;
  * @author ZP
  * @author Paulo Dias
  */
-public class ContainerSubPanel extends ConsolePanel implements SubPanelProvider, LockableSubPanel {
+public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel {
 
     private static final long serialVersionUID = 1L;
     @NeptusProperty(name = "Maximize Panel", description = "Use this to indicate that this panel "

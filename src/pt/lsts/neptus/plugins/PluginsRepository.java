@@ -36,7 +36,6 @@ import java.util.LinkedHashMap;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.console.plugins.SubPanelProvider;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
@@ -49,7 +48,7 @@ public class PluginsRepository {
    
     private static ExtensionsBag extensions = new ExtensionsBag(
             NeptusAction.class,
-            SubPanelProvider.class,
+            ConsolePanel.class,
             NeptusMessageListener.class,
             MRAVisualization.class,
             LogReplayLayer.class,
@@ -89,8 +88,8 @@ public class PluginsRepository {
      */
     public static ConsolePanel getPanelPlugin(String pluginName, ConsoleLayout console) {
         try {
-            SubPanelProvider spprov = extensions.getPlugin(pluginName, SubPanelProvider.class, console);
-            return spprov.getSubPanel();
+            ConsolePanel spprov = extensions.getPlugin(pluginName, ConsolePanel.class, console);
+            return spprov;
         }
         catch (Exception e) {
             NeptusLog.pub().error("loading panel plugin ", e);
@@ -106,8 +105,8 @@ public class PluginsRepository {
         return extensions.getPlugin(name, type, initParams);
     }
     
-    public static LinkedHashMap<String, Class<? extends SubPanelProvider>> getPanelPlugins() {
-        return extensions.listExtensions(SubPanelProvider.class);
+    public static LinkedHashMap<String, Class<? extends ConsolePanel>> getPanelPlugins() {
+        return extensions.listExtensions(ConsolePanel.class);
     }
 
     public static LinkedHashMap<String, Class<? extends MRAVisualization>> getMraVisualizations() {

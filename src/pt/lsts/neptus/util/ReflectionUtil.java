@@ -44,12 +44,12 @@ import java.util.Vector;
 import java.util.jar.JarFile;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.console.plugins.SubPanelProvider;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.templates.AbstractPlanTemplate;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.MapTileProvider;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.renderer2d.tiles.Tile;
 
 public class ReflectionUtil {
@@ -174,53 +174,6 @@ public class ReflectionUtil {
         return "(" + stack[3].getFileName() + ":" + stack[3].getLineNumber() + ")";
     }
 
-    public static Class<?>[] listSubPanels() {
-
-        Vector<Class<?>> subpanels = new Vector<Class<?>>();
-        try {
-            List<Class<?>> classes = ReflectionUtil.getClassesForPackage("pt.lsts.neptus.console.plugins");
-            System.out.println("list plugins");
-            for (Class<?> clazz : classes) {
-                System.out.println(clazz.toString());
-                if (clazz == null || clazz.getSimpleName().length() == 0)
-                    continue;
-
-                if (hasInterface(clazz, SubPanelProvider.class)) {
-                    System.out.println("added");
-                    subpanels.add(clazz);
-                }
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return subpanels.toArray(new Class<?>[0]);
-    }
-
-    public static Class<?>[] listMraVisualizations() {
-
-        Vector<Class<?>> visualizations = new Vector<Class<?>>();
-        try {
-            List<Class<?>> classes = ReflectionUtil.getClassesForPackage(MRAVisualization.class.getPackage().getName());
-
-            for (Class<?> c : classes) {
-                if (c == null || c.getSimpleName().length() == 0)
-                    continue;
-
-                if (hasInterface(c, MRAVisualization.class)) {
-                    visualizations.add(c);
-                }
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return visualizations.toArray(new Class<?>[0]);
-
-    }
-
     public static Class<?>[] listManeuvers() {
         Vector<Class<?>> maneuvers = new Vector<Class<?>>();
         try {
@@ -317,7 +270,7 @@ public class ReflectionUtil {
             NeptusLog.pub().info("<###> "+c.getName());
         }
 
-        for (Class<?> c : listMraVisualizations()) {
+        for (Class<?> c : PluginsRepository.listExtensions(MRAVisualization.class).values()) {
             NeptusLog.pub().info("<###> "+c.getName());
         }
 

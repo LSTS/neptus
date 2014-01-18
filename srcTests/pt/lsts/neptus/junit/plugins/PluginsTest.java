@@ -35,7 +35,7 @@ import java.util.LinkedHashMap;
 
 import junit.framework.TestCase;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.console.plugins.SubPanelProvider;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginsLoader;
 import pt.lsts.neptus.plugins.PluginsRepository;
@@ -52,7 +52,7 @@ public class PluginsTest extends TestCase {
         ConfigFetch.initialize();
         PluginsLoader.load();
 
-        LinkedHashMap<String, Class<? extends SubPanelProvider>> sp = PluginsRepository.getPanelPlugins();
+        LinkedHashMap<String, Class<? extends ConsolePanel>> sp = PluginsRepository.getPanelPlugins();
 
         for (String p : sp.keySet()) {
             Object o = null;

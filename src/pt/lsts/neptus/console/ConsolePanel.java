@@ -66,7 +66,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
-import pt.lsts.neptus.console.plugins.SubPanelProvider;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.gui.PropertiesProvider;
@@ -91,6 +90,7 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ListenerManager;
 import pt.lsts.neptus.util.ReflectionUtil;
 
+import com.google.common.eventbus.Subscribe;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
@@ -98,8 +98,8 @@ import com.l2fprod.common.propertysheet.Property;
  * @author Rui Gonçalves, ZP
  * 
  */
-public abstract class ConsolePanel extends JPanel implements PropertiesProvider, XmlInOutMethods, SubPanelProvider, MessageListener<MessageInfo, IMCMessage>,
-MainVehicleChangeListener {
+public abstract class ConsolePanel extends JPanel implements PropertiesProvider, XmlInOutMethods,
+        MessageListener<MessageInfo, IMCMessage>, MainVehicleChangeListener {
 
     private static final long serialVersionUID = -2131046685846552482L;
     private static final String DEFAULT_ROOT_ELEMENT = "subpanel";
@@ -132,13 +132,14 @@ MainVehicleChangeListener {
     /**
      * Alias method to send console events
      * 
-     * @param event
+     * @param event The Event to be posted to the console and forwarded to any subscribers
+     * @see Subscribe
      */
     public void post(Object event) {
         NeptusEvents.post(event, console);
     }
 
-    protected void recalculateRelativePosAndSize() {
+    final protected void recalculateRelativePosAndSize() {
 
         if (mainpanel == null || mainpanel.getWidth() <= 0)
             return;
@@ -179,7 +180,7 @@ MainVehicleChangeListener {
             setVisible(true);
     }
 
-    final protected boolean getEditMode() {
+    final public boolean getEditMode() {
         return editmode;
     }
 
@@ -188,12 +189,10 @@ MainVehicleChangeListener {
         listenerManager.turnoff();
     }
 
-    @Override
     final public ToolbarButton getPaletteToolbarButton(Dimension dim) {
         return getPaletteToolbarButton((int) dim.getWidth(), (int) dim.getHeight());
     }
 
-    @Override
     final public ToolbarButton getPaletteToolbarButton(int width, int height) {
         return new ToolbarButton(ImageUtils.getScaledIcon(getImageIcon(), width, height), getName(), null);
     }
@@ -222,7 +221,7 @@ MainVehicleChangeListener {
             getConsole().addMissionListener((MissionChangeListener) this);
 
         if (this instanceof MainVehicleChangeListener || this instanceof NeptusMessageListener)
-            getConsole().addMainVehicleListener((MainVehicleChangeListener)this);
+            getConsole().addMainVehicleListener((MainVehicleChangeListener) this);
 
         if (this instanceof PlanChangeListener)
             getConsole().addPlanListener((PlanChangeListener) this);
@@ -286,8 +285,7 @@ MainVehicleChangeListener {
     }
 
     private JMenuItem createMenuItem(final POSITION popupPosition, String name2, ImageIcon icon) {
-        JMenuItem menuItem = new JMenuItem(new AbstractAction(name2,
-                ImageUtils.getScaledIcon(icon, 16, 16)) {
+        JMenuItem menuItem = new JMenuItem(new AbstractAction(name2, ImageUtils.getScaledIcon(icon, 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -488,12 +486,10 @@ MainVehicleChangeListener {
         return new ConsolePanel[0];
     }
 
-    @Override
     public String getDescription() {
         return PluginUtils.getPluginDescription(this.getClass());
     }
 
-    @Override
     public ImageIcon getImageIcon() {
         return ImageUtils.getIcon(PluginUtils.getPluginIcon(this.getClass()));
     }
@@ -505,7 +501,7 @@ MainVehicleChangeListener {
     public void setProperties(Property[] properties) {
         PluginUtils.setPluginProperties(this, properties);
     }
-    
+
     @Override
     public String[] getPropertiesErrors(Property[] properties) {
         LinkedHashMap<String, PluginProperty> props = new LinkedHashMap<String, PluginProperty>();
@@ -601,7 +597,7 @@ MainVehicleChangeListener {
     }
 
     public void XML_PropertiesRead(Element e) {
-        PluginUtils.setConfigXml(this, e.asXML());        
+        PluginUtils.setConfigXml(this, e.asXML());
     }
 
     public void XML_ChildsWrite(Element e) {
@@ -679,11 +675,6 @@ MainVehicleChangeListener {
         }
         if (document != null)
             inDocument(document);
-    }
-
-    @Override
-    public ConsolePanel getSubPanel() {
-        return this;
     }
 
     @Override
@@ -789,7 +780,7 @@ MainVehicleChangeListener {
     public String getMainVehicleId() {
         return mainVehicleId;
     }
-    
+
     /**
      * Creates and retrieves a console menu item
      * 
@@ -845,7 +836,6 @@ MainVehicleChangeListener {
         addedMenus.add(itemPath);
         return menu;
     }
-
 
     /**
      * Creates and retrieves a console check menu item (toggle)
@@ -909,7 +899,7 @@ MainVehicleChangeListener {
         removeMenuItem(itemPath);
     }
 
-
     public abstract void initSubPanel();
+
     public abstract void cleanSubPanel();
 }

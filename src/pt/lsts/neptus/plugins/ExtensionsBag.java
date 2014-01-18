@@ -69,7 +69,7 @@ public class ExtensionsBag {
             boolean added = false;
 
             for (Class<?> intf : extensions.keySet()) {
-                if (ReflectionUtil.hasInterface(c, intf)) {
+                if (ReflectionUtil.hasInterface(c, intf) || ReflectionUtil.isSubclass(c, intf)) {
                     String name = PluginUtils.getPluginName(c);
                     if (name.isEmpty())
                         name = c.getSimpleName();
