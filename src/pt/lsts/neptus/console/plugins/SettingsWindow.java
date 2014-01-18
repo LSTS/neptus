@@ -47,7 +47,6 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;

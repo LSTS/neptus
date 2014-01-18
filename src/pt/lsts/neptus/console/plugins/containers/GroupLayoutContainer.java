@@ -82,7 +82,6 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.console.MainPanel;
-import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.containers.propeditor.HorizontalGroupPropertyEditor;
 import pt.lsts.neptus.console.plugins.containers.propeditor.LinkSizeHorizontalPropertyEditor;
 import pt.lsts.neptus.console.plugins.containers.propeditor.LinkSizeVerticalPropertyEditor;
