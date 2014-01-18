@@ -457,7 +457,8 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
             g = (Graphics2D)g2.create();
             
             String vehicle = sim.getVehicleId();
-            long simTime = System.currentTimeMillis() - lastStateTimes.get(vehicle);
+            long lastTime = lastStateTimes.containsKey(vehicle) ? lastStateTimes.get(vehicle) : 0; 
+            long simTime = System.currentTimeMillis() - lastTime;
             if (simTime > 1000) {
                 strs.add("[" + I18n.textf("Simulating %vehicle for %time", vehicle,
                         DateTimeUtil.milliSecondsToFormatedString(simTime)) + "]");                
