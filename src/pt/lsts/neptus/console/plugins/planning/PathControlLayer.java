@@ -40,6 +40,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PathControlState;
@@ -63,12 +65,12 @@ import pt.lsts.neptus.types.coord.LocationType;
  */
 @PluginDescription(name="PathControlLayer")
 @LayerPriority(priority=-5)
-public class PathControlLayer extends SimpleSubPanel implements Renderer2DPainter, MessageListener<MessageInfo, IMCMessage> {
+public class PathControlLayer extends SimpleSubPanel implements Renderer2DPainter {
 
 
     private static final long serialVersionUID = 1L;
     protected final int pcontrol_id = IMCDefinition.getInstance().getMessageId("PathControlState");
-    
+
     protected Map<Integer, PathControlState> lastMsgs = Collections.synchronizedMap(new LinkedHashMap<Integer, PathControlState>());
 
     /**
@@ -77,7 +79,7 @@ public class PathControlLayer extends SimpleSubPanel implements Renderer2DPainte
     public PathControlLayer(ConsoleLayout console) {
         super(console);
     }
-    
+
     @Override
     public void initSubPanel() {
         ImcMsgManager.getManager().addListener(this, new MessageFilter<MessageInfo, IMCMessage>() {            
@@ -87,7 +89,7 @@ public class PathControlLayer extends SimpleSubPanel implements Renderer2DPainte
             }
         });
     }
-    
+
     @Override
     public void cleanSubPanel() {
         ImcMsgManager.getManager().removeListener(this);
@@ -113,15 +115,8 @@ public class PathControlLayer extends SimpleSubPanel implements Renderer2DPainte
         }
     }
 
-    @Override
-    public void onMessage(MessageInfo arg0, IMCMessage msg) {
-        if (msg.getMgid() == pcontrol_id) {
-            try {
-                lastMsgs.put(msg.getSrc(), PathControlState.clone(msg));
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }       
+    @Subscribe
+    public void consume(PathControlState pcs) {
+        lastMsgs.put(pcs.getSrc(), pcs);
     }        
 }

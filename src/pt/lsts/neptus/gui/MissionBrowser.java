@@ -1096,26 +1096,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 repaint();
             }
 
-            private String printBeacons(final Vector<LblBeacon> remoteTrans) {
-                short id = 0;
-                StringBuilder remotes = new StringBuilder(remoteTrans.size() + " trans in ImcSystem: ");
-                for (LblBeacon lblBeacon : remoteTrans) {
-                    remotes.append("[");
-                    remotes.append(id);
-                    remotes.append("] ");
-                    remotes.append(lblBeacon.getBeacon());
-                    remotes.append(" ( query: ");
-                    remotes.append(lblBeacon.getQueryChannel());
-                    remotes.append(", reply: ");
-                    remotes.append(lblBeacon.getReplyChannel());
-                    remotes.append(", delay:");
-                    remotes.append(lblBeacon.getTransponderDelay());
-                    remotes.append(")\n         ");
-                    id++;
-                }
-                return remotes.toString();
-            }
-
         });
     }
 

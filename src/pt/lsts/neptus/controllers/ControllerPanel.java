@@ -74,9 +74,7 @@ import pt.lsts.imc.RemoteActionsRequest;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.controllers.ControllerManager;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -464,13 +462,6 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         
         mappedActions = getMappedActions(console.getMainSystem(), currentController);
         buildDialog();
-    }
-
-    @Override
-    public void onMessage(MessageInfo info, IMCMessage msg) {
-        if (msg.getMgid() == RemoteActionsRequest.ID_STATIC) {
-            consume((RemoteActionsRequest) msg);
-        }
     }
 
     public void cleanup() {

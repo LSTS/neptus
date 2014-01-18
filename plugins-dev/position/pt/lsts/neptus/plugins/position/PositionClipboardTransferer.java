@@ -91,7 +91,7 @@ public class PositionClipboardTransferer extends SimpleSubPanel {
 					return;
 				NeptusLog.pub().info("<###>get position from "+answer);
 				
-				ImcSysState state = ImcMsgManager.getManager().getState(console.getSystem((String)answer).getVehicle().getId());
+				ImcSysState state = ImcMsgManager.getManager().getState(getConsole().getSystem((String)answer).getVehicle().getId());
 				if (state == null)
 					return;
 				double lat = Math.toDegrees(state.getDouble("GpsFix.GPS.lat"));

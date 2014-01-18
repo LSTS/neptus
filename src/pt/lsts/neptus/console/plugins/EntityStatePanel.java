@@ -360,7 +360,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
             }
             else {
                 eType = new EntityStateType(entityName, new Enumerated(message.getMessageType().getFieldPossibleValues(
-                        "state"), message.getLong("state")), description, System.currentTimeMillis());
+                        "state"), message.getLong("state")), getDescription(), System.currentTimeMillis());
 
                 if (data.add(eType)) {
                     index = data.indexOf(eType);

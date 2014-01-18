@@ -325,7 +325,7 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
                             }
                             else {
                                 post(Notification.success(I18n.text("Operation Limits"), I18n.text("Syncronized")).src(
-                                        console.getMainSystem()));
+                                        getConsole().getMainSystem()));
                             }
                         }
                     }

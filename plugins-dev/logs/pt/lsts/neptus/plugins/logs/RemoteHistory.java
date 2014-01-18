@@ -137,7 +137,7 @@ public class RemoteHistory extends SimpleSubPanel implements NeptusMessageListen
     @Override
     public void initSubPanel() {
         p.console = getConsole();
-        JMenu menu = console.getOrCreateJMenu(new String[] { I18n.text("View") });
+        JMenu menu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
         menu.add(menuItem);
     };
 
@@ -148,7 +148,7 @@ public class RemoteHistory extends SimpleSubPanel implements NeptusMessageListen
         }
         
         if (menuItem != null) {
-            JMenu menu = console.getOrCreateJMenu(new String[] { I18n.text("View") });
+            JMenu menu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
             menu.remove(menuItem);
         }
     }

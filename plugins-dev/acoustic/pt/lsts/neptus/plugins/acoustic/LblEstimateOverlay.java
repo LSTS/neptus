@@ -135,7 +135,7 @@ public class LblEstimateOverlay extends SimpleSubPanel implements Renderer2DPain
         boolean warn = estimate.getDistance() > Math.max(estimate.getVarX(), estimate.getVarY());
         warn &= estimate.getDistance() > 5;
         
-        if (warn && console != null) {
+        if (warn && getConsole() != null) {
             if (!lastWarnings.containsKey(beacon)
                     || (System.currentTimeMillis() - lastWarnings.get(beacon)) > millisBetweenWarnings) {
                 post(Notification.warning("Potential LBL mis-configuration", "The system " + estimate.getSourceName()

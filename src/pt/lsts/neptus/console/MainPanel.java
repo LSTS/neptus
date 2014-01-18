@@ -185,7 +185,13 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
             setEditOff();
             setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
-            SubPanel sub = new SubPanel(this.getConsole());
+            SubPanel sub = new SubPanel(this.getConsole()) {
+                private static final long serialVersionUID = 8543725153078587308L;
+                @Override
+                public void cleanSubPanel() {}                
+                @Override
+                public void initSubPanel() {}
+            };
             sub.setSize(sub.getPreferredSize());
             sub.setLocation(e.getX(), e.getY());
             sub.setName(adding);

@@ -269,7 +269,7 @@ public class AbortPanel extends SimpleSubPanel implements MainVehicleChangeListe
 
                             boolean aSent = true;
                             try {
-                                Vector<IAbortSenderProvider> newTrackers = console.getSubPanelsOfInterface(
+                                Vector<IAbortSenderProvider> newTrackers = getConsole().getSubPanelsOfInterface(
                                         IAbortSenderProvider.class);
                                 for (IAbortSenderProvider t : newTrackers) {
                                     boolean sent = t.sendAbortRequest();

@@ -64,7 +64,7 @@ public class LumeneraPanel extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             if(refreshThread != null) {
-                refreshThread.stop();
+                refreshThread.interrupt();
                 
             }
             refreshThread = getRefreshThread();

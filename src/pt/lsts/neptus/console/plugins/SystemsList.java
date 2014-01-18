@@ -1306,7 +1306,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
      */
     private StateRendererInteraction getInteractionInterface() {
         if (stateRendererInteraction == null) {
-            stateRendererInteraction = new InteractionAdapter(console) {
+            stateRendererInteraction = new InteractionAdapter(getConsole()) {
                 @Override
                 public String getName() {
                     return PluginUtils.getPluginName(SystemsList.this.getClass());

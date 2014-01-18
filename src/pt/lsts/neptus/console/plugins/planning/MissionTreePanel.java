@@ -821,17 +821,17 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                         }
                     }
                     if (toRemoveRemotely.size() > 0)
-                        addActionRemovePlanRemotely(console, pdbControl, toRemoveRemotely, popupMenu);
+                        addActionRemovePlanRemotely(getConsole(), pdbControl, toRemoveRemotely, popupMenu);
                     if (toRemoveLocally.size() > 0)
-                        addActionRemovePlanLocally(console, toRemoveLocally, popupMenu);
+                        addActionRemovePlanLocally(getConsole(), toRemoveLocally, popupMenu);
                     if (toSend.size() > 0)
-                        addActionSendPlan(console, pdbControl, toSend, popupMenu);
+                        addActionSendPlan(getConsole(), pdbControl, toSend, popupMenu);
                     if (toGetPlan.size() > 0)
-                        addActionGetRemotePlan(console, pdbControl, toGetPlan, popupMenu);
+                        addActionGetRemotePlan(getConsole(), pdbControl, toGetPlan, popupMenu);
 
                     // if (synAndUnsyncPlans.size()>0) {
-                    // addActionRemovePlanRemotely(console, pdbControl, synAndUnsyncPlans, popupMenu);
-                    // addActionGetRemotePlan(console, pdbControl, synAndUnsyncPlans, popupMenu);
+                    // addActionRemovePlanRemotely(getConsole(), pdbControl, synAndUnsyncPlans, popupMenu);
+                    // addActionGetRemotePlan(getConsole(), pdbControl, synAndUnsyncPlans, popupMenu);
                     // addActionShare(selectedItems, dissemination);
                     // // addActionChangePlanVehicles(selection, popupMenu); // Uncomment when multiple vehicles needs
                     // // this
@@ -842,8 +842,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     // // }
                     // }
                     // if (remotePlans.size() > 0) {
-                    // addActionGetRemotePlan(console, pdbControl, remotePlans, popupMenu);
-                    // addActionRemovePlanRemotely(console, pdbControl, remotePlans, popupMenu);
+                    // addActionGetRemotePlan(getConsole(), pdbControl, remotePlans, popupMenu);
+                    // addActionRemovePlanRemotely(getConsole(), pdbControl, remotePlans, popupMenu);
                     // }
                     break;
                 case Transponder:
@@ -972,18 +972,18 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
                     LocationType loc = new LocationType((HomeReference) selection);
-                    LocationType after = LocationPanel.showLocationDialog(console, I18n.text("Set home reference"),
-                            loc, console.getMission(), true);
+                    LocationType after = LocationPanel.showLocationDialog(getConsole(), I18n.text("Set home reference"),
+                            loc, getConsole().getMission(), true);
                     if (after == null)
                         return;
 
-                    console.getMission().getHomeRef().setLocation(after);
+                    getConsole().getMission().getHomeRef().setLocation(after);
 
-                    Vector<HomeReferenceElement> hrefElems = MapGroup.getMapGroupInstance(console.getMission())
+                    Vector<HomeReferenceElement> hrefElems = MapGroup.getMapGroupInstance(getConsole().getMission())
                             .getAllObjectsOfType(HomeReferenceElement.class);
-                    hrefElems.get(0).setCoordinateSystem(console.getMission().getHomeRef());
-                    console.getMission().save(false);
-                    console.updateMissionListeners();
+                    hrefElems.get(0).setCoordinateSystem(getConsole().getMission().getHomeRef());
+                    getConsole().getMission().save(false);
+                    getConsole().updateMissionListeners();
                 }
             });
         }
@@ -1000,7 +1000,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                                 @Override
                                 public void run() {
                                     browser.swithLocationsTransponder(selection,
-                                            tel, console);
+                                            tel, getConsole());
                                 };
                             }.start();
                         }
@@ -1014,7 +1014,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     for (TransponderElement transponderElement : selectedTrans) {
-                        browser.removeTransponder(transponderElement, console);
+                        browser.removeTransponder(transponderElement, getConsole());
                     }
                 }
             });
@@ -1025,7 +1025,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            browser.editTransponder(selection, console.getMission(),
+                            browser.editTransponder(selection, getConsole().getMission(),
                                     getMainVehicleId());
                         }
                     });
@@ -1039,7 +1039,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 //                    if (selection != null) {
         // PlanType sel = (PlanType) selection;
         //
-        // String[] vehicles = VehicleSelectionDialog.showSelectionDialog(console, sel.getVehicles()
+        // String[] vehicles = VehicleSelectionDialog.showSelectionDialog(getConsole(), sel.getVehicles()
         // .toArray(new VehicleType[0]));
         // Vector<VehicleType> vts = new Vector<VehicleType>();
         // for (String v : vehicles) {
@@ -1058,7 +1058,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 public void actionPerformed(ActionEvent e) {
                     // disseminate((XmlOutputMethods) selection, "Plan");
                     for (NameId nameId : selectedItems) {
-                        console.getImcMsgManager().broadcastToCCUs(((PlanType) nameId).asIMCPlan());
+                        getConsole().getImcMsgManager().broadcastToCCUs(((PlanType) nameId).asIMCPlan());
                     }
                 }
             });
@@ -1068,7 +1068,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             popupMenu.add(I18n.text("Add a new transponder")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    browser.addTransponderElement(console);
+                    browser.addTransponderElement(getConsole());
                 }
             });
         }
@@ -1079,8 +1079,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
                     if (browser.setContent(Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null),
-                            console.getMission())) {
-                        console.updateMissionListeners();
+                            getConsole().getMission())) {
+                        getConsole().updateMissionListeners();
                     }
                 }
             });

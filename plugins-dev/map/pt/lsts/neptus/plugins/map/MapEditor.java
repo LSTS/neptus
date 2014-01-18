@@ -89,16 +89,10 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
-import pt.lsts.neptus.types.map.CylinderElement;
-import pt.lsts.neptus.types.map.EllipsoidElement;
 import pt.lsts.neptus.types.map.ImageElement;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.MarkElement;
-import pt.lsts.neptus.types.map.MineDangerAreaElement;
-import pt.lsts.neptus.types.map.Model3DElement;
-import pt.lsts.neptus.types.map.ParallelepipedElement;
-import pt.lsts.neptus.types.map.QRouteElement;
 import pt.lsts.neptus.types.map.RotatableElement;
 import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -246,7 +240,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     disableAllInteractionsBut(freehand);
-                    currentInteraction = new DrawPathInteraction(getPivot(), manager, console);
+                    currentInteraction = new DrawPathInteraction(getPivot(), manager, getConsole());
                     currentInteraction.setAssociatedSwitch(freehand);
                     currentInteraction.setActive(true, renderer);
                 }
@@ -268,7 +262,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     disableAllInteractionsBut(fp);
-                    currentInteraction = new PolygonInteraction(getPivot(), manager, true, console);
+                    currentInteraction = new PolygonInteraction(getPivot(), manager, true, getConsole());
                     currentInteraction.setAssociatedSwitch(fp);
                     currentInteraction.setActive(true, renderer);
                 }
@@ -290,7 +284,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     disableAllInteractionsBut(up);
-                    currentInteraction = new PolygonInteraction(getPivot(), manager, false, console);
+                    currentInteraction = new PolygonInteraction(getPivot(), manager, false, getConsole());
                     currentInteraction.setAssociatedSwitch(up);
                     currentInteraction.setActive(true, renderer);
                 }
@@ -312,7 +306,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     disableAllInteractionsBut(mda);
-                    currentInteraction = new MineDangerAreaInteraction(getPivot(), manager, console);
+                    currentInteraction = new MineDangerAreaInteraction(getPivot(), manager, getConsole());
                     currentInteraction.setAssociatedSwitch(mda);
                     currentInteraction.setActive(true, renderer);
                 }
@@ -334,7 +328,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     disableAllInteractionsBut(qr);
-                    currentInteraction = new QRouteInteraction(getPivot(), manager, console);
+                    currentInteraction = new QRouteInteraction(getPivot(), manager, getConsole());
                     currentInteraction.setAssociatedSwitch(qr);
                     currentInteraction.setActive(true, renderer);
                 }
@@ -356,7 +350,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     disableAllInteractionsBut(b2d);
-                    currentInteraction = new Box2DInteraction(getPivot(), manager, console);
+                    currentInteraction = new Box2DInteraction(getPivot(), manager, getConsole());
                     currentInteraction.setAssociatedSwitch(b2d);
                     currentInteraction.setActive(true, renderer);
                 }

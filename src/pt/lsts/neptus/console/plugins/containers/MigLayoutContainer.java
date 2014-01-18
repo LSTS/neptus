@@ -139,7 +139,7 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
 
         removeProfilesMenu(); // Cleanup the menu before (re)loading the profiles
 
-        profilesMenu = console.getOrCreateJMenu(new String[] { I18n.text("Profiles") });
+        profilesMenu = getConsole().getOrCreateJMenu(new String[] { I18n.text("Profiles") });
         for (final String name : profileList) {
             JCheckBoxMenuItem item = new JCheckBoxMenuItem(new AbstractAction(I18n.text(name)) {
                 private static final long serialVersionUID = 1L;
@@ -242,7 +242,13 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                         parse(element, tabbedPane);
                     }
                     else {
-                        SubPanel container = new SubPanel(console);
+                        SubPanel container = new SubPanel(getConsole()) {
+                            private static final long serialVersionUID = 8543725153078587308L;
+                            @Override
+                            public void cleanSubPanel() {}                
+                            @Override
+                            public void initSubPanel() {}
+                        };
                         container.setLayout(new MigLayout(layoutparam, colparam, rowparam));
                         parent.add(container, addParam);
                         parse(element, container);

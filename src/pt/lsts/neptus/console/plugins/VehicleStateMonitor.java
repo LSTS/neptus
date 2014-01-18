@@ -81,7 +81,7 @@ public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpda
                     systemStates.remove(system);
                     post(new ConsoleEventVehicleStateChanged(system,
                             I18n.text("No communication received for more than 10 seconds"), STATE.DISCONNECTED));
-                    console.getSystem(system).setVehicleState(STATE.DISCONNECTED);
+                    getConsole().getSystem(system).setVehicleState(STATE.DISCONNECTED);
                 }
             }
             catch (Exception e) {
@@ -97,7 +97,7 @@ public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpda
     public void consume(VehicleState msg) {
         try {
             String src = msg.getSourceName();
-            ConsoleSystem consoleSystem = console.getSystem(src);
+            ConsoleSystem consoleSystem = getConsole().getSystem(src);
             if (src == null || consoleSystem == null)
                 return;
             STATE systemState = STATE.valueOf(msg.getOpMode().toString());

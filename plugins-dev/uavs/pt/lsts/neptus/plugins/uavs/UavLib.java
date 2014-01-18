@@ -38,7 +38,7 @@ import java.awt.geom.Point2D;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ContainerSubPanel;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.plugins.SubPanelProvider;
 
 /**
  * @author canasta
@@ -77,11 +77,11 @@ public class UavLib {
      * @return 
      * @return Vector<Object>
      */
-    public static SimpleSubPanel findPanelInConsole(String name, ConsoleLayout console){  
+    public static SubPanelProvider findPanelInConsole(String name, ConsoleLayout console){  
                       
         for(int i = 0; i < console.getComponentCount(); i++){
             if(console.getMainPanel().getComponent(i).getClass().getSimpleName().equals(name)){               
-                return (SimpleSubPanel) console.getMainPanel().getComponent(i);
+                return (SubPanelProvider) console.getMainPanel().getComponent(i);
             }
             else if(console.getMainPanel().getComponent(i).getClass().getSuperclass().getSimpleName().equals(SUPERCLASS_NAME)){            
                 return findPanelInConsoleAux(name,(ContainerSubPanel)console.getMainPanel().getComponent(i));                
@@ -95,11 +95,11 @@ public class UavLib {
      * @param component
      * @return 
      */
-    private static SimpleSubPanel findPanelInConsoleAux(String name, ContainerSubPanel container) {
+    private static SubPanelProvider findPanelInConsoleAux(String name, ContainerSubPanel container) {
        
         for(int i = 0; i < container.getSubPanels().size(); i++){
             if(container.getSubPanels().get(i).getClass().getSimpleName().equals(name)){
-                return (SimpleSubPanel) container.getSubPanels().get(i);
+                return (SubPanelProvider) container.getSubPanels().get(i);
             }
             else if(container.getSubPanels().get(i).getClass().getSuperclass().getSimpleName().equals(SUPERCLASS_NAME)){
                 return findPanelInConsoleAux(name,(ContainerSubPanel)container.getComponent(i));

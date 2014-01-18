@@ -180,11 +180,11 @@ public class PluginManager extends SimpleSubPanel {
             public void actionPerformed(ActionEvent e) {
                 if (availableSelected == null)
                     return;
-                SubPanel sp = PluginsRepository.getPanelPlugin(availableSelected, console);
+                SubPanel sp = PluginsRepository.getPanelPlugin(availableSelected, getConsole());
                 if (sp instanceof SimpleSubPanel) {
                     container.addSubPanel(sp);
                     sp.init();
-                    console.informSubPanelListener(sp, SubPanelChangeAction.ADDED);
+                    getConsole().informSubPanelListener(sp, SubPanelChangeAction.ADDED);
                     refreshActivePlugins();
                     NeptusLog.pub().warn(
                             "Added new plugin: " + sp.getName() + " Class name : " + sp.getClass().getCanonicalName());
@@ -208,7 +208,7 @@ public class PluginManager extends SimpleSubPanel {
                 SubPanel sp = pluginsMap.get(activeSelected);
                 if (sp instanceof SimpleSubPanel) {
                     container.removeSubPanel(sp);
-                    console.informSubPanelListener(sp, SubPanelChangeAction.REMOVED);
+                    getConsole().informSubPanelListener(sp, SubPanelChangeAction.REMOVED);
                     refreshActivePlugins();
                     NeptusLog.pub().warn(
                             "Removed plugin: " + sp.getName() + " Class name : " + sp.getClass().getCanonicalName());
@@ -286,7 +286,7 @@ public class PluginManager extends SimpleSubPanel {
     private void refreshActivePlugins() {
         pluginsMap.clear();
         List<String> names = new ArrayList<>();
-        for (SubPanel panel : console.getSubPanels()) {
+        for (SubPanel panel : getConsole().getSubPanels()) {
             names.add(panel.getName());
             pluginsMap.put(panel.getName(), panel);
             if (panel instanceof ContainerSubPanel) {
