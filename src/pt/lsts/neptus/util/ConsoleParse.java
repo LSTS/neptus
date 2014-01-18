@@ -72,6 +72,11 @@ public class ConsoleParse implements FileHandler {
 
         return console;
     }
+    
+    @Override
+    public String getName() {
+        return "Console";
+    }
 
     public static Document initparse(String consoleURL) throws DocumentException {
         SAXReader reader =  new SAXReader();

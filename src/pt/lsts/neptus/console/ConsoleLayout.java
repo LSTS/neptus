@@ -49,6 +49,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -139,6 +140,7 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
@@ -166,12 +168,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     private final ImcMsgManager imcMsgManager;
     private final ConcurrentMap<String, ConsoleSystem> consoleSystems = new ConcurrentHashMap<String, ConsoleSystem>();
 
-    // Controller Manager to be used by every plugin that uses an external controller (Gamepad, etc...) 
-    private final ControllerManager controllerManager; 
+    // Controller Manager to be used by every plugin that uses an external controller (Gamepad, etc...)
+    private final ControllerManager controllerManager;
 
-    
     private final List<SubPanel> subPanels = new ArrayList<>();
-    
+
     /*
      * UI stuff
      */
@@ -212,14 +213,14 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         ConsoleLayout instance = new ConsoleLayout();
         instance.imcOn();
         ConsoleParse.parseFile(consoleURL, instance);
-        // load core plugins 
+        // load core plugins
         PluginManager manager = new PluginManager(instance);
         manager.init();
         SettingsWindow settings = new SettingsWindow(instance);
         settings.init();
-        
+
         instance.setConsoleChanged(false);
-        
+
         if (loader != null)
             loader.end();
         instance.setVisible(true);
@@ -339,8 +340,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         };
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyDispatcher);
     }
-    
-    private void cleanKeyBindings(){
+
+    private void cleanKeyBindings() {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(keyDispatcher);
         globalKeybindings.clear();
     }
@@ -1225,7 +1226,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
             this.cleanKeyBindings();
             this.imcOff();
-            
+
             NeptusEvents.delete(this);
         }
         catch (Exception e) {
@@ -1233,7 +1234,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
 
         NeptusLog.pub().info("console layout cleanup end in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
-        
+
     }
 
     private Rectangle2D minimizedBounds = null;
@@ -1694,18 +1695,24 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     // MAIN FOR TESTING ONLY
     public static void main(String[] args) {
-        Loader loader = new Loader();
-        loader.start();
-        ConfigFetch.initialize();
-        ConfigFetch.setSuperParentFrameForced(loader);
+        GuiUtils.setLookAndFeel();
+        File[] consoles = new File("conf/consoles").listFiles();
+        Vector<String> options = new Vector<>();
+        for (File f : consoles) {
+            if (FileUtil.getFileExtension(f).equalsIgnoreCase("ncon")) {
+                options.add(FileUtil.getFileNameWithoutExtension(f));
+            }
+        }
+        Collections.sort(options);
 
-        NeptusMain.loadPreRequirementsDataExceptConfigFetch(loader);
+        String op = ""
+                + JOptionPane.showInputDialog(null, "Select console to open", "Neptus Console",
+                        JOptionPane.QUESTION_MESSAGE, ImageUtils.getIcon("images/neptus-icon1.png"),
+                        options.toArray(new String[0]), "lauv");
 
-        loader.setText(I18n.text("Loading console..."));
-
-        @SuppressWarnings("unused")
-        ConsoleLayout console = ConsoleLayout.forge("conf/consoles/lauv.ncon", loader);
-//        NeptusMain.wrapMainApplicationWindowWithCloseActionWindowAdapter(console);
-        NeptusLog.pub().info("<###>BENCHMARK " + ((System.currentTimeMillis() - ConfigFetch.STARTTIME) / 1E3) + "s");
+        if (op.equals("null")) {
+            return;
+        }
+        NeptusMain.main(new String[] { "-f", new File(new File("conf/consoles"), op + ".ncon").getAbsolutePath() });
     }
 }

@@ -93,12 +93,12 @@ import pt.lsts.neptus.gui.WaitPanel;
 import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.FileHandler;
+import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.ConcatenateLsfLog;
 import pt.lsts.neptus.mra.replay.LogReplay;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.PluginsLoader;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.FileUtil;
@@ -1044,15 +1044,6 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
     }
 
     public static void main(String[] args) {
-        
-        GuiUtils.setLookAndFeel();
-        NeptusMRA mra = new NeptusMRA();
-        mra.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Thread t = new Thread("startup") {
-            public void run() {
-                PluginsLoader.load();
-            };
-        };
-        t.start();
+       NeptusMain.main(new String[] {"mra"});
     }
 }

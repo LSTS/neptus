@@ -876,7 +876,7 @@ public class GuiUtils {
         }
     }
 
-    public static FileFilter getCustomFileFilter(String desc, String[] validExtensions) {
+    public static FileFilter getCustomFileFilter(String desc, String... validExtensions) {
         final String d = desc;
         final String[] ext = validExtensions;
         return new FileFilter() {
