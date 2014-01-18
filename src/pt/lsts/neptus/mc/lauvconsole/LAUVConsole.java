@@ -46,11 +46,11 @@ import pt.lsts.neptus.console.actions.OpenConsoleAction;
 import pt.lsts.neptus.console.actions.RunChecklistConsoleAction;
 import pt.lsts.neptus.console.actions.SaveAsConsoleAction;
 import pt.lsts.neptus.console.actions.SaveConsoleAction;
+import pt.lsts.neptus.console.plugins.SettingsWindow;
 import pt.lsts.neptus.gui.Loader;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.lsts.neptus.plugins.configWindow.SettingsWindow;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -59,7 +59,6 @@ import pt.lsts.neptus.util.Dom4JUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
 @SuppressWarnings("serial")
 public class LAUVConsole extends ConsoleLayout {
     public static final int CLOSE_ACTION = JFrame.EXIT_ON_CLOSE;
