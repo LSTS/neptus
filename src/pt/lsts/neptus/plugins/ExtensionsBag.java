@@ -75,7 +75,6 @@ public class ExtensionsBag {
                     if (name.isEmpty())
                         name = c.getSimpleName();
                     
-                    System.out.println("Added new "+intf.getSimpleName()+": "+name+" ("+c.getSimpleName()+")");
                     extensions.get(intf).put(name,c);
                 }
                 added = true;
