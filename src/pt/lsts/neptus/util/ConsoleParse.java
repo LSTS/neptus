@@ -283,8 +283,9 @@ public class ConsoleParse implements FileHandler {
      */
     @Override
     public void handleFile(File f) {
-        ConsoleLayout c = consoleLayoutLoader(f.getAbsolutePath());
-        c.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        ConsoleLayout.forge(f.getAbsolutePath());
+        //ConsoleLayout c = consoleLayoutLoader(f.getAbsolutePath());
+        //c.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     public static ConsoleLayout testSubPanel(Class<?> subPanelClass) {

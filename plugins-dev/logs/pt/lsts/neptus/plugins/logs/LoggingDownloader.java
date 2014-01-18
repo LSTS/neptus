@@ -368,6 +368,8 @@ public class LoggingDownloader extends ConsolePanel implements MainVehicleChange
 	 */
     private void updateLogsState() {
         LogsDownloaderWorker dw = getDownloadWorker();
+        if (dw == null)
+            return;
         String[] listFolders;
         try {
             listFolders = dw.doGiveListOfLogFolders();

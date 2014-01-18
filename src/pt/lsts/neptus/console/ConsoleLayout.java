@@ -1056,7 +1056,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      * </pre>
      * @return A vector of subpanels that implement the given interface
      */
-    @SuppressWarnings("unchecked")
     public <T> Vector<T> getSubPanelsOfInterface(Class<T> interfaceType) {
         Vector<T> ret = new Vector<T>();
         HashSet<T> col = new HashSet<T>();
@@ -1065,17 +1064,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             return ret;
 
         for (ConsolePanel sp : subPanels) {
-
-            if (ReflectionUtil.hasInterface(sp.getClass(), interfaceType))
-                col.add((T) sp);
-
-            else if (ReflectionUtil.isSubclass(sp.getClass(), ContainerSubPanel.class)) {
-                for (ConsolePanel s : ((ContainerSubPanel) sp).getSubPanels()) {
-                    Vector<T> rSp = getSubPanelImplementations(s, interfaceType);
-                    if (rSp.size() > 0)
-                        col.addAll(rSp);
-                }
-            }
+            col.addAll(getSubPanelImplementations(sp, interfaceType));
         }
         ret.addAll(col);
         return ret;

@@ -94,8 +94,14 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
     @Override
     public void setEditMode(boolean b) {
         super.setEditMode(b);
-        for (ConsolePanel sp : panels)
-            sp.setEditMode(b);
+        for (ConsolePanel sp : panels) {
+            try {
+                sp.setEditMode(b);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins;
 
+import java.lang.reflect.Constructor;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
@@ -73,6 +74,8 @@ public class ExtensionsBag {
                     String name = PluginUtils.getPluginName(c);
                     if (name.isEmpty())
                         name = c.getSimpleName();
+                    
+                    System.out.println("Added new "+intf.getSimpleName()+": "+name+" ("+c.getSimpleName()+")");
                     extensions.get(intf).put(name,c);
                 }
                 added = true;
@@ -127,9 +130,14 @@ public class ExtensionsBag {
         }
         
         Class<?> initTypes[] = new Class<?>[initParams.length];
+        for (int i = 0; i < initParams.length; i++)
+            initTypes[i] = initParams[i].getClass();
+        
         try {
             if (initTypes.length > 0) {
-                return (T) extensions.get(type).get(name).getConstructor(initTypes).newInstance(initParams);
+                Class<?> c = extensions.get(type).get(name);
+                Constructor<?> cons = c.getConstructor(initTypes);
+                return (T) cons.newInstance(initParams);
             }
             else {
                 return (T)extensions.get(type).get(name).newInstance();
@@ -137,6 +145,7 @@ public class ExtensionsBag {
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
+            e.printStackTrace();
             return null;
         }
         catch (Error e) {

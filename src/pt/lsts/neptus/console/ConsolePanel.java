@@ -101,26 +101,27 @@ import com.l2fprod.common.propertysheet.Property;
 public abstract class ConsolePanel extends JPanel implements PropertiesProvider, XmlInOutMethods,
         MessageListener<MessageInfo, IMCMessage>, MainVehicleChangeListener {
 
-    private static final long serialVersionUID = -2131046685846552482L;
     private static final String DEFAULT_ROOT_ELEMENT = "subpanel";
+    private static final long serialVersionUID = -2131046685846552482L;
 
-    private boolean editmode;
-    private boolean resizable = true;
-
-    private ListenerManager listenerManager;
-    private boolean fixedSize = false;
-    private boolean fixedPosition = false;
-    private final MainPanel mainpanel;
-    private final ConsoleLayout console;
-    private double percentXPos, percentYPos, percentWidth, percentHeight;
-
-    private boolean visibility = true;
     private final Vector<String> addedMenus = new Vector<String>();
+    private final ConsoleLayout console;
+    private final MainPanel mainpanel;
+    private ListenerManager listenerManager;
     private final Vector<Integer> messagesToListen = new Vector<Integer>();
     private String mainVehicleId = null;
-    private JMenuItem menuItem = null;
+
     protected JDialog dialog = null;
+    
+    private JMenuItem menuItem = null;
+    private double percentXPos, percentYPos, percentWidth, percentHeight;
+    
+    private boolean editmode;
+    private boolean fixedPosition = false;
+    private boolean fixedSize = false;
     private boolean popupPositionFlag = false;
+    private boolean resizable = true;
+    private boolean visibility = true;
 
     public ConsolePanel(ConsoleLayout console) {
         this.console = console;
@@ -129,173 +130,154 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             NeptusEvents.register(this, console);
     }
 
+    final protected void activateComponents() {
+        listenerManager.turnon();
+    }
+
     /**
-     * Alias method to send console events
+     * Creates and retrieves a console check menu item (toggle)
      * 
-     * @param event The Event to be posted to the console and forwarded to any subscribers
-     * @see Subscribe
+     * @param itemPath The path to the menu item separated by ">". Examples: <li>
+     *            <b>"Tools > Local Network > Test Network"</b> <li><b>"Tools>Test Network"</b>
+     * @param icon The icon to be used in the menu item. <br>
+     *            Size is automatically adjusted to 16x16 pixels.
+     * @param actionListener The {@link CheckMenuChangeListener} that will be warned on menu selection changes
+     * @return The created {@link JCheckMenuItem} or <b>null</b> if an error as occurrred.
      */
-    public void post(Object event) {
-        NeptusEvents.post(event, console);
-    }
-
-    final protected void recalculateRelativePosAndSize() {
-
-        if (mainpanel == null || mainpanel.getWidth() <= 0)
-            return;
-
-        percentWidth = (double) getWidth() / (double) mainpanel.getWidth();
-        percentHeight = (double) getHeight() / (double) mainpanel.getHeight();
-        percentXPos = (double) getX() / (double) mainpanel.getWidth();
-        percentYPos = (double) getY() / (double) mainpanel.getHeight();
-    }
-
-    final protected void parentResized(Dimension oldSize, Dimension newSize) {
-
-        if (getWidth() <= 0 || oldSize.getWidth() <= 0 || newSize.getWidth() <= 0)
-            return;
-
-        if (percentWidth == 0 && getWidth() != 0) {
-            percentWidth = (double) getWidth() / oldSize.getWidth();
-            percentHeight = (double) getHeight() / oldSize.getHeight();
-            percentXPos = (double) getX() / oldSize.getWidth();
-            percentYPos = (double) getY() / oldSize.getHeight();
+    public JCheckBoxMenuItem addCheckMenuItem(String itemPath, ImageIcon icon, CheckMenuChangeListener checkListener) {
+        String[] ptmp = itemPath.split(">");
+        if (ptmp.length < 2) {
+            NeptusLog.pub().error("Menu path has to have at least two components");
+            return null;
         }
 
-        if (!isFixedPosition()) {
-            setLocation((int) (percentXPos * newSize.getWidth()), (int) (percentYPos * newSize.getHeight()));
-        }
+        String[] path = new String[ptmp.length - 1];
+        System.arraycopy(ptmp, 0, path, 0, path.length);
 
-        if (!isFixedSize()) {
-            setSize((int) (percentWidth * newSize.getWidth()), (int) (percentHeight * newSize.getHeight()));
-        }
+        String menuName = ptmp[ptmp.length - 1];
 
-    }
+        JMenu menu = getConsole().getOrCreateJMenu(path);
 
-    protected void setEditMode(boolean b) {
-        editmode = b;
-        if (!getEditMode() && !visibility)
-            setVisible(false);
-        else
-            setVisible(true);
-    }
+        final CheckMenuChangeListener l = checkListener;
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem(new AbstractAction(menuName, icon == null ? null
+                : ImageUtils.getScaledIcon(icon.getImage(), 16, 16)) {
 
-    final public boolean getEditMode() {
-        return editmode;
-    }
-
-    final protected void deactivateComponents() {
-        listenerManager = new ListenerManager(this);
-        listenerManager.turnoff();
-    }
-
-    final public ToolbarButton getPaletteToolbarButton(Dimension dim) {
-        return getPaletteToolbarButton((int) dim.getWidth(), (int) dim.getHeight());
-    }
-
-    final public ToolbarButton getPaletteToolbarButton(int width, int height) {
-        return new ToolbarButton(ImageUtils.getScaledIcon(getImageIcon(), width, height), getName(), null);
-    }
-
-    /**
-     * Use this method to set the panel invisible (only visible at edition). Useful for daemons
-     * 
-     * @param visibility Whether this panel is to be visible or not. Panels are always visible at edit time
-     */
-    public void setVisibility(boolean visibility) {
-        this.visibility = visibility;
-    }
-
-    public boolean getVisibility() {
-        return this.visibility;
-    }
-
-    /**
-     * Empty implementation. This method is called after console is completely loaded with all panels (override it if
-     * needed).
-     */
-    public void init() {
-        mainVehicleId = getConsole().getMainSystem();
-
-        if (this instanceof MissionChangeListener)
-            getConsole().addMissionListener((MissionChangeListener) this);
-
-        if (this instanceof MainVehicleChangeListener || this instanceof NeptusMessageListener)
-            getConsole().addMainVehicleListener((MainVehicleChangeListener) this);
-
-        if (this instanceof PlanChangeListener)
-            getConsole().addPlanListener((PlanChangeListener) this);
-
-        if (this instanceof Renderer2DPainter) {
-            Vector<MapPanel> pp = getConsole().getSubPanelsOfClass(MapPanel.class);
-            for (MapPanel p : pp)
-                p.addPostRenderPainter((Renderer2DPainter) this, PluginUtils.getPluginName(getClass()));
-        }
-
-        if (this instanceof StateRendererInteraction) {
-            Vector<CustomInteractionSupport> panels = getConsole().getSubPanelsOfInterface(
-                    CustomInteractionSupport.class);
-            for (CustomInteractionSupport cis : panels)
-                cis.addInteraction((StateRendererInteraction) this);
-        }
-
-        if (!getVisibility()) {
-            setVisible(false);
-        }
-
-        // for miglayout parent will be null if the subpanel isnt in the layout
-        if (this.getParent() == null) {
-            this.buildPopup();
-        }
-
-        initSubPanel();
-
-        // After all setup let us register the IPeriodicUpdates and Message callbacks
-
-        if (this instanceof IPeriodicUpdates) {
-            PeriodicUpdatesService.register((IPeriodicUpdates) this);
-        }
-
-        ImcMsgManager.registerBusListener(this);
-
-        if (this instanceof NeptusMessageListener) {
-            // NeptusLog.pub().info("<###>Adding myself as message listener");
-            for (String msg : ((NeptusMessageListener) this).getObservedMessages()) {
-                int id = -1;
-                try {
-                    id = IMCDefinition.getInstance().getMessageId(msg);
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-                if (id != -1 && !messagesToListen.contains(id))
-                    messagesToListen.add(id);
-                else if (id == -1)
-                    System.err.println("Message " + msg
-                            + " is not valid in the current IMC specification (requested by "
-                            + PluginUtils.getPluginName(this.getClass()) + ")");
-            }
-
-            if (getConsole() != null && !messagesToListen.isEmpty())
-                ImcMsgManager.getManager().addListener(this, getConsole().getMainSystem());
-            else {
-                NeptusLog.pub().info("<###>Console is null..." + this.getName());
-            }
-        }
-    }
-
-    private JMenuItem createMenuItem(final POSITION popupPosition, String name2, ImageIcon icon) {
-        JMenuItem menuItem = new JMenuItem(new AbstractAction(name2, ImageUtils.getScaledIcon(icon, 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                dialog.setVisible(!dialog.isVisible());
-                setPopupPosition(popupPosition);
+                if (((JCheckBoxMenuItem) e.getSource()).getState())
+                    l.menuChecked(e);
+                else
+                    l.menuUnchecked(e);
             }
-
         });
-        return menuItem;
+        menu.add(item);
+        addedMenus.add(itemPath);
+        return item;
+    }
+
+    public JMenu addMenu(String itemPath, ImageIcon icon, ActionListener actionListener) {
+        String[] ptmp = itemPath.split(">");
+        if (ptmp.length < 1) {
+            NeptusLog.pub().error("Menu path has to have at least one component");
+            return null;
+        }
+
+        String[] path = new String[ptmp.length - 1];
+        System.arraycopy(ptmp, 0, path, 0, path.length);
+
+        JMenu menu = getConsole().getOrCreateJMenu(path);
+        addedMenus.add(itemPath);
+        return menu;
+    }
+
+    /**
+     * Creates and retrieves a console menu item
+     * 
+     * @param itemPath The path to the menu item separated by ">". Examples: <li>
+     *            <b>"Tools > Local Network > Test Network"</b> <li><b>"Tools>Test Network"</b>
+     * @param icon The icon to be used in the menu item. <br>
+     *            Size is automatically adjusted to 16x16 pixels.
+     * @param actionListener The {@link ActionListener} that will be warned on menu activation
+     * @return The created {@link JMenuItem} or <b>null</b> if an error as occurred.
+     */
+    public JMenuItem addMenuItem(String itemPath, ImageIcon icon, ActionListener actionListener) {
+        String[] ptmp = itemPath.split(">");
+        if (ptmp.length < 2) {
+            NeptusLog.pub().error("Menu path has to have at least two components");
+            return null;
+        }
+
+        String[] path = new String[ptmp.length - 1];
+        System.arraycopy(ptmp, 0, path, 0, path.length);
+
+        String menuName = ptmp[ptmp.length - 1];
+
+        JMenu menu = getConsole().getOrCreateJMenu(path);
+
+        final ActionListener l = actionListener;
+        AbstractAction action = new AbstractAction(menuName) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                l.actionPerformed(e);
+            }
+        };
+        if (icon != null)
+            action.putValue(AbstractAction.SMALL_ICON, ImageUtils.getScaledIcon(icon.getImage(), 16, 16));
+
+        JMenuItem item = menu.add(action);
+        addedMenus.add(itemPath);
+        return item;
+    }
+
+    public Document asDocument() {
+        String rootElementName = DEFAULT_ROOT_ELEMENT;
+        return asDocument(rootElementName);
+    }
+
+    public Document asDocument(String rootElementName) {
+
+        Document doc = null;
+
+        doc = DocumentHelper.createDocument();
+
+        Element root = doc.addElement(rootElementName);
+
+        root.addAttribute("class", this.getClass().getName());
+        root.addAttribute("x", "" + this.getX());
+        root.addAttribute("y", "" + this.getY());
+        root.addAttribute("width", "" + this.getWidth());
+        root.addAttribute("height", "" + this.getHeight());
+
+        Element properties = root.addElement("properties");
+        XML_PropertiesWrite(properties);
+        XML_ChildsWrite(root);
+
+        return doc;
+    }
+
+    public Element asElement() {
+        String rootElementName = DEFAULT_ROOT_ELEMENT;
+        return asElement(rootElementName);
+    }
+
+    public Element asElement(String rootElementName) {
+        return (Element) asDocument(rootElementName).getRootElement().detach();
+    }
+
+    public String asXML() {
+        String rootElementName = DEFAULT_ROOT_ELEMENT;
+        return asXML(rootElementName);
+    }
+
+    public String asXML(String rootElementName) {
+        String result = "";
+        Document document = asDocument(rootElementName);
+        result = document.asXML();
+        return result;
     }
 
     private void buildPopup() {
@@ -348,47 +330,6 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             });
         }
         dialog.add(this);
-    }
-
-    protected void setPopupPosition(final POSITION popupPosition) {
-        if (dialog.isVisible() && popupPositionFlag == false) {
-            Point p = getConsole().getLocationOnScreen();
-            switch (popupPosition) {
-                case TOP_LEFT:
-                    break;
-                case TOP_RIGHT:
-                    p.x += getConsole().getWidth() - dialog.getWidth();
-                    break;
-                case BOTTOM_LEFT:
-                    p.y += getConsole().getHeight() - dialog.getHeight();
-                    break;
-                case BOTTOM_RIGHT:
-                    p.x += getConsole().getWidth() - dialog.getWidth();
-                    p.y += getConsole().getHeight() - dialog.getHeight();
-                    break;
-                case TOP:
-                    p.x += getConsole().getWidth() / 2 - dialog.getWidth() / 2;
-                    break;
-                case BOTTOM:
-                    p.x += getConsole().getWidth() / 2 - dialog.getWidth() / 2;
-                    p.y += getConsole().getHeight() - dialog.getHeight();
-                    break;
-                case LEFT:
-                    p.y += getConsole().getHeight() / 2 - dialog.getHeight() / 2;
-                    break;
-                case RIGHT:
-                    p.x += getConsole().getWidth() - dialog.getWidth();
-                    p.y += getConsole().getHeight() / 2 - dialog.getHeight() / 2;
-                    break;
-
-                default:
-                    p.x += getConsole().getWidth() / 2 - dialog.getWidth() / 2;
-                    p.y += getConsole().getHeight() / 2 - dialog.getHeight() / 2;
-                    break;
-            }
-            dialog.setLocation(p);
-            this.popupPositionFlag = true;
-        }
     }
 
     /**
@@ -446,60 +387,78 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         cleanSubPanel();
     }
 
-    final protected void activateComponents() {
-        listenerManager.turnon();
+    public abstract void cleanSubPanel();
+
+    private JMenuItem createMenuItem(final POSITION popupPosition, String name2, ImageIcon icon) {
+        JMenuItem menuItem = new JMenuItem(new AbstractAction(name2, ImageUtils.getScaledIcon(icon, 16, 16)) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dialog.setVisible(!dialog.isVisible());
+                setPopupPosition(popupPosition);
+            }
+
+        });
+        return menuItem;
     }
 
-    public final ConsoleLayout getConsole() {
-        return console;
-    }
-
-    protected final MainPanel getMainpanel() {
-        return mainpanel;
-    }
-
-    public boolean isResizable() {
-        return resizable;
-    }
-
-    public void setResizable(boolean resizable) {
-        this.resizable = resizable;
-    }
-
-    public boolean isFixedSize() {
-        return fixedSize;
-    }
-
-    public void setFixedSize(boolean fixedSize) {
-        this.fixedSize = fixedSize;
-    }
-
-    public boolean isFixedPosition() {
-        return fixedPosition;
-    }
-
-    public void setFixedPosition(boolean fixedPosition) {
-        this.fixedPosition = fixedPosition;
+    final protected void deactivateComponents() {
+        listenerManager = new ListenerManager(this);
+        listenerManager.turnoff();
     }
 
     protected final ConsolePanel[] getChildren() {
         return new ConsolePanel[0];
     }
 
+    public final ConsoleLayout getConsole() {
+        return console;
+    }
+
     public String getDescription() {
         return PluginUtils.getPluginDescription(this.getClass());
+    }
+
+    final public boolean getEditMode() {
+        return editmode;
     }
 
     public ImageIcon getImageIcon() {
         return ImageUtils.getIcon(PluginUtils.getPluginIcon(this.getClass()));
     }
 
-    public String getPropertiesDialogTitle() {
-        return PluginUtils.getPluginName(this.getClass()) + " parameters";
+    protected final MainPanel getMainpanel() {
+        return mainpanel;
     }
 
-    public void setProperties(Property[] properties) {
-        PluginUtils.setPluginProperties(this, properties);
+    /**
+     * @return the mainVehicleId
+     */
+    public String getMainVehicleId() {
+        return mainVehicleId;
+    }
+
+    @Override
+    public String getName() {
+        return PluginUtils.getPluginName(this.getClass());
+    }
+
+    final public ToolbarButton getPaletteToolbarButton(Dimension dim) {
+        return getPaletteToolbarButton((int) dim.getWidth(), (int) dim.getHeight());
+    }
+
+    final public ToolbarButton getPaletteToolbarButton(int width, int height) {
+        return new ToolbarButton(ImageUtils.getScaledIcon(getImageIcon(), width, height), getName(), null);
+    }
+
+    @Override
+    public DefaultProperty[] getProperties() {
+        return PluginUtils.getPluginProperties(this);
+    }
+
+    public String getPropertiesDialogTitle() {
+        return PluginUtils.getPluginName(this.getClass()) + " parameters";
     }
 
     @Override
@@ -580,79 +539,16 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         return errors.toArray(new String[0]);
     }
 
-    public void XML_PropertiesWrite(Element e) {
-        String xml = PluginUtils.getConfigXml(this);
-        try {
-            Element el = DocumentHelper.parseText(xml).getRootElement();
-
-            for (Object child : el.elements()) {
-                Element aux = (Element) child;
-                aux.detach();
-                e.add(aux);
-            }
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
+    public ImcSysState getState() {
+        return ImcMsgManager.getManager().getState(getConsole().getMainSystem());
     }
 
-    public void XML_PropertiesRead(Element e) {
-        PluginUtils.setConfigXml(this, e.asXML());
+    public boolean getVisibility() {
+        return this.visibility;
     }
 
-    public void XML_ChildsWrite(Element e) {
-
-    }
-
-    public void XML_ChildsRead(Element e) {
-
-    }
-
-    public String asXML() {
-        String rootElementName = DEFAULT_ROOT_ELEMENT;
-        return asXML(rootElementName);
-    }
-
-    public String asXML(String rootElementName) {
-        String result = "";
-        Document document = asDocument(rootElementName);
-        result = document.asXML();
-        return result;
-    }
-
-    public Element asElement() {
-        String rootElementName = DEFAULT_ROOT_ELEMENT;
-        return asElement(rootElementName);
-    }
-
-    public Element asElement(String rootElementName) {
-        return (Element) asDocument(rootElementName).getRootElement().detach();
-    }
-
-    public Document asDocument() {
-        String rootElementName = DEFAULT_ROOT_ELEMENT;
-        return asDocument(rootElementName);
-    }
-
-    public Document asDocument(String rootElementName) {
-
-        Document doc = null;
-
-        doc = DocumentHelper.createDocument();
-
-        Element root = doc.addElement(rootElementName);
-
-        root.addAttribute("class", this.getClass().getName());
-        root.addAttribute("x", "" + this.getX());
-        root.addAttribute("y", "" + this.getY());
-        root.addAttribute("width", "" + this.getWidth());
-        root.addAttribute("height", "" + this.getHeight());
-
-        Element properties = root.addElement("properties");
-        XML_PropertiesWrite(properties);
-        XML_ChildsWrite(root);
-
-        return doc;
+    public void inDocument(Document d) {
+        inElement((Element) d);
     }
 
     public void inElement(Element e) {
@@ -660,9 +556,81 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         XML_ChildsRead(e); // resto que possa haver tipo mainpanels dentro...
     }
 
-    public void inDocument(Document d) {
-        inElement((Element) d);
+    /**
+     * Empty implementation. This method is called after console is completely loaded with all panels (override it if
+     * needed).
+     */
+    public void init() {
+        mainVehicleId = getConsole().getMainSystem();
+
+        if (this instanceof MissionChangeListener)
+            getConsole().addMissionListener((MissionChangeListener) this);
+
+        if (this instanceof MainVehicleChangeListener || this instanceof NeptusMessageListener)
+            getConsole().addMainVehicleListener((MainVehicleChangeListener) this);
+
+        if (this instanceof PlanChangeListener)
+            getConsole().addPlanListener((PlanChangeListener) this);
+
+        if (this instanceof Renderer2DPainter) {
+            Vector<MapPanel> pp = getConsole().getSubPanelsOfClass(MapPanel.class);
+            for (MapPanel p : pp)
+                p.addPostRenderPainter((Renderer2DPainter) this, PluginUtils.getPluginName(getClass()));
+        }
+
+        if (this instanceof StateRendererInteraction) {
+            Vector<CustomInteractionSupport> panels = getConsole().getSubPanelsOfInterface(
+                    CustomInteractionSupport.class);
+            for (CustomInteractionSupport cis : panels)
+                cis.addInteraction((StateRendererInteraction) this);
+        }
+
+        if (!getVisibility()) {
+            setVisible(false);
+        }
+
+        // for miglayout parent will be null if the subpanel isnt in the layout
+        if (this.getParent() == null) {
+            this.buildPopup();
+        }
+
+        initSubPanel();
+
+        // After all setup let us register the IPeriodicUpdates and Message callbacks
+
+        if (this instanceof IPeriodicUpdates) {
+            PeriodicUpdatesService.register((IPeriodicUpdates) this);
+        }
+
+        ImcMsgManager.registerBusListener(this);
+
+        if (this instanceof NeptusMessageListener) {
+            // NeptusLog.pub().info("<###>Adding myself as message listener");
+            for (String msg : ((NeptusMessageListener) this).getObservedMessages()) {
+                int id = -1;
+                try {
+                    id = IMCDefinition.getInstance().getMessageId(msg);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (id != -1 && !messagesToListen.contains(id))
+                    messagesToListen.add(id);
+                else if (id == -1)
+                    System.err.println("Message " + msg
+                            + " is not valid in the current IMC specification (requested by "
+                            + PluginUtils.getPluginName(this.getClass()) + ")");
+            }
+
+            if (getConsole() != null && !messagesToListen.isEmpty())
+                ImcMsgManager.getManager().addListener(this, getConsole().getMainSystem());
+            else {
+                NeptusLog.pub().info("<###>Console is null..." + this.getName());
+            }
+        }
     }
+
+    public abstract void initSubPanel();
 
     public void inXML(String str) {
         Document document = null;
@@ -677,21 +645,16 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             inDocument(document);
     }
 
-    @Override
-    public String getName() {
-        return PluginUtils.getPluginName(this.getClass());
+    public boolean isFixedPosition() {
+        return fixedPosition;
     }
 
-    @Override
-    public DefaultProperty[] getProperties() {
-        return PluginUtils.getPluginProperties(this);
+    public boolean isFixedSize() {
+        return fixedSize;
     }
 
-    @Override
-    public final void onMessage(MessageInfo arg0, IMCMessage arg1) {
-        if (messagesToListen.contains(arg1.getMessageType().getId())) {
-            ((NeptusMessageListener) this).messageArrived(arg1);
-        }
+    public boolean isResizable() {
+        return resizable;
     }
 
     /**
@@ -736,6 +699,82 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         // nothing
     }
 
+    @Override
+    public final void onMessage(MessageInfo arg0, IMCMessage arg1) {
+        if (messagesToListen.contains(arg1.getMessageType().getId())) {
+            ((NeptusMessageListener) this).messageArrived(arg1);
+        }
+    }
+
+    final protected void parentResized(Dimension oldSize, Dimension newSize) {
+
+        if (getWidth() <= 0 || oldSize.getWidth() <= 0 || newSize.getWidth() <= 0)
+            return;
+
+        if (percentWidth == 0 && getWidth() != 0) {
+            percentWidth = (double) getWidth() / oldSize.getWidth();
+            percentHeight = (double) getHeight() / oldSize.getHeight();
+            percentXPos = (double) getX() / oldSize.getWidth();
+            percentYPos = (double) getY() / oldSize.getHeight();
+        }
+
+        if (!isFixedPosition()) {
+            setLocation((int) (percentXPos * newSize.getWidth()), (int) (percentYPos * newSize.getHeight()));
+        }
+
+        if (!isFixedSize()) {
+            setSize((int) (percentWidth * newSize.getWidth()), (int) (percentHeight * newSize.getHeight()));
+        }
+
+    }
+
+    /**
+     * Alias method to send console events
+     * 
+     * @param event The Event to be posted to the console and forwarded to any subscribers
+     * @see Subscribe
+     */
+    public void post(Object event) {
+        NeptusEvents.post(event, console);
+    }
+
+    final protected void recalculateRelativePosAndSize() {
+
+        if (mainpanel == null || mainpanel.getWidth() <= 0)
+            return;
+
+        percentWidth = (double) getWidth() / (double) mainpanel.getWidth();
+        percentHeight = (double) getHeight() / (double) mainpanel.getHeight();
+        percentXPos = (double) getX() / (double) mainpanel.getWidth();
+        percentYPos = (double) getY() / (double) mainpanel.getHeight();
+    }
+
+    public void removeCheckMenuItem(String itemPath) {
+        removeMenuItem(itemPath);
+    }
+
+    /**
+     * 
+     */
+    public void removeMenuItem(String itemPath) {
+        addedMenus.remove(itemPath);
+        JMenu parent = getConsole().removeMenuItem(itemPath.split(">"));
+        // if parent became empty, remove parent
+        if (parent != null && parent.getItemCount() == 0)
+            getConsole().removeMenuItem(itemPath.substring(0, itemPath.lastIndexOf(">")).split(">"));
+    }
+
+    /**
+     * Send IMCMessage to Main System
+     * 
+     * @param message
+     * @return
+     */
+    public boolean send(IMCMessage message) {
+        String destination = getConsole().getMainSystem();
+        return send(destination, message);
+    }
+
     /**
      * Send IMCMessage
      * 
@@ -763,143 +802,105 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         return true;
     }
 
-    /**
-     * Send IMCMessage to Main System
-     * 
-     * @param message
-     * @return
-     */
-    public boolean send(IMCMessage message) {
-        String destination = getConsole().getMainSystem();
-        return send(destination, message);
+    protected void setEditMode(boolean b) {
+        editmode = b;
+        if (!getEditMode() && !visibility)
+            setVisible(false);
+        else
+            setVisible(true);
     }
 
-    /**
-     * @return the mainVehicleId
-     */
-    public String getMainVehicleId() {
-        return mainVehicleId;
+    public void setFixedPosition(boolean fixedPosition) {
+        this.fixedPosition = fixedPosition;
     }
 
-    /**
-     * Creates and retrieves a console menu item
-     * 
-     * @param itemPath The path to the menu item separated by ">". Examples: <li>
-     *            <b>"Tools > Local Network > Test Network"</b> <li><b>"Tools>Test Network"</b>
-     * @param icon The icon to be used in the menu item. <br>
-     *            Size is automatically adjusted to 16x16 pixels.
-     * @param actionListener The {@link ActionListener} that will be warned on menu activation
-     * @return The created {@link JMenuItem} or <b>null</b> if an error as occurred.
-     */
-    public JMenuItem addMenuItem(String itemPath, ImageIcon icon, ActionListener actionListener) {
-        String[] ptmp = itemPath.split(">");
-        if (ptmp.length < 2) {
-            NeptusLog.pub().error("Menu path has to have at least two components");
-            return null;
-        }
+    public void setFixedSize(boolean fixedSize) {
+        this.fixedSize = fixedSize;
+    }
 
-        String[] path = new String[ptmp.length - 1];
-        System.arraycopy(ptmp, 0, path, 0, path.length);
+    protected void setPopupPosition(final POSITION popupPosition) {
+        if (dialog.isVisible() && popupPositionFlag == false) {
+            Point p = getConsole().getLocationOnScreen();
+            switch (popupPosition) {
+                case TOP_LEFT:
+                    break;
+                case TOP_RIGHT:
+                    p.x += getConsole().getWidth() - dialog.getWidth();
+                    break;
+                case BOTTOM_LEFT:
+                    p.y += getConsole().getHeight() - dialog.getHeight();
+                    break;
+                case BOTTOM_RIGHT:
+                    p.x += getConsole().getWidth() - dialog.getWidth();
+                    p.y += getConsole().getHeight() - dialog.getHeight();
+                    break;
+                case TOP:
+                    p.x += getConsole().getWidth() / 2 - dialog.getWidth() / 2;
+                    break;
+                case BOTTOM:
+                    p.x += getConsole().getWidth() / 2 - dialog.getWidth() / 2;
+                    p.y += getConsole().getHeight() - dialog.getHeight();
+                    break;
+                case LEFT:
+                    p.y += getConsole().getHeight() / 2 - dialog.getHeight() / 2;
+                    break;
+                case RIGHT:
+                    p.x += getConsole().getWidth() - dialog.getWidth();
+                    p.y += getConsole().getHeight() / 2 - dialog.getHeight() / 2;
+                    break;
 
-        String menuName = ptmp[ptmp.length - 1];
-
-        JMenu menu = getConsole().getOrCreateJMenu(path);
-
-        final ActionListener l = actionListener;
-        AbstractAction action = new AbstractAction(menuName) {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                l.actionPerformed(e);
+                default:
+                    p.x += getConsole().getWidth() / 2 - dialog.getWidth() / 2;
+                    p.y += getConsole().getHeight() / 2 - dialog.getHeight() / 2;
+                    break;
             }
-        };
-        if (icon != null)
-            action.putValue(AbstractAction.SMALL_ICON, ImageUtils.getScaledIcon(icon.getImage(), 16, 16));
-
-        JMenuItem item = menu.add(action);
-        addedMenus.add(itemPath);
-        return item;
+            dialog.setLocation(p);
+            this.popupPositionFlag = true;
+        }
     }
 
-    public JMenu addMenu(String itemPath, ImageIcon icon, ActionListener actionListener) {
-        String[] ptmp = itemPath.split(">");
-        if (ptmp.length < 1) {
-            NeptusLog.pub().error("Menu path has to have at least one component");
-            return null;
-        }
+    public void setProperties(Property[] properties) {
+        PluginUtils.setPluginProperties(this, properties);
+    }
 
-        String[] path = new String[ptmp.length - 1];
-        System.arraycopy(ptmp, 0, path, 0, path.length);
-
-        JMenu menu = getConsole().getOrCreateJMenu(path);
-        addedMenus.add(itemPath);
-        return menu;
+    public void setResizable(boolean resizable) {
+        this.resizable = resizable;
     }
 
     /**
-     * Creates and retrieves a console check menu item (toggle)
+     * Use this method to set the panel invisible (only visible at edition). Useful for daemons
      * 
-     * @param itemPath The path to the menu item separated by ">". Examples: <li>
-     *            <b>"Tools > Local Network > Test Network"</b> <li><b>"Tools>Test Network"</b>
-     * @param icon The icon to be used in the menu item. <br>
-     *            Size is automatically adjusted to 16x16 pixels.
-     * @param actionListener The {@link CheckMenuChangeListener} that will be warned on menu selection changes
-     * @return The created {@link JCheckMenuItem} or <b>null</b> if an error as occurrred.
+     * @param visibility Whether this panel is to be visible or not. Panels are always visible at edit time
      */
-    public JCheckBoxMenuItem addCheckMenuItem(String itemPath, ImageIcon icon, CheckMenuChangeListener checkListener) {
-        String[] ptmp = itemPath.split(">");
-        if (ptmp.length < 2) {
-            NeptusLog.pub().error("Menu path has to have at least two components");
-            return null;
-        }
+    public void setVisibility(boolean visibility) {
+        this.visibility = visibility;
+    }
 
-        String[] path = new String[ptmp.length - 1];
-        System.arraycopy(ptmp, 0, path, 0, path.length);
+    public void XML_ChildsRead(Element e) {
 
-        String menuName = ptmp[ptmp.length - 1];
+    }
 
-        JMenu menu = getConsole().getOrCreateJMenu(path);
+    public void XML_ChildsWrite(Element e) {
 
-        final CheckMenuChangeListener l = checkListener;
-        JCheckBoxMenuItem item = new JCheckBoxMenuItem(new AbstractAction(menuName, icon == null ? null
-                : ImageUtils.getScaledIcon(icon.getImage(), 16, 16)) {
+    }
 
-            private static final long serialVersionUID = 1L;
+    public void XML_PropertiesRead(Element e) {
+        PluginUtils.setConfigXml(this, e.asXML());
+    }
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (((JCheckBoxMenuItem) e.getSource()).getState())
-                    l.menuChecked(e);
-                else
-                    l.menuUnchecked(e);
+    public void XML_PropertiesWrite(Element e) {
+        String xml = PluginUtils.getConfigXml(this);
+        try {
+            Element el = DocumentHelper.parseText(xml).getRootElement();
+
+            for (Object child : el.elements()) {
+                Element aux = (Element) child;
+                aux.detach();
+                e.add(aux);
             }
-        });
-        menu.add(item);
-        addedMenus.add(itemPath);
-        return item;
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
-
-    /**
-     * 
-     */
-    public void removeMenuItem(String itemPath) {
-        addedMenus.remove(itemPath);
-        JMenu parent = getConsole().removeMenuItem(itemPath.split(">"));
-        // if parent became empty, remove parent
-        if (parent != null && parent.getItemCount() == 0)
-            getConsole().removeMenuItem(itemPath.substring(0, itemPath.lastIndexOf(">")).split(">"));
-    }
-
-    public ImcSysState getState() {
-        return ImcMsgManager.getManager().getState(getConsole().getMainSystem());
-    }
-
-    public void removeCheckMenuItem(String itemPath) {
-        removeMenuItem(itemPath);
-    }
-
-    public abstract void initSubPanel();
-
-    public abstract void cleanSubPanel();
 }
