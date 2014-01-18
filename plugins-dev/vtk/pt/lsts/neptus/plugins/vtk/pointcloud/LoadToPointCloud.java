@@ -108,9 +108,9 @@ public class LoadToPointCloud {
             int countPoints = 0;
             LocationType initLoc = null;
 
-            int countSwaths = 0;
+            //int countSwaths = 0;
             while ((bs = parser.nextSwath()) != null)  {
-                ++countSwaths;
+                //++countSwaths;
                 LocationType loc = bs.getPose().getPosition();
                 if(initLoc == null) {
                     initLoc = new LocationType(loc);
