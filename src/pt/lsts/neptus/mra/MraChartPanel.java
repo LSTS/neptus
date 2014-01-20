@@ -86,7 +86,7 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
 
     private static final long serialVersionUID = 1L;
     private LLFChart chart;
-    private double timestep = NeptusMRA.defaultTimestep;
+    private double timestep = MRAProperties.defaultTimestep;
     private ChartPanel cpanel = null;
     private IMraLogGroup source;
     private JTextField timeStepField;
@@ -162,6 +162,7 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
             controlPanel.add(redraw);
 
             ActionListener l = new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     double val = Double.NaN;
                     try {
@@ -286,7 +287,7 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
         JFreeChart c = chart.getChart(source, timestep);
 
         cpanel = new ChartPanel(c);
-        
+
         cpanel.getPopupMenu().add(I18n.text("Add Mark")).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -294,7 +295,7 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
                 mraPanel.addMarker(new LogMarker(res, mouseValue, 0, 0));
             }
         });
-        
+
         cpanel.getPopupMenu().add(I18n.text("Save as PDF")).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -310,7 +311,7 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
                         GuiUtils.errorMessage(MraChartPanel.this, I18n.text("Save as PDF"), I18n.text("Error exporting to PDF"));
             }
         });
-        
+
         cpanel.addChartMouseListener(new ChartMouseListener() {
             @Override
             public void chartMouseMoved(ChartMouseEvent e) {

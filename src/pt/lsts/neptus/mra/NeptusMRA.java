@@ -88,7 +88,6 @@ import pt.lsts.neptus.gui.AboutPanel;
 import pt.lsts.neptus.gui.BlockingGlassPane;
 import pt.lsts.neptus.gui.MissionFileChooser;
 import pt.lsts.neptus.gui.PropertiesEditor;
-import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.gui.WaitPanel;
 import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
@@ -97,7 +96,6 @@ import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.ConcatenateLsfLog;
 import pt.lsts.neptus.mra.replay.LogReplay;
-import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
@@ -113,10 +111,6 @@ import pt.lsts.neptus.util.llf.LogUtils.LogValidity;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 import pt.lsts.neptus.util.llf.LsfReport;
 import pt.lsts.neptus.util.logdownload.LogsDownloaderWorker;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-
 import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
 
@@ -124,64 +118,36 @@ import foxtrot.AsyncWorker;
  * @author ZP
  * @author pdias (LSF)
  * @author jqcorreia
+ * @author hfq
+ * 
+ * Neptus MRA main class
  */
 @SuppressWarnings("serial")
-public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler {
-    public final static String RECENTLY_OPENED_LOGS = "conf/mra_recent.xml";
-    
+public class NeptusMRA extends JFrame implements FileHandler {
+    protected static final String MRA_TITLE = I18n.text("Neptus Mission Review And Analysis");
+    protected static final String RECENTLY_OPENED_LOGS = "conf/mra_recent.xml";
+
     public static boolean vtkEnabled = true;
 
-    @NeptusProperty(name = "Show 3D replay")
-    public static boolean show3D = true;
+    MRAProperties mraProperties = new MRAProperties();
 
-    @NeptusProperty(name = "Default time step (seconds)")
-    public static double defaultTimestep = 1.0;
-    
-    @NeptusProperty(name = "Minimum depth for bathymetry", description="Filter all bathymetry data if vehicle's depth is less than this value (meters).")
-    public static double minDepthForBathymetry = 1.0;
-    
-    @NeptusProperty(name = "Points to ignore on Multibeam 3D", description="Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.")
-    public static int ptsToIgnore = 50;
-    
-    @NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description="Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).")
-    public static boolean approachToIgnorePts = true; 
-    
-    @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration.")
-    public static int zExaggeration = 10;
-    
-    @NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser (in miliseconds).")
-    public static long timestampMultibeamIncrement = 0;
-    
-    @NeptusProperty(name = "Yaw Increment", description="180 Yaw (psi) increment for the 83P parser, set true to increment +180\u00B0.")
-    public static boolean yawMultibeamIncrement = false;
-    
-    @NeptusProperty(name = "Remove Outliers", description="Remove Outliers from Pointcloud redered on multibeam 3D")
-    public static boolean outliersRemoval = false; 
-    
-    @NeptusProperty(name = "Maximum depth for bathymetry plots", description="Maximum depth to be used in bathymetry plots.")
-    public static double maxBathymDepth = 15;
-    
-    @NeptusProperty(name = "Print page number in generated reports")
-    public static boolean printPageNumbers = true;
-    
     private AbstractAction genReport, setMission, preferences, openLsf, httpDuneDownload, httpVehicleDownload;
-    
+
     private File tmpFile = null;
     private InputStream activeInputStream = null;
-    
+
     private LinkedHashMap<JMenuItem, File> miscFilesOpened = new LinkedHashMap<JMenuItem, File>();
     private JMenu recentlyOpenFilesMenu = null;
     private MRAPanel mraPanel = null;
 
-    protected static final String MRA_TITLE = I18n.text("Neptus Mission Review And Analysis");
     protected BlockingGlassPane bgp = new BlockingGlassPane(400);
 
     protected JMenuBar menuBar;
-    
+
     public NeptusMRA() {
         super(MRA_TITLE);
         try {
-            PluginUtils.loadProperties("conf/mra.properties", this);
+            PluginUtils.loadProperties("conf/mra.properties", mraProperties);
         }
         catch (Exception e) {
             NeptusLog.pub().error(I18n.text("Not possible to open")
@@ -189,7 +155,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
         }
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
         ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
-        
+
         setSize(1200, 700);
 
         setIconImage(Toolkit.getDefaultToolkit().getImage(ConfigFetch.class.getResource("/images/neptus-icon.png")));
@@ -208,7 +174,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
         lbl.setHorizontalTextPosition(JLabel.CENTER);
         lbl.setForeground(new Color(80, 120, 175));
         lbl.revalidate();
-       
+
         addWindowListener(new WindowAdapter() {
             boolean closed = false;
 
@@ -224,7 +190,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
                     return;
                 closed = true;
                 NeptusMRA.this.setVisible(false);
-                
+
                 if (mraPanel != null)
                     mraPanel.cleanup();
                 mraPanel = null;
@@ -236,7 +202,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
                 ConfigFetch.setSuperParentFrameForced(null);                
             }
         });
-        
+
         setGlassPane(bgp);
         repaint();
     }
@@ -269,7 +235,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
             }
         }
     }
-    
+
     public void closeLogSource() {
         if (mraPanel != null) {
             mraPanel.cleanup();
@@ -278,7 +244,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
             NeptusLog.pub().info("<###>Log source was closed.");
         }
     }
-    
+
     public void openLogSource(IMraLogGroup source) {
         abortPendingOpenLogActions();
         closeLogSource();
@@ -319,7 +285,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
                 outstream.close();
             }
             res = new File(f.getParent(), "Data.lsf");
-            
+
             return res;
         }
         catch (IOException ioe) {
@@ -330,7 +296,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
             return null;
         }
     }
-    
+
     public File extractBzip2(File f) {
         bgp.setText(I18n.text("Decompressing BZip2 LSF Data..."));
         try {
@@ -354,7 +320,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
                     }
                 }
             };
-            
+
             StreamUtil.copyStreamToFile(fis, outFile);
             fxInStream.close();
             return outFile;
@@ -364,7 +330,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
             return null;
         }
     }
-    
+
     /**
      * Does the necessary pre-processing of a log file based on it's extension
      * Currently supports gzip, bzip2 and no-compression formats
@@ -374,7 +340,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
     public boolean openLog(File fx) {
         bgp.block(true);
         File fileToOpen = null;
-        
+
         if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED)) {
             fileToOpen = extractGzip(fx);
         }
@@ -384,12 +350,12 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
         else if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF)) {
             fileToOpen = fx;
         }
-              
+
         bgp.block(false);
         return openLSF(fileToOpen);
     }
 
-    
+
     public boolean openLSF(File f) {
         bgp.block(true);
         bgp.setText(I18n.text("Loading LSF Data"));
@@ -409,34 +375,34 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
         if (alreadyConverted) {
             int option = JOptionPane.showConfirmDialog(NeptusMRA.this,
                     I18n.text("This log seems to have already been indexed. Index again?"));
-        
+
             if (option == JOptionPane.YES_OPTION) {
                 new File(lsfDir, "mra/lsf.index").delete(); 
             }
-            
+
             if (option == JOptionPane.CANCEL_OPTION) {
                 bgp.block(false);
                 return false;
             }
         }
-        
+
         bgp.setText(I18n.text("Loading LSF Data"));
-        
+
         try {
             LsfLogSource source = new LsfLogSource(f, new LsfIndexListener() {
-    
+
                 @Override
                 public void updateStatus(String messageToDisplay) {
                     bgp.setText(messageToDisplay);
                 }
             });
-            
+
             updateMissionFilesOpened(f);
-            
+
             bgp.setText(I18n.text("Starting interface"));
             openLogSource(source);            
             bgp.setText(I18n.text("Done"));
-            
+
             bgp.block(false);
             return true;
         }
@@ -447,7 +413,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
             return false;    
         }
     }
-    
+
     public JMenuBar createMenuBar() {
         loadRecentlyOpenedFiles();
 
@@ -458,6 +424,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
 
         openLsf = new AbstractAction(I18n.text("Open LSF log"),
                 ImageUtils.getIcon("images/menus/zipfolder.png")) {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser;
 
@@ -497,20 +464,21 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
                             message = "No valid LSF log file present";
                         if(validity == LogValidity.NO_XML_DEFS)
                             message = "No valid XML definition present";
-                        
+
                         GuiUtils.errorMessage(NeptusMRA.this, I18n.text("Open LSF log"),
                                 I18n.text(message));
                         return;
                     }
-                    
+
                     Thread t = new Thread("Open Log") {
+                        @Override
                         public void run() {
-//                            Component oldGlassPane = getGlassPane();
-//                            setGlassPane(bgp);
+                            //                            Component oldGlassPane = getGlassPane();
+                            //                            setGlassPane(bgp);
                             bgp.block(true);
                             openLog(f);
                             bgp.block(false);
-//                            setGlassPane(oldGlassPane);
+                            //                            setGlassPane(oldGlassPane);
                         };
                     };
                     t.start();
@@ -520,8 +488,9 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
         };
 
         file.add(openLsf);
-        
+
         AbstractAction exit = new AbstractAction(I18n.text("Exit"), ImageUtils.getIcon("images/menus/exit.png")) {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (mraPanel != null) {
                     mraPanel.cleanup();
@@ -531,12 +500,13 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
                 NeptusMRA.this.dispose();
             }
         };
-        
+
         file.addSeparator();
         file.add(exit);
 
         JMenu report = new JMenu(I18n.text("Report"));
         genReport = new AbstractAction(I18n.text("Save as PDF"), ImageUtils.getIcon("images/menus/changelog.png")) {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 final File f = new File(System.currentTimeMillis() + ".pdf");
                 if (f.exists()) {
@@ -567,6 +537,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
                                         I18n.text("File saved to") +" "+ f.getAbsolutePath());
                                 final String pdfF = f.getAbsolutePath();
                                 new Thread() {
+                                    @Override
                                     public void run() {
                                         openPDFInExternalViewer(pdfF);
                                     };
@@ -623,6 +594,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
 
         AbstractAction batchReport = new AbstractAction(I18n.text("Batch PDF report"),
                 ImageUtils.getIcon("images/menus/changelog.png")) {
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 JFileChooser chooser = new JFileChooser(new File("."));
@@ -638,12 +610,14 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
                 panel.start(NeptusMRA.this, ModalityType.DOCUMENT_MODAL);
 
                 AsyncTask task = new AsyncTask() {
+                    @Override
                     public void finish() {
                         panel.stop();
                         GuiUtils.infoMessage(NeptusMRA.this, I18n.text("Batch report ended successfully"), I18n.text("Files saved to")+" "
                                 + (new File(".").getAbsolutePath()));
                     }
 
+                    @Override
                     public Object run() throws Exception {
                         LsfReport.generateLogs(f, mraPanel);
                         return null;
@@ -658,6 +632,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
 
         JMenu settings = new JMenu(I18n.text("Settings"));
         setMission = new AbstractAction(I18n.text("Set mission"), ImageUtils.getIcon("images/menus/mapeditor.png")) {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 File f = MissionFileChooser.showOpenMissionDialog(new String[] { "nmis", "nmisz" });
                 if (f != null) {
@@ -678,9 +653,11 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                PropertiesEditor.editProperties(NeptusMRA.this, NeptusMRA.this, true);
+                PropertiesEditor.editProperties(mraProperties, NeptusMRA.this, true);
+                // PropertiesEditor.editProperties(NeptusMRA.this, NeptusMRA.this, true);
                 try {
-                    PluginUtils.saveProperties("conf/mra.properties", NeptusMRA.this);
+                    PluginUtils.saveProperties("conf/mra.properties", mraProperties);
+                    //PluginUtils.saveProperties("conf/mra.properties", NeptusMRA.this);
                 }
                 catch (Exception ex) {
                     ex.printStackTrace();
@@ -695,6 +672,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
 
             httpVehicleDownload = new AbstractAction(I18n.text("Choose an active vehicle to download logs (FTP)"),
                     ImageUtils.getScaledIcon("images/buttons/web.png", 16, 16)) {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     final LinkedHashSet<ImcSystem> selectedVehicle = new LinkedHashSet<ImcSystem>();
                     JPanel panel = new JPanel();
@@ -778,6 +756,7 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
 
         httpDuneDownload = new AbstractAction(I18n.text("Download logs from location (FTP)"), ImageUtils.getScaledIcon(
                 "images/buttons/web.png", 16, 16)) {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 LogsDownloaderWorker logFetcher = new LogsDownloaderWorker();
                 logFetcher.setConfigPanelVisible(true);
@@ -814,12 +793,12 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
                 }
             }
         });
-        
+
         tools.add(I18n.text("Fuse LSF logs")).addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+
                 File[] folders = ConcatenateLsfLog.chooseFolders(NeptusMRA.this, new File(".").getAbsolutePath());
 
                 if (folders != null) {
@@ -853,21 +832,21 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
             }
         });
         help.add(aboutMenuItem);
-        
+
         menuBar.add(file);
         menuBar.add(report);
         menuBar.add(settings);
         menuBar.add(tools);
-        
+
         menuBar.add(help);
 
         return menuBar;
     }
-    
+
     public JMenuBar getMRAMenuBar() {
         return menuBar;
     }
-    
+
     /**
      * @param pdf
      */
@@ -940,13 +919,14 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
 
     public boolean updateMissionFilesOpened(File fx) {
         RecentlyOpenedFilesUtil.updateFilesOpenedMenuItems(fx, miscFilesOpened, new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 final File fx;
                 Object key = e.getSource();
                 File value = miscFilesOpened.get(key);
                 if (value instanceof File) {
                     fx = (File) value;
-//                    openLog(fx);
+                    //                    openLog(fx);
                     // if (fx.isDirectory())
                     // openDir(fx);
                     // else if ("zip".equalsIgnoreCase(FileUtil.getFileExtension(fx)))
@@ -955,8 +935,9 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
                     // openLSF(fx);
                     // else if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED))
                     // openLSF(fx);
-                    
+
                     Thread t = new Thread("Open Log") {
+                        @Override
                         public void run() {
                             openLog(fx);
                         };
@@ -984,25 +965,25 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
         RecentlyOpenedFilesUtil.storeRecentlyOpenedFiles(recentlyOpenedFiles, hMap, header);
     }
 
-    @Override
-    public DefaultProperty[] getProperties() {
-        return PluginUtils.getPluginProperties(this);
-    }
-
-    @Override
-    public String getPropertiesDialogTitle() {
-        return "MRA Preferences";
-    }
-
-    @Override
-    public String[] getPropertiesErrors(Property[] properties) {
-        return null;
-    }
-
-    @Override
-    public void setProperties(Property[] properties) {
-        PluginUtils.setPluginProperties(this, properties);
-    }
+    //    @Override
+    //    public DefaultProperty[] getProperties() {
+    //        return PluginUtils.getPluginProperties(this);
+    //    }
+    //
+    //    @Override
+    //    public String getPropertiesDialogTitle() {
+    //        return "MRA Preferences";
+    //    }
+    //
+    //    @Override
+    //    public String[] getPropertiesErrors(Property[] properties) {
+    //        return null;
+    //    }
+    //
+    //    @Override
+    //    public void setProperties(Property[] properties) {
+    //        PluginUtils.setPluginProperties(this, properties);
+    //    }
 
     /**
      * @author pdias
@@ -1037,13 +1018,13 @@ public class NeptusMRA extends JFrame implements PropertiesProvider, FileHandler
 
         public abstract void updateValueInMessagePanel();
     }
-    
+
     @Override
     public void handleFile(File f) {
         openLog(f);
     }
 
     public static void main(String[] args) {
-       NeptusMain.main(new String[] {"mra"});
+        NeptusMain.main(new String[] {"mra"});
     }
 }

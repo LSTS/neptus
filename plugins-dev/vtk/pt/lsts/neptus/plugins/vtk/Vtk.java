@@ -47,6 +47,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
@@ -152,7 +153,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             axesWidget.createAxesWidget();
 
             if (pointCloud.getNumberOfPoints() != 0) { // checks wether there are any points to render!
-                if (NeptusMRA.outliersRemoval) {
+                if (MRAProperties.outliersRemoval) {
                     // remove outliers
                     // RadiusOutlierRemoval radOutRem = new RadiusOutlierRemoval();
                     // radOutRem.applyFilter(multibeamToPointCloud.getPoints());

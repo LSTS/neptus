@@ -52,7 +52,7 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -177,7 +177,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
 
     @Override
     public Double getDefaultTimeStep() {
-        return NeptusMRA.defaultTimestep;
+        return MRAProperties.defaultTimestep;
     }
 
     @Override
@@ -185,10 +185,12 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
         return ImageUtils.getScaledIcon(PluginUtils.getPluginIcon(this.getClass()), 16, 16);
     }
 
+    @Override
     public String getName() {		
         return I18n.text(PluginUtils.getPluginName(this.getClass()));
     }
 
+    @Override
     public Type getType() {
         return Type.VISUALIZATION;
     }
@@ -203,6 +205,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
         // TODO Auto-generated method stub	   
     }
 
+    @Override
     public void onShow() {
         //nothing
     }

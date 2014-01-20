@@ -52,7 +52,7 @@ import javax.swing.SwingUtilities;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.plugins.vtk.Vtk;
 import pt.lsts.neptus.plugins.vtk.pointcloud.DepthExaggeration;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
@@ -118,13 +118,13 @@ public class MultibeamToolbar {
         this.linkedHashMapCloud = vtkInit.linkedHashMapCloud;
         this.linkedHashMapMesh = vtkInit.linkedHashMapMesh;
         // this.currentApproachToIgnorePts = vtkInit.approachToIgnorePts;
-        this.currentApproachToIgnorePts = NeptusMRA.approachToIgnorePts;
+        this.currentApproachToIgnorePts = MRAProperties.approachToIgnorePts;
         // this.currentPtsToIgnore = vtkInit.ptsToIgnore;
-        this.currentPtsToIgnore = NeptusMRA.ptsToIgnore;
+        this.currentPtsToIgnore = MRAProperties.ptsToIgnore;
         // this.currentTimestampMultibeamIncrement = vtkInit.timestampMultibeamIncrement;
-        this.currentTimestampMultibeamIncrement = NeptusMRA.timestampMultibeamIncrement;
+        this.currentTimestampMultibeamIncrement = MRAProperties.timestampMultibeamIncrement;
         // this.currentYawMultibeamIncrement = vtkInit.yawMultibeamIncrement;
-        this.currentYawMultibeamIncrement = NeptusMRA.yawMultibeamIncrement;
+        this.currentYawMultibeamIncrement = MRAProperties.yawMultibeamIncrement;
         this.currentDepthExaggeValue = vtkInit.zExaggeration;
 
         this.lastDepthExaggeValue = currentDepthExaggeValue;
@@ -673,8 +673,8 @@ public class MultibeamToolbar {
             public void actionPerformed(ActionEvent e) {
                 GuiUtils.htmlMessage(
                         ConfigFetch.getSuperParentFrame() == null ? vtkInit : ConfigFetch.getSuperParentAsFrame(),
-                        "Help for the 3D visualization interaction", "(3D Multibeam keyboard and mouse interaction)",
-                        addons.msgHelp(), ModalityType.MODELESS);
+                                "Help for the 3D visualization interaction", "(3D Multibeam keyboard and mouse interaction)",
+                                addons.msgHelp(), ModalityType.MODELESS);
             }
         });
 

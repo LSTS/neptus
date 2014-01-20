@@ -59,7 +59,7 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.ColormapOverlay;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.WorldImage;
 import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryParserFactory;
@@ -228,7 +228,7 @@ public class KMLExporter implements MRAExporter {
         TidePredictionFinder finder = TidePredictionFactory.create(source);
 
         for (EstimatedState state : source.getLsfIndex().getIterator(EstimatedState.class, 100)) {
-            if (state.getAlt() < 0 || state.getDepth() < NeptusMRA.minDepthForBathymetry
+            if (state.getAlt() < 0 || state.getDepth() < MRAProperties.minDepthForBathymetry
                     || Math.abs(state.getTheta()) > Math.toDegrees(10))
                 continue;
 
@@ -330,8 +330,8 @@ public class KMLExporter implements MRAExporter {
             }
             double progress = ((double)(time - start) / (end - start)) * totalProg + startProg;
             pmonitor.setProgress((int)progress);
-            
-            
+
+
             ArrayList<SidescanLine> lines;
             try {
                 lines = ssParser.getLinesBetween(time, time + 1000, sys, params);
@@ -462,8 +462,8 @@ public class KMLExporter implements MRAExporter {
 
         try {
             g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(0), 28, 20);
-            g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(NeptusMRA.maxBathymDepth / 2), 28, 60);
-            g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(NeptusMRA.maxBathymDepth), 28, 100);
+            g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(MRAProperties.maxBathymDepth / 2), 28, 60);
+            g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(MRAProperties.maxBathymDepth), 28, 100);
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -497,7 +497,7 @@ public class KMLExporter implements MRAExporter {
         double pixelWidth = 1.0;
 
         double startProg = 200;
-        
+
         if (parser instanceof DVLBathymetryParser)
             pixelWidth = 2.5;
 
@@ -547,7 +547,7 @@ public class KMLExporter implements MRAExporter {
 
         ColorMap cmap = ColorMapFactory.createJetColorMap();
 
-        
+
         while ((swath = parser.nextSwath(1)) != null) {
             if (pmonitor.isCanceled()) {
                 frm.setVisible(false);
@@ -566,7 +566,7 @@ public class KMLExporter implements MRAExporter {
                 loc2.translatePosition(bp.north, bp.east, 0);
 
                 double[] pos = loc2.getOffsetFrom(topLeft);
-                Color c = cmap.getColor(1 - (bp.depth / NeptusMRA.maxBathymDepth));
+                Color c = cmap.getColor(1 - (bp.depth / MRAProperties.maxBathymDepth));
 
                 g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 64));
                 g.fill(new Ellipse2D.Double(pos[1] * mult - pixelWidth / 2, -pos[0] * mult - pixelWidth / 2,
@@ -575,7 +575,7 @@ public class KMLExporter implements MRAExporter {
             long percent = ((swath.getTimestamp() - first) * 100) / time;
             if (percent != lastPercent)
                 pmonitor.setProgress((int)(startProg + percent));
-                //NeptusLog.pub().info("MULTIBEAM: " + percent + "% done...");
+            //NeptusLog.pub().info("MULTIBEAM: " + percent + "% done...");
             lastPercent = percent;
 
             lbl.repaint();
@@ -602,7 +602,7 @@ public class KMLExporter implements MRAExporter {
                             "Multibeam Bathymetry",
                             new LocationType(bottomRight.getLatitudeAsDoubleValue(), topLeft
                                     .getLongitudeAsDoubleValue()), new LocationType(topLeft.getLatitudeAsDoubleValue(),
-                                    bottomRight.getLongitudeAsDoubleValue()));
+                                            bottomRight.getLongitudeAsDoubleValue()));
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -664,7 +664,7 @@ public class KMLExporter implements MRAExporter {
         this.pmonitor = pmonitor;
         pmonitor.setMinimum(0);
         pmonitor.setMaximum(320);
-        
+
         PluginUtils.editPluginProperties(this, true);
 
         try {
@@ -756,7 +756,7 @@ public class KMLExporter implements MRAExporter {
                     LocationType loc = IMCUtils.parseState(s).getPosition();
                     double alt = s.getDouble("alt");
                     double depth = s.getDouble("depth");
-                    if (alt == -1 || depth < NeptusMRA.minDepthForBathymetry)
+                    if (alt == -1 || depth < MRAProperties.minDepthForBathymetry)
                         continue;
                     else
                         imgDvl.addPoint(loc, s.getDouble("alt"));
@@ -769,7 +769,7 @@ public class KMLExporter implements MRAExporter {
             bw.write(kmlFooter());
 
             bw.close();
-            
+
             if (pmonitor.isCanceled())
                 return "Cancelled by the user";
             pmonitor.close();

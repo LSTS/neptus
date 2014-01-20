@@ -64,7 +64,7 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.visualizations.SimpleMRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -88,7 +88,7 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
     protected Scatter gpsScatter = null;
     protected LocationType ref;
     protected Vector<Marker3d> markers = new Vector<>();
-    
+
     public Plot3D(MRAPanel panel) {
         super(panel);
         this.panel = panel;
@@ -173,20 +173,20 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
                     }
                 }
                 else {
-                    
+
                     for (IMCMessage state : source.getLsfIndex().getIterator("EstimatedState", 0, 100)) {
                         if (state.getTypeOf("alt") != null) {
                             double alt = state.getDouble("alt");
                             double depth = state.getDouble("depth");
                             double pitch = Math.toDegrees(state.getDouble("theta"));
 
-                            if (alt != -1 && Math.abs(pitch) < 4 && depth > NeptusMRA.minDepthForBathymetry) {
+                            if (alt != -1 && Math.abs(pitch) < 4 && depth > MRAProperties.minDepthForBathymetry) {
                                 LocationType loc = IMCUtils.getLocation(state);
                                 double offsets[] = loc.getOffsetFrom(ref);
                                 dd.addPoint(-offsets[0], offsets[1], -alt - depth);
-                                
+
                             }
-                            
+
                         }                       
                     }
                 }
@@ -237,7 +237,7 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
         add((Component) chart.getCanvas());
         chart.getView().setMaximized(true);
         chart.render();
-        
+
         ChartLauncher.configureControllers(chart, "chart", true, false);
     }
 
@@ -245,12 +245,12 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
     public JComponent getVisualization(IMraLogGroup source, double timestep) {
         return this;
     }
-    
+
     protected JPanel createToolbar() {
         JPanel toolbar = new JPanel();
         zExaggerationToggle = new JToggleButton(I18n.text("Z Exaggeration"));
         zExaggerationToggle.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 chart.getView().setSquared(zExaggerationToggle.isSelected());
@@ -261,7 +261,7 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
 
         bathymetryToggle = new JToggleButton(I18n.text("Bathymetry"));
         bathymetryToggle.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (bathymetryToggle.isSelected())
@@ -275,7 +275,7 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
 
         pathToggle = new JToggleButton(I18n.text("Vehicle path"));
         pathToggle.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (pathToggle.isSelected()) {
@@ -290,11 +290,11 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
         });
         pathToggle.setSelected(true);
         toolbar.add(pathToggle);
-        
-        
+
+
         markersToggle = new JToggleButton(I18n.text("Markers"));
         markersToggle.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (markersToggle.isSelected()) {
@@ -342,7 +342,7 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
         }
         add(createToolbar(), BorderLayout.SOUTH);        
     }
-    
+
     @Override
     public void addLogMarker(LogMarker marker) {
         if (chart == null)
@@ -353,7 +353,7 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
         double depth = state.getDouble("depth");
         if (state.getTypeOf("alt") == null)
             depth = state.getDouble("z");
-        
+
         LocationType location = IMCUtils.getLocation(state);
         // NeptusLog.pub().info("<###>[Plot3D] Location for " + marker.label + " " + marker.timestamp + ": ("
         // + location.getLatitude() + ", "
@@ -363,12 +363,12 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
         markers.add(m);
         chart.getScene().add(m);
     }
-    
+
     @Override
     public void GotoMarker(LogMarker marker) {
-        
+
     }
-    
+
     @Override
     public void removeLogMarker(LogMarker marker) {
         for (int i = 0; i < markers.size(); i++) {
@@ -379,6 +379,6 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
             }
         }
     }
-    
-    
+
+
 }

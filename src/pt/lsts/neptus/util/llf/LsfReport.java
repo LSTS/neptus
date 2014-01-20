@@ -59,7 +59,7 @@ import org.jfree.chart.JFreeChart;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.MapGroup;
@@ -212,13 +212,11 @@ public class LsfReport {
         }
     }
 
-
-
     private static void writePageNumber(PdfContentByte cb, int curPage, int totalPages) {
 
-        if (!NeptusMRA.printPageNumbers)
+        if (!MRAProperties.printPageNumbers)
             return;
-        
+
         Rectangle pageSize = PageSize.A4.rotate();
 
         try {
@@ -232,7 +230,7 @@ public class LsfReport {
         catch (Exception e) {
             e.printStackTrace();
         }
-        
+
     }
 
     private static void writeHeader(PdfContentByte cb, IMraLogGroup source) {
@@ -272,7 +270,7 @@ public class LsfReport {
         }
 
     }
-    
+
     public static boolean savePdf(IMraLogGroup source, LLFChart llfChart, File destination) {
         Rectangle pageSize = PageSize.A4.rotate();
         try {
@@ -293,7 +291,7 @@ public class LsfReport {
             int width = (int) pageSize.getWidth();
             int height = (int) pageSize.getHeight();
 
-            JFreeChart chart = llfChart.getChart(source, NeptusMRA.defaultTimestep);
+            JFreeChart chart = llfChart.getChart(source, MRAProperties.defaultTimestep);
             chart.setTitle("");
             chart.setBackgroundPaint(Color.white);
             chart.draw(g2, new Rectangle2D.Double(25, 25, width-50, height-50));

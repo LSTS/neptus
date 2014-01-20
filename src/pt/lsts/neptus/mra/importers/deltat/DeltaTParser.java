@@ -45,7 +45,7 @@ import java.nio.channels.FileChannel.MapMode;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.api.BathymetryInfo;
 import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
@@ -226,7 +226,7 @@ public class DeltaTParser implements BathymetryParser {
             data = new BathymetryPoint[header.numBeams];
 
             // FIXME this must be known by reading only the 83P file. This way we are depending on a a 83P <-> IMC coupling
-            state = stateParser.getEntryAtOrAfter(header.timestamp + NeptusMRA.timestampMultibeamIncrement);
+            state = stateParser.getEntryAtOrAfter(header.timestamp + MRAProperties.timestampMultibeamIncrement);
 
             if (state == null)
                 return null;
@@ -243,7 +243,7 @@ public class DeltaTParser implements BathymetryParser {
             pose.getPosition().setOffsetNorth(state.getDouble("x"));
             pose.getPosition().setOffsetEast(state.getDouble("y"));
             pose.getPosition().setDepth(state.getDouble("depth"));
-            double ang = state.getDouble("psi") + (NeptusMRA.yawMultibeamIncrement ? Math.PI : 0);
+            double ang = state.getDouble("psi") + (MRAProperties.yawMultibeamIncrement ? Math.PI : 0);
             pose.setYaw(ang);
             for(int c = 0; c < header.numBeams; c++) { 
                 double range = buf.getShort(c*2) * (header.rangeResolution / 1000.0);

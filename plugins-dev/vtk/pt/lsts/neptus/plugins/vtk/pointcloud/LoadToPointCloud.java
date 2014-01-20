@@ -34,7 +34,7 @@ package pt.lsts.neptus.plugins.vtk.pointcloud;
 import java.util.Date;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.api.BathymetryInfo;
 import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryParserFactory;
@@ -167,8 +167,8 @@ public class LoadToPointCloud {
                 //finder.getTidePrediction(state.getDate(), false)
                 double tideOffset = getTideOffset(bs.getTimestamp());
 
-                if (!NeptusMRA.approachToIgnorePts) {
-                    for (int c = 0; c < bs.getNumBeams(); c += NeptusMRA.ptsToIgnore) {
+                if (!MRAProperties.approachToIgnorePts) {
+                    for (int c = 0; c < bs.getNumBeams(); c += MRAProperties.ptsToIgnore) {
                         BathymetryPoint p = bs.getData()[c];
                         if (p == null)
                             continue;
@@ -195,7 +195,7 @@ public class LoadToPointCloud {
                 }
                 else {
                     for (int c = 0; c < bs.getNumBeams(); c++) {
-                        if (Math.random() > 1.0 / NeptusMRA.ptsToIgnore)
+                        if (Math.random() > 1.0 / MRAProperties.ptsToIgnore)
                             continue;
 
                         BathymetryPoint p = bs.getData()[c];
