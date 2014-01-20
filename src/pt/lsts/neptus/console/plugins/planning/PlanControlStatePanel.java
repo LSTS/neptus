@@ -45,10 +45,9 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
-import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -59,7 +58,7 @@ import com.google.common.eventbus.Subscribe;
  * 
  */
 @PluginDescription(name = "Plan Control State", author = "Paulo Dias", version = "0.7", documentation = "plan-control/plan-control.html#PlanControlState")
-public class PlanControlStatePanel extends ConsolePanel implements MainVehicleChangeListener, IPeriodicUpdates {
+public class PlanControlStatePanel extends ConsolePanel {
     private static final long serialVersionUID = 1L;
 
     // GUI
@@ -74,7 +73,6 @@ public class PlanControlStatePanel extends ConsolePanel implements MainVehicleCh
 
     private PlanControlState.STATE state;
     private String planId = "";
-    // private long planStarTimeMllisUTC = -1;
     private String nodeId = "";
     private String lastOutcome = "<html><font color='0x666666'>" + I18n.text("N/A") + "</font>";
     private int nodeTypeImcId = -1;
@@ -82,14 +80,11 @@ public class PlanControlStatePanel extends ConsolePanel implements MainVehicleCh
     private long nodeEtaSec = -1;
     private long lastUpdated = -1;
 
-    //private final String[] messagesToObserve = new String[] { "PlanControlState" };
-
     public PlanControlStatePanel(ConsoleLayout console) {
         super(console);
         removeAll();
         initialize();
     }
-
     
     private void initialize() {
         setSize(200, 200);
@@ -188,13 +183,8 @@ public class PlanControlStatePanel extends ConsolePanel implements MainVehicleCh
         }
     }
 
-    @Override
-    public long millisBetweenUpdates() {
-        return 1000;
-    }
-
-    @Override
-    public boolean update() {
+    @Periodic
+    public void update() {
         if (state != null)
             stateValueLabel.setText(I18n.text(state.toString()));
 
@@ -230,14 +220,12 @@ public class PlanControlStatePanel extends ConsolePanel implements MainVehicleCh
             nodeIdLabel.setForeground(fColor);
             outcomeTitleLabel.setForeground(fColor);
         }
-        return true;
     }
 
     @Subscribe
     public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
         state = PlanControlState.STATE.BLOCKED;
         planId = "";
-        // planStarTimeMllisUTC = -1;
         nodeId = "";
         nodeStarTimeMillisUTC = -1;
         nodeTypeImcId = 0xFFFF;

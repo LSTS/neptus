@@ -452,7 +452,8 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                         DateTimeUtil.milliSecondsToFormatedString(simTime)) + "]");                
             }
     
-            if (System.currentTimeMillis() - lastStateTimes.get(vehicle) < millisToWait) {
+            long lastStateTime = lastStateTimes.containsKey(vehicle)? lastStateTimes.get(vehicle) : 0;
+            if (System.currentTimeMillis() - lastStateTime < millisToWait) {
                 continue;
             }
             else if (sim != null && sim.isRunning()) {

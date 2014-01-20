@@ -36,6 +36,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.Collection;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -115,7 +116,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     private boolean popupPositionFlag = false;
     private boolean resizable = true;
     private boolean visibility = true;
-
+    private Collection<IPeriodicUpdates> periodicMethods = null;
+    
     public ConsolePanel(ConsoleLayout console) {
         this.console = console;
         this.mainpanel = console == null ? null : console.getMainPanel();
@@ -346,6 +348,13 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         if (this instanceof IPeriodicUpdates)
             PeriodicUpdatesService.unregister((IPeriodicUpdates) this);
 
+        if (periodicMethods != null) {
+            for (IPeriodicUpdates i : periodicMethods) {
+                PeriodicUpdatesService.unregister(i);
+            }
+            periodicMethods.clear();
+        }
+        
         if (this instanceof NeptusMessageListener) {
             if (getConsole() != null) {
                 messagesToListen.clear();
@@ -478,9 +487,6 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         if (this instanceof MissionChangeListener)
             getConsole().addMissionListener((MissionChangeListener) this);
 
-        if (this instanceof MainVehicleChangeListener || this instanceof NeptusMessageListener)
-            getConsole().addMainVehicleListener((MainVehicleChangeListener) this);
-
         if (this instanceof PlanChangeListener)
             getConsole().addPlanListener((PlanChangeListener) this);
 
@@ -513,10 +519,17 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         if (this instanceof IPeriodicUpdates) {
             PeriodicUpdatesService.register((IPeriodicUpdates) this);
         }
-
+        
+        periodicMethods = PeriodicUpdatesService.inspect(this);
+        for (IPeriodicUpdates i : periodicMethods) {
+            PeriodicUpdatesService.register(i);
+        }
+        
         ImcMsgManager.registerBusListener(this);
 
         if (this instanceof NeptusMessageListener) {
+            getConsole().addMainVehicleListener((MainVehicleChangeListener) this);
+            
             for (String msg : ((NeptusMessageListener) this).getObservedMessages()) {
                 int id = -1;
                 try {
@@ -583,13 +596,6 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
         mainVehicleId = id;
 
-//        try {
-//            mainVehicleChangeNotification(id);
-//        }
-//        catch (Exception e) {
-//            NeptusLog.pub().error(e);
-//        }
-
         if (messagesToListen != null && !messagesToListen.isEmpty()) {
             ImcMsgManager.getManager().addListener(this, id);
         }
@@ -602,13 +608,6 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             }
         }
     }
-
-    /**
-     * Subclasses should override this method in order to react to main vehicle change
-     */
-   // public void mainVehicleChangeNotification(String id) {
-        // nothing
-    //}
 
     @Override
     public final void onMessage(MessageInfo arg0, IMCMessage arg1) {
@@ -636,7 +635,6 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         if (!isFixedSize()) {
             setSize((int) (percentWidth * newSize.getWidth()), (int) (percentHeight * newSize.getHeight()));
         }
-
     }
 
     /**

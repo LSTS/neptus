@@ -35,10 +35,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 import java.util.jar.JarFile;
@@ -238,6 +242,48 @@ public class ReflectionUtil {
 
         return tileProviders.toArray(new Class<?>[0]);
     }
+    
+    public static Collection<Method> getMethodsAnnotatedWith(Class<? extends Annotation> ann, Object o) {
+        Class<?> c;
+        if (o instanceof Class<?>)
+            c = (Class<?>)o;
+        else
+            c = o.getClass();
+        
+        HashSet<Method> methods = new HashSet<>(); 
+        for (Method m : c.getMethods()) {
+            if (m.getAnnotation(ann) != null)
+                methods.add(m);
+        }
+        for (Method m : c.getDeclaredMethods()) {
+            if (m.getAnnotation(ann) != null) {
+                m.setAccessible(true);
+                methods.add(m);
+            }
+        }
+        return methods;
+    }
+    
+    public static Collection<Field> getFieldsAnnotatedWith(Class<? extends Annotation> ann, Object o) {
+        Class<?> c;
+        if (o instanceof Class<?>)
+            c = (Class<?>)o;
+        else
+            c = o.getClass();
+        
+        HashSet<Field> fields = new HashSet<>(); 
+        for (Field f : c.getFields())
+            if (f.getAnnotation(ann) != null)
+                fields.add(f);
+        for (Field f : c.getDeclaredFields()) {
+            if (f.getAnnotation(ann) != null) {
+                f.setAccessible(true);
+                fields.add(f);
+            }
+        }
+        return fields;
+    }
+    
 
     public static boolean hasAnnotation(Class<?> clazz, Class<? extends Annotation> annotation) {
         return clazz.isAnnotationPresent(annotation);

@@ -327,7 +327,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
 
         refreshMapsListOrderedForPainting();
         
-        NeptusLog.pub().warn("Initializing MapProviders in "
+        NeptusLog.pub().info("Initialized Map Providers in "
                 + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - start));
     }
 

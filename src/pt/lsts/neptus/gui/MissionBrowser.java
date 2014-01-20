@@ -560,9 +560,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     }
                     else if (console2 != null) {
                         console2.setPlan(null);
-                        NeptusLog.pub().error("Setting selected plan as null");
                     }
-                // }
             }
 
         });
