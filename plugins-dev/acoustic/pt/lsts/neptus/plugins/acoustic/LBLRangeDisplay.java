@@ -120,13 +120,13 @@ import pt.lsts.neptus.util.lbl.LBLTriangulationHelper;
 public class LBLRangeDisplay extends ConsolePanel implements MainVehicleChangeListener, Renderer2DPainter,
 SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationListener, NeptusMessageListener {
 
-    private static final Icon ICON_LBL_SHOW = ImageUtils.getIcon("pt/lsts/neptus/plugins/acoustic/lbl-show.png");
-    private static final Icon ICON_LBL_HIDE = ImageUtils.getIcon("pt/lsts/neptus/plugins/acoustic/lbl-hide.png");
-    private static final Icon ICON_RESET = ImageUtils.getIcon("pt/lsts/neptus/plugins/acoustic/reload.png");
-    private static final Icon ICON_SOUND_ON = ImageUtils.getIcon("pt/lsts/neptus/plugins/acoustic/sound.png");
-    private static final Icon ICON_SOUND_OFF = ImageUtils
+    private final Icon ICON_LBL_SHOW = ImageUtils.getIcon("pt/lsts/neptus/plugins/acoustic/lbl-show.png");
+    private final Icon ICON_LBL_HIDE = ImageUtils.getIcon("pt/lsts/neptus/plugins/acoustic/lbl-hide.png");
+    private final Icon ICON_RESET = ImageUtils.getIcon("pt/lsts/neptus/plugins/acoustic/reload.png");
+    private final Icon ICON_SOUND_ON = ImageUtils.getIcon("pt/lsts/neptus/plugins/acoustic/sound.png");
+    private final Icon ICON_SOUND_OFF = ImageUtils
             .getIcon("pt/lsts/neptus/plugins/acoustic/sound-off.png");
-    private static final Icon ICON_SETTINGS = ImageUtils.getScaledIcon(
+    private final Icon ICON_SETTINGS = ImageUtils.getScaledIcon(
             ImageUtils.getImage("pt/lsts/neptus/plugins/acoustic/settings.png"), 24, 24);
 
     @Translate

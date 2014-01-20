@@ -124,10 +124,10 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
 
     static final long serialVersionUID = 15;
     public static final int MAP_MOVES = 0, VEHICLE_MOVES = 1;
-    private static final int DEFAULT_LOD = 18;
-    private static final int MIN_LOD = MapTileUtil.LEVEL_MIN;
-    private static final int MAX_LOD = MapTileUtil.LEVEL_MAX;
-    private static final Image overlayIcon = ImageUtils.getImage("images/neptus-icon1.png");
+    private final int DEFAULT_LOD = 18;
+    private final int MIN_LOD = MapTileUtil.LEVEL_MIN;
+    private final int MAX_LOD = MapTileUtil.LEVEL_MAX;
+    private final Image overlayIcon = ImageUtils.getImage("images/neptus-icon1.png");
     private boolean worldMapShowScreenControls = false;
     
     public static Cursor rotateCursor, translateCursor, zoomCursor, grabCursor, grab2Cursor, crosshairCursor,

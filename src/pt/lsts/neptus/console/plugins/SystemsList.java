@@ -159,25 +159,25 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
 
     private static boolean printPaintDebug = false;
 
-    private static final int ICON_SIZE = 20;
-    private static final Icon ICON_EDIT = ImageUtils.getScaledIcon("images/buttons/edit2.png", ICON_SIZE, ICON_SIZE);
-    private static final Icon ICON_CLEAR = ImageUtils.getScaledIcon("images/systems/selection-clear.png", ICON_SIZE,
+    private final int ICON_SIZE = 20;
+    private final Icon ICON_EDIT = ImageUtils.getScaledIcon("images/buttons/edit2.png", ICON_SIZE, ICON_SIZE);
+    private final Icon ICON_CLEAR = ImageUtils.getScaledIcon("images/systems/selection-clear.png", ICON_SIZE,
             ICON_SIZE);
-    private static final Icon ICON_REDO = ImageUtils.getScaledIcon("images/systems/selection-redo.png", ICON_SIZE,
+    private final Icon ICON_REDO = ImageUtils.getScaledIcon("images/systems/selection-redo.png", ICON_SIZE,
             ICON_SIZE);
-    private static final Icon ICON_FILTER = ImageUtils.getScaledIcon("images/buttons/filter.png", ICON_SIZE, ICON_SIZE);
-    private static final Icon ICON_VIEW_INFO = ImageUtils.getScaledIcon("images/systems/view-info.png", ICON_SIZE,
+    private final Icon ICON_FILTER = ImageUtils.getScaledIcon("images/buttons/filter.png", ICON_SIZE, ICON_SIZE);
+    private final Icon ICON_VIEW_INFO = ImageUtils.getScaledIcon("images/systems/view-info.png", ICON_SIZE,
             ICON_SIZE);
-    private static final Icon ICON_VIEW_EXTRA = ImageUtils.getScaledIcon("images/systems/view-extra.png", ICON_SIZE,
+    private final Icon ICON_VIEW_EXTRA = ImageUtils.getScaledIcon("images/systems/view-extra.png", ICON_SIZE,
             ICON_SIZE);
-    private static final Icon ICON_VIEW_SYMBOL = ImageUtils.getScaledIcon("images/systems/view-symbol.png", ICON_SIZE,
+    private final Icon ICON_VIEW_SYMBOL = ImageUtils.getScaledIcon("images/systems/view-symbol.png", ICON_SIZE,
             ICON_SIZE);
-    private static final Icon ICON_VIEW_EXPAND = ImageUtils.getScaledIcon("images/systems/expand.png", ICON_SIZE,
+    private final Icon ICON_VIEW_EXPAND = ImageUtils.getScaledIcon("images/systems/expand.png", ICON_SIZE,
             ICON_SIZE);
-    private static final Icon ICON_VIEW_RETREAT = ImageUtils.getScaledIcon("images/systems/retreat.png", ICON_SIZE,
+    private final Icon ICON_VIEW_RETREAT = ImageUtils.getScaledIcon("images/systems/retreat.png", ICON_SIZE,
             ICON_SIZE);
 
-    private static final Pattern RPM_PATTERN_SEARCH = Pattern.compile("^\\{[^=]+=([\\d\\.,]+)\\}$");
+    private final Pattern RPM_PATTERN_SEARCH = Pattern.compile("^\\{[^=]+=([\\d\\.,]+)\\}$");
 
     public enum SortOrderEnum {
         UNSORTED,

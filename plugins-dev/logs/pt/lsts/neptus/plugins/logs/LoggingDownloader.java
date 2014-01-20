@@ -105,7 +105,7 @@ import pt.lsts.neptus.util.logdownload.LogsDownloaderWorker;
 public class LoggingDownloader extends ConsolePanel implements MainVehicleChangeListener, IPeriodicUpdates,
         ConfigurationListener, NeptusMessageListener {
 
-    private static final ImageIcon ICON = ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/log.png");
+    private final ImageIcon ICON = ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/log.png");
 
     @NeptusProperty(name = "Log List Update Period in Seconds", userLevel = LEVEL.REGULAR)
     public short logListUpdatePeriodSeconds = 30;
