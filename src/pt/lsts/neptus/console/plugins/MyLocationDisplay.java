@@ -104,7 +104,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates, Renderer2DPainter,
         IEditorMenuExtension, ConfigurationListener, SubPanelChangeListener, MissionChangeListener {
 
-    private static final Icon ICON = ImageUtils.getScaledIcon("images/myloc.png", 24, 24);
+    private final Icon ICON = ImageUtils.getScaledIcon("images/myloc.png", 24, 24);
 
     private static int secondsToDisplayRanges = 30;
 

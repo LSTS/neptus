@@ -80,21 +80,21 @@ public class ChronometerPanel extends JPanel implements ActionListener {
     public static Color COLOR_OK = ClockCounter.COLOR_BACK;
     public static Color COLOR_NOK = new Color(255, 50, 0);
 
-    private static final String ACTION_START_STOP = "StartStop";
-    private static final String ACTION_PAUSE_RESUME = "PauseResume";
-    private static final String ACTION_COUNTDOWN = "Countdown";
-    private static final String ACTION_RESET = "Reset";
-    private static final String ACTION_ALARM = "Alarm";
+    private final String ACTION_START_STOP = "StartStop";
+    private final String ACTION_PAUSE_RESUME = "PauseResume";
+    private final String ACTION_COUNTDOWN = "Countdown";
+    private final String ACTION_RESET = "Reset";
+    private final String ACTION_ALARM = "Alarm";
 
-    private static final ImageIcon ICON_START = ImageUtils.getScaledIcon("images/chronometer/play.png", 16, 16);
-    private static final ImageIcon ICON_STOP = ImageUtils.getScaledIcon("images/chronometer/stop.png", 16, 16);
-    private static final ImageIcon ICON_PAUSE = ImageUtils.getScaledIcon("images/chronometer/pause.png", 16, 16);
-    private static final ImageIcon ICON_RESUME = ImageUtils.getScaledIcon("images/chronometer/fwd.png", 16, 16);
-    private static final ImageIcon ICON_DOWN = ImageUtils.getScaledIcon("images/chronometer/down.png", 16, 16);
-    private static final ImageIcon ICON_UP = ImageUtils.getScaledIcon("images/chronometer/up.png", 16, 16);
-    private static final ImageIcon ICON_RESET = ImageUtils.getScaledIcon("images/chronometer/restart.png", 16, 16);
-    private static final ImageIcon ICON_ALARM_ON = ImageUtils.getScaledIcon("images/chronometer/alarm.png", 16, 16);
-    private static final ImageIcon ICON_ALARM_OFF = ImageUtils.getScaledIcon("images/chronometer/alarm_disabled.png",
+    private final ImageIcon ICON_START = ImageUtils.getScaledIcon("images/chronometer/play.png", 16, 16);
+    private final ImageIcon ICON_STOP = ImageUtils.getScaledIcon("images/chronometer/stop.png", 16, 16);
+    private final ImageIcon ICON_PAUSE = ImageUtils.getScaledIcon("images/chronometer/pause.png", 16, 16);
+    private final ImageIcon ICON_RESUME = ImageUtils.getScaledIcon("images/chronometer/fwd.png", 16, 16);
+    private final ImageIcon ICON_DOWN = ImageUtils.getScaledIcon("images/chronometer/down.png", 16, 16);
+    private final ImageIcon ICON_UP = ImageUtils.getScaledIcon("images/chronometer/up.png", 16, 16);
+    private final ImageIcon ICON_RESET = ImageUtils.getScaledIcon("images/chronometer/restart.png", 16, 16);
+    private final ImageIcon ICON_ALARM_ON = ImageUtils.getScaledIcon("images/chronometer/alarm.png", 16, 16);
+    private final ImageIcon ICON_ALARM_OFF = ImageUtils.getScaledIcon("images/chronometer/alarm_disabled.png",
             16, 16);
 
     public static enum CronState {

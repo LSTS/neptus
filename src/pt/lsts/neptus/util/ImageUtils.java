@@ -302,10 +302,10 @@ public class ImageUtils {
      * @return The loaded <b>Image</b> or <b>null</b> if the image does not exist
      */
     public static Image getImage(String imageURL) {
+        
         ImageLoader loader = new ImageLoader(imageURL);
         if (loader.getImage() == null) {
             NeptusLog.pub().error("Image " + imageURL + " was not found!");
-            new Exception().printStackTrace();
         }
         return loader.getImage();
     }

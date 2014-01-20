@@ -51,8 +51,8 @@ import pt.lsts.neptus.util.ImageUtils;
 @PluginDescription(icon = "images/menus/lock.png", name = "Console Lock Button", documentation = "lock/lock-button.html")
 public class LockConsolePanel extends ConsolePanel implements ActionListener {
 
-    private static final ImageIcon DEFAULT_ICON = new ImageIcon(ImageUtils.getImage("images/menus/lock.png"));
-    private static final ImageIcon LOCK_ICON_FILENAME = ImageUtils.getIcon("images/menus/lock.png");
+    private final ImageIcon DEFAULT_ICON = new ImageIcon(ImageUtils.getImage("images/menus/lock.png"));
+    private final ImageIcon LOCK_ICON_FILENAME = ImageUtils.getIcon("images/menus/lock.png");
     private ImageIcon icon;
     
     protected MiniButton lockButton = null;

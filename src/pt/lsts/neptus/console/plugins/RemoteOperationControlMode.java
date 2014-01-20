@@ -72,37 +72,32 @@ import pt.lsts.imc.TeleoperationDone;
 public class RemoteOperationControlMode extends ConsolePanel implements MainVehicleChangeListener, IPeriodicUpdates,
         LockableSubPanel, ConfigurationListener, NeptusMessageListener {
 
-    public static final ImageIcon CM_ICON = new ImageIcon(ImageUtils.getImage("images/control-mode/cmode.png"));
+    public final ImageIcon CM_ICON = new ImageIcon(ImageUtils.getImage("images/control-mode/cmode.png"));
 
-    public static final ImageIcon CM_CLEAN = new ImageIcon(ImageUtils.getScaledImage("images/led_not.png", 32, 32));
-    public static final ImageIcon CM_UNKNOWN = new ImageIcon(ImageUtils.getScaledImage(
+    private final ImageIcon CM_CLEAN = new ImageIcon(ImageUtils.getScaledImage("images/led_not.png", 32, 32));
+    private final ImageIcon CM_UNKNOWN = new ImageIcon(ImageUtils.getScaledImage(
             "images/control-mode/unknown.png", 32, 32)); // 48,48
-    public static final ImageIcon CM_NONE = new ImageIcon(ImageUtils.getScaledImage("images/control-mode/wait.png", 32,
+    private final ImageIcon CM_NONE = new ImageIcon(ImageUtils.getScaledImage("images/control-mode/wait.png", 32,
             32)); // 44x44
-    public static final ImageIcon CM_DIAG = new ImageIcon(ImageUtils.getScaledImage(
-            "images/control-mode/diagnostic.png", 32, 32));
-    public static final ImageIcon CM_MANUAL = new ImageIcon(ImageUtils.getScaledImage(
+    private final ImageIcon CM_MANUAL = new ImageIcon(ImageUtils.getScaledImage(
             "images/control-mode/teleoperation.png", 32, 32));
-    public static final ImageIcon CM_AUTO = new ImageIcon(ImageUtils.getScaledImage(
+    private final ImageIcon CM_AUTO = new ImageIcon(ImageUtils.getScaledImage(
             "images/control-mode/autonomous.png", 32, 32));
-    public static final ImageIcon CM_ALERT = new ImageIcon(ImageUtils.getScaledImage("images/control-mode/alert.png",
+    private final ImageIcon CM_ALERT = new ImageIcon(ImageUtils.getScaledImage("images/control-mode/alert.png",
             32, 32));
-    public static final ImageIcon CM_CALIB = new ImageIcon(ImageUtils.getScaledImage(
+    private final ImageIcon CM_CALIB = new ImageIcon(ImageUtils.getScaledImage(
             "images/control-mode/calibration.png", 32, 32));
-    public static final ImageIcon CM_EXTER = new ImageIcon(ImageUtils.getScaledImage(
+    private final ImageIcon CM_EXTER = new ImageIcon(ImageUtils.getScaledImage(
             "images/control-mode/external.png", 32, 32));
 
-    public static final String CM_NOINFO_TEXT = I18n.text("No Information");
-    public static final String CM_UNKNOWN_TEXT = I18n.text("Unknown Mode");
-    public static final String CM_NONE_TEXT = I18n.text("Idle Mode");
-    public static final String CM_DIAG_TEXT = I18n.text("Diagnostic Mode");
-    public static final String CM_MANUAL_TEXT = I18n.text("Tele-operation Mode");
-    public static final String CM_AUTO_TEXT = I18n.text("Autonomous Mode");
-    public static final String CM_ALERT_TEXT = I18n.text("Error Mode");
-    public static final String CM_SERVICE_TEXT = I18n.text("Service Mode");
-    public static final String CM_CALIB_TEXT = I18n.text("Calibration Mode");
-    public static final String CM_MANEUV_TEXT = I18n.text("Maneuver Mode");
-    public static final String CM_EXTER_TEXT = I18n.text("External Mode");
+    private final String CM_NOINFO_TEXT = I18n.text("No Information");
+    private final String CM_UNKNOWN_TEXT = I18n.text("Unknown Mode");
+    private final String CM_MANUAL_TEXT = I18n.text("Tele-operation Mode");
+    private final String CM_ALERT_TEXT = I18n.text("Error Mode");
+    private final String CM_SERVICE_TEXT = I18n.text("Service Mode");
+    private final String CM_CALIB_TEXT = I18n.text("Calibration Mode");
+    private final String CM_MANEUV_TEXT = I18n.text("Maneuver Mode");
+    private final String CM_EXTER_TEXT = I18n.text("External Mode");
 
     private static final String ENTER_REMOTE_TEXT = I18n.text("set remote op.");
     private static final String ENTER_REMOTE_TOOL = I18n.text("request enter remote operation");

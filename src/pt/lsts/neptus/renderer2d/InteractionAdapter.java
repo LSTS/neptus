@@ -65,7 +65,7 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
 	protected StateRenderer2D source = null;	
 	protected ToolbarSwitch associatedSwitch = null;
 	
-	static {
+	{
 		cursor = Toolkit.getDefaultToolkit().createCustomCursor(ImageUtils.getImage("images/cursors/crosshair_cursor.png"), new Point(6,6), "Zoom");
 		image = ImageUtils.getImage("images/buttons/alarm.png");
 	}

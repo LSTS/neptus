@@ -128,6 +128,9 @@ public class PlanControlStatePanel extends ConsolePanel implements MainVehicleCh
 
     @Subscribe
     public void consume(PlanControlState message) {
+        
+        message.dump(System.out);
+        
         if (!message.getSourceName().equals(getConsole().getMainSystem()))
             return;
         
