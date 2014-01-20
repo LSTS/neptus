@@ -46,12 +46,15 @@ import javax.swing.JMenuItem;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LogBookControl;
 import pt.lsts.imc.LogBookControl.COMMAND;
 import pt.lsts.imc.LogBookEntry;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
@@ -167,8 +170,8 @@ public class RemoteHistory extends ConsolePanel implements NeptusMessageListener
         return new String[] { "LogBookControl", "LogBookEntry" };
     }
 
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange e) {
         clearHistory();
     }
 

@@ -142,11 +142,6 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
     }
 
     @Override
-    public String getName() {
-        return "Plan Simulation";
-    }
-
-    @Override
     public boolean isExclusive() {
         return true;
     }
@@ -430,13 +425,6 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                 NeptusLog.pub().error(e);
             }
         }
-    }
-
-    @Override
-    public void mainVehicleChangeNotification(String id) {
-        //        stopSimulator();
-        //        lastStateTime = 0;
-        //        lastVehicleState = null;
     }
 
     public void paintVerticalProfile(Graphics2D g, StateRenderer2D renderer) {

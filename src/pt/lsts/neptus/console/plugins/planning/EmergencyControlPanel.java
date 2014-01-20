@@ -46,6 +46,8 @@ import javax.swing.SwingWorker;
 
 import org.jdesktop.swingx.JXLabel;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
@@ -55,6 +57,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.LockableSubPanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
@@ -457,9 +460,9 @@ public class EmergencyControlPanel extends ConsolePanel implements Configuration
      * 
      * @see pt.lsts.neptus.plugins.SimpleSubPanel#mainVehicleChange(java.lang.String)
      */
-    @Override
-    public void mainVehicleChangeNotification(String id) {
-        mainVehicleMessageListener.setSystemToListenStrings(id);
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange evt) {
+        mainVehicleMessageListener.setSystemToListenStrings(evt.getCurrent());
         setReportedState(EmergencyStateEnum.UNKNOWN);
         setReportedPlanId("");
         setReportedCommLevel((short) -1);

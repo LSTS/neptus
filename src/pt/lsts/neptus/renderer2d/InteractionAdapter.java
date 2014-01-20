@@ -43,7 +43,6 @@ import java.awt.geom.Point2D;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.ToolbarSwitch;
-import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -85,11 +84,6 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
 	@Override
 	public Image getIconImage() {
 		return image;
-	}
-	
-	@Override
-	public String getName() {
-	    return PluginUtils.getPluginName(getClass());
 	}
 	
 	@Override

@@ -630,24 +630,6 @@ public class UavPiccoloControl extends ConsolePanel implements MainVehicleChange
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * pt.lsts.neptus.plugins.SimpleSubPanel#mainVehicleChange(java.lang
-     * .String)
-     */
-    @Override
-    public void mainVehicleChangeNotification(String id) {
-        // super.mainVehicleChange(id);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * pt.lsts.neptus.plugins.ConfigurationListener#propertiesChanged()
-     */
     @Override
     public void propertiesChanged() {
         // pccButton.setVisible(showPCC);

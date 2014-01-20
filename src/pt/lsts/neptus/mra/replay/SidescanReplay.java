@@ -91,6 +91,9 @@ public class SidescanReplay implements LogReplayLayer {
     {
         final StateRenderer2D rend = renderer;
         
+        if (dataSet.isEmpty())
+            return;
+        
         final double groundResolution = MapTileUtil.groundResolution(dataSet.get(0).loc.getLatitudeAsDoubleValue(), renderer.getLevelOfDetail());
         final double invGR = 1/groundResolution;
         lod = renderer.getLevelOfDetail();

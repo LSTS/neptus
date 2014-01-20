@@ -79,6 +79,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.plugins.IPlanSelection;
 import pt.lsts.neptus.console.plugins.ITransponderSelection;
@@ -390,10 +391,10 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         return messages;
     }
 
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange evt) {
         running = false;
-        updatePlanDBListener(id);
+        updatePlanDBListener(evt.getCurrent());
         askForBeaconConfig();
         browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
     }

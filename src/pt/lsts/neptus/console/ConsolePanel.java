@@ -36,10 +36,6 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -69,14 +65,11 @@ import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.gui.PropertiesProvider;
-import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.plugins.CheckMenuChangeListener;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
-import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -440,106 +433,25 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     }
 
     @Override
-    public String getName() {
+    public final String getName() {
         return PluginUtils.getPluginName(this.getClass());
     }
-
-    final public ToolbarButton getPaletteToolbarButton(Dimension dim) {
-        return getPaletteToolbarButton((int) dim.getWidth(), (int) dim.getHeight());
-    }
-
-    final public ToolbarButton getPaletteToolbarButton(int width, int height) {
-        return new ToolbarButton(ImageUtils.getScaledIcon(getImageIcon(), width, height), getName(), null);
-    }
-
+    
     @Override
     public DefaultProperty[] getProperties() {
         return PluginUtils.getPluginProperties(this);
     }
 
-    public String getPropertiesDialogTitle() {
+    public final String getPropertiesDialogTitle() {
         return PluginUtils.getPluginName(this.getClass()) + " parameters";
     }
 
     @Override
     public String[] getPropertiesErrors(Property[] properties) {
-        LinkedHashMap<String, PluginProperty> props = new LinkedHashMap<String, PluginProperty>();
-
-        for (Property p : properties)
-            props.put(p.getName(), new PluginProperty(p));
-        Vector<String> errors = new Vector<String>();
-
-        Class<? extends Object> providerClass = this.getClass();
-
-        for (Field f : providerClass.getFields()) {
-            NeptusProperty a = f.getAnnotation(NeptusProperty.class);
-            if (a != null) {
-                // Find field name
-                String name = a.name();
-                String fieldName = f.getName();
-                if (name.length() == 0) {
-                    name = fieldName;
-                }
-                if (props.get(name) == null)
-                    continue;
-                // Find method
-                String validateMethodUpper = "validate" + Character.toUpperCase(fieldName.charAt(0))
-                        + fieldName.substring(1);
-                String validateMethodLower = "validate" + Character.toLowerCase(fieldName.charAt(0))
-                        + fieldName.substring(1);
-                Method m;
-                Object propValue = props.get(name).getValue();
-                if (propValue == null) {
-                    NeptusLog.pub().debug(
-                            "Property " + providerClass.getSimpleName() + "." + name
-                                    + " has no method to validate user input!");
-                    continue;
-                }
-                try {
-                    m = providerClass.getMethod(validateMethodUpper, propValue.getClass());
-                }
-                catch (NoSuchMethodException e1) {
-                    try {
-                        m = providerClass.getMethod(validateMethodLower, propValue.getClass());
-                    }
-                    catch (NoSuchMethodException e) {
-                        NeptusLog.pub().debug(
-                                "Property " + providerClass.getSimpleName() + "." + name
-                                        + " has no method to validate user input!");
-                        continue;
-                    }
-                    catch (SecurityException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                        continue;
-                    }
-                }
-                catch (SecurityException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                    continue;
-                }
-
-                // If method has been found, invoke it
-                Object res;
-                try {
-                    res = m.invoke(this, propValue);
-                }
-                catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                    continue;
-                }
-                // In case of error add error message to the error message array
-                if (res != null)
-                    errors.add(res.toString());
-            }
-        }
-
-        return errors.toArray(new String[0]);
+        return PluginUtils.validatePluginProperties(this, properties);
     }
 
-    public ImcSysState getState() {
+    protected final ImcSysState getState() {
         return ImcMsgManager.getManager().getState(getConsole().getMainSystem());
     }
 
@@ -605,7 +517,6 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         ImcMsgManager.registerBusListener(this);
 
         if (this instanceof NeptusMessageListener) {
-            // NeptusLog.pub().info("<###>Adding myself as message listener");
             for (String msg : ((NeptusMessageListener) this).getObservedMessages()) {
                 int id = -1;
                 try {
@@ -672,12 +583,12 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
         mainVehicleId = id;
 
-        try {
-            mainVehicleChangeNotification(id);
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error(e);
-        }
+//        try {
+//            mainVehicleChangeNotification(id);
+//        }
+//        catch (Exception e) {
+//            NeptusLog.pub().error(e);
+//        }
 
         if (messagesToListen != null && !messagesToListen.isEmpty()) {
             ImcMsgManager.getManager().addListener(this, id);
@@ -695,9 +606,9 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     /**
      * Subclasses should override this method in order to react to main vehicle change
      */
-    public void mainVehicleChangeNotification(String id) {
+   // public void mainVehicleChangeNotification(String id) {
         // nothing
-    }
+    //}
 
     @Override
     public final void onMessage(MessageInfo arg0, IMCMessage arg1) {

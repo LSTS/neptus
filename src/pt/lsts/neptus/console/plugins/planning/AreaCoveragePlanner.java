@@ -438,11 +438,6 @@ public class AreaCoveragePlanner extends ConsolePanel implements StateRendererIn
     }
 
     @Override
-    public String getName() {
-        return "Coverage Solver";
-    }
-
-    @Override
     public boolean isExclusive() {
         return true;
     }

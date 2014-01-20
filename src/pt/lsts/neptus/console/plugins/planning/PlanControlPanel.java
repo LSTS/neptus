@@ -53,6 +53,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LblBeacon;
@@ -74,6 +76,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.IPlanSelection;
 import pt.lsts.neptus.console.plugins.ITransponderSelection;
@@ -591,20 +594,10 @@ public class PlanControlPanel extends ConsolePanel implements ConfigurationListe
         this.revalidate();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#mainVehicleChange(java.lang.String)
-     */
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
         update();
         refreshUI();
-        // for (String msgStr : getObservedMessages()) {
-        // IMCMessage msg = getConsole().getImcState().get(msgStr);
-        // if (msg != null)
-        // messageArrived(msg);
-        // }
     }
 
     /**

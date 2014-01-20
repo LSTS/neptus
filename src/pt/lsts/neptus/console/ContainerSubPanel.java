@@ -50,9 +50,6 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-
 /**
  * @author ZP
  * @author Paulo Dias
@@ -102,11 +99,6 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public String getName() {
-        return PluginUtils.getPluginName(getClass());
     }
 
     public void addSubPanel(ConsolePanel panel) {
@@ -203,32 +195,7 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
             }
         }
     }
-
-    @Override
-    public DefaultProperty[] getProperties() {
-        return PluginUtils.getPluginProperties(this);
-    }
-
-    @Override
-    public void setProperties(Property[] properties) {
-        PluginUtils.setPluginProperties(this, properties);
-    }
-
-    @Override
-    public String getPropertiesDialogTitle() {
-        return PluginUtils.getPluginName(this.getClass()) + " parameters";
-    }
-
-    @Override
-    public String[] getPropertiesErrors(Property[] properties) {
-        return PluginUtils.validatePluginProperties(this, properties);
-    }
-
-    @Override
-    public void XML_PropertiesRead(Element e) {
-        PluginUtils.setConfigXml(this, e.asXML());
-    }
-
+   
     @Override
     public void XML_PropertiesWrite(Element e) {
         String xml = PluginUtils.getConfigXml(this);

@@ -44,6 +44,7 @@ import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -128,8 +129,6 @@ public class PlanControlStatePanel extends ConsolePanel implements MainVehicleCh
 
     @Subscribe
     public void consume(PlanControlState message) {
-        
-        message.dump(System.out);
         
         if (!message.getSourceName().equals(getConsole().getMainSystem()))
             return;
@@ -234,8 +233,8 @@ public class PlanControlStatePanel extends ConsolePanel implements MainVehicleCh
         return true;
     }
 
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
         state = PlanControlState.STATE.BLOCKED;
         planId = "";
         // planStarTimeMllisUTC = -1;

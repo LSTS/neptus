@@ -40,11 +40,14 @@ import javax.swing.Box;
 
 import org.jdesktop.swingx.JXPanel;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.SystemsList;
 import pt.lsts.neptus.gui.painters.SubPanelTitlePainter;
@@ -159,8 +162,8 @@ public class MultiEntityDisplayPanel extends ConsolePanel implements Configurati
         validate();
     }
     
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange e) {
         resetView();
     }
 

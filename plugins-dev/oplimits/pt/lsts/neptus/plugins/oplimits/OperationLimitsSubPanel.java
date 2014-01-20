@@ -63,6 +63,8 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.GetOperationalLimits;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
@@ -70,6 +72,7 @@ import pt.lsts.imc.OperationalLimits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
@@ -456,9 +459,8 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             showOnMap(showOnMap);
     }
 
-    @Override
-    public void mainVehicleChangeNotification(String id) {
-        // remove oplimits renderers
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange e) {
         showOnMap(false);
 
         pp = getSelectionFromLimits(limits);
@@ -476,11 +478,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     @Override
     public Cursor getMouseCursor() {
         return adapter.getMouseCursor();
-    }
-
-    @Override
-    public String getName() {
-        return "Edit Operational Limits";
     }
 
     @Override

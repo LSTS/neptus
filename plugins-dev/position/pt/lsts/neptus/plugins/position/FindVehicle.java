@@ -39,10 +39,13 @@ import java.text.DecimalFormat;
 
 import javax.swing.JLabel;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -209,9 +212,9 @@ public class FindVehicle extends ConsolePanel implements ConfigurationListener, 
 		return BaseOrientations.North;
 	}
 
-	@Override
-	public void mainVehicleChangeNotification(String id) {
-		display.setTitle(id);
+	@Subscribe
+	public void mainVehicleChangeNotification(ConsoleEventMainSystemChange evt) {
+		display.setTitle(evt.getCurrent());
 	}
 	
 	@Override

@@ -68,6 +68,8 @@ import org.apache.http.protocol.HttpContext;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
@@ -78,6 +80,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.IPlanSelection;
 import pt.lsts.neptus.console.plugins.LockableSubPanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
@@ -324,20 +327,10 @@ public class RemotePlanControl extends ConsolePanel implements ConfigurationList
         this.revalidate();
     }
 
-    @Override
-    public void mainVehicleChangeNotification(String id) {
-        // mainVehicleMessageListener.setSystemToListenStrings(id);
-        // setReportedState(EmergencyStateEnum.UNKNOWN);
-        // setReportedPlanId("");
-        // setReportedCommLevel((short) -1);
-        // state = "";
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
         update();
         refreshUI();
-        // for (String msgStr : getObservedMessages()) {
-        // IMCMessage msg = getConsole().getImcState().get(msgStr);
-        // if (msg != null)
-        // messageArrived(msg);
-        // }
     }
 
     /**

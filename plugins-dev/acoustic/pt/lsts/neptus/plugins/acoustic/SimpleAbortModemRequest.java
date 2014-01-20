@@ -135,11 +135,6 @@ public class SimpleAbortModemRequest extends ConsolePanel implements IAbortSende
     }
 
     @Override
-    public void mainVehicleChangeNotification(String id) {
-        // super.mainVehicleChange(id);
-    }
-
-    @Override
     public boolean sendAbortRequest() {
         return sendAbortRequest(getMainVehicleId());
     }

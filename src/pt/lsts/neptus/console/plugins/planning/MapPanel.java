@@ -60,6 +60,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.console.MainPanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.ConsoleVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
@@ -607,23 +608,17 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
             addPlan.setEnabled(mission != null);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.console.plugins.MissionChangeListener#missionUpdated(pt.lsts.neptus.types.mission.MissionType)
-     */
     @Override
     public void missionUpdated(MissionType mission) {
     }
 
-    @Override
-    public void mainVehicleChangeNotification(String id) {
-        followMode.setEnabled(id != null);
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange evt) {
+        followMode.setEnabled(evt.getCurrent() != null);
         if (mainPlanPainter != null)
             mainPlanPainter.setActiveManeuver(null);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.console.plugins.PlanChangeListener#planChange(pt.lsts.neptus.types.mission.plan.PlanType)
-     */
     @Override
     public void planChange(PlanType plan) {
         StateRenderer2D r2d = renderer;

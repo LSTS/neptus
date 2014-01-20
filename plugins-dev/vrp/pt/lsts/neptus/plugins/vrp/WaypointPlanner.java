@@ -404,11 +404,6 @@ public class WaypointPlanner extends ConsolePanel implements Renderer2DPainter, 
     }
 
     @Override
-    public String getName() {
-        return "TSP Solver";
-    }
-
-    @Override
     public boolean isExclusive() {
         return true;
     }

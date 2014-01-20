@@ -40,6 +40,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
@@ -50,6 +51,8 @@ import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.coord.egm96.EGM96Util;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -307,25 +310,16 @@ public class AbsLatLonDepth extends ConsolePanel implements ConfigurationListene
 		return true;
 	}
 	
-	/* (non-Javadoc)
-	 * @see pt.lsts.neptus.plugins.SimpleSubPanel#mainVehicleChangeNotification(java.lang.String)
-	 */
-	@Override
-	public void mainVehicleChangeNotification(String id) {
+	@Subscribe
+	public void mainVehicleChangeNotification(ConsoleEventMainSystemChange change) {
 	    estimatedState = null;
 	}
 	
-	/* (non-Javadoc)
-	 * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
-	 */
 	@Override
 	public void cleanSubPanel() {
 	    estimatedState = null;
 	}
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#initSubPanel()
-     */
     @Override
     public void initSubPanel() {
         // TODO Auto-generated method stub

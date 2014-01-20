@@ -106,11 +106,6 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     }
     
     @Override
-    public String getName() {
-        return "Iridium Communications plug-in";
-    }
-    
-    @Override
     public long millisBetweenUpdates() {
         return 60000;
     }

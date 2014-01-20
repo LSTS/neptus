@@ -238,11 +238,6 @@ public class MultiVehiclePlanner extends ConsolePanel implements StateRendererIn
     }
 
     @Override
-    public String getName() {
-        return "Multi-vehicle planner";
-    }
-
-    @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         for (MultiVehicleTask t : tasks) {
             t.paint((Graphics2D)g.create(), renderer);

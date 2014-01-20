@@ -33,9 +33,12 @@ package pt.lsts.neptus.params;
 
 import java.awt.BorderLayout;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
@@ -79,12 +82,9 @@ public class SystemConfiguration extends ConsolePanel implements NeptusMessageLi
         repaint();
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#mainVehicleChangeNotification(java.lang.String)
-     */
-    @Override
-    public void mainVehicleChangeNotification(String id) {
-        systemConfEditor.setSystemId(id);
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
+        systemConfEditor.setSystemId(ev.getCurrent());
     }
         
 

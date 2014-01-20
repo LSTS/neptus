@@ -71,6 +71,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -82,6 +84,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ConsoleSystem;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.gui.ToolbarSwitch;
@@ -571,11 +574,6 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
-     */
     @Override
     public void cleanSubPanel() {
         if (renderersPopups != null) {
@@ -800,15 +798,10 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
 
     // ------------- MainVehicleChange -------------------------------------------------------------
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#mainVehicleChange(java.lang.String)
-     */
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
         update();
-        changeMainVehicle(id);
+        changeMainVehicle(ev.getCurrent());
     }
 
     /**
@@ -1306,11 +1299,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
     private StateRendererInteraction getInteractionInterface() {
         if (stateRendererInteraction == null) {
             stateRendererInteraction = new InteractionAdapter(getConsole()) {
-                @Override
-                public String getName() {
-                    return PluginUtils.getPluginName(SystemsList.this.getClass());
-                }
-
+                
                 @Override
                 public Image getIconImage() {
                     try {

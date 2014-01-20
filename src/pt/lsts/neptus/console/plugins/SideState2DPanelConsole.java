@@ -40,6 +40,7 @@ import javax.swing.JPanel;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -49,6 +50,7 @@ import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.imc.EstimatedState;
 
+import com.google.common.eventbus.Subscribe;
 import com.rickyclarkson.java.awt.layout.PercentLayout;
 
 @Popup(pos = POSITION.RIGHT, width = 500, height = 500)
@@ -101,9 +103,9 @@ public class SideState2DPanelConsole extends ConsolePanel implements Configurati
         renderPanel.setVehicle(getMainVehicleId());
     }
     
-    @Override
-    public void mainVehicleChangeNotification(String id) {
-        renderPanel.setVehicle(id);
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
+        renderPanel.setVehicle(ev.getCurrent());
         update();
     }
     
