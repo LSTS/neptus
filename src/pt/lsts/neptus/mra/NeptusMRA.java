@@ -115,12 +115,13 @@ import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
 
 /**
+ * Neptus MRA main class
+ * - sets up MRA frame
+ * 
  * @author ZP
  * @author pdias (LSF)
  * @author jqcorreia
  * @author hfq
- * 
- * Neptus MRA main class
  */
 @SuppressWarnings("serial")
 public class NeptusMRA extends JFrame implements FileHandler {

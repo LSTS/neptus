@@ -66,7 +66,7 @@ import pt.lsts.neptus.util.llf.chart.LLFChart;
  * @author zp
  *
  */
-public abstract class MraTimeSeriesPlot implements LLFChart, LogMarkerListener {
+public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
 
     protected Vector<String> forbiddenSeries = new Vector<>();
     protected LsfIndex index;
@@ -98,7 +98,7 @@ public abstract class MraTimeSeriesPlot implements LLFChart, LogMarkerListener {
     /**
      * 
      */
-    public MraTimeSeriesPlot(MRAPanel panel) {
+    public MRATimeSeriesPlot(MRAPanel panel) {
         this.mraPanel = panel;
     }
 

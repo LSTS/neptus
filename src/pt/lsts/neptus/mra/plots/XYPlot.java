@@ -33,20 +33,20 @@ package pt.lsts.neptus.mra.plots;
 
 import org.jfree.data.xy.XYSeries;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp
  * 
  */
 @PluginDescription
-public class XYPlot extends Mra2DPlot {
+public class XYPlot extends MRA2DPlot {
 
     /**
      * @param panel
@@ -64,19 +64,19 @@ public class XYPlot extends Mra2DPlot {
     public void process(LsfIndex source) {
         IMCMessage estate = source.getMessage(source.getFirstMessageOfType("EstimatedState"));
         LocationType ref = new LocationType(Math.toDegrees(estate.getDouble("lat")), Math.toDegrees(estate.getDouble("lon")));
-        
+
         for (IMCMessage state : source.getIterator("EstimatedState", 0, (long)(timestep*1000))) {
             LocationType loc = new LocationType();
             loc.setLatitudeRads(state.getDouble("lat"));
             loc.setLongitudeRads(state.getDouble("lon"));
             loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"));
             double[] offsets = loc.getOffsetFrom(ref);
-            
+
             addValue(state.getTimestampMillis(), offsets[0], offsets[1],
                     state.getSourceName(), "position");
         }
-        
-        
+
+
         for (IMCMessage state : source.getIterator("SimulatedState", 0, (long)(timestep*1000))) {
             LocationType loc = new LocationType();
             if (state.getTypeOf("lat") != null) {
@@ -87,17 +87,17 @@ public class XYPlot extends Mra2DPlot {
                 loc.setLocation(ref);
             }
             loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"));
-            
-            
+
+
             double[] offsets = loc.getOffsetFrom(ref);
-            
+
             addValue(state.getTimestampMillis(), offsets[0], offsets[1],
                     state.getSourceName(), "simulator");
 
         }
-        
+
     }
-    
+
     @Override
     public String getName() {
         return I18n.text("XY");
@@ -107,19 +107,19 @@ public class XYPlot extends Mra2DPlot {
     public void addLogMarker(LogMarker marker) {
         XYSeries markerSeries = getMarkerSeries();
         IMCMessage state = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
-        
+
         if(markerSeries != null)
             markerSeries.add(new TimedXYDataItem(state.getDouble("x"), state.getDouble("y"), new Double(marker.timestamp).longValue(), marker.label));
     }
 
     @Override
     public void removeLogMarker(LogMarker marker) {
-        
+
     }
 
     @Override
     public void GotoMarker(LogMarker marker) {
-        
+
     }
 
 }

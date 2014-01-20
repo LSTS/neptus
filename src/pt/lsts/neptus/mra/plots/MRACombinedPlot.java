@@ -48,20 +48,20 @@ import pt.lsts.neptus.mra.MRAPanel;
  * @author zp
  *
  */
-public abstract class MraCombinedPlot extends MraTimeSeriesPlot {
+public abstract class MRACombinedPlot extends MRATimeSeriesPlot {
 
     CombinedDomainXYPlot combinedPlot;
-    
-    public MraCombinedPlot(MRAPanel panel) {
+
+    public MRACombinedPlot(MRAPanel panel) {
         super(panel);
     }
-    
+
     @Override
     public JFreeChart createChart() {
 
         LinkedHashMap<String, TimeSeriesCollection> timeSeriesCollections = new LinkedHashMap<>();
         combinedPlot = new CombinedDomainXYPlot(new DateAxis(I18n.text("Time Of Day")));
-        
+
         for (String seriesName : series.keySet()) {
             if (forbiddenSeries.contains(seriesName))
                 continue;
@@ -75,15 +75,16 @@ public abstract class MraCombinedPlot extends MraTimeSeriesPlot {
             combinedPlot.add(ChartFactory.createTimeSeriesChart(plotName, I18n.text("Time Of Day"), plotName,
                     timeSeriesCollections.get(plotName), true, true, false).getXYPlot());
         }
-        
+
         // Do this here to make sure we have a built chart.. //FIXME FIXME FIXME
         for(LogMarker marker : mraPanel.getMarkers()) {
-           addLogMarker(marker);
+            addLogMarker(marker);
         }
-        
+
         return new JFreeChart(combinedPlot);
     }
-    
+
+    @Override
     public void addLogMarker(LogMarker e) {
         if(combinedPlot != null) {
             for(Object plot : combinedPlot.getSubplots()) {

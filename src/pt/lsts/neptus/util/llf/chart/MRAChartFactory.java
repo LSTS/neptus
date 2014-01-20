@@ -42,7 +42,7 @@ import pt.lsts.neptus.plugins.PluginsRepository;
 /**
  * @author ZP
  */
-public class MraChartFactory {
+public class MRAChartFactory {
 
     private static Class<?>[] automaticCharts = null;
 
@@ -53,13 +53,13 @@ public class MraChartFactory {
      * @return A list of LLFCharts that can be successfully applied to the given source
      */
     public static MRAVisualization[] getAutomaticCharts(MRAPanel panel) {
-        
+
         if (automaticCharts == null)
             automaticCharts = PluginsRepository.getMraVisualizations().values().toArray(new Class<?>[0]);
-        
+
         Vector<MRAVisualization> charts = new Vector<MRAVisualization>();
 
-        
+
         for (int i = 0; i < automaticCharts.length; i++) {
             MRAVisualization chart;
             try {
@@ -70,14 +70,14 @@ public class MraChartFactory {
                 e.printStackTrace();
             }
         }
-        
+
         Vector<ScriptedPlot> scrptPlots = getScriptedPlots(panel);
         if (scrptPlots != null && scrptPlots.size() > 0)
             charts.addAll(scrptPlots);
-        
+
         return charts.toArray(new MRAVisualization[charts.size()]);
     }
-    
+
     public static Vector<ScriptedPlot> getScriptedPlots(MRAPanel panel) {
         Vector<ScriptedPlot> plots = new Vector<ScriptedPlot>();
 
@@ -85,14 +85,14 @@ public class MraChartFactory {
         File[] scripts = sFx.exists() ? sFx.listFiles() : null;
         if (scripts == null || scripts.length == 0)
             return plots;
-            
+
         for (File f : scripts) {
             if (f.isDirectory() || !f.canRead())
                 continue;
             ScriptedPlot plot = new ScriptedPlot(panel, f.getAbsolutePath());
             plots.add(plot);
         }
-        
+
         return plots;
     }
 }

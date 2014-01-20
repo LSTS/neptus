@@ -80,7 +80,7 @@ import pt.lsts.neptus.util.llf.LogTree;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LsfTree;
 import pt.lsts.neptus.util.llf.LsfTreeMouseAdapter;
-import pt.lsts.neptus.util.llf.chart.MraChartFactory;
+import pt.lsts.neptus.util.llf.chart.MRAChartFactory;
 import pt.lsts.neptus.util.llf.replay.LLFMsgReplay;
 
 /**
@@ -205,7 +205,7 @@ public class MRAPanel extends JPanel {
                     }
                 }
 
-                visualizations.addAll(MraChartFactory.getScriptedPlots(this));
+                visualizations.addAll(MRAChartFactory.getScriptedPlots(this));
 
                 Collections.sort(visualizations, new Comparator<MRAVisualization>() {
                     @Override

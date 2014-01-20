@@ -50,14 +50,14 @@ import pt.lsts.neptus.mra.importers.lsf.LsfMraLog;
  * @author jqcorreia
  *
  */
-public class ReplayPlot extends MraTimeSeriesPlot implements TimelineChangeListener {
-    
+public class ReplayPlot extends MRATimeSeriesPlot implements TimelineChangeListener {
+
     Timeline timeline;
     long firstTimestamp;
     private long lastTimestamp;
     String[] fieldsToPlot;
     LinkedHashMap<String, IMraLog> parsers = new LinkedHashMap<String, IMraLog>();
-    
+
     /**
      * @param panel
      */
@@ -81,16 +81,16 @@ public class ReplayPlot extends MraTimeSeriesPlot implements TimelineChangeListe
     public void process(LsfIndex source) {
         firstTimestamp = (long) (source.timeOf(0) * 1000);
         lastTimestamp = (long) (source.timeOf(source.getNumberOfMessages()-2) * 1000);
-        
+
         timeline = new Timeline(0, (int)(lastTimestamp - firstTimestamp), 24, 1000, false);
         timeline.getSlider().setValue(0);
         timeline.addTimelineChangeListener(this);
-        
+
         for (String field : fieldsToPlot) {
             String messageName = field.split("\\.")[0];
             parsers.put(messageName, new LsfMraLog(index, messageName));
         }
-        
+
     }
 
     @Override
@@ -100,7 +100,7 @@ public class ReplayPlot extends MraTimeSeriesPlot implements TimelineChangeListe
 
         panel.add(comp, "w 100%, h 100%, wrap");
         panel.add(timeline, "w 100%, h 80");
-        
+
         return panel;
     }
 
@@ -108,7 +108,7 @@ public class ReplayPlot extends MraTimeSeriesPlot implements TimelineChangeListe
     public String getName() {
         return Arrays.toString(fieldsToPlot);
     }    
-    
+
     @Override
     public void timelineChanged(int value) {
         try {
@@ -124,7 +124,7 @@ public class ReplayPlot extends MraTimeSeriesPlot implements TimelineChangeListe
             e.printStackTrace();
         }
     }
-    
+
     public void setTimelineVisible(boolean visible) {
         timeline.setVisible(visible);
     }

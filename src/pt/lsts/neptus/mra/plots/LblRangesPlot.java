@@ -42,20 +42,20 @@ import java.util.Vector;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LblBeacon;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.imc.types.LblConfigAdapter;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.plugins.PluginDescription;
 
 /**
  * @author zp
  * 
  */
 @PluginDescription
-public class LblRangesPlot extends MraTimeSeriesPlot {
+public class LblRangesPlot extends MRATimeSeriesPlot {
 
     protected LinkedHashMap<Integer, Color> beaconColors = new LinkedHashMap<>();
     protected LinkedHashMap<Integer, Shape> beaconShapes = new LinkedHashMap<>();

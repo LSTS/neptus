@@ -36,17 +36,17 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp
  *
  */
-public class GenericPlot extends MraTimeSeriesPlot {
+public class GenericPlot extends MRATimeSeriesPlot {
 
     protected String[] fieldsToPlot = null;
 
@@ -54,22 +54,22 @@ public class GenericPlot extends MraTimeSeriesPlot {
         super(panel);
         this.fieldsToPlot = fieldsToPlot;
     }
-    
+
     @Override
     public ImageIcon getIcon() {
         return ImageUtils.getIcon("images/menus/graph.png");
     }
-    
+
     @Override
     public String getTitle() {
         return getName();
     }
-    
+
     @Override
     public String getName() {
         return Arrays.toString(fieldsToPlot);
     }    
-    
+
     @Override
     public boolean canBeApplied(LsfIndex index) {        
         for (String field : fieldsToPlot) {
@@ -79,7 +79,8 @@ public class GenericPlot extends MraTimeSeriesPlot {
         }
         return true;
     }
-    
+
+    @Override
     public Vector<String> getForbiddenSeries() {
         return forbiddenSeries;
     }
@@ -91,7 +92,7 @@ public class GenericPlot extends MraTimeSeriesPlot {
         for (String field : fieldsToPlot) {
             String messageName = field.split("\\.")[0];
             String variable = field.split("\\.")[1];
-            
+
             for (IMCMessage m : source.getIterator(messageName, 0, (long)(timestep * 1000))) {
                 String seriesName = "";
 
@@ -99,10 +100,10 @@ public class GenericPlot extends MraTimeSeriesPlot {
                     seriesName = m.getSourceName()+"."+source.getEntityName(m.getSrc(), m.getSrcEnt())+"."+field+"."+m.getValue("id");
                 } 
                 else { 
-//                    NeptusLog.pub().info("<###> "+m.getAbbrev() + " " + source.getEntityName(m.getSrc(), m.getSrcEnt()));
+                    //                    NeptusLog.pub().info("<###> "+m.getAbbrev() + " " + source.getEntityName(m.getSrc(), m.getSrcEnt()));
                     seriesName = m.getSourceName()+"."+source.getEntityName(m.getSrc(), m.getSrcEnt())+"."+field;
                 }
-                
+
                 if (m.getMessageType().getFieldUnits(variable) != null && m.getMessageType().getFieldUnits(variable).startsWith("rad")) {
                     // Special case for angles in radians
                     addValue(m.getTimestampMillis(), seriesName, Math.toDegrees(m.getDouble(variable)));

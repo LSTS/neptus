@@ -65,11 +65,11 @@ import pt.lsts.neptus.util.llf.chart.LLFChart;
  * @author zp
  *
  */
-public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {   
+public abstract class MRA2DPlot implements LLFChart, LogMarkerListener {   
     MRAPanel mraPanel;
     private XYSeries markerSeries;
 
-    public Mra2DPlot(MRAPanel panel) {
+    public MRA2DPlot(MRAPanel panel) {
         this.mraPanel = panel;
     }
     @Override

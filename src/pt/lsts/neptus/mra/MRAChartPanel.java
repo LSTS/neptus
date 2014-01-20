@@ -71,8 +71,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 import pt.lsts.neptus.gui.SelectAllFocusListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.mra.plots.Mra2DPlot;
-import pt.lsts.neptus.mra.plots.MraTimeSeriesPlot;
+import pt.lsts.neptus.mra.plots.MRA2DPlot;
+import pt.lsts.neptus.mra.plots.MRATimeSeriesPlot;
 import pt.lsts.neptus.mra.plots.TimedXYDataItem;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.llf.LsfReport;
@@ -147,7 +147,7 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         if (chart.supportsVariableTimeSteps()) {
             JButton redraw = new JButton(I18n.text("Redraw"));
             timeStepField = new JTextField("" + timestep, 4);
-            if (MraTimeSeriesPlot.class.isAssignableFrom(chart.getClass())) {
+            if (MRATimeSeriesPlot.class.isAssignableFrom(chart.getClass())) {
                 selectEntities = new JButton(I18n.text("Series..."));
                 controlPanel.add(selectEntities);
                 selectEntities.addActionListener(new ActionListener() {
@@ -196,7 +196,7 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
 
     protected void selectEntities() {
         boolean allSelected = true;
-        MraTimeSeriesPlot chart = (MraTimeSeriesPlot) this.chart;
+        MRATimeSeriesPlot chart = (MRATimeSeriesPlot) this.chart;
         JCheckBox[] checks = new JCheckBox[chart.getSeriesNames().size() + 1];
         int i = 0;
         for (String name : chart.getSeriesNames()) {
@@ -318,7 +318,7 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
                 MouseEvent me = e.getTrigger();
                 int x = me.getX();
                 if(!cpanel.getPopupMenu().isVisible()) {
-                    if(chart instanceof Mra2DPlot) {
+                    if(chart instanceof MRA2DPlot) {
                         ChartEntity entity = e.getEntity();
 
                         if (entity != null && entity instanceof XYItemEntity) {
