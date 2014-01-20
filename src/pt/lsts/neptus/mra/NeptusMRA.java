@@ -31,9 +31,7 @@
  */
 package pt.lsts.neptus.mra;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dialog.ModalityType;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -47,72 +45,36 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Vector;
 import java.util.zip.GZIPInputStream;
 
-import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingWorker;
 import javax.swing.ToolTipManager;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
 import pt.lsts.imc.lsf.LsfIndexListener;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcId16;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
-import pt.lsts.neptus.gui.AboutPanel;
 import pt.lsts.neptus.gui.BlockingGlassPane;
-import pt.lsts.neptus.gui.MissionFileChooser;
-import pt.lsts.neptus.gui.PropertiesEditor;
-import pt.lsts.neptus.gui.WaitPanel;
-import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.FileHandler;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.mra.importers.lsf.ConcatenateLsfLog;
-import pt.lsts.neptus.mra.replay.LogReplay;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.types.mission.MissionType;
-import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
 import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.lsts.neptus.util.llf.LogUtils;
-import pt.lsts.neptus.util.llf.LogUtils.LogValidity;
 import pt.lsts.neptus.util.llf.LsfLogSource;
-import pt.lsts.neptus.util.llf.LsfReport;
-import pt.lsts.neptus.util.logdownload.LogsDownloaderWorker;
-import foxtrot.AsyncTask;
-import foxtrot.AsyncWorker;
 
 /**
  * Neptus MRA main class
@@ -130,9 +92,7 @@ public class NeptusMRA extends JFrame implements FileHandler {
 
     public static boolean vtkEnabled = true;
 
-    MRAProperties mraProperties = new MRAProperties();
-
-    private AbstractAction genReport, setMission, preferences, openLsf, httpDuneDownload, httpVehicleDownload;
+    private MRAProperties mraProperties = new MRAProperties();
 
     private File tmpFile = null;
     private InputStream activeInputStream = null;
@@ -141,14 +101,17 @@ public class NeptusMRA extends JFrame implements FileHandler {
     private JMenu recentlyOpenFilesMenu = null;
     private MRAPanel mraPanel = null;
 
-    protected BlockingGlassPane bgp = new BlockingGlassPane(400);
+    private BlockingGlassPane bgp = new BlockingGlassPane(400);
 
-    protected JMenuBar menuBar;
+    protected MRAMenuBar mraMenuBar;
 
+    /**
+     * Constructor
+     */
     public NeptusMRA() {
         super(MRA_TITLE);
         try {
-            PluginUtils.loadProperties("conf/mra.properties", mraProperties);
+            PluginUtils.loadProperties("conf/mra.properties", getMraProperties());
         }
         catch (Exception e) {
             NeptusLog.pub().error(I18n.text("Not possible to open")
@@ -162,7 +125,10 @@ public class NeptusMRA extends JFrame implements FileHandler {
         setIconImage(Toolkit.getDefaultToolkit().getImage(ConfigFetch.class.getResource("/images/neptus-icon.png")));
 
         GuiUtils.centerOnScreen(this);
-        setJMenuBar(createMenuBar());
+
+        mraMenuBar = new MRAMenuBar(this);
+        setJMenuBar(mraMenuBar.getMenuBar());
+
         setVisible(true);
 
         JLabel lbl = new JLabel(MRA_TITLE, JLabel.CENTER);
@@ -192,9 +158,9 @@ public class NeptusMRA extends JFrame implements FileHandler {
                 closed = true;
                 NeptusMRA.this.setVisible(false);
 
-                if (mraPanel != null)
-                    mraPanel.cleanup();
-                mraPanel = null;
+                if (getMraPanel() != null)
+                    getMraPanel().cleanup();
+                setMraPanel(null);
 
                 abortPendingOpenLogActions();
                 NeptusMRA.this.getContentPane().removeAll();
@@ -204,10 +170,13 @@ public class NeptusMRA extends JFrame implements FileHandler {
             }
         });
 
-        setGlassPane(bgp);
+        setGlassPane(getBgp());
         repaint();
     }
 
+    /**
+     * @return a new NeptusMRA instance
+     */
     public static NeptusMRA showApplication() {
         ConfigFetch.initialize();
         GuiUtils.setLookAndFeel();
@@ -215,6 +184,9 @@ public class NeptusMRA extends JFrame implements FileHandler {
         return new NeptusMRA();
     }
 
+    /**
+     * 
+     */
     private void abortPendingOpenLogActions() {
         if (activeInputStream != null) {
             try {
@@ -238,9 +210,9 @@ public class NeptusMRA extends JFrame implements FileHandler {
     }
 
     public void closeLogSource() {
-        if (mraPanel != null) {
-            mraPanel.cleanup();
-            mraPanel = null;
+        if (getMraPanel() != null) {
+            getMraPanel().cleanup();
+            setMraPanel(null);
             getContentPane().removeAll();
             NeptusLog.pub().info("<###>Log source was closed.");
         }
@@ -250,19 +222,19 @@ public class NeptusMRA extends JFrame implements FileHandler {
         abortPendingOpenLogActions();
         closeLogSource();
         getContentPane().removeAll();
-        mraPanel = new MRAPanel(source,this);
-        getContentPane().add(mraPanel);
+        setMraPanel(new MRAPanel(source,this));
+        getContentPane().add(getMraPanel());
         invalidate();
         validate();
-        setMission.setEnabled(true);
-        genReport.setEnabled(true);
+        mraMenuBar.setMission.setEnabled(true);
+        mraMenuBar.genReport.setEnabled(true);
     }
 
     // --- Extractors ---
     public File extractGzip(File f) {
         try {
             File res;
-            bgp.setText(I18n.text("Decompressing LSF Data..."));
+            getBgp().setText(I18n.text("Decompressing LSF Data..."));
             GZIPInputStream ginstream = new GZIPInputStream(new FileInputStream(f));
             activeInputStream = ginstream;
             File outputFile = new File(f.getParent(), "Data.lsf");
@@ -291,7 +263,7 @@ public class NeptusMRA extends JFrame implements FileHandler {
         }
         catch (IOException ioe) {
             System.err.println("Exception has been thrown: " + ioe);
-            bgp.setText(I18n.text("Decompressing LSF Data...") + "   "
+            getBgp().setText(I18n.text("Decompressing LSF Data...") + "   "
                     + ioe.getMessage());
             ioe.printStackTrace();
             return null;
@@ -299,7 +271,7 @@ public class NeptusMRA extends JFrame implements FileHandler {
     }
 
     public File extractBzip2(File f) {
-        bgp.setText(I18n.text("Decompressing BZip2 LSF Data..."));
+        getBgp().setText(I18n.text("Decompressing BZip2 LSF Data..."));
         try {
             final FileInputStream fxInStream = new FileInputStream(f);
             activeInputStream = fxInStream;
@@ -315,7 +287,7 @@ public class NeptusMRA extends JFrame implements FileHandler {
                 @Override
                 public void updateValueInMessagePanel() {
                     if (downloadedSize > target) {
-                        bgp.setText(decompressed + " "
+                        getBgp().setText(decompressed + " "
                                 + MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize, 2) + "B");
                         target += 1 * 1024 * 1024;
                     }
@@ -339,7 +311,7 @@ public class NeptusMRA extends JFrame implements FileHandler {
      * @return True on success, False on failure
      */
     public boolean openLog(File fx) {
-        bgp.block(true);
+        getBgp().block(true);
         File fileToOpen = null;
 
         if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED)) {
@@ -352,14 +324,14 @@ public class NeptusMRA extends JFrame implements FileHandler {
             fileToOpen = fx;
         }
 
-        bgp.block(false);
+        getBgp().block(false);
         return openLSF(fileToOpen);
     }
 
 
     public boolean openLSF(File f) {
-        bgp.block(true);
-        bgp.setText(I18n.text("Loading LSF Data"));
+        getBgp().block(true);
+        getBgp().setText(I18n.text("Loading LSF Data"));
         final File lsfDir = f.getParentFile();
 
         //IMCDefinition.pathToDefaults = ConfigFetch.getDefaultIMCDefinitionsLocation();
@@ -382,474 +354,42 @@ public class NeptusMRA extends JFrame implements FileHandler {
             }
 
             if (option == JOptionPane.CANCEL_OPTION) {
-                bgp.block(false);
+                getBgp().block(false);
                 return false;
             }
         }
 
-        bgp.setText(I18n.text("Loading LSF Data"));
+        getBgp().setText(I18n.text("Loading LSF Data"));
 
         try {
             LsfLogSource source = new LsfLogSource(f, new LsfIndexListener() {
 
                 @Override
                 public void updateStatus(String messageToDisplay) {
-                    bgp.setText(messageToDisplay);
+                    getBgp().setText(messageToDisplay);
                 }
             });
 
             updateMissionFilesOpened(f);
 
-            bgp.setText(I18n.text("Starting interface"));
+            getBgp().setText(I18n.text("Starting interface"));
             openLogSource(source);            
-            bgp.setText(I18n.text("Done"));
+            getBgp().setText(I18n.text("Done"));
 
-            bgp.block(false);
+            getBgp().block(false);
             return true;
         }
         catch (Exception e) {
-            bgp.block(false);
+            getBgp().block(false);
             e.printStackTrace();
             GuiUtils.errorMessage(NeptusMRA.this, I18n.text("Invalid LSF index"), I18n.text(e.getMessage()));
             return false;    
         }
     }
 
-    public JMenuBar createMenuBar() {
-        loadRecentlyOpenedFiles();
-
-        menuBar = new JMenuBar();
-        JMenu file = new JMenu(I18n.text("File"));
-
-        file.add(getRecentlyOpenFilesMenu());      
-
-        openLsf = new AbstractAction(I18n.text("Open LSF log"),
-                ImageUtils.getIcon("images/menus/zipfolder.png")) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser chooser;
-
-                File lastFile = null;
-                try {
-                    lastFile = miscFilesOpened.size() == 0 ? null : miscFilesOpened.values().iterator().next();
-                    if (lastFile != null && !lastFile.isDirectory())
-                        lastFile = lastFile.getParentFile();
-                }
-                catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-                // String path = "./log/dune";
-                if (lastFile != null && lastFile.isDirectory() && lastFile.canRead()) {
-                    chooser = new JFileChooser(lastFile);
-                }
-                else if (!new File("./log/downloaded/").canRead())
-                    chooser = new JFileChooser(ConfigFetch.getConfigFile());
-                else
-                    chooser = new JFileChooser(new File("./log/downloaded/"));
-
-                chooser.setFileView(new NeptusFileView());
-                chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("LSF log files"),
-                        new String[] { "lsf", FileUtil.FILE_TYPE_LSF_COMPRESSED,
-                    FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2 }));
-
-                int res = chooser.showOpenDialog(NeptusMRA.this);
-
-                if (res == JFileChooser.APPROVE_OPTION) {
-                    final File f = chooser.getSelectedFile();
-                    LogValidity validity = LogUtils.isValidLSFSource(f.getParentFile());
-                    if (validity != LogUtils.LogValidity.VALID) {
-                        String message = null;
-                        if(validity == LogValidity.NO_DIRECTORY)
-                            message = "No such directory / No read permissions";
-                        if(validity == LogValidity.NO_VALID_LOG_FILE)
-                            message = "No valid LSF log file present";
-                        if(validity == LogValidity.NO_XML_DEFS)
-                            message = "No valid XML definition present";
-
-                        GuiUtils.errorMessage(NeptusMRA.this, I18n.text("Open LSF log"),
-                                I18n.text(message));
-                        return;
-                    }
-
-                    Thread t = new Thread("Open Log") {
-                        @Override
-                        public void run() {
-                            //                            Component oldGlassPane = getGlassPane();
-                            //                            setGlassPane(bgp);
-                            bgp.block(true);
-                            openLog(f);
-                            bgp.block(false);
-                            //                            setGlassPane(oldGlassPane);
-                        };
-                    };
-                    t.start();
-                }
-                return;
-            }
-        };
-
-        file.add(openLsf);
-
-        AbstractAction exit = new AbstractAction(I18n.text("Exit"), ImageUtils.getIcon("images/menus/exit.png")) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (mraPanel != null) {
-                    mraPanel.cleanup();
-                }
-
-                NeptusMRA.this.setVisible(false);
-                NeptusMRA.this.dispose();
-            }
-        };
-
-        file.addSeparator();
-        file.add(exit);
-
-        JMenu report = new JMenu(I18n.text("Report"));
-        genReport = new AbstractAction(I18n.text("Save as PDF"), ImageUtils.getIcon("images/menus/changelog.png")) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final File f = new File(System.currentTimeMillis() + ".pdf");
-                if (f.exists()) {
-                    int resp = JOptionPane.showConfirmDialog(NeptusMRA.this,
-                            I18n.text("Do you want to overwrite the existing file?"));
-                    if (resp != JOptionPane.YES_OPTION)
-                        return;
-                }
-                bgp.block(true);
-                SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-                    @Override
-                    protected Boolean doInBackground() throws Exception {
-                        return LsfReport.generateReport(mraPanel.getSource(), f, mraPanel);
-                    }
-
-                    @Override
-                    protected void done() {
-                        super.done();
-                        try {
-                            get();
-                        }
-                        catch (Exception e) {
-                            NeptusLog.pub().error(e);
-                        }
-                        try {
-                            if (get()) {
-                                GuiUtils.infoMessage(NeptusMRA.this, I18n.text("Generate PDF Report"),
-                                        I18n.text("File saved to") +" "+ f.getAbsolutePath());
-                                final String pdfF = f.getAbsolutePath();
-                                new Thread() {
-                                    @Override
-                                    public void run() {
-                                        openPDFInExternalViewer(pdfF);
-                                    };
-                                }.start();
-                            }
-                        }
-                        catch (Exception e) {
-                            GuiUtils.errorMessage(NeptusMRA.this, "<html>"+I18n.text("PDF <b>was not</b> saved to file.")
-                                    + "<br>"+I18n.text("Error")+": " + e.getMessage() + "</html>", I18n.text("PDF Creation Process"));
-                            e.printStackTrace();
-                        }
-                        finally {
-                            bgp.block(false);
-                        }
-                    }
-                };
-                worker.execute();
-
-                // if (created) {
-                // GuiUtils.infoMessage(NeptusMRA.this, "Generate PDF Report", "File saved to "+f.getAbsolutePath());
-                // try {
-                // if (ConfigFetch.getOS() == ConfigFetch.OS_WINDOWS)
-                // Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + f.getCanonicalPath());
-                // else {
-                // String[] readers = { "acroread", "xpdf"};
-                // String reader = null;
-                //
-                // for (int count = 0; count < readers.length && reader == null; count++)
-                // if (Runtime.getRuntime().exec( new String[] {"which", readers[count]}).waitFor() == 0)
-                // reader = readers[count];
-                // if (reader == null)
-                // System.err.println("No pdf reader was found");
-                // else Runtime.getRuntime().exec(new String[] {
-                // reader, f.getAbsolutePath()
-                // }
-                // );
-                // }
-                // }
-                // catch (Exception ex) {
-                // ex.printStackTrace();
-                // }
-                // //JOptionPane pane = new JOptionPane("File saved to "+f.getAbsolutePath(),
-                // JOptionPane.DEFAULT_OPTION);
-                // //pane.setOptions(new String[] {"Open", "OK"});
-                // //pane.setVisible(true);
-                //
-                // //JOptionPane.showMessageDialog(NeptusMRA.this, "File saved to "+f.getAbsolutePath(),
-                // "Generate PDF Report", JOptionPane.
-                // }
-            }
-        };
-        report.add(genReport);
-        genReport.setEnabled(false);
-
-        AbstractAction batchReport = new AbstractAction(I18n.text("Batch PDF report"),
-                ImageUtils.getIcon("images/menus/changelog.png")) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                JFileChooser chooser = new JFileChooser(new File("."));
-                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                int res = chooser.showOpenDialog(NeptusMRA.this);
-
-                if (res != JFileChooser.APPROVE_OPTION)
-                    return;
-
-                final File f = chooser.getSelectedFile();
-
-                final WaitPanel panel = new WaitPanel();
-                panel.start(NeptusMRA.this, ModalityType.DOCUMENT_MODAL);
-
-                AsyncTask task = new AsyncTask() {
-                    @Override
-                    public void finish() {
-                        panel.stop();
-                        GuiUtils.infoMessage(NeptusMRA.this, I18n.text("Batch report ended successfully"), I18n.text("Files saved to")+" "
-                                + (new File(".").getAbsolutePath()));
-                    }
-
-                    @Override
-                    public Object run() throws Exception {
-                        LsfReport.generateLogs(f, mraPanel);
-                        return null;
-                    }
-                };
-
-                AsyncWorker.post(task);
-
-            }
-        };
-        report.add(batchReport);
-
-        JMenu settings = new JMenu(I18n.text("Settings"));
-        setMission = new AbstractAction(I18n.text("Set mission"), ImageUtils.getIcon("images/menus/mapeditor.png")) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                File f = MissionFileChooser.showOpenMissionDialog(new String[] { "nmis", "nmisz" });
-                if (f != null) {
-                    MissionType mission = new MissionType(f.getAbsolutePath());
-                    if (mraPanel != null) {
-                        LogReplay replay = mraPanel.getMissionReplay();
-                        if (replay != null) {
-                            replay.setMission(mission);
-                        }
-                    }
-                }
-            }
-        };
-        settings.add(setMission);
-        setMission.setEnabled(false);
-
-        preferences = new AbstractAction(I18n.text("Preferences")) {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                PropertiesEditor.editProperties(mraProperties, NeptusMRA.this, true);
-                // PropertiesEditor.editProperties(NeptusMRA.this, NeptusMRA.this, true);
-                try {
-                    PluginUtils.saveProperties("conf/mra.properties", mraProperties);
-                    //PluginUtils.saveProperties("conf/mra.properties", NeptusMRA.this);
-                }
-                catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        };
-        settings.add(preferences);
-
-        JMenu tools = new JMenu(I18n.text("Tools"));
-
-        try {
-
-            httpVehicleDownload = new AbstractAction(I18n.text("Choose an active vehicle to download logs (FTP)"),
-                    ImageUtils.getScaledIcon("images/buttons/web.png", 16, 16)) {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    final LinkedHashSet<ImcSystem> selectedVehicle = new LinkedHashSet<ImcSystem>();
-                    JPanel panel = new JPanel();
-                    panel.setLayout(new BorderLayout());
-                    JList<ImcSystem> logsList = new JList<ImcSystem>();
-                    DefaultListModel<ImcSystem> listModel = new DefaultListModel<ImcSystem>();
-
-                    LinkedHashMap<ImcId16, SystemImcMsgCommInfo> sysList = ImcMsgManager.getManager().getCommInfo();
-                    for (ImcId16 system : sysList.keySet()) {
-                        ImcSystem sys3 = ImcSystemsHolder.lookupSystem(system);
-                        try {
-                            if (sys3.getType() == SystemTypeEnum.VEHICLE) {
-                                listModel.addElement(sys3);
-                            }
-                        }
-                        catch (Exception e1) {
-                            NeptusLog.pub().info("<###> "+system + " "+I18n.text("not selectable"));
-                        }
-                    }
-
-                    logsList = new JList<ImcSystem>(listModel);
-                    final JList<ImcSystem> lis = logsList;
-                    lis.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                    JScrollPane listScrollPane = new JScrollPane(logsList);
-                    panel.add(listScrollPane, BorderLayout.CENTER);
-
-                    if (listModel.size() == 1) {
-                        selectedVehicle.add((ImcSystem) listModel.get(0));
-                    }
-                    else {
-                        final JDialog dialog = new JDialog(NeptusMRA.this);
-
-                        JButton but = new JButton(new AbstractAction(I18n.text("Select Vehicle")) {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                List<ImcSystem> l = lis.getSelectedValuesList();
-                                for (ImcSystem f : l) {
-                                    selectedVehicle.add(f);
-                                }
-                                dialog.setVisible(false);
-                                dialog.dispose();
-                            }
-                        });
-                        panel.add(but, BorderLayout.SOUTH);
-
-                        dialog.add(panel);
-                        dialog.setSize(300, 300);
-
-                        dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
-                        dialog.setLocationRelativeTo(NeptusMRA.this);
-                        dialog.setVisible(true);
-                    }
-
-                    if (selectedVehicle.size() == 1) {
-                        ImcSystem sys = selectedVehicle.iterator().next();
-                        LogsDownloaderWorker logFetcher = new LogsDownloaderWorker();
-                        logFetcher.setHost(sys.getHostAddress());
-                        // logFetcher.setPort(sys.getRemoteUDPPort());
-                        logFetcher.setLogLabel(sys.getName().toLowerCase());
-                        //Vector<URI> sUri = sys.getServiceProvided("http", "dune");
-                        Vector<URI> sUri = sys.getServiceProvided("ftp", "");
-                        if (sUri.size() > 0) {
-                            logFetcher.setHost(sUri.get(0).getHost());
-                            logFetcher.setPort((sUri.get(0).getPort() <= 0) ? 21 : sUri.get(0).getPort());
-                        }
-
-                        logFetcher.setEnableHost(false);
-                        logFetcher.setEnablePort(false);
-                        logFetcher.setEnableLogLabel(false);
-                        logFetcher.setVisible(true);
-                    }
-                }
-            };
-            httpVehicleDownload.setEnabled(true);
-
-            tools.add(httpVehicleDownload);
-        }
-        catch (Error e) {
-            e.printStackTrace();
-        }
-
-        httpDuneDownload = new AbstractAction(I18n.text("Download logs from location (FTP)"), ImageUtils.getScaledIcon(
-                "images/buttons/web.png", 16, 16)) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                LogsDownloaderWorker logFetcher = new LogsDownloaderWorker();
-                logFetcher.setConfigPanelVisible(true);
-                logFetcher.setEnableLogLabel(true);
-                logFetcher.setVisible(true);
-            }
-        };
-        httpDuneDownload.setEnabled(true);
-        tools.add(httpDuneDownload);
-
-        tools.addSeparator();
-
-        tools.add(I18n.text("Concatenate LSF logs")).addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                File[] folders = ConcatenateLsfLog.chooseFolders(NeptusMRA.this, new File(".").getAbsolutePath());
-
-                if (folders != null) {
-                    JFileChooser chooser = new JFileChooser(new File("."));
-                    chooser.setDialogTitle(I18n.text("Select folder where to save concatenated log"));
-                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                    int op = chooser.showOpenDialog(NeptusMRA.this);
-                    if (op == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            ConcatenateLsfLog.concatenateFolders(folders, chooser.getSelectedFile(), null);
-                            openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
-
-                        }
-                        catch (Exception ex) {
-                            GuiUtils.errorMessage(NeptusMRA.this, ex);
-                        }
-                    }
-                }
-            }
-        });
-
-        tools.add(I18n.text("Fuse LSF logs")).addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                File[] folders = ConcatenateLsfLog.chooseFolders(NeptusMRA.this, new File(".").getAbsolutePath());
-
-                if (folders != null) {
-                    JFileChooser chooser = new JFileChooser(new File("."));
-                    chooser.setDialogTitle(I18n.text("Select folder where to save concatenated log"));
-                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                    int op = chooser.showOpenDialog(NeptusMRA.this);
-                    if (op == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            ConcatenateLsfLog.concatenateFolders(folders, chooser.getSelectedFile(), null);
-                            openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
-
-                        }
-                        catch (Exception ex) {
-                            GuiUtils.errorMessage(NeptusMRA.this, ex);
-                        }
-                    }
-                }
-            }
-        });
-
-        JMenu help = new JMenu(I18n.text("Help"));
-        JMenuItem aboutMenuItem = new JMenuItem();
-        aboutMenuItem.setText(I18n.text("About"));
-        aboutMenuItem.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/info.png")));
-        aboutMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                AboutPanel ap = new AboutPanel();
-                ap.setVisible(true);
-            }
-        });
-        help.add(aboutMenuItem);
-
-        menuBar.add(file);
-        menuBar.add(report);
-        menuBar.add(settings);
-        menuBar.add(tools);
-
-        menuBar.add(help);
-
-        return menuBar;
-    }
-
-    public JMenuBar getMRAMenuBar() {
-        return menuBar;
-    }
-
     /**
      * @param pdf
+     * FIXME better suited for utils?
      */
     protected void openPDFInExternalViewer(String pdf) {
         try {
@@ -882,19 +422,19 @@ public class NeptusMRA extends JFrame implements FileHandler {
      * 
      * @return javax.swing.JMenu
      */
-    private JMenu getRecentlyOpenFilesMenu() {
+    protected JMenu getRecentlyOpenFilesMenu() {
         if (recentlyOpenFilesMenu == null) {
             recentlyOpenFilesMenu = new JMenu();
             recentlyOpenFilesMenu.setText(I18n.text("Recently opened"));
-            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, miscFilesOpened);
+            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, getMiscFilesOpened());
         }
         else {
-            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, miscFilesOpened);
+            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, getMiscFilesOpened());
         }
         return recentlyOpenFilesMenu;
     }
 
-    private void loadRecentlyOpenedFiles() {
+    protected void loadRecentlyOpenedFiles() {
         String recentlyOpenedFiles = ConfigFetch.resolvePath(RECENTLY_OPENED_LOGS);
         Method methodUpdate = null;
 
@@ -919,12 +459,12 @@ public class NeptusMRA extends JFrame implements FileHandler {
     }
 
     public boolean updateMissionFilesOpened(File fx) {
-        RecentlyOpenedFilesUtil.updateFilesOpenedMenuItems(fx, miscFilesOpened, new ActionListener() {
+        RecentlyOpenedFilesUtil.updateFilesOpenedMenuItems(fx, getMiscFilesOpened(), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final File fx;
                 Object key = e.getSource();
-                File value = miscFilesOpened.get(key);
+                File value = getMiscFilesOpened().get(key);
                 if (value instanceof File) {
                     fx = (File) value;
                     //                    openLog(fx);
@@ -954,37 +494,17 @@ public class NeptusMRA extends JFrame implements FileHandler {
         return true;
     }
 
-    private void storeRecentlyOpenedFiles() {
+    protected void storeRecentlyOpenedFiles() {
         String recentlyOpenedFiles;
         LinkedHashMap<JMenuItem, File> hMap;
         String header;
 
         recentlyOpenedFiles = ConfigFetch.resolvePathBasedOnConfigFile(RECENTLY_OPENED_LOGS);
-        hMap = miscFilesOpened;
+        hMap = getMiscFilesOpened();
         header = I18n.text("Recently opened mission files")+".";
 
         RecentlyOpenedFilesUtil.storeRecentlyOpenedFiles(recentlyOpenedFiles, hMap, header);
     }
-
-    //    @Override
-    //    public DefaultProperty[] getProperties() {
-    //        return PluginUtils.getPluginProperties(this);
-    //    }
-    //
-    //    @Override
-    //    public String getPropertiesDialogTitle() {
-    //        return "MRA Preferences";
-    //    }
-    //
-    //    @Override
-    //    public String[] getPropertiesErrors(Property[] properties) {
-    //        return null;
-    //    }
-    //
-    //    @Override
-    //    public void setProperties(Property[] properties) {
-    //        PluginUtils.setPluginProperties(this, properties);
-    //    }
 
     /**
      * @author pdias
@@ -1023,6 +543,49 @@ public class NeptusMRA extends JFrame implements FileHandler {
     @Override
     public void handleFile(File f) {
         openLog(f);
+    }
+
+    /**
+     * @return the mraMenuBar
+     */
+    public JMenuBar getMRAMenuBar() {
+        return mraMenuBar;
+    }
+
+    /**
+     * @return the miscFilesOpened
+     */
+    protected LinkedHashMap<JMenuItem, File> getMiscFilesOpened() {
+        return miscFilesOpened;
+    }
+
+    /**
+     * @return the MRAPanel
+     */
+    protected MRAPanel getMraPanel() {
+        return mraPanel;
+    }
+
+    /**
+     * @param mraPanel
+     */
+    private void setMraPanel(MRAPanel mraPanel) {
+        this.mraPanel = mraPanel;
+    }
+
+    /**
+     * @return the bgp
+     */
+    protected BlockingGlassPane getBgp() {
+        return bgp;
+    }
+
+    protected MRAProperties getMraProperties() {
+        return mraProperties;
+    }
+
+    protected void setMraProperties(MRAProperties mraProperties) {
+        this.mraProperties = mraProperties;
     }
 
     public static void main(String[] args) {
