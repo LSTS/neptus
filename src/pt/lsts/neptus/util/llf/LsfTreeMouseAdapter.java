@@ -43,8 +43,8 @@ import javax.swing.tree.TreePath;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.CloseTabbedPane;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.MRAChartPanel;
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.MraChartPanel;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.GenericPlot;
@@ -72,6 +72,7 @@ public class LsfTreeMouseAdapter extends MouseAdapter {
         source = panel.getSource();
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
         TreePath[] path = tree.getSelectionPaths();
         if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
@@ -86,7 +87,7 @@ public class LsfTreeMouseAdapter extends MouseAdapter {
         if (e.getButton() == MouseEvent.BUTTON3) {
             if (path == null)
                 return;
-            
+
             if (path.length == 1 && path[0].getPath().length == 2) {
                 final String fileToOpen = path[0].getPath()[1].toString();
                 JPopupMenu popup = new JPopupMenu();
@@ -94,12 +95,13 @@ public class LsfTreeMouseAdapter extends MouseAdapter {
                 String text = I18n.textf("Show %log data", fileToOpen);
 
                 popup.add(text).addActionListener(new ActionListener() {
+                    @Override
                     public void actionPerformed(java.awt.event.ActionEvent e) {
                         IMraLog log = source.getLog(fileToOpen);
                         panel.loadVisualization(new LogTableVisualization(log, panel), true);
                     }
                 });
-             
+
                 popup.show(tree, e.getX(), e.getY());
                 return;
             }
@@ -122,25 +124,28 @@ public class LsfTreeMouseAdapter extends MouseAdapter {
                 return;
 
             JPopupMenu popup = new JPopupMenu();
-            
+
             popup.add(I18n.text("Plot data")).addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     NeptusLog.pub().info("<###> "+fieldsToPlot);
                     panel.loadVisualization(new GenericPlot(fieldsToPlot.toArray(new String[0]), panel), true);
                 }
             });
-            
+
             popup.add(I18n.text("Timeline Plot")).addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     panel.loadVisualization(new ReplayPlot(panel, fieldsToPlot.toArray(new String[0])), true);
                 }
             });
-            
+
             popup.add(I18n.text("Plot data on new window")).addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
 
                     LLFChart chart = new GenericPlot(fieldsToPlot.toArray(new String[0]), panel);
-                    MraChartPanel fcp = new MraChartPanel(chart, source, panel);
+                    MRAChartPanel fcp = new MRAChartPanel(chart, source, panel);
                     JDialog dialog = new JDialog(ConfigFetch.getSuperParentAsFrame());
                     dialog.setTitle("[MRA] " + chart.getName());
                     dialog.setIconImage(ImageUtils.getScaledImage("images/menus/graph.png", 16, 16));
@@ -153,6 +158,7 @@ public class LsfTreeMouseAdapter extends MouseAdapter {
             });
             if(count == 1) {
                 popup.add(I18n.text("Plot ColorMap")).addActionListener(new ActionListener() {
+                    @Override
                     public void actionPerformed(java.awt.event.ActionEvent e) {
                         NeptusLog.pub().info("<###> "+fieldsToPlot);
                         panel.loadVisualization(new ColorMapVisualization(panel, "ALL", fieldsToPlot.get(0)), true);

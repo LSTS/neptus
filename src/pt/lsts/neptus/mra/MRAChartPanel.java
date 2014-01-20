@@ -82,7 +82,7 @@ import pt.lsts.neptus.util.llf.chart.LLFChart;
  * 
  * @author ZP
  */
-public class MraChartPanel extends JPanel implements ChartMouseListener {
+public class MRAChartPanel extends JPanel implements ChartMouseListener {
 
     private static final long serialVersionUID = 1L;
     private LLFChart chart;
@@ -99,7 +99,7 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
     MRAPanel mraPanel;
     double mouseValue;
 
-    public MraChartPanel(LLFChart chart, IMraLogGroup source, MRAPanel panel) {
+    public MRAChartPanel(LLFChart chart, IMraLogGroup source, MRAPanel panel) {
         this.mraPanel = panel;
         this.chart = chart;
         this.source = source;
@@ -130,7 +130,7 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
                     }
 
                     JTable table = new JTable(model, new String[] { I18n.text("Name"), I18n.text("Value") });
-                    JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(MraChartPanel.this));
+                    JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(MRAChartPanel.this));
                     dialog.setTitle(I18n.textf("Statistics for %chartname", chartName));
                     JScrollPane scroll = new JScrollPane(table);
                     dialog.getContentPane().add(scroll);
@@ -301,14 +301,14 @@ public class MraChartPanel extends JPanel implements ChartMouseListener {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
                 chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("PDF files"), new String[] {"pdf"}));
-                int op = chooser.showSaveDialog(MraChartPanel.this);
+                int op = chooser.showSaveDialog(MRAChartPanel.this);
                 if (op == JFileChooser.APPROVE_OPTION)
                     if(LsfReport.savePdf(source, chart, chooser.getSelectedFile()))
-                        GuiUtils.infoMessage(MraChartPanel.this, I18n.text("Save as PDF"), I18n
+                        GuiUtils.infoMessage(MRAChartPanel.this, I18n.text("Save as PDF"), I18n
                                 .textf("File saved successfully to %fileLocation", chooser.getSelectedFile()
                                         .getAbsolutePath()));
                     else
-                        GuiUtils.errorMessage(MraChartPanel.this, I18n.text("Save as PDF"), I18n.text("Error exporting to PDF"));
+                        GuiUtils.errorMessage(MRAChartPanel.this, I18n.text("Save as PDF"), I18n.text("Error exporting to PDF"));
             }
         });
 

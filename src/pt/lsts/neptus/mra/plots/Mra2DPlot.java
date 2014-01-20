@@ -49,17 +49,17 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.LogStatisticsItem;
+import pt.lsts.neptus.mra.MRAChartPanel;
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.MraChartPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.chart.LLFChart;
-import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp
@@ -68,7 +68,7 @@ import pt.lsts.imc.lsf.LsfIndex;
 public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {   
     MRAPanel mraPanel;
     private XYSeries markerSeries;
-    
+
     public Mra2DPlot(MRAPanel panel) {
         this.mraPanel = panel;
     }
@@ -76,48 +76,48 @@ public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {
     public String getName() {
         return PluginUtils.getPluginName(getClass());
     }
-    
+
     public String getTitle() {
         return (getName() + " plot");
     }
-    
+
     private LsfIndex index;
     protected double timestep = 0;
     JFreeChart chart;
-    
+
     protected LinkedHashMap<String, LinkedHashMap<Long, Point2D.Double>> series = new LinkedHashMap<>();
     protected LinkedHashMap<String, Long> lastAddedPoints = new LinkedHashMap<>();
-    
+
     public void addValue(long timeMillis, double x, double y, String src, String variable) {
         String seriesName = src+"."+I18n.text(variable);
-        
+
         if (!series.containsKey(seriesName)) {
-           series.put(seriesName, new LinkedHashMap<Long, Point2D.Double>());
+            series.put(seriesName, new LinkedHashMap<Long, Point2D.Double>());
         }
-//        else {
-//            if (supportsVariableTimeSteps()) {
-//                long lastTime = lastAddedPoints.get(seriesName);                        
-//                if (timeMillis - lastTime < timestep*1000) {
-//                   return;
-//                }
-//            }
-//        }
+        //        else {
+        //            if (supportsVariableTimeSteps()) {
+        //                long lastTime = lastAddedPoints.get(seriesName);                        
+        //                if (timeMillis - lastTime < timestep*1000) {
+        //                   return;
+        //                }
+        //            }
+        //        }
         series.get(seriesName).put(timeMillis, new Point2D.Double(x,y));
         lastAddedPoints.put(seriesName, timeMillis);        
     }
-    
+
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
-        return new MraChartPanel(this, source, mraPanel);
+        return new MRAChartPanel(this, source, mraPanel);
     }
 
     @Override
     public final boolean canBeApplied(IMraLogGroup source) {     
         return canBeApplied(source.getLsfIndex());
     }
-    
+
     public abstract boolean canBeApplied(LsfIndex index);
-   
+
     @Override
     public ImageIcon getIcon() {
         return ImageUtils.getIcon("images/menus/graph.png");
@@ -132,15 +132,15 @@ public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {
     public boolean supportsVariableTimeSteps() {
         return true;
     }
-    
+
     public String getXAxisName() {
         return "X";
     }
-    
+
     public String getYAxisName() {
         return "Y";
     }
-    
+
     public JFreeChart createChart() {
         XYSeriesCollection dataset = new XYSeriesCollection();
 
@@ -164,14 +164,14 @@ public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {
         ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setSeriesToolTipGenerator(0,
                 new XYToolTipGenerator() {
 
-                    @Override
-                    public String generateToolTip(XYDataset arg0, int arg1, int arg2) {
-                        LocationType loc = new LocationType(arg0.getX(arg1, arg2).doubleValue(), arg0.getY(arg1, arg2)
-                                .doubleValue());
-                        return loc.getLatitudeAsPrettyString() + " / " + loc.getLongitudeAsPrettyString();
-                    }
-                });
-        
+            @Override
+            public String generateToolTip(XYDataset arg0, int arg1, int arg2) {
+                LocationType loc = new LocationType(arg0.getX(arg1, arg2).doubleValue(), arg0.getY(arg1, arg2)
+                        .doubleValue());
+                return loc.getLatitudeAsPrettyString() + " / " + loc.getLongitudeAsPrettyString();
+            }
+        });
+
         // Clean markers series
         markerSeries = null;
         return chart;
@@ -191,29 +191,31 @@ public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {
         }
         return chart;
     }
-    
+
     public abstract void process(LsfIndex source);
 
     @Override
     public Vector<LogStatisticsItem> getStatistics() {
         return null;
     }
-    
+
+    @Override
     public Type getType() {
         return Type.CHART;
     }
-    
+
     @Override
     public void onCleanup() {
         mraPanel = null;
     }
-    
+
     @Override
     public void onHide() {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
+    @Override
     public void onShow() {
         //nothing
     }
@@ -228,10 +230,10 @@ public abstract class Mra2DPlot implements LLFChart, LogMarkerListener {
             ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setSeriesItemLabelsVisible(dataset.indexOf(markerSeries.getKey()), true);
 
             ((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setSeriesItemLabelGenerator(dataset.indexOf(markerSeries.getKey()), new XYItemLabelGenerator() {
-                        @Override
-                        public String generateLabel(XYDataset arg0, int arg1, int arg2) {
-                            return ((TimedXYDataItem)markerSeries.getDataItem(arg2)).label;
-                        }
+                @Override
+                public String generateLabel(XYDataset arg0, int arg1, int arg2) {
+                    return ((TimedXYDataItem)markerSeries.getDataItem(arg2)).label;
+                }
             });
         }
         return markerSeries;

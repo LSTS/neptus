@@ -50,16 +50,16 @@ import org.jfree.data.gantt.TaskSeriesCollection;
 import org.jfree.data.time.SimpleTimePeriod;
 import org.jfree.data.time.TimePeriod;
 
+import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.LogStatisticsItem;
+import pt.lsts.neptus.mra.MRAChartPanel;
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.MraChartPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.chart.LLFChart;
-import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp
@@ -107,16 +107,16 @@ public abstract class MraGanttPlot implements LLFChart, LogMarkerListener {
         Collections.sort(col);
         return col;
     }
-    
+
     public void addTrace(String trace) {
         series.put(trace, new TaskSeries(trace));
         tsc.add(series.get(trace));
     }
- 
+
     public void startActivity(double time, String trace, String state){
         if (forbiddenSeries.contains(trace))
             return;
-        
+
         if(!series.containsKey(trace))
             addTrace(trace);
 
@@ -126,9 +126,9 @@ public abstract class MraGanttPlot implements LLFChart, LogMarkerListener {
             else
                 endActivity(time, trace);
         }
-        
+
         statePerTimeline.put(trace, state);
-        
+
         Task t = series.get(trace).get(state);
         if (t == null){
             long start = (long)(mraPanel.getSource().getLsfIndex().getStartTime() * 1000);
@@ -137,20 +137,20 @@ public abstract class MraGanttPlot implements LLFChart, LogMarkerListener {
             series.get(trace).add(t);
         }
         t.addSubtask(new Task(state+time, new Date((long)(time*1000)), new Date((long)(time*1000))));
-        
+
     }
-    
+
     private Task setEndTime(Task t, double time) {
         TimePeriod tp = t.getDuration();
         t.setDuration(new SimpleTimePeriod(tp.getStart(), new Date((long)(time*1000))));
         return t;
     }
-    
+
     public void endActivity(double time, String trace){
         if (forbiddenSeries.contains(trace) || !series.containsKey(trace))
             return;
         Task t = series.get(trace).get(statePerTimeline.get(trace));
-        
+
         if (t.getSubtaskCount() > 0)
             t = (Task) t.getSubtask(t.getSubtaskCount()-1);
         setEndTime(t, time);
@@ -159,7 +159,7 @@ public abstract class MraGanttPlot implements LLFChart, LogMarkerListener {
 
     @Override
     public JComponent getComponent(IMraLogGroup source, double timestep) {
-        MraChartPanel fcp = new MraChartPanel(this, source, mraPanel);
+        MRAChartPanel fcp = new MRAChartPanel(this, source, mraPanel);
         return fcp;
     }
 
@@ -204,10 +204,10 @@ public abstract class MraGanttPlot implements LLFChart, LogMarkerListener {
         series.clear();
         process(index);
         chart = createChart();
-        
+
         // Do this here to make sure we have a built chart.. //FIXME FIXME FIXME
         for(LogMarker marker : mraPanel.getMarkers()) {
-           addLogMarker(marker);
+            addLogMarker(marker);
         }
         return chart;
     }
@@ -218,37 +218,39 @@ public abstract class MraGanttPlot implements LLFChart, LogMarkerListener {
     public Vector<LogStatisticsItem> getStatistics() {
         return null;
     }
-    
+
+    @Override
     public Type getType() {
         return Type.CHART;
     }
-    
+
     @Override
     public void onCleanup() {
         mraPanel = null;
     }
-    
+
     @Override
     public void onHide() {
         //nothing
     }
-    
+
+    @Override
     public void onShow() {
         //nothing
     }
 
-    
+
     @Override 
     public void addLogMarker(LogMarker e) {
         ValueMarker marker = new ValueMarker(e.timestamp);
         marker.setLabel(e.label);
     }
-    
+
     @Override
     public void removeLogMarker(LogMarker e) {
         if(chart != null) {
             chart.getXYPlot().clearDomainMarkers();
-        
+
             for (LogMarker m : mraPanel.getMarkers())
                 addLogMarker(m);
         }
@@ -256,7 +258,7 @@ public abstract class MraGanttPlot implements LLFChart, LogMarkerListener {
 
     @Override
     public void GotoMarker(LogMarker marker) {
-        
+
     }
 
 }

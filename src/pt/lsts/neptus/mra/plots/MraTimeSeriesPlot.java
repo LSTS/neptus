@@ -55,8 +55,8 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.LogStatisticsItem;
+import pt.lsts.neptus.mra.MRAChartPanel;
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.MraChartPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.ImageUtils;
@@ -144,7 +144,7 @@ public abstract class MraTimeSeriesPlot implements LLFChart, LogMarkerListener {
 
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
-        MraChartPanel fcp = new MraChartPanel(this, source, mraPanel);
+        MRAChartPanel fcp = new MRAChartPanel(this, source, mraPanel);
         return fcp;
     }
 
