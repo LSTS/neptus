@@ -737,7 +737,7 @@ MissionChangeListener {
             public void actionPerformed(ActionEvent e) {
                 boolean wasInitialManeuver = man.isInitialManeuver();
                 String oldXml = man.asXML();
-                PropertiesEditor.editProperties(man, SwingUtilities.getWindowAncestor(PlanEditor.this), true);
+                PropertiesEditor.editProperties(man, PlanEditor.this.getConsole(), true);
                 manager.addEdit(new ManeuverChanged(man, plan, oldXml));
                 if (man.isInitialManeuver())
                     plan.getGraph().setInitialManeuver(man.getId());
@@ -751,6 +751,7 @@ MissionChangeListener {
 
                 planElem.recalculateManeuverPositions(renderer);
                 renderer.repaint();
+                refreshPropertiesManeuver();
             }
         };
         props.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/edit.png")));
