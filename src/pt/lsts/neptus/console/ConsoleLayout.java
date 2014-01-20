@@ -47,12 +47,15 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -1691,7 +1694,12 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                 options.add(FileUtil.getFileNameWithoutExtension(f));
             }
         }
-        Collections.sort(options);
+        final Collator collator = Collator.getInstance(Locale.US);
+        Collections.sort(options, new Comparator<String>() {
+            public int compare(String o1, String o2) {
+                return collator.compare(o1, o2);
+            };
+        });
 
         String op = ""
                 + JOptionPane.showInputDialog(null, "Select console to open", "Neptus Console",
