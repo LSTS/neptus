@@ -1160,6 +1160,8 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                             }
                             catch (Exception e) {
                                 NeptusLog.pub().error(e);
+                                GuiUtils.errorMessage(I18n.text("Error"),
+                                        I18n.textf("Error openning console '%file'", fx.getName()));
                             }
                             endActivity("");
                         }
