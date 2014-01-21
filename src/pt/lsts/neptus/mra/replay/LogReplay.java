@@ -417,7 +417,8 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
                 entry.getDouble("theta"), entry.getDouble("psi"));
 
         vehicle = VehiclesHolder.getVehicleWithImc(new ImcId16(entry.getSrc()));
-        renderer.setVehicleState(vehicle, state);
+        if (vehicle != null)
+            renderer.setVehicleState(vehicle, state);
     }
     
     public void setMission(MissionType mt) {

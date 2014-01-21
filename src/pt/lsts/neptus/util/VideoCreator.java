@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+import pt.lsts.neptus.NeptusLog;
+
 import com.xuggle.mediatool.IMediaWriter;
 import com.xuggle.mediatool.ToolFactory;
 
@@ -49,6 +51,11 @@ public class VideoCreator {
 	}
 
 	public void closeStreams() {
-		writer.close();
+		try {
+            writer.close();
+        }
+        catch (Exception | Error e) {
+            NeptusLog.pub().warn("Error closing " + VideoCreator.class.getSimpleName() + " stream.", e);
+        }
 	}
 }
