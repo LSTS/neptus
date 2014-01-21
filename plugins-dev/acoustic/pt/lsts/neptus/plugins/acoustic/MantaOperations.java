@@ -280,6 +280,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         cmdButtons.put("gw", btn);
 
         btn.addActionListener(new ActionListener() {
+            @Override
             @SuppressWarnings("unchecked")
             public void actionPerformed(ActionEvent arg0) {
                 Vector<Object> systems = new Vector<>();
@@ -294,7 +295,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                     return;
                 }
 
-                Object gw = (Object) JOptionPane.showInputDialog(getConsole(), "Select Gateway", "Select acoustic gateway to use",
+                Object gw = JOptionPane.showInputDialog(getConsole(), "Select Gateway", "Select acoustic gateway to use",
                         JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
 
                 System.out.println(gw);
@@ -312,6 +313,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         btn.setActionCommand("range");
         cmdButtons.put("range", btn);
         btn.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent arg0) {
 
 
@@ -334,22 +336,27 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                                     I18n.text("Console")));
                 }
 
-                IMCMessage m = IMCDefinition.getInstance().create("AcousticOperation", "op", "RANGE",
-                        "system", selectedSystem);
-
-                int successCount = 0;
-                for (ImcSystem sys : sysLst)
-                    if (ImcMsgManager.getManager().sendMessage(m, sys.getId(), null))
-                        successCount++;
-
-                if (successCount > 0) {
-                    bottomPane.setText(I18n.textf(
-                            "Range %systemName commanded to %systemCount systems", selectedSystem,
-                            successCount));
+                if (selectedSystem == null) {
+                    bottomPane.setText(I18n.textf("Please select a system.", selectedSystem));
                 }
                 else {
-                    post(Notification.error(I18n.text("Range System"),
-                            I18n.text("Unable to range selected system")).src(I18n.text("Console")));
+                    IMCMessage m = IMCDefinition.getInstance().create("AcousticOperation", "op", "RANGE", "system",
+                            selectedSystem);
+
+                    int successCount = 0;
+                    for (ImcSystem sys : sysLst)
+                        if (ImcMsgManager.getManager().sendMessage(m, sys.getId(), null))
+                            successCount++;
+
+                    if (successCount > 0) {
+                        bottomPane.setText(I18n.textf("Range %systemName commanded to %systemCount systems",
+                                selectedSystem, successCount));
+                    }
+                    else {
+                        post(Notification
+                                .error(I18n.text("Range System"), I18n.text("Unable to range selected system")).src(
+                                        I18n.text("Console")));
+                    }
                 }
             }
         });
@@ -357,6 +364,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
         toggle = new JToggleButton(I18n.text("Show Ranges"));
         toggle.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent arg0) {
                 showRanges = ((JToggleButton) arg0.getSource()).isSelected();
                 if (!showRanges) {
@@ -372,6 +380,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         btn.setActionCommand("text");
         cmdButtons.put("text", btn);
         btn.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent arg0) {
                 if (selectedSystem == null)
                     return;
@@ -394,6 +403,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         btn.setActionCommand("abort");
         cmdButtons.put("abort", btn);
         btn.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent arg0) {
 
 
