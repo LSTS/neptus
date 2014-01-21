@@ -160,8 +160,10 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
 	}
 	
 	public void setVehicleState(VehicleType vehicle, SystemPositionAndAttitude state) {
-		this.curstate = state;
+		if (vehicle == null)
+		    return;
 		
+	    this.curstate = state;
 		
 		for (int i = 0; i < renderers.length; i++) {
 			renderers[i].vehicleStateChanged(vehicle.getId(), state);
