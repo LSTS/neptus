@@ -39,14 +39,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
-import java.util.zip.GZIPInputStream;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -59,24 +53,16 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingWorker;
 import javax.swing.ToolTipManager;
 
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-
-import pt.lsts.imc.lsf.LsfIndexListener;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.BlockingGlassPane;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.loader.FileHandler;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
-import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.lsts.neptus.util.llf.LsfLogSource;
 import pt.lsts.neptus.util.llf.LsfReport;
 
 /**
@@ -89,16 +75,13 @@ import pt.lsts.neptus.util.llf.LsfReport;
  * @author hfq
  */
 @SuppressWarnings("serial")
-public class NeptusMRA extends JFrame implements FileHandler {
+public class NeptusMRA extends JFrame {
     protected static final String MRA_TITLE = I18n.text("Neptus Mission Review And Analysis");
     protected static final String RECENTLY_OPENED_LOGS = "conf/mra_recent.xml";
 
     public static boolean vtkEnabled = true;
 
     private MRAProperties mraProperties = new MRAProperties();
-
-    private File tmpFile = null;
-    private InputStream activeInputStream = null;
 
     private LinkedHashMap<JMenuItem, File> miscFilesOpened = new LinkedHashMap<JMenuItem, File>();
     private JMenu recentlyOpenFilesMenu = null;
@@ -107,6 +90,7 @@ public class NeptusMRA extends JFrame implements FileHandler {
     private BlockingGlassPane bgp = new BlockingGlassPane(400);
 
     protected MRAMenuBar mraMenuBar;
+    public MRAFilesHandler mraFilesHandler;
 
     /**
      * Constructor
@@ -133,6 +117,8 @@ public class NeptusMRA extends JFrame implements FileHandler {
         setJMenuBar(mraMenuBar.getMenuBar());
 
         setVisible(true);
+
+        mraFilesHandler = new MRAFilesHandler(this);
 
         JLabel lbl = new JLabel(MRA_TITLE, JLabel.CENTER);
 
@@ -165,7 +151,7 @@ public class NeptusMRA extends JFrame implements FileHandler {
                     getMraPanel().cleanup();
                 setMraPanel(null);
 
-                abortPendingOpenLogActions();
+                mraFilesHandler.abortPendingOpenLogActions();
                 NeptusMRA.this.getContentPane().removeAll();
                 NeptusMRA.this.dispose();
 
@@ -190,38 +176,8 @@ public class NeptusMRA extends JFrame implements FileHandler {
     /**
      * 
      */
-    private void abortPendingOpenLogActions() {
-        if (activeInputStream != null) {
-            try {
-                activeInputStream.close();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            activeInputStream = null;
-        }
-        if (tmpFile != null) {
-            if (tmpFile.exists()) {
-                try {
-                    tmpFile.delete();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    /**
-     * 
-     */
     public void closeLogSource() {
-        if (getMraPanel() != null) {
-            getMraPanel().cleanup();
-            setMraPanel(null);
-            getContentPane().removeAll();
-            NeptusLog.pub().info("<###>Log source was closed.");
-        }
+        mraFilesHandler.closeLogSource();
     }
 
     /**
@@ -229,15 +185,7 @@ public class NeptusMRA extends JFrame implements FileHandler {
      * @param source
      */
     public void openLogSource(IMraLogGroup source) {
-        abortPendingOpenLogActions();
-        closeLogSource();
-        getContentPane().removeAll();
-        setMraPanel(new MRAPanel(source,this));
-        getContentPane().add(getMraPanel());
-        invalidate();
-        validate();
-        mraMenuBar.getSetMissionMenuItem().setEnabled(true);
-        mraMenuBar.getGenReportMenuItem().setEnabled(true);
+        mraFilesHandler.openLogSource(source);
     }
 
     // --- Extractors ---
@@ -247,42 +195,7 @@ public class NeptusMRA extends JFrame implements FileHandler {
      * @return
      */
     public File extractGzip(File f) {
-        try {
-            File res;
-            getBgp().setText(I18n.text("Decompressing LSF Data..."));
-            GZIPInputStream ginstream = new GZIPInputStream(new FileInputStream(f));
-            activeInputStream = ginstream;
-            File outputFile = new File(f.getParent(), "Data.lsf");
-            if (!outputFile.exists()) {
-                outputFile.createNewFile();
-            }
-            FileOutputStream outstream = new FileOutputStream(outputFile, false);
-            byte[] buf = new byte[2048];
-            int len;
-            try {
-                while ((len = ginstream.read(buf)) > 0) {
-                    outstream.write(buf, 0, len);
-                }
-            }
-            catch (Exception e) {
-                GuiUtils.errorMessage(NeptusMRA.this, e);
-                NeptusLog.pub().error(e);
-            }
-            finally {
-                ginstream.close();
-                outstream.close();
-            }
-            res = new File(f.getParent(), "Data.lsf");
-
-            return res;
-        }
-        catch (IOException ioe) {
-            System.err.println("Exception has been thrown: " + ioe);
-            getBgp().setText(I18n.text("Decompressing LSF Data...") + "   "
-                    + ioe.getMessage());
-            ioe.printStackTrace();
-            return null;
-        }
+        return mraFilesHandler.extractGzip(f);
     }
 
     /**
@@ -291,37 +204,7 @@ public class NeptusMRA extends JFrame implements FileHandler {
      * @return
      */
     public File extractBzip2(File f) {
-        getBgp().setText(I18n.text("Decompressing BZip2 LSF Data..."));
-        try {
-            final FileInputStream fxInStream = new FileInputStream(f);
-            activeInputStream = fxInStream;
-            BZip2CompressorInputStream gzDataLog = new BZip2CompressorInputStream(fxInStream);
-            File outFile = new File(f.getParent(), "Data.lsf");
-            if (!outFile.exists()) {
-                outFile.createNewFile();
-            }
-            FilterCopyDataMonitor fis = new FilterCopyDataMonitor(gzDataLog) {
-                long target = 1 * 1024 * 1024;
-                protected String decompressed = I18n.text("Decompressed");
-
-                @Override
-                public void updateValueInMessagePanel() {
-                    if (downloadedSize > target) {
-                        getBgp().setText(decompressed + " "
-                                + MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize, 2) + "B");
-                        target += 1 * 1024 * 1024;
-                    }
-                }
-            };
-
-            StreamUtil.copyStreamToFile(fis, outFile);
-            fxInStream.close();
-            return outFile;
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return mraFilesHandler.extractBzip2(f);
     }
 
     /**
@@ -331,21 +214,7 @@ public class NeptusMRA extends JFrame implements FileHandler {
      * @return True on success, False on failure
      */
     public boolean openLog(File fx) {
-        getBgp().block(true);
-        File fileToOpen = null;
-
-        if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED)) {
-            fileToOpen = extractGzip(fx);
-        }
-        else if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2)) {
-            fileToOpen = extractBzip2(fx);
-        }        
-        else if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF)) {
-            fileToOpen = fx;
-        }
-
-        getBgp().block(false);
-        return openLSF(fileToOpen);
+        return mraFilesHandler.openLog(fx);
     }
 
     /**
@@ -354,61 +223,7 @@ public class NeptusMRA extends JFrame implements FileHandler {
      * @return
      */
     public boolean openLSF(File f) {
-        getBgp().block(true);
-        getBgp().setText(I18n.text("Loading LSF Data"));
-        final File lsfDir = f.getParentFile();
-
-        //IMCDefinition.pathToDefaults = ConfigFetch.getDefaultIMCDefinitionsLocation();
-
-        boolean alreadyConverted = false;
-        if (lsfDir.isDirectory()) {
-            if (new File(lsfDir, "mra/lsf.index").canRead())
-                alreadyConverted = true;
-
-        }
-        else if (new File(lsfDir, "mra/lsf.index").canRead())
-            alreadyConverted = true;
-
-        if (alreadyConverted) {
-            int option = JOptionPane.showConfirmDialog(NeptusMRA.this,
-                    I18n.text("This log seems to have already been indexed. Index again?"));
-
-            if (option == JOptionPane.YES_OPTION) {
-                new File(lsfDir, "mra/lsf.index").delete(); 
-            }
-
-            if (option == JOptionPane.CANCEL_OPTION) {
-                getBgp().block(false);
-                return false;
-            }
-        }
-
-        getBgp().setText(I18n.text("Loading LSF Data"));
-
-        try {
-            LsfLogSource source = new LsfLogSource(f, new LsfIndexListener() {
-
-                @Override
-                public void updateStatus(String messageToDisplay) {
-                    getBgp().setText(messageToDisplay);
-                }
-            });
-
-            updateMissionFilesOpened(f);
-
-            getBgp().setText(I18n.text("Starting interface"));
-            openLogSource(source);            
-            getBgp().setText(I18n.text("Done"));
-
-            getBgp().block(false);
-            return true;
-        }
-        catch (Exception e) {
-            getBgp().block(false);
-            e.printStackTrace();
-            GuiUtils.errorMessage(NeptusMRA.this, I18n.text("Invalid LSF index"), I18n.text(e.getMessage()));
-            return false;    
-        }
+        return mraFilesHandler.openLSF(f);
     }
 
     /**
@@ -594,45 +409,6 @@ public class NeptusMRA extends JFrame implements FileHandler {
     }
 
     /**
-     * @author pdias
-     * 
-     */
-    public abstract class FilterCopyDataMonitor extends FilterInputStream {
-
-        public long downloadedSize = 0;
-
-        public FilterCopyDataMonitor(InputStream in) {
-            super(in);
-            downloadedSize = 0;
-        }
-
-        @Override
-        public int read() throws IOException {
-            int tmp = super.read();
-            downloadedSize += (tmp == -1) ? 0 : 1;
-            if (tmp != -1)
-                updateValueInMessagePanel();
-            return tmp;
-        }
-
-        @Override
-        public int read(byte[] b, int off, int len) throws IOException {
-            int tmp = super.read(b, off, len);
-            downloadedSize += (tmp == -1) ? 0 : tmp;
-            if (tmp != -1)
-                updateValueInMessagePanel();
-            return tmp;
-        }
-
-        public abstract void updateValueInMessagePanel();
-    }
-
-    @Override
-    public void handleFile(File f) {
-        openLog(f);
-    }
-
-    /**
      * @return the mraMenuBar
      */
     public JMenuBar getMRAMenuBar() {
@@ -656,7 +432,7 @@ public class NeptusMRA extends JFrame implements FileHandler {
     /**
      * @param mraPanel
      */
-    private void setMraPanel(MRAPanel mraPanel) {
+    protected void setMraPanel(MRAPanel mraPanel) {
         this.mraPanel = mraPanel;
     }
 
