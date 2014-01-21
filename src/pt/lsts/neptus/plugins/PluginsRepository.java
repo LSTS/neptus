@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins;
 import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
@@ -52,7 +53,8 @@ public class PluginsRepository {
             NeptusMessageListener.class,
             MRAVisualization.class,
             LogReplayLayer.class,
-            MRAExporter.class
+            MRAExporter.class,
+            ConsoleLayer.class
             );
       
     private static LinkedHashMap<String, Class<? extends MapTileProvider>> tileProviders = new LinkedHashMap<String, Class<? extends MapTileProvider>>();
@@ -97,6 +99,17 @@ public class PluginsRepository {
         }
     }
     
+    public static ConsoleLayer getConsoleLayer(String pluginName) {
+        try {
+            ConsoleLayer spprov = extensions.getPlugin(pluginName, ConsoleLayer.class);
+            return spprov;
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("loading layer plugin ", e);
+            return null;
+        }
+    }
+    
     public static <T> LinkedHashMap<String, Class<? extends T>> listExtensions(Class<T> type) {
         return extensions.listExtensions(type);
     }
@@ -107,6 +120,10 @@ public class PluginsRepository {
     
     public static LinkedHashMap<String, Class<? extends ConsolePanel>> getPanelPlugins() {
         return extensions.listExtensions(ConsolePanel.class);
+    }
+    
+    public static LinkedHashMap<String, Class<? extends ConsoleLayer>> getConsoleLayerPlugins() {
+        return extensions.listExtensions(ConsoleLayer.class);
     }
 
     public static LinkedHashMap<String, Class<? extends MRAVisualization>> getMraVisualizations() {
