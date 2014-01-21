@@ -232,9 +232,12 @@ public class MRAPanel extends JPanel {
 
                 // Load exporters
                 // Exporters list, this will be moved in the future
-                MRAExporter exporterList[] = new MRAExporter[] { new ImcTo837(source), new PCDExporter(source),
-                        new MatExporter(source), new KMLExporter(this, source), new CSVExporter(source),
-                        new XTFExporter(source), new NoptilusMapExporter(source) };
+//                MRAExporter[] exporterList = new MRAExporter[] { new ImcTo837(source), new PCDExporter(source),
+//                        new MatExporter(source), new KMLExporter(this, source), new CSVExporter(source),
+//                        new XTFExporter(source), new NoptilusMapExporter(source) };
+                //Ugly code but in the develop branch will be ok
+                ArrayList<MRAExporter> exporterList = new ArrayList<>();
+                createExportersAvailableList(source, exporterList);
 
                 // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
                 JMenuBar bar = mra.getMRAMenuBar();
@@ -272,6 +275,83 @@ public class MRAPanel extends JPanel {
                 }
 
                 monitor.close();
+    }
+
+    /**
+     * @param source
+     * @param exporterList
+     */
+    private void createExportersAvailableList(final IMraLogGroup source, ArrayList<MRAExporter> exporterList) {
+        try {
+            MRAExporter exp = new ImcTo837(source);
+            exporterList.add(exp);
+        }
+        catch (Exception e) {
+            // Nothing to do.
+        }
+        catch (Error e) {
+            // Nothing to do.
+        }
+        try {
+            MRAExporter exp = new PCDExporter(source);
+            exporterList.add(exp);
+        }
+        catch (Exception e) {
+            // Nothing to do.
+        }
+        catch (Error e) {
+            // Nothing to do.
+        }
+        try {
+            MRAExporter exp = new MatExporter(source);
+            exporterList.add(exp);
+        }
+        catch (Exception e) {
+            // Nothing to do.
+        }
+        catch (Error e) {
+            // Nothing to do.
+        }
+        try {
+            MRAExporter exp = new KMLExporter(this, source);
+            exporterList.add(exp);
+        }
+        catch (Exception e) {
+            // Nothing to do.
+        }
+        catch (Error e) {
+            // Nothing to do.
+        }
+        try {
+            MRAExporter exp = new CSVExporter(source);
+            exporterList.add(exp);
+        }
+        catch (Exception e) {
+            // Nothing to do.
+        }
+        catch (Error e) {
+            // Nothing to do.
+        }
+        try {
+            MRAExporter exp = new XTFExporter(source);
+            exporterList.add(exp);
+        }
+        catch (Exception e) {
+            // Nothing to do.
+        }
+        catch (Error e) {
+            // Nothing to do.
+        }
+        try {
+            MRAExporter exp = new NoptilusMapExporter(source);
+            exporterList.add(exp);
+        }
+        catch (Exception e) {
+            // Nothing to do.
+        }
+        catch (Error e) {
+            // Nothing to do.
+        }
     }
 
     public void loadVisualization(MRAVisualization vis, boolean open) {
