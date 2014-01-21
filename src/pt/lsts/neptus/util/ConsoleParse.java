@@ -53,6 +53,7 @@ import org.dom4j.io.SAXReader;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.IConsoleInteraction;
 import pt.lsts.neptus.console.IConsoleLayer;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.loader.FileHandler;
@@ -154,7 +155,7 @@ public class ConsoleParse implements FileHandler {
         }
         list = rootconsole.selectNodes("/" + ConsoleLayout.DEFAULT_ROOT_ELEMENT + "/*");
         List<IConsoleLayer> layers = new ArrayList<>();
-        List<ConsolePanel> panels = new ArrayList<>();
+        List<IConsoleInteraction> interactions = new ArrayList<>();
         
         for (Iterator<?> i = list.iterator(); i.hasNext();) {
             Element element = (Element) i.next();
@@ -163,7 +164,7 @@ public class ConsoleParse implements FileHandler {
                 Attribute attribute = (Attribute) element.selectSingleNode("@name");
                 if ("console main panel".equals(attribute.getValue())) {
                     ConfigFetch.mark("main panel");
-                    panels = parseConsoleMainPanel(element, console);
+                    parseConsoleMainPanel(element, console);
                     ConfigFetch.benchmark("main panel");
                 }
             }
@@ -174,7 +175,7 @@ public class ConsoleParse implements FileHandler {
             }
             else if ("interactions".equals(element.getName())) {
                 ConfigFetch.mark("load interactions");
-                parseConsoleMainPanel(element, console);
+                parseConsoleInteractions(element, console);
                 ConfigFetch.benchmark("load interactions");
             }
                 
@@ -184,14 +185,21 @@ public class ConsoleParse implements FileHandler {
         ConfigFetch.benchmark("reinit");
         
         
-        
+        // Add map layers and interactions
         Vector<MapPanel> maps = console.getSubPanelsOfClass(MapPanel.class);
         if (maps.isEmpty() && !layers.isEmpty()) {
             NeptusLog.pub().error("Cannot add "+layers.size()+" layers because there is no MapPanel");            
         }
+        if (maps.isEmpty() && !interactions.isEmpty()) {
+            NeptusLog.pub().error("Cannot add "+interactions.size()+" interactions because there is no MapPanel");            
+        }
         else {
             for (IConsoleLayer layer : layers) {
-                
+                console.addMapLayer(layer);
+            }
+            
+            for (IConsoleInteraction inter : interactions) {
+                console.addInteraction(inter);
             }
         }
     }
@@ -241,15 +249,15 @@ public class ConsoleParse implements FileHandler {
         return ret;
     }
     
-    private static Vector<IConsoleLayer> parseConsoleInteractions(Node node, ConsoleLayout console) {
+    private static Vector<IConsoleInteraction> parseConsoleInteractions(Node node, ConsoleLayout console) {
         List<?> list = node.selectNodes("*");
-        Vector<IConsoleLayer> ret = new Vector<>();
+        Vector<IConsoleInteraction> ret = new Vector<>();
         for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
             Element element = (Element) iter.next();
             try {
                 String className = element.attribute("class").getValue();
                 //FIXME
-                IConsoleLayer cp = (IConsoleLayer) Class.forName(className).newInstance();
+                IConsoleInteraction cp = (IConsoleInteraction) Class.forName(className).newInstance();
                 cp.parseXmlElement(element);
                 ret.add(cp);
             }

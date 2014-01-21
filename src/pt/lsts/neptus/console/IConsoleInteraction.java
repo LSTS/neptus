@@ -31,67 +31,37 @@
  */
 package pt.lsts.neptus.console;
 
-import org.dom4j.Attribute;
 import org.dom4j.Element;
+
+import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 
 /**
  * @author zp
  *
  */
-public abstract class ConsoleLayer extends AbstractConsolePlugin implements IConsoleLayer {
+public interface IConsoleInteraction extends StateRendererInteraction {
 
-    private float opacity = 1.0f;
-    
-    public abstract boolean userControlsOpacity();
-    public abstract void initLayer();
-    public abstract void cleanLayer();
-
-    @Override
-    public float getOpacity() {
-        return opacity;
-    }
-    
-    public void setVisible(boolean visible) {
-        if (!visible)
-            setOpacity(0f);
-        else if (opacity <= 0)
-            opacity = 1.0f;
-    }
-    
-    public boolean isVisible() {
-        return getOpacity() > 0;
-    }    
-
-    @Override
-    public void setOpacity(float opacity) {
-        this.opacity = opacity;                 
-    }
-
-    @Override
-    public final void init(ConsoleLayout console) {
-        super.init(console);
-        initLayer();
-    }
-    
-    @Override
-    public final void clean() {
-        super.clean();
-        cleanLayer();
-    }
-    
-    @Override
-    public Element asElement(String rootElement) {        
-        Element el = super.asElement(rootElement);
-        el.addAttribute("opacity", ""+getOpacity());
-        return el;
-    }
-    
-    @Override
-    public void parseXmlElement(Element elem) {
-        Attribute attr = elem.attribute("opacity");
-        if (attr != null)
-            setOpacity(Float.parseFloat(attr.getText()));
+    /**
+         * Initialize this layer by passing a Console instance 
+         * @param console The Console where this IMapLayer has been added to
+         */
+        public void init(ConsoleLayout console);
         
-        super.parseXmlElement(elem);      
-    }
+        /**
+         * This layer has been removed or the MapPanel was closed.
+         */
+        public void clean();
+                
+        /**
+         * Save the configurations of this layer as XML
+         * @param rootElement The name of the root XML tag to use when saving
+         * @return The XML configuration of this tag
+         */
+        public Element asElement(String rootElement);
+        
+        /**
+         * Load configuration from a partial XML tree
+         * @param xml An XML string having as top-level element the tag relative to this IMapLayer
+         */
+        public void parseXmlElement(Element elem);
 }

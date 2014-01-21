@@ -176,6 +176,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
     private final List<ConsolePanel> subPanels = new ArrayList<>();
     private final List<IConsoleLayer> layers = new ArrayList<>();
+    private final List<IConsoleInteraction> interactions = new ArrayList<>();
     
 
     /*
@@ -848,6 +849,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         for (IConsoleLayer layer : layers) {
             layer.init(this);
         }
+        
+        for (IConsoleInteraction inter : interactions) {
+            inter.init(this);
+        }
     }
 
     public boolean saveFile() {
@@ -985,6 +990,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             Element layersElem = root.addElement("layers");
             for (IConsoleLayer l : layers) {
                 layersElem.add(l.asElement("layer"));
+            }
+        }
+        
+        if (!interactions.isEmpty()) {
+            Element interactionsElem = root.addElement("interactions");
+            for (IConsoleInteraction i : interactions) {
+                interactionsElem.add(i.asElement("interaction"));
             }
         }
 
@@ -1168,7 +1180,48 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             for (IConsoleLayer layer : layers) {
                 ((MapPanel)sub).addPostRenderPainter(layer, layer.getName());
             }
+            for (IConsoleInteraction i : interactions) {
+                ((MapPanel)sub).addInteraction(i);
+            }
         }
+    }
+    
+    public boolean addInteraction(IConsoleInteraction interaction) {
+        Vector<MapPanel> maps = getSubPanelsOfClass(MapPanel.class);
+        
+        if (interactions.contains(interaction)) {
+            NeptusLog.pub().error("Interation was already present in this console.");
+            return false;
+        }
+        
+        if (maps.isEmpty()) {
+            NeptusLog.pub().error("Cannot add interaction beacause there is no MapPanel in the console.");
+            return false;
+        }
+        
+        interaction.init(this);
+        interactions.add(interaction);
+        
+        for (MapPanel map : maps) {
+            map.addInteraction(interaction);            
+        }
+        
+        return true;
+    }
+    
+    public boolean removeInteraction(IConsoleInteraction interaction) {
+        if (!interactions.contains(interaction)) {
+            NeptusLog.pub().error("Interaction not found in this console.");
+            return false;
+        }
+        
+        for (MapPanel map : getSubPanelsOfClass(MapPanel.class)) {
+            map.removeInteraction(interaction);
+        }
+        
+        interaction.clean();
+        
+        return interactions.remove(interaction);
     }
     
     public boolean addMapLayer(IConsoleLayer layer) {
@@ -1180,7 +1233,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
         
         if (maps.isEmpty()) {
-            NeptusLog.pub().error("Cannot add MapLayer beacause there is no MapPanel in the console.");
+            NeptusLog.pub().error("Cannot add layer beacause there is no MapPanel in the console.");
             return false;
         }
         

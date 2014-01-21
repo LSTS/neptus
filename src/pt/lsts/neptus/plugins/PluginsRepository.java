@@ -34,10 +34,10 @@ package pt.lsts.neptus.plugins;
 import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
@@ -50,11 +50,10 @@ public class PluginsRepository {
     private static ExtensionsBag extensions = new ExtensionsBag(
             NeptusAction.class,
             ConsolePanel.class,
-            NeptusMessageListener.class,
+            ConsoleLayer.class,
+            ConsoleInteraction.class,
             MRAVisualization.class,
-            LogReplayLayer.class,
-            MRAExporter.class,
-            ConsoleLayer.class
+            LogReplayLayer.class
             );
       
     private static LinkedHashMap<String, Class<? extends MapTileProvider>> tileProviders = new LinkedHashMap<String, Class<? extends MapTileProvider>>();
@@ -110,6 +109,17 @@ public class PluginsRepository {
         }
     }
     
+    public static ConsoleInteraction getConsoleInteraction(String pluginName) {
+        try {
+            ConsoleInteraction spprov = extensions.getPlugin(pluginName, ConsoleInteraction.class);
+            return spprov;
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("loading interaction plugin ", e);
+            return null;
+        }
+    }
+    
     public static <T> LinkedHashMap<String, Class<? extends T>> listExtensions(Class<T> type) {
         return extensions.listExtensions(type);
     }
@@ -124,6 +134,10 @@ public class PluginsRepository {
     
     public static LinkedHashMap<String, Class<? extends ConsoleLayer>> getConsoleLayerPlugins() {
         return extensions.listExtensions(ConsoleLayer.class);
+    }
+    
+    public static LinkedHashMap<String, Class<? extends ConsoleInteraction>> getConsoleInteractions() {
+        return extensions.listExtensions(ConsoleInteraction.class);
     }
 
     public static LinkedHashMap<String, Class<? extends MRAVisualization>> getMraVisualizations() {
