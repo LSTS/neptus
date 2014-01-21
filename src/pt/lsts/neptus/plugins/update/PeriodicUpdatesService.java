@@ -85,7 +85,6 @@ public class PeriodicUpdatesService {
             NeptusLog.pub()
                     .info("Code in " + ReflectionUtil.getCallerStamp()
                             + " tried to add an already registered updates client");
-            new Exception().printStackTrace();
             return;
         }
         updateTimes.put(client, 0L);

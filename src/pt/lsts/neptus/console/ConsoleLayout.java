@@ -118,6 +118,7 @@ import pt.lsts.neptus.console.plugins.SettingsWindow;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
 import pt.lsts.neptus.console.plugins.SubPanelChangeListener;
+import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.controllers.ControllerManager;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.gui.ConsoleFileChooser;
@@ -174,6 +175,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     private final ControllerManager controllerManager;
 
     private final List<ConsolePanel> subPanels = new ArrayList<>();
+    private final List<IConsoleLayer> layers = new ArrayList<>();
+    
 
     /*
      * UI stuff
@@ -841,6 +844,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         for (ConsolePanel sp : subPanels) {
             sp.init();
         }
+        
+        for (IConsoleLayer layer : layers) {
+            layer.init(this);
+        }
     }
 
     public boolean saveFile() {
@@ -973,6 +980,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         Element alarmpanel = root.addElement("mainpanel");
         alarmpanel.addAttribute("name", "console alarm panel");
+        
+        if (!layers.isEmpty()) {
+            Element layersElem = root.addElement("layers");
+            for (IConsoleLayer l : layers) {
+                layersElem.add(l.asElement("layer"));
+            }
+        }
 
         return doc;
     }
@@ -988,7 +1002,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     @Override
-    public void inXML(String d) {
+    public void parseXML(String d) {
         ConsoleParse.parseString(d, this, this.getFileName().toString());
     }
 
@@ -1148,6 +1162,51 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public void informSubPanelListener(ConsolePanel sub, SubPanelChangeAction action) {
         for (SubPanelChangeListener spcl : subPanelListeners)
             spcl.subPanelChanged(new SubPanelChangeEvent(sub, action));
+        
+        // If there is a new map, add all existing layers to it        
+        if (action == SubPanelChangeAction.ADDED && sub instanceof MapPanel) {
+            for (IConsoleLayer layer : layers) {
+                ((MapPanel)sub).addPostRenderPainter(layer, layer.getName());
+            }
+        }
+    }
+    
+    public boolean addMapLayer(IConsoleLayer layer) {
+        Vector<MapPanel> maps = getSubPanelsOfClass(MapPanel.class);
+        
+        if (layers.contains(layer)) {
+            NeptusLog.pub().error("Layer was already present in this console.");
+            return false;
+        }
+        
+        if (maps.isEmpty()) {
+            NeptusLog.pub().error("Cannot add MapLayer beacause there is no MapPanel in the console.");
+            return false;
+        }
+        
+        layer.init(this);
+        layers.add(layer);
+        
+        for (MapPanel map : maps) {
+            map.addPostRenderPainter(layer, layer.getName());            
+        }
+        
+        return true;
+    }
+    
+    public boolean removeMapLayer(IConsoleLayer layer) {
+        if (!layers.contains(layer)) {
+            NeptusLog.pub().error("Layer not found in this console.");
+            return false;
+        }
+        
+        for (MapPanel map : getSubPanelsOfClass(MapPanel.class)) {
+            map.removePostRenderPainter(layer);
+        }
+        
+        layer.clean();
+        
+        return layers.remove(layer);
     }
 
     /**
@@ -1208,6 +1267,12 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                     .get(AutoSnapshotConsoleAction.class);
             autosnapshot.cleanClose();
 
+            for (IConsoleLayer layer : layers) {
+                layer.clean();
+                System.out.println("cleaned " + layer.getName());
+            }
+            layers.clear();
+            
             for (ConsoleSystem system : consoleSystems.values()) {
                 system.clean();
             }
@@ -1215,6 +1280,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             mainPanel.clean();
             statusBar.clean();
 
+            
+            
+            
             this.cleanKeyBindings();
             this.imcOff();
 

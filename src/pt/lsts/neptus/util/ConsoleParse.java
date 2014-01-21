@@ -35,8 +35,10 @@ import java.awt.MouseInfo;
 import java.awt.Rectangle;
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.JFrame;
 
@@ -51,6 +53,8 @@ import org.dom4j.io.SAXReader;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.IConsoleLayer;
+import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.loader.FileHandler;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -149,6 +153,9 @@ public class ConsoleParse implements FileHandler {
             }
         }
         list = rootconsole.selectNodes("/" + ConsoleLayout.DEFAULT_ROOT_ELEMENT + "/*");
+        List<IConsoleLayer> layers = new ArrayList<>();
+        List<ConsolePanel> panels = new ArrayList<>();
+        
         for (Iterator<?> i = list.iterator(); i.hasNext();) {
             Element element = (Element) i.next();
             
@@ -156,14 +163,37 @@ public class ConsoleParse implements FileHandler {
                 Attribute attribute = (Attribute) element.selectSingleNode("@name");
                 if ("console main panel".equals(attribute.getValue())) {
                     ConfigFetch.mark("main panel");
-                    parseConsoleMainPanel(element, console);
+                    panels = parseConsoleMainPanel(element, console);
                     ConfigFetch.benchmark("main panel");
                 }
             }
+            else if ("layers".equals(element.getName())) {
+                ConfigFetch.mark("load layers");
+                layers = parseConsoleLayers(element, console);
+                ConfigFetch.benchmark("load layers");
+            }
+            else if ("interactions".equals(element.getName())) {
+                ConfigFetch.mark("load interactions");
+                parseConsoleMainPanel(element, console);
+                ConfigFetch.benchmark("load interactions");
+            }
+                
         }
         ConfigFetch.mark("reinit");
         console.initSubPanels();
         ConfigFetch.benchmark("reinit");
+        
+        
+        
+        Vector<MapPanel> maps = console.getSubPanelsOfClass(MapPanel.class);
+        if (maps.isEmpty() && !layers.isEmpty()) {
+            NeptusLog.pub().error("Cannot add "+layers.size()+" layers because there is no MapPanel");            
+        }
+        else {
+            for (IConsoleLayer layer : layers) {
+                
+            }
+        }
     }
 
     public static void parseDocument(Document doc, ConsoleLayout console, String consoleURL) {
@@ -192,36 +222,86 @@ public class ConsoleParse implements FileHandler {
             NeptusLog.pub().error(" Console Base open file " + consoleURL + " error [" + e.getStackTrace() + "]", e);
         }
     }
-
-    public static void parseConsoleMainPanel(Node node, ConsoleLayout console) {
+    
+    private static Vector<IConsoleLayer> parseConsoleLayers(Node node, ConsoleLayout console) {
         List<?> list = node.selectNodes("*");
+        Vector<IConsoleLayer> ret = new Vector<>();
+        for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
+            Element element = (Element) iter.next();
+            try {
+                String className = element.attribute("class").getValue();
+                IConsoleLayer cp = (IConsoleLayer) Class.forName(className).newInstance();
+                cp.parseXmlElement(element);
+                ret.add(cp);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error("Error parsing " + element.asXML());
+            }
+        }        
+        return ret;
+    }
+    
+    private static Vector<IConsoleLayer> parseConsoleInteractions(Node node, ConsoleLayout console) {
+        List<?> list = node.selectNodes("*");
+        Vector<IConsoleLayer> ret = new Vector<>();
+        for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
+            Element element = (Element) iter.next();
+            try {
+                String className = element.attribute("class").getValue();
+                //FIXME
+                IConsoleLayer cp = (IConsoleLayer) Class.forName(className).newInstance();
+                cp.parseXmlElement(element);
+                ret.add(cp);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error("Error parsing " + element.asXML());
+            }
+        }        
+        return ret;
+    }
+    
+    
+
+    private static Vector<ConsolePanel> parseConsoleMainPanel(Node node, ConsoleLayout console) {
+        List<?> list = node.selectNodes("*");
+        Vector<ConsolePanel> panels = new Vector<>();
         ConfigFetch.mark("construct container");
         for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
             Element element = (Element) iter.next();
             ConsolePanel subpanel = null;
             // process subpanel tag
-            if ("subpanel".equals(element.getName())) {
-                Attribute attribute = element.attribute("class");
-                try {
-                    Class<?> clazz = Class.forName(attribute.getValue());
+            
+            switch (element.getName()) {
+                case "subpanel":
+                case "panel":
+                case "widget":
+                    Attribute attribute = element.attribute("class");
                     try {
-                        subpanel = (ConsolePanel) clazz.getConstructor(ConsoleLayout.class).newInstance(console);
-                        console.getMainPanel().addSubPanel(subpanel);
-                        ConfigFetch.benchmark("construct container");
-                        ConfigFetch.mark("in element of container");
-                        subpanel.inElement(element);
-                        ConfigFetch.benchmark("in element of container");
+                        Class<?> clazz = Class.forName(attribute.getValue());
+                        try {
+                            subpanel = (ConsolePanel) clazz.getConstructor(ConsoleLayout.class).newInstance(console);
+                            console.getMainPanel().addSubPanel(subpanel);
+                            panels.add(subpanel);
+                            ConfigFetch.benchmark("construct container");
+                            ConfigFetch.mark("in element of container");
+                            subpanel.inElement(element);
+                            ConfigFetch.benchmark("in element of container");
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error("creating subpanel new instance ", e);
+                        }
                     }
                     catch (Exception e) {
-                        NeptusLog.pub().error("creating subpanel new instance ", e);
+                        NeptusLog.pub().error("Error parsing " + attribute.getValue(), e);
                     }
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().error("Error parsing " + attribute.getValue(), e);
-                }
+                    break;                
+                default:
+                    NeptusLog.pub().error("Unrecognized console component: "+element.getName());
+                    break;
             }
-
         }
+        
+        return panels;
     }
 
     public static void parseCommunications(Node node, ConsoleLayout console) {

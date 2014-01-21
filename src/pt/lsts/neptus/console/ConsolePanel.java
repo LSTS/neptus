@@ -556,7 +556,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
     public abstract void initSubPanel();
 
-    public void inXML(String str) {
+    public void parseXML(String str) {
         Document document = null;
         try {
             document = DocumentHelper.parseText(str);

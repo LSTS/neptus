@@ -37,5 +37,5 @@ import org.dom4j.Element;
 public interface XmlInOutMethods extends XmlOutputMethods{
 	  public  void inElement(Element e);
 	  public  void inDocument(Document d);
-	  public  void inXML(String d);
+	  public  void parseXML(String d);
 }
