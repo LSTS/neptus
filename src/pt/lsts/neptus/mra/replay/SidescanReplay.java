@@ -113,6 +113,7 @@ public class SidescanReplay implements LogReplayLayer {
         lastCenter = renderer.getCenter();
         
         Thread t = new Thread() {
+            @Override
             public void run() {
                 Graphics2D g = ((Graphics2D)image.getGraphics());
 
@@ -198,7 +199,7 @@ public class SidescanReplay implements LogReplayLayer {
         double maxLon = -360;
         
         range = (float) msgSS.getFloat("max_range");
-        NeptusLog.pub().info("<###>Range = " + range);
+        // NeptusLog.pub().info("<###>Range = " + range);
         while (msgSS != null) {
             if(msgSS.getInteger("type") == SonarData.TYPE.SIDESCAN.value()) {
                 msgES = esParse.getEntryAtOrAfter(msgSS.getTimestampMillis());

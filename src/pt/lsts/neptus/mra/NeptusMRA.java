@@ -56,6 +56,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingWorker;
 import javax.swing.ToolTipManager;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
@@ -70,11 +71,13 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
 import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LsfLogSource;
+import pt.lsts.neptus.util.llf.LsfReport;
 
 /**
  * Neptus MRA main class
@@ -209,6 +212,9 @@ public class NeptusMRA extends JFrame implements FileHandler {
         }
     }
 
+    /**
+     * 
+     */
     public void closeLogSource() {
         if (getMraPanel() != null) {
             getMraPanel().cleanup();
@@ -218,6 +224,10 @@ public class NeptusMRA extends JFrame implements FileHandler {
         }
     }
 
+    /**
+     * 
+     * @param source
+     */
     public void openLogSource(IMraLogGroup source) {
         abortPendingOpenLogActions();
         closeLogSource();
@@ -226,11 +236,16 @@ public class NeptusMRA extends JFrame implements FileHandler {
         getContentPane().add(getMraPanel());
         invalidate();
         validate();
-        mraMenuBar.setMission.setEnabled(true);
-        mraMenuBar.genReport.setEnabled(true);
+        mraMenuBar.getSetMissionMenuItem().setEnabled(true);
+        mraMenuBar.getGenReportMenuItem().setEnabled(true);
     }
 
     // --- Extractors ---
+    /**
+     * 
+     * @param f
+     * @return
+     */
     public File extractGzip(File f) {
         try {
             File res;
@@ -270,6 +285,11 @@ public class NeptusMRA extends JFrame implements FileHandler {
         }
     }
 
+    /**
+     * 
+     * @param f
+     * @return
+     */
     public File extractBzip2(File f) {
         getBgp().setText(I18n.text("Decompressing BZip2 LSF Data..."));
         try {
@@ -328,7 +348,11 @@ public class NeptusMRA extends JFrame implements FileHandler {
         return openLSF(fileToOpen);
     }
 
-
+    /**
+     * 
+     * @param f
+     * @return
+     */
     public boolean openLSF(File f) {
         getBgp().block(true);
         getBgp().setText(I18n.text("Loading LSF Data"));
@@ -388,6 +412,52 @@ public class NeptusMRA extends JFrame implements FileHandler {
     }
 
     /**
+     * 
+     */
+    public void generatePDFReport(final File f) {
+        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                return LsfReport.generateReport(mraPanel.getSource(), f, mraPanel);
+            }
+
+            @Override
+            protected void done() {
+                super.done();
+                try {
+                    get();
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                }
+                try {
+                    if (get()) {
+                        GuiUtils.infoMessage(NeptusMRA.this, I18n.text("Generate PDF Report"),
+                                I18n.text("File saved to") +" "+ f.getAbsolutePath());
+                        final String pdfF = f.getAbsolutePath();
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                openPDFInExternalViewer(pdfF);
+                            };
+                        }.start();
+                    }
+                }
+                catch (Exception e) {
+                    GuiUtils.errorMessage(NeptusMRA.this, I18n.text("PDF Creation Process"), "<html>"+I18n.text("PDF <b>was not</b> saved to file.")
+                            + "<br>"+I18n.text("Error")+": " + e.getMessage() + "</html>");
+                    e.printStackTrace();
+                }
+                finally {
+                    bgp.block(false);
+                }
+            }
+        };
+        worker.execute();
+
+    }
+
+    /**
      * @param pdf
      * FIXME better suited for utils?
      */
@@ -413,9 +483,12 @@ public class NeptusMRA extends JFrame implements FileHandler {
         catch (Exception ex) {
             ex.printStackTrace();
         }
+        GuiUtils.infoMessage(this,  I18n.text("Generate PDF Report"),
+                I18n.text("File saved to") +" "+ pdf);
     }
 
     /* RECENTLY OPENED LOG FILES */
+    // FIXME - recentlyOpenFilesMenu - should be in MRAMenuBar
 
     /**
      * This method initializes jMenu
@@ -426,6 +499,8 @@ public class NeptusMRA extends JFrame implements FileHandler {
         if (recentlyOpenFilesMenu == null) {
             recentlyOpenFilesMenu = new JMenu();
             recentlyOpenFilesMenu.setText(I18n.text("Recently opened"));
+            recentlyOpenFilesMenu.setToolTipText("Most recently opened log files.");
+            recentlyOpenFilesMenu.setIcon(ImageUtils.getIcon("images/menus/open.png"));
             RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, getMiscFilesOpened());
         }
         else {
@@ -441,6 +516,9 @@ public class NeptusMRA extends JFrame implements FileHandler {
         try {
             Class<?>[] params = { File.class };
             methodUpdate = this.getClass().getMethod("updateMissionFilesOpened", params);
+            if(methodUpdate == null) {
+                NeptusLog.pub().info("Method update = null");
+            }
         }
         catch (Exception e) {
             NeptusLog.pub().error(this + "loadRecentlyOpenedFiles", e);
@@ -448,7 +526,7 @@ public class NeptusMRA extends JFrame implements FileHandler {
         }
 
         if (recentlyOpenedFiles == null) {
-            // JOptionPane.showInternalMessageDialog(this, "Cannot Load");
+            JOptionPane.showInternalMessageDialog(this, "Cannot Load");
             return;
         }
 
@@ -458,6 +536,11 @@ public class NeptusMRA extends JFrame implements FileHandler {
         RecentlyOpenedFilesUtil.loadRecentlyOpenedFiles(recentlyOpenedFiles, methodUpdate, this);
     }
 
+    /**
+     * 
+     * @param fx
+     * @return
+     */
     public boolean updateMissionFilesOpened(File fx) {
         RecentlyOpenedFilesUtil.updateFilesOpenedMenuItems(fx, getMiscFilesOpened(), new ActionListener() {
             @Override
@@ -489,11 +572,15 @@ public class NeptusMRA extends JFrame implements FileHandler {
                     return;
             }
         });
+
         getRecentlyOpenFilesMenu();
         storeRecentlyOpenedFiles();
         return true;
     }
 
+    /**
+     * 
+     */
     protected void storeRecentlyOpenedFiles() {
         String recentlyOpenedFiles;
         LinkedHashMap<JMenuItem, File> hMap;
@@ -580,14 +667,25 @@ public class NeptusMRA extends JFrame implements FileHandler {
         return bgp;
     }
 
+    /**
+     * @return the mraProperties
+     */
     protected MRAProperties getMraProperties() {
         return mraProperties;
     }
 
+    /**
+     * Set MRA properties
+     * @param mraProperties
+     */
     protected void setMraProperties(MRAProperties mraProperties) {
         this.mraProperties = mraProperties;
     }
 
+    /**
+     * Launch MRA standalone app
+     * @param args
+     */
     public static void main(String[] args) {
         NeptusMain.main(new String[] {"mra"});
     }

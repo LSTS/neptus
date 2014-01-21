@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -56,7 +57,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingWorker;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -94,6 +94,7 @@ import foxtrot.AsyncWorker;
  * @author jqcorreia
  * @author hfq
  */
+@SuppressWarnings("serial")
 public class MRAMenuBar extends JMenuBar {
 
     private static final long serialVersionUID = 1362828137699399670L;
@@ -104,8 +105,11 @@ public class MRAMenuBar extends JMenuBar {
     // private JMenu recentlyOpenFilesMenu = null;
 
     private AbstractAction openLsf, exit;
-    private AbstractAction preferences, httpDuneDownload, httpVehicleDownload;
-    protected AbstractAction setMission, genReport;
+    protected AbstractAction genReport;
+    private AbstractAction batchReport;
+    private AbstractAction preferences;
+    private AbstractAction httpDuneDownload, httpVehicleDownload, concatenateLSFLogs, fuseLSFLogs;
+    protected AbstractAction setMission;
 
     private LinkedHashMap<JMenuItem, File> miscFilesOpened;
     private NeptusMRA mra;
@@ -127,13 +131,31 @@ public class MRAMenuBar extends JMenuBar {
     /**
      * @return the MenuBar
      */
-    @SuppressWarnings("serial")
     private JMenuBar createMRAMenuBar() {
-        mra.loadRecentlyOpenedFiles();
-
         menuBar = new JMenuBar();
 
+        setUpFileMenu();
+        setUpReportMenu();
+        setUpSettingsMenu();
+        setUpToolsMenu();
+        setUpHelpMenu();
+
+        menuBar.add(fileMenu);
+        menuBar.add(reportMenu);
+        menuBar.add(settingsMenu);
+        menuBar.add(toolsMenu);
+        menuBar.add(helpMenu);
+
+        return menuBar;
+    }
+
+    /**
+     * Set up File Menu
+     */
+    private void setUpFileMenu() {
         fileMenu = new JMenu(I18n.text("File"));
+
+        mra.loadRecentlyOpenedFiles();
 
         fileMenu.add(mra.getRecentlyOpenFilesMenu());
 
@@ -187,15 +209,14 @@ public class MRAMenuBar extends JMenuBar {
                     new Thread("Open Log") {
                         @Override
                         public void run() {
-                            // mra.bgp.block(true);
                             mra.openLog(log);
-                            // mra.bgp.block(false);
                         };
                     }.start();
                 }
                 return;
             }
         };
+        openLsf.putValue(Action.SHORT_DESCRIPTION, I18n.text("Choose and Open a Lsf log") + ".");
 
         exit = new AbstractAction(I18n.text("Exit"), ImageUtils.getIcon("images/menus/exit.png")) {
 
@@ -208,104 +229,38 @@ public class MRAMenuBar extends JMenuBar {
                 mra.dispose();
             }
         };
+        exit.putValue(Action.SHORT_DESCRIPTION, I18n.text("Exit MRA") + ".");
 
         fileMenu.add(openLsf);
         fileMenu.addSeparator();
         fileMenu.add(exit);
+    }
 
+    /**
+     * Set up Report Menu
+     */
+    private void setUpReportMenu() {
         reportMenu = new JMenu(I18n.text("Report"));
-
         genReport = new AbstractAction(I18n.text("Save as PDF"), ImageUtils.getIcon("images/menus/changelog.png")) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 final File f = new File(System.currentTimeMillis() + ".pdf");
                 if (f.exists()) {
-                    int resp = JOptionPane.showConfirmDialog(mra, 
+                    int resp = JOptionPane.showConfirmDialog(mra,
                             I18n.text("Do you want to overwrite the existing file?"));
                     if (resp != JOptionPane.YES_OPTION)
                         return;
                 }
                 mra.getBgp().block(true);
-
-                SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-
-                    @Override
-                    protected Boolean doInBackground() throws Exception {
-                        return LsfReport.generateReport(mraPanel.getSource(), f, mraPanel);
-                    }
-
-                    @Override
-                    protected void done() {
-                        super.done();
-                        try {
-                            get();
-                        } catch (Exception e) {
-                            NeptusLog.pub().error(e);
-                        }
-                        try {
-                            if (get()) {
-                                GuiUtils.infoMessage(mra,  I18n.text("Generate PDF Report"),
-                                        I18n.text("File saved to") +" "+ f.getAbsolutePath());
-                                final String pdfPath = f.getAbsolutePath();
-                                new Thread() {
-                                    @Override
-                                    public void run() {
-                                        mra.openPDFInExternalViewer(pdfPath);
-                                    }                              
-                                }.start();
-                            }
-                        } catch (Exception e) {
-                            GuiUtils.errorMessage(mra, "<html>"+I18n.text("PDF <b>was not</b> saved to file.")
-                                    + "<br>"+I18n.text("Error")+": " + e.getMessage() + "</html>", I18n.text("PDF Creation Process"));
-                            e.printStackTrace();
-                        } finally {
-                            mra.getBgp().block(false);
-                        }
-                    }
-                };
-                worker.execute();
-
-                /*                if (created) {
-                    GuiUtils.infoMessage(NeptusMRA.this, "Generate PDF Report", "File saved to "+f.getAbsolutePath());
-                    try {
-                        if (ConfigFetch.getOS() == ConfigFetch.OS_WINDOWS)
-                            Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + f.getCanonicalPath());
-                        else {
-                            String[] readers = { "acroread", "xpdf"};
-                            String reader = null;
-
-                            for (int count = 0; count < readers.length && reader == null; count++)
-                                if (Runtime.getRuntime().exec( new String[] {"which", readers[count]}).waitFor() == 0)
-                                    reader = readers[count];
-                            if (reader == null)
-                                System.err.println("No pdf reader was found");
-                            else Runtime.getRuntime().exec(new String[] {
-                                    reader, f.getAbsolutePath()
-                            }
-                                    );
-                        }
-                    }
-                    catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                    //JOptionPane pane = new JOptionPane("File saved to "+f.getAbsolutePath(),
-                    JOptionPane.DEFAULT_OPTION);
-                    //pane.setOptions(new String[] {"Open", "OK"});
-                    //pane.setVisible(true);
-
-                    //JOptionPane.showMessageDialog(NeptusMRA.this, "File saved to "+f.getAbsolutePath(),
-                    "Generate PDF Report", JOptionPane.
-                }*/
+                mra.generatePDFReport(f);
             }
         };
-
-        // FIXME - hfq revision stoped
-
+        genReport.putValue(Action.SHORT_DESCRIPTION, I18n.text("Generate a pdf file report from Log") + ".");
         reportMenu.add(genReport);
         genReport.setEnabled(false);
 
-        AbstractAction batchReport = new AbstractAction(I18n.text("Batch PDF report"),
+        batchReport = new AbstractAction(I18n.text("Batch PDF report"),
                 ImageUtils.getIcon("images/menus/changelog.png")) {
 
             @Override
@@ -337,18 +292,22 @@ public class MRAMenuBar extends JMenuBar {
                         return null;
                     }
                 };
-
                 AsyncWorker.post(task);
-
             }
         };
+        batchReport.putValue(Action.SHORT_DESCRIPTION, I18n.text("Generate report from selected log files") + ".");
         reportMenu.add(batchReport);
+    }
 
+    /**
+     * Set up Settings Menu
+     */
+    private void setUpSettingsMenu() {
         settingsMenu = new JMenu(I18n.text("Settings"));
         setMission = new AbstractAction(I18n.text("Set mission"), ImageUtils.getIcon("images/menus/mapeditor.png")) {
-
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 File f = MissionFileChooser.showOpenMissionDialog(new String[] { "nmis", "nmisz" });
                 if (f != null) {
                     MissionType mission = new MissionType(f.getAbsolutePath());
@@ -361,13 +320,14 @@ public class MRAMenuBar extends JMenuBar {
                 }
             }
         };
-        settingsMenu.add(setMission);
+        setMission.putValue(Action.SHORT_DESCRIPTION, I18n.text("Load a mission file to add relevant marks to log analysis") + ".");
         setMission.setEnabled(false);
 
-        preferences = new AbstractAction(I18n.text("Preferences")) {
+        preferences = new AbstractAction(I18n.text("Preferences"), ImageUtils.getScaledIcon("images/settings.png", 16, 16)) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 PropertiesEditor.editProperties(mra.getMraProperties(), mra, true);
                 try {
                     PluginUtils.saveProperties("conf/mra.properties", mra.getMraProperties());
@@ -377,12 +337,20 @@ public class MRAMenuBar extends JMenuBar {
                 }
             }
         };
-        settingsMenu.add(preferences);
+        preferences.putValue(Action.SHORT_DESCRIPTION, I18n.text("Configure MRA preferences") + ".");
 
+        settingsMenu.add(setMission);
+        settingsMenu.addSeparator();
+        settingsMenu.add(preferences);
+    }
+
+    /**
+     * Set up Tools Menu
+     */
+    private void setUpToolsMenu() {
         toolsMenu = new JMenu(I18n.text("Tools"));
 
         try {
-
             httpVehicleDownload = new AbstractAction(I18n.text("Choose an active vehicle to download logs (FTP)"),
                     ImageUtils.getScaledIcon("images/buttons/web.png", 16, 16)) {
 
@@ -462,12 +430,12 @@ public class MRAMenuBar extends JMenuBar {
                 }
             };
             httpVehicleDownload.setEnabled(true);
-
-            toolsMenu.add(httpVehicleDownload);
         }
         catch (Error e) {
             e.printStackTrace();
         }
+        httpVehicleDownload.putValue(Action.SHORT_DESCRIPTION, I18n.text("Choose an active vehicle to download logs (FTP)") + ".");
+
 
         httpDuneDownload = new AbstractAction(I18n.text("Download logs from location (FTP)"), ImageUtils.getScaledIcon(
                 "images/buttons/web.png", 16, 16)) {
@@ -481,61 +449,72 @@ public class MRAMenuBar extends JMenuBar {
             }
         };
         httpDuneDownload.setEnabled(true);
+        httpDuneDownload.putValue(Action.SHORT_DESCRIPTION, I18n.text("Download logs from location") + ".");
+
+        concatenateLSFLogs = new AbstractAction(I18n.text("Concatenate LSF logs"), ImageUtils.getIcon("images/menus/attach.png")) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                File[] folders = ConcatenateLsfLog.chooseFolders(mra, new File(".").getAbsolutePath());
+
+                if (folders != null) {
+                    JFileChooser chooser = new JFileChooser(new File("."));
+                    chooser.setDialogTitle(I18n.text("Select folder where to save concatenated log"));
+                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    int op = chooser.showOpenDialog(mra);
+                    if (op == JFileChooser.APPROVE_OPTION) {
+                        try {
+                            ConcatenateLsfLog.concatenateFolders(folders, chooser.getSelectedFile(), null);
+                            mra.openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
+
+                        }
+                        catch (Exception ex) {
+                            GuiUtils.errorMessage(mra, ex);
+                        }
+                    }
+                }
+            }
+        };
+        concatenateLSFLogs.putValue(Action.SHORT_DESCRIPTION, I18n.text("Concatenate LSF logs") + ".");
+
+        fuseLSFLogs = new AbstractAction(I18n.text("Fuse LSF logs"), ImageUtils.getIcon("images/menus/connect.png")) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                File[] folders = ConcatenateLsfLog.chooseFolders(mra, new File(".").getAbsolutePath());
+
+                if (folders != null) {
+                    JFileChooser chooser = new JFileChooser(new File("."));
+                    chooser.setDialogTitle(I18n.text("Select folder where to save concatenated log"));
+                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    int op = chooser.showOpenDialog(mra);
+                    if (op == JFileChooser.APPROVE_OPTION) {
+                        try {
+                            ConcatenateLsfLog.concatenateFolders(folders, chooser.getSelectedFile(), null);
+                            mra.openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
+
+                        }
+                        catch (Exception ex) {
+                            GuiUtils.errorMessage(mra, ex);
+                        }
+                    }
+                }
+            }
+        };
+        fuseLSFLogs.putValue(Action.SHORT_DESCRIPTION, I18n.text("Fuse LSF logs") + ".");
+
+        toolsMenu.add(httpVehicleDownload);
         toolsMenu.add(httpDuneDownload);
-
         toolsMenu.addSeparator();
+        toolsMenu.add(concatenateLSFLogs);
+        toolsMenu.add(fuseLSFLogs);
+    }
 
-        toolsMenu.add(I18n.text("Concatenate LSF logs")).addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                File[] folders = ConcatenateLsfLog.chooseFolders(mra, new File(".").getAbsolutePath());
-
-                if (folders != null) {
-                    JFileChooser chooser = new JFileChooser(new File("."));
-                    chooser.setDialogTitle(I18n.text("Select folder where to save concatenated log"));
-                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                    int op = chooser.showOpenDialog(mra);
-                    if (op == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            ConcatenateLsfLog.concatenateFolders(folders, chooser.getSelectedFile(), null);
-                            mra.openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
-
-                        }
-                        catch (Exception ex) {
-                            GuiUtils.errorMessage(mra, ex);
-                        }
-                    }
-                }
-            }
-        });
-
-        toolsMenu.add(I18n.text("Fuse LSF logs")).addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                File[] folders = ConcatenateLsfLog.chooseFolders(mra, new File(".").getAbsolutePath());
-
-                if (folders != null) {
-                    JFileChooser chooser = new JFileChooser(new File("."));
-                    chooser.setDialogTitle(I18n.text("Select folder where to save concatenated log"));
-                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                    int op = chooser.showOpenDialog(mra);
-                    if (op == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            ConcatenateLsfLog.concatenateFolders(folders, chooser.getSelectedFile(), null);
-                            mra.openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
-
-                        }
-                        catch (Exception ex) {
-                            GuiUtils.errorMessage(mra, ex);
-                        }
-                    }
-                }
-            }
-        });
-
+    /**
+     * Set up Help Menu
+     */
+    private void setUpHelpMenu() {
         helpMenu = new JMenu(I18n.text("Help"));
         JMenuItem aboutMenuItem = new JMenuItem();
         aboutMenuItem.setText(I18n.text("About"));
@@ -548,14 +527,6 @@ public class MRAMenuBar extends JMenuBar {
             }
         });
         helpMenu.add(aboutMenuItem);
-
-        menuBar.add(fileMenu);
-        menuBar.add(reportMenu);
-        menuBar.add(settingsMenu);
-        menuBar.add(toolsMenu);
-        menuBar.add(helpMenu);
-
-        return menuBar;
     }
 
     /**
@@ -571,4 +542,28 @@ public class MRAMenuBar extends JMenuBar {
     private void setMenuBar(JMenuBar menuBar) {
         this.menuBar = menuBar;
     }
+
+    public AbstractAction getSetMissionMenuItem() {
+        return this.setMission;
+    }
+
+    public AbstractAction getGenReportMenuItem() {
+        return this.genReport;
+    }
+
+    //    public JMenu getRecentlyOpenFilesMenu() {
+    //        if (recentlyOpenFilesMenu == null) {
+    //            recentlyOpenFilesMenu = new JMenu();
+    //            recentlyOpenFilesMenu.setText(I18n.text("Recently opened"));
+    //            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, mra.getMiscFilesOpened());
+    //        }
+    //        else {
+    //            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, mra.getMiscFilesOpened());
+    //        }
+    //        return recentlyOpenFilesMenu;
+    //    }
+    //
+    //    private void setRecentlyOpenFilesMenu(JMenu recentlyOpenFilesMenu) {
+    //        this.recentlyOpenFilesMenu = recentlyOpenFilesMenu;
+    //    }
 }
