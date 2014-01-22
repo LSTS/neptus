@@ -32,6 +32,7 @@
 package pt.lsts.neptus.console;
 
 import java.awt.Cursor;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -128,6 +129,11 @@ public class ConsoleInteraction extends AbstractConsolePlugin implements IConsol
        if (mode) {
            NeptusLog.pub().info(getClass()+" interaction became active");
        }
+    }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        adapter.paintInteraction(g, source);
     }
     
     public boolean isActive() {

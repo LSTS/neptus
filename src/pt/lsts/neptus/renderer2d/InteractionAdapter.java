@@ -32,13 +32,17 @@
 package pt.lsts.neptus.renderer2d;
 
 import java.awt.Cursor;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+
+import javax.swing.ImageIcon;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -52,9 +56,7 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 public class InteractionAdapter extends ConsolePanel implements StateRendererInteraction {
 
-
     private static final long serialVersionUID = 1L;
-    protected int lastClickedButton;
 	protected Point2D lastDragPoint = null;	
 	
 	protected double deltaX = 0, deltaY = 0;
@@ -63,10 +65,30 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
 	protected boolean active = false;
 	protected StateRenderer2D source = null;	
 	protected ToolbarSwitch associatedSwitch = null;
-	
+	boolean rotating = false, measuring = false, zooming = false;
+
+	private static final Image rotateIcon = ImageUtils.getImage("images/menus/rotate.png");
+	private static final Image zoomIcon = ImageUtils.getImage("images/menus/zoom.png");
+	private static final Image rulerIcon = ImageUtils.getImage("images/menus/ruler.png");
 	{
 		cursor = Toolkit.getDefaultToolkit().createCustomCursor(ImageUtils.getImage("images/cursors/crosshair_cursor.png"), new Point(6,6), "Zoom");
 		image = ImageUtils.getImage("images/buttons/alarm.png");
+	}
+	
+	
+	public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+	    if (rotating) {
+	        g.setTransform(new AffineTransform());
+	        g.drawImage(rotateIcon, 10, 10, null);
+	    }
+	    else if (measuring) {
+	        g.setTransform(new AffineTransform());
+            g.drawImage(rulerIcon, 10, 10, null);
+	    }
+	    else if (zooming) {
+	        g.setTransform(new AffineTransform());
+            g.drawImage(zoomIcon, 10, 10, null);
+	    }	    
 	}
 	
     /**
@@ -92,6 +114,7 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
 	}
 	
 	public void keyPressed(KeyEvent event, StateRenderer2D source) {
+	    
         switch (event.getKeyCode()) {
             case (KeyEvent.VK_PLUS):
             case (KeyEvent.VK_PAGE_UP):
@@ -107,9 +130,6 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
 
             case (KeyEvent.VK_LEFT):
                 if (!event.isControlDown()) {
-//                    source.worldPixelXY.setLocation(source.worldPixelXY.getX() - source.getWidth() / 16.0,
-//                            source.worldPixelXY.getY());
-//                    source.setLevelOfDetail(source.getLevelOfDetail());
                     double deltaX = -source.getWidth() / 16.0, deltaY = 0;
                     if (source.getRotation() != 0) {
                         double[] offsets = AngleCalc.rotate(source.getRotation(), deltaX, deltaY, false);
@@ -125,9 +145,6 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
 
             case (KeyEvent.VK_RIGHT):
                 if (!event.isControlDown()) {
-//                    source.worldPixelXY.setLocation(source.worldPixelXY.getX() + source.getWidth() / 16.0,
-//                            source.worldPixelXY.getY());
-//                    source.setLevelOfDetail(source.getLevelOfDetail());
                     double deltaX = source.getWidth() / 16.0, deltaY = 0;
                     if (source.getRotation() != 0) {
                         double[] offsets = AngleCalc.rotate(source.getRotation(), deltaX, deltaY, false);
@@ -143,9 +160,6 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 break;
 
             case (KeyEvent.VK_UP):
-//                source.worldPixelXY.setLocation(source.worldPixelXY.getX(),
-//                        source.worldPixelXY.getY() - source.getWidth() / 16.0);
-//                source.setLevelOfDetail(source.getLevelOfDetail());
                 double deltaXU = 0, deltaYU = -source.getHeight() / 16.0;
                 if (source.getRotation() != 0) {
                     double[] offsets = AngleCalc.rotate(source.getRotation(), deltaXU, deltaYU, false);
@@ -157,9 +171,6 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 break;
 
             case (KeyEvent.VK_DOWN):
-//                source.worldPixelXY.setLocation(source.worldPixelXY.getX(),
-//                        source.worldPixelXY.getY() + source.getWidth() / 16.0);
-//                source.setLevelOfDetail(source.getLevelOfDetail());
                 double deltaXD = 0, deltaYD = source.getHeight() / 16.0;
                 if (source.getRotation() != 0) {
                     double[] offsets = AngleCalc.rotate(source.getRotation(), deltaXD, deltaYD, false);
@@ -179,15 +190,23 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 source.setLegendShown(!source.isLegendShown());
                 source.repaint();
                 break;
+                
+          case (KeyEvent.VK_G):
+              source.setGridShown(!source.isGridShown());
+              repaint();
+              break;
         }
 	}
 	
-	public void keyReleased(java.awt.event.KeyEvent event, StateRenderer2D source) {};
+	public void keyReleased(java.awt.event.KeyEvent event, StateRenderer2D source) {
+	    
+	};
 	
-	public void keyTyped(java.awt.event.KeyEvent event, StateRenderer2D source) {};
+	public void keyTyped(java.awt.event.KeyEvent event, StateRenderer2D source) {
+	    
+	};
 	
 	public void mouseDragged(MouseEvent event, StateRenderer2D source) {
-		
 		if (lastDragPoint == null) {
 			lastDragPoint = event.getPoint();
 			deltaX = deltaY = 0;
@@ -198,36 +217,50 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
 			deltaY = event.getPoint().getY() - lastDragPoint.getY();	
 		}
 
-		if (source.show_mode != StateRenderer2D.VEHICLE_MOVES)
-			return;
-		
-		double rotationRads = source.getRotation();
-				
-		if (rotationRads != 0) {
-			
-			double dist = event.getPoint().distance(lastDragPoint);
-			double angle =  Math.atan2(event.getPoint().getY() - lastDragPoint.getY(), event.getPoint()
-                    .getX() - lastDragPoint.getX());
-			
-			deltaX = dist * Math.cos(angle + rotationRads);
-            deltaY = dist * Math.sin(angle + rotationRads);
-		}
-		
-		source.worldPixelXY.setLocation(source.worldPixelXY.getX()-deltaX, source.worldPixelXY.getY()-deltaY);
+//		if (event.isControlDown())
+//		    zooming = true;
+//		if (event.isShiftDown())
+//		    rotating = true;
+//		if (event.isControlDown() && event.isShiftDown())
+//		    measuring = true;
+//		
+//		if (rotating) {
+//		    source.setRotation(source.getRotation() + Math.toRadians(deltaX + deltaY));
+//		}
+//		else if (zooming) {
+//		    source.zoomInOut(deltaY > 0, event.getPoint().getX(), event.getPoint().getY());
+//		}
+//		else if (measuring) {
+//		    //TODO
+//		}
+//		else {
+    		double rotationRads = source.getRotation();
+    				
+    		if (rotationRads != 0) {
+    			
+    			double dist = event.getPoint().distance(lastDragPoint);
+    			double angle =  Math.atan2(event.getPoint().getY() - lastDragPoint.getY(), event.getPoint()
+                        .getX() - lastDragPoint.getX());
+    			
+    			deltaX = dist * Math.cos(angle + rotationRads);
+                deltaY = dist * Math.sin(angle + rotationRads);
+    		}
+    		
+    		source.worldPixelXY.setLocation(source.worldPixelXY.getX()-deltaX, source.worldPixelXY.getY()-deltaY);
+		//}
 		lastDragPoint = event.getPoint();
 		source.repaint();
 	}
 	
 
 	public void mousePressed(MouseEvent event, StateRenderer2D source) {
-		lastClickedButton = event.getButton();
 		lastDragPoint = event.getPoint();
+		deltaX = deltaY = 0;
 	}
 	
 	public void mouseReleased(MouseEvent event, StateRenderer2D source) {
 		lastDragPoint = null;
-		if (source.getViewMode() != Renderer.NONE)
-			source.repaint();
+		
 	}	
 	
 	long lastMouseWheelMillis = 0;
@@ -240,12 +273,19 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
 		source.repaint();
 	}
 
-	public void mouseClicked(MouseEvent event, StateRenderer2D source) {
-		
+	public void mouseClicked(MouseEvent e, StateRenderer2D source) {
+        if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+            if (e.isShiftDown()) { // zoom out
+                source.zoomInOut(false, e.getX(), e.getY());
+            }
+            else { // zoom in
+                source.zoomInOut(true, e.getX(), e.getY());
+            }
+        }
 	}
 
 	public void mouseMoved(MouseEvent event, StateRenderer2D source) {
-		
+	    
 	}
 	
 	@Override

@@ -406,7 +406,6 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 }
             }
             else if (event.getButton() == MouseEvent.BUTTON1) {
-                // wpt.setHorizontalLocation(pressed);
                 movingWaypoint = wpt;
             }
             source.repaint();

@@ -59,7 +59,6 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.text.NumberFormat;
 import java.util.Collection;
@@ -100,10 +99,8 @@ import pt.lsts.neptus.types.map.ScatterPointsElement;
 import pt.lsts.neptus.types.map.VehicleTailElement;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
@@ -142,6 +139,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
 
     @SuppressWarnings("serial")
     public final Point2D worldPixelXY = new Point2D.Double() {
+       
         @Override
         public void setLocation(double x, double y) {
             super.setLocation(x, y);
@@ -154,7 +152,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             propagateChange();
         };
 
-        private void propagateChange() {
+        public void propagateChange() {
             updateCenter();
             setLevelOfDetail(levelOfDetail);
             repaint();
@@ -170,6 +168,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     {
         setLevelOfDetail(getLevelOfDetail());
     }
+    
     private double setLevelOfDetailLastLat = Double.NaN; // #setLevelOfDetail(..) helper variable
     private double mapScale = Double.NaN; // Depends on the levelOfDetail and center and screen DPI, used to cache the
                                           // value
@@ -182,7 +181,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
 
     protected double fixedVehicleWidth = 25;
 
-    protected int show_mode = VEHICLE_MOVES, lastClickedButton, mode;
+    protected int show_mode = VEHICLE_MOVES, lastClickedButton;
     protected LinkedList<MapClickListener> clickListeners = new LinkedList<MapClickListener>();
     protected Hashtable<String, SystemPositionAndAttitude> vehicleStates = new Hashtable<String, SystemPositionAndAttitude>();
     protected String[] vehicles = new String[0];
@@ -201,7 +200,6 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     protected boolean isAllTailOn = false;
 
     protected int numberOfShownPoints = 0;
-    private long lastMouseWheelMillis = -1;
     protected Point2D lastDragPoint = null, rulerFirstPoint = null, rulerLastPoint = null;
     protected MarkElement homeRef;
     protected MapLegend legend = new MapLegend();
@@ -238,13 +236,13 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     protected boolean smoothResizing = false;
     protected boolean antialiasing = true;
     protected Vector<StateRendererInteraction> interactions = new Vector<StateRendererInteraction>();
-    protected StateRendererInteraction activeInteraction = null;
+    private final StateRendererInteraction defaultInteraction = new InteractionAdapter(null);
+    protected StateRendererInteraction activeInteraction = defaultInteraction;
     protected long lastPaintTime = 0;
     protected BufferedImage cache = null;
     protected boolean forceRepaint = false;
     protected double lastAngle = 0;
     protected boolean shuttingDown = false;
-    private int previousMode;
 
     private BufferedImage stage;
     
@@ -290,8 +288,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      */
     protected void init() {
         loadCursors();
-        setTranslateEnabled(true);
-        setViewMode(TRANSLATION);
+        addMouseListener(this);
+        addMouseMotionListener(this);
         setBackground(new Color(2, 113, 171));
         setFocusable(true);
         addPostRenderPainter(new TransponderSecurityArea(), "Transponder Security Area");
@@ -300,36 +298,15 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
 
         preferencesUpdated();
         GeneralPreferences.addPreferencesListener(this);
-        
-        // pdias@20130714 - Have to see why this was put in a thread because this makes some components that 
-        // initialize this component and call methods to configure worldMapPainter makes a throw of null pointer.
-//        Thread t = new Thread("World Map Painter Initialization") {
-//            public void run() {
-//                try {
-//                    worldMapPainter = new WorldRenderPainter(StateRenderer2D.this, isWorldBondariesShown(), isWorldMapShown(),
-//                            getWorldMapStyle());
-//                    worldMapPainter.setShowOnScreenControls(worldMapShowScreenControls);
-//                    addPreRenderPainter(worldMapPainter);
-//                    addPostRenderPainter(worldMapPainter.getPostRenderPainter(), "World Map Painter Control");
-//                    addMouseListener(worldMapPainter);
-//                    addMouseMotionListener(worldMapPainter);
-//                }
-//                catch (NoClassDefFoundError e) {
-//                    NeptusLog.pub().warn("Probably running inside a reduced api jar!!", e);
-//                    e.printStackTrace();
-//                }
-//            };
-//        };
-//        t.setDaemon(true);
-//        t.start();
+
         try {
             worldMapPainter = new WorldRenderPainter(StateRenderer2D.this, isWorldBondariesShown(), isWorldMapShown(),
                     getWorldMapStyle());
             worldMapPainter.setShowOnScreenControls(worldMapShowScreenControls);
             addPreRenderPainter(worldMapPainter);
             addPostRenderPainter(worldMapPainter.getPostRenderPainter(), "World Map Painter Control");
-            addMouseListener(worldMapPainter);
-            addMouseMotionListener(worldMapPainter);
+            //addMouseListener(worldMapPainter);
+            //addMouseMotionListener(worldMapPainter);
         }
         catch (NoClassDefFoundError e) {
             NeptusLog.pub().warn("Probably running inside a reduced api jar!!", e);
@@ -344,8 +321,6 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             
             @Override
             public void componentResized(ComponentEvent e) {
-                // When changing size, set stage to null
-                // Next repaint will rebuild the stage BufferedImage with the correct size
                 stage = null; 
             }
             
@@ -673,33 +648,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      * @param arg0 The {@link MouseWheelEvent} generated by Swing
      */
     public void mouseWheelMoved(MouseWheelEvent arg0) {
-
-        if ((mode == Renderer.NONE || mode == Renderer.TRANSLATION) && activeInteraction != null) {
-            activeInteraction.wheelMoved(arg0, this);
-            if (activeInteraction.isExclusive())
-                return;
-        }
-
-        if (mode == RULER && rulerFirstPoint != null) {
-            return;
-        }
-
-        if (arg0.getWhen() - lastMouseWheelMillis < 50)
-            return;
-        lastMouseWheelMillis = arg0.getWhen();
-        int inc = arg0.getWheelRotation();
-
-        Point2D mouse = arg0.getPoint();
-
-        // zoom in
-        if (inc < 0) {
-            zoomInOut(true, mouse.getX(), mouse.getY());
-        }
-        
-        // zoom out
-        else if (inc > 0) {
-            zoomInOut(false, mouse.getX(), mouse.getY());
-        }
+        activeInteraction.wheelMoved(arg0, this);
         this.repaint();
     }
 
@@ -910,47 +859,6 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     }
 
     /**
-     * When the map is clicked, all the active listeners are told so.
-     * 
-     * @param evt The MouseEvent (to get the click locations and clicked button)
-     */
-    public void clickOccured(MouseEvent evt) {
-
-        float x = (evt.getX() - (this.getSize().width / 2)) / zoom;
-        float y = (evt.getY() - (this.getSize().height / 2)) / zoom;
-
-        if (mode == Renderer.ZOOM) {
-            if (evt.getButton() == MouseEvent.BUTTON3)
-                setZoom(zoom * 0.5f);
-            else {
-                LocationType lt = getRealWorldLocation(evt.getPoint());
-                setCenter(lt);
-                setZoom(zoom * 2.0f);
-            }
-            repaint();
-        }
-
-        for (int i = 0; i < clickListeners.size(); i++) {
-            MapClickListener listener = (MapClickListener) clickListeners.get(i);
-            listener.mapClickPerformed(x, y, evt);
-        }
-    }
-
-    // /**
-    // * @return the vehicleSymbolShown
-    // */
-    // public boolean isVehicleSymbolShown() {
-    // return vehicleSymbolShown;
-    // }
-    //
-    // /**
-    // * @param vehicleSymbolShown the vehicleSymbolShown to set
-    // */
-    // public void setVehicleSymbolShown(boolean vehicleSymbolShown) {
-    // this.vehicleSymbolShown = vehicleSymbolShown;
-    // }
-
-    /**
      * @return the vehicleImageShown
      */
     public boolean isVehicleImageShown() {
@@ -1150,72 +1058,12 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             }
         }
 
+        activeInteraction.paintInteraction(g2d, this);
+
         if (isGridShown())
             drawGrid(g2d, getGridSize());
-
-        if (mode == RULER && rulerFirstPoint != null) {
-            if (lastClickedButton != MouseEvent.BUTTON3) {
-                // double distance = rulerFirstPoint.distance(rulerLastPoint);
-                g2d.setTransform(identity);
-                g2d.setColor(new Color(0, 0, 0, 80));
-                double angle = AngleCalc.calcAngle(rulerFirstPoint.getX(), rulerFirstPoint.getY(),
-                        rulerLastPoint.getX(), rulerLastPoint.getY());
-                angle = Math.toDegrees(-angle + Math.PI);
-
-                while (angle < 0)
-                    angle += 360;
-                while (angle >= 360)
-                    angle -= 360;
-
-                angle = MathMiscUtils.round(angle, df.getMaximumFractionDigits());
-
-                double[] dist2 = this.getRealWorldLocation(rulerLastPoint).getOffsetFrom(
-                        this.getRealWorldLocation(rulerFirstPoint));
-                double distanc2 = Math.sqrt(dist2[0] * dist2[0] + dist2[1] * dist2[1]);
-
-                String text = MathMiscUtils.parseToEngineeringNotation(distanc2 /* distance / zoom */, 2) + " m / "
-                        + df.format(angle) + " \u00B0"
-                        + (angle <= 180 ? "" : " (" + df.format(AngleCalc.nomalizeAngleDegrees180(angle)) + " \u00B0)");
-                Rectangle2D stringBounds = g2d.getFontMetrics().getStringBounds(text, g2d);
-                stringBounds.setRect(rulerLastPoint.getX() + 5, rulerLastPoint.getY() - 37, stringBounds.getWidth(),
-                        stringBounds.getHeight());
-                g2d.fill(stringBounds);
-                g2d.setColor(new Color(0, 0, 0, 100));
-                g2d.setStroke(new BasicStroke(3));
-                g2d.draw(new Line2D.Double(rulerFirstPoint, rulerLastPoint));
-                g2d.setStroke(new BasicStroke(1));
-                g2d.setColor(Color.WHITE);
-                g2d.draw(new Line2D.Double(rulerFirstPoint, rulerLastPoint));
-                g2d.drawString(text, (int) (rulerLastPoint.getX()) + 5, (int) (rulerLastPoint.getY()) - 25);
-            }
-            else {
-                double width = Math.abs((rulerFirstPoint.getX() - rulerLastPoint.getX()));
-                double height = Math.abs((rulerFirstPoint.getY() - rulerLastPoint.getY()));
-
-                double minX = Math.min(rulerFirstPoint.getX(), rulerLastPoint.getX());
-                double minY = Math.min(rulerFirstPoint.getY(), rulerLastPoint.getY());
-
-                double area = (width / zoom * height / zoom);
-
-                g2d.setTransform(identity);
-                g2d.setColor(new Color(0, 0, 0, 80));
-
-                g2d.fill(new Rectangle2D.Double(minX, minY, width, height));
-                g2d.setColor(Color.WHITE);
-                g2d.draw(new Rectangle2D.Double(minX, minY, width, height));
-
-                // String text = df.format(area) + " m\u00B2";
-                String text = MathMiscUtils.parseToEngineeringNotation(area, 2) + " m\u00B2";
-                Rectangle2D stringBounds = g2d.getFontMetrics().getStringBounds(text, g2d);
-                stringBounds.setRect(rulerLastPoint.getX() + 5, rulerLastPoint.getY() - 17, stringBounds.getWidth(),
-                        stringBounds.getHeight());
-                g2d.setColor(new Color(0, 0, 0, 80));
-                g2d.fill(stringBounds);
-                g2d.setColor(Color.WHITE);
-                g2d.drawString(text, (int) (rulerLastPoint.getX()) + 5, (int) (rulerLastPoint.getY()) - 5);
-            }
-        }
-
+        
+        
         // Draw watermark
         Graphics2D copy = (Graphics2D) original.create();
         copy.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
@@ -1230,76 +1078,12 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     }
 
     /**
-     * Change the view mode to Translation
-     * 
-     * @param translateEnabled <b>true</b> to set the view mode to translation or <b>false</b> to set the view mode to
-     *            None
-     */
-    public void setTranslateEnabled(boolean translateEnabled) {
-        if (translateEnabled) {
-            this.addMouseListener(this);
-            this.addMouseMotionListener(this);
-        }
-        else {
-            this.removeMouseListener(this);
-            this.removeMouseMotionListener(this);
-        }
-    }
-
-    /**
      * {@link MouseMotionListener} implementation. Used to translate / rotate / zoom the map
      */
     public void mouseDragged(MouseEvent e) {
-        if ((mode == Renderer.NONE || mode == Renderer.TRANSLATION) && activeInteraction != null) {
-            activeInteraction.mouseDragged(e, this);
-            if (activeInteraction.isExclusive())
-                return;
-        }
-
-        if (lastDragPoint == null) {
-            lastDragPoint = e.getPoint();
-            return;
-        }
-
-        double deltaX = e.getPoint().getX() - lastDragPoint.getX();
-        double deltaY = e.getPoint().getY() - lastDragPoint.getY();
-
-        if (getInteractionMode() == TRANSLATION && !SwingUtilities.isMiddleMouseButton(e)) {
-            if (show_mode != VEHICLE_MOVES)
-                return;
-
-            if (rotationRads != 0) {
-                double dist = e.getPoint().distance(lastDragPoint);
-                double angle = Math.atan2(e.getPoint().getY() - lastDragPoint.getY(), e.getPoint().getX()
-                        - lastDragPoint.getX());
-                deltaX = dist * Math.cos(angle + rotationRads);
-                deltaY = dist * Math.sin(angle + rotationRads);
-            }
-
-            if (isMapDragEnable()) {
-                // center.translateInPixel(-deltaX, -deltaY, levelOfDetail);
-                worldPixelXY.setLocation(worldPixelXY.getX() - deltaX, worldPixelXY.getY() - deltaY);
-
-                // setLevelOfDetail(getLevelOfDetail());
-            }
-        }
-
-        if (getInteractionMode() == ZOOM) {
-            if (deltaY < 0) {
-                setLevelOfDetail(getLevelOfDetail() + 1);
-            }
-            else {
-                setLevelOfDetail(getLevelOfDetail() - 1);
-            }
-        }
-
-        if ((getInteractionMode() == ROTATION) || (getInteractionMode() == TRANSLATION && SwingUtilities.isMiddleMouseButton(e))) {
-            if (show_mode != VEHICLE_MOVES)
-                return;
-            this.rotationRads = rotationRads + deltaX * Math.PI / 180;
-        }
-
-        lastDragPoint = e.getPoint();
+        
+        requestFocusInWindow();
+        activeInteraction.mouseDragged(e, this);
         repaint();
     }
 
@@ -1307,17 +1091,10 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      * {@link MouseMotionListener} implementation. Used to update the ruler position or mouse location.
      */
     public void mouseMoved(MouseEvent e) {
-
-        if ((mode == Renderer.NONE || mode == Renderer.TRANSLATION) && activeInteraction != null) {
-            activeInteraction.mouseMoved(e, this);
-            if (activeInteraction.isExclusive())
-                return;
-        }
-
-        if (mode == RULER && rulerFirstPoint != null) {
-            rulerLastPoint = e.getPoint();
-            repaint();
-        }
+        
+        requestFocusInWindow();
+        activeInteraction.mouseMoved(e, this);
+        repaint();
     }
 
     /**
@@ -1338,19 +1115,19 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     public void removeRightMouseClickListener(RightMouseClickListener listener) {
         rightClickListeners.remove(listener);
     }
-
+    
     /**
      * {@link MouseListener} implementation. Used to display right-click popup menu
      */
     public void mouseClicked(MouseEvent e) {
+        requestFocusInWindow();
+        
+        activeInteraction.mouseClicked(e, this);
+            if (activeInteraction != defaultInteraction && activeInteraction.isExclusive())
+                return;
+        
         final Point2D mousePoint = e.getPoint();
         final LocationType loc = getRealWorldLocation(mousePoint);
-
-        if ((mode == Renderer.NONE || mode == Renderer.TRANSLATION) && activeInteraction != null) {
-            activeInteraction.mouseClicked(e, this);
-            if (activeInteraction.isExclusive())
-                return;
-        }
 
         // Right click
         if (e.getButton() == MouseEvent.BUTTON3 && !ignoreRightClicks) {
@@ -1462,22 +1239,9 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             
             
             popup.show(this, e.getX(), e.getY());
-            requestFocusInWindow();
+            
             return;
         }
-
-        // double click on left button
-        if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-            if (e.isShiftDown()) { // zoom out
-                zoomInOut(false, e.getX(), e.getY());
-            }
-            else { // zoom in
-                zoomInOut(true, e.getX(), e.getY());
-            }
-        }
-        
-        clickOccured(e);
-        requestFocusInWindow();
     }
 
     /**
@@ -1496,41 +1260,20 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      * {@link MouseListener} implementation. Used for interacting with renderer, according to current mode
      */
     public void mousePressed(MouseEvent e) {
-        if ((mode == Renderer.NONE || mode == Renderer.TRANSLATION) && activeInteraction != null) {
-            activeInteraction.mousePressed(e, this);
-            if (activeInteraction.isExclusive())
-                return;
-        }
-
-        if (mode == Renderer.RULER) {
-            if (rulerFirstPoint != null) {
-                rulerFirstPoint = rulerLastPoint = null;
-                ignoreRightClicks = true;
-                return;
-            }
-            else {
-//                NeptusLog.pub().info("<###>ruler first point");
-                rulerFirstPoint = e.getPoint();
-                rulerLastPoint = e.getPoint();
-            }
-        }
-        lastClickedButton = e.getButton();
-        lastDragPoint = e.getPoint();
+        
+        requestFocusInWindow();
+        activeInteraction.mousePressed(e, this);
+        repaint();
     }
 
     /**
      * {@link MouseListener} implementation. Used for interacting with renderer, according to current mode
      */
     public void mouseReleased(MouseEvent e) {
-        if ((mode == Renderer.NONE || mode == Renderer.TRANSLATION) && activeInteraction != null) {
-            activeInteraction.mouseReleased(e, this);
-            if (activeInteraction.isExclusive())
-                return;
-        }
         
-        lastDragPoint = null;
-        if (mode != Renderer.NONE)
-            repaint();
+        requestFocusInWindow();
+        activeInteraction.mouseReleased(e, this);
+        repaint();
     }
 
     /**
@@ -1576,7 +1319,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             tx = dist * Math.cos(angle);
             ty = dist * Math.sin(angle);
         }
-        Point2D centerXY = worldPixelXY; // center.getPointInPixel(levelOfDetail);
+        Point2D centerXY = worldPixelXY;
 
         double[] latLong = MapTileUtil.XYToDegrees(centerXY.getX() + tx, centerXY.getY() + ty, levelOfDetail);
 
@@ -1607,57 +1350,14 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     public void focusObject(AbstractElement mo) {
         focusLocation(mo.getCenterLocation());
     }
-
-    /**
-     * Sets the current view mode
-     * 
-     * @param mode The new viewing mode.
-     */
-    public void setViewMode(int mode) {
-        setInteractionMode(mode);
-
-        if (mode == TRANSLATION) {
-            this.setCursor(translateCursor);
-            setIgnoreRightClicks(false);
-        }
-
-        if (mode == ZOOM) {
-            this.setCursor(zoomCursor);
-            setIgnoreRightClicks(true);
-        }
-
-        if (mode == ROTATION) {
-            this.setCursor(rotateCursor);
-            setIgnoreRightClicks(false);
-        }
-
-        if (mode == RULER) {
-            this.setCursor(crosshairCursor);
-            setIgnoreRightClicks(true);
-        }
-
-        if (mode == GRAB) {
-            this.setCursor(grabCursor);
-            setIgnoreRightClicks(false);
-        }
-
-        if (mode == NONE) {
-            this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            setIgnoreRightClicks(false);
-        }
-
-        lastDragPoint = null;
-
-        repaint();
-    }
-
+    
     /**
      * Returns the current view mode
      * 
      * @return The current view mode
      */
     public int getViewMode() {
-        return this.mode;
+        return TRANSLATION;
     }
 
     /**
@@ -1687,25 +1387,6 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         this.lockedVehicle = systemId;
 
         repaint();
-    }
-
-    /**
-     * Retrieve current interaction mode. See {@link Renderer}.
-     * 
-     * @return The currently active interaction mode
-     */
-    private int getInteractionMode() {
-        return mode;
-    }
-
-    /**
-     * Change the current interaction mode. See available values in {@link Renderer}.
-     * 
-     * @param mode The mode to be made active
-     */
-    private void setInteractionMode(int mode) {
-        previousMode = this.mode;
-        this.mode = mode;
     }
 
     /**
@@ -1931,202 +1612,33 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
 
         GeneralPreferences.removePreferencesListener(this);
         shuttingDown = true;
-
-        // if (worldMapPainter != null)
-        // worldMapPainter.cleanup();
     }
 
     /**
      * {@link KeyListener} implementation. Monitors key presses for changing the current view
      */
     public void keyPressed(KeyEvent keyEvt) {
-        if ((mode == Renderer.NONE || mode == Renderer.TRANSLATION) && activeInteraction != null) {
-            activeInteraction.keyPressed(keyEvt, this);
-            if (activeInteraction.isExclusive())
-                return;
-        }
+        
+        activeInteraction.keyPressed(keyEvt, this);
+        repaint();
+        return;
 
-        switch (keyEvt.getKeyCode()) {
-            case (KeyEvent.VK_PLUS):
-            case (KeyEvent.VK_PAGE_UP):
-                setLevelOfDetail(getLevelOfDetail() + 1);
-                repaint();
-                break;
-
-            case (KeyEvent.VK_MINUS):
-            case (KeyEvent.VK_PAGE_DOWN):
-                setLevelOfDetail(getLevelOfDetail() - 1);
-                repaint();
-                break;
-
-            case (KeyEvent.VK_LEFT):
-                if (!keyEvt.isControlDown()) {
-                    // worldPixelXY.setLocation(worldPixelXY.getX() - getWidth() / 16.0, worldPixelXY.getY());
-                    // setLevelOfDetail(levelOfDetail);
-                    double deltaX = -getWidth() / 16.0, deltaY = 0;
-                    if (rotationRads != 0) {
-                        double[] offsets = AngleCalc.rotate(rotationRads, deltaX, deltaY, false);
-                        deltaX = offsets[0];
-                        deltaY = offsets[1];
-                    }
-                    worldPixelXY.setLocation(worldPixelXY.getX() + deltaX, worldPixelXY.getY() + deltaY);
-                }
-                else
-                    setRotation(getRotation() - 0.05);
-                repaint();
-                break;
-
-            case (KeyEvent.VK_RIGHT):
-                // worldPixelXY.setLocation(worldPixelXY.getX() + getWidth() / 16.0, worldPixelXY.getY());
-                // setLevelOfDetail(levelOfDetail);
-                if (!keyEvt.isControlDown()) {
-                    double deltaX = getWidth() / 16.0, deltaY = 0;
-                    if (rotationRads != 0) {
-                        double[] offsets = AngleCalc.rotate(rotationRads, deltaX, deltaY, false);
-                        deltaX = offsets[0];
-                        deltaY = offsets[1];
-                    }
-                    worldPixelXY.setLocation(worldPixelXY.getX() + deltaX, worldPixelXY.getY() + deltaY);
-                }
-                else
-                    setRotation(getRotation() + 0.05);
-                repaint();
-                break;
-
-            case (KeyEvent.VK_UP):
-                // worldPixelXY.setLocation(worldPixelXY.getX(), worldPixelXY.getY() - getWidth() / 16.0);
-                // setLevelOfDetail(levelOfDetail);
-                double deltaXU = 0,
-                deltaYU = -getHeight() / 16.0;
-                if (rotationRads != 0) {
-                    double[] offsets = AngleCalc.rotate(rotationRads, deltaXU, deltaYU, false);
-                    deltaXU = offsets[0];
-                    deltaYU = offsets[1];
-                }
-                worldPixelXY.setLocation(worldPixelXY.getX() + deltaXU, worldPixelXY.getY() + deltaYU);
-                repaint();
-                break;
-
-            case (KeyEvent.VK_DOWN):
-                // worldPixelXY.setLocation(worldPixelXY.getX(), worldPixelXY.getY() + getWidth() / 16.0);
-                // setLevelOfDetail(levelOfDetail);
-                double deltaXD = 0,
-                deltaYD = getHeight() / 16.0;
-                if (rotationRads != 0) {
-                    double[] offsets = AngleCalc.rotate(rotationRads, deltaXD, deltaYD, false);
-                    deltaXD = offsets[0];
-                    deltaYD = offsets[1];
-                }
-                worldPixelXY.setLocation(worldPixelXY.getX() + deltaXD, worldPixelXY.getY() + deltaYD);
-                repaint();
-                break;
-
-            case (KeyEvent.VK_F1):
-                setViewMode(Renderer.TRANSLATION);
-                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                setLevelOfDetail(DEFAULT_LOD);
-                setCenter(getMapGroup().getCoordinateSystem()); // order important
-                this.rotationRads = 0;
-                repaint();
-                break;
-
-            case (KeyEvent.VK_F5):
-                setViewMode(Renderer.NONE);
-                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                break;
-
-            case (KeyEvent.VK_F6):
-                setViewMode(Renderer.TRANSLATION);
-                setCursor(translateCursor);
-                repaint();
-                break;
-
-            case (KeyEvent.VK_F7):
-                setViewMode(Renderer.ZOOM);
-                setCursor(zoomCursor);
-                repaint();
-                break;
-
-            case (KeyEvent.VK_F8):
-                setViewMode(Renderer.ROTATION);
-                setCursor(rotateCursor);
-                repaint();
-                break;
-
-            case (KeyEvent.VK_F9):
-                setViewMode(Renderer.RULER);
-                repaint();
-                break;
-
-            case (KeyEvent.VK_G):
-                setGridShown(!gridShown);
-                repaint();
-                break;
-
-            case (KeyEvent.VK_N):
-                this.rotationRads = 0;
-                repaint();
-                break;
-
-            case (KeyEvent.VK_L):
-                setLegendShown(!isLegendShown());
-                repaint();
-                break;
-
-            case (KeyEvent.VK_W):
-                if (keyEvt.isControlDown()) {
-                    if (worldMapPainter != null && isWorldMapShown()) {
-                        // setWorldMapStyle(getWorldMapStyle().getNext());
-                        worldMapPainter.showChooseMapStyleDialog(this);
-                    }
-                }
-                else if (keyEvt.isShiftDown()) {
-                    if (worldMapPainter != null && isWorldMapShown()) {
-                        // WorldRenderPainter.clearMemCache(getWorldMapStyle());
-                        // WorldRenderPainter.clearDiskCache(getWorldMapStyle());
-                        worldMapPainter.setShowOnScreenControls(!worldMapPainter.isShowOnScreenControls());
-                    }
-                }
-                // else if (keyEvt.isAltDown() || keyEvt.isAltGraphDown()) {
-                // if (worldMapPainter != null && isWorldMapShown()) {
-                // WorldRenderPainter.clearMemCache();
-                // WorldRenderPainter.clearDiskCache();
-                // }
-                // }
-                else
-                    setWorldMapShown(!isWorldMapShown());
-                repaint();
-                break;
-
-            case (KeyEvent.VK_B):
-                setWorldBondariesShown(!isWorldBondariesShown());
-                repaint();
-                break;
-            case (KeyEvent.VK_SHIFT):
-//                NeptusLog.pub().info("<###>shift in");
-                setViewMode(Renderer.RULER);
-                repaint();
-                break;
-        }
     }
 
     /**
      * {@link KeyListener} implementation. Currently empty.
      */
     public void keyReleased(KeyEvent keyEvt) {
-        switch (keyEvt.getKeyCode()) {
-            case (KeyEvent.VK_SHIFT):
-//                NeptusLog.pub().info("<###>shift out");
-                setViewMode(previousMode);
-                break;
-        }
+        activeInteraction.keyReleased(keyEvt, this);
+        repaint();
     }
 
     /**
      * {@link KeyListener} implementation. Currently empty.
      */
     public void keyTyped(KeyEvent keyEvt) {
-        // empty
+        activeInteraction.keyTyped(keyEvt, this);
+        repaint();
     }
 
     /**
@@ -2408,14 +1920,6 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     }
 
     /**
-     * Get the list of overlays currently being displayed on top of the map
-     */
-    @Override
-    public Collection<Renderer2DPainter> getPostPainters() {
-        return painters.getPostRenderPainters();
-    }
-
-    /**
      * @return the smoothResizing
      */
     public boolean isSmoothResizing() {
@@ -2489,16 +1993,27 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
      */
     public void removeInteraction(StateRendererInteraction interaction) {
         if (activeInteraction == interaction) {
-            setActiveInteraction(null);
+            setActiveInteraction(defaultInteraction);
         }
         interactions.remove(interaction);
+    }
+    
+    
+    @Deprecated
+    @Override
+    public void setViewMode(int mode) {
+        
     }
 
     /**
      * Change the currently active interaction
      */
     public void setActiveInteraction(StateRendererInteraction interaction) {
-        this.activeInteraction = interaction;
+        requestFocusInWindow();
+        if (interaction == null)
+            this.activeInteraction = defaultInteraction;
+        else
+            this.activeInteraction = interaction;
     }
 
     /**

@@ -135,6 +135,11 @@ public abstract class SimpleRendererInteraction extends ConsolePanel implements 
           interactionAdapter.keyTyped(event, source);
     }
 
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        // TODO Auto-generated method stub
+        
+    }
     
     @Override
     public void setActive(boolean mode, StateRenderer2D source) {

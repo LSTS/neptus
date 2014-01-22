@@ -517,6 +517,11 @@ public class WaypointPlanner extends ConsolePanel implements Renderer2DPainter, 
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {
 
     }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        
+    }
 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()

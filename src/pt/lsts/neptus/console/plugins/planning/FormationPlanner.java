@@ -235,6 +235,11 @@ public class FormationPlanner extends ConsolePanel implements Renderer2DPainter,
             inited = true;
         }
     }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        
+    }
 
 
     /* (non-Javadoc)

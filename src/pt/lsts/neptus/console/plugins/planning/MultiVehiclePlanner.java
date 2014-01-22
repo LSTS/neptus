@@ -260,6 +260,11 @@ public class MultiVehiclePlanner extends ConsolePanel implements StateRendererIn
         ConfigFetch.initialize();
         ConsoleParse.consoleLayoutLoader(new File("conf/consoles/multivehicleplanner.ncon").getAbsolutePath());
     }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        
+    }
 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()

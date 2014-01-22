@@ -32,6 +32,7 @@
 package pt.lsts.neptus.renderer2d;
 
 import java.awt.Cursor;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -45,21 +46,22 @@ import pt.lsts.neptus.gui.ToolbarSwitch;
  */
 public interface StateRendererInteraction {
 
-	public String getName();	
-	public Image getIconImage();		
-	public Cursor getMouseCursor();
-	public boolean isExclusive();
-	
-	public void mouseClicked(MouseEvent event, StateRenderer2D source);
-	public void mousePressed(MouseEvent event, StateRenderer2D source);
-	public void mouseDragged(MouseEvent event, StateRenderer2D source);
-	public void mouseMoved(MouseEvent event, StateRenderer2D source);
-	public void mouseReleased(MouseEvent event, StateRenderer2D source);
-	public void wheelMoved(MouseWheelEvent event, StateRenderer2D source);
-	public void setAssociatedSwitch(ToolbarSwitch tswitch);
-	public void keyPressed(KeyEvent event, StateRenderer2D source);
-	public void keyReleased(KeyEvent event, StateRenderer2D source);
-	public void keyTyped(KeyEvent event, StateRenderer2D source);
-	
-	public void setActive(boolean mode, StateRenderer2D source);
+    public String getName();	
+    public Image getIconImage();		
+    public Cursor getMouseCursor();
+    public boolean isExclusive();
+
+    public void mouseClicked(MouseEvent event, StateRenderer2D source);
+    public void mousePressed(MouseEvent event, StateRenderer2D source);
+    public void mouseDragged(MouseEvent event, StateRenderer2D source);
+    public void mouseMoved(MouseEvent event, StateRenderer2D source);
+    public void mouseReleased(MouseEvent event, StateRenderer2D source);
+    public void wheelMoved(MouseWheelEvent event, StateRenderer2D source);
+    public void setAssociatedSwitch(ToolbarSwitch tswitch);
+    public void keyPressed(KeyEvent event, StateRenderer2D source);
+    public void keyReleased(KeyEvent event, StateRenderer2D source);
+    public void keyTyped(KeyEvent event, StateRenderer2D source);
+
+    public void setActive(boolean mode, StateRenderer2D source);
+    public void paintInteraction(Graphics2D g, StateRenderer2D source);
 }

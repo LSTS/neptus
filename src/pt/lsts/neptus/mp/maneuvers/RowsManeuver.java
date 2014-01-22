@@ -1001,6 +1001,12 @@ IMCSerialization, StatisticsProvider, PathProvider {
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {
 
     }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        // TODO Auto-generated method stub
+        
+    }
 
     public static void main(String[] args) {
         

@@ -966,6 +966,11 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
     public void initSubPanel() {
 
     }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        
+    }
 
     /*
      * (non-Javadoc)

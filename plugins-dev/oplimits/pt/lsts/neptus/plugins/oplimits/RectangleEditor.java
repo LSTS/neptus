@@ -350,6 +350,11 @@ public class RectangleEditor extends JPanel implements Renderer2DPainter, StateR
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {
         
     }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        
+    }
 
 	
 	public static void main(String[] args) {

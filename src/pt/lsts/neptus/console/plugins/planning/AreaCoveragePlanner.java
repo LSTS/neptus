@@ -538,6 +538,11 @@ public class AreaCoveragePlanner extends ConsolePanel implements StateRendererIn
     @Override
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {
     }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        
+    }
 
     /*
      * (non-Javadoc)

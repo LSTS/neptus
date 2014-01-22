@@ -52,7 +52,6 @@ import javax.swing.JPanel;
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.renderer2d.CursorLocationPainter;
-import pt.lsts.neptus.renderer2d.Renderer;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -75,7 +74,6 @@ public class MapLocationSelector extends JPanel {
         r2d = new StateRenderer2D(mg);
         r2d.addPostRenderPainter(new CursorLocationPainter(), "Cursor Location Painter");
         add(r2d, BorderLayout.CENTER);	
-        r2d.setViewMode(Renderer.NONE);
         r2d.setIgnoreRightClicks(true);
         r2d.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {

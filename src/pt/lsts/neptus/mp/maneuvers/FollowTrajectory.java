@@ -772,6 +772,11 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             }            
         }
     }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        
+    }
 
     public static void main(String[] args) {
         // test1();

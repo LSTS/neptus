@@ -180,8 +180,8 @@ public class UavVehiclePainter implements Renderer2DPainter, MouseListener{
             g2.translate(vehiclePos[1] * renderer.getZoom(), vehiclePos[0] * renderer.getZoom());
 
             vehicleTable.get(vehicleID).updateIconContactSurface(
-                    (connectedPanel.getRendererWidth() / 2) + (vehiclePos[1] * renderer.getZoom()),
-                    (connectedPanel.getRendererHeight() / 2) - (vehiclePos[0] * renderer.getZoom()));
+                    (connectedPanel.getRenderer().getWidth() / 2) + (vehiclePos[1] * renderer.getZoom()),
+                    (connectedPanel.getRenderer().getHeight() / 2) - (vehiclePos[0] * renderer.getZoom()));
             
             // vehicle label
             g2.rotate(-renderer.getRotation());

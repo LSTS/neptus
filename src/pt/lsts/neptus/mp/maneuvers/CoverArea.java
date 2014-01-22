@@ -258,4 +258,9 @@ public class CoverArea extends AbstractImcManeuver<pt.lsts.imc.CoverArea> implem
         ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
         System.out.println(ccmanXML);
     }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        
+    }
 }

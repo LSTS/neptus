@@ -778,6 +778,11 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {
 
     }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        
+    }
 
     /*
      * (non-Javadoc)
