@@ -36,14 +36,11 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.util.LinkedHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.ToolTipManager;
 
@@ -66,21 +63,15 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  */
 @SuppressWarnings("serial")
 public class NeptusMRA extends JFrame {
-    protected static final String MRA_TITLE = I18n.text("Neptus Mission Review And Analysis");
-    protected static final String RECENTLY_OPENED_LOGS = "conf/mra_recent.xml";
-
-    public static boolean vtkEnabled = true;
+    private static final String MRA_TITLE = I18n.text("Neptus Mission Review And Analysis");
 
     private MRAProperties mraProperties = new MRAProperties();
-
-    private LinkedHashMap<JMenuItem, File> miscFilesOpened = new LinkedHashMap<JMenuItem, File>();
-    // private JMenu recentlyOpenFilesMenu = null;
     private MRAPanel mraPanel = null;
-
     private BlockingGlassPane bgp = new BlockingGlassPane(400);
-
-    protected MRAMenuBar mraMenuBar;
+    private MRAMenuBar mraMenuBar;
     private MRAFilesHandler mraFilesHandler;
+
+    public static boolean vtkEnabled = true;
 
     /**
      * Constructor
@@ -176,13 +167,6 @@ public class NeptusMRA extends JFrame {
      */
     public MRAMenuBar getMRAMenuBar() {
         return mraMenuBar;
-    }
-
-    /**
-     * @return the miscFilesOpened
-     */
-    protected LinkedHashMap<JMenuItem, File> getMiscFilesOpened() {
-        return miscFilesOpened;
     }
 
     /**

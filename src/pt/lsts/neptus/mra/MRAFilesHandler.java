@@ -74,6 +74,9 @@ import pt.lsts.neptus.util.llf.LsfReport;
  * @author hfq
  */
 public class MRAFilesHandler implements FileHandler {
+    private static final String RECENTLY_OPENED_LOGS = "conf/mra_recent.xml";
+
+    private LinkedHashMap<JMenuItem, File> miscFilesOpened = new LinkedHashMap<JMenuItem, File>();
 
     private NeptusMRA mra;
 
@@ -436,7 +439,7 @@ public class MRAFilesHandler implements FileHandler {
      * Load Recently opened files from conf/mra_recent.xml
      */
     public void loadRecentlyOpenedFiles() {
-        String recentlyOpenedFiles = ConfigFetch.resolvePath(NeptusMRA.RECENTLY_OPENED_LOGS);
+        String recentlyOpenedFiles = ConfigFetch.resolvePath(RECENTLY_OPENED_LOGS);
         Method methodUpdate = null;
 
         try {
@@ -468,12 +471,12 @@ public class MRAFilesHandler implements FileHandler {
      * @return
      */
     public boolean updateMissionFilesOpened(File fx) {
-        RecentlyOpenedFilesUtil.updateFilesOpenedMenuItems(fx, mra.getMiscFilesOpened(), new ActionListener() {
+        RecentlyOpenedFilesUtil.updateFilesOpenedMenuItems(fx, getMiscFilesOpened(), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final File fx;
                 Object key = e.getSource();
-                File value = mra.getMiscFilesOpened().get(key);
+                File value = getMiscFilesOpened().get(key);
                 if (value instanceof File) {
                     fx = (File) value;
                     Thread t = new Thread("Open Log") {
@@ -502,11 +505,25 @@ public class MRAFilesHandler implements FileHandler {
         LinkedHashMap<JMenuItem, File> hMap;
         String header;
 
-        recentlyOpenedFiles = ConfigFetch.resolvePathBasedOnConfigFile(NeptusMRA.RECENTLY_OPENED_LOGS);
-        hMap = mra.getMiscFilesOpened();
+        recentlyOpenedFiles = ConfigFetch.resolvePathBasedOnConfigFile(RECENTLY_OPENED_LOGS);
+        hMap = getMiscFilesOpened();
         header = I18n.text("Recently opened mission files")+".";
 
         RecentlyOpenedFilesUtil.storeRecentlyOpenedFiles(recentlyOpenedFiles, hMap, header);
+    }
+
+    /**
+     * @return the miscFilesOpened
+     */
+    public LinkedHashMap<JMenuItem, File> getMiscFilesOpened() {
+        return miscFilesOpened;
+    }
+
+    /**
+     * @param miscFilesOpened the miscFilesOpened to set
+     */
+    public void setMiscFilesOpened(LinkedHashMap<JMenuItem, File> miscFilesOpened) {
+        this.miscFilesOpened = miscFilesOpened;
     }
 
     /* (non-Javadoc)

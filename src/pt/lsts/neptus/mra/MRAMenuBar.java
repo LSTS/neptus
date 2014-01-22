@@ -121,7 +121,6 @@ public class MRAMenuBar {
      */
     public MRAMenuBar(NeptusMRA mra) {
         this.mra = mra;
-        this.miscFilesOpened = mra.getMiscFilesOpened();
         this.mraPanel = mra.getMraPanel();
 
         setMenuBar(new JMenuBar());
@@ -131,6 +130,7 @@ public class MRAMenuBar {
      * @return the MenuBar
      */
     public JMenuBar createMRAMenuBar() {
+        this.miscFilesOpened = mra.getMraFilesHandler().getMiscFilesOpened();
         menuBar = new JMenuBar();
 
         setUpFileMenu();
@@ -248,10 +248,10 @@ public class MRAMenuBar {
             recentlyOpenFilesMenu.setText(I18n.text("Recently opened"));
             recentlyOpenFilesMenu.setToolTipText("Most recently opened log files.");
             recentlyOpenFilesMenu.setIcon(ImageUtils.getIcon("images/menus/open.png"));
-            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, mra.getMiscFilesOpened());
+            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, miscFilesOpened);
         }
         else {
-            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, mra.getMiscFilesOpened());
+            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, miscFilesOpened);
         }
         return recentlyOpenFilesMenu;
     }
@@ -265,7 +265,8 @@ public class MRAMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                final File f = new File(System.currentTimeMillis() + ".pdf");
+
+                File f = new File(mra.getMraPanel().getSource().getDir().toString() + "/" + mra.getMraPanel().getSource().name() + " - " + System.currentTimeMillis() + ".pdf");
                 if (f.exists()) {
                     int resp = JOptionPane.showConfirmDialog(mra,
                             I18n.text("Do you want to overwrite the existing file?"));
