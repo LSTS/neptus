@@ -95,7 +95,7 @@ import foxtrot.AsyncWorker;
  * @author hfq
  */
 @SuppressWarnings("serial")
-public class MRAMenuBar extends JMenuBar {
+public class MRAMenuBar {
 
     private static final long serialVersionUID = 1362828137699399670L;
 

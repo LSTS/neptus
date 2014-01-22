@@ -38,6 +38,7 @@ import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
@@ -53,6 +54,7 @@ public class PluginsRepository {
             ConsoleLayer.class,
             ConsoleInteraction.class,
             MRAVisualization.class,
+            MRAExporter.class,
             LogReplayLayer.class
             );
       

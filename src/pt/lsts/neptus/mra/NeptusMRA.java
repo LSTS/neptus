@@ -411,8 +411,8 @@ public class NeptusMRA extends JFrame {
     /**
      * @return the mraMenuBar
      */
-    public JMenuBar getMRAMenuBar() {
-        return mraMenuBar;
+    public JMenuBar getJMenuBar() {
+        return mraMenuBar.getMenuBar();
     }
 
     /**

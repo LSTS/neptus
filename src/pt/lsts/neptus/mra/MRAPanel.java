@@ -254,6 +254,7 @@ public class MRAPanel extends JPanel {
                 loadMarkers();
 
                 LinkedHashMap<String, Class<? extends MRAExporter>> exporterMap =  PluginsRepository.listExtensions(MRAExporter.class);
+                
                 Vector<MRAExporter> exporterList = new Vector<>();
 
                 for (Class<? extends MRAExporter> clazz : exporterMap.values()) {
@@ -266,7 +267,7 @@ public class MRAPanel extends JPanel {
                 }
 
                 // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
-                JMenuBar bar = mra.getMRAMenuBar();
+                JMenuBar bar = mra.getJMenuBar();
                 JMenu previousMenu = GuiUtils.getJMenuByName(bar, I18n.text("Exporters"));
                 if(previousMenu != null) {
                     bar.remove(previousMenu);
@@ -297,7 +298,7 @@ public class MRAPanel extends JPanel {
                 }
 
                 if(exporters.getItemCount() > 0) {
-                    bar.add(exporters);
+                    bar.add(exporters);                    
                 }
 
                 monitor.close();
