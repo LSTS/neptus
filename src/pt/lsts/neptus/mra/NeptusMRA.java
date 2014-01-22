@@ -50,7 +50,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingWorker;
 import javax.swing.ToolTipManager;
 
 import pt.lsts.neptus.NeptusLog;
@@ -62,7 +61,6 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.lsts.neptus.util.llf.LsfReport;
 
 /**
  * Neptus MRA main class
@@ -170,82 +168,6 @@ public class NeptusMRA extends JFrame {
         GuiUtils.setLookAndFeel();
 
         return new NeptusMRA();
-    }
-
-    /**
-     * 
-     */
-    public void generatePDFReport(final File f) {
-        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-            @Override
-            protected Boolean doInBackground() throws Exception {
-                return LsfReport.generateReport(mraPanel.getSource(), f, mraPanel);
-            }
-
-            @Override
-            protected void done() {
-                super.done();
-                try {
-                    get();
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().error(e);
-                }
-                try {
-                    if (get()) {
-                        GuiUtils.infoMessage(NeptusMRA.this, I18n.text("Generate PDF Report"),
-                                I18n.text("File saved to") +" "+ f.getAbsolutePath());
-                        final String pdfF = f.getAbsolutePath();
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                openPDFInExternalViewer(pdfF);
-                            };
-                        }.start();
-                    }
-                }
-                catch (Exception e) {
-                    GuiUtils.errorMessage(NeptusMRA.this, I18n.text("PDF Creation Process"), "<html>"+I18n.text("PDF <b>was not</b> saved to file.")
-                            + "<br>"+I18n.text("Error")+": " + e.getMessage() + "</html>");
-                    e.printStackTrace();
-                }
-                finally {
-                    bgp.block(false);
-                }
-            }
-        };
-        worker.execute();
-
-    }
-
-    /**
-     * @param pdf
-     * FIXME better suited for utils?
-     */
-    protected void openPDFInExternalViewer(String pdf) {
-        try {
-            if (ConfigFetch.getOS() == ConfigFetch.OS_WINDOWS) {
-                Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + pdf);
-            }
-            else {
-                String[] readers = { "xpdf", "kpdf", "FoxitReader", "evince", "acroread" };
-                String reader = null;
-
-                for (int count = 0; count < readers.length && reader == null; count++) {
-                    if (Runtime.getRuntime().exec(new String[] { "which", readers[count] }).waitFor() == 0)
-                        reader = readers[count];
-                }
-                if (reader == null)
-                    throw new Exception(I18n.text("Could not find PDF reader"));
-                else
-                    Runtime.getRuntime().exec(new String[] { reader, pdf });
-            }
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        GuiUtils.infoMessage(this,  I18n.text("Generate PDF Report"),
-                I18n.text("File saved to") +" "+ pdf);
     }
 
     /* RECENTLY OPENED LOG FILES */

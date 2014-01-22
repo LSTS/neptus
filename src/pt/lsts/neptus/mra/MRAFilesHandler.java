@@ -40,6 +40,7 @@ import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
@@ -52,7 +53,9 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.StreamUtil;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LsfLogSource;
+import pt.lsts.neptus.util.llf.LsfReport;
 
 /**
  * MRA Files Handler
@@ -306,7 +309,7 @@ public class MRAFilesHandler implements FileHandler {
      * 
      * @author pdias
      */
-    public abstract class FilterCopyDataMonitor extends FilterInputStream {
+    private abstract class FilterCopyDataMonitor extends FilterInputStream {
 
         public long downloadedSize = 0;
 
@@ -337,6 +340,83 @@ public class MRAFilesHandler implements FileHandler {
         }
 
         public abstract void updateValueInMessagePanel();
+    }
+
+    // --- Generate PDF Reports --- 
+    /**
+     * Generates PDF report from log file.
+     */
+    public void generatePDFReport(final File f) {
+
+        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                return LsfReport.generateReport(mra.getMraPanel().getSource(), f, mra.getMraPanel());
+            }
+            @Override
+            protected void done() {
+                super.done();
+                try {
+                    get();
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                }
+                try {
+                    if (get()) {
+                        GuiUtils.infoMessage(mra, I18n.text("Generate PDF Report"),
+                                I18n.text("File saved to") +" "+ f.getAbsolutePath());
+                        final String pdfF = f.getAbsolutePath();
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                openPDFInExternalViewer(pdfF);
+                            };
+                        }.start();
+                    }
+                }
+                catch (Exception e) {
+                    GuiUtils.errorMessage(mra, I18n.text("PDF Creation Process"), "<html>"+I18n.text("PDF <b>was not</b> saved to file.")
+                            + "<br>"+I18n.text("Error")+": " + e.getMessage() + "</html>");
+                    e.printStackTrace();
+                }
+                finally {
+                    mra.getBgp().block(false);
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    /**
+     * Opens generated pdf report on default OS viewer.
+     * 
+     * @param pdf
+     */
+    private void openPDFInExternalViewer(String pdf) {
+        try {
+            if (ConfigFetch.getOS() == ConfigFetch.OS_WINDOWS) {
+                Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + pdf);
+            }
+            else {
+                String[] readers = { "xpdf", "kpdf", "FoxitReader", "evince", "acroread" };
+                String reader = null;
+
+                for (int count = 0; count < readers.length && reader == null; count++) {
+                    if (Runtime.getRuntime().exec(new String[] { "which", readers[count] }).waitFor() == 0)
+                        reader = readers[count];
+                }
+                if (reader == null)
+                    throw new Exception(I18n.text("Could not find PDF reader"));
+                else
+                    Runtime.getRuntime().exec(new String[] { reader, pdf });
+            }
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        GuiUtils.infoMessage(mra,  I18n.text("PDF Report Generated"),
+                I18n.text("File saved to") +" "+ pdf);
     }
 
     /* (non-Javadoc)
