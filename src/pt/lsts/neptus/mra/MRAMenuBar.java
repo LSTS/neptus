@@ -97,8 +97,6 @@ import foxtrot.AsyncWorker;
 @SuppressWarnings("serial")
 public class MRAMenuBar {
 
-    private static final long serialVersionUID = 1362828137699399670L;
-
     private JMenuBar menuBar;
     private JMenu fileMenu, reportMenu, settingsMenu, toolsMenu, helpMenu;
 
@@ -241,7 +239,7 @@ public class MRAMenuBar {
      */
     private void setUpReportMenu() {
         reportMenu = new JMenu(I18n.text("Report"));
-        genReport = new AbstractAction(I18n.text("Save as PDF"), ImageUtils.getIcon("images/menus/changelog.png")) {
+        genReport = new AbstractAction(I18n.text("Save as PDF"), ImageUtils.getIcon("images/menus/document-pdf.png")) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -261,7 +259,7 @@ public class MRAMenuBar {
         genReport.setEnabled(false);
 
         batchReport = new AbstractAction(I18n.text("Batch PDF report"),
-                ImageUtils.getIcon("images/menus/changelog.png")) {
+                ImageUtils.getIcon("images/menus/document-pdf.png")) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -451,7 +449,7 @@ public class MRAMenuBar {
         httpDuneDownload.setEnabled(true);
         httpDuneDownload.putValue(Action.SHORT_DESCRIPTION, I18n.text("Download logs from location") + ".");
 
-        concatenateLSFLogs = new AbstractAction(I18n.text("Concatenate LSF logs"), ImageUtils.getIcon("images/menus/attach.png")) {
+        concatenateLSFLogs = new AbstractAction(I18n.text("Concatenate LSF logs"), ImageUtils.getIcon("images/menus/cat.png")) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -477,7 +475,7 @@ public class MRAMenuBar {
         };
         concatenateLSFLogs.putValue(Action.SHORT_DESCRIPTION, I18n.text("Concatenate LSF logs") + ".");
 
-        fuseLSFLogs = new AbstractAction(I18n.text("Fuse LSF logs"), ImageUtils.getIcon("images/menus/connect.png")) {
+        fuseLSFLogs = new AbstractAction(I18n.text("Fuse LSF logs"), ImageUtils.getIcon("images/menus/merge.png")) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
