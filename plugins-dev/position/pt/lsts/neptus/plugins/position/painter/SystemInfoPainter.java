@@ -136,7 +136,7 @@ public class SystemInfoPainter extends ConsolePanel implements Renderer2DPainter
     }
 
     private InterpolationColorMap rygColorMap = new InterpolationColorMap(new double[] { 0.0, 0.01, 0.75, 1.0 }, new Color[] {
-            Color.black, Color.red.darker(), Color.yellow.darker(), Color.green.darker() });
+            Color.black, Color.red.darker(), Color.yellow.darker(), Color.green.brighter().brighter() });
 
     private InterpolationColorMap greenToBlack = new InterpolationColorMap(new double[] { 0.0, 0.75, 1.0 }, new Color[] {
             Color.black, Color.green.darker(), Color.green.brighter() });
