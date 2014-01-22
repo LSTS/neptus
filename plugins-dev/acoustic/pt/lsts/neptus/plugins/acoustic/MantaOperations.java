@@ -218,8 +218,8 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                     return;
                 }
 
-                VehicleType choice = VehicleChooser.showVehicleDialog(VehiclesHolder
-                        .getVehicleById(defaultVehicle));
+                VehicleType choice = VehicleChooser.showVehicleDialog(null, VehiclesHolder
+                        .getVehicleById(defaultVehicle), null);
                 if (choice == null)
                     return;
                 String[] ops = filtered.toArray(new String[0]);

@@ -54,14 +54,11 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ConsoleSystem;
-import pt.lsts.neptus.console.MainPanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.ConsoleVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
-import pt.lsts.neptus.console.plugins.containers.LayoutProfileProvider;
-import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -101,18 +98,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
     private static final long serialVersionUID = 1L;
 
-    //private final ImageIcon TRANSLATE_ICON = ImageUtils.getScaledIcon(
-    //        "images/planning/translate_btn.png", 16, 16);
-    private final ImageIcon MINIMIZE_ICON = ImageUtils.getScaledIcon(
-            "images/planning/minimize.png", 16, 16);
-    private final ImageIcon MAXIMIZE_ICON = ImageUtils.getScaledIcon(
-            "images/planning/maximize.png", 16, 16);
-    private final ImageIcon ADD_PLAN_ICON = ImageUtils.getScaledIcon(
-            "images/planning/template.png", 16, 16);
     private final ImageIcon TAIL_ICON = ImageUtils.getScaledIcon(
             "images/planning/tailOnOff.png", 16, 16);
-
-    
 
     @NeptusProperty(name = "Show world map")
     public boolean worldMapShown = true;
@@ -148,8 +135,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     protected StateRenderer2D renderer = new StateRenderer2D();
     protected String planId = null;
     protected boolean editing = false;
-    protected ToolbarSwitch tailSwitch, dummySwitch, maximizeSwitch;
-    protected AbstractAction tailMode, addPlan, maximizeMode, addTemplate;
+    protected ToolbarSwitch tailSwitch, dummySwitch;
+    protected AbstractAction tailMode, addPlan;
     
     protected JLabel status = new JLabel();
     protected PlanElement mainPlanPainter = null;
@@ -208,56 +195,9 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         };
         tailSwitch = new ToolbarSwitch(tailMode);
         tailSwitch.setSelected(false);
-        bottom.add(tailSwitch);
-
-        bottom.addSeparator(new Dimension(0, 20));
-
-        addTemplate = new AbstractAction(I18n.text("Add plan from template"), ADD_PLAN_ICON) {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                new PlanTemplatesDialog(getConsole()).showDialog();
-            }
-
-        };
-        addTemplate.putValue(AbstractAction.SHORT_DESCRIPTION, I18n.text("Add plan from template"));
-        bottom.add(new ToolbarButton(addTemplate));
-
-        bottom.addSeparator(new Dimension(0, 20));
-
-        maximizeMode = new AbstractAction(I18n.text("Maximize"), MAXIMIZE_ICON) {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (((ToolbarSwitch) e.getSource()).isSelected()) {
-                    if (MapPanel.this.getParent() instanceof LayoutProfileProvider) {
-                        LayoutProfileProvider glc = (LayoutProfileProvider) MapPanel.this.getParent();
-                        glc.maximizePanelOnContainer(MapPanel.this);
-                    }
-                    else if (getConsole() != null)
-                        getConsole().maximizePanel(MapPanel.this);
-                    maximizeMode.putValue(AbstractAction.SMALL_ICON, MINIMIZE_ICON);
-                    maximizeMode.putValue(AbstractAction.SHORT_DESCRIPTION, I18n.text("Minimize"));
-                }
-                else {
-                    if (MapPanel.this.getParent() instanceof LayoutProfileProvider) {
-                        LayoutProfileProvider glc = (LayoutProfileProvider) MapPanel.this.getParent();
-                        glc.maximizePanelOnContainer(null);
-                    }
-                    else if (getConsole() != null)
-                        getConsole().minimizePanel(MapPanel.this);
-                    maximizeMode.putValue(AbstractAction.SMALL_ICON, MAXIMIZE_ICON);
-                    maximizeMode.putValue(AbstractAction.SHORT_DESCRIPTION, I18n.text("Maximize"));
-                }
-            }
-        };
         
-        maximizeSwitch = new ToolbarSwitch(maximizeMode);
-        maximizeSwitch.setSelected(false);
-        bottom.add(maximizeSwitch);
-        bottom.addSeparator();
+        bottom.addSeparator(new Dimension(10, 100));
+        bottom.add(tailSwitch);
 
         status.setForeground(Color.red);
         bottom.add(status);
@@ -289,21 +229,6 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         
         for (ConsoleSystem v : getConsole().getSystems().values()) {   
             v.addRenderFeed(this);
-        }
-        if (getConsole() != null) {
-            // NeptusLog.pub().info("<###>--------------------" +this.getParent());
-            if (this.getParent() instanceof MainPanel || (this.getParent() instanceof LayoutProfileProvider &&
-                    ((LayoutProfileProvider) this.getParent()).supportsMaximizePanelOnContainer())) {
-                maximizeMode.setEnabled(true);
-            }
-            else {
-                maximizeMode.setEnabled(false);
-                maximizeSwitch.setVisible(false);
-            }
-        }
-        else {
-            maximizeMode.setEnabled(false);
-            maximizeSwitch.setVisible(false);
         }
     }
 
@@ -483,7 +408,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
             ToolbarSwitch tswitch = new ToolbarSwitch(I18n.text(name), custom);
             if (tswitch.isEnabled())
                 bg.add(tswitch);
-            bottom.add(tswitch, 4);
+            bottom.add(tswitch, 0);
             interactionButtons.put(interaction.getName(), tswitch);
             tswitch.setSelected(false);
             interaction.setAssociatedSwitch(tswitch);

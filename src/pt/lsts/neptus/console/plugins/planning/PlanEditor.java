@@ -291,10 +291,10 @@ MissionChangeListener {
 
                 VehicleType choice = null;
                 if (getConsole().getMainSystem() != null)
-                    choice = VehicleChooser.showVehicleDialog(
+                    choice = VehicleChooser.showVehicleDialog(null, 
                             VehiclesHolder.getVehicleById(getConsole().getMainSystem()), getConsole());
                 else
-                    choice = VehicleChooser.showVehicleDialog(getConsole());
+                    choice = VehicleChooser.showVehicleDialog(null, null, getConsole());
 
                 if (choice == null) {
 
@@ -471,10 +471,10 @@ MissionChangeListener {
         updateUndoRedo();
         VehicleType choice = null;
         if (getConsole().getMainSystem() != null)
-            choice = VehicleChooser.showVehicleDialog(VehiclesHolder.getVehicleById(getConsole().getMainSystem()),
+            choice = VehicleChooser.showVehicleDialog(null, VehiclesHolder.getVehicleById(getConsole().getMainSystem()),
                     getConsole());
         else
-            choice = VehicleChooser.showVehicleDialog(getConsole());
+            choice = VehicleChooser.showVehicleDialog(null, null, getConsole());
 
         if (choice == null)
             return;
@@ -1678,5 +1678,13 @@ MissionChangeListener {
     @Override
     public void initSubPanel() {
         this.mission = getConsole().getMission();
+        
+        addMenuItem("Tools>Generate plan...", ImageUtils.getIcon("images/planning/template.png"), new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new PlanTemplatesDialog(getConsole()).showDialog();
+            }
+        });
     }
 }

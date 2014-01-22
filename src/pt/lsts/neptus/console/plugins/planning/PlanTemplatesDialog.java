@@ -72,9 +72,9 @@ public class PlanTemplatesDialog {
     public void showDialog() {
         VehicleType choice = null;
         if (console.getMainSystem() != null)
-            choice = VehicleChooser.showVehicleDialog(VehiclesHolder.getVehicleById(console.getMainSystem()), console);
+            choice = VehicleChooser.showVehicleDialog(null, VehiclesHolder.getVehicleById(console.getMainSystem()), console);
         else
-            choice = VehicleChooser.showVehicleDialog(console);
+            choice = VehicleChooser.showVehicleDialog(null, null, console);
 
         if (choice == null)
             return;

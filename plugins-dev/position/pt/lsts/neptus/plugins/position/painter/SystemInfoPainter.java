@@ -90,9 +90,6 @@ public class SystemInfoPainter extends ConsolePanel implements Renderer2DPainter
     @NeptusProperty(name = "Enable Info", description = "Paint Vehicle Information on panel")
     public boolean paintInfo = true;
 
-    @NeptusProperty(name = "Enable Alarm", description = "Paint border on alarm state")
-    public boolean paintBorder = true;
-
     @NeptusProperty(name = "Entity Name", description = "Vehicle Battery entity name")
     public String batteryEntityName = "Batteries";
 
@@ -136,10 +133,10 @@ public class SystemInfoPainter extends ConsolePanel implements Renderer2DPainter
     }
 
     private InterpolationColorMap rygColorMap = new InterpolationColorMap(new double[] { 0.0, 0.01, 0.75, 1.0 }, new Color[] {
-            Color.black, Color.red.darker(), Color.yellow.darker(), Color.green.brighter().brighter() });
+            Color.black, Color.red.brighter(), Color.yellow, Color.green.brighter() });
 
     private InterpolationColorMap greenToBlack = new InterpolationColorMap(new double[] { 0.0, 0.75, 1.0 }, new Color[] {
-            Color.black, Color.green.darker(), Color.green.brighter() });
+            Color.black, Color.green.darker(), Color.green.brighter().brighter() });
 
     private ColorMap rygInverted = ColorMapFactory.createInvertedColorMap(rygColorMap);
     

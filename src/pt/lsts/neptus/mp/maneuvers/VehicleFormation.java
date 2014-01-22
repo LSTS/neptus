@@ -406,7 +406,7 @@ public class VehicleFormation extends FollowTrajectory {
                         @Override
                         public void actionPerformed(ActionEvent arg0) {                            
 
-                            VehicleType vt = VehicleChooser.showVehicleDialog(editedVehicles);
+                            VehicleType vt = VehicleChooser.showVehicleDialog(editedVehicles, null, null);
                             if (vt != null) {
                                 editedVehicles.add(vt);
                                 vehicleIds.add(new JLabel(vt.getId()));                              
