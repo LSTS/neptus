@@ -34,21 +34,16 @@ package pt.lsts.neptus.mra;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.ToolTipManager;
 
@@ -58,8 +53,6 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
@@ -81,7 +74,7 @@ public class NeptusMRA extends JFrame {
     private MRAProperties mraProperties = new MRAProperties();
 
     private LinkedHashMap<JMenuItem, File> miscFilesOpened = new LinkedHashMap<JMenuItem, File>();
-    private JMenu recentlyOpenFilesMenu = null;
+    // private JMenu recentlyOpenFilesMenu = null;
     private MRAPanel mraPanel = null;
 
     private BlockingGlassPane bgp = new BlockingGlassPane(400);
@@ -111,11 +104,11 @@ public class NeptusMRA extends JFrame {
         GuiUtils.centerOnScreen(this);
 
         mraMenuBar = new MRAMenuBar(this);
+        setMraFilesHandler(new MRAFilesHandler(this));
+        mraMenuBar.createMRAMenuBar();
         setJMenuBar(mraMenuBar.getMenuBar());
 
         setVisible(true);
-
-        setMraFilesHandler(new MRAFilesHandler(this));
 
         JLabel lbl = new JLabel(MRA_TITLE, JLabel.CENTER);
 
@@ -168,102 +161,6 @@ public class NeptusMRA extends JFrame {
         GuiUtils.setLookAndFeel();
 
         return new NeptusMRA();
-    }
-
-    /* RECENTLY OPENED LOG FILES */
-    // FIXME - recentlyOpenFilesMenu - should be in MRAMenuBar
-
-    /**
-     * This method initializes jMenu
-     * 
-     * @return javax.swing.JMenu
-     */
-    protected JMenu getRecentlyOpenFilesMenu() {
-        if (recentlyOpenFilesMenu == null) {
-            recentlyOpenFilesMenu = new JMenu();
-            recentlyOpenFilesMenu.setText(I18n.text("Recently opened"));
-            recentlyOpenFilesMenu.setToolTipText("Most recently opened log files.");
-            recentlyOpenFilesMenu.setIcon(ImageUtils.getIcon("images/menus/open.png"));
-            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, getMiscFilesOpened());
-        }
-        else {
-            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, getMiscFilesOpened());
-        }
-        return recentlyOpenFilesMenu;
-    }
-
-    protected void loadRecentlyOpenedFiles() {
-        String recentlyOpenedFiles = ConfigFetch.resolvePath(RECENTLY_OPENED_LOGS);
-        Method methodUpdate = null;
-
-        try {
-            Class<?>[] params = { File.class };
-            methodUpdate = this.getClass().getMethod("updateMissionFilesOpened", params);
-            if(methodUpdate == null) {
-                NeptusLog.pub().info("Method update = null");
-            }
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error(this + "loadRecentlyOpenedFiles", e);
-            return;
-        }
-
-        if (recentlyOpenedFiles == null) {
-            JOptionPane.showInternalMessageDialog(this, "Cannot Load");
-            return;
-        }
-
-        if (!new File(recentlyOpenedFiles).exists())
-            return;
-
-        RecentlyOpenedFilesUtil.loadRecentlyOpenedFiles(recentlyOpenedFiles, methodUpdate, this);
-    }
-
-    /**
-     * 
-     * @param fx
-     * @return
-     */
-    public boolean updateMissionFilesOpened(File fx) {
-        RecentlyOpenedFilesUtil.updateFilesOpenedMenuItems(fx, getMiscFilesOpened(), new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final File fx;
-                Object key = e.getSource();
-                File value = getMiscFilesOpened().get(key);
-                if (value instanceof File) {
-                    fx = (File) value;
-                    Thread t = new Thread("Open Log") {
-                        @Override
-                        public void run() {
-                            getMraFilesHandler().openLog(fx);
-                        };
-                    };
-                    t.start();
-                }
-                else
-                    return;
-            }
-        });
-
-        getRecentlyOpenFilesMenu();
-        storeRecentlyOpenedFiles();
-        return true;
-    }
-
-    /**
-     * 
-     */
-    protected void storeRecentlyOpenedFiles() {
-        String recentlyOpenedFiles;
-        LinkedHashMap<JMenuItem, File> hMap;
-        String header;
-
-        recentlyOpenedFiles = ConfigFetch.resolvePathBasedOnConfigFile(RECENTLY_OPENED_LOGS);
-        hMap = getMiscFilesOpened();
-        header = I18n.text("Recently opened mission files")+".";
-
-        RecentlyOpenedFilesUtil.storeRecentlyOpenedFiles(recentlyOpenedFiles, hMap, header);
     }
 
     /**
@@ -345,6 +242,4 @@ public class NeptusMRA extends JFrame {
     public static void main(String[] args) {
         NeptusMain.main(new String[] {"mra"});
     }
-
-
 }

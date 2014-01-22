@@ -31,14 +31,19 @@
  */
 package pt.lsts.neptus.mra;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
 import java.util.zip.GZIPInputStream;
 
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
@@ -52,6 +57,7 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
 import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LsfLogSource;
@@ -74,6 +80,11 @@ public class MRAFilesHandler implements FileHandler {
     private File tmpFile = null;
     private InputStream activeInputStream = null;
 
+    /**
+     * Constructor
+     * 
+     * @param mra
+     */
     public MRAFilesHandler(NeptusMRA mra) {
         this.mra = mra;
     }
@@ -202,7 +213,7 @@ public class MRAFilesHandler implements FileHandler {
                 }
             });
 
-            mra.updateMissionFilesOpened(f);
+            updateMissionFilesOpened(f);
 
             mra.getBgp().setText(I18n.text("Starting interface"));
             openLogSource(source);            
@@ -417,6 +428,85 @@ public class MRAFilesHandler implements FileHandler {
         }
         GuiUtils.infoMessage(mra,  I18n.text("PDF Report Generated"),
                 I18n.text("File saved to") +" "+ pdf);
+    }
+
+    // --- Recently opened files ---
+
+    /**
+     * Load Recently opened files from conf/mra_recent.xml
+     */
+    public void loadRecentlyOpenedFiles() {
+        String recentlyOpenedFiles = ConfigFetch.resolvePath(NeptusMRA.RECENTLY_OPENED_LOGS);
+        Method methodUpdate = null;
+
+        try {
+            Class<?>[] params = { File.class };
+            methodUpdate = this.getClass().getMethod("updateMissionFilesOpened", params);
+            if(methodUpdate == null) {
+                NeptusLog.pub().info("Method update = null");
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(this + "loadRecentlyOpenedFiles", e);
+            return;
+        }
+
+        if (recentlyOpenedFiles == null) {
+            JOptionPane.showInternalMessageDialog(mra, "Cannot Load");
+            return;
+        }
+
+        if (!new File(recentlyOpenedFiles).exists())
+            return;
+
+        RecentlyOpenedFilesUtil.loadRecentlyOpenedFiles(recentlyOpenedFiles, methodUpdate, this);
+    }
+
+    /**
+     * Updates misstion files opened
+     * @param fx
+     * @return
+     */
+    public boolean updateMissionFilesOpened(File fx) {
+        RecentlyOpenedFilesUtil.updateFilesOpenedMenuItems(fx, mra.getMiscFilesOpened(), new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final File fx;
+                Object key = e.getSource();
+                File value = mra.getMiscFilesOpened().get(key);
+                if (value instanceof File) {
+                    fx = (File) value;
+                    Thread t = new Thread("Open Log") {
+                        @Override
+                        public void run() {
+                            mra.getMraFilesHandler().openLog(fx);
+                        };
+                    };
+                    t.start();
+                }
+                else
+                    return;
+            }
+        });
+
+        mra.getMRAMenuBar().getRecentlyOpenFilesMenu();
+        storeRecentlyOpenedFiles();
+        return true;
+    }
+
+    /**
+     * Updates /conf/mra_recent.xml
+     */
+    private void storeRecentlyOpenedFiles() {
+        String recentlyOpenedFiles;
+        LinkedHashMap<JMenuItem, File> hMap;
+        String header;
+
+        recentlyOpenedFiles = ConfigFetch.resolvePathBasedOnConfigFile(NeptusMRA.RECENTLY_OPENED_LOGS);
+        hMap = mra.getMiscFilesOpened();
+        header = I18n.text("Recently opened mission files")+".";
+
+        RecentlyOpenedFilesUtil.storeRecentlyOpenedFiles(recentlyOpenedFiles, hMap, header);
     }
 
     /* (non-Javadoc)

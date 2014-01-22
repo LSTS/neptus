@@ -78,6 +78,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LogUtils.LogValidity;
@@ -100,7 +101,7 @@ public class MRAMenuBar {
     private JMenuBar menuBar;
     private JMenu fileMenu, reportMenu, settingsMenu, toolsMenu, helpMenu;
 
-    // private JMenu recentlyOpenFilesMenu = null;
+    private JMenu recentlyOpenFilesMenu = null;
 
     private AbstractAction openLsf, exit;
     protected AbstractAction genReport;
@@ -123,13 +124,13 @@ public class MRAMenuBar {
         this.miscFilesOpened = mra.getMiscFilesOpened();
         this.mraPanel = mra.getMraPanel();
 
-        setMenuBar(createMRAMenuBar());
+        setMenuBar(new JMenuBar());
     }
 
     /**
      * @return the MenuBar
      */
-    private JMenuBar createMRAMenuBar() {
+    public JMenuBar createMRAMenuBar() {
         menuBar = new JMenuBar();
 
         setUpFileMenu();
@@ -153,9 +154,11 @@ public class MRAMenuBar {
     private void setUpFileMenu() {
         fileMenu = new JMenu(I18n.text("File"));
 
-        mra.loadRecentlyOpenedFiles();
+        getRecentlyOpenFilesMenu();
+        mra.getMraFilesHandler().loadRecentlyOpenedFiles();
 
-        fileMenu.add(mra.getRecentlyOpenFilesMenu());
+        // fileMenu.add(mra.getRecentlyOpenFilesMenu());
+        fileMenu.add(getRecentlyOpenFilesMenu());
 
         openLsf = new AbstractAction(I18n.text("Open LSF log"), 
                 ImageUtils.getIcon("images/menus/zipfolder.png")) {
@@ -232,6 +235,25 @@ public class MRAMenuBar {
         fileMenu.add(openLsf);
         fileMenu.addSeparator();
         fileMenu.add(exit);
+    }
+
+    /**
+     * This method initializes jMenu
+     * 
+     * @return javax.swing.JMenu
+     */
+    public JMenu getRecentlyOpenFilesMenu() {
+        if (recentlyOpenFilesMenu == null) {
+            recentlyOpenFilesMenu = new JMenu();
+            recentlyOpenFilesMenu.setText(I18n.text("Recently opened"));
+            recentlyOpenFilesMenu.setToolTipText("Most recently opened log files.");
+            recentlyOpenFilesMenu.setIcon(ImageUtils.getIcon("images/menus/open.png"));
+            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, mra.getMiscFilesOpened());
+        }
+        else {
+            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, mra.getMiscFilesOpened());
+        }
+        return recentlyOpenFilesMenu;
     }
 
     /**
@@ -543,27 +565,19 @@ public class MRAMenuBar {
         this.menuBar = menuBar;
     }
 
+    /**
+     * Gets setMission MenuItem
+     * @return setMission
+     */
     public AbstractAction getSetMissionMenuItem() {
         return this.setMission;
     }
 
+    /**
+     * Gets genReport MenuItem
+     * @return genReport
+     */
     public AbstractAction getGenReportMenuItem() {
         return this.genReport;
     }
-
-    //    public JMenu getRecentlyOpenFilesMenu() {
-    //        if (recentlyOpenFilesMenu == null) {
-    //            recentlyOpenFilesMenu = new JMenu();
-    //            recentlyOpenFilesMenu.setText(I18n.text("Recently opened"));
-    //            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, mra.getMiscFilesOpened());
-    //        }
-    //        else {
-    //            RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, mra.getMiscFilesOpened());
-    //        }
-    //        return recentlyOpenFilesMenu;
-    //    }
-    //
-    //    private void setRecentlyOpenFilesMenu(JMenu recentlyOpenFilesMenu) {
-    //        this.recentlyOpenFilesMenu = recentlyOpenFilesMenu;
-    //    }
 }
