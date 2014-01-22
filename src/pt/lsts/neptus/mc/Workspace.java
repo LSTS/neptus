@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
@@ -187,7 +187,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     private JMenu checklistsMenu = null;
     private JMenuItem openChecklistMenuItem = null;
     private JMenuItem newChecklistMenuItem = null;
-//    private JMenuItem manualMenuItem = null;
+    //    private JMenuItem manualMenuItem = null;
     private JMenuItem viewer3DMenuItem = null;
     private JMenuItem dumpGeneralPropertiesDefaultsMenuItem = null;
     private JMenuItem snapShotMenuItem = null;
@@ -263,7 +263,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 JFrame frame = (JFrame) e.getComponent();
                 OutputMonitor.end();
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                
+
                 for(JInternalFrame jif : internalFrames.values()) {
                     try {
                         jif.setClosed(true); // This calls each individual internalFrameClosing() method (see createFrame())
@@ -275,27 +275,27 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             }
         });
 
-//        this.addKeyListener(new KeyListener() {
-//            @Override
-//            public void keyTyped(KeyEvent e) {
-//            }
-//
-//            @Override
-//            public void keyReleased(KeyEvent e) {
-//            }
-//
-//            @Override
-//            public void keyPressed(KeyEvent e) {
-//                if (e.isShiftDown()) {
-//                    if (e.getKeyCode() == KeyEvent.VK_S) {
-//                        NeptusLog.pub().info("<###>shift S ---");
-//                        NeptusEvents.post(new NeptusEventHiddenMenus());
-//                    }
-//                }
-//            }
-//
-//        });
-        
+        //        this.addKeyListener(new KeyListener() {
+        //            @Override
+        //            public void keyTyped(KeyEvent e) {
+        //            }
+        //
+        //            @Override
+        //            public void keyReleased(KeyEvent e) {
+        //            }
+        //
+        //            @Override
+        //            public void keyPressed(KeyEvent e) {
+        //                if (e.isShiftDown()) {
+        //                    if (e.getKeyCode() == KeyEvent.VK_S) {
+        //                        NeptusLog.pub().info("<###>shift S ---");
+        //                        NeptusEvents.post(new NeptusEventHiddenMenus());
+        //                    }
+        //                }
+        //            }
+        //
+        //        });
+
         JRootPane rootPane = this.getRootPane();
         InputMap globalInputMap = rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         // Hidden menus shift + S key binding
@@ -464,8 +464,8 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             commsMenu.add(separator1);
             commsMenu.add(getHiddenMenuCommsSeparator());
             commsMenu.add(getImcMsgSender());
-//            commsMenu.addMenuListener(HideMenusListener.forge(new Component[] { getHiddenMenuCommsSeparator(),
-//                    separator1 }, new JMenuItem[] { getImcMsgSender() }));
+            //            commsMenu.addMenuListener(HideMenusListener.forge(new Component[] { getHiddenMenuCommsSeparator(),
+            //                    separator1 }, new JMenuItem[] { getImcMsgSender() }));
         }
         return commsMenu;
     }
@@ -555,6 +555,8 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         if (recentlyOpenFilesMenu == null) {
             recentlyOpenFilesMenu = new JMenu();
             recentlyOpenFilesMenu.setText(I18n.text("Recently opened"));
+            recentlyOpenFilesMenu.setIcon(new ImageIcon(this.getClass().getClassLoader()
+                    .getResource("images/menus/edit.png")));
             RecentlyOpenedFilesUtil.constructRecentlyFilesMenuItems(recentlyOpenFilesMenu, miscFilesOpened);
         }
         else {
@@ -562,7 +564,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         }
         return recentlyOpenFilesMenu;
     }
-    
+
     /**
      * This method initializes jMenu
      * 
@@ -688,21 +690,21 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         return newChecklistMenuItem;
     }
 
-//    private JMenuItem getManualMenuItem() {
-//        if (manualMenuItem == null) {
-//            manualMenuItem = new JMenuItem();
-//            manualMenuItem.setText(I18n.text("Manual"));
-//            manualMenuItem
-//                    .setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/info.png")));
-//            manualMenuItem.addActionListener(new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    DocumentationPanel.showDocumentation("start.html");
-//                }
-//            });
-//        }
-//        return manualMenuItem;
-//    }
+    //    private JMenuItem getManualMenuItem() {
+    //        if (manualMenuItem == null) {
+    //            manualMenuItem = new JMenuItem();
+    //            manualMenuItem.setText(I18n.text("Manual"));
+    //            manualMenuItem
+    //                    .setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/info.png")));
+    //            manualMenuItem.addActionListener(new ActionListener() {
+    //                @Override
+    //                public void actionPerformed(ActionEvent e) {
+    //                    DocumentationPanel.showDocumentation("start.html");
+    //                }
+    //            });
+    //        }
+    //        return manualMenuItem;
+    //    }
 
     /**
      * @param type
@@ -710,17 +712,17 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     private void loadRecentlyOpenedFiles(short type) {
         String recentlyOpenedFiles;
         Method methodUpdate = null;
-//        if (type == MISSIONS_FILES) {
-//            recentlyOpenedFiles = ConfigFetch.resolvePath(RECENTLY_OPENED_MISSIONS);
-//            try {
-//                Class<?>[] params = { File.class };
-//                methodUpdate = this.getClass().getMethod("updateMissionFilesOpened", params);
-//            }
-//            catch (Exception e) {
-//                NeptusLog.pub().error(this + "loadRecentlyOpenedFiles", e);
-//                return;
-//            }
-//        }
+        //        if (type == MISSIONS_FILES) {
+        //            recentlyOpenedFiles = ConfigFetch.resolvePath(RECENTLY_OPENED_MISSIONS);
+        //            try {
+        //                Class<?>[] params = { File.class };
+        //                methodUpdate = this.getClass().getMethod("updateMissionFilesOpened", params);
+        //            }
+        //            catch (Exception e) {
+        //                NeptusLog.pub().error(this + "loadRecentlyOpenedFiles", e);
+        //                return;
+        //            }
+        //        }
         if (type == CHECKS_FILES) {
             recentlyOpenedFiles = ConfigFetch.resolvePath(RECENTLY_OPENED_CHECKS);
             try {
@@ -872,20 +874,20 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         if (helpMenu == null) {
             helpMenu = new JMenu();
             helpMenu.setText(I18n.text("Help"));
-//            helpMenu.add(getManualMenuItem());
-//            helpMenu.add(new AbstractAction(I18n.text("Extended Manual"), new ImageIcon(this.getClass()
-//                    .getClassLoader().getResource("images/menus/info.png"))) {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    try {
-//                        Desktop.getDesktop().browse(new File("doc/seacon/manual-seacon.html").toURI());
-//                    }
-//                    catch (IOException e1) {
-//                        e1.printStackTrace();
-//                        GuiUtils.errorMessage(I18n.text("Error opening Extended Manual"), e1.getMessage());
-//                    }
-//                }
-//            });
+            //            helpMenu.add(getManualMenuItem());
+            //            helpMenu.add(new AbstractAction(I18n.text("Extended Manual"), new ImageIcon(this.getClass()
+            //                    .getClassLoader().getResource("images/menus/info.png"))) {
+            //                @Override
+            //                public void actionPerformed(ActionEvent e) {
+            //                    try {
+            //                        Desktop.getDesktop().browse(new File("doc/seacon/manual-seacon.html").toURI());
+            //                    }
+            //                    catch (IOException e1) {
+            //                        e1.printStackTrace();
+            //                        GuiUtils.errorMessage(I18n.text("Error opening Extended Manual"), e1.getMessage());
+            //                    }
+            //                }
+            //            });
             helpMenu.add(getAboutMenuItem());
         }
         return helpMenu;
@@ -990,7 +992,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 numFrames--;
             }
         });
-        
+
         jif.getContentPane().add(newComponent);
         jDesktopPane.add(jif);
         jif.setSize(400, 340);
@@ -1207,62 +1209,62 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     }
 
     protected void openMapTypeFile(File fx) {
-//        if (fx != null) {
-//            updateMapFilesOpened(fx);
-//            updateMiscFilesOpened(fx);
-//
-//            MapType map = new MapType(fx.getAbsolutePath());
-//            JInternalFrame ifrm = internalFrames.get("map-" + map.getId());
-//            if (ifrm != null) {
-//                // ifrm.setFocusable(true);
-//                ifrm.setVisible(true);
-//                try {
-//                    ifrm.setSelected(true);
-//                    ifrm.setIcon(false);
-//                }
-//                catch (PropertyVetoException e1) {
-//                    // e1.printStackTrace();
-//                    NeptusLog.pub().debug(this + " getOpenMapMenuItem", e1);
-//                }
-//                return;
-//            }
-//
-//            CoordinateSystem cs = new CoordinateSystem();
-//            Object ob = map.getAllElements().getFirst();
-//            if (ob instanceof LocationType) {
-//                // FIXME
-//                cs.setLocation((LocationType) ob);
-//            }
-//            final MissionMapEditor mme = new MissionMapEditor(map, cs, true);
-//            if (ob instanceof LocationType) {
-//                // FIXME
-//                // mp.centerOnLocation((AbstractLocationPoint) ob);
-//            }
-//            ifrm = createFrame(I18n.textf("%map - Map", map.getName()), "map-" + map.getId(), mme);
-//            internalFrames.put("map-" + map.getId(), ifrm);
-//            ifrm.setSize(new Dimension(mme.getWidth() + 190, mme.getHeight() + 50));
-//            // ifrm.setSize(new Dimension(mp.getWidth(), mp.getHeight()+120));
-//            ifrm.setResizable(true);
-//            ifrm.setMaximizable(true);
-//            mme.setFrameOpener(Workspace.this);
-//            /*
-//             * ifrm.addFocusListener(new FocusAdapter() { public void focusLost(java.awt.event.FocusEvent arg0) {
-//             * mme.switchTo2D(); }; });
-//             */
-//            ifrm.addInternalFrameListener(new InternalFrameAdapter() {
-//                @Override
-//                public void internalFrameDeactivated(javax.swing.event.InternalFrameEvent arg0) {
-//                    try {
-//
-//                        mme.switchTo2D();
-//                        // ((JInternalFrame) arg0.getSource()).setIcon(true);
-//                    }
-//                    catch (Exception e) {
-//                        NeptusLog.pub().error(this, e);
-//                    }
-//                }
-//            });
-//        }
+        //        if (fx != null) {
+        //            updateMapFilesOpened(fx);
+        //            updateMiscFilesOpened(fx);
+        //
+        //            MapType map = new MapType(fx.getAbsolutePath());
+        //            JInternalFrame ifrm = internalFrames.get("map-" + map.getId());
+        //            if (ifrm != null) {
+        //                // ifrm.setFocusable(true);
+        //                ifrm.setVisible(true);
+        //                try {
+        //                    ifrm.setSelected(true);
+        //                    ifrm.setIcon(false);
+        //                }
+        //                catch (PropertyVetoException e1) {
+        //                    // e1.printStackTrace();
+        //                    NeptusLog.pub().debug(this + " getOpenMapMenuItem", e1);
+        //                }
+        //                return;
+        //            }
+        //
+        //            CoordinateSystem cs = new CoordinateSystem();
+        //            Object ob = map.getAllElements().getFirst();
+        //            if (ob instanceof LocationType) {
+        //                // FIXME
+        //                cs.setLocation((LocationType) ob);
+        //            }
+        //            final MissionMapEditor mme = new MissionMapEditor(map, cs, true);
+        //            if (ob instanceof LocationType) {
+        //                // FIXME
+        //                // mp.centerOnLocation((AbstractLocationPoint) ob);
+        //            }
+        //            ifrm = createFrame(I18n.textf("%map - Map", map.getName()), "map-" + map.getId(), mme);
+        //            internalFrames.put("map-" + map.getId(), ifrm);
+        //            ifrm.setSize(new Dimension(mme.getWidth() + 190, mme.getHeight() + 50));
+        //            // ifrm.setSize(new Dimension(mp.getWidth(), mp.getHeight()+120));
+        //            ifrm.setResizable(true);
+        //            ifrm.setMaximizable(true);
+        //            mme.setFrameOpener(Workspace.this);
+        //            /*
+        //             * ifrm.addFocusListener(new FocusAdapter() { public void focusLost(java.awt.event.FocusEvent arg0) {
+        //             * mme.switchTo2D(); }; });
+        //             */
+        //            ifrm.addInternalFrameListener(new InternalFrameAdapter() {
+        //                @Override
+        //                public void internalFrameDeactivated(javax.swing.event.InternalFrameEvent arg0) {
+        //                    try {
+        //
+        //                        mme.switchTo2D();
+        //                        // ((JInternalFrame) arg0.getSource()).setIcon(true);
+        //                    }
+        //                    catch (Exception e) {
+        //                        NeptusLog.pub().error(this, e);
+        //                    }
+        //                }
+        //            });
+        //        }
     }
 
     protected void openChecklistTypeFile(File fx) {
@@ -1273,7 +1275,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 NeptusLog.pub().warn("Error Opening Checklist (" + fx.getAbsolutePath() + ")");
                 return;
             }
-            
+
             updateChecklistFilesOpened(fx);
             updateMiscFilesOpened(fx);
 
@@ -1348,7 +1350,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             viewer3DMenuItem.setText(I18n.text("3D Model Viewer"));
             viewer3DMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK, true));
             viewer3DMenuItem
-                    .setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/3d.png")));
+            .setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/3d.png")));
             viewer3DMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -1449,7 +1451,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                                     "<html>The defaults of the general properties will " + "be dumped to <br><i>"
                                             + "%file" + "</i> overwriting the ones already <br>modified in the "
                                             + "existing file!<br><br> Do you want to do this?",
-                                    GeneralPreferences.GENERAL_PROPERTIES_FILE), "Choose one", JOptionPane.YES_NO_OPTION);
+                                            GeneralPreferences.GENERAL_PROPERTIES_FILE), "Choose one", JOptionPane.YES_NO_OPTION);
                             if (res == JOptionPane.YES_OPTION) {
                                 GeneralPreferences.dumpGeneralPreferences();
                             }
@@ -1616,7 +1618,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             @Override
             public void actionPerformed(ActionEvent e) {
                 startActivity(I18n.text("Opening MRA..."));
-                
+
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -1788,11 +1790,11 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     public void handleFile(File f) {
         File fx = new File(ConfigFetch.resolvePath(f.getAbsolutePath()));
         String extension = FileUtil.getFileExtension(fx);
-//        if (extension.equalsIgnoreCase(FileUtil.FILE_TYPE_MISSION)
-//                || extension.equalsIgnoreCase(FileUtil.FILE_TYPE_MISSION_COMPRESSED)) {
-//            openMissionTypeFile(fx);
-//        }
-//        else 
+        //        if (extension.equalsIgnoreCase(FileUtil.FILE_TYPE_MISSION)
+        //                || extension.equalsIgnoreCase(FileUtil.FILE_TYPE_MISSION_COMPRESSED)) {
+        //            openMissionTypeFile(fx);
+        //        }
+        //        else 
         if (extension.equalsIgnoreCase(FileUtil.FILE_TYPE_MAP)) {
             openMapTypeFile(fx);
         }
@@ -2080,14 +2082,14 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         int iconSize = 48, iconSepSize = Math.min(iconSize + iconSize * 2 / 3, iconSize + 18);
         int posY = 30;
         DesktopIcon icon;
-        
-//        icon = new DesktopIcon(new ImageIcon(ImageUtils.getImage("images/apps/NeptusApps-MP.png")
-//                .getScaledInstance(iconSize, iconSize, Image.SCALE_SMOOTH)), I18n.text("Planner"), getActionOpenMP());
-//        icon.setForeground(Color.WHITE);
-//        // icon.setToolTipText("View the current drifter positions");
-//        getJDesktopPane().add(icon);
-//        icon.setLocation(30, posY);
-//        posY += iconSepSize;
+
+        //        icon = new DesktopIcon(new ImageIcon(ImageUtils.getImage("images/apps/NeptusApps-MP.png")
+        //                .getScaledInstance(iconSize, iconSize, Image.SCALE_SMOOTH)), I18n.text("Planner"), getActionOpenMP());
+        //        icon.setForeground(Color.WHITE);
+        //        // icon.setToolTipText("View the current drifter positions");
+        //        getJDesktopPane().add(icon);
+        //        icon.setLocation(30, posY);
+        //        posY += iconSepSize;
 
         icon = new DesktopIcon(new ImageIcon(ImageUtils.getImage("images/apps/NeptusApps-MRA.png").getScaledInstance(
                 iconSize, iconSize, // "images/neptus-icon1.png"
@@ -2131,6 +2133,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     // @SuppressWarnings("unused")
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 ConfigFetch.initialize();
                 Workspace application = new Workspace();
