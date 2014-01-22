@@ -109,7 +109,7 @@ public class RevisionOverlays extends SimpleRendererInteraction {
                         public void run() {
                             JFrame mra = new NeptusMRA();
                             mra.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                            ((NeptusMRA) mra).openLog(sidePanel.getLogFile());
+                            ((NeptusMRA) mra).getMraFilesHandler().openLog(sidePanel.getLogFile());
                         }
                     }).run();
 
@@ -217,6 +217,7 @@ public class RevisionOverlays extends SimpleRendererInteraction {
             super.mouseClicked(event, source);
     }
 
+    @Override
     public void setActive(boolean mode, StateRenderer2D source) {
         Container parent = source.getParent();
         this.renderer = source;

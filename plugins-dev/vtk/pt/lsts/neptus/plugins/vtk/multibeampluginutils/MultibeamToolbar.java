@@ -182,7 +182,7 @@ public class MultibeamToolbar {
             downsamplePointsToogle = new JToggleButton(I18n.text("Downsampled"));
             zExaggerationToogle = new JToggleButton(I18n.text("Exaggerate Z"));
             meshToogle = new JToggleButton(I18n.text("Show Mesh"));
-            smoothingMeshToogle = new JToggleButton(I18n.text("Perform Mesh Smootihng"));
+            smoothingMeshToogle = new JToggleButton(I18n.text("Perform Mesh Smoothing"));
             contoursToogle = new JToggleButton(I18n.text("Show Terrain Contours"));
 
             rawPointsToggle.setSelected(true);

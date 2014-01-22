@@ -207,7 +207,7 @@ public class MRAMenuBar {
                     new Thread("Open Log") {
                         @Override
                         public void run() {
-                            mra.openLog(log);
+                            mra.getMraFilesHandler().openLog(log);
                         };
                     }.start();
                 }
@@ -463,7 +463,7 @@ public class MRAMenuBar {
                     if (op == JFileChooser.APPROVE_OPTION) {
                         try {
                             ConcatenateLsfLog.concatenateFolders(folders, chooser.getSelectedFile(), null);
-                            mra.openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
+                            mra.getMraFilesHandler().openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
 
                         }
                         catch (Exception ex) {
@@ -490,7 +490,7 @@ public class MRAMenuBar {
                     if (op == JFileChooser.APPROVE_OPTION) {
                         try {
                             ConcatenateLsfLog.concatenateFolders(folders, chooser.getSelectedFile(), null);
-                            mra.openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
+                            mra.getMraFilesHandler().openLog(new File(chooser.getSelectedFile(), "Data.lsf"));
 
                         }
                         catch (Exception ex) {

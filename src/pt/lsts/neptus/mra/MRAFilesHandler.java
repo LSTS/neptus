@@ -76,7 +76,31 @@ public class MRAFilesHandler implements FileHandler {
     }
 
     /**
-     * 
+     * Does the necessary pre-processing of a log file based on it's extension
+     * Currently supports gzip, bzip2 and no-compression formats.
+     * @param fx
+     * @return True on success, False on failure
+     */
+    public boolean openLog(File fx) {
+        mra.getBgp().block(true);
+        File fileToOpen = null;
+
+        if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED)) {
+            fileToOpen = extractGzip(fx);
+        }
+        else if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2)) {
+            fileToOpen = extractBzip2(fx);
+        }        
+        else if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF)) {
+            fileToOpen = fx;
+        }
+
+        mra.getBgp().block(false);
+        return openLSF(fileToOpen);
+    }
+
+    /**
+     * Abort al actions pending while opening a log file.
      */
     protected void abortPendingOpenLogActions() {
         if (activeInputStream != null) {
@@ -101,9 +125,9 @@ public class MRAFilesHandler implements FileHandler {
     }
 
     /**
-     * 
+     * Cleans up mraPanel and calls methos from MRAPanel to clean up visualizations and log source.
      */
-    public void closeLogSource() {
+    private void closeLogSource() {
         if (mra.getMraPanel() != null) {
             mra.getMraPanel().cleanup();
             mra.setMraPanel(null);
@@ -113,10 +137,11 @@ public class MRAFilesHandler implements FileHandler {
     }
 
     /**
-     * 
+     * Open IMraLogGroup source
+     * Enables SetMission and GenReport menu items.
      * @param source
      */
-    public void openLogSource(IMraLogGroup source) {
+    private void openLogSource(IMraLogGroup source) {
         abortPendingOpenLogActions();
         closeLogSource();
         mra.getContentPane().removeAll();
@@ -124,40 +149,16 @@ public class MRAFilesHandler implements FileHandler {
         mra.getContentPane().add(mra.getMraPanel());
         mra.invalidate();
         mra.validate();
-        mra.mraMenuBar.getSetMissionMenuItem().setEnabled(true);
-        mra.mraMenuBar.getGenReportMenuItem().setEnabled(true);
+        mra.getMRAMenuBar().getSetMissionMenuItem().setEnabled(true);
+        mra.getMRAMenuBar().getGenReportMenuItem().setEnabled(true);
     }
 
     /**
-     * Does the necessary pre-processing of a log file based on it's extension
-     * Currently supports gzip, bzip2 and no-compression formats
-     * @param fx
-     * @return True on success, False on failure
-     */
-    public boolean openLog(File fx) {
-        mra.getBgp().block(true);
-        File fileToOpen = null;
-
-        if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED)) {
-            fileToOpen = extractGzip(fx);
-        }
-        else if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2)) {
-            fileToOpen = extractBzip2(fx);
-        }        
-        else if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF)) {
-            fileToOpen = fx;
-        }
-
-        mra.getBgp().block(false);
-        return openLSF(fileToOpen);
-    }
-
-    /**
-     * 
+     * Open LSF Log file
      * @param f
      * @return
      */
-    public boolean openLSF(File f) {
+    private boolean openLSF(File f) {
         mra.getBgp().block(true);
         mra.getBgp().setText(I18n.text("Loading LSF Data"));
         final File lsfDir = f.getParentFile();
@@ -217,11 +218,11 @@ public class MRAFilesHandler implements FileHandler {
 
     // --- Extractors ---
     /**
-     * 
-     * @param f
-     * @return
+     * Extract GNU zip files
+     * @param f input file
+     * @return decompressed file
      */
-    public File extractGzip(File f) {
+    private File extractGzip(File f) {
         try {
             File res;
             mra.getBgp().setText(I18n.text("Decompressing LSF Data..."));
@@ -261,11 +262,11 @@ public class MRAFilesHandler implements FileHandler {
     }
 
     /**
-     * 
+     * Extract BZip files with BZip2 compressor.
      * @param f
-     * @return
+     * @return decompressed file
      */
-    public File extractBzip2(File f) {
+    private File extractBzip2(File f) {
         mra.getBgp().setText(I18n.text("Decompressing BZip2 LSF Data..."));
         try {
             final FileInputStream fxInStream = new FileInputStream(f);
@@ -300,13 +301,18 @@ public class MRAFilesHandler implements FileHandler {
     }
 
     /**
-     * @author pdias
+     * Decompresses bytes read from a input stream of data 
+     * Monitors input data stream size
      * 
+     * @author pdias
      */
     public abstract class FilterCopyDataMonitor extends FilterInputStream {
 
         public long downloadedSize = 0;
 
+        /**
+         * @param in
+         */
         public FilterCopyDataMonitor(InputStream in) {
             super(in);
             downloadedSize = 0;
@@ -346,7 +352,6 @@ public class MRAFilesHandler implements FileHandler {
      */
     @Override
     public String getName() {
-        // TODO Auto-generated method stub
         return null;
     }
 }

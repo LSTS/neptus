@@ -57,7 +57,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.BlockingGlassPane;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
@@ -90,7 +89,7 @@ public class NeptusMRA extends JFrame {
     private BlockingGlassPane bgp = new BlockingGlassPane(400);
 
     protected MRAMenuBar mraMenuBar;
-    public MRAFilesHandler mraFilesHandler;
+    private MRAFilesHandler mraFilesHandler;
 
     /**
      * Constructor
@@ -118,7 +117,7 @@ public class NeptusMRA extends JFrame {
 
         setVisible(true);
 
-        mraFilesHandler = new MRAFilesHandler(this);
+        setMraFilesHandler(new MRAFilesHandler(this));
 
         JLabel lbl = new JLabel(MRA_TITLE, JLabel.CENTER);
 
@@ -151,7 +150,7 @@ public class NeptusMRA extends JFrame {
                     getMraPanel().cleanup();
                 setMraPanel(null);
 
-                mraFilesHandler.abortPendingOpenLogActions();
+                getMraFilesHandler().abortPendingOpenLogActions();
                 NeptusMRA.this.getContentPane().removeAll();
                 NeptusMRA.this.dispose();
 
@@ -171,59 +170,6 @@ public class NeptusMRA extends JFrame {
         GuiUtils.setLookAndFeel();
 
         return new NeptusMRA();
-    }
-
-    /**
-     * 
-     */
-    public void closeLogSource() {
-        mraFilesHandler.closeLogSource();
-    }
-
-    /**
-     * 
-     * @param source
-     */
-    public void openLogSource(IMraLogGroup source) {
-        mraFilesHandler.openLogSource(source);
-    }
-
-    // --- Extractors ---
-    /**
-     * 
-     * @param f
-     * @return
-     */
-    public File extractGzip(File f) {
-        return mraFilesHandler.extractGzip(f);
-    }
-
-    /**
-     * 
-     * @param f
-     * @return
-     */
-    public File extractBzip2(File f) {
-        return mraFilesHandler.extractBzip2(f);
-    }
-
-    /**
-     * Does the necessary pre-processing of a log file based on it's extension
-     * Currently supports gzip, bzip2 and no-compression formats
-     * @param fx
-     * @return True on success, False on failure
-     */
-    public boolean openLog(File fx) {
-        return mraFilesHandler.openLog(fx);
-    }
-
-    /**
-     * 
-     * @param f
-     * @return
-     */
-    public boolean openLSF(File f) {
-        return mraFilesHandler.openLSF(f);
     }
 
     /**
@@ -365,20 +311,10 @@ public class NeptusMRA extends JFrame {
                 File value = getMiscFilesOpened().get(key);
                 if (value instanceof File) {
                     fx = (File) value;
-                    //                    openLog(fx);
-                    // if (fx.isDirectory())
-                    // openDir(fx);
-                    // else if ("zip".equalsIgnoreCase(FileUtil.getFileExtension(fx)))
-                    // openZip(fx);
-                    // else if (FileUtil.FILE_TYPE_LSF.equalsIgnoreCase(FileUtil.getFileExtension(fx)))
-                    // openLSF(fx);
-                    // else if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED))
-                    // openLSF(fx);
-
                     Thread t = new Thread("Open Log") {
                         @Override
                         public void run() {
-                            openLog(fx);
+                            getMraFilesHandler().openLog(fx);
                         };
                     };
                     t.start();
@@ -409,10 +345,18 @@ public class NeptusMRA extends JFrame {
     }
 
     /**
-     * @return the mraMenuBar
+     * @return the JMenu bar from mraMenuBar
      */
+    @Override
     public JMenuBar getJMenuBar() {
         return mraMenuBar.getMenuBar();
+    }
+
+    /**
+     * @return the MRAMenuBar instance
+     */
+    public MRAMenuBar getMRAMenuBar() {
+        return mraMenuBar;
     }
 
     /**
@@ -459,10 +403,26 @@ public class NeptusMRA extends JFrame {
     }
 
     /**
+     * @return the mraFilesHandler
+     */
+    public MRAFilesHandler getMraFilesHandler() {
+        return mraFilesHandler;
+    }
+
+    /**
+     * @param mraFilesHandler the mraFilesHandler to set
+     */
+    public void setMraFilesHandler(MRAFilesHandler mraFilesHandler) {
+        this.mraFilesHandler = mraFilesHandler;
+    }
+
+    /**
      * Launch MRA standalone app
      * @param args
      */
     public static void main(String[] args) {
         NeptusMain.main(new String[] {"mra"});
     }
+
+
 }
