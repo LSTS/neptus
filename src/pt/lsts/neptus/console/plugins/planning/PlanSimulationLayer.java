@@ -34,17 +34,24 @@ package pt.lsts.neptus.console.plugins.planning;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.data.Pair;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
+import pt.lsts.neptus.mystate.MyState;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanCompability;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -52,9 +59,9 @@ import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
- *
+ * 
  */
-@PluginDescription(name="Plan Simulation",icon="images/planning/robot.png")
+@PluginDescription(name = "Plan Simulation", icon = "images/planning/robot.png")
 public class PlanSimulationLayer extends ConsoleLayer {
 
     private PlanSimulationOverlay simOverlay = null;
@@ -62,51 +69,66 @@ public class PlanSimulationLayer extends ConsoleLayer {
     private Image errorImage = ImageUtils.getImage("pt/lsts/neptus/console/plugins/planning/error.png");
     private Image warnImage = ImageUtils.getImage("pt/lsts/neptus/console/plugins/planning/warning.png");
     private Image fineImage = ImageUtils.getImage("pt/lsts/neptus/console/plugins/planning/fine.png");
+
+    @NeptusProperty(name = "Max AUV distance", description = "Warn user if AUV distance exceeds this value")
+    private double maxAUVDistance = 1000;
+
+    @NeptusProperty(name = "Max AUV end distance", description = "Warn user if last planned AUV position is further than this distance away from base")
+    private double maxAUVDistAtEnd = 300;
+
+    @NeptusProperty(name = "Max UAV distance", description = "Warn user if UAV distance exceeds this value")
+    private double maxUAVDistance = 10000;
+
+    @NeptusProperty(name = "Max UAV end distance", description = "Warn user if last planned UAV position is further than this distance away from base")
+    private double maxUAVDistAtEnd = 500;
+
     private enum PlanCheck {
-        Fine, Warning, Error
+        Fine,
+        Warning,
+        Error
     }
-    
+
     private Vector<Pair<PlanCheck, String>> checks = new Vector<>();
-    
+
     @Subscribe
     public void on(ConsoleEventPlanChange evt) {
         this.mainPlan = evt.getCurrent();
         refreshOverlay();
     }
-    
+
     @Subscribe
     public void on(ConsoleEventMainSystemChange evt) {
         refreshOverlay();
     }
-    
+
     @Override
     public boolean userControlsOpacity() {
         return true;
     }
-    
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
         if (simOverlay != null) {
-            simOverlay.paint((Graphics2D)g.create(), renderer);
+            simOverlay.paint((Graphics2D) g.create(), renderer);
         }
         g.setColor(Color.white);
         int pos = 20;
         for (Pair<PlanCheck, String> check : checks) {
             switch (check.first()) {
                 case Error:
-                    g.drawImage(errorImage, 50, pos-12, null);
+                    g.drawImage(errorImage, 5, pos - 12, null);
                     break;
                 case Warning:
-                    g.drawImage(warnImage, 50, pos-12, null);
+                    g.drawImage(warnImage, 5, pos - 12, null);
                     break;
                 case Fine:
-                    g.drawImage(fineImage, 50, pos-12, null);
+                    g.drawImage(fineImage, 5, pos - 12, null);
                     break;
                 default:
                     break;
             }
-            g.drawString(check.second(), 70, pos);
+            g.drawString(check.second(), 24, pos);
             pos += 20;
         }
     }
@@ -116,7 +138,7 @@ public class PlanSimulationLayer extends ConsoleLayer {
         mainPlan = getConsole().getPlan();
         refreshOverlay();
     }
-    
+
     private void refreshOverlay() {
         if (mainPlan != null)
             simOverlay = new PlanSimulationOverlay(mainPlan, 0, 4, null);
@@ -124,44 +146,86 @@ public class PlanSimulationLayer extends ConsoleLayer {
             simOverlay = null;
         validatePlan();
     }
-    
+
     private synchronized void validatePlan() {
         checks.clear();
         if (mainPlan == null)
             return;
-        
+
         try {
-            mainPlan.validatePlan();
-            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Fine, "Plan definition is valid"));
+            mainPlan.validatePlan();            
         }
         catch (Exception e) {
             checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Error, e.getMessage()));
         }
+
+        checks.addAll(validateVehicle());
+        checks.addAll(validatePayload());
+        checks.addAll(validateDistances());
         
-        checks.add(validateVehicle());
-        checks.add(validatePayload());
-    }
     
-    private Pair<PlanCheck, String> validateVehicle() {
-        if (mainPlan.getVehicle().equals(getConsole().getMainSystem())) {
-            return new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Fine, "Vehicle matches the plan");            
-        }
-        else {
-            return new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, "Console and plan vehicles differ");
+        if (checks.isEmpty()) {
+            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Fine, "Plan takes approximately "+simOverlay.getSimStates().size()+" seconds"));
         }
     }
-    
-    
-    private Pair<PlanCheck, String> validatePayload() {
+
+    private List<Pair<PlanCheck, String>> validateDistances() {
+        VehicleType v = VehiclesHolder.getVehicleById(getConsole().getMainSystem());
+        LocationType base = MyState.getLocation();
+        double maxDistToBase = 0;
+        double distAtEnd = 0;
+
+        ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
+
+        for (SystemPositionAndAttitude s : simOverlay.getStates()) {
+            distAtEnd = s.getPosition().getDistanceInMeters(base);
+            maxDistToBase = Math.max(distAtEnd, maxDistToBase);
+        }
+
+        if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
+            if (maxDistToBase > maxAUVDistance) {
+                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, v.getId() + " will be "
+                        + (int) maxDistToBase + " meters away from here"));
+            }
+            if (distAtEnd > maxAUVDistAtEnd) {
+                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, v.getId() + " will finish "
+                        + (int) distAtEnd + " meters away from here"));
+            }
+        }
+        else if ("uav".equalsIgnoreCase(v.getType())) {
+            if (maxDistToBase > maxUAVDistance) {
+                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, v.getId() + " will be "
+                        + (int) maxDistToBase + " meters away from here"));
+            }
+            if (distAtEnd > maxUAVDistAtEnd) {
+                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, v.getId() + " will finish "
+                        + (int) distAtEnd + " meters away from here"));
+            }
+        }
+        
+        return checks;
+    }
+
+    private List<Pair<PlanCheck, String>> validateVehicle() {
+        ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
+        if (!mainPlan.getVehicle().equals(getConsole().getMainSystem())) {
+            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning,
+                    "Console and plan vehicles differ"));
+        }
+        
+        return checks;
+    }
+
+    private  List<Pair<PlanCheck, String>> validatePayload() {
+        ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
         try {
             PlanCompability.testCompatibility(VehiclesHolder.getVehicleById(getConsole().getMainSystem()), mainPlan);
-            return new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Fine, "Payload configuration is valid");
         }
         catch (Exception e) {
-            return new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, e.getMessage());
+            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, e.getMessage()));
         }
         
-        
+        return checks;
     }
 
     @Override

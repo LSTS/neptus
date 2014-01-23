@@ -31,7 +31,6 @@
  */
 package pt.lsts.neptus.renderer2d;
 
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -125,7 +124,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     private final int DEFAULT_LOD = 18;
     private final int MIN_LOD = MapTileUtil.LEVEL_MIN;
     private final int MAX_LOD = MapTileUtil.LEVEL_MAX;
-    private final Image overlayIcon = ImageUtils.getImage("images/neptus-icon1.png");
+    //private final Image overlayIcon = ImageUtils.getImage("images/neptus-icon1.png");
     private boolean worldMapShowScreenControls = false;
     
     public static Cursor rotateCursor, translateCursor, zoomCursor, grabCursor, grab2Cursor, crosshairCursor,
@@ -1075,16 +1074,16 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         
         
         // Draw watermark
-        Graphics2D copy = (Graphics2D) original.create();
-        copy.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
-        try {
-            copy.drawImage(overlayIcon, 5, 5, overlayIcon.getWidth(null), overlayIcon.getHeight(null), 0, 0,
-                    overlayIcon.getWidth(null), overlayIcon.getHeight(null), null);
-        }
-        catch (Exception e) {
-            NeptusLog.pub().warn("Watermark painter: " + e.getMessage(), e);
-        }
-        copy.dispose();
+//        Graphics2D copy = (Graphics2D) original.create();
+//        copy.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
+//        try {
+//            copy.drawImage(overlayIcon, 5, 5, overlayIcon.getWidth(null), overlayIcon.getHeight(null), 0, 0,
+//                    overlayIcon.getWidth(null), overlayIcon.getHeight(null), null);
+//        }
+//        catch (Exception e) {
+//            NeptusLog.pub().warn("Watermark painter: " + e.getMessage(), e);
+//        }
+//        copy.dispose();
     }
 
     /**
