@@ -125,8 +125,6 @@ public class MRAPanel extends JPanel {
     public MRAPanel(final IMraLogGroup source, NeptusMRA mra) {
         this.source = source;
 
-        // MRAVisualization[] automaticCharts = MraChartFactory.getAutomaticCharts(this);
-
         if (new File("conf/tides.txt").canRead() && source.getFile("tides.txt") == null) {
             FileUtil.copyFile("conf/tides.txt", new File(source.getFile("."), "tides.txt").getAbsolutePath());
         }
@@ -159,32 +157,7 @@ public class MRAPanel extends JPanel {
         pane.setDividerLocation(250);
         pane.setResizeWeight(0);
 
-        // FIXME is this Progress monitor necessary?
-        final ProgressMonitor monitor = new ProgressMonitor(this, I18n.text("Loading") + "...",
-                I18n.text("Loading automatic charts"), 0, 100);
-        monitor.setMillisToDecideToPopup(0);
-        monitor.setNote(I18n.text("Loading tree"));
-
-        // The LogTreeMouseAdapter class deals with all the plot instantiation
         tree.addMouseListener(new LsfTreeMouseAdapter(this));
-
-        monitor.setProgress(20);
-        // int curProgress = 10;
-        // int increaseProgress = 65;
-        // if (automaticCharts.length > 0)
-        // increaseProgress = 65 / automaticCharts.length;
-        //
-        // // Load Automatic Charts
-        // for (MRAVisualization chart : automaticCharts) {
-        //
-        // if (!chart.canBeApplied(MRAPanel.this.source))
-        // continue;
-        //
-        // loadVisualization(chart, false);
-        // curProgress += increaseProgress;
-        // monitor.setNote(I18n.textf("loading %chartname", chart.getName()));
-        // monitor.setProgress(curProgress);
-        // }
 
         Vector<MRAVisualization> visualizations = new Vector<>();
         for (String visName : PluginsRepository.getMraVisualizations().keySet()) {
@@ -222,7 +195,7 @@ public class MRAPanel extends JPanel {
         // Load PluginVisualizations
         for (MRAVisualization viz : visualizations) {
             try {
-                monitor.setNote(I18n.textf("loading %chartname", viz.getName()));
+                // monitor.setNote(I18n.textf("loading %chartname", viz.getName()));
                 loadVisualization(viz, false);
             }
             catch (Exception e1) {
@@ -237,16 +210,11 @@ public class MRAPanel extends JPanel {
             }
         }
 
-        monitor.setNote(I18n.text("Starting mission replay") + "...");
-
         replay = new LogReplay(this);
         loadVisualization(replay, false);
 
         replayMsg = new LLFMsgReplay(this);
         loadVisualization(replayMsg, false);
-
-        monitor.setProgress(100);
-        monitor.setNote(I18n.text("Done!"));
 
         add(pane, BorderLayout.CENTER);
         add(statusBar, BorderLayout.SOUTH);
@@ -307,7 +275,7 @@ public class MRAPanel extends JPanel {
             bar.add(exporters);
         }
 
-        monitor.close();
+        // monitor.close();
     }
 
     public void loadVisualization(MRAVisualization vis, boolean open) {
