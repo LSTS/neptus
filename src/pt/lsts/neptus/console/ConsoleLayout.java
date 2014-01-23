@@ -1188,14 +1188,14 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     
     public boolean addInteraction(IConsoleInteraction interaction) {
         Vector<MapPanel> maps = getSubPanelsOfClass(MapPanel.class);
-        System.out.println("Interaction: "+interaction);
+        
         if (interactions.contains(interaction)) {
             NeptusLog.pub().error("Interation was already present in this console.");
             return false;
         }
         
         if (maps.isEmpty()) {
-            NeptusLog.pub().error("Cannot add interaction beacause there is no MapPanel in the console.");
+            NeptusLog.pub().error("Cannot add interaction because there is no MapPanel in the console.");
             return false;
         }
         

@@ -33,8 +33,6 @@ package pt.lsts.neptus.plugins.position.painter;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 
 import javax.swing.BorderFactory;
@@ -50,18 +48,14 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
-import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
-import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.MathMiscUtils;
 
@@ -71,12 +65,9 @@ import com.google.common.eventbus.Subscribe;
  * @author jqcorreia
  * 
  */
-@SuppressWarnings("serial")
-// "Information On Map"
-@PluginDescription(name = "System Information On Map", icon = "pt/lsts/neptus/plugins/position/position.png", description = "System Information display on map", documentation = "system-info/system-info.html", category = CATEGORY.INTERFACE)
+@PluginDescription(name = "System Information On Map", icon = "pt/lsts/neptus/plugins/position/painter/sysinfo.png", description = "System Information display on map", documentation = "system-info/system-info.html", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 70)
-public class SystemInfoPainter extends ConsolePanel implements Renderer2DPainter,
-        IPeriodicUpdates, ConfigurationListener {
+public class SystemInfoPainter extends ConsoleLayer {
 
     private static final int RECT_WIDTH = 200;
     private static final int RECT_HEIGHT = 70;
@@ -106,12 +97,8 @@ public class SystemInfoPainter extends ConsolePanel implements Renderer2DPainter
     private int hbCount = 0;
     private int lastHbCount = 0;
 
-    public SystemInfoPainter(ConsoleLayout console) {
-        super(console);
-    }
-
     @Override
-    public void initSubPanel() {
+    public void initLayer() {
         mainSysName = getConsole().getMainSystem();
         toDraw = new JLabel("<html></html>");
         
@@ -119,17 +106,6 @@ public class SystemInfoPainter extends ConsolePanel implements Renderer2DPainter
         strFuel = I18n.textc("Fuel", "Use a single small word");
         strDisk = I18n.textc("Disk", "Use a single small word");
         strComms = I18n.textc("Comms", "Use a single small word");
-        // Register as AlarmProvider for Cpu/Batt/Net/Disk
-
-        addMenuItem(
-                I18n.text("Advanced") + ">" + PluginUtils.getPluginI18nName(this.getClass()) + " "
-                        + I18n.text("Enable/Disable"), null, new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        enablePainter = !enablePainter;
-                    }
-
-                });
     }
 
     private InterpolationColorMap rygColorMap = new InterpolationColorMap(new double[] { 0.0, 0.01, 0.75, 1.0 }, new Color[] {
@@ -247,8 +223,10 @@ public class SystemInfoPainter extends ConsolePanel implements Renderer2DPainter
     }
 
     @Subscribe
-    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
-
+    public void consume(ConsoleEventMainSystemChange ev) {
+        
+        System.out.println("Main vehicle has changed");
+        
         // Resolve Batteries entity ID to check battery values
         batteryVoltage = 0.0;
         fuelLevel = 0.0f;
@@ -269,27 +247,21 @@ public class SystemInfoPainter extends ConsolePanel implements Renderer2DPainter
         }
     }
 
-    // Periodical Update to assess the hearbeat reception rate
-    @Override
-    public long millisBetweenUpdates() {
-        return 5000;
-    }
-
-    @Override
+    @Periodic(millisBetweenUpdates=5000)
     public boolean update() {
         lastHbCount = hbCount;
         hbCount = 0;
 
         return true;
     }
-
+    
     @Override
-    public void propertiesChanged() {
-
+    public boolean userControlsOpacity() {
+        return false;
     }
-
+    
     @Override
-    public void cleanSubPanel() {
+    public void cleanLayer() {
         // TODO Auto-generated method stub
         
     }

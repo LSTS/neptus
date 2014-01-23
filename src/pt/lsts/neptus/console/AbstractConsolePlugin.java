@@ -39,6 +39,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import pt.lsts.imc.state.ImcSysState;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
@@ -133,6 +134,7 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
             PeriodicUpdatesService.register(i);
         }
         
+        NeptusEvents.register(this, console);
         ImcMsgManager.registerBusListener(this);
     }
     
@@ -160,8 +162,11 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
             periodicMethods.clear();
         }
         
-        ImcMsgManager.unregisterBusListener(this);
-        
+        ImcMsgManager.unregisterBusListener(this);        
+    }
+    
+    protected final ImcSysState getState() {
+        return ImcMsgManager.getManager().getState(getConsole().getMainSystem());
     }
     
     public final ImageIcon getIcon() {
