@@ -748,8 +748,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             return;
         }
 
-        adapter.mousePressed(event, source);
-
+        
         if (event.getButton() != MouseEvent.BUTTON1) {
             return;
         }
@@ -767,6 +766,9 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
             objectMoved = false;
         }
+        else 
+            adapter.mousePressed(event, source);
+
         mousePoint = event.getPoint();
 
     }
@@ -969,7 +971,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
     
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
-        
+        adapter.paintInteraction(g, source);
     }
 
     /*

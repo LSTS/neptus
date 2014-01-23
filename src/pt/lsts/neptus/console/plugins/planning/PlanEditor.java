@@ -1383,6 +1383,8 @@ MissionChangeListener {
                 getPropertiesPanel().getEditBtn().setEnabled(selectedManeuver instanceof StateRendererInteraction);
                 getPropertiesPanel().getEditBtn().setSelected(false);
             }
+            if (selectedManeuver == null)
+                super.mousePressed(event, renderer);
         }
         else {
             super.mousePressed(event, renderer);

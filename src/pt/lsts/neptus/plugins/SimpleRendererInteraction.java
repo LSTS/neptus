@@ -137,8 +137,7 @@ public abstract class SimpleRendererInteraction extends ConsolePanel implements 
 
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
-        // TODO Auto-generated method stub
-        
+        interactionAdapter.paintInteraction(g, source);
     }
     
     @Override
