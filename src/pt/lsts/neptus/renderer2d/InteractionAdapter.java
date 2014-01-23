@@ -302,6 +302,9 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
 
 	public void mousePressed(MouseEvent event, StateRenderer2D source) {
 		lastDragPoint = event.getPoint();
+		if(!event.isControlDown())
+		    measuring = false;
+		
 		if (measuring && firstDragPoint == null)
 		    firstDragPoint = source.getRealWorldLocation(event.getPoint());
 		deltaX = deltaY = 0;
