@@ -826,12 +826,15 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         forceRepaint = true;
         repaint();
     }
+    
+    private Long startTime = null;
 
     @Override
     protected void paintComponent(Graphics g) {
-//        long nt = System.nanoTime();
         zoom = Math.min(50, zoom);
-
+        if (startTime == null)
+            startTime = System.currentTimeMillis();
+        
         if (!isVisible() || getWidth() <= 0) {
             return;
         }
@@ -987,7 +990,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
                 g.dispose();
             }
         }
-
+        
         g2d.setTransform(identity);
         // Tail drawing
         for (String key : vehicleTails.keySet()) {
@@ -1072,18 +1075,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         if (isGridShown())
             drawGrid(g2d, getGridSize());
         
-        
-        // Draw watermark
-//        Graphics2D copy = (Graphics2D) original.create();
-//        copy.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
-//        try {
-//            copy.drawImage(overlayIcon, 5, 5, overlayIcon.getWidth(null), overlayIcon.getHeight(null), 0, 0,
-//                    overlayIcon.getWidth(null), overlayIcon.getHeight(null), null);
-//        }
-//        catch (Exception e) {
-//            NeptusLog.pub().warn("Watermark painter: " + e.getMessage(), e);
-//        }
-//        copy.dispose();
+
     }
 
     /**
@@ -1212,6 +1204,22 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
                                     + I18n.text("Reset the current rotation (up facing north)") + "</td></tr>"
                                     + "<tr><td>" + I18n.text("F1") + "</td><td>"
                                     + I18n.text("Reset the current view to defaults") + "</td></tr></table></div>");
+                    System.out.println(I18n.text("<html><h1>" + I18n.text("2D Renderer Shortcuts")
+                            + "</h1><br><div align='center'><table border='1' align='center'><tr><th>"
+                            + I18n.text("Key Combination") + "</th><th>" + I18n.text("Action") + "</th></tr>"
+                            + "<tr><td>" + I18n.text("plus (+)") + "</td><td>"
+                            + I18n.text("Double the current zoom value") + "</td></tr>" + "<tr><td>"
+                            + I18n.text("minus (-)") + "</td><td>" + I18n.text("Half the current zoom value")
+                            + "</td></tr>" + "<tr><td>" + I18n.text("left") + "</td><td>"
+                            + I18n.text("Move the map to the west") + "</td></tr>" + "<tr><td>"
+                            + I18n.text("right") + "</td><td>" + I18n.text("Move the map to the east")
+                            + "</td></tr>" + "<tr><td>" + I18n.text("up") + "</td><td>"
+                            + I18n.text("Move the map towards north") + "</td></tr>" + "<tr><td>"
+                            + I18n.text("down") + "</td><td>" + I18n.text("Move the map south") + "</td></tr>"
+                            + "<tr><td>" + I18n.textc("N", "N key") + "</td><td>"
+                            + I18n.text("Reset the current rotation (up facing north)") + "</td></tr>"
+                            + "<tr><td>" + I18n.text("F1") + "</td><td>"
+                            + I18n.text("Reset the current view to defaults") + "</td></tr></table></div>"));
                 }
             });
             item.setIcon(ImageUtils.getIcon("images/menus/info.png"));

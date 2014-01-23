@@ -140,8 +140,11 @@ public class PlanSimulationLayer extends ConsoleLayer {
     }
 
     private void refreshOverlay() {
-        if (mainPlan != null)
-            simOverlay = new PlanSimulationOverlay(mainPlan, 0, 4, null);
+        if (mainPlan != null) {
+            synchronized (PlanSimulationLayer.this) {
+                simOverlay = new PlanSimulationOverlay(mainPlan, 0, 4, null);            
+            }
+        }
         else
             simOverlay = null;
         validatePlan();
@@ -162,8 +165,8 @@ public class PlanSimulationLayer extends ConsoleLayer {
         checks.addAll(validateVehicle());
         checks.addAll(validatePayload());
         checks.addAll(validateDistances());
-        
-    
+
+
         if (checks.isEmpty()) {
             checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Fine, "Plan takes approximately "+simOverlay.getSimStates().size()+" seconds"));
         }
@@ -177,9 +180,11 @@ public class PlanSimulationLayer extends ConsoleLayer {
 
         ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
 
-        for (SystemPositionAndAttitude s : simOverlay.getStates()) {
-            distAtEnd = s.getPosition().getDistanceInMeters(base);
-            maxDistToBase = Math.max(distAtEnd, maxDistToBase);
+        synchronized (PlanSimulationLayer.this) {
+            for (SystemPositionAndAttitude s : simOverlay.getStates()) {
+                distAtEnd = s.getPosition().getDistanceInMeters(base);
+                maxDistToBase = Math.max(distAtEnd, maxDistToBase);
+            }            
         }
 
         if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
@@ -202,7 +207,7 @@ public class PlanSimulationLayer extends ConsoleLayer {
                         + (int) distAtEnd + " meters away from here"));
             }
         }
-        
+
         return checks;
     }
 
@@ -212,7 +217,7 @@ public class PlanSimulationLayer extends ConsoleLayer {
             checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning,
                     "Console and plan vehicles differ"));
         }
-        
+
         return checks;
     }
 
@@ -224,7 +229,7 @@ public class PlanSimulationLayer extends ConsoleLayer {
         catch (Exception e) {
             checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, e.getMessage()));
         }
-        
+
         return checks;
     }
 
