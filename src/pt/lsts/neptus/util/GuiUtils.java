@@ -527,7 +527,7 @@ public class GuiUtils {
             NeptusLog.pub().error(e);
         }
     }
-    
+
     /**
      * Use this instead of JOptionPane.showMessageDialog(..., JOptionPane.INFORMATION_MESSAGE)
      * Default ModalityMode.DOCUMENT_MODAL
@@ -554,7 +554,7 @@ public class GuiUtils {
         dialog.setModalityType(modalityType);
         dialog.setVisible(true);
     }
-    
+
     /**
      * Use this instead of JOptionPane.showMessageDialog(..., JOptionPane.QUESTION_MESSAGE)
      * Default ModalityType.DOCUMENT_MODAL
@@ -577,7 +577,7 @@ public class GuiUtils {
     public static int confirmDialog(Component owner, String title, String message, ModalityType modalityType) {
         // int response = JOptionPane.showConfirmDialog(owner, message, title, JOptionPane.YES_NO_OPTION);
         // return response; // == JOptionPane.YES_OPTION;
-        
+
         JOptionPane jop = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
         JDialog dialog = jop.createDialog(owner, title);
         dialog.setModalityType(modalityType);
@@ -600,7 +600,7 @@ public class GuiUtils {
     public static void errorMessage(Component owner, String title, String message) {
         errorMessage(owner, title, message, ModalityType.DOCUMENT_MODAL);
     }
-    
+
     /**
      * Use this instead of JOptionPane.showMessageDialog(..., JOptionPane.ERROR_MESSAGE)
      * @param owner
@@ -744,7 +744,7 @@ public class GuiUtils {
             // give feedback
             NeptusLog.pub().info(
                     "Saved screen shot (" + parentImage.getWidth() + " x " + parentImage.getHeight()
-                            + " pixels) to file \"" + outFileName + "\".");
+                    + " pixels) to file \"" + outFileName + "\".");
         }
         catch (Exception e) {
             NeptusLog.pub().error("generateCompositeScreenShot()", e);
@@ -786,7 +786,7 @@ public class GuiUtils {
             NeptusLog.pub().error("error taking snapshot", e);
         }
     }
-    
+
     /**
      * Get default full path for a log file, this goes to the images folder
      * @param extension
@@ -795,7 +795,7 @@ public class GuiUtils {
     public static String getLogFileName(String extension) {
         return getLogFileName("", extension);
     }
-    
+
     /**
      * Get full path for a log
      * @param prefix some defaults map directly to a folder ( sent_rmf, mission_state, output ) everything else to images folder
@@ -805,7 +805,7 @@ public class GuiUtils {
     public static String getLogFileName(String prefix, String extension) {
         if (prefix == null)
             prefix = "";
-        
+
         prefix = prefix.toLowerCase();
 
         File fx1 = new File("log");
@@ -843,8 +843,8 @@ public class GuiUtils {
     }
 
     /**
-	 * 
-	 */
+     * 
+     */
     public static void setLookAndFeel() {
         // Tries to change the look and feel to an improved one
         PlasticLookAndFeel.setPlasticTheme(new com.jgoodies.looks.plastic.theme.SkyBlue());
@@ -1119,7 +1119,7 @@ public class GuiUtils {
         g2d.drawString(new String(new char[] { letter }), (size - width) / 2 + 1, size - 3);
         return new ImageIcon(bi);
     }
-    
+
     /**
      * Search a for a JMenu item in a JMenuBar comparing by name
      * @param bar 
@@ -1136,7 +1136,7 @@ public class GuiUtils {
         }
         return false;
     }
-    
+
     public static JMenu getJMenuByName(JMenuBar bar, String name) {
         for(Component c : bar.getComponents()) {
             if(c instanceof JMenu) {
@@ -1147,6 +1147,7 @@ public class GuiUtils {
         }
         return null;
     }
+
     /**
      * Unitary test.
      * 
@@ -1158,7 +1159,7 @@ public class GuiUtils {
          * testFrame(new JLabel("dsdssdsdsdsdssssssssssssss")); GuiUtils.errorMessage(testFrame(new JLabel("dddddddd")),
          * "No more data to read", "Reached the end of stream. Cable unplugged?");
          */
-//        testFrame(new JLabel(getLetterIcon('R', Color.white, Color.blue.darker(), 22)));
+        //        testFrame(new JLabel(getLetterIcon('R', Color.white, Color.blue.darker(), 22)));
 
         NeptusLog.pub().info("<###> "+getLogFileName("mission_state", "zip"));
     }

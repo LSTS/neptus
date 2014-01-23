@@ -33,7 +33,6 @@ package pt.lsts.neptus.mra;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,17 +42,12 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.ProgressMonitor;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -64,7 +58,6 @@ import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.replay.LogReplay;
@@ -74,7 +67,6 @@ import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
-import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LogTree;
 import pt.lsts.neptus.util.llf.LogUtils;
@@ -113,8 +105,6 @@ public class MRAPanel extends JPanel {
     private MRAVisualization shownViz = null;
 
     InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
-
-    private JMenu exporters;
 
     /**
      * Constructor
@@ -226,56 +216,7 @@ public class MRAPanel extends JPanel {
         // Load markers
         loadMarkers();
 
-        LinkedHashMap<String, Class<? extends MRAExporter>> exporterMap = PluginsRepository
-                .listExtensions(MRAExporter.class);
-
-        Vector<MRAExporter> exporterList = new Vector<>();
-
-        for (Class<? extends MRAExporter> clazz : exporterMap.values()) {
-            try {
-                exporterList.add(clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] { source }));
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-            }
-        }
-
-        // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
-        JMenuBar bar = mra.getJMenuBar();
-        JMenu previousMenu = GuiUtils.getJMenuByName(bar, I18n.text("Exporters"));
-        if (previousMenu != null) {
-            bar.remove(previousMenu);
-        }
-
-        exporters = new JMenu(I18n.text("Exporters"));
-        for (final MRAExporter exp : exporterList) {
-            if (exp.canBeApplied(source)) {
-                JMenuItem item = new JMenuItem(new AbstractAction(exp.getName()) {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Thread t = new Thread(exp.getName() + " processing") {
-                            @Override
-                            public void run() {
-                                ProgressMonitor monitor = new ProgressMonitor(MRAPanel.this, exp.getName(), "", 0, 100);
-                                String res = exp.process(source, monitor);
-                                if (res != null)
-                                    GuiUtils.infoMessage(MRAPanel.this, exp.getName(), res);
-                                monitor.close();
-                            };
-                        };
-                        t.setDaemon(true);
-                        t.start();
-                    }
-                });
-                exporters.add(item);
-            }
-        }
-
-        if (exporters.getItemCount() > 0) {
-            bar.add(exporters);
-        }
-
-        // monitor.close();
+        mra.getMRAMenuBar().setUpExportersMenu(source);
     }
 
     public void loadVisualization(MRAVisualization vis, boolean open) {
@@ -503,6 +444,5 @@ public class MRAPanel extends JPanel {
             mainPanel.revalidate();
             mainPanel.repaint();
         }
-
     }
 }

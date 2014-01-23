@@ -45,7 +45,6 @@ import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -57,6 +56,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.ProgressMonitor;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -70,9 +70,12 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.WaitPanel;
 import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.exporters.MRAExporter;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.ConcatenateLsfLog;
 import pt.lsts.neptus.mra.replay.LogReplay;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.FileUtil;
@@ -99,9 +102,12 @@ import foxtrot.AsyncWorker;
 public class MRAMenuBar {
 
     private JMenuBar menuBar;
-    private JMenu fileMenu, reportMenu, settingsMenu, toolsMenu, helpMenu;
 
+    private JMenu fileMenu, reportMenu, settingsMenu, toolsMenu, helpMenu;
     private JMenu recentlyOpenFilesMenu = null;
+    private JMenu exporters;
+
+    private boolean isExportersAdded = false;;
 
     private AbstractAction openLsf, exit;
     protected AbstractAction genReport;
@@ -541,7 +547,8 @@ public class MRAMenuBar {
         helpMenu = new JMenu(I18n.text("Help"));
         JMenuItem aboutMenuItem = new JMenuItem();
         aboutMenuItem.setText(I18n.text("About"));
-        aboutMenuItem.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/info.png")));
+        //aboutMenuItem.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/info.png")));
+        aboutMenuItem.setIcon(ImageUtils.getIcon("images/menus/info.png"));
         aboutMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -550,6 +557,64 @@ public class MRAMenuBar {
             }
         });
         helpMenu.add(aboutMenuItem);
+    }
+
+    /**
+     * This Menu is only added to tools menu after a Log file is added
+     * @param source
+     */
+    public void setUpExportersMenu(final IMraLogGroup source) {
+        LinkedHashMap<String, Class<? extends MRAExporter>> exporterMap = PluginsRepository
+                .listExtensions(MRAExporter.class);
+
+        Vector<MRAExporter> exporterList = new Vector<>();
+
+        for (Class<? extends MRAExporter> clazz : exporterMap.values()) {
+            try {
+                exporterList.add(clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] { source }));
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+        }
+
+        // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
+        if(getExportersMenu()!=null)
+            toolsMenu.remove(getExportersMenu());
+
+        setExportersMenu(new JMenu(I18n.text("Exporters")));
+        getExportersMenu().setIcon(ImageUtils.getIcon("images/menus/export.png"));
+        getExportersMenu().setToolTipText(I18n.text("Export data to") + "...");
+        for (final MRAExporter exp : exporterList) {
+            if (exp.canBeApplied(source)) {
+                JMenuItem item = new JMenuItem(new AbstractAction(exp.getName()) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Thread t = new Thread(exp.getName() + " processing") {
+                            @Override
+                            public void run() {
+                                ProgressMonitor monitor = new ProgressMonitor(mra.getMraPanel(), exp.getName(), "", 0, 100);
+                                String res = exp.process(source, monitor);
+                                if (res != null)
+                                    GuiUtils.infoMessage(mra.getMraPanel(), exp.getName(), res);
+                                monitor.close();
+                            };
+                        };
+                        t.setDaemon(true);
+                        t.start();
+                    }
+                });
+                getExportersMenu().add(item);
+            }
+        }
+
+        if (getExportersMenu().getItemCount() > 0) {
+            if(!isExportersAdded) {
+                toolsMenu.addSeparator();
+                isExportersAdded = true;
+            }
+            toolsMenu.add(getExportersMenu());
+        }
     }
 
     /**
@@ -580,5 +645,19 @@ public class MRAMenuBar {
      */
     public AbstractAction getGenReportMenuItem() {
         return this.genReport;
+    }
+
+    /**
+     * @return the exporters
+     */
+    private JMenu getExportersMenu() {
+        return exporters;
+    }
+
+    /**
+     * @param exporters the exporters to set
+     */
+    private void setExportersMenu(JMenu exportersMenu) {
+        this.exporters = exportersMenu;
     }
 }
