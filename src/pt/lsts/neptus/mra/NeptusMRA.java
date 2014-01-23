@@ -98,7 +98,6 @@ public class NeptusMRA extends JFrame {
         setMraFilesHandler(new MRAFilesHandler(this));
         mraMenuBar.createMRAMenuBar();
         setJMenuBar(mraMenuBar.getMenuBar());
-
         setVisible(true);
 
         JLabel lbl = new JLabel(MRA_TITLE, JLabel.CENTER);

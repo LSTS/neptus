@@ -73,7 +73,6 @@ import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LsfTree;
 import pt.lsts.neptus.util.llf.LsfTreeMouseAdapter;
 import pt.lsts.neptus.util.llf.chart.MRAChartFactory;
-import pt.lsts.neptus.util.llf.replay.LLFMsgReplay;
 
 /**
  * @author ZP
@@ -87,16 +86,14 @@ public class MRAPanel extends JPanel {
     private IMraLogGroup source = null;
     private final JXStatusBar statusBar = new JXStatusBar();
 
-    private final LogReplay replay;
-    private final LLFMsgReplay replayMsg;
-
     private final JPanel leftPanel = new JPanel(new MigLayout("ins 0"));
     private final JPanel mainPanel = new JPanel(new MigLayout());
     private final JTabbedPane tabbedPane = new JTabbedPane();
 
-    private final JScrollPane jspMessageTree;
-    private final JScrollPane jspLogTree;
+    private JScrollPane jspMessageTree;
+    private JScrollPane jspLogTree;
 
+    private LogReplay replay;
     private final LinkedHashMap<String, MRAVisualization> visualizationList = new LinkedHashMap<String, MRAVisualization>();
     private final LinkedHashMap<String, Component> openVisualizationList = new LinkedHashMap<String, Component>();
     private final ArrayList<String> loadingVisualizations = new ArrayList<String>();
@@ -119,36 +116,65 @@ public class MRAPanel extends JPanel {
             FileUtil.copyFile("conf/tides.txt", new File(source.getFile("."), "tides.txt").getAbsolutePath());
         }
 
-        // Setup interface
+        // ------- Setup interface --------
+        setLayout(new BorderLayout(3, 3));
+
+        setUpLeftPanel();
+        setUpStatusBar();
+        setUpMainPanel();
+
+        // add split pane left panel and main visualizations to right side
+        JSplitPane splitPane = new JSplitPane();
+        splitPane.setLeftComponent(leftPanel);
+        splitPane.setRightComponent(mainPanel);
+        splitPane.setDividerLocation(250);
+        splitPane.setResizeWeight(0);
+
+        add(splitPane, BorderLayout.CENTER);
+        add(statusBar, BorderLayout.SOUTH);
+
+        // Load markers
+        loadMarkers();
+
+        // adds Exporters MenuItem to Tools menu after a Log is loaded
+        mra.getMRAMenuBar().setUpExportersMenu(source);
+    }
+
+    /**
+     * Left panel - Visualizations and Messages tree
+     */
+    private void setUpLeftPanel() {
         tree = new LsfTree(source);
         logTree = new LogTree(source, this);
-
         jspMessageTree = new JScrollPane(tree);
         jspLogTree = new JScrollPane(logTree);
-
         tabbedPane.addTab(I18n.text("Visualizations"), jspLogTree);
         tabbedPane.addTab(I18n.text("Messages"), jspMessageTree);
-
         leftPanel.add(tabbedPane, "wrap, w 100%, h 100%");
 
-        setLayout(new BorderLayout(3, 3));
-        JSplitPane pane = new JSplitPane();
+        for (int i = 0; i < logTree.getRowCount(); i++) {
+            logTree.expandRow(i);
+        }
 
+        tree.addMouseListener(new LsfTreeMouseAdapter(this));
+    }
+
+    /**
+     * Status bar - bottom info
+     */
+    private void setUpStatusBar() {
         VehicleType veh = LogUtils.getVehicle(source);
         Date startDate = LogUtils.getStartDate(source);
         String date = startDate != null ? " | <b>" + I18n.text("Date") + ":</b> " + new SimpleDateFormat("dd/MMM/yyyy").format(startDate) : "";
 
         statusBar.add(new JLabel("<html><b>" + I18n.text("Log") + ":</b> " + source.name() + date
                 + ((veh != null) ? " | <b>" + I18n.text("System") + ":</b> " + veh.getName() : "")));
+    }
 
-        pane.setLeftComponent(leftPanel);
-        pane.setRightComponent(mainPanel);
-
-        pane.setDividerLocation(250);
-        pane.setResizeWeight(0);
-
-        tree.addMouseListener(new LsfTreeMouseAdapter(this));
-
+    /**
+     * Load MRA visualizations from Plugins Repo
+     */
+    private void setUpMainPanel() {
         Vector<MRAVisualization> visualizations = new Vector<>();
         for (String visName : PluginsRepository.getMraVisualizations().keySet()) {
             try {
@@ -158,8 +184,9 @@ public class MRAPanel extends JPanel {
                         .newInstance(this);
                 PluginUtils.loadProperties(visualization, "mra");
 
-                if (visualization.canBeApplied(MRAPanel.this.source))
+                if (visualization.canBeApplied(MRAPanel.this.source)) {
                     visualizations.add(visualization);
+                }
             }
             catch (Exception e1) {
                 NeptusLog.pub().error(
@@ -185,8 +212,11 @@ public class MRAPanel extends JPanel {
         // Load PluginVisualizations
         for (MRAVisualization viz : visualizations) {
             try {
-                // monitor.setNote(I18n.textf("loading %chartname", viz.getName()));
                 loadVisualization(viz, false);
+                // for setMission interaction
+                if (viz.getName().equals("Replay")) {
+                    replay = (LogReplay) viz;
+                }
             }
             catch (Exception e1) {
                 NeptusLog.pub().error(
@@ -199,25 +229,6 @@ public class MRAPanel extends JPanel {
                                 + e2.getMessage() + "]");
             }
         }
-
-        replay = new LogReplay(this);
-        loadVisualization(replay, false);
-
-        replayMsg = new LLFMsgReplay(this);
-        loadVisualization(replayMsg, false);
-
-        add(pane, BorderLayout.CENTER);
-        add(statusBar, BorderLayout.SOUTH);
-
-        for (int i = 0; i < logTree.getRowCount(); i++) {
-            logTree.expandRow(i);
-        }
-
-        // Load markers
-        loadMarkers();
-
-        // adds Exporters MenuItem to Tools menu after a Log is loaded
-        mra.getMRAMenuBar().setUpExportersMenu(source);
     }
 
     /**
@@ -256,54 +267,32 @@ public class MRAPanel extends JPanel {
     }
 
     /**
-     * 
-     * @param marker
+     * Clean up MRA
+     * - removes and cleans LSF tree
+     * - removes and cleans Log tree
+     * - cleans up all MRAVisualization
+     * - clears source log
+     * - saves Markers on disk
      */
-    public void addMarker(LogMarker marker) {
+    public void cleanup() {
+        NeptusLog.pub().info("MRA Cleanup");
+        tree.removeAll();
+        tree = null;
 
-        if (existsMark(marker))
-            return;
-
-        // Calculate marker location
-        if (marker.lat == 0 && marker.lon == 0) {
-            IMCMessage m = source.getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
-            LocationType loc = LogUtils.getLocation(m);
-
-            marker.lat = loc.getLatitudeAsDoubleValueRads();
-            marker.lon = loc.getLongitudeAsDoubleValueRads();
-        }
-        logTree.addMarker(marker);
-        logMarkers.add(marker);
-
-        // getTimestampsForMarker(marker, 2);
+        logTree.removeAll();
+        logTree = null;
 
         for (MRAVisualization vis : visualizationList.values()) {
-            if (vis instanceof LogMarkerListener) {
-                ((LogMarkerListener) vis).addLogMarker(marker);
-            }
+            vis.onCleanup();
+            vis = null;
         }
+
+        openVisualizationList.clear();
 
         saveMarkers();
 
-    }
-
-    /**
-     * 
-     * @param marker
-     */
-    public void removeMarker(LogMarker marker) {
-        logTree.removeMarker(marker);
-        logMarkers.remove(marker);
-        for (MRAVisualization vis : visualizationList.values()) {
-            if (vis instanceof LogMarkerListener) {
-                try {
-                    ((LogMarkerListener) vis).removeLogMarker(marker);
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().error(e);
-                }
-            }
-        }
+        source.cleanup();
+        source = null;
     }
 
     /**
@@ -312,6 +301,16 @@ public class MRAPanel extends JPanel {
      */
     public void removeTreeObject(Object obj) {
         logTree.remove(obj);
+    }
+
+    /**
+     * @param marker
+     */
+    public void synchVisualizations(LogMarker marker) {
+        for (MRAVisualization v : visualizationList.values()) {
+            if (v instanceof LogMarkerListener)
+                ((LogMarkerListener) v).GotoMarker(marker);
+        }
     }
 
     /**
@@ -345,6 +344,73 @@ public class MRAPanel extends JPanel {
                 NeptusLog.pub().info("<###> " + marker.label + " --- " + state.getTimestampMillis());
             }
         }
+    }
+
+    /**
+     * 
+     * @param marker
+     */
+    public void addMarker(LogMarker marker) {
+
+        if (existsMark(marker))
+            return;
+
+        // Calculate marker location
+        if (marker.lat == 0 && marker.lon == 0) {
+            IMCMessage m = source.getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
+            LocationType loc = LogUtils.getLocation(m);
+
+            marker.lat = loc.getLatitudeAsDoubleValueRads();
+            marker.lon = loc.getLongitudeAsDoubleValueRads();
+        }
+        logTree.addMarker(marker);
+        logMarkers.add(marker);
+
+        // getTimestampsForMarker(marker, 2);
+
+        for (MRAVisualization vis : visualizationList.values()) {
+            if (vis instanceof LogMarkerListener) {
+                ((LogMarkerListener) vis).addLogMarker(marker);
+            }
+        }
+        saveMarkers();
+    }
+
+    /**
+     * 
+     * @param marker
+     */
+    public void removeMarker(LogMarker marker) {
+        logTree.removeMarker(marker);
+        logMarkers.remove(marker);
+        for (MRAVisualization vis : visualizationList.values()) {
+            if (vis instanceof LogMarkerListener) {
+                try {
+                    ((LogMarkerListener) vis).removeLogMarker(marker);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Load markers
+     */
+    public void loadMarkers() {
+        logMarkers.clear();
+        logMarkers.addAll(LogMarker.load(source));
+        Collections.sort(logMarkers);
+        for (LogMarker lm : logMarkers)
+            logTree.addMarker(lm);
+    }
+
+    /**
+     * Save markers
+     */
+    public void saveMarkers() {
+        LogMarker.save(logMarkers, source);
     }
 
     /**
@@ -392,53 +458,8 @@ public class MRAPanel extends JPanel {
     }
 
     /**
-     * Clean up MRA
-     * - removes and cleans LSF tree
-     * - removes and cleans Log tree
-     * - cleans up all MRAVisualization
-     * - clears source log
-     * - saves Markers on disk
+     *
      */
-    public void cleanup() {
-        NeptusLog.pub().info("MRA Cleanup");
-        tree.removeAll();
-        tree = null;
-
-        logTree.removeAll();
-        logTree = null;
-
-        for (MRAVisualization vis : visualizationList.values()) {
-            vis.onCleanup();
-            vis = null;
-        }
-
-        openVisualizationList.clear();
-
-        saveMarkers();
-
-        source.cleanup();
-        source = null;
-    }
-
-    public void loadMarkers() {
-        logMarkers.clear();
-        logMarkers.addAll(LogMarker.load(source));
-        Collections.sort(logMarkers);
-        for (LogMarker lm : logMarkers)
-            logTree.addMarker(lm);
-    }
-
-    public void saveMarkers() {
-        LogMarker.save(logMarkers, source);
-    }
-
-    public void synchVisualizations(LogMarker marker) {
-        for (MRAVisualization v : visualizationList.values()) {
-            if (v instanceof LogMarkerListener)
-                ((LogMarkerListener) v).GotoMarker(marker);
-        }
-    }
-
     class LoadTask implements Runnable {
         MRAVisualization vis;
 
