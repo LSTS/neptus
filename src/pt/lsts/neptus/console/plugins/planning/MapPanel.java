@@ -35,8 +35,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
@@ -45,7 +43,6 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JToolBar;
 
 import pt.lsts.imc.PlanControlState;
@@ -76,7 +73,6 @@ import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.renderer2d.VehicleStateListener;
-import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.PlanElement;
@@ -204,19 +200,6 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
         setToolbarPlacement();
 
-        renderer.addMenuExtension(new IEditorMenuExtension() {
-            @Override
-            public Collection<JMenuItem> getApplicableItems(LocationType loc, IMapPopup source) {
-                JMenuItem item = new JMenuItem(I18n.text("Choose visible layers"));
-                item.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        renderer.painterSelection();
-                    }
-                });
-                return Arrays.asList(item);
-            }
-        });
     }
 
     @Override

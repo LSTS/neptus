@@ -172,7 +172,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         return item;
     }
 
-    public JMenu addMenu(String itemPath, ImageIcon icon, ActionListener actionListener) {
+    public JMenu addMenu(String itemPath, ImageIcon icon) {
         String[] ptmp = itemPath.split(">");
         if (ptmp.length < 1) {
             NeptusLog.pub().error("Menu path has to have at least one component");

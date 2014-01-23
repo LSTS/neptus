@@ -34,6 +34,7 @@ package pt.lsts.neptus.renderer2d;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
@@ -87,16 +88,39 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
 	            LocationType end = source.getRealWorldLocation(lastDragPoint);
 	            double distance = end.getDistanceInMeters(firstDragPoint);
 	            String txt = String.format("%.2f m", distance);
-	            g.setStroke(new BasicStroke(3.2f));
-	            g.setColor(Color.black);
+	            g.setStroke(new BasicStroke(5.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+	            g.setColor(new Color(0,0,0,100));
 	            Point2D start = source.getScreenPosition(firstDragPoint);
+	            
+	            
+	            int angle = (int) Math.toDegrees(Math.PI/2+Math.atan2(lastDragPoint.getY()-start.getY(),lastDragPoint.getX() - start.getX()));
+	            if (angle < 0)
+	                angle += 360;
+	            String angleTxt = String.format("%dº", angle);
+                g.fillArc((int)start.getX()-15, (int)start.getY()-15, 30, 30, 90, -angle);
 	            g.draw(new Line2D.Double(start, lastDragPoint));
-	            g.drawString(txt, (int)(lastDragPoint.getX()+11), (int)(lastDragPoint.getY()+10));
-	            g.drawString(txt, (int)(lastDragPoint.getX()+11), (int)(lastDragPoint.getY()+11));
-                g.setStroke(new BasicStroke(2.5f));
-	            g.setColor(Color.orange);
-	            g.draw(new Line2D.Double(start, lastDragPoint));
-	            g.drawString(txt, (int)(lastDragPoint.getX()+10), (int)(lastDragPoint.getY()+10));
+	            g.setColor(Color.black);
+	            g.setStroke(new BasicStroke(2.5f));
+                g.setColor(Color.green.brighter().brighter());
+                g.draw(new Line2D.Double(start, lastDragPoint));
+                g.setFont(new Font("Arial", Font.BOLD, 16));
+                g.setColor(new Color(0,0,0,100));
+	            g.drawString(txt, (int)(lastDragPoint.getX()+12), (int)(lastDragPoint.getY()+11));
+	            g.drawString(txt, (int)(lastDragPoint.getX()+12), (int)(lastDragPoint.getY()+12));
+	            
+	            g.setFont(new Font("Arial", Font.BOLD, 12));
+	            g.drawString(angleTxt, (int)(start.getX()+7), (int)(start.getY()+6));
+                g.drawString(angleTxt, (int)(start.getX()+6), (int)(start.getY()+6));
+                
+                
+	            g.setFont(new Font("Arial", Font.BOLD, 12));
+	            g.setColor(Color.gray.brighter());
+	            g.drawString(angleTxt, (int)(start.getX()+5), (int)(start.getY()+5));
+	            
+	            g.setColor(Color.white);
+                g.setFont(new Font("Arial", Font.BOLD, 16));
+                g.drawString(txt, (int)(lastDragPoint.getX()+10), (int)(lastDragPoint.getY()+10));
+                
 	        }	        
             g.drawImage(rulerIcon, 20, 50, null);
 	    }
@@ -125,6 +149,10 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
 	@Override
 	public boolean isExclusive() {
 		return true;
+	}
+	
+	public void resetView() {
+	    
 	}
 	
 	public void keyPressed(KeyEvent event, StateRenderer2D source) {
@@ -204,7 +232,10 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 source.setLegendShown(!source.isLegendShown());
                 source.repaint();
                 break;
-                
+            case (KeyEvent.VK_F1):
+                source.resetView();
+                repaint();
+                break;
           case (KeyEvent.VK_G):
               source.setGridShown(!source.isGridShown());
               repaint();

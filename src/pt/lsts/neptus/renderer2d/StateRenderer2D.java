@@ -121,6 +121,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
 
     static final long serialVersionUID = 15;
     public static final int MAP_MOVES = 0, VEHICLE_MOVES = 1;
+    public static final float DEFAULT_ZOOM = 2.5f / 2.0f;
     private final int DEFAULT_LOD = 18;
     private final int MIN_LOD = MapTileUtil.LEVEL_MIN;
     private final int MAX_LOD = MapTileUtil.LEVEL_MAX;
@@ -163,7 +164,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         worldPixelXY.setLocation(ms2, ms2);
     }
 
-    private float zoom = 2.5f / 2.0f; // zoomMult = 1.0f;
+    
+    private float zoom = DEFAULT_ZOOM; // zoomMult = 1.0f;
     private int levelOfDetail = DEFAULT_LOD;
     {
         setLevelOfDetail(getLevelOfDetail());
@@ -734,6 +736,14 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             double nwy = (localRenderY - getHeight() / 2);
             worldPixelXY.setLocation(worldPixelXY.getX() + nwx, worldPixelXY.getY() + nwy);
         }
+    }
+    
+    public void resetView() {
+        focusLocation(getMapGroup().getHomeRef().getCenterLocation());
+        setRotation(0);
+        setZoom(DEFAULT_ZOOM);
+        setLevelOfDetail(DEFAULT_LOD);
+        repaint();
     }
 
     /**

@@ -214,15 +214,14 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
             Point2D pt = renderer.getScreenPosition(states.get(i).getPosition());
             g2.translate(pt.getX(), pt.getY());
             g2.scale(renderer.getZoom(), renderer.getZoom());
-            g2.rotate(states.get(i).getYaw());
+            g2.rotate(-renderer.getRotation()+states.get(i).getYaw());
             
             for (PayloadFingerprint pf : payloads.get(man)) {
                 SystemPositionAndAttitude state = states.get(i);
                 state.setAltitude(SimulationEngine.simBathym.getSimulatedDepth(state.getPosition()));
                 Area a = pf.getFingerprint(states.get(i));
-                //System.out.println(a.getBounds2D());
                 g2.setColor(pf.getColor());
-                g2.fill(a);
+                g2.fill(a);                
             }
         }
         
