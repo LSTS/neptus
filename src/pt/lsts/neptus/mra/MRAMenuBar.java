@@ -547,7 +547,6 @@ public class MRAMenuBar {
         helpMenu = new JMenu(I18n.text("Help"));
         JMenuItem aboutMenuItem = new JMenuItem();
         aboutMenuItem.setText(I18n.text("About"));
-        //aboutMenuItem.setIcon(new ImageIcon(this.getClass().getClassLoader().getResource("images/menus/info.png")));
         aboutMenuItem.setIcon(ImageUtils.getIcon("images/menus/info.png"));
         aboutMenuItem.addActionListener(new ActionListener() {
             @Override
@@ -604,6 +603,7 @@ public class MRAMenuBar {
                         t.start();
                     }
                 });
+                item.setIcon(ImageUtils.getIcon("images/menus/export.png"));
                 getExportersMenu().add(item);
             }
         }

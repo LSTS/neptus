@@ -216,9 +216,15 @@ public class MRAPanel extends JPanel {
         // Load markers
         loadMarkers();
 
+        // adds Exporters MenuItem to Tools menu after a Log is loaded
         mra.getMRAMenuBar().setUpExportersMenu(source);
     }
 
+    /**
+     * 
+     * @param vis
+     * @param open
+     */
     public void loadVisualization(MRAVisualization vis, boolean open) {
         // Doesnt exist already, load..
         if (!visualizationList.keySet().contains(vis.getName())) {
@@ -241,10 +247,18 @@ public class MRAPanel extends JPanel {
         }
     }
 
+    /**
+     *
+     * @param viz
+     */
     public void openVisualization(MRAVisualization viz) {
         new Thread(new LoadTask(viz), "Open viz " + viz.getName()).start();
     }
 
+    /**
+     * 
+     * @param marker
+     */
     public void addMarker(LogMarker marker) {
 
         if (existsMark(marker))
@@ -273,6 +287,10 @@ public class MRAPanel extends JPanel {
 
     }
 
+    /**
+     * 
+     * @param marker
+     */
     public void removeMarker(LogMarker marker) {
         logTree.removeMarker(marker);
         logMarkers.remove(marker);
@@ -288,10 +306,19 @@ public class MRAPanel extends JPanel {
         }
     }
 
+    /**
+     * 
+     * @param obj
+     */
     public void removeTreeObject(Object obj) {
         logTree.remove(obj);
     }
 
+    /**
+     * 
+     * @param marker
+     * @return
+     */
     public boolean existsMark(LogMarker marker) {
         for (LogMarker m : logMarkers) {
             if (m.label.equals(marker.label))
@@ -300,6 +327,11 @@ public class MRAPanel extends JPanel {
         return false;
     }
 
+    /**
+     * 
+     * @param marker
+     * @param distance
+     */
     public void getTimestampsForMarker(LogMarker marker, double distance) {
         LsfGenericIterator i = source.getLsfIndex().getIterator("EstimatedState");
         LocationType l = marker.getLocation();
@@ -315,11 +347,16 @@ public class MRAPanel extends JPanel {
         }
     }
 
+    /**
+     * Gets LogReplay instance
+     * @return replay
+     */
     public LogReplay getMissionReplay() {
         return replay;
     }
 
     /**
+     * Get the LsfTree
      * @return the tree
      */
     public LsfTree getTree() {
@@ -340,14 +377,28 @@ public class MRAPanel extends JPanel {
         return source;
     }
 
+    /**
+     * @return logMarkers
+     */
     public ArrayList<LogMarker> getMarkers() {
         return logMarkers;
     }
 
+    /**
+     * @return loader
+     */
     public InfiniteProgressPanel getLoader() {
         return loader;
     }
 
+    /**
+     * Clean up MRA
+     * - removes and cleans LSF tree
+     * - removes and cleans Log tree
+     * - cleans up all MRAVisualization
+     * - clears source log
+     * - saves Markers on disk
+     */
     public void cleanup() {
         NeptusLog.pub().info("MRA Cleanup");
         tree.removeAll();
