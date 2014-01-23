@@ -33,7 +33,7 @@ package pt.lsts.neptus.console.plugins.planning;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -43,6 +43,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 
 import pt.lsts.imc.PlanControlState;
@@ -51,6 +52,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ConsoleSystem;
+import pt.lsts.neptus.console.IConsoleLayer;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.ConsoleVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
@@ -192,7 +194,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         tailSwitch = new ToolbarSwitch(tailMode);
         tailSwitch.setSelected(false);
         
-        bottom.addSeparator(new Dimension(10, 100));
+        bottom.add(new JSeparator(JSeparator.HORIZONTAL));
         bottom.add(tailSwitch);
 
         status.setForeground(Color.red);
@@ -355,8 +357,49 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         setToolbarPlacement(); // Refresh toolbar position
     }
 
+    public void addLayer(final IConsoleLayer layer) {
+        final String name = layer.getName();
+        AbstractAction custom = new AbstractAction(layer.getName(), ImageUtils.getScaledIcon(
+                layer.getIcon(), 16, 16)) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (((ToolbarSwitch) e.getSource()).isSelected()) {
+                    renderer.addPostRenderPainter(layer, name);
+                }
+                else {
+                    renderer.removePostRenderPainter(layer);
+                }
+            }
+        };
+        ToolbarSwitch tswitch = new ToolbarSwitch(I18n.text(name), custom);
+        tswitch.setSelected(false);
+        bottom.add(tswitch, bottom.getComponentCount());        
+        invalidate();
+        revalidate();
+    }
+    
+    public void removeLayer(final IConsoleLayer layer) {
+        final String name = layer.getName();
+        renderer.removePostRenderPainter(layer);
+        for (int i = 0; i < bottom.getComponentCount(); i++) {
+            Component c = bottom.getComponent(i);
+            if (c instanceof ToolbarSwitch) {
+                ToolbarSwitch ts = (ToolbarSwitch)c;
+                if (ts.getToolTipText().equals(name)) {
+                    bottom.remove(ts);
+                    break;
+                }
+            }
+        }
+        invalidate();
+        revalidate();
+    }
+    
     @Override
     public void addInteraction(StateRendererInteraction interaction) {
+        
         try {
             final String name = interaction.getName();
             if (!interactionModes.containsKey(name))

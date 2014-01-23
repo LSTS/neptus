@@ -50,9 +50,9 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 public class ConsoleInteraction extends AbstractConsolePlugin implements IConsoleInteraction {
 
     private InteractionAdapter adapter = null;
-
+    
     @Override
-    public void init(ConsoleLayout console) {
+    public final void init(ConsoleLayout console) {
         super.init(console);
         adapter = new InteractionAdapter(console);
     }
@@ -95,7 +95,7 @@ public class ConsoleInteraction extends AbstractConsolePlugin implements IConsol
 
     @Override
     public void mouseReleased(MouseEvent event, StateRenderer2D source) {
-        mouseReleased(event, source);
+        adapter.mouseReleased(event, source);
     }
 
     @Override

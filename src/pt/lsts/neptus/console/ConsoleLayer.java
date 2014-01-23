@@ -31,8 +31,13 @@
  */
 package pt.lsts.neptus.console;
 
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+
 import org.dom4j.Attribute;
 import org.dom4j.Element;
+
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 
 /**
  * @author zp
@@ -77,6 +82,19 @@ public abstract class ConsoleLayer extends AbstractConsolePlugin implements ICon
     public final void clean() {
         super.clean();
         cleanLayer();
+    }
+    
+    public AlphaComposite getComposite() {
+        return AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity);
+    }
+    
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        if (opacity <= 0)
+            return;
+        if (opacity < 1) {
+            g.setComposite(getComposite());
+        }
     }
     
     @Override

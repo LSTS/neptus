@@ -205,6 +205,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     protected Point2D lastDragPoint = null, rulerFirstPoint = null, rulerLastPoint = null;
     protected MarkElement homeRef;
     protected MapLegend legend = new MapLegend();
+    protected CursorLocationPainter cursorPainter = new CursorLocationPainter();
     protected final NumberFormat df = GuiUtils.getNeptusDecimalFormat(2);
     protected MapChangeEvent lastMapChangeEvent = null;
     protected Color gridColor = new Color(0, 0, 0);
@@ -296,8 +297,7 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         setFocusable(true);
         addPostRenderPainter(new TransponderSecurityArea(), "Transponder Security Area");
         addKeyListener(this);
-        addPostRenderPainter(new CursorLocationPainter(), "Cursor Painter");
-
+        
         preferencesUpdated();
         GeneralPreferences.addPreferencesListener(this);
 
@@ -1435,10 +1435,12 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     public void setLegendShown(boolean legendShown) {
         if (this.legendShown == false && legendShown == true) {
             addPostRenderPainter(legend, "Legend");
+            addPostRenderPainter(cursorPainter, "Cursor Painter");
         }
 
         if (this.legendShown == true && legendShown == false) {
             removePostRenderPainter(legend);
+            removePostRenderPainter(cursorPainter);
         }
 
         this.legendShown = legendShown;

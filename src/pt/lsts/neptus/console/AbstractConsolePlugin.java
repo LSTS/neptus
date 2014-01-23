@@ -31,14 +31,23 @@
  */
 package pt.lsts.neptus.console;
 
+import java.util.Collection;
+
 import javax.swing.ImageIcon;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.console.plugins.MissionChangeListener;
+import pt.lsts.neptus.console.plugins.PlanChangeListener;
+import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.util.ImageUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -48,10 +57,11 @@ import com.l2fprod.common.propertysheet.Property;
  * @author zp
  *
  */
-public class AbstractConsolePlugin implements PropertiesProvider {
+public abstract class AbstractConsolePlugin implements PropertiesProvider {
 
     private ConsoleLayout console;
     private ImageIcon icon;
+    private Collection<IPeriodicUpdates> periodicMethods = null;
     
     @Override
     public final DefaultProperty[] getProperties() {
@@ -108,10 +118,50 @@ public class AbstractConsolePlugin implements PropertiesProvider {
     
     public void init(ConsoleLayout console) {
         this.console = console;
+        if (this instanceof MissionChangeListener)
+            getConsole().addMissionListener((MissionChangeListener) this);
+
+        if (this instanceof PlanChangeListener)
+            getConsole().addPlanListener((PlanChangeListener) this);
+        
+        if (this instanceof IPeriodicUpdates) {
+            PeriodicUpdatesService.register((IPeriodicUpdates) this);
+        }
+        
+        periodicMethods = PeriodicUpdatesService.inspect(this);
+        for (IPeriodicUpdates i : periodicMethods) {
+            PeriodicUpdatesService.register(i);
+        }
+        
+        ImcMsgManager.registerBusListener(this);
     }
-
+    
     public void clean() {
+        NeptusEvents.unregister(this, getConsole());
+        if (this instanceof MissionChangeListener) {
+            getConsole().removeMissionListener((MissionChangeListener) this);
+        }
 
+        if (this instanceof MainVehicleChangeListener) {
+            getConsole().removeMainVehicleListener((MainVehicleChangeListener)this);
+        }
+
+        if (this instanceof PlanChangeListener) {
+            getConsole().removePlanListener((PlanChangeListener) this);
+        }
+
+        if (this instanceof IPeriodicUpdates)
+            PeriodicUpdatesService.unregister((IPeriodicUpdates) this);
+
+        if (periodicMethods != null) {
+            for (IPeriodicUpdates i : periodicMethods) {
+                PeriodicUpdatesService.unregister(i);
+            }
+            periodicMethods.clear();
+        }
+        
+        ImcMsgManager.unregisterBusListener(this);
+        
     }
     
     public final ImageIcon getIcon() {
@@ -126,5 +176,5 @@ public class AbstractConsolePlugin implements PropertiesProvider {
      */
     public ConsoleLayout getConsole() {
         return console;
-    }
+    }    
 }

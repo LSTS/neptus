@@ -83,7 +83,7 @@ import com.l2fprod.common.propertysheet.Property;
 /**
  * @author zp
  */
-@PluginDescription(name = "Plan Execution Preview", author = "zp", icon="images/planning/robot.png")
+@PluginDescription(name = "Plan Simulation", author = "zp", icon="images/planning/robot.png")
 @LayerPriority(priority = 60)
 public class PlanExecutionPreview extends SimpleRendererInteraction implements Renderer2DPainter, ConfigurationListener {
 

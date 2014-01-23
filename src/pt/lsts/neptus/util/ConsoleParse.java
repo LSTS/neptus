@@ -36,6 +36,7 @@ import java.awt.Rectangle;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -49,6 +50,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -175,7 +177,7 @@ public class ConsoleParse implements FileHandler {
             }
             else if ("interactions".equals(element.getName())) {
                 ConfigFetch.mark("load interactions");
-                parseConsoleInteractions(element, console);
+                interactions = parseConsoleInteractions(element, console);
                 ConfigFetch.benchmark("load interactions");
             }
                 
@@ -243,9 +245,18 @@ public class ConsoleParse implements FileHandler {
                 ret.add(cp);
             }
             catch (Exception e) {
+                e.printStackTrace();
                 NeptusLog.pub().error("Error parsing " + element.asXML());
             }
         }        
+        
+        Collections.sort(ret, new Comparator<IConsoleLayer>() {
+            @Override
+            public int compare(IConsoleLayer o1, IConsoleLayer o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        
         return ret;
     }
     
@@ -264,7 +275,14 @@ public class ConsoleParse implements FileHandler {
             catch (Exception e) {
                 NeptusLog.pub().error("Error parsing " + element.asXML());
             }
-        }        
+        }      
+        
+        Collections.sort(ret, new Comparator<IConsoleInteraction>() {
+            @Override
+            public int compare(IConsoleInteraction o1, IConsoleInteraction o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
         return ret;
     }
     
