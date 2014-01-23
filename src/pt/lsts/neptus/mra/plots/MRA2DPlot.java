@@ -120,7 +120,7 @@ public abstract class MRA2DPlot implements LLFChart, LogMarkerListener {
 
     @Override
     public ImageIcon getIcon() {
-        return ImageUtils.getIcon("images/menus/graph.png");
+        return ImageUtils.getIcon("images/menus/graph2.png");
     }
 
     @Override
