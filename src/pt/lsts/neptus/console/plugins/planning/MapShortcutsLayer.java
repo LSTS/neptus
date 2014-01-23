@@ -39,10 +39,10 @@ import javax.swing.JLabel;
 
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.StreamUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -52,6 +52,7 @@ import pt.lsts.neptus.util.StreamUtil;
 @LayerPriority(priority = 200)
 public class MapShortcutsLayer extends ConsoleLayer {
 
+    private String filename = "pt/lsts/neptus/console/plugins/planning/shortcuts.html";
     private String html;
     JLabel lbl;
 
@@ -66,30 +67,28 @@ public class MapShortcutsLayer extends ConsoleLayer {
         lbl.setBounds((int) x, (int) y, (int) d.getWidth(), (int) d.getHeight());
         lbl.paint(g);
     }
-    
-    @Periodic(millisBetweenUpdates=4000)
-    public void update() {
-        
-        html = StreamUtil.copyStreamToString(getClass().getClassLoader().getResourceAsStream(
-                "pt/lsts/neptus/console/plugins/planning/shortcuts.html"));
-        lbl = new JLabel(html);
-        lbl.setOpaque(true);
-        lbl.setBackground(Color.black);
-        lbl.setBackground(new Color(255,255,255,128));
-    }
 
     @Override
     public boolean userControlsOpacity() {
-        return false;
+        return true;
     }
 
     @Override
     public void initLayer() {
-
-        html = StreamUtil.copyStreamToString(getClass().getClassLoader().getResourceAsStream(
-                "pt/lsts/neptus/console/plugins/planning/shortcuts.html"));
+        
+        String f_loc = filename+"."+GeneralPreferences.language;
+        try {
+            html = StreamUtil.copyStreamToString(getClass().getClassLoader().getResourceAsStream(
+               f_loc));
+        }
+        catch (Exception e) {
+            html = StreamUtil.copyStreamToString(getClass().getClassLoader().getResourceAsStream(
+                    filename));
+        }
         lbl = new JLabel(html);
-        lbl.setOpaque(false);
+        lbl.setOpaque(true);
+        lbl.setBackground(Color.black);
+        lbl.setBackground(new Color(255,255,255,200));
     }
 
     @Override
