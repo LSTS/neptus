@@ -104,7 +104,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
  * @author zp
  * 
  */
-@PluginDescription(name = "Operation Limits", category = CATEGORY.PLANNING, icon = "pt/lsts/neptus/plugins/oplimits/limits.png", documentation = "oplimits/oplimits.html")
+@PluginDescription(name = "Operation Limits", category = CATEGORY.PLANNING, icon = "pt/lsts/neptus/plugins/oplimits/lock.png", documentation = "oplimits/oplimits.html")
 public class OperationLimitsSubPanel extends ConsolePanel implements ConfigurationListener,
         MainVehicleChangeListener, NeptusMessageListener, Renderer2DPainter, StateRendererInteraction {
 

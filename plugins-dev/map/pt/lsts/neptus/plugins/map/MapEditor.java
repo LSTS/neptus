@@ -104,7 +104,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author zp
  * @author pdias
  */
-@PluginDescription(author = "José Pinto, Paulo Dias", name = "Map Editor", icon = "pt/lsts/neptus/plugins/map/map.png", version = "1.5", category = CATEGORY.INTERFACE)
+@PluginDescription(author = "José Pinto, Paulo Dias", name = "Map Editor", icon = "pt/lsts/neptus/plugins/map/map-edit.png", version = "1.5", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 90)
 public class MapEditor extends ConsolePanel implements StateRendererInteraction, Renderer2DPainter,
         MissionChangeListener, ConfigurationListener {

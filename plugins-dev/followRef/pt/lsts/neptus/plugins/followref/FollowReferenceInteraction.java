@@ -86,7 +86,7 @@ import com.google.common.eventbus.Subscribe;
  * @author zp
  * 
  */
-@PluginDescription(name = "FollowReference Interaction", category = CATEGORY.PLANNING, icon="pt/lsts/neptus/plugins/followref/target.png")
+@PluginDescription(name = "FollowReference Interaction", category = CATEGORY.PLANNING, icon="pt/lsts/neptus/plugins/followref/geolocation.png")
 public class FollowReferenceInteraction extends SimpleRendererInteraction implements IPeriodicUpdates,
         ConfigurationListener {
 
