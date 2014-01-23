@@ -304,7 +304,8 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
 		lastDragPoint = event.getPoint();
 		if(!event.isControlDown())
 		    measuring = false;
-		
+		if(!event.isShiftDown())
+            rotating = false;        
 		if (measuring && firstDragPoint == null)
 		    firstDragPoint = source.getRealWorldLocation(event.getPoint());
 		deltaX = deltaY = 0;

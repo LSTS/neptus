@@ -63,8 +63,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 
-import com.google.common.eventbus.Subscribe;
-
 import pt.lsts.imc.GetOperationalLimits;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
@@ -99,6 +97,8 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -498,7 +498,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
         adapter.mouseClicked(event, source);
-
+        boolean handled = false;
         if (event.getButton() == MouseEvent.BUTTON3) {
             JPopupMenu popup = new JPopupMenu();
             popup.add(editLimits);
@@ -509,19 +509,10 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             popup.addSeparator();
             popup.add(sendAction);
             popup.add(updateAction);
+            handled = true;
             popup.show(source, event.getX(), event.getY());
         }
-        else {
-
-            adapter.mouseClicked(event, source);
-            if (event.getButton() == MouseEvent.BUTTON3) {
-                rectangle = null;
-                pp = null;
-                clickCount = 0;
-                repaint();
-                return;
-            }
-
+        else {            
             if (rectangle == null) {
                 points[0] = source.getRealWorldLocation(event.getPoint());
                 rectangle = new PathElement(source.getMapGroup(), null, points[0]);
@@ -530,12 +521,14 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                 rectangle.setStroke(new BasicStroke(2.0f));
                 rectangle.addPoint(0, 0, 0, false);
                 clickCount = 1;
+                handled = true;
             }
             else if (clickCount == 1) {
                 clickCount++;
                 points[1] = source.getRealWorldLocation(event.getPoint());
                 double[] offsets = points[1].getOffsetFrom(rectangle.getCenterLocation());
                 rectangle.addPoint(offsets[1], offsets[0], 0, false);
+                handled = true;
             }
             else if (clickCount == 2) {
                 clickCount++;
@@ -582,11 +575,13 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                     pp.setCenterLocation(new LocationType(pp.getCenterLocation().translatePosition(
                             points[0].getOffsetFrom(points[2]))));
                 setLimitsFromSelection(pp);
+                handled = true;
 
-            }
+            }            
             repaint();
-
         }
+        if (!handled)
+            adapter.mouseClicked(event, source);        
     }
 
     @Override
@@ -597,7 +592,6 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
     @Override
     public void mouseDragged(MouseEvent event, StateRenderer2D source) {
         if (dragging) {
-
             double my = event.getPoint().getY() - lastDragPoint.getY();
 
             if (event.isShiftDown())
@@ -612,21 +606,25 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             source.repaint();
         }
         else {
-            if (!event.isShiftDown())
-                adapter.mouseDragged(event, source);
+            //if (!event.isShiftDown())
+            //    adapter.mouseDragged(event, source);
+            adapter.mouseDragged(event, source);
         }
         lastDragPoint = event.getPoint();
     }
 
     @Override
     public void mousePressed(MouseEvent event, StateRenderer2D source) {
-        adapter.mousePressed(event, source);
+        boolean handled = false;
         if (editing) {
             lastDragPoint = event.getPoint();
             if (pp != null && pp.containsPoint(source.getRealWorldLocation(lastDragPoint), source)) {
                 dragging = true;
+                handled = true;
             }
         }
+        if (!handled)
+            adapter.mousePressed(event, source);
     }
 
     @Override
@@ -639,7 +637,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
         adapter.mouseReleased(event, source);
         if (dragging) {
             dragging = false;
-            setLimitsFromSelection(pp);
+            setLimitsFromSelection(pp);            
         }
         lastDragPoint = null;
 
