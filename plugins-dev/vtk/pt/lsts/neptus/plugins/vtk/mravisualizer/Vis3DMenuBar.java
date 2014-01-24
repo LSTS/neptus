@@ -38,14 +38,20 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
 
 import javax.swing.AbstractAction;
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.filechooser.FileFilter;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.Vtk;
+import pt.lsts.neptus.plugins.vtk.utils.File3DUtils;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -61,7 +67,7 @@ public class Vis3DMenuBar extends JMenuBar {
     private JMenu fileMenu, editMenu, viewMenu, toolsMenu, helpMenu;
 
     // File Menu
-    private AbstractAction saveFile, saFileAsPointCloud, saveFileAsMesh;
+    private AbstractAction saveFile, saveFileAsPointCloud, saveFileAsMesh;
     // Edit Menu
     private AbstractAction configs;
 
@@ -113,7 +119,35 @@ public class Vis3DMenuBar extends JMenuBar {
             }
         };
 
+        saveFileAsPointCloud = new VisAction(I18n.text("Save pointcloud as") + "...", ImageUtils.getIcon("images/menus/saveas.png"),
+                I18n.text("Save a pointcloud to a file") +".", KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK, true))
+        {
 
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser chooser = new JFileChooser(vtkInit.getLog().getFile("Data.lsf").getParentFile());
+
+                //                FileFilter filefilter = GuiUtils.getCustomFileFilter(I18n.text("3D files ")  + "*.vtk" + ", *.stl"
+                //                        + ", *.ply" + ", *.obj" + ", *.wrl" + " *.x3d", new String[] { "X3D", "VTK", "STL", "PLY", "OBJ", "WRL" });
+
+                FileFilter filefilter = GuiUtils.getCustomFileFilter(I18n.text("3D files ")  + "*.vtk" + ", *.stl"
+                        + ", *.ply" + ", *.obj" + ", *.wrl" + " *.x3d", File3DUtils.TYPES_3D_FILES);
+
+                chooser.setFileFilter((FileFilter) filefilter);
+
+                int ans = chooser.showDialog(vtkInit, I18n.text("Save as") + "...");
+                if (ans == JFileChooser.APPROVE_OPTION) {
+                    if (chooser.getSelectedFile().exists()) {
+                        ans = JOptionPane.showConfirmDialog(vtkInit, I18n.text("Are you sure you want to overwrite existing file") + "?",
+                                I18n.text("Save file as.."), JOptionPane.YES_OPTION);
+                        if (ans != JOptionPane.YES_OPTION)
+                            return;
+                    }
+                    File dst = chooser.getSelectedFile();
+
+                }
+            }
+        };
 
     }
 

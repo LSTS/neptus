@@ -55,7 +55,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.vtk.filters.StatisticalOutlierRemoval;
-import pt.lsts.neptus.plugins.vtk.multibeampluginutils.MultibeamToolbar;
+import pt.lsts.neptus.plugins.vtk.mravisualizer.MultibeamToolbar;
 import pt.lsts.neptus.plugins.vtk.pointcloud.LoadToPointCloud;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;

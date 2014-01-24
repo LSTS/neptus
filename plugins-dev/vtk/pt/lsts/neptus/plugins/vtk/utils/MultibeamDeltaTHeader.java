@@ -108,7 +108,8 @@ import java.util.Calendar;
  * 146-149  -   Heading Angle (From External Sensor)
  * 150      -   Transmit Scan Flag
  * 151-154  -   Transmit Scan Angle
- * 155-255  -   Reserved - always 0      
+ * 155-255  -   Reserved - always 0
+ * FIXME - to be deleted   
  */
 public class MultibeamDeltaTHeader {
     ByteBuffer buf;
@@ -116,7 +117,7 @@ public class MultibeamDeltaTHeader {
     String fileType; // bytes 0-2 - ASCII '8' '3' 'P'
     byte fileVersion; // byte 3 - 0 = v1.xx
     short numberBytesPing; // 'N' - number of bytes that are written to the disk for this ping
-                           // N = 256 + (2*number_of_beams)
+    // N = 256 + (2*number_of_beams)
     byte intensity; // Intensity Bytes included 0 = No, 1 = Yes
 
     String systemDate;
@@ -393,9 +394,9 @@ public class MultibeamDeltaTHeader {
         return fileTypeStr;
     }
 
-//    private static Boolean isBitSet(short sh, int bit) {
-//        return (sh & (1 << bit)) != 0;
-//    }
+    //    private static Boolean isBitSet(short sh, int bit) {
+    //        return (sh & (1 << bit)) != 0;
+    //    }
 
     private static Boolean isBitSet(byte b, int bit) {
         return (b & (1 << bit)) != 0;
